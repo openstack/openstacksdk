@@ -1152,7 +1152,13 @@ class Resource(dict):
         body['properties'] = props
         return body
 
-    def _prepare_request_body(self, patch, prepend_key):
+    def _prepare_request_body(
+        self,
+        patch,
+        prepend_key,
+        *,
+        resource_request_key=None,
+    ):
         if patch:
             if not self._store_unknown_attrs_as_properties:
                 # Default case
@@ -1180,8 +1186,11 @@ class Resource(dict):
                     self._body.dirty
                 )
 
-            if prepend_key and self.resource_key is not None:
-                body = {self.resource_key: body}
+            if prepend_key:
+                if resource_request_key is not None:
+                    body = {resource_request_key: body}
+                elif self.resource_key is not None:
+                    body = {self.resource_key: body}
         return body
 
     def _prepare_request(
@@ -1191,6 +1200,8 @@ class Resource(dict):
         patch=False,
         base_path=None,
         params=None,
+        *,
+        resource_request_key=None,
         **kwargs,
     ):
         """Prepare a request to be sent to the server
@@ -1210,7 +1221,14 @@ class Resource(dict):
         if requires_id is None:
             requires_id = self.requires_id
 
-        body = self._prepare_request_body(patch, prepend_key)
+        # Conditionally construct arguments for _prepare_request_body
+        request_kwargs = {
+            "patch": patch,
+            "prepend_key": prepend_key
+        }
+        if resource_request_key is not None:
+            request_kwargs['resource_request_key'] = resource_request_key
+        body = self._prepare_request_body(**request_kwargs)
 
         # TODO(mordred) Ensure headers have string values better than this
         headers = {}
@@ -1237,7 +1255,14 @@ class Resource(dict):
 
         return _Request(uri, body, headers)
 
-    def _translate_response(self, response, has_body=None, error_message=None):
+    def _translate_response(
+        self,
+        response,
+        has_body=None,
+        error_message=None,
+        *,
+        resource_response_key=None,
+    ):
         """Given a KSA response, inflate this instance with its data
 
         DELETE operations don't return a body, so only try to work
@@ -1254,7 +1279,9 @@ class Resource(dict):
         if has_body:
             try:
                 body = response.json()
-                if self.resource_key and self.resource_key in body:
+                if resource_response_key and resource_response_key in body:
+                    body = body[resource_response_key]
+                elif self.resource_key and self.resource_key in body:
                     body = body[self.resource_key]
 
                 # Do not allow keys called "self" through. Glance chose
@@ -1412,6 +1439,8 @@ class Resource(dict):
         prepend_key=True,
         base_path=None,
         *,
+        resource_request_key=None,
+        resource_response_key=None,
         microversion=None,
         **params
     ):
@@ -1424,6 +1453,12 @@ class Resource(dict):
             True.
         :param str base_path: Base part of the URI for creating resources, if
             different from :data:`~openstack.resource.Resource.base_path`.
+        :param str resource_request_key: Overrides the usage of
+            self.resource_key when prepending a key to the request body.
+            Ignored if `prepend_key` is false.
+        :param str resource_response_key: Overrides the usage of
+            self.resource_key when processing response bodies.
+            Ignored if `prepend_key` is false.
         :param str microversion: API version to override the negotiated one.
         :param dict params: Additional params to pass.
         :return: This :class:`Resource` instance.
@@ -1442,15 +1477,20 @@ class Resource(dict):
             else self.create_method == 'PUT'
         )
 
+        # Construct request arguments.
+        request_kwargs = {
+            "requires_id": requires_id,
+            "prepend_key": prepend_key,
+            "base_path": base_path,
+        }
+        if resource_request_key is not None:
+            request_kwargs['resource_request_key'] = resource_request_key
+
         if self.create_exclude_id_from_body:
             self._body._dirty.discard("id")
 
         if self.create_method == 'PUT':
-            request = self._prepare_request(
-                requires_id=requires_id,
-                prepend_key=prepend_key,
-                base_path=base_path,
-            )
+            request = self._prepare_request(**request_kwargs)
             response = session.put(
                 request.url,
                 json=request.body,
@@ -1459,11 +1499,7 @@ class Resource(dict):
                 params=params,
             )
         elif self.create_method == 'POST':
-            request = self._prepare_request(
-                requires_id=requires_id,
-                prepend_key=prepend_key,
-                base_path=base_path,
-            )
+            request = self._prepare_request(**request_kwargs)
             response = session.post(
                 request.url,
                 json=request.body,
@@ -1482,11 +1518,22 @@ class Resource(dict):
             else self.create_returns_body
         )
         self.microversion = microversion
-        self._translate_response(response, has_body=has_body)
+
+        response_kwargs = {
+            "has_body": has_body,
+        }
+        if resource_response_key is not None:
+            response_kwargs['resource_response_key'] = resource_response_key
+
+        self._translate_response(response, **response_kwargs)
         # direct comparision to False since we need to rule out None
         if self.has_body and self.create_returns_body is False:
             # fetch the body if it's required but not returned by create
-            return self.fetch(session)
+            fetch_kwargs = {}
+            if resource_response_key is not None:
+                fetch_kwargs = \
+                    {'resource_response_key': resource_response_key}
+            return self.fetch(session, **fetch_kwargs)
         return self
 
     @classmethod
@@ -1603,6 +1650,7 @@ class Resource(dict):
         error_message=None,
         skip_cache=False,
         *,
+        resource_response_key=None,
         microversion=None,
         **params,
     ):
@@ -1618,6 +1666,8 @@ class Resource(dict):
             requested object does not exist.
         :param bool skip_cache: A boolean indicating whether optional API
             cache should be skipped for this invocation.
+        :param str resource_response_key: Overrides the usage of
+            self.resource_key when processing the response body.
         :param str microversion: API version to override the negotiated one.
         :param dict params: Additional parameters that can be consumed.
         :return: This :class:`Resource` instance.
@@ -1646,6 +1696,8 @@ class Resource(dict):
             kwargs['error_message'] = error_message
 
         self.microversion = microversion
+        if resource_response_key is not None:
+            kwargs['resource_response_key'] = resource_response_key
         self._translate_response(response, **kwargs)
         return self
 

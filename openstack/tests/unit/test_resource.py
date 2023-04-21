@@ -1095,7 +1095,7 @@ class TestResource(base.TestCase):
         self.assertRaises(exceptions.InvalidRequest,
                           sot._prepare_request, requires_id=True)
 
-    def test__prepare_request_with_key(self):
+    def test__prepare_request_with_resource_key(self):
         key = "key"
 
         class Test(resource.Resource):
@@ -1113,6 +1113,30 @@ class TestResource(base.TestCase):
 
         self.assertEqual("/something", result.url)
         self.assertEqual({key: {"x": body_value}}, result.body)
+        self.assertEqual({"y": header_value}, result.headers)
+
+    def test__prepare_request_with_override_key(self):
+        default_key = "key"
+        override_key = "other_key"
+
+        class Test(resource.Resource):
+            base_path = "/something"
+            resource_key = default_key
+            body_attr = resource.Body("x")
+            header_attr = resource.Header("y")
+
+        body_value = "body"
+        header_value = "header"
+        sot = Test(body_attr=body_value, header_attr=header_value,
+                   _synchronized=False)
+
+        result = sot._prepare_request(
+            requires_id=False,
+            prepend_key=True,
+            resource_request_key=override_key)
+
+        self.assertEqual("/something", result.url)
+        self.assertEqual({override_key: {"x": body_value}}, result.body)
         self.assertEqual({"y": header_value}, result.headers)
 
     def test__prepare_request_with_patch(self):
@@ -1528,7 +1552,8 @@ class TestResourceActions(base.TestCase):
 
     def _test_create(self, cls, requires_id=False, prepend_key=False,
                      microversion=None, base_path=None, params=None,
-                     id_marked_dirty=True, explicit_microversion=None):
+                     id_marked_dirty=True, explicit_microversion=None,
+                     resource_request_key=None, resource_response_key=None):
         id = "id" if requires_id else None
         sot = cls(id=id)
         sot._prepare_request = mock.Mock(return_value=self.request)
@@ -1540,14 +1565,20 @@ class TestResourceActions(base.TestCase):
             kwargs['microversion'] = explicit_microversion
             microversion = explicit_microversion
         result = sot.create(self.session, prepend_key=prepend_key,
-                            base_path=base_path, **kwargs)
+                            base_path=base_path,
+                            resource_request_key=resource_request_key,
+                            resource_response_key=resource_response_key,
+                            **kwargs)
 
         id_is_dirty = ('id' in sot._body._dirty)
         self.assertEqual(id_marked_dirty, id_is_dirty)
+        prepare_kwargs = {}
+        if resource_request_key is not None:
+            prepare_kwargs['resource_request_key'] = resource_request_key
 
         sot._prepare_request.assert_called_once_with(
             requires_id=requires_id, prepend_key=prepend_key,
-            base_path=base_path)
+            base_path=base_path, **prepare_kwargs)
         if requires_id:
             self.session.put.assert_called_once_with(
                 self.request.url,
@@ -1560,8 +1591,13 @@ class TestResourceActions(base.TestCase):
                 microversion=microversion, params=params)
 
         self.assertEqual(sot.microversion, microversion)
-        sot._translate_response.assert_called_once_with(self.response,
-                                                        has_body=sot.has_body)
+        res_kwargs = {}
+        if resource_response_key is not None:
+            res_kwargs['resource_response_key'] = resource_response_key
+        sot._translate_response.assert_called_once_with(
+            self.response,
+            has_body=sot.has_body,
+            **res_kwargs)
         self.assertEqual(result, sot)
 
     def test_put_create(self):
@@ -1625,6 +1661,49 @@ class TestResourceActions(base.TestCase):
 
         self._test_create(Test, requires_id=False, prepend_key=True)
 
+    def test_post_create_override_request_key(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            allow_create = True
+            create_method = 'POST'
+            resource_key = 'SomeKey'
+
+        self._test_create(
+            Test,
+            requires_id=False,
+            prepend_key=True,
+            resource_request_key="OtherKey")
+
+    def test_post_create_override_response_key(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            allow_create = True
+            create_method = 'POST'
+            resource_key = 'SomeKey'
+
+        self._test_create(
+            Test,
+            requires_id=False,
+            prepend_key=True,
+            resource_response_key="OtherKey")
+
+    def test_post_create_override_key_both(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            allow_create = True
+            create_method = 'POST'
+            resource_key = 'SomeKey'
+
+        self._test_create(
+            Test,
+            requires_id=False,
+            prepend_key=True,
+            resource_request_key="OtherKey",
+            resource_response_key="SomeOtherKey")
+
     def test_post_create_base_path(self):
         class Test(resource.Resource):
             service = self.service_name
@@ -1656,6 +1735,22 @@ class TestResourceActions(base.TestCase):
 
         self.assertIsNone(self.sot.microversion)
         self.sot._translate_response.assert_called_once_with(self.response)
+        self.assertEqual(result, self.sot)
+
+    def test_fetch_with_override_key(self):
+        result = self.sot.fetch(
+            self.session, resource_response_key="SomeKey")
+
+        self.sot._prepare_request.assert_called_once_with(
+            requires_id=True, base_path=None)
+        self.session.get.assert_called_once_with(
+            self.request.url, microversion=None, params={},
+            skip_cache=False)
+
+        self.assertIsNone(self.sot.microversion)
+        self.sot._translate_response.assert_called_once_with(
+            self.response,
+            resource_response_key="SomeKey")
         self.assertEqual(result, self.sot)
 
     def test_fetch_with_params(self):
