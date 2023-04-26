@@ -18,5 +18,5 @@ class ComputeService(service_description.ServiceDescription):
     """The compute service."""
 
     supported_versions = {
-        '2': _proxy.Proxy
+        '2': _proxy.Proxy,
     }

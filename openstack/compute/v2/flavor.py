@@ -28,9 +28,12 @@ class Flavor(resource.Resource):
     allow_commit = True
 
     _query_mapping = resource.QueryParameters(
-        "sort_key", "sort_dir", "is_public",
+        "sort_key",
+        "sort_dir",
+        "is_public",
         min_disk="minDisk",
-        min_ram="minRam")
+        min_ram="minRam",
+    )
 
     # extra_specs introduced in 2.61
     _max_microversion = '2.61'
@@ -47,7 +50,8 @@ class Flavor(resource.Resource):
     #: ``True`` if this is a publicly visible flavor. ``False`` if this is
     #: a private image. *Type: bool*
     is_public = resource.Body(
-        'os-flavor-access:is_public', type=bool, default=True)
+        'os-flavor-access:is_public', type=bool, default=True
+    )
     #: The amount of RAM (in MB) this flavor offers. *Type: int*
     ram = resource.Body('ram', type=int, default=0)
     #: The number of virtual CPUs this flavor offers. *Type: int*
@@ -55,8 +59,7 @@ class Flavor(resource.Resource):
     #: Size of the swap partitions.
     swap = resource.Body('swap', default=0)
     #: Size of the ephemeral data disk attached to this server. *Type: int*
-    ephemeral = resource.Body(
-        'OS-FLV-EXT-DATA:ephemeral', type=int, default=0)
+    ephemeral = resource.Body('OS-FLV-EXT-DATA:ephemeral', type=int, default=0)
     #: ``True`` if this flavor is disabled, ``False`` if not. *Type: bool*
     is_disabled = resource.Body('OS-FLV-DISABLED:disabled', type=bool)
     #: The bandwidth scaling factor this flavor receives on the network.
@@ -91,7 +94,7 @@ class Flavor(resource.Resource):
         session,
         paginated=True,
         base_path='/flavors/detail',
-        **params
+        **params,
     ):
         # Find will invoke list when name was passed. Since we want to return
         # flavor with details (same as direct get) we need to swap default here
@@ -101,9 +104,8 @@ class Flavor(resource.Resource):
             # Force it to string to avoid requests skipping it.
             params['is_public'] = 'None'
         return super(Flavor, cls).list(
-            session, paginated=paginated,
-            base_path=base_path,
-            **params)
+            session, paginated=paginated, base_path=base_path, **params
+        )
 
     def _action(self, session, body, microversion=None):
         """Preform flavor actions given the message body."""
@@ -113,8 +115,7 @@ class Flavor(resource.Resource):
         if microversion:
             # Do not reset microversion if it is set on a session level
             attrs['microversion'] = microversion
-        response = session.post(
-            url, json=body, headers=headers, **attrs)
+        response = session.post(url, json=body, headers=headers, **attrs)
         exceptions.raise_from_response(response)
         return response
 
@@ -161,9 +162,8 @@ class Flavor(resource.Resource):
         url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs')
         microversion = self._get_microversion(session, action='create')
         response = session.post(
-            url,
-            json={'extra_specs': specs},
-            microversion=microversion)
+            url, json={'extra_specs': specs}, microversion=microversion
+        )
         exceptions.raise_from_response(response)
         specs = response.json().get('extra_specs', {})
         self._update(extra_specs=specs)
@@ -171,8 +171,7 @@ class Flavor(resource.Resource):
 
     def get_extra_specs_property(self, session, prop):
         """Get individual extra_spec property"""
-        url = utils.urljoin(Flavor.base_path, self.id,
-                            'os-extra_specs', prop)
+        url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs', prop)
         microversion = self._get_microversion(session, action='fetch')
         response = session.get(url, microversion=microversion)
         exceptions.raise_from_response(response)
@@ -181,25 +180,20 @@ class Flavor(resource.Resource):
 
     def update_extra_specs_property(self, session, prop, val):
         """Update An Extra Spec For A Flavor"""
-        url = utils.urljoin(Flavor.base_path, self.id,
-                            'os-extra_specs', prop)
+        url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs', prop)
         microversion = self._get_microversion(session, action='commit')
         response = session.put(
-            url,
-            json={prop: val},
-            microversion=microversion)
+            url, json={prop: val}, microversion=microversion
+        )
         exceptions.raise_from_response(response)
         val = response.json().get(prop)
         return val
 
     def delete_extra_specs_property(self, session, prop):
         """Delete An Extra Spec For A Flavor"""
-        url = utils.urljoin(Flavor.base_path, self.id,
-                            'os-extra_specs', prop)
+        url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs', prop)
         microversion = self._get_microversion(session, action='delete')
-        response = session.delete(
-            url,
-            microversion=microversion)
+        response = session.delete(url, microversion=microversion)
         exceptions.raise_from_response(response)
 
 

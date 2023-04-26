@@ -52,8 +52,7 @@ class Aggregate(resource.Resource):
     def _action(self, session, body, microversion=None):
         """Preform aggregate actions given the message body."""
         url = utils.urljoin(self.base_path, self.id, 'action')
-        response = session.post(
-            url, json=body, microversion=microversion)
+        response = session.post(url, json=body, microversion=microversion)
         exceptions.raise_from_response(response)
         aggregate = Aggregate()
         aggregate._translate_response(response=response)
@@ -79,6 +78,7 @@ class Aggregate(resource.Resource):
         body = {'cache': images}
         url = utils.urljoin(self.base_path, self.id, 'images')
         response = session.post(
-            url, json=body, microversion=self._max_microversion)
+            url, json=body, microversion=self._max_microversion
+        )
         exceptions.raise_from_response(response)
         # This API has no result

@@ -86,14 +86,15 @@ class Hypervisor(resource.Resource):
         Updates uptime attribute of the hypervisor object
         """
         warnings.warn(
-            "This call is deprecated and is only available until Nova 2.88")
+            "This call is deprecated and is only available until Nova 2.88"
+        )
         if utils.supports_microversion(session, '2.88'):
             raise exceptions.SDKException(
-                'Hypervisor.get_uptime is not supported anymore')
+                'Hypervisor.get_uptime is not supported anymore'
+            )
         url = utils.urljoin(self.base_path, self.id, 'uptime')
         microversion = self._get_microversion(session, action='fetch')
-        response = session.get(
-            url, microversion=microversion)
+        response = session.get(url, microversion=microversion)
         self._translate_response(response)
         return self
 

@@ -64,7 +64,7 @@ class Proxy(proxy.Proxy):
         "server_remote_console": _src.ServerRemoteConsole,
         "service": _service.Service,
         "usage": _usage.Usage,
-        "volume_attachment": _volume_attachment.VolumeAttachment
+        "volume_attachment": _volume_attachment.VolumeAttachment,
     }
 
     # ========== Extensions ==========
@@ -400,8 +400,11 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        self._delete(_aggregate.Aggregate, aggregate,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _aggregate.Aggregate,
+            aggregate,
+            ignore_missing=ignore_missing,
+        )
 
     def add_host_to_aggregate(self, aggregate, host):
         """Adds a host to an aggregate
@@ -638,8 +641,12 @@ class Proxy(proxy.Proxy):
         :returns: ``None``
         """
         attrs = {'user_id': user_id} if user_id else {}
-        self._delete(_keypair.Keypair, keypair, ignore_missing=ignore_missing,
-                     **attrs)
+        self._delete(
+            _keypair.Keypair,
+            keypair,
+            ignore_missing=ignore_missing,
+            **attrs,
+        )
 
     def get_keypair(self, keypair, user_id=None):
         """Get a single keypair
@@ -934,8 +941,14 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.revert_resize(self)
 
-    def create_server_image(self, server, name, metadata=None, wait=False,
-                            timeout=120):
+    def create_server_image(
+        self,
+        server,
+        name,
+        metadata=None,
+        wait=False,
+        timeout=120,
+    ):
         """Create an image from a server
 
         :param server: Either the ID of a server or a
@@ -1048,8 +1061,7 @@ class Proxy(proxy.Proxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.rescue(self, admin_pass=admin_pass,
-                      image_ref=image_ref)
+        server.rescue(self, admin_pass=admin_pass, image_ref=image_ref)
 
     def unrescue_server(self, server):
         """Unrescues a server and changes its status to ``ACTIVE``.
@@ -1076,8 +1088,7 @@ class Proxy(proxy.Proxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.evacuate(self, host=host, admin_pass=admin_pass,
-                        force=force)
+        server.evacuate(self, host=host, admin_pass=admin_pass, force=force)
 
     def start_server(self, server):
         """Starts a stopped server and changes its state to ``ACTIVE``.
@@ -1236,8 +1247,7 @@ class Proxy(proxy.Proxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.add_floating_ip(self, address,
-                               fixed_address=fixed_address)
+        server.add_floating_ip(self, address, fixed_address=fixed_address)
 
     def remove_floating_ip_from_server(self, server, address):
         """Removes a floating IP address from a server instance.
@@ -1267,13 +1277,20 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.compute.v2.server_interface.ServerInterface`
         """
         server_id = resource.Resource._get_id(server)
-        return self._create(_server_interface.ServerInterface,
-                            server_id=server_id, **attrs)
+        return self._create(
+            _server_interface.ServerInterface,
+            server_id=server_id,
+            **attrs,
+        )
 
     # TODO(stephenfin): Does this work? There's no 'value' parameter for the
     # call to '_delete'
-    def delete_server_interface(self, server_interface, server=None,
-                                ignore_missing=True):
+    def delete_server_interface(
+        self,
+        server_interface,
+        server=None,
+        ignore_missing=True,
+    ):
         """Delete a server interface
 
         :param server_interface:
@@ -1292,14 +1309,19 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        server_id = self._get_uri_attribute(server_interface, server,
-                                            "server_id")
+        server_id = self._get_uri_attribute(
+            server_interface,
+            server,
+            "server_id",
+        )
         server_interface = resource.Resource._get_id(server_interface)
 
-        self._delete(_server_interface.ServerInterface,
-                     server_interface,
-                     server_id=server_id,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _server_interface.ServerInterface,
+            server_interface,
+            server_id=server_id,
+            ignore_missing=ignore_missing,
+        )
 
     def get_server_interface(self, server_interface, server=None):
         """Get a single server interface
@@ -1318,12 +1340,18 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        server_id = self._get_uri_attribute(server_interface, server,
-                                            "server_id")
+        server_id = self._get_uri_attribute(
+            server_interface,
+            server,
+            "server_id",
+        )
         server_interface = resource.Resource._get_id(server_interface)
 
-        return self._get(_server_interface.ServerInterface,
-                         server_id=server_id, port_id=server_interface)
+        return self._get(
+            _server_interface.ServerInterface,
+            server_id=server_id,
+            port_id=server_interface,
+        )
 
     def server_interfaces(self, server, **query):
         """Return a generator of server interfaces
@@ -1337,8 +1365,11 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.compute.v2.server_interface.ServerInterface`
         """
         server_id = resource.Resource._get_id(server)
-        return self._list(_server_interface.ServerInterface,
-                          server_id=server_id, **query)
+        return self._list(
+            _server_interface.ServerInterface,
+            server_id=server_id,
+            **query,
+        )
 
     def server_ips(self, server, network_label=None):
         """Return a generator of server IPs
@@ -1352,8 +1383,11 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.compute.v2.server_ip.ServerIP`
         """
         server_id = resource.Resource._get_id(server)
-        return self._list(server_ip.ServerIP,
-                          server_id=server_id, network_label=network_label)
+        return self._list(
+            server_ip.ServerIP,
+            server_id=server_id,
+            network_label=network_label,
+        )
 
     def availability_zones(self, details=False):
         """Return a generator of availability zones
@@ -1370,7 +1404,8 @@ class Proxy(proxy.Proxy):
 
         return self._list(
             availability_zone.AvailabilityZone,
-            base_path=base_path)
+            base_path=base_path,
+        )
 
     # ========== Server Metadata ==========
 
@@ -1455,8 +1490,11 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        self._delete(_server_group.ServerGroup, server_group,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _server_group.ServerGroup,
+            server_group,
+            ignore_missing=ignore_missing,
+        )
 
     def find_server_group(
         self,
@@ -1543,7 +1581,8 @@ class Proxy(proxy.Proxy):
         ):
             # Until 2.53 we need to use other API
             base_path = '/os-hypervisors/{pattern}/search'.format(
-                pattern=query.pop('hypervisor_hostname_pattern'))
+                pattern=query.pop('hypervisor_hostname_pattern')
+            )
         return self._list(_hypervisor.Hypervisor, base_path=base_path, **query)
 
     def find_hypervisor(
@@ -1611,7 +1650,11 @@ class Proxy(proxy.Proxy):
     # ========== Services ==========
 
     def update_service_forced_down(
-        self, service, host=None, binary=None, forced=True
+        self,
+        service,
+        host=None,
+        binary=None,
+        forced=True,
     ):
         """Update service forced_down information
 
@@ -1626,23 +1669,26 @@ class Proxy(proxy.Proxy):
         :rtype: class: `~openstack.compute.v2.service.Service`
         """
         if utils.supports_microversion(self, '2.53'):
-            return self.update_service(
-                service, forced_down=forced)
+            return self.update_service(service, forced_down=forced)
 
         service = self._get_resource(_service.Service, service)
-        if (
-            (not host or not binary)
-            and (not service.host or not service.binary)
+        if (not host or not binary) and (
+            not service.host or not service.binary
         ):
             raise ValueError(
                 'Either service instance should have host and binary '
-                'or they should be passed')
+                'or they should be passed'
+            )
         service.set_forced_down(self, host, binary, forced)
 
     force_service_down = update_service_forced_down
 
     def disable_service(
-        self, service, host=None, binary=None, disabled_reason=None
+        self,
+        service,
+        host=None,
+        binary=None,
+        disabled_reason=None,
     ):
         """Disable a service
 
@@ -1656,17 +1702,13 @@ class Proxy(proxy.Proxy):
         :rtype: class: `~openstack.compute.v2.service.Service`
         """
         if utils.supports_microversion(self, '2.53'):
-            attrs = {
-                'status': 'disabled'
-            }
+            attrs = {'status': 'disabled'}
             if disabled_reason:
                 attrs['disabled_reason'] = disabled_reason
-            return self.update_service(
-                service, **attrs)
+            return self.update_service(service, **attrs)
 
         service = self._get_resource(_service.Service, service)
-        return service.disable(
-            self, host, binary, disabled_reason)
+        return service.disable(self, host, binary, disabled_reason)
 
     def enable_service(self, service, host=None, binary=None):
         """Enable a service
@@ -1680,8 +1722,7 @@ class Proxy(proxy.Proxy):
         :rtype: class: `~openstack.compute.v2.service.Service`
         """
         if utils.supports_microversion(self, '2.53'):
-            return self.update_service(
-                service, status='enabled')
+            return self.update_service(service, status='enabled')
 
         service = self._get_resource(_service.Service, service)
         return service.enable(self, host, binary)
@@ -1732,8 +1773,7 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        self._delete(
-            _service.Service, service, ignore_missing=ignore_missing)
+        self._delete(_service.Service, service, ignore_missing=ignore_missing)
 
     def update_service(self, service, **attrs):
         """Update a service
@@ -1813,7 +1853,11 @@ class Proxy(proxy.Proxy):
         )
 
     def update_volume_attachment(
-        self, server, volume, volume_id=None, **attrs,
+        self,
+        server,
+        volume,
+        volume_id=None,
+        **attrs,
     ):
         """Update a volume attachment
 
@@ -1860,16 +1904,14 @@ class Proxy(proxy.Proxy):
 
         # if we have even partial type information and things look as they
         # should, we can assume the user did the right thing
-        if (
-            isinstance(server, _server.Server)
-            or isinstance(volume, _volume.Volume)
+        if isinstance(server, _server.Server) or isinstance(
+            volume, _volume.Volume
         ):
             return server, volume
 
         # conversely, if there's type info and things appear off, tell the user
-        if (
-            isinstance(server, _volume.Volume)
-            or isinstance(volume, _server.Server)
+        if isinstance(server, _volume.Volume) or isinstance(
+            volume, _server.Server
         ):
             warnings.warn(deprecation_msg, DeprecationWarning)
             return volume, server
@@ -1972,7 +2014,11 @@ class Proxy(proxy.Proxy):
         server.migrate(self)
 
     def live_migrate_server(
-        self, server, host=None, force=False, block_migration=None,
+        self,
+        server,
+        host=None,
+        force=False,
+        block_migration=None,
     ):
         """Live migrate a server from one host to target host
 
@@ -1995,13 +2041,17 @@ class Proxy(proxy.Proxy):
         """
         server = self._get_resource(_server.Server, server)
         server.live_migrate(
-            self, host,
+            self,
+            host,
             force=force,
             block_migration=block_migration,
         )
 
     def abort_server_migration(
-        self, server_migration, server, ignore_missing=True,
+        self,
+        server_migration,
+        server,
+        ignore_missing=True,
     ):
         """Abort an in-progress server migration
 
@@ -2022,7 +2072,9 @@ class Proxy(proxy.Proxy):
         :returns: ``None``
         """
         server_id = self._get_uri_attribute(
-            server_migration, server, 'server_id',
+            server_migration,
+            server,
+            'server_id',
         )
         server_migration = resource.Resource._get_id(server_migration)
 
@@ -2048,7 +2100,9 @@ class Proxy(proxy.Proxy):
         :returns: ``None``
         """
         server_id = self._get_uri_attribute(
-            server_migration, server, 'server_id',
+            server_migration,
+            server,
+            'server_id',
         )
         server_migration = self._get_resource(
             _server_migration.ServerMigration,
@@ -2085,7 +2139,9 @@ class Proxy(proxy.Proxy):
             when no resource can be found.
         """
         server_id = self._get_uri_attribute(
-            server_migration, server, 'server_id',
+            server_migration,
+            server,
+            'server_id',
         )
         server_migration = resource.Resource._get_id(server_migration)
 
@@ -2140,8 +2196,11 @@ class Proxy(proxy.Proxy):
             when no resource can be found.
         """
         server_id = self._get_resource(_server.Server, server).id
-        return self._get(_server_diagnostics.ServerDiagnostics,
-                         server_id=server_id, requires_id=False)
+        return self._get(
+            _server_diagnostics.ServerDiagnostics,
+            server_id=server_id,
+            requires_id=False,
+        )
 
     # ========== Project usage ============
 
@@ -2194,8 +2253,11 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.compute.v2.server_remote_console.ServerRemoteConsole`
         """
         server_id = resource.Resource._get_id(server)
-        return self._create(_src.ServerRemoteConsole,
-                            server_id=server_id, **attrs)
+        return self._create(
+            _src.ServerRemoteConsole,
+            server_id=server_id,
+            **attrs,
+        )
 
     def get_server_console_url(self, server, console_type):
         """Create a remote console on the server.
@@ -2248,7 +2310,8 @@ class Proxy(proxy.Proxy):
                 _src.ServerRemoteConsole,
                 server_id=server.id,
                 type=console_type,
-                protocol=console_protocol)
+                protocol=console_protocol,
+            )
             return console.to_dict()
         else:
             return server.get_console_url(self, console_type)
@@ -2271,7 +2334,9 @@ class Proxy(proxy.Proxy):
         """
         project = self._get_resource(_project.Project, project)
         res = self._get_resource(
-            _quota_set.QuotaSet, None, project_id=project.id,
+            _quota_set.QuotaSet,
+            None,
+            project_id=project.id,
         )
         return res.fetch(self, usage=usage, **query)
 
@@ -2288,7 +2353,9 @@ class Proxy(proxy.Proxy):
         """
         project = self._get_resource(_project.Project, project)
         res = self._get_resource(
-            _quota_set.QuotaSet, None, project_id=project.id,
+            _quota_set.QuotaSet,
+            None,
+            project_id=project.id,
         )
         return res.fetch(self, base_path='/os-quota-sets/defaults')
 
@@ -2304,7 +2371,10 @@ class Proxy(proxy.Proxy):
         """
         project = self._get_resource(_project.Project, project)
         res = self._get_resource(
-            _quota_set.QuotaSet, None, project_id=project.id)
+            _quota_set.QuotaSet,
+            None,
+            project_id=project.id,
+        )
 
         if not query:
             query = {}
@@ -2373,7 +2443,12 @@ class Proxy(proxy.Proxy):
     # ========== Utilities ==========
 
     def wait_for_server(
-        self, server, status='ACTIVE', failures=None, interval=2, wait=120,
+        self,
+        server,
+        status='ACTIVE',
+        failures=None,
+        interval=2,
+        wait=120,
     ):
         """Wait for a server to be in a particular status.
 
@@ -2400,7 +2475,12 @@ class Proxy(proxy.Proxy):
         """
         failures = ['ERROR'] if failures is None else failures
         return resource.wait_for_status(
-            self, server, status, failures, interval, wait,
+            self,
+            server,
+            status,
+            failures,
+            interval,
+            wait,
         )
 
     def wait_for_delete(self, res, interval=2, wait=120):
@@ -2420,14 +2500,17 @@ class Proxy(proxy.Proxy):
 
     def _get_cleanup_dependencies(self):
         return {
-            'compute': {
-                'before': ['block_storage', 'network', 'identity']
-            }
+            'compute': {'before': ['block_storage', 'network', 'identity']}
         }
 
-    def _service_cleanup(self, dry_run=True, client_status_queue=None,
-                         identified_resources=None,
-                         filters=None, resource_evaluation_fn=None):
+    def _service_cleanup(
+        self,
+        dry_run=True,
+        client_status_queue=None,
+        identified_resources=None,
+        filters=None,
+        resource_evaluation_fn=None,
+    ):
         servers = []
         for obj in self.servers():
             need_delete = self._service_cleanup_del_res(
@@ -2437,7 +2520,8 @@ class Proxy(proxy.Proxy):
                 client_status_queue=client_status_queue,
                 identified_resources=identified_resources,
                 filters=filters,
-                resource_evaluation_fn=resource_evaluation_fn)
+                resource_evaluation_fn=resource_evaluation_fn,
+            )
             if not dry_run and need_delete:
                 # In the dry run we identified, that server will go. To propely
                 # identify consequences we need to tell others, that the port

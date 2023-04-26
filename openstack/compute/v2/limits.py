@@ -25,13 +25,16 @@ class AbsoluteLimits(resource.Resource):
     personality_size = resource.Body("maxPersonalitySize", deprecated=True)
     #: The maximum amount of security group rules allowed.
     security_group_rules = resource.Body(
-        "maxSecurityGroupRules", aka="max_security_group_rules")
+        "maxSecurityGroupRules", aka="max_security_group_rules"
+    )
     #: The maximum amount of security groups allowed.
     security_groups = resource.Body(
-        "maxSecurityGroups", aka="max_security_groups")
+        "maxSecurityGroups", aka="max_security_groups"
+    )
     #: The amount of security groups currently in use.
     security_groups_used = resource.Body(
-        "totalSecurityGroupsUsed", aka="total_security_groups_used")
+        "totalSecurityGroupsUsed", aka="total_security_groups_used"
+    )
     #: The number of key-value pairs that can be set as server metadata.
     server_meta = resource.Body("maxServerMeta", aka="max_server_meta")
     #: The maximum amount of cores.
@@ -40,15 +43,18 @@ class AbsoluteLimits(resource.Resource):
     total_cores_used = resource.Body("totalCoresUsed", aka="total_cores_used")
     #: The maximum amount of floating IPs.
     floating_ips = resource.Body(
-        "maxTotalFloatingIps", aka="max_total_floating_ips")
+        "maxTotalFloatingIps", aka="max_total_floating_ips"
+    )
     #: The amount of floating IPs currently in use.
     floating_ips_used = resource.Body(
-        "totalFloatingIpsUsed", aka="total_floating_ips_used")
+        "totalFloatingIpsUsed", aka="total_floating_ips_used"
+    )
     #: The maximum amount of instances.
     instances = resource.Body("maxTotalInstances", aka="max_total_instances")
     #: The amount of instances currently in use.
     instances_used = resource.Body(
-        "totalInstancesUsed", aka="total_instances_used")
+        "totalInstancesUsed", aka="total_instances_used"
+    )
     #: The maximum amount of keypairs.
     keypairs = resource.Body("maxTotalKeypairs", aka="max_total_keypairs")
     #: The maximum RAM size in megabytes.
@@ -59,10 +65,12 @@ class AbsoluteLimits(resource.Resource):
     server_groups = resource.Body("maxServerGroups", aka="max_server_groups")
     #: The amount of server groups currently in use.
     server_groups_used = resource.Body(
-        "totalServerGroupsUsed", aka="total_server_groups_used")
+        "totalServerGroupsUsed", aka="total_server_groups_used"
+    )
     #: The maximum number of members in a server group.
     server_group_members = resource.Body(
-        "maxServerGroupMembers", aka="max_server_group_members")
+        "maxServerGroupMembers", aka="max_server_group_members"
+    )
 
 
 class RateLimit(resource.Resource):
@@ -83,15 +91,20 @@ class Limits(resource.Resource):
 
     allow_fetch = True
 
-    _query_mapping = resource.QueryParameters(
-        'tenant_id'
-    )
+    _query_mapping = resource.QueryParameters('tenant_id')
 
     absolute = resource.Body("absolute", type=AbsoluteLimits)
     rate = resource.Body("rate", type=list, list_type=RateLimit)
 
-    def fetch(self, session, requires_id=False, error_message=None,
-              base_path=None, skip_cache=False, **params):
+    def fetch(
+        self,
+        session,
+        requires_id=False,
+        error_message=None,
+        base_path=None,
+        skip_cache=False,
+        **params
+    ):
         """Get the Limits resource.
 
         :param session: The session to use for making this request.
@@ -103,8 +116,10 @@ class Limits(resource.Resource):
         # TODO(mordred) We shouldn't have to subclass just to declare
         # requires_id = False.
         return super(Limits, self).fetch(
-            session=session, requires_id=requires_id,
+            session=session,
+            requires_id=requires_id,
             error_message=error_message,
             base_path=base_path,
             skip_cache=skip_cache,
-            **params)
+            **params
+        )

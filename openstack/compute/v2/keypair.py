@@ -18,8 +18,7 @@ class Keypair(resource.Resource):
     resources_key = 'keypairs'
     base_path = '/os-keypairs'
 
-    _query_mapping = resource.QueryParameters(
-        'user_id')
+    _query_mapping = resource.QueryParameters('user_id')
 
     # capabilities
     allow_create = True

@@ -24,10 +24,14 @@ class Image(resource.Resource, metadata.MetadataMixin):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        "server", "name", "status", "type",
+        "server",
+        "name",
+        "status",
+        "type",
         min_disk="minDisk",
         min_ram="minRam",
-        changes_since="changes-since")
+        changes_since="changes-since",
+    )
 
     # Properties
     #: Links pertaining to this image. This is a list of dictionaries,
