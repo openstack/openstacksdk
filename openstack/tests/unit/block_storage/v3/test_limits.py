@@ -23,7 +23,7 @@ ABSOLUTE_LIMIT = {
     "maxTotalVolumes": 10,
     "totalVolumesUsed": 2,
     "totalBackupsUsed": 3,
-    "totalGigabytesUsed": 2
+    "totalGigabytesUsed": 2,
 }
 
 RATE_LIMIT = {
@@ -31,23 +31,15 @@ RATE_LIMIT = {
     "value": 80,
     "remaining": 80,
     "unit": "MINUTE",
-    "next-available": "2021-02-23T22:08:00Z"
+    "next-available": "2021-02-23T22:08:00Z",
 }
 
-RATE_LIMITS = {
-    "regex": ".*",
-    "uri": "*",
-    "limit": [RATE_LIMIT]
-}
+RATE_LIMITS = {"regex": ".*", "uri": "*", "limit": [RATE_LIMIT]}
 
-LIMIT = {
-    "rate": [RATE_LIMITS],
-    "absolute": ABSOLUTE_LIMIT
-}
+LIMIT = {"rate": [RATE_LIMITS], "absolute": ABSOLUTE_LIMIT}
 
 
 class TestAbsoluteLimit(base.TestCase):
-
     def test_basic(self):
         limit_resource = limits.AbsoluteLimit()
         self.assertIsNone(limit_resource.resource_key)
@@ -63,38 +55,45 @@ class TestAbsoluteLimit(base.TestCase):
         limit_resource = limits.AbsoluteLimit(**ABSOLUTE_LIMIT)
         self.assertEqual(
             ABSOLUTE_LIMIT['totalSnapshotsUsed'],
-            limit_resource.total_snapshots_used)
+            limit_resource.total_snapshots_used,
+        )
         self.assertEqual(
-            ABSOLUTE_LIMIT['maxTotalBackups'],
-            limit_resource.max_total_backups)
+            ABSOLUTE_LIMIT['maxTotalBackups'], limit_resource.max_total_backups
+        )
         self.assertEqual(
             ABSOLUTE_LIMIT['maxTotalVolumeGigabytes'],
-            limit_resource.max_total_volume_gigabytes)
+            limit_resource.max_total_volume_gigabytes,
+        )
         self.assertEqual(
             ABSOLUTE_LIMIT['maxTotalSnapshots'],
-            limit_resource.max_total_snapshots)
+            limit_resource.max_total_snapshots,
+        )
         self.assertEqual(
             ABSOLUTE_LIMIT['maxTotalBackupGigabytes'],
-            limit_resource.max_total_backup_gigabytes)
+            limit_resource.max_total_backup_gigabytes,
+        )
         self.assertEqual(
             ABSOLUTE_LIMIT['totalBackupGigabytesUsed'],
-            limit_resource.total_backup_gigabytes_used)
+            limit_resource.total_backup_gigabytes_used,
+        )
         self.assertEqual(
-            ABSOLUTE_LIMIT['maxTotalVolumes'],
-            limit_resource.max_total_volumes)
+            ABSOLUTE_LIMIT['maxTotalVolumes'], limit_resource.max_total_volumes
+        )
         self.assertEqual(
             ABSOLUTE_LIMIT['totalVolumesUsed'],
-            limit_resource.total_volumes_used)
+            limit_resource.total_volumes_used,
+        )
         self.assertEqual(
             ABSOLUTE_LIMIT['totalBackupsUsed'],
-            limit_resource.total_backups_used)
+            limit_resource.total_backups_used,
+        )
         self.assertEqual(
             ABSOLUTE_LIMIT['totalGigabytesUsed'],
-            limit_resource.total_gigabytes_used)
+            limit_resource.total_gigabytes_used,
+        )
 
 
 class TestRateLimit(base.TestCase):
-
     def test_basic(self):
         limit_resource = limits.RateLimit()
         self.assertIsNone(limit_resource.resource_key)
@@ -113,11 +112,11 @@ class TestRateLimit(base.TestCase):
         self.assertEqual(RATE_LIMIT['remaining'], limit_resource.remaining)
         self.assertEqual(RATE_LIMIT['unit'], limit_resource.unit)
         self.assertEqual(
-            RATE_LIMIT['next-available'], limit_resource.next_available)
+            RATE_LIMIT['next-available'], limit_resource.next_available
+        )
 
 
 class TestRateLimits(base.TestCase):
-
     def test_basic(self):
         limit_resource = limits.RateLimits()
         self.assertIsNone(limit_resource.resource_key)
@@ -135,7 +134,8 @@ class TestRateLimits(base.TestCase):
         self.assertEqual(expected[0]['remaining'], actual[0].remaining)
         self.assertEqual(expected[0]['unit'], actual[0].unit)
         self.assertEqual(
-            expected[0]['next-available'], actual[0].next_available)
+            expected[0]['next-available'], actual[0].next_available
+        )
 
     def test_make_rate_limits(self):
         limit_resource = limits.RateLimits(**RATE_LIMITS)
@@ -145,7 +145,6 @@ class TestRateLimits(base.TestCase):
 
 
 class TestLimit(base.TestCase):
-
     def test_basic(self):
         limit_resource = limits.Limit()
         self.assertEqual('limits', limit_resource.resource_key)
@@ -158,28 +157,34 @@ class TestLimit(base.TestCase):
 
     def _test_absolute_limit(self, expected, actual):
         self.assertEqual(
-            expected['totalSnapshotsUsed'], actual.total_snapshots_used)
-        self.assertEqual(
-            expected['maxTotalBackups'], actual.max_total_backups)
+            expected['totalSnapshotsUsed'], actual.total_snapshots_used
+        )
+        self.assertEqual(expected['maxTotalBackups'], actual.max_total_backups)
         self.assertEqual(
             expected['maxTotalVolumeGigabytes'],
-            actual.max_total_volume_gigabytes)
+            actual.max_total_volume_gigabytes,
+        )
         self.assertEqual(
-            expected['maxTotalSnapshots'], actual.max_total_snapshots)
+            expected['maxTotalSnapshots'], actual.max_total_snapshots
+        )
         self.assertEqual(
             expected['maxTotalBackupGigabytes'],
-            actual.max_total_backup_gigabytes)
+            actual.max_total_backup_gigabytes,
+        )
         self.assertEqual(
             expected['totalBackupGigabytesUsed'],
-            actual.total_backup_gigabytes_used)
+            actual.total_backup_gigabytes_used,
+        )
+        self.assertEqual(expected['maxTotalVolumes'], actual.max_total_volumes)
         self.assertEqual(
-            expected['maxTotalVolumes'], actual.max_total_volumes)
+            expected['totalVolumesUsed'], actual.total_volumes_used
+        )
         self.assertEqual(
-            expected['totalVolumesUsed'], actual.total_volumes_used)
+            expected['totalBackupsUsed'], actual.total_backups_used
+        )
         self.assertEqual(
-            expected['totalBackupsUsed'], actual.total_backups_used)
-        self.assertEqual(
-            expected['totalGigabytesUsed'], actual.total_gigabytes_used)
+            expected['totalGigabytesUsed'], actual.total_gigabytes_used
+        )
 
     def _test_rate_limit(self, expected, actual):
         self.assertEqual(expected[0]['verb'], actual[0].verb)
@@ -187,7 +192,8 @@ class TestLimit(base.TestCase):
         self.assertEqual(expected[0]['remaining'], actual[0].remaining)
         self.assertEqual(expected[0]['unit'], actual[0].unit)
         self.assertEqual(
-            expected[0]['next-available'], actual[0].next_available)
+            expected[0]['next-available'], actual[0].next_available
+        )
 
     def _test_rate_limits(self, expected, actual):
         self.assertEqual(expected[0]['regex'], actual[0].regex)

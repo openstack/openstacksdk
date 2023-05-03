@@ -21,9 +21,7 @@ from openstack.tests.unit import base
 
 FAKE_ID = "6685584b-1eac-4da6-b5c3-555430cf68ff"
 TYPE = {
-    "extra_specs": {
-        "capabilities": "gpu"
-    },
+    "extra_specs": {"capabilities": "gpu"},
     "id": FAKE_ID,
     "name": "SSD",
     "description": "Test type",
@@ -31,7 +29,6 @@ TYPE = {
 
 
 class TestType(base.TestCase):
-
     def setUp(self):
         super(TestType, self).setUp()
         self.extra_specs_result = {"extra_specs": {"go": "cubs", "boo": "sox"}}
@@ -80,9 +77,11 @@ class TestType(base.TestCase):
         result = sot.set_extra_specs(sess, **set_specs)
 
         self.assertEqual(result, self.extra_specs_result["extra_specs"])
-        sess.post.assert_called_once_with("types/" + FAKE_ID + "/extra_specs",
-                                          headers={},
-                                          json={"extra_specs": set_specs})
+        sess.post.assert_called_once_with(
+            "types/" + FAKE_ID + "/extra_specs",
+            headers={},
+            json={"extra_specs": set_specs},
+        )
 
     def test_set_extra_specs_error(self):
         sess = mock.Mock()
@@ -99,7 +98,8 @@ class TestType(base.TestCase):
             exceptions.BadRequestException,
             sot.set_extra_specs,
             sess,
-            **set_specs)
+            **set_specs
+        )
 
     def test_delete_extra_specs(self):
         sess = mock.Mock()
@@ -130,27 +130,28 @@ class TestType(base.TestCase):
         key = "hey"
 
         self.assertRaises(
-            exceptions.BadRequestException,
-            sot.delete_extra_specs,
-            sess,
-            [key])
+            exceptions.BadRequestException, sot.delete_extra_specs, sess, [key]
+        )
 
     def test_get_private_access(self):
         sot = type.Type(**TYPE)
 
         response = mock.Mock()
         response.status_code = 200
-        response.body = {"volume_type_access": [
-            {"project_id": "a", "volume_type_id": "b"}
-        ]}
+        response.body = {
+            "volume_type_access": [{"project_id": "a", "volume_type_id": "b"}]
+        }
         response.json = mock.Mock(return_value=response.body)
         self.sess.get = mock.Mock(return_value=response)
 
-        self.assertEqual(response.body["volume_type_access"],
-                         sot.get_private_access(self.sess))
+        self.assertEqual(
+            response.body["volume_type_access"],
+            sot.get_private_access(self.sess),
+        )
 
         self.sess.get.assert_called_with(
-            "types/%s/os-volume-type-access" % sot.id)
+            "types/%s/os-volume-type-access" % sot.id
+        )
 
     def test_add_private_access(self):
         sot = type.Type(**TYPE)
@@ -159,8 +160,7 @@ class TestType(base.TestCase):
 
         url = "types/%s/action" % sot.id
         body = {"addProjectAccess": {"project": "a"}}
-        self.sess.post.assert_called_with(
-            url, json=body)
+        self.sess.post.assert_called_with(url, json=body)
 
     def test_remove_private_access(self):
         sot = type.Type(**TYPE)
@@ -169,5 +169,4 @@ class TestType(base.TestCase):
 
         url = "types/%s/action" % sot.id
         body = {"removeProjectAccess": {"project": "a"}}
-        self.sess.post.assert_called_with(
-            url, json=body)
+        self.sess.post.assert_called_with(url, json=body)

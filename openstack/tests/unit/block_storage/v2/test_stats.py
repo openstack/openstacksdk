@@ -14,22 +14,22 @@ from openstack.block_storage.v2 import stats
 from openstack.tests.unit import base
 
 
-POOLS = {"name": "pool1",
-         "capabilities": {
-             "updated": "2014-10-28T00=00=00-00=00",
-             "total_capacity": 1024,
-             "free_capacity": 100,
-             "volume_backend_name": "pool1",
-             "reserved_percentage": "0",
-             "driver_version": "1.0.0",
-             "storage_protocol": "iSCSI",
-             "QoS_support": "false"
-         }
-         }
+POOLS = {
+    "name": "pool1",
+    "capabilities": {
+        "updated": "2014-10-28T00=00=00-00=00",
+        "total_capacity": 1024,
+        "free_capacity": 100,
+        "volume_backend_name": "pool1",
+        "reserved_percentage": "0",
+        "driver_version": "1.0.0",
+        "storage_protocol": "iSCSI",
+        "QoS_support": "false",
+    },
+}
 
 
 class TestBackendPools(base.TestCase):
-
     def setUp(self):
         super(TestBackendPools, self).setUp()
 
@@ -37,8 +37,9 @@ class TestBackendPools(base.TestCase):
         sot = stats.Pools(POOLS)
         self.assertEqual("", sot.resource_key)
         self.assertEqual("pools", sot.resources_key)
-        self.assertEqual("/scheduler-stats/get_pools?detail=True",
-                         sot.base_path)
+        self.assertEqual(
+            "/scheduler-stats/get_pools?detail=True", sot.base_path
+        )
         self.assertFalse(sot.allow_create)
         self.assertFalse(sot.allow_fetch)
         self.assertFalse(sot.allow_delete)

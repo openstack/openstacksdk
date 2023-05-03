@@ -31,13 +31,11 @@ SNAPSHOT = {
     "name": "snap-001",
     "force": "true",
     "os-extended-snapshot-attributes:progress": "100%",
-    "os-extended-snapshot-attributes:project_id":
-        "0c2eba2c5af04d3f9e9d0d410b371fde"
+    "os-extended-snapshot-attributes:project_id": "0c2eba2c5af04d3f9e9d0d410b371fde",  # noqa: E501
 }
 
 
 class TestSnapshot(base.TestCase):
-
     def test_basic(self):
         sot = snapshot.Snapshot(SNAPSHOT)
         self.assertEqual("snapshot", sot.resource_key)
@@ -49,14 +47,18 @@ class TestSnapshot(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
-        self.assertDictEqual({"name": "name",
-                              "status": "status",
-                              "all_projects": "all_tenants",
-                              "project_id": "project_id",
-                              "volume_id": "volume_id",
-                              "limit": "limit",
-                              "marker": "marker"},
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {
+                "name": "name",
+                "status": "status",
+                "all_projects": "all_tenants",
+                "project_id": "project_id",
+                "volume_id": "volume_id",
+                "limit": "limit",
+                "marker": "marker",
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_create_basic(self):
         sot = snapshot.Snapshot(**SNAPSHOT)
@@ -69,16 +71,16 @@ class TestSnapshot(base.TestCase):
         self.assertEqual(SNAPSHOT["size"], sot.size)
         self.assertEqual(SNAPSHOT["name"], sot.name)
         self.assertEqual(
-            SNAPSHOT["os-extended-snapshot-attributes:progress"],
-            sot.progress)
+            SNAPSHOT["os-extended-snapshot-attributes:progress"], sot.progress
+        )
         self.assertEqual(
             SNAPSHOT["os-extended-snapshot-attributes:project_id"],
-            sot.project_id)
+            sot.project_id,
+        )
         self.assertTrue(sot.is_forced)
 
 
 class TestSnapshotActions(base.TestCase):
-
     def setUp(self):
         super(TestSnapshotActions, self).setUp()
         self.resp = mock.Mock()
@@ -100,7 +102,8 @@ class TestSnapshotActions(base.TestCase):
         url = 'snapshots/%s/action' % FAKE_ID
         body = {'os-force_delete': {}}
         self.sess.post.assert_called_with(
-            url, json=body, microversion=sot._max_microversion)
+            url, json=body, microversion=sot._max_microversion
+        )
 
     def test_reset(self):
         sot = snapshot.Snapshot(**SNAPSHOT)
@@ -110,7 +113,8 @@ class TestSnapshotActions(base.TestCase):
         url = 'snapshots/%s/action' % FAKE_ID
         body = {'os-reset_status': {'status': 'new_status'}}
         self.sess.post.assert_called_with(
-            url, json=body, microversion=sot._max_microversion)
+            url, json=body, microversion=sot._max_microversion
+        )
 
     def test_set_status(self):
         sot = snapshot.Snapshot(**SNAPSHOT)
@@ -120,4 +124,5 @@ class TestSnapshotActions(base.TestCase):
         url = 'snapshots/%s/action' % FAKE_ID
         body = {'os-update_snapshot_status': {'status': 'new_status'}}
         self.sess.post.assert_called_with(
-            url, json=body, microversion=sot._max_microversion)
+            url, json=body, microversion=sot._max_microversion
+        )

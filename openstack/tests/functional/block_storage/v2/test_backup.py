@@ -16,7 +16,6 @@ from openstack.tests.functional.block_storage.v2 import base
 
 
 class TestBackup(base.BaseBlockStorageTest):
-
     def setUp(self):
         super(TestBackup, self).setUp()
 
@@ -29,37 +28,39 @@ class TestBackup(base.BaseBlockStorageTest):
         self.BACKUP_ID = None
 
         volume = self.user_cloud.block_storage.create_volume(
-            name=self.VOLUME_NAME,
-            size=1)
+            name=self.VOLUME_NAME, size=1
+        )
         self.user_cloud.block_storage.wait_for_status(
             volume,
             status='available',
             failures=['error'],
             interval=5,
-            wait=self._wait_for_timeout)
+            wait=self._wait_for_timeout,
+        )
         assert isinstance(volume, _volume.Volume)
         self.VOLUME_ID = volume.id
 
         backup = self.user_cloud.block_storage.create_backup(
-            name=self.BACKUP_NAME,
-            volume_id=volume.id)
+            name=self.BACKUP_NAME, volume_id=volume.id
+        )
         self.user_cloud.block_storage.wait_for_status(
             backup,
             status='available',
             failures=['error'],
             interval=5,
-            wait=self._wait_for_timeout)
+            wait=self._wait_for_timeout,
+        )
         assert isinstance(backup, _backup.Backup)
         self.assertEqual(self.BACKUP_NAME, backup.name)
         self.BACKUP_ID = backup.id
 
     def tearDown(self):
         sot = self.user_cloud.block_storage.delete_backup(
-            self.BACKUP_ID,
-            ignore_missing=False)
+            self.BACKUP_ID, ignore_missing=False
+        )
         sot = self.user_cloud.block_storage.delete_volume(
-            self.VOLUME_ID,
-            ignore_missing=False)
+            self.VOLUME_ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
         super(TestBackup, self).tearDown()
 

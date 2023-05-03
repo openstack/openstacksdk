@@ -31,7 +31,6 @@ TYPE_ENC = {
 
 
 class TestTypeEncryption(base.TestCase):
-
     def test_basic(self):
         sot = type.TypeEncryption(**TYPE_ENC)
         self.assertEqual("encryption", sot.resource_key)

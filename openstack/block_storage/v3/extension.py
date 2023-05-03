@@ -15,6 +15,7 @@ from openstack import resource
 
 class Extension(resource.Resource):
     """Extension"""
+
     resources_key = "extensions"
     base_path = "/extensions"
 

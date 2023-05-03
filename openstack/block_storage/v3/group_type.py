@@ -71,7 +71,9 @@ class GroupType(resource.Resource):
         url = utils.urljoin(GroupType.base_path, self.id, 'group_specs')
         microversion = self._get_microversion(session, action='create')
         response = session.post(
-            url, json={'group_specs': specs}, microversion=microversion,
+            url,
+            json={'group_specs': specs},
+            microversion=microversion,
         )
         exceptions.raise_from_response(response)
         specs = response.json().get('group_specs', {})

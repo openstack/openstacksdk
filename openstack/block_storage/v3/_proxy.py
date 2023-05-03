@@ -45,7 +45,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         "snapshot": _snapshot.Snapshot,
         "stats_pools": _stats.Pools,
         "type": _type.Type,
-        "volume": _volume.Volume
+        "volume": _volume.Volume,
     }
 
     # ====== SNAPSHOTS ======
@@ -168,7 +168,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         if not force:
             self._delete(
-                _snapshot.Snapshot, snapshot, ignore_missing=ignore_missing)
+                _snapshot.Snapshot, snapshot, ignore_missing=ignore_missing
+            )
         else:
             snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
             snapshot.force_delete(self)
@@ -405,9 +406,11 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         volume_type = self._get_resource(_type.Type, volume_type_id)
 
-        return self._get(_type.TypeEncryption,
-                         volume_type_id=volume_type.id,
-                         requires_id=False)
+        return self._get(
+            _type.TypeEncryption,
+            volume_type_id=volume_type.id,
+            requires_id=False,
+        )
 
     def create_type_encryption(self, volume_type, **attrs):
         """Create new type encryption from attributes
@@ -425,11 +428,13 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         volume_type = self._get_resource(_type.Type, volume_type)
 
-        return self._create(_type.TypeEncryption,
-                            volume_type_id=volume_type.id, **attrs)
+        return self._create(
+            _type.TypeEncryption, volume_type_id=volume_type.id, **attrs
+        )
 
-    def delete_type_encryption(self, encryption=None,
-                               volume_type=None, ignore_missing=True):
+    def delete_type_encryption(
+        self, encryption=None, volume_type=None, ignore_missing=True
+    ):
         """Delete type encryption attributes
 
         :param encryption: The value can be None or a
@@ -452,12 +457,15 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         if volume_type:
             volume_type = self._get_resource(_type.Type, volume_type)
-            encryption = self._get(_type.TypeEncryption,
-                                   volume_type=volume_type.id,
-                                   requires_id=False)
+            encryption = self._get(
+                _type.TypeEncryption,
+                volume_type=volume_type.id,
+                requires_id=False,
+            )
 
-        self._delete(_type.TypeEncryption, encryption,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _type.TypeEncryption, encryption, ignore_missing=ignore_missing
+        )
 
     def update_type_encryption(
         self,
@@ -725,9 +733,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.reset_status(self, status, attach_status, migration_status)
 
-    def revert_volume_to_snapshot(
-        self, volume, snapshot
-    ):
+    def revert_volume_to_snapshot(self, volume, snapshot):
         """Revert a volume to its latest snapshot.
 
         This method only support reverting a detached volume, and the
@@ -744,9 +750,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
         volume.revert_to_snapshot(self, snapshot.id)
 
-    def attach_volume(
-        self, volume, mountpoint, instance=None, host_name=None
-    ):
+    def attach_volume(self, volume, mountpoint, instance=None, host_name=None):
         """Attaches a volume to a server.
 
         :param volume: The value can be either the ID of a volume or a
@@ -760,9 +764,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.attach(self, mountpoint, instance, host_name)
 
-    def detach_volume(
-        self, volume, attachment, force=False, connector=None
-    ):
+    def detach_volume(self, volume, attachment, force=False, connector=None):
         """Detaches a volume from a server.
 
         :param volume: The value can be either the ID of a volume or a
@@ -784,13 +786,17 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :param volume: The value can be either the ID of a volume or a
             :class:`~openstack.block_storage.v3.volume.Volume` instance.
 
-        :returns: None """
+        :returns: None"""
         volume = self._get_resource(_volume.Volume, volume)
         volume.unmanage(self)
 
     def migrate_volume(
-        self, volume, host=None, force_host_copy=False,
-        lock_volume=False, cluster=None
+        self,
+        volume,
+        host=None,
+        force_host_copy=False,
+        lock_volume=False,
+        cluster=None,
     ):
         """Migrates a volume to the specified host.
 
@@ -816,9 +822,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.migrate(self, host, force_host_copy, lock_volume, cluster)
 
-    def complete_volume_migration(
-        self, volume, new_volume, error=False
-    ):
+    def complete_volume_migration(self, volume, new_volume, error=False):
         """Complete the migration of a volume.
 
         :param volume: The value can be either the ID of a volume or a
@@ -833,8 +837,14 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         volume.complete_migration(self, new_volume, error)
 
     def upload_volume_to_image(
-        self, volume, image_name, force=False, disk_format=None,
-        container_format=None, visibility=None, protected=None
+        self,
+        volume,
+        image_name,
+        force=False,
+        disk_format=None,
+        container_format=None,
+        visibility=None,
+        protected=None,
     ):
         """Uploads the specified volume to image service.
 
@@ -852,9 +862,13 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         volume = self._get_resource(_volume.Volume, volume)
         volume.upload_to_image(
-            self, image_name, force=force, disk_format=disk_format,
-            container_format=container_format, visibility=visibility,
-            protected=protected
+            self,
+            image_name,
+            force=force,
+            disk_format=disk_format,
+            container_format=container_format,
+            visibility=visibility,
+            protected=protected,
         )
 
     def reserve_volume(self, volume):
@@ -863,7 +877,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :param volume: The value can be either the ID of a volume or a
             :class:`~openstack.block_storage.v3.volume.Volume` instance.
 
-        :returns: None """
+        :returns: None"""
         volume = self._get_resource(_volume.Volume, volume)
         volume.reserve(self)
 
@@ -873,7 +887,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :param volume: The value can be either the ID of a volume or a
             :class:`~openstack.block_storage.v3.volume.Volume` instance.
 
-        :returns: None """
+        :returns: None"""
         volume = self._get_resource(_volume.Volume, volume)
         volume.unreserve(self)
 
@@ -883,7 +897,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :param volume: The value can be either the ID of a volume or a
             :class:`~openstack.block_storage.v3.volume.Volume` instance.
 
-        :returns: None """
+        :returns: None"""
         volume = self._get_resource(_volume.Volume, volume)
         volume.begin_detaching(self)
 
@@ -893,7 +907,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :param volume: The value can be either the ID of a volume or a
             :class:`~openstack.block_storage.v3.volume.Volume` instance.
 
-        :returns: None """
+        :returns: None"""
         volume = self._get_resource(_volume.Volume, volume)
         volume.abort_detaching(self)
 
@@ -904,7 +918,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             :class:`~openstack.block_storage.v3.volume.Volume` instance.
         :param dict connector: The connector object.
 
-        :returns: None """
+        :returns: None"""
         volume = self._get_resource(_volume.Volume, volume)
         volume.init_attachment(self, connector)
 
@@ -1022,8 +1036,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :returns: ``None``
         """
         if not force:
-            self._delete(
-                _backup.Backup, backup, ignore_missing=ignore_missing)
+            self._delete(_backup.Backup, backup, ignore_missing=ignore_missing)
         else:
             backup = self._get_resource(_backup.Backup, backup)
             backup.force_delete(self)
@@ -1295,7 +1308,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :returns: None
         """
         resource = self._get_resource(
-            _group_snapshot.GroupSnapshot, group_snapshot)
+            _group_snapshot.GroupSnapshot, group_snapshot
+        )
         resource.reset_state(self, state)
 
     def delete_group_snapshot(self, group_snapshot, ignore_missing=True):
@@ -1307,8 +1321,10 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :returns: None
         """
         self._delete(
-            _group_snapshot.GroupSnapshot, group_snapshot,
-            ignore_missing=ignore_missing)
+            _group_snapshot.GroupSnapshot,
+            group_snapshot,
+            ignore_missing=ignore_missing,
+        )
 
     # ====== GROUP TYPE ======
     def get_group_type(self, group_type):
@@ -1395,7 +1411,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :returns: None
         """
         self._delete(
-            _group_type.GroupType, group_type, ignore_missing=ignore_missing)
+            _group_type.GroupType, group_type, ignore_missing=ignore_missing
+        )
 
     def update_group_type(self, group_type, **attrs):
         """Update a group_type
@@ -1408,8 +1425,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :returns: The updated group type.
         :rtype: :class:`~openstack.block_storage.v3.group_type.GroupType`
         """
-        return self._update(
-            _group_type.GroupType, group_type, **attrs)
+        return self._update(_group_type.GroupType, group_type, **attrs)
 
     def fetch_group_type_group_specs(self, group_type):
         """Lists group specs of a group type.
@@ -1488,9 +1504,9 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         project = self._get_resource(_project.Project, project)
         res = self._get_resource(
-            _quota_set.QuotaSet, None, project_id=project.id)
-        return res.fetch(
-            self, usage=usage, **query)
+            _quota_set.QuotaSet, None, project_id=project.id
+        )
+        return res.fetch(self, usage=usage, **query)
 
     def get_quota_set_defaults(self, project):
         """Show QuotaSet defaults for the project
@@ -1505,9 +1521,9 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         project = self._get_resource(_project.Project, project)
         res = self._get_resource(
-            _quota_set.QuotaSet, None, project_id=project.id)
-        return res.fetch(
-            self, base_path='/os-quota-sets/defaults')
+            _quota_set.QuotaSet, None, project_id=project.id
+        )
+        return res.fetch(self, base_path='/os-quota-sets/defaults')
 
     def revert_quota_set(self, project, **query):
         """Reset Quota for the project/user.
@@ -1521,7 +1537,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         project = self._get_resource(_project.Project, project)
         res = self._get_resource(
-            _quota_set.QuotaSet, None, project_id=project.id)
+            _quota_set.QuotaSet, None, project_id=project.id
+        )
 
         return res.delete(self, **query)
 
@@ -1561,7 +1578,12 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
     # ====== UTILS ======
     def wait_for_status(
-        self, res, status='available', failures=None, interval=2, wait=120,
+        self,
+        res,
+        status='available',
+        failures=None,
+        interval=2,
+        wait=120,
     ):
         """Wait for a resource to be in a particular status.
 
@@ -1584,7 +1606,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         failures = ['error'] if failures is None else failures
         return resource.wait_for_status(
-            self, res, status, failures, interval, wait)
+            self, res, status, failures, interval, wait
+        )
 
     def wait_for_delete(self, res, interval=2, wait=120):
         """Wait for a resource to be deleted.
@@ -1602,11 +1625,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         return resource.wait_for_delete(self, res, interval, wait)
 
     def _get_cleanup_dependencies(self):
-        return {
-            'block_storage': {
-                'before': []
-            }
-        }
+        return {'block_storage': {'before': []}}
 
     def _service_cleanup(
         self,
@@ -1614,7 +1633,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         client_status_queue=None,
         identified_resources=None,
         filters=None,
-        resource_evaluation_fn=None
+        resource_evaluation_fn=None,
     ):
         # It is not possible to delete backup if there are dependent backups.
         # In order to be able to do cleanup those is required to have multiple
@@ -1634,7 +1653,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
                     client_status_queue=client_status_queue,
                     identified_resources=identified_resources,
                     filters=filters,
-                    resource_evaluation_fn=resource_evaluation_fn)
+                    resource_evaluation_fn=resource_evaluation_fn,
+                )
         else:
             # Set initial iterations conditions
             need_backup_iteration = True
@@ -1647,7 +1667,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
                 # To increase success chance sort backups by age, dependent
                 # backups are logically younger.
                 for obj in self.backups(
-                        details=True, sort_key='created_at', sort_dir='desc'
+                    details=True, sort_key='created_at', sort_dir='desc'
                 ):
                     if not obj.has_dependent_backups:
                         # If no dependent backups - go with it
@@ -1658,7 +1678,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
                             client_status_queue=client_status_queue,
                             identified_resources=identified_resources,
                             filters=filters,
-                            resource_evaluation_fn=resource_evaluation_fn)
+                            resource_evaluation_fn=resource_evaluation_fn,
+                        )
                         if not dry_run and need_delete:
                             backups.append(obj)
                     else:
@@ -1682,7 +1703,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
                 client_status_queue=client_status_queue,
                 identified_resources=identified_resources,
                 filters=filters,
-                resource_evaluation_fn=resource_evaluation_fn)
+                resource_evaluation_fn=resource_evaluation_fn,
+            )
             if not dry_run and need_delete:
                 snapshots.append(obj)
 
@@ -1702,4 +1724,5 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
                 client_status_queue=client_status_queue,
                 identified_resources=identified_resources,
                 filters=filters,
-                resource_evaluation_fn=resource_evaluation_fn)
+                resource_evaluation_fn=resource_evaluation_fn,
+            )

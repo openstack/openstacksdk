@@ -15,7 +15,6 @@ from openstack.tests.functional.block_storage.v2 import base
 
 
 class TestVolume(base.BaseBlockStorageTest):
-
     def setUp(self):
         super(TestVolume, self).setUp()
 
@@ -26,22 +25,23 @@ class TestVolume(base.BaseBlockStorageTest):
         self.VOLUME_ID = None
 
         volume = self.user_cloud.block_storage.create_volume(
-            name=self.VOLUME_NAME,
-            size=1)
+            name=self.VOLUME_NAME, size=1
+        )
         self.user_cloud.block_storage.wait_for_status(
             volume,
             status='available',
             failures=['error'],
             interval=2,
-            wait=self._wait_for_timeout)
+            wait=self._wait_for_timeout,
+        )
         assert isinstance(volume, _volume.Volume)
         self.assertEqual(self.VOLUME_NAME, volume.name)
         self.VOLUME_ID = volume.id
 
     def tearDown(self):
         sot = self.user_cloud.block_storage.delete_volume(
-            self.VOLUME_ID,
-            ignore_missing=False)
+            self.VOLUME_ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
         super(TestVolume, self).tearDown()
 

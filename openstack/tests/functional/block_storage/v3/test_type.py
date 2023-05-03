@@ -16,7 +16,6 @@ from openstack.tests.functional.block_storage.v3 import base
 
 
 class TestType(base.BaseBlockStorageTest):
-
     def setUp(self):
         super(TestType, self).setUp()
 
@@ -26,14 +25,16 @@ class TestType(base.BaseBlockStorageTest):
             self.skip("Operator cloud must be set for this test")
         self._set_operator_cloud(block_storage_api_version='3')
         sot = self.operator_cloud.block_storage.create_type(
-            name=self.TYPE_NAME)
+            name=self.TYPE_NAME
+        )
         assert isinstance(sot, _type.Type)
         self.assertEqual(self.TYPE_NAME, sot.name)
         self.TYPE_ID = sot.id
 
     def tearDown(self):
         sot = self.operator_cloud.block_storage.delete_type(
-            self.TYPE_ID, ignore_missing=False)
+            self.TYPE_ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
         super(TestType, self).tearDown()
 

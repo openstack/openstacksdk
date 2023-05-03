@@ -22,7 +22,6 @@ EXTENSION = {
 
 
 class TestExtension(base.TestCase):
-
     def test_basic(self):
         extension_resource = extension.Extension()
         self.assertEqual('extensions', extension_resource.resources_key)
@@ -36,6 +35,7 @@ class TestExtension(base.TestCase):
     def test_make_extension(self):
         extension_resource = extension.Extension(**EXTENSION)
         self.assertEqual(EXTENSION['alias'], extension_resource.alias)
-        self.assertEqual(EXTENSION['description'],
-                         extension_resource.description)
+        self.assertEqual(
+            EXTENSION['description'], extension_resource.description
+        )
         self.assertEqual(EXTENSION['updated'], extension_resource.updated)

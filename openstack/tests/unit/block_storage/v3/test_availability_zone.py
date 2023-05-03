@@ -17,15 +17,12 @@ from openstack.tests.unit import base
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
     "id": IDENTIFIER,
-    "zoneState": {
-        "available": True
-    },
-    "zoneName": "zone1"
+    "zoneState": {"available": True},
+    "zoneName": "zone1",
 }
 
 
 class TestAvailabilityZone(base.TestCase):
-
     def test_basic(self):
         sot = az.AvailabilityZone()
         self.assertEqual('availabilityZoneInfo', sot.resources_key)

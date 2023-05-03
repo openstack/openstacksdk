@@ -17,19 +17,22 @@ class AbsoluteLimit(resource.Resource):
     #: Properties
     #: The maximum total amount of backups, in gibibytes (GiB).
     max_total_backup_gigabytes = resource.Body(
-        "maxTotalBackupGigabytes", type=int)
+        "maxTotalBackupGigabytes", type=int
+    )
     #: The maximum number of backups.
     max_total_backups = resource.Body("maxTotalBackups", type=int)
     #: The maximum number of snapshots.
     max_total_snapshots = resource.Body("maxTotalSnapshots", type=int)
     #: The maximum total amount of volumes, in gibibytes (GiB).
     max_total_volume_gigabytes = resource.Body(
-        "maxTotalVolumeGigabytes", type=int)
+        "maxTotalVolumeGigabytes", type=int
+    )
     #: The maximum number of volumes.
     max_total_volumes = resource.Body("maxTotalVolumes", type=int)
     #: The total number of backups gibibytes (GiB) used.
     total_backup_gigabytes_used = resource.Body(
-        "totalBackupGigabytesUsed", type=int)
+        "totalBackupGigabytesUsed", type=int
+    )
     #: The total number of backups used.
     total_backups_used = resource.Body("totalBackupsUsed", type=int)
     #: The total number of gibibytes (GiB) used.

@@ -32,12 +32,11 @@ GROUP = {
     "volumes": ["a2cdf1ad-5497-4e57-bd7d-f573768f3d03"],
     "group_snapshot_id": None,
     "source_group_id": None,
-    "project_id": "7ccf4863071f44aeb8f141f65780c51b"
+    "project_id": "7ccf4863071f44aeb8f141f65780c51b",
 }
 
 
 class TestGroup(base.TestCase):
-
     def test_basic(self):
         resource = group.Group()
         self.assertEqual("group", resource.resource_key)
@@ -54,7 +53,8 @@ class TestGroup(base.TestCase):
         self.assertEqual(GROUP["id"], resource.id)
         self.assertEqual(GROUP["status"], resource.status)
         self.assertEqual(
-            GROUP["availability_zone"], resource.availability_zone)
+            GROUP["availability_zone"], resource.availability_zone
+        )
         self.assertEqual(GROUP["created_at"], resource.created_at)
         self.assertEqual(GROUP["name"], resource.name)
         self.assertEqual(GROUP["description"], resource.description)
@@ -62,13 +62,13 @@ class TestGroup(base.TestCase):
         self.assertEqual(GROUP["volume_types"], resource.volume_types)
         self.assertEqual(GROUP["volumes"], resource.volumes)
         self.assertEqual(
-            GROUP["group_snapshot_id"], resource.group_snapshot_id)
+            GROUP["group_snapshot_id"], resource.group_snapshot_id
+        )
         self.assertEqual(GROUP["source_group_id"], resource.source_group_id)
         self.assertEqual(GROUP["project_id"], resource.project_id)
 
 
 class TestGroupAction(base.TestCase):
-
     def setUp(self):
         super().setUp()
         self.resp = mock.Mock()
@@ -90,7 +90,8 @@ class TestGroupAction(base.TestCase):
         url = 'groups/%s/action' % GROUP_ID
         body = {'delete': {'delete-volumes': False}}
         self.sess.post.assert_called_with(
-            url, json=body, microversion=sot._max_microversion)
+            url, json=body, microversion=sot._max_microversion
+        )
 
     def test_reset(self):
         sot = group.Group(**GROUP)
@@ -100,7 +101,9 @@ class TestGroupAction(base.TestCase):
         url = 'groups/%s/action' % GROUP_ID
         body = {'reset_status': {'status': 'new_status'}}
         self.sess.post.assert_called_with(
-            url, json=body, microversion=sot._max_microversion,
+            url,
+            json=body,
+            microversion=sot._max_microversion,
         )
 
     def test_create_from_source(self):
@@ -131,5 +134,7 @@ class TestGroupAction(base.TestCase):
             },
         }
         self.sess.post.assert_called_with(
-            url, json=body, microversion=sot._max_microversion,
+            url,
+            json=body,
+            microversion=sot._max_microversion,
         )

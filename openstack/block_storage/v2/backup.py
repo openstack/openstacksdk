@@ -16,14 +16,22 @@ from openstack import utils
 
 class Backup(resource.Resource):
     """Volume Backup"""
+
     resource_key = "backup"
     resources_key = "backups"
     base_path = "/backups"
 
     _query_mapping = resource.QueryParameters(
-        'all_tenants', 'limit', 'marker', 'project_id',
-        'name', 'status', 'volume_id',
-        'sort_key', 'sort_dir')
+        'all_tenants',
+        'limit',
+        'marker',
+        'project_id',
+        'name',
+        'status',
+        'volume_id',
+        'sort_key',
+        'sort_dir',
+    )
 
     # capabilities
     allow_fetch = True
@@ -97,35 +105,48 @@ class Backup(resource.Resource):
 
         session = self._get_session(session)
         microversion = self._get_microversion(session, action='create')
-        requires_id = (self.create_requires_id
-                       if self.create_requires_id is not None
-                       else self.create_method == 'PUT')
+        requires_id = (
+            self.create_requires_id
+            if self.create_requires_id is not None
+            else self.create_method == 'PUT'
+        )
 
         if self.create_exclude_id_from_body:
             self._body._dirty.discard("id")
 
         if self.create_method == 'POST':
-            request = self._prepare_request(requires_id=requires_id,
-                                            prepend_key=prepend_key,
-                                            base_path=base_path)
+            request = self._prepare_request(
+                requires_id=requires_id,
+                prepend_key=prepend_key,
+                base_path=base_path,
+            )
             # NOTE(gtema) this is a funny example of when attribute
             # is called "incremental" on create, "is_incremental" on get
             # and use of "alias" or "aka" is not working for such conflict,
             # since our preferred attr name is exactly "is_incremental"
             body = request.body
             if 'is_incremental' in body['backup']:
-                body['backup']['incremental'] = \
-                    body['backup'].pop('is_incremental')
-            response = session.post(request.url,
-                                    json=request.body, headers=request.headers,
-                                    microversion=microversion, params=params)
+                body['backup']['incremental'] = body['backup'].pop(
+                    'is_incremental'
+                )
+            response = session.post(
+                request.url,
+                json=request.body,
+                headers=request.headers,
+                microversion=microversion,
+                params=params,
+            )
         else:
             # Just for safety of the implementation (since PUT removed)
             raise exceptions.ResourceFailure(
-                "Invalid create method: %s" % self.create_method)
+                "Invalid create method: %s" % self.create_method
+            )
 
-        has_body = (self.has_body if self.create_returns_body is None
-                    else self.create_returns_body)
+        has_body = (
+            self.has_body
+            if self.create_returns_body is None
+            else self.create_returns_body
+        )
         self.microversion = microversion
         self._translate_response(response, has_body=has_body)
         # direct comparision to False since we need to rule out None
@@ -137,8 +158,9 @@ class Backup(resource.Resource):
     def _action(self, session, body, microversion=None):
         """Preform backup actions given the message body."""
         url = utils.urljoin(self.base_path, self.id, 'action')
-        resp = session.post(url, json=body,
-                            microversion=self._max_microversion)
+        resp = session.post(
+            url, json=body, microversion=self._max_microversion
+        )
         exceptions.raise_from_response(resp)
         return resp
 
@@ -157,22 +179,20 @@ class Backup(resource.Resource):
         if name:
             body['restore']['name'] = name
         if not (volume_id or name):
-            raise exceptions.SDKException('Either of `name` or `volume_id`'
-                                          ' must be specified.')
-        response = session.post(url,
-                                json=body)
+            raise exceptions.SDKException(
+                'Either of `name` or `volume_id`' ' must be specified.'
+            )
+        response = session.post(url, json=body)
         self._translate_response(response, has_body=False)
         return self
 
     def force_delete(self, session):
-        """Force backup deletion
-        """
+        """Force backup deletion"""
         body = {'os-force_delete': {}}
         self._action(session, body)
 
     def reset(self, session, status):
-        """Reset the status of the backup
-        """
+        """Reset the status of the backup"""
         body = {'os-reset_status': {'status': status}}
         self._action(session, body)
 

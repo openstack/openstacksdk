@@ -15,7 +15,6 @@ from openstack.tests.functional.block_storage.v3 import base
 
 
 class TestLimits(base.BaseBlockStorageTest):
-
     def test_get(self):
         sot = self.conn.block_storage.get_limits()
         self.assertIsNotNone(sot.absolute.max_total_backup_gigabytes)

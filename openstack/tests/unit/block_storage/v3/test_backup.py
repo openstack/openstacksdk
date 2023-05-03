@@ -39,12 +39,11 @@ BACKUP = {
     "has_dependent_backups": False,
     "os-backup-project-attr:project_id": "2c67a14be9314c5dae2ee6c4ec90cf0b",
     "user_id": "515ba0dd59f84f25a6a084a45d8d93b2",
-    "metadata": {"key": "value"}
+    "metadata": {"key": "value"},
 }
 
 
 class TestBackup(base.TestCase):
-
     def setUp(self):
         super(TestBackup, self).setUp()
         self.resp = mock.Mock()
@@ -80,9 +79,9 @@ class TestBackup(base.TestCase):
                 "sort_dir": "sort_dir",
                 "sort_key": "sort_key",
                 "status": "status",
-                "volume_id": "volume_id"
+                "volume_id": "volume_id",
             },
-            sot._query_mapping._mapping
+            sot._query_mapping._mapping,
         )
 
     def test_create(self):
@@ -100,10 +99,12 @@ class TestBackup(base.TestCase):
         self.assertEqual(BACKUP["object_count"], sot.object_count)
         self.assertEqual(BACKUP["is_incremental"], sot.is_incremental)
         self.assertEqual(BACKUP["size"], sot.size)
-        self.assertEqual(BACKUP["has_dependent_backups"],
-                         sot.has_dependent_backups)
-        self.assertEqual(BACKUP['os-backup-project-attr:project_id'],
-                         sot.project_id)
+        self.assertEqual(
+            BACKUP["has_dependent_backups"], sot.has_dependent_backups
+        )
+        self.assertEqual(
+            BACKUP['os-backup-project-attr:project_id'], sot.project_id
+        )
         self.assertEqual(BACKUP['metadata'], sot.metadata)
         self.assertEqual(BACKUP['user_id'], sot.user_id)
         self.assertEqual(BACKUP['encryption_key_id'], sot.encryption_key_id)
@@ -128,7 +129,7 @@ class TestBackup(base.TestCase):
                 }
             },
             microversion="3.64",
-            params={}
+            params={},
         )
 
         sot2.create(self.sess)
@@ -141,7 +142,7 @@ class TestBackup(base.TestCase):
                 }
             },
             microversion="3.64",
-            params={}
+            params={},
         )
 
     def test_restore(self):
@@ -174,11 +175,7 @@ class TestBackup(base.TestCase):
     def test_restore_no_params(self):
         sot = backup.Backup(**BACKUP)
 
-        self.assertRaises(
-            exceptions.SDKException,
-            sot.restore,
-            self.sess
-        )
+        self.assertRaises(exceptions.SDKException, sot.restore, self.sess)
 
     def test_force_delete(self):
         sot = backup.Backup(**BACKUP)
@@ -188,7 +185,8 @@ class TestBackup(base.TestCase):
         url = 'backups/%s/action' % FAKE_ID
         body = {'os-force_delete': {}}
         self.sess.post.assert_called_with(
-            url, json=body, microversion=sot._max_microversion)
+            url, json=body, microversion=sot._max_microversion
+        )
 
     def test_reset(self):
         sot = backup.Backup(**BACKUP)
@@ -198,4 +196,5 @@ class TestBackup(base.TestCase):
         url = 'backups/%s/action' % FAKE_ID
         body = {'os-reset_status': {'status': 'new_status'}}
         self.sess.post.assert_called_with(
-            url, json=body, microversion=sot._max_microversion)
+            url, json=body, microversion=sot._max_microversion
+        )

@@ -35,12 +35,11 @@ BACKUP = {
     "status": "available",
     "volume_id": "e5185058-943a-4cb4-96d9-72c184c337d6",
     "is_incremental": True,
-    "has_dependent_backups": False
+    "has_dependent_backups": False,
 }
 
 
 class TestBackup(base.TestCase):
-
     def setUp(self):
         super(TestBackup, self).setUp()
         self.resp = mock.Mock()
@@ -75,9 +74,9 @@ class TestBackup(base.TestCase):
                 "sort_dir": "sort_dir",
                 "sort_key": "sort_key",
                 "status": "status",
-                "volume_id": "volume_id"
+                "volume_id": "volume_id",
             },
-            sot._query_mapping._mapping
+            sot._query_mapping._mapping,
         )
 
     def test_create(self):
@@ -95,8 +94,9 @@ class TestBackup(base.TestCase):
         self.assertEqual(BACKUP["object_count"], sot.object_count)
         self.assertEqual(BACKUP["is_incremental"], sot.is_incremental)
         self.assertEqual(BACKUP["size"], sot.size)
-        self.assertEqual(BACKUP["has_dependent_backups"],
-                         sot.has_dependent_backups)
+        self.assertEqual(
+            BACKUP["has_dependent_backups"], sot.has_dependent_backups
+        )
 
     def test_create_incremental(self):
         sot = backup.Backup(is_incremental=True)
@@ -118,7 +118,7 @@ class TestBackup(base.TestCase):
                 }
             },
             microversion=None,
-            params={}
+            params={},
         )
 
         sot2.create(self.sess)
@@ -131,7 +131,7 @@ class TestBackup(base.TestCase):
                 }
             },
             microversion=None,
-            params={}
+            params={},
         )
 
     def test_restore(self):
@@ -164,11 +164,7 @@ class TestBackup(base.TestCase):
     def test_restore_no_params(self):
         sot = backup.Backup(**BACKUP)
 
-        self.assertRaises(
-            exceptions.SDKException,
-            sot.restore,
-            self.sess
-        )
+        self.assertRaises(exceptions.SDKException, sot.restore, self.sess)
 
     def test_force_delete(self):
         sot = backup.Backup(**BACKUP)
@@ -178,7 +174,8 @@ class TestBackup(base.TestCase):
         url = 'backups/%s/action' % FAKE_ID
         body = {'os-force_delete': {}}
         self.sess.post.assert_called_with(
-            url, json=body, microversion=sot._max_microversion)
+            url, json=body, microversion=sot._max_microversion
+        )
 
     def test_reset(self):
         sot = backup.Backup(**BACKUP)
@@ -188,4 +185,5 @@ class TestBackup(base.TestCase):
         url = 'backups/%s/action' % FAKE_ID
         body = {'os-reset_status': {'status': 'new_status'}}
         self.sess.post.assert_called_with(
-            url, json=body, microversion=sot._max_microversion)
+            url, json=body, microversion=sot._max_microversion
+        )

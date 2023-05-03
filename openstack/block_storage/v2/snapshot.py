@@ -23,7 +23,8 @@ class Snapshot(resource.Resource, metadata.MetadataMixin):
     base_path = "/snapshots"
 
     _query_mapping = resource.QueryParameters(
-        'name', 'status', 'volume_id', all_projects='all_tenants')
+        'name', 'status', 'volume_id', all_projects='all_tenants'
+    )
 
     # capabilities
     allow_fetch = True
@@ -53,14 +54,14 @@ class Snapshot(resource.Resource, metadata.MetadataMixin):
     def _action(self, session, body, microversion=None):
         """Preform backup actions given the message body."""
         url = utils.urljoin(self.base_path, self.id, 'action')
-        resp = session.post(url, json=body,
-                            microversion=self._max_microversion)
+        resp = session.post(
+            url, json=body, microversion=self._max_microversion
+        )
         exceptions.raise_from_response(resp)
         return resp
 
     def reset(self, session, status):
-        """Reset the status of the snapshot.
-        """
+        """Reset the status of the snapshot."""
         body = {'os-reset_status': {'status': status}}
         self._action(session, body)
 

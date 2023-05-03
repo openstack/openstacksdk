@@ -21,7 +21,8 @@ class Volume(resource.Resource, metadata.MetadataMixin):
     base_path = "/volumes"
 
     _query_mapping = resource.QueryParameters(
-        'name', 'status', 'project_id', all_projects='all_tenants')
+        'name', 'status', 'project_id', all_projects='all_tenants'
+    )
 
     # capabilities
     allow_fetch = True
@@ -45,7 +46,8 @@ class Volume(resource.Resource, metadata.MetadataMixin):
     description = resource.Body("description")
     #: Extended replication status on this volume.
     extended_replication_status = resource.Body(
-        "os-volume-replication:extended_status")
+        "os-volume-replication:extended_status"
+    )
     #: The volume's current back-end.
     host = resource.Body("os-vol-host-attr:host")
     #: The ID of the image from which you want to create the volume.
@@ -66,7 +68,8 @@ class Volume(resource.Resource, metadata.MetadataMixin):
     project_id = resource.Body("os-vol-tenant-attr:tenant_id")
     #: Data set by the replication driver
     replication_driver_data = resource.Body(
-        "os-volume-replication:driver_data")
+        "os-volume-replication:driver_data"
+    )
     #: Status of replication on this volume.
     replication_status = resource.Body("replication_status")
     #: Scheduler hints for the volume
@@ -111,24 +114,22 @@ class Volume(resource.Resource, metadata.MetadataMixin):
         body = {'os-set_bootable': {'bootable': bootable}}
         self._action(session, body)
 
-    def reset_status(
-        self, session, status, attach_status, migration_status
-    ):
+    def reset_status(self, session, status, attach_status, migration_status):
         """Reset volume statuses (admin operation)"""
-        body = {'os-reset_status': {
-            'status': status,
-            'attach_status': attach_status,
-            'migration_status': migration_status
-        }}
+        body = {
+            'os-reset_status': {
+                'status': status,
+                'attach_status': attach_status,
+                'migration_status': migration_status,
+            }
+        }
         self._action(session, body)
 
-    def attach(
-        self, session, mountpoint, instance
-    ):
+    def attach(self, session, mountpoint, instance):
         """Attach volume to server"""
-        body = {'os-attach': {
-            'mountpoint': mountpoint,
-            'instance_uuid': instance}}
+        body = {
+            'os-attach': {'mountpoint': mountpoint, 'instance_uuid': instance}
+        }
 
         self._action(session, body)
 
@@ -137,8 +138,7 @@ class Volume(resource.Resource, metadata.MetadataMixin):
         if not force:
             body = {'os-detach': {'attachment_id': attachment}}
         if force:
-            body = {'os-force_detach': {
-                'attachment_id': attachment}}
+            body = {'os-force_detach': {'attachment_id': attachment}}
 
         self._action(session, body)
 
@@ -150,16 +150,14 @@ class Volume(resource.Resource, metadata.MetadataMixin):
 
     def retype(self, session, new_type, migration_policy=None):
         """Change volume type"""
-        body = {'os-retype': {
-            'new_type': new_type}}
+        body = {'os-retype': {'new_type': new_type}}
         if migration_policy:
             body['os-retype']['migration_policy'] = migration_policy
 
         self._action(session, body)
 
     def migrate(
-        self, session, host=None, force_host_copy=False,
-        lock_volume=False
+        self, session, host=None, force_host_copy=False, lock_volume=False
     ):
         """Migrate volume"""
         req = dict()
@@ -175,9 +173,12 @@ class Volume(resource.Resource, metadata.MetadataMixin):
 
     def complete_migration(self, session, new_volume_id, error=False):
         """Complete volume migration"""
-        body = {'os-migrate_volume_completion': {
-            'new_volume': new_volume_id,
-            'error': error}}
+        body = {
+            'os-migrate_volume_completion': {
+                'new_volume': new_volume_id,
+                'error': error,
+            }
+        }
 
         self._action(session, body)
 

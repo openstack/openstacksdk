@@ -18,35 +18,29 @@ RESOURCE_FILTER = {
         'status',
         'image_metadata',
         'bootable',
-        'migration_status'
+        'migration_status',
     ],
-    'resource': 'volume'
+    'resource': 'volume',
 }
 
 
 class TestResourceFilter(base.TestCase):
-
     def test_basic(self):
         resource = resource_filter.ResourceFilter()
-        self.assertEqual('resource_filters',
-                         resource.resources_key)
-        self.assertEqual('/resource_filters',
-                         resource.base_path)
+        self.assertEqual('resource_filters', resource.resources_key)
+        self.assertEqual('/resource_filters', resource.base_path)
         self.assertFalse(resource.allow_create)
         self.assertFalse(resource.allow_fetch)
         self.assertFalse(resource.allow_commit)
         self.assertFalse(resource.allow_delete)
         self.assertTrue(resource.allow_list)
 
-        self.assertDictEqual({"resource": "resource",
-                              "limit": "limit",
-                              "marker": "marker"},
-                             resource._query_mapping._mapping)
+        self.assertDictEqual(
+            {"resource": "resource", "limit": "limit", "marker": "marker"},
+            resource._query_mapping._mapping,
+        )
 
     def test_make_resource_filter(self):
-        resource = resource_filter.ResourceFilter(
-            **RESOURCE_FILTER)
-        self.assertEqual(
-            RESOURCE_FILTER['filters'], resource.filters)
-        self.assertEqual(
-            RESOURCE_FILTER['resource'], resource.resource)
+        resource = resource_filter.ResourceFilter(**RESOURCE_FILTER)
+        self.assertEqual(RESOURCE_FILTER['filters'], resource.filters)
+        self.assertEqual(RESOURCE_FILTER['resource'], resource.resource)

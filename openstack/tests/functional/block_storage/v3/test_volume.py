@@ -15,7 +15,6 @@ from openstack.tests.functional.block_storage.v3 import base
 
 
 class TestVolume(base.BaseBlockStorageTest):
-
     def setUp(self):
         super().setUp()
 

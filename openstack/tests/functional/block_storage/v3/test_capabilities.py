@@ -15,10 +15,10 @@ from openstack.tests.functional.block_storage.v3 import base
 
 
 class TestCapabilities(base.BaseBlockStorageTest):
-
     def test_get(self):
-        response = (
-            proxy._json_response(self.conn.block_storage.get('/os-hosts')))
+        response = proxy._json_response(
+            self.conn.block_storage.get('/os-hosts')
+        )
         host = response['hosts'][0]['host_name']
 
         sot = self.conn.block_storage.get_capabilities(host)

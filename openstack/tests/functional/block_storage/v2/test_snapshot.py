@@ -17,7 +17,6 @@ from openstack.tests.functional.block_storage.v2 import base
 
 
 class TestSnapshot(base.BaseBlockStorageTest):
-
     def setUp(self):
         super(TestSnapshot, self).setUp()
 
@@ -27,26 +26,28 @@ class TestSnapshot(base.BaseBlockStorageTest):
         self.VOLUME_ID = None
 
         volume = self.user_cloud.block_storage.create_volume(
-            name=self.VOLUME_NAME,
-            size=1)
+            name=self.VOLUME_NAME, size=1
+        )
         self.user_cloud.block_storage.wait_for_status(
             volume,
             status='available',
             failures=['error'],
             interval=2,
-            wait=self._wait_for_timeout)
+            wait=self._wait_for_timeout,
+        )
         assert isinstance(volume, _volume.Volume)
         self.assertEqual(self.VOLUME_NAME, volume.name)
         self.VOLUME_ID = volume.id
         snapshot = self.user_cloud.block_storage.create_snapshot(
-            name=self.SNAPSHOT_NAME,
-            volume_id=self.VOLUME_ID)
+            name=self.SNAPSHOT_NAME, volume_id=self.VOLUME_ID
+        )
         self.user_cloud.block_storage.wait_for_status(
             snapshot,
             status='available',
             failures=['error'],
             interval=2,
-            wait=self._wait_for_timeout)
+            wait=self._wait_for_timeout,
+        )
         assert isinstance(snapshot, _snapshot.Snapshot)
         self.assertEqual(self.SNAPSHOT_NAME, snapshot.name)
         self.SNAPSHOT_ID = snapshot.id
@@ -54,12 +55,15 @@ class TestSnapshot(base.BaseBlockStorageTest):
     def tearDown(self):
         snapshot = self.user_cloud.block_storage.get_snapshot(self.SNAPSHOT_ID)
         sot = self.user_cloud.block_storage.delete_snapshot(
-            snapshot, ignore_missing=False)
+            snapshot, ignore_missing=False
+        )
         self.user_cloud.block_storage.wait_for_delete(
-            snapshot, interval=2, wait=self._wait_for_timeout)
+            snapshot, interval=2, wait=self._wait_for_timeout
+        )
         self.assertIsNone(sot)
         sot = self.user_cloud.block_storage.delete_volume(
-            self.VOLUME_ID, ignore_missing=False)
+            self.VOLUME_ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
         super(TestSnapshot, self).tearDown()
 

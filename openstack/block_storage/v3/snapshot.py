@@ -23,8 +23,8 @@ class Snapshot(resource.Resource, metadata.MetadataMixin):
     base_path = "/snapshots"
 
     _query_mapping = resource.QueryParameters(
-        'name', 'status', 'volume_id',
-        'project_id', all_projects='all_tenants')
+        'name', 'status', 'volume_id', 'project_id', all_projects='all_tenants'
+    )
 
     # capabilities
     allow_fetch = True
@@ -58,28 +58,25 @@ class Snapshot(resource.Resource, metadata.MetadataMixin):
     def _action(self, session, body, microversion=None):
         """Preform backup actions given the message body."""
         url = utils.urljoin(self.base_path, self.id, 'action')
-        resp = session.post(url, json=body,
-                            microversion=self._max_microversion)
+        resp = session.post(
+            url, json=body, microversion=self._max_microversion
+        )
         exceptions.raise_from_response(resp)
         return resp
 
     def force_delete(self, session):
-        """Force snapshot deletion.
-        """
+        """Force snapshot deletion."""
         body = {'os-force_delete': {}}
         self._action(session, body)
 
     def reset(self, session, status):
-        """Reset the status of the snapshot.
-        """
+        """Reset the status of the snapshot."""
         body = {'os-reset_status': {'status': status}}
         self._action(session, body)
 
     def set_status(self, session, status, progress=None):
-        """Update fields related to the status of a snapshot.
-        """
-        body = {'os-update_snapshot_status': {
-            'status': status}}
+        """Update fields related to the status of a snapshot."""
+        body = {'os-update_snapshot_status': {'status': status}}
         if progress is not None:
             body['os-update_snapshot_status']['progress'] = progress
         self._action(session, body)

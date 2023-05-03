@@ -16,7 +16,6 @@ from openstack.tests.functional.block_storage.v2 import base
 
 
 class TestStats(base.BaseBlockStorageTest):
-
     def setUp(self):
         super(TestStats, self).setUp()
 
@@ -25,16 +24,28 @@ class TestStats(base.BaseBlockStorageTest):
             self.assertIsInstance(pool, _stats.Pools)
 
     def test_list(self):
-        capList = ['volume_backend_name', 'storage_protocol',
-                   'free_capacity_gb', 'driver_version',
-                   'goodness_function', 'QoS_support',
-                   'vendor_name', 'pool_name', 'thin_provisioning_support',
-                   'thick_provisioning_support', 'timestamp',
-                   'max_over_subscription_ratio', 'total_volumes',
-                   'total_capacity_gb', 'filter_function',
-                   'multiattach', 'provisioned_capacity_gb',
-                   'allocated_capacity_gb', 'reserved_percentage',
-                   'location_info']
+        capList = [
+            'volume_backend_name',
+            'storage_protocol',
+            'free_capacity_gb',
+            'driver_version',
+            'goodness_function',
+            'QoS_support',
+            'vendor_name',
+            'pool_name',
+            'thin_provisioning_support',
+            'thick_provisioning_support',
+            'timestamp',
+            'max_over_subscription_ratio',
+            'total_volumes',
+            'total_capacity_gb',
+            'filter_function',
+            'multiattach',
+            'provisioned_capacity_gb',
+            'allocated_capacity_gb',
+            'reserved_percentage',
+            'location_info',
+        ]
         capList.sort()
         pools = self.operator_cloud.block_storage.backend_pools()
         for pool in pools:

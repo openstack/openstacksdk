@@ -58,10 +58,14 @@ class GroupSnapshot(resource.Resource):
                 microversion = session.default_microversion
             else:
                 microversion = utils.maximum_supported_microversion(
-                    session, self._max_microversion,
+                    session,
+                    self._max_microversion,
                 )
         response = session.post(
-            url, json=body, headers=headers, microversion=microversion,
+            url,
+            json=body,
+            headers=headers,
+            microversion=microversion,
         )
         exceptions.raise_from_response(response)
         return response

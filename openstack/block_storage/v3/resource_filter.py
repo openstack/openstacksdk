@@ -15,6 +15,7 @@ from openstack import resource
 
 class ResourceFilter(resource.Resource):
     """Resource Filter"""
+
     resources_key = "resource_filters"
     base_path = "/resource_filters"
 

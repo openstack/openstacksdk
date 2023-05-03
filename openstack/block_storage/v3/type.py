@@ -37,13 +37,13 @@ class Type(resource.Resource):
     #: a private volume-type. *Type: bool*
     is_public = resource.Body('os-volume-type-access:is_public', type=bool)
 
-    def _extra_specs(self, method, key=None, delete=False,
-                     extra_specs=None):
+    def _extra_specs(self, method, key=None, delete=False, extra_specs=None):
         extra_specs = extra_specs or {}
         for k, v in extra_specs.items():
             if not isinstance(v, str):
-                raise ValueError("The value for %s (%s) must be "
-                                 "a text string" % (k, v))
+                raise ValueError(
+                    "The value for %s (%s) must be " "a text string" % (k, v)
+                )
 
         if key is not None:
             url = utils.urljoin(self.base_path, self.id, "extra_specs", key)

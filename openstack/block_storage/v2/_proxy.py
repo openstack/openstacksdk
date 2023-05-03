@@ -132,8 +132,9 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         :returns: ``None``
         """
-        self._delete(_snapshot.Snapshot, snapshot,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _snapshot.Snapshot, snapshot, ignore_missing=ignore_missing
+        )
 
     # ====== SNAPSHOT ACTIONS ======
     def reset_snapshot(self, snapshot, status):
@@ -398,9 +399,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.reset_status(self, status, attach_status, migration_status)
 
-    def attach_volume(
-        self, volume, mountpoint, instance=None, host_name=None
-    ):
+    def attach_volume(self, volume, mountpoint, instance=None, host_name=None):
         """Attaches a volume to a server.
 
         :param volume: The value can be either the ID of a volume or a
@@ -414,9 +413,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.attach(self, mountpoint, instance, host_name)
 
-    def detach_volume(
-        self, volume, attachment, force=False, connector=None
-    ):
+    def detach_volume(self, volume, attachment, force=False, connector=None):
         """Detaches a volume from a server.
 
         :param volume: The value can be either the ID of a volume or a
@@ -444,8 +441,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         volume.unmanage(self)
 
     def migrate_volume(
-        self, volume, host=None, force_host_copy=False,
-        lock_volume=False
+        self, volume, host=None, force_host_copy=False, lock_volume=False
     ):
         """Migrates a volume to the specified host.
 
@@ -466,9 +462,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.migrate(self, host, force_host_copy, lock_volume)
 
-    def complete_volume_migration(
-        self, volume, new_volume, error=False
-    ):
+    def complete_volume_migration(self, volume, new_volume, error=False):
         """Complete the migration of a volume.
 
         :param volume: The value can be either the ID of a volume or a
@@ -584,8 +578,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :returns: ``None``
         """
         if not force:
-            self._delete(
-                _backup.Backup, backup, ignore_missing=ignore_missing)
+            self._delete(_backup.Backup, backup, ignore_missing=ignore_missing)
         else:
             backup = self._get_resource(_backup.Backup, backup)
             backup.force_delete(self)
@@ -617,8 +610,9 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         backup = self._get_resource(_backup.Backup, backup)
         backup.reset(self, status)
 
-    def wait_for_status(self, res, status='available', failures=None,
-                        interval=2, wait=120):
+    def wait_for_status(
+        self, res, status='available', failures=None, interval=2, wait=120
+    ):
         """Wait for a resource to be in a particular status.
 
         :param res: The resource to wait on to reach the specified status.
@@ -641,7 +635,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         failures = ['error'] if failures is None else failures
         return resource.wait_for_status(
-            self, res, status, failures, interval, wait)
+            self, res, status, failures, interval, wait
+        )
 
     def wait_for_delete(self, res, interval=2, wait=120):
         """Wait for a resource to be deleted.
@@ -674,9 +669,9 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         project = self._get_resource(_project.Project, project)
         res = self._get_resource(
-            _quota_set.QuotaSet, None, project_id=project.id)
-        return res.fetch(
-            self, usage=usage, **query)
+            _quota_set.QuotaSet, None, project_id=project.id
+        )
+        return res.fetch(self, usage=usage, **query)
 
     def get_quota_set_defaults(self, project):
         """Show QuotaSet defaults for the project
@@ -691,9 +686,9 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         project = self._get_resource(_project.Project, project)
         res = self._get_resource(
-            _quota_set.QuotaSet, None, project_id=project.id)
-        return res.fetch(
-            self, base_path='/os-quota-sets/defaults')
+            _quota_set.QuotaSet, None, project_id=project.id
+        )
+        return res.fetch(self, base_path='/os-quota-sets/defaults')
 
     def revert_quota_set(self, project, **query):
         """Reset Quota for the project/user.
@@ -707,7 +702,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         project = self._get_resource(_project.Project, project)
         res = self._get_resource(
-            _quota_set.QuotaSet, None, project_id=project.id)
+            _quota_set.QuotaSet, None, project_id=project.id
+        )
 
         if not query:
             query = {}
