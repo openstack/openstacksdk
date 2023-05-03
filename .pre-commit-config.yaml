@@ -4,7 +4,7 @@ default_language_version:
   python: python3
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.4.0
+    rev: v4.4.0
     hooks:
       - id: trailing-whitespace
       - id: mixed-line-ending
@@ -16,13 +16,18 @@ repos:
       - id: debug-statements
       - id: check-yaml
         files: .*\.(yaml|yml)$
-        exclude: '^.zuul.yaml'
+        exclude: '^zuul.d/.*$'
+  - repo: https://github.com/PyCQA/doc8
+    rev: v1.1.1
+    hooks:
+      - id: doc8
   - repo: local
     hooks:
       - id: flake8
         name: flake8
         additional_dependencies:
-          - hacking>=3.0.1,<3.1.0
+          - hacking>=6.0.1,<6.1.0
+          - flake8-import-order>=0.18.2,<0.19.0
         language: python
         entry: flake8
         files: '^.*\.py$'
