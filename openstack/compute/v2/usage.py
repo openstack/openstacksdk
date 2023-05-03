@@ -79,7 +79,9 @@ class Usage(resource.Resource):
     project_id = resource.Body('tenant_id')
     #: A list of the server usage objects.
     server_usages = resource.Body(
-        'server_usages', type=list, list_type=ServerUsage,
+        'server_usages',
+        type=list,
+        list_type=ServerUsage,
     )
     #: Multiplying the server disk size (in GiB) by hours the server exists,
     #: and then adding that all together for each server.

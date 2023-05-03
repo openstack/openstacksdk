@@ -31,10 +31,12 @@ class QuotaSet(quota_set.QuotaSet):
     force = resource.Body('force', type=bool)
     #: The number of allowed bytes of content for each injected file.
     injected_file_content_bytes = resource.Body(
-        'injected_file_content_bytes', type=int)
+        'injected_file_content_bytes', type=int
+    )
     #: The number of allowed bytes for each injected file path.
     injected_file_path_bytes = resource.Body(
-        'injected_file_path_bytes', type=int)
+        'injected_file_path_bytes', type=int
+    )
     #: The number of allowed injected files for each tenant.
     injected_files = resource.Body('injected_files', type=int)
     #: The number of allowed servers for each tenant.

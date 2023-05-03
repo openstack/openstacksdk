@@ -24,7 +24,7 @@ CONSOLE_TYPE_ACTION_MAPPING = {
     'xvpvnc': 'os-getVNCConsole',
     'spice-html5': 'os-getSPICEConsole',
     'rdp-html5': 'os-getRDPConsole',
-    'serial': 'os-getSerialConsole'
+    'serial': 'os-getSerialConsole',
 }
 
 
@@ -46,15 +46,33 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     _sentinel = object()
 
     _query_mapping = resource.QueryParameters(
-        "auto_disk_config", "availability_zone",
-        "created_at", "description", "flavor",
-        "hostname", "image", "kernel_id", "key_name",
-        "launch_index", "launched_at", "locked_by", "name",
-        "node", "power_state", "progress", "project_id", "ramdisk_id",
-        "reservation_id", "root_device_name",
-        "status", "task_state", "terminated_at", "user_id",
+        "auto_disk_config",
+        "availability_zone",
+        "created_at",
+        "description",
+        "flavor",
+        "hostname",
+        "image",
+        "kernel_id",
+        "key_name",
+        "launch_index",
+        "launched_at",
+        "locked_by",
+        "name",
+        "node",
+        "power_state",
+        "progress",
+        "project_id",
+        "ramdisk_id",
+        "reservation_id",
+        "root_device_name",
+        "status",
+        "task_state",
+        "terminated_at",
+        "user_id",
         "vm_state",
-        "sort_key", "sort_dir",
+        "sort_key",
+        "sort_dir",
         access_ipv4="access_ip_v4",
         access_ipv6="access_ip_v6",
         has_config_drive="config_drive",
@@ -67,7 +85,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         changes_before="changes-before",
         id="uuid",
         all_projects="all_tenants",
-        **tag.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters,
     )
 
     _max_microversion = '2.91'
@@ -93,7 +111,8 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         aka='volumes',
         type=list,
         list_type=volume_attachment.VolumeAttachment,
-        default=[])
+        default=[],
+    )
     #: The name of the availability zone this server is a part of.
     availability_zone = resource.Body('OS-EXT-AZ:availability_zone')
     #: Enables fine grained control of the block device mapping for an
@@ -202,8 +221,9 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     scheduler_hints = resource.Body('OS-SCH-HNT:scheduler_hints', type=dict)
     #: A list of applicable security groups. Each group contains keys for
     #: description, name, id, and rules.
-    security_groups = resource.Body('security_groups',
-                                    type=list, list_type=dict)
+    security_groups = resource.Body(
+        'security_groups', type=list, list_type=dict
+    )
     #: The UUIDs of the server groups to which the server belongs.
     #: Currently this can contain at most one entry.
     server_groups = resource.Body('server_groups', type=list)
@@ -220,7 +240,8 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     #: A list of trusted certificate IDs, that were used during image
     #: signature verification to verify the signing certificate.
     trusted_image_certificates = resource.Body(
-        'trusted_image_certificates', type=list)
+        'trusted_image_certificates', type=list
+    )
     #: Timestamp of when this server was last updated.
     updated_at = resource.Body('updated')
     #: Configuration information or scripts to use upon launch.
@@ -231,11 +252,18 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     #: The VM state of this server.
     vm_state = resource.Body('OS-EXT-STS:vm_state')
 
-    def _prepare_request(self, requires_id=True, prepend_key=True,
-                         base_path=None, **kwargs):
-        request = super(Server, self)._prepare_request(requires_id=requires_id,
-                                                       prepend_key=prepend_key,
-                                                       base_path=base_path)
+    def _prepare_request(
+        self,
+        requires_id=True,
+        prepend_key=True,
+        base_path=None,
+        **kwargs,
+    ):
+        request = super(Server, self)._prepare_request(
+            requires_id=requires_id,
+            prepend_key=prepend_key,
+            base_path=base_path,
+        )
 
         server_body = request.body[self.resource_key]
 
@@ -311,14 +339,21 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {'forceDelete': None}
         self._action(session, body)
 
-    def rebuild(self, session, image, name=None, admin_password=None,
-                preserve_ephemeral=None,
-                access_ipv4=None, access_ipv6=None,
-                metadata=None, user_data=None, key_name=None):
+    def rebuild(
+        self,
+        session,
+        image,
+        name=None,
+        admin_password=None,
+        preserve_ephemeral=None,
+        access_ipv4=None,
+        access_ipv6=None,
+        metadata=None,
+        user_data=None,
+        key_name=None,
+    ):
         """Rebuild the server with the given arguments."""
-        action = {
-            'imageRef': resource.Resource._get_id(image)
-        }
+        action = {'imageRef': resource.Resource._get_id(image)}
         if preserve_ephemeral is not None:
             action['preserve_ephemeral'] = preserve_ephemeral
         if name is not None:
@@ -431,7 +466,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             "createBackup": {
                 "name": name,
                 "backup_type": backup_type,
-                "rotation": rotation
+                "rotation": rotation,
             }
         }
         self._action(session, body)
@@ -547,24 +582,36 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         resp = self._action(session, body)
         return resp.json().get('console')
 
-    def live_migrate(self, session, host, force, block_migration,
-                     disk_over_commit=False):
+    def live_migrate(
+        self,
+        session,
+        host,
+        force,
+        block_migration,
+        disk_over_commit=False,
+    ):
         if utils.supports_microversion(session, '2.30'):
             return self._live_migrate_30(
-                session, host,
-                force=force,
-                block_migration=block_migration)
-        elif utils.supports_microversion(session, '2.25'):
-            return self._live_migrate_25(
-                session, host,
-                force=force,
-                block_migration=block_migration)
-        else:
-            return self._live_migrate(
-                session, host,
+                session,
+                host,
                 force=force,
                 block_migration=block_migration,
-                disk_over_commit=disk_over_commit)
+            )
+        elif utils.supports_microversion(session, '2.25'):
+            return self._live_migrate_25(
+                session,
+                host,
+                force=force,
+                block_migration=block_migration,
+            )
+        else:
+            return self._live_migrate(
+                session,
+                host,
+                force=force,
+                block_migration=block_migration,
+                disk_over_commit=disk_over_commit,
+            )
 
     def _live_migrate_30(self, session, host, force, block_migration):
         microversion = '2.30'
@@ -577,7 +624,10 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             if force:
                 body['force'] = force
         self._action(
-            session, {'os-migrateLive': body}, microversion=microversion)
+            session,
+            {'os-migrateLive': body},
+            microversion=microversion,
+        )
 
     def _live_migrate_25(self, session, host, force, block_migration):
         microversion = '2.25'
@@ -594,12 +644,22 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
                     " possible to disable. It is recommended to not use 'host'"
                     " at all on this cloud as it is inherently unsafe, but if"
                     " it is unavoidable, please supply 'force=True' so that it"
-                    " is clear you understand the risks.")
+                    " is clear you understand the risks."
+                )
         self._action(
-            session, {'os-migrateLive': body}, microversion=microversion)
+            session,
+            {'os-migrateLive': body},
+            microversion=microversion,
+        )
 
-    def _live_migrate(self, session, host, force, block_migration,
-                      disk_over_commit):
+    def _live_migrate(
+        self,
+        session,
+        host,
+        force,
+        block_migration,
+        disk_over_commit,
+    ):
         microversion = None
         body = {
             'host': None,
@@ -607,7 +667,8 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         if block_migration == 'auto':
             raise ValueError(
                 "Live migration on this cloud does not support 'auto' as"
-                " a parameter to block_migration, but only True and False.")
+                " a parameter to block_migration, but only True and False."
+            )
         body['block_migration'] = block_migration or False
         body['disk_over_commit'] = disk_over_commit or False
         if host:
@@ -619,9 +680,13 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
                     " possible to disable. It is recommended to not use 'host'"
                     " at all on this cloud as it is inherently unsafe, but if"
                     " it is unavoidable, please supply 'force=True' so that it"
-                    " is clear you understand the risks.")
+                    " is clear you understand the risks."
+                )
         self._action(
-            session, {'os-migrateLive': body}, microversion=microversion)
+            session,
+            {'os-migrateLive': body},
+            microversion=microversion,
+        )
 
     def fetch_topology(self, session):
         utils.require_microversion(session, 2.78)

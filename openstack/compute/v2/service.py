@@ -26,7 +26,9 @@ class Service(resource.Resource):
     allow_delete = True
 
     _query_mapping = resource.QueryParameters(
-        'name', 'binary', 'host',
+        'name',
+        'binary',
+        'host',
         name='binary',
     )
 
@@ -73,7 +75,7 @@ class Service(resource.Resource):
                     result = maybe_result
                 else:
                     msg = "More than one %s exists with the name '%s'."
-                    msg = (msg % (cls.__name__, name_or_id))
+                    msg = msg % (cls.__name__, name_or_id)
                     raise exceptions.DuplicateResource(msg)
 
         if result is not None:
@@ -82,12 +84,16 @@ class Service(resource.Resource):
         if ignore_missing:
             return None
         raise exceptions.ResourceNotFound(
-            "No %s found for %s" % (cls.__name__, name_or_id))
+            "No %s found for %s" % (cls.__name__, name_or_id)
+        )
 
     def commit(self, session, prepend_key=False, **kwargs):
         # we need to set prepend_key to false
         return super(Service, self).commit(
-            session, prepend_key=prepend_key, **kwargs)
+            session,
+            prepend_key=prepend_key,
+            **kwargs,
+        )
 
     def _action(self, session, action, body, microversion=None):
         if not microversion:
@@ -97,9 +103,7 @@ class Service(resource.Resource):
         self._translate_response(response)
         return self
 
-    def set_forced_down(
-        self, session, host=None, binary=None, forced=False
-    ):
+    def set_forced_down(self, session, host=None, binary=None, forced=False):
         """Update forced_down information of a service."""
         microversion = session.default_microversion
         body = {}
@@ -118,8 +122,11 @@ class Service(resource.Resource):
 
         # This will not work with newest microversions
         return self._action(
-            session, 'force-down', body,
-            microversion=microversion)
+            session,
+            'force-down',
+            body,
+            microversion=microversion,
+        )
 
     force_down = set_forced_down
 

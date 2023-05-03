@@ -19,7 +19,7 @@ CONSOLE_TYPE_PROTOCOL_MAPPING = {
     'spice-html5': 'spice',
     'rdp-html5': 'rdp',
     'serial': 'serial',
-    'webmks': 'mks'
+    'webmks': 'mks',
 }
 
 
@@ -47,16 +47,14 @@ class ServerRemoteConsole(resource.Resource):
 
     def create(self, session, prepend_key=True, base_path=None, **params):
         if not self.protocol:
-            self.protocol = \
-                CONSOLE_TYPE_PROTOCOL_MAPPING.get(self.type)
+            self.protocol = CONSOLE_TYPE_PROTOCOL_MAPPING.get(self.type)
         if (
             not utils.supports_microversion(session, '2.8')
             and self.type == 'webmks'
         ):
-            raise ValueError('Console type webmks is not supported on '
-                             'server side')
+            raise ValueError(
+                'Console type webmks is not supported on ' 'server side'
+            )
         return super(ServerRemoteConsole, self).create(
-            session,
-            prepend_key=prepend_key,
-            base_path=base_path,
-            **params)
+            session, prepend_key=prepend_key, base_path=base_path, **params
+        )
