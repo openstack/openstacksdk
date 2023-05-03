@@ -27,7 +27,6 @@ from openstack.tests.unit.cloud import test_object as base_test_object
 
 
 class TestObject(base_test_object.BaseTestObject):
-
     def setUp(self):
         super(TestObject, self).setUp()
         self.the_data = b'test body'
@@ -39,7 +38,7 @@ class TestObject(base_test_object.BaseTestObject):
             "last_modified": "2014-07-13T18:41:03.319240",
             "bytes": self.the_data_length,
             "name": self.object,
-            "content_type": "application/octet-stream"
+            "content_type": "application/octet-stream",
         }
         self.headers = {
             'Content-Length': str(len(self.the_data)),
@@ -78,9 +77,9 @@ class TestObject(base_test_object.BaseTestObject):
                 'prefix': 'prefix',
                 'symlink': 'symlink',
                 'temp_url_expires': 'temp_url_expires',
-                'temp_url_sig': 'temp_url_sig'
+                'temp_url_sig': 'temp_url_sig',
             },
-            sot._query_mapping._mapping
+            sot._query_mapping._mapping,
         )
 
     def test_new(self):
@@ -95,8 +94,7 @@ class TestObject(base_test_object.BaseTestObject):
 
         # Attributes from header
         self.assertEqual(self.container, sot.container)
-        self.assertEqual(
-            int(self.body['bytes']), sot.content_length)
+        self.assertEqual(int(self.body['bytes']), sot.content_length)
         self.assertEqual(self.body['last_modified'], sot.last_modified_at)
         self.assertEqual(self.body['hash'], sot.etag)
         self.assertEqual(self.body['content_type'], sot.content_type)
@@ -108,7 +106,8 @@ class TestObject(base_test_object.BaseTestObject):
         # Attributes from header
         self.assertEqual(self.container, sot.container)
         self.assertEqual(
-            int(self.headers['Content-Length']), sot.content_length)
+            int(self.headers['Content-Length']), sot.content_length
+        )
         self.assertEqual(self.headers['Accept-Ranges'], sot.accept_ranges)
         self.assertEqual(self.headers['Last-Modified'], sot.last_modified_at)
         self.assertEqual(self.headers['Etag'], sot.etag)
@@ -129,16 +128,19 @@ class TestObject(base_test_object.BaseTestObject):
         headers = {
             'X-Newest': 'True',
             'If-Match': self.headers['Etag'],
-            'Accept': '*/*'
+            'Accept': '*/*',
         }
-        self.register_uris([
-            dict(method='GET', uri=self.object_endpoint,
-                 headers=self.headers,
-                 content=self.the_data,
-                 validate=dict(
-                     headers=headers
-                 ))
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.object_endpoint,
+                    headers=self.headers,
+                    content=self.the_data,
+                    validate=dict(headers=headers),
+                )
+            ]
+        )
         sot = obj.Object.new(container=self.container, name=self.object)
         sot.is_newest = True
         # if_match is a list type, but we're passing a string. This tests
@@ -153,19 +155,23 @@ class TestObject(base_test_object.BaseTestObject):
 
     def _test_create(self, method, data):
         sot = obj.Object.new(
-            container=self.container, name=self.object,
-            data=data, metadata={'foo': 'bar'})
+            container=self.container,
+            name=self.object,
+            data=data,
+            metadata={'foo': 'bar'},
+        )
         sot.is_newest = True
-        sent_headers = {
-            "x-newest": 'True',
-            "X-Object-Meta-foo": "bar"
-        }
-        self.register_uris([
-            dict(method=method, uri=self.object_endpoint,
-                 headers=self.headers,
-                 validate=dict(
-                     headers=sent_headers))
-        ])
+        sent_headers = {"x-newest": 'True', "X-Object-Meta-foo": "bar"}
+        self.register_uris(
+            [
+                dict(
+                    method=method,
+                    uri=self.object_endpoint,
+                    headers=self.headers,
+                    validate=dict(headers=sent_headers),
+                )
+            ]
+        )
 
         rv = sot.create(self.cloud.object_store)
         self.assertEqual(rv.etag, self.headers['Etag'])

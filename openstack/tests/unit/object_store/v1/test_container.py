@@ -17,13 +17,13 @@ from openstack.tests.unit import base
 
 
 class TestContainer(base.TestCase):
-
     def setUp(self):
         super(TestContainer, self).setUp()
         self.container = self.getUniqueString()
         self.endpoint = self.cloud.object_store.get_endpoint() + '/'
         self.container_endpoint = '{endpoint}{container}'.format(
-            endpoint=self.endpoint, container=self.container)
+            endpoint=self.endpoint, container=self.container
+        )
 
         self.body = {
             "count": 2,
@@ -42,7 +42,7 @@ class TestContainer(base.TestCase):
             'x-history-location': 'history-location',
             'content-type': 'application/json; charset=utf-8',
             'x-timestamp': '1453414055.48672',
-            'x-storage-policy': 'Gold'
+            'x-storage-policy': 'Gold',
         }
         self.body_plus_headers = dict(self.body, **self.headers)
 
@@ -81,49 +81,44 @@ class TestContainer(base.TestCase):
         # Attributes from header
         self.assertEqual(
             int(self.body_plus_headers['x-container-object-count']),
-            sot.object_count)
+            sot.object_count,
+        )
         self.assertEqual(
             int(self.body_plus_headers['x-container-bytes-used']),
-            sot.bytes_used)
+            sot.bytes_used,
+        )
         self.assertEqual(
-            self.body_plus_headers['x-container-read'],
-            sot.read_ACL)
+            self.body_plus_headers['x-container-read'], sot.read_ACL
+        )
         self.assertEqual(
-            self.body_plus_headers['x-container-write'],
-            sot.write_ACL)
+            self.body_plus_headers['x-container-write'], sot.write_ACL
+        )
         self.assertEqual(
-            self.body_plus_headers['x-container-sync-to'],
-            sot.sync_to)
+            self.body_plus_headers['x-container-sync-to'], sot.sync_to
+        )
         self.assertEqual(
-            self.body_plus_headers['x-container-sync-key'],
-            sot.sync_key)
+            self.body_plus_headers['x-container-sync-key'], sot.sync_key
+        )
         self.assertEqual(
             self.body_plus_headers['x-versions-location'],
-            sot.versions_location)
+            sot.versions_location,
+        )
         self.assertEqual(
-            self.body_plus_headers['x-history-location'],
-            sot.history_location)
+            self.body_plus_headers['x-history-location'], sot.history_location
+        )
         self.assertEqual(self.body_plus_headers['x-timestamp'], sot.timestamp)
-        self.assertEqual(self.body_plus_headers['x-storage-policy'],
-                         sot.storage_policy)
+        self.assertEqual(
+            self.body_plus_headers['x-storage-policy'], sot.storage_policy
+        )
 
     def test_list(self):
         containers = [
-            {
-                "count": 999,
-                "bytes": 12345,
-                "name": "container1"
-            },
-            {
-                "count": 888,
-                "bytes": 54321,
-                "name": "container2"
-            }
+            {"count": 999, "bytes": 12345, "name": "container1"},
+            {"count": 888, "bytes": 54321, "name": "container2"},
         ]
-        self.register_uris([
-            dict(method='GET', uri=self.endpoint,
-                 json=containers)
-        ])
+        self.register_uris(
+            [dict(method='GET', uri=self.endpoint, json=containers)]
+        )
 
         response = container.Container.list(self.cloud.object_store)
 
@@ -144,25 +139,32 @@ class TestContainer(base.TestCase):
             "x-container-read": "some ACL",
             "x-container-write": "another ACL",
             "x-detect-content-type": 'True',
-            "X-Container-Meta-foo": "bar"
+            "X-Container-Meta-foo": "bar",
         }
-        self.register_uris([
-            dict(method=sess_method, uri=self.container_endpoint,
-                 json=self.body,
-                 validate=dict(headers=headers)),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method=sess_method,
+                    uri=self.container_endpoint,
+                    json=self.body,
+                    validate=dict(headers=headers),
+                ),
+            ]
+        )
         sot_call(self.cloud.object_store)
 
         self.assert_calls()
 
     def test_create(self):
         sot = container.Container.new(
-            name=self.container, metadata={'foo': 'bar'})
+            name=self.container, metadata={'foo': 'bar'}
+        )
         self._test_create_update(sot, sot.create, 'PUT')
 
     def test_commit(self):
         sot = container.Container.new(
-            name=self.container, metadata={'foo': 'bar'})
+            name=self.container, metadata={'foo': 'bar'}
+        )
         self._test_create_update(sot, sot.commit, 'POST')
 
     def test_to_dict_recursion(self):
@@ -200,15 +202,22 @@ class TestContainer(base.TestCase):
                 'versions_location': None,
                 'history_location': None,
                 'write_ACL': None,
-                'storage_policy': None
-            }, json.loads(json.dumps(sot)))
+                'storage_policy': None,
+            },
+            json.loads(json.dumps(sot)),
+        )
 
     def _test_no_headers(self, sot, sot_call, sess_method):
         headers = {}
-        self.register_uris([
-            dict(method=sess_method, uri=self.container_endpoint,
-                 validate=dict(headers=headers))
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method=sess_method,
+                    uri=self.container_endpoint,
+                    validate=dict(headers=headers),
+                )
+            ]
+        )
         sot_call(self.cloud.object_store)
 
     def test_create_no_headers(self):
@@ -225,16 +234,23 @@ class TestContainer(base.TestCase):
         sot = container.Container.new(name=self.container)
         key = self.getUniqueString()
 
-        self.register_uris([
-            dict(method='POST', uri=self.container_endpoint,
-                 status_code=204,
-                 validate=dict(
-                     headers={
-                         'x-container-meta-temp-url-key': key})),
-            dict(method='HEAD', uri=self.container_endpoint,
-                 headers={
-                     'x-container-meta-temp-url-key': key}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='POST',
+                    uri=self.container_endpoint,
+                    status_code=204,
+                    validate=dict(
+                        headers={'x-container-meta-temp-url-key': key}
+                    ),
+                ),
+                dict(
+                    method='HEAD',
+                    uri=self.container_endpoint,
+                    headers={'x-container-meta-temp-url-key': key},
+                ),
+            ]
+        )
         sot.set_temp_url_key(self.cloud.object_store, key)
         self.assert_calls()
 
@@ -242,15 +258,22 @@ class TestContainer(base.TestCase):
         sot = container.Container.new(name=self.container)
         key = self.getUniqueString()
 
-        self.register_uris([
-            dict(method='POST', uri=self.container_endpoint,
-                 status_code=204,
-                 validate=dict(
-                     headers={
-                         'x-container-meta-temp-url-key-2': key})),
-            dict(method='HEAD', uri=self.container_endpoint,
-                 headers={
-                     'x-container-meta-temp-url-key-2': key}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='POST',
+                    uri=self.container_endpoint,
+                    status_code=204,
+                    validate=dict(
+                        headers={'x-container-meta-temp-url-key-2': key}
+                    ),
+                ),
+                dict(
+                    method='HEAD',
+                    uri=self.container_endpoint,
+                    headers={'x-container-meta-temp-url-key-2': key},
+                ),
+            ]
+        )
         sot.set_temp_url_key(self.cloud.object_store, key, secondary=True)
         self.assert_calls()

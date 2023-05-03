@@ -30,7 +30,7 @@ class Object(_base.BaseResource):
         "is_content_type_detected": "x-detect-content-type",
         "manifest": "x-object-manifest",
         # Rax hack - the need CORS as different header
-        "access_control_allow_origin": "access-control-allow-origin"
+        "access_control_allow_origin": "access-control-allow-origin",
     }
 
     base_path = "/%(container)s"
@@ -44,10 +44,14 @@ class Object(_base.BaseResource):
     allow_head = True
 
     _query_mapping = resource.QueryParameters(
-        'prefix', 'format',
-        'temp_url_sig', 'temp_url_expires',
-        'filename', 'multipart_manifest', 'symlink',
-        multipart_manifest='multipart-manifest'
+        'prefix',
+        'format',
+        'temp_url_sig',
+        'temp_url_expires',
+        'filename',
+        'multipart_manifest',
+        'symlink',
+        multipart_manifest='multipart-manifest',
     )
 
     # Data to be passed during a POST call to create an object on the server.
@@ -117,7 +121,8 @@ class Object(_base.BaseResource):
     #: size of the response body. Instead it contains the size of
     #: the object, in bytes.
     content_length = resource.Header(
-        "content-length", type=int, alias='_bytes')
+        "content-length", type=int, alias='_bytes'
+    )
     #: The MIME type of the object.
     content_type = resource.Header("content-type", alias="_content_type")
     #: The type of ranges that the object accepts.
@@ -136,8 +141,9 @@ class Object(_base.BaseResource):
     etag = resource.Header("etag", alias='_hash')
     #: Set to True if this object is a static large object manifest object.
     #: *Type: bool*
-    is_static_large_object = resource.Header("x-static-large-object",
-                                             type=bool)
+    is_static_large_object = resource.Header(
+        "x-static-large-object", type=bool
+    )
     #: If set, the value of the Content-Encoding metadata.
     #: If not set, this header is not returned by this operation.
     content_encoding = resource.Header("content-encoding")
@@ -164,9 +170,8 @@ class Object(_base.BaseResource):
     #: The date and time that the object was created or the last
     #: time that the metadata was changed.
     last_modified_at = resource.Header(
-        "last-modified",
-        alias='_last_modified',
-        aka='updated_at')
+        "last-modified", alias='_last_modified', aka='updated_at'
+    )
 
     # Headers for PUT and POST requests
     #: Set to chunked to enable chunked transfer encoding. If used,
@@ -175,8 +180,9 @@ class Object(_base.BaseResource):
     #: If set to true, Object Storage guesses the content type based
     #: on the file extension and ignores the value sent in the
     #: Content-Type header, if present. *Type: bool*
-    is_content_type_detected = resource.Header("x-detect-content-type",
-                                               type=bool)
+    is_content_type_detected = resource.Header(
+        "x-detect-content-type", type=bool
+    )
     #: If set, this is the name of an object used to create the new
     #: object by copying the X-Copy-From object. The value is in form
     #: {container}/{object}. You must UTF-8-encode and then URL-encode
@@ -195,7 +201,8 @@ class Object(_base.BaseResource):
 
     #: CORS for RAX (deviating from standard)
     access_control_allow_origin = resource.Header(
-        "access-control-allow-origin")
+        "access-control-allow-origin"
+    )
 
     has_body = False
 
@@ -209,8 +216,9 @@ class Object(_base.BaseResource):
     def set_metadata(self, session, metadata):
         # Filter out items with empty values so the create metadata behaviour
         # is the same as account and container
-        filtered_metadata = \
-            {key: value for key, value in metadata.items() if value}
+        filtered_metadata = {
+            key: value for key, value in metadata.items() if value
+        }
 
         # Update from remote if we only have locally created information
         if not self.last_modified_at:
@@ -281,9 +289,11 @@ class Object(_base.BaseResource):
 
         request = self._prepare_request()
         response = session.post(
-            request.url, headers=self._calculate_headers(metadata))
+            request.url, headers=self._calculate_headers(metadata)
+        )
         exceptions.raise_from_response(
-            response, error_message="Error deleting metadata keys")
+            response, error_message="Error deleting metadata keys"
+        )
 
         # Only delete from local object if the remote delete was successful
         for key in attr_keys_to_delete:
@@ -296,7 +306,8 @@ class Object(_base.BaseResource):
         request = self._prepare_request()
 
         response = session.get(
-            request.url, headers=request.headers, stream=stream)
+            request.url, headers=request.headers, stream=stream
+        )
         exceptions.raise_from_response(response, error_message=error_message)
         return response
 
@@ -306,16 +317,15 @@ class Object(_base.BaseResource):
 
     def stream(self, session, error_message=None, chunk_size=1024):
         response = self._download(
-            session, error_message=error_message, stream=True)
+            session, error_message=error_message, stream=True
+        )
         return response.iter_content(chunk_size, decode_unicode=False)
 
     def create(self, session, base_path=None, **params):
         request = self._prepare_request(base_path=base_path)
 
         response = session.put(
-            request.url,
-            data=self.data,
-            headers=request.headers
+            request.url, data=self.data, headers=request.headers
         )
         self._translate_response(response, has_body=False)
         return self
@@ -339,6 +349,5 @@ class Object(_base.BaseResource):
             headers['multipart-manifest'] = 'delete'
 
         return session.delete(
-            request.url,
-            headers=headers,
-            microversion=microversion)
+            request.url, headers=headers, microversion=microversion
+        )

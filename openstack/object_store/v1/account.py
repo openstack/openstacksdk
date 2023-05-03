@@ -28,8 +28,9 @@ class Account(_base.BaseResource):
     #: the account.
     account_bytes_used = resource.Header("x-account-bytes-used", type=int)
     #: The number of containers.
-    account_container_count = resource.Header("x-account-container-count",
-                                              type=int)
+    account_container_count = resource.Header(
+        "x-account-container-count", type=int
+    )
     #: The number of objects in the account.
     account_object_count = resource.Header("x-account-object-count", type=int)
     #: The secret key value for temporary URLs. If not set,

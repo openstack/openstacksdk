@@ -14,7 +14,6 @@ from openstack.tests.functional import base
 
 
 class TestAccount(base.BaseFunctionalTest):
-
     def setUp(self):
         super(TestAccount, self).setUp()
         self.require_service('object-store')

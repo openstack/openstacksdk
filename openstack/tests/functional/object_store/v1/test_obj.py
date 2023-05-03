@@ -26,19 +26,25 @@ class TestObject(base.BaseFunctionalTest):
         self.conn.object_store.create_container(name=self.FOLDER)
         self.addCleanup(self.conn.object_store.delete_container, self.FOLDER)
         self.sot = self.conn.object_store.upload_object(
-            container=self.FOLDER, name=self.FILE, data=self.DATA)
+            container=self.FOLDER, name=self.FILE, data=self.DATA
+        )
         self.addEmptyCleanup(
-            self.conn.object_store.delete_object, self.sot,
-            ignore_missing=False)
+            self.conn.object_store.delete_object,
+            self.sot,
+            ignore_missing=False,
+        )
 
     def test_list(self):
-        names = [o.name for o
-                 in self.conn.object_store.objects(container=self.FOLDER)]
+        names = [
+            o.name
+            for o in self.conn.object_store.objects(container=self.FOLDER)
+        ]
         self.assertIn(self.FILE, names)
 
     def test_download_object(self):
         result = self.conn.object_store.download_object(
-            self.FILE, container=self.FOLDER)
+            self.FILE, container=self.FOLDER
+        )
         self.assertEqual(self.DATA, result)
         result = self.conn.object_store.download_object(self.sot)
         self.assertEqual(self.DATA, result)
@@ -46,25 +52,29 @@ class TestObject(base.BaseFunctionalTest):
     def test_system_metadata(self):
         # get system metadata
         obj = self.conn.object_store.get_object_metadata(
-            self.FILE, container=self.FOLDER)
+            self.FILE, container=self.FOLDER
+        )
         # TODO(shade) obj.bytes is coming up None on python3 but not python2
         # self.assertGreaterEqual(0, obj.bytes)
         self.assertIsNotNone(obj.etag)
 
         # set system metadata
         obj = self.conn.object_store.get_object_metadata(
-            self.FILE, container=self.FOLDER)
+            self.FILE, container=self.FOLDER
+        )
         self.assertIsNone(obj.content_disposition)
         self.assertIsNone(obj.content_encoding)
         self.conn.object_store.set_object_metadata(
-            obj, content_disposition='attachment', content_encoding='gzip')
+            obj, content_disposition='attachment', content_encoding='gzip'
+        )
         obj = self.conn.object_store.get_object_metadata(obj)
         self.assertEqual('attachment', obj.content_disposition)
         self.assertEqual('gzip', obj.content_encoding)
 
         # update system metadata
         self.conn.object_store.set_object_metadata(
-            obj, content_encoding='deflate')
+            obj, content_encoding='deflate'
+        )
         obj = self.conn.object_store.get_object_metadata(obj)
         self.assertEqual('attachment', obj.content_disposition)
         self.assertEqual('deflate', obj.content_encoding)
@@ -79,7 +89,8 @@ class TestObject(base.BaseFunctionalTest):
 
         # unset more system metadata
         self.conn.object_store.delete_object_metadata(
-            obj, keys=['content_disposition'])
+            obj, keys=['content_disposition']
+        )
         obj = self.conn.object_store.get_object_metadata(obj)
         self.assertIn('k0', obj.metadata)
         self.assertEqual('v0', obj.metadata['k0'])
@@ -90,7 +101,8 @@ class TestObject(base.BaseFunctionalTest):
     def test_custom_metadata(self):
         # get custom metadata
         obj = self.conn.object_store.get_object_metadata(
-            self.FILE, container=self.FOLDER)
+            self.FILE, container=self.FOLDER
+        )
         self.assertFalse(obj.metadata)
 
         # set no custom metadata
@@ -112,8 +124,9 @@ class TestObject(base.BaseFunctionalTest):
         self.assertEqual('v1', obj.metadata['k1'])
 
         # set more custom metadata by named object and container
-        self.conn.object_store.set_object_metadata(self.FILE, self.FOLDER,
-                                                   k2='v2')
+        self.conn.object_store.set_object_metadata(
+            self.FILE, self.FOLDER, k2='v2'
+        )
         obj = self.conn.object_store.get_object_metadata(obj)
         self.assertTrue(obj.metadata)
         self.assertEqual(2, len(obj.metadata))

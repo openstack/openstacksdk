@@ -34,8 +34,12 @@ class Info(resource.Resource):
     tempurl = resource.Body("tempurl", type=dict)
 
     def fetch(
-        self, session, requires_id=False,
-        base_path=None, skip_cache=False, error_message=None
+        self,
+        session,
+        requires_id=False,
+        base_path=None,
+        skip_cache=False,
+        error_message=None,
     ):
         """Get a remote resource based on this instance.
 
@@ -64,7 +68,8 @@ class Info(resource.Resource):
         session = self._get_session(session)
         endpoint = urllib.parse.urlparse(session.get_endpoint())
         url = "{scheme}://{netloc}/info".format(
-            scheme=endpoint.scheme, netloc=endpoint.netloc)
+            scheme=endpoint.scheme, netloc=endpoint.netloc
+        )
 
         microversion = self._get_microversion(session, action='fetch')
         response = session.get(url, microversion=microversion)

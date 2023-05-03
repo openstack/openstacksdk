@@ -15,7 +15,6 @@ from openstack.tests.functional import base
 
 
 class TestContainer(base.BaseFunctionalTest):
-
     def setUp(self):
         super(TestContainer, self).setUp()
         self.require_service('object-store')
@@ -24,7 +23,9 @@ class TestContainer(base.BaseFunctionalTest):
         container = self.conn.object_store.create_container(name=self.NAME)
         self.addEmptyCleanup(
             self.conn.object_store.delete_container,
-            self.NAME, ignore_missing=False)
+            self.NAME,
+            ignore_missing=False,
+        )
         assert isinstance(container, _container.Container)
         self.assertEqual(self.NAME, container.name)
 
@@ -43,21 +44,24 @@ class TestContainer(base.BaseFunctionalTest):
         self.assertIsNone(container.read_ACL)
         self.assertIsNone(container.write_ACL)
         self.conn.object_store.set_container_metadata(
-            container, read_ACL='.r:*', write_ACL='demo:demo')
+            container, read_ACL='.r:*', write_ACL='demo:demo'
+        )
         container = self.conn.object_store.get_container_metadata(self.NAME)
         self.assertEqual('.r:*', container.read_ACL)
         self.assertEqual('demo:demo', container.write_ACL)
 
         # update system metadata
         self.conn.object_store.set_container_metadata(
-            container, read_ACL='.r:demo')
+            container, read_ACL='.r:demo'
+        )
         container = self.conn.object_store.get_container_metadata(self.NAME)
         self.assertEqual('.r:demo', container.read_ACL)
         self.assertEqual('demo:demo', container.write_ACL)
 
         # set system metadata and custom metadata
         self.conn.object_store.set_container_metadata(
-            container, k0='v0', sync_key='1234')
+            container, k0='v0', sync_key='1234'
+        )
         container = self.conn.object_store.get_container_metadata(self.NAME)
         self.assertTrue(container.metadata)
         self.assertIn('k0', container.metadata)
@@ -67,8 +71,9 @@ class TestContainer(base.BaseFunctionalTest):
         self.assertEqual('1234', container.sync_key)
 
         # unset system metadata
-        self.conn.object_store.delete_container_metadata(container,
-                                                         ['sync_key'])
+        self.conn.object_store.delete_container_metadata(
+            container, ['sync_key']
+        )
         container = self.conn.object_store.get_container_metadata(self.NAME)
         self.assertTrue(container.metadata)
         self.assertIn('k0', container.metadata)

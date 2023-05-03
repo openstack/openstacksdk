@@ -25,7 +25,7 @@ class Container(_base.BaseResource):
         "read_ACL": "x-container-read",
         "write_ACL": "x-container-write",
         "sync_to": "x-container-sync-to",
-        "sync_key": "x-container-sync-key"
+        "sync_key": "x-container-sync-key",
     }
 
     base_path = "/"
@@ -38,9 +38,7 @@ class Container(_base.BaseResource):
     allow_list = True
     allow_head = True
 
-    _query_mapping = resource.QueryParameters(
-        'prefix', 'format'
-    )
+    _query_mapping = resource.QueryParameters('prefix', 'format')
 
     # Container body data (when id=None)
     #: The name of the container.
@@ -54,10 +52,12 @@ class Container(_base.BaseResource):
     # Container metadata (when id=name)
     #: The number of objects.
     object_count = resource.Header(
-        "x-container-object-count", type=int, alias='count')
+        "x-container-object-count", type=int, alias='count'
+    )
     #: The count of bytes used in total.
     bytes_used = resource.Header(
-        "x-container-bytes-used", type=int, alias='bytes')
+        "x-container-bytes-used", type=int, alias='bytes'
+    )
     #: The timestamp of the transaction.
     timestamp = resource.Header("x-timestamp")
 
@@ -94,8 +94,9 @@ class Container(_base.BaseResource):
     #: If set to true, Object Storage guesses the content type based
     #: on the file extension and ignores the value sent in the
     #: Content-Type header, if present. *Type: bool*
-    is_content_type_detected = resource.Header("x-detect-content-type",
-                                               type=bool)
+    is_content_type_detected = resource.Header(
+        "x-detect-content-type", type=bool
+    )
 
     #: Storage policy used by the container.
     #: It is not possible to change policy of an existing container
@@ -136,9 +137,9 @@ class Container(_base.BaseResource):
                  :data:`Resource.allow_create` is not set to ``True``.
         """
         request = self._prepare_request(
-            requires_id=True, prepend_key=prepend_key, base_path=base_path)
-        response = session.put(
-            request.url, headers=request.headers)
+            requires_id=True, prepend_key=prepend_key, base_path=base_path
+        )
+        response = session.put(request.url, headers=request.headers)
 
         self._translate_response(response, has_body=False)
         return self
