@@ -27,7 +27,6 @@ EXAMPLE = {
 
 
 class TestServerGroup(base.TestCase):
-
     def test_basic(self):
         sot = server_group.ServerGroup()
         self.assertEqual('server_group', sot.resource_key)
@@ -39,9 +38,14 @@ class TestServerGroup(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
-        self.assertDictEqual({"all_projects": "all_projects",
-                              "limit": "limit", "marker": "marker"},
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {
+                "all_projects": "all_projects",
+                "limit": "limit",
+                "marker": "marker",
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = server_group.ServerGroup(**EXAMPLE)

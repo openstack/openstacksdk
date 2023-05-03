@@ -15,7 +15,6 @@ from openstack.tests.functional import base
 
 
 class TestExtension(base.BaseFunctionalTest):
-
     def test_list(self):
         extensions = list(self.conn.compute.extensions())
         self.assertGreater(len(extensions), 0)

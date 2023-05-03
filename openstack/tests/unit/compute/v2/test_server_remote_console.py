@@ -19,15 +19,10 @@ from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
-    'protocol': 'rdp',
-    'type': 'rdp',
-    'url': 'fake'
-}
+EXAMPLE = {'protocol': 'rdp', 'type': 'rdp', 'url': 'fake'}
 
 
 class TestServerRemoteConsole(base.TestCase):
-
     def setUp(self):
         super(TestServerRemoteConsole, self).setUp()
         self.sess = mock.Mock(spec=adapter.Adapter)
@@ -43,8 +38,9 @@ class TestServerRemoteConsole(base.TestCase):
     def test_basic(self):
         sot = server_remote_console.ServerRemoteConsole()
         self.assertEqual('remote_console', sot.resource_key)
-        self.assertEqual('/servers/%(server_id)s/remote-consoles',
-                         sot.base_path)
+        self.assertEqual(
+            '/servers/%(server_id)s/remote-consoles', sot.base_path
+        )
         self.assertTrue(sot.allow_create)
         self.assertFalse(sot.allow_fetch)
         self.assertFalse(sot.allow_commit)
@@ -57,15 +53,13 @@ class TestServerRemoteConsole(base.TestCase):
 
     def test_create_type_mks_old(self):
         sot = server_remote_console.ServerRemoteConsole(
-            server_id='fake_server', type='webmks')
+            server_id='fake_server', type='webmks'
+        )
 
         class FakeEndpointData:
             min_microversion = '2'
             max_microversion = '2.5'
+
         self.sess.get_endpoint_data.return_value = FakeEndpointData()
 
-        self.assertRaises(
-            ValueError,
-            sot.create,
-            self.sess
-        )
+        self.assertRaises(ValueError, sot.create, self.sess)

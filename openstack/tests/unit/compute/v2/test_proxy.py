@@ -65,9 +65,10 @@ class TestFlavor(TestComputeProxy):
 
     def test_flavor_find_query(self):
         self.verify_find(
-            self.proxy.find_flavor, flavor.Flavor,
+            self.proxy.find_flavor,
+            flavor.Flavor,
             method_kwargs={"a": "b"},
-            expected_kwargs={"a": "b", "ignore_missing": True}
+            expected_kwargs={"a": "b", "ignore_missing": True},
         )
 
     def test_flavor_find_fetch_extra(self):
@@ -84,7 +85,7 @@ class TestFlavor(TestComputeProxy):
                 method_kwargs={'get_extra_specs': True},
                 expected_result=res,
                 expected_args=[flavor.Flavor, 'res'],
-                expected_kwargs={'ignore_missing': True}
+                expected_kwargs={'ignore_missing': True},
             )
             mocked.assert_called_once()
 
@@ -101,7 +102,7 @@ class TestFlavor(TestComputeProxy):
                 method_args=['res', True],
                 expected_result=res,
                 expected_args=[flavor.Flavor, 'res'],
-                expected_kwargs={'ignore_missing': True}
+                expected_kwargs={'ignore_missing': True},
             )
             mocked.assert_not_called()
 
@@ -117,7 +118,7 @@ class TestFlavor(TestComputeProxy):
                 self.proxy.get_flavor,
                 method_args=['res'],
                 expected_result=res,
-                expected_args=[flavor.Flavor, 'res']
+                expected_args=[flavor.Flavor, 'res'],
             )
             mocked.assert_not_called()
 
@@ -133,7 +134,7 @@ class TestFlavor(TestComputeProxy):
                 self.proxy.get_flavor,
                 method_args=['res', True],
                 expected_result=res,
-                expected_args=[flavor.Flavor, 'res']
+                expected_args=[flavor.Flavor, 'res'],
             )
             mocked.assert_called_once()
 
@@ -149,7 +150,7 @@ class TestFlavor(TestComputeProxy):
                 self.proxy.get_flavor,
                 method_args=['res', True],
                 expected_result=res,
-                expected_args=[flavor.Flavor, 'res']
+                expected_args=[flavor.Flavor, 'res'],
             )
             mocked.assert_not_called()
 
@@ -161,8 +162,7 @@ class TestFlavor(TestComputeProxy):
             self.assertIsNotNone(r)
         fetch_mock.assert_not_called()
         list_mock.assert_called_with(
-            flavor.Flavor,
-            base_path="/flavors/detail"
+            flavor.Flavor, base_path="/flavors/detail"
         )
 
     @mock.patch("openstack.proxy.Proxy._list")
@@ -172,10 +172,7 @@ class TestFlavor(TestComputeProxy):
         for r in res:
             self.assertIsNotNone(r)
         fetch_mock.assert_not_called()
-        list_mock.assert_called_with(
-            flavor.Flavor,
-            base_path="/flavors"
-        )
+        list_mock.assert_called_with(flavor.Flavor, base_path="/flavors")
 
     @mock.patch("openstack.proxy.Proxy._list")
     @mock.patch("openstack.compute.v2.flavor.Flavor.fetch_extra_specs")
@@ -184,9 +181,7 @@ class TestFlavor(TestComputeProxy):
         for r in res:
             fetch_mock.assert_called_with(self.proxy)
         list_mock.assert_called_with(
-            flavor.Flavor,
-            base_path="/flavors",
-            a="b"
+            flavor.Flavor, base_path="/flavors", a="b"
         )
 
     @mock.patch("openstack.proxy.Proxy._list")
@@ -195,38 +190,39 @@ class TestFlavor(TestComputeProxy):
         res = self.proxy.flavors(details=False, get_extra_specs=True)
         for r in res:
             fetch_mock.assert_called_with(self.proxy)
-        list_mock.assert_called_with(
-            flavor.Flavor,
-            base_path="/flavors"
-        )
+        list_mock.assert_called_with(flavor.Flavor, base_path="/flavors")
 
     def test_flavor_get_access(self):
         self._verify(
             "openstack.compute.v2.flavor.Flavor.get_access",
             self.proxy.get_flavor_access,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_flavor_add_tenant_access(self):
         self._verify(
             "openstack.compute.v2.flavor.Flavor.add_tenant_access",
             self.proxy.flavor_add_tenant_access,
             method_args=["value", "fake-tenant"],
-            expected_args=[self.proxy, "fake-tenant"])
+            expected_args=[self.proxy, "fake-tenant"],
+        )
 
     def test_flavor_remove_tenant_access(self):
         self._verify(
             "openstack.compute.v2.flavor.Flavor.remove_tenant_access",
             self.proxy.flavor_remove_tenant_access,
             method_args=["value", "fake-tenant"],
-            expected_args=[self.proxy, "fake-tenant"])
+            expected_args=[self.proxy, "fake-tenant"],
+        )
 
     def test_flavor_fetch_extra_specs(self):
         self._verify(
             "openstack.compute.v2.flavor.Flavor.fetch_extra_specs",
             self.proxy.fetch_flavor_extra_specs,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_create_flavor_extra_specs(self):
         self._verify(
@@ -234,28 +230,32 @@ class TestFlavor(TestComputeProxy):
             self.proxy.create_flavor_extra_specs,
             method_args=["value", {'a': 'b'}],
             expected_args=[self.proxy],
-            expected_kwargs={"specs": {'a': 'b'}})
+            expected_kwargs={"specs": {'a': 'b'}},
+        )
 
     def test_get_flavor_extra_specs_prop(self):
         self._verify(
             "openstack.compute.v2.flavor.Flavor.get_extra_specs_property",
             self.proxy.get_flavor_extra_specs_property,
             method_args=["value", "prop"],
-            expected_args=[self.proxy, "prop"])
+            expected_args=[self.proxy, "prop"],
+        )
 
     def test_update_flavor_extra_specs_prop(self):
         self._verify(
             "openstack.compute.v2.flavor.Flavor.update_extra_specs_property",
             self.proxy.update_flavor_extra_specs_property,
             method_args=["value", "prop", "val"],
-            expected_args=[self.proxy, "prop", "val"])
+            expected_args=[self.proxy, "prop", "val"],
+        )
 
     def test_delete_flavor_extra_specs_prop(self):
         self._verify(
             "openstack.compute.v2.flavor.Flavor.delete_extra_specs_property",
             self.proxy.delete_flavor_extra_specs_property,
             method_args=["value", "prop"],
-            expected_args=[self.proxy, "prop"])
+            expected_args=[self.proxy, "prop"],
+        )
 
 
 class TestKeyPair(TestComputeProxy):
@@ -270,10 +270,11 @@ class TestKeyPair(TestComputeProxy):
 
     def test_keypair_delete_user_id(self):
         self.verify_delete(
-            self.proxy.delete_keypair, keypair.Keypair,
+            self.proxy.delete_keypair,
+            keypair.Keypair,
             True,
             method_kwargs={'user_id': 'fake_user'},
-            expected_kwargs={'user_id': 'fake_user'}
+            expected_kwargs={'user_id': 'fake_user'},
         )
 
     def test_keypair_find(self):
@@ -281,9 +282,10 @@ class TestKeyPair(TestComputeProxy):
 
     def test_keypair_find_user_id(self):
         self.verify_find(
-            self.proxy.find_keypair, keypair.Keypair,
+            self.proxy.find_keypair,
+            keypair.Keypair,
             method_kwargs={'user_id': 'fake_user'},
-            expected_kwargs={'user_id': 'fake_user'}
+            expected_kwargs={'user_id': 'fake_user'},
         )
 
     def test_keypair_get(self):
@@ -291,9 +293,10 @@ class TestKeyPair(TestComputeProxy):
 
     def test_keypair_get_user_id(self):
         self.verify_get(
-            self.proxy.get_keypair, keypair.Keypair,
+            self.proxy.get_keypair,
+            keypair.Keypair,
             method_kwargs={'user_id': 'fake_user'},
-            expected_kwargs={'user_id': 'fake_user'}
+            expected_kwargs={'user_id': 'fake_user'},
         )
 
     def test_keypairs(self):
@@ -301,9 +304,10 @@ class TestKeyPair(TestComputeProxy):
 
     def test_keypairs_user_id(self):
         self.verify_list(
-            self.proxy.keypairs, keypair.Keypair,
+            self.proxy.keypairs,
+            keypair.Keypair,
             method_kwargs={'user_id': 'fake_user'},
-            expected_kwargs={'user_id': 'fake_user'}
+            expected_kwargs={'user_id': 'fake_user'},
         )
 
 
@@ -313,11 +317,13 @@ class TestAggregate(TestComputeProxy):
 
     def test_aggregate_delete(self):
         self.verify_delete(
-            self.proxy.delete_aggregate, aggregate.Aggregate, False)
+            self.proxy.delete_aggregate, aggregate.Aggregate, False
+        )
 
     def test_aggregate_delete_ignore(self):
         self.verify_delete(
-            self.proxy.delete_aggregate, aggregate.Aggregate, True)
+            self.proxy.delete_aggregate, aggregate.Aggregate, True
+        )
 
     def test_aggregate_find(self):
         self.verify_find(self.proxy.find_aggregate, aggregate.Aggregate)
@@ -336,53 +342,64 @@ class TestAggregate(TestComputeProxy):
             "openstack.compute.v2.aggregate.Aggregate.add_host",
             self.proxy.add_host_to_aggregate,
             method_args=["value", "host"],
-            expected_args=[self.proxy, "host"])
+            expected_args=[self.proxy, "host"],
+        )
 
     def test_aggregate_remove_host(self):
         self._verify(
             "openstack.compute.v2.aggregate.Aggregate.remove_host",
             self.proxy.remove_host_from_aggregate,
             method_args=["value", "host"],
-            expected_args=[self.proxy, "host"])
+            expected_args=[self.proxy, "host"],
+        )
 
     def test_aggregate_set_metadata(self):
         self._verify(
             "openstack.compute.v2.aggregate.Aggregate.set_metadata",
             self.proxy.set_aggregate_metadata,
             method_args=["value", {'a': 'b'}],
-            expected_args=[self.proxy, {'a': 'b'}])
+            expected_args=[self.proxy, {'a': 'b'}],
+        )
 
     def test_aggregate_precache_image(self):
         self._verify(
             "openstack.compute.v2.aggregate.Aggregate.precache_images",
             self.proxy.aggregate_precache_images,
             method_args=["value", '1'],
-            expected_args=[self.proxy, [{'id': '1'}]])
+            expected_args=[self.proxy, [{'id': '1'}]],
+        )
 
     def test_aggregate_precache_images(self):
         self._verify(
             "openstack.compute.v2.aggregate.Aggregate.precache_images",
             self.proxy.aggregate_precache_images,
             method_args=["value", ['1', '2']],
-            expected_args=[self.proxy, [{'id': '1'}, {'id': '2'}]])
+            expected_args=[self.proxy, [{'id': '1'}, {'id': '2'}]],
+        )
 
 
 class TestService(TestComputeProxy):
     def test_services(self):
         self.verify_list(self.proxy.services, service.Service)
 
-    @mock.patch('openstack.utils.supports_microversion', autospec=True,
-                return_value=False)
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=False,
+    )
     def test_enable_service_252(self, mv_mock):
         self._verify(
             'openstack.compute.v2.service.Service.enable',
             self.proxy.enable_service,
             method_args=["value", "host1", "nova-compute"],
-            expected_args=[self.proxy, "host1", "nova-compute"]
+            expected_args=[self.proxy, "host1", "nova-compute"],
         )
 
-    @mock.patch('openstack.utils.supports_microversion', autospec=True,
-                return_value=True)
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=True,
+    )
     def test_enable_service_253(self, mv_mock):
         self._verify(
             'openstack.proxy.Proxy._update',
@@ -390,20 +407,27 @@ class TestService(TestComputeProxy):
             method_args=["value"],
             method_kwargs={},
             expected_args=[service.Service, "value"],
-            expected_kwargs={'status': 'enabled'}
+            expected_kwargs={'status': 'enabled'},
         )
 
-    @mock.patch('openstack.utils.supports_microversion', autospec=True,
-                return_value=False)
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=False,
+    )
     def test_disable_service_252(self, mv_mock):
         self._verify(
             'openstack.compute.v2.service.Service.disable',
             self.proxy.disable_service,
             method_args=["value", "host1", "nova-compute"],
-            expected_args=[self.proxy, "host1", "nova-compute", None])
+            expected_args=[self.proxy, "host1", "nova-compute", None],
+        )
 
-    @mock.patch('openstack.utils.supports_microversion', autospec=True,
-                return_value=True)
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=True,
+    )
     def test_disable_service_253(self, mv_mock):
         self._verify(
             'openstack.proxy.Proxy._update',
@@ -413,36 +437,49 @@ class TestService(TestComputeProxy):
             expected_args=[service.Service, "value"],
             expected_kwargs={
                 'status': 'disabled',
-                'disabled_reason': 'some_reason'
-            }
+                'disabled_reason': 'some_reason',
+            },
         )
 
-    @mock.patch('openstack.utils.supports_microversion', autospec=True,
-                return_value=False)
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=False,
+    )
     def test_force_service_down_252(self, mv_mock):
         self._verify(
             'openstack.compute.v2.service.Service.set_forced_down',
             self.proxy.update_service_forced_down,
             method_args=["value", "host1", "nova-compute"],
-            expected_args=[self.proxy, "host1", "nova-compute", True])
+            expected_args=[self.proxy, "host1", "nova-compute", True],
+        )
 
-    @mock.patch('openstack.utils.supports_microversion', autospec=True,
-                return_value=False)
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=False,
+    )
     def test_force_service_down_252_empty_vals(self, mv_mock):
         self.assertRaises(
             ValueError,
             self.proxy.update_service_forced_down,
-            "value", None, None
+            "value",
+            None,
+            None,
         )
 
-    @mock.patch('openstack.utils.supports_microversion', autospec=True,
-                return_value=False)
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=False,
+    )
     def test_force_service_down_252_empty_vals_svc(self, mv_mock):
         self._verify(
             'openstack.compute.v2.service.Service.set_forced_down',
             self.proxy.update_service_forced_down,
             method_args=[{'host': 'a', 'binary': 'b'}, None, None],
-            expected_args=[self.proxy, None, None, True])
+            expected_args=[self.proxy, None, None, True],
+        )
 
     def test_find_service(self):
         self.verify_find(
@@ -455,12 +492,11 @@ class TestService(TestComputeProxy):
             self.proxy.find_service,
             service.Service,
             method_kwargs={'host': 'h1'},
-            expected_kwargs={'host': 'h1'}
+            expected_kwargs={'host': 'h1'},
         )
 
 
 class TestVolumeAttachment(TestComputeProxy):
-
     def test_volume_attachment_create(self):
         self.verify_create(
             self.proxy.create_volume_attachment,
@@ -611,19 +647,27 @@ class TestVolumeAttachment(TestComputeProxy):
 
 
 class TestHypervisor(TestComputeProxy):
-
     def test_hypervisors_not_detailed(self):
-        self.verify_list(self.proxy.hypervisors, hypervisor.Hypervisor,
-                         method_kwargs={"details": False},
-                         expected_kwargs={})
+        self.verify_list(
+            self.proxy.hypervisors,
+            hypervisor.Hypervisor,
+            method_kwargs={"details": False},
+            expected_kwargs={},
+        )
 
     def test_hypervisors_detailed(self):
-        self.verify_list(self.proxy.hypervisors, hypervisor.HypervisorDetail,
-                         method_kwargs={"details": True},
-                         expected_kwargs={})
+        self.verify_list(
+            self.proxy.hypervisors,
+            hypervisor.HypervisorDetail,
+            method_kwargs={"details": True},
+            expected_kwargs={},
+        )
 
-    @mock.patch('openstack.utils.supports_microversion', autospec=True,
-                return_value=False)
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=False,
+    )
     def test_hypervisors_search_before_253_no_qp(self, sm):
         self.verify_list(
             self.proxy.hypervisors,
@@ -633,8 +677,11 @@ class TestHypervisor(TestComputeProxy):
             expected_kwargs={},
         )
 
-    @mock.patch('openstack.utils.supports_microversion', autospec=True,
-                return_value=False)
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=False,
+    )
     def test_hypervisors_search_before_253(self, sm):
         self.verify_list(
             self.proxy.hypervisors,
@@ -644,42 +691,48 @@ class TestHypervisor(TestComputeProxy):
             expected_kwargs={},
         )
 
-    @mock.patch('openstack.utils.supports_microversion', autospec=True,
-                return_value=True)
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=True,
+    )
     def test_hypervisors_search_after_253(self, sm):
         self.verify_list(
             self.proxy.hypervisors,
             hypervisor.Hypervisor,
             method_kwargs={'hypervisor_hostname_pattern': 'substring'},
             base_path=None,
-            expected_kwargs={'hypervisor_hostname_pattern': 'substring'}
+            expected_kwargs={'hypervisor_hostname_pattern': 'substring'},
         )
 
     def test_find_hypervisor_detail(self):
-        self.verify_find(self.proxy.find_hypervisor,
-                         hypervisor.Hypervisor,
-                         expected_kwargs={
-                             'list_base_path': '/os-hypervisors/detail',
-                             'ignore_missing': True})
+        self.verify_find(
+            self.proxy.find_hypervisor,
+            hypervisor.Hypervisor,
+            expected_kwargs={
+                'list_base_path': '/os-hypervisors/detail',
+                'ignore_missing': True,
+            },
+        )
 
     def test_find_hypervisor_no_detail(self):
-        self.verify_find(self.proxy.find_hypervisor,
-                         hypervisor.Hypervisor,
-                         method_kwargs={'details': False},
-                         expected_kwargs={
-                             'list_base_path': None,
-                             'ignore_missing': True})
+        self.verify_find(
+            self.proxy.find_hypervisor,
+            hypervisor.Hypervisor,
+            method_kwargs={'details': False},
+            expected_kwargs={'list_base_path': None, 'ignore_missing': True},
+        )
 
     def test_get_hypervisor(self):
-        self.verify_get(self.proxy.get_hypervisor,
-                        hypervisor.Hypervisor)
+        self.verify_get(self.proxy.get_hypervisor, hypervisor.Hypervisor)
 
     def test_get_hypervisor_uptime(self):
         self._verify(
             "openstack.compute.v2.hypervisor.Hypervisor.get_uptime",
             self.proxy.get_hypervisor_uptime,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
 
 class TestCompute(TestComputeProxy):
@@ -746,10 +799,12 @@ class TestCompute(TestComputeProxy):
         )
 
     def test_server_interface_create(self):
-        self.verify_create(self.proxy.create_server_interface,
-                           server_interface.ServerInterface,
-                           method_kwargs={"server": "test_id"},
-                           expected_kwargs={"server_id": "test_id"})
+        self.verify_create(
+            self.proxy.create_server_interface,
+            server_interface.ServerInterface,
+            method_kwargs={"server": "test_id"},
+            expected_kwargs={"server_id": "test_id"},
+        )
 
     def test_server_interface_delete(self):
         self.proxy._get_uri_attribute = lambda *args: args[1]
@@ -766,7 +821,8 @@ class TestCompute(TestComputeProxy):
             method_args=[test_interface],
             method_kwargs={"server": server_id},
             expected_args=[server_interface.ServerInterface, interface_id],
-            expected_kwargs={"server_id": server_id, "ignore_missing": True})
+            expected_kwargs={"server_id": server_id, "ignore_missing": True},
+        )
 
         # Case2: ServerInterface ID is provided as value
         self._verify(
@@ -775,14 +831,18 @@ class TestCompute(TestComputeProxy):
             method_args=[interface_id],
             method_kwargs={"server": server_id},
             expected_args=[server_interface.ServerInterface, interface_id],
-            expected_kwargs={"server_id": server_id, "ignore_missing": True})
+            expected_kwargs={"server_id": server_id, "ignore_missing": True},
+        )
 
     def test_server_interface_delete_ignore(self):
         self.proxy._get_uri_attribute = lambda *args: args[1]
-        self.verify_delete(self.proxy.delete_server_interface,
-                           server_interface.ServerInterface, True,
-                           method_kwargs={"server": "test_id"},
-                           expected_kwargs={"server_id": "test_id"})
+        self.verify_delete(
+            self.proxy.delete_server_interface,
+            server_interface.ServerInterface,
+            True,
+            method_kwargs={"server": "test_id"},
+            expected_kwargs={"server_id": "test_id"},
+        )
 
     def test_server_interface_get(self):
         self.proxy._get_uri_attribute = lambda *args: args[1]
@@ -799,7 +859,8 @@ class TestCompute(TestComputeProxy):
             method_args=[test_interface],
             method_kwargs={"server": server_id},
             expected_args=[server_interface.ServerInterface],
-            expected_kwargs={"port_id": interface_id, "server_id": server_id})
+            expected_kwargs={"port_id": interface_id, "server_id": server_id},
+        )
 
         # Case2: ServerInterface ID is provided as value
         self._verify(
@@ -808,29 +869,39 @@ class TestCompute(TestComputeProxy):
             method_args=[interface_id],
             method_kwargs={"server": server_id},
             expected_args=[server_interface.ServerInterface],
-            expected_kwargs={"port_id": interface_id, "server_id": server_id})
+            expected_kwargs={"port_id": interface_id, "server_id": server_id},
+        )
 
     def test_server_interfaces(self):
-        self.verify_list(self.proxy.server_interfaces,
-                         server_interface.ServerInterface,
-                         method_args=["test_id"],
-                         expected_args=[],
-                         expected_kwargs={"server_id": "test_id"})
+        self.verify_list(
+            self.proxy.server_interfaces,
+            server_interface.ServerInterface,
+            method_args=["test_id"],
+            expected_args=[],
+            expected_kwargs={"server_id": "test_id"},
+        )
 
     def test_server_ips_with_network_label(self):
-        self.verify_list(self.proxy.server_ips, server_ip.ServerIP,
-                         method_args=["test_id"],
-                         method_kwargs={"network_label": "test_label"},
-                         expected_args=[],
-                         expected_kwargs={"server_id": "test_id",
-                                          "network_label": "test_label"})
+        self.verify_list(
+            self.proxy.server_ips,
+            server_ip.ServerIP,
+            method_args=["test_id"],
+            method_kwargs={"network_label": "test_label"},
+            expected_args=[],
+            expected_kwargs={
+                "server_id": "test_id",
+                "network_label": "test_label",
+            },
+        )
 
     def test_server_ips_without_network_label(self):
-        self.verify_list(self.proxy.server_ips, server_ip.ServerIP,
-                         method_args=["test_id"],
-                         expected_args=[],
-                         expected_kwargs={"server_id": "test_id",
-                                          "network_label": None})
+        self.verify_list(
+            self.proxy.server_ips,
+            server_ip.ServerIP,
+            method_args=["test_id"],
+            expected_args=[],
+            expected_kwargs={"server_id": "test_id", "network_label": None},
+        )
 
     def test_server_create_attrs(self):
         self.verify_create(self.proxy.create_server, server.Server)
@@ -846,7 +917,8 @@ class TestCompute(TestComputeProxy):
             "openstack.compute.v2.server.Server.force_delete",
             self.proxy.delete_server,
             method_args=["value", False, True],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_server_find(self):
         self.verify_find(
@@ -863,17 +935,24 @@ class TestCompute(TestComputeProxy):
         self.verify_get(self.proxy.get_server, server.Server)
 
     def test_servers_detailed(self):
-        self.verify_list(self.proxy.servers, server.Server,
-                         method_kwargs={"details": True,
-                                        "changes_since": 1, "image": 2},
-                         expected_kwargs={"changes_since": 1, "image": 2,
-                                          "base_path": "/servers/detail"})
+        self.verify_list(
+            self.proxy.servers,
+            server.Server,
+            method_kwargs={"details": True, "changes_since": 1, "image": 2},
+            expected_kwargs={
+                "changes_since": 1,
+                "image": 2,
+                "base_path": "/servers/detail",
+            },
+        )
 
     def test_servers_not_detailed(self):
-        self.verify_list(self.proxy.servers, server.Server,
-                         method_kwargs={"details": False,
-                                        "changes_since": 1, "image": 2},
-                         expected_kwargs={"changes_since": 1, "image": 2})
+        self.verify_list(
+            self.proxy.servers,
+            server.Server,
+            method_kwargs={"details": False, "changes_since": 1, "image": 2},
+            expected_kwargs={"changes_since": 1, "image": 2},
+        )
 
     def test_server_update(self):
         self.verify_update(self.proxy.update_server, server.Server)
@@ -883,28 +962,32 @@ class TestCompute(TestComputeProxy):
         self.verify_wait_for_status(
             self.proxy.wait_for_server,
             method_args=[value],
-            expected_args=[self.proxy, value, 'ACTIVE', ['ERROR'], 2, 120])
+            expected_args=[self.proxy, value, 'ACTIVE', ['ERROR'], 2, 120],
+        )
 
     def test_server_resize(self):
         self._verify(
             "openstack.compute.v2.server.Server.resize",
             self.proxy.resize_server,
             method_args=["value", "test-flavor"],
-            expected_args=[self.proxy, "test-flavor"])
+            expected_args=[self.proxy, "test-flavor"],
+        )
 
     def test_server_confirm_resize(self):
         self._verify(
             "openstack.compute.v2.server.Server.confirm_resize",
             self.proxy.confirm_server_resize,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_server_revert_resize(self):
         self._verify(
             "openstack.compute.v2.server.Server.revert_resize",
             self.proxy.revert_server_resize,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_server_rebuild(self):
         id = 'test_image_id'
@@ -921,13 +1004,16 @@ class TestCompute(TestComputeProxy):
                 "name": "test_server",
                 "admin_password": "test_pass",
                 "metadata": {"k1": "v1"},
-                "image": image_obj},
+                "image": image_obj,
+            },
             expected_args=[self.proxy],
             expected_kwargs={
                 "name": "test_server",
                 "admin_password": "test_pass",
                 "metadata": {"k1": "v1"},
-                "image": image_obj})
+                "image": image_obj,
+            },
+        )
 
         # Case2: image name or id is provided
         self._verify(
@@ -938,27 +1024,32 @@ class TestCompute(TestComputeProxy):
                 "name": "test_server",
                 "admin_password": "test_pass",
                 "metadata": {"k1": "v1"},
-                "image": id},
+                "image": id,
+            },
             expected_args=[self.proxy],
             expected_kwargs={
                 "name": "test_server",
                 "admin_password": "test_pass",
                 "metadata": {"k1": "v1"},
-                "image": id})
+                "image": id,
+            },
+        )
 
     def test_add_fixed_ip_to_server(self):
         self._verify(
             "openstack.compute.v2.server.Server.add_fixed_ip",
             self.proxy.add_fixed_ip_to_server,
             method_args=["value", "network-id"],
-            expected_args=[self.proxy, "network-id"])
+            expected_args=[self.proxy, "network-id"],
+        )
 
     def test_fixed_ip_from_server(self):
         self._verify(
             "openstack.compute.v2.server.Server.remove_fixed_ip",
             self.proxy.remove_fixed_ip_from_server,
             method_args=["value", "address"],
-            expected_args=[self.proxy, "address"])
+            expected_args=[self.proxy, "address"],
+        )
 
     def test_floating_ip_to_server(self):
         self._verify(
@@ -966,7 +1057,8 @@ class TestCompute(TestComputeProxy):
             self.proxy.add_floating_ip_to_server,
             method_args=["value", "floating-ip"],
             expected_args=[self.proxy, "floating-ip"],
-            expected_kwargs={'fixed_address': None})
+            expected_kwargs={'fixed_address': None},
+        )
 
     def test_add_floating_ip_to_server_with_fixed_addr(self):
         self._verify(
@@ -974,49 +1066,56 @@ class TestCompute(TestComputeProxy):
             self.proxy.add_floating_ip_to_server,
             method_args=["value", "floating-ip", 'fixed-addr'],
             expected_args=[self.proxy, "floating-ip"],
-            expected_kwargs={'fixed_address': 'fixed-addr'})
+            expected_kwargs={'fixed_address': 'fixed-addr'},
+        )
 
     def test_remove_floating_ip_from_server(self):
         self._verify(
             "openstack.compute.v2.server.Server.remove_floating_ip",
             self.proxy.remove_floating_ip_from_server,
             method_args=["value", "address"],
-            expected_args=[self.proxy, "address"])
+            expected_args=[self.proxy, "address"],
+        )
 
     def test_server_backup(self):
         self._verify(
             "openstack.compute.v2.server.Server.backup",
             self.proxy.backup_server,
             method_args=["value", "name", "daily", 1],
-            expected_args=[self.proxy, "name", "daily", 1])
+            expected_args=[self.proxy, "name", "daily", 1],
+        )
 
     def test_server_pause(self):
         self._verify(
             "openstack.compute.v2.server.Server.pause",
             self.proxy.pause_server,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_server_unpause(self):
         self._verify(
             "openstack.compute.v2.server.Server.unpause",
             self.proxy.unpause_server,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_server_suspend(self):
         self._verify(
             "openstack.compute.v2.server.Server.suspend",
             self.proxy.suspend_server,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_server_resume(self):
         self._verify(
             "openstack.compute.v2.server.Server.resume",
             self.proxy.resume_server,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_server_lock(self):
         self._verify(
@@ -1024,7 +1123,8 @@ class TestCompute(TestComputeProxy):
             self.proxy.lock_server,
             method_args=["value"],
             expected_args=[self.proxy],
-            expected_kwargs={"locked_reason": None})
+            expected_kwargs={"locked_reason": None},
+        )
 
     def test_server_lock_with_options(self):
         self._verify(
@@ -1033,14 +1133,16 @@ class TestCompute(TestComputeProxy):
             method_args=["value"],
             method_kwargs={"locked_reason": "Because why not"},
             expected_args=[self.proxy],
-            expected_kwargs={"locked_reason": "Because why not"})
+            expected_kwargs={"locked_reason": "Because why not"},
+        )
 
     def test_server_unlock(self):
         self._verify(
             "openstack.compute.v2.server.Server.unlock",
             self.proxy.unlock_server,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_server_rescue(self):
         self._verify(
@@ -1048,7 +1150,8 @@ class TestCompute(TestComputeProxy):
             self.proxy.rescue_server,
             method_args=["value"],
             expected_args=[self.proxy],
-            expected_kwargs={"admin_pass": None, "image_ref": None})
+            expected_kwargs={"admin_pass": None, "image_ref": None},
+        )
 
     def test_server_rescue_with_options(self):
         self._verify(
@@ -1056,14 +1159,16 @@ class TestCompute(TestComputeProxy):
             self.proxy.rescue_server,
             method_args=["value", 'PASS', 'IMG'],
             expected_args=[self.proxy],
-            expected_kwargs={"admin_pass": 'PASS', "image_ref": 'IMG'})
+            expected_kwargs={"admin_pass": 'PASS', "image_ref": 'IMG'},
+        )
 
     def test_server_unrescue(self):
         self._verify(
             "openstack.compute.v2.server.Server.unrescue",
             self.proxy.unrescue_server,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_server_evacuate(self):
         self._verify(
@@ -1071,7 +1176,8 @@ class TestCompute(TestComputeProxy):
             self.proxy.evacuate_server,
             method_args=["value"],
             expected_args=[self.proxy],
-            expected_kwargs={"host": None, "admin_pass": None, "force": None})
+            expected_kwargs={"host": None, "admin_pass": None, "force": None},
+        )
 
     def test_server_evacuate_with_options(self):
         self._verify(
@@ -1080,49 +1186,59 @@ class TestCompute(TestComputeProxy):
             method_args=["value", 'HOST2', 'NEW_PASS', True],
             expected_args=[self.proxy],
             expected_kwargs={
-                "host": "HOST2", "admin_pass": 'NEW_PASS', "force": True})
+                "host": "HOST2",
+                "admin_pass": 'NEW_PASS',
+                "force": True,
+            },
+        )
 
     def test_server_start(self):
         self._verify(
             "openstack.compute.v2.server.Server.start",
             self.proxy.start_server,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_server_stop(self):
         self._verify(
             "openstack.compute.v2.server.Server.stop",
             self.proxy.stop_server,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_server_restore(self):
         self._verify(
             "openstack.compute.v2.server.Server.restore",
             self.proxy.restore_server,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_server_shelve(self):
         self._verify(
             "openstack.compute.v2.server.Server.shelve",
             self.proxy.shelve_server,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_server_unshelve(self):
         self._verify(
             "openstack.compute.v2.server.Server.unshelve",
             self.proxy.unshelve_server,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_server_trigger_dump(self):
         self._verify(
             "openstack.compute.v2.server.Server.trigger_crash_dump",
             self.proxy.trigger_server_crash_dump,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_get_server_output(self):
         self._verify(
@@ -1130,26 +1246,32 @@ class TestCompute(TestComputeProxy):
             self.proxy.get_server_console_output,
             method_args=["value"],
             expected_args=[self.proxy],
-            expected_kwargs={"length": None})
+            expected_kwargs={"length": None},
+        )
 
         self._verify(
             "openstack.compute.v2.server.Server.get_console_output",
             self.proxy.get_server_console_output,
             method_args=["value", 1],
             expected_args=[self.proxy],
-            expected_kwargs={"length": 1})
+            expected_kwargs={"length": 1},
+        )
 
     def test_availability_zones_not_detailed(self):
-        self.verify_list(self.proxy.availability_zones,
-                         az.AvailabilityZone,
-                         method_kwargs={"details": False},
-                         expected_kwargs={})
+        self.verify_list(
+            self.proxy.availability_zones,
+            az.AvailabilityZone,
+            method_kwargs={"details": False},
+            expected_kwargs={},
+        )
 
     def test_availability_zones_detailed(self):
-        self.verify_list(self.proxy.availability_zones,
-                         az.AvailabilityZoneDetail,
-                         method_kwargs={"details": True},
-                         expected_kwargs={})
+        self.verify_list(
+            self.proxy.availability_zones,
+            az.AvailabilityZoneDetail,
+            method_kwargs={"details": True},
+            expected_kwargs={},
+        )
 
     def test_get_all_server_metadata(self):
         self._verify(
@@ -1157,7 +1279,8 @@ class TestCompute(TestComputeProxy):
             self.proxy.get_server_metadata,
             method_args=["value"],
             expected_args=[self.proxy],
-            expected_result=server.Server(id="value", metadata={}))
+            expected_result=server.Server(id="value", metadata={}),
+        )
 
     def test_set_server_metadata(self):
         kwargs = {"a": "1", "b": "2"}
@@ -1170,7 +1293,7 @@ class TestCompute(TestComputeProxy):
             method_result=server.Server.existing(id=id, metadata=kwargs),
             expected_args=[self.proxy],
             expected_kwargs={'metadata': kwargs},
-            expected_result=server.Server.existing(id=id, metadata=kwargs)
+            expected_result=server.Server.existing(id=id, metadata=kwargs),
         )
 
     def test_delete_server_metadata(self):
@@ -1179,12 +1302,14 @@ class TestCompute(TestComputeProxy):
             self.proxy.delete_server_metadata,
             expected_result=None,
             method_args=["value", ["key"]],
-            expected_args=[self.proxy, "key"])
+            expected_args=[self.proxy, "key"],
+        )
 
     def test_create_image(self):
         metadata = {'k1': 'v1'}
-        with mock.patch('openstack.compute.v2.server.Server.create_image') \
-                as ci_mock:
+        with mock.patch(
+            'openstack.compute.v2.server.Server.create_image'
+        ) as ci_mock:
 
             ci_mock.return_value = 'image_id'
             connection_mock = mock.Mock()
@@ -1193,32 +1318,32 @@ class TestCompute(TestComputeProxy):
             self.proxy._connection = connection_mock
 
             rsp = self.proxy.create_server_image(
-                'server', 'image_name', metadata, wait=True, timeout=1)
-
-            ci_mock.assert_called_with(
-                self.proxy,
-                'image_name',
-                metadata
+                'server', 'image_name', metadata, wait=True, timeout=1
             )
+
+            ci_mock.assert_called_with(self.proxy, 'image_name', metadata)
 
             self.proxy._connection.get_image.assert_called_with('image_id')
             self.proxy._connection.wait_for_image.assert_called_with(
-                'image',
-                timeout=1)
+                'image', timeout=1
+            )
 
             self.assertEqual(connection_mock.wait_for_image(), rsp)
 
     def test_server_group_create(self):
-        self.verify_create(self.proxy.create_server_group,
-                           server_group.ServerGroup)
+        self.verify_create(
+            self.proxy.create_server_group, server_group.ServerGroup
+        )
 
     def test_server_group_delete(self):
-        self.verify_delete(self.proxy.delete_server_group,
-                           server_group.ServerGroup, False)
+        self.verify_delete(
+            self.proxy.delete_server_group, server_group.ServerGroup, False
+        )
 
     def test_server_group_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_server_group,
-                           server_group.ServerGroup, True)
+        self.verify_delete(
+            self.proxy.delete_server_group, server_group.ServerGroup, True
+        )
 
     def test_server_group_find(self):
         self.verify_find(
@@ -1229,8 +1354,7 @@ class TestCompute(TestComputeProxy):
         )
 
     def test_server_group_get(self):
-        self.verify_get(self.proxy.get_server_group,
-                        server_group.ServerGroup)
+        self.verify_get(self.proxy.get_server_group, server_group.ServerGroup)
 
     def test_server_groups(self):
         self.verify_list(self.proxy.server_groups, server_group.ServerGroup)
@@ -1241,7 +1365,8 @@ class TestCompute(TestComputeProxy):
             self.proxy.live_migrate_server,
             method_args=["value", "host1", False],
             expected_args=[self.proxy, "host1"],
-            expected_kwargs={'force': False, 'block_migration': None})
+            expected_kwargs={'force': False, 'block_migration': None},
+        )
 
     def test_abort_server_migration(self):
         self._verify(
@@ -1306,21 +1431,24 @@ class TestCompute(TestComputeProxy):
             'openstack.compute.v2.server.Server.fetch_security_groups',
             self.proxy.fetch_server_security_groups,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_add_security_groups(self):
         self._verify(
             'openstack.compute.v2.server.Server.add_security_group',
             self.proxy.add_security_group_to_server,
             method_args=["value", {'id': 'id', 'name': 'sg'}],
-            expected_args=[self.proxy, 'sg'])
+            expected_args=[self.proxy, 'sg'],
+        )
 
     def test_remove_security_groups(self):
         self._verify(
             'openstack.compute.v2.server.Server.remove_security_group',
             self.proxy.remove_security_group_from_server,
             method_args=["value", {'id': 'id', 'name': 'sg'}],
-            expected_args=[self.proxy, 'sg'])
+            expected_args=[self.proxy, 'sg'],
+        )
 
     def test_usages(self):
         self.verify_list(self.proxy.usages, usage.Usage)
@@ -1335,7 +1463,7 @@ class TestCompute(TestComputeProxy):
             method_kwargs={'start': start, 'end': end},
             expected_kwargs={
                 'start': start.isoformat(),
-                'end': end.isoformat()
+                'end': end.isoformat(),
             },
         )
 
@@ -1361,7 +1489,7 @@ class TestCompute(TestComputeProxy):
             expected_args=[self.proxy],
             expected_kwargs={
                 'start': start.isoformat(),
-                'end': end.isoformat()
+                'end': end.isoformat(),
             },
         )
 
@@ -1370,25 +1498,24 @@ class TestCompute(TestComputeProxy):
             self.proxy.create_server_remote_console,
             server_remote_console.ServerRemoteConsole,
             method_kwargs={"server": "test_id", "type": "fake"},
-            expected_kwargs={"server_id": "test_id", "type": "fake"})
+            expected_kwargs={"server_id": "test_id", "type": "fake"},
+        )
 
     def test_get_console_url(self):
         self._verify(
             'openstack.compute.v2.server.Server.get_console_url',
             self.proxy.get_server_console_url,
             method_args=["value", "console_type"],
-            expected_args=[self.proxy, "console_type"])
+            expected_args=[self.proxy, "console_type"],
+        )
 
     @mock.patch('openstack.utils.supports_microversion', autospec=True)
     @mock.patch('openstack.compute.v2._proxy.Proxy._create', autospec=True)
-    @mock.patch('openstack.compute.v2.server.Server.get_console_url',
-                autospec=True)
+    @mock.patch(
+        'openstack.compute.v2.server.Server.get_console_url', autospec=True
+    )
     def test_create_console_mv_old(self, sgc, rcc, smv):
-        console_fake = {
-            'url': 'a',
-            'type': 'b',
-            'protocol': 'c'
-        }
+        console_fake = {'url': 'a', 'type': 'b', 'protocol': 'c'}
         smv.return_value = False
         sgc.return_value = console_fake
         ret = self.proxy.create_console('fake_server', 'fake_type')
@@ -1399,27 +1526,27 @@ class TestCompute(TestComputeProxy):
 
     @mock.patch('openstack.utils.supports_microversion', autospec=True)
     @mock.patch('openstack.compute.v2._proxy.Proxy._create', autospec=True)
-    @mock.patch('openstack.compute.v2.server.Server.get_console_url',
-                autospec=True)
+    @mock.patch(
+        'openstack.compute.v2.server.Server.get_console_url', autospec=True
+    )
     def test_create_console_mv_2_6(self, sgc, rcc, smv):
-        console_fake = {
-            'url': 'a',
-            'type': 'b',
-            'protocol': 'c'
-        }
+        console_fake = {'url': 'a', 'type': 'b', 'protocol': 'c'}
 
         # Test server_remote_console is triggered when mv>=2.6
         smv.return_value = True
         rcc.return_value = server_remote_console.ServerRemoteConsole(
-            **console_fake)
+            **console_fake
+        )
         ret = self.proxy.create_console('fake_server', 'fake_type')
         smv.assert_called_once_with(self.proxy, '2.6')
         sgc.assert_not_called()
-        rcc.assert_called_with(mock.ANY,
-                               server_remote_console.ServerRemoteConsole,
-                               server_id='fake_server',
-                               type='fake_type',
-                               protocol=None)
+        rcc.assert_called_with(
+            mock.ANY,
+            server_remote_console.ServerRemoteConsole,
+            server_id='fake_server',
+            type='fake_type',
+            protocol=None,
+        )
         self.assertEqual(console_fake['url'], ret['url'])
 
 
@@ -1436,7 +1563,7 @@ class TestQuota(TestComputeProxy):
                 'usage': False,
             },
             method_result=quota_set.QuotaSet(),
-            expected_result=quota_set.QuotaSet()
+            expected_result=quota_set.QuotaSet(),
         )
 
     def test_get_query(self):
@@ -1444,17 +1571,14 @@ class TestQuota(TestComputeProxy):
             'openstack.resource.Resource.fetch',
             self.proxy.get_quota_set,
             method_args=['prj'],
-            method_kwargs={
-                'usage': True,
-                'user_id': 'uid'
-            },
+            method_kwargs={'usage': True, 'user_id': 'uid'},
             expected_args=[self.proxy],
             expected_kwargs={
                 'error_message': None,
                 'requires_id': False,
                 'usage': True,
-                'user_id': 'uid'
-            }
+                'user_id': 'uid',
+            },
         )
 
     def test_get_defaults(self):
@@ -1466,8 +1590,8 @@ class TestQuota(TestComputeProxy):
             expected_kwargs={
                 'error_message': None,
                 'requires_id': False,
-                'base_path': '/os-quota-sets/defaults'
-            }
+                'base_path': '/os-quota-sets/defaults',
+            },
         )
 
     def test_reset(self):
@@ -1477,9 +1601,7 @@ class TestQuota(TestComputeProxy):
             method_args=['prj'],
             method_kwargs={'user_id': 'uid'},
             expected_args=[self.proxy],
-            expected_kwargs={
-                'user_id': 'uid'
-            }
+            expected_kwargs={'user_id': 'uid'},
         )
 
     @mock.patch('openstack.proxy.Proxy._get_resource', autospec=True)
@@ -1495,19 +1617,12 @@ class TestQuota(TestComputeProxy):
                 'a': 'b',
             },
             expected_args=[self.proxy],
-            expected_kwargs={
-                'user_id': 'uid'
-            }
+            expected_kwargs={'user_id': 'uid'},
         )
-        gr_mock.assert_called_with(
-            self.proxy,
-            quota_set.QuotaSet,
-            'qs', a='b'
-        )
+        gr_mock.assert_called_with(self.proxy, quota_set.QuotaSet, 'qs', a='b')
 
 
 class TestServerAction(TestComputeProxy):
-
     def test_server_action_get(self):
         self._verify(
             'openstack.proxy.Proxy._get',
@@ -1516,7 +1631,8 @@ class TestServerAction(TestComputeProxy):
             method_kwargs={'server': 'server_id'},
             expected_args=[server_action.ServerAction],
             expected_kwargs={
-                'request_id': 'request_id', 'server_id': 'server_id',
+                'request_id': 'request_id',
+                'server_id': 'server_id',
             },
         )
 

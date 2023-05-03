@@ -23,12 +23,11 @@ EXAMPLE = {
     'host': 'host1',
     'status': 'enabled',
     'state': 'up',
-    'zone': 'nova'
+    'zone': 'nova',
 }
 
 
 class TestService(base.TestCase):
-
     def setUp(self):
         super(TestService, self).setUp()
         self.resp = mock.Mock()
@@ -49,14 +48,16 @@ class TestService(base.TestCase):
         self.assertTrue(sot.allow_list)
         self.assertFalse(sot.allow_fetch)
 
-        self.assertDictEqual({
-            'binary': 'binary',
-            'host': 'host',
-            'limit': 'limit',
-            'marker': 'marker',
-            'name': 'binary',
-        },
-            sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {
+                'binary': 'binary',
+                'host': 'host',
+                'limit': 'limit',
+                'marker': 'marker',
+                'name': 'binary',
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = service.Service(**EXAMPLE)
@@ -91,16 +92,14 @@ class TestService(base.TestCase):
             list_mock.return_value = data
 
             sot = service.Service.find(
-                self.sess, '2', ignore_missing=True,
-                binary='bin1', host='host'
+                self.sess, '2', ignore_missing=True, binary='bin1', host='host'
             )
 
             self.assertEqual(data[1], sot)
 
             # Verify find when ID is int
             sot = service.Service.find(
-                self.sess, 1, ignore_missing=True,
-                binary='bin1', host='host'
+                self.sess, 1, ignore_missing=True, binary='bin1', host='host'
             )
 
             self.assertEqual(data[0], sot)
@@ -113,9 +112,11 @@ class TestService(base.TestCase):
         with mock.patch.object(service.Service, 'list') as list_mock:
             list_mock.return_value = data
 
-            self.assertIsNone(service.Service.find(
-                self.sess, 'fake', ignore_missing=True, host='host'
-            ))
+            self.assertIsNone(
+                service.Service.find(
+                    self.sess, 'fake', ignore_missing=True, host='host'
+                )
+            )
 
     def test_find_no_match_exception(self):
         data = [
@@ -128,7 +129,10 @@ class TestService(base.TestCase):
             self.assertRaises(
                 exceptions.ResourceNotFound,
                 service.Service.find,
-                self.sess, 'fake', ignore_missing=False, host='host'
+                self.sess,
+                'fake',
+                ignore_missing=False,
+                host='host',
             )
 
     def test_find_multiple_match(self):
@@ -142,11 +146,17 @@ class TestService(base.TestCase):
             self.assertRaises(
                 exceptions.DuplicateResource,
                 service.Service.find,
-                self.sess, 'bin1', ignore_missing=False, host='host'
+                self.sess,
+                'bin1',
+                ignore_missing=False,
+                host='host',
             )
 
-    @mock.patch('openstack.utils.supports_microversion', autospec=True,
-                return_value=False)
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=False,
+    )
     def test_set_forced_down_before_211(self, mv_mock):
         sot = service.Service(**EXAMPLE)
 
@@ -159,10 +169,14 @@ class TestService(base.TestCase):
             'host': 'host1',
         }
         self.sess.put.assert_called_with(
-            url, json=body, microversion=self.sess.default_microversion)
+            url, json=body, microversion=self.sess.default_microversion
+        )
 
-    @mock.patch('openstack.utils.supports_microversion', autospec=True,
-                return_value=True)
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=True,
+    )
     def test_set_forced_down_after_211(self, mv_mock):
         sot = service.Service(**EXAMPLE)
 
@@ -175,11 +189,13 @@ class TestService(base.TestCase):
             'host': 'host1',
             'forced_down': True,
         }
-        self.sess.put.assert_called_with(
-            url, json=body, microversion='2.11')
+        self.sess.put.assert_called_with(url, json=body, microversion='2.11')
 
-    @mock.patch('openstack.utils.supports_microversion', autospec=True,
-                return_value=True)
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=True,
+    )
     def test_set_forced_down_after_253(self, mv_mock):
         sot = service.Service(**EXAMPLE)
 
@@ -192,8 +208,7 @@ class TestService(base.TestCase):
             'host': sot.host,
             'forced_down': True,
         }
-        self.sess.put.assert_called_with(
-            url, json=body, microversion='2.11')
+        self.sess.put.assert_called_with(url, json=body, microversion='2.11')
 
     def test_enable(self):
         sot = service.Service(**EXAMPLE)
@@ -207,7 +222,8 @@ class TestService(base.TestCase):
             'host': 'host1',
         }
         self.sess.put.assert_called_with(
-            url, json=body, microversion=self.sess.default_microversion)
+            url, json=body, microversion=self.sess.default_microversion
+        )
 
     def test_disable(self):
         sot = service.Service(**EXAMPLE)
@@ -221,7 +237,8 @@ class TestService(base.TestCase):
             'host': 'host1',
         }
         self.sess.put.assert_called_with(
-            url, json=body, microversion=self.sess.default_microversion)
+            url, json=body, microversion=self.sess.default_microversion
+        )
 
     def test_disable_with_reason(self):
         sot = service.Service(**EXAMPLE)
@@ -235,7 +252,8 @@ class TestService(base.TestCase):
         body = {
             'binary': 'nova-compute',
             'host': 'host1',
-            'disabled_reason': reason
+            'disabled_reason': reason,
         }
         self.sess.put.assert_called_with(
-            url, json=body, microversion=self.sess.default_microversion)
+            url, json=body, microversion=self.sess.default_microversion
+        )

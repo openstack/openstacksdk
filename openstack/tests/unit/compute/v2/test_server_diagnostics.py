@@ -17,29 +17,20 @@ from openstack.tests.unit import base
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
     "config_drive": True,
-    "cpu_details": [
-        {
-            "id": 0,
-            "time": 17300000000,
-            "utilisation": 15
-        }
-    ],
+    "cpu_details": [{"id": 0, "time": 17300000000, "utilisation": 15}],
     "disk_details": [
         {
             "errors_count": 1,
             "read_bytes": 262144,
             "read_requests": 112,
             "write_bytes": 5778432,
-            "write_requests": 488
+            "write_requests": 488,
         }
     ],
     "driver": "libvirt",
     "hypervisor": "kvm",
     "hypervisor_os": "ubuntu",
-    "memory_details": {
-        "maximum": 524288,
-        "used": 0
-    },
+    "memory_details": {"maximum": 524288, "used": 0},
     "nic_details": [
         {
             "mac_address": "01:23:45:67:89:ab",
@@ -52,19 +43,18 @@ EXAMPLE = {
             "tx_errors": 400,
             "tx_octets": 140208,
             "tx_packets": 662,
-            "tx_rate": 600
+            "tx_rate": 600,
         }
     ],
     "num_cpus": 1,
     "num_disks": 1,
     "num_nics": 1,
     "state": "running",
-    "uptime": 46664
+    "uptime": 46664,
 }
 
 
 class TestServerInterface(base.TestCase):
-
     def test_basic(self):
         sot = server_diagnostics.ServerDiagnostics()
         self.assertEqual('diagnostics', sot.resource_key)

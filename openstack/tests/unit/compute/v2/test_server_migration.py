@@ -38,7 +38,6 @@ EXAMPLE = {
 
 
 class TestServerMigration(base.TestCase):
-
     def setUp(self):
         super().setUp()
         self.resp = mock.Mock()
@@ -96,7 +95,9 @@ class TestServerMigration(base.TestCase):
         self.assertEqual(EXAMPLE['disk_total_bytes'], sot.disk_total_bytes)
 
     @mock.patch.object(
-        server_migration.ServerMigration, '_get_session', lambda self, x: x,
+        server_migration.ServerMigration,
+        '_get_session',
+        lambda self, x: x,
     )
     def test_force_complete(self):
         sot = server_migration.ServerMigration(**EXAMPLE)
@@ -104,9 +105,12 @@ class TestServerMigration(base.TestCase):
         self.assertIsNone(sot.force_complete(self.sess))
 
         url = 'servers/%s/migrations/%s/action' % (
-            EXAMPLE['server_uuid'], EXAMPLE['id']
+            EXAMPLE['server_uuid'],
+            EXAMPLE['id'],
         )
         body = {'force_complete': None}
         self.sess.post.assert_called_with(
-            url, microversion=mock.ANY, json=body,
+            url,
+            microversion=mock.ANY,
+            json=body,
         )

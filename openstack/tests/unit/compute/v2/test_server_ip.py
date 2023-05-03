@@ -24,7 +24,6 @@ EXAMPLE = {
 
 
 class TestServerIP(base.TestCase):
-
     def test_basic(self):
         sot = server_ip.ServerIP()
         self.assertEqual('addresses', sot.resources_key)
@@ -46,10 +45,17 @@ class TestServerIP(base.TestCase):
         resp = mock.Mock()
         sess.get.return_value = resp
         resp.json.return_value = {
-            "addresses": {"label1": [{"version": 1, "addr": "a1"},
-                                     {"version": 2, "addr": "a2"}],
-                          "label2": [{"version": 3, "addr": "a3"},
-                                     {"version": 4, "addr": "a4"}]}}
+            "addresses": {
+                "label1": [
+                    {"version": 1, "addr": "a1"},
+                    {"version": 2, "addr": "a2"},
+                ],
+                "label2": [
+                    {"version": 3, "addr": "a3"},
+                    {"version": 4, "addr": "a4"},
+                ],
+            }
+        }
 
         ips = list(server_ip.ServerIP.list(sess, server_id=IDENTIFIER))
 
@@ -78,13 +84,15 @@ class TestServerIP(base.TestCase):
         sess = mock.Mock()
         resp = mock.Mock()
         sess.get.return_value = resp
-        resp.json.return_value = {label: [{"version": 1,
-                                           "addr": "a1"},
-                                          {"version": 2,
-                                           "addr": "a2"}]}
+        resp.json.return_value = {
+            label: [{"version": 1, "addr": "a1"}, {"version": 2, "addr": "a2"}]
+        }
 
-        ips = list(server_ip.ServerIP.list(sess, server_id=IDENTIFIER,
-                                           network_label=label))
+        ips = list(
+            server_ip.ServerIP.list(
+                sess, server_id=IDENTIFIER, network_label=label
+            )
+        )
 
         self.assertEqual(2, len(ips))
         ips = sorted(ips, key=lambda ip: ip.version)

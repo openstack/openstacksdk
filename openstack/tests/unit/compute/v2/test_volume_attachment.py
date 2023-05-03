@@ -26,29 +26,31 @@ EXAMPLE = {
 
 
 class TestServerInterface(base.TestCase):
-
     def test_basic(self):
         sot = volume_attachment.VolumeAttachment()
         self.assertEqual('volumeAttachment', sot.resource_key)
         self.assertEqual('volumeAttachments', sot.resources_key)
-        self.assertEqual('/servers/%(server_id)s/os-volume_attachments',
-                         sot.base_path)
+        self.assertEqual(
+            '/servers/%(server_id)s/os-volume_attachments',
+            sot.base_path,
+        )
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
-        self.assertDictEqual({"limit": "limit",
-                              "offset": "offset",
-                              "marker": "marker"},
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {"limit": "limit", "offset": "offset", "marker": "marker"},
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = volume_attachment.VolumeAttachment(**EXAMPLE)
         self.assertEqual(EXAMPLE['volumeId'], sot.id)
         self.assertEqual(EXAMPLE['attachment_id'], sot.attachment_id)
         self.assertEqual(
-            EXAMPLE['delete_on_termination'], sot.delete_on_termination,
+            EXAMPLE['delete_on_termination'],
+            sot.delete_on_termination,
         )
         self.assertEqual(EXAMPLE['device'], sot.device)
         # FIXME(stephenfin): This conflicts since there is a server ID in the

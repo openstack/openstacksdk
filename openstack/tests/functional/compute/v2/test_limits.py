@@ -14,7 +14,6 @@ from openstack.tests.functional import base
 
 
 class TestLimits(base.BaseFunctionalTest):
-
     def test_limits(self):
         sot = self.conn.compute.get_limits()
         self.assertIsNotNone(sot.absolute['instances'])

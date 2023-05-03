@@ -16,7 +16,6 @@ from openstack.tests.functional.network.v2 import test_network
 
 
 class TestServerAdmin(ft_base.BaseComputeTest):
-
     def setUp(self):
         super(TestServerAdmin, self).setUp()
         self._set_operator_cloud(interface='admin')
@@ -47,8 +46,9 @@ class TestServerAdmin(ft_base.BaseComputeTest):
 
     def tearDown(self):
         sot = self.conn.compute.delete_server(self.server.id)
-        self.conn.compute.wait_for_delete(self.server,
-                                          wait=self._wait_for_timeout)
+        self.conn.compute.wait_for_delete(
+            self.server, wait=self._wait_for_timeout
+        )
         self.assertIsNone(sot)
         super(TestServerAdmin, self).tearDown()
 
@@ -65,7 +65,6 @@ class TestServerAdmin(ft_base.BaseComputeTest):
 
 
 class TestServer(ft_base.BaseComputeTest):
-
     def setUp(self):
         super(TestServer, self).setUp()
         self.NAME = self.getUniqueString()
@@ -75,9 +74,8 @@ class TestServer(ft_base.BaseComputeTest):
         self.cidr = '10.99.99.0/16'
 
         self.network, self.subnet = test_network.create_network(
-            self.conn,
-            self.NAME,
-            self.cidr)
+            self.conn, self.NAME, self.cidr
+        )
         self.assertIsNotNone(self.network)
 
         sot = self.conn.compute.create_server(
@@ -95,8 +93,9 @@ class TestServer(ft_base.BaseComputeTest):
         sot = self.conn.compute.delete_server(self.server.id)
         self.assertIsNone(sot)
         # Need to wait for the stack to go away before network delete
-        self.conn.compute.wait_for_delete(self.server,
-                                          wait=self._wait_for_timeout)
+        self.conn.compute.wait_for_delete(
+            self.server, wait=self._wait_for_timeout
+        )
         test_network.delete_network(self.conn, self.network, self.subnet)
         super(TestServer, self).tearDown()
 
@@ -166,13 +165,15 @@ class TestServer(ft_base.BaseComputeTest):
 
         # delete metadata
         self.conn.compute.delete_server_metadata(
-            test_server, test_server.metadata.keys())
+            test_server, test_server.metadata.keys()
+        )
         test_server = self.conn.compute.get_server_metadata(test_server)
         self.assertFalse(test_server.metadata)
 
     def test_server_remote_console(self):
         console = self.conn.compute.create_server_remote_console(
-            self.server, protocol='vnc', type='novnc')
+            self.server, protocol='vnc', type='novnc'
+        )
         self.assertEqual('vnc', console.protocol)
         self.assertEqual('novnc', console.type)
         self.assertTrue(console.url.startswith('http'))

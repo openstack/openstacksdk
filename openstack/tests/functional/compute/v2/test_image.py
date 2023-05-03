@@ -16,7 +16,6 @@ from openstack.tests.functional.image.v2.test_image import TEST_IMAGE_NAME
 
 
 class TestImage(base.BaseFunctionalTest):
-
     def test_images(self):
         images = list(self.conn.compute.images())
         self.assertGreater(len(images), 0)

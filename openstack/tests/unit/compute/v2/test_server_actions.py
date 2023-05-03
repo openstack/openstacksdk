@@ -26,7 +26,7 @@ EXAMPLE = {
             'result': 'Success',
             'start_time': '2018-04-25T01:26:36.539271',
             'traceback': None,
-            'details': None
+            'details': None,
         }
     ],
     'instance_uuid': '4bf3473b-d550-4b65-9409-292d44ab14a2',
@@ -40,7 +40,6 @@ EXAMPLE = {
 
 
 class TestServerAction(base.TestCase):
-
     def setUp(self):
         super().setUp()
         self.resp = mock.Mock()

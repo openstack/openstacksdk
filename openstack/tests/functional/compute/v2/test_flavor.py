@@ -16,7 +16,6 @@ from openstack.tests.functional import base
 
 
 class TestFlavor(base.BaseFunctionalTest):
-
     def setUp(self):
         super(TestFlavor, self).setUp()
         self.new_item_name = self.getUniqueString('flavor')
@@ -42,14 +41,18 @@ class TestFlavor(base.BaseFunctionalTest):
         self.assertEqual(rslt.name, self.one_flavor.name)
 
     def test_find_flavors_no_match_ignore_true(self):
-        rslt = self.conn.compute.find_flavor("not a flavor",
-                                             ignore_missing=True)
+        rslt = self.conn.compute.find_flavor(
+            "not a flavor", ignore_missing=True
+        )
         self.assertIsNone(rslt)
 
     def test_find_flavors_no_match_ignore_false(self):
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.conn.compute.find_flavor,
-                          "not a flavor", ignore_missing=False)
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.conn.compute.find_flavor,
+            "not a flavor",
+            ignore_missing=False,
+        )
 
     def test_list_flavors(self):
         pub_flavor_name = self.new_item_name + '_public'
@@ -81,11 +84,8 @@ class TestFlavor(base.BaseFunctionalTest):
     def test_flavor_access(self):
         flavor_name = uuid.uuid4().hex
         flv = self.operator_cloud.compute.create_flavor(
-            is_public=False,
-            name=flavor_name,
-            ram=128,
-            vcpus=1,
-            disk=0)
+            is_public=False, name=flavor_name, ram=128, vcpus=1, disk=0
+        )
         self.addCleanup(self.conn.compute.delete_flavor, flv.id)
         # Validate the 'demo' user cannot see the new flavor
         flv_cmp = self.user_cloud.compute.find_flavor(flavor_name)
@@ -101,34 +101,29 @@ class TestFlavor(base.BaseFunctionalTest):
 
         # Now give 'demo' access
         self.operator_cloud.compute.flavor_add_tenant_access(
-            flv.id, project['id'])
+            flv.id, project['id']
+        )
 
         # Now see if the 'demo' user has access to it
-        flv_cmp = self.user_cloud.compute.find_flavor(
-            flavor_name)
+        flv_cmp = self.user_cloud.compute.find_flavor(flavor_name)
         self.assertIsNotNone(flv_cmp)
 
         # Now remove 'demo' access and check we can't find it
         self.operator_cloud.compute.flavor_remove_tenant_access(
-            flv.id, project['id'])
+            flv.id, project['id']
+        )
 
-        flv_cmp = self.user_cloud.compute.find_flavor(
-            flavor_name)
+        flv_cmp = self.user_cloud.compute.find_flavor(flavor_name)
         self.assertIsNone(flv_cmp)
 
     def test_extra_props_calls(self):
         flavor_name = uuid.uuid4().hex
         flv = self.conn.compute.create_flavor(
-            is_public=False,
-            name=flavor_name,
-            ram=128,
-            vcpus=1,
-            disk=0)
+            is_public=False, name=flavor_name, ram=128, vcpus=1, disk=0
+        )
         self.addCleanup(self.conn.compute.delete_flavor, flv.id)
         # Create extra_specs
-        specs = {
-            'a': 'b'
-        }
+        specs = {'a': 'b'}
         self.conn.compute.create_flavor_extra_specs(flv, extra_specs=specs)
         # verify specs
         flv_cmp = self.conn.compute.fetch_flavor_extra_specs(flv)

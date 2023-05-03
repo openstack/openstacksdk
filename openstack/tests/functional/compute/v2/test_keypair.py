@@ -16,7 +16,6 @@ from openstack.tests.functional import base
 
 
 class TestKeypair(base.BaseFunctionalTest):
-
     def setUp(self):
         super(TestKeypair, self).setUp()
 
@@ -50,7 +49,6 @@ class TestKeypair(base.BaseFunctionalTest):
 
 
 class TestKeypairAdmin(base.BaseFunctionalTest):
-
     def setUp(self):
         super(TestKeypairAdmin, self).setUp()
         self._set_operator_cloud(interface='admin')
@@ -58,8 +56,9 @@ class TestKeypairAdmin(base.BaseFunctionalTest):
         self.NAME = self.getUniqueString().split('.')[-1]
         self.USER = self.operator_cloud.list_users()[0]
 
-        sot = self.conn.compute.create_keypair(name=self.NAME,
-                                               user_id=self.USER.id)
+        sot = self.conn.compute.create_keypair(
+            name=self.NAME, user_id=self.USER.id
+        )
         assert isinstance(sot, keypair.Keypair)
         self.assertEqual(self.NAME, sot.name)
         self.assertEqual(self.USER.id, sot.user_id)

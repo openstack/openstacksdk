@@ -29,12 +29,11 @@ EXAMPLE = {
     "deleted_at": None,
     "id": 4,
     "uuid": IDENTIFIER,
-    "metadata": {"type": "public", "family": "m-family"}
+    "metadata": {"type": "public", "family": "m-family"},
 }
 
 
 class TestAggregate(base.TestCase):
-
     def setUp(self):
         super(TestAggregate, self).setUp()
         self.resp = mock.Mock()
@@ -76,8 +75,7 @@ class TestAggregate(base.TestCase):
 
         url = 'os-aggregates/4/action'
         body = {"add_host": {"host": "host1"}}
-        self.sess.post.assert_called_with(
-            url, json=body, microversion=None)
+        self.sess.post.assert_called_with(url, json=body, microversion=None)
 
     def test_remove_host(self):
         sot = aggregate.Aggregate(**EXAMPLE)
@@ -86,8 +84,7 @@ class TestAggregate(base.TestCase):
 
         url = 'os-aggregates/4/action'
         body = {"remove_host": {"host": "host1"}}
-        self.sess.post.assert_called_with(
-            url, json=body, microversion=None)
+        self.sess.post.assert_called_with(url, json=body, microversion=None)
 
     def test_set_metadata(self):
         sot = aggregate.Aggregate(**EXAMPLE)
@@ -96,8 +93,7 @@ class TestAggregate(base.TestCase):
 
         url = 'os-aggregates/4/action'
         body = {"set_metadata": {"metadata": {"key: value"}}}
-        self.sess.post.assert_called_with(
-            url, json=body, microversion=None)
+        self.sess.post.assert_called_with(url, json=body, microversion=None)
 
     def test_precache_image(self):
         sot = aggregate.Aggregate(**EXAMPLE)
@@ -107,4 +103,5 @@ class TestAggregate(base.TestCase):
         url = 'os-aggregates/4/images'
         body = {"cache": ['1']}
         self.sess.post.assert_called_with(
-            url, json=body, microversion=sot._max_microversion)
+            url, json=body, microversion=sot._max_microversion
+        )

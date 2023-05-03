@@ -25,27 +25,20 @@ EXAMPLE = {
         "arch": "x86_64",
         "model": "Nehalem",
         "vendor": "Intel",
-        "features": [
-            "pge",
-            "clflush"
-        ],
-        "topology": {
-            "cores": 1,
-            "threads": 1,
-            "sockets": 4
-        }
+        "features": ["pge", "clflush"],
+        "topology": {"cores": 1, "threads": 1, "sockets": 4},
     },
     "state": "up",
     "status": "enabled",
     "servers": [
         {
             "name": "test_server1",
-            "uuid": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+            "uuid": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
         },
         {
             "name": "test_server2",
-            "uuid": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
-        }
+            "uuid": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        },
     ],
     "host_ip": "1.1.1.1",
     "hypervisor_hostname": "fake-mini",
@@ -54,11 +47,12 @@ EXAMPLE = {
     "id": "b1e43b5f-eec1-44e0-9f10-7b4945c0226d",
     "uptime": (
         " 08:32:11 up 93 days, 18:25, 12 users,  "
-        "load average: 0.20, 0.12, 0.14"),
+        "load average: 0.20, 0.12, 0.14"
+    ),
     "service": {
         "host": "043b3cacf6f34c90a7245151fc8ebcda",
         "id": "5d343e1d-938e-4284-b98b-6a2b5406ba76",
-        "disabled_reason": None
+        "disabled_reason": None,
     },
     # deprecated attributes
     "vcpus_used": 0,
@@ -76,7 +70,6 @@ EXAMPLE = {
 
 
 class TestHypervisor(base.TestCase):
-
     def setUp(self):
         super(TestHypervisor, self).setUp()
         self.sess = mock.Mock(spec=adapter.Adapter)
@@ -91,12 +84,15 @@ class TestHypervisor(base.TestCase):
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_list)
 
-        self.assertDictEqual({'hypervisor_hostname_pattern':
-                              'hypervisor_hostname_pattern',
-                              'limit': 'limit',
-                              'marker': 'marker',
-                              'with_servers': 'with_servers'},
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {
+                'hypervisor_hostname_pattern': 'hypervisor_hostname_pattern',
+                'limit': 'limit',
+                'marker': 'marker',
+                'with_servers': 'with_servers',
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = hypervisor.Hypervisor(**EXAMPLE)
@@ -126,8 +122,11 @@ class TestHypervisor(base.TestCase):
         self.assertEqual(EXAMPLE['local_gb'], sot.local_disk_size)
         self.assertEqual(EXAMPLE['free_ram_mb'], sot.memory_free)
 
-    @mock.patch('openstack.utils.supports_microversion', autospec=True,
-                return_value=False)
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=False,
+    )
     def test_get_uptime(self, mv_mock):
         sot = hypervisor.Hypervisor(**copy.deepcopy(EXAMPLE))
         rsp = {
@@ -136,7 +135,7 @@ class TestHypervisor(base.TestCase):
                 "id": sot.id,
                 "state": "up",
                 "status": "enabled",
-                "uptime": "08:32:11 up 93 days, 18:25, 12 users"
+                "uptime": "08:32:11 up 93 days, 18:25, 12 users",
             }
         }
         resp = mock.Mock()
@@ -149,17 +148,16 @@ class TestHypervisor(base.TestCase):
         hyp = sot.get_uptime(self.sess)
         self.sess.get.assert_called_with(
             'os-hypervisors/{id}/uptime'.format(id=sot.id),
-            microversion=self.sess.default_microversion
+            microversion=self.sess.default_microversion,
         )
         self.assertEqual(rsp['hypervisor']['uptime'], hyp.uptime)
         self.assertEqual(rsp['hypervisor']['status'], sot.status)
 
-    @mock.patch('openstack.utils.supports_microversion', autospec=True,
-                return_value=True)
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=True,
+    )
     def test_get_uptime_after_2_88(self, mv_mock):
         sot = hypervisor.Hypervisor(**copy.deepcopy(EXAMPLE))
-        self.assertRaises(
-            exceptions.SDKException,
-            sot.get_uptime,
-            self.sess
-        )
+        self.assertRaises(exceptions.SDKException, sot.get_uptime, self.sess)

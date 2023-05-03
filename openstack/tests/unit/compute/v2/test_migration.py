@@ -33,7 +33,6 @@ EXAMPLE = {
 
 
 class TestMigration(base.TestCase):
-
     def test_basic(self):
         sot = migration.Migration()
         self.assertIsNone(sot.resource_key)  # we don't support fetch

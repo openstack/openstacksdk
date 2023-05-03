@@ -27,12 +27,11 @@ EXAMPLE = {
     'progress': 5,
     'status': '6',
     'updated': '2015-03-09T12:15:57.233772',
-    'OS-EXT-IMG-SIZE:size': 8
+    'OS-EXT-IMG-SIZE:size': 8,
 }
 
 
 class TestImage(base.TestCase):
-
     def test_basic(self):
         sot = image.Image()
         self.assertEqual('image', sot.resource_key)
@@ -44,16 +43,20 @@ class TestImage(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
-        self.assertDictEqual({"server": "server",
-                              "name": "name",
-                              "status": "status",
-                              "type": "type",
-                              "min_disk": "minDisk",
-                              "min_ram": "minRam",
-                              "changes_since": "changes-since",
-                              "limit": "limit",
-                              "marker": "marker"},
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {
+                "server": "server",
+                "name": "name",
+                "status": "status",
+                "type": "type",
+                "min_disk": "minDisk",
+                "min_ram": "minRam",
+                "changes_since": "changes-since",
+                "limit": "limit",
+                "marker": "marker",
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_make_basic(self):
         sot = image.Image(**EXAMPLE)

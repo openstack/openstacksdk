@@ -19,7 +19,7 @@ EXAMPLE = {
     'fixed_ips': [
         {
             'ip_address': '192.168.1.1',
-            'subnet_id': 'f8a6e8f8-c2ec-497c-9f23-da9616de54ef'
+            'subnet_id': 'f8a6e8f8-c2ec-497c-9f23-da9616de54ef',
         }
     ],
     'mac_addr': '2',
@@ -32,7 +32,6 @@ EXAMPLE = {
 
 
 class TestServerInterface(base.TestCase):
-
     def test_basic(self):
         sot = server_interface.ServerInterface()
         self.assertEqual('interfaceAttachment', sot.resource_key)

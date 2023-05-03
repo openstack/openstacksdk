@@ -22,12 +22,11 @@ EXAMPLE = {
     'public_key': '3',
     'private_key': '4',
     'type': 'ssh',
-    'user_id': '5'
+    'user_id': '5',
 }
 
 
 class TestKeypair(base.TestCase):
-
     def test_basic(self):
         sot = keypair.Keypair()
         self.assertEqual('keypair', sot.resource_key)
@@ -39,10 +38,10 @@ class TestKeypair(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
-        self.assertDictEqual({'limit': 'limit',
-                              'marker': 'marker',
-                              'user_id': 'user_id'},
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {'limit': 'limit', 'marker': 'marker', 'user_id': 'user_id'},
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = keypair.Keypair(**EXAMPLE)

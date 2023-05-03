@@ -14,7 +14,6 @@ from openstack.tests.functional import base
 
 
 class TestHypervisor(base.BaseFunctionalTest):
-
     def setUp(self):
         super(TestHypervisor, self).setUp()
 

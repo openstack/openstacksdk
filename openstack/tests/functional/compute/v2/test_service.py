@@ -14,7 +14,6 @@ from openstack.tests.functional import base
 
 
 class TestService(base.BaseFunctionalTest):
-
     def setUp(self):
         super(TestService, self).setUp()
         self._set_operator_cloud(interface='admin')
@@ -34,9 +33,11 @@ class TestService(base.BaseFunctionalTest):
         for srv in self.conn.compute.services():
             if srv.name == 'nova-compute':
                 self.conn.compute.update_service_forced_down(
-                    srv, None, None, True)
+                    srv, None, None, True
+                )
                 self.conn.compute.update_service_forced_down(
-                    srv, srv.host, srv.binary, False)
+                    srv, srv.host, srv.binary, False
+                )
                 self.conn.compute.update_service(srv, status='enabled')
 
     def test_find(self):
@@ -44,4 +45,5 @@ class TestService(base.BaseFunctionalTest):
             if srv.name != 'nova-conductor':
                 # In devstack there are 2 nova-conductor instances on same host
                 self.conn.compute.find_service(
-                    srv.name, host=srv.host, ignore_missing=False)
+                    srv.name, host=srv.host, ignore_missing=False
+                )

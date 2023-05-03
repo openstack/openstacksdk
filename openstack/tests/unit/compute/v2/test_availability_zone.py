@@ -19,12 +19,11 @@ BASIC_EXAMPLE = {
     'id': IDENTIFIER,
     'zoneState': 'available',
     'hosts': 'host1',
-    'zoneName': 'zone1'
+    'zoneName': 'zone1',
 }
 
 
 class TestAvailabilityZone(base.TestCase):
-
     def test_basic(self):
         sot = az.AvailabilityZone()
         self.assertEqual('availabilityZoneInfo', sot.resources_key)

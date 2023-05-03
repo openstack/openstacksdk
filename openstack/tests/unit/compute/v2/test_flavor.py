@@ -31,7 +31,7 @@ BASIC_EXAMPLE = {
     'swap': 8,
     'OS-FLV-EXT-DATA:ephemeral': 9,
     'OS-FLV-DISABLED:disabled': False,
-    'rxtx_factor': 11.0
+    'rxtx_factor': 11.0,
 }
 DEFAULTS_EXAMPLE = {
     'links': '2',
@@ -41,7 +41,6 @@ DEFAULTS_EXAMPLE = {
 
 
 class TestFlavor(base.TestCase):
-
     def setUp(self):
         super(TestFlavor, self).setUp()
         self.sess = mock.Mock(spec=adapter.Adapter)
@@ -59,14 +58,18 @@ class TestFlavor(base.TestCase):
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.allow_commit)
 
-        self.assertDictEqual({"sort_key": "sort_key",
-                              "sort_dir": "sort_dir",
-                              "min_disk": "minDisk",
-                              "min_ram": "minRam",
-                              "limit": "limit",
-                              "marker": "marker",
-                              "is_public": "is_public"},
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {
+                "sort_key": "sort_key",
+                "sort_dir": "sort_dir",
+                "min_disk": "minDisk",
+                "min_ram": "minRam",
+                "limit": "limit",
+                "marker": "marker",
+                "is_public": "is_public",
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_make_basic(self):
         sot = flavor.Flavor(**BASIC_EXAMPLE)
@@ -74,15 +77,18 @@ class TestFlavor(base.TestCase):
         self.assertEqual(BASIC_EXAMPLE['name'], sot.name)
         self.assertEqual(BASIC_EXAMPLE['description'], sot.description)
         self.assertEqual(BASIC_EXAMPLE['disk'], sot.disk)
-        self.assertEqual(BASIC_EXAMPLE['os-flavor-access:is_public'],
-                         sot.is_public)
+        self.assertEqual(
+            BASIC_EXAMPLE['os-flavor-access:is_public'], sot.is_public
+        )
         self.assertEqual(BASIC_EXAMPLE['ram'], sot.ram)
         self.assertEqual(BASIC_EXAMPLE['vcpus'], sot.vcpus)
         self.assertEqual(BASIC_EXAMPLE['swap'], sot.swap)
-        self.assertEqual(BASIC_EXAMPLE['OS-FLV-EXT-DATA:ephemeral'],
-                         sot.ephemeral)
-        self.assertEqual(BASIC_EXAMPLE['OS-FLV-DISABLED:disabled'],
-                         sot.is_disabled)
+        self.assertEqual(
+            BASIC_EXAMPLE['OS-FLV-EXT-DATA:ephemeral'], sot.ephemeral
+        )
+        self.assertEqual(
+            BASIC_EXAMPLE['OS-FLV-DISABLED:disabled'], sot.is_disabled
+        )
         self.assertEqual(BASIC_EXAMPLE['rxtx_factor'], sot.rxtx_factor)
 
     def test_make_defaults(self):
@@ -119,10 +125,8 @@ class TestFlavor(base.TestCase):
 
         self.sess.post.assert_called_with(
             'flavors/IDENTIFIER/action',
-            json={
-                'addTenantAccess': {
-                    'tenant': 'fake_tenant'}},
-            headers={'Accept': ''}
+            json={'addTenantAccess': {'tenant': 'fake_tenant'}},
+            headers={'Accept': ''},
         )
 
     def test_remove_tenant_access(self):
@@ -137,19 +141,18 @@ class TestFlavor(base.TestCase):
 
         self.sess.post.assert_called_with(
             'flavors/IDENTIFIER/action',
-            json={
-                'removeTenantAccess': {
-                    'tenant': 'fake_tenant'}},
-            headers={'Accept': ''}
+            json={'removeTenantAccess': {'tenant': 'fake_tenant'}},
+            headers={'Accept': ''},
         )
 
     def test_get_flavor_access(self):
         sot = flavor.Flavor(**BASIC_EXAMPLE)
         resp = mock.Mock()
-        resp.body = {'flavor_access': [
-            {'flavor_id': 'fake_flavor',
-             'tenant_id': 'fake_tenant'}
-        ]}
+        resp.body = {
+            'flavor_access': [
+                {'flavor_id': 'fake_flavor', 'tenant_id': 'fake_tenant'}
+            ]
+        }
         resp.json = mock.Mock(return_value=resp.body)
         resp.status_code = 200
         self.sess.get = mock.Mock(return_value=resp)
@@ -165,11 +168,7 @@ class TestFlavor(base.TestCase):
     def test_fetch_extra_specs(self):
         sot = flavor.Flavor(**BASIC_EXAMPLE)
         resp = mock.Mock()
-        resp.body = {
-            'extra_specs':
-                {'a': 'b',
-                 'c': 'd'}
-        }
+        resp.body = {'extra_specs': {'a': 'b', 'c': 'd'}}
         resp.json = mock.Mock(return_value=resp.body)
         resp.status_code = 200
         self.sess.get = mock.Mock(return_value=resp)
@@ -178,7 +177,7 @@ class TestFlavor(base.TestCase):
 
         self.sess.get.assert_called_with(
             'flavors/IDENTIFIER/os-extra_specs',
-            microversion=self.sess.default_microversion
+            microversion=self.sess.default_microversion,
         )
 
         self.assertEqual(resp.body['extra_specs'], rsp.extra_specs)
@@ -186,14 +185,9 @@ class TestFlavor(base.TestCase):
 
     def test_create_extra_specs(self):
         sot = flavor.Flavor(**BASIC_EXAMPLE)
-        specs = {
-            'a': 'b',
-            'c': 'd'
-        }
+        specs = {'a': 'b', 'c': 'd'}
         resp = mock.Mock()
-        resp.body = {
-            'extra_specs': specs
-        }
+        resp.body = {'extra_specs': specs}
         resp.json = mock.Mock(return_value=resp.body)
         resp.status_code = 200
         self.sess.post = mock.Mock(return_value=resp)
@@ -203,7 +197,7 @@ class TestFlavor(base.TestCase):
         self.sess.post.assert_called_with(
             'flavors/IDENTIFIER/os-extra_specs',
             json={'extra_specs': specs},
-            microversion=self.sess.default_microversion
+            microversion=self.sess.default_microversion,
         )
 
         self.assertEqual(resp.body['extra_specs'], rsp.extra_specs)
@@ -212,9 +206,7 @@ class TestFlavor(base.TestCase):
     def test_get_extra_specs_property(self):
         sot = flavor.Flavor(**BASIC_EXAMPLE)
         resp = mock.Mock()
-        resp.body = {
-            'a': 'b'
-        }
+        resp.body = {'a': 'b'}
         resp.json = mock.Mock(return_value=resp.body)
         resp.status_code = 200
         self.sess.get = mock.Mock(return_value=resp)
@@ -223,7 +215,7 @@ class TestFlavor(base.TestCase):
 
         self.sess.get.assert_called_with(
             'flavors/IDENTIFIER/os-extra_specs/a',
-            microversion=self.sess.default_microversion
+            microversion=self.sess.default_microversion,
         )
 
         self.assertEqual('b', rsp)
@@ -231,9 +223,7 @@ class TestFlavor(base.TestCase):
     def test_update_extra_specs_property(self):
         sot = flavor.Flavor(**BASIC_EXAMPLE)
         resp = mock.Mock()
-        resp.body = {
-            'a': 'b'
-        }
+        resp.body = {'a': 'b'}
         resp.json = mock.Mock(return_value=resp.body)
         resp.status_code = 200
         self.sess.put = mock.Mock(return_value=resp)
@@ -243,7 +233,7 @@ class TestFlavor(base.TestCase):
         self.sess.put.assert_called_with(
             'flavors/IDENTIFIER/os-extra_specs/a',
             json={'a': 'b'},
-            microversion=self.sess.default_microversion
+            microversion=self.sess.default_microversion,
         )
 
         self.assertEqual('b', rsp)
@@ -260,7 +250,7 @@ class TestFlavor(base.TestCase):
 
         self.sess.delete.assert_called_with(
             'flavors/IDENTIFIER/os-extra_specs/a',
-            microversion=self.sess.default_microversion
+            microversion=self.sess.default_microversion,
         )
 
         self.assertIsNone(rsp)
