@@ -21,101 +21,67 @@ EXAMPLE = {
         'namespace': {
             'type': 'string',
             'description': 'The unique namespace text.',
-            'maxLength': 80
+            'maxLength': 80,
         },
         'visibility': {
             'type': 'string',
             'description': 'Scope of namespace accessibility.',
-            'enum': [
-                'public',
-                'private'
-            ]
+            'enum': ['public', 'private'],
         },
         'created_at': {
             'type': 'string',
             'readOnly': True,
             'description': 'Date and time of namespace creation',
-            'format': 'date-time'
+            'format': 'date-time',
         },
         'resource_type_associations': {
             'type': 'array',
             'items': {
                 'type': 'object',
                 'properties': {
-                    'name': {
-                        'type': 'string'
-                    },
-                    'prefix': {
-                        'type': 'string'
-                    },
-                    'properties_target': {
-                        'type': 'string'
-                    }
-                }
-            }
+                    'name': {'type': 'string'},
+                    'prefix': {'type': 'string'},
+                    'properties_target': {'type': 'string'},
+                },
+            },
         },
-        'properties': {
-            '$ref': '#/definitions/property'
-        },
+        'properties': {'$ref': '#/definitions/property'},
         'objects': {
             'type': 'array',
             'items': {
                 'type': 'object',
                 'properties': {
-                    'name': {
-                        'type': 'string'
-                    },
-                    'description': {
-                        'type': 'string'
-                    },
-                    'required': {
-                        '$ref': '#/definitions/stringArray'
-                    },
-                    'properties': {
-                        '$ref': '#/definitions/property'
-                    }
-                }
-            }
+                    'name': {'type': 'string'},
+                    'description': {'type': 'string'},
+                    'required': {'$ref': '#/definitions/stringArray'},
+                    'properties': {'$ref': '#/definitions/property'},
+                },
+            },
         },
         'tags': {
             'type': 'array',
             'items': {
                 'type': 'object',
-                'properties': {
-                    'name': {
-                        'type': 'string'
-                    }
-                }
-            }
-        }
+                'properties': {'name': {'type': 'string'}},
+            },
+        },
     },
     'additionalProperties': False,
     'definitions': {
-        'positiveInteger': {
-            'type': 'integer',
-            'minimum': 0
-        },
+        'positiveInteger': {'type': 'integer', 'minimum': 0},
         'positiveIntegerDefault0': {
             'allOf': [
-                {
-                    '$ref': '#/definitions/positiveInteger'
-                },
-                {
-                    'default': 0
-                }
+                {'$ref': '#/definitions/positiveInteger'},
+                {'default': 0},
             ]
         },
         'stringArray': {
             'type': 'array',
-            'items': {
-                'type': 'string'
-            },
-            'uniqueItems': True
-        }
+            'items': {'type': 'string'},
+            'uniqueItems': True,
+        },
     },
-    'required': [
-        'namespace'
-    ]
+    'required': ['namespace'],
 }
 
 
@@ -135,7 +101,8 @@ class TestMetadefSchema(base.TestCase):
         sot = metadef_schema.MetadefSchema(**EXAMPLE)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['properties'], sot.properties)
-        self.assertEqual(EXAMPLE['additionalProperties'],
-                         sot.additional_properties)
+        self.assertEqual(
+            EXAMPLE['additionalProperties'], sot.additional_properties
+        )
         self.assertEqual(EXAMPLE['definitions'], sot.definitions)
         self.assertEqual(EXAMPLE['required'], sot.required)

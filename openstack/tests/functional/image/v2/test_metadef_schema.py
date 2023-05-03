@@ -15,7 +15,6 @@ from openstack.tests.functional.image.v2 import base
 
 
 class TestMetadefSchema(base.BaseImageTest):
-
     def test_get_metadef_namespace_schema(self):
         metadef_schema = self.conn.image.get_metadef_namespace_schema()
         self.assertIsNotNone(metadef_schema)

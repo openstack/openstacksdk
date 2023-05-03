@@ -20,11 +20,11 @@ def _verify_checksum(md5, checksum):
         digest = md5.hexdigest()
         if digest != checksum:
             raise exceptions.InvalidResponse(
-                "checksum mismatch: %s != %s" % (checksum, digest))
+                "checksum mismatch: %s != %s" % (checksum, digest)
+            )
 
 
 class DownloadMixin:
-
     def download(self, session, stream=False, output=None, chunk_size=1024):
         """Download the data contained in an image"""
         # TODO(briancurtin): This method should probably offload the get
@@ -53,8 +53,7 @@ class DownloadMixin:
                         md5.update(chunk)
                 else:
                     with open(output, 'wb') as fd:
-                        for chunk in resp.iter_content(
-                                chunk_size=chunk_size):
+                        for chunk in resp.iter_content(chunk_size=chunk_size):
                             fd.write(chunk)
                             md5.update(chunk)
                 _verify_checksum(md5, checksum)
@@ -62,7 +61,8 @@ class DownloadMixin:
                 return resp
             except Exception as e:
                 raise exceptions.SDKException(
-                    "Unable to download image: %s" % e)
+                    "Unable to download image: %s" % e
+                )
         # if we are returning the repsonse object, ensure that it
         # has the content-md5 header so that the caller doesn't
         # need to jump through the same hoops through which we
@@ -72,10 +72,12 @@ class DownloadMixin:
             return resp
 
         if checksum is not None:
-            _verify_checksum(utils.md5(resp.content, usedforsecurity=False),
-                             checksum)
+            _verify_checksum(
+                utils.md5(resp.content, usedforsecurity=False), checksum
+            )
         else:
             session.log.warning(
-                "Unable to verify the integrity of image %s", (self.id))
+                "Unable to verify the integrity of image %s", (self.id)
+            )
 
         return resp

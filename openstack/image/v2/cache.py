@@ -32,8 +32,11 @@ class Cache(resource.Resource):
 
     _max_microversion = '2.14'
 
-    cached_images = resource.Body('cached_images', type=list,
-                                  list_type=CachedImage)
+    cached_images = resource.Body(
+        'cached_images',
+        type=list,
+        list_type=CachedImage,
+    )
     queued_images = resource.Body('queued_images', type=list)
 
     def queue(self, session, image, *, microversion=None):

@@ -571,7 +571,7 @@ class TestMetadefResourceType(TestImageProxy):
     def test_metadef_resource_types(self):
         self.verify_list(
             self.proxy.metadef_resource_types,
-            _metadef_resource_type.MetadefResourceType
+            _metadef_resource_type.MetadefResourceType,
         )
 
 
@@ -581,7 +581,7 @@ class TestMetadefResourceTypeAssociation(TestImageProxy):
             self.proxy.create_metadef_resource_type_association,
             _metadef_resource_type.MetadefResourceTypeAssociation,
             method_kwargs={'metadef_namespace': 'namespace_name'},
-            expected_kwargs={'namespace_name': 'namespace_name'}
+            expected_kwargs={'namespace_name': 'namespace_name'},
         )
 
     def test_delete_metadef_resource_type_association(self):
@@ -590,7 +590,7 @@ class TestMetadefResourceTypeAssociation(TestImageProxy):
             _metadef_resource_type.MetadefResourceTypeAssociation,
             False,
             method_kwargs={'metadef_namespace': 'namespace_name'},
-            expected_kwargs={'namespace_name': 'namespace_name'}
+            expected_kwargs={'namespace_name': 'namespace_name'},
         )
 
     def test_delete_metadef_resource_type_association_ignore(self):
@@ -599,7 +599,7 @@ class TestMetadefResourceTypeAssociation(TestImageProxy):
             _metadef_resource_type.MetadefResourceTypeAssociation,
             True,
             method_kwargs={'metadef_namespace': 'namespace_name'},
-            expected_kwargs={'namespace_name': 'namespace_name'}
+            expected_kwargs={'namespace_name': 'namespace_name'},
         )
 
     def test_metadef_resource_type_associations(self):
@@ -607,7 +607,7 @@ class TestMetadefResourceTypeAssociation(TestImageProxy):
             self.proxy.metadef_resource_type_associations,
             _metadef_resource_type.MetadefResourceTypeAssociation,
             method_kwargs={'metadef_namespace': 'namespace_name'},
-            expected_kwargs={'namespace_name': 'namespace_name'}
+            expected_kwargs={'namespace_name': 'namespace_name'},
         )
 
 
@@ -892,9 +892,7 @@ class TestCache(TestImageProxy):
             "openstack.proxy.Proxy._get",
             self.proxy.get_image_cache,
             expected_args=[_cache.Cache],
-            expected_kwargs={
-                'requires_id': False
-            },
+            expected_kwargs={'requires_id': False},
         )
 
     def test_cache_image_delete(self):
@@ -911,7 +909,8 @@ class TestCache(TestImageProxy):
             "openstack.image.v2.cache.Cache.queue",
             self.proxy.queue_image,
             method_args=['image-id'],
-            expected_args=[self.proxy, 'image-id'])
+            expected_args=[self.proxy, 'image-id'],
+        )
         mock_get_resource.assert_called_once_with(_cache.Cache, None)
 
     @mock.patch.object(proxy_base.Proxy, '_get_resource')
@@ -922,5 +921,6 @@ class TestCache(TestImageProxy):
             "openstack.image.v2.cache.Cache.clear",
             self.proxy.clear_cache,
             method_args=['both'],
-            expected_args=[self.proxy, 'both'])
+            expected_args=[self.proxy, 'both'],
+        )
         mock_get_resource.assert_called_once_with(_cache.Cache, None)

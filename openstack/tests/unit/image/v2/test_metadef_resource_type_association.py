@@ -18,7 +18,7 @@ EXAMPLE = {
     "name": "OS::Cinder::Volume",
     "prefix": "CIM_PASD_",
     "properties_target": "image",
-    "created_at": "2022-07-09T04:10:38Z"
+    "created_at": "2022-07-09T04:10:38Z",
 }
 
 
@@ -29,7 +29,8 @@ class TestMetadefResourceTypeAssociation(base.TestCase):
         self.assertEqual('resource_type_associations', sot.resources_key)
         self.assertEqual(
             '/metadefs/namespaces/%(namespace_name)s/resource_types',
-            sot.base_path)
+            sot.base_path,
+        )
         self.assertTrue(sot.allow_create)
         self.assertFalse(sot.allow_fetch)
         self.assertFalse(sot.allow_commit)

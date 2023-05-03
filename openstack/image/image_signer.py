@@ -37,7 +37,7 @@ class ImageSigner:
         padding_types = {
             'RSA-PSS': padding.PSS(
                 mgf=padding.MGF1(HASH_METHODS[hash_method]),
-                salt_length=padding.PSS.MAX_LENGTH
+                salt_length=padding.PSS.MAX_LENGTH,
             )
         }
         # informational attributes

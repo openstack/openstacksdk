@@ -67,7 +67,7 @@ class TestMetadefNamespace(base.TestCase):
                 'resource_types': 'resource_types',
                 'sort_dir': 'sort_dir',
                 'sort_key': 'sort_key',
-                'visibility': 'visibility'
+                'visibility': 'visibility',
             },
             sot._query_mapping._mapping,
         )

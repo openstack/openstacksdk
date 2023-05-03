@@ -150,7 +150,9 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
     #: Optional property allows created servers to have a different bandwidth
     #: cap than that defined in the network they are attached to.
     instance_type_rxtx_factor = resource.Body(
-        "instance_type_rxtx_factor", type=float)
+        "instance_type_rxtx_factor",
+        type=float,
+    )
     # For snapshot images, this is the UUID of the server used to
     #: create this image.
     instance_uuid = resource.Body('instance_uuid')
@@ -221,7 +223,9 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
     #: number of guest vCPUs. This makes the network performance scale
     #: across a number of vCPUs.
     is_hw_vif_multiqueue_enabled = resource.Body(
-        'hw_vif_multiqueue_enabled', type=bool)
+        'hw_vif_multiqueue_enabled',
+        type=bool,
+    )
     #: If true, enables the BIOS bootmenu.
     is_hw_boot_menu_enabled = resource.Body('hw_boot_menu', type=bool)
     #: The virtual SCSI or IDE controller used by the hypervisor.
@@ -247,7 +251,7 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
     def _action(self, session, action):
         """Call an action on an image ID."""
         url = utils.urljoin(self.base_path, self.id, 'actions', action)
-        return session.post(url,)
+        return session.post(url)
 
     def deactivate(self, session):
         """Deactivate an image
@@ -275,9 +279,11 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
         if data:
             self.data = data
         url = utils.urljoin(self.base_path, self.id, 'file')
-        return session.put(url, data=self.data,
-                           headers={"Content-Type": "application/octet-stream",
-                                    "Accept": ""})
+        return session.put(
+            url,
+            data=self.data,
+            headers={"Content-Type": "application/octet-stream", "Accept": ""},
+        )
 
     def stage(self, session, *, data=None):
         """Stage binary image data into an existing image
@@ -292,9 +298,10 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
 
         url = utils.urljoin(self.base_path, self.id, 'stage')
         response = session.put(
-            url, data=self.data,
-            headers={"Content-Type": "application/octet-stream",
-                     "Accept": ""})
+            url,
+            data=self.data,
+            headers={"Content-Type": "application/octet-stream", "Accept": ""},
+        )
         self._translate_response(response, has_body=False)
         return self
 
@@ -339,8 +346,9 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
 
         if remote_region and remote_image_id:
             if remote_service_interface:
-                data['method']['glance_service_interface'] = \
-                    remote_service_interface
+                data['method'][
+                    'glance_service_interface'
+                ] = remote_service_interface
                 data['method']['glance_region'] = remote_region
                 data['method']['glance_image_id'] = remote_image_id
 
@@ -367,16 +375,24 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
 
         return super()._consume_header_attrs(attrs)
 
-    def _prepare_request(self, requires_id=None, prepend_key=False,
-                         patch=False, base_path=None, **kwargs):
-        request = super(Image, self)._prepare_request(requires_id=requires_id,
-                                                      prepend_key=prepend_key,
-                                                      patch=patch,
-                                                      base_path=base_path)
+    def _prepare_request(
+        self,
+        requires_id=None,
+        prepend_key=False,
+        patch=False,
+        base_path=None,
+        **kwargs,
+    ):
+        request = super(Image, self)._prepare_request(
+            requires_id=requires_id,
+            prepend_key=prepend_key,
+            patch=patch,
+            base_path=base_path,
+        )
         if patch:
             headers = {
                 'Content-Type': 'application/openstack-images-v2.1-json-patch',
-                'Accept': ''
+                'Accept': '',
             }
             request.headers.update(headers)
 
@@ -385,8 +401,7 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
     @classmethod
     def find(cls, session, name_or_id, ignore_missing=True, **params):
         # Do a regular search first (ignoring missing)
-        result = super(Image, cls).find(session, name_or_id, True,
-                                        **params)
+        result = super(Image, cls).find(session, name_or_id, True, **params)
 
         if result:
             return result
@@ -402,4 +417,5 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
         if ignore_missing:
             return None
         raise exceptions.ResourceNotFound(
-            "No %s found for %s" % (cls.__name__, name_or_id))
+            "No %s found for %s" % (cls.__name__, name_or_id)
+        )

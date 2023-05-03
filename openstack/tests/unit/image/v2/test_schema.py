@@ -16,39 +16,25 @@ from openstack.tests.unit import base
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
-    'additionalProperties': {
-        'type': 'string'
-    },
+    'additionalProperties': {'type': 'string'},
     'links': [
-        {
-            'href': '{self}',
-            'rel': 'self'
-        },
-        {
-            'href': '{file}',
-            'rel': 'enclosure'
-        },
-        {
-            'href': '{schema}',
-            'rel': 'describedby'
-        }
+        {'href': '{self}', 'rel': 'self'},
+        {'href': '{file}', 'rel': 'enclosure'},
+        {'href': '{schema}', 'rel': 'describedby'},
     ],
     'name': 'image',
     'properties': {
         'architecture': {
             'description': 'Operating system architecture',
             'is_base': False,
-            'type': 'string'
+            'type': 'string',
         },
         'visibility': {
             'description': 'Scope of image accessibility',
-            'enum': [
-                'public',
-                'private'
-            ],
-            'type': 'string'
-        }
-    }
+            'enum': ['public', 'private'],
+            'type': 'string',
+        },
+    },
 }
 
 
@@ -68,5 +54,6 @@ class TestSchema(base.TestCase):
         sot = schema.Schema(**EXAMPLE)
         self.assertEqual(EXAMPLE['properties'], sot.properties)
         self.assertEqual(EXAMPLE['name'], sot.name)
-        self.assertEqual(EXAMPLE['additionalProperties'],
-                         sot.additional_properties)
+        self.assertEqual(
+            EXAMPLE['additionalProperties'], sot.additional_properties
+        )

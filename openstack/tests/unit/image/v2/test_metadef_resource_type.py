@@ -14,10 +14,7 @@ from openstack.image.v2 import metadef_resource_type
 from openstack.tests.unit import base
 
 
-EXAMPLE = {
-    "name": "OS::Nova::Aggregate",
-    "created_at": "2022-07-09T04:10:37Z"
-}
+EXAMPLE = {"name": "OS::Nova::Aggregate", "created_at": "2022-07-09T04:10:37Z"}
 
 
 class TestMetadefResourceType(base.TestCase):

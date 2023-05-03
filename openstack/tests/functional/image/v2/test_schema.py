@@ -15,7 +15,6 @@ from openstack.tests.functional.image.v2 import base
 
 
 class TestSchema(base.BaseImageTest):
-
     def test_get_images_schema(self):
         schema = self.conn.image.get_images_schema()
         self.assertIsNotNone(schema)

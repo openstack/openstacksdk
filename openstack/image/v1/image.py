@@ -32,8 +32,12 @@ class Image(resource.Resource, _download.DownloadMixin):
     _store_unknown_attrs_as_properties = True
 
     _query_mapping = resource.QueryParameters(
-        'name', 'container_format', 'disk_format',
-        'status', 'size_min', 'size_max'
+        'name',
+        'container_format',
+        'disk_format',
+        'status',
+        'size_min',
+        'size_max',
     )
 
     #: Hash of the image data used. The Image service uses this value
@@ -114,7 +118,8 @@ class Image(resource.Resource, _download.DownloadMixin):
             match = cls.existing(
                 id=name_or_id,
                 connection=session._get_connection(),
-                **params)
+                **params,
+            )
             return match.fetch(session, **params)
         except exceptions.NotFoundException:
             pass
@@ -130,4 +135,5 @@ class Image(resource.Resource, _download.DownloadMixin):
         if ignore_missing:
             return None
         raise exceptions.ResourceNotFound(
-            "No %s found for %s" % (cls.__name__, name_or_id))
+            "No %s found for %s" % (cls.__name__, name_or_id)
+        )

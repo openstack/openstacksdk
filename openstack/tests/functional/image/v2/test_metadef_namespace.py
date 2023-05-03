@@ -45,7 +45,8 @@ class TestMetadefNamespace(base.BaseImageTest):
             self.metadef_namespace.namespace
         )
         self.assertEqual(
-            self.metadef_namespace.namespace, metadef_namespace.namespace,
+            self.metadef_namespace.namespace,
+            metadef_namespace.namespace,
         )
 
         # (no find_metadef_namespace method)

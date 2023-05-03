@@ -35,7 +35,10 @@ EXAMPLE = {
     'min_disk': 5,
     'name': '6',
     'owner': '7',
-    'properties': {'a': 'z', 'b': 'y', },
+    'properties': {
+        'a': 'z',
+        'b': 'y',
+    },
     'protected': False,
     'status': '8',
     'tags': ['g', 'h', 'i'],
@@ -114,7 +117,6 @@ class FakeResponse:
 
 
 class TestImage(base.TestCase):
-
     def setUp(self):
         super(TestImage, self).setUp()
         self.resp = mock.Mock()
@@ -159,7 +161,7 @@ class TestImage(base.TestCase):
                 'status': 'status',
                 'tag': 'tag',
                 'updated_at': 'updated_at',
-                'visibility': 'visibility'
+                'visibility': 'visibility',
             },
             sot._query_mapping._mapping,
         )
@@ -194,8 +196,9 @@ class TestImage(base.TestCase):
         self.assertEqual(EXAMPLE['metadata'], sot.metadata)
         self.assertEqual(EXAMPLE['architecture'], sot.architecture)
         self.assertEqual(EXAMPLE['hypervisor_type'], sot.hypervisor_type)
-        self.assertEqual(EXAMPLE['instance_type_rxtx_factor'],
-                         sot.instance_type_rxtx_factor)
+        self.assertEqual(
+            EXAMPLE['instance_type_rxtx_factor'], sot.instance_type_rxtx_factor
+        )
         self.assertEqual(EXAMPLE['instance_uuid'], sot.instance_uuid)
         self.assertEqual(EXAMPLE['img_config_drive'], sot.needs_config_drive)
         self.assertEqual(EXAMPLE['kernel_id'], sot.kernel_id)
@@ -211,23 +214,27 @@ class TestImage(base.TestCase):
         self.assertEqual(EXAMPLE['hw_rng_model'], sot.hw_rng_model)
         self.assertEqual(EXAMPLE['hw_machine_type'], sot.hw_machine_type)
         self.assertEqual(EXAMPLE['hw_scsi_model'], sot.hw_scsi_model)
-        self.assertEqual(EXAMPLE['hw_serial_port_count'],
-                         sot.hw_serial_port_count)
+        self.assertEqual(
+            EXAMPLE['hw_serial_port_count'], sot.hw_serial_port_count
+        )
         self.assertEqual(EXAMPLE['hw_video_model'], sot.hw_video_model)
         self.assertEqual(EXAMPLE['hw_video_ram'], sot.hw_video_ram)
         self.assertEqual(EXAMPLE['hw_watchdog_action'], sot.hw_watchdog_action)
         self.assertEqual(EXAMPLE['os_command_line'], sot.os_command_line)
         self.assertEqual(EXAMPLE['hw_vif_model'], sot.hw_vif_model)
-        self.assertEqual(EXAMPLE['hw_vif_multiqueue_enabled'],
-                         sot.is_hw_vif_multiqueue_enabled)
+        self.assertEqual(
+            EXAMPLE['hw_vif_multiqueue_enabled'],
+            sot.is_hw_vif_multiqueue_enabled,
+        )
         self.assertEqual(EXAMPLE['hw_boot_menu'], sot.is_hw_boot_menu_enabled)
         self.assertEqual(EXAMPLE['vmware_adaptertype'], sot.vmware_adaptertype)
         self.assertEqual(EXAMPLE['vmware_ostype'], sot.vmware_ostype)
         self.assertEqual(EXAMPLE['auto_disk_config'], sot.has_auto_disk_config)
         self.assertEqual(EXAMPLE['os_type'], sot.os_type)
         self.assertEqual(EXAMPLE['os_admin_user'], sot.os_admin_user)
-        self.assertEqual(EXAMPLE['hw_qemu_guest_agent'],
-                         sot.hw_qemu_guest_agent)
+        self.assertEqual(
+            EXAMPLE['hw_qemu_guest_agent'], sot.hw_qemu_guest_agent
+        )
         self.assertEqual(EXAMPLE['os_require_quiesce'], sot.os_require_quiesce)
 
     def test_deactivate(self):
@@ -267,9 +274,7 @@ class TestImage(base.TestCase):
         json = {"method": {"name": "web-download", "uri": "such-a-good-uri"}}
         sot.import_image(self.sess, "web-download", uri="such-a-good-uri")
         self.sess.post.assert_called_with(
-            'images/IDENTIFIER/import',
-            headers={},
-            json=json
+            'images/IDENTIFIER/import', headers={}, json=json
         )
 
     def test_import_image_with_uri_not_web_download(self):
@@ -279,7 +284,7 @@ class TestImage(base.TestCase):
         self.sess.post.assert_called_with(
             'images/IDENTIFIER/import',
             headers={},
-            json={"method": {"name": "glance-direct"}}
+            json={"method": {"name": "glance-direct"}},
         )
 
     def test_import_image_with_store(self):
@@ -302,7 +307,7 @@ class TestImage(base.TestCase):
         self.sess.post.assert_called_with(
             'images/IDENTIFIER/import',
             headers={'X-Image-Meta-Store': 'ceph_1'},
-            json=json
+            json=json,
         )
 
     def test_import_image_with_stores(self):
@@ -353,21 +358,21 @@ class TestImage(base.TestCase):
         sot = image.Image(**EXAMPLE)
 
         self.assertIsNotNone(sot.upload(self.sess))
-        self.sess.put.assert_called_with('images/IDENTIFIER/file',
-                                         data=sot.data,
-                                         headers={"Content-Type":
-                                                  "application/octet-stream",
-                                                  "Accept": ""})
+        self.sess.put.assert_called_with(
+            'images/IDENTIFIER/file',
+            data=sot.data,
+            headers={"Content-Type": "application/octet-stream", "Accept": ""},
+        )
 
     def test_stage(self):
         sot = image.Image(**EXAMPLE)
 
         self.assertIsNotNone(sot.stage(self.sess))
-        self.sess.put.assert_called_with('images/IDENTIFIER/stage',
-                                         data=sot.data,
-                                         headers={"Content-Type":
-                                                  "application/octet-stream",
-                                                  "Accept": ""})
+        self.sess.put.assert_called_with(
+            'images/IDENTIFIER/stage',
+            data=sot.data,
+            headers={"Content-Type": "application/octet-stream", "Accept": ""},
+        )
 
     def test_stage_error(self):
         sot = image.Image(**EXAMPLE)
@@ -380,13 +385,17 @@ class TestImage(base.TestCase):
 
         resp = FakeResponse(
             b"abc",
-            headers={"Content-MD5": "900150983cd24fb0d6963f7d28e17f72",
-                     "Content-Type": "application/octet-stream"})
+            headers={
+                "Content-MD5": "900150983cd24fb0d6963f7d28e17f72",
+                "Content-Type": "application/octet-stream",
+            },
+        )
         self.sess.get.return_value = resp
 
         rv = sot.download(self.sess)
-        self.sess.get.assert_called_with('images/IDENTIFIER/file',
-                                         stream=False)
+        self.sess.get.assert_called_with(
+            'images/IDENTIFIER/file', stream=False
+        )
 
         self.assertEqual(rv, resp)
 
@@ -395,8 +404,11 @@ class TestImage(base.TestCase):
 
         resp = FakeResponse(
             b"abc",
-            headers={"Content-MD5": "the wrong checksum",
-                     "Content-Type": "application/octet-stream"})
+            headers={
+                "Content-MD5": "the wrong checksum",
+                "Content-Type": "application/octet-stream",
+            },
+        )
         self.sess.get.return_value = resp
 
         self.assertRaises(exceptions.InvalidResponse, sot.download, self.sess)
@@ -405,19 +417,25 @@ class TestImage(base.TestCase):
         sot = image.Image(**EXAMPLE)
 
         resp1 = FakeResponse(
-            b"abc", headers={"Content-Type": "application/octet-stream"})
+            b"abc", headers={"Content-Type": "application/octet-stream"}
+        )
 
-        resp2 = FakeResponse(
-            {"checksum": "900150983cd24fb0d6963f7d28e17f72"})
+        resp2 = FakeResponse({"checksum": "900150983cd24fb0d6963f7d28e17f72"})
 
         self.sess.get.side_effect = [resp1, resp2]
 
         rv = sot.download(self.sess)
         self.sess.get.assert_has_calls(
-            [mock.call('images/IDENTIFIER/file',
-                       stream=False),
-             mock.call('images/IDENTIFIER', microversion=None, params={},
-                       skip_cache=False)])
+            [
+                mock.call('images/IDENTIFIER/file', stream=False),
+                mock.call(
+                    'images/IDENTIFIER',
+                    microversion=None,
+                    params={},
+                    skip_cache=False,
+                ),
+            ]
+        )
 
         self.assertEqual(rv, resp1)
 
@@ -425,7 +443,8 @@ class TestImage(base.TestCase):
         sot = image.Image(**EXAMPLE)
 
         resp1 = FakeResponse(
-            b"abc", headers={"Content-Type": "application/octet-stream"})
+            b"abc", headers={"Content-Type": "application/octet-stream"}
+        )
 
         resp2 = FakeResponse({"checksum": None})
 
@@ -434,20 +453,26 @@ class TestImage(base.TestCase):
         with self.assertLogs(logger='openstack', level="WARNING") as log:
             rv = sot.download(self.sess)
 
-            self.assertEqual(len(log.records), 1,
-                             "Too many warnings were logged")
+            self.assertEqual(
+                len(log.records), 1, "Too many warnings were logged"
+            )
             self.assertEqual(
                 "Unable to verify the integrity of image %s",
-                log.records[0].msg)
-            self.assertEqual(
-                (sot.id,),
-                log.records[0].args)
+                log.records[0].msg,
+            )
+            self.assertEqual((sot.id,), log.records[0].args)
 
         self.sess.get.assert_has_calls(
-            [mock.call('images/IDENTIFIER/file',
-                       stream=False),
-             mock.call('images/IDENTIFIER', microversion=None, params={},
-                       skip_cache=False)])
+            [
+                mock.call('images/IDENTIFIER/file', stream=False),
+                mock.call(
+                    'images/IDENTIFIER',
+                    microversion=None,
+                    params={},
+                    skip_cache=False,
+                ),
+            ]
+        )
 
         self.assertEqual(rv, resp1)
 
@@ -456,8 +481,11 @@ class TestImage(base.TestCase):
 
         resp = FakeResponse(
             b"abc",
-            headers={"Content-MD5": "900150983cd24fb0d6963f7d28e17f72",
-                     "Content-Type": "application/octet-stream"})
+            headers={
+                "Content-MD5": "900150983cd24fb0d6963f7d28e17f72",
+                "Content-Type": "application/octet-stream",
+            },
+        )
         self.sess.get.return_value = resp
 
         rv = sot.download(self.sess, stream=True)
@@ -472,8 +500,9 @@ class TestImage(base.TestCase):
         response.status_code = 200
         response.iter_content.return_value = [b'01', b'02']
         response.headers = {
-            'Content-MD5':
-            calculate_md5_checksum(response.iter_content.return_value)
+            'Content-MD5': calculate_md5_checksum(
+                response.iter_content.return_value
+            )
         }
         self.sess.get = mock.Mock(return_value=response)
         sot.download(self.sess, output=output_file)
@@ -486,8 +515,9 @@ class TestImage(base.TestCase):
         response.status_code = 200
         response.iter_content.return_value = [b'01', b'02']
         response.headers = {
-            'Content-MD5':
-            calculate_md5_checksum(response.iter_content.return_value)
+            'Content-MD5': calculate_md5_checksum(
+                response.iter_content.return_value
+            )
         }
         self.sess.get = mock.Mock(return_value=response)
 
@@ -513,9 +543,10 @@ class TestImage(base.TestCase):
         resp.status_code = 200
         self.sess.patch.return_value = resp
 
-        value = [{"value": "fake_name", "op": "replace", "path": "/name"},
-                 {"value": "fake_value", "op": "add",
-                  "path": "/instance_uuid"}]
+        value = [
+            {"value": "fake_name", "op": "replace", "path": "/name"},
+            {"value": "fake_value", "op": "add", "path": "/instance_uuid"},
+        ]
 
         sot.name = 'fake_name'
         sot.instance_uuid = 'fake_value'
@@ -527,7 +558,8 @@ class TestImage(base.TestCase):
         self.assertEqual(url, call_args[0])
         self.assertEqual(
             sorted(value, key=operator.itemgetter('value')),
-            sorted(call_kwargs['json'], key=operator.itemgetter('value')))
+            sorted(call_kwargs['json'], key=operator.itemgetter('value')),
+        )
 
     def test_image_find(self):
         sot = image.Image()
@@ -539,20 +571,33 @@ class TestImage(base.TestCase):
             # Then list with no results
             FakeResponse({'images': []}),
             # And finally new list of hidden images with one searched
-            FakeResponse({'images': [EXAMPLE]})
-
+            FakeResponse({'images': [EXAMPLE]}),
         ]
 
         result = sot.find(self.sess, EXAMPLE['name'])
 
-        self.sess.get.assert_has_calls([
-            mock.call('images/' + EXAMPLE['name'], microversion=None,
-                      params={}, skip_cache=False),
-            mock.call('/images', headers={'Accept': 'application/json'},
-                      microversion=None, params={'name': EXAMPLE['name']}),
-            mock.call('/images', headers={'Accept': 'application/json'},
-                      microversion=None, params={'os_hidden': True})
-        ])
+        self.sess.get.assert_has_calls(
+            [
+                mock.call(
+                    'images/' + EXAMPLE['name'],
+                    microversion=None,
+                    params={},
+                    skip_cache=False,
+                ),
+                mock.call(
+                    '/images',
+                    headers={'Accept': 'application/json'},
+                    microversion=None,
+                    params={'name': EXAMPLE['name']},
+                ),
+                mock.call(
+                    '/images',
+                    headers={'Accept': 'application/json'},
+                    microversion=None,
+                    params={'os_hidden': True},
+                ),
+            ]
+        )
 
         self.assertIsInstance(result, image.Image)
         self.assertEqual(IDENTIFIER, result.id)

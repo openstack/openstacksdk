@@ -19,16 +19,18 @@ from openstack.tests.unit import base
 
 EXAMPLE = {
     'cached_images': [
-        {'hits': 0,
-         'image_id': '1a56983c-f71f-490b-a7ac-6b321a18935a',
-         'last_accessed': 1671699579.444378,
-         'last_modified': 1671699579.444378,
-         'size': 0},
+        {
+            'hits': 0,
+            'image_id': '1a56983c-f71f-490b-a7ac-6b321a18935a',
+            'last_accessed': 1671699579.444378,
+            'last_modified': 1671699579.444378,
+            'size': 0,
+        },
     ],
     'queued_images': [
         '3a4560a1-e585-443e-9b39-553b46ec92d1',
-        '6f99bf80-2ee6-47cf-acfe-1f1fabb7e810'
-    ]
+        '6f99bf80-2ee6-47cf-acfe-1f1fabb7e810',
+    ],
 }
 
 
@@ -57,8 +59,9 @@ class TestCache(base.TestCase):
 
         sot.queue(sess, image='image_id')
 
-        sess.put.assert_called_with('cache/image_id',
-                                    microversion=sess.default_microversion)
+        sess.put.assert_called_with(
+            'cache/image_id', microversion=sess.default_microversion
+        )
 
     @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
     def test_clear(self):

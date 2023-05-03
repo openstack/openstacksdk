@@ -19,7 +19,6 @@ TEST_IMAGE_NAME = 'Test Image'
 
 
 class TestImage(base.BaseImageTest):
-
     def setUp(self):
         super().setUp()
 

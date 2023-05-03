@@ -22,16 +22,13 @@ EXAMPLE_IMPORT = {
     'import-methods': {
         'description': 'Import methods available.',
         'type': 'array',
-        'value': [
-            'glance-direct',
-            'web-download'
-        ]
+        'value': ['glance-direct', 'web-download'],
     }
 }
 EXAMPLE_STORE = {
     'id': IDENTIFIER,
     'description': 'Fast access to rbd store',
-    'default': True
+    'default': True,
 }
 
 

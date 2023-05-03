@@ -37,7 +37,6 @@ EXAMPLE = {
 
 
 class TestImage(base.TestCase):
-
     def test_basic(self):
         sot = image.Image()
         self.assertEqual('image', sot.resource_key)

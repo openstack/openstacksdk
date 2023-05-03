@@ -16,7 +16,6 @@ from openstack.tests.functional.image.v2 import base
 
 
 class TestMetadefResourceType(base.BaseImageTest):
-
     def setUp(self):
         super().setUp()
 
@@ -33,14 +32,14 @@ class TestMetadefResourceType(base.BaseImageTest):
 
         resource_type_name = 'test-resource-type'
         resource_type = {'name': resource_type_name}
-        self.metadef_resource_type = \
+        self.metadef_resource_type = (
             self.conn.image.create_metadef_resource_type_association(
-                metadef_namespace=namespace,
-                **resource_type
+                metadef_namespace=namespace, **resource_type
             )
+        )
         self.assertIsInstance(
             self.metadef_resource_type,
-            _metadef_resource_type.MetadefResourceTypeAssociation
+            _metadef_resource_type.MetadefResourceTypeAssociation,
         )
         self.assertEqual(resource_type_name, self.metadef_resource_type.name)
 
@@ -54,12 +53,14 @@ class TestMetadefResourceType(base.BaseImageTest):
 
     def test_metadef_resource_types(self):
         # list resource type associations
-        associations = list(self.conn.image.metadef_resource_type_associations(
-            metadef_namespace=self.metadef_namespace))
+        associations = list(
+            self.conn.image.metadef_resource_type_associations(
+                metadef_namespace=self.metadef_namespace
+            )
+        )
 
         self.assertIn(
-            self.metadef_resource_type.name,
-            {a.name for a in associations}
+            self.metadef_resource_type.name, {a.name for a in associations}
         )
 
         # (no find_metadef_resource_type_association method)
@@ -68,12 +69,11 @@ class TestMetadefResourceType(base.BaseImageTest):
         resource_types = list(self.conn.image.metadef_resource_types())
 
         self.assertIn(
-            self.metadef_resource_type.name,
-            {t.name for t in resource_types}
+            self.metadef_resource_type.name, {t.name for t in resource_types}
         )
 
         # delete
         self.conn.image.delete_metadef_resource_type_association(
             self.metadef_resource_type,
-            metadef_namespace=self.metadef_namespace
+            metadef_namespace=self.metadef_namespace,
         )

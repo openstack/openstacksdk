@@ -19,12 +19,9 @@ EXAMPLE = {
     'created_at': '2016-06-24T14:40:19Z',
     'id': IDENTIFIER,
     'input': {
-        'image_properties': {
-            'container_format': 'ovf',
-            'disk_format': 'vhd'
-        },
+        'image_properties': {'container_format': 'ovf', 'disk_format': 'vhd'},
         'import_from': 'http://example.com',
-        'import_from_format': 'qcow2'
+        'import_from_format': 'qcow2',
     },
     'message': 'message',
     'owner': 'fa6c8c1600f4444281658a23ee6da8e8',
@@ -32,7 +29,7 @@ EXAMPLE = {
     'schema': '/v2/schemas/task',
     'status': 'processing',
     'type': 'import',
-    'updated_at': '2016-06-24T14:40:20Z'
+    'updated_at': '2016-06-24T14:40:20Z',
 }
 
 
@@ -48,14 +45,17 @@ class TestTask(base.TestCase):
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
-        self.assertDictEqual({'limit': 'limit',
-                              'marker': 'marker',
-                              'sort_dir': 'sort_dir',
-                              'sort_key': 'sort_key',
-                              'status': 'status',
-                              'type': 'type',
-                              },
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {
+                'limit': 'limit',
+                'marker': 'marker',
+                'sort_dir': 'sort_dir',
+                'sort_key': 'sort_key',
+                'status': 'status',
+                'type': 'type',
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = task.Task(**EXAMPLE)

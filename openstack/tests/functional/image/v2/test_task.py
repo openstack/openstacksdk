@@ -14,7 +14,6 @@ from openstack.tests.functional.image.v2 import base
 
 
 class TestTask(base.BaseImageTest):
-
     def test_tasks(self):
         tasks = list(self.conn.image.tasks())
         # NOTE(stephenfin): Yes, this is a dumb test. Basically all that we're
