@@ -33,7 +33,6 @@ EXAMPLE = {
 
 
 class TestHealthMonitor(base.TestCase):
-
     def test_basic(self):
         sot = health_monitor.HealthMonitor()
         self.assertEqual('healthmonitor', sot.resource_key)

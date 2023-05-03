@@ -46,13 +46,15 @@ class TestAddressGroup(base.BaseFunctionalTest):
 
     def tearDown(self):
         sot = self.user_cloud.network.delete_address_group(
-            self.ADDRESS_GROUP_ID)
+            self.ADDRESS_GROUP_ID
+        )
         self.assertIsNone(sot)
         super(TestAddressGroup, self).tearDown()
 
     def test_find(self):
         sot = self.user_cloud.network.find_address_group(
-            self.ADDRESS_GROUP_NAME)
+            self.ADDRESS_GROUP_NAME
+        )
         self.assertEqual(self.ADDRESS_GROUP_ID, sot.id)
 
     def test_get(self):

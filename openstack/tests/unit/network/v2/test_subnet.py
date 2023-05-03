@@ -42,7 +42,6 @@ EXAMPLE = {
 
 
 class TestSubnet(base.TestCase):
-
     def test_basic(self):
         sot = subnet.Subnet()
         self.assertEqual('subnet', sot.resource_key)

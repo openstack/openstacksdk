@@ -36,13 +36,15 @@ class TestAddressScope(base.BaseFunctionalTest):
 
     def tearDown(self):
         sot = self.user_cloud.network.delete_address_scope(
-            self.ADDRESS_SCOPE_ID)
+            self.ADDRESS_SCOPE_ID
+        )
         self.assertIsNone(sot)
         super(TestAddressScope, self).tearDown()
 
     def test_find(self):
         sot = self.user_cloud.network.find_address_scope(
-            self.ADDRESS_SCOPE_NAME)
+            self.ADDRESS_SCOPE_NAME
+        )
         self.assertEqual(self.ADDRESS_SCOPE_ID, sot.id)
 
     def test_get(self):

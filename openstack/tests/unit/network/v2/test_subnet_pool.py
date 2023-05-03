@@ -36,7 +36,6 @@ EXAMPLE = {
 
 
 class TestSubnetpool(base.TestCase):
-
     def test_basic(self):
         sot = subnet_pool.SubnetPool()
         self.assertEqual('subnetpool', sot.resource_key)
@@ -52,8 +51,9 @@ class TestSubnetpool(base.TestCase):
         sot = subnet_pool.SubnetPool(**EXAMPLE)
         self.assertEqual(EXAMPLE['address_scope_id'], sot.address_scope_id)
         self.assertEqual(EXAMPLE['created_at'], sot.created_at)
-        self.assertEqual(EXAMPLE['default_prefixlen'],
-                         sot.default_prefix_length)
+        self.assertEqual(
+            EXAMPLE['default_prefixlen'], sot.default_prefix_length
+        )
         self.assertEqual(EXAMPLE['default_quota'], sot.default_quota)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['id'], sot.id)

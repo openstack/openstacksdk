@@ -31,9 +31,16 @@ class NetworkSegmentRange(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'name', 'default', 'shared', 'project_id',
-        'network_type', 'physical_network', 'minimum', 'maximum',
-        'used', 'available'
+        'name',
+        'default',
+        'shared',
+        'project_id',
+        'network_type',
+        'physical_network',
+        'minimum',
+        'maximum',
+        'used',
+        'available',
     )
 
     # Properties

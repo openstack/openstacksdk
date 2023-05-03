@@ -18,18 +18,22 @@ from openstack import exceptions
 from openstack.network.v2 import address_group as _address_group
 from openstack.network.v2 import address_scope as _address_scope
 from openstack.network.v2 import agent as _agent
-from openstack.network.v2 import auto_allocated_topology as \
-    _auto_allocated_topology
+from openstack.network.v2 import (
+    auto_allocated_topology as _auto_allocated_topology,
+)
 from openstack.network.v2 import availability_zone
 from openstack.network.v2 import bgp_peer as _bgp_peer
 from openstack.network.v2 import bgp_speaker as _bgp_speaker
 from openstack.network.v2 import bgpvpn as _bgpvpn
-from openstack.network.v2 import bgpvpn_network_association as \
-    _bgpvpn_network_association
-from openstack.network.v2 import bgpvpn_port_association as \
-    _bgpvpn_port_association
-from openstack.network.v2 import bgpvpn_router_association as \
-    _bgpvpn_router_association
+from openstack.network.v2 import (
+    bgpvpn_network_association as _bgpvpn_network_association,
+)
+from openstack.network.v2 import (
+    bgpvpn_port_association as _bgpvpn_port_association,
+)
+from openstack.network.v2 import (
+    bgpvpn_router_association as _bgpvpn_router_association,
+)
 from openstack.network.v2 import extension
 from openstack.network.v2 import firewall_group as _firewall_group
 from openstack.network.v2 import firewall_policy as _firewall_policy
@@ -47,20 +51,25 @@ from openstack.network.v2 import metering_label_rule as _metering_label_rule
 from openstack.network.v2 import ndp_proxy as _ndp_proxy
 from openstack.network.v2 import network as _network
 from openstack.network.v2 import network_ip_availability
-from openstack.network.v2 import network_segment_range as \
-    _network_segment_range
+from openstack.network.v2 import (
+    network_segment_range as _network_segment_range,
+)
 from openstack.network.v2 import pool as _pool
 from openstack.network.v2 import pool_member as _pool_member
 from openstack.network.v2 import port as _port
 from openstack.network.v2 import port_forwarding as _port_forwarding
-from openstack.network.v2 import qos_bandwidth_limit_rule as \
-    _qos_bandwidth_limit_rule
-from openstack.network.v2 import qos_dscp_marking_rule as \
-    _qos_dscp_marking_rule
-from openstack.network.v2 import qos_minimum_bandwidth_rule as \
-    _qos_minimum_bandwidth_rule
-from openstack.network.v2 import qos_minimum_packet_rate_rule as \
-    _qos_minimum_packet_rate_rule
+from openstack.network.v2 import (
+    qos_bandwidth_limit_rule as _qos_bandwidth_limit_rule,
+)
+from openstack.network.v2 import (
+    qos_dscp_marking_rule as _qos_dscp_marking_rule,
+)
+from openstack.network.v2 import (
+    qos_minimum_bandwidth_rule as _qos_minimum_bandwidth_rule,
+)
+from openstack.network.v2 import (
+    qos_minimum_packet_rate_rule as _qos_minimum_packet_rate_rule,
+)
 from openstack.network.v2 import qos_policy as _qos_policy
 from openstack.network.v2 import qos_rule_type as _qos_rule_type
 from openstack.network.v2 import quota as _quota
@@ -79,8 +88,9 @@ from openstack.network.v2 import trunk as _trunk
 from openstack.network.v2 import vpn_endpoint_group as _vpn_endpoint_group
 from openstack.network.v2 import vpn_ike_policy as _ike_policy
 from openstack.network.v2 import vpn_ipsec_policy as _ipsec_policy
-from openstack.network.v2 import vpn_ipsec_site_connection as \
-    _ipsec_site_connection
+from openstack.network.v2 import (
+    vpn_ipsec_site_connection as _ipsec_site_connection,
+)
 from openstack.network.v2 import vpn_service as _vpn_service
 from openstack import proxy
 
@@ -92,18 +102,22 @@ class Proxy(proxy.Proxy, Generic[T]):
         "address_group": _address_group.AddressGroup,
         "address_scope": _address_scope.AddressScope,
         "agent": _agent.Agent,
-        "auto_allocated_topology":
-            _auto_allocated_topology.AutoAllocatedTopology,
+        "auto_allocated_topology": (
+            _auto_allocated_topology.AutoAllocatedTopology
+        ),
         "availability_zone": availability_zone.AvailabilityZone,
         "bgp_peer": _bgp_peer.BgpPeer,
         "bgp_speaker": _bgp_speaker.BgpSpeaker,
         "bgpvpn": _bgpvpn.BgpVpn,
-        "bgpvpn_network_association":
-            _bgpvpn_network_association.BgpVpnNetworkAssociation,
-        "bgpvpn_port_association":
-            _bgpvpn_port_association.BgpVpnPortAssociation,
-        "bgpvpn_router_association":
-            _bgpvpn_router_association.BgpVpnRouterAssociation,
+        "bgpvpn_network_association": (
+            _bgpvpn_network_association.BgpVpnNetworkAssociation
+        ),
+        "bgpvpn_port_association": (
+            _bgpvpn_port_association.BgpVpnPortAssociation
+        ),
+        "bgpvpn_router_association": (
+            _bgpvpn_router_association.BgpVpnRouterAssociation
+        ),
         "extension": extension.Extension,
         "firewall_group": _firewall_group.FirewallGroup,
         "firewall_policy": _firewall_policy.FirewallPolicy,
@@ -120,20 +134,24 @@ class Proxy(proxy.Proxy, Generic[T]):
         "metering_label_rule": _metering_label_rule.MeteringLabelRule,
         "ndp_proxy": _ndp_proxy.NDPProxy,
         "network": _network.Network,
-        "network_ip_availability":
-            network_ip_availability.NetworkIPAvailability,
+        "network_ip_availability": (
+            network_ip_availability.NetworkIPAvailability
+        ),
         "network_segment_range": _network_segment_range.NetworkSegmentRange,
         "pool": _pool.Pool,
         "pool_member": _pool_member.PoolMember,
         "port": _port.Port,
         "port_forwarding": _port_forwarding.PortForwarding,
-        "qos_bandwidth_limit_rule":
-            _qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
+        "qos_bandwidth_limit_rule": (
+            _qos_bandwidth_limit_rule.QoSBandwidthLimitRule
+        ),
         "qos_dscp_marking_rule": _qos_dscp_marking_rule.QoSDSCPMarkingRule,
-        "qos_minimum_bandwidth_rule":
-            _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
-        "qos_minimum_packet_rate_rule":
-            _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
+        "qos_minimum_bandwidth_rule": (
+            _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule
+        ),
+        "qos_minimum_packet_rate_rule": (
+            _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule
+        ),
         "qos_policy": _qos_policy.QoSPolicy,
         "qos_rule_type": _qos_rule_type.QoSRuleType,
         "quota": _quota.Quota,
@@ -152,20 +170,33 @@ class Proxy(proxy.Proxy, Generic[T]):
         "vpn_endpoint_group": _vpn_endpoint_group.VpnEndpointGroup,
         "vpn_ike_policy": _ike_policy.VpnIkePolicy,
         "vpn_ipsec_policy": _ipsec_policy.VpnIpsecPolicy,
-        "vpn_ipsec_site_connection":
-            _ipsec_site_connection.VpnIPSecSiteConnection,
+        "vpn_ipsec_site_connection": (
+            _ipsec_site_connection.VpnIPSecSiteConnection
+        ),
         "vpn_service": _vpn_service.VpnService,
     }
 
     @proxy._check_resource(strict=False)
-    def _update(self, resource_type: Type[T], value, base_path=None,
-                if_revision=None, **attrs) -> T:
+    def _update(
+        self,
+        resource_type: Type[T],
+        value,
+        base_path=None,
+        if_revision=None,
+        **attrs,
+    ) -> T:
         res = self._get_resource(resource_type, value, **attrs)
         return res.commit(self, base_path=base_path, if_revision=if_revision)
 
     @proxy._check_resource(strict=False)
-    def _delete(self, resource_type: Type[T], value, ignore_missing=True,
-                if_revision=None, **attrs) -> Optional[T]:
+    def _delete(
+        self,
+        resource_type: Type[T],
+        value,
+        ignore_missing=True,
+        if_revision=None,
+        **attrs,
+    ) -> Optional[T]:
         res = self._get_resource(resource_type, value, **attrs)
 
         try:
@@ -204,8 +235,11 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_address_group.AddressGroup, address_group,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _address_group.AddressGroup,
+            address_group,
+            ignore_missing=ignore_missing,
+        )
 
     def find_address_group(self, name_or_id, ignore_missing=True, **query):
         """Find a single address group
@@ -221,8 +255,12 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: One :class:`~openstack.network.v2.address_group.AddressGroup`
             or None
         """
-        return self._find(_address_group.AddressGroup, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _address_group.AddressGroup,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_address_group(self, address_group):
         """Get a single address group
@@ -251,8 +289,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         """
         return self._list(_address_group.AddressGroup, **query)
 
-    def update_address_group(self, address_group,
-                             **attrs) -> _address_group.AddressGroup:
+    def update_address_group(
+        self, address_group, **attrs
+    ) -> _address_group.AddressGroup:
         """Update an address group
 
         :param address_group: Either the ID of an address group or a
@@ -263,8 +302,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: The updated address group
         :rtype: :class:`~openstack.network.v2.address_group.AddressGroup`
         """
-        return self._update(_address_group.AddressGroup, address_group,
-                            **attrs)
+        return self._update(
+            _address_group.AddressGroup, address_group, **attrs
+        )
 
     def add_addresses_to_address_group(self, address_group, addresses):
         """Add addresses to a address group
@@ -317,8 +357,11 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_address_scope.AddressScope, address_scope,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _address_scope.AddressScope,
+            address_scope,
+            ignore_missing=ignore_missing,
+        )
 
     def find_address_scope(self, name_or_id, ignore_missing=True, **query):
         """Find a single address scope
@@ -334,8 +377,12 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: One :class:`~openstack.network.v2.address_scope.AddressScope`
             or None
         """
-        return self._find(_address_scope.AddressScope, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _address_scope.AddressScope,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_address_scope(self, address_scope):
         """Get a single address scope
@@ -376,8 +423,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: The updated address scope
         :rtype: :class:`~openstack.network.v2.address_scope.AddressScope`
         """
-        return self._update(_address_scope.AddressScope, address_scope,
-                            **attrs)
+        return self._update(
+            _address_scope.AddressScope, address_scope, **attrs
+        )
 
     def agents(self, **query):
         """Return a generator of network agents
@@ -451,8 +499,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :return: A generator of networks
         """
         agent_obj = self._get_resource(_agent.Agent, agent)
-        return self._list(_network.DHCPAgentHostingNetwork,
-                          agent_id=agent_obj.id, **query)
+        return self._list(
+            _network.DHCPAgentHostingNetwork, agent_id=agent_obj.id, **query
+        )
 
     def add_dhcp_agent_to_network(self, agent, network):
         """Add a DHCP Agent to a network
@@ -488,8 +537,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :return: A generator of hosted DHCP agents
         """
         net = self._get_resource(_network.Network, network)
-        return self._list(_agent.NetworkHostingDHCPAgent, network_id=net.id,
-                          **query)
+        return self._list(
+            _agent.NetworkHostingDHCPAgent, network_id=net.id, **query
+        )
 
     def get_auto_allocated_topology(self, project=None):
         """Get the auto-allocated topology of a given tenant
@@ -505,11 +555,13 @@ class Proxy(proxy.Proxy, Generic[T]):
         # If project option is not given, grab project id from session
         if project is None:
             project = self.get_project_id()
-        return self._get(_auto_allocated_topology.AutoAllocatedTopology,
-                         project)
+        return self._get(
+            _auto_allocated_topology.AutoAllocatedTopology, project
+        )
 
-    def delete_auto_allocated_topology(self, project=None,
-                                       ignore_missing=False):
+    def delete_auto_allocated_topology(
+        self, project=None, ignore_missing=False
+    ):
         """Delete auto-allocated topology
 
         :param project:
@@ -526,8 +578,11 @@ class Proxy(proxy.Proxy, Generic[T]):
         # If project option is not given, grab project id from session
         if project is None:
             project = self.get_project_id()
-        self._delete(_auto_allocated_topology.AutoAllocatedTopology,
-                     project, ignore_missing=ignore_missing)
+        self._delete(
+            _auto_allocated_topology.AutoAllocatedTopology,
+            project,
+            ignore_missing=ignore_missing,
+        )
 
     def validate_auto_allocated_topology(self, project=None):
         """Validate the resources for auto allocation
@@ -543,8 +598,11 @@ class Proxy(proxy.Proxy, Generic[T]):
         # If project option is not given, grab project id from session
         if project is None:
             project = self.get_project_id()
-        return self._get(_auto_allocated_topology.ValidateTopology,
-                         project=project, requires_id=False)
+        return self._get(
+            _auto_allocated_topology.ValidateTopology,
+            project=project,
+            requires_id=False,
+        )
 
     def availability_zones(self, **query):
         """Return a generator of availability zones
@@ -570,9 +628,13 @@ class Proxy(proxy.Proxy, Generic[T]):
         self._delete(_bgp_peer.BgpPeer, peer, ignore_missing=ignore_missing)
 
     def find_bgp_peer(self, name_or_id, ignore_missing=True, **query):
-        """"Find a single BGP Peer"""
-        return self._find(_bgp_peer.BgpPeer, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        """ "Find a single BGP Peer"""
+        return self._find(
+            _bgp_peer.BgpPeer,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_bgp_peer(self, peer):
         """Get a signle BGP Peer"""
@@ -592,13 +654,18 @@ class Proxy(proxy.Proxy, Generic[T]):
 
     def delete_bgp_speaker(self, speaker, ignore_missing=True):
         """Delete a BGP Speaker"""
-        self._delete(_bgp_speaker.BgpSpeaker, speaker,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _bgp_speaker.BgpSpeaker, speaker, ignore_missing=ignore_missing
+        )
 
     def find_bgp_speaker(self, name_or_id, ignore_missing=True, **query):
-        """"Find a single BGP Peer"""
-        return self._find(_bgp_speaker.BgpSpeaker, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        """ "Find a single BGP Peer"""
+        return self._find(
+            _bgp_speaker.BgpSpeaker,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_bgp_speaker(self, speaker):
         """Get a signle BGP Speaker"""
@@ -689,7 +756,7 @@ class Proxy(proxy.Proxy, Generic[T]):
         self._delete(_bgpvpn.BgpVpn, bgpvpn, ignore_missing=ignore_missing)
 
     def find_bgpvpn(self, name_or_id, ignore_missing=True, **query):
-        """"Find a single BGPVPN
+        """ "Find a single BGPVPN
 
         :param name_or_id: The name or ID of a BGPVPN.
         :param bool ignore_missing: When set to ``False``
@@ -702,8 +769,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: One :class:`~openstack.network.v2.bgpvpn.BGPVPN`
             or None
         """
-        return self._find(_bgpvpn.BgpVpn, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _bgpvpn.BgpVpn, name_or_id, ignore_missing=ignore_missing, **query
+        )
 
     def get_bgpvpn(self, bgpvpn):
         """Get a signle BGPVPN
@@ -758,10 +826,13 @@ class Proxy(proxy.Proxy, Generic[T]):
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
         return self._create(
             _bgpvpn_network_association.BgpVpnNetworkAssociation,
-            bgpvpn_id=bgpvpn_res.id, **attrs)
+            bgpvpn_id=bgpvpn_res.id,
+            **attrs,
+        )
 
-    def delete_bgpvpn_network_association(self, bgpvpn, net_association,
-                                          ignore_missing=True):
+    def delete_bgpvpn_network_association(
+        self, bgpvpn, net_association, ignore_missing=True
+    ):
         """Delete a BGPVPN Network Association
 
         :param bgpvpn: The value can be either the ID of a bgpvpn or
@@ -781,8 +852,10 @@ class Proxy(proxy.Proxy, Generic[T]):
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
         self._delete(
             _bgpvpn_network_association.BgpVpnNetworkAssociation,
-            net_association, ignore_missing=ignore_missing,
-            bgpvpn_id=bgpvpn_res.id)
+            net_association,
+            ignore_missing=ignore_missing,
+            bgpvpn_id=bgpvpn_res.id,
+        )
 
     def get_bgpvpn_network_association(self, bgpvpn, net_association):
         """Get a signle BGPVPN Network Association
@@ -802,7 +875,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
         return self._get(
             _bgpvpn_network_association.BgpVpnNetworkAssociation,
-            net_association, bgpvpn_id=bgpvpn_res.id)
+            net_association,
+            bgpvpn_id=bgpvpn_res.id,
+        )
 
     def bgpvpn_network_associations(self, bgpvpn, **query):
         """Return a generator of BGP VPN Network Associations
@@ -819,7 +894,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
         return self._list(
             _bgpvpn_network_association.BgpVpnNetworkAssociation,
-            bgpvpn_id=bgpvpn_res.id, **query)
+            bgpvpn_id=bgpvpn_res.id,
+            **query,
+        )
 
     def create_bgpvpn_port_association(self, bgpvpn, **attrs):
         """Create a new BGPVPN Port Association
@@ -838,10 +915,13 @@ class Proxy(proxy.Proxy, Generic[T]):
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
         return self._create(
             _bgpvpn_port_association.BgpVpnPortAssociation,
-            bgpvpn_id=bgpvpn_res.id, **attrs)
+            bgpvpn_id=bgpvpn_res.id,
+            **attrs,
+        )
 
-    def delete_bgpvpn_port_association(self, bgpvpn, port_association,
-                                       ignore_missing=True):
+    def delete_bgpvpn_port_association(
+        self, bgpvpn, port_association, ignore_missing=True
+    ):
         """Delete a BGPVPN Port Association
 
         :param bgpvpn: The value can be either the ID of a bgpvpn or
@@ -861,12 +941,15 @@ class Proxy(proxy.Proxy, Generic[T]):
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
         self._delete(
             _bgpvpn_port_association.BgpVpnPortAssociation,
-            port_association, ignore_missing=ignore_missing,
-            bgpvpn_id=bgpvpn_res.id)
+            port_association,
+            ignore_missing=ignore_missing,
+            bgpvpn_id=bgpvpn_res.id,
+        )
 
-    def find_bgpvpn_port_association(self, name_or_id, bgpvpn_id,
-                                     ignore_missing=True, **query):
-        """"Find a single BGPVPN Port Association
+    def find_bgpvpn_port_association(
+        self, name_or_id, bgpvpn_id, ignore_missing=True, **query
+    ):
+        """ "Find a single BGPVPN Port Association
 
         :param name_or_id: The name or ID of a BgpVpnNetworkAssociation.
         :param bgpvpn_id: The value can be the ID of a BGPVPN.
@@ -883,7 +966,10 @@ class Proxy(proxy.Proxy, Generic[T]):
         return self._find(
             _bgpvpn_port_association.BgpVpnPortAssociation,
             name_or_id,
-            ignore_missing=ignore_missing, bgpvpn_id=bgpvpn_id, **query)
+            ignore_missing=ignore_missing,
+            bgpvpn_id=bgpvpn_id,
+            **query,
+        )
 
     def get_bgpvpn_port_association(self, bgpvpn, port_association):
         """Get a signle BGPVPN Port Association
@@ -903,10 +989,13 @@ class Proxy(proxy.Proxy, Generic[T]):
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
         return self._get(
             _bgpvpn_port_association.BgpVpnPortAssociation,
-            port_association, bgpvpn_id=bgpvpn_res.id)
+            port_association,
+            bgpvpn_id=bgpvpn_res.id,
+        )
 
-    def update_bgpvpn_port_association(self, bgpvpn, port_association,
-                                       **attrs):
+    def update_bgpvpn_port_association(
+        self, bgpvpn, port_association, **attrs
+    ):
         """Update a BPGPN Port Association
 
         :param bgpvpn: Either the ID of a BGPVPN or a
@@ -924,7 +1013,10 @@ class Proxy(proxy.Proxy, Generic[T]):
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
         return self._update(
             _bgpvpn_port_association.BgpVpnPortAssociation,
-            port_association, bgpvpn_id=bgpvpn_res.id, **attrs)
+            port_association,
+            bgpvpn_id=bgpvpn_res.id,
+            **attrs,
+        )
 
     def bgpvpn_port_associations(self, bgpvpn, **query):
         """Return a generator of BGP VPN Port Associations
@@ -941,7 +1033,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
         return self._list(
             _bgpvpn_port_association.BgpVpnPortAssociation,
-            bgpvpn_id=bgpvpn_res.id, **query)
+            bgpvpn_id=bgpvpn_res.id,
+            **query,
+        )
 
     def create_bgpvpn_router_association(self, bgpvpn, **attrs):
         """Create a new BGPVPN Router Association
@@ -960,10 +1054,13 @@ class Proxy(proxy.Proxy, Generic[T]):
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
         return self._create(
             _bgpvpn_router_association.BgpVpnRouterAssociation,
-            bgpvpn_id=bgpvpn_res.id, **attrs)
+            bgpvpn_id=bgpvpn_res.id,
+            **attrs,
+        )
 
-    def delete_bgpvpn_router_association(self, bgpvpn, router_association,
-                                         ignore_missing=True):
+    def delete_bgpvpn_router_association(
+        self, bgpvpn, router_association, ignore_missing=True
+    ):
         """Delete a BGPVPN Router Association
 
         :param bgpvpn: The value can be either the ID of a bgpvpn or
@@ -983,8 +1080,10 @@ class Proxy(proxy.Proxy, Generic[T]):
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
         self._delete(
             _bgpvpn_router_association.BgpVpnRouterAssociation,
-            router_association, ignore_missing=ignore_missing,
-            bgpvpn_id=bgpvpn_res.id)
+            router_association,
+            ignore_missing=ignore_missing,
+            bgpvpn_id=bgpvpn_res.id,
+        )
 
     def get_bgpvpn_router_association(self, bgpvpn, router_association):
         """Get a signle BGPVPN Router Association
@@ -1004,10 +1103,13 @@ class Proxy(proxy.Proxy, Generic[T]):
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
         return self._get(
             _bgpvpn_router_association.BgpVpnRouterAssociation,
-            router_association, bgpvpn_id=bgpvpn_res.id)
+            router_association,
+            bgpvpn_id=bgpvpn_res.id,
+        )
 
-    def update_bgpvpn_router_association(self, bgpvpn,
-                                         router_association, **attrs):
+    def update_bgpvpn_router_association(
+        self, bgpvpn, router_association, **attrs
+    ):
         """Update a BPGPN Router Association
 
         :param dict query: Optional query parameters to be sent to limit
@@ -1020,7 +1122,10 @@ class Proxy(proxy.Proxy, Generic[T]):
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
         return self._update(
             _bgpvpn_router_association.BgpVpnRouterAssociation,
-            router_association, bgpvpn_id=bgpvpn_res.id, **attrs)
+            router_association,
+            bgpvpn_id=bgpvpn_res.id,
+            **attrs,
+        )
 
     def bgpvpn_router_associations(self, bgpvpn, **query):
         """Return a generator of BGP VPN router Associations
@@ -1037,7 +1142,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
         return self._list(
             _bgpvpn_router_association.BgpVpnRouterAssociation,
-            bgpvpn_id=bgpvpn_res.id, **query)
+            bgpvpn_id=bgpvpn_res.id,
+            **query,
+        )
 
     def find_extension(self, name_or_id, ignore_missing=True, **query):
         """Find a single extension
@@ -1053,8 +1160,12 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: One :class:`~openstack.network.v2.extension.Extension`
             or None
         """
-        return self._find(extension.Extension, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            extension.Extension,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def extensions(self, **query):
         """Return a generator of extensions
@@ -1109,8 +1220,9 @@ class Proxy(proxy.Proxy, Generic[T]):
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.flavor.Flavor` or None
         """
-        return self._find(_flavor.Flavor, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _flavor.Flavor, name_or_id, ignore_missing=ignore_missing, **query
+        )
 
     def get_flavor(self, flavor):
         """Get a single network service flavor
@@ -1169,12 +1281,15 @@ class Proxy(proxy.Proxy, Generic[T]):
         """
         flavor = self._get_resource(_flavor.Flavor, flavor)
         service_profile = self._get_resource(
-            _service_profile.ServiceProfile, service_profile)
+            _service_profile.ServiceProfile, service_profile
+        )
         return flavor.associate_flavor_with_service_profile(
-            self, service_profile.id)
+            self, service_profile.id
+        )
 
     def disassociate_flavor_from_service_profile(
-            self, flavor, service_profile):
+        self, flavor, service_profile
+    ):
         """Disassociate network flavor from service profile.
 
         :param flavor:
@@ -1188,9 +1303,11 @@ class Proxy(proxy.Proxy, Generic[T]):
         """
         flavor = self._get_resource(_flavor.Flavor, flavor)
         service_profile = self._get_resource(
-            _service_profile.ServiceProfile, service_profile)
+            _service_profile.ServiceProfile, service_profile
+        )
         return flavor.disassociate_flavor_from_service_profile(
-            self, service_profile.id)
+            self, service_profile.id
+        )
 
     def create_local_ip(self, **attrs):
         """Create a new local ip from attributes
@@ -1220,8 +1337,12 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_local_ip.LocalIP, local_ip,
-                     ignore_missing=ignore_missing, if_revision=if_revision)
+        self._delete(
+            _local_ip.LocalIP,
+            local_ip,
+            ignore_missing=ignore_missing,
+            if_revision=if_revision,
+        )
 
     def find_local_ip(self, name_or_id, ignore_missing=True, **query):
         """Find a local IP
@@ -1237,8 +1358,12 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: One :class:`~openstack.network.v2.local_ip.LocalIP`
             or None
         """
-        return self._find(_local_ip.LocalIP, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _local_ip.LocalIP,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_local_ip(self, local_ip):
         """Get a single local ip
@@ -1286,8 +1411,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: The updated ip
         :rtype: :class:`~openstack.network.v2.local_ip.LocalIP`
         """
-        return self._update(_local_ip.LocalIP, local_ip,
-                            if_revision=if_revision, **attrs)
+        return self._update(
+            _local_ip.LocalIP, local_ip, if_revision=if_revision, **attrs
+        )
 
     def create_local_ip_association(self, local_ip, **attrs):
         """Create a new local ip association from attributes
@@ -1305,11 +1431,15 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.local_ip_association.LocalIPAssociation`
         """
         local_ip = self._get_resource(_local_ip.LocalIP, local_ip)
-        return self._create(_local_ip_association.LocalIPAssociation,
-                            local_ip_id=local_ip.id, **attrs)
+        return self._create(
+            _local_ip_association.LocalIPAssociation,
+            local_ip_id=local_ip.id,
+            **attrs,
+        )
 
-    def delete_local_ip_association(self, local_ip, fixed_port_id,
-                                    ignore_missing=True, if_revision=None):
+    def delete_local_ip_association(
+        self, local_ip, fixed_port_id, ignore_missing=True, if_revision=None
+    ):
         """Delete a local ip association
 
         :param local_ip: The value can be the ID of a Local IP or a
@@ -1330,12 +1460,17 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: ``None``
         """
         local_ip = self._get_resource(_local_ip.LocalIP, local_ip)
-        self._delete(_local_ip_association.LocalIPAssociation, fixed_port_id,
-                     local_ip_id=local_ip.id,
-                     ignore_missing=ignore_missing, if_revision=if_revision)
+        self._delete(
+            _local_ip_association.LocalIPAssociation,
+            fixed_port_id,
+            local_ip_id=local_ip.id,
+            ignore_missing=ignore_missing,
+            if_revision=if_revision,
+        )
 
-    def find_local_ip_association(self, name_or_id, local_ip,
-                                  ignore_missing=True, **query):
+    def find_local_ip_association(
+        self, name_or_id, local_ip, ignore_missing=True, **query
+    ):
         """Find a local ip association
 
         :param name_or_id: The name or ID of  local ip association.
@@ -1354,9 +1489,13 @@ class Proxy(proxy.Proxy, Generic[T]):
             or None
         """
         local_ip = self._get_resource(_local_ip.LocalIP, local_ip)
-        return self._find(_local_ip_association.LocalIPAssociation, name_or_id,
-                          local_ip_id=local_ip.id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _local_ip_association.LocalIPAssociation,
+            name_or_id,
+            local_ip_id=local_ip.id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_local_ip_association(self, local_ip_association, local_ip):
         """Get a single local ip association
@@ -1375,9 +1514,11 @@ class Proxy(proxy.Proxy, Generic[T]):
             when no resource can be found.
         """
         local_ip = self._get_resource(_local_ip.LocalIP, local_ip)
-        return self._get(_local_ip_association.LocalIPAssociation,
-                         local_ip_association,
-                         local_ip_id=local_ip.id)
+        return self._get(
+            _local_ip_association.LocalIPAssociation,
+            local_ip_association,
+            local_ip_id=local_ip.id,
+        )
 
     def local_ip_associations(self, local_ip, **query):
         """Return a generator of local ip associations
@@ -1398,8 +1539,11 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.local_ip_association.LocalIPAssociation`
         """
         local_ip = self._get_resource(_local_ip.LocalIP, local_ip)
-        return self._list(_local_ip_association.LocalIPAssociation,
-                          local_ip_id=local_ip.id, **query)
+        return self._list(
+            _local_ip_association.LocalIPAssociation,
+            local_ip_id=local_ip.id,
+            **query,
+        )
 
     def create_ip(self, **attrs):
         """Create a new floating ip from attributes
@@ -1429,8 +1573,12 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_floating_ip.FloatingIP, floating_ip,
-                     ignore_missing=ignore_missing, if_revision=if_revision)
+        self._delete(
+            _floating_ip.FloatingIP,
+            floating_ip,
+            ignore_missing=ignore_missing,
+            if_revision=if_revision,
+        )
 
     def find_available_ip(self):
         """Find an available IP
@@ -1454,8 +1602,12 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: One :class:`~openstack.network.v2.floating_ip.FloatingIP`
             or None
         """
-        return self._find(_floating_ip.FloatingIP, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _floating_ip.FloatingIP,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_ip(self, floating_ip):
         """Get a single floating ip
@@ -1509,8 +1661,12 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: The updated ip
         :rtype: :class:`~openstack.network.v2.floating_ip.FloatingIP`
         """
-        return self._update(_floating_ip.FloatingIP, floating_ip,
-                            if_revision=if_revision, **attrs)
+        return self._update(
+            _floating_ip.FloatingIP,
+            floating_ip,
+            if_revision=if_revision,
+            **attrs,
+        )
 
     def create_port_forwarding(self, **attrs):
         """Create a new floating ip port forwarding from attributes
@@ -1540,11 +1696,15 @@ class Proxy(proxy.Proxy, Generic[T]):
             when no resource can be found.
         """
         floating_ip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
-        return self._get(_port_forwarding.PortForwarding, port_forwarding,
-                         floatingip_id=floating_ip.id)
+        return self._get(
+            _port_forwarding.PortForwarding,
+            port_forwarding,
+            floatingip_id=floating_ip.id,
+        )
 
-    def find_port_forwarding(self, pf_id, floating_ip, ignore_missing=True,
-                             **query):
+    def find_port_forwarding(
+        self, pf_id, floating_ip, ignore_missing=True, **query
+    ):
         """Find a single port forwarding
 
         :param pf_id: The ID of a port forwarding.
@@ -1563,12 +1723,17 @@ class Proxy(proxy.Proxy, Generic[T]):
             or None
         """
         floating_ip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
-        return self._find(_port_forwarding.PortForwarding, pf_id,
-                          floatingip_id=floating_ip.id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _port_forwarding.PortForwarding,
+            pf_id,
+            floatingip_id=floating_ip.id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
-    def delete_port_forwarding(self, port_forwarding, floating_ip,
-                               ignore_missing=True):
+    def delete_port_forwarding(
+        self, port_forwarding, floating_ip, ignore_missing=True
+    ):
         """Delete a port forwarding
 
         :param port_forwarding: The value can be the ID of a port forwarding
@@ -1586,9 +1751,12 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: ``None``
         """
         fip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
-        self._delete(_port_forwarding.PortForwarding, port_forwarding,
-                     floatingip_id=fip.id,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _port_forwarding.PortForwarding,
+            port_forwarding,
+            floatingip_id=fip.id,
+            ignore_missing=ignore_missing,
+        )
 
     def port_forwardings(self, floating_ip, **query):
         """Return a generator of port forwardings
@@ -1607,8 +1775,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :rtype: :class:`~openstack.network.v2.port_forwarding.PortForwarding`
         """
         fip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
-        return self._list(_port_forwarding.PortForwarding,
-                          floatingip_id=fip.id, **query)
+        return self._list(
+            _port_forwarding.PortForwarding, floatingip_id=fip.id, **query
+        )
 
     def update_port_forwarding(self, port_forwarding, floating_ip, **attrs):
         """Update a port forwarding
@@ -1626,8 +1795,12 @@ class Proxy(proxy.Proxy, Generic[T]):
         :rtype: :class:`~openstack.network.v2.port_forwarding.PortForwarding`
         """
         fip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
-        return self._update(_port_forwarding.PortForwarding,
-                            port_forwarding, floatingip_id=fip.id, **attrs)
+        return self._update(
+            _port_forwarding.PortForwarding,
+            port_forwarding,
+            floatingip_id=fip.id,
+            **attrs,
+        )
 
     def create_health_monitor(self, **attrs):
         """Create a new health monitor from attributes
@@ -1656,8 +1829,11 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_health_monitor.HealthMonitor, health_monitor,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _health_monitor.HealthMonitor,
+            health_monitor,
+            ignore_missing=ignore_missing,
+        )
 
     def find_health_monitor(self, name_or_id, ignore_missing=True, **query):
         """Find a single health monitor
@@ -1674,8 +1850,12 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.health_monitor.HealthMonitor`
             or None
         """
-        return self._find(_health_monitor.HealthMonitor,
-                          name_or_id, ignore_missing=ignore_missing, **query)
+        return self._find(
+            _health_monitor.HealthMonitor,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_health_monitor(self, health_monitor):
         """Get a single health monitor
@@ -1731,8 +1911,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: The updated health monitor
         :rtype: :class:`~openstack.network.v2.health_monitor.HealthMonitor`
         """
-        return self._update(_health_monitor.HealthMonitor, health_monitor,
-                            **attrs)
+        return self._update(
+            _health_monitor.HealthMonitor, health_monitor, **attrs
+        )
 
     def create_listener(self, **attrs):
         """Create a new listener from attributes
@@ -1759,8 +1940,9 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_listener.Listener, listener,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _listener.Listener, listener, ignore_missing=ignore_missing
+        )
 
     def find_listener(self, name_or_id, ignore_missing=True, **query):
         """Find a single listener
@@ -1775,8 +1957,12 @@ class Proxy(proxy.Proxy, Generic[T]):
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.listener.Listener` or None
         """
-        return self._find(_listener.Listener, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _listener.Listener,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_listener(self, listener):
         """Get a single listener
@@ -1854,8 +2040,11 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_load_balancer.LoadBalancer, load_balancer,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _load_balancer.LoadBalancer,
+            load_balancer,
+            ignore_missing=ignore_missing,
+        )
 
     def find_load_balancer(self, name_or_id, ignore_missing=True, **query):
         """Find a single load balancer
@@ -1871,8 +2060,12 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: One :class:`~openstack.network.v2.load_balancer.LoadBalancer`
             or None
         """
-        return self._find(_load_balancer.LoadBalancer, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _load_balancer.LoadBalancer,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_load_balancer(self, load_balancer):
         """Get a single load balancer
@@ -1910,8 +2103,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: The updated load balancer
         :rtype: :class:`~openstack.network.v2.load_balancer.LoadBalancer`
         """
-        return self._update(_load_balancer.LoadBalancer, load_balancer,
-                            **attrs)
+        return self._update(
+            _load_balancer.LoadBalancer, load_balancer, **attrs
+        )
 
     def create_metering_label(self, **attrs):
         """Create a new metering label from attributes
@@ -1940,8 +2134,11 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_metering_label.MeteringLabel, metering_label,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _metering_label.MeteringLabel,
+            metering_label,
+            ignore_missing=ignore_missing,
+        )
 
     def find_metering_label(self, name_or_id, ignore_missing=True, **query):
         """Find a single metering label
@@ -1958,8 +2155,12 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.metering_label.MeteringLabel`
             or None
         """
-        return self._find(_metering_label.MeteringLabel, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _metering_label.MeteringLabel,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_metering_label(self, metering_label):
         """Get a single metering label
@@ -2005,8 +2206,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: The updated metering label
         :rtype: :class:`~openstack.network.v2.metering_label.MeteringLabel`
         """
-        return self._update(_metering_label.MeteringLabel, metering_label,
-                            **attrs)
+        return self._update(
+            _metering_label.MeteringLabel, metering_label, **attrs
+        )
 
     def create_metering_label_rule(self, **attrs):
         """Create a new metering label rule from attributes
@@ -2021,8 +2223,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         """
         return self._create(_metering_label_rule.MeteringLabelRule, **attrs)
 
-    def delete_metering_label_rule(self, metering_label_rule,
-                                   ignore_missing=True):
+    def delete_metering_label_rule(
+        self, metering_label_rule, ignore_missing=True
+    ):
         """Delete a metering label rule
 
         :param metering_label_rule:
@@ -2038,11 +2241,15 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_metering_label_rule.MeteringLabelRule,
-                     metering_label_rule, ignore_missing=ignore_missing)
+        self._delete(
+            _metering_label_rule.MeteringLabelRule,
+            metering_label_rule,
+            ignore_missing=ignore_missing,
+        )
 
-    def find_metering_label_rule(self, name_or_id, ignore_missing=True,
-                                 **query):
+    def find_metering_label_rule(
+        self, name_or_id, ignore_missing=True, **query
+    ):
         """Find a single metering label rule
 
         :param name_or_id: The name or ID of a metering label rule.
@@ -2057,8 +2264,12 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.metering_label_rule.MeteringLabelRule`
             or None
         """
-        return self._find(_metering_label_rule.MeteringLabelRule, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _metering_label_rule.MeteringLabelRule,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_metering_label_rule(self, metering_label_rule):
         """Get a single metering label rule
@@ -2073,8 +2284,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        return self._get(_metering_label_rule.MeteringLabelRule,
-                         metering_label_rule)
+        return self._get(
+            _metering_label_rule.MeteringLabelRule, metering_label_rule
+        )
 
     def metering_label_rules(self, **query):
         """Return a generator of metering label rules
@@ -2111,8 +2323,11 @@ class Proxy(proxy.Proxy, Generic[T]):
         :rtype:
             :class:`~openstack.network.v2.metering_label_rule.MeteringLabelRule`
         """
-        return self._update(_metering_label_rule.MeteringLabelRule,
-                            metering_label_rule, **attrs)
+        return self._update(
+            _metering_label_rule.MeteringLabelRule,
+            metering_label_rule,
+            **attrs,
+        )
 
     def create_network(self, **attrs):
         """Create a new network from attributes
@@ -2142,8 +2357,12 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_network.Network, network, ignore_missing=ignore_missing,
-                     if_revision=if_revision)
+        self._delete(
+            _network.Network,
+            network,
+            ignore_missing=ignore_missing,
+            if_revision=if_revision,
+        )
 
     def find_network(self, name_or_id, ignore_missing=True, **query):
         """Find a single network
@@ -2158,8 +2377,12 @@ class Proxy(proxy.Proxy, Generic[T]):
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.network.Network` or None
         """
-        return self._find(_network.Network, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _network.Network,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_network(self, network):
         """Get a single network
@@ -2215,11 +2438,13 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: The updated network
         :rtype: :class:`~openstack.network.v2.network.Network`
         """
-        return self._update(_network.Network, network, if_revision=if_revision,
-                            **attrs)
+        return self._update(
+            _network.Network, network, if_revision=if_revision, **attrs
+        )
 
-    def find_network_ip_availability(self, name_or_id, ignore_missing=True,
-                                     **query):
+    def find_network_ip_availability(
+        self, name_or_id, ignore_missing=True, **query
+    ):
         """Find IP availability of a network
 
         :param name_or_id: The name or ID of a network.
@@ -2234,8 +2459,12 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.network_ip_availability.NetworkIPAvailability`
             or None
         """
-        return self._find(network_ip_availability.NetworkIPAvailability,
-                          name_or_id, ignore_missing=ignore_missing, **query)
+        return self._find(
+            network_ip_availability.NetworkIPAvailability,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_network_ip_availability(self, network):
         """Get IP availability of a network
@@ -2249,8 +2478,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        return self._get(network_ip_availability.NetworkIPAvailability,
-                         network)
+        return self._get(
+            network_ip_availability.NetworkIPAvailability, network
+        )
 
     def network_ip_availabilities(self, **query):
         """Return a generator of network ip availabilities
@@ -2269,8 +2499,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :rtype:
             :class:`~openstack.network.v2.network_ip_availability.NetworkIPAvailability`
         """
-        return self._list(network_ip_availability.NetworkIPAvailability,
-                          **query)
+        return self._list(
+            network_ip_availability.NetworkIPAvailability, **query
+        )
 
     def create_network_segment_range(self, **attrs):
         """Create a new network segment range from attributes
@@ -2284,11 +2515,13 @@ class Proxy(proxy.Proxy, Generic[T]):
         :rtype:
             :class:`~openstack.network.v2.network_segment_range.NetworkSegmentRange`
         """
-        return self._create(_network_segment_range.NetworkSegmentRange,
-                            **attrs)
+        return self._create(
+            _network_segment_range.NetworkSegmentRange, **attrs
+        )
 
-    def delete_network_segment_range(self, network_segment_range,
-                                     ignore_missing=True):
+    def delete_network_segment_range(
+        self, network_segment_range, ignore_missing=True
+    ):
         """Delete a network segment range
 
         :param network_segment_range: The value can be either the ID of a
@@ -2303,11 +2536,15 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_network_segment_range.NetworkSegmentRange,
-                     network_segment_range, ignore_missing=ignore_missing)
+        self._delete(
+            _network_segment_range.NetworkSegmentRange,
+            network_segment_range,
+            ignore_missing=ignore_missing,
+        )
 
-    def find_network_segment_range(self, name_or_id, ignore_missing=True,
-                                   **query):
+    def find_network_segment_range(
+        self, name_or_id, ignore_missing=True, **query
+    ):
         """Find a single network segment range
 
         :param name_or_id: The name or ID of a network segment range.
@@ -2322,8 +2559,12 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.network_segment_range.NetworkSegmentRange`
             or None
         """
-        return self._find(_network_segment_range.NetworkSegmentRange,
-                          name_or_id, ignore_missing=ignore_missing, **query)
+        return self._find(
+            _network_segment_range.NetworkSegmentRange,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_network_segment_range(self, network_segment_range):
         """Get a single network segment range
@@ -2338,8 +2579,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        return self._get(_network_segment_range.NetworkSegmentRange,
-                         network_segment_range)
+        return self._get(
+            _network_segment_range.NetworkSegmentRange, network_segment_range
+        )
 
     def network_segment_ranges(self, **query):
         """Return a generator of network segment ranges
@@ -2386,8 +2628,11 @@ class Proxy(proxy.Proxy, Generic[T]):
         :rtype:
             :class:`~openstack.network.v2._network_segment_range.NetworkSegmentRange`
         """
-        return self._update(_network_segment_range.NetworkSegmentRange,
-                            network_segment_range, **attrs)
+        return self._update(
+            _network_segment_range.NetworkSegmentRange,
+            network_segment_range,
+            **attrs,
+        )
 
     def create_pool(self, **attrs):
         """Create a new pool from attributes
@@ -2429,8 +2674,9 @@ class Proxy(proxy.Proxy, Generic[T]):
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.pool.Pool` or None
         """
-        return self._find(_pool.Pool, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _pool.Pool, name_or_id, ignore_missing=ignore_missing, **query
+        )
 
     def get_pool(self, pool):
         """Get a single pool
@@ -2497,8 +2743,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :rtype: :class:`~openstack.network.v2.pool_member.PoolMember`
         """
         poolobj = self._get_resource(_pool.Pool, pool)
-        return self._create(_pool_member.PoolMember, pool_id=poolobj.id,
-                            **attrs)
+        return self._create(
+            _pool_member.PoolMember, pool_id=poolobj.id, **attrs
+        )
 
     def delete_pool_member(self, pool_member, pool, ignore_missing=True):
         """Delete a pool member
@@ -2518,8 +2765,12 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: ``None``
         """
         poolobj = self._get_resource(_pool.Pool, pool)
-        self._delete(_pool_member.PoolMember, pool_member,
-                     ignore_missing=ignore_missing, pool_id=poolobj.id)
+        self._delete(
+            _pool_member.PoolMember,
+            pool_member,
+            ignore_missing=ignore_missing,
+            pool_id=poolobj.id,
+        )
 
     def find_pool_member(self, name_or_id, pool, ignore_missing=True, **query):
         """Find a single pool member
@@ -2539,9 +2790,13 @@ class Proxy(proxy.Proxy, Generic[T]):
             or None
         """
         poolobj = self._get_resource(_pool.Pool, pool)
-        return self._find(_pool_member.PoolMember, name_or_id,
-                          ignore_missing=ignore_missing, pool_id=poolobj.id,
-                          **query)
+        return self._find(
+            _pool_member.PoolMember,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            pool_id=poolobj.id,
+            **query,
+        )
 
     def get_pool_member(self, pool_member, pool):
         """Get a single pool member
@@ -2558,8 +2813,9 @@ class Proxy(proxy.Proxy, Generic[T]):
             when no resource can be found.
         """
         poolobj = self._get_resource(_pool.Pool, pool)
-        return self._get(_pool_member.PoolMember, pool_member,
-                         pool_id=poolobj.id)
+        return self._get(
+            _pool_member.PoolMember, pool_member, pool_id=poolobj.id
+        )
 
     def pool_members(self, pool, **query):
         """Return a generator of pool members
@@ -2604,8 +2860,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :rtype: :class:`~openstack.network.v2.pool_member.PoolMember`
         """
         poolobj = self._get_resource(_pool.Pool, pool)
-        return self._update(_pool_member.PoolMember, pool_member,
-                            pool_id=poolobj.id, **attrs)
+        return self._update(
+            _pool_member.PoolMember, pool_member, pool_id=poolobj.id, **attrs
+        )
 
     def create_port(self, **attrs):
         """Create a new port from attributes
@@ -2646,8 +2903,12 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_port.Port, port, ignore_missing=ignore_missing,
-                     if_revision=if_revision)
+        self._delete(
+            _port.Port,
+            port,
+            ignore_missing=ignore_missing,
+            if_revision=if_revision,
+        )
 
     def find_port(self, name_or_id, ignore_missing=True, **query):
         """Find a single port
@@ -2662,8 +2923,9 @@ class Proxy(proxy.Proxy, Generic[T]):
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.port.Port` or None
         """
-        return self._find(_port.Port, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _port.Port, name_or_id, ignore_missing=ignore_missing, **query
+        )
 
     def get_port(self, port):
         """Get a single port
@@ -2714,8 +2976,7 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: The updated port
         :rtype: :class:`~openstack.network.v2.port.Port`
         """
-        return self._update(_port.Port, port, if_revision=if_revision,
-                            **attrs)
+        return self._update(_port.Port, port, if_revision=if_revision, **attrs)
 
     def add_ip_to_port(self, port, ip):
         ip.port_id = port.id
@@ -2751,11 +3012,15 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.qos_bandwidth_limit_rule.QoSBandwidthLimitRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
-        return self._create(_qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
-                            qos_policy_id=policy.id, **attrs)
+        return self._create(
+            _qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
+            qos_policy_id=policy.id,
+            **attrs,
+        )
 
-    def delete_qos_bandwidth_limit_rule(self, qos_rule, qos_policy,
-                                        ignore_missing=True):
+    def delete_qos_bandwidth_limit_rule(
+        self, qos_rule, qos_policy, ignore_missing=True
+    ):
         """Delete a bandwidth limit rule
 
         :param qos_rule: The value can be either the ID of a bandwidth limit
@@ -2774,12 +3039,16 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: ``None``
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
-        self._delete(_qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
-                     qos_rule, ignore_missing=ignore_missing,
-                     qos_policy_id=policy.id)
+        self._delete(
+            _qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
+            qos_rule,
+            ignore_missing=ignore_missing,
+            qos_policy_id=policy.id,
+        )
 
-    def find_qos_bandwidth_limit_rule(self, qos_rule_id, qos_policy,
-                                      ignore_missing=True, **query):
+    def find_qos_bandwidth_limit_rule(
+        self, qos_rule_id, qos_policy, ignore_missing=True, **query
+    ):
         """Find a bandwidth limit rule
 
         :param qos_rule_id: The ID of a bandwidth limit rule.
@@ -2798,9 +3067,13 @@ class Proxy(proxy.Proxy, Generic[T]):
             or None
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
-        return self._find(_qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
-                          qos_rule_id, ignore_missing=ignore_missing,
-                          qos_policy_id=policy.id, **query)
+        return self._find(
+            _qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
+            qos_rule_id,
+            ignore_missing=ignore_missing,
+            qos_policy_id=policy.id,
+            **query,
+        )
 
     def get_qos_bandwidth_limit_rule(self, qos_rule, qos_policy):
         """Get a single bandwidth limit rule
@@ -2818,8 +3091,11 @@ class Proxy(proxy.Proxy, Generic[T]):
             when no resource can be found.
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
-        return self._get(_qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
-                         qos_rule, qos_policy_id=policy.id)
+        return self._get(
+            _qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
+            qos_rule,
+            qos_policy_id=policy.id,
+        )
 
     def qos_bandwidth_limit_rules(self, qos_policy, **query):
         """Return a generator of bandwidth limit rules
@@ -2834,11 +3110,17 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.qos_bandwidth_limit_rule.QoSBandwidthLimitRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
-        return self._list(_qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
-                          qos_policy_id=policy.id, **query)
+        return self._list(
+            _qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
+            qos_policy_id=policy.id,
+            **query,
+        )
 
     def update_qos_bandwidth_limit_rule(
-        self, qos_rule, qos_policy, **attrs,
+        self,
+        qos_rule,
+        qos_policy,
+        **attrs,
     ):
         """Update a bandwidth limit rule
 
@@ -2856,8 +3138,12 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.qos_bandwidth_limit_rule.QoSBandwidthLimitRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
-        return self._update(_qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
-                            qos_rule, qos_policy_id=policy.id, **attrs)
+        return self._update(
+            _qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
+            qos_rule,
+            qos_policy_id=policy.id,
+            **attrs,
+        )
 
     def create_qos_dscp_marking_rule(self, qos_policy, **attrs):
         """Create a new QoS DSCP marking rule
@@ -2876,11 +3162,15 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.qos_dscp_marking_rule.QoSDSCPMarkingRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
-        return self._create(_qos_dscp_marking_rule.QoSDSCPMarkingRule,
-                            qos_policy_id=policy.id, **attrs)
+        return self._create(
+            _qos_dscp_marking_rule.QoSDSCPMarkingRule,
+            qos_policy_id=policy.id,
+            **attrs,
+        )
 
-    def delete_qos_dscp_marking_rule(self, qos_rule, qos_policy,
-                                     ignore_missing=True):
+    def delete_qos_dscp_marking_rule(
+        self, qos_rule, qos_policy, ignore_missing=True
+    ):
         """Delete a QoS DSCP marking rule
 
         :param qos_rule: The value can be either the ID of a minimum bandwidth
@@ -2899,12 +3189,16 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: ``None``
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
-        self._delete(_qos_dscp_marking_rule.QoSDSCPMarkingRule,
-                     qos_rule, ignore_missing=ignore_missing,
-                     qos_policy_id=policy.id)
+        self._delete(
+            _qos_dscp_marking_rule.QoSDSCPMarkingRule,
+            qos_rule,
+            ignore_missing=ignore_missing,
+            qos_policy_id=policy.id,
+        )
 
-    def find_qos_dscp_marking_rule(self, qos_rule_id, qos_policy,
-                                   ignore_missing=True, **query):
+    def find_qos_dscp_marking_rule(
+        self, qos_rule_id, qos_policy, ignore_missing=True, **query
+    ):
         """Find a QoS DSCP marking rule
 
         :param qos_rule_id: The ID of a QoS DSCP marking rule.
@@ -2923,9 +3217,13 @@ class Proxy(proxy.Proxy, Generic[T]):
             or None
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
-        return self._find(_qos_dscp_marking_rule.QoSDSCPMarkingRule,
-                          qos_rule_id, ignore_missing=ignore_missing,
-                          qos_policy_id=policy.id, **query)
+        return self._find(
+            _qos_dscp_marking_rule.QoSDSCPMarkingRule,
+            qos_rule_id,
+            ignore_missing=ignore_missing,
+            qos_policy_id=policy.id,
+            **query,
+        )
 
     def get_qos_dscp_marking_rule(self, qos_rule, qos_policy):
         """Get a single QoS DSCP marking rule
@@ -2943,8 +3241,11 @@ class Proxy(proxy.Proxy, Generic[T]):
             when no resource can be found.
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
-        return self._get(_qos_dscp_marking_rule.QoSDSCPMarkingRule,
-                         qos_rule, qos_policy_id=policy.id)
+        return self._get(
+            _qos_dscp_marking_rule.QoSDSCPMarkingRule,
+            qos_rule,
+            qos_policy_id=policy.id,
+        )
 
     def qos_dscp_marking_rules(self, qos_policy, **query):
         """Return a generator of QoS DSCP marking rules
@@ -2959,8 +3260,11 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.qos_dscp_marking_rule.QoSDSCPMarkingRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
-        return self._list(_qos_dscp_marking_rule.QoSDSCPMarkingRule,
-                          qos_policy_id=policy.id, **query)
+        return self._list(
+            _qos_dscp_marking_rule.QoSDSCPMarkingRule,
+            qos_policy_id=policy.id,
+            **query,
+        )
 
     def update_qos_dscp_marking_rule(self, qos_rule, qos_policy, **attrs):
         """Update a QoS DSCP marking rule
@@ -2979,8 +3283,12 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.qos_dscp_marking_rule.QoSDSCPMarkingRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
-        return self._update(_qos_dscp_marking_rule.QoSDSCPMarkingRule,
-                            qos_rule, qos_policy_id=policy.id, **attrs)
+        return self._update(
+            _qos_dscp_marking_rule.QoSDSCPMarkingRule,
+            qos_rule,
+            qos_policy_id=policy.id,
+            **attrs,
+        )
 
     def create_qos_minimum_bandwidth_rule(self, qos_policy, **attrs):
         """Create a new minimum bandwidth rule
@@ -3001,10 +3309,13 @@ class Proxy(proxy.Proxy, Generic[T]):
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
         return self._create(
             _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
-            qos_policy_id=policy.id, **attrs)
+            qos_policy_id=policy.id,
+            **attrs,
+        )
 
-    def delete_qos_minimum_bandwidth_rule(self, qos_rule, qos_policy,
-                                          ignore_missing=True):
+    def delete_qos_minimum_bandwidth_rule(
+        self, qos_rule, qos_policy, ignore_missing=True
+    ):
         """Delete a minimum bandwidth rule
 
         :param qos_rule: The value can be either the ID of a minimum bandwidth
@@ -3023,12 +3334,16 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: ``None``
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
-        self._delete(_qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
-                     qos_rule, ignore_missing=ignore_missing,
-                     qos_policy_id=policy.id)
+        self._delete(
+            _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
+            qos_rule,
+            ignore_missing=ignore_missing,
+            qos_policy_id=policy.id,
+        )
 
-    def find_qos_minimum_bandwidth_rule(self, qos_rule_id, qos_policy,
-                                        ignore_missing=True, **query):
+    def find_qos_minimum_bandwidth_rule(
+        self, qos_rule_id, qos_policy, ignore_missing=True, **query
+    ):
         """Find a minimum bandwidth rule
 
         :param qos_rule_id: The ID of a minimum bandwidth rule.
@@ -3047,9 +3362,13 @@ class Proxy(proxy.Proxy, Generic[T]):
             or None
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
-        return self._find(_qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
-                          qos_rule_id, ignore_missing=ignore_missing,
-                          qos_policy_id=policy.id, **query)
+        return self._find(
+            _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
+            qos_rule_id,
+            ignore_missing=ignore_missing,
+            qos_policy_id=policy.id,
+            **query,
+        )
 
     def get_qos_minimum_bandwidth_rule(self, qos_rule, qos_policy):
         """Get a single minimum bandwidth rule
@@ -3069,8 +3388,11 @@ class Proxy(proxy.Proxy, Generic[T]):
             when no resource can be found.
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
-        return self._get(_qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
-                         qos_rule, qos_policy_id=policy.id)
+        return self._get(
+            _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
+            qos_rule,
+            qos_policy_id=policy.id,
+        )
 
     def qos_minimum_bandwidth_rules(self, qos_policy, **query):
         """Return a generator of minimum bandwidth rules
@@ -3085,11 +3407,13 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
-        return self._list(_qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
-                          qos_policy_id=policy.id, **query)
+        return self._list(
+            _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
+            qos_policy_id=policy.id,
+            **query,
+        )
 
-    def update_qos_minimum_bandwidth_rule(self, qos_rule, qos_policy,
-                                          **attrs):
+    def update_qos_minimum_bandwidth_rule(self, qos_rule, qos_policy, **attrs):
         """Update a minimum bandwidth rule
 
         :param qos_rule: Either the id of a minimum bandwidth rule or a
@@ -3107,9 +3431,12 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
-        return self._update(_qos_minimum_bandwidth_rule.
-                            QoSMinimumBandwidthRule, qos_rule,
-                            qos_policy_id=policy.id, **attrs)
+        return self._update(
+            _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
+            qos_rule,
+            qos_policy_id=policy.id,
+            **attrs,
+        )
 
     def create_qos_minimum_packet_rate_rule(self, qos_policy, **attrs):
         """Create a new minimum packet rate rule
@@ -3128,10 +3455,13 @@ class Proxy(proxy.Proxy, Generic[T]):
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
         return self._create(
             _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
-            qos_policy_id=policy.id, **attrs)
+            qos_policy_id=policy.id,
+            **attrs,
+        )
 
-    def delete_qos_minimum_packet_rate_rule(self, qos_rule, qos_policy,
-                                            ignore_missing=True):
+    def delete_qos_minimum_packet_rate_rule(
+        self, qos_rule, qos_policy, ignore_missing=True
+    ):
         """Delete a minimum packet rate rule
 
         :param qos_rule: The value can be either the ID of a minimum packet
@@ -3150,12 +3480,16 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: ``None``
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
-        self._delete(_qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
-                     qos_rule, ignore_missing=ignore_missing,
-                     qos_policy_id=policy.id)
+        self._delete(
+            _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
+            qos_rule,
+            ignore_missing=ignore_missing,
+            qos_policy_id=policy.id,
+        )
 
-    def find_qos_minimum_packet_rate_rule(self, qos_rule_id, qos_policy,
-                                          ignore_missing=True, **query):
+    def find_qos_minimum_packet_rate_rule(
+        self, qos_rule_id, qos_policy, ignore_missing=True, **query
+    ):
         """Find a minimum packet rate rule
 
         :param qos_rule_id: The ID of a minimum packet rate rule.
@@ -3175,8 +3509,11 @@ class Proxy(proxy.Proxy, Generic[T]):
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
         return self._find(
             _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
-            qos_rule_id, ignore_missing=ignore_missing,
-            qos_policy_id=policy.id, **query)
+            qos_rule_id,
+            ignore_missing=ignore_missing,
+            qos_policy_id=policy.id,
+            **query,
+        )
 
     def get_qos_minimum_packet_rate_rule(self, qos_rule, qos_policy):
         """Get a single minimum packet rate rule
@@ -3196,7 +3533,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
         return self._get(
             _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
-            qos_rule, qos_policy_id=policy.id)
+            qos_rule,
+            qos_policy_id=policy.id,
+        )
 
     def qos_minimum_packet_rate_rules(self, qos_policy, **query):
         """Return a generator of minimum packet rate rules
@@ -3213,10 +3552,13 @@ class Proxy(proxy.Proxy, Generic[T]):
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
         return self._list(
             _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
-            qos_policy_id=policy.id, **query)
+            qos_policy_id=policy.id,
+            **query,
+        )
 
-    def update_qos_minimum_packet_rate_rule(self, qos_rule, qos_policy,
-                                            **attrs):
+    def update_qos_minimum_packet_rate_rule(
+        self, qos_rule, qos_policy, **attrs
+    ):
         """Update a minimum packet rate rule
 
         :param qos_rule: Either the id of a minimum packet rate rule or a
@@ -3267,8 +3609,9 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_qos_policy.QoSPolicy, qos_policy,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _qos_policy.QoSPolicy, qos_policy, ignore_missing=ignore_missing
+        )
 
     def find_qos_policy(self, name_or_id, ignore_missing=True, **query):
         """Find a single QoS policy
@@ -3284,8 +3627,12 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: One :class:`~openstack.network.v2.qos_policy.QoSPolicy` or
             None
         """
-        return self._find(_qos_policy.QoSPolicy, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _qos_policy.QoSPolicy,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_qos_policy(self, qos_policy):
         """Get a single QoS policy
@@ -3341,8 +3688,11 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: One :class:`~openstack.network.v2.qos_rule_type.QoSRuleType`
             or None
         """
-        return self._find(_qos_rule_type.QoSRuleType, rule_type_name,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _qos_rule_type.QoSRuleType,
+            rule_type_name,
+            ignore_missing=ignore_missing,
+        )
 
     def get_qos_rule_type(self, qos_rule_type):
         """Get details about single QoS rule type
@@ -3404,8 +3754,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         """
         if details:
             quota_obj = self._get_resource(_quota.Quota, quota)
-            quota = self._get(_quota.QuotaDetails, project=quota_obj.id,
-                              requires_id=False)
+            quota = self._get(
+                _quota.QuotaDetails, project=quota_obj.id, requires_id=False
+            )
         else:
             quota = self._get(_quota.Quota, quota)
         return quota
@@ -3423,8 +3774,9 @@ class Proxy(proxy.Proxy, Generic[T]):
             when no resource can be found.
         """
         quota_obj = self._get_resource(_quota.Quota, quota)
-        return self._get(_quota.QuotaDefault, project=quota_obj.id,
-                         requires_id=False)
+        return self._get(
+            _quota.QuotaDefault, project=quota_obj.id, requires_id=False
+        )
 
     def quotas(self, **query):
         """Return a generator of quotas
@@ -3478,8 +3830,9 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_rbac_policy.RBACPolicy, rbac_policy,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _rbac_policy.RBACPolicy, rbac_policy, ignore_missing=ignore_missing
+        )
 
     def find_rbac_policy(self, rbac_policy, ignore_missing=True, **query):
         """Find a single RBAC policy
@@ -3495,8 +3848,12 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: One
             :class:`~openstack.network.v2.rbac_policy.RBACPolicy` or None
         """
-        return self._find(_rbac_policy.RBACPolicy, rbac_policy,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _rbac_policy.RBACPolicy,
+            rbac_policy,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_rbac_policy(self, rbac_policy):
         """Get a single RBAC policy
@@ -3568,8 +3925,12 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_router.Router, router, ignore_missing=ignore_missing,
-                     if_revision=if_revision)
+        self._delete(
+            _router.Router,
+            router,
+            ignore_missing=ignore_missing,
+            if_revision=if_revision,
+        )
 
     def find_router(self, name_or_id, ignore_missing=True, **query):
         """Find a single router
@@ -3584,8 +3945,9 @@ class Proxy(proxy.Proxy, Generic[T]):
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.router.Router` or None
         """
-        return self._find(_router.Router, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _router.Router, name_or_id, ignore_missing=ignore_missing, **query
+        )
 
     def get_router(self, router):
         """Get a single router
@@ -3633,8 +3995,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: The updated router
         :rtype: :class:`~openstack.network.v2.router.Router`
         """
-        return self._update(_router.Router, router, if_revision=if_revision,
-                            **attrs)
+        return self._update(
+            _router.Router, router, if_revision=if_revision, **attrs
+        )
 
     def add_interface_to_router(self, router, subnet_id=None, port_id=None):
         """Add Interface to a router
@@ -3654,8 +4017,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         router = self._get_resource(_router.Router, router)
         return router.add_interface(self, **body)
 
-    def remove_interface_from_router(self, router, subnet_id=None,
-                                     port_id=None):
+    def remove_interface_from_router(
+        self, router, subnet_id=None, port_id=None
+    ):
         """Remove Interface from a router
 
         :param router: Either the router ID or an instance of
@@ -3802,8 +4166,7 @@ class Proxy(proxy.Proxy, Generic[T]):
         """
         return self._get(_ndp_proxy.NDPProxy, ndp_proxy)
 
-    def find_ndp_proxy(self, ndp_proxy_id,
-                       ignore_missing=True, **query):
+    def find_ndp_proxy(self, ndp_proxy_id, ignore_missing=True, **query):
         """Find a single ndp proxy
 
         :param ndp_proxy_id: The ID of a ndp proxy.
@@ -3817,9 +4180,11 @@ class Proxy(proxy.Proxy, Generic[T]):
             One :class:`~openstack.network.v2.ndp_proxy.NDPProxy` or None
         """
         return self._find(
-            _ndp_proxy.NDPProxy, ndp_proxy_id,
+            _ndp_proxy.NDPProxy,
+            ndp_proxy_id,
             ignore_missing=ignore_missing,
-            **query)
+            **query,
+        )
 
     def delete_ndp_proxy(self, ndp_proxy, ignore_missing=True):
         """Delete a ndp proxy
@@ -3835,8 +4200,8 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: ``None``
         """
         self._delete(
-            _ndp_proxy.NDPProxy, ndp_proxy,
-            ignore_missing=ignore_missing)
+            _ndp_proxy.NDPProxy, ndp_proxy, ignore_missing=ignore_missing
+        )
 
     def ndp_proxies(self, **query):
         """Return a generator of ndp proxies
@@ -3893,8 +4258,11 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_firewall_group.FirewallGroup, firewall_group,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _firewall_group.FirewallGroup,
+            firewall_group,
+            ignore_missing=ignore_missing,
+        )
 
     def find_firewall_group(self, name_or_id, ignore_missing=True, **query):
         """Find a single firewall group
@@ -3910,8 +4278,12 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: One
             :class:`~openstack.network.v2.firewall_group.FirewallGroup` or None
         """
-        return self._find(_firewall_group.FirewallGroup,
-                          name_or_id, ignore_missing=ignore_missing, **query)
+        return self._find(
+            _firewall_group.FirewallGroup,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_firewall_group(self, firewall_group):
         """Get a single firewall group
@@ -3963,8 +4335,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: The updated firewall group
         :rtype: :class:`~openstack.network.v2.firewall_group.FirewallGroup`
         """
-        return self._update(_firewall_group.FirewallGroup, firewall_group,
-                            **attrs)
+        return self._update(
+            _firewall_group.FirewallGroup, firewall_group, **attrs
+        )
 
     def create_firewall_policy(self, **attrs):
         """Create a new firewall policy from attributes
@@ -3993,8 +4366,11 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_firewall_policy.FirewallPolicy, firewall_policy,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _firewall_policy.FirewallPolicy,
+            firewall_policy,
+            ignore_missing=ignore_missing,
+        )
 
     def find_firewall_policy(self, name_or_id, ignore_missing=True, **query):
         """Find a single firewall policy
@@ -4011,8 +4387,12 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`
             or None
         """
-        return self._find(_firewall_policy.FirewallPolicy,
-                          name_or_id, ignore_missing=ignore_missing, **query)
+        return self._find(
+            _firewall_policy.FirewallPolicy,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_firewall_policy(self, firewall_policy):
         """Get a single firewall policy
@@ -4059,11 +4439,17 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: The updated firewall policy
         :rtype: :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`
         """
-        return self._update(_firewall_policy.FirewallPolicy, firewall_policy,
-                            **attrs)
+        return self._update(
+            _firewall_policy.FirewallPolicy, firewall_policy, **attrs
+        )
 
-    def insert_rule_into_policy(self, firewall_policy_id, firewall_rule_id,
-                                insert_after=None, insert_before=None):
+    def insert_rule_into_policy(
+        self,
+        firewall_policy_id,
+        firewall_rule_id,
+        insert_after=None,
+        insert_before=None,
+    ):
         """Insert a firewall_rule into a firewall_policy in order
 
         :param firewall_policy_id: The ID of the firewall policy.
@@ -4077,11 +4463,14 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: The updated firewall policy
         :rtype: :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`
         """
-        body = {'firewall_rule_id': firewall_rule_id,
-                'insert_after': insert_after,
-                'insert_before': insert_before}
-        policy = self._get_resource(_firewall_policy.FirewallPolicy,
-                                    firewall_policy_id)
+        body = {
+            'firewall_rule_id': firewall_rule_id,
+            'insert_after': insert_after,
+            'insert_before': insert_before,
+        }
+        policy = self._get_resource(
+            _firewall_policy.FirewallPolicy, firewall_policy_id
+        )
         return policy.insert_rule(self, **body)
 
     def remove_rule_from_policy(self, firewall_policy_id, firewall_rule_id):
@@ -4094,8 +4483,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :rtype: :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`
         """
         body = {'firewall_rule_id': firewall_rule_id}
-        policy = self._get_resource(_firewall_policy.FirewallPolicy,
-                                    firewall_policy_id)
+        policy = self._get_resource(
+            _firewall_policy.FirewallPolicy, firewall_policy_id
+        )
         return policy.remove_rule(self, **body)
 
     def create_firewall_rule(self, **attrs):
@@ -4125,8 +4515,11 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_firewall_rule.FirewallRule, firewall_rule,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _firewall_rule.FirewallRule,
+            firewall_rule,
+            ignore_missing=ignore_missing,
+        )
 
     def find_firewall_rule(self, name_or_id, ignore_missing=True, **query):
         """Find a single firewall rule
@@ -4143,8 +4536,12 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.firewall_rule.FirewallRule`
             or None
         """
-        return self._find(_firewall_rule.FirewallRule,
-                          name_or_id, ignore_missing=ignore_missing, **query)
+        return self._find(
+            _firewall_rule.FirewallRule,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_firewall_rule(self, firewall_rule):
         """Get a single firewall rule
@@ -4202,8 +4599,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: The updated firewall rule
         :rtype: :class:`~openstack.network.v2.firewall_rule.FirewallRule`
         """
-        return self._update(_firewall_rule.FirewallRule, firewall_rule,
-                            **attrs)
+        return self._update(
+            _firewall_rule.FirewallRule, firewall_rule, **attrs
+        )
 
     def create_security_group(self, **attrs):
         """Create a new security group from attributes
@@ -4217,8 +4615,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         """
         return self._create(_security_group.SecurityGroup, **attrs)
 
-    def delete_security_group(self, security_group, ignore_missing=True,
-                              if_revision=None):
+    def delete_security_group(
+        self, security_group, ignore_missing=True, if_revision=None
+    ):
         """Delete a security group
 
         :param security_group:
@@ -4235,8 +4634,12 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_security_group.SecurityGroup, security_group,
-                     ignore_missing=ignore_missing, if_revision=if_revision)
+        self._delete(
+            _security_group.SecurityGroup,
+            security_group,
+            ignore_missing=ignore_missing,
+            if_revision=if_revision,
+        )
 
     def find_security_group(self, name_or_id, ignore_missing=True, **query):
         """Find a single security group
@@ -4253,8 +4656,12 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.security_group.SecurityGroup`
             or None
         """
-        return self._find(_security_group.SecurityGroup, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _security_group.SecurityGroup,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_security_group(self, security_group):
         """Get a single security group
@@ -4301,8 +4708,12 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: The updated security group
         :rtype: :class:`~openstack.network.v2.security_group.SecurityGroup`
         """
-        return self._update(_security_group.SecurityGroup, security_group,
-                            if_revision=if_revision, **attrs)
+        return self._update(
+            _security_group.SecurityGroup,
+            security_group,
+            if_revision=if_revision,
+            **attrs,
+        )
 
     def create_security_group_rule(self, **attrs):
         """Create a new security group rule from attributes
@@ -4333,8 +4744,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         """
         return self._bulk_create(_security_group_rule.SecurityGroupRule, data)
 
-    def delete_security_group_rule(self, security_group_rule,
-                                   ignore_missing=True, if_revision=None):
+    def delete_security_group_rule(
+        self, security_group_rule, ignore_missing=True, if_revision=None
+    ):
         """Delete a security group rule
 
         :param security_group_rule:
@@ -4352,12 +4764,16 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_security_group_rule.SecurityGroupRule,
-                     security_group_rule, ignore_missing=ignore_missing,
-                     if_revision=if_revision)
+        self._delete(
+            _security_group_rule.SecurityGroupRule,
+            security_group_rule,
+            ignore_missing=ignore_missing,
+            if_revision=if_revision,
+        )
 
-    def find_security_group_rule(self, name_or_id, ignore_missing=True,
-                                 **query):
+    def find_security_group_rule(
+        self, name_or_id, ignore_missing=True, **query
+    ):
         """Find a single security group rule
 
         :param str name_or_id: The ID of a security group rule.
@@ -4372,8 +4788,12 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`
             or None
         """
-        return self._find(_security_group_rule.SecurityGroupRule,
-                          name_or_id, ignore_missing=ignore_missing, **query)
+        return self._find(
+            _security_group_rule.SecurityGroupRule,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_security_group_rule(self, security_group_rule):
         """Get a single security group rule
@@ -4388,8 +4808,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        return self._get(_security_group_rule.SecurityGroupRule,
-                         security_group_rule)
+        return self._get(
+            _security_group_rule.SecurityGroupRule, security_group_rule
+        )
 
     def security_group_rules(self, **query):
         """Return a generator of security group rules
@@ -4454,8 +4875,12 @@ class Proxy(proxy.Proxy, Generic[T]):
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.segment.Segment` or None
         """
-        return self._find(_segment.Segment, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _segment.Segment,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_segment(self, segment):
         """Get a single segment
@@ -4541,8 +4966,11 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_service_profile.ServiceProfile, service_profile,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _service_profile.ServiceProfile,
+            service_profile,
+            ignore_missing=ignore_missing,
+        )
 
     def find_service_profile(self, name_or_id, ignore_missing=True, **query):
         """Find a single network service flavor profile
@@ -4559,8 +4987,12 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.service_profile.ServiceProfile`
             or None
         """
-        return self._find(_service_profile.ServiceProfile, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _service_profile.ServiceProfile,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_service_profile(self, service_profile):
         """Get a single network service flavor profile
@@ -4604,8 +5036,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: The updated service profile
         :rtype: :class:`~openstack.network.v2.service_profile.ServiceProfile`
         """
-        return self._update(_service_profile.ServiceProfile, service_profile,
-                            **attrs)
+        return self._update(
+            _service_profile.ServiceProfile, service_profile, **attrs
+        )
 
     def create_subnet(self, **attrs):
         """Create a new subnet from attributes
@@ -4634,8 +5067,12 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_subnet.Subnet, subnet, ignore_missing=ignore_missing,
-                     if_revision=if_revision)
+        self._delete(
+            _subnet.Subnet,
+            subnet,
+            ignore_missing=ignore_missing,
+            if_revision=if_revision,
+        )
 
     def find_subnet(self, name_or_id, ignore_missing=True, **query):
         """Find a single subnet
@@ -4650,8 +5087,9 @@ class Proxy(proxy.Proxy, Generic[T]):
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.subnet.Subnet` or None
         """
-        return self._find(_subnet.Subnet, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _subnet.Subnet, name_or_id, ignore_missing=ignore_missing, **query
+        )
 
     def get_subnet(self, subnet):
         """Get a single subnet
@@ -4702,8 +5140,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: The updated subnet
         :rtype: :class:`~openstack.network.v2.subnet.Subnet`
         """
-        return self._update(_subnet.Subnet, subnet, if_revision=if_revision,
-                            **attrs)
+        return self._update(
+            _subnet.Subnet, subnet, if_revision=if_revision, **attrs
+        )
 
     def create_subnet_pool(self, **attrs):
         """Create a new subnet pool from attributes
@@ -4730,8 +5169,9 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_subnet_pool.SubnetPool, subnet_pool,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _subnet_pool.SubnetPool, subnet_pool, ignore_missing=ignore_missing
+        )
 
     def find_subnet_pool(self, name_or_id, ignore_missing=True, **query):
         """Find a single subnet pool
@@ -4747,8 +5187,12 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: One :class:`~openstack.network.v2.subnet_pool.SubnetPool`
             or None
         """
-        return self._find(_subnet_pool.SubnetPool, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _subnet_pool.SubnetPool,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_subnet_pool(self, subnet_pool):
         """Get a single subnet pool
@@ -4801,8 +5245,9 @@ class Proxy(proxy.Proxy, Generic[T]):
             resource.tags
         except AttributeError:
             raise exceptions.InvalidRequest(
-                '%s resource does not support tag' %
-                resource.__class__.__name__)
+                '%s resource does not support tag'
+                % resource.__class__.__name__
+            )
 
     def set_tags(self, resource, tags):
         """Replace tags of a specified resource with specified tags
@@ -4854,8 +5299,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: One :class:`~openstack.network.v2.trunk.Trunk`
             or None
         """
-        return self._find(_trunk.Trunk, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _trunk.Trunk, name_or_id, ignore_missing=ignore_missing, **query
+        )
 
     def get_trunk(self, trunk):
         """Get a single trunk
@@ -4948,8 +5394,7 @@ class Proxy(proxy.Proxy, Generic[T]):
         :rtype:
             :class:`~openstack.network.v2.vpn_endpoint_group.VpnEndpointGroup`
         """
-        return self._create(
-            _vpn_endpoint_group.VpnEndpointGroup, **attrs)
+        return self._create(_vpn_endpoint_group.VpnEndpointGroup, **attrs)
 
     def delete_vpn_endpoint_group(
         self, vpn_endpoint_group, ignore_missing=True
@@ -4969,8 +5414,10 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: ``None``
         """
         self._delete(
-            _vpn_endpoint_group.VpnEndpointGroup, vpn_endpoint_group,
-            ignore_missing=ignore_missing)
+            _vpn_endpoint_group.VpnEndpointGroup,
+            vpn_endpoint_group,
+            ignore_missing=ignore_missing,
+        )
 
     def find_vpn_endpoint_group(
         self, name_or_id, ignore_missing=True, **query
@@ -4990,8 +5437,11 @@ class Proxy(proxy.Proxy, Generic[T]):
             or None
         """
         return self._find(
-            _vpn_endpoint_group.VpnEndpointGroup, name_or_id,
-            ignore_missing=ignore_missing, **query)
+            _vpn_endpoint_group.VpnEndpointGroup,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_vpn_endpoint_group(self, vpn_endpoint_group):
         """Get a single vpn service
@@ -5007,7 +5457,8 @@ class Proxy(proxy.Proxy, Generic[T]):
             when no resource can be found.
         """
         return self._get(
-            _vpn_endpoint_group.VpnEndpointGroup, vpn_endpoint_group)
+            _vpn_endpoint_group.VpnEndpointGroup, vpn_endpoint_group
+        )
 
     def vpn_endpoint_groups(self, **query):
         """Return a generator of vpn services
@@ -5035,7 +5486,8 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.vpn_endpoint_group.VpnEndpointGroup`
         """
         return self._update(
-            _vpn_endpoint_group.VpnEndpointGroup, vpn_endpoint_group, **attrs)
+            _vpn_endpoint_group.VpnEndpointGroup, vpn_endpoint_group, **attrs
+        )
 
     # ========== IPsec Site Connection ==========
     def create_vpn_ipsec_site_connection(self, **attrs):
@@ -5050,8 +5502,8 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
         """
         return self._create(
-            _ipsec_site_connection.VpnIPSecSiteConnection,
-            **attrs)
+            _ipsec_site_connection.VpnIPSecSiteConnection, **attrs
+        )
 
     def find_vpn_ipsec_site_connection(
         self, name_or_id, ignore_missing=True, **query
@@ -5072,7 +5524,10 @@ class Proxy(proxy.Proxy, Generic[T]):
         """
         return self._find(
             _ipsec_site_connection.VpnIPSecSiteConnection,
-            name_or_id, ignore_missing=ignore_missing, **query)
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_vpn_ipsec_site_connection(self, ipsec_site_connection):
         """Get a single IPsec site connection
@@ -5089,7 +5544,8 @@ class Proxy(proxy.Proxy, Generic[T]):
         """
         return self._get(
             _ipsec_site_connection.VpnIPSecSiteConnection,
-            ipsec_site_connection)
+            ipsec_site_connection,
+        )
 
     def vpn_ipsec_site_connections(self, **query):
         """Return a generator of IPsec site connections
@@ -5102,7 +5558,8 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
         """
         return self._list(
-            _ipsec_site_connection.VpnIPSecSiteConnection, **query)
+            _ipsec_site_connection.VpnIPSecSiteConnection, **query
+        )
 
     def update_vpn_ipsec_site_connection(self, ipsec_site_connection, **attrs):
         """Update a IPsec site connection
@@ -5120,7 +5577,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         """
         return self._update(
             _ipsec_site_connection.VpnIPSecSiteConnection,
-            ipsec_site_connection, **attrs)
+            ipsec_site_connection,
+            **attrs,
+        )
 
     def delete_vpn_ipsec_site_connection(
         self, ipsec_site_connection, ignore_missing=True
@@ -5142,7 +5601,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         """
         self._delete(
             _ipsec_site_connection.VpnIPSecSiteConnection,
-            ipsec_site_connection, ignore_missing=ignore_missing)
+            ipsec_site_connection,
+            ignore_missing=ignore_missing,
+        )
 
     # ========== IKEPolicy ==========
     def create_vpn_ike_policy(self, **attrs):
@@ -5155,12 +5616,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: The results of ike policy creation :rtype:
             :class:`~openstack.network.v2.vpn_ike_policy.VpnIkePolicy`
         """
-        return self._create(
-            _ike_policy.VpnIkePolicy, **attrs)
+        return self._create(_ike_policy.VpnIkePolicy, **attrs)
 
-    def find_vpn_ike_policy(
-        self, name_or_id, ignore_missing=True, **query
-    ):
+    def find_vpn_ike_policy(self, name_or_id, ignore_missing=True, **query):
         """Find a single ike policy
 
         :param name_or_id: The name or ID of an IKE policy.
@@ -5175,8 +5633,11 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.vpn_ike_policy.VpnIkePolicy` or None.
         """
         return self._find(
-            _ike_policy.VpnIkePolicy, name_or_id,
-            ignore_missing=ignore_missing, **query)
+            _ike_policy.VpnIkePolicy,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_vpn_ike_policy(self, ike_policy):
         """Get a single ike policy
@@ -5191,8 +5652,7 @@ class Proxy(proxy.Proxy, Generic[T]):
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             resource can be found.
         """
-        return self._get(
-            _ike_policy.VpnIkePolicy, ike_policy)
+        return self._get(_ike_policy.VpnIkePolicy, ike_policy)
 
     def vpn_ike_policies(self, **query):
         """Return a generator of IKE policies
@@ -5217,8 +5677,7 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: The updated ike policy
         :rtype: :class:`~openstack.network.v2.vpn_ike_policy.VpnIkePolicy`
         """
-        return self._update(
-            _ike_policy.VpnIkePolicy, ike_policy, **attrs)
+        return self._update(_ike_policy.VpnIkePolicy, ike_policy, **attrs)
 
     def delete_vpn_ike_policy(self, ike_policy, ignore_missing=True):
         """Delete an IKE policy
@@ -5236,8 +5695,8 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: ``None``
         """
         self._delete(
-            _ike_policy.VpnIkePolicy, ike_policy,
-            ignore_missing=ignore_missing)
+            _ike_policy.VpnIkePolicy, ike_policy, ignore_missing=ignore_missing
+        )
 
     # ========== IPSecPolicy ==========
     def create_vpn_ipsec_policy(self, **attrs):
@@ -5250,12 +5709,9 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: The results of IPsec policy creation :rtype:
             :class:`~openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy`
         """
-        return self._create(
-            _ipsec_policy.VpnIpsecPolicy, **attrs)
+        return self._create(_ipsec_policy.VpnIpsecPolicy, **attrs)
 
-    def find_vpn_ipsec_policy(
-        self, name_or_id, ignore_missing=True, **query
-    ):
+    def find_vpn_ipsec_policy(self, name_or_id, ignore_missing=True, **query):
         """Find a single IPsec policy
 
         :param name_or_id: The name or ID of an IPsec policy.
@@ -5271,8 +5727,11 @@ class Proxy(proxy.Proxy, Generic[T]):
             or None.
         """
         return self._find(
-            _ipsec_policy.VpnIpsecPolicy, name_or_id,
-            ignore_missing=ignore_missing, **query)
+            _ipsec_policy.VpnIpsecPolicy,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_vpn_ipsec_policy(self, ipsec_policy):
         """Get a single IPsec policy
@@ -5287,8 +5746,7 @@ class Proxy(proxy.Proxy, Generic[T]):
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             resource can be found.
         """
-        return self._get(
-            _ipsec_policy.VpnIpsecPolicy, ipsec_policy)
+        return self._get(_ipsec_policy.VpnIpsecPolicy, ipsec_policy)
 
     def vpn_ipsec_policies(self, **query):
         """Return a generator of IPsec policies
@@ -5299,8 +5757,7 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: A generator of IPsec policy objects
         :rtype: :class:`~openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy`
         """
-        return self._list(
-            _ipsec_policy.VpnIpsecPolicy, **query)
+        return self._list(_ipsec_policy.VpnIpsecPolicy, **query)
 
     def update_vpn_ipsec_policy(self, ipsec_policy, **attrs):
         """Update an IPsec policy
@@ -5315,7 +5772,8 @@ class Proxy(proxy.Proxy, Generic[T]):
         :rtype: :class:`~openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy`
         """
         return self._update(
-            _ipsec_policy.VpnIpsecPolicy, ipsec_policy, **attrs)
+            _ipsec_policy.VpnIpsecPolicy, ipsec_policy, **attrs
+        )
 
     def delete_vpn_ipsec_policy(self, ipsec_policy, ignore_missing=True):
         """Delete an IPsec policy
@@ -5334,8 +5792,10 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: ``None``
         """
         self._delete(
-            _ipsec_policy.VpnIpsecPolicy, ipsec_policy,
-            ignore_missing=ignore_missing)
+            _ipsec_policy.VpnIpsecPolicy,
+            ipsec_policy,
+            ignore_missing=ignore_missing,
+        )
 
     # ========== VPN Service ==========
     def create_vpn_service(self, **attrs):
@@ -5364,8 +5824,9 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         :returns: ``None``
         """
-        self._delete(_vpn_service.VpnService, vpn_service,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _vpn_service.VpnService, vpn_service, ignore_missing=ignore_missing
+        )
 
     def find_vpn_service(self, name_or_id, ignore_missing=True, **query):
         """Find a single vpn service
@@ -5381,8 +5842,12 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: One :class:`~openstack.network.v2.vpn_service.VpnService`
             or None
         """
-        return self._find(_vpn_service.VpnService, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        return self._find(
+            _vpn_service.VpnService,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_vpn_service(self, vpn_service):
         """Get a single vpn service
@@ -5436,11 +5901,15 @@ class Proxy(proxy.Proxy, Generic[T]):
         :rtype: :class:`~openstack.network.v2.port_forwarding.PortForwarding`
         """
         floatingip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
-        return self._create(_port_forwarding.PortForwarding,
-                            floatingip_id=floatingip.id, **attrs)
+        return self._create(
+            _port_forwarding.PortForwarding,
+            floatingip_id=floatingip.id,
+            **attrs,
+        )
 
-    def delete_floating_ip_port_forwarding(self, floating_ip, port_forwarding,
-                                           ignore_missing=True):
+    def delete_floating_ip_port_forwarding(
+        self, floating_ip, port_forwarding, ignore_missing=True
+    ):
         """Delete a floating IP port forwarding.
 
         :param floating_ip: The value can be either the ID of a floating ip
@@ -5459,12 +5928,16 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: ``None``
         """
         floatingip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
-        self._delete(_port_forwarding.PortForwarding,
-                     port_forwarding, ignore_missing=ignore_missing,
-                     floatingip_id=floatingip.id)
+        self._delete(
+            _port_forwarding.PortForwarding,
+            port_forwarding,
+            ignore_missing=ignore_missing,
+            floatingip_id=floatingip.id,
+        )
 
-    def find_floating_ip_port_forwarding(self, floating_ip, port_forwarding_id,
-                                         ignore_missing=True, **query):
+    def find_floating_ip_port_forwarding(
+        self, floating_ip, port_forwarding_id, ignore_missing=True, **query
+    ):
         """Find a floating ip port forwarding
 
         :param floating_ip: The value can be the ID of the Floating IP that the
@@ -5483,9 +5956,13 @@ class Proxy(proxy.Proxy, Generic[T]):
             or None
         """
         floatingip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
-        return self._find(_port_forwarding.PortForwarding,
-                          port_forwarding_id, ignore_missing=ignore_missing,
-                          floatingip_id=floatingip.id, **query)
+        return self._find(
+            _port_forwarding.PortForwarding,
+            port_forwarding_id,
+            ignore_missing=ignore_missing,
+            floatingip_id=floatingip.id,
+            **query,
+        )
 
     def get_floating_ip_port_forwarding(self, floating_ip, port_forwarding):
         """Get a floating ip port forwarding
@@ -5503,8 +5980,11 @@ class Proxy(proxy.Proxy, Generic[T]):
             when no resource can be found.
         """
         floatingip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
-        return self._get(_port_forwarding.PortForwarding, port_forwarding,
-                         floatingip_id=floatingip.id)
+        return self._get(
+            _port_forwarding.PortForwarding,
+            port_forwarding,
+            floatingip_id=floatingip.id,
+        )
 
     def floating_ip_port_forwardings(self, floating_ip, **query):
         """Return a generator of floating ip port forwarding
@@ -5520,11 +6000,15 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.port_forwarding.PortForwarding`
         """
         floatingip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
-        return self._list(_port_forwarding.PortForwarding,
-                          floatingip_id=floatingip.id, **query)
+        return self._list(
+            _port_forwarding.PortForwarding,
+            floatingip_id=floatingip.id,
+            **query,
+        )
 
-    def update_floating_ip_port_forwarding(self, floating_ip, port_forwarding,
-                                           **attrs):
+    def update_floating_ip_port_forwarding(
+        self, floating_ip, port_forwarding, **attrs
+    ):
         """Update a floating ip port forwarding
 
         :param floating_ip: The value can be the ID of the Floating IP that the
@@ -5541,8 +6025,12 @@ class Proxy(proxy.Proxy, Generic[T]):
         :rtype: :class:`~openstack.network.v2.port_forwarding.PortForwarding`
         """
         floatingip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
-        return self._update(_port_forwarding.PortForwarding, port_forwarding,
-                            floatingip_id=floatingip.id, **attrs)
+        return self._update(
+            _port_forwarding.PortForwarding,
+            port_forwarding,
+            floatingip_id=floatingip.id,
+            **attrs,
+        )
 
     def create_conntrack_helper(self, router, **attrs):
         """Create a new L3 conntrack helper from attributes
@@ -5558,8 +6046,9 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.l3_conntrack_helper.ConntrackHelper`
         """
         router = self._get_resource(_router.Router, router)
-        return self._create(_l3_conntrack_helper.ConntrackHelper,
-                            router_id=router.id, **attrs)
+        return self._create(
+            _l3_conntrack_helper.ConntrackHelper, router_id=router.id, **attrs
+        )
 
     def conntrack_helpers(self, router, **query):
         """Return a generator of conntrack helpers
@@ -5573,8 +6062,9 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.l3_conntrack_helper.ConntrackHelper`
         """
         router = self._get_resource(_router.Router, router)
-        return self._list(_l3_conntrack_helper.ConntrackHelper,
-                          router_id=router.id, **query)
+        return self._list(
+            _l3_conntrack_helper.ConntrackHelper, router_id=router.id, **query
+        )
 
     def get_conntrack_helper(self, conntrack_helper, router):
         """Get a single L3 conntrack helper
@@ -5592,8 +6082,11 @@ class Proxy(proxy.Proxy, Generic[T]):
             when no resource can be found.
         """
         router = self._get_resource(_router.Router, router)
-        return self._get(_l3_conntrack_helper.ConntrackHelper,
-                         conntrack_helper, router_id=router.id)
+        return self._get(
+            _l3_conntrack_helper.ConntrackHelper,
+            conntrack_helper,
+            router_id=router.id,
+        )
 
     def update_conntrack_helper(self, conntrack_helper, router, **attrs):
         """Update a L3 conntrack_helper
@@ -5613,11 +6106,16 @@ class Proxy(proxy.Proxy, Generic[T]):
 
         """
         router = self._get_resource(_router.Router, router)
-        return self._update(_l3_conntrack_helper.ConntrackHelper,
-                            conntrack_helper, router_id=router.id, **attrs)
+        return self._update(
+            _l3_conntrack_helper.ConntrackHelper,
+            conntrack_helper,
+            router_id=router.id,
+            **attrs,
+        )
 
-    def delete_conntrack_helper(self, conntrack_helper, router,
-                                ignore_missing=True):
+    def delete_conntrack_helper(
+        self, conntrack_helper, router, ignore_missing=True
+    ):
         """Delete a L3 conntrack_helper
 
         :param conntrack_helper: The value can be the ID of a L3 conntrack
@@ -5635,9 +6133,12 @@ class Proxy(proxy.Proxy, Generic[T]):
         :returns: ``None``
         """
         router = self._get_resource(_router.Router, router)
-        self._delete(_l3_conntrack_helper.ConntrackHelper,
-                     conntrack_helper, router_id=router.id,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _l3_conntrack_helper.ConntrackHelper,
+            conntrack_helper,
+            router_id=router.id,
+            ignore_missing=ignore_missing,
+        )
 
     def create_tap_flow(self, **attrs):
         """Create a new Tap Flow from attributes"""
@@ -5645,13 +6146,18 @@ class Proxy(proxy.Proxy, Generic[T]):
 
     def delete_tap_flow(self, tap_flow, ignore_missing=True):
         """Delete a Tap Flow"""
-        self._delete(_tap_flow.TapFlow, tap_flow,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _tap_flow.TapFlow, tap_flow, ignore_missing=ignore_missing
+        )
 
     def find_tap_flow(self, name_or_id, ignore_missing=True, **query):
-        """"Find a single Tap Service"""
-        return self._find(_tap_flow.TapFlow, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        """ "Find a single Tap Service"""
+        return self._find(
+            _tap_flow.TapFlow,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_tap_flow(self, tap_flow):
         """Get a signle Tap Flow"""
@@ -5671,13 +6177,18 @@ class Proxy(proxy.Proxy, Generic[T]):
 
     def delete_tap_service(self, tap_service, ignore_missing=True):
         """Delete a Tap Service"""
-        self._delete(_tap_service.TapService, tap_service,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _tap_service.TapService, tap_service, ignore_missing=ignore_missing
+        )
 
     def find_tap_service(self, name_or_id, ignore_missing=True, **query):
-        """"Find a single Tap Service"""
-        return self._find(_tap_service.TapService, name_or_id,
-                          ignore_missing=ignore_missing, **query)
+        """ "Find a single Tap Service"""
+        return self._find(
+            _tap_service.TapService,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_tap_service(self, tap_service):
         """Get a signle Tap Service"""
@@ -5692,15 +6203,16 @@ class Proxy(proxy.Proxy, Generic[T]):
         return self._list(_tap_service.TapService, **query)
 
     def _get_cleanup_dependencies(self):
-        return {
-            'network': {
-                'before': ['identity']
-            }
-        }
+        return {'network': {'before': ['identity']}}
 
-    def _service_cleanup(self, dry_run=True, client_status_queue=None,
-                         identified_resources=None,
-                         filters=None, resource_evaluation_fn=None):
+    def _service_cleanup(
+        self,
+        dry_run=True,
+        client_status_queue=None,
+        identified_resources=None,
+        filters=None,
+        resource_evaluation_fn=None,
+    ):
         project_id = self.get_project_id()
         # Delete floating_ips in the project if no filters defined OR all
         # filters are matching and port_id is empty
@@ -5712,7 +6224,8 @@ class Proxy(proxy.Proxy, Generic[T]):
                 client_status_queue=client_status_queue,
                 identified_resources=identified_resources,
                 filters=filters,
-                resource_evaluation_fn=fip_cleanup_evaluation)
+                resource_evaluation_fn=fip_cleanup_evaluation,
+            )
 
         # Delete (try to delete) all security groups in the project
         # Let's hope we can't drop SG in use
@@ -5725,22 +6238,20 @@ class Proxy(proxy.Proxy, Generic[T]):
                     client_status_queue=client_status_queue,
                     identified_resources=identified_resources,
                     filters=filters,
-                    resource_evaluation_fn=resource_evaluation_fn)
+                    resource_evaluation_fn=resource_evaluation_fn,
+                )
 
         # Networks are crazy, try to delete router+net+subnet
         # if there are no "other" ports allocated on the net
         for net in self.networks(project_id=project_id):
             network_has_ports_allocated = False
             router_if = list()
-            for port in self.ports(
-                project_id=project_id,
-                network_id=net.id
-            ):
+            for port in self.ports(project_id=project_id, network_id=net.id):
                 self.log.debug('Looking at port %s' % port)
                 if port.device_owner in [
                     'network:router_interface',
                     'network:router_interface_distributed',
-                    'network:ha_router_replicated_interface'
+                    'network:ha_router_replicated_interface',
                 ]:
                     router_if.append(port)
                 elif port.device_owner == 'network:dhcp':
@@ -5768,7 +6279,8 @@ class Proxy(proxy.Proxy, Generic[T]):
                 client_status_queue=None,
                 identified_resources=None,
                 filters=filters,
-                resource_evaluation_fn=resource_evaluation_fn)
+                resource_evaluation_fn=resource_evaluation_fn,
+            )
             if not network_must_be_deleted:
                 # If not - check another net
                 continue
@@ -5780,8 +6292,8 @@ class Proxy(proxy.Proxy, Generic[T]):
                 if not dry_run:
                     try:
                         self.remove_interface_from_router(
-                            router=port.device_id,
-                            port_id=port.id)
+                            router=port.device_id, port_id=port.id
+                        )
                     except exceptions.SDKException:
                         self.log.error('Cannot delete object %s' % obj)
                 # router disconnected, drop it
@@ -5792,12 +6304,10 @@ class Proxy(proxy.Proxy, Generic[T]):
                     client_status_queue=client_status_queue,
                     identified_resources=identified_resources,
                     filters=None,
-                    resource_evaluation_fn=None)
+                    resource_evaluation_fn=None,
+                )
             # Drop ports not belonging to anybody
-            for port in self.ports(
-                project_id=project_id,
-                network_id=net.id
-            ):
+            for port in self.ports(project_id=project_id, network_id=net.id):
                 if port.device_owner is None or port.device_owner == '':
                     self._service_cleanup_del_res(
                         self.delete_port,
@@ -5806,13 +6316,11 @@ class Proxy(proxy.Proxy, Generic[T]):
                         client_status_queue=client_status_queue,
                         identified_resources=identified_resources,
                         filters=None,
-                        resource_evaluation_fn=None)
+                        resource_evaluation_fn=None,
+                    )
 
             # Drop all subnets in the net (no further conditions)
-            for obj in self.subnets(
-                project_id=project_id,
-                network_id=net.id
-            ):
+            for obj in self.subnets(project_id=project_id, network_id=net.id):
                 self._service_cleanup_del_res(
                     self.delete_subnet,
                     obj,
@@ -5820,7 +6328,8 @@ class Proxy(proxy.Proxy, Generic[T]):
                     client_status_queue=client_status_queue,
                     identified_resources=identified_resources,
                     filters=None,
-                    resource_evaluation_fn=None)
+                    resource_evaluation_fn=None,
+                )
 
             # And now the network itself (we are here definitely only if we
             # need that)
@@ -5831,7 +6340,8 @@ class Proxy(proxy.Proxy, Generic[T]):
                 client_status_queue=client_status_queue,
                 identified_resources=identified_resources,
                 filters=None,
-                resource_evaluation_fn=None)
+                resource_evaluation_fn=None,
+            )
 
         # It might happen, that we have routers not attached to anything
         for obj in self.routers():
@@ -5844,7 +6354,8 @@ class Proxy(proxy.Proxy, Generic[T]):
                     client_status_queue=client_status_queue,
                     identified_resources=identified_resources,
                     filters=None,
-                    resource_evaluation_fn=None)
+                    resource_evaluation_fn=None,
+                )
 
 
 def fip_cleanup_evaluation(obj, identified_resources=None, filters=None):
@@ -5855,13 +6366,10 @@ def fip_cleanup_evaluation(obj, identified_resources=None, filters=None):
         identified by other services for deletion.
     :param dict filters: dictionary with parameters
     """
-    if (
-        filters is not None
-        and (
-            obj.port_id is not None
-            and identified_resources
-            and obj.port_id not in identified_resources
-        )
+    if filters is not None and (
+        obj.port_id is not None
+        and identified_resources
+        and obj.port_id not in identified_resources
     ):
         # If filters are set, but port is not empty and will not be empty -
         # skip

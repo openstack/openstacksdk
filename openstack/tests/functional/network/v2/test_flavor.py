@@ -97,8 +97,7 @@ class TestFlavor(base.BaseFunctionalTest):
         )
         self.assertIsNotNone(response)
 
-        response = self.operator_cloud.network \
-            .disassociate_flavor_from_service_profile(
-                self.ID, self.service_profiles.id
-            )
+        response = self.operator_cloud.network.disassociate_flavor_from_service_profile(  # noqa: E501
+            self.ID, self.service_profiles.id
+        )
         self.assertIsNone(response)

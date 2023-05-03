@@ -20,12 +20,11 @@ EXAMPLE = {
     'source_port': '1234',
     'tap_service_id': '4321',
     'id': IDENTIFIER,
-    'project_id': '42'
+    'project_id': '42',
 }
 
 
 class TestTapFlow(base.TestCase):
-
     def test_basic(self):
         sot = tap_flow.TapFlow()
         self.assertEqual('tap_flow', sot.resource_key)
@@ -46,11 +45,13 @@ class TestTapFlow(base.TestCase):
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
 
         self.assertDictEqual(
-            {'limit': 'limit',
-             'marker': 'marker',
-             'name': 'name',
-             'project_id': 'project_id',
-             'sort_key': 'sort_key',
-             'sort_dir': 'sort_dir',
-             },
-            sot._query_mapping._mapping)
+            {
+                'limit': 'limit',
+                'marker': 'marker',
+                'name': 'name',
+                'project_id': 'project_id',
+                'sort_key': 'sort_key',
+                'sort_dir': 'sort_dir',
+            },
+            sot._query_mapping._mapping,
+        )

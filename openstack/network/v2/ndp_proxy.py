@@ -29,9 +29,15 @@ class NDPProxy(resource.Resource):
     _allow_unknown_attrs_in_body = True
 
     _query_mapping = resource.QueryParameters(
-        "sort_key", "sort_dir",
-        'name', 'description', 'project_id',
-        'router_id', 'port_id', 'ip_address')
+        "sort_key",
+        "sort_dir",
+        'name',
+        'description',
+        'project_id',
+        'router_id',
+        'port_id',
+        'ip_address',
+    )
 
     # Properties
     #: Timestamp at which the NDP proxy was created.

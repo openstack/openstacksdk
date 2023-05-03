@@ -95,10 +95,9 @@ class TestFloatingIP(base.BaseFunctionalTest):
         fip_args = dict(
             floating_network_id=self.EXT_NET_ID,
         )
-        if (
-            self.user_cloud._has_neutron_extension("dns-integration")
-            and self.user_cloud.has_service("dns")
-        ):
+        if self.user_cloud._has_neutron_extension(
+            "dns-integration"
+        ) and self.user_cloud.has_service("dns"):
             self.is_dns_supported = True
             fip_args.update(
                 dict(dns_domain=self.DNS_DOMAIN, dns_name=self.DNS_NAME)

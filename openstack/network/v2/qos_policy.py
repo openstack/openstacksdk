@@ -29,7 +29,9 @@ class QoSPolicy(resource.Resource, tag.TagMixin):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'name', 'description', 'is_default',
+        'name',
+        'description',
+        'is_default',
         'project_id',
         is_shared='shared',
         **tag.TagMixin._tag_query_parameters

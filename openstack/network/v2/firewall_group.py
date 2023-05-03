@@ -31,9 +31,15 @@ class FirewallGroup(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'description', 'egress_firewall_policy_id',
-        'ingress_firewall_policy_id', 'name', 'shared', 'status', 'ports',
-        'project_id')
+        'description',
+        'egress_firewall_policy_id',
+        'ingress_firewall_policy_id',
+        'name',
+        'shared',
+        'status',
+        'ports',
+        'project_id',
+    )
 
     # Properties
     #: The administrative state of the firewall group, which is up (true) or

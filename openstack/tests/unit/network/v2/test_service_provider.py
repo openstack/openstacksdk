@@ -23,7 +23,6 @@ EXAMPLE = {
 
 
 class TestServiceProvider(base.TestCase):
-
     def test_basic(self):
         sot = service_provider.ServiceProvider()
 

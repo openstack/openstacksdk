@@ -21,8 +21,7 @@ RULES = [
         "direction": "egress",
         "remote_ip_prefix": None,
         "protocol": None,
-        "ethertype":
-        "IPv6",
+        "ethertype": "IPv6",
         "project_id": "4",
         "port_range_max": None,
         "port_range_min": None,
@@ -60,12 +59,11 @@ EXAMPLE = {
     'project_id': '4',
     'project_id': '4',
     'updated_at': '2016-10-14T12:16:57.233772',
-    'tags': ['5']
+    'tags': ['5'],
 }
 
 
 class TestSecurityGroup(base.TestCase):
-
     def test_basic(self):
         sot = security_group.SecurityGroup()
         self.assertEqual('security_group', sot.resource_key)
@@ -77,24 +75,27 @@ class TestSecurityGroup(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
-        self.assertDictEqual({'any_tags': 'tags-any',
-                              'description': 'description',
-                              'fields': 'fields',
-                              'id': 'id',
-                              'limit': 'limit',
-                              'marker': 'marker',
-                              'name': 'name',
-                              'not_any_tags': 'not-tags-any',
-                              'not_tags': 'not-tags',
-                              'tenant_id': 'tenant_id',
-                              'revision_number': 'revision_number',
-                              'sort_dir': 'sort_dir',
-                              'sort_key': 'sort_key',
-                              'tags': 'tags',
-                              'project_id': 'project_id',
-                              'stateful': 'stateful',
-                              },
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {
+                'any_tags': 'tags-any',
+                'description': 'description',
+                'fields': 'fields',
+                'id': 'id',
+                'limit': 'limit',
+                'marker': 'marker',
+                'name': 'name',
+                'not_any_tags': 'not-tags-any',
+                'not_tags': 'not-tags',
+                'tenant_id': 'tenant_id',
+                'revision_number': 'revision_number',
+                'sort_dir': 'sort_dir',
+                'sort_key': 'sort_key',
+                'tags': 'tags',
+                'project_id': 'project_id',
+                'stateful': 'stateful',
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = security_group.SecurityGroup(**EXAMPLE)
@@ -103,8 +104,9 @@ class TestSecurityGroup(base.TestCase):
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
-        self.assertEqual(EXAMPLE['security_group_rules'],
-                         sot.security_group_rules)
+        self.assertEqual(
+            EXAMPLE['security_group_rules'], sot.security_group_rules
+        )
         self.assertEqual(dict, type(sot.security_group_rules[0]))
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)

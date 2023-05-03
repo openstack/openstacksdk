@@ -34,7 +34,6 @@ EXAMPLE = {
 
 
 class TestFirewallRule(testtools.TestCase):
-
     def test_basic(self):
         sot = firewall_rule.FirewallRule()
         self.assertEqual('firewall_rule', sot.resource_key)
@@ -50,15 +49,15 @@ class TestFirewallRule(testtools.TestCase):
         sot = firewall_rule.FirewallRule(**EXAMPLE)
         self.assertEqual(EXAMPLE['action'], sot.action)
         self.assertEqual(EXAMPLE['description'], sot.description)
-        self.assertEqual(EXAMPLE['destination_ip_address'],
-                         sot.destination_ip_address)
+        self.assertEqual(
+            EXAMPLE['destination_ip_address'], sot.destination_ip_address
+        )
         self.assertEqual(EXAMPLE['destination_port'], sot.destination_port)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['enabled'], sot.enabled)
         self.assertEqual(EXAMPLE['ip_version'], sot.ip_version)
         self.assertEqual(EXAMPLE['protocol'], sot.protocol)
         self.assertEqual(EXAMPLE['shared'], sot.shared)
-        self.assertEqual(EXAMPLE['source_ip_address'],
-                         sot.source_ip_address)
+        self.assertEqual(EXAMPLE['source_ip_address'], sot.source_ip_address)
         self.assertEqual(EXAMPLE['source_port'], sot.source_port)
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)

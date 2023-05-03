@@ -31,12 +31,13 @@ class TestLocalIPAssociation(base.BaseFunctionalTest):
         self.LOCAL_IP_ID = self.getUniqueString()
         self.FIXED_PORT_ID = self.getUniqueString()
         self.FIXED_IP = self.getUniqueString()
-        local_ip_association = self.user_cloud.network \
-            .create_local_ip_association(
+        local_ip_association = (
+            self.user_cloud.network.create_local_ip_association(
                 local_ip=self.LOCAL_IP_ID,
                 fixed_port_id=self.FIXED_PORT_ID,
                 fixed_ip=self.FIXED_IP,
             )
+        )
         assert isinstance(
             local_ip_association, _local_ip_association.LocalIPAssociation
         )

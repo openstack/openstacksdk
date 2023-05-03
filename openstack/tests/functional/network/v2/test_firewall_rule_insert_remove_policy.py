@@ -34,15 +34,18 @@ class TestFirewallPolicyRuleAssociations(base.BaseFunctionalTest):
         if not self.user_cloud._has_neutron_extension("fwaas_v2"):
             self.skipTest("fwaas_v2 service not supported by cloud")
         rul1 = self.user_cloud.network.create_firewall_rule(
-            name=self.RULE1_NAME)
+            name=self.RULE1_NAME
+        )
         assert isinstance(rul1, firewall_rule.FirewallRule)
         self.assertEqual(self.RULE1_NAME, rul1.name)
         rul2 = self.user_cloud.network.create_firewall_rule(
-            name=self.RULE2_NAME)
+            name=self.RULE2_NAME
+        )
         assert isinstance(rul2, firewall_rule.FirewallRule)
         self.assertEqual(self.RULE2_NAME, rul2.name)
         pol = self.user_cloud.network.create_firewall_policy(
-            name=self.POLICY_NAME)
+            name=self.POLICY_NAME
+        )
         assert isinstance(pol, firewall_policy.FirewallPolicy)
         self.assertEqual(self.POLICY_NAME, pol.name)
         self.RULE1_ID = rul1.id

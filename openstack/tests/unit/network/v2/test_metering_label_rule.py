@@ -26,7 +26,6 @@ EXAMPLE = {
 
 
 class TestMeteringLabelRule(base.TestCase):
-
     def test_basic(self):
         sot = metering_label_rule.MeteringLabelRule()
         self.assertEqual('metering_label_rule', sot.resource_key)
@@ -57,12 +56,16 @@ class TestMeteringLabelRule(base.TestCase):
         self.assertFalse(sot.is_excluded)
         self.assertEqual(custom_example['id'], sot.id)
         self.assertEqual(
-            custom_example['metering_label_id'], sot.metering_label_id)
+            custom_example['metering_label_id'], sot.metering_label_id
+        )
         self.assertEqual(custom_example['project_id'], sot.project_id)
         self.assertEqual(
-            custom_example['remote_ip_prefix'], sot.remote_ip_prefix)
+            custom_example['remote_ip_prefix'], sot.remote_ip_prefix
+        )
 
         self.assertEqual(
-            custom_example['source_ip_prefix'], sot.source_ip_prefix)
+            custom_example['source_ip_prefix'], sot.source_ip_prefix
+        )
         self.assertEqual(
-            custom_example['destination_ip_prefix'], sot.destination_ip_prefix)
+            custom_example['destination_ip_prefix'], sot.destination_ip_prefix
+        )

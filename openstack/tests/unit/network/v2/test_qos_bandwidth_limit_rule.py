@@ -26,14 +26,14 @@ EXAMPLE = {
 
 
 class TestQoSBandwidthLimitRule(base.TestCase):
-
     def test_basic(self):
         sot = qos_bandwidth_limit_rule.QoSBandwidthLimitRule()
         self.assertEqual('bandwidth_limit_rule', sot.resource_key)
         self.assertEqual('bandwidth_limit_rules', sot.resources_key)
         self.assertEqual(
             '/qos/policies/%(qos_policy_id)s/bandwidth_limit_rules',
-            sot.base_path)
+            sot.base_path,
+        )
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

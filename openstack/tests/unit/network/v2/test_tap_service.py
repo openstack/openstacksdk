@@ -19,12 +19,11 @@ EXAMPLE = {
     'name': 'my_tap_service',
     'port_id': '1234',
     'id': IDENTIFIER,
-    'project_id': '42'
+    'project_id': '42',
 }
 
 
 class TestTapService(base.TestCase):
-
     def test_basic(self):
         sot = tap_service.TapService()
         self.assertEqual('tap_service', sot.resource_key)
@@ -44,11 +43,13 @@ class TestTapService(base.TestCase):
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
 
         self.assertDictEqual(
-            {'limit': 'limit',
-             'marker': 'marker',
-             'name': 'name',
-             'project_id': 'project_id',
-             'sort_key': 'sort_key',
-             'sort_dir': 'sort_dir',
-             },
-            sot._query_mapping._mapping)
+            {
+                'limit': 'limit',
+                'marker': 'marker',
+                'name': 'name',
+                'project_id': 'project_id',
+                'sort_key': 'sort_key',
+                'sort_dir': 'sort_dir',
+            },
+            sot._query_mapping._mapping,
+        )

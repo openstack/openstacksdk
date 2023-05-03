@@ -55,18 +55,20 @@ class TestServiceProfile(base.BaseFunctionalTest):
 
     def test_find(self):
         self.user_cloud.network.find_service_profile(
-            name_or_id="not_existing",
-            ignore_missing=True)
+            name_or_id="not_existing", ignore_missing=True
+        )
         if self.operator_cloud and self.ID:
-            service_profiles = self.operator_cloud.network \
-                .find_service_profile(self.ID)
+            service_profiles = (
+                self.operator_cloud.network.find_service_profile(self.ID)
+            )
             self.assertEqual(self.METAINFO, service_profiles.meta_info)
 
     def test_get(self):
         if not self.ID:
             self.skipTest("ServiceProfile was not created")
         service_profiles = self.operator_cloud.network.get_service_profile(
-            self.ID)
+            self.ID
+        )
         self.assertEqual(self.METAINFO, service_profiles.meta_info)
         self.assertEqual(
             self.SERVICE_PROFILE_DESCRIPTION, service_profiles.description
@@ -86,8 +88,8 @@ class TestServiceProfile(base.BaseFunctionalTest):
         # Test as operator
         if self.operator_cloud:
             metainfos = [
-                f.meta_info for f in
-                self.operator_cloud.network.service_profiles()
+                f.meta_info
+                for f in self.operator_cloud.network.service_profiles()
             ]
             if self.ID:
                 self.assertIn(self.METAINFO, metainfos)

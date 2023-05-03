@@ -29,7 +29,6 @@ EXAMPLE = {
 
 
 class TestPoolMember(base.TestCase):
-
     def test_basic(self):
         sot = pool_member.PoolMember()
         self.assertEqual('member', sot.resource_key)

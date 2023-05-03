@@ -12,7 +12,7 @@
 
 
 from openstack.network.v2 import (
-    qos_dscp_marking_rule as _qos_dscp_marking_rule
+    qos_dscp_marking_rule as _qos_dscp_marking_rule,
 )
 from openstack.tests.functional import base
 

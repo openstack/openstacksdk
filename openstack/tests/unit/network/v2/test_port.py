@@ -45,28 +45,32 @@ EXAMPLE = {
     'qos_policy_id': '21',
     'propagate_uplink_status': False,
     'resource_request': {
-        'required': [
-            'CUSTOM_PHYSNET_PUBLIC', 'CUSTOM_VNIC_TYPE_NORMAL'],
+        'required': ['CUSTOM_PHYSNET_PUBLIC', 'CUSTOM_VNIC_TYPE_NORMAL'],
         'resources': {
             'NET_BW_EGR_KILOBIT_PER_SEC': 1,
-            'NET_BW_IGR_KILOBIT_PER_SEC': 2}},
+            'NET_BW_IGR_KILOBIT_PER_SEC': 2,
+        },
+    },
     'revision_number': 22,
     'security_groups': ['23'],
     'status': '25',
     'project_id': '26',
     'trunk_details': {
         'trunk_id': '27',
-        'sub_ports': [{
-            'port_id': '28',
-            'segmentation_id': 29,
-            'segmentation_type': '30',
-            'mac_address': '31'}]},
+        'sub_ports': [
+            {
+                'port_id': '28',
+                'segmentation_id': 29,
+                'segmentation_type': '30',
+                'mac_address': '31',
+            }
+        ],
+    },
     'updated_at': '2016-07-09T12:14:57.233772',
 }
 
 
 class TestPort(base.TestCase):
-
     def test_basic(self):
         sot = port.Port()
         self.assertEqual('port', sot.resource_key)
@@ -78,46 +82,51 @@ class TestPort(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
-        self.assertDictEqual({"binding:host_id": "binding:host_id",
-                              "binding:profile": "binding:profile",
-                              "binding:vif_details": "binding:vif_details",
-                              "binding:vif_type": "binding:vif_type",
-                              "binding:vnic_type": "binding:vnic_type",
-                              "description": "description",
-                              "device_id": "device_id",
-                              "device_owner": "device_owner",
-                              "fields": "fields",
-                              "fixed_ips": "fixed_ips",
-                              "id": "id",
-                              "ip_address": "ip_address",
-                              "mac_address": "mac_address",
-                              "name": "name",
-                              "network_id": "network_id",
-                              "security_groups": "security_groups",
-                              "status": "status",
-                              "subnet_id": "subnet_id",
-                              "is_admin_state_up": "admin_state_up",
-                              "is_port_security_enabled":
-                                  "port_security_enabled",
-                              "project_id": "project_id",
-                              "security_group_ids": "security_groups",
-                              "limit": "limit",
-                              "marker": "marker",
-                              "any_tags": "tags-any",
-                              "not_any_tags": "not-tags-any",
-                              "not_tags": "not-tags",
-                              "tags": "tags"},
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {
+                "binding:host_id": "binding:host_id",
+                "binding:profile": "binding:profile",
+                "binding:vif_details": "binding:vif_details",
+                "binding:vif_type": "binding:vif_type",
+                "binding:vnic_type": "binding:vnic_type",
+                "description": "description",
+                "device_id": "device_id",
+                "device_owner": "device_owner",
+                "fields": "fields",
+                "fixed_ips": "fixed_ips",
+                "id": "id",
+                "ip_address": "ip_address",
+                "mac_address": "mac_address",
+                "name": "name",
+                "network_id": "network_id",
+                "security_groups": "security_groups",
+                "status": "status",
+                "subnet_id": "subnet_id",
+                "is_admin_state_up": "admin_state_up",
+                "is_port_security_enabled": "port_security_enabled",
+                "project_id": "project_id",
+                "security_group_ids": "security_groups",
+                "limit": "limit",
+                "marker": "marker",
+                "any_tags": "tags-any",
+                "not_any_tags": "not-tags-any",
+                "not_tags": "not-tags",
+                "tags": "tags",
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = port.Port(**EXAMPLE)
         self.assertTrue(sot.is_admin_state_up)
-        self.assertEqual(EXAMPLE['allowed_address_pairs'],
-                         sot.allowed_address_pairs)
+        self.assertEqual(
+            EXAMPLE['allowed_address_pairs'], sot.allowed_address_pairs
+        )
         self.assertEqual(EXAMPLE['binding:host_id'], sot.binding_host_id)
         self.assertEqual(EXAMPLE['binding:profile'], sot.binding_profile)
-        self.assertEqual(EXAMPLE['binding:vif_details'],
-                         sot.binding_vif_details)
+        self.assertEqual(
+            EXAMPLE['binding:vif_details'], sot.binding_vif_details
+        )
         self.assertEqual(EXAMPLE['binding:vif_type'], sot.binding_vif_type)
         self.assertEqual(EXAMPLE['binding:vnic_type'], sot.binding_vnic_type)
         self.assertEqual(EXAMPLE['created_at'], sot.created_at)
@@ -136,14 +145,17 @@ class TestPort(base.TestCase):
         self.assertEqual(EXAMPLE['mac_address'], sot.mac_address)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['network_id'], sot.network_id)
-        self.assertEqual(EXAMPLE['numa_affinity_policy'],
-                         sot.numa_affinity_policy)
+        self.assertEqual(
+            EXAMPLE['numa_affinity_policy'], sot.numa_affinity_policy
+        )
         self.assertTrue(sot.is_port_security_enabled)
-        self.assertEqual(EXAMPLE['qos_network_policy_id'],
-                         sot.qos_network_policy_id)
+        self.assertEqual(
+            EXAMPLE['qos_network_policy_id'], sot.qos_network_policy_id
+        )
         self.assertEqual(EXAMPLE['qos_policy_id'], sot.qos_policy_id)
-        self.assertEqual(EXAMPLE['propagate_uplink_status'],
-                         sot.propagate_uplink_status)
+        self.assertEqual(
+            EXAMPLE['propagate_uplink_status'], sot.propagate_uplink_status
+        )
         self.assertEqual(EXAMPLE['resource_request'], sot.resource_request)
         self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
         self.assertEqual(EXAMPLE['security_groups'], sot.security_group_ids)

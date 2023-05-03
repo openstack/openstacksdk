@@ -28,7 +28,9 @@ class ServiceProfile(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'description', 'driver', 'project_id',
+        'description',
+        'driver',
+        'project_id',
         is_enabled='enabled',
     )
     # Properties

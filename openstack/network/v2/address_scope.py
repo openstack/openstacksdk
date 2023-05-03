@@ -15,6 +15,7 @@ from openstack import resource
 
 class AddressScope(resource.Resource):
     """Address scope extension."""
+
     resource_key = 'address_scope'
     resources_key = 'address_scopes'
     base_path = '/address-scopes'
@@ -29,7 +30,8 @@ class AddressScope(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'name', 'ip_version',
+        'name',
+        'ip_version',
         'project_id',
         is_shared='shared',
     )

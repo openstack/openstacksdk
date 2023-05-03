@@ -33,7 +33,12 @@ class FirewallPolicy(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'description', 'firewall_rules', 'name', 'project_id', 'shared')
+        'description',
+        'firewall_rules',
+        'name',
+        'project_id',
+        'shared',
+    )
 
     # Properties
     #: Each time that the firewall policy or its associated rules are changed,

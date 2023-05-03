@@ -12,7 +12,7 @@
 
 
 from openstack.network.v2 import (
-    qos_minimum_packet_rate_rule as _qos_minimum_packet_rate_rule
+    qos_minimum_packet_rate_rule as _qos_minimum_packet_rate_rule,
 )
 from openstack.tests.functional import base
 

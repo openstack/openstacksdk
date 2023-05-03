@@ -21,7 +21,6 @@ EXAMPLE = {
 
 
 class TestAutoAllocatedTopology(base.TestCase):
-
     def test_basic(self):
         topo = auto_allocated_topology.AutoAllocatedTopology
         self.assertEqual('auto_allocated_topology', topo.resource_key)

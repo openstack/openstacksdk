@@ -16,7 +16,6 @@ from openstack.tests.functional import base
 
 
 class TestBGPSpeaker(base.BaseFunctionalTest):
-
     def setUp(self):
         super().setUp()
         self.LOCAL_AS = 101
@@ -30,14 +29,19 @@ class TestBGPSpeaker(base.BaseFunctionalTest):
             self.skipTest("Neutron BGP Dynamic Routing Extension disabled")
 
         bgp_speaker = self.operator_cloud.network.create_bgp_speaker(
-            ip_version=self.IP_VERSION, local_as=self.LOCAL_AS,
-            name=self.SPEAKER_NAME)
+            ip_version=self.IP_VERSION,
+            local_as=self.LOCAL_AS,
+            name=self.SPEAKER_NAME,
+        )
         assert isinstance(bgp_speaker, _bgp_speaker.BgpSpeaker)
         self.SPEAKER = bgp_speaker
 
         bgp_peer = self.operator_cloud.network.create_bgp_peer(
-            name=self.PEER_NAME, auth_type='none',
-            remote_as=self.REMOTE_AS, peer_ip=self.PEER_IP)
+            name=self.PEER_NAME,
+            auth_type='none',
+            remote_as=self.REMOTE_AS,
+            peer_ip=self.PEER_IP,
+        )
         assert isinstance(bgp_peer, _bgp_peer.BgpPeer)
         self.PEER = bgp_peer
 
@@ -62,13 +66,15 @@ class TestBGPSpeaker(base.BaseFunctionalTest):
         self.assertEqual(self.LOCAL_AS, sot.local_as)
 
     def test_list_bgp_speakers(self):
-        speaker_ids = [sp.id for sp in
-                       self.operator_cloud.network.bgp_speakers()]
+        speaker_ids = [
+            sp.id for sp in self.operator_cloud.network.bgp_speakers()
+        ]
         self.assertIn(self.SPEAKER.id, speaker_ids)
 
     def test_update_bgp_speaker(self):
         sot = self.operator_cloud.network.update_bgp_speaker(
-            self.SPEAKER.id, advertise_floating_ip_host_routes=False)
+            self.SPEAKER.id, advertise_floating_ip_host_routes=False
+        )
         self.assertFalse(sot.advertise_floating_ip_host_routes)
 
     def test_find_bgp_peer(self):
@@ -88,18 +94,21 @@ class TestBGPSpeaker(base.BaseFunctionalTest):
     def test_update_bgp_peer(self):
         name = 'new_peer_name' + self.getUniqueString()
         sot = self.operator_cloud.network.update_bgp_peer(
-            self.PEER.id, name=name)
+            self.PEER.id, name=name
+        )
         self.assertEqual(name, sot.name)
 
     def test_add_remove_peer_to_speaker(self):
         self.operator_cloud.network.add_bgp_peer_to_speaker(
-            self.SPEAKER.id, self.PEER.id)
+            self.SPEAKER.id, self.PEER.id
+        )
         sot = self.operator_cloud.network.get_bgp_speaker(self.SPEAKER.id)
         self.assertEqual([self.PEER.id], sot.peers)
 
         # Remove the peer
         self.operator_cloud.network.remove_bgp_peer_from_speaker(
-            self.SPEAKER.id, self.PEER.id)
+            self.SPEAKER.id, self.PEER.id
+        )
         sot = self.operator_cloud.network.get_bgp_speaker(self.SPEAKER.id)
         self.assertEqual([], sot.peers)
 
@@ -107,17 +116,20 @@ class TestBGPSpeaker(base.BaseFunctionalTest):
         net_name = 'my_network' + self.getUniqueString()
         net = self.user_cloud.create_network(name=net_name)
         self.operator_cloud.network.add_gateway_network_to_speaker(
-            self.SPEAKER.id, net.id)
+            self.SPEAKER.id, net.id
+        )
         sot = self.operator_cloud.network.get_bgp_speaker(self.SPEAKER.id)
         self.assertEqual([net.id], sot.networks)
 
         # Remove the network
         self.operator_cloud.network.remove_gateway_network_from_speaker(
-            self.SPEAKER.id, net.id)
+            self.SPEAKER.id, net.id
+        )
         sot = self.operator_cloud.network.get_bgp_speaker(self.SPEAKER.id)
         self.assertEqual([], sot.networks)
 
     def test_get_advertised_routes_of_speaker(self):
         sot = self.operator_cloud.network.get_advertised_routes_of_speaker(
-            self.SPEAKER.id)
+            self.SPEAKER.id
+        )
         self.assertEqual({'advertised_routes': []}, sot)

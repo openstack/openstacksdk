@@ -25,14 +25,14 @@ EXAMPLE = {
 
 
 class TestQoSMinimumPacketRateRule(base.TestCase):
-
     def test_basic(self):
         sot = qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule()
         self.assertEqual('minimum_packet_rate_rule', sot.resource_key)
         self.assertEqual('minimum_packet_rate_rules', sot.resources_key)
         self.assertEqual(
             '/qos/policies/%(qos_policy_id)s/minimum_packet_rate_rules',
-            sot.base_path)
+            sot.base_path,
+        )
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

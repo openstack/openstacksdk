@@ -39,9 +39,7 @@ class TestVpnIkePolicy(base.BaseFunctionalTest):
         super(TestVpnIkePolicy, self).tearDown()
 
     def test_list(self):
-        policies = [
-            f.name for f in
-            self.user_cloud.network.vpn_ike_policies()]
+        policies = [f.name for f in self.user_cloud.network.vpn_ike_policies()]
         self.assertIn(self.IKEPOLICY_NAME, policies)
 
     def test_find(self):

@@ -27,7 +27,6 @@ EXAMPLE = {
 
 
 class TestSegment(base.TestCase):
-
     def test_basic(self):
         sot = segment.Segment()
         self.assertEqual('segment', sot.resource_key)

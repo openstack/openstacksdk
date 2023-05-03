@@ -43,7 +43,8 @@ class BgpSpeaker(resource.Resource):
     #: Whether to enable or disable the advertisement of floating ip host
     #: routes by the BGP Speaker. True by default.
     advertise_floating_ip_host_routes = resource.Body(
-        'advertise_floating_ip_host_routes')
+        'advertise_floating_ip_host_routes'
+    )
     #: Whether to enable or disable the advertisement of tenant network
     #: routes by the BGP Speaker. True by default.
     advertise_tenant_networks = resource.Body('advertise_tenant_networks')
@@ -164,6 +165,5 @@ class BgpSpeaker(resource.Resource):
         :param bgp_agent_id: The id of the dynamic routing agent from which
                              remove the speaker.
         """
-        url = utils.urljoin('agents', bgp_agent_id,
-                            'bgp-drinstances', self.id)
+        url = utils.urljoin('agents', bgp_agent_id, 'bgp-drinstances', self.id)
         session.delete(url)

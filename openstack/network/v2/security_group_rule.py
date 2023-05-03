@@ -27,13 +27,21 @@ class SecurityGroupRule(_base.NetworkResource, tag.TagMixin):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'description', 'direction', 'id', 'protocol',
-        'remote_group_id', 'security_group_id',
+        'description',
+        'direction',
+        'id',
+        'protocol',
+        'remote_group_id',
+        'security_group_id',
         'remote_address_group_id',
-        'port_range_max', 'port_range_min',
-        'remote_ip_prefix', 'revision_number',
-        'project_id', 'tenant_id',
-        'sort_dir', 'sort_key',
+        'port_range_max',
+        'port_range_min',
+        'remote_ip_prefix',
+        'revision_number',
+        'project_id',
+        'tenant_id',
+        'sort_dir',
+        'sort_key',
         ether_type='ethertype',
         **tag.TagMixin._tag_query_parameters
     )
@@ -89,7 +97,8 @@ class SecurityGroupRule(_base.NetworkResource, tag.TagMixin):
 
     def _prepare_request(self, *args, **kwargs):
         _request = super(SecurityGroupRule, self)._prepare_request(
-            *args, **kwargs)
+            *args, **kwargs
+        )
         # Old versions of Neutron do not handle being passed a
         # remote_address_group_id and raise and error.  Remove it from
         # the body if it is blank.

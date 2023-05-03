@@ -21,15 +21,16 @@ from openstack.network.v2 import firewall_policy
 EXAMPLE = {
     'description': '1',
     'name': '2',
-    'firewall_rules': ['a30b0ec2-a468-4b1c-8dbf-928ded2a57a8',
-                       '8d562e98-24f3-46e1-bbf3-d9347c0a67ee'],
+    'firewall_rules': [
+        'a30b0ec2-a468-4b1c-8dbf-928ded2a57a8',
+        '8d562e98-24f3-46e1-bbf3-d9347c0a67ee',
+    ],
     'shared': True,
     'project_id': '4',
 }
 
 
 class TestFirewallPolicy(testtools.TestCase):
-
     def test_basic(self):
         sot = firewall_policy.FirewallPolicy()
         self.assertEqual('firewall_policy', sot.resource_key)

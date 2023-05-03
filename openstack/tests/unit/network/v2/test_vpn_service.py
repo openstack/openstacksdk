@@ -30,7 +30,6 @@ EXAMPLE = {
 
 
 class TestVpnService(base.TestCase):
-
     def test_basic(self):
         sot = vpn_service.VpnService()
         self.assertEqual('vpnservice', sot.resource_key)
@@ -69,4 +68,5 @@ class TestVpnService(base.TestCase):
                 'subnet_id': 'subnet_id',
                 'is_admin_state_up': 'admin_state_up',
             },
-            sot._query_mapping._mapping)
+            sot._query_mapping._mapping,
+        )

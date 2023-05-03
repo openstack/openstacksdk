@@ -28,8 +28,14 @@ class HealthMonitor(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'delay', 'expected_codes', 'http_method', 'max_retries',
-        'timeout', 'type', 'url_path', 'project_id',
+        'delay',
+        'expected_codes',
+        'http_method',
+        'max_retries',
+        'timeout',
+        'type',
+        'url_path',
+        'project_id',
         is_admin_state_up='adminstate_up',
     )
 

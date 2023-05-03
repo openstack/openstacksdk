@@ -55,8 +55,8 @@ class TestLocalIP(base.BaseFunctionalTest):
 
     def test_list(self):
         names = [
-            local_ip.name
-            for local_ip in self.user_cloud.network.local_ips()]
+            local_ip.name for local_ip in self.user_cloud.network.local_ips()
+        ]
         self.assertIn(self.LOCAL_IP_NAME, names)
 
     def test_update(self):

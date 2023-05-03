@@ -29,7 +29,11 @@ class Flavor(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'description', 'name', 'service_type', is_enabled='enabled')
+        'description',
+        'name',
+        'service_type',
+        is_enabled='enabled',
+    )
 
     # properties
     #: description for the flavor
@@ -44,7 +48,8 @@ class Flavor(resource.Resource):
     service_profile_ids = resource.Body('service_profiles', type=list)
 
     def associate_flavor_with_service_profile(
-            self, session, service_profile_id=None):
+        self, session, service_profile_id=None
+    ):
         flavor_id = self.id
         url = utils.urljoin(self.base_path, flavor_id, 'service_profiles')
         body = {"service_profile": {"id": service_profile_id}}
@@ -52,9 +57,13 @@ class Flavor(resource.Resource):
         return resp.json()
 
     def disassociate_flavor_from_service_profile(
-            self, session, service_profile_id=None):
+        self, session, service_profile_id=None
+    ):
         flavor_id = self.id
         url = utils.urljoin(
-            self.base_path, flavor_id, 'service_profiles', service_profile_id)
-        session.delete(url,)
+            self.base_path, flavor_id, 'service_profiles', service_profile_id
+        )
+        session.delete(
+            url,
+        )
         return None

@@ -30,7 +30,11 @@ class Trunk(resource.Resource, tag.TagMixin):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'name', 'description', 'port_id', 'status', 'sub_ports',
+        'name',
+        'description',
+        'port_id',
+        'status',
+        'sub_ports',
         'project_id',
         is_admin_state_up='admin_state_up',
         **tag.TagMixin._tag_query_parameters

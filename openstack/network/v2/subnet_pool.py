@@ -28,8 +28,12 @@ class SubnetPool(resource.Resource, tag.TagMixin):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'address_scope_id', 'description', 'ip_version', 'is_default',
-        'name', 'project_id',
+        'address_scope_id',
+        'description',
+        'ip_version',
+        'is_default',
+        'name',
+        'project_id',
         is_shared='shared',
         **tag.TagMixin._tag_query_parameters
     )

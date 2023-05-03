@@ -16,27 +16,32 @@ from openstack.tests.unit import base
 
 EXAMPLE = {
     'type': 'bandwidth_limit',
-    'drivers': [{
-        'name': 'openvswitch',
-        'supported_parameters': [{
-            'parameter_values': {'start': 0, 'end': 2147483647},
-            'parameter_type': 'range',
-            'parameter_name': 'max_kbps'
-        }, {
-            'parameter_values': ['ingress', 'egress'],
-            'parameter_type': 'choices',
-            'parameter_name': 'direction'
-        }, {
-            'parameter_values': {'start': 0, 'end': 2147483647},
-            'parameter_type': 'range',
-            'parameter_name': 'max_burst_kbps'
-        }]
-    }]
+    'drivers': [
+        {
+            'name': 'openvswitch',
+            'supported_parameters': [
+                {
+                    'parameter_values': {'start': 0, 'end': 2147483647},
+                    'parameter_type': 'range',
+                    'parameter_name': 'max_kbps',
+                },
+                {
+                    'parameter_values': ['ingress', 'egress'],
+                    'parameter_type': 'choices',
+                    'parameter_name': 'direction',
+                },
+                {
+                    'parameter_values': {'start': 0, 'end': 2147483647},
+                    'parameter_type': 'range',
+                    'parameter_name': 'max_burst_kbps',
+                },
+            ],
+        }
+    ],
 }
 
 
 class TestQoSRuleType(base.TestCase):
-
     def test_basic(self):
         sot = qos_rule_type.QoSRuleType()
         self.assertEqual('rule_type', sot.resource_key)
@@ -47,14 +52,17 @@ class TestQoSRuleType(base.TestCase):
         self.assertFalse(sot.allow_commit)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
-        self.assertEqual({'type': 'type',
-                          'drivers': 'drivers',
-                          'all_rules': 'all_rules',
-                          'all_supported': 'all_supported',
-                          'limit': 'limit',
-                          'marker': 'marker',
-                          },
-                         sot._query_mapping._mapping)
+        self.assertEqual(
+            {
+                'type': 'type',
+                'drivers': 'drivers',
+                'all_rules': 'all_rules',
+                'all_supported': 'all_supported',
+                'limit': 'limit',
+                'marker': 'marker',
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = qos_rule_type.QoSRuleType(**EXAMPLE)

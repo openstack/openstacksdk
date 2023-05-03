@@ -25,7 +25,6 @@ EXAMPLE = {
 
 
 class TestExtension(base.TestCase):
-
     def test_basic(self):
         sot = extension.Extension()
         self.assertEqual('extension', sot.resource_key)

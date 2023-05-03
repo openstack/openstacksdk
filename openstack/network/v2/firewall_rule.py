@@ -31,9 +31,20 @@ class FirewallRule(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'action', 'description', 'destination_ip_address', 'name',
-        'destination_port', 'enabled', 'ip_version', 'project_id', 'protocol',
-        'shared', 'source_ip_address', 'source_port', 'firewall_policy_id')
+        'action',
+        'description',
+        'destination_ip_address',
+        'name',
+        'destination_port',
+        'enabled',
+        'ip_version',
+        'project_id',
+        'protocol',
+        'shared',
+        'source_ip_address',
+        'source_port',
+        'firewall_policy_id',
+    )
 
     # Properties
     #: The action that the API performs on traffic that matches the firewall

@@ -24,13 +24,13 @@ EXAMPLE = {
 
 
 class TestQoSDSCPMarkingRule(base.TestCase):
-
     def test_basic(self):
         sot = qos_dscp_marking_rule.QoSDSCPMarkingRule()
         self.assertEqual('dscp_marking_rule', sot.resource_key)
         self.assertEqual('dscp_marking_rules', sot.resources_key)
-        self.assertEqual('/qos/policies/%(qos_policy_id)s/dscp_marking_rules',
-                         sot.base_path)
+        self.assertEqual(
+            '/qos/policies/%(qos_policy_id)s/dscp_marking_rules', sot.base_path
+        )
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

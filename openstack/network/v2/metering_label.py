@@ -28,7 +28,9 @@ class MeteringLabel(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'description', 'name', 'project_id',
+        'description',
+        'name',
+        'project_id',
         is_shared='shared',
     )
 

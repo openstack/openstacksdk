@@ -30,8 +30,10 @@ class TapFlow(resource.Resource):
     _allow_unknown_attrs_in_body = True
 
     _query_mapping = resource.QueryParameters(
-        "sort_key", "sort_dir",
-        'name', 'project_id'
+        "sort_key",
+        "sort_dir",
+        'name',
+        'project_id',
     )
 
     # Properties

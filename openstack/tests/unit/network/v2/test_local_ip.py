@@ -33,7 +33,6 @@ EXAMPLE = {
 
 
 class TestLocalIP(base.TestCase):
-
     def test_basic(self):
         sot = local_ip.LocalIP()
         self.assertEqual('local_ip', sot.resource_key)
@@ -45,18 +44,22 @@ class TestLocalIP(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
-        self.assertDictEqual({"name": "name",
-                              "description": "description",
-                              "project_id": "project_id",
-                              "network_id": "network_id",
-                              "local_port_id": "local_port_id",
-                              "local_ip_address": "local_ip_address",
-                              "ip_mode": "ip_mode",
-                              "sort_key": "sort_key",
-                              "sort_dir": "sort_dir",
-                              "limit": "limit",
-                              "marker": "marker"},
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {
+                "name": "name",
+                "description": "description",
+                "project_id": "project_id",
+                "network_id": "network_id",
+                "local_port_id": "local_port_id",
+                "local_ip_address": "local_ip_address",
+                "ip_mode": "ip_mode",
+                "sort_key": "sort_key",
+                "sort_dir": "sort_dir",
+                "limit": "limit",
+                "marker": "marker",
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = local_ip.LocalIP(**EXAMPLE)

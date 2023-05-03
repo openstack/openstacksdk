@@ -30,7 +30,9 @@ class PortForwarding(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'internal_port_id', 'external_port', 'protocol'
+        'internal_port_id',
+        'external_port',
+        'protocol',
     )
 
     # Properties

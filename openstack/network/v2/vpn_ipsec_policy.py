@@ -26,8 +26,13 @@ class VpnIpsecPolicy(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'auth_algorithm', 'description', 'encryption_algorithm', 'name', 'pfs',
-        'project_id', 'phase1_negotiation_mode',
+        'auth_algorithm',
+        'description',
+        'encryption_algorithm',
+        'name',
+        'pfs',
+        'project_id',
+        'phase1_negotiation_mode',
     )
 
     # Properties

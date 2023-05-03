@@ -17,6 +17,7 @@ from openstack import utils
 
 class AddressGroup(resource.Resource):
     """Address group extension."""
+
     resource_key = 'address_group'
     resources_key = 'address_groups'
     base_path = '/address-groups'
@@ -31,9 +32,11 @@ class AddressGroup(resource.Resource):
     _allow_unknown_attrs_in_body = True
 
     _query_mapping = resource.QueryParameters(
-        "sort_key", "sort_dir",
-        'name', 'description',
-        'project_id'
+        "sort_key",
+        "sort_dir",
+        'name',
+        'description',
+        'project_id',
     )
 
     # Properties

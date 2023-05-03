@@ -35,7 +35,6 @@ EXAMPLE = {
 
 
 class TestBgpVpn(base.TestCase):
-
     def test_basic(self):
         sot = bgpvpn.BgpVpn()
         self.assertEqual('bgpvpn', sot.resource_key)
@@ -52,38 +51,37 @@ class TestBgpVpn(base.TestCase):
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
-        self.assertEqual(EXAMPLE['route_distinguishers'],
-                         sot.route_distinguishers)
+        self.assertEqual(
+            EXAMPLE['route_distinguishers'], sot.route_distinguishers
+        )
         self.assertEqual(EXAMPLE['route_targets'], sot.route_targets)
         self.assertEqual(EXAMPLE['import_targets'], sot.import_targets)
         self.assertEqual(EXAMPLE['export_targets'], sot.export_targets)
 
         self.assertDictEqual(
-            {'limit': 'limit',
-             'marker': 'marker',
-             },
-            sot._query_mapping._mapping)
+            {
+                'limit': 'limit',
+                'marker': 'marker',
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_create_bgpvpn_network_association(self):
         test_bpgvpn = bgpvpn.BgpVpn(**EXAMPLE)
         test_net = network.Network(**{'name': 'foo_net', 'id': NET_ID})
         sot = bgpvpn_network_association.BgpVpnNetworkAssociation(
-            bgpvn_id=test_bpgvpn.id,
-            network_id=test_net.id
+            bgpvn_id=test_bpgvpn.id, network_id=test_net.id
         )
         self.assertEqual(test_net.id, sot.network_id)
         self.assertEqual(test_bpgvpn.id, sot.bgpvn_id)
 
     def test_create_bgpvpn_port_association(self):
         test_bpgvpn = bgpvpn.BgpVpn(**EXAMPLE)
-        test_port = port.Port(**{
-            'name': 'foo_port',
-            'id': PORT_ID,
-            'network_id': NET_ID
-        })
+        test_port = port.Port(
+            **{'name': 'foo_port', 'id': PORT_ID, 'network_id': NET_ID}
+        )
         sot = bgpvpn_port_association.BgpVpnPortAssociation(
-            bgpvn_id=test_bpgvpn.id,
-            port_id=test_port.id
+            bgpvn_id=test_bpgvpn.id, port_id=test_port.id
         )
         self.assertEqual(test_port.id, sot.port_id)
         self.assertEqual(test_bpgvpn.id, sot.bgpvn_id)
@@ -92,8 +90,7 @@ class TestBgpVpn(base.TestCase):
         test_bpgvpn = bgpvpn.BgpVpn(**EXAMPLE)
         test_router = router.Router(**{'name': 'foo_port'})
         sot = bgpvpn_router_association.BgpVpnRouterAssociation(
-            bgpvn_id=test_bpgvpn.id,
-            router_id=test_router.id
+            bgpvn_id=test_bpgvpn.id, router_id=test_router.id
         )
         self.assertEqual(test_router.id, sot.router_id)
         self.assertEqual(test_bpgvpn.id, sot.bgpvn_id)

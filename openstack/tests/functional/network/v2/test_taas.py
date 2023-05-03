@@ -18,7 +18,6 @@ from openstack.tests.functional import base
 
 
 class TestTapService(base.BaseFunctionalTest):
-
     def setUp(self):
         super().setUp()
         if not self.user_cloud.network.find_extension("taas"):
@@ -35,32 +34,38 @@ class TestTapService(base.BaseFunctionalTest):
         self.FLOW_NET_ID = net.id
 
         port = self.user_cloud.network.create_port(
-            network_id=self.SERVICE_NET_ID)
+            network_id=self.SERVICE_NET_ID
+        )
         assert isinstance(port, _port.Port)
         self.SERVICE_PORT_ID = port.id
 
-        port = self.user_cloud.network.create_port(
-            network_id=self.FLOW_NET_ID)
+        port = self.user_cloud.network.create_port(network_id=self.FLOW_NET_ID)
         assert isinstance(port, _port.Port)
         self.FLOW_PORT_ID = port.id
 
         tap_service = self.user_cloud.network.create_tap_service(
-            name=self.TAP_S_NAME, port_id=self.SERVICE_PORT_ID)
+            name=self.TAP_S_NAME, port_id=self.SERVICE_PORT_ID
+        )
         assert isinstance(tap_service, _tap_service.TapService)
         self.TAP_SERVICE = tap_service
 
         tap_flow = self.user_cloud.network.create_tap_flow(
-            name=self.TAP_F_NAME, tap_service_id=self.TAP_SERVICE.id,
-            source_port=self.FLOW_PORT_ID, direction='BOTH')
+            name=self.TAP_F_NAME,
+            tap_service_id=self.TAP_SERVICE.id,
+            source_port=self.FLOW_PORT_ID,
+            direction='BOTH',
+        )
         assert isinstance(tap_flow, _tap_flow.TapFlow)
         self.TAP_FLOW = tap_flow
 
     def tearDown(self):
-        sot = self.user_cloud.network.delete_tap_flow(self.TAP_FLOW.id,
-                                                      ignore_missing=False)
+        sot = self.user_cloud.network.delete_tap_flow(
+            self.TAP_FLOW.id, ignore_missing=False
+        )
         self.assertIsNone(sot)
-        sot = self.user_cloud.network.delete_tap_service(self.TAP_SERVICE.id,
-                                                         ignore_missing=False)
+        sot = self.user_cloud.network.delete_tap_service(
+            self.TAP_SERVICE.id, ignore_missing=False
+        )
         self.assertIsNone(sot)
         sot = self.user_cloud.network.delete_port(self.SERVICE_PORT_ID)
         self.assertIsNone(sot)
@@ -83,14 +88,16 @@ class TestTapService(base.BaseFunctionalTest):
         self.assertEqual(self.TAP_S_NAME, sot.name)
 
     def test_list_tap_services(self):
-        tap_service_ids = [ts.id for ts in
-                           self.user_cloud.network.tap_services()]
+        tap_service_ids = [
+            ts.id for ts in self.user_cloud.network.tap_services()
+        ]
         self.assertIn(self.TAP_SERVICE.id, tap_service_ids)
 
     def test_update_tap_service(self):
         description = 'My tap service'
         sot = self.user_cloud.network.update_tap_service(
-            self.TAP_SERVICE.id, description=description)
+            self.TAP_SERVICE.id, description=description
+        )
         self.assertEqual(description, sot.description)
 
     def test_find_tap_flow(self):
@@ -108,12 +115,12 @@ class TestTapService(base.BaseFunctionalTest):
         self.assertEqual('BOTH', sot.direction)
 
     def test_list_tap_flows(self):
-        tap_flow_ids = [tf.id for tf in
-                        self.user_cloud.network.tap_flows()]
+        tap_flow_ids = [tf.id for tf in self.user_cloud.network.tap_flows()]
         self.assertIn(self.TAP_FLOW.id, tap_flow_ids)
 
     def test_update_tap_flow(self):
         description = 'My tap flow'
         sot = self.user_cloud.network.update_tap_flow(
-            self.TAP_FLOW.id, description=description)
+            self.TAP_FLOW.id, description=description
+        )
         self.assertEqual(description, sot.description)

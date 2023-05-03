@@ -25,7 +25,6 @@ EXAMPLE = {
 
 
 class TestRBACPolicy(base.TestCase):
-
     def test_basic(self):
         sot = rbac_policy.RBACPolicy()
         self.assertEqual('rbac_policy', sot.resource_key)
@@ -47,7 +46,8 @@ class TestRBACPolicy(base.TestCase):
                 'limit': 'limit',
                 'marker': 'marker',
             },
-            sot._query_mapping._mapping)
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = rbac_policy.RBACPolicy(**EXAMPLE)

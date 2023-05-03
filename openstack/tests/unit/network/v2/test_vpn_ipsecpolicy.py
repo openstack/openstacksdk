@@ -23,12 +23,11 @@ EXAMPLE = {
     "pfs": "6",
     "project_id": "7",
     "units": "9",
-    "value": 10
+    "value": 10,
 }
 
 
 class TestVpnIpsecPolicy(base.TestCase):
-
     def test_basic(self):
         sot = vpn_ipsec_policy.VpnIpsecPolicy()
         self.assertEqual('ipsecpolicy', sot.resource_key)
@@ -44,8 +43,9 @@ class TestVpnIpsecPolicy(base.TestCase):
         sot = vpn_ipsec_policy.VpnIpsecPolicy(**EXAMPLE)
         self.assertEqual(EXAMPLE['auth_algorithm'], sot.auth_algorithm)
         self.assertEqual(EXAMPLE['description'], sot.description)
-        self.assertEqual(EXAMPLE['encryption_algorithm'],
-                         sot.encryption_algorithm)
+        self.assertEqual(
+            EXAMPLE['encryption_algorithm'], sot.encryption_algorithm
+        )
         self.assertEqual(EXAMPLE['lifetime'], sot.lifetime)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['pfs'], sot.pfs)
@@ -65,4 +65,5 @@ class TestVpnIpsecPolicy(base.TestCase):
                 'project_id': 'project_id',
                 'phase1_negotiation_mode': 'phase1_negotiation_mode',
             },
-            sot._query_mapping._mapping)
+            sot._query_mapping._mapping,
+        )

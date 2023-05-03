@@ -28,7 +28,11 @@ class PoolMember(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'address', 'name', 'protocol_port', 'subnet_id', 'weight',
+        'address',
+        'name',
+        'protocol_port',
+        'subnet_id',
+        'weight',
         'project_id',
         is_admin_state_up='admin_state_up',
     )

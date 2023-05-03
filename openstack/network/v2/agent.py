@@ -17,6 +17,7 @@ from openstack import utils
 
 class Agent(resource.Resource):
     """Neutron agent extension."""
+
     resource_key = 'agent'
     resources_key = 'agents'
     base_path = '/agents'
@@ -32,9 +33,14 @@ class Agent(resource.Resource):
 
     # NOTE: We skip query for JSON fields and datetime fields
     _query_mapping = resource.QueryParameters(
-        'agent_type', 'availability_zone', 'binary', 'description', 'host',
+        'agent_type',
+        'availability_zone',
+        'binary',
+        'description',
+        'host',
         'topic',
-        is_admin_state_up='admin_state_up', is_alive='alive',
+        is_admin_state_up='admin_state_up',
+        is_alive='alive',
     )
 
     # Properties
@@ -85,8 +91,9 @@ class Agent(resource.Resource):
 
     def remove_agent_from_network(self, session, network_id):
         body = {'network_id': network_id}
-        url = utils.urljoin(self.base_path, self.id, 'dhcp-networks',
-                            network_id)
+        url = utils.urljoin(
+            self.base_path, self.id, 'dhcp-networks', network_id
+        )
         session.delete(url, json=body)
 
     def add_router_to_agent(self, session, router):

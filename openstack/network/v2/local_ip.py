@@ -18,6 +18,7 @@ from openstack import resource
 
 class LocalIP(resource.Resource):
     """Local IP extension."""
+
     resource_name = "local ip"
     resource_key = "local_ip"
     resources_key = "local_ips"
@@ -33,10 +34,14 @@ class LocalIP(resource.Resource):
     _allow_unknown_attrs_in_body = True
 
     _query_mapping = resource.QueryParameters(
-        "sort_key", "sort_dir",
-        'name', 'description',
-        'project_id', 'network_id',
-        'local_port_id', 'local_ip_address',
+        "sort_key",
+        "sort_dir",
+        'name',
+        'description',
+        'project_id',
+        'network_id',
+        'local_port_id',
+        'local_ip_address',
         'ip_mode',
     )
 

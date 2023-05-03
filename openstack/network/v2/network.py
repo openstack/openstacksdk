@@ -28,7 +28,9 @@ class Network(_base.NetworkResource, tag.TagMixin):
 
     # NOTE: We don't support query on list or datetime fields yet
     _query_mapping = resource.QueryParameters(
-        'description', 'name', 'status',
+        'description',
+        'name',
+        'status',
         'project_id',
         ipv4_address_scope_id='ipv4_address_scope',
         ipv6_address_scope_id='ipv6_address_scope',
@@ -68,13 +70,14 @@ class Network(_base.NetworkResource, tag.TagMixin):
     #: The port security status, which is enabled ``True`` or disabled
     #: ``False``. *Type: bool* *Default: False*
     #: Available for multiple provider extensions.
-    is_port_security_enabled = resource.Body('port_security_enabled',
-                                             type=bool,
-                                             default=False)
+    is_port_security_enabled = resource.Body(
+        'port_security_enabled', type=bool, default=False
+    )
     #: Whether or not the router is external.
     #: *Type: bool* *Default: False*
-    is_router_external = resource.Body('router:external', type=bool,
-                                       default=False)
+    is_router_external = resource.Body(
+        'router:external', type=bool, default=False
+    )
     #: Indicates whether this network is shared across all tenants.
     #: By default, only administrative users can change this value.
     #: *Type: bool*

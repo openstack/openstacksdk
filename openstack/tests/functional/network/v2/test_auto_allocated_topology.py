@@ -32,13 +32,14 @@ class TestAutoAllocatedTopology(base.BaseFunctionalTest):
             )
 
         projects = [
-            o.project_id
-            for o in self.operator_cloud.network.networks()]
+            o.project_id for o in self.operator_cloud.network.networks()
+        ]
         self.PROJECT_ID = projects[0]
 
     def tearDown(self):
         res = self.operator_cloud.network.delete_auto_allocated_topology(
-            self.PROJECT_ID)
+            self.PROJECT_ID
+        )
         self.assertIsNone(res)
         super(TestAutoAllocatedTopology, self).tearDown()
 
@@ -63,7 +64,8 @@ class TestAutoAllocatedTopology(base.BaseFunctionalTest):
 
     def test_show_project_option(self):
         top = self.operator_cloud.network.get_auto_allocated_topology(
-            self.PROJECT_ID)
+            self.PROJECT_ID
+        )
         network = self.operator_cloud.network.get_network(top.id)
         self.assertEqual(top.project_id, network.project_id)
         self.assertEqual(top.id, network.id)
@@ -73,4 +75,5 @@ class TestAutoAllocatedTopology(base.BaseFunctionalTest):
         for network in networks:
             if network.name == "public":
                 self.operator_cloud.network.update_network(
-                    network, is_default=True)
+                    network, is_default=True
+                )

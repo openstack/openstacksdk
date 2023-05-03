@@ -18,19 +18,18 @@ EXAMPLE = {
     'id': 'ct_helper_id',
     'protocol': 'udp',
     'port': 69,
-    'helper': 'tftp'
+    'helper': 'tftp',
 }
 
 
 class TestL3ConntrackHelper(base.TestCase):
-
     def test_basic(self):
         sot = l3_conntrack_helper.ConntrackHelper()
         self.assertEqual('conntrack_helper', sot.resource_key)
         self.assertEqual('conntrack_helpers', sot.resources_key)
         self.assertEqual(
-            '/routers/%(router_id)s/conntrack_helpers',
-            sot.base_path)
+            '/routers/%(router_id)s/conntrack_helpers', sot.base_path
+        )
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

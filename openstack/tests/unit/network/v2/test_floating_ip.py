@@ -34,12 +34,11 @@ EXAMPLE = {
     'revision_number': 12,
     'updated_at': '13',
     'subnet_id': '14',
-    'tags': ['15', '16']
+    'tags': ['15', '16'],
 }
 
 
 class TestFloatingIP(base.TestCase):
-
     def test_basic(self):
         sot = floating_ip.FloatingIP()
         self.assertEqual('floatingip', sot.resource_key)
@@ -55,10 +54,12 @@ class TestFloatingIP(base.TestCase):
         sot = floating_ip.FloatingIP(**EXAMPLE)
         self.assertEqual(EXAMPLE['created_at'], sot.created_at)
         self.assertEqual(EXAMPLE['fixed_ip_address'], sot.fixed_ip_address)
-        self.assertEqual(EXAMPLE['floating_ip_address'],
-                         sot.floating_ip_address)
-        self.assertEqual(EXAMPLE['floating_network_id'],
-                         sot.floating_network_id)
+        self.assertEqual(
+            EXAMPLE['floating_ip_address'], sot.floating_ip_address
+        )
+        self.assertEqual(
+            EXAMPLE['floating_network_id'], sot.floating_network_id
+        )
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['port_id'], sot.port_id)
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
@@ -73,24 +74,26 @@ class TestFloatingIP(base.TestCase):
         self.assertEqual(EXAMPLE['tags'], sot.tags)
 
         self.assertDictEqual(
-            {'limit': 'limit',
-             'marker': 'marker',
-             'description': 'description',
-             'project_id': 'project_id',
-             'tenant_id': 'project_id',
-             'status': 'status',
-             'port_id': 'port_id',
-             'subnet_id': 'subnet_id',
-             'router_id': 'router_id',
-             'fixed_ip_address': 'fixed_ip_address',
-             'floating_ip_address': 'floating_ip_address',
-             'floating_network_id': 'floating_network_id',
-             'tags': 'tags',
-             'any_tags': 'tags-any',
-             'not_tags': 'not-tags',
-             'not_any_tags': 'not-tags-any',
-             },
-            sot._query_mapping._mapping)
+            {
+                'limit': 'limit',
+                'marker': 'marker',
+                'description': 'description',
+                'project_id': 'project_id',
+                'tenant_id': 'project_id',
+                'status': 'status',
+                'port_id': 'port_id',
+                'subnet_id': 'subnet_id',
+                'router_id': 'router_id',
+                'fixed_ip_address': 'fixed_ip_address',
+                'floating_ip_address': 'floating_ip_address',
+                'floating_network_id': 'floating_network_id',
+                'tags': 'tags',
+                'any_tags': 'tags-any',
+                'not_tags': 'not-tags',
+                'not_any_tags': 'not-tags-any',
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_find_available(self):
         mock_session = mock.Mock(spec=proxy.Proxy)
@@ -111,7 +114,8 @@ class TestFloatingIP(base.TestCase):
             floating_ip.FloatingIP.base_path,
             headers={'Accept': 'application/json'},
             params={},
-            microversion=None)
+            microversion=None,
+        )
 
     def test_find_available_nada(self):
         mock_session = mock.Mock(spec=proxy.Proxy)

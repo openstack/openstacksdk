@@ -27,8 +27,9 @@ class ServiceProvider(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'service_type', 'name',
-        is_default='default'
+        'service_type',
+        'name',
+        is_default='default',
     )
 
     # Properties

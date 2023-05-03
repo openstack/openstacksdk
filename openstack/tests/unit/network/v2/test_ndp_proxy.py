@@ -26,7 +26,6 @@ EXAMPLE = {
 
 
 class TestNDPProxy(base.TestCase):
-
     def test_basic(self):
         sot = ndp_proxy.NDPProxy()
         self.assertEqual('ndp_proxy', sot.resource_key)

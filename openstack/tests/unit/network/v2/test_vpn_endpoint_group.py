@@ -19,18 +19,14 @@ EXAMPLE = {
     "description": "",
     "project_id": "4ad57e7ce0b24fca8f12b9834d91079d",
     "tenant_id": "4ad57e7ce0b24fca8f12b9834d91079d",
-    "endpoints": [
-        "10.2.0.0/24",
-        "10.3.0.0/24"
-    ],
+    "endpoints": ["10.2.0.0/24", "10.3.0.0/24"],
     "type": "cidr",
     "id": "6ecd9cf3-ca64-46c7-863f-f2eb1b9e838a",
-    "name": "peers"
+    "name": "peers",
 }
 
 
 class TestVpnEndpointGroup(base.TestCase):
-
     def test_basic(self):
         sot = vpn_endpoint_group.VpnEndpointGroup()
         self.assertEqual('endpoint_group', sot.resource_key)
@@ -61,4 +57,5 @@ class TestVpnEndpointGroup(base.TestCase):
                 'tenant_id': 'tenant_id',
                 'type': 'endpoint_type',
             },
-            sot._query_mapping._mapping)
+            sot._query_mapping._mapping,
+        )

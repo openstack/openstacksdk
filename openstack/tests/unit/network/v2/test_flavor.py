@@ -52,13 +52,17 @@ class TestFlavor(base.TestCase):
     def test_make_it_with_optional(self):
         flavors = flavor.Flavor(**EXAMPLE_WITH_OPTIONAL)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['name'], flavors.name)
-        self.assertEqual(EXAMPLE_WITH_OPTIONAL['service_type'],
-                         flavors.service_type)
-        self.assertEqual(EXAMPLE_WITH_OPTIONAL['description'],
-                         flavors.description)
+        self.assertEqual(
+            EXAMPLE_WITH_OPTIONAL['service_type'], flavors.service_type
+        )
+        self.assertEqual(
+            EXAMPLE_WITH_OPTIONAL['description'], flavors.description
+        )
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['enabled'], flavors.is_enabled)
-        self.assertEqual(EXAMPLE_WITH_OPTIONAL['service_profiles'],
-                         flavors.service_profile_ids)
+        self.assertEqual(
+            EXAMPLE_WITH_OPTIONAL['service_profiles'],
+            flavors.service_profile_ids,
+        )
 
     def test_associate_flavor_with_service_profile(self):
         flav = flavor.Flavor(EXAMPLE)
@@ -71,12 +75,12 @@ class TestFlavor(base.TestCase):
         sess.post = mock.Mock(return_value=response)
         flav.id = 'IDENTIFIER'
         self.assertEqual(
-            response.body, flav.associate_flavor_with_service_profile(
-                sess, '1'))
+            response.body,
+            flav.associate_flavor_with_service_profile(sess, '1'),
+        )
 
         url = 'flavors/IDENTIFIER/service_profiles'
-        sess.post.assert_called_with(url,
-                                     json=response.body)
+        sess.post.assert_called_with(url, json=response.body)
 
     def test_disassociate_flavor_from_service_profile(self):
         flav = flavor.Flavor(EXAMPLE)
@@ -86,8 +90,10 @@ class TestFlavor(base.TestCase):
         sess.post = mock.Mock(return_value=response)
         flav.id = 'IDENTIFIER'
         self.assertEqual(
-            None, flav.disassociate_flavor_from_service_profile(
-                sess, '1'))
+            None, flav.disassociate_flavor_from_service_profile(sess, '1')
+        )
 
         url = 'flavors/IDENTIFIER/service_profiles/1'
-        sess.delete.assert_called_with(url,)
+        sess.delete.assert_called_with(
+            url,
+        )

@@ -27,7 +27,8 @@ class TestAgentRouters(base.BaseFunctionalTest):
 
         self.ROUTER_NAME = "router-name-" + self.getUniqueString("router-name")
         self.ROUTER = self.user_cloud.network.create_router(
-            name=self.ROUTER_NAME)
+            name=self.ROUTER_NAME
+        )
         self.addCleanup(self.user_cloud.network.delete_router, self.ROUTER)
         assert isinstance(self.ROUTER, router.Router)
         agent_list = list(self.user_cloud.network.agents())
@@ -47,7 +48,8 @@ class TestAgentRouters(base.BaseFunctionalTest):
 
     def test_remove_router_from_agent(self):
         self.user_cloud.network.remove_router_from_agent(
-            self.AGENT, self.ROUTER)
+            self.AGENT, self.ROUTER
+        )
         rots = self.user_cloud.network.agent_hosted_routers(self.AGENT)
         routers = [router.id for router in rots]
         self.assertNotIn(self.ROUTER.id, routers)

@@ -15,6 +15,7 @@ from openstack import resource
 
 class VpnIkePolicy(resource.Resource):
     """VPN IKE policy extension."""
+
     resource_key = 'ikepolicy'
     resources_key = 'ikepolicies'
     base_path = '/vpn/ikepolicies'
@@ -27,8 +28,14 @@ class VpnIkePolicy(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'auth_algorithm', 'description', 'encryption_algorithm', 'ike_version',
-        'name', 'pfs', 'project_id', 'phase1_negotiation_mode',
+        'auth_algorithm',
+        'description',
+        'encryption_algorithm',
+        'ike_version',
+        'name',
+        'pfs',
+        'project_id',
+        'phase1_negotiation_mode',
     )
 
     # Properties

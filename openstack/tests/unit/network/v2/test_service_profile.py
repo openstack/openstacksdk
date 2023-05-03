@@ -46,14 +46,20 @@ class TestServiceProfile(base.TestCase):
 
     def test_make_it_with_optional(self):
         service_profiles = service_profile.ServiceProfile(
-            **EXAMPLE_WITH_OPTIONAL)
-        self.assertEqual(EXAMPLE_WITH_OPTIONAL['description'],
-                         service_profiles.description)
-        self.assertEqual(EXAMPLE_WITH_OPTIONAL['driver'],
-                         service_profiles.driver)
-        self.assertEqual(EXAMPLE_WITH_OPTIONAL['enabled'],
-                         service_profiles.is_enabled)
-        self.assertEqual(EXAMPLE_WITH_OPTIONAL['metainfo'],
-                         service_profiles.meta_info)
-        self.assertEqual(EXAMPLE_WITH_OPTIONAL['project_id'],
-                         service_profiles.project_id)
+            **EXAMPLE_WITH_OPTIONAL
+        )
+        self.assertEqual(
+            EXAMPLE_WITH_OPTIONAL['description'], service_profiles.description
+        )
+        self.assertEqual(
+            EXAMPLE_WITH_OPTIONAL['driver'], service_profiles.driver
+        )
+        self.assertEqual(
+            EXAMPLE_WITH_OPTIONAL['enabled'], service_profiles.is_enabled
+        )
+        self.assertEqual(
+            EXAMPLE_WITH_OPTIONAL['metainfo'], service_profiles.meta_info
+        )
+        self.assertEqual(
+            EXAMPLE_WITH_OPTIONAL['project_id'], service_profiles.project_id
+        )

@@ -37,7 +37,6 @@ EXAMPLE = {
 
 
 class TestQuota(base.TestCase):
-
     def test_basic(self):
         sot = quota.Quota()
         self.assertEqual('quota', sot.resource_key)
@@ -58,8 +57,9 @@ class TestQuota(base.TestCase):
         self.assertEqual(EXAMPLE['router'], sot.routers)
         self.assertEqual(EXAMPLE['subnet'], sot.subnets)
         self.assertEqual(EXAMPLE['subnetpool'], sot.subnet_pools)
-        self.assertEqual(EXAMPLE['security_group_rule'],
-                         sot.security_group_rules)
+        self.assertEqual(
+            EXAMPLE['security_group_rule'], sot.security_group_rules
+        )
         self.assertEqual(EXAMPLE['security_group'], sot.security_groups)
         self.assertEqual(EXAMPLE['rbac_policy'], sot.rbac_policies)
         self.assertEqual(EXAMPLE['healthmonitor'], sot.health_monitors)
@@ -79,12 +79,10 @@ class TestQuota(base.TestCase):
         my_project_id = 'my-tenant-id'
         body = {'project_id': my_project_id, 'network': 12345}
         quota_obj = quota.Quota(**body)
-        self.assertEqual(my_project_id,
-                         resource.Resource._get_id(quota_obj))
+        self.assertEqual(my_project_id, resource.Resource._get_id(quota_obj))
 
 
 class TestQuotaDefault(base.TestCase):
-
     def test_basic(self):
         sot = quota.QuotaDefault()
         self.assertEqual('quota', sot.resource_key)
@@ -105,8 +103,9 @@ class TestQuotaDefault(base.TestCase):
         self.assertEqual(EXAMPLE['router'], sot.routers)
         self.assertEqual(EXAMPLE['subnet'], sot.subnets)
         self.assertEqual(EXAMPLE['subnetpool'], sot.subnet_pools)
-        self.assertEqual(EXAMPLE['security_group_rule'],
-                         sot.security_group_rules)
+        self.assertEqual(
+            EXAMPLE['security_group_rule'], sot.security_group_rules
+        )
         self.assertEqual(EXAMPLE['security_group'], sot.security_groups)
         self.assertEqual(EXAMPLE['rbac_policy'], sot.rbac_policies)
         self.assertEqual(EXAMPLE['healthmonitor'], sot.health_monitors)

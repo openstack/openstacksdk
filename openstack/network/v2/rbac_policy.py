@@ -28,8 +28,12 @@ class RBACPolicy(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'action', 'object_id', 'object_type', 'project_id',
-        'target_project_id', target_project_id='target_tenant',
+        'action',
+        'object_id',
+        'object_type',
+        'project_id',
+        'target_project_id',
+        target_project_id='target_tenant',
     )
 
     # Properties

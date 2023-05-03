@@ -33,7 +33,6 @@ EXAMPLE = {
 
 
 class TestListener(base.TestCase):
-
     def test_basic(self):
         sot = listener.Listener()
         self.assertEqual('listener', sot.resource_key)
@@ -58,7 +57,7 @@ class TestListener(base.TestCase):
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['protocol'], sot.protocol)
         self.assertEqual(EXAMPLE['protocol_port'], sot.protocol_port)
-        self.assertEqual(EXAMPLE['default_tls_container_ref'],
-                         sot.default_tls_container_ref)
-        self.assertEqual(EXAMPLE['sni_container_refs'],
-                         sot.sni_container_refs)
+        self.assertEqual(
+            EXAMPLE['default_tls_container_ref'], sot.default_tls_container_ref
+        )
+        self.assertEqual(EXAMPLE['sni_container_refs'], sot.sni_container_refs)

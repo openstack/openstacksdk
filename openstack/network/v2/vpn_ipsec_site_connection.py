@@ -26,11 +26,24 @@ class VpnIPSecSiteConnection(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'auth_mode', 'description', 'ikepolicy_id', 'ipsecpolicy_id',
-        'initiator', 'local_ep_group_id', 'peer_address', 'local_id',
-        'mtu', 'name', 'peer_id', 'project_id', 'psk', 'peer_ep_group_id',
-        'route_mode', 'vpnservice_id', 'status',
-        is_admin_state_up='admin_state_up'
+        'auth_mode',
+        'description',
+        'ikepolicy_id',
+        'ipsecpolicy_id',
+        'initiator',
+        'local_ep_group_id',
+        'peer_address',
+        'local_id',
+        'mtu',
+        'name',
+        'peer_id',
+        'project_id',
+        'psk',
+        'peer_ep_group_id',
+        'route_mode',
+        'vpnservice_id',
+        'status',
+        is_admin_state_up='admin_state_up',
     )
 
     # Properties

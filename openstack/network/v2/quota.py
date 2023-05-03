@@ -60,10 +60,12 @@ class Quota(resource.Resource):
     #: The maximum amount of security groups you can create. *Type: int*
     security_groups = resource.Body('security_group', type=int)
 
-    def _prepare_request(self, requires_id=True, prepend_key=False,
-                         base_path=None, **kwargs):
-        _request = super(Quota, self)._prepare_request(requires_id,
-                                                       prepend_key)
+    def _prepare_request(
+        self, requires_id=True, prepend_key=False, base_path=None, **kwargs
+    ):
+        _request = super(Quota, self)._prepare_request(
+            requires_id, prepend_key
+        )
         if self.resource_key in _request.body:
             _body = _request.body[self.resource_key]
         else:

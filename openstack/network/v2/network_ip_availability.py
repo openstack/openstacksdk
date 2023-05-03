@@ -29,8 +29,10 @@ class NetworkIPAvailability(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'ip_version', 'network_id', 'network_name',
-        'project_id'
+        'ip_version',
+        'network_id',
+        'network_name',
+        'project_id',
     )
 
     # Properties

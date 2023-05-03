@@ -26,7 +26,7 @@ EXAMPLE = {
     'advertise_tenant_networks': 'true',
     'local_as': 1000,
     'networks': [],
-    'project_id': '42'
+    'project_id': '42',
 }
 
 
@@ -47,17 +47,21 @@ class TestBgpSpeaker(base.TestCase):
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['ip_version'], sot.ip_version)
-        self.assertEqual(EXAMPLE['advertise_floating_ip_host_routes'],
-                         sot.advertise_floating_ip_host_routes)
+        self.assertEqual(
+            EXAMPLE['advertise_floating_ip_host_routes'],
+            sot.advertise_floating_ip_host_routes,
+        )
         self.assertEqual(EXAMPLE['local_as'], sot.local_as)
         self.assertEqual(EXAMPLE['networks'], sot.networks)
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
 
         self.assertDictEqual(
-            {'limit': 'limit',
-             'marker': 'marker',
-             },
-            sot._query_mapping._mapping)
+            {
+                'limit': 'limit',
+                'marker': 'marker',
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_add_bgp_peer(self):
         sot = bgp_speaker.BgpSpeaker(**EXAMPLE)
@@ -143,9 +147,7 @@ class TestBgpSpeaker(base.TestCase):
         sot = bgp_speaker.BgpSpeaker(**EXAMPLE)
         response = mock.Mock()
         response.body = {
-            'agents': [
-                {'binary': 'neutron-bgp-dragent', 'alive': True}
-            ]
+            'agents': [{'binary': 'neutron-bgp-dragent', 'alive': True}]
         }
         response.json = mock.Mock(return_value=response.body)
         response.status_code = 200

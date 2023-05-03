@@ -27,8 +27,16 @@ class SecurityGroup(_base.NetworkResource, tag.TagMixin):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'description', 'fields', 'id', 'name', 'stateful', 'project_id',
-        'tenant_id', 'revision_number', 'sort_dir', 'sort_key',
+        'description',
+        'fields',
+        'id',
+        'name',
+        'stateful',
+        'project_id',
+        'tenant_id',
+        'revision_number',
+        'sort_dir',
+        'sort_key',
         **tag.TagMixin._tag_query_parameters
     )
 

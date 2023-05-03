@@ -46,7 +46,6 @@ EXAMPLE = {
 
 
 class TestNetwork(base.TestCase):
-
     def test_basic(self):
         sot = network.Network()
         self.assertEqual('network', sot.resource_key)
@@ -61,29 +60,34 @@ class TestNetwork(base.TestCase):
     def test_make_it(self):
         sot = network.Network(**EXAMPLE)
         self.assertTrue(sot.is_admin_state_up)
-        self.assertEqual(EXAMPLE['availability_zone_hints'],
-                         sot.availability_zone_hints)
-        self.assertEqual(EXAMPLE['availability_zones'],
-                         sot.availability_zones)
+        self.assertEqual(
+            EXAMPLE['availability_zone_hints'], sot.availability_zone_hints
+        )
+        self.assertEqual(EXAMPLE['availability_zones'], sot.availability_zones)
         self.assertEqual(EXAMPLE['created_at'], sot.created_at)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['dns_domain'], sot.dns_domain)
         self.assertEqual(EXAMPLE['id'], sot.id)
-        self.assertEqual(EXAMPLE['ipv4_address_scope'],
-                         sot.ipv4_address_scope_id)
-        self.assertEqual(EXAMPLE['ipv6_address_scope'],
-                         sot.ipv6_address_scope_id)
+        self.assertEqual(
+            EXAMPLE['ipv4_address_scope'], sot.ipv4_address_scope_id
+        )
+        self.assertEqual(
+            EXAMPLE['ipv6_address_scope'], sot.ipv6_address_scope_id
+        )
         self.assertFalse(sot.is_default)
         self.assertEqual(EXAMPLE['mtu'], sot.mtu)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertTrue(sot.is_port_security_enabled)
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
-        self.assertEqual(EXAMPLE['provider:network_type'],
-                         sot.provider_network_type)
-        self.assertEqual(EXAMPLE['provider:physical_network'],
-                         sot.provider_physical_network)
-        self.assertEqual(EXAMPLE['provider:segmentation_id'],
-                         sot.provider_segmentation_id)
+        self.assertEqual(
+            EXAMPLE['provider:network_type'], sot.provider_network_type
+        )
+        self.assertEqual(
+            EXAMPLE['provider:physical_network'], sot.provider_physical_network
+        )
+        self.assertEqual(
+            EXAMPLE['provider:segmentation_id'], sot.provider_segmentation_id
+        )
         self.assertEqual(EXAMPLE['qos_policy_id'], sot.qos_policy_id)
         self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
         self.assertTrue(sot.is_router_external)
@@ -95,31 +99,32 @@ class TestNetwork(base.TestCase):
         self.assertEqual(EXAMPLE['vlan_transparent'], sot.is_vlan_transparent)
 
         self.assertDictEqual(
-            {'limit': 'limit',
-             'marker': 'marker',
-             'description': 'description',
-             'name': 'name',
-             'project_id': 'project_id',
-             'status': 'status',
-             'ipv4_address_scope_id': 'ipv4_address_scope',
-             'ipv6_address_scope_id': 'ipv6_address_scope',
-             'is_admin_state_up': 'admin_state_up',
-             'is_port_security_enabled': 'port_security_enabled',
-             'is_router_external': 'router:external',
-             'is_shared': 'shared',
-             'provider_network_type': 'provider:network_type',
-             'provider_physical_network': 'provider:physical_network',
-             'provider_segmentation_id': 'provider:segmentation_id',
-             'tags': 'tags',
-             'any_tags': 'tags-any',
-             'not_tags': 'not-tags',
-             'not_any_tags': 'not-tags-any',
-             },
-            sot._query_mapping._mapping)
+            {
+                'limit': 'limit',
+                'marker': 'marker',
+                'description': 'description',
+                'name': 'name',
+                'project_id': 'project_id',
+                'status': 'status',
+                'ipv4_address_scope_id': 'ipv4_address_scope',
+                'ipv6_address_scope_id': 'ipv6_address_scope',
+                'is_admin_state_up': 'admin_state_up',
+                'is_port_security_enabled': 'port_security_enabled',
+                'is_router_external': 'router:external',
+                'is_shared': 'shared',
+                'provider_network_type': 'provider:network_type',
+                'provider_physical_network': 'provider:physical_network',
+                'provider_segmentation_id': 'provider:segmentation_id',
+                'tags': 'tags',
+                'any_tags': 'tags-any',
+                'not_tags': 'not-tags',
+                'not_any_tags': 'not-tags-any',
+            },
+            sot._query_mapping._mapping,
+        )
 
 
 class TestDHCPAgentHostingNetwork(base.TestCase):
-
     def test_basic(self):
         net = network.DHCPAgentHostingNetwork()
         self.assertEqual('network', net.resource_key)

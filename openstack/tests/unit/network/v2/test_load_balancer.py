@@ -33,7 +33,6 @@ EXAMPLE = {
 
 
 class TestLoadBalancer(base.TestCase):
-
     def test_basic(self):
         sot = load_balancer.LoadBalancer()
         self.assertEqual('loadbalancer', sot.resource_key)
@@ -53,8 +52,9 @@ class TestLoadBalancer(base.TestCase):
         self.assertEqual(EXAMPLE['listeners'], sot.listener_ids)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['operating_status'], sot.operating_status)
-        self.assertEqual(EXAMPLE['provisioning_status'],
-                         sot.provisioning_status)
+        self.assertEqual(
+            EXAMPLE['provisioning_status'], sot.provisioning_status
+        )
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['vip_address'], sot.vip_address)
         self.assertEqual(EXAMPLE['vip_subnet_id'], sot.vip_subnet_id)

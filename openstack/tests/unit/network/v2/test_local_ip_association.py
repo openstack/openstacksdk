@@ -26,13 +26,13 @@ EXAMPLE = {
 
 
 class TestLocalIP(base.TestCase):
-
     def test_basic(self):
         sot = local_ip_association.LocalIPAssociation()
         self.assertEqual('port_association', sot.resource_key)
         self.assertEqual('port_associations', sot.resources_key)
-        self.assertEqual('/local_ips/%(local_ip_id)s/port_associations',
-                         sot.base_path)
+        self.assertEqual(
+            '/local_ips/%(local_ip_id)s/port_associations', sot.base_path
+        )
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)
@@ -40,12 +40,15 @@ class TestLocalIP(base.TestCase):
         self.assertTrue(sot.allow_list)
 
         self.assertDictEqual(
-            {'fixed_port_id': 'fixed_port_id',
-             'fixed_ip': 'fixed_ip',
-             'host': 'host',
-             'limit': 'limit',
-             'marker': 'marker'},
-            sot._query_mapping._mapping)
+            {
+                'fixed_port_id': 'fixed_port_id',
+                'fixed_ip': 'fixed_ip',
+                'host': 'host',
+                'limit': 'limit',
+                'marker': 'marker',
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = local_ip_association.LocalIPAssociation(**EXAMPLE)

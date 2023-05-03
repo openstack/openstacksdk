@@ -28,9 +28,17 @@ class Subnet(_base.NetworkResource, tag.TagMixin):
 
     # NOTE: Query on list or datetime fields are currently not supported.
     _query_mapping = resource.QueryParameters(
-        'cidr', 'description', 'gateway_ip', 'ip_version',
-        'ipv6_address_mode', 'ipv6_ra_mode', 'name', 'network_id',
-        'segment_id', 'dns_publish_fixed_ip', 'project_id',
+        'cidr',
+        'description',
+        'gateway_ip',
+        'ip_version',
+        'ipv6_address_mode',
+        'ipv6_ra_mode',
+        'name',
+        'network_id',
+        'segment_id',
+        'dns_publish_fixed_ip',
+        'project_id',
         is_dhcp_enabled='enable_dhcp',
         subnet_pool_id='subnetpool_id',
         use_default_subnet_pool='use_default_subnetpool',
@@ -87,6 +95,5 @@ class Subnet(_base.NetworkResource, tag.TagMixin):
     updated_at = resource.Body('updated_at')
     #: Whether to use the default subnet pool to obtain a CIDR.
     use_default_subnet_pool = resource.Body(
-        'use_default_subnetpool',
-        type=bool
+        'use_default_subnetpool', type=bool
     )

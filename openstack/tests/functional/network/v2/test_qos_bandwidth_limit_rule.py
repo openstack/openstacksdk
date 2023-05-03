@@ -12,7 +12,7 @@
 
 
 from openstack.network.v2 import (
-    qos_bandwidth_limit_rule as _qos_bandwidth_limit_rule
+    qos_bandwidth_limit_rule as _qos_bandwidth_limit_rule,
 )
 from openstack.tests.functional import base
 

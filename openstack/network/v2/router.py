@@ -30,7 +30,11 @@ class Router(_base.NetworkResource, tag.TagMixin):
 
     # NOTE: We don't support query on datetime, list or dict fields
     _query_mapping = resource.QueryParameters(
-        'description', 'flavor_id', 'name', 'status', 'project_id',
+        'description',
+        'flavor_id',
+        'name',
+        'status',
+        'project_id',
         is_admin_state_up='admin_state_up',
         is_distributed='distributed',
         is_ha='ha',
@@ -40,8 +44,9 @@ class Router(_base.NetworkResource, tag.TagMixin):
     # Properties
     #: Availability zone hints to use when scheduling the router.
     #: *Type: list of availability zone names*
-    availability_zone_hints = resource.Body('availability_zone_hints',
-                                            type=list)
+    availability_zone_hints = resource.Body(
+        'availability_zone_hints', type=list
+    )
     #: Availability zones for the router.
     #: *Type: list of availability zone names*
     availability_zones = resource.Body('availability_zones', type=list)
@@ -155,8 +160,7 @@ class Router(_base.NetworkResource, tag.TagMixin):
 
         :returns: The body of the response as a dictionary.
         """
-        url = utils.urljoin(self.base_path, self.id,
-                            'add_gateway_router')
+        url = utils.urljoin(self.base_path, self.id, 'add_gateway_router')
         resp = session.put(url, json=body)
         return resp.json()
 
@@ -169,8 +173,7 @@ class Router(_base.NetworkResource, tag.TagMixin):
 
         :returns: The body of the response as a dictionary.
         """
-        url = utils.urljoin(self.base_path, self.id,
-                            'remove_gateway_router')
+        url = utils.urljoin(self.base_path, self.id, 'remove_gateway_router')
         resp = session.put(url, json=body)
         return resp.json()
 
@@ -187,5 +190,6 @@ class L3AgentRouter(Router):
     allow_commit = False
     allow_delete = False
     allow_list = True
+
 
 # NOTE: No query parameter is supported

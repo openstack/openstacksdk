@@ -28,9 +28,15 @@ class VpnService(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'description', 'external_v4_ip', 'external_v6_ip', 'name', 'router_id',
-        'project_id', 'tenant_id', 'subnet_id',
-        is_admin_state_up='admin_state_up'
+        'description',
+        'external_v4_ip',
+        'external_v6_ip',
+        'name',
+        'router_id',
+        'project_id',
+        'tenant_id',
+        'subnet_id',
+        is_admin_state_up='admin_state_up',
     )
 
     # Properties

@@ -28,9 +28,15 @@ class Listener(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'connection_limit', 'default_pool_id', 'default_tls_container_ref',
-        'description', 'name', 'project_id', 'protocol', 'protocol_port',
-        is_admin_state_up='admin_state_up'
+        'connection_limit',
+        'default_pool_id',
+        'default_tls_container_ref',
+        'description',
+        'name',
+        'project_id',
+        'protocol',
+        'protocol_port',
+        is_admin_state_up='admin_state_up',
     )
 
     # Properties

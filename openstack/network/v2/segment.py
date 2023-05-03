@@ -28,8 +28,12 @@ class Segment(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'description', 'name', 'network_id', 'network_type',
-        'physical_network', 'segmentation_id',
+        'description',
+        'name',
+        'network_id',
+        'network_type',
+        'physical_network',
+        'segmentation_id',
     )
 
     # Properties

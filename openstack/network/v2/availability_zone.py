@@ -30,7 +30,9 @@ class AvailabilityZone(_resource.Resource):
     # NOTE: We don't support query by state yet because there is a mapping
     #       at neutron side difficult to map.
     _query_mapping = _resource.QueryParameters(
-        name='availability_zone', resource='agent_type')
+        name='availability_zone',
+        resource='agent_type',
+    )
 
     # Properties
     #: Name of the availability zone.

@@ -21,12 +21,11 @@ EXAMPLE = {
     'name': 'bgp-peer',
     'peer_ip': '10.0.0.3',
     'id': IDENTIFIER,
-    'project_id': '42'
+    'project_id': '42',
 }
 
 
 class TestBgpPeer(base.TestCase):
-
     def test_basic(self):
         sot = bgp_peer.BgpPeer()
         self.assertEqual('bgp_peer', sot.resource_key)
@@ -48,7 +47,9 @@ class TestBgpPeer(base.TestCase):
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
 
         self.assertDictEqual(
-            {'limit': 'limit',
-             'marker': 'marker',
-             },
-            sot._query_mapping._mapping)
+            {
+                'limit': 'limit',
+                'marker': 'marker',
+            },
+            sot._query_mapping._mapping,
+        )

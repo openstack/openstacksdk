@@ -24,12 +24,11 @@ EXAMPLE = {
     'project_id': '2',
     'rules': [uuid.uuid4().hex],
     'is_default': False,
-    'tags': ['3']
+    'tags': ['3'],
 }
 
 
 class TestQoSPolicy(base.TestCase):
-
     def test_basic(self):
         sot = qos_policy.QoSPolicy()
         self.assertEqual('policy', sot.resource_key)

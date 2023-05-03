@@ -26,17 +26,17 @@ EXAMPLE = {
     'admin_state_up': True,
     'port_id': 'fake_port_id',
     'status': 'ACTIVE',
-    'sub_ports': [{
-        'port_id': 'subport_port_id',
-        'segmentation_id': 1234,
-        'segmentation_type': 'vlan'
-    }]
-
+    'sub_ports': [
+        {
+            'port_id': 'subport_port_id',
+            'segmentation_id': 1234,
+            'segmentation_type': 'vlan',
+        }
+    ],
 }
 
 
 class TestTrunk(base.TestCase):
-
     def test_basic(self):
         sot = trunk.Trunk()
         self.assertEqual('trunk', sot.resource_key)
@@ -71,8 +71,13 @@ class TestTrunk(base.TestCase):
         response.headers = {'content-type': 'application/json'}
         sess = mock.Mock()
         sess.put = mock.Mock(return_value=response)
-        subports = [{'port_id': 'abc', 'segmentation_id': '123',
-                     'segmentation_type': 'vlan'}]
+        subports = [
+            {
+                'port_id': 'abc',
+                'segmentation_id': '123',
+                'segmentation_type': 'vlan',
+            }
+        ]
         with testtools.ExpectedException(exceptions.ResourceNotFound, msg):
             sot.add_subports(sess, subports)
 
@@ -88,7 +93,12 @@ class TestTrunk(base.TestCase):
         response.headers = {'content-type': 'application/json'}
         sess = mock.Mock()
         sess.put = mock.Mock(return_value=response)
-        subports = [{'port_id': 'abc', 'segmentation_id': '123',
-                     'segmentation_type': 'vlan'}]
+        subports = [
+            {
+                'port_id': 'abc',
+                'segmentation_id': '123',
+                'segmentation_type': 'vlan',
+            }
+        ]
         with testtools.ExpectedException(exceptions.ResourceNotFound, msg):
             sot.delete_subports(sess, subports)

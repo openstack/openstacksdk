@@ -12,7 +12,7 @@
 
 
 from openstack.network.v2 import (
-    qos_minimum_bandwidth_rule as _qos_minimum_bandwidth_rule
+    qos_minimum_bandwidth_rule as _qos_minimum_bandwidth_rule,
 )
 from openstack.tests.functional import base
 
@@ -35,7 +35,8 @@ class TestQoSMinimumBandwidthRule(base.BaseFunctionalTest):
 
         # Skip the tests if qos-bw-limit-direction extension is not enabled.
         if not self.operator_cloud.network.find_extension(
-                "qos-bw-limit-direction"):
+            "qos-bw-limit-direction"
+        ):
             self.skipTest("Network qos-bw-limit-direction extension disabled")
 
         self.QOS_POLICY_NAME = self.getUniqueString()
@@ -45,12 +46,13 @@ class TestQoSMinimumBandwidthRule(base.BaseFunctionalTest):
             shared=self.QOS_IS_SHARED,
         )
         self.QOS_POLICY_ID = qos_policy.id
-        qos_min_bw_rule = self.operator_cloud.network \
-            .create_qos_minimum_bandwidth_rule(
+        qos_min_bw_rule = (
+            self.operator_cloud.network.create_qos_minimum_bandwidth_rule(
                 self.QOS_POLICY_ID,
                 direction=self.RULE_DIRECTION,
                 min_kbps=self.RULE_MIN_KBPS,
             )
+        )
         assert isinstance(
             qos_min_bw_rule,
             _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
@@ -64,7 +66,8 @@ class TestQoSMinimumBandwidthRule(base.BaseFunctionalTest):
             self.RULE_ID, self.QOS_POLICY_ID
         )
         qos_policy = self.operator_cloud.network.delete_qos_policy(
-            self.QOS_POLICY_ID)
+            self.QOS_POLICY_ID
+        )
         self.assertIsNone(rule)
         self.assertIsNone(qos_policy)
         super(TestQoSMinimumBandwidthRule, self).tearDown()

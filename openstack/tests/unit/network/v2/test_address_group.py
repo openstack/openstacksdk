@@ -20,12 +20,11 @@ EXAMPLE = {
     'name': '1',
     'description': '2',
     'project_id': '3',
-    'addresses': ['10.0.0.1/32']
+    'addresses': ['10.0.0.1/32'],
 }
 
 
 class TestAddressGroup(base.TestCase):
-
     def test_basic(self):
         sot = address_group.AddressGroup()
         self.assertEqual('address_group', sot.resource_key)
@@ -37,14 +36,18 @@ class TestAddressGroup(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
-        self.assertDictEqual({"name": "name",
-                              "description": "description",
-                              "project_id": "project_id",
-                              "sort_key": "sort_key",
-                              "sort_dir": "sort_dir",
-                              "limit": "limit",
-                              "marker": "marker"},
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {
+                "name": "name",
+                "description": "description",
+                "project_id": "project_id",
+                "sort_key": "sort_key",
+                "sort_dir": "sort_dir",
+                "limit": "limit",
+                "marker": "marker",
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = address_group.AddressGroup(**EXAMPLE)

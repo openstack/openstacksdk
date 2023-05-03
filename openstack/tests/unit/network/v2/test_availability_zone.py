@@ -24,7 +24,6 @@ EXAMPLE = {
 
 
 class TestAvailabilityZone(base.TestCase):
-
     def test_basic(self):
         sot = availability_zone.AvailabilityZone()
         self.assertEqual('availability_zone', sot.resource_key)

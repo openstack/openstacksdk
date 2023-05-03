@@ -31,14 +31,16 @@ class TestDVRRouter(base.BaseFunctionalTest):
         self.NAME = self.getUniqueString()
         self.UPDATE_NAME = self.getUniqueString()
         sot = self.operator_cloud.network.create_router(
-            name=self.NAME, distributed=True)
+            name=self.NAME, distributed=True
+        )
         assert isinstance(sot, router.Router)
         self.assertEqual(self.NAME, sot.name)
         self.ID = sot.id
 
     def tearDown(self):
         sot = self.operator_cloud.network.delete_router(
-            self.ID, ignore_missing=False)
+            self.ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
         super(TestDVRRouter, self).tearDown()
 
@@ -60,5 +62,6 @@ class TestDVRRouter(base.BaseFunctionalTest):
 
     def test_update(self):
         sot = self.operator_cloud.network.update_router(
-            self.ID, name=self.UPDATE_NAME)
+            self.ID, name=self.UPDATE_NAME
+        )
         self.assertEqual(self.UPDATE_NAME, sot.name)

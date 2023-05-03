@@ -28,8 +28,11 @@ class VpnEndpointGroup(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'description', 'name', 'project_id', 'tenant_id',
-        type='endpoint_type'
+        'description',
+        'name',
+        'project_id',
+        'tenant_id',
+        type='endpoint_type',
     )
 
     # Properties

@@ -25,12 +25,14 @@ class TestQoSRuleType(base.BaseFunctionalTest):
 
         # Skip the tests if qos-rule-type-details extension is not enabled.
         if not self.operator_cloud.network.find_extension(
-                "qos-rule-type-details"):
+            "qos-rule-type-details"
+        ):
             self.skipTest("Network qos-rule-type-details extension disabled")
 
     def test_find(self):
         sot = self.operator_cloud.network.find_qos_rule_type(
-            self.QOS_RULE_TYPE)
+            self.QOS_RULE_TYPE
+        )
         self.assertEqual(self.QOS_RULE_TYPE, sot.type)
         self.assertIsInstance(sot.drivers, list)
 

@@ -25,7 +25,6 @@ EXAMPLE = {
 
 
 class TestMeteringLabel(base.TestCase):
-
     def test_basic(self):
         sot = metering_label.MeteringLabel()
         self.assertEqual('metering_label', sot.resource_key)

@@ -30,12 +30,19 @@ class FloatingIP(_base.NetworkResource, tag.TagMixin):
 
     # For backward compatibility include tenant_id as query param
     _query_mapping = resource.QueryParameters(
-        'description', 'fixed_ip_address',
-        'floating_ip_address', 'floating_network_id',
-        'port_id', 'router_id', 'status', 'subnet_id',
-        'project_id', 'tenant_id',
+        'description',
+        'fixed_ip_address',
+        'floating_ip_address',
+        'floating_network_id',
+        'port_id',
+        'router_id',
+        'status',
+        'subnet_id',
+        'project_id',
+        'tenant_id',
         tenant_id='project_id',
-        **tag.TagMixin._tag_query_parameters)
+        **tag.TagMixin._tag_query_parameters
+    )
 
     # Properties
     #: Timestamp at which the floating IP was created.

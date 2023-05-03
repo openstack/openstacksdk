@@ -37,12 +37,11 @@ EXAMPLE = {
     "dpd": {'a': 5},
     "timeout": 16,
     "action": "17",
-    "local_id": "18"
+    "local_id": "18",
 }
 
 
 class TestVpnIPSecSiteConnection(base.TestCase):
-
     def test_basic(self):
         sot = vpn_ipsec_site_connection.VpnIPSecSiteConnection()
         self.assertEqual('ipsec_site_connection', sot.resource_key)

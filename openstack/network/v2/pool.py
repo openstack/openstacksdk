@@ -28,8 +28,14 @@ class Pool(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'description', 'lb_algorithm', 'name',
-        'protocol', 'provider', 'subnet_id', 'virtual_ip_id', 'listener_id',
+        'description',
+        'lb_algorithm',
+        'name',
+        'protocol',
+        'provider',
+        'subnet_id',
+        'virtual_ip_id',
+        'listener_id',
         'project_id',
         is_admin_state_up='admin_state_up',
         load_balancer_id='loadbalancer_id',

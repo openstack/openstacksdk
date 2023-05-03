@@ -25,14 +25,14 @@ EXAMPLE = {
 
 
 class TestQoSMinimumBandwidthRule(base.TestCase):
-
     def test_basic(self):
         sot = qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule()
         self.assertEqual('minimum_bandwidth_rule', sot.resource_key)
         self.assertEqual('minimum_bandwidth_rules', sot.resources_key)
         self.assertEqual(
             '/qos/policies/%(qos_policy_id)s/minimum_bandwidth_rules',
-            sot.base_path)
+            sot.base_path,
+        )
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

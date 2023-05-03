@@ -30,11 +30,25 @@ class Port(_base.NetworkResource, tag.TagMixin):
 
     # NOTE: we skip query on list or datetime fields for now
     _query_mapping = resource.QueryParameters(
-        'binding:host_id', 'binding:profile', 'binding:vif_details',
-        'binding:vif_type', 'binding:vnic_type',
-        'description', 'device_id', 'device_owner', 'fields', 'fixed_ips',
-        'id', 'ip_address', 'mac_address', 'name', 'network_id', 'status',
-        'subnet_id', 'project_id', 'security_groups',
+        'binding:host_id',
+        'binding:profile',
+        'binding:vif_details',
+        'binding:vif_type',
+        'binding:vnic_type',
+        'description',
+        'device_id',
+        'device_owner',
+        'fields',
+        'fixed_ips',
+        'id',
+        'ip_address',
+        'mac_address',
+        'name',
+        'network_id',
+        'status',
+        'subnet_id',
+        'project_id',
+        'security_groups',
         is_admin_state_up='admin_state_up',
         is_port_security_enabled='port_security_enabled',
         security_group_ids='security_groups',
@@ -44,8 +58,9 @@ class Port(_base.NetworkResource, tag.TagMixin):
     # Properties
     #: Allowed address pairs list. Dictionary key ``ip_address`` is required
     #: and key ``mac_address`` is optional.
-    allowed_address_pairs: List[dict] = resource.Body('allowed_address_pairs',
-                                                      type=list)
+    allowed_address_pairs: List[dict] = resource.Body(
+        'allowed_address_pairs', type=list
+    )
     #: The ID of the host where the port is allocated. In some cases,
     #: different implementations can run on different hosts.
     binding_host_id = resource.Body('binding:host_id')
@@ -104,8 +119,9 @@ class Port(_base.NetworkResource, tag.TagMixin):
     is_admin_state_up = resource.Body('admin_state_up', type=bool)
     #: The port security status, which is enabled ``True`` or disabled
     #: ``False``. *Type: bool* *Default: False*
-    is_port_security_enabled = resource.Body('port_security_enabled',
-                                             type=bool, default=False)
+    is_port_security_enabled = resource.Body(
+        'port_security_enabled', type=bool, default=False
+    )
     #: The MAC address of an allowed address pair.
     mac_address = resource.Body('mac_address')
     #: The port name.
@@ -120,8 +136,9 @@ class Port(_base.NetworkResource, tag.TagMixin):
     #: Tenant_id (deprecated attribute).
     tenant_id = resource.Body('tenant_id', deprecated=True)
     #: Whether to propagate uplink status of the port. *Type: bool*
-    propagate_uplink_status = resource.Body('propagate_uplink_status',
-                                            type=bool)
+    propagate_uplink_status = resource.Body(
+        'propagate_uplink_status', type=bool
+    )
     #: Read-only. The ID of the QoS policy attached to the network where the
     # port is bound.
     qos_network_policy_id = resource.Body('qos_network_policy_id')

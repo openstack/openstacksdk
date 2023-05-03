@@ -25,7 +25,6 @@ EXAMPLE = {
 
 
 class TestAddressScope(base.TestCase):
-
     def test_basic(self):
         sot = address_scope.AddressScope()
         self.assertEqual('address_scope', sot.resource_key)

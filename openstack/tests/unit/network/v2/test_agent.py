@@ -31,12 +31,11 @@ EXAMPLE = {
     'resources_synced': False,
     'started_at': '2016-07-09T12:14:57.233772',
     'topic': 'test-topic',
-    'ha_state': 'active'
+    'ha_state': 'active',
 }
 
 
 class TestAgent(base.TestCase):
-
     def test_basic(self):
         sot = agent.Agent()
         self.assertEqual('agent', sot.resource_key)
@@ -53,8 +52,7 @@ class TestAgent(base.TestCase):
         self.assertTrue(sot.is_admin_state_up)
         self.assertEqual(EXAMPLE['agent_type'], sot.agent_type)
         self.assertTrue(sot.is_alive)
-        self.assertEqual(EXAMPLE['availability_zone'],
-                         sot.availability_zone)
+        self.assertEqual(EXAMPLE['availability_zone'], sot.availability_zone)
         self.assertEqual(EXAMPLE['binary'], sot.binary)
         self.assertEqual(EXAMPLE['configurations'], sot.configuration)
         self.assertEqual(EXAMPLE['created_at'], sot.created_at)
@@ -79,8 +77,7 @@ class TestAgent(base.TestCase):
         self.assertEqual(response.body, net.add_agent_to_network(sess, **body))
 
         url = 'agents/IDENTIFIER/dhcp-networks'
-        sess.post.assert_called_with(url,
-                                     json=body)
+        sess.post.assert_called_with(url, json=body)
 
     def test_remove_agent_from_network(self):
         # Remove agent from agent
@@ -90,8 +87,9 @@ class TestAgent(base.TestCase):
         self.assertIsNone(net.remove_agent_from_network(sess, network_id))
         body = {'network_id': {}}
 
-        sess.delete.assert_called_with('agents/IDENTIFIER/dhcp-networks/',
-                                       json=body)
+        sess.delete.assert_called_with(
+            'agents/IDENTIFIER/dhcp-networks/', json=body
+        )
 
     def test_add_router_to_agent(self):
         # Add router to agent
@@ -102,12 +100,12 @@ class TestAgent(base.TestCase):
         sess = mock.Mock()
         sess.post = mock.Mock(return_value=response)
         router_id = '1'
-        self.assertEqual(response.body,
-                         sot.add_router_to_agent(sess, router_id))
+        self.assertEqual(
+            response.body, sot.add_router_to_agent(sess, router_id)
+        )
         body = {'router_id': router_id}
         url = 'agents/IDENTIFIER/l3-routers'
-        sess.post.assert_called_with(url,
-                                     json=body)
+        sess.post.assert_called_with(url, json=body)
 
     def test_remove_router_from_agent(self):
         # Remove router from agent
@@ -117,17 +115,16 @@ class TestAgent(base.TestCase):
         self.assertIsNone(sot.remove_router_from_agent(sess, router_id))
         body = {'router_id': {}}
 
-        sess.delete.assert_called_with('agents/IDENTIFIER/l3-routers/',
-                                       json=body)
+        sess.delete.assert_called_with(
+            'agents/IDENTIFIER/l3-routers/', json=body
+        )
 
     def test_get_bgp_speakers_hosted_by_dragent(self):
         sot = agent.Agent(**EXAMPLE)
         sess = mock.Mock()
         response = mock.Mock()
         response.body = {
-            'bgp_speakers': [
-                {'name': 'bgp_speaker_1', 'ip_version': 4}
-            ]
+            'bgp_speakers': [{'name': 'bgp_speaker_1', 'ip_version': 4}]
         }
         response.json = mock.Mock(return_value=response.body)
         response.status_code = 200
@@ -139,7 +136,6 @@ class TestAgent(base.TestCase):
 
 
 class TestNetworkHostingDHCPAgent(base.TestCase):
-
     def test_basic(self):
         net = agent.NetworkHostingDHCPAgent()
         self.assertEqual('agent', net.resource_key)
@@ -154,7 +150,6 @@ class TestNetworkHostingDHCPAgent(base.TestCase):
 
 
 class TestRouterL3Agent(base.TestCase):
-
     def test_basic(self):
         sot = agent.RouterL3Agent()
         self.assertEqual('agent', sot.resource_key)

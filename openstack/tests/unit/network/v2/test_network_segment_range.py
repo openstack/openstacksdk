@@ -34,12 +34,12 @@ EXAMPLE = {
 
 
 class TestNetworkSegmentRange(base.TestCase):
-
     def test_basic(self):
         test_seg_range = network_segment_range.NetworkSegmentRange()
         self.assertEqual('network_segment_range', test_seg_range.resource_key)
-        self.assertEqual('network_segment_ranges',
-                         test_seg_range.resources_key)
+        self.assertEqual(
+            'network_segment_ranges', test_seg_range.resources_key
+        )
         self.assertEqual('/network_segment_ranges', test_seg_range.base_path)
 
         self.assertTrue(test_seg_range.allow_create)
@@ -56,8 +56,9 @@ class TestNetworkSegmentRange(base.TestCase):
         self.assertEqual(EXAMPLE['shared'], test_seg_range.shared)
         self.assertEqual(EXAMPLE['project_id'], test_seg_range.project_id)
         self.assertEqual(EXAMPLE['network_type'], test_seg_range.network_type)
-        self.assertEqual(EXAMPLE['physical_network'],
-                         test_seg_range.physical_network)
+        self.assertEqual(
+            EXAMPLE['physical_network'], test_seg_range.physical_network
+        )
         self.assertEqual(EXAMPLE['minimum'], test_seg_range.minimum)
         self.assertEqual(EXAMPLE['maximum'], test_seg_range.maximum)
         self.assertEqual(EXAMPLE['used'], test_seg_range.used)
