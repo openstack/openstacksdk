@@ -99,7 +99,7 @@ class _BaseComponent:
     deprecation_reason = None
 
     #: Control field used to manage the deprecation warning. We want to warn
-    # only once when the attribute is retrieved in the code.
+    #: only once when the attribute is retrieved in the code.
     already_warned_deprecation = False
 
     def __init__(
@@ -1009,7 +1009,8 @@ class Resource(dict):
         return cls(_synchronized=synchronized, connection=connection, **obj)
 
     def _attr_to_dict(self, attr, to_munch):
-        """For a given attribute, convert it into a form suitable for a dict value.
+        """For a given attribute, convert it into a form suitable for a dict
+        value.
 
         :param bool attr: Attribute name to convert
 

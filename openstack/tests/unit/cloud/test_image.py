@@ -561,9 +561,9 @@ class TestImage(BaseTestImage):
         )
 
         image_no_checksums = self.fake_image_dict.copy()
-        del(image_no_checksums['owner_specified.openstack.md5'])
-        del(image_no_checksums['owner_specified.openstack.sha256'])
-        del(image_no_checksums['owner_specified.openstack.object'])
+        del image_no_checksums['owner_specified.openstack.md5']
+        del image_no_checksums['owner_specified.openstack.sha256']
+        del image_no_checksums['owner_specified.openstack.object']
 
         self.register_uris([
             dict(method='GET',
@@ -736,9 +736,9 @@ class TestImage(BaseTestImage):
         object_path = self.fake_image_dict['owner_specified.openstack.object']
 
         image_no_checksums = self.fake_image_dict.copy()
-        del(image_no_checksums['owner_specified.openstack.md5'])
-        del(image_no_checksums['owner_specified.openstack.sha256'])
-        del(image_no_checksums['owner_specified.openstack.object'])
+        del image_no_checksums['owner_specified.openstack.md5']
+        del image_no_checksums['owner_specified.openstack.sha256']
+        del image_no_checksums['owner_specified.openstack.object']
 
         self.register_uris([
             dict(method='GET',

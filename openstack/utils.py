@@ -442,9 +442,10 @@ class Munch(dict):
             object.__setattr__(self, k, v)
 
     def __delattr__(self, k):
-        """Deletes attribute k if it exists, otherwise deletes key k. A KeyError
-           raised by deleting the key--such as when the key is missing--will
-           propagate as an AttributeError instead.
+        """Deletes attribute k if it exists, otherwise deletes key k.
+
+        A KeyError raised by deleting the key - such as when the key is missing
+        - will propagate as an AttributeError instead.
         """
         try:
             # Throws exception if not in prototype chain

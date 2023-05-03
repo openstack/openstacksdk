@@ -200,7 +200,7 @@ class TestCompute(base.BaseFunctionalTest):
         # returning a string tests that the call is correct. Testing that
         # the cloud returns actual data in the output is out of scope.
         log = self.user_cloud._get_server_console_output(server_id=server.id)
-        self.assertTrue(isinstance(log, str))
+        self.assertIsInstance(log, str)
 
     def test_get_server_console_name_or_id(self):
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
@@ -210,7 +210,7 @@ class TestCompute(base.BaseFunctionalTest):
             flavor=self.flavor,
             wait=True)
         log = self.user_cloud.get_server_console(server=self.server_name)
-        self.assertTrue(isinstance(log, str))
+        self.assertIsInstance(log, str)
 
     def test_list_availability_zone_names(self):
         self.assertEqual(

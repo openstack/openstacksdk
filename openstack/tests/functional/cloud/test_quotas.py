@@ -117,4 +117,4 @@ class TestNetworkQuotas(base.BaseFunctionalTest):
             quota_val = quota_details[quota]
             if quota_val:
                 for expected_key in expected_keys:
-                    self.assertTrue(expected_key in quota_val)
+                    self.assertIn(expected_key, quota_val)

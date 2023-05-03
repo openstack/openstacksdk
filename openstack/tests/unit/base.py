@@ -760,8 +760,8 @@ class TestCase(base.TestCase):
         )
 
     def assertResourceListEqual(self, actual, expected, resource_type):
-        """Helper for the assertEqual which compares Resource lists object against
-        dictionary representing expected state.
+        """Helper for the assertEqual which compares Resource lists object
+        against dictionary representing expected state.
 
         :param list actual: List of actual objects.
         :param listexpected: List of dictionaries representing expected

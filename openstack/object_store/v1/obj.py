@@ -263,10 +263,10 @@ class Object(_base.BaseResource):
         attr_keys_to_delete = set()
         for key in keys:
             if key == 'delete_after':
-                del(metadata['delete_at'])
+                del metadata['delete_at']
             else:
                 if key in metadata:
-                    del(metadata[key])
+                    del metadata[key]
                     # Delete the attribute from the local copy of the object.
                     # Metadata that doesn't have Component attributes is
                     # handled by self.metadata being reset when we run

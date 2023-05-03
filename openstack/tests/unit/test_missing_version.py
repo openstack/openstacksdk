@@ -40,6 +40,5 @@ class TestMissingVersion(base.TestCase):
 
     def test_unsupported_version_override(self):
         self.cloud.config.config['image_api_version'] = '7'
-        self.assertTrue(isinstance(self.cloud.image, proxy.Proxy))
-
+        self.assertIsInstance(self.cloud.image, proxy.Proxy)
         self.assert_calls()

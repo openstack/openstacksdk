@@ -64,8 +64,8 @@ class TestCloudRegion(base.TestCase):
 
     def test_iteration(self):
         cc = cloud_region.CloudRegion("test1", "region-al", fake_config_dict)
-        self.assertTrue('a' in cc)
-        self.assertFalse('x' in cc)
+        self.assertIn('a', cc)
+        self.assertNotIn('x', cc)
 
     def test_equality(self):
         cc1 = cloud_region.CloudRegion("test1", "region-al", fake_config_dict)
