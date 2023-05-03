@@ -29,7 +29,6 @@ EXAMPLE = {
 
 
 class TestGroup(base.TestCase):
-
     def setUp(self):
         super(TestGroup, self).setUp()
         self.sess = mock.Mock(spec=adapter.Adapter)
@@ -59,7 +58,8 @@ class TestGroup(base.TestCase):
                 'limit': 'limit',
                 'marker': 'marker',
             },
-            sot._query_mapping._mapping)
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = group.Group(**EXAMPLE)
@@ -73,32 +73,24 @@ class TestGroup(base.TestCase):
         resp = self.good_resp
         self.sess.put = mock.Mock(return_value=resp)
 
-        sot.add_user(
-            self.sess, user.User(id='1'))
+        sot.add_user(self.sess, user.User(id='1'))
 
-        self.sess.put.assert_called_with(
-            'groups/IDENTIFIER/users/1')
+        self.sess.put.assert_called_with('groups/IDENTIFIER/users/1')
 
     def test_remove_user(self):
         sot = group.Group(**EXAMPLE)
         resp = self.good_resp
         self.sess.delete = mock.Mock(return_value=resp)
 
-        sot.remove_user(
-            self.sess, user.User(id='1'))
+        sot.remove_user(self.sess, user.User(id='1'))
 
-        self.sess.delete.assert_called_with(
-            'groups/IDENTIFIER/users/1')
+        self.sess.delete.assert_called_with('groups/IDENTIFIER/users/1')
 
     def test_check_user(self):
         sot = group.Group(**EXAMPLE)
         resp = self.good_resp
         self.sess.head = mock.Mock(return_value=resp)
 
-        self.assertTrue(
-            sot.check_user(
-                self.sess,
-                user.User(id='1')))
+        self.assertTrue(sot.check_user(self.sess, user.User(id='1')))
 
-        self.sess.head.assert_called_with(
-            'groups/IDENTIFIER/users/1')
+        self.sess.head.assert_called_with('groups/IDENTIFIER/users/1')

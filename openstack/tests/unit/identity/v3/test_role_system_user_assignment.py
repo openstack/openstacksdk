@@ -15,25 +15,18 @@ from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
-    'id': IDENTIFIER,
-    'name': '2',
-    'user_id': '4'
-}
+EXAMPLE = {'id': IDENTIFIER, 'name': '2', 'user_id': '4'}
 
 
 class TestRoleSystemUserAssignment(base.TestCase):
-
     def test_basic(self):
         sot = role_system_user_assignment.RoleSystemUserAssignment()
         self.assertEqual('role', sot.resource_key)
         self.assertEqual('roles', sot.resources_key)
-        self.assertEqual('/system/users/%(user_id)s/roles',
-                         sot.base_path)
+        self.assertEqual('/system/users/%(user_id)s/roles', sot.base_path)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = \
-            role_system_user_assignment.RoleSystemUserAssignment(**EXAMPLE)
+        sot = role_system_user_assignment.RoleSystemUserAssignment(**EXAMPLE)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)

@@ -25,7 +25,6 @@ EXAMPLE = {
 
 
 class TestCredential(base.TestCase):
-
     def test_basic(self):
         sot = credential.Credential()
         self.assertEqual('credential', sot.resource_key)
@@ -45,7 +44,8 @@ class TestCredential(base.TestCase):
                 'limit': 'limit',
                 'marker': 'marker',
             },
-            sot._query_mapping._mapping)
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = credential.Credential(**EXAMPLE)

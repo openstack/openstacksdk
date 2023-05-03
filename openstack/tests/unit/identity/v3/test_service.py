@@ -26,7 +26,6 @@ EXAMPLE = {
 
 
 class TestService(base.TestCase):
-
     def test_basic(self):
         sot = service.Service()
         self.assertEqual('service', sot.resource_key)
@@ -46,7 +45,8 @@ class TestService(base.TestCase):
                 'limit': 'limit',
                 'marker': 'marker',
             },
-            sot._query_mapping._mapping)
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = service.Service(**EXAMPLE)

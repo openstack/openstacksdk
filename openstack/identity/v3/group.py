@@ -29,7 +29,8 @@ class Group(resource.Resource):
     commit_method = 'PATCH'
 
     _query_mapping = resource.QueryParameters(
-        'domain_id', 'name',
+        'domain_id',
+        'name',
     )
 
     # Properties
@@ -45,23 +46,26 @@ class Group(resource.Resource):
 
     def add_user(self, session, user):
         """Add user to the group"""
-        url = utils.urljoin(
-            self.base_path, self.id, 'users', user.id)
-        resp = session.put(url,)
+        url = utils.urljoin(self.base_path, self.id, 'users', user.id)
+        resp = session.put(
+            url,
+        )
         exceptions.raise_from_response(resp)
 
     def remove_user(self, session, user):
         """Remove user from the group"""
-        url = utils.urljoin(
-            self.base_path, self.id, 'users', user.id)
-        resp = session.delete(url,)
+        url = utils.urljoin(self.base_path, self.id, 'users', user.id)
+        resp = session.delete(
+            url,
+        )
         exceptions.raise_from_response(resp)
 
     def check_user(self, session, user):
         """Check whether user belongs to group"""
-        url = utils.urljoin(
-            self.base_path, self.id, 'users', user.id)
-        resp = session.head(url,)
+        url = utils.urljoin(self.base_path, self.id, 'users', user.id)
+        resp = session.head(
+            url,
+        )
         if resp.status_code == 404:
             # If we recieve 404 - treat this as False,
             # rather then returning exception

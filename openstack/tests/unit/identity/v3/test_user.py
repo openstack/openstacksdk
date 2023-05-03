@@ -30,7 +30,6 @@ EXAMPLE = {
 
 
 class TestUser(base.TestCase):
-
     def test_basic(self):
         sot = user.User()
         self.assertEqual('user', sot.resource_key)
@@ -52,12 +51,12 @@ class TestUser(base.TestCase):
                 'limit': 'limit',
                 'marker': 'marker',
             },
-            sot._query_mapping._mapping)
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = user.User(**EXAMPLE)
-        self.assertEqual(EXAMPLE['default_project_id'],
-                         sot.default_project_id)
+        self.assertEqual(EXAMPLE['default_project_id'], sot.default_project_id)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['domain_id'], sot.domain_id)
         self.assertEqual(EXAMPLE['email'], sot.email)
@@ -66,5 +65,6 @@ class TestUser(base.TestCase):
         self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['password'], sot.password)
-        self.assertEqual(EXAMPLE['password_expires_at'],
-                         sot.password_expires_at)
+        self.assertEqual(
+            EXAMPLE['password_expires_at'], sot.password_expires_at
+        )

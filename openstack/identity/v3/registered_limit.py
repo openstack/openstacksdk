@@ -28,7 +28,8 @@ class RegisteredLimit(resource.Resource):
     commit_jsonpatch = True
 
     _query_mapping = resource.QueryParameters(
-        'service_id', 'region_id', 'resource_name')
+        'service_id', 'region_id', 'resource_name'
+    )
 
     # Properties
     #: User-facing description of the registered_limit. *Type: string*

@@ -15,29 +15,26 @@ from openstack.tests.unit import base
 
 
 EXAMPLE = {
-    "user": {
-        "id": "8ac43bb0926245cead88676a96c750d3"},
+    "user": {"id": "8ac43bb0926245cead88676a96c750d3"},
     "name": 'monitoring',
     "secret": 'rEaqvJka48mpv',
-    "roles": [
-            {"name": "Reader"}
-    ],
+    "roles": [{"name": "Reader"}],
     "expires_at": '2018-02-27T18:30:59Z',
     "description": "Application credential for monitoring",
     "unrestricted": "False",
     "project_id": "3",
-    "links": {"self": "http://example.com/v3/application_credential_1"}
+    "links": {"self": "http://example.com/v3/application_credential_1"},
 }
 
 
 class TestApplicationCredential(base.TestCase):
-
     def test_basic(self):
         sot = application_credential.ApplicationCredential()
         self.assertEqual('application_credential', sot.resource_key)
         self.assertEqual('application_credentials', sot.resources_key)
-        self.assertEqual('/users/%(user_id)s/application_credentials',
-                         sot.base_path)
+        self.assertEqual(
+            '/users/%(user_id)s/application_credentials', sot.base_path
+        )
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

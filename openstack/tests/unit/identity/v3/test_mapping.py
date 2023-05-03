@@ -22,7 +22,6 @@ EXAMPLE = {
 
 
 class TestMapping(base.TestCase):
-
     def test_basic(self):
         sot = mapping.Mapping()
         self.assertEqual('mapping', sot.resource_key)
@@ -41,7 +40,8 @@ class TestMapping(base.TestCase):
                 'limit': 'limit',
                 'marker': 'marker',
             },
-            sot._query_mapping._mapping)
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = mapping.Mapping(**EXAMPLE)

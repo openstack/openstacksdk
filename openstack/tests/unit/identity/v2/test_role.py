@@ -24,7 +24,6 @@ EXAMPLE = {
 
 
 class TestRole(base.TestCase):
-
     def test_basic(self):
         sot = role.Role()
         self.assertEqual('role', sot.resource_key)

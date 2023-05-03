@@ -32,7 +32,6 @@ EXAMPLE = {
 
 
 class TestDomain(base.TestCase):
-
     def setUp(self):
         super(TestDomain, self).setUp()
         self.sess = mock.Mock(spec=adapter.Adapter)
@@ -67,7 +66,8 @@ class TestDomain(base.TestCase):
                 'limit': 'limit',
                 'marker': 'marker',
             },
-            sot._query_mapping._mapping)
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = domain.Domain(**EXAMPLE)
@@ -84,12 +84,11 @@ class TestDomain(base.TestCase):
 
         self.assertTrue(
             sot.assign_role_to_user(
-                self.sess,
-                user.User(id='1'),
-                role.Role(id='2')))
+                self.sess, user.User(id='1'), role.Role(id='2')
+            )
+        )
 
-        self.sess.put.assert_called_with(
-            'domains/IDENTIFIER/users/1/roles/2')
+        self.sess.put.assert_called_with('domains/IDENTIFIER/users/1/roles/2')
 
     def test_assign_role_to_user_bad(self):
         sot = domain.Domain(**EXAMPLE)
@@ -98,9 +97,9 @@ class TestDomain(base.TestCase):
 
         self.assertFalse(
             sot.assign_role_to_user(
-                self.sess,
-                user.User(id='1'),
-                role.Role(id='2')))
+                self.sess, user.User(id='1'), role.Role(id='2')
+            )
+        )
 
     def test_validate_user_has_role_good(self):
         sot = domain.Domain(**EXAMPLE)
@@ -109,12 +108,11 @@ class TestDomain(base.TestCase):
 
         self.assertTrue(
             sot.validate_user_has_role(
-                self.sess,
-                user.User(id='1'),
-                role.Role(id='2')))
+                self.sess, user.User(id='1'), role.Role(id='2')
+            )
+        )
 
-        self.sess.head.assert_called_with(
-            'domains/IDENTIFIER/users/1/roles/2')
+        self.sess.head.assert_called_with('domains/IDENTIFIER/users/1/roles/2')
 
     def test_validate_user_has_role_bad(self):
         sot = domain.Domain(**EXAMPLE)
@@ -123,9 +121,9 @@ class TestDomain(base.TestCase):
 
         self.assertFalse(
             sot.validate_user_has_role(
-                self.sess,
-                user.User(id='1'),
-                role.Role(id='2')))
+                self.sess, user.User(id='1'), role.Role(id='2')
+            )
+        )
 
     def test_unassign_role_from_user_good(self):
         sot = domain.Domain(**EXAMPLE)
@@ -134,12 +132,13 @@ class TestDomain(base.TestCase):
 
         self.assertTrue(
             sot.unassign_role_from_user(
-                self.sess,
-                user.User(id='1'),
-                role.Role(id='2')))
+                self.sess, user.User(id='1'), role.Role(id='2')
+            )
+        )
 
         self.sess.delete.assert_called_with(
-            'domains/IDENTIFIER/users/1/roles/2')
+            'domains/IDENTIFIER/users/1/roles/2'
+        )
 
     def test_unassign_role_from_user_bad(self):
         sot = domain.Domain(**EXAMPLE)
@@ -148,9 +147,9 @@ class TestDomain(base.TestCase):
 
         self.assertFalse(
             sot.unassign_role_from_user(
-                self.sess,
-                user.User(id='1'),
-                role.Role(id='2')))
+                self.sess, user.User(id='1'), role.Role(id='2')
+            )
+        )
 
     def test_assign_role_to_group_good(self):
         sot = domain.Domain(**EXAMPLE)
@@ -159,12 +158,11 @@ class TestDomain(base.TestCase):
 
         self.assertTrue(
             sot.assign_role_to_group(
-                self.sess,
-                group.Group(id='1'),
-                role.Role(id='2')))
+                self.sess, group.Group(id='1'), role.Role(id='2')
+            )
+        )
 
-        self.sess.put.assert_called_with(
-            'domains/IDENTIFIER/groups/1/roles/2')
+        self.sess.put.assert_called_with('domains/IDENTIFIER/groups/1/roles/2')
 
     def test_assign_role_to_group_bad(self):
         sot = domain.Domain(**EXAMPLE)
@@ -173,9 +171,9 @@ class TestDomain(base.TestCase):
 
         self.assertFalse(
             sot.assign_role_to_group(
-                self.sess,
-                group.Group(id='1'),
-                role.Role(id='2')))
+                self.sess, group.Group(id='1'), role.Role(id='2')
+            )
+        )
 
     def test_validate_group_has_role_good(self):
         sot = domain.Domain(**EXAMPLE)
@@ -184,12 +182,13 @@ class TestDomain(base.TestCase):
 
         self.assertTrue(
             sot.validate_group_has_role(
-                self.sess,
-                group.Group(id='1'),
-                role.Role(id='2')))
+                self.sess, group.Group(id='1'), role.Role(id='2')
+            )
+        )
 
         self.sess.head.assert_called_with(
-            'domains/IDENTIFIER/groups/1/roles/2')
+            'domains/IDENTIFIER/groups/1/roles/2'
+        )
 
     def test_validate_group_has_role_bad(self):
         sot = domain.Domain(**EXAMPLE)
@@ -198,9 +197,9 @@ class TestDomain(base.TestCase):
 
         self.assertFalse(
             sot.validate_group_has_role(
-                self.sess,
-                group.Group(id='1'),
-                role.Role(id='2')))
+                self.sess, group.Group(id='1'), role.Role(id='2')
+            )
+        )
 
     def test_unassign_role_from_group_good(self):
         sot = domain.Domain(**EXAMPLE)
@@ -209,12 +208,13 @@ class TestDomain(base.TestCase):
 
         self.assertTrue(
             sot.unassign_role_from_group(
-                self.sess,
-                group.Group(id='1'),
-                role.Role(id='2')))
+                self.sess, group.Group(id='1'), role.Role(id='2')
+            )
+        )
 
         self.sess.delete.assert_called_with(
-            'domains/IDENTIFIER/groups/1/roles/2')
+            'domains/IDENTIFIER/groups/1/roles/2'
+        )
 
     def test_unassign_role_from_group_bad(self):
         sot = domain.Domain(**EXAMPLE)
@@ -223,6 +223,6 @@ class TestDomain(base.TestCase):
 
         self.assertFalse(
             sot.unassign_role_from_group(
-                self.sess,
-                group.Group(id='1'),
-                role.Role(id='2')))
+                self.sess, group.Group(id='1'), role.Role(id='2')
+            )
+        )

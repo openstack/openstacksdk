@@ -18,7 +18,6 @@ from openstack import proxy
 
 
 class Proxy(proxy.Proxy):
-
     def extensions(self):
         """Retrieve a generator of extensions
 
@@ -78,8 +77,9 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v2.role.Role` or None
         """
-        return self._find(_role.Role, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _role.Role, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_role(self, role):
         """Get a single role
@@ -155,8 +155,9 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v2.tenant.Tenant` or None
         """
-        return self._find(_tenant.Tenant, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _tenant.Tenant, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_tenant(self, tenant):
         """Get a single tenant
@@ -232,8 +233,9 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v2.user.User` or None
         """
-        return self._find(_user.User, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _user.User, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_user(self, user):
         """Get a single user

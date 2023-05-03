@@ -22,54 +22,66 @@ class System(resource.Resource):
 
     def assign_role_to_user(self, session, user, role):
         """Assign role to user on system"""
-        url = utils.urljoin(self.base_path, 'users', user.id,
-                            'roles', role.id)
-        resp = session.put(url,)
+        url = utils.urljoin(self.base_path, 'users', user.id, 'roles', role.id)
+        resp = session.put(
+            url,
+        )
         if resp.status_code == 204:
             return True
         return False
 
     def validate_user_has_role(self, session, user, role):
         """Validates that a user has a role on a system"""
-        url = utils.urljoin(self.base_path, 'users', user.id,
-                            'roles', role.id)
-        resp = session.head(url,)
+        url = utils.urljoin(self.base_path, 'users', user.id, 'roles', role.id)
+        resp = session.head(
+            url,
+        )
         if resp.status_code == 204:
             return True
         return False
 
     def unassign_role_from_user(self, session, user, role):
         """Unassigns a role from a user on a system"""
-        url = utils.urljoin(self.base_path, 'users', user.id,
-                            'roles', role.id)
-        resp = session.delete(url,)
+        url = utils.urljoin(self.base_path, 'users', user.id, 'roles', role.id)
+        resp = session.delete(
+            url,
+        )
         if resp.status_code == 204:
             return True
         return False
 
     def assign_role_to_group(self, session, group, role):
         """Assign role to group on system"""
-        url = utils.urljoin(self.base_path, 'groups', group.id,
-                            'roles', role.id)
-        resp = session.put(url,)
+        url = utils.urljoin(
+            self.base_path, 'groups', group.id, 'roles', role.id
+        )
+        resp = session.put(
+            url,
+        )
         if resp.status_code == 204:
             return True
         return False
 
     def validate_group_has_role(self, session, group, role):
         """Validates that a group has a role on a system"""
-        url = utils.urljoin(self.base_path, 'groups', group.id,
-                            'roles', role.id)
-        resp = session.head(url,)
+        url = utils.urljoin(
+            self.base_path, 'groups', group.id, 'roles', role.id
+        )
+        resp = session.head(
+            url,
+        )
         if resp.status_code == 204:
             return True
         return False
 
     def unassign_role_from_group(self, session, group, role):
         """Unassigns a role from a group on a system"""
-        url = utils.urljoin(self.base_path, 'groups', group.id,
-                            'roles', role.id)
-        resp = session.delete(url,)
+        url = utils.urljoin(
+            self.base_path, 'groups', group.id, 'roles', role.id
+        )
+        resp = session.delete(
+            url,
+        )
         if resp.status_code == 204:
             return True
         return False

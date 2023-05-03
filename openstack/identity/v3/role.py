@@ -26,8 +26,7 @@ class Role(resource.Resource):
     allow_list = True
     commit_method = 'PATCH'
 
-    _query_mapping = resource.QueryParameters(
-        'name', 'domain_id')
+    _query_mapping = resource.QueryParameters('name', 'domain_id')
 
     # Properties
     #: Unique role name, within the owning domain. *Type: string*

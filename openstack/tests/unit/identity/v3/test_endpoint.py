@@ -27,7 +27,6 @@ EXAMPLE = {
 
 
 class TestEndpoint(base.TestCase):
-
     def test_basic(self):
         sot = endpoint.Endpoint()
         self.assertEqual('endpoint', sot.resource_key)
@@ -47,7 +46,8 @@ class TestEndpoint(base.TestCase):
                 'limit': 'limit',
                 'marker': 'marker',
             },
-            sot._query_mapping._mapping)
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = endpoint.Endpoint(**EXAMPLE)

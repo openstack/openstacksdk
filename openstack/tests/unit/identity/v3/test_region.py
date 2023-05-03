@@ -24,7 +24,6 @@ EXAMPLE = {
 
 
 class TestRegion(base.TestCase):
-
     def test_basic(self):
         sot = region.Region()
         self.assertEqual('region', sot.resource_key)
@@ -43,7 +42,8 @@ class TestRegion(base.TestCase):
                 'limit': 'limit',
                 'marker': 'marker',
             },
-            sot._query_mapping._mapping)
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = region.Region(**EXAMPLE)

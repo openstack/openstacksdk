@@ -27,7 +27,8 @@ class Credential(resource.Resource):
     commit_method = 'PATCH'
 
     _query_mapping = resource.QueryParameters(
-        'type', 'user_id',
+        'type',
+        'user_id',
     )
 
     # Properties

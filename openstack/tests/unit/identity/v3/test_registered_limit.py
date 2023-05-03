@@ -20,12 +20,11 @@ EXAMPLE = {
     "resource_name": 'cores',
     "default_limit": 10,
     "description": "compute cores",
-    "links": {"self": "http://example.com/v3/registered_limit_1"}
+    "links": {"self": "http://example.com/v3/registered_limit_1"},
 }
 
 
 class TestRegistered_limit(base.TestCase):
-
     def test_basic(self):
         sot = registered_limit.RegisteredLimit()
         self.assertEqual('registered_limit', sot.resource_key)
@@ -44,9 +43,10 @@ class TestRegistered_limit(base.TestCase):
                 'region_id': 'region_id',
                 'resource_name': 'resource_name',
                 'marker': 'marker',
-                'limit': 'limit'
+                'limit': 'limit',
             },
-            sot._query_mapping._mapping)
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = registered_limit.RegisteredLimit(**EXAMPLE)

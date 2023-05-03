@@ -11,8 +11,9 @@
 # under the License.
 
 import openstack.exceptions as exception
-from openstack.identity.v3 import application_credential as \
-    _application_credential
+from openstack.identity.v3 import (
+    application_credential as _application_credential,
+)
 from openstack.identity.v3 import credential as _credential
 from openstack.identity.v3 import domain as _domain
 from openstack.identity.v3 import endpoint as _endpoint
@@ -27,18 +28,24 @@ from openstack.identity.v3 import region as _region
 from openstack.identity.v3 import registered_limit as _registered_limit
 from openstack.identity.v3 import role as _role
 from openstack.identity.v3 import role_assignment as _role_assignment
-from openstack.identity.v3 import role_domain_group_assignment \
-    as _role_domain_group_assignment
-from openstack.identity.v3 import role_domain_user_assignment \
-    as _role_domain_user_assignment
-from openstack.identity.v3 import role_project_group_assignment \
-    as _role_project_group_assignment
-from openstack.identity.v3 import role_project_user_assignment \
-    as _role_project_user_assignment
-from openstack.identity.v3 import role_system_group_assignment \
-    as _role_system_group_assignment
-from openstack.identity.v3 import role_system_user_assignment \
-    as _role_system_user_assignment
+from openstack.identity.v3 import (
+    role_domain_group_assignment as _role_domain_group_assignment,
+)
+from openstack.identity.v3 import (
+    role_domain_user_assignment as _role_domain_user_assignment,
+)
+from openstack.identity.v3 import (
+    role_project_group_assignment as _role_project_group_assignment,
+)
+from openstack.identity.v3 import (
+    role_project_user_assignment as _role_project_user_assignment,
+)
+from openstack.identity.v3 import (
+    role_system_group_assignment as _role_system_group_assignment,
+)
+from openstack.identity.v3 import (
+    role_system_user_assignment as _role_system_user_assignment,
+)
 from openstack.identity.v3 import service as _service
 from openstack.identity.v3 import system as _system
 from openstack.identity.v3 import trust as _trust
@@ -49,8 +56,7 @@ from openstack import utils
 
 class Proxy(proxy.Proxy):
     _resource_registry = {
-        "application_credential":
-            _application_credential.ApplicationCredential,
+        "application_credential": _application_credential.ApplicationCredential,  # noqa: E501
         "credential": _credential.Credential,
         "domain": _domain.Domain,
         "endpoint": _endpoint.Endpoint,
@@ -65,18 +71,12 @@ class Proxy(proxy.Proxy):
         "registered_limit": _registered_limit.RegisteredLimit,
         "role": _role.Role,
         "role_assignment": _role_assignment.RoleAssignment,
-        "role_domain_group_assignment":
-            _role_domain_group_assignment.RoleDomainGroupAssignment,
-        "role_domain_user_assignment":
-            _role_domain_user_assignment.RoleDomainUserAssignment,
-        "role_project_group_assignment":
-            _role_project_group_assignment.RoleProjectGroupAssignment,
-        "role_project_user_assignment":
-            _role_project_user_assignment.RoleProjectUserAssignment,
-        "role_system_group_assignment":
-            _role_system_group_assignment.RoleSystemGroupAssignment,
-        "role_system_user_assignment":
-            _role_system_user_assignment.RoleSystemUserAssignment,
+        "role_domain_group_assignment": _role_domain_group_assignment.RoleDomainGroupAssignment,  # noqa: E501
+        "role_domain_user_assignment": _role_domain_user_assignment.RoleDomainUserAssignment,  # noqa: E501
+        "role_project_group_assignment": _role_project_group_assignment.RoleProjectGroupAssignment,  # noqa: E501
+        "role_project_user_assignment": _role_project_user_assignment.RoleProjectUserAssignment,  # noqa: E501
+        "role_system_group_assignment": _role_system_group_assignment.RoleSystemGroupAssignment,  # noqa: E501
+        "role_system_user_assignment": _role_system_user_assignment.RoleSystemUserAssignment,  # noqa: E501
         "service": _service.Service,
         "system": _system.System,
         "trust": _trust.Trust,
@@ -108,8 +108,9 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        self._delete(_credential.Credential, credential,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _credential.Credential, credential, ignore_missing=ignore_missing
+        )
 
     def find_credential(self, name_or_id, ignore_missing=True):
         """Find a single credential
@@ -123,8 +124,9 @@ class Proxy(proxy.Proxy):
         :returns: One :class:`~openstack.identity.v3.credential.Credential`
             or None
         """
-        return self._find(_credential.Credential, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _credential.Credential, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_credential(self, credential):
         """Get a single credential
@@ -201,8 +203,9 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.domain.Domain` or None
         """
-        return self._find(_domain.Domain, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _domain.Domain, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_domain(self, domain):
         """Get a single domain
@@ -266,8 +269,9 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        self._delete(_endpoint.Endpoint, endpoint,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _endpoint.Endpoint, endpoint, ignore_missing=ignore_missing
+        )
 
     def find_endpoint(self, name_or_id, ignore_missing=True):
         """Find a single endpoint
@@ -280,8 +284,9 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.endpoint.Endpoint` or None
         """
-        return self._find(_endpoint.Endpoint, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _endpoint.Endpoint, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_endpoint(self, endpoint):
         """Get a single endpoint
@@ -453,8 +458,7 @@ class Proxy(proxy.Proxy):
         :return: List of :class:`~openstack.identity.v3.user.User`
         """
         group = self._get_resource(_group.Group, group)
-        base_path = utils.urljoin(
-            group.base_path, group.id, 'users')
+        base_path = utils.urljoin(group.base_path, group.id, 'users')
         users = self._list(_user.User, base_path=base_path, **attrs)
         return users
 
@@ -496,8 +500,9 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.policy.Policy` or None
         """
-        return self._find(_policy.Policy, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _policy.Policy, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_policy(self, policy):
         """Get a single policy
@@ -671,8 +676,9 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.service.Service` or None
         """
-        return self._find(_service.Service, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _service.Service, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_service(self, service):
         """Get a single service
@@ -831,8 +837,9 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.trust.Trust` or None
         """
-        return self._find(_trust.Trust, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _trust.Trust, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_trust(self, trust):
         """Get a single trust
@@ -896,8 +903,9 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent region.
         :returns: One :class:`~openstack.identity.v3.region.Region` or None
         """
-        return self._find(_region.Region, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _region.Region, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_region(self, region):
         """Get a single region
@@ -1017,8 +1025,9 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_role.Role, role, **attrs)
 
-    def role_assignments_filter(self, domain=None, project=None, system=None,
-                                group=None, user=None):
+    def role_assignments_filter(
+        self, domain=None, project=None, system=None, group=None, user=None
+    ):
         """Retrieve a generator of roles assigned to user/group
 
         :param domain: Either the ID of a domain or a
@@ -1038,19 +1047,23 @@ class Proxy(proxy.Proxy):
         """
         if domain and project and system:
             raise exception.InvalidRequest(
-                'Only one of domain, project, or system can be specified')
+                'Only one of domain, project, or system can be specified'
+            )
 
         if domain is None and project is None and system is None:
             raise exception.InvalidRequest(
-                'Either domain, project, or system should be specified')
+                'Either domain, project, or system should be specified'
+            )
 
         if group and user:
             raise exception.InvalidRequest(
-                'Only one of group or user can be specified')
+                'Only one of group or user can be specified'
+            )
 
         if group is None and user is None:
             raise exception.InvalidRequest(
-                'Either group or user should be specified')
+                'Either group or user should be specified'
+            )
 
         if domain:
             domain = self._get_resource(_domain.Domain, domain)
@@ -1058,36 +1071,48 @@ class Proxy(proxy.Proxy):
                 group = self._get_resource(_group.Group, group)
                 return self._list(
                     _role_domain_group_assignment.RoleDomainGroupAssignment,
-                    domain_id=domain.id, group_id=group.id)
+                    domain_id=domain.id,
+                    group_id=group.id,
+                )
             else:
                 user = self._get_resource(_user.User, user)
                 return self._list(
                     _role_domain_user_assignment.RoleDomainUserAssignment,
-                    domain_id=domain.id, user_id=user.id)
+                    domain_id=domain.id,
+                    user_id=user.id,
+                )
         elif project:
             project = self._get_resource(_project.Project, project)
             if group:
                 group = self._get_resource(_group.Group, group)
                 return self._list(
                     _role_project_group_assignment.RoleProjectGroupAssignment,
-                    project_id=project.id, group_id=group.id)
+                    project_id=project.id,
+                    group_id=group.id,
+                )
             else:
                 user = self._get_resource(_user.User, user)
                 return self._list(
                     _role_project_user_assignment.RoleProjectUserAssignment,
-                    project_id=project.id, user_id=user.id)
+                    project_id=project.id,
+                    user_id=user.id,
+                )
         else:
             system = self._get_resource(_project.System, system)
             if group:
                 group = self._get_resource(_group.Group, group)
                 return self._list(
                     _role_system_group_assignment.RoleSystemGroupAssignment,
-                    system_id=system.id, group_id=group.id)
+                    system_id=system.id,
+                    group_id=group.id,
+                )
             else:
                 user = self._get_resource(_user.User, user)
                 return self._list(
                     _role_system_user_assignment.RoleSystemUserAssignment,
-                    system_id=system.id, user_id=user.id)
+                    system_id=system.id,
+                    user_id=user.id,
+                )
 
     def role_assignments(self, **query):
         """Retrieve a generator of role assignments
@@ -1154,8 +1179,9 @@ class Proxy(proxy.Proxy):
         :rtype: :class:
             `~openstack.identity.v3.registered_limit.RegisteredLimit`
         """
-        return self._update(_registered_limit.RegisteredLimit,
-                            registered_limit, **attrs)
+        return self._update(
+            _registered_limit.RegisteredLimit, registered_limit, **attrs
+        )
 
     def delete_registered_limit(self, registered_limit, ignore_missing=True):
         """Delete a registered_limit
@@ -1172,8 +1198,11 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        self._delete(_registered_limit.RegisteredLimit, registered_limit,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _registered_limit.RegisteredLimit,
+            registered_limit,
+            ignore_missing=ignore_missing,
+        )
 
     def limits(self, **query):
         """Retrieve a generator of limits
@@ -1222,8 +1251,7 @@ class Proxy(proxy.Proxy):
         :returns: The updated limit.
         :rtype: :class:`~openstack.identity.v3.limit.Limit`
         """
-        return self._update(_limit.Limit,
-                            limit, **attrs)
+        return self._update(_limit.Limit, limit, **attrs)
 
     def delete_limit(self, limit, ignore_missing=True):
         """Delete a limit
@@ -1237,8 +1265,7 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        self._delete(limit.Limit, limit,
-                     ignore_missing=ignore_missing)
+        self._delete(limit.Limit, limit, ignore_missing=ignore_missing)
 
     def assign_domain_role_to_user(self, domain, user, role):
         """Assign role to user on a domain
@@ -1542,8 +1569,11 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.application_credential.ApplicationCredential`
         """
         user = self._get_resource(_user.User, user)
-        return self._list(_application_credential.ApplicationCredential,
-                          user_id=user.id, **query)
+        return self._list(
+            _application_credential.ApplicationCredential,
+            user_id=user.id,
+            **query,
+        )
 
     def get_application_credential(self, user, application_credential):
         """Get a single application credential
@@ -1562,9 +1592,11 @@ class Proxy(proxy.Proxy):
             resource can be found.
         """
         user = self._get_resource(_user.User, user)
-        return self._get(_application_credential.ApplicationCredential,
-                         application_credential,
-                         user_id=user.id)
+        return self._get(
+            _application_credential.ApplicationCredential,
+            application_credential,
+            user_id=user.id,
+        )
 
     def create_application_credential(self, user, name, **attrs):
         """Create a new application credential from attributes
@@ -1584,9 +1616,12 @@ class Proxy(proxy.Proxy):
         """
 
         user = self._get_resource(_user.User, user)
-        return self._create(_application_credential.ApplicationCredential,
-                            name=name,
-                            user_id=user.id, **attrs)
+        return self._create(
+            _application_credential.ApplicationCredential,
+            name=name,
+            user_id=user.id,
+            **attrs,
+        )
 
     def find_application_credential(
         self,
@@ -1619,8 +1654,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def delete_application_credential(self, user, application_credential,
-                                      ignore_missing=True):
+    def delete_application_credential(
+        self, user, application_credential, ignore_missing=True
+    ):
         """Delete an application credential
 
         :param user: Either the ID of a user or a
@@ -1638,10 +1674,12 @@ class Proxy(proxy.Proxy):
         :returns: ``None``
         """
         user = self._get_resource(_user.User, user)
-        self._delete(_application_credential.ApplicationCredential,
-                     application_credential,
-                     user_id=user.id,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _application_credential.ApplicationCredential,
+            application_credential,
+            user_id=user.id,
+            ignore_missing=ignore_missing,
+        )
 
     def create_federation_protocol(self, idp_id, **attrs):
         """Create a new federation protocol from attributes
@@ -1663,11 +1701,13 @@ class Proxy(proxy.Proxy):
         idp_cls = _identity_provider.IdentityProvider
         if isinstance(idp_id, idp_cls):
             idp_id = idp_id.id
-        return self._create(_federation_protocol.FederationProtocol,
-                            idp_id=idp_id, **attrs)
+        return self._create(
+            _federation_protocol.FederationProtocol, idp_id=idp_id, **attrs
+        )
 
-    def delete_federation_protocol(self, idp_id, protocol,
-                                   ignore_missing=True):
+    def delete_federation_protocol(
+        self, idp_id, protocol, ignore_missing=True
+    ):
         """Delete a federation protocol
 
         :param idp_id: The ID of the identity provider or a
@@ -1693,8 +1733,9 @@ class Proxy(proxy.Proxy):
         idp_cls = _identity_provider.IdentityProvider
         if isinstance(idp_id, idp_cls):
             idp_id = idp_id.id
-        self._delete(cls, protocol,
-                     ignore_missing=ignore_missing, idp_id=idp_id)
+        self._delete(
+            cls, protocol, ignore_missing=ignore_missing, idp_id=idp_id
+        )
 
     def find_federation_protocol(self, idp_id, protocol, ignore_missing=True):
         """Find a single federation protocol
@@ -1714,8 +1755,12 @@ class Proxy(proxy.Proxy):
         idp_cls = _identity_provider.IdentityProvider
         if isinstance(idp_id, idp_cls):
             idp_id = idp_id.id
-        return self._find(_federation_protocol.FederationProtocol, protocol,
-                          ignore_missing=ignore_missing, idp_id=idp_id)
+        return self._find(
+            _federation_protocol.FederationProtocol,
+            protocol,
+            ignore_missing=ignore_missing,
+            idp_id=idp_id,
+        )
 
     def get_federation_protocol(self, idp_id, protocol):
         """Get a single federation protocol
@@ -1759,8 +1804,9 @@ class Proxy(proxy.Proxy):
         idp_cls = _identity_provider.IdentityProvider
         if isinstance(idp_id, idp_cls):
             idp_id = idp_id.id
-        return self._list(_federation_protocol.FederationProtocol,
-                          idp_id=idp_id, **query)
+        return self._list(
+            _federation_protocol.FederationProtocol, idp_id=idp_id, **query
+        )
 
     def update_federation_protocol(self, idp_id, protocol, **attrs):
         """Update a federation protocol
@@ -1827,8 +1873,9 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.mapping.Mapping` or None
         """
-        return self._find(_mapping.Mapping, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _mapping.Mapping, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_mapping(self, mapping):
         """Get a single mapping
@@ -1894,8 +1941,11 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        self._delete(_identity_provider.IdentityProvider, identity_provider,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _identity_provider.IdentityProvider,
+            identity_provider,
+            ignore_missing=ignore_missing,
+        )
 
     def find_identity_provider(self, name_or_id, ignore_missing=True):
         """Find a single identity provider
@@ -1910,8 +1960,11 @@ class Proxy(proxy.Proxy):
         :rtype:
             :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
         """
-        return self._find(_identity_provider.IdentityProvider, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _identity_provider.IdentityProvider,
+            name_or_id,
+            ignore_missing=ignore_missing,
+        )
 
     def get_identity_provider(self, identity_provider):
         """Get a single mapping
@@ -1926,8 +1979,9 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        return self._get(_identity_provider.IdentityProvider,
-                         identity_provider)
+        return self._get(
+            _identity_provider.IdentityProvider, identity_provider
+        )
 
     def identity_providers(self, **query):
         """Retrieve a generator of identity providers
@@ -1954,5 +2008,6 @@ class Proxy(proxy.Proxy):
         :rtype:
             :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
         """
-        return self._update(_identity_provider.IdentityProvider,
-                            identity_provider, **attrs)
+        return self._update(
+            _identity_provider.IdentityProvider, identity_provider, **attrs
+        )

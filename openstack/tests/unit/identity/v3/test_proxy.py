@@ -36,18 +36,18 @@ class TestIdentityProxyBase(test_proxy_base.TestProxyBase):
 
 
 class TestIdentityProxyCredential(TestIdentityProxyBase):
-
     def test_credential_create_attrs(self):
-        self.verify_create(self.proxy.create_credential,
-                           credential.Credential)
+        self.verify_create(self.proxy.create_credential, credential.Credential)
 
     def test_credential_delete(self):
-        self.verify_delete(self.proxy.delete_credential,
-                           credential.Credential, False)
+        self.verify_delete(
+            self.proxy.delete_credential, credential.Credential, False
+        )
 
     def test_credential_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_credential,
-                           credential.Credential, True)
+        self.verify_delete(
+            self.proxy.delete_credential, credential.Credential, True
+        )
 
     def test_credential_find(self):
         self.verify_find(self.proxy.find_credential, credential.Credential)
@@ -63,7 +63,6 @@ class TestIdentityProxyCredential(TestIdentityProxyBase):
 
 
 class TestIdentityProxyDomain(TestIdentityProxyBase):
-
     def test_domain_create_attrs(self):
         self.verify_create(self.proxy.create_domain, domain.Domain)
 
@@ -87,17 +86,16 @@ class TestIdentityProxyDomain(TestIdentityProxyBase):
 
 
 class TestIdentityProxyEndpoint(TestIdentityProxyBase):
-
     def test_endpoint_create_attrs(self):
         self.verify_create(self.proxy.create_endpoint, endpoint.Endpoint)
 
     def test_endpoint_delete(self):
-        self.verify_delete(self.proxy.delete_endpoint,
-                           endpoint.Endpoint, False)
+        self.verify_delete(
+            self.proxy.delete_endpoint, endpoint.Endpoint, False
+        )
 
     def test_endpoint_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_endpoint,
-                           endpoint.Endpoint, True)
+        self.verify_delete(self.proxy.delete_endpoint, endpoint.Endpoint, True)
 
     def test_endpoint_find(self):
         self.verify_find(self.proxy.find_endpoint, endpoint.Endpoint)
@@ -113,7 +111,6 @@ class TestIdentityProxyEndpoint(TestIdentityProxyBase):
 
 
 class TestIdentityProxyGroup(TestIdentityProxyBase):
-
     def test_group_create_attrs(self):
         self.verify_create(self.proxy.create_group, group.Group)
 
@@ -143,7 +140,7 @@ class TestIdentityProxyGroup(TestIdentityProxyBase):
             expected_args=[
                 self.proxy,
                 self.proxy._get_resource(user.User, 'uid'),
-            ]
+            ],
         )
 
     def test_remove_user_from_group(self):
@@ -154,7 +151,7 @@ class TestIdentityProxyGroup(TestIdentityProxyBase):
             expected_args=[
                 self.proxy,
                 self.proxy._get_resource(user.User, 'uid'),
-            ]
+            ],
         )
 
     def test_check_user_in_group(self):
@@ -165,18 +162,19 @@ class TestIdentityProxyGroup(TestIdentityProxyBase):
             expected_args=[
                 self.proxy,
                 self.proxy._get_resource(user.User, 'uid'),
-            ]
+            ],
         )
 
     def test_group_users(self):
         self.verify_list(
-            self.proxy.group_users, user.User,
+            self.proxy.group_users,
+            user.User,
             method_kwargs={"group": 'group', "attrs": 1},
-            expected_kwargs={"attrs": 1})
+            expected_kwargs={"attrs": 1},
+        )
 
 
 class TestIdentityProxyPolicy(TestIdentityProxyBase):
-
     def test_policy_create_attrs(self):
         self.verify_create(self.proxy.create_policy, policy.Policy)
 
@@ -200,7 +198,6 @@ class TestIdentityProxyPolicy(TestIdentityProxyBase):
 
 
 class TestIdentityProxyProject(TestIdentityProxyBase):
-
     def test_project_create_attrs(self):
         self.verify_create(self.proxy.create_project, project.Project)
 
@@ -224,7 +221,7 @@ class TestIdentityProxyProject(TestIdentityProxyBase):
             self.proxy.user_projects,
             project.UserProject,
             method_kwargs={'user': USER_ID},
-            expected_kwargs={'user_id': USER_ID}
+            expected_kwargs={'user_id': USER_ID},
         )
 
     def test_project_update(self):
@@ -232,7 +229,6 @@ class TestIdentityProxyProject(TestIdentityProxyBase):
 
 
 class TestIdentityProxyService(TestIdentityProxyBase):
-
     def test_service_create_attrs(self):
         self.verify_create(self.proxy.create_service, service.Service)
 
@@ -256,7 +252,6 @@ class TestIdentityProxyService(TestIdentityProxyBase):
 
 
 class TestIdentityProxyUser(TestIdentityProxyBase):
-
     def test_user_create_attrs(self):
         self.verify_create(self.proxy.create_user, user.User)
 
@@ -280,7 +275,6 @@ class TestIdentityProxyUser(TestIdentityProxyBase):
 
 
 class TestIdentityProxyTrust(TestIdentityProxyBase):
-
     def test_trust_create_attrs(self):
         self.verify_create(self.proxy.create_trust, trust.Trust)
 
@@ -301,7 +295,6 @@ class TestIdentityProxyTrust(TestIdentityProxyBase):
 
 
 class TestIdentityProxyRegion(TestIdentityProxyBase):
-
     def test_region_create_attrs(self):
         self.verify_create(self.proxy.create_region, region.Region)
 
@@ -325,7 +318,6 @@ class TestIdentityProxyRegion(TestIdentityProxyBase):
 
 
 class TestIdentityProxyRole(TestIdentityProxyBase):
-
     def test_role_create_attrs(self):
         self.verify_create(self.proxy.create_role, role.Role)
 
@@ -349,7 +341,6 @@ class TestIdentityProxyRole(TestIdentityProxyBase):
 
 
 class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
-
     def test_assign_domain_role_to_user(self):
         self._verify(
             "openstack.identity.v3.domain.Domain.assign_role_to_user",
@@ -359,8 +350,8 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
             expected_args=[
                 self.proxy,
                 self.proxy._get_resource(user.User, 'uid'),
-                self.proxy._get_resource(role.Role, 'rid')
-            ]
+                self.proxy._get_resource(role.Role, 'rid'),
+            ],
         )
 
     def test_unassign_domain_role_from_user(self):
@@ -372,8 +363,8 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
             expected_args=[
                 self.proxy,
                 self.proxy._get_resource(user.User, 'uid'),
-                self.proxy._get_resource(role.Role, 'rid')
-            ]
+                self.proxy._get_resource(role.Role, 'rid'),
+            ],
         )
 
     def test_validate_user_has_domain_role(self):
@@ -385,8 +376,8 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
             expected_args=[
                 self.proxy,
                 self.proxy._get_resource(user.User, 'uid'),
-                self.proxy._get_resource(role.Role, 'rid')
-            ]
+                self.proxy._get_resource(role.Role, 'rid'),
+            ],
         )
 
     def test_assign_domain_role_to_group(self):
@@ -398,8 +389,8 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
             expected_args=[
                 self.proxy,
                 self.proxy._get_resource(group.Group, 'uid'),
-                self.proxy._get_resource(role.Role, 'rid')
-            ]
+                self.proxy._get_resource(role.Role, 'rid'),
+            ],
         )
 
     def test_unassign_domain_role_from_group(self):
@@ -411,8 +402,8 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
             expected_args=[
                 self.proxy,
                 self.proxy._get_resource(group.Group, 'uid'),
-                self.proxy._get_resource(role.Role, 'rid')
-            ]
+                self.proxy._get_resource(role.Role, 'rid'),
+            ],
         )
 
     def test_validate_group_has_domain_role(self):
@@ -424,8 +415,8 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
             expected_args=[
                 self.proxy,
                 self.proxy._get_resource(group.Group, 'uid'),
-                self.proxy._get_resource(role.Role, 'rid')
-            ]
+                self.proxy._get_resource(role.Role, 'rid'),
+            ],
         )
 
     def test_assign_project_role_to_user(self):
@@ -437,8 +428,8 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
             expected_args=[
                 self.proxy,
                 self.proxy._get_resource(user.User, 'uid'),
-                self.proxy._get_resource(role.Role, 'rid')
-            ]
+                self.proxy._get_resource(role.Role, 'rid'),
+            ],
         )
 
     def test_unassign_project_role_from_user(self):
@@ -450,8 +441,8 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
             expected_args=[
                 self.proxy,
                 self.proxy._get_resource(user.User, 'uid'),
-                self.proxy._get_resource(role.Role, 'rid')
-            ]
+                self.proxy._get_resource(role.Role, 'rid'),
+            ],
         )
 
     def test_validate_user_has_project_role(self):
@@ -463,8 +454,8 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
             expected_args=[
                 self.proxy,
                 self.proxy._get_resource(user.User, 'uid'),
-                self.proxy._get_resource(role.Role, 'rid')
-            ]
+                self.proxy._get_resource(role.Role, 'rid'),
+            ],
         )
 
     def test_assign_project_role_to_group(self):
@@ -476,8 +467,8 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
             expected_args=[
                 self.proxy,
                 self.proxy._get_resource(group.Group, 'uid'),
-                self.proxy._get_resource(role.Role, 'rid')
-            ]
+                self.proxy._get_resource(role.Role, 'rid'),
+            ],
         )
 
     def test_unassign_project_role_from_group(self):
@@ -489,8 +480,8 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
             expected_args=[
                 self.proxy,
                 self.proxy._get_resource(group.Group, 'uid'),
-                self.proxy._get_resource(role.Role, 'rid')
-            ]
+                self.proxy._get_resource(role.Role, 'rid'),
+            ],
         )
 
     def test_validate_group_has_project_role(self):
@@ -502,8 +493,8 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
             expected_args=[
                 self.proxy,
                 self.proxy._get_resource(group.Group, 'uid'),
-                self.proxy._get_resource(role.Role, 'rid')
-            ]
+                self.proxy._get_resource(role.Role, 'rid'),
+            ],
         )
 
     def test_assign_system_role_to_user(self):
@@ -514,8 +505,8 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
             expected_args=[
                 self.proxy,
                 self.proxy._get_resource(user.User, 'uid'),
-                self.proxy._get_resource(role.Role, 'rid')
-            ]
+                self.proxy._get_resource(role.Role, 'rid'),
+            ],
         )
 
     def test_unassign_system_role_from_user(self):
@@ -526,8 +517,8 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
             expected_args=[
                 self.proxy,
                 self.proxy._get_resource(user.User, 'uid'),
-                self.proxy._get_resource(role.Role, 'rid')
-            ]
+                self.proxy._get_resource(role.Role, 'rid'),
+            ],
         )
 
     def test_validate_user_has_system_role(self):
@@ -538,8 +529,8 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
             expected_args=[
                 self.proxy,
                 self.proxy._get_resource(user.User, 'uid'),
-                self.proxy._get_resource(role.Role, 'rid')
-            ]
+                self.proxy._get_resource(role.Role, 'rid'),
+            ],
         )
 
     def test_assign_system_role_to_group(self):
@@ -550,8 +541,8 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
             expected_args=[
                 self.proxy,
                 self.proxy._get_resource(group.Group, 'uid'),
-                self.proxy._get_resource(role.Role, 'rid')
-            ]
+                self.proxy._get_resource(role.Role, 'rid'),
+            ],
         )
 
     def test_unassign_system_role_from_group(self):
@@ -562,8 +553,8 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
             expected_args=[
                 self.proxy,
                 self.proxy._get_resource(group.Group, 'uid'),
-                self.proxy._get_resource(role.Role, 'rid')
-            ]
+                self.proxy._get_resource(role.Role, 'rid'),
+            ],
         )
 
     def test_validate_group_has_system_role(self):
@@ -574,6 +565,6 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
             expected_args=[
                 self.proxy,
                 self.proxy._get_resource(group.Group, 'uid'),
-                self.proxy._get_resource(role.Role, 'rid')
-            ]
+                self.proxy._get_resource(role.Role, 'rid'),
+            ],
         )

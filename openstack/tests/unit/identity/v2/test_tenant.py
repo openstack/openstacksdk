@@ -24,7 +24,6 @@ EXAMPLE = {
 
 
 class TestTenant(base.TestCase):
-
     def test_basic(self):
         sot = tenant.Tenant()
         self.assertEqual('tenant', sot.resource_key)

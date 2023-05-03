@@ -23,14 +23,14 @@ EXAMPLE = {
 
 
 class TestFederationProtocol(base.TestCase):
-
     def test_basic(self):
         sot = federation_protocol.FederationProtocol()
         self.assertEqual('protocol', sot.resource_key)
         self.assertEqual('protocols', sot.resources_key)
         self.assertEqual(
             '/OS-FEDERATION/identity_providers/%(idp_id)s/protocols',
-            sot.base_path)
+            sot.base_path,
+        )
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)
@@ -46,7 +46,8 @@ class TestFederationProtocol(base.TestCase):
                 'limit': 'limit',
                 'marker': 'marker',
             },
-            sot._query_mapping._mapping)
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = federation_protocol.FederationProtocol(**EXAMPLE)

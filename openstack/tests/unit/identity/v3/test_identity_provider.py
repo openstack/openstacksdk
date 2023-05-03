@@ -25,7 +25,6 @@ EXAMPLE = {
 
 
 class TestIdentityProvider(base.TestCase):
-
     def test_basic(self):
         sot = identity_provider.IdentityProvider()
         self.assertEqual('identity_provider', sot.resource_key)
@@ -47,7 +46,8 @@ class TestIdentityProvider(base.TestCase):
                 'marker': 'marker',
                 'is_enabled': 'enabled',
             },
-            sot._query_mapping._mapping)
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = identity_provider.IdentityProvider(**EXAMPLE)

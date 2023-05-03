@@ -20,18 +20,16 @@ EXAMPLE = {
     'links': {'self': 'http://example.com/user1'},
     'scope': {'domain': {'id': '2'}},
     'user': {'id': '3'},
-    'group': {'id': '4'}
+    'group': {'id': '4'},
 }
 
 
 class TestRoleAssignment(base.TestCase):
-
     def test_basic(self):
         sot = role_assignment.RoleAssignment()
         self.assertEqual('role_assignment', sot.resource_key)
         self.assertEqual('role_assignments', sot.resources_key)
-        self.assertEqual('/role_assignments',
-                         sot.base_path)
+        self.assertEqual('/role_assignments', sot.base_path)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):

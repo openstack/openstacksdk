@@ -21,12 +21,11 @@ EXAMPLE = {
     "resource_limit": 10,
     "project_id": 'a8455cdd4249498f99b63d5af2fb4bc8',
     "description": "compute cores for project 123",
-    "links": {"self": "http://example.com/v3/limit_1"}
+    "links": {"self": "http://example.com/v3/limit_1"},
 }
 
 
 class TestLimit(base.TestCase):
-
     def test_basic(self):
         sot = limit.Limit()
         self.assertEqual('limits', sot.resources_key)
@@ -45,9 +44,10 @@ class TestLimit(base.TestCase):
                 'resource_name': 'resource_name',
                 'project_id': 'project_id',
                 'marker': 'marker',
-                'limit': 'limit'
+                'limit': 'limit',
             },
-            sot._query_mapping._mapping)
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = limit.Limit(**EXAMPLE)

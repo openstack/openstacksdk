@@ -48,8 +48,7 @@ class Extension(resource.Resource):
         if base_path is None:
             base_path = cls.base_path
 
-        resp = session.get(base_path,
-                           params=params)
+        resp = session.get(base_path, params=params)
         resp = resp.json()
         for data in resp[cls.resources_key]['values']:
             yield cls.existing(**data)

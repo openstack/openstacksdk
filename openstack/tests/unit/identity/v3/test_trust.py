@@ -33,7 +33,6 @@ EXAMPLE = {
 
 
 class TestTrust(base.TestCase):
-
     def test_basic(self):
         sot = trust.Trust()
         self.assertEqual('trust', sot.resource_key)
@@ -53,8 +52,9 @@ class TestTrust(base.TestCase):
         self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['role_links'], sot.role_links)
-        self.assertEqual(EXAMPLE['redelegated_trust_id'],
-                         sot.redelegated_trust_id)
+        self.assertEqual(
+            EXAMPLE['redelegated_trust_id'], sot.redelegated_trust_id
+        )
         self.assertEqual(EXAMPLE['remaining_uses'], sot.remaining_uses)
         self.assertEqual(EXAMPLE['trustee_user_id'], sot.trustee_user_id)
         self.assertEqual(EXAMPLE['trustor_user_id'], sot.trustor_user_id)

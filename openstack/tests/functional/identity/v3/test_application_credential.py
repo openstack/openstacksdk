@@ -15,7 +15,6 @@ from openstack.tests.functional import base
 
 
 class TestApplicationCredentials(base.BaseFunctionalTest):
-
     def setUp(self):
         super(TestApplicationCredentials, self).setUp()
         self.user_id = self.operator_cloud.current_user_id
@@ -24,8 +23,11 @@ class TestApplicationCredentials(base.BaseFunctionalTest):
         app_creds = self.conn.identity.create_application_credential(
             user=self.user_id, name='app_cred'
         )
-        self.addCleanup(self.conn.identity.delete_application_credential,
-                        self.user_id, app_creds['id'])
+        self.addCleanup(
+            self.conn.identity.delete_application_credential,
+            self.user_id,
+            app_creds['id'],
+        )
         return app_creds
 
     def test_create_application_credentials(self):
@@ -61,8 +63,9 @@ class TestApplicationCredentials(base.BaseFunctionalTest):
         self.conn.identity.delete_application_credential(
             user=self.user_id, application_credential=app_creds['id']
         )
-        self.assertRaises(exceptions.NotFoundException,
-                          self.conn.identity.get_application_credential,
-                          user=self.user_id,
-                          application_credential=app_creds['id']
-                          )
+        self.assertRaises(
+            exceptions.NotFoundException,
+            self.conn.identity.get_application_credential,
+            user=self.user_id,
+            application_credential=app_creds['id'],
+        )

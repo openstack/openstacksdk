@@ -20,12 +20,11 @@ EXAMPLE = {
     'links': {'self': 'http://example.com/user1'},
     'name': '2',
     'description': 'test description for role',
-    'domain_id': 'default'
+    'domain_id': 'default',
 }
 
 
 class TestRole(base.TestCase):
-
     def test_basic(self):
         sot = role.Role()
         self.assertEqual('role', sot.resource_key)
@@ -45,7 +44,8 @@ class TestRole(base.TestCase):
                 'limit': 'limit',
                 'marker': 'marker',
             },
-            sot._query_mapping._mapping)
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = role.Role(**EXAMPLE)

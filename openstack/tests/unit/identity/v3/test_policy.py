@@ -26,7 +26,6 @@ EXAMPLE = {
 
 
 class TestPolicy(base.TestCase):
-
     def test_basic(self):
         sot = policy.Policy()
         self.assertEqual('policy', sot.resource_key)
