@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack import resource
+from openstack.shared_file_system.v2 import share_network_subnet
 
 
 class ShareNetwork(resource.Resource):
@@ -48,7 +49,17 @@ class ShareNetwork(resource.Resource):
     project_id = resource.Body("project_id", type=str)
     #: A list of share network subnets that pertain to the related share
     #: network.
-    # share_network_subnets = resource.Body("share_network_subnets", type=list)
+    share_network_subnets = resource.Body(
+        "share_network_subnets",
+        type=list,
+        list_type=share_network_subnet.ShareNetworkSubnet,
+    )
+    #: The UUID of a neutron network when setting up or
+    #: updating a share network subnet with neutron.
+    neutron_net_id = resource.Body("neutron_net_id", type=str)
+    #: The UUID of the neutron subnet when setting up or updating
+    #: a share network subnet with neutron.
+    neutron_subnet_id = resource.Body("neutron_subnet_id", type=str)
     #: The date and time stamp when the resource was last updated within
     #: the service’s database.
     updated_at = resource.Body("updated_at", type=str)
