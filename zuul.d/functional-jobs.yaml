@@ -144,6 +144,79 @@
         OPENSTACKSDK_HAS_HEAT: 0
 
 - job:
+    name: openstacksdk-functional-devstack-networking-ext
+    parent: openstacksdk-functional-devstack-networking
+    description: |
+      Run openstacksdk functional tests against a devstack with super advanced
+      networking services enabled (VPNaas, FWaas) which still require ovs.
+    required-projects:
+      - openstack/neutron-fwaas
+      - openstack/neutron-vpnaas
+    vars:
+      INSTALL_OVN: False
+      configure_swap_size: 4096
+      devstack_local_conf:
+        post-config:
+          $OCTAVIA_CONF:
+            DEFAULT:
+              debug: true
+            controller_worker:
+              amphora_driver: amphora_noop_driver
+              compute_driver: compute_noop_driver
+              network_driver: network_noop_driver
+            certificates:
+              cert_manager: local_cert_manager
+          $NEUTRON_CONF:
+            DEFAULT:
+              router_distributed: True
+              l3_ha: True
+          "/$NEUTRON_CORE_PLUGIN_CONF":
+            ovs:
+              tunnel_bridge: br-tun
+              bridge_mappings: public:br-ex
+          $NEUTRON_L3_CONF:
+            DEFAULT:
+              agent_mode: dvr_snat
+            agent:
+              availability_zone: nova
+              debug_iptables_rules: True
+          $NEUTRON_DHCP_CONF:
+            agent:
+              availability_zone: nova
+      devstack_localrc:
+        Q_SERVICE_PLUGIN_CLASSES: qos,trunk
+        NETWORK_API_EXTENSIONS: "agent,binding,dhcp_agent_scheduler,external-net,ext-gw-mode,extra_dhcp_opts,quotas,router,security-group,subnet_allocation,network-ip-availability,auto-allocated-topology,timestamp_core,tag,service-type,rbac-policies,standard-attr-description,pagination,sorting,project-id,fwaas_v2,vpnaas"
+        Q_AGENT: openvswitch
+        Q_ML2_TENANT_NETWORK_TYPE: vxlan
+        Q_ML2_PLUGIN_MECHANISM_DRIVERS: openvswitch
+        IPSEC_PACKAGE: libreswan
+      devstack_plugins:
+        designate: https://opendev.org/openstack/designate
+        octavia: https://opendev.org/openstack/octavia
+        neutron-fwaas: https://opendev.org/openstack/neutron-fwaas.git
+        neutron-vpnaas: https://opendev.org/openstack/neutron-vpnaas.git
+      devstack_services:
+        designate: true
+        octavia: true
+        o-api: true
+        o-cw: true
+        o-hm: true
+        o-hk: true
+        neutron-dns: true
+        s-account: false
+        s-container: false
+        s-object: false
+        s-proxy: false
+        h-eng: false
+        h-api: false
+        h-api-cfn: false
+        q-fwaas-v2: true
+      tox_environment:
+        OPENSTACKSDK_HAS_DESIGNATE: 1
+        OPENSTACKSDK_HAS_SWIFT: 0
+        OPENSTACKSDK_HAS_HEAT: 0
+
+- job:
     name: openstacksdk-functional-devstack-tips
     parent: openstacksdk-functional-devstack
     description: |

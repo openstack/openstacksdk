@@ -21,6 +21,7 @@
             voting: false
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-networking
+        - openstacksdk-functional-devstack-networking-ext
         - openstacksdk-functional-devstack-senlin
         - openstacksdk-functional-devstack-magnum:
             voting: false
@@ -43,4 +44,5 @@
             voting: false
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-networking
+        - openstacksdk-functional-devstack-networking-ext
         - openstacksdk-functional-devstack-senlin
