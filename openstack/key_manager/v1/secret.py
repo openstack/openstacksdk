@@ -27,11 +27,17 @@ class Secret(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        "name", "mode", "bits",
-        "secret_type", "acl_only",
-        "created", "updated",
-        "expiration", "sort",
-        algorithm="alg")
+        "name",
+        "mode",
+        "bits",
+        "secret_type",
+        "acl_only",
+        "created",
+        "updated",
+        "expiration",
+        "sort",
+        algorithm="alg",
+    )
 
     # Properties
     #: Metadata provided by a user or system for informational purposes
@@ -59,7 +65,8 @@ class Secret(resource.Resource):
     # in all of OpenStack because of the departure from using actual IDs
     # that even this service can't even use itself.
     secret_id = resource.Body(
-        'secret_ref', alternate_id=True, type=_format.HREFToUUID)
+        'secret_ref', alternate_id=True, type=_format.HREFToUUID
+    )
     #: Used to indicate the type of secret being stored.
     secret_type = resource.Body('secret_type')
     #: The status of this secret
@@ -77,10 +84,17 @@ class Secret(resource.Resource):
     #: (required if payload is encoded)
     payload_content_encoding = resource.Body('payload_content_encoding')
 
-    def fetch(self, session, requires_id=True,
-              base_path=None, error_message=None, skip_cache=False):
-        request = self._prepare_request(requires_id=requires_id,
-                                        base_path=base_path)
+    def fetch(
+        self,
+        session,
+        requires_id=True,
+        base_path=None,
+        error_message=None,
+        skip_cache=False,
+    ):
+        request = self._prepare_request(
+            requires_id=requires_id, base_path=base_path
+        )
 
         response = session.get(request.url).json()
 
@@ -96,7 +110,8 @@ class Secret(resource.Resource):
             payload = session.get(
                 utils.urljoin(request.url, "payload"),
                 headers={"Accept": content_type},
-                skip_cache=skip_cache)
+                skip_cache=skip_cache,
+            )
             response["payload"] = payload.text
 
         # We already have the JSON here so don't call into _translate_response

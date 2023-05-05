@@ -31,12 +31,11 @@ EXAMPLE = {
     'secret_type': '9',
     'payload': '10',
     'payload_content_type': '11',
-    'payload_content_encoding': '12'
+    'payload_content_encoding': '12',
 }
 
 
 class TestSecret(base.TestCase):
-
     def test_basic(self):
         sot = secret.Secret()
         self.assertIsNone(sot.resource_key)
@@ -48,19 +47,23 @@ class TestSecret(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
-        self.assertDictEqual({"name": "name",
-                              "mode": "mode",
-                              "bits": "bits",
-                              "secret_type": "secret_type",
-                              "acl_only": "acl_only",
-                              "created": "created",
-                              "updated": "updated",
-                              "expiration": "expiration",
-                              "sort": "sort",
-                              "algorithm": "alg",
-                              "limit": "limit",
-                              "marker": "marker"},
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {
+                "name": "name",
+                "mode": "mode",
+                "bits": "bits",
+                "secret_type": "secret_type",
+                "acl_only": "acl_only",
+                "created": "created",
+                "updated": "updated",
+                "expiration": "expiration",
+                "sort": "sort",
+                "algorithm": "alg",
+                "limit": "limit",
+                "marker": "marker",
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = secret.Secret(**EXAMPLE)
@@ -77,10 +80,12 @@ class TestSecret(base.TestCase):
         self.assertEqual(EXAMPLE['updated'], sot.updated_at)
         self.assertEqual(EXAMPLE['secret_type'], sot.secret_type)
         self.assertEqual(EXAMPLE['payload'], sot.payload)
-        self.assertEqual(EXAMPLE['payload_content_type'],
-                         sot.payload_content_type)
-        self.assertEqual(EXAMPLE['payload_content_encoding'],
-                         sot.payload_content_encoding)
+        self.assertEqual(
+            EXAMPLE['payload_content_type'], sot.payload_content_type
+        )
+        self.assertEqual(
+            EXAMPLE['payload_content_encoding'], sot.payload_content_encoding
+        )
 
     def test_get_no_payload(self):
         sot = secret.Secret(id="id")
@@ -112,11 +117,17 @@ class TestSecret(base.TestCase):
         rv = sot.fetch(sess)
 
         sess.get.assert_has_calls(
-            [mock.call("secrets/id",),
-             mock.call(
-                 "secrets/id/payload",
-                 headers={"Accept": content_type},
-                 skip_cache=False)])
+            [
+                mock.call(
+                    "secrets/id",
+                ),
+                mock.call(
+                    "secrets/id/payload",
+                    headers={"Accept": content_type},
+                    skip_cache=False,
+                ),
+            ]
+        )
 
         self.assertEqual(rv.payload, payload)
         self.assertEqual(rv.status, metadata["status"])
@@ -129,7 +140,9 @@ class TestSecret(base.TestCase):
 
     def test_get_with_payload_from_content_types(self):
         content_type = "some/type"
-        metadata = {"status": "fine",
-                    "content_types": {"default": content_type}}
+        metadata = {
+            "status": "fine",
+            "content_types": {"default": content_type},
+        }
         sot = secret.Secret(id="id")
         self._test_payload(sot, metadata, content_type)

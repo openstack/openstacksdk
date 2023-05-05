@@ -16,7 +16,6 @@ from openstack import format
 
 
 class HREFToUUID(format.Formatter):
-
     @classmethod
     def deserialize(cls, value):
         """Convert a HREF to the UUID portion"""

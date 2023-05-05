@@ -49,8 +49,9 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        self._delete(_container.Container, container,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _container.Container, container, ignore_missing=ignore_missing
+        )
 
     def find_container(self, name_or_id, ignore_missing=True):
         """Find a single container
@@ -64,8 +65,9 @@ class Proxy(proxy.Proxy):
         :returns: One :class:`~openstack.key_manager.v1.container.Container`
             or None
         """
-        return self._find(_container.Container, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _container.Container, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_container(self, container):
         """Get a single container
@@ -143,8 +145,9 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.key_manager.v1.order.Order` or None
         """
-        return self._find(_order.Order, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _order.Order, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_order(self, order):
         """Get a single order
@@ -223,8 +226,9 @@ class Proxy(proxy.Proxy):
         :returns: One :class:`~openstack.key_manager.v1.secret.Secret` or
             None
         """
-        return self._find(_secret.Secret, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _secret.Secret, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_secret(self, secret):
         """Get a single secret

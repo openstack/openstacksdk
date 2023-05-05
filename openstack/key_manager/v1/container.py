@@ -30,8 +30,8 @@ class Container(resource.Resource):
     container_ref = resource.Body('container_ref')
     #: The ID for this container
     container_id = resource.Body(
-        'container_ref', alternate_id=True,
-        type=_format.HREFToUUID)
+        'container_ref', alternate_id=True, type=_format.HREFToUUID
+    )
     #: The timestamp when this container was created.
     created_at = resource.Body('created')
     #: The name of this container

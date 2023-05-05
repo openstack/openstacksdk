@@ -27,12 +27,11 @@ EXAMPLE = {
     'sub_status': '7',
     'sub_status_message': '8',
     'type': '9',
-    'updated': '10'
+    'updated': '10',
 }
 
 
 class TestOrder(base.TestCase):
-
     def test_basic(self):
         sot = order.Order()
         self.assertIsNone(sot.resource_key)

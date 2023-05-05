@@ -36,7 +36,8 @@ class Order(resource.Resource):
     order_ref = resource.Body('order_ref')
     #: The ID of this order
     order_id = resource.Body(
-        'order_ref', alternate_id=True, type=_format.HREFToUUID)
+        'order_ref', alternate_id=True, type=_format.HREFToUUID
+    )
     #: Secret href associated with the order
     secret_ref = resource.Body('secret_ref')
     #: Secret ID associated with the order

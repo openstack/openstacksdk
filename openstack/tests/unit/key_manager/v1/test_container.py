@@ -24,12 +24,11 @@ EXAMPLE = {
     'status': '5',
     'type': '6',
     'updated': '2015-03-09T12:15:57.233772',
-    'consumers': ['7']
+    'consumers': ['7'],
 }
 
 
 class TestContainer(base.TestCase):
-
     def test_basic(self):
         sot = container.Container()
         self.assertIsNone(sot.resource_key)

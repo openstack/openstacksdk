@@ -28,12 +28,14 @@ class TestKeyManagerContainer(TestKeyManagerProxy):
         self.verify_create(self.proxy.create_container, container.Container)
 
     def test_container_delete(self):
-        self.verify_delete(self.proxy.delete_container,
-                           container.Container, False)
+        self.verify_delete(
+            self.proxy.delete_container, container.Container, False
+        )
 
     def test_container_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_container,
-                           container.Container, True)
+        self.verify_delete(
+            self.proxy.delete_container, container.Container, True
+        )
 
     def test_container_find(self):
         self.verify_find(self.proxy.find_container, container.Container)
@@ -87,8 +89,8 @@ class TestKeyManagerSecret(TestKeyManagerProxy):
     def test_secret_get(self):
         self.verify_get(self.proxy.get_secret, secret.Secret)
         self.verify_get_overrided(
-            self.proxy, secret.Secret,
-            'openstack.key_manager.v1.secret.Secret')
+            self.proxy, secret.Secret, 'openstack.key_manager.v1.secret.Secret'
+        )
 
     def test_secrets(self):
         self.verify_list(self.proxy.secrets, secret.Secret)
