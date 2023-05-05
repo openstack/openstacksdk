@@ -36,7 +36,8 @@ HeatYamlLoader.add_constructor(u'tag:yaml.org,2002:str', _construct_yaml_str)
 # openstack.common.jsonutils. Therefore, make unicode string out of timestamps
 # until jsonutils can handle dates.
 HeatYamlLoader.add_constructor(
-    u'tag:yaml.org,2002:timestamp', _construct_yaml_str)
+    u'tag:yaml.org,2002:timestamp', _construct_yaml_str
+)
 
 
 def parse(tmpl_str):
@@ -64,8 +65,10 @@ def parse(tmpl_str):
             if tpl is None:
                 tpl = {}
     # Looking for supported version keys in the loaded template
-    if not ('HeatTemplateFormatVersion' in tpl
-            or 'heat_template_version' in tpl
-            or 'AWSTemplateFormatVersion' in tpl):
+    if not (
+        'HeatTemplateFormatVersion' in tpl
+        or 'heat_template_version' in tpl
+        or 'AWSTemplateFormatVersion' in tpl
+    ):
         raise ValueError("Template format version not found.")
     return tpl

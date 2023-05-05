@@ -42,9 +42,8 @@ class TestStack(base.BaseFunctionalTest):
         # the shade layer.
         template['heat_template_version'] = '2013-05-23'
         self.network, self.subnet = test_network.create_network(
-            self.conn,
-            self.NAME,
-            self.cidr)
+            self.conn, self.NAME, self.cidr
+        )
         parameters = {
             'image': image.id,
             'key_name': self.NAME,
@@ -60,8 +59,11 @@ class TestStack(base.BaseFunctionalTest):
         self.stack = sot
         self.assertEqual(self.NAME, sot.name)
         self.conn.orchestration.wait_for_status(
-            sot, status='CREATE_COMPLETE', failures=['CREATE_FAILED'],
-            wait=self._wait_for_timeout)
+            sot,
+            status='CREATE_COMPLETE',
+            failures=['CREATE_FAILED'],
+            wait=self._wait_for_timeout,
+        )
 
     def tearDown(self):
         self.conn.orchestration.delete_stack(self.stack, ignore_missing=False)
@@ -69,7 +71,8 @@ class TestStack(base.BaseFunctionalTest):
         # Need to wait for the stack to go away before network delete
         try:
             self.conn.orchestration.wait_for_status(
-                self.stack, 'DELETE_COMPLETE', wait=self._wait_for_timeout)
+                self.stack, 'DELETE_COMPLETE', wait=self._wait_for_timeout
+            )
         except exceptions.ResourceNotFound:
             pass
         test_network.delete_network(self.conn, self.network, self.subnet)

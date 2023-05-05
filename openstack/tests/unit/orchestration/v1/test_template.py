@@ -18,20 +18,12 @@ from openstack.tests.unit import base
 
 FAKE = {
     'Description': 'Blah blah',
-    'Parameters': {
-        'key_name': {
-            'type': 'string'
-        }
-    },
-    'ParameterGroups': [{
-        'label': 'Group 1',
-        'parameters': ['key_name']
-    }]
+    'Parameters': {'key_name': {'type': 'string'}},
+    'ParameterGroups': [{'label': 'Group 1', 'parameters': ['key_name']}],
 }
 
 
 class TestTemplate(base.TestCase):
-
     def test_basic(self):
         sot = template.Template()
         self.assertFalse(sot.allow_create)
@@ -55,8 +47,7 @@ class TestTemplate(base.TestCase):
 
         sot.validate(sess, tmpl)
 
-        sess.post.assert_called_once_with(
-            '/validate', json=body)
+        sess.post.assert_called_once_with('/validate', json=body)
         mock_translate.assert_called_once_with(sess.post.return_value)
 
     @mock.patch.object(resource.Resource, '_translate_response')
@@ -69,8 +60,7 @@ class TestTemplate(base.TestCase):
 
         sot.validate(sess, tmpl, environment=env)
 
-        sess.post.assert_called_once_with(
-            '/validate', json=body)
+        sess.post.assert_called_once_with('/validate', json=body)
         mock_translate.assert_called_once_with(sess.post.return_value)
 
     @mock.patch.object(resource.Resource, '_translate_response')
@@ -82,8 +72,7 @@ class TestTemplate(base.TestCase):
 
         sot.validate(sess, None, template_url=template_url)
 
-        sess.post.assert_called_once_with(
-            '/validate', json=body)
+        sess.post.assert_called_once_with('/validate', json=body)
         mock_translate.assert_called_once_with(sess.post.return_value)
 
     @mock.patch.object(resource.Resource, '_translate_response')
@@ -96,6 +85,6 @@ class TestTemplate(base.TestCase):
         sot.validate(sess, tmpl, ignore_errors='123,456')
 
         sess.post.assert_called_once_with(
-            '/validate?ignore_errors=123%2C456',
-            json=body)
+            '/validate?ignore_errors=123%2C456', json=body
+        )
         mock_translate.assert_called_once_with(sess.post.return_value)

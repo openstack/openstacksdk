@@ -29,8 +29,12 @@ class Stack(resource.Resource):
     allow_delete = True
 
     _query_mapping = resource.QueryParameters(
-        'action', 'name', 'status',
-        'project_id', 'owner_id', 'username',
+        'action',
+        'name',
+        'status',
+        'project_id',
+        'owner_id',
+        'username',
         project_id='tenant_id',
         **tag.TagMixin._tag_query_parameters
     )
@@ -111,14 +115,16 @@ class Stack(resource.Resource):
     def create(self, session, base_path=None):
         # This overrides the default behavior of resource creation because
         # heat doesn't accept resource_key in its request.
-        return super(Stack, self).create(session, prepend_key=False,
-                                         base_path=base_path)
+        return super(Stack, self).create(
+            session, prepend_key=False, base_path=base_path
+        )
 
     def commit(self, session, base_path=None):
         # This overrides the default behavior of resource creation because
         # heat doesn't accept resource_key in its request.
-        return super(Stack, self).commit(session, prepend_key=False,
-                                         has_body=False, base_path=None)
+        return super(Stack, self).commit(
+            session, prepend_key=False, has_body=False, base_path=None
+        )
 
     def update(self, session, preview=False):
         # This overrides the default behavior of resource update because
@@ -127,16 +133,17 @@ class Stack(resource.Resource):
         if self.name and self.id:
             base_path = '/stacks/%(stack_name)s/%(stack_id)s' % {
                 'stack_name': self.name,
-                'stack_id': self.id}
+                'stack_id': self.id,
+            }
         elif self.name or self.id:
             # We have only one of name/id. Do not try to build a stacks/NAME/ID
             # path
             base_path = '/stacks/%(stack_identity)s' % {
-                'stack_identity': self.name or self.id}
+                'stack_identity': self.name or self.id
+            }
         request = self._prepare_request(
-            prepend_key=False,
-            requires_id=False,
-            base_path=base_path)
+            prepend_key=False, requires_id=False, base_path=base_path
+        )
 
         microversion = self._get_microversion(session, action='commit')
 
@@ -145,8 +152,11 @@ class Stack(resource.Resource):
             request_url = utils.urljoin(request_url, 'preview')
 
         response = session.put(
-            request_url, json=request.body, headers=request.headers,
-            microversion=microversion)
+            request_url,
+            json=request.body,
+            headers=request.headers,
+            microversion=microversion,
+        )
 
         self.microversion = microversion
         self._translate_response(response, has_body=True)
@@ -162,20 +172,28 @@ class Stack(resource.Resource):
         return self._action(session, {'check': ''})
 
     def abandon(self, session):
-        url = utils.urljoin(self.base_path, self.name,
-                            self._get_id(self), 'abandon')
+        url = utils.urljoin(
+            self.base_path, self.name, self._get_id(self), 'abandon'
+        )
         resp = session.delete(url)
         return resp.json()
 
-    def fetch(self, session, requires_id=True,
-              base_path=None, error_message=None,
-              skip_cache=False, resolve_outputs=True):
+    def fetch(
+        self,
+        session,
+        requires_id=True,
+        base_path=None,
+        error_message=None,
+        skip_cache=False,
+        resolve_outputs=True,
+    ):
 
         if not self.allow_fetch:
             raise exceptions.MethodNotSupported(self, "fetch")
 
-        request = self._prepare_request(requires_id=requires_id,
-                                        base_path=base_path)
+        request = self._prepare_request(
+            requires_id=requires_id, base_path=base_path
+        )
         # session = self._get_session(session)
         microversion = self._get_microversion(session, action='fetch')
 
@@ -185,7 +203,8 @@ class Stack(resource.Resource):
         if not resolve_outputs:
             request.url = request.url + '?resolve_outputs=False'
         response = session.get(
-            request.url, microversion=microversion, skip_cache=skip_cache)
+            request.url, microversion=microversion, skip_cache=skip_cache
+        )
         kwargs = {}
         if error_message:
             kwargs['error_message'] = error_message
@@ -195,7 +214,8 @@ class Stack(resource.Resource):
 
         if self and self.status in ['DELETE_COMPLETE', 'ADOPT_COMPLETE']:
             raise exceptions.ResourceNotFound(
-                "No stack found for %s" % self.id)
+                "No stack found for %s" % self.id
+            )
         return self
 
     @classmethod
@@ -227,9 +247,8 @@ class Stack(resource.Resource):
         # Try to short-circuit by looking directly for a matching ID.
         try:
             match = cls.existing(
-                id=name_or_id,
-                connection=session._get_connection(),
-                **params)
+                id=name_or_id, connection=session._get_connection(), **params
+            )
             return match.fetch(session, **params)
         except exceptions.NotFoundException:
             pass
@@ -240,7 +259,8 @@ class Stack(resource.Resource):
         if ignore_missing:
             return None
         raise exceptions.ResourceNotFound(
-            "No %s found for %s" % (cls.__name__, name_or_id))
+            "No %s found for %s" % (cls.__name__, name_or_id)
+        )
 
 
 StackPreview = Stack

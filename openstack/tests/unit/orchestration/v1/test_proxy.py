@@ -42,11 +42,15 @@ class TestOrchestrationStack(TestOrchestrationProxy):
             self.proxy.create_stack,
             stack.Stack,
             method_kwargs={"preview": True, "x": 1, "y": 2, "z": 3},
-            expected_kwargs={"x": 1, "y": 2, "z": 3})
+            expected_kwargs={"x": 1, "y": 2, "z": 3},
+        )
 
     def test_find_stack(self):
-        self.verify_find(self.proxy.find_stack, stack.Stack,
-                         expected_kwargs={'resolve_outputs': True})
+        self.verify_find(
+            self.proxy.find_stack,
+            stack.Stack,
+            expected_kwargs={'resolve_outputs': True},
+        )
         # mock_method="openstack.proxy.Proxy._find"
         # test_method=self.proxy.find_stack
         # method_kwargs = {
@@ -78,12 +82,15 @@ class TestOrchestrationStack(TestOrchestrationProxy):
         self.verify_list(self.proxy.stacks, stack.Stack)
 
     def test_get_stack(self):
-        self.verify_get(self.proxy.get_stack, stack.Stack,
-                        method_kwargs={'resolve_outputs': False},
-                        expected_kwargs={'resolve_outputs': False})
+        self.verify_get(
+            self.proxy.get_stack,
+            stack.Stack,
+            method_kwargs={'resolve_outputs': False},
+            expected_kwargs={'resolve_outputs': False},
+        )
         self.verify_get_overrided(
-            self.proxy, stack.Stack,
-            'openstack.orchestration.v1.stack.Stack')
+            self.proxy, stack.Stack, 'openstack.orchestration.v1.stack.Stack'
+        )
 
     def test_update_stack(self):
         self._verify(
@@ -92,7 +99,8 @@ class TestOrchestrationStack(TestOrchestrationProxy):
             expected_result='result',
             method_args=['stack'],
             method_kwargs={'preview': False},
-            expected_args=[self.proxy, False])
+            expected_args=[self.proxy, False],
+        )
 
     def test_update_stack_preview(self):
         self._verify(
@@ -101,7 +109,8 @@ class TestOrchestrationStack(TestOrchestrationProxy):
             expected_result='result',
             method_args=['stack'],
             method_kwargs={'preview': True},
-            expected_args=[self.proxy, True])
+            expected_args=[self.proxy, True],
+        )
 
     def test_abandon_stack(self):
         self._verify(
@@ -109,7 +118,8 @@ class TestOrchestrationStack(TestOrchestrationProxy):
             self.proxy.abandon_stack,
             expected_result='result',
             method_args=['stack'],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_delete_stack(self):
         self.verify_delete(self.proxy.delete_stack, stack.Stack, False)
@@ -154,9 +164,12 @@ class TestOrchestrationStackEnvironment(TestOrchestrationProxy):
             expected_kwargs={
                 'requires_id': False,
                 'stack_name': stack_name,
-                'stack_id': stack_id})
-        mock_find.assert_called_once_with(mock.ANY, 'IDENTITY',
-                                          ignore_missing=False)
+                'stack_id': stack_id,
+            },
+        )
+        mock_find.assert_called_once_with(
+            mock.ANY, 'IDENTITY', ignore_missing=False
+        )
 
     def test_get_stack_environment_with_stack_object(self):
         stack_id = '1234'
@@ -171,7 +184,9 @@ class TestOrchestrationStackEnvironment(TestOrchestrationProxy):
             expected_kwargs={
                 'requires_id': False,
                 'stack_name': stack_name,
-                'stack_id': stack_id})
+                'stack_id': stack_id,
+            },
+        )
 
 
 class TestOrchestrationStackFiles(TestOrchestrationProxy):
@@ -187,8 +202,9 @@ class TestOrchestrationStackFiles(TestOrchestrationProxy):
         res = self.proxy.get_stack_files('IDENTITY')
 
         self.assertEqual({'file': 'content'}, res)
-        mock_find.assert_called_once_with(mock.ANY, 'IDENTITY',
-                                          ignore_missing=False)
+        mock_find.assert_called_once_with(
+            mock.ANY, 'IDENTITY', ignore_missing=False
+        )
         mock_fetch.assert_called_once_with(self.proxy)
 
     @mock.patch.object(stack_files.StackFiles, 'fetch')
@@ -220,9 +236,12 @@ class TestOrchestrationStackTemplate(TestOrchestrationProxy):
             expected_kwargs={
                 'requires_id': False,
                 'stack_name': stack_name,
-                'stack_id': stack_id})
-        mock_find.assert_called_once_with(mock.ANY, 'IDENTITY',
-                                          ignore_missing=False)
+                'stack_id': stack_id,
+            },
+        )
+        mock_find.assert_called_once_with(
+            mock.ANY, 'IDENTITY', ignore_missing=False
+        )
 
     def test_get_stack_template_with_stack_object(self):
         stack_id = '1234'
@@ -237,7 +256,9 @@ class TestOrchestrationStackTemplate(TestOrchestrationProxy):
             expected_kwargs={
                 'requires_id': False,
                 'stack_name': stack_name,
-                'stack_id': stack_id})
+                'stack_id': stack_id,
+            },
+        )
 
 
 class TestOrchestrationResource(TestOrchestrationProxy):
@@ -247,11 +268,13 @@ class TestOrchestrationResource(TestOrchestrationProxy):
         stack_name = 'test_stack'
         stk = stack.Stack(id=stack_id, name=stack_name)
 
-        self.verify_list(self.proxy.resources, resource.Resource,
-                         method_args=[stk],
-                         expected_args=[],
-                         expected_kwargs={'stack_name': stack_name,
-                                          'stack_id': stack_id})
+        self.verify_list(
+            self.proxy.resources,
+            resource.Resource,
+            method_args=[stk],
+            expected_args=[],
+            expected_kwargs={'stack_name': stack_name, 'stack_id': stack_id},
+        )
 
         self.assertEqual(0, mock_find.call_count)
 
@@ -262,31 +285,37 @@ class TestOrchestrationResource(TestOrchestrationProxy):
         stk = stack.Stack(id=stack_id, name=stack_name)
         mock_find.return_value = stk
 
-        self.verify_list(self.proxy.resources, resource.Resource,
-                         method_args=[stack_id],
-                         expected_args=[],
-                         expected_kwargs={'stack_name': stack_name,
-                                          'stack_id': stack_id})
+        self.verify_list(
+            self.proxy.resources,
+            resource.Resource,
+            method_args=[stack_id],
+            expected_args=[],
+            expected_kwargs={'stack_name': stack_name, 'stack_id': stack_id},
+        )
 
-        mock_find.assert_called_once_with(mock.ANY, stack_id,
-                                          ignore_missing=False)
+        mock_find.assert_called_once_with(
+            mock.ANY, stack_id, ignore_missing=False
+        )
 
     @mock.patch.object(stack.Stack, 'find')
     @mock.patch.object(resource.Resource, 'list')
     def test_resources_stack_not_found(self, mock_list, mock_find):
         stack_name = 'test_stack'
         mock_find.side_effect = exceptions.ResourceNotFound(
-            'No stack found for test_stack')
+            'No stack found for test_stack'
+        )
 
-        ex = self.assertRaises(exceptions.ResourceNotFound,
-                               self.proxy.resources, stack_name)
+        ex = self.assertRaises(
+            exceptions.ResourceNotFound, self.proxy.resources, stack_name
+        )
         self.assertEqual('No stack found for test_stack', str(ex))
 
 
 class TestOrchestrationSoftwareConfig(TestOrchestrationProxy):
     def test_create_software_config(self):
-        self.verify_create(self.proxy.create_software_config,
-                           sc.SoftwareConfig)
+        self.verify_create(
+            self.proxy.create_software_config, sc.SoftwareConfig
+        )
 
     def test_software_configs(self):
         self.verify_list(self.proxy.software_configs, sc.SoftwareConfig)
@@ -295,34 +324,42 @@ class TestOrchestrationSoftwareConfig(TestOrchestrationProxy):
         self.verify_get(self.proxy.get_software_config, sc.SoftwareConfig)
 
     def test_delete_software_config(self):
-        self.verify_delete(self.proxy.delete_software_config,
-                           sc.SoftwareConfig, True)
-        self.verify_delete(self.proxy.delete_software_config,
-                           sc.SoftwareConfig, False)
+        self.verify_delete(
+            self.proxy.delete_software_config, sc.SoftwareConfig, True
+        )
+        self.verify_delete(
+            self.proxy.delete_software_config, sc.SoftwareConfig, False
+        )
 
 
 class TestOrchestrationSoftwareDeployment(TestOrchestrationProxy):
     def test_create_software_deployment(self):
-        self.verify_create(self.proxy.create_software_deployment,
-                           sd.SoftwareDeployment)
+        self.verify_create(
+            self.proxy.create_software_deployment, sd.SoftwareDeployment
+        )
 
     def test_software_deployments(self):
-        self.verify_list(self.proxy.software_deployments,
-                         sd.SoftwareDeployment)
+        self.verify_list(
+            self.proxy.software_deployments, sd.SoftwareDeployment
+        )
 
     def test_get_software_deployment(self):
-        self.verify_get(self.proxy.get_software_deployment,
-                        sd.SoftwareDeployment)
+        self.verify_get(
+            self.proxy.get_software_deployment, sd.SoftwareDeployment
+        )
 
     def test_update_software_deployment(self):
-        self.verify_update(self.proxy.update_software_deployment,
-                           sd.SoftwareDeployment)
+        self.verify_update(
+            self.proxy.update_software_deployment, sd.SoftwareDeployment
+        )
 
     def test_delete_software_deployment(self):
-        self.verify_delete(self.proxy.delete_software_deployment,
-                           sd.SoftwareDeployment, True)
-        self.verify_delete(self.proxy.delete_software_deployment,
-                           sd.SoftwareDeployment, False)
+        self.verify_delete(
+            self.proxy.delete_software_deployment, sd.SoftwareDeployment, True
+        )
+        self.verify_delete(
+            self.proxy.delete_software_deployment, sd.SoftwareDeployment, False
+        )
 
 
 class TestOrchestrationTemplate(TestOrchestrationProxy):
@@ -336,8 +373,12 @@ class TestOrchestrationTemplate(TestOrchestrationProxy):
         res = self.proxy.validate_template(tmpl, env, tmpl_url, ignore_errors)
 
         mock_validate.assert_called_once_with(
-            self.proxy, tmpl, environment=env, template_url=tmpl_url,
-            ignore_errors=ignore_errors)
+            self.proxy,
+            tmpl,
+            environment=env,
+            template_url=tmpl_url,
+            ignore_errors=ignore_errors,
+        )
         self.assertEqual(mock_validate.return_value, res)
 
     def test_validate_template_no_env(self):
@@ -349,11 +390,16 @@ class TestOrchestrationTemplate(TestOrchestrationProxy):
         self.assertIsInstance(res["files"], dict)
 
     def test_validate_template_invalid_request(self):
-        err = self.assertRaises(exceptions.InvalidRequest,
-                                self.proxy.validate_template,
-                                None, template_url=None)
-        self.assertEqual("'template_url' must be specified when template is "
-                         "None", str(err))
+        err = self.assertRaises(
+            exceptions.InvalidRequest,
+            self.proxy.validate_template,
+            None,
+            template_url=None,
+        )
+        self.assertEqual(
+            "'template_url' must be specified when template is " "None",
+            str(err),
+        )
 
 
 class TestExtractName(TestOrchestrationProxy):
@@ -362,22 +408,47 @@ class TestExtractName(TestOrchestrationProxy):
         ('stacks', dict(url='/stacks', parts=['stacks'])),
         ('name_id', dict(url='/stacks/name/id', parts=['stack'])),
         ('identity', dict(url='/stacks/id', parts=['stack'])),
-        ('preview', dict(url='/stacks/name/preview',
-                         parts=['stack', 'preview'])),
-        ('stack_act', dict(url='/stacks/name/id/preview',
-                           parts=['stack', 'preview'])),
-        ('stack_subres', dict(url='/stacks/name/id/resources',
-                              parts=['stack', 'resources'])),
-        ('stack_subres_id', dict(url='/stacks/name/id/resources/id',
-                                 parts=['stack', 'resource'])),
-        ('stack_subres_id_act',
-            dict(url='/stacks/name/id/resources/id/action',
-                 parts=['stack', 'resource', 'action'])),
-        ('event',
-         dict(url='/stacks/ignore/ignore/resources/ignore/events/id',
-              parts=['stack', 'resource', 'event'])),
-        ('sd_metadata', dict(url='/software_deployments/metadata/ignore',
-                             parts=['software_deployment', 'metadata']))
+        (
+            'preview',
+            dict(url='/stacks/name/preview', parts=['stack', 'preview']),
+        ),
+        (
+            'stack_act',
+            dict(url='/stacks/name/id/preview', parts=['stack', 'preview']),
+        ),
+        (
+            'stack_subres',
+            dict(
+                url='/stacks/name/id/resources', parts=['stack', 'resources']
+            ),
+        ),
+        (
+            'stack_subres_id',
+            dict(
+                url='/stacks/name/id/resources/id', parts=['stack', 'resource']
+            ),
+        ),
+        (
+            'stack_subres_id_act',
+            dict(
+                url='/stacks/name/id/resources/id/action',
+                parts=['stack', 'resource', 'action'],
+            ),
+        ),
+        (
+            'event',
+            dict(
+                url='/stacks/ignore/ignore/resources/ignore/events/id',
+                parts=['stack', 'resource', 'event'],
+            ),
+        ),
+        (
+            'sd_metadata',
+            dict(
+                url='/software_deployments/metadata/ignore',
+                parts=['software_deployment', 'metadata'],
+            ),
+        ),
     ]
 
     def test_extract_name(self):

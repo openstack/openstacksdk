@@ -36,23 +36,34 @@ class Proxy(proxy.Proxy):
     }
 
     def _extract_name_consume_url_parts(self, url_parts):
-        if (len(url_parts) == 3 and url_parts[0] == 'software_deployments'
-                and url_parts[1] == 'metadata'):
+        if (
+            len(url_parts) == 3
+            and url_parts[0] == 'software_deployments'
+            and url_parts[1] == 'metadata'
+        ):
             # Another nice example of totally different URL naming scheme,
             # which we need to repair /software_deployment/metadata/server_id -
             # just replace server_id with metadata to keep further logic
             return ['software_deployment', 'metadata']
-        if (url_parts[0] == 'stacks' and len(url_parts) > 2
-                and not url_parts[2] in ['preview', 'resources']):
+        if (
+            url_parts[0] == 'stacks'
+            and len(url_parts) > 2
+            and not url_parts[2] in ['preview', 'resources']
+        ):
             # orchestrate introduce having stack name and id part of the URL
             # (/stacks/name/id/everything_else), so if on third position we
             # have not a known part - discard it, not to brake further logic
             del url_parts[2]
         return super(Proxy, self)._extract_name_consume_url_parts(url_parts)
 
-    def read_env_and_templates(self, template_file=None, template_url=None,
-                               template_object=None, files=None,
-                               environment_files=None):
+    def read_env_and_templates(
+        self,
+        template_file=None,
+        template_url=None,
+        template_object=None,
+        files=None,
+        environment_files=None,
+    ):
         """Read templates and environment content and prepares
         corresponding stack attributes
 
@@ -70,16 +81,20 @@ class Proxy(proxy.Proxy):
         envfiles = dict()
         tpl_files = None
         if environment_files:
-            envfiles, env = \
-                template_utils.process_multiple_environments_and_files(
-                    env_paths=environment_files)
+            (
+                envfiles,
+                env,
+            ) = template_utils.process_multiple_environments_and_files(
+                env_paths=environment_files
+            )
             stack_attrs['environment'] = env
         if template_file or template_url or template_object:
             tpl_files, template = template_utils.get_template_contents(
                 template_file=template_file,
                 template_url=template_url,
                 template_object=template_object,
-                files=files)
+                files=files,
+            )
             stack_attrs['template'] = template
             if tpl_files or envfiles:
                 stack_attrs['files'] = dict(
@@ -104,8 +119,9 @@ class Proxy(proxy.Proxy):
         base_path = None if not preview else '/stacks/preview'
         return self._create(_stack.Stack, base_path=base_path, **attrs)
 
-    def find_stack(self, name_or_id,
-                   ignore_missing=True, resolve_outputs=True):
+    def find_stack(
+        self, name_or_id, ignore_missing=True, resolve_outputs=True
+    ):
         """Find a single stack
 
         :param name_or_id: The name or ID of a stack.
@@ -116,9 +132,12 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.orchestration.v1.stack.Stack` or None
         """
-        return self._find(_stack.Stack, name_or_id,
-                          ignore_missing=ignore_missing,
-                          resolve_outputs=resolve_outputs)
+        return self._find(
+            _stack.Stack,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            resolve_outputs=resolve_outputs,
+        )
 
     def stacks(self, **query):
         """Return a generator of stacks
@@ -219,8 +238,12 @@ class Proxy(proxy.Proxy):
         else:
             obj = self._find(_stack.Stack, stack, ignore_missing=False)
 
-        return self._get(_stack_template.StackTemplate, requires_id=False,
-                         stack_name=obj.name, stack_id=obj.id)
+        return self._get(
+            _stack_template.StackTemplate,
+            requires_id=False,
+            stack_name=obj.name,
+            stack_id=obj.id,
+        )
 
     def get_stack_environment(self, stack):
         """Get environment used by a stack
@@ -238,9 +261,12 @@ class Proxy(proxy.Proxy):
         else:
             obj = self._find(_stack.Stack, stack, ignore_missing=False)
 
-        return self._get(_stack_environment.StackEnvironment,
-                         requires_id=False, stack_name=obj.name,
-                         stack_id=obj.id)
+        return self._get(
+            _stack_environment.StackEnvironment,
+            requires_id=False,
+            stack_name=obj.name,
+            stack_id=obj.id,
+        )
 
     def get_stack_files(self, stack):
         """Get files used by a stack
@@ -283,8 +309,9 @@ class Proxy(proxy.Proxy):
         else:
             obj = self._find(_stack.Stack, stack, ignore_missing=False)
 
-        return self._list(_resource.Resource, stack_name=obj.name,
-                          stack_id=obj.id, **query)
+        return self._list(
+            _resource.Resource, stack_name=obj.name, stack_id=obj.id, **query
+        )
 
     def create_software_config(self, **attrs):
         """Create a new software config from attributes
@@ -335,8 +362,9 @@ class Proxy(proxy.Proxy):
             attempting to delete a nonexistent software config.
         :returns: ``None``
         """
-        self._delete(_sc.SoftwareConfig, software_config,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _sc.SoftwareConfig, software_config, ignore_missing=ignore_missing
+        )
 
     def create_software_deployment(self, **attrs):
         """Create a new software deployment from attributes
@@ -374,8 +402,9 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_sd.SoftwareDeployment, software_deployment)
 
-    def delete_software_deployment(self, software_deployment,
-                                   ignore_missing=True):
+    def delete_software_deployment(
+        self, software_deployment, ignore_missing=True
+    ):
         """Delete a software deployment
 
         :param software_deployment: The value can be either the ID of a
@@ -388,8 +417,11 @@ class Proxy(proxy.Proxy):
             attempting to delete a nonexistent software deployment.
         :returns: ``None``
         """
-        self._delete(_sd.SoftwareDeployment, software_deployment,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _sd.SoftwareDeployment,
+            software_deployment,
+            ignore_missing=ignore_missing,
+        )
 
     def update_software_deployment(self, software_deployment, **attrs):
         """Update a software deployment
@@ -403,11 +435,13 @@ class Proxy(proxy.Proxy):
         :rtype:
             :class:`~openstack.orchestration.v1.software_deployment.SoftwareDeployment`
         """
-        return self._update(_sd.SoftwareDeployment, software_deployment,
-                            **attrs)
+        return self._update(
+            _sd.SoftwareDeployment, software_deployment, **attrs
+        )
 
-    def validate_template(self, template, environment=None, template_url=None,
-                          ignore_errors=None):
+    def validate_template(
+        self, template, environment=None, template_url=None, ignore_errors=None
+    ):
         """Validates a template.
 
         :param template: The stack template on which the validation is
@@ -429,15 +463,21 @@ class Proxy(proxy.Proxy):
         """
         if template is None and template_url is None:
             raise exceptions.InvalidRequest(
-                "'template_url' must be specified when template is None")
+                "'template_url' must be specified when template is None"
+            )
 
         tmpl = _template.Template.new()
-        return tmpl.validate(self, template, environment=environment,
-                             template_url=template_url,
-                             ignore_errors=ignore_errors)
+        return tmpl.validate(
+            self,
+            template,
+            environment=environment,
+            template_url=template_url,
+            ignore_errors=ignore_errors,
+        )
 
-    def wait_for_status(self, res, status='ACTIVE', failures=None,
-                        interval=2, wait=120):
+    def wait_for_status(
+        self, res, status='ACTIVE', failures=None, interval=2, wait=120
+    ):
         """Wait for a resource to be in a particular status.
 
         :param res: The resource to wait on to reach the specified status.
@@ -460,7 +500,8 @@ class Proxy(proxy.Proxy):
         """
         failures = [] if failures is None else failures
         return resource.wait_for_status(
-            self, res, status, failures, interval, wait)
+            self, res, status, failures, interval, wait
+        )
 
     def wait_for_delete(self, res, interval=2, wait=120):
         """Wait for a resource to be deleted.
@@ -478,26 +519,37 @@ class Proxy(proxy.Proxy):
         return resource.wait_for_delete(self, res, interval, wait)
 
     def get_template_contents(
-            self, template_file=None, template_url=None,
-            template_object=None, files=None):
+        self,
+        template_file=None,
+        template_url=None,
+        template_object=None,
+        files=None,
+    ):
         try:
             return template_utils.get_template_contents(
-                template_file=template_file, template_url=template_url,
-                template_object=template_object, files=files)
+                template_file=template_file,
+                template_url=template_url,
+                template_object=template_object,
+                files=files,
+            )
         except Exception as e:
             raise exceptions.SDKException(
-                "Error in processing template files: %s" % str(e))
+                "Error in processing template files: %s" % str(e)
+            )
 
     def _get_cleanup_dependencies(self):
         return {
-            'orchestration': {
-                'before': ['compute', 'network', 'identity']
-            }
+            'orchestration': {'before': ['compute', 'network', 'identity']}
         }
 
-    def _service_cleanup(self, dry_run=True, client_status_queue=None,
-                         identified_resources=None,
-                         filters=None, resource_evaluation_fn=None):
+    def _service_cleanup(
+        self,
+        dry_run=True,
+        client_status_queue=None,
+        identified_resources=None,
+        filters=None,
+        resource_evaluation_fn=None,
+    ):
         stacks = []
         for obj in self.stacks():
             need_delete = self._service_cleanup_del_res(
@@ -507,7 +559,8 @@ class Proxy(proxy.Proxy):
                 client_status_queue=client_status_queue,
                 identified_resources=identified_resources,
                 filters=filters,
-                resource_evaluation_fn=resource_evaluation_fn)
+                resource_evaluation_fn=resource_evaluation_fn,
+            )
             if not dry_run and need_delete:
                 stacks.append(obj)
 

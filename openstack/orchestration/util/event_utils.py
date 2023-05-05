@@ -30,8 +30,8 @@ def get_events(cloud, stack_id, event_args, marker=None, limit=None):
         event_args['limit'] = limit
 
     data = cloud._orchestration_client.get(
-        '/stacks/{id}/events'.format(id=stack_id),
-        params=params)
+        '/stacks/{id}/events'.format(id=stack_id), params=params
+    )
     events = meta.get_and_munchify('events', data)
 
     # Show which stack the event comes from (for nested events)
@@ -41,7 +41,8 @@ def get_events(cloud, stack_id, event_args, marker=None, limit=None):
 
 
 def poll_for_events(
-        cloud, stack_name, action=None, poll_period=5, marker=None):
+    cloud, stack_name, action=None, poll_period=5, marker=None
+):
     """Continuously poll events and logs for performed action on stack."""
 
     def stop_check_action(a):
@@ -60,20 +61,26 @@ def poll_for_events(
     msg_template = "\n Stack %(name)s %(status)s \n"
 
     def is_stack_event(event):
-        if (event.get('resource_name', '') != stack_name
-                and event.get('physical_resource_id', '') != stack_name):
+        if (
+            event.get('resource_name', '') != stack_name
+            and event.get('physical_resource_id', '') != stack_name
+        ):
             return False
 
         phys_id = event.get('physical_resource_id', '')
-        links = dict((link.get('rel'),
-                      link.get('href')) for link in event.get('links', []))
+        links = dict(
+            (link.get('rel'), link.get('href'))
+            for link in event.get('links', [])
+        )
         stack_id = links.get('stack', phys_id).rsplit('/', 1)[-1]
         return stack_id == phys_id
 
     while True:
         events = get_events(
-            cloud, stack_id=stack_name,
-            event_args={'sort_dir': 'asc', 'marker': marker})
+            cloud,
+            stack_id=stack_name,
+            event_args={'sort_dir': 'asc', 'marker': marker},
+        )
 
         if len(events) == 0:
             no_event_polls += 1
@@ -87,7 +94,8 @@ def poll_for_events(
                 if is_stack_event(event):
                     stack_status = getattr(event, 'resource_status', '')
                     msg = msg_template % dict(
-                        name=stack_name, status=stack_status)
+                        name=stack_name, status=stack_status
+                    )
                     if stop_check(stack_status):
                         return stack_status, msg
 
@@ -95,8 +103,7 @@ def poll_for_events(
             # after 2 polls with no events, fall back to a stack get
             stack = cloud.get_stack(stack_name, resolve_outputs=False)
             stack_status = stack['stack_status']
-            msg = msg_template % dict(
-                name=stack_name, status=stack_status)
+            msg = msg_template % dict(name=stack_name, status=stack_status)
             if stop_check(stack_status):
                 return stack_status, msg
             # go back to event polling again

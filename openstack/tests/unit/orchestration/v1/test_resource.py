@@ -17,13 +17,10 @@ from openstack.tests.unit import base
 FAKE_ID = '32e39358-2422-4ad0-a1b5-dd60696bf564'
 FAKE_NAME = 'test_stack'
 FAKE = {
-    'links': [{
-        'href': 'http://res_link',
-        'rel': 'self'
-    }, {
-        'href': 'http://stack_link',
-        'rel': 'stack'
-    }],
+    'links': [
+        {'href': 'http://res_link', 'rel': 'self'},
+        {'href': 'http://stack_link', 'rel': 'stack'},
+    ],
     'logical_resource_id': 'the_resource',
     'name': 'the_resource',
     'physical_resource_id': '9f38ab5a-37c8-4e40-9702-ce27fc5f6954',
@@ -36,13 +33,13 @@ FAKE = {
 
 
 class TestResource(base.TestCase):
-
     def test_basic(self):
         sot = resource.Resource()
         self.assertEqual('resource', sot.resource_key)
         self.assertEqual('resources', sot.resources_key)
-        self.assertEqual('/stacks/%(stack_name)s/%(stack_id)s/resources',
-                         sot.base_path)
+        self.assertEqual(
+            '/stacks/%(stack_name)s/%(stack_id)s/resources', sot.base_path
+        )
         self.assertFalse(sot.allow_create)
         self.assertFalse(sot.allow_retrieve)
         self.assertFalse(sot.allow_commit)
@@ -54,8 +51,9 @@ class TestResource(base.TestCase):
         self.assertEqual(FAKE['links'], sot.links)
         self.assertEqual(FAKE['logical_resource_id'], sot.logical_resource_id)
         self.assertEqual(FAKE['name'], sot.name)
-        self.assertEqual(FAKE['physical_resource_id'],
-                         sot.physical_resource_id)
+        self.assertEqual(
+            FAKE['physical_resource_id'], sot.physical_resource_id
+        )
         self.assertEqual(FAKE['required_by'], sot.required_by)
         self.assertEqual(FAKE['resource_type'], sot.resource_type)
         self.assertEqual(FAKE['status'], sot.status)

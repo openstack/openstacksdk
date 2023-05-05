@@ -29,7 +29,6 @@ FAKE = {
 
 
 class TestSoftwareConfig(base.TestCase):
-
     def test_basic(self):
         sot = software_config.SoftwareConfig()
         self.assertEqual('software_config', sot.resource_key)

@@ -23,9 +23,14 @@ from openstack.orchestration.util import template_format
 from openstack.orchestration.util import utils
 
 
-def get_template_contents(template_file=None, template_url=None,
-                          template_object=None, object_request=None,
-                          files=None, existing=False):
+def get_template_contents(
+    template_file=None,
+    template_url=None,
+    template_object=None,
+    object_request=None,
+    files=None,
+    existing=False,
+):
 
     is_object = False
     tpl = None
@@ -46,11 +51,13 @@ def get_template_contents(template_file=None, template_url=None,
     else:
         raise exceptions.SDKException(
             'Must provide one of template_file,'
-            ' template_url or template_object')
+            ' template_url or template_object'
+        )
 
     if not tpl:
         raise exceptions.SDKException(
-            'Could not fetch template from %s' % template_url)
+            'Could not fetch template from %s' % template_url
+        )
 
     try:
         if isinstance(tpl, bytes):
@@ -58,35 +65,43 @@ def get_template_contents(template_file=None, template_url=None,
         template = template_format.parse(tpl)
     except ValueError as e:
         raise exceptions.SDKException(
-            'Error parsing template %(url)s %(error)s' %
-            {'url': template_url, 'error': e})
+            'Error parsing template %(url)s %(error)s'
+            % {'url': template_url, 'error': e}
+        )
 
     tmpl_base_url = utils.base_url_for_url(template_url)
     if files is None:
         files = {}
-    resolve_template_get_files(template, files, tmpl_base_url, is_object,
-                               object_request)
+    resolve_template_get_files(
+        template, files, tmpl_base_url, is_object, object_request
+    )
     return files, template
 
 
-def resolve_template_get_files(template, files, template_base_url,
-                               is_object=False, object_request=None):
-
+def resolve_template_get_files(
+    template, files, template_base_url, is_object=False, object_request=None
+):
     def ignore_if(key, value):
         if key != 'get_file' and key != 'type':
             return True
         if not isinstance(value, str):
             return True
-        if (key == 'type'
-                and not value.endswith(('.yaml', '.template'))):
+        if key == 'type' and not value.endswith(('.yaml', '.template')):
             return True
         return False
 
     def recurse_if(value):
         return isinstance(value, (dict, list))
 
-    get_file_contents(template, files, template_base_url,
-                      ignore_if, recurse_if, is_object, object_request)
+    get_file_contents(
+        template,
+        files,
+        template_base_url,
+        ignore_if,
+        recurse_if,
+        is_object,
+        object_request,
+    )
 
 
 def is_template(file_content):
@@ -99,9 +114,15 @@ def is_template(file_content):
     return True
 
 
-def get_file_contents(from_data, files, base_url=None,
-                      ignore_if=None, recurse_if=None,
-                      is_object=False, object_request=None):
+def get_file_contents(
+    from_data,
+    files,
+    base_url=None,
+    ignore_if=None,
+    recurse_if=None,
+    is_object=False,
+    object_request=None,
+):
 
     if recurse_if and recurse_if(from_data):
         if isinstance(from_data, dict):
@@ -109,8 +130,15 @@ def get_file_contents(from_data, files, base_url=None,
         else:
             recurse_data = from_data
         for value in recurse_data:
-            get_file_contents(value, files, base_url, ignore_if, recurse_if,
-                              is_object, object_request)
+            get_file_contents(
+                value,
+                files,
+                base_url,
+                ignore_if,
+                recurse_if,
+                is_object,
+                object_request,
+            )
 
     if isinstance(from_data, dict):
         for key, value in from_data.items():
@@ -129,11 +157,14 @@ def get_file_contents(from_data, files, base_url=None,
                 if is_template(file_content):
                     if is_object:
                         template = get_template_contents(
-                            template_object=str_url, files=files,
-                            object_request=object_request)[1]
+                            template_object=str_url,
+                            files=files,
+                            object_request=object_request,
+                        )[1]
                     else:
                         template = get_template_contents(
-                            template_url=str_url, files=files)[1]
+                            template_url=str_url, files=files
+                        )[1]
                     file_content = json.dumps(template)
                 files[str_url] = file_content
             # replace the data value with the normalised absolute URL
@@ -157,11 +188,14 @@ def deep_update(old, new):
     return old
 
 
-def process_multiple_environments_and_files(env_paths=None, template=None,
-                                            template_url=None,
-                                            env_path_is_object=None,
-                                            object_request=None,
-                                            env_list_tracker=None):
+def process_multiple_environments_and_files(
+    env_paths=None,
+    template=None,
+    template_url=None,
+    env_path_is_object=None,
+    object_request=None,
+    env_list_tracker=None,
+):
     """Reads one or more environment files.
 
     Reads in each specified environment file and returns a dictionary
@@ -204,7 +238,8 @@ def process_multiple_environments_and_files(env_paths=None, template=None,
                 template_url=template_url,
                 env_path_is_object=env_path_is_object,
                 object_request=object_request,
-                include_env_in_files=include_env_in_files)
+                include_env_in_files=include_env_in_files,
+            )
 
             # 'files' looks like {"filename1": contents, "filename2": contents}
             # so a simple update is enough for merging
@@ -221,12 +256,14 @@ def process_multiple_environments_and_files(env_paths=None, template=None,
     return merged_files, merged_env
 
 
-def process_environment_and_files(env_path=None,
-                                  template=None,
-                                  template_url=None,
-                                  env_path_is_object=None,
-                                  object_request=None,
-                                  include_env_in_files=False):
+def process_environment_and_files(
+    env_path=None,
+    template=None,
+    template_url=None,
+    env_path_is_object=None,
+    object_request=None,
+    include_env_in_files=False,
+):
     """Loads a single environment file.
 
     Returns an entry suitable for the files dict which maps the environment
@@ -253,7 +290,10 @@ def process_environment_and_files(env_path=None,
         resolve_environment_urls(
             env.get('resource_registry'),
             files,
-            env_base_url, is_object=True, object_request=object_request)
+            env_base_url,
+            is_object=True,
+            object_request=object_request,
+        )
 
     elif env_path:
         env_url = utils.normalise_file_path_to_url(env_path)
@@ -263,9 +303,8 @@ def process_environment_and_files(env_path=None,
         env = environment_format.parse(raw_env)
 
         resolve_environment_urls(
-            env.get('resource_registry'),
-            files,
-            env_base_url)
+            env.get('resource_registry'), files, env_base_url
+        )
 
         if include_env_in_files:
             files[env_url] = json.dumps(env)
@@ -273,8 +312,13 @@ def process_environment_and_files(env_path=None,
     return files, env
 
 
-def resolve_environment_urls(resource_registry, files, env_base_url,
-                             is_object=False, object_request=None):
+def resolve_environment_urls(
+    resource_registry,
+    files,
+    env_base_url,
+    is_object=False,
+    object_request=None,
+):
     """Handles any resource URLs specified in an environment.
 
     :param resource_registry: mapping of type name to template filename
@@ -302,11 +346,22 @@ def resolve_environment_urls(resource_registry, files, env_base_url,
         if key in ['hooks', 'restricted_actions']:
             return True
 
-    get_file_contents(rr, files, base_url, ignore_if,
-                      is_object=is_object, object_request=object_request)
+    get_file_contents(
+        rr,
+        files,
+        base_url,
+        ignore_if,
+        is_object=is_object,
+        object_request=object_request,
+    )
 
     for res_name, res_dict in rr.get('resources', {}).items():
         res_base_url = res_dict.get('base_url', base_url)
         get_file_contents(
-            res_dict, files, res_base_url, ignore_if,
-            is_object=is_object, object_request=object_request)
+            res_dict,
+            files,
+            res_base_url,
+            ignore_if,
+            is_object=is_object,
+            object_request=object_request,
+        )

@@ -31,9 +31,7 @@ FAKE = {
     'files': {'file1': 'content'},
     'files_container': 'dummy_container',
     'id': FAKE_ID,
-    'links': [{
-        'href': 'stacks/%s/%s' % (FAKE_NAME, FAKE_ID),
-        'rel': 'self'}],
+    'links': [{'href': 'stacks/%s/%s' % (FAKE_NAME, FAKE_ID), 'rel': 'self'}],
     'notification_topics': '7',
     'outputs': '8',
     'parameters': {'OS::stack_id': '9'},
@@ -49,81 +47,81 @@ FAKE = {
 FAKE_CREATE_RESPONSE = {
     'stack': {
         'id': FAKE_ID,
-        'links': [{
-            'href': 'stacks/%s/%s' % (FAKE_NAME, FAKE_ID),
-            'rel': 'self'}]}
+        'links': [
+            {'href': 'stacks/%s/%s' % (FAKE_NAME, FAKE_ID), 'rel': 'self'}
+        ],
+    }
 }
 FAKE_UPDATE_PREVIEW_RESPONSE = {
     'unchanged': [
         {
             'updated_time': 'datetime',
             'resource_name': '',
-            'physical_resource_id': '{resource id or ''}',
+            'physical_resource_id': '{resource id or ' '}',
             'resource_action': 'CREATE',
             'resource_status': 'COMPLETE',
             'resource_status_reason': '',
             'resource_type': 'restype',
             'stack_identity': '{stack_id}',
-            'stack_name': '{stack_name}'
+            'stack_name': '{stack_name}',
         }
     ],
     'updated': [
         {
             'updated_time': 'datetime',
             'resource_name': '',
-            'physical_resource_id': '{resource id or ''}',
+            'physical_resource_id': '{resource id or ' '}',
             'resource_action': 'CREATE',
             'resource_status': 'COMPLETE',
             'resource_status_reason': '',
             'resource_type': 'restype',
             'stack_identity': '{stack_id}',
-            'stack_name': '{stack_name}'
+            'stack_name': '{stack_name}',
         }
     ],
     'replaced': [
         {
             'updated_time': 'datetime',
             'resource_name': '',
-            'physical_resource_id': '{resource id or ''}',
+            'physical_resource_id': '{resource id or ' '}',
             'resource_action': 'CREATE',
             'resource_status': 'COMPLETE',
             'resource_status_reason': '',
             'resource_type': 'restype',
             'stack_identity': '{stack_id}',
-            'stack_name': '{stack_name}'
+            'stack_name': '{stack_name}',
         }
     ],
     'added': [
         {
             'updated_time': 'datetime',
             'resource_name': '',
-            'physical_resource_id': '{resource id or ''}',
+            'physical_resource_id': '{resource id or ' '}',
             'resource_action': 'CREATE',
             'resource_status': 'COMPLETE',
             'resource_status_reason': '',
             'resource_type': 'restype',
             'stack_identity': '{stack_id}',
-            'stack_name': '{stack_name}'
+            'stack_name': '{stack_name}',
         }
     ],
     'deleted': [
         {
             'updated_time': 'datetime',
             'resource_name': '',
-            'physical_resource_id': '{resource id or ''}',
+            'physical_resource_id': '{resource id or ' '}',
             'resource_action': 'CREATE',
             'resource_status': 'COMPLETE',
             'resource_status_reason': '',
             'resource_type': 'restype',
             'stack_identity': '{stack_id}',
-            'stack_name': '{stack_name}'
+            'stack_name': '{stack_name}',
         }
-    ]
+    ],
 }
 
 
 class TestStack(base.TestCase):
-
     def test_basic(self):
         sot = stack.Stack()
         self.assertEqual('stack', sot.resource_key)
@@ -150,7 +148,8 @@ class TestStack(base.TestCase):
                 'tags': 'tags',
                 'username': 'username',
             },
-            sot._query_mapping._mapping)
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = stack.Stack(**FAKE)
@@ -165,16 +164,16 @@ class TestStack(base.TestCase):
         self.assertTrue(sot.is_rollback_disabled)
         self.assertEqual(FAKE['id'], sot.id)
         self.assertEqual(FAKE['links'], sot.links)
-        self.assertEqual(FAKE['notification_topics'],
-                         sot.notification_topics)
+        self.assertEqual(FAKE['notification_topics'], sot.notification_topics)
         self.assertEqual(FAKE['outputs'], sot.outputs)
         self.assertEqual(FAKE['parameters'], sot.parameters)
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['status'], sot.status)
         self.assertEqual(FAKE['status_reason'], sot.status_reason)
         self.assertEqual(FAKE['tags'], sot.tags)
-        self.assertEqual(FAKE['template_description'],
-                         sot.template_description)
+        self.assertEqual(
+            FAKE['template_description'], sot.template_description
+        )
         self.assertEqual(FAKE['template_url'], sot.template_url)
         self.assertEqual(FAKE['timeout_mins'], sot.timeout_mins)
         self.assertEqual(FAKE['updated_time'], sot.updated_at)
@@ -186,8 +185,9 @@ class TestStack(base.TestCase):
 
         res = sot.create(sess)
 
-        mock_create.assert_called_once_with(sess, prepend_key=False,
-                                            base_path=None)
+        mock_create.assert_called_once_with(
+            sess, prepend_key=False, base_path=None
+        )
         self.assertEqual(mock_create.return_value, res)
 
     @mock.patch.object(resource.Resource, 'commit')
@@ -197,9 +197,9 @@ class TestStack(base.TestCase):
 
         res = sot.commit(sess)
 
-        mock_commit.assert_called_once_with(sess, prepend_key=False,
-                                            has_body=False,
-                                            base_path=None)
+        mock_commit.assert_called_once_with(
+            sess, prepend_key=False, has_body=False, base_path=None
+        )
         self.assertEqual(mock_commit.return_value, res)
 
     def test_check(self):
@@ -221,29 +221,33 @@ class TestStack(base.TestCase):
         sess.get = mock.Mock()
         sess.get.side_effect = [
             test_resource.FakeResponse(
-                {'stack': {'stack_status': 'CREATE_COMPLETE'}}, 200),
+                {'stack': {'stack_status': 'CREATE_COMPLETE'}}, 200
+            ),
             test_resource.FakeResponse(
-                {'stack': {'stack_status': 'CREATE_COMPLETE'}}, 200),
+                {'stack': {'stack_status': 'CREATE_COMPLETE'}}, 200
+            ),
             exceptions.ResourceNotFound(message='oops'),
             test_resource.FakeResponse(
-                {'stack': {'stack_status': 'DELETE_COMPLETE'}}, 200)
+                {'stack': {'stack_status': 'DELETE_COMPLETE'}}, 200
+            ),
         ]
 
         self.assertEqual(sot, sot.fetch(sess))
         sess.get.assert_called_with(
             'stacks/{id}'.format(id=sot.id),
             microversion=None,
-            skip_cache=False)
+            skip_cache=False,
+        )
         sot.fetch(sess, resolve_outputs=False)
         sess.get.assert_called_with(
             'stacks/{id}?resolve_outputs=False'.format(id=sot.id),
             microversion=None,
-            skip_cache=False)
+            skip_cache=False,
+        )
         ex = self.assertRaises(exceptions.ResourceNotFound, sot.fetch, sess)
         self.assertEqual('oops', str(ex))
         ex = self.assertRaises(exceptions.ResourceNotFound, sot.fetch, sess)
-        self.assertEqual('No stack found for %s' % FAKE_ID,
-                         str(ex))
+        self.assertEqual('No stack found for %s' % FAKE_ID, str(ex))
 
     def test_abandon(self):
         sess = mock.Mock()
@@ -260,7 +264,6 @@ class TestStack(base.TestCase):
 
         sess.delete.assert_called_with(
             'stacks/%s/%s/abandon' % (FAKE_NAME, FAKE_ID),
-
         )
 
     def test_update(self):
@@ -281,7 +284,7 @@ class TestStack(base.TestCase):
             '/stacks/%s/%s' % (FAKE_NAME, FAKE_ID),
             headers={},
             microversion=None,
-            json=body
+            json=body,
         )
 
     def test_update_preview(self):
@@ -302,21 +305,15 @@ class TestStack(base.TestCase):
             'stacks/%s/%s/preview' % (FAKE_NAME, FAKE_ID),
             headers={},
             microversion=None,
-            json=body
+            json=body,
         )
 
+        self.assertEqual(FAKE_UPDATE_PREVIEW_RESPONSE['added'], ret.added)
+        self.assertEqual(FAKE_UPDATE_PREVIEW_RESPONSE['deleted'], ret.deleted)
         self.assertEqual(
-            FAKE_UPDATE_PREVIEW_RESPONSE['added'],
-            ret.added)
+            FAKE_UPDATE_PREVIEW_RESPONSE['replaced'], ret.replaced
+        )
         self.assertEqual(
-            FAKE_UPDATE_PREVIEW_RESPONSE['deleted'],
-            ret.deleted)
-        self.assertEqual(
-            FAKE_UPDATE_PREVIEW_RESPONSE['replaced'],
-            ret.replaced)
-        self.assertEqual(
-            FAKE_UPDATE_PREVIEW_RESPONSE['unchanged'],
-            ret.unchanged)
-        self.assertEqual(
-            FAKE_UPDATE_PREVIEW_RESPONSE['updated'],
-            ret.updated)
+            FAKE_UPDATE_PREVIEW_RESPONSE['unchanged'], ret.unchanged
+        )
+        self.assertEqual(FAKE_UPDATE_PREVIEW_RESPONSE['updated'], ret.updated)

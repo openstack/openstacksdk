@@ -16,13 +16,19 @@ from openstack.orchestration.util import template_format
 
 
 SECTIONS = (
-    PARAMETER_DEFAULTS, PARAMETERS, RESOURCE_REGISTRY,
-    ENCRYPTED_PARAM_NAMES, EVENT_SINKS,
-    PARAMETER_MERGE_STRATEGIES
+    PARAMETER_DEFAULTS,
+    PARAMETERS,
+    RESOURCE_REGISTRY,
+    ENCRYPTED_PARAM_NAMES,
+    EVENT_SINKS,
+    PARAMETER_MERGE_STRATEGIES,
 ) = (
-    'parameter_defaults', 'parameters', 'resource_registry',
-    'encrypted_param_names', 'event_sinks',
-    'parameter_merge_strategies'
+    'parameter_defaults',
+    'parameters',
+    'resource_registry',
+    'encrypted_param_names',
+    'event_sinks',
+    'parameter_merge_strategies',
 )
 
 
@@ -47,7 +53,8 @@ def parse(env_str):
             env = {}
         elif not isinstance(env, dict):
             raise ValueError(
-                'The environment is not a valid YAML mapping data type.')
+                'The environment is not a valid YAML mapping data type.'
+            )
 
     for param in env:
         if param not in SECTIONS:

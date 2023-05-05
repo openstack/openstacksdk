@@ -40,8 +40,7 @@ def read_url_content(url):
         # TODO(mordred) Use requests
         content = request.urlopen(url).read()
     except error.URLError:
-        raise exceptions.SDKException(
-            'Could not fetch contents for %s' % url)
+        raise exceptions.SDKException('Could not fetch contents for %s' % url)
 
     if content:
         try:
@@ -52,8 +51,9 @@ def read_url_content(url):
 
 
 def resource_nested_identifier(rsrc):
-    nested_link = [link for link in rsrc.links or []
-                   if link.get('rel') == 'nested']
+    nested_link = [
+        link for link in rsrc.links or [] if link.get('rel') == 'nested'
+    ]
     if nested_link:
         nested_href = nested_link[0].get('href')
         nested_identifier = nested_href.split("/")[-2:]

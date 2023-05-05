@@ -32,8 +32,14 @@ class Template(resource.Resource):
     #: A list of parameter groups each contains a lsit of parameter names.
     parameter_groups = resource.Body('ParameterGroups', type=list)
 
-    def validate(self, session, template, environment=None, template_url=None,
-                 ignore_errors=None):
+    def validate(
+        self,
+        session,
+        template,
+        environment=None,
+        template_url=None,
+        ignore_errors=None,
+    ):
         url = '/validate'
 
         body = {'template': template}

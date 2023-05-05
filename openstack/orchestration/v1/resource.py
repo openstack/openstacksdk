@@ -31,8 +31,9 @@ class Resource(resource.Resource):
     links = resource.Body('links')
     #: ID of the logical resource, usually the literal name of the resource
     #: as it appears in the stack template.
-    logical_resource_id = resource.Body('logical_resource_id',
-                                        alternate_id=True)
+    logical_resource_id = resource.Body(
+        'logical_resource_id', alternate_id=True
+    )
     #: Name of the resource.
     name = resource.Body('resource_name')
     #: ID of the physical resource (if any) that backs up the resource. For

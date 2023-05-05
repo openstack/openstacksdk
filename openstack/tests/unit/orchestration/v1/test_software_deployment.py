@@ -30,7 +30,6 @@ FAKE = {
 
 
 class TestSoftwareDeployment(base.TestCase):
-
     def test_basic(self):
         sot = software_deployment.SoftwareDeployment()
         self.assertEqual('software_deployment', sot.resource_key)
@@ -49,8 +48,9 @@ class TestSoftwareDeployment(base.TestCase):
         self.assertEqual(FAKE['config_id'], sot.config_id)
         self.assertEqual(FAKE['creation_time'], sot.created_at)
         self.assertEqual(FAKE['server_id'], sot.server_id)
-        self.assertEqual(FAKE['stack_user_project_id'],
-                         sot.stack_user_project_id)
+        self.assertEqual(
+            FAKE['stack_user_project_id'], sot.stack_user_project_id
+        )
         self.assertEqual(FAKE['input_values'], sot.input_values)
         self.assertEqual(FAKE['output_values'], sot.output_values)
         self.assertEqual(FAKE['status'], sot.status)

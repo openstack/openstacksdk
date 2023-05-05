@@ -16,14 +16,10 @@ from openstack.orchestration.v1 import stack_files as sf
 from openstack import resource
 from openstack.tests.unit import base
 
-FAKE = {
-    'stack_id': 'ID',
-    'stack_name': 'NAME'
-}
+FAKE = {'stack_id': 'ID', 'stack_name': 'NAME'}
 
 
 class TestStackFiles(base.TestCase):
-
     def test_basic(self):
         sot = sf.StackFiles()
         self.assertFalse(sot.allow_create)
@@ -48,9 +44,10 @@ class TestStackFiles(base.TestCase):
         sot = sf.StackFiles(**FAKE)
 
         req = mock.MagicMock()
-        req.url = ('/stacks/%(stack_name)s/%(stack_id)s/files' %
-                   {'stack_name': FAKE['stack_name'],
-                    'stack_id': FAKE['stack_id']})
+        req.url = '/stacks/%(stack_name)s/%(stack_id)s/files' % {
+            'stack_name': FAKE['stack_name'],
+            'stack_id': FAKE['stack_id'],
+        }
         mock_prepare_request.return_value = req
 
         files = sot.fetch(sess)

@@ -16,27 +16,14 @@ from openstack.tests.unit import base
 
 FAKE = {
     'encrypted_param_names': ['n1', 'n2'],
-    'event_sinks': {
-        's1': 'v1'
-    },
-    'parameters': {
-        'key_name': {
-            'type': 'string'
-        }
-    },
-    'parameter_defaults': {
-        'p1': 'def1'
-    },
-    'resource_registry': {
-        'resources': {
-            'type1': 'type2'
-        }
-    },
+    'event_sinks': {'s1': 'v1'},
+    'parameters': {'key_name': {'type': 'string'}},
+    'parameter_defaults': {'p1': 'def1'},
+    'resource_registry': {'resources': {'type1': 'type2'}},
 }
 
 
 class TestStackTemplate(base.TestCase):
-
     def test_basic(self):
         sot = se.StackEnvironment()
         self.assertFalse(sot.allow_create)
@@ -47,8 +34,9 @@ class TestStackTemplate(base.TestCase):
 
     def test_make_it(self):
         sot = se.StackEnvironment(**FAKE)
-        self.assertEqual(FAKE['encrypted_param_names'],
-                         sot.encrypted_param_names)
+        self.assertEqual(
+            FAKE['encrypted_param_names'], sot.encrypted_param_names
+        )
         self.assertEqual(FAKE['event_sinks'], sot.event_sinks)
         self.assertEqual(FAKE['parameters'], sot.parameters)
         self.assertEqual(FAKE['parameter_defaults'], sot.parameter_defaults)
