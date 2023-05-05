@@ -25,11 +25,26 @@ class CronTrigger(resource.Resource):
     allow_delete = True
 
     _query_mapping = resource.QueryParameters(
-        'marker', 'limit', 'sort_keys', 'sort_dirs', 'fields', 'name',
-        'workflow_name', 'workflow_id', 'workflow_input', 'workflow_params',
-        'scope', 'pattern', 'remaining_executions', 'project_id',
-        'first_execution_time', 'next_execution_time', 'created_at',
-        'updated_at', 'all_projects')
+        'marker',
+        'limit',
+        'sort_keys',
+        'sort_dirs',
+        'fields',
+        'name',
+        'workflow_name',
+        'workflow_id',
+        'workflow_input',
+        'workflow_params',
+        'scope',
+        'pattern',
+        'remaining_executions',
+        'project_id',
+        'first_execution_time',
+        'next_execution_time',
+        'created_at',
+        'updated_at',
+        'all_projects',
+    )
 
     #: The name of this Cron Trigger
     name = resource.Body("name")
@@ -58,4 +73,5 @@ class CronTrigger(resource.Resource):
 
     def create(self, session, base_path=None):
         return super(CronTrigger, self).create(
-            session, prepend_key=False, base_path=base_path)
+            session, prepend_key=False, base_path=base_path
+        )

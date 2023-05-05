@@ -17,7 +17,7 @@ from openstack.workflow.v2 import cron_trigger
 FAKE_INPUT = {
     'cluster_id': '8c74607c-5a74-4490-9414-a3475b1926c2',
     'node_id': 'fba2cc5d-706f-4631-9577-3956048d13a2',
-    'flavor_id': '1'
+    'flavor_id': '1',
 }
 
 FAKE_PARAMS = {}
@@ -36,7 +36,6 @@ FAKE = {
 
 
 class TestCronTrigger(base.TestCase):
-
     def test_basic(self):
         sot = cron_trigger.CronTrigger()
         self.assertEqual('cron_trigger', sot.resource_key)
@@ -69,19 +68,20 @@ class TestCronTrigger(base.TestCase):
                 'updated_at': 'updated_at',
                 'all_projects': 'all_projects',
             },
-            sot._query_mapping._mapping
+            sot._query_mapping._mapping,
         )
 
     def test_make_it(self):
         sot = cron_trigger.CronTrigger(**FAKE)
         self.assertEqual(FAKE['id'], sot.id)
         self.assertEqual(FAKE['pattern'], sot.pattern)
-        self.assertEqual(FAKE['remaining_executions'],
-                         sot.remaining_executions)
-        self.assertEqual(FAKE['first_execution_time'],
-                         sot.first_execution_time)
-        self.assertEqual(FAKE['next_execution_time'],
-                         sot.next_execution_time)
+        self.assertEqual(
+            FAKE['remaining_executions'], sot.remaining_executions
+        )
+        self.assertEqual(
+            FAKE['first_execution_time'], sot.first_execution_time
+        )
+        self.assertEqual(FAKE['next_execution_time'], sot.next_execution_time)
         self.assertEqual(FAKE['workflow_name'], sot.workflow_name)
         self.assertEqual(FAKE['workflow_id'], sot.workflow_id)
         self.assertEqual(FAKE['workflow_input'], sot.workflow_input)

@@ -17,7 +17,7 @@ from openstack.workflow.v2 import execution
 FAKE_INPUT = {
     'cluster_id': '8c74607c-5a74-4490-9414-a3475b1926c2',
     'node_id': 'fba2cc5d-706f-4631-9577-3956048d13a2',
-    'flavor_id': '1'
+    'flavor_id': '1',
 }
 
 FAKE = {
@@ -28,7 +28,6 @@ FAKE = {
 
 
 class TestExecution(base.TestCase):
-
     def setUp(self):
         super(TestExecution, self).setUp()
 

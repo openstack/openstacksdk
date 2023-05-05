@@ -78,8 +78,9 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        return self._delete(_workflow.Workflow, value,
-                            ignore_missing=ignore_missing)
+        return self._delete(
+            _workflow.Workflow, value, ignore_missing=ignore_missing
+        )
 
     def find_workflow(self, name_or_id, ignore_missing=True):
         """Find a single workflow
@@ -93,8 +94,9 @@ class Proxy(proxy.Proxy):
         :returns: One :class:`~openstack.compute.v2.workflow.Extension` or
             None
         """
-        return self._find(_workflow.Workflow, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _workflow.Workflow, name_or_id, ignore_missing=ignore_missing
+        )
 
     def create_execution(self, **attrs):
         """Create a new execution from attributes
@@ -154,8 +156,9 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        return self._delete(_execution.Execution, value,
-                            ignore_missing=ignore_missing)
+        return self._delete(
+            _execution.Execution, value, ignore_missing=ignore_missing
+        )
 
     def find_execution(self, name_or_id, ignore_missing=True):
         """Find a single execution
@@ -169,8 +172,9 @@ class Proxy(proxy.Proxy):
         :returns: One :class:`~openstack.compute.v2.execution.Execution` or
             None
         """
-        return self._find(_execution.Execution, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _execution.Execution, name_or_id, ignore_missing=ignore_missing
+        )
 
     def create_cron_trigger(self, **attrs):
         """Create a new cron trigger from attributes
@@ -232,8 +236,9 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        return self._delete(_cron_trigger.CronTrigger, value,
-                            ignore_missing=ignore_missing)
+        return self._delete(
+            _cron_trigger.CronTrigger, value, ignore_missing=ignore_missing
+        )
 
     # TODO(stephenfin): Drop 'query' parameter or apply it consistently
     def find_cron_trigger(

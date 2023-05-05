@@ -25,7 +25,8 @@ class Workflow(resource.Resource):
     allow_delete = True
 
     _query_mapping = resource.QueryParameters(
-        'marker', 'limit', 'sort_keys', 'sort_dirs', 'fields')
+        'marker', 'limit', 'sort_keys', 'sort_dirs', 'fields'
+    )
 
     #: The name of this Workflow
     name = resource.Body("name")
@@ -47,13 +48,11 @@ class Workflow(resource.Resource):
     updated_at = resource.Body("updated_at")
 
     def create(self, session, prepend_key=True, base_path=None):
-        request = self._prepare_request(requires_id=False,
-                                        prepend_key=prepend_key,
-                                        base_path=base_path)
+        request = self._prepare_request(
+            requires_id=False, prepend_key=prepend_key, base_path=base_path
+        )
 
-        headers = {
-            "Content-Type": 'text/plain'
-        }
+        headers = {"Content-Type": 'text/plain'}
         kwargs = {
             "data": self.definition,
         }
@@ -62,9 +61,9 @@ class Workflow(resource.Resource):
         uri = request.url + scope
 
         request.headers.update(headers)
-        response = session.post(uri,
-                                json=None,
-                                headers=request.headers, **kwargs)
+        response = session.post(
+            uri, json=None, headers=request.headers, **kwargs
+        )
 
         self._translate_response(response, has_body=False)
         return self
