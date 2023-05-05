@@ -1,0 +1,26 @@
+# You can configure git to automatically use this file with the following config:
+# git config --global blame.ignoreRevsFile .git-blame-ignore-revs
+
+a36f514295a4b4e6157ce69a210f653bcc4df7f2  # Blackify everything else
+004c7352d0a4fb467a319ae9743eb6ca5ee9ce7f  # Blackify openstack.cloud
+c2ff7336cecabc665e7bf04cbe87ef8d0c2e6f9f  # Blackify openstack.clustering
+073abda5a94b12a319c79d6a9b8594036f95fc65  # Blackify openstack.container_infrastructure_management
+570b81f0ec3b3876aefbb223c78093f2a957bb01  # Blackify openstack.accelerator
+33bed575013f11e4d408593e53c6c99ca66d6110  # Blackify openstack.instance_ha
+10018dbf5be5e19c87543a5931f6809006eba4c5  # Blackify openstack.dns
+19ec9ba383d14f4af6a1bb78dbbeaa6638ee8a4f  # Blackify openstack.database
+0e2b5d263fdf12e0c8a67503712afab2816ef2d0  # Blackify openstack.message
+9d3d986241ce110e8f6bdf3ecb19609dc417a10a  # Blackify openstack.workflow
+874ea74103a0c833df7668a45b96b7145a8158a2  # Blackify openstack.orchestration
+409f648ce506d7e768305f75025c4b01c5fa3008  # Blackify openstack.placement
+93d8f41713ec2128210bf0a8479a5f3872ce0382  # Blackify openstack.key_manager
+3d2511f98025d2d2826e13cea8be7545e90990f7  # Blackify openstack.shared_file_system
+82c2a534024cff7690620876723422a98e8f371a  # Blackify openstack.load_balancer
+f8e42017e756e383367145c4caf39de796babcba  # Blackify openstack.baremetal, openstack.baremetal_introspection
+4589e293e829950d2fd4c705cce2f7ce30ca9e29  # Blackify openstack.object_store
+34da09f3125ccd0408f2e0019c85d95188fef573  # Blackify openstack.block_storage
+542ddaa1ad5cfc9b9876de3de0759941c9a9ea83  # Blackify openstack.identity
+f526b990f31de03a1b6181a4724976e1b86a654a  # Blackify openstack.network
+bcf99f3433ceecf9a210d0aa0580a67645ccf7ee  # Blackify openstack.image
+69735d3bd8fd874a9817c26b5b009921110fb416  # Blackify openstack.compute (tests)
+395a77298ecd79623b1af75ad0dc7653f5e4eb61  # Blackify openstack.compute
