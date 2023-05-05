@@ -25,48 +25,62 @@ def hypervisors():
     if HYPERVISORS:
         return True
     HYPERVISORS = connection.Connection.list_hypervisors(
-        connection.from_config(cloud_name=base.TEST_CLOUD_NAME))
+        connection.from_config(cloud_name=base.TEST_CLOUD_NAME)
+    )
     return bool(HYPERVISORS)
 
 
 class TestHost(base.BaseFunctionalTest):
-
     def setUp(self):
         super(TestHost, self).setUp()
         self.require_service('instance-ha')
         self.NAME = self.getUniqueString()
 
         if not hypervisors():
-            self.skipTest("Skip TestHost as there are no hypervisors "
-                          "configured in nova")
+            self.skipTest(
+                "Skip TestHost as there are no hypervisors "
+                "configured in nova"
+            )
 
         # Create segment
         self.segment = self.conn.ha.create_segment(
-            name=self.NAME, recovery_method='auto',
-            service_type='COMPUTE')
+            name=self.NAME, recovery_method='auto', service_type='COMPUTE'
+        )
 
         # Create valid host
         self.NAME = HYPERVISORS[0].name
         self.host = self.conn.ha.create_host(
-            segment_id=self.segment.uuid, name=self.NAME, type='COMPUTE',
-            control_attributes='SSH')
+            segment_id=self.segment.uuid,
+            name=self.NAME,
+            type='COMPUTE',
+            control_attributes='SSH',
+        )
 
         # Delete host
-        self.addCleanup(self.conn.ha.delete_host, self.segment.uuid,
-                        self.host.uuid)
+        self.addCleanup(
+            self.conn.ha.delete_host, self.segment.uuid, self.host.uuid
+        )
         # Delete segment
         self.addCleanup(self.conn.ha.delete_segment, self.segment.uuid)
 
     def test_list(self):
-        names = [o.name for o in self.conn.ha.hosts(
-            self.segment.uuid, failover_segment_id=self.segment.uuid,
-            type='COMPUTE')]
+        names = [
+            o.name
+            for o in self.conn.ha.hosts(
+                self.segment.uuid,
+                failover_segment_id=self.segment.uuid,
+                type='COMPUTE',
+            )
+        ]
         self.assertIn(self.NAME, names)
 
     def test_update(self):
-        updated_host = self.conn.ha.update_host(self.host['uuid'],
-                                                segment_id=self.segment.uuid,
-                                                on_maintenance='True')
-        get_host = self.conn.ha.get_host(updated_host.uuid,
-                                         updated_host.segment_id)
+        updated_host = self.conn.ha.update_host(
+            self.host['uuid'],
+            segment_id=self.segment.uuid,
+            on_maintenance='True',
+        )
+        get_host = self.conn.ha.get_host(
+            updated_host.uuid, updated_host.segment_id
+        )
         self.assertEqual(True, get_host.on_maintenance)

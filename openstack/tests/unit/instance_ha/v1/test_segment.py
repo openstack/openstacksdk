@@ -31,7 +31,6 @@ SEGMENT = {
 
 
 class TestSegment(base.TestCase):
-
     def test_basic(self):
         sot = segment.Segment(SEGMENT)
         self.assertEqual("segment", sot.resource_key)
@@ -43,14 +42,18 @@ class TestSegment(base.TestCase):
         self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
 
-        self.assertDictEqual({"limit": "limit",
-                              "marker": "marker",
-                              "recovery_method": "recovery_method",
-                              "service_type": "service_type",
-                              "is_enabled": "enabled",
-                              "sort_dir": "sort_dir",
-                              "sort_key": "sort_key"},
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {
+                "limit": "limit",
+                "marker": "marker",
+                "recovery_method": "recovery_method",
+                "service_type": "service_type",
+                "is_enabled": "enabled",
+                "sort_dir": "sort_dir",
+                "sort_key": "sort_key",
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_create(self):
         sot = segment.Segment(**SEGMENT)

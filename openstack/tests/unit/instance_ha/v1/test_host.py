@@ -18,10 +18,7 @@ from openstack.tests.unit import base
 FAKE_ID = "1c2f1795-ce78-4d4c-afd0-ce141fdb3952"
 FAKE_UUID = "11f7597f-87d2-4057-b754-ba611f989807"
 FAKE_HOST_ID = "c27dec16-ed4d-4ebe-8e77-f1e28ec32417"
-FAKE_CONTROL_ATTRIBUTES = {
-    "mcastaddr": "239.255.1.1",
-    "mcastport": "5405"
-}
+FAKE_CONTROL_ATTRIBUTES = {"mcastaddr": "239.255.1.1", "mcastport": "5405"}
 HOST = {
     "id": FAKE_ID,
     "uuid": FAKE_UUID,
@@ -33,12 +30,11 @@ HOST = {
     "control_attributes": FAKE_CONTROL_ATTRIBUTES,
     "on_maintenance": False,
     "reserved": False,
-    "failover_segment_id": FAKE_HOST_ID
+    "failover_segment_id": FAKE_HOST_ID,
 }
 
 
 class TestHost(base.TestCase):
-
     def test_basic(self):
         sot = host.Host(HOST)
         self.assertEqual("host", sot.resource_key)
@@ -50,15 +46,19 @@ class TestHost(base.TestCase):
         self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
 
-        self.assertDictEqual({"failover_segment_id": "failover_segment_id",
-                              "limit": "limit",
-                              "marker": "marker",
-                              "on_maintenance": "on_maintenance",
-                              "reserved": "reserved",
-                              "sort_dir": "sort_dir",
-                              "sort_key": "sort_key",
-                              "type": "type"},
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {
+                "failover_segment_id": "failover_segment_id",
+                "limit": "limit",
+                "marker": "marker",
+                "on_maintenance": "on_maintenance",
+                "reserved": "reserved",
+                "sort_dir": "sort_dir",
+                "sort_key": "sort_key",
+                "type": "type",
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_create(self):
         sot = host.Host(**HOST)

@@ -33,7 +33,8 @@ class RecoveryWorkflowDetailItem(resource.Resource):
     state = resource.Body("state")
     #: The progress details of this recovery workflow.
     progress_details = resource.Body(
-        "progress_details", type=list, list_type=ProgressDetailsItem)
+        "progress_details", type=list, list_type=ProgressDetailsItem
+    )
 
 
 class Notification(resource.Resource):
@@ -75,8 +76,15 @@ class Notification(resource.Resource):
     #: The recovery workflow details of this notification.
     recovery_workflow_details = resource.Body(
         "recovery_workflow_details",
-        type=list, list_type=RecoveryWorkflowDetailItem)
+        type=list,
+        list_type=RecoveryWorkflowDetailItem,
+    )
 
     _query_mapping = resource.QueryParameters(
-        "sort_key", "sort_dir", source_host_uuid="source_host_uuid",
-        type="type", status="status", generated_since="generated-since")
+        "sort_key",
+        "sort_dir",
+        source_host_uuid="source_host_uuid",
+        type="type",
+        status="status",
+        generated_since="generated-since",
+    )

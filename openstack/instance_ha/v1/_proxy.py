@@ -122,8 +122,9 @@ class Proxy(proxy.Proxy):
             attempting to delete a nonexistent segment.
         :returns: ``None``
         """
-        return self._delete(_segment.Segment, segment,
-                            ignore_missing=ignore_missing)
+        return self._delete(
+            _segment.Segment, segment, ignore_missing=ignore_missing
+        )
 
     def hosts(self, segment_id, **query):
         """Return a generator of hosts.
@@ -182,8 +183,9 @@ class Proxy(proxy.Proxy):
             when segment_id is None.
         """
         host_id = resource.Resource._get_id(host)
-        return self._update(_host.Host, host_id, segment_id=segment_id,
-                            **attrs)
+        return self._update(
+            _host.Host, host_id, segment_id=segment_id, **attrs
+        )
 
     def delete_host(self, host, segment_id=None, ignore_missing=True):
         """Delete the host.
@@ -208,5 +210,9 @@ class Proxy(proxy.Proxy):
             raise exceptions.InvalidRequest("'segment_id' must be specified.")
 
         host_id = resource.Resource._get_id(host)
-        return self._delete(_host.Host, host_id, segment_id=segment_id,
-                            ignore_missing=ignore_missing)
+        return self._delete(
+            _host.Host,
+            host_id,
+            segment_id=segment_id,
+            ignore_missing=ignore_missing,
+        )

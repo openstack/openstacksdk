@@ -30,38 +30,48 @@ class TestInstanceHaProxy(test_proxy_base.TestProxyBase):
 
 class TestInstanceHaHosts(TestInstanceHaProxy):
     def test_hosts(self):
-        self.verify_list(self.proxy.hosts,
-                         host.Host,
-                         method_args=[SEGMENT_ID],
-                         expected_args=[],
-                         expected_kwargs={"segment_id": SEGMENT_ID})
+        self.verify_list(
+            self.proxy.hosts,
+            host.Host,
+            method_args=[SEGMENT_ID],
+            expected_args=[],
+            expected_kwargs={"segment_id": SEGMENT_ID},
+        )
 
     def test_host_get(self):
-        self.verify_get(self.proxy.get_host,
-                        host.Host,
-                        method_args=[HOST_ID],
-                        method_kwargs={"segment_id": SEGMENT_ID},
-                        expected_kwargs={"segment_id": SEGMENT_ID})
+        self.verify_get(
+            self.proxy.get_host,
+            host.Host,
+            method_args=[HOST_ID],
+            method_kwargs={"segment_id": SEGMENT_ID},
+            expected_kwargs={"segment_id": SEGMENT_ID},
+        )
 
     def test_host_create(self):
-        self.verify_create(self.proxy.create_host,
-                           host.Host,
-                           method_args=[SEGMENT_ID],
-                           method_kwargs={},
-                           expected_args=[],
-                           expected_kwargs={"segment_id": SEGMENT_ID})
+        self.verify_create(
+            self.proxy.create_host,
+            host.Host,
+            method_args=[SEGMENT_ID],
+            method_kwargs={},
+            expected_args=[],
+            expected_kwargs={"segment_id": SEGMENT_ID},
+        )
 
     def test_host_update(self):
-        self.verify_update(self.proxy.update_host,
-                           host.Host,
-                           method_kwargs={"segment_id": SEGMENT_ID})
+        self.verify_update(
+            self.proxy.update_host,
+            host.Host,
+            method_kwargs={"segment_id": SEGMENT_ID},
+        )
 
     def test_host_delete(self):
-        self.verify_delete(self.proxy.delete_host,
-                           host.Host,
-                           True,
-                           method_kwargs={"segment_id": SEGMENT_ID},
-                           expected_kwargs={"segment_id": SEGMENT_ID})
+        self.verify_delete(
+            self.proxy.delete_host,
+            host.Host,
+            True,
+            method_kwargs={"segment_id": SEGMENT_ID},
+            expected_kwargs={"segment_id": SEGMENT_ID},
+        )
 
 
 class TestInstanceHaNotifications(TestInstanceHaProxy):
@@ -69,12 +79,12 @@ class TestInstanceHaNotifications(TestInstanceHaProxy):
         self.verify_list(self.proxy.notifications, notification.Notification)
 
     def test_notification_get(self):
-        self.verify_get(self.proxy.get_notification,
-                        notification.Notification)
+        self.verify_get(self.proxy.get_notification, notification.Notification)
 
     def test_notification_create(self):
-        self.verify_create(self.proxy.create_notification,
-                           notification.Notification)
+        self.verify_create(
+            self.proxy.create_notification, notification.Notification
+        )
 
 
 class TestInstanceHaSegments(TestInstanceHaProxy):
