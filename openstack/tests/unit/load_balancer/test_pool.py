@@ -44,7 +44,6 @@ EXAMPLE = {
 
 
 class TestPool(base.TestCase):
-
     def test_basic(self):
         test_pool = pool.Pool()
         self.assertEqual('pool', test_pool.resource_key)
@@ -59,66 +58,62 @@ class TestPool(base.TestCase):
     def test_make_it(self):
         test_pool = pool.Pool(**EXAMPLE)
         self.assertEqual(EXAMPLE['name'], test_pool.name),
-        self.assertEqual(EXAMPLE['description'],
-                         test_pool.description)
-        self.assertEqual(EXAMPLE['admin_state_up'],
-                         test_pool.is_admin_state_up)
-        self.assertEqual(EXAMPLE['provisioning_status'],
-                         test_pool.provisioning_status)
+        self.assertEqual(EXAMPLE['description'], test_pool.description)
+        self.assertEqual(
+            EXAMPLE['admin_state_up'], test_pool.is_admin_state_up
+        )
+        self.assertEqual(
+            EXAMPLE['provisioning_status'], test_pool.provisioning_status
+        )
         self.assertEqual(EXAMPLE['protocol'], test_pool.protocol)
-        self.assertEqual(EXAMPLE['operating_status'],
-                         test_pool.operating_status)
+        self.assertEqual(
+            EXAMPLE['operating_status'], test_pool.operating_status
+        )
         self.assertEqual(EXAMPLE['listener_id'], test_pool.listener_id)
-        self.assertEqual(EXAMPLE['loadbalancer_id'],
-                         test_pool.loadbalancer_id)
-        self.assertEqual(EXAMPLE['lb_algorithm'],
-                         test_pool.lb_algorithm)
-        self.assertEqual(EXAMPLE['session_persistence'],
-                         test_pool.session_persistence)
-        self.assertEqual(EXAMPLE['project_id'],
-                         test_pool.project_id)
-        self.assertEqual(EXAMPLE['loadbalancers'],
-                         test_pool.loadbalancers)
-        self.assertEqual(EXAMPLE['listeners'],
-                         test_pool.listeners)
+        self.assertEqual(EXAMPLE['loadbalancer_id'], test_pool.loadbalancer_id)
+        self.assertEqual(EXAMPLE['lb_algorithm'], test_pool.lb_algorithm)
+        self.assertEqual(
+            EXAMPLE['session_persistence'], test_pool.session_persistence
+        )
+        self.assertEqual(EXAMPLE['project_id'], test_pool.project_id)
+        self.assertEqual(EXAMPLE['loadbalancers'], test_pool.loadbalancers)
+        self.assertEqual(EXAMPLE['listeners'], test_pool.listeners)
         self.assertEqual(EXAMPLE['created_at'], test_pool.created_at)
         self.assertEqual(EXAMPLE['updated_at'], test_pool.updated_at)
-        self.assertEqual(EXAMPLE['health_monitor_id'],
-                         test_pool.health_monitor_id)
+        self.assertEqual(
+            EXAMPLE['health_monitor_id'], test_pool.health_monitor_id
+        )
         self.assertEqual(EXAMPLE['members'], test_pool.members)
-        self.assertEqual(EXAMPLE['tls_enabled'],
-                         test_pool.tls_enabled)
-        self.assertEqual(EXAMPLE['tls_ciphers'],
-                         test_pool.tls_ciphers)
-        self.assertEqual(EXAMPLE['tls_versions'],
-                         test_pool.tls_versions)
-        self.assertEqual(EXAMPLE['alpn_protocols'],
-                         test_pool.alpn_protocols)
+        self.assertEqual(EXAMPLE['tls_enabled'], test_pool.tls_enabled)
+        self.assertEqual(EXAMPLE['tls_ciphers'], test_pool.tls_ciphers)
+        self.assertEqual(EXAMPLE['tls_versions'], test_pool.tls_versions)
+        self.assertEqual(EXAMPLE['alpn_protocols'], test_pool.alpn_protocols)
 
         self.assertDictEqual(
-            {'limit': 'limit',
-             'marker': 'marker',
-             'created_at': 'created_at',
-             'updated_at': 'updated_at',
-             'description': 'description',
-             'name': 'name',
-             'project_id': 'project_id',
-             'tags': 'tags',
-             'any_tags': 'tags-any',
-             'not_tags': 'not-tags',
-             'not_any_tags': 'not-tags-any',
-             'operating_status': 'operating_status',
-             'provisioning_status': 'provisioning_status',
-             'is_admin_state_up': 'admin_state_up',
-
-             'health_monitor_id': 'health_monitor_id',
-             'lb_algorithm': 'lb_algorithm',
-             'listener_id': 'listener_id',
-             'loadbalancer_id': 'loadbalancer_id',
-             'protocol': 'protocol',
-             'tls_enabled': 'tls_enabled',
-             'tls_ciphers': 'tls_ciphers',
-             'tls_versions': 'tls_versions',
-             'alpn_protocols': 'alpn_protocols',
-             },
-            test_pool._query_mapping._mapping)
+            {
+                'limit': 'limit',
+                'marker': 'marker',
+                'created_at': 'created_at',
+                'updated_at': 'updated_at',
+                'description': 'description',
+                'name': 'name',
+                'project_id': 'project_id',
+                'tags': 'tags',
+                'any_tags': 'tags-any',
+                'not_tags': 'not-tags',
+                'not_any_tags': 'not-tags-any',
+                'operating_status': 'operating_status',
+                'provisioning_status': 'provisioning_status',
+                'is_admin_state_up': 'admin_state_up',
+                'health_monitor_id': 'health_monitor_id',
+                'lb_algorithm': 'lb_algorithm',
+                'listener_id': 'listener_id',
+                'loadbalancer_id': 'loadbalancer_id',
+                'protocol': 'protocol',
+                'tls_enabled': 'tls_enabled',
+                'tls_ciphers': 'tls_ciphers',
+                'tls_versions': 'tls_versions',
+                'alpn_protocols': 'alpn_protocols',
+            },
+            test_pool._query_mapping._mapping,
+        )

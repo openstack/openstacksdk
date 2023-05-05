@@ -23,11 +23,11 @@ EXAMPLE = {
     'id': IDENTIFIER,
     'name': 'acidic',
     'provider_name': 'best',
-    'flavor_data': '{"loadbalancer_topology": "SINGLE"}'}
+    'flavor_data': '{"loadbalancer_topology": "SINGLE"}',
+}
 
 
 class TestFlavorProfile(base.TestCase):
-
     def test_basic(self):
         test_profile = flavor_profile.FlavorProfile()
         self.assertEqual('flavorprofile', test_profile.resource_key)
@@ -47,10 +47,13 @@ class TestFlavorProfile(base.TestCase):
         self.assertEqual(EXAMPLE['flavor_data'], test_profile.flavor_data)
 
         self.assertDictEqual(
-            {'limit': 'limit',
-             'marker': 'marker',
-             'id': 'id',
-             'name': 'name',
-             'provider_name': 'provider_name',
-             'flavor_data': 'flavor_data'},
-            test_profile._query_mapping._mapping)
+            {
+                'limit': 'limit',
+                'marker': 'marker',
+                'id': 'id',
+                'name': 'name',
+                'provider_name': 'provider_name',
+                'flavor_data': 'flavor_data',
+            },
+            test_profile._query_mapping._mapping,
+        )

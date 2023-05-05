@@ -26,10 +26,19 @@ class L7Rule(resource.Resource, tag.TagMixin):
     allow_delete = True
 
     _query_mapping = resource.QueryParameters(
-        'compare_type', 'created_at', 'invert', 'key', 'project_id',
-        'provisioning_status', 'type', 'updated_at', 'rule_value',
-        'operating_status', is_admin_state_up='admin_state_up',
-        l7_policy_id='l7policy_id', **tag.TagMixin._tag_query_parameters
+        'compare_type',
+        'created_at',
+        'invert',
+        'key',
+        'project_id',
+        'provisioning_status',
+        'type',
+        'updated_at',
+        'rule_value',
+        'operating_status',
+        is_admin_state_up='admin_state_up',
+        l7_policy_id='l7policy_id',
+        **tag.TagMixin._tag_query_parameters
     )
 
     #: Properties

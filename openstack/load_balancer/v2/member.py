@@ -26,9 +26,19 @@ class Member(resource.Resource, tag.TagMixin):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'address', 'name', 'protocol_port', 'subnet_id', 'weight',
-        'created_at', 'updated_at', 'provisioning_status', 'operating_status',
-        'project_id', 'monitor_address', 'monitor_port', 'backup',
+        'address',
+        'name',
+        'protocol_port',
+        'subnet_id',
+        'weight',
+        'created_at',
+        'updated_at',
+        'provisioning_status',
+        'operating_status',
+        'project_id',
+        'monitor_address',
+        'monitor_port',
+        'backup',
         is_admin_state_up='admin_state_up',
         **tag.TagMixin._tag_query_parameters
     )

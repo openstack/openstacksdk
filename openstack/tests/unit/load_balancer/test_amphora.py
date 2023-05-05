@@ -48,12 +48,11 @@ EXAMPLE = {
     'created_at': '2017-05-10T18:14:44',
     'updated_at': '2017-05-10T23:08:12',
     'image_id': IMAGE_ID,
-    'compute_flavor': COMPUTE_FLAVOR
+    'compute_flavor': COMPUTE_FLAVOR,
 }
 
 
 class TestAmphora(base.TestCase):
-
     def test_basic(self):
         test_amphora = amphora.Amphora()
         self.assertEqual('amphora', test_amphora.resource_key)
@@ -75,13 +74,15 @@ class TestAmphora(base.TestCase):
         self.assertEqual(EXAMPLE['ha_ip'], test_amphora.ha_ip)
         self.assertEqual(VRRP_PORT_ID, test_amphora.vrrp_port_id)
         self.assertEqual(HA_PORT_ID, test_amphora.ha_port_id)
-        self.assertEqual(EXAMPLE['cert_expiration'],
-                         test_amphora.cert_expiration)
+        self.assertEqual(
+            EXAMPLE['cert_expiration'], test_amphora.cert_expiration
+        )
         self.assertEqual(EXAMPLE['cert_busy'], test_amphora.cert_busy)
         self.assertEqual(EXAMPLE['role'], test_amphora.role)
         self.assertEqual(EXAMPLE['status'], test_amphora.status)
-        self.assertEqual(EXAMPLE['vrrp_interface'],
-                         test_amphora.vrrp_interface)
+        self.assertEqual(
+            EXAMPLE['vrrp_interface'], test_amphora.vrrp_interface
+        )
         self.assertEqual(EXAMPLE['vrrp_id'], test_amphora.vrrp_id)
         self.assertEqual(EXAMPLE['vrrp_priority'], test_amphora.vrrp_priority)
         self.assertEqual(EXAMPLE['cached_zone'], test_amphora.cached_zone)
@@ -91,38 +92,41 @@ class TestAmphora(base.TestCase):
         self.assertEqual(COMPUTE_FLAVOR, test_amphora.compute_flavor)
 
         self.assertDictEqual(
-            {'limit': 'limit',
-             'marker': 'marker',
-             'id': 'id',
-             'loadbalancer_id': 'loadbalancer_id',
-             'compute_id': 'compute_id',
-             'lb_network_ip': 'lb_network_ip',
-             'vrrp_ip': 'vrrp_ip',
-             'ha_ip': 'ha_ip',
-             'vrrp_port_id': 'vrrp_port_id',
-             'ha_port_id': 'ha_port_id',
-             'cert_expiration': 'cert_expiration',
-             'cert_busy': 'cert_busy',
-             'role': 'role',
-             'status': 'status',
-             'vrrp_interface': 'vrrp_interface',
-             'vrrp_id': 'vrrp_id',
-             'vrrp_priority': 'vrrp_priority',
-             'cached_zone': 'cached_zone',
-             'created_at': 'created_at',
-             'updated_at': 'updated_at',
-             'image_id': 'image_id',
-             'image_id': 'image_id'
-             },
-            test_amphora._query_mapping._mapping)
+            {
+                'limit': 'limit',
+                'marker': 'marker',
+                'id': 'id',
+                'loadbalancer_id': 'loadbalancer_id',
+                'compute_id': 'compute_id',
+                'lb_network_ip': 'lb_network_ip',
+                'vrrp_ip': 'vrrp_ip',
+                'ha_ip': 'ha_ip',
+                'vrrp_port_id': 'vrrp_port_id',
+                'ha_port_id': 'ha_port_id',
+                'cert_expiration': 'cert_expiration',
+                'cert_busy': 'cert_busy',
+                'role': 'role',
+                'status': 'status',
+                'vrrp_interface': 'vrrp_interface',
+                'vrrp_id': 'vrrp_id',
+                'vrrp_priority': 'vrrp_priority',
+                'cached_zone': 'cached_zone',
+                'created_at': 'created_at',
+                'updated_at': 'updated_at',
+                'image_id': 'image_id',
+                'image_id': 'image_id',
+            },
+            test_amphora._query_mapping._mapping,
+        )
 
 
 class TestAmphoraConfig(base.TestCase):
-
     def test_basic(self):
         test_amp_config = amphora.AmphoraConfig()
-        self.assertEqual('/octavia/amphorae/%(amphora_id)s/config',
-                         test_amp_config.base_path)
+        self.assertEqual(
+            '/octavia/amphorae/%(amphora_id)s/config',
+            test_amp_config.base_path,
+        )
         self.assertFalse(test_amp_config.allow_create)
         self.assertFalse(test_amp_config.allow_fetch)
         self.assertTrue(test_amp_config.allow_commit)
@@ -131,11 +135,12 @@ class TestAmphoraConfig(base.TestCase):
 
 
 class TestAmphoraFailover(base.TestCase):
-
     def test_basic(self):
         test_amp_failover = amphora.AmphoraFailover()
-        self.assertEqual('/octavia/amphorae/%(amphora_id)s/failover',
-                         test_amp_failover.base_path)
+        self.assertEqual(
+            '/octavia/amphorae/%(amphora_id)s/failover',
+            test_amp_failover.base_path,
+        )
         self.assertFalse(test_amp_failover.allow_create)
         self.assertFalse(test_amp_failover.allow_fetch)
         self.assertTrue(test_amp_failover.allow_commit)

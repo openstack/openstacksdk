@@ -26,10 +26,20 @@ class LoadBalancer(resource.Resource, tag.TagMixin):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'description', 'flavor_id', 'name', 'project_id', 'provider',
-        'vip_address', 'vip_network_id', 'vip_port_id', 'vip_subnet_id',
-        'vip_qos_policy_id', 'provisioning_status', 'operating_status',
-        'availability_zone', is_admin_state_up='admin_state_up',
+        'description',
+        'flavor_id',
+        'name',
+        'project_id',
+        'provider',
+        'vip_address',
+        'vip_network_id',
+        'vip_port_id',
+        'vip_subnet_id',
+        'vip_qos_policy_id',
+        'provisioning_status',
+        'operating_status',
+        'availability_zone',
+        is_admin_state_up='admin_state_up',
         **tag.TagMixin._tag_query_parameters
     )
 
@@ -76,14 +86,17 @@ class LoadBalancer(resource.Resource, tag.TagMixin):
     def delete(self, session, error_message=None):
         request = self._prepare_request()
         params = {}
-        if (hasattr(self, 'cascade') and isinstance(self.cascade, bool)
-                and self.cascade):
+        if (
+            hasattr(self, 'cascade')
+            and isinstance(self.cascade, bool)
+            and self.cascade
+        ):
             params['cascade'] = True
-        response = session.delete(request.url,
-                                  params=params)
+        response = session.delete(request.url, params=params)
 
-        self._translate_response(response, has_body=False,
-                                 error_message=error_message)
+        self._translate_response(
+            response, has_body=False, error_message=error_message
+        )
         return self
 
 
@@ -134,4 +147,5 @@ class LoadBalancerFailover(resource.Resource):
     # way to pass has_body into this function, so overriding the method here.
     def commit(self, session, base_path=None):
         return super(LoadBalancerFailover, self).commit(
-            session, base_path=base_path, has_body=False)
+            session, base_path=base_path, has_body=False
+        )

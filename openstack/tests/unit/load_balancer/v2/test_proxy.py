@@ -46,24 +46,22 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
         self.proxy = _proxy.Proxy(self.session)
 
     def test_load_balancers(self):
-        self.verify_list(self.proxy.load_balancers,
-                         lb.LoadBalancer)
+        self.verify_list(self.proxy.load_balancers, lb.LoadBalancer)
 
     def test_load_balancer_get(self):
-        self.verify_get(self.proxy.get_load_balancer,
-                        lb.LoadBalancer)
+        self.verify_get(self.proxy.get_load_balancer, lb.LoadBalancer)
 
     def test_load_balancer_stats_get(self):
-        self.verify_get(self.proxy.get_load_balancer_statistics,
-                        lb.LoadBalancerStats,
-                        method_args=[self.LB_ID],
-                        expected_args=[],
-                        expected_kwargs={'lb_id': self.LB_ID,
-                                         'requires_id': False})
+        self.verify_get(
+            self.proxy.get_load_balancer_statistics,
+            lb.LoadBalancerStats,
+            method_args=[self.LB_ID],
+            expected_args=[],
+            expected_kwargs={'lb_id': self.LB_ID, 'requires_id': False},
+        )
 
     def test_load_balancer_create(self):
-        self.verify_create(self.proxy.create_load_balancer,
-                           lb.LoadBalancer)
+        self.verify_create(self.proxy.create_load_balancer, lb.LoadBalancer)
 
     @mock.patch.object(proxy_base.Proxy, '_get_resource')
     def test_load_balancer_delete_non_cascade(self, mock_get_resource):
@@ -75,10 +73,12 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
             self.proxy.delete_load_balancer,
             method_args=["resource_or_id", True, False],
             expected_args=[lb.LoadBalancer, fake_load_balancer],
-            expected_kwargs={"ignore_missing": True})
+            expected_kwargs={"ignore_missing": True},
+        )
         self.assertFalse(fake_load_balancer.cascade)
-        mock_get_resource.assert_called_once_with(lb.LoadBalancer,
-                                                  "resource_or_id")
+        mock_get_resource.assert_called_once_with(
+            lb.LoadBalancer, "resource_or_id"
+        )
 
     @mock.patch.object(proxy_base.Proxy, '_get_resource')
     def test_load_balancer_delete_cascade(self, mock_get_resource):
@@ -90,108 +90,108 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
             self.proxy.delete_load_balancer,
             method_args=["resource_or_id", True, True],
             expected_args=[lb.LoadBalancer, fake_load_balancer],
-            expected_kwargs={"ignore_missing": True})
+            expected_kwargs={"ignore_missing": True},
+        )
         self.assertTrue(fake_load_balancer.cascade)
-        mock_get_resource.assert_called_once_with(lb.LoadBalancer,
-                                                  "resource_or_id")
+        mock_get_resource.assert_called_once_with(
+            lb.LoadBalancer, "resource_or_id"
+        )
 
     def test_load_balancer_find(self):
-        self.verify_find(self.proxy.find_load_balancer,
-                         lb.LoadBalancer)
+        self.verify_find(self.proxy.find_load_balancer, lb.LoadBalancer)
 
     def test_load_balancer_update(self):
-        self.verify_update(self.proxy.update_load_balancer,
-                           lb.LoadBalancer)
+        self.verify_update(self.proxy.update_load_balancer, lb.LoadBalancer)
 
     def test_load_balancer_failover(self):
-        self.verify_update(self.proxy.failover_load_balancer,
-                           lb.LoadBalancerFailover,
-                           method_args=[self.LB_ID],
-                           expected_args=[],
-                           expected_kwargs={'lb_id': self.LB_ID})
+        self.verify_update(
+            self.proxy.failover_load_balancer,
+            lb.LoadBalancerFailover,
+            method_args=[self.LB_ID],
+            expected_args=[],
+            expected_kwargs={'lb_id': self.LB_ID},
+        )
 
     def test_listeners(self):
-        self.verify_list(self.proxy.listeners,
-                         listener.Listener)
+        self.verify_list(self.proxy.listeners, listener.Listener)
 
     def test_listener_get(self):
-        self.verify_get(self.proxy.get_listener,
-                        listener.Listener)
+        self.verify_get(self.proxy.get_listener, listener.Listener)
 
     def test_listener_stats_get(self):
-        self.verify_get(self.proxy.get_listener_statistics,
-                        listener.ListenerStats,
-                        method_args=[self.LISTENER_ID],
-                        expected_args=[],
-                        expected_kwargs={'listener_id': self.LISTENER_ID,
-                                         'requires_id': False})
+        self.verify_get(
+            self.proxy.get_listener_statistics,
+            listener.ListenerStats,
+            method_args=[self.LISTENER_ID],
+            expected_args=[],
+            expected_kwargs={
+                'listener_id': self.LISTENER_ID,
+                'requires_id': False,
+            },
+        )
 
     def test_listener_create(self):
-        self.verify_create(self.proxy.create_listener,
-                           listener.Listener)
+        self.verify_create(self.proxy.create_listener, listener.Listener)
 
     def test_listener_delete(self):
-        self.verify_delete(self.proxy.delete_listener,
-                           listener.Listener, True)
+        self.verify_delete(self.proxy.delete_listener, listener.Listener, True)
 
     def test_listener_find(self):
-        self.verify_find(self.proxy.find_listener,
-                         listener.Listener)
+        self.verify_find(self.proxy.find_listener, listener.Listener)
 
     def test_listener_update(self):
-        self.verify_update(self.proxy.update_listener,
-                           listener.Listener)
+        self.verify_update(self.proxy.update_listener, listener.Listener)
 
     def test_pools(self):
-        self.verify_list(self.proxy.pools,
-                         pool.Pool)
+        self.verify_list(self.proxy.pools, pool.Pool)
 
     def test_pool_get(self):
-        self.verify_get(self.proxy.get_pool,
-                        pool.Pool)
+        self.verify_get(self.proxy.get_pool, pool.Pool)
 
     def test_pool_create(self):
-        self.verify_create(self.proxy.create_pool,
-                           pool.Pool)
+        self.verify_create(self.proxy.create_pool, pool.Pool)
 
     def test_pool_delete(self):
-        self.verify_delete(self.proxy.delete_pool,
-                           pool.Pool, True)
+        self.verify_delete(self.proxy.delete_pool, pool.Pool, True)
 
     def test_pool_find(self):
-        self.verify_find(self.proxy.find_pool,
-                         pool.Pool)
+        self.verify_find(self.proxy.find_pool, pool.Pool)
 
     def test_pool_update(self):
-        self.verify_update(self.proxy.update_pool,
-                           pool.Pool)
+        self.verify_update(self.proxy.update_pool, pool.Pool)
 
     def test_members(self):
-        self.verify_list(self.proxy.members,
-                         member.Member,
-                         method_kwargs={'pool': self.POOL_ID},
-                         expected_kwargs={'pool_id': self.POOL_ID})
+        self.verify_list(
+            self.proxy.members,
+            member.Member,
+            method_kwargs={'pool': self.POOL_ID},
+            expected_kwargs={'pool_id': self.POOL_ID},
+        )
 
     def test_member_get(self):
-        self.verify_get(self.proxy.get_member,
-                        member.Member,
-                        method_kwargs={'pool': self.POOL_ID},
-                        expected_kwargs={'pool_id': self.POOL_ID})
+        self.verify_get(
+            self.proxy.get_member,
+            member.Member,
+            method_kwargs={'pool': self.POOL_ID},
+            expected_kwargs={'pool_id': self.POOL_ID},
+        )
 
     def test_member_create(self):
-        self.verify_create(self.proxy.create_member,
-                           member.Member,
-                           method_kwargs={'pool': self.POOL_ID},
-                           expected_kwargs={'pool_id': self.POOL_ID})
+        self.verify_create(
+            self.proxy.create_member,
+            member.Member,
+            method_kwargs={'pool': self.POOL_ID},
+            expected_kwargs={'pool_id': self.POOL_ID},
+        )
 
     def test_member_delete(self):
-        self.verify_delete(self.proxy.delete_member,
-                           member.Member,
-                           ignore_missing=True,
-                           method_kwargs={'pool': self.POOL_ID},
-                           expected_kwargs={
-                               'pool_id': self.POOL_ID,
-                               'ignore_missing': True})
+        self.verify_delete(
+            self.proxy.delete_member,
+            member.Member,
+            ignore_missing=True,
+            method_kwargs={'pool': self.POOL_ID},
+            expected_kwargs={'pool_id': self.POOL_ID, 'ignore_missing': True},
+        )
 
     def test_member_find(self):
         self._verify(
@@ -199,7 +199,8 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
             self.proxy.find_member,
             method_args=["MEMBER", self.POOL_ID],
             expected_args=[member.Member, "MEMBER"],
-            expected_kwargs={"pool_id": self.POOL_ID, "ignore_missing": True})
+            expected_kwargs={"pool_id": self.POOL_ID, "ignore_missing": True},
+        )
 
     def test_member_update(self):
         self._verify(
@@ -207,80 +208,93 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
             self.proxy.update_member,
             method_args=["MEMBER", self.POOL_ID],
             expected_args=[member.Member, "MEMBER"],
-            expected_kwargs={"pool_id": self.POOL_ID})
+            expected_kwargs={"pool_id": self.POOL_ID},
+        )
 
     def test_health_monitors(self):
-        self.verify_list(self.proxy.health_monitors,
-                         health_monitor.HealthMonitor)
+        self.verify_list(
+            self.proxy.health_monitors, health_monitor.HealthMonitor
+        )
 
     def test_health_monitor_get(self):
-        self.verify_get(self.proxy.get_health_monitor,
-                        health_monitor.HealthMonitor)
+        self.verify_get(
+            self.proxy.get_health_monitor, health_monitor.HealthMonitor
+        )
 
     def test_health_monitor_create(self):
-        self.verify_create(self.proxy.create_health_monitor,
-                           health_monitor.HealthMonitor)
+        self.verify_create(
+            self.proxy.create_health_monitor, health_monitor.HealthMonitor
+        )
 
     def test_health_monitor_delete(self):
-        self.verify_delete(self.proxy.delete_health_monitor,
-                           health_monitor.HealthMonitor, True)
+        self.verify_delete(
+            self.proxy.delete_health_monitor,
+            health_monitor.HealthMonitor,
+            True,
+        )
 
     def test_health_monitor_find(self):
-        self.verify_find(self.proxy.find_health_monitor,
-                         health_monitor.HealthMonitor)
+        self.verify_find(
+            self.proxy.find_health_monitor, health_monitor.HealthMonitor
+        )
 
     def test_health_monitor_update(self):
-        self.verify_update(self.proxy.update_health_monitor,
-                           health_monitor.HealthMonitor)
+        self.verify_update(
+            self.proxy.update_health_monitor, health_monitor.HealthMonitor
+        )
 
     def test_l7_policies(self):
-        self.verify_list(self.proxy.l7_policies,
-                         l7_policy.L7Policy)
+        self.verify_list(self.proxy.l7_policies, l7_policy.L7Policy)
 
     def test_l7_policy_get(self):
-        self.verify_get(self.proxy.get_l7_policy,
-                        l7_policy.L7Policy)
+        self.verify_get(self.proxy.get_l7_policy, l7_policy.L7Policy)
 
     def test_l7_policy_create(self):
-        self.verify_create(self.proxy.create_l7_policy,
-                           l7_policy.L7Policy)
+        self.verify_create(self.proxy.create_l7_policy, l7_policy.L7Policy)
 
     def test_l7_policy_delete(self):
-        self.verify_delete(self.proxy.delete_l7_policy,
-                           l7_policy.L7Policy, True)
+        self.verify_delete(
+            self.proxy.delete_l7_policy, l7_policy.L7Policy, True
+        )
 
     def test_l7_policy_find(self):
-        self.verify_find(self.proxy.find_l7_policy,
-                         l7_policy.L7Policy)
+        self.verify_find(self.proxy.find_l7_policy, l7_policy.L7Policy)
 
     def test_l7_policy_update(self):
-        self.verify_update(self.proxy.update_l7_policy,
-                           l7_policy.L7Policy)
+        self.verify_update(self.proxy.update_l7_policy, l7_policy.L7Policy)
 
     def test_l7_rules(self):
-        self.verify_list(self.proxy.l7_rules,
-                         l7_rule.L7Rule,
-                         method_kwargs={'l7_policy': self.L7_POLICY_ID},
-                         expected_kwargs={'l7policy_id': self.L7_POLICY_ID})
+        self.verify_list(
+            self.proxy.l7_rules,
+            l7_rule.L7Rule,
+            method_kwargs={'l7_policy': self.L7_POLICY_ID},
+            expected_kwargs={'l7policy_id': self.L7_POLICY_ID},
+        )
 
     def test_l7_rule_get(self):
-        self.verify_get(self.proxy.get_l7_rule,
-                        l7_rule.L7Rule,
-                        method_kwargs={'l7_policy': self.L7_POLICY_ID},
-                        expected_kwargs={'l7policy_id': self.L7_POLICY_ID})
+        self.verify_get(
+            self.proxy.get_l7_rule,
+            l7_rule.L7Rule,
+            method_kwargs={'l7_policy': self.L7_POLICY_ID},
+            expected_kwargs={'l7policy_id': self.L7_POLICY_ID},
+        )
 
     def test_l7_rule_create(self):
-        self.verify_create(self.proxy.create_l7_rule,
-                           l7_rule.L7Rule,
-                           method_kwargs={'l7_policy': self.L7_POLICY_ID},
-                           expected_kwargs={'l7policy_id': self.L7_POLICY_ID})
+        self.verify_create(
+            self.proxy.create_l7_rule,
+            l7_rule.L7Rule,
+            method_kwargs={'l7_policy': self.L7_POLICY_ID},
+            expected_kwargs={'l7policy_id': self.L7_POLICY_ID},
+        )
 
     def test_l7_rule_delete(self):
-        self.verify_delete(self.proxy.delete_l7_rule,
-                           l7_rule.L7Rule,
-                           ignore_missing=True,
-                           method_kwargs={'l7_policy': self.L7_POLICY_ID},
-                           expected_kwargs={'l7policy_id': self.L7_POLICY_ID})
+        self.verify_delete(
+            self.proxy.delete_l7_rule,
+            l7_rule.L7Rule,
+            ignore_missing=True,
+            method_kwargs={'l7_policy': self.L7_POLICY_ID},
+            expected_kwargs={'l7policy_id': self.L7_POLICY_ID},
+        )
 
     def test_l7_rule_find(self):
         self._verify(
@@ -289,7 +303,10 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
             method_args=["RULE", self.L7_POLICY_ID],
             expected_args=[l7_rule.L7Rule, "RULE"],
             expected_kwargs={
-                "l7policy_id": self.L7_POLICY_ID, "ignore_missing": True})
+                "l7policy_id": self.L7_POLICY_ID,
+                "ignore_missing": True,
+            },
+        )
 
     def test_l7_rule_update(self):
         self._verify(
@@ -297,7 +314,8 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
             self.proxy.update_l7_rule,
             method_args=["RULE", self.L7_POLICY_ID],
             expected_args=[l7_rule.L7Rule, "RULE"],
-            expected_kwargs={"l7policy_id": self.L7_POLICY_ID})
+            expected_kwargs={"l7policy_id": self.L7_POLICY_ID},
+        )
 
     def test_quotas(self):
         self.verify_list(self.proxy.quotas, quota.Quota)
@@ -313,7 +331,8 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
             "openstack.proxy.Proxy._get",
             self.proxy.get_quota_default,
             expected_args=[quota.QuotaDefault],
-            expected_kwargs={'requires_id': False})
+            expected_kwargs={'requires_id': False},
+        )
 
     def test_quota_delete(self):
         self.verify_delete(self.proxy.delete_quota, quota.Quota, False)
@@ -325,35 +344,45 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
         self.verify_list(self.proxy.providers, provider.Provider)
 
     def test_provider_flavor_capabilities(self):
-        self.verify_list(self.proxy.provider_flavor_capabilities,
-                         provider.ProviderFlavorCapabilities,
-                         method_args=[self.AMPHORA],
-                         expected_args=[],
-                         expected_kwargs={'provider': self.AMPHORA})
+        self.verify_list(
+            self.proxy.provider_flavor_capabilities,
+            provider.ProviderFlavorCapabilities,
+            method_args=[self.AMPHORA],
+            expected_args=[],
+            expected_kwargs={'provider': self.AMPHORA},
+        )
 
     def test_flavor_profiles(self):
-        self.verify_list(self.proxy.flavor_profiles,
-                         flavor_profile.FlavorProfile)
+        self.verify_list(
+            self.proxy.flavor_profiles, flavor_profile.FlavorProfile
+        )
 
     def test_flavor_profile_get(self):
-        self.verify_get(self.proxy.get_flavor_profile,
-                        flavor_profile.FlavorProfile)
+        self.verify_get(
+            self.proxy.get_flavor_profile, flavor_profile.FlavorProfile
+        )
 
     def test_flavor_profile_create(self):
-        self.verify_create(self.proxy.create_flavor_profile,
-                           flavor_profile.FlavorProfile)
+        self.verify_create(
+            self.proxy.create_flavor_profile, flavor_profile.FlavorProfile
+        )
 
     def test_flavor_profile_delete(self):
-        self.verify_delete(self.proxy.delete_flavor_profile,
-                           flavor_profile.FlavorProfile, True)
+        self.verify_delete(
+            self.proxy.delete_flavor_profile,
+            flavor_profile.FlavorProfile,
+            True,
+        )
 
     def test_flavor_profile_find(self):
-        self.verify_find(self.proxy.find_flavor_profile,
-                         flavor_profile.FlavorProfile)
+        self.verify_find(
+            self.proxy.find_flavor_profile, flavor_profile.FlavorProfile
+        )
 
     def test_flavor_profile_update(self):
-        self.verify_update(self.proxy.update_flavor_profile,
-                           flavor_profile.FlavorProfile)
+        self.verify_update(
+            self.proxy.update_flavor_profile, flavor_profile.FlavorProfile
+        )
 
     def test_flavors(self):
         self.verify_list(self.proxy.flavors, flavor.Flavor)
@@ -383,64 +412,92 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
         self.verify_find(self.proxy.find_amphora, amphora.Amphora)
 
     def test_amphora_configure(self):
-        self.verify_update(self.proxy.configure_amphora,
-                           amphora.AmphoraConfig,
-                           method_args=[self.AMPHORA_ID],
-                           expected_args=[],
-                           expected_kwargs={'amphora_id': self.AMPHORA_ID})
+        self.verify_update(
+            self.proxy.configure_amphora,
+            amphora.AmphoraConfig,
+            method_args=[self.AMPHORA_ID],
+            expected_args=[],
+            expected_kwargs={'amphora_id': self.AMPHORA_ID},
+        )
 
     def test_amphora_failover(self):
-        self.verify_update(self.proxy.failover_amphora,
-                           amphora.AmphoraFailover,
-                           method_args=[self.AMPHORA_ID],
-                           expected_args=[],
-                           expected_kwargs={'amphora_id': self.AMPHORA_ID})
+        self.verify_update(
+            self.proxy.failover_amphora,
+            amphora.AmphoraFailover,
+            method_args=[self.AMPHORA_ID],
+            expected_args=[],
+            expected_kwargs={'amphora_id': self.AMPHORA_ID},
+        )
 
     def test_availability_zone_profiles(self):
-        self.verify_list(self.proxy.availability_zone_profiles,
-                         availability_zone_profile.AvailabilityZoneProfile)
+        self.verify_list(
+            self.proxy.availability_zone_profiles,
+            availability_zone_profile.AvailabilityZoneProfile,
+        )
 
     def test_availability_zone_profile_get(self):
-        self.verify_get(self.proxy.get_availability_zone_profile,
-                        availability_zone_profile.AvailabilityZoneProfile)
+        self.verify_get(
+            self.proxy.get_availability_zone_profile,
+            availability_zone_profile.AvailabilityZoneProfile,
+        )
 
     def test_availability_zone_profile_create(self):
-        self.verify_create(self.proxy.create_availability_zone_profile,
-                           availability_zone_profile.AvailabilityZoneProfile)
+        self.verify_create(
+            self.proxy.create_availability_zone_profile,
+            availability_zone_profile.AvailabilityZoneProfile,
+        )
 
     def test_availability_zone_profile_delete(self):
-        self.verify_delete(self.proxy.delete_availability_zone_profile,
-                           availability_zone_profile.AvailabilityZoneProfile,
-                           True)
+        self.verify_delete(
+            self.proxy.delete_availability_zone_profile,
+            availability_zone_profile.AvailabilityZoneProfile,
+            True,
+        )
 
     def test_availability_zone_profile_find(self):
-        self.verify_find(self.proxy.find_availability_zone_profile,
-                         availability_zone_profile.AvailabilityZoneProfile)
+        self.verify_find(
+            self.proxy.find_availability_zone_profile,
+            availability_zone_profile.AvailabilityZoneProfile,
+        )
 
     def test_availability_zone_profile_update(self):
-        self.verify_update(self.proxy.update_availability_zone_profile,
-                           availability_zone_profile.AvailabilityZoneProfile)
+        self.verify_update(
+            self.proxy.update_availability_zone_profile,
+            availability_zone_profile.AvailabilityZoneProfile,
+        )
 
     def test_availability_zones(self):
-        self.verify_list(self.proxy.availability_zones,
-                         availability_zone.AvailabilityZone)
+        self.verify_list(
+            self.proxy.availability_zones, availability_zone.AvailabilityZone
+        )
 
     def test_availability_zone_get(self):
-        self.verify_get(self.proxy.get_availability_zone,
-                        availability_zone.AvailabilityZone)
+        self.verify_get(
+            self.proxy.get_availability_zone,
+            availability_zone.AvailabilityZone,
+        )
 
     def test_availability_zone_create(self):
-        self.verify_create(self.proxy.create_availability_zone,
-                           availability_zone.AvailabilityZone)
+        self.verify_create(
+            self.proxy.create_availability_zone,
+            availability_zone.AvailabilityZone,
+        )
 
     def test_availability_zone_delete(self):
-        self.verify_delete(self.proxy.delete_availability_zone,
-                           availability_zone.AvailabilityZone, True)
+        self.verify_delete(
+            self.proxy.delete_availability_zone,
+            availability_zone.AvailabilityZone,
+            True,
+        )
 
     def test_availability_zone_find(self):
-        self.verify_find(self.proxy.find_availability_zone,
-                         availability_zone.AvailabilityZone)
+        self.verify_find(
+            self.proxy.find_availability_zone,
+            availability_zone.AvailabilityZone,
+        )
 
     def test_availability_zone_update(self):
-        self.verify_update(self.proxy.update_availability_zone,
-                           availability_zone.AvailabilityZone)
+        self.verify_update(
+            self.proxy.update_availability_zone,
+            availability_zone.AvailabilityZone,
+        )

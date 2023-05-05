@@ -26,10 +26,22 @@ class HealthMonitor(resource.Resource, tag.TagMixin):
     allow_commit = True
 
     _query_mapping = resource.QueryParameters(
-        'name', 'created_at', 'updated_at', 'delay', 'expected_codes',
-        'http_method', 'max_retries', 'max_retries_down', 'pool_id',
-        'provisioning_status', 'operating_status', 'timeout',
-        'project_id', 'type', 'url_path', is_admin_state_up='admin_state_up',
+        'name',
+        'created_at',
+        'updated_at',
+        'delay',
+        'expected_codes',
+        'http_method',
+        'max_retries',
+        'max_retries_down',
+        'pool_id',
+        'provisioning_status',
+        'operating_status',
+        'timeout',
+        'project_id',
+        'type',
+        'url_path',
+        is_admin_state_up='admin_state_up',
         **tag.TagMixin._tag_query_parameters
     )
 

@@ -35,12 +35,11 @@ EXAMPLE = {
     'timeout': 4,
     'type': 'HTTP',
     'updated_at': '2017-07-17T12:16:57.233772',
-    'url_path': '/health_page.html'
+    'url_path': '/health_page.html',
 }
 
 
 class TestPoolHealthMonitor(base.TestCase):
-
     def test_basic(self):
         test_hm = health_monitor.HealthMonitor()
         self.assertEqual('healthmonitor', test_hm.resource_key)
@@ -67,36 +66,38 @@ class TestPoolHealthMonitor(base.TestCase):
         self.assertEqual(EXAMPLE['pools'], test_hm.pools)
         self.assertEqual(EXAMPLE['pool_id'], test_hm.pool_id)
         self.assertEqual(EXAMPLE['project_id'], test_hm.project_id)
-        self.assertEqual(EXAMPLE['provisioning_status'],
-                         test_hm.provisioning_status)
+        self.assertEqual(
+            EXAMPLE['provisioning_status'], test_hm.provisioning_status
+        )
         self.assertEqual(EXAMPLE['timeout'], test_hm.timeout)
         self.assertEqual(EXAMPLE['type'], test_hm.type)
         self.assertEqual(EXAMPLE['updated_at'], test_hm.updated_at)
         self.assertEqual(EXAMPLE['url_path'], test_hm.url_path)
 
         self.assertDictEqual(
-            {'limit': 'limit',
-             'marker': 'marker',
-             'created_at': 'created_at',
-             'updated_at': 'updated_at',
-             'name': 'name',
-             'project_id': 'project_id',
-             'tags': 'tags',
-             'any_tags': 'tags-any',
-             'not_tags': 'not-tags',
-             'not_any_tags': 'not-tags-any',
-             'operating_status': 'operating_status',
-             'provisioning_status': 'provisioning_status',
-             'is_admin_state_up': 'admin_state_up',
-
-             'delay': 'delay',
-             'expected_codes': 'expected_codes',
-             'http_method': 'http_method',
-             'max_retries': 'max_retries',
-             'max_retries_down': 'max_retries_down',
-             'pool_id': 'pool_id',
-             'timeout': 'timeout',
-             'type': 'type',
-             'url_path': 'url_path'
-             },
-            test_hm._query_mapping._mapping)
+            {
+                'limit': 'limit',
+                'marker': 'marker',
+                'created_at': 'created_at',
+                'updated_at': 'updated_at',
+                'name': 'name',
+                'project_id': 'project_id',
+                'tags': 'tags',
+                'any_tags': 'tags-any',
+                'not_tags': 'not-tags',
+                'not_any_tags': 'not-tags-any',
+                'operating_status': 'operating_status',
+                'provisioning_status': 'provisioning_status',
+                'is_admin_state_up': 'admin_state_up',
+                'delay': 'delay',
+                'expected_codes': 'expected_codes',
+                'http_method': 'http_method',
+                'max_retries': 'max_retries',
+                'max_retries_down': 'max_retries_down',
+                'pool_id': 'pool_id',
+                'timeout': 'timeout',
+                'type': 'type',
+                'url_path': 'url_path',
+            },
+            test_hm._query_mapping._mapping,
+        )

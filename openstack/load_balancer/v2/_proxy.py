@@ -12,8 +12,9 @@
 
 from openstack.load_balancer.v2 import amphora as _amphora
 from openstack.load_balancer.v2 import availability_zone as _availability_zone
-from openstack.load_balancer.v2 import availability_zone_profile as \
-    _availability_zone_profile
+from openstack.load_balancer.v2 import (
+    availability_zone_profile as _availability_zone_profile,
+)
 from openstack.load_balancer.v2 import flavor as _flavor
 from openstack.load_balancer.v2 import flavor_profile as _flavor_profile
 from openstack.load_balancer.v2 import health_monitor as _hm
@@ -33,8 +34,7 @@ class Proxy(proxy.Proxy):
     _resource_registry = {
         "amphora": _amphora.Amphora,
         "availability_zone": _availability_zone.AvailabilityZone,
-        "availability_zone_profile":
-            _availability_zone_profile.AvailabilityZoneProfile,
+        "availability_zone_profile": _availability_zone_profile.AvailabilityZoneProfile,  # noqa: E501
         "flavor": _flavor.Flavor,
         "flavor_profile": _flavor_profile.FlavorProfile,
         "health_monitor": _hm.HealthMonitor,
@@ -44,7 +44,7 @@ class Proxy(proxy.Proxy):
         "member": _member.Member,
         "pool": _pool.Pool,
         "provider": _provider.Provider,
-        "quota": _quota.Quota
+        "quota": _quota.Quota,
     }
 
     def create_load_balancer(self, **attrs):
@@ -82,8 +82,9 @@ class Proxy(proxy.Proxy):
         :returns: One
             :class:`~openstack.load_balancer.v2.load_balancer.LoadBalancerStats`
         """
-        return self._get(_lb.LoadBalancerStats, lb_id=load_balancer,
-                         requires_id=False)
+        return self._get(
+            _lb.LoadBalancerStats, lb_id=load_balancer, requires_id=False
+        )
 
     def load_balancers(self, **query):
         """Retrieve a generator of load balancers
@@ -92,8 +93,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_lb.LoadBalancer, **query)
 
-    def delete_load_balancer(self, load_balancer, ignore_missing=True,
-                             cascade=False):
+    def delete_load_balancer(
+        self, load_balancer, ignore_missing=True, cascade=False
+    ):
         """Delete a load balancer
 
         :param load_balancer: The load_balancer can be either the ID or a
@@ -111,8 +113,9 @@ class Proxy(proxy.Proxy):
         """
         load_balancer = self._get_resource(_lb.LoadBalancer, load_balancer)
         load_balancer.cascade = cascade
-        return self._delete(_lb.LoadBalancer, load_balancer,
-                            ignore_missing=ignore_missing)
+        return self._delete(
+            _lb.LoadBalancer, load_balancer, ignore_missing=ignore_missing
+        )
 
     def find_load_balancer(self, name_or_id, ignore_missing=True):
         """Find a single load balancer
@@ -126,8 +129,9 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        return self._find(_lb.LoadBalancer, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _lb.LoadBalancer, name_or_id, ignore_missing=ignore_missing
+        )
 
     def update_load_balancer(self, load_balancer, **attrs):
         """Update a load balancer
@@ -143,8 +147,14 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_lb.LoadBalancer, load_balancer, **attrs)
 
-    def wait_for_load_balancer(self, name_or_id, status='ACTIVE',
-                               failures=['ERROR'], interval=2, wait=300):
+    def wait_for_load_balancer(
+        self,
+        name_or_id,
+        status='ACTIVE',
+        failures=['ERROR'],
+        interval=2,
+        wait=300,
+    ):
         """Wait for load balancer status
 
         :param name_or_id: The name or ID of the load balancer.
@@ -167,8 +177,15 @@ class Proxy(proxy.Proxy):
         """
         lb = self._find(_lb.LoadBalancer, name_or_id, ignore_missing=False)
 
-        return resource.wait_for_status(self, lb, status, failures, interval,
-                                        wait, attribute='provisioning_status')
+        return resource.wait_for_status(
+            self,
+            lb,
+            status,
+            failures,
+            interval,
+            wait,
+            attribute='provisioning_status',
+        )
 
     def failover_load_balancer(self, load_balancer, **attrs):
         """Failover a load balancer
@@ -206,8 +223,9 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        self._delete(_listener.Listener, listener,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _listener.Listener, listener, ignore_missing=ignore_missing
+        )
 
     def find_listener(self, name_or_id, ignore_missing=True):
         """Find a single listener
@@ -222,8 +240,9 @@ class Proxy(proxy.Proxy):
         :returns: One :class:`~openstack.load_balancer.v2.listener.Listener`
             or None
         """
-        return self._find(_listener.Listener, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _listener.Listener, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_listener(self, listener):
         """Get a single listener
@@ -250,8 +269,9 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             resource can be found.
         """
-        return self._get(_listener.ListenerStats, listener_id=listener,
-                         requires_id=False)
+        return self._get(
+            _listener.ListenerStats, listener_id=listener, requires_id=False
+        )
 
     def listeners(self, **query):
         """Return a generator of listeners
@@ -322,8 +342,7 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        return self._delete(_pool.Pool, pool,
-                            ignore_missing=ignore_missing)
+        return self._delete(_pool.Pool, pool, ignore_missing=ignore_missing)
 
     def find_pool(self, name_or_id, ignore_missing=True):
         """Find a single pool
@@ -337,8 +356,9 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        return self._find(_pool.Pool, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _pool.Pool, name_or_id, ignore_missing=ignore_missing
+        )
 
     def update_pool(self, pool, **attrs):
         """Update a pool
@@ -368,8 +388,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.load_balancer.v2.member.Member`
         """
         poolobj = self._get_resource(_pool.Pool, pool)
-        return self._create(_member.Member, pool_id=poolobj.id,
-                            **attrs)
+        return self._create(_member.Member, pool_id=poolobj.id, **attrs)
 
     def delete_member(self, member, pool, ignore_missing=True):
         """Delete a member
@@ -389,8 +408,12 @@ class Proxy(proxy.Proxy):
         :returns: ``None``
         """
         poolobj = self._get_resource(_pool.Pool, pool)
-        self._delete(_member.Member, member,
-                     ignore_missing=ignore_missing, pool_id=poolobj.id)
+        self._delete(
+            _member.Member,
+            member,
+            ignore_missing=ignore_missing,
+            pool_id=poolobj.id,
+        )
 
     def find_member(self, name_or_id, pool, ignore_missing=True):
         """Find a single member
@@ -409,8 +432,12 @@ class Proxy(proxy.Proxy):
             or None
         """
         poolobj = self._get_resource(_pool.Pool, pool)
-        return self._find(_member.Member, name_or_id,
-                          ignore_missing=ignore_missing, pool_id=poolobj.id)
+        return self._find(
+            _member.Member,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            pool_id=poolobj.id,
+        )
 
     def get_member(self, member, pool):
         """Get a single member
@@ -427,8 +454,7 @@ class Proxy(proxy.Proxy):
             when no resource can be found.
         """
         poolobj = self._get_resource(_pool.Pool, pool)
-        return self._get(_member.Member, member,
-                         pool_id=poolobj.id)
+        return self._get(_member.Member, member, pool_id=poolobj.id)
 
     def members(self, pool, **query):
         """Return a generator of members
@@ -461,8 +487,9 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.load_balancer.v2.member.Member`
         """
         poolobj = self._get_resource(_pool.Pool, pool)
-        return self._update(_member.Member, member,
-                            pool_id=poolobj.id, **attrs)
+        return self._update(
+            _member.Member, member, pool_id=poolobj.id, **attrs
+        )
 
     def find_health_monitor(self, name_or_id, ignore_missing=True):
         """Find a single health monitor
@@ -483,8 +510,9 @@ class Proxy(proxy.Proxy):
         :raises: :class:`openstack.exceptions.ResourceNotFound` if nothing
             is found and ignore_missing is ``False``.
         """
-        return self._find(_hm.HealthMonitor, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _hm.HealthMonitor, name_or_id, ignore_missing=ignore_missing
+        )
 
     def create_health_monitor(self, **attrs):
         """Create a new health monitor from attributes
@@ -544,8 +572,9 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        return self._delete(_hm.HealthMonitor, healthmonitor,
-                            ignore_missing=ignore_missing)
+        return self._delete(
+            _hm.HealthMonitor, healthmonitor, ignore_missing=ignore_missing
+        )
 
     def update_health_monitor(self, healthmonitor, **attrs):
         """Update a health monitor
@@ -561,8 +590,7 @@ class Proxy(proxy.Proxy):
         :rtype:
             :class:`~openstack.load_balancer.v2.healthmonitor.HealthMonitor`
         """
-        return self._update(_hm.HealthMonitor, healthmonitor,
-                            **attrs)
+        return self._update(_hm.HealthMonitor, healthmonitor, **attrs)
 
     def create_l7_policy(self, **attrs):
         """Create a new l7policy from attributes
@@ -589,8 +617,9 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        self._delete(_l7policy.L7Policy, l7_policy,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _l7policy.L7Policy, l7_policy, ignore_missing=ignore_missing
+        )
 
     def find_l7_policy(self, name_or_id, ignore_missing=True):
         """Find a single l7policy
@@ -605,8 +634,9 @@ class Proxy(proxy.Proxy):
         :returns: One :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
             or None
         """
-        return self._find(_l7policy.L7Policy, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _l7policy.L7Policy, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_l7_policy(self, l7_policy):
         """Get a single l7policy
@@ -660,8 +690,9 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.load_balancer.v2.l7_rule.L7Rule`
         """
         l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
-        return self._create(_l7rule.L7Rule, l7policy_id=l7policyobj.id,
-                            **attrs)
+        return self._create(
+            _l7rule.L7Rule, l7policy_id=l7policyobj.id, **attrs
+        )
 
     def delete_l7_rule(self, l7rule, l7_policy, ignore_missing=True):
         """Delete a l7rule
@@ -680,8 +711,12 @@ class Proxy(proxy.Proxy):
         :returns: ``None``
         """
         l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
-        self._delete(_l7rule.L7Rule, l7rule, ignore_missing=ignore_missing,
-                     l7policy_id=l7policyobj.id)
+        self._delete(
+            _l7rule.L7Rule,
+            l7rule,
+            ignore_missing=ignore_missing,
+            l7policy_id=l7policyobj.id,
+        )
 
     def find_l7_rule(self, name_or_id, l7_policy, ignore_missing=True):
         """Find a single l7rule
@@ -700,9 +735,12 @@ class Proxy(proxy.Proxy):
             or None
         """
         l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
-        return self._find(_l7rule.L7Rule, name_or_id,
-                          ignore_missing=ignore_missing,
-                          l7policy_id=l7policyobj.id)
+        return self._find(
+            _l7rule.L7Rule,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            l7policy_id=l7policyobj.id,
+        )
 
     def get_l7_rule(self, l7rule, l7_policy):
         """Get a single l7rule
@@ -719,8 +757,7 @@ class Proxy(proxy.Proxy):
             when no resource can be found.
         """
         l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
-        return self._get(_l7rule.L7Rule, l7rule,
-                         l7policy_id=l7policyobj.id)
+        return self._get(_l7rule.L7Rule, l7rule, l7policy_id=l7policyobj.id)
 
     def l7_rules(self, l7_policy, **query):
         """Return a generator of l7rules
@@ -753,8 +790,9 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.load_balancer.v2.l7_rule.L7Rule`
         """
         l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
-        return self._update(_l7rule.L7Rule, l7rule,
-                            l7policy_id=l7policyobj.id, **attrs)
+        return self._update(
+            _l7rule.L7Rule, l7rule, l7policy_id=l7policyobj.id, **attrs
+        )
 
     def quotas(self, **query):
         """Return a generator of quotas
@@ -833,8 +871,9 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of provider flavor capabilities instances
         """
-        return self._list(_provider.ProviderFlavorCapabilities,
-                          provider=provider, **query)
+        return self._list(
+            _provider.ProviderFlavorCapabilities, provider=provider, **query
+        )
 
     def create_flavor_profile(self, **attrs):
         """Create a new flavor profile from attributes
@@ -882,8 +921,11 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        self._delete(_flavor_profile.FlavorProfile, flavor_profile,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _flavor_profile.FlavorProfile,
+            flavor_profile,
+            ignore_missing=ignore_missing,
+        )
 
     def find_flavor_profile(self, name_or_id, ignore_missing=True):
         """Find a single flavor profile
@@ -897,8 +939,11 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        return self._find(_flavor_profile.FlavorProfile, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _flavor_profile.FlavorProfile,
+            name_or_id,
+            ignore_missing=ignore_missing,
+        )
 
     def update_flavor_profile(self, flavor_profile, **attrs):
         """Update a flavor profile
@@ -913,8 +958,9 @@ class Proxy(proxy.Proxy):
         :rtype:
             :class:`~openstack.load_balancer.v2.flavor_profile.FlavorProfile`
         """
-        return self._update(_flavor_profile.FlavorProfile, flavor_profile,
-                            **attrs)
+        return self._update(
+            _flavor_profile.FlavorProfile, flavor_profile, **attrs
+        )
 
     def create_flavor(self, **attrs):
         """Create a new flavor from attributes
@@ -973,8 +1019,9 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        return self._find(_flavor.Flavor, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _flavor.Flavor, name_or_id, ignore_missing=ignore_missing
+        )
 
     def update_flavor(self, flavor, **attrs):
         """Update a flavor
@@ -1019,8 +1066,9 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        return self._find(_amphora.Amphora, amphora_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _amphora.Amphora, amphora_id, ignore_missing=ignore_missing
+        )
 
     def configure_amphora(self, amphora_id, **attrs):
         """Update the configuration of an amphora agent
@@ -1052,8 +1100,9 @@ class Proxy(proxy.Proxy):
         :rtype:
             :class:`~openstack.load_balancer.v2.availability_zone_profile.AvailabilityZoneProfile`
         """
-        return self._create(_availability_zone_profile.AvailabilityZoneProfile,
-                            **attrs)
+        return self._create(
+            _availability_zone_profile.AvailabilityZoneProfile, **attrs
+        )
 
     def get_availability_zone_profile(self, *attrs):
         """Get an availability zone profile
@@ -1066,19 +1115,22 @@ class Proxy(proxy.Proxy):
         :returns: One
             :class:`~openstack.load_balancer.v2.availability_zone_profile.AvailabilityZoneProfile`
         """
-        return self._get(_availability_zone_profile.AvailabilityZoneProfile,
-                         *attrs)
+        return self._get(
+            _availability_zone_profile.AvailabilityZoneProfile, *attrs
+        )
 
     def availability_zone_profiles(self, **query):
         """Retrieve a generator of availability zone profiles
 
         :returns: A generator of availability zone profiles instances
         """
-        return self._list(_availability_zone_profile.AvailabilityZoneProfile,
-                          **query)
+        return self._list(
+            _availability_zone_profile.AvailabilityZoneProfile, **query
+        )
 
-    def delete_availability_zone_profile(self, availability_zone_profile,
-                                         ignore_missing=True):
+    def delete_availability_zone_profile(
+        self, availability_zone_profile, ignore_missing=True
+    ):
         """Delete an availability zone profile
 
         :param availability_zone_profile: The availability_zone_profile can be
@@ -1093,8 +1145,11 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        self._delete(_availability_zone_profile.AvailabilityZoneProfile,
-                     availability_zone_profile, ignore_missing=ignore_missing)
+        self._delete(
+            _availability_zone_profile.AvailabilityZoneProfile,
+            availability_zone_profile,
+            ignore_missing=ignore_missing,
+        )
 
     def find_availability_zone_profile(self, name_or_id, ignore_missing=True):
         """Find a single availability zone profile
@@ -1108,11 +1163,15 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        return self._find(_availability_zone_profile.AvailabilityZoneProfile,
-                          name_or_id, ignore_missing=ignore_missing)
+        return self._find(
+            _availability_zone_profile.AvailabilityZoneProfile,
+            name_or_id,
+            ignore_missing=ignore_missing,
+        )
 
-    def update_availability_zone_profile(self, availability_zone_profile,
-                                         **attrs):
+    def update_availability_zone_profile(
+        self, availability_zone_profile, **attrs
+    ):
         """Update an availability zone profile
 
         :param availability_zone_profile: The availability_zone_profile can be
@@ -1126,8 +1185,11 @@ class Proxy(proxy.Proxy):
         :rtype:
             :class:`~openstack.load_balancer.v2.availability_zone_profile.AvailabilityZoneProfile`
         """
-        return self._update(_availability_zone_profile.AvailabilityZoneProfile,
-                            availability_zone_profile, **attrs)
+        return self._update(
+            _availability_zone_profile.AvailabilityZoneProfile,
+            availability_zone_profile,
+            **attrs
+        )
 
     def create_availability_zone(self, **attrs):
         """Create a new availability zone from attributes
@@ -1177,8 +1239,11 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        self._delete(_availability_zone.AvailabilityZone, availability_zone,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _availability_zone.AvailabilityZone,
+            availability_zone,
+            ignore_missing=ignore_missing,
+        )
 
     def find_availability_zone(self, name_or_id, ignore_missing=True):
         """Find a single availability zone
@@ -1192,8 +1257,11 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        return self._find(_availability_zone.AvailabilityZone, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _availability_zone.AvailabilityZone,
+            name_or_id,
+            ignore_missing=ignore_missing,
+        )
 
     def update_availability_zone(self, availability_zone, **attrs):
         """Update an availability zone
@@ -1209,5 +1277,6 @@ class Proxy(proxy.Proxy):
         :rtype:
             :class:`~openstack.load_balancer.v2.availability_zone.AvailabilityZone`
         """
-        return self._update(_availability_zone.AvailabilityZone,
-                            availability_zone, **attrs)
+        return self._update(
+            _availability_zone.AvailabilityZone, availability_zone, **attrs
+        )

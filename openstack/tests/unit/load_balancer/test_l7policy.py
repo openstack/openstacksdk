@@ -37,7 +37,6 @@ EXAMPLE = {
 
 
 class TestL7Policy(base.TestCase):
-
     def test_basic(self):
         test_l7_policy = l7_policy.L7Policy()
         self.assertEqual('l7policy', test_l7_policy.resource_key)
@@ -58,39 +57,44 @@ class TestL7Policy(base.TestCase):
         self.assertEqual(EXAMPLE['id'], test_l7_policy.id)
         self.assertEqual(EXAMPLE['listener_id'], test_l7_policy.listener_id)
         self.assertEqual(EXAMPLE['name'], test_l7_policy.name)
-        self.assertEqual(EXAMPLE['operating_status'],
-                         test_l7_policy.operating_status)
+        self.assertEqual(
+            EXAMPLE['operating_status'], test_l7_policy.operating_status
+        )
         self.assertEqual(EXAMPLE['position'], test_l7_policy.position)
         self.assertEqual(EXAMPLE['project_id'], test_l7_policy.project_id)
-        self.assertEqual(EXAMPLE['provisioning_status'],
-                         test_l7_policy.provisioning_status)
-        self.assertEqual(EXAMPLE['redirect_pool_id'],
-                         test_l7_policy.redirect_pool_id)
-        self.assertEqual(EXAMPLE['redirect_prefix'],
-                         test_l7_policy.redirect_prefix)
+        self.assertEqual(
+            EXAMPLE['provisioning_status'], test_l7_policy.provisioning_status
+        )
+        self.assertEqual(
+            EXAMPLE['redirect_pool_id'], test_l7_policy.redirect_pool_id
+        )
+        self.assertEqual(
+            EXAMPLE['redirect_prefix'], test_l7_policy.redirect_prefix
+        )
         self.assertEqual(EXAMPLE['redirect_url'], test_l7_policy.redirect_url)
         self.assertEqual(EXAMPLE['rules'], test_l7_policy.rules)
         self.assertEqual(EXAMPLE['updated_at'], test_l7_policy.updated_at)
 
         self.assertDictEqual(
-            {'limit': 'limit',
-             'marker': 'marker',
-             'name': 'name',
-             'description': 'description',
-             'project_id': 'project_id',
-             'tags': 'tags',
-             'any_tags': 'tags-any',
-             'not_tags': 'not-tags',
-             'not_any_tags': 'not-tags-any',
-             'operating_status': 'operating_status',
-             'provisioning_status': 'provisioning_status',
-             'is_admin_state_up': 'admin_state_up',
-
-             'action': 'action',
-             'listener_id': 'listener_id',
-             'position': 'position',
-             'redirect_pool_id': 'redirect_pool_id',
-             'redirect_url': 'redirect_url',
-             'redirect_prefix': 'redirect_prefix'
-             },
-            test_l7_policy._query_mapping._mapping)
+            {
+                'limit': 'limit',
+                'marker': 'marker',
+                'name': 'name',
+                'description': 'description',
+                'project_id': 'project_id',
+                'tags': 'tags',
+                'any_tags': 'tags-any',
+                'not_tags': 'not-tags',
+                'not_any_tags': 'not-tags-any',
+                'operating_status': 'operating_status',
+                'provisioning_status': 'provisioning_status',
+                'is_admin_state_up': 'admin_state_up',
+                'action': 'action',
+                'listener_id': 'listener_id',
+                'position': 'position',
+                'redirect_pool_id': 'redirect_pool_id',
+                'redirect_url': 'redirect_url',
+                'redirect_prefix': 'redirect_prefix',
+            },
+            test_l7_policy._query_mapping._mapping,
+        )

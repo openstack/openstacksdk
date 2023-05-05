@@ -16,14 +16,10 @@ from openstack.load_balancer.v2 import provider
 from openstack.tests.unit import base
 
 
-EXAMPLE = {
-    'name': 'best',
-    'description': 'The best provider'
-}
+EXAMPLE = {'name': 'best', 'description': 'The best provider'}
 
 
 class TestProvider(base.TestCase):
-
     def test_basic(self):
         test_provider = provider.Provider()
         self.assertEqual('providers', test_provider.resources_key)
@@ -40,20 +36,24 @@ class TestProvider(base.TestCase):
         self.assertEqual(EXAMPLE['description'], test_provider.description)
 
         self.assertDictEqual(
-            {'limit': 'limit',
-             'marker': 'marker',
-             'name': 'name',
-             'description': 'description'},
-            test_provider._query_mapping._mapping)
+            {
+                'limit': 'limit',
+                'marker': 'marker',
+                'name': 'name',
+                'description': 'description',
+            },
+            test_provider._query_mapping._mapping,
+        )
 
 
 class TestProviderFlavorCapabilities(base.TestCase):
-
     def test_basic(self):
         test_flav_cap = provider.ProviderFlavorCapabilities()
         self.assertEqual('flavor_capabilities', test_flav_cap.resources_key)
-        self.assertEqual('/lbaas/providers/%(provider)s/flavor_capabilities',
-                         test_flav_cap.base_path)
+        self.assertEqual(
+            '/lbaas/providers/%(provider)s/flavor_capabilities',
+            test_flav_cap.base_path,
+        )
         self.assertFalse(test_flav_cap.allow_create)
         self.assertFalse(test_flav_cap.allow_fetch)
         self.assertFalse(test_flav_cap.allow_commit)
@@ -66,8 +66,11 @@ class TestProviderFlavorCapabilities(base.TestCase):
         self.assertEqual(EXAMPLE['description'], test_flav_cap.description)
 
         self.assertDictEqual(
-            {'limit': 'limit',
-             'marker': 'marker',
-             'name': 'name',
-             'description': 'description'},
-            test_flav_cap._query_mapping._mapping)
+            {
+                'limit': 'limit',
+                'marker': 'marker',
+                'name': 'name',
+                'description': 'description',
+            },
+            test_flav_cap._query_mapping._mapping,
+        )

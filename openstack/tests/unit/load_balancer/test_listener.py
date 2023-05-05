@@ -31,8 +31,10 @@ EXAMPLE = {
     'project_id': uuid.uuid4(),
     'protocol': 'TEST_PROTOCOL',
     'protocol_port': 10,
-    'default_tls_container_ref': ('http://198.51.100.10:9311/v1/containers/'
-                                  'a570068c-d295-4780-91d4-3046a325db51'),
+    'default_tls_container_ref': (
+        'http://198.51.100.10:9311/v1/containers/'
+        'a570068c-d295-4780-91d4-3046a325db51'
+    ),
     'sni_container_refs': [],
     'created_at': '2017-07-17T12:14:57.233772',
     'updated_at': '2017-07-17T12:16:57.233772',
@@ -44,7 +46,7 @@ EXAMPLE = {
     'timeout_tcp_inspect': 0,
     'tls_ciphers': 'ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256',
     'tls_versions': ['TLSv1.1', 'TLSv1.2'],
-    'alpn_protocols': ['h2', 'http/1.1', 'http/1.0']
+    'alpn_protocols': ['h2', 'http/1.1', 'http/1.0'],
 }
 
 EXAMPLE_STATS = {
@@ -52,12 +54,11 @@ EXAMPLE_STATS = {
     'bytes_in': 2,
     'bytes_out': 3,
     'request_errors': 4,
-    'total_connections': 5
+    'total_connections': 5,
 }
 
 
 class TestListener(base.TestCase):
-
     def test_basic(self):
         test_listener = listener.Listener()
         self.assertEqual('listener', test_listener.resource_key)
@@ -73,90 +74,103 @@ class TestListener(base.TestCase):
         test_listener = listener.Listener(**EXAMPLE)
         self.assertTrue(test_listener.is_admin_state_up)
         self.assertEqual(EXAMPLE['allowed_cidrs'], test_listener.allowed_cidrs)
-        self.assertEqual(EXAMPLE['connection_limit'],
-                         test_listener.connection_limit)
-        self.assertEqual(EXAMPLE['default_pool_id'],
-                         test_listener.default_pool_id)
+        self.assertEqual(
+            EXAMPLE['connection_limit'], test_listener.connection_limit
+        )
+        self.assertEqual(
+            EXAMPLE['default_pool_id'], test_listener.default_pool_id
+        )
         self.assertEqual(EXAMPLE['description'], test_listener.description)
         self.assertEqual(EXAMPLE['id'], test_listener.id)
-        self.assertEqual(EXAMPLE['insert_headers'],
-                         test_listener.insert_headers)
-        self.assertEqual(EXAMPLE['l7policies'],
-                         test_listener.l7_policies)
-        self.assertEqual(EXAMPLE['loadbalancers'],
-                         test_listener.load_balancers)
+        self.assertEqual(
+            EXAMPLE['insert_headers'], test_listener.insert_headers
+        )
+        self.assertEqual(EXAMPLE['l7policies'], test_listener.l7_policies)
+        self.assertEqual(
+            EXAMPLE['loadbalancers'], test_listener.load_balancers
+        )
         self.assertEqual(EXAMPLE['name'], test_listener.name)
         self.assertEqual(EXAMPLE['project_id'], test_listener.project_id)
         self.assertEqual(EXAMPLE['protocol'], test_listener.protocol)
         self.assertEqual(EXAMPLE['protocol_port'], test_listener.protocol_port)
-        self.assertEqual(EXAMPLE['default_tls_container_ref'],
-                         test_listener.default_tls_container_ref)
-        self.assertEqual(EXAMPLE['sni_container_refs'],
-                         test_listener.sni_container_refs)
+        self.assertEqual(
+            EXAMPLE['default_tls_container_ref'],
+            test_listener.default_tls_container_ref,
+        )
+        self.assertEqual(
+            EXAMPLE['sni_container_refs'], test_listener.sni_container_refs
+        )
         self.assertEqual(EXAMPLE['created_at'], test_listener.created_at)
         self.assertEqual(EXAMPLE['updated_at'], test_listener.updated_at)
-        self.assertEqual(EXAMPLE['provisioning_status'],
-                         test_listener.provisioning_status)
-        self.assertEqual(EXAMPLE['operating_status'],
-                         test_listener.operating_status)
-        self.assertEqual(EXAMPLE['timeout_client_data'],
-                         test_listener.timeout_client_data)
-        self.assertEqual(EXAMPLE['timeout_member_connect'],
-                         test_listener.timeout_member_connect)
-        self.assertEqual(EXAMPLE['timeout_member_data'],
-                         test_listener.timeout_member_data)
-        self.assertEqual(EXAMPLE['timeout_tcp_inspect'],
-                         test_listener.timeout_tcp_inspect)
-        self.assertEqual(EXAMPLE['tls_ciphers'],
-                         test_listener.tls_ciphers)
-        self.assertEqual(EXAMPLE['tls_versions'],
-                         test_listener.tls_versions)
-        self.assertEqual(EXAMPLE['alpn_protocols'],
-                         test_listener.alpn_protocols)
+        self.assertEqual(
+            EXAMPLE['provisioning_status'], test_listener.provisioning_status
+        )
+        self.assertEqual(
+            EXAMPLE['operating_status'], test_listener.operating_status
+        )
+        self.assertEqual(
+            EXAMPLE['timeout_client_data'], test_listener.timeout_client_data
+        )
+        self.assertEqual(
+            EXAMPLE['timeout_member_connect'],
+            test_listener.timeout_member_connect,
+        )
+        self.assertEqual(
+            EXAMPLE['timeout_member_data'], test_listener.timeout_member_data
+        )
+        self.assertEqual(
+            EXAMPLE['timeout_tcp_inspect'], test_listener.timeout_tcp_inspect
+        )
+        self.assertEqual(EXAMPLE['tls_ciphers'], test_listener.tls_ciphers)
+        self.assertEqual(EXAMPLE['tls_versions'], test_listener.tls_versions)
+        self.assertEqual(
+            EXAMPLE['alpn_protocols'], test_listener.alpn_protocols
+        )
 
         self.assertDictEqual(
-            {'limit': 'limit',
-             'marker': 'marker',
-             'created_at': 'created_at',
-             'updated_at': 'updated_at',
-             'description': 'description',
-             'name': 'name',
-             'project_id': 'project_id',
-             'tags': 'tags',
-             'any_tags': 'tags-any',
-             'not_tags': 'not-tags',
-             'not_any_tags': 'not-tags-any',
-             'operating_status': 'operating_status',
-             'provisioning_status': 'provisioning_status',
-             'is_admin_state_up': 'admin_state_up',
-
-             'allowed_cidrs': 'allowed_cidrs',
-             'connection_limit': 'connection_limit',
-             'default_pool_id': 'default_pool_id',
-             'default_tls_container_ref': 'default_tls_container_ref',
-             'sni_container_refs': 'sni_container_refs',
-             'insert_headers': 'insert_headers',
-             'load_balancer_id': 'load_balancer_id',
-             'protocol': 'protocol',
-             'protocol_port': 'protocol_port',
-             'timeout_client_data': 'timeout_client_data',
-             'timeout_member_connect': 'timeout_member_connect',
-             'timeout_member_data': 'timeout_member_data',
-             'timeout_tcp_inspect': 'timeout_tcp_inspect',
-             'tls_ciphers': 'tls_ciphers',
-             'tls_versions': 'tls_versions',
-             'alpn_protocols': 'alpn_protocols',
-             },
-            test_listener._query_mapping._mapping)
+            {
+                'limit': 'limit',
+                'marker': 'marker',
+                'created_at': 'created_at',
+                'updated_at': 'updated_at',
+                'description': 'description',
+                'name': 'name',
+                'project_id': 'project_id',
+                'tags': 'tags',
+                'any_tags': 'tags-any',
+                'not_tags': 'not-tags',
+                'not_any_tags': 'not-tags-any',
+                'operating_status': 'operating_status',
+                'provisioning_status': 'provisioning_status',
+                'is_admin_state_up': 'admin_state_up',
+                'allowed_cidrs': 'allowed_cidrs',
+                'connection_limit': 'connection_limit',
+                'default_pool_id': 'default_pool_id',
+                'default_tls_container_ref': 'default_tls_container_ref',
+                'sni_container_refs': 'sni_container_refs',
+                'insert_headers': 'insert_headers',
+                'load_balancer_id': 'load_balancer_id',
+                'protocol': 'protocol',
+                'protocol_port': 'protocol_port',
+                'timeout_client_data': 'timeout_client_data',
+                'timeout_member_connect': 'timeout_member_connect',
+                'timeout_member_data': 'timeout_member_data',
+                'timeout_tcp_inspect': 'timeout_tcp_inspect',
+                'tls_ciphers': 'tls_ciphers',
+                'tls_versions': 'tls_versions',
+                'alpn_protocols': 'alpn_protocols',
+            },
+            test_listener._query_mapping._mapping,
+        )
 
 
 class TestListenerStats(base.TestCase):
-
     def test_basic(self):
         test_listener = listener.ListenerStats()
         self.assertEqual('stats', test_listener.resource_key)
-        self.assertEqual('/lbaas/listeners/%(listener_id)s/stats',
-                         test_listener.base_path)
+        self.assertEqual(
+            '/lbaas/listeners/%(listener_id)s/stats', test_listener.base_path
+        )
         self.assertFalse(test_listener.allow_create)
         self.assertTrue(test_listener.allow_fetch)
         self.assertFalse(test_listener.allow_delete)
@@ -165,13 +179,15 @@ class TestListenerStats(base.TestCase):
 
     def test_make_it(self):
         test_listener = listener.ListenerStats(**EXAMPLE_STATS)
-        self.assertEqual(EXAMPLE_STATS['active_connections'],
-                         test_listener.active_connections)
-        self.assertEqual(EXAMPLE_STATS['bytes_in'],
-                         test_listener.bytes_in)
-        self.assertEqual(EXAMPLE_STATS['bytes_out'],
-                         test_listener.bytes_out)
-        self.assertEqual(EXAMPLE_STATS['request_errors'],
-                         test_listener.request_errors)
-        self.assertEqual(EXAMPLE_STATS['total_connections'],
-                         test_listener.total_connections)
+        self.assertEqual(
+            EXAMPLE_STATS['active_connections'],
+            test_listener.active_connections,
+        )
+        self.assertEqual(EXAMPLE_STATS['bytes_in'], test_listener.bytes_in)
+        self.assertEqual(EXAMPLE_STATS['bytes_out'], test_listener.bytes_out)
+        self.assertEqual(
+            EXAMPLE_STATS['request_errors'], test_listener.request_errors
+        )
+        self.assertEqual(
+            EXAMPLE_STATS['total_connections'], test_listener.total_connections
+        )

@@ -26,10 +26,22 @@ class Pool(resource.Resource, tag.TagMixin):
     allow_commit = True
 
     _query_mapping = resource.QueryParameters(
-        'health_monitor_id', 'lb_algorithm', 'listener_id', 'loadbalancer_id',
-        'description', 'name', 'project_id', 'protocol',
-        'created_at', 'updated_at', 'provisioning_status', 'operating_status',
-        'tls_enabled', 'tls_ciphers', 'tls_versions', 'alpn_protocols',
+        'health_monitor_id',
+        'lb_algorithm',
+        'listener_id',
+        'loadbalancer_id',
+        'description',
+        'name',
+        'project_id',
+        'protocol',
+        'created_at',
+        'updated_at',
+        'provisioning_status',
+        'operating_status',
+        'tls_enabled',
+        'tls_ciphers',
+        'tls_versions',
+        'alpn_protocols',
         is_admin_state_up='admin_state_up',
         **tag.TagMixin._tag_query_parameters
     )

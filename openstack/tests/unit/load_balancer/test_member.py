@@ -34,13 +34,13 @@ EXAMPLE = {
 
 
 class TestPoolMember(base.TestCase):
-
     def test_basic(self):
         test_member = member.Member()
         self.assertEqual('member', test_member.resource_key)
         self.assertEqual('members', test_member.resources_key)
-        self.assertEqual('/lbaas/pools/%(pool_id)s/members',
-                         test_member.base_path)
+        self.assertEqual(
+            '/lbaas/pools/%(pool_id)s/members', test_member.base_path
+        )
         self.assertTrue(test_member.allow_create)
         self.assertTrue(test_member.allow_fetch)
         self.assertTrue(test_member.allow_commit)
@@ -52,8 +52,9 @@ class TestPoolMember(base.TestCase):
         self.assertEqual(EXAMPLE['address'], test_member.address)
         self.assertTrue(test_member.is_admin_state_up)
         self.assertEqual(EXAMPLE['id'], test_member.id)
-        self.assertEqual(EXAMPLE['monitor_address'],
-                         test_member.monitor_address)
+        self.assertEqual(
+            EXAMPLE['monitor_address'], test_member.monitor_address
+        )
         self.assertEqual(EXAMPLE['monitor_port'], test_member.monitor_port)
         self.assertEqual(EXAMPLE['name'], test_member.name)
         self.assertEqual(EXAMPLE['pool_id'], test_member.pool_id)
@@ -64,26 +65,27 @@ class TestPoolMember(base.TestCase):
         self.assertFalse(test_member.backup)
 
         self.assertDictEqual(
-            {'limit': 'limit',
-             'marker': 'marker',
-             'created_at': 'created_at',
-             'updated_at': 'updated_at',
-             'name': 'name',
-             'project_id': 'project_id',
-             'tags': 'tags',
-             'any_tags': 'tags-any',
-             'not_tags': 'not-tags',
-             'not_any_tags': 'not-tags-any',
-             'operating_status': 'operating_status',
-             'provisioning_status': 'provisioning_status',
-             'is_admin_state_up': 'admin_state_up',
-
-             'address': 'address',
-             'protocol_port': 'protocol_port',
-             'subnet_id': 'subnet_id',
-             'weight': 'weight',
-             'monitor_address': 'monitor_address',
-             'monitor_port': 'monitor_port',
-             'backup': 'backup'
-             },
-            test_member._query_mapping._mapping)
+            {
+                'limit': 'limit',
+                'marker': 'marker',
+                'created_at': 'created_at',
+                'updated_at': 'updated_at',
+                'name': 'name',
+                'project_id': 'project_id',
+                'tags': 'tags',
+                'any_tags': 'tags-any',
+                'not_tags': 'not-tags',
+                'not_any_tags': 'not-tags-any',
+                'operating_status': 'operating_status',
+                'provisioning_status': 'provisioning_status',
+                'is_admin_state_up': 'admin_state_up',
+                'address': 'address',
+                'protocol_port': 'protocol_port',
+                'subnet_id': 'subnet_id',
+                'weight': 'weight',
+                'monitor_address': 'monitor_address',
+                'monitor_port': 'monitor_port',
+                'backup': 'backup',
+            },
+            test_member._query_mapping._mapping,
+        )

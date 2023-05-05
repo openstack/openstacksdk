@@ -26,9 +26,17 @@ class L7Policy(resource.Resource, tag.TagMixin):
     allow_delete = True
 
     _query_mapping = resource.QueryParameters(
-        'action', 'description', 'listener_id', 'name', 'position',
-        'redirect_pool_id', 'redirect_url', 'provisioning_status',
-        'operating_status', 'redirect_prefix', 'project_id',
+        'action',
+        'description',
+        'listener_id',
+        'name',
+        'position',
+        'redirect_pool_id',
+        'redirect_url',
+        'provisioning_status',
+        'operating_status',
+        'redirect_prefix',
+        'project_id',
         is_admin_state_up='admin_state_up',
         **tag.TagMixin._tag_query_parameters
     )

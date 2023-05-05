@@ -84,56 +84,73 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         self.VIP_SUBNET_ID = subnets[0].id
         self.PROJECT_ID = self.conn.session.get_project_id()
         test_quota = self.conn.load_balancer.update_quota(
-            self.PROJECT_ID, **{'load_balancer': 100,
-                                'pool': 100,
-                                'listener': 100,
-                                'health_monitor': 100,
-                                'member': 100})
+            self.PROJECT_ID,
+            **{
+                'load_balancer': 100,
+                'pool': 100,
+                'listener': 100,
+                'health_monitor': 100,
+                'member': 100,
+            }
+        )
         assert isinstance(test_quota, quota.Quota)
         self.assertEqual(self.PROJECT_ID, test_quota.id)
 
         test_flavor_profile = self.conn.load_balancer.create_flavor_profile(
-            name=self.FLAVOR_PROFILE_NAME, provider_name=self.AMPHORA,
-            flavor_data=self.FLAVOR_DATA)
+            name=self.FLAVOR_PROFILE_NAME,
+            provider_name=self.AMPHORA,
+            flavor_data=self.FLAVOR_DATA,
+        )
         assert isinstance(test_flavor_profile, flavor_profile.FlavorProfile)
         self.assertEqual(self.FLAVOR_PROFILE_NAME, test_flavor_profile.name)
         self.FLAVOR_PROFILE_ID = test_flavor_profile.id
 
         test_flavor = self.conn.load_balancer.create_flavor(
-            name=self.FLAVOR_NAME, flavor_profile_id=self.FLAVOR_PROFILE_ID,
-            is_enabled=True, description=self.DESCRIPTION)
+            name=self.FLAVOR_NAME,
+            flavor_profile_id=self.FLAVOR_PROFILE_ID,
+            is_enabled=True,
+            description=self.DESCRIPTION,
+        )
         assert isinstance(test_flavor, flavor.Flavor)
         self.assertEqual(self.FLAVOR_NAME, test_flavor.name)
         self.FLAVOR_ID = test_flavor.id
 
-        test_az_profile = \
+        test_az_profile = (
             self.conn.load_balancer.create_availability_zone_profile(
                 name=self.AVAILABILITY_ZONE_PROFILE_NAME,
                 provider_name=self.AMPHORA,
-                availability_zone_data=self.AVAILABILITY_ZONE_DATA)
-        assert isinstance(test_az_profile,
-                          availability_zone_profile.AvailabilityZoneProfile)
-        self.assertEqual(self.AVAILABILITY_ZONE_PROFILE_NAME,
-                         test_az_profile.name)
+                availability_zone_data=self.AVAILABILITY_ZONE_DATA,
+            )
+        )
+        assert isinstance(
+            test_az_profile, availability_zone_profile.AvailabilityZoneProfile
+        )
+        self.assertEqual(
+            self.AVAILABILITY_ZONE_PROFILE_NAME, test_az_profile.name
+        )
         self.AVAILABILITY_ZONE_PROFILE_ID = test_az_profile.id
 
         test_az = self.conn.load_balancer.create_availability_zone(
             name=self.AVAILABILITY_ZONE_NAME,
             availability_zone_profile_id=self.AVAILABILITY_ZONE_PROFILE_ID,
-            is_enabled=True, description=self.DESCRIPTION)
+            is_enabled=True,
+            description=self.DESCRIPTION,
+        )
         assert isinstance(test_az, availability_zone.AvailabilityZone)
         self.assertEqual(self.AVAILABILITY_ZONE_NAME, test_az.name)
 
         test_lb = self.conn.load_balancer.create_load_balancer(
-            name=self.LB_NAME, vip_subnet_id=self.VIP_SUBNET_ID,
-            project_id=self.PROJECT_ID)
+            name=self.LB_NAME,
+            vip_subnet_id=self.VIP_SUBNET_ID,
+            project_id=self.PROJECT_ID,
+        )
         assert isinstance(test_lb, load_balancer.LoadBalancer)
         self.assertEqual(self.LB_NAME, test_lb.name)
         # Wait for the LB to go ACTIVE.  On non-virtualization enabled hosts
         # it can take nova up to ten minutes to boot a VM.
         self.conn.load_balancer.wait_for_load_balancer(
-            test_lb.id, interval=1,
-            wait=self._wait_for_timeout)
+            test_lb.id, interval=1, wait=self._wait_for_timeout
+        )
         self.LB_ID = test_lb.id
 
         amphorae = self.conn.load_balancer.amphorae(loadbalancer_id=self.LB_ID)
@@ -141,113 +158,156 @@ class TestLoadBalancer(base.BaseFunctionalTest):
             self.AMPHORA_ID = amp.id
 
         test_listener = self.conn.load_balancer.create_listener(
-            name=self.LISTENER_NAME, protocol=self.PROTOCOL,
-            protocol_port=self.PROTOCOL_PORT, loadbalancer_id=self.LB_ID)
+            name=self.LISTENER_NAME,
+            protocol=self.PROTOCOL,
+            protocol_port=self.PROTOCOL_PORT,
+            loadbalancer_id=self.LB_ID,
+        )
         assert isinstance(test_listener, listener.Listener)
         self.assertEqual(self.LISTENER_NAME, test_listener.name)
         self.LISTENER_ID = test_listener.id
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
 
         test_pool = self.conn.load_balancer.create_pool(
-            name=self.POOL_NAME, protocol=self.PROTOCOL,
-            lb_algorithm=self.LB_ALGORITHM, listener_id=self.LISTENER_ID)
+            name=self.POOL_NAME,
+            protocol=self.PROTOCOL,
+            lb_algorithm=self.LB_ALGORITHM,
+            listener_id=self.LISTENER_ID,
+        )
         assert isinstance(test_pool, pool.Pool)
         self.assertEqual(self.POOL_NAME, test_pool.name)
         self.POOL_ID = test_pool.id
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
 
         test_member = self.conn.load_balancer.create_member(
-            pool=self.POOL_ID, name=self.MEMBER_NAME,
+            pool=self.POOL_ID,
+            name=self.MEMBER_NAME,
             address=self.MEMBER_ADDRESS,
-            protocol_port=self.PROTOCOL_PORT, weight=self.WEIGHT)
+            protocol_port=self.PROTOCOL_PORT,
+            weight=self.WEIGHT,
+        )
         assert isinstance(test_member, member.Member)
         self.assertEqual(self.MEMBER_NAME, test_member.name)
         self.MEMBER_ID = test_member.id
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
 
         test_hm = self.conn.load_balancer.create_health_monitor(
-            pool_id=self.POOL_ID, name=self.HM_NAME, delay=self.DELAY,
-            timeout=self.TIMEOUT, max_retries=self.MAX_RETRY,
-            type=self.HM_TYPE)
+            pool_id=self.POOL_ID,
+            name=self.HM_NAME,
+            delay=self.DELAY,
+            timeout=self.TIMEOUT,
+            max_retries=self.MAX_RETRY,
+            type=self.HM_TYPE,
+        )
         assert isinstance(test_hm, health_monitor.HealthMonitor)
         self.assertEqual(self.HM_NAME, test_hm.name)
         self.HM_ID = test_hm.id
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
 
         test_l7policy = self.conn.load_balancer.create_l7_policy(
-            listener_id=self.LISTENER_ID, name=self.L7POLICY_NAME,
-            action=self.ACTION, redirect_url=self.REDIRECT_URL)
+            listener_id=self.LISTENER_ID,
+            name=self.L7POLICY_NAME,
+            action=self.ACTION,
+            redirect_url=self.REDIRECT_URL,
+        )
         assert isinstance(test_l7policy, l7_policy.L7Policy)
         self.assertEqual(self.L7POLICY_NAME, test_l7policy.name)
         self.L7POLICY_ID = test_l7policy.id
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
 
         test_l7rule = self.conn.load_balancer.create_l7_rule(
-            l7_policy=self.L7POLICY_ID, compare_type=self.COMPARE_TYPE,
-            type=self.L7RULE_TYPE, value=self.L7RULE_VALUE)
+            l7_policy=self.L7POLICY_ID,
+            compare_type=self.COMPARE_TYPE,
+            type=self.L7RULE_TYPE,
+            value=self.L7RULE_VALUE,
+        )
         assert isinstance(test_l7rule, l7_rule.L7Rule)
         self.assertEqual(self.COMPARE_TYPE, test_l7rule.compare_type)
         self.L7RULE_ID = test_l7rule.id
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
 
     def tearDown(self):
         self.conn.load_balancer.get_load_balancer(self.LB_ID)
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
 
-        self.conn.load_balancer.delete_quota(self.PROJECT_ID,
-                                             ignore_missing=False)
+        self.conn.load_balancer.delete_quota(
+            self.PROJECT_ID, ignore_missing=False
+        )
 
         self.conn.load_balancer.delete_l7_rule(
-            self.L7RULE_ID, l7_policy=self.L7POLICY_ID, ignore_missing=False)
+            self.L7RULE_ID, l7_policy=self.L7POLICY_ID, ignore_missing=False
+        )
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
 
         self.conn.load_balancer.delete_l7_policy(
-            self.L7POLICY_ID, ignore_missing=False)
+            self.L7POLICY_ID, ignore_missing=False
+        )
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
 
         self.conn.load_balancer.delete_health_monitor(
-            self.HM_ID, ignore_missing=False)
+            self.HM_ID, ignore_missing=False
+        )
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
 
         self.conn.load_balancer.delete_member(
-            self.MEMBER_ID, self.POOL_ID, ignore_missing=False)
+            self.MEMBER_ID, self.POOL_ID, ignore_missing=False
+        )
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
 
         self.conn.load_balancer.delete_pool(self.POOL_ID, ignore_missing=False)
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
 
-        self.conn.load_balancer.delete_listener(self.LISTENER_ID,
-                                                ignore_missing=False)
+        self.conn.load_balancer.delete_listener(
+            self.LISTENER_ID, ignore_missing=False
+        )
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
 
         self.conn.load_balancer.delete_load_balancer(
-            self.LB_ID, ignore_missing=False)
+            self.LB_ID, ignore_missing=False
+        )
         super(TestLoadBalancer, self).tearDown()
 
-        self.conn.load_balancer.delete_flavor(self.FLAVOR_ID,
-                                              ignore_missing=False)
+        self.conn.load_balancer.delete_flavor(
+            self.FLAVOR_ID, ignore_missing=False
+        )
 
-        self.conn.load_balancer.delete_flavor_profile(self.FLAVOR_PROFILE_ID,
-                                                      ignore_missing=False)
+        self.conn.load_balancer.delete_flavor_profile(
+            self.FLAVOR_PROFILE_ID, ignore_missing=False
+        )
 
         self.conn.load_balancer.delete_availability_zone(
-            self.AVAILABILITY_ZONE_NAME, ignore_missing=False)
+            self.AVAILABILITY_ZONE_NAME, ignore_missing=False
+        )
 
         self.conn.load_balancer.delete_availability_zone_profile(
-            self.AVAILABILITY_ZONE_PROFILE_ID, ignore_missing=False)
+            self.AVAILABILITY_ZONE_PROFILE_ID, ignore_missing=False
+        )
 
     def test_lb_find(self):
         test_lb = self.conn.load_balancer.find_load_balancer(self.LB_NAME)
@@ -261,7 +321,8 @@ class TestLoadBalancer(base.BaseFunctionalTest):
 
     def test_lb_get_stats(self):
         test_lb_stats = self.conn.load_balancer.get_load_balancer_statistics(
-            self.LB_ID)
+            self.LB_ID
+        )
         self.assertEqual(0, test_lb_stats.active_connections)
         self.assertEqual(0, test_lb_stats.bytes_in)
         self.assertEqual(0, test_lb_stats.bytes_out)
@@ -274,29 +335,35 @@ class TestLoadBalancer(base.BaseFunctionalTest):
 
     def test_lb_update(self):
         self.conn.load_balancer.update_load_balancer(
-            self.LB_ID, name=self.UPDATE_NAME)
+            self.LB_ID, name=self.UPDATE_NAME
+        )
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
         test_lb = self.conn.load_balancer.get_load_balancer(self.LB_ID)
         self.assertEqual(self.UPDATE_NAME, test_lb.name)
 
         self.conn.load_balancer.update_load_balancer(
-            self.LB_ID, name=self.LB_NAME)
+            self.LB_ID, name=self.LB_NAME
+        )
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
         test_lb = self.conn.load_balancer.get_load_balancer(self.LB_ID)
         self.assertEqual(self.LB_NAME, test_lb.name)
 
     def test_lb_failover(self):
         self.conn.load_balancer.failover_load_balancer(self.LB_ID)
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
         test_lb = self.conn.load_balancer.get_load_balancer(self.LB_ID)
         self.assertEqual(self.LB_NAME, test_lb.name)
 
     def test_listener_find(self):
         test_listener = self.conn.load_balancer.find_listener(
-            self.LISTENER_NAME)
+            self.LISTENER_NAME
+        )
         self.assertEqual(self.LISTENER_ID, test_listener.id)
 
     def test_listener_get(self):
@@ -308,7 +375,8 @@ class TestLoadBalancer(base.BaseFunctionalTest):
 
     def test_listener_get_stats(self):
         test_listener_stats = self.conn.load_balancer.get_listener_statistics(
-            self.LISTENER_ID)
+            self.LISTENER_ID
+        )
         self.assertEqual(0, test_listener_stats.active_connections)
         self.assertEqual(0, test_listener_stats.bytes_in)
         self.assertEqual(0, test_listener_stats.bytes_out)
@@ -323,16 +391,20 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         self.conn.load_balancer.get_load_balancer(self.LB_ID)
 
         self.conn.load_balancer.update_listener(
-            self.LISTENER_ID, name=self.UPDATE_NAME)
+            self.LISTENER_ID, name=self.UPDATE_NAME
+        )
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
         test_listener = self.conn.load_balancer.get_listener(self.LISTENER_ID)
         self.assertEqual(self.UPDATE_NAME, test_listener.name)
 
         self.conn.load_balancer.update_listener(
-            self.LISTENER_ID, name=self.LISTENER_NAME)
+            self.LISTENER_ID, name=self.LISTENER_NAME
+        )
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
         test_listener = self.conn.load_balancer.get_listener(self.LISTENER_ID)
         self.assertEqual(self.LISTENER_NAME, test_listener.name)
 
@@ -353,28 +425,32 @@ class TestLoadBalancer(base.BaseFunctionalTest):
     def test_pool_update(self):
         self.conn.load_balancer.get_load_balancer(self.LB_ID)
 
-        self.conn.load_balancer.update_pool(self.POOL_ID,
-                                            name=self.UPDATE_NAME)
+        self.conn.load_balancer.update_pool(
+            self.POOL_ID, name=self.UPDATE_NAME
+        )
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
         test_pool = self.conn.load_balancer.get_pool(self.POOL_ID)
         self.assertEqual(self.UPDATE_NAME, test_pool.name)
 
-        self.conn.load_balancer.update_pool(self.POOL_ID,
-                                            name=self.POOL_NAME)
+        self.conn.load_balancer.update_pool(self.POOL_ID, name=self.POOL_NAME)
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
         test_pool = self.conn.load_balancer.get_pool(self.POOL_ID)
         self.assertEqual(self.POOL_NAME, test_pool.name)
 
     def test_member_find(self):
-        test_member = self.conn.load_balancer.find_member(self.MEMBER_NAME,
-                                                          self.POOL_ID)
+        test_member = self.conn.load_balancer.find_member(
+            self.MEMBER_NAME, self.POOL_ID
+        )
         self.assertEqual(self.MEMBER_ID, test_member.id)
 
     def test_member_get(self):
-        test_member = self.conn.load_balancer.get_member(self.MEMBER_ID,
-                                                         self.POOL_ID)
+        test_member = self.conn.load_balancer.get_member(
+            self.MEMBER_ID, self.POOL_ID
+        )
         self.assertEqual(self.MEMBER_NAME, test_member.name)
         self.assertEqual(self.MEMBER_ID, test_member.id)
         self.assertEqual(self.MEMBER_ADDRESS, test_member.address)
@@ -382,27 +458,34 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         self.assertEqual(self.WEIGHT, test_member.weight)
 
     def test_member_list(self):
-        names = [mb.name for mb in self.conn.load_balancer.members(
-            self.POOL_ID)]
+        names = [
+            mb.name for mb in self.conn.load_balancer.members(self.POOL_ID)
+        ]
         self.assertIn(self.MEMBER_NAME, names)
 
     def test_member_update(self):
         self.conn.load_balancer.get_load_balancer(self.LB_ID)
 
-        self.conn.load_balancer.update_member(self.MEMBER_ID, self.POOL_ID,
-                                              name=self.UPDATE_NAME)
+        self.conn.load_balancer.update_member(
+            self.MEMBER_ID, self.POOL_ID, name=self.UPDATE_NAME
+        )
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
-        test_member = self.conn.load_balancer.get_member(self.MEMBER_ID,
-                                                         self.POOL_ID)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
+        test_member = self.conn.load_balancer.get_member(
+            self.MEMBER_ID, self.POOL_ID
+        )
         self.assertEqual(self.UPDATE_NAME, test_member.name)
 
-        self.conn.load_balancer.update_member(self.MEMBER_ID, self.POOL_ID,
-                                              name=self.MEMBER_NAME)
+        self.conn.load_balancer.update_member(
+            self.MEMBER_ID, self.POOL_ID, name=self.MEMBER_NAME
+        )
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
-        test_member = self.conn.load_balancer.get_member(self.MEMBER_ID,
-                                                         self.POOL_ID)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
+        test_member = self.conn.load_balancer.get_member(
+            self.MEMBER_ID, self.POOL_ID
+        )
         self.assertEqual(self.MEMBER_NAME, test_member.name)
 
     def test_health_monitor_find(self):
@@ -425,28 +508,34 @@ class TestLoadBalancer(base.BaseFunctionalTest):
     def test_health_monitor_update(self):
         self.conn.load_balancer.get_load_balancer(self.LB_ID)
 
-        self.conn.load_balancer.update_health_monitor(self.HM_ID,
-                                                      name=self.UPDATE_NAME)
+        self.conn.load_balancer.update_health_monitor(
+            self.HM_ID, name=self.UPDATE_NAME
+        )
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
         test_hm = self.conn.load_balancer.get_health_monitor(self.HM_ID)
         self.assertEqual(self.UPDATE_NAME, test_hm.name)
 
-        self.conn.load_balancer.update_health_monitor(self.HM_ID,
-                                                      name=self.HM_NAME)
+        self.conn.load_balancer.update_health_monitor(
+            self.HM_ID, name=self.HM_NAME
+        )
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
         test_hm = self.conn.load_balancer.get_health_monitor(self.HM_ID)
         self.assertEqual(self.HM_NAME, test_hm.name)
 
     def test_l7_policy_find(self):
         test_l7_policy = self.conn.load_balancer.find_l7_policy(
-            self.L7POLICY_NAME)
+            self.L7POLICY_NAME
+        )
         self.assertEqual(self.L7POLICY_ID, test_l7_policy.id)
 
     def test_l7_policy_get(self):
         test_l7_policy = self.conn.load_balancer.get_l7_policy(
-            self.L7POLICY_ID)
+            self.L7POLICY_ID
+        )
         self.assertEqual(self.L7POLICY_NAME, test_l7_policy.name)
         self.assertEqual(self.L7POLICY_ID, test_l7_policy.id)
         self.assertEqual(self.ACTION, test_l7_policy.action)
@@ -459,59 +548,80 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         self.conn.load_balancer.get_load_balancer(self.LB_ID)
 
         self.conn.load_balancer.update_l7_policy(
-            self.L7POLICY_ID, name=self.UPDATE_NAME)
+            self.L7POLICY_ID, name=self.UPDATE_NAME
+        )
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
         test_l7_policy = self.conn.load_balancer.get_l7_policy(
-            self.L7POLICY_ID)
+            self.L7POLICY_ID
+        )
         self.assertEqual(self.UPDATE_NAME, test_l7_policy.name)
 
-        self.conn.load_balancer.update_l7_policy(self.L7POLICY_ID,
-                                                 name=self.L7POLICY_NAME)
+        self.conn.load_balancer.update_l7_policy(
+            self.L7POLICY_ID, name=self.L7POLICY_NAME
+        )
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
         test_l7_policy = self.conn.load_balancer.get_l7_policy(
-            self.L7POLICY_ID)
+            self.L7POLICY_ID
+        )
         self.assertEqual(self.L7POLICY_NAME, test_l7_policy.name)
 
     def test_l7_rule_find(self):
         test_l7_rule = self.conn.load_balancer.find_l7_rule(
-            self.L7RULE_ID, self.L7POLICY_ID)
+            self.L7RULE_ID, self.L7POLICY_ID
+        )
         self.assertEqual(self.L7RULE_ID, test_l7_rule.id)
         self.assertEqual(self.L7RULE_TYPE, test_l7_rule.type)
 
     def test_l7_rule_get(self):
         test_l7_rule = self.conn.load_balancer.get_l7_rule(
-            self.L7RULE_ID, l7_policy=self.L7POLICY_ID)
+            self.L7RULE_ID, l7_policy=self.L7POLICY_ID
+        )
         self.assertEqual(self.L7RULE_ID, test_l7_rule.id)
         self.assertEqual(self.COMPARE_TYPE, test_l7_rule.compare_type)
         self.assertEqual(self.L7RULE_TYPE, test_l7_rule.type)
         self.assertEqual(self.L7RULE_VALUE, test_l7_rule.rule_value)
 
     def test_l7_rule_list(self):
-        ids = [l7.id for l7 in self.conn.load_balancer.l7_rules(
-            l7_policy=self.L7POLICY_ID)]
+        ids = [
+            l7.id
+            for l7 in self.conn.load_balancer.l7_rules(
+                l7_policy=self.L7POLICY_ID
+            )
+        ]
         self.assertIn(self.L7RULE_ID, ids)
 
     def test_l7_rule_update(self):
         self.conn.load_balancer.get_load_balancer(self.LB_ID)
 
-        self.conn.load_balancer.update_l7_rule(self.L7RULE_ID,
-                                               l7_policy=self.L7POLICY_ID,
-                                               rule_value=self.UPDATE_NAME)
+        self.conn.load_balancer.update_l7_rule(
+            self.L7RULE_ID,
+            l7_policy=self.L7POLICY_ID,
+            rule_value=self.UPDATE_NAME,
+        )
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
         test_l7_rule = self.conn.load_balancer.get_l7_rule(
-            self.L7RULE_ID, l7_policy=self.L7POLICY_ID)
+            self.L7RULE_ID, l7_policy=self.L7POLICY_ID
+        )
         self.assertEqual(self.UPDATE_NAME, test_l7_rule.rule_value)
 
-        self.conn.load_balancer.update_l7_rule(self.L7RULE_ID,
-                                               l7_policy=self.L7POLICY_ID,
-                                               rule_value=self.L7RULE_VALUE)
+        self.conn.load_balancer.update_l7_rule(
+            self.L7RULE_ID,
+            l7_policy=self.L7POLICY_ID,
+            rule_value=self.L7RULE_VALUE,
+        )
         self.conn.load_balancer.wait_for_load_balancer(
-            self.LB_ID, wait=self._wait_for_timeout)
+            self.LB_ID, wait=self._wait_for_timeout
+        )
         test_l7_rule = self.conn.load_balancer.get_l7_rule(
-            self.L7RULE_ID, l7_policy=self.L7POLICY_ID,)
+            self.L7RULE_ID,
+            l7_policy=self.L7POLICY_ID,
+        )
         self.assertEqual(self.L7RULE_VALUE, test_l7_rule.rule_value)
 
     def test_quota_list(self):
@@ -527,7 +637,8 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         for project_quota in self.conn.load_balancer.quotas():
             self.conn.load_balancer.update_quota(project_quota, **attrs)
             new_quota = self.conn.load_balancer.get_quota(
-                project_quota.project_id)
+                project_quota.project_id
+            )
             self.assertEqual(12345, new_quota.load_balancers)
             self.assertEqual(67890, new_quota.pools)
 
@@ -538,23 +649,28 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         providers = self.conn.load_balancer.providers()
         # Make sure our default provider is in the list
         self.assertTrue(
-            any(prov['name'] == self.AMPHORA for prov in providers))
+            any(prov['name'] == self.AMPHORA for prov in providers)
+        )
 
     def test_provider_flavor_capabilities(self):
         capabilities = self.conn.load_balancer.provider_flavor_capabilities(
-            self.AMPHORA)
+            self.AMPHORA
+        )
         # Make sure a known capability is in the default provider
-        self.assertTrue(any(
-            cap['name'] == 'loadbalancer_topology' for cap in capabilities))
+        self.assertTrue(
+            any(cap['name'] == 'loadbalancer_topology' for cap in capabilities)
+        )
 
     def test_flavor_profile_find(self):
         test_profile = self.conn.load_balancer.find_flavor_profile(
-            self.FLAVOR_PROFILE_NAME)
+            self.FLAVOR_PROFILE_NAME
+        )
         self.assertEqual(self.FLAVOR_PROFILE_ID, test_profile.id)
 
     def test_flavor_profile_get(self):
         test_flavor_profile = self.conn.load_balancer.get_flavor_profile(
-            self.FLAVOR_PROFILE_ID)
+            self.FLAVOR_PROFILE_ID
+        )
         self.assertEqual(self.FLAVOR_PROFILE_NAME, test_flavor_profile.name)
         self.assertEqual(self.FLAVOR_PROFILE_ID, test_flavor_profile.id)
         self.assertEqual(self.AMPHORA, test_flavor_profile.provider_name)
@@ -566,15 +682,19 @@ class TestLoadBalancer(base.BaseFunctionalTest):
 
     def test_flavor_profile_update(self):
         self.conn.load_balancer.update_flavor_profile(
-            self.FLAVOR_PROFILE_ID, name=self.UPDATE_NAME)
+            self.FLAVOR_PROFILE_ID, name=self.UPDATE_NAME
+        )
         test_flavor_profile = self.conn.load_balancer.get_flavor_profile(
-            self.FLAVOR_PROFILE_ID)
+            self.FLAVOR_PROFILE_ID
+        )
         self.assertEqual(self.UPDATE_NAME, test_flavor_profile.name)
 
         self.conn.load_balancer.update_flavor_profile(
-            self.FLAVOR_PROFILE_ID, name=self.FLAVOR_PROFILE_NAME)
+            self.FLAVOR_PROFILE_ID, name=self.FLAVOR_PROFILE_NAME
+        )
         test_flavor_profile = self.conn.load_balancer.get_flavor_profile(
-            self.FLAVOR_PROFILE_ID)
+            self.FLAVOR_PROFILE_ID
+        )
         self.assertEqual(self.FLAVOR_PROFILE_NAME, test_flavor_profile.name)
 
     def test_flavor_find(self):
@@ -594,12 +714,14 @@ class TestLoadBalancer(base.BaseFunctionalTest):
 
     def test_flavor_update(self):
         self.conn.load_balancer.update_flavor(
-            self.FLAVOR_ID, name=self.UPDATE_NAME)
+            self.FLAVOR_ID, name=self.UPDATE_NAME
+        )
         test_flavor = self.conn.load_balancer.get_flavor(self.FLAVOR_ID)
         self.assertEqual(self.UPDATE_NAME, test_flavor.name)
 
         self.conn.load_balancer.update_flavor(
-            self.FLAVOR_ID, name=self.FLAVOR_NAME)
+            self.FLAVOR_ID, name=self.FLAVOR_NAME
+        )
         test_flavor = self.conn.load_balancer.get_flavor(self.FLAVOR_ID)
         self.assertEqual(self.FLAVOR_NAME, test_flavor.name)
 
@@ -627,75 +749,108 @@ class TestLoadBalancer(base.BaseFunctionalTest):
 
     def test_availability_zone_profile_find(self):
         test_profile = self.conn.load_balancer.find_availability_zone_profile(
-            self.AVAILABILITY_ZONE_PROFILE_NAME)
+            self.AVAILABILITY_ZONE_PROFILE_NAME
+        )
         self.assertEqual(self.AVAILABILITY_ZONE_PROFILE_ID, test_profile.id)
 
     def test_availability_zone_profile_get(self):
-        test_availability_zone_profile = \
+        test_availability_zone_profile = (
             self.conn.load_balancer.get_availability_zone_profile(
-                self.AVAILABILITY_ZONE_PROFILE_ID)
-        self.assertEqual(self.AVAILABILITY_ZONE_PROFILE_NAME,
-                         test_availability_zone_profile.name)
-        self.assertEqual(self.AVAILABILITY_ZONE_PROFILE_ID,
-                         test_availability_zone_profile.id)
-        self.assertEqual(self.AMPHORA,
-                         test_availability_zone_profile.provider_name)
-        self.assertEqual(self.AVAILABILITY_ZONE_DATA,
-                         test_availability_zone_profile.availability_zone_data)
+                self.AVAILABILITY_ZONE_PROFILE_ID
+            )
+        )
+        self.assertEqual(
+            self.AVAILABILITY_ZONE_PROFILE_NAME,
+            test_availability_zone_profile.name,
+        )
+        self.assertEqual(
+            self.AVAILABILITY_ZONE_PROFILE_ID,
+            test_availability_zone_profile.id,
+        )
+        self.assertEqual(
+            self.AMPHORA, test_availability_zone_profile.provider_name
+        )
+        self.assertEqual(
+            self.AVAILABILITY_ZONE_DATA,
+            test_availability_zone_profile.availability_zone_data,
+        )
 
     def test_availability_zone_profile_list(self):
-        names = [az.name for az in
-                 self.conn.load_balancer.availability_zone_profiles()]
+        names = [
+            az.name
+            for az in self.conn.load_balancer.availability_zone_profiles()
+        ]
         self.assertIn(self.AVAILABILITY_ZONE_PROFILE_NAME, names)
 
     def test_availability_zone_profile_update(self):
         self.conn.load_balancer.update_availability_zone_profile(
-            self.AVAILABILITY_ZONE_PROFILE_ID, name=self.UPDATE_NAME)
-        test_availability_zone_profile = \
+            self.AVAILABILITY_ZONE_PROFILE_ID, name=self.UPDATE_NAME
+        )
+        test_availability_zone_profile = (
             self.conn.load_balancer.get_availability_zone_profile(
-                self.AVAILABILITY_ZONE_PROFILE_ID)
+                self.AVAILABILITY_ZONE_PROFILE_ID
+            )
+        )
         self.assertEqual(self.UPDATE_NAME, test_availability_zone_profile.name)
 
         self.conn.load_balancer.update_availability_zone_profile(
             self.AVAILABILITY_ZONE_PROFILE_ID,
-            name=self.AVAILABILITY_ZONE_PROFILE_NAME)
-        test_availability_zone_profile = \
+            name=self.AVAILABILITY_ZONE_PROFILE_NAME,
+        )
+        test_availability_zone_profile = (
             self.conn.load_balancer.get_availability_zone_profile(
-                self.AVAILABILITY_ZONE_PROFILE_ID)
-        self.assertEqual(self.AVAILABILITY_ZONE_PROFILE_NAME,
-                         test_availability_zone_profile.name)
+                self.AVAILABILITY_ZONE_PROFILE_ID
+            )
+        )
+        self.assertEqual(
+            self.AVAILABILITY_ZONE_PROFILE_NAME,
+            test_availability_zone_profile.name,
+        )
 
     def test_availability_zone_find(self):
-        test_availability_zone = \
+        test_availability_zone = (
             self.conn.load_balancer.find_availability_zone(
-                self.AVAILABILITY_ZONE_NAME)
-        self.assertEqual(self.AVAILABILITY_ZONE_NAME,
-                         test_availability_zone.name)
+                self.AVAILABILITY_ZONE_NAME
+            )
+        )
+        self.assertEqual(
+            self.AVAILABILITY_ZONE_NAME, test_availability_zone.name
+        )
 
     def test_availability_zone_get(self):
         test_availability_zone = self.conn.load_balancer.get_availability_zone(
-            self.AVAILABILITY_ZONE_NAME)
-        self.assertEqual(self.AVAILABILITY_ZONE_NAME,
-                         test_availability_zone.name)
+            self.AVAILABILITY_ZONE_NAME
+        )
+        self.assertEqual(
+            self.AVAILABILITY_ZONE_NAME, test_availability_zone.name
+        )
         self.assertEqual(self.DESCRIPTION, test_availability_zone.description)
-        self.assertEqual(self.AVAILABILITY_ZONE_PROFILE_ID,
-                         test_availability_zone.availability_zone_profile_id)
+        self.assertEqual(
+            self.AVAILABILITY_ZONE_PROFILE_ID,
+            test_availability_zone.availability_zone_profile_id,
+        )
 
     def test_availability_zone_list(self):
-        names = [az.name for az in
-                 self.conn.load_balancer.availability_zones()]
+        names = [
+            az.name for az in self.conn.load_balancer.availability_zones()
+        ]
         self.assertIn(self.AVAILABILITY_ZONE_NAME, names)
 
     def test_availability_zone_update(self):
         self.conn.load_balancer.update_availability_zone(
-            self.AVAILABILITY_ZONE_NAME, description=self.UPDATE_DESCRIPTION)
+            self.AVAILABILITY_ZONE_NAME, description=self.UPDATE_DESCRIPTION
+        )
         test_availability_zone = self.conn.load_balancer.get_availability_zone(
-            self.AVAILABILITY_ZONE_NAME)
-        self.assertEqual(self.UPDATE_DESCRIPTION,
-                         test_availability_zone.description)
+            self.AVAILABILITY_ZONE_NAME
+        )
+        self.assertEqual(
+            self.UPDATE_DESCRIPTION, test_availability_zone.description
+        )
 
         self.conn.load_balancer.update_availability_zone(
-            self.AVAILABILITY_ZONE_NAME, description=self.DESCRIPTION)
+            self.AVAILABILITY_ZONE_NAME, description=self.DESCRIPTION
+        )
         test_availability_zone = self.conn.load_balancer.get_availability_zone(
-            self.AVAILABILITY_ZONE_NAME)
+            self.AVAILABILITY_ZONE_NAME
+        )
         self.assertEqual(self.DESCRIPTION, test_availability_zone.description)

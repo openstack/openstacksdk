@@ -41,11 +41,12 @@ class Quota(resource.Resource):
     #: The ID of the project this quota is associated with.
     project_id = resource.Body('project_id', alternate_id=True)
 
-    def _prepare_request(self, requires_id=True,
-                         base_path=None, prepend_key=False, **kwargs):
-        _request = super(Quota, self)._prepare_request(requires_id,
-                                                       prepend_key,
-                                                       base_path=base_path)
+    def _prepare_request(
+        self, requires_id=True, base_path=None, prepend_key=False, **kwargs
+    ):
+        _request = super(Quota, self)._prepare_request(
+            requires_id, prepend_key, base_path=base_path
+        )
         if self.resource_key in _request.body:
             _body = _request.body[self.resource_key]
         else:

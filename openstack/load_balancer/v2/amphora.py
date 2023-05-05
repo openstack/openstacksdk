@@ -28,10 +28,26 @@ class Amphora(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'id', 'loadbalancer_id', 'compute_id', 'lb_network_ip', 'vrrp_ip',
-        'ha_ip', 'vrrp_port_id', 'ha_port_id', 'cert_expiration', 'cert_busy',
-        'role', 'status', 'vrrp_interface', 'vrrp_id', 'vrrp_priority',
-        'cached_zone', 'created_at', 'updated_at', 'image_id', 'image_id'
+        'id',
+        'loadbalancer_id',
+        'compute_id',
+        'lb_network_ip',
+        'vrrp_ip',
+        'ha_ip',
+        'vrrp_port_id',
+        'ha_port_id',
+        'cert_expiration',
+        'cert_busy',
+        'role',
+        'status',
+        'vrrp_interface',
+        'vrrp_id',
+        'vrrp_priority',
+        'cached_zone',
+        'created_at',
+        'updated_at',
+        'image_id',
+        'image_id',
     )
 
     # Properties
@@ -99,7 +115,8 @@ class AmphoraConfig(resource.Resource):
     # way to pass has_body into this function, so overriding the method here.
     def commit(self, session, base_path=None):
         return super(AmphoraConfig, self).commit(
-            session, base_path=base_path, has_body=False)
+            session, base_path=base_path, has_body=False
+        )
 
 
 class AmphoraFailover(resource.Resource):
@@ -123,4 +140,5 @@ class AmphoraFailover(resource.Resource):
     # way to pass has_body into this function, so overriding the method here.
     def commit(self, session, base_path=None):
         return super(AmphoraFailover, self).commit(
-            session, base_path=base_path, has_body=False)
+            session, base_path=base_path, has_body=False
+        )

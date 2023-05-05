@@ -25,11 +25,11 @@ EXAMPLE = {
     'name': 'strawberry',
     'description': 'tasty',
     'is_enabled': False,
-    'flavor_profile_id': FLAVOR_PROFILE_ID}
+    'flavor_profile_id': FLAVOR_PROFILE_ID,
+}
 
 
 class TestFlavor(base.TestCase):
-
     def test_basic(self):
         test_flavor = flavor.Flavor()
         self.assertEqual('flavor', test_flavor.resource_key)
@@ -47,15 +47,19 @@ class TestFlavor(base.TestCase):
         self.assertEqual(EXAMPLE['name'], test_flavor.name)
         self.assertEqual(EXAMPLE['description'], test_flavor.description)
         self.assertFalse(test_flavor.is_enabled)
-        self.assertEqual(EXAMPLE['flavor_profile_id'],
-                         test_flavor.flavor_profile_id)
+        self.assertEqual(
+            EXAMPLE['flavor_profile_id'], test_flavor.flavor_profile_id
+        )
 
         self.assertDictEqual(
-            {'limit': 'limit',
-             'marker': 'marker',
-             'id': 'id',
-             'name': 'name',
-             'description': 'description',
-             'is_enabled': 'enabled',
-             'flavor_profile_id': 'flavor_profile_id'},
-            test_flavor._query_mapping._mapping)
+            {
+                'limit': 'limit',
+                'marker': 'marker',
+                'id': 'id',
+                'name': 'name',
+                'description': 'description',
+                'is_enabled': 'enabled',
+                'flavor_profile_id': 'flavor_profile_id',
+            },
+            test_flavor._query_mapping._mapping,
+        )

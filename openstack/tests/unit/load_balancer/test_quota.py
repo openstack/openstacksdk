@@ -29,7 +29,6 @@ EXAMPLE = {
 
 
 class TestQuota(base.TestCase):
-
     def test_basic(self):
         sot = quota.Quota()
         self.assertEqual('quota', sot.resource_key)
@@ -58,7 +57,6 @@ class TestQuota(base.TestCase):
 
 
 class TestQuotaDefault(base.TestCase):
-
     def test_basic(self):
         sot = quota.QuotaDefault()
         self.assertEqual('quota', sot.resource_key)

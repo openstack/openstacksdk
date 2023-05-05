@@ -27,8 +27,10 @@ class AvailabilityZone(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'name', 'description', 'availability_zone_profile_id',
-        is_enabled='enabled'
+        'name',
+        'description',
+        'availability_zone_profile_id',
+        is_enabled='enabled',
     )
 
     # Properties
@@ -38,6 +40,7 @@ class AvailabilityZone(resource.Resource):
     description = resource.Body('description')
     #: The associated availability zone profile ID
     availability_zone_profile_id = resource.Body(
-        'availability_zone_profile_id')
+        'availability_zone_profile_id'
+    )
     #: Whether the availability zone is enabled for use or not.
     is_enabled = resource.Body('enabled')
