@@ -34,7 +34,6 @@ RANGE_DATA = [
 
 
 class TestShade(base.TestCase):
-
     def setUp(self):
         # This set of tests are not testing neutron, they're testing
         # rebuilding servers, but we do several network calls in service
@@ -60,31 +59,35 @@ class TestShade(base.TestCase):
         self.cloud.config.config['dns_endpoint_override'] = dns_override
         self.assertEqual(
             'https://compute.example.com/v2.1/',
-            self.cloud.endpoint_for('compute'))
+            self.cloud.endpoint_for('compute'),
+        )
         self.assertEqual(
             'https://internal.compute.example.com/v2.1/',
-            self.cloud.endpoint_for('compute', interface='internal'))
+            self.cloud.endpoint_for('compute', interface='internal'),
+        )
         self.assertIsNone(
-            self.cloud.endpoint_for('compute', region_name='unknown-region'))
-        self.assertEqual(
-            dns_override,
-            self.cloud.endpoint_for('dns'))
+            self.cloud.endpoint_for('compute', region_name='unknown-region')
+        )
+        self.assertEqual(dns_override, self.cloud.endpoint_for('dns'))
 
     def test_connect_as(self):
         # Do initial auth/catalog steps
         # This should authenticate a second time, but should not
         # need a second identity discovery
         project_name = 'test_project'
-        self.register_uris([
-            self.get_keystone_v3_token(project_name=project_name),
-            self.get_nova_discovery_mock_dict(),
-            dict(
-                method='GET',
-                uri=self.get_mock_url(
-                    'compute', 'public', append=['servers', 'detail']),
-                json={'servers': []},
-            ),
-        ])
+        self.register_uris(
+            [
+                self.get_keystone_v3_token(project_name=project_name),
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'detail']
+                    ),
+                    json={'servers': []},
+                ),
+            ]
+        )
 
         c2 = self.cloud.connect_as(project_name=project_name)
         self.assertEqual(c2.list_servers(), [])
@@ -95,16 +98,19 @@ class TestShade(base.TestCase):
         # This should authenticate a second time, but should not
         # need a second identity discovery
         project_name = 'test_project'
-        self.register_uris([
-            self.get_keystone_v3_token(project_name=project_name),
-            self.get_nova_discovery_mock_dict(),
-            dict(
-                method='GET',
-                uri=self.get_mock_url(
-                    'compute', 'public', append=['servers', 'detail']),
-                json={'servers': []},
-            ),
-        ])
+        self.register_uris(
+            [
+                self.get_keystone_v3_token(project_name=project_name),
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'detail']
+                    ),
+                    json={'servers': []},
+                ),
+            ]
+        )
 
         with self.cloud.connect_as(project_name=project_name) as c2:
             self.assertEqual(c2.list_servers(), [])
@@ -126,17 +132,21 @@ class TestShade(base.TestCase):
 
     def test_global_request_id(self):
         request_id = uuid.uuid4().hex
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(
-                method='GET',
-                uri=self.get_mock_url(
-                    'compute', 'public', append=['servers', 'detail']),
-                json={'servers': []},
-                validate=dict(
-                    headers={'X-Openstack-Request-Id': request_id}),
-            ),
-        ])
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'detail']
+                    ),
+                    json={'servers': []},
+                    validate=dict(
+                        headers={'X-Openstack-Request-Id': request_id}
+                    ),
+                ),
+            ]
+        )
 
         cloud2 = self.cloud.global_request(request_id)
         self.assertEqual([], cloud2.list_servers())
@@ -145,17 +155,21 @@ class TestShade(base.TestCase):
 
     def test_global_request_id_context(self):
         request_id = uuid.uuid4().hex
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(
-                method='GET',
-                uri=self.get_mock_url(
-                    'compute', 'public', append=['servers', 'detail']),
-                json={'servers': []},
-                validate=dict(
-                    headers={'X-Openstack-Request-Id': request_id}),
-            ),
-        ])
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'detail']
+                    ),
+                    json={'servers': []},
+                    validate=dict(
+                        headers={'X-Openstack-Request-Id': request_id}
+                    ),
+                ),
+            ]
+        )
 
         with self.cloud.global_request(request_id) as c2:
             self.assertEqual([], c2.list_servers())
@@ -166,13 +180,18 @@ class TestShade(base.TestCase):
         server1 = fakes.make_fake_server('123', 'mickey')
         server2 = fakes.make_fake_server('345', 'mouse')
 
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': [server1, server2]}),
-        ])
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'detail']
+                    ),
+                    json={'servers': [server1, server2]},
+                ),
+            ]
+        )
 
         r = self.cloud.get_server('mickey')
         self.assertIsNotNone(r)
@@ -181,13 +200,18 @@ class TestShade(base.TestCase):
         self.assert_calls()
 
     def test_get_server_not_found(self):
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': []}),
-        ])
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'detail']
+                    ),
+                    json={'servers': []},
+                ),
+            ]
+        )
 
         r = self.cloud.get_server('doesNotExist')
         self.assertIsNone(r)
@@ -195,16 +219,20 @@ class TestShade(base.TestCase):
         self.assert_calls()
 
     def test_list_servers_exception(self):
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail']),
-                 status_code=400)
-        ])
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'detail']
+                    ),
+                    status_code=400,
+                ),
+            ]
+        )
 
-        self.assertRaises(exc.OpenStackCloudException,
-                          self.cloud.list_servers)
+        self.assertRaises(exc.OpenStackCloudException, self.cloud.list_servers)
 
         self.assert_calls()
 
@@ -218,13 +246,18 @@ class TestShade(base.TestCase):
         server_id = str(uuid.uuid4())
         server_name = self.getUniqueString('name')
         fake_server = fakes.make_fake_server(server_id, server_name)
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': [fake_server]}),
-        ])
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'detail']
+                    ),
+                    json={'servers': [fake_server]},
+                ),
+            ]
+        )
 
         r = self.cloud.list_servers()
 
@@ -243,30 +276,31 @@ class TestShade(base.TestCase):
                         "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:b4:a3:07",
                         "version": 4,
                         "addr": "10.4.0.13",
-                        "OS-EXT-IPS:type": "fixed"
-                    }, {
+                        "OS-EXT-IPS:type": "fixed",
+                    },
+                    {
                         "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:b4:a3:07",
                         "version": 4,
                         "addr": "89.40.216.229",
-                        "OS-EXT-IPS:type": "floating"
-                    }]},
+                        "OS-EXT-IPS:type": "floating",
+                    },
+                ]
+            },
             "links": [
+                {"href": "http://example.com/images/95e4c4", "rel": "self"},
                 {
                     "href": "http://example.com/images/95e4c4",
-                    "rel": "self"
-                }, {
-                    "href": "http://example.com/images/95e4c4",
-                    "rel": "bookmark"
-                }
+                    "rel": "bookmark",
+                },
             ],
             "image": {
                 "id": "95e4c449-8abf-486e-97d9-dc3f82417d2d",
                 "links": [
                     {
                         "href": "http://example.com/images/95e4c4",
-                        "rel": "bookmark"
+                        "rel": "bookmark",
                     }
-                ]
+                ],
             },
             "OS-EXT-STS:vm_state": "active",
             "OS-SRV-USG:launched_at": "2018-03-01T02:44:50.000000",
@@ -275,9 +309,9 @@ class TestShade(base.TestCase):
                 "links": [
                     {
                         "href": "http://example.com/flavors/95e4c4",
-                        "rel": "bookmark"
+                        "rel": "bookmark",
                     }
-                ]
+                ],
             },
             "id": "97fe35e9-756a-41a2-960a-1d057d2c9ee4",
             "security_groups": [{"name": "default"}],
@@ -298,55 +332,59 @@ class TestShade(base.TestCase):
             "created": "2018-03-01T02:44:46Z",
             "tenant_id": "65222a4d09ea4c68934fa1028c77f394",
             "os-extended-volumes:volumes_attached": [],
-            "config_drive": ""
+            "config_drive": "",
         }
-        fake_networks = {"networks": [
-            {
-                "status": "ACTIVE",
-                "router:external": True,
-                "availability_zone_hints": [],
-                "availability_zones": ["nova"],
-                "description": None,
-                "subnets": [
-                    "df3e17fa-a4b2-47ae-9015-bc93eb076ba2",
-                    "6b0c3dc9-b0b8-4d87-976a-7f2ebf13e7ec",
-                    "fc541f48-fc7f-48c0-a063-18de6ee7bdd7"
-                ],
-                "shared": False,
-                "tenant_id": "a564613210ee43708b8a7fc6274ebd63",
-                "tags": [],
-                "ipv6_address_scope": "9f03124f-89af-483a-b6fd-10f08079db4d",
-                "mtu": 1550,
-                "is_default": False,
-                "admin_state_up": True,
-                "revision_number": 0,
-                "ipv4_address_scope": None,
-                "port_security_enabled": True,
-                "project_id": "a564613210ee43708b8a7fc6274ebd63",
-                "id": "0232c17f-2096-49bc-b205-d3dcd9a30ebf",
-                "name": "ext-net"
-            }, {
-                "status": "ACTIVE",
-                "router:external": False,
-                "availability_zone_hints": [],
-                "availability_zones": ["nova"],
-                "description": "",
-                "subnets": ["f0ad1df5-53ee-473f-b86b-3604ea5591e9"],
-                "shared": False,
-                "tenant_id": "65222a4d09ea4c68934fa1028c77f394",
-                "created_at": "2016-10-22T13:46:26Z",
-                "tags": [],
-                "ipv6_address_scope": None,
-                "updated_at": "2016-10-22T13:46:26Z",
-                "admin_state_up": True,
-                "mtu": 1500,
-                "revision_number": 0,
-                "ipv4_address_scope": None,
-                "port_security_enabled": True,
-                "project_id": "65222a4d09ea4c68934fa1028c77f394",
-                "id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",
-                "name": "private"
-            }]}
+        fake_networks = {
+            "networks": [
+                {
+                    "status": "ACTIVE",
+                    "router:external": True,
+                    "availability_zone_hints": [],
+                    "availability_zones": ["nova"],
+                    "description": None,
+                    "subnets": [
+                        "df3e17fa-a4b2-47ae-9015-bc93eb076ba2",
+                        "6b0c3dc9-b0b8-4d87-976a-7f2ebf13e7ec",
+                        "fc541f48-fc7f-48c0-a063-18de6ee7bdd7",
+                    ],
+                    "shared": False,
+                    "tenant_id": "a564613210ee43708b8a7fc6274ebd63",
+                    "tags": [],
+                    "ipv6_address_scope": "9f03124f-89af-483a-b6fd-10f08079db4d",  # noqa: E501
+                    "mtu": 1550,
+                    "is_default": False,
+                    "admin_state_up": True,
+                    "revision_number": 0,
+                    "ipv4_address_scope": None,
+                    "port_security_enabled": True,
+                    "project_id": "a564613210ee43708b8a7fc6274ebd63",
+                    "id": "0232c17f-2096-49bc-b205-d3dcd9a30ebf",
+                    "name": "ext-net",
+                },
+                {
+                    "status": "ACTIVE",
+                    "router:external": False,
+                    "availability_zone_hints": [],
+                    "availability_zones": ["nova"],
+                    "description": "",
+                    "subnets": ["f0ad1df5-53ee-473f-b86b-3604ea5591e9"],
+                    "shared": False,
+                    "tenant_id": "65222a4d09ea4c68934fa1028c77f394",
+                    "created_at": "2016-10-22T13:46:26Z",
+                    "tags": [],
+                    "ipv6_address_scope": None,
+                    "updated_at": "2016-10-22T13:46:26Z",
+                    "admin_state_up": True,
+                    "mtu": 1500,
+                    "revision_number": 0,
+                    "ipv4_address_scope": None,
+                    "port_security_enabled": True,
+                    "project_id": "65222a4d09ea4c68934fa1028c77f394",
+                    "id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",
+                    "name": "private",
+                },
+            ]
+        }
         fake_subnets = {
             "subnets": [
                 {
@@ -362,10 +400,8 @@ class TestShade(base.TestCase):
                     "gateway_ip": "10.24.4.1",
                     "ipv6_ra_mode": None,
                     "allocation_pools": [
-                        {
-                            "start": "10.24.4.2",
-                            "end": "10.24.4.254"
-                        }],
+                        {"start": "10.24.4.2", "end": "10.24.4.254"}
+                    ],
                     "host_routes": [],
                     "revision_number": 0,
                     "ip_version": 4,
@@ -374,8 +410,9 @@ class TestShade(base.TestCase):
                     "project_id": "65222a4d09ea4c68934fa1028c77f394",
                     "id": "3f0642d9-4644-4dff-af25-bcf64f739698",
                     "subnetpool_id": None,
-                    "name": "foo_subnet"
-                }, {
+                    "name": "foo_subnet",
+                },
+                {
                     "service_types": [],
                     "description": "",
                     "enable_dhcp": True,
@@ -388,10 +425,8 @@ class TestShade(base.TestCase):
                     "gateway_ip": "10.4.0.1",
                     "ipv6_ra_mode": None,
                     "allocation_pools": [
-                        {
-                            "start": "10.4.0.2",
-                            "end": "10.4.0.200"
-                        }],
+                        {"start": "10.4.0.2", "end": "10.4.0.200"}
+                    ],
                     "host_routes": [],
                     "revision_number": 0,
                     "ip_version": 4,
@@ -400,23 +435,36 @@ class TestShade(base.TestCase):
                     "project_id": "65222a4d09ea4c68934fa1028c77f394",
                     "id": "f0ad1df5-53ee-473f-b86b-3604ea5591e9",
                     "subnetpool_id": None,
-                    "name": "private-subnet-ipv4"
-                }]}
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': [fake_server]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks']),
-                 json=fake_networks),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets']),
-                 json=fake_subnets)
-        ])
+                    "name": "private-subnet-ipv4",
+                },
+            ]
+        }
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'detail']
+                    ),
+                    json={'servers': [fake_server]},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'networks']
+                    ),
+                    json=fake_networks,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'subnets']
+                    ),
+                    json=fake_subnets,
+                ),
+            ]
+        )
 
         r = self.cloud.get_server('97fe35e9-756a-41a2-960a-1d057d2c9ee4')
 
@@ -427,15 +475,22 @@ class TestShade(base.TestCase):
     def test_list_servers_all_projects(self):
         '''This test verifies that when list_servers is called with
         `all_projects=True` that it passes `all_tenants=True` to nova.'''
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail'],
-                     qs_elements=['all_tenants=True']),
-                 complete_qs=True,
-                 json={'servers': []}),
-        ])
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['servers', 'detail'],
+                        qs_elements=['all_tenants=True'],
+                    ),
+                    complete_qs=True,
+                    json={'servers': []},
+                ),
+            ]
+        )
 
         self.cloud.list_servers(all_projects=True)
 
@@ -444,38 +499,47 @@ class TestShade(base.TestCase):
     def test_list_servers_filters(self):
         '''This test verifies that when list_servers is called with
         `filters` dict that it passes it to nova.'''
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail'],
-                     qs_elements=[
-                         'deleted=True',
-                         'changes-since=2014-12-03T00:00:00Z'
-                     ]),
-                 complete_qs=True,
-                 json={'servers': []}),
-        ])
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['servers', 'detail'],
+                        qs_elements=[
+                            'deleted=True',
+                            'changes-since=2014-12-03T00:00:00Z',
+                        ],
+                    ),
+                    complete_qs=True,
+                    json={'servers': []},
+                ),
+            ]
+        )
 
-        self.cloud.list_servers(filters={
-            'deleted': True,
-            'changes-since': '2014-12-03T00:00:00Z'
-        })
+        self.cloud.list_servers(
+            filters={'deleted': True, 'changes-since': '2014-12-03T00:00:00Z'}
+        )
 
         self.assert_calls()
 
     def test_iterate_timeout_bad_wait(self):
         with testtools.ExpectedException(
-                exc.OpenStackCloudException,
-                "Wait value must be an int or float value."):
+            exc.OpenStackCloudException,
+            "Wait value must be an int or float value.",
+        ):
             for count in utils.iterate_timeout(
-                    1, "test_iterate_timeout_bad_wait", wait="timeishard"):
+                1, "test_iterate_timeout_bad_wait", wait="timeishard"
+            ):
                 pass
 
     @mock.patch('time.sleep')
     def test_iterate_timeout_str_wait(self, mock_sleep):
         iter = utils.iterate_timeout(
-            10, "test_iterate_timeout_str_wait", wait="1.6")
+            10, "test_iterate_timeout_str_wait", wait="1.6"
+        )
         next(iter)
         next(iter)
         mock_sleep.assert_called_with(1.6)
@@ -483,7 +547,8 @@ class TestShade(base.TestCase):
     @mock.patch('time.sleep')
     def test_iterate_timeout_int_wait(self, mock_sleep):
         iter = utils.iterate_timeout(
-            10, "test_iterate_timeout_int_wait", wait=1)
+            10, "test_iterate_timeout_int_wait", wait=1
+        )
         next(iter)
         next(iter)
         mock_sleep.assert_called_with(1.0)
@@ -491,9 +556,7 @@ class TestShade(base.TestCase):
     @mock.patch('time.sleep')
     def test_iterate_timeout_timeout(self, mock_sleep):
         message = "timeout test"
-        with testtools.ExpectedException(
-                exc.OpenStackCloudTimeout,
-                message):
+        with testtools.ExpectedException(exc.OpenStackCloudTimeout, message):
             for count in utils.iterate_timeout(0.1, message, wait=1):
                 pass
         mock_sleep.assert_called_with(1.0)
@@ -506,7 +569,7 @@ class TestShade(base.TestCase):
                 "links": [],
                 "namespace": "http://openstack.org/compute/ext/fake_xml",
                 "alias": "NMN",
-                "description": "Multiple network support."
+                "description": "Multiple network support.",
             },
             {
                 "updated": "2014-12-03T00:00:00Z",
@@ -514,30 +577,40 @@ class TestShade(base.TestCase):
                 "links": [],
                 "namespace": "http://openstack.org/compute/ext/fake_xml",
                 "alias": "OS-DCF",
-                "description": "Disk Management Extension."
+                "description": "Disk Management Extension.",
             },
         ]
-        self.register_uris([
-            dict(method='GET',
-                 uri='{endpoint}/extensions'.format(
-                     endpoint=fakes.COMPUTE_ENDPOINT),
-                 json=dict(extensions=body))
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='{endpoint}/extensions'.format(
+                        endpoint=fakes.COMPUTE_ENDPOINT
+                    ),
+                    json=dict(extensions=body),
+                )
+            ]
+        )
         extensions = self.cloud._nova_extensions()
         self.assertEqual(set(['NMN', 'OS-DCF']), extensions)
 
         self.assert_calls()
 
     def test__nova_extensions_fails(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri='{endpoint}/extensions'.format(
-                     endpoint=fakes.COMPUTE_ENDPOINT),
-                 status_code=404),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='{endpoint}/extensions'.format(
+                        endpoint=fakes.COMPUTE_ENDPOINT
+                    ),
+                    status_code=404,
+                ),
+            ]
+        )
         self.assertRaises(
-            exceptions.ResourceNotFound,
-            self.cloud._nova_extensions)
+            exceptions.ResourceNotFound, self.cloud._nova_extensions
+        )
 
         self.assert_calls()
 
@@ -549,7 +622,7 @@ class TestShade(base.TestCase):
                 "links": [],
                 "namespace": "http://openstack.org/compute/ext/fake_xml",
                 "alias": "NMN",
-                "description": "Multiple network support."
+                "description": "Multiple network support.",
             },
             {
                 "updated": "2014-12-03T00:00:00Z",
@@ -557,15 +630,20 @@ class TestShade(base.TestCase):
                 "links": [],
                 "namespace": "http://openstack.org/compute/ext/fake_xml",
                 "alias": "OS-DCF",
-                "description": "Disk Management Extension."
+                "description": "Disk Management Extension.",
             },
         ]
-        self.register_uris([
-            dict(method='GET',
-                 uri='{endpoint}/extensions'.format(
-                     endpoint=fakes.COMPUTE_ENDPOINT),
-                 json=dict(extensions=body))
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='{endpoint}/extensions'.format(
+                        endpoint=fakes.COMPUTE_ENDPOINT
+                    ),
+                    json=dict(extensions=body),
+                )
+            ]
+        )
         self.assertTrue(self.cloud._has_nova_extension('NMN'))
 
         self.assert_calls()
@@ -578,7 +656,7 @@ class TestShade(base.TestCase):
                 "links": [],
                 "namespace": "http://openstack.org/compute/ext/fake_xml",
                 "alias": "NMN",
-                "description": "Multiple network support."
+                "description": "Multiple network support.",
             },
             {
                 "updated": "2014-12-03T00:00:00Z",
@@ -586,15 +664,20 @@ class TestShade(base.TestCase):
                 "links": [],
                 "namespace": "http://openstack.org/compute/ext/fake_xml",
                 "alias": "OS-DCF",
-                "description": "Disk Management Extension."
+                "description": "Disk Management Extension.",
             },
         ]
-        self.register_uris([
-            dict(method='GET',
-                 uri='{endpoint}/extensions'.format(
-                     endpoint=fakes.COMPUTE_ENDPOINT),
-                 json=dict(extensions=body))
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='{endpoint}/extensions'.format(
+                        endpoint=fakes.COMPUTE_ENDPOINT
+                    ),
+                    json=dict(extensions=body),
+                )
+            ]
+        )
         self.assertFalse(self.cloud._has_nova_extension('invalid'))
 
         self.assert_calls()
@@ -606,38 +689,45 @@ class TestShade(base.TestCase):
                 "name": "Distributed Virtual Router",
                 "links": [],
                 "alias": "dvr",
-                "description":
-                    "Enables configuration of Distributed Virtual Routers."
+                "description": "Enables configuration of Distributed Virtual Routers.",  # noqa: E501
             },
             {
                 "updated": "2013-07-23T10:00:00-00:00",
                 "name": "Allowed Address Pairs",
                 "links": [],
                 "alias": "allowed-address-pairs",
-                "description": "Provides allowed address pairs"
+                "description": "Provides allowed address pairs",
             },
         ]
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json=dict(extensions=body))
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json=dict(extensions=body),
+                )
+            ]
+        )
         extensions = self.cloud._neutron_extensions()
         self.assertEqual(set(['dvr', 'allowed-address-pairs']), extensions)
 
         self.assert_calls()
 
     def test__neutron_extensions_fails(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 status_code=404)
-        ])
-        with testtools.ExpectedException(
-            exceptions.ResourceNotFound
-        ):
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    status_code=404,
+                )
+            ]
+        )
+        with testtools.ExpectedException(exceptions.ResourceNotFound):
             self.cloud._neutron_extensions()
 
         self.assert_calls()
@@ -649,23 +739,27 @@ class TestShade(base.TestCase):
                 "name": "Distributed Virtual Router",
                 "links": [],
                 "alias": "dvr",
-                "description":
-                    "Enables configuration of Distributed Virtual Routers."
+                "description": "Enables configuration of Distributed Virtual Routers.",  # noqa: E501
             },
             {
                 "updated": "2013-07-23T10:00:00-00:00",
                 "name": "Allowed Address Pairs",
                 "links": [],
                 "alias": "allowed-address-pairs",
-                "description": "Provides allowed address pairs"
+                "description": "Provides allowed address pairs",
             },
         ]
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json=dict(extensions=body))
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json=dict(extensions=body),
+                )
+            ]
+        )
         self.assertTrue(self.cloud._has_neutron_extension('dvr'))
         self.assert_calls()
 
@@ -676,23 +770,27 @@ class TestShade(base.TestCase):
                 "name": "Distributed Virtual Router",
                 "links": [],
                 "alias": "dvr",
-                "description":
-                    "Enables configuration of Distributed Virtual Routers."
+                "description": "Enables configuration of Distributed Virtual Routers.",  # noqa: E501
             },
             {
                 "updated": "2013-07-23T10:00:00-00:00",
                 "name": "Allowed Address Pairs",
                 "links": [],
                 "alias": "allowed-address-pairs",
-                "description": "Provides allowed address pairs"
+                "description": "Provides allowed address pairs",
             },
         ]
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json=dict(extensions=body))
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json=dict(extensions=body),
+                )
+            ]
+        )
         self.assertFalse(self.cloud._has_neutron_extension('invalid'))
         self.assert_calls()
 

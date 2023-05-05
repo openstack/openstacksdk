@@ -27,14 +27,18 @@ class TestVolume(base.BaseFunctionalTest):
 
     def test_create_get_delete_volume_backup(self):
         volume = self.user_cloud.create_volume(
-            display_name=self.getUniqueString(), size=1)
+            display_name=self.getUniqueString(), size=1
+        )
         self.addCleanup(self.user_cloud.delete_volume, volume['id'])
 
         backup_name_1 = self.getUniqueString()
         backup_desc_1 = self.getUniqueString()
         backup = self.user_cloud.create_volume_backup(
-            volume_id=volume['id'], name=backup_name_1,
-            description=backup_desc_1, wait=True)
+            volume_id=volume['id'],
+            name=backup_name_1,
+            description=backup_desc_1,
+            wait=True,
+        )
         self.assertEqual(backup_name_1, backup['name'])
 
         backup = self.user_cloud.get_volume_backup(backup['id'])
@@ -48,11 +52,13 @@ class TestVolume(base.BaseFunctionalTest):
         volume = self.user_cloud.create_volume(size=1)
         snapshot = self.user_cloud.create_volume_snapshot(volume['id'])
         self.addCleanup(self.user_cloud.delete_volume, volume['id'])
-        self.addCleanup(self.user_cloud.delete_volume_snapshot, snapshot['id'],
-                        wait=True)
+        self.addCleanup(
+            self.user_cloud.delete_volume_snapshot, snapshot['id'], wait=True
+        )
 
         backup = self.user_cloud.create_volume_backup(
-            volume_id=volume['id'], snapshot_id=snapshot['id'], wait=True)
+            volume_id=volume['id'], snapshot_id=snapshot['id'], wait=True
+        )
 
         backup = self.user_cloud.get_volume_backup(backup['id'])
         self.assertEqual(backup['snapshot_id'], snapshot['id'])
@@ -65,9 +71,11 @@ class TestVolume(base.BaseFunctionalTest):
         self.addCleanup(self.user_cloud.delete_volume, volume['id'])
 
         full_backup = self.user_cloud.create_volume_backup(
-            volume_id=volume['id'], wait=True)
+            volume_id=volume['id'], wait=True
+        )
         incr_backup = self.user_cloud.create_volume_backup(
-            volume_id=volume['id'], incremental=True, wait=True)
+            volume_id=volume['id'], incremental=True, wait=True
+        )
 
         full_backup = self.user_cloud.get_volume_backup(full_backup['id'])
         incr_backup = self.user_cloud.get_volume_backup(incr_backup['id'])
@@ -81,7 +89,8 @@ class TestVolume(base.BaseFunctionalTest):
 
     def test_list_volume_backups(self):
         vol1 = self.user_cloud.create_volume(
-            display_name=self.getUniqueString(), size=1)
+            display_name=self.getUniqueString(), size=1
+        )
         self.addCleanup(self.user_cloud.delete_volume, vol1['id'])
 
         # We create 2 volumes to create 2 backups. We could have created 2
@@ -89,12 +98,14 @@ class TestVolume(base.BaseFunctionalTest):
         # to be race-condition prone. And I didn't want to use an ugly sleep()
         # here.
         vol2 = self.user_cloud.create_volume(
-            display_name=self.getUniqueString(), size=1)
+            display_name=self.getUniqueString(), size=1
+        )
         self.addCleanup(self.user_cloud.delete_volume, vol2['id'])
 
         backup_name_1 = self.getUniqueString()
         backup = self.user_cloud.create_volume_backup(
-            volume_id=vol1['id'], name=backup_name_1)
+            volume_id=vol1['id'], name=backup_name_1
+        )
         self.addCleanup(self.user_cloud.delete_volume_backup, backup['id'])
 
         backup = self.user_cloud.create_volume_backup(volume_id=vol2['id'])
@@ -104,6 +115,7 @@ class TestVolume(base.BaseFunctionalTest):
         self.assertEqual(2, len(backups))
 
         backups = self.user_cloud.list_volume_backups(
-            search_opts={"name": backup_name_1})
+            search_opts={"name": backup_name_1}
+        )
         self.assertEqual(1, len(backups))
         self.assertEqual(backup_name_1, backups[0]['name'])

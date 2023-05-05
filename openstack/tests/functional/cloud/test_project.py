@@ -25,7 +25,6 @@ from openstack.tests.functional import base
 
 
 class TestProject(base.KeystoneBaseFunctionalTest):
-
     def setUp(self):
         super(TestProject, self).setUp()
         if not self.operator_cloud:
@@ -54,8 +53,9 @@ class TestProject(base.KeystoneBaseFunctionalTest):
             'description': 'test_create_project',
         }
         if self.identity_version == '3':
-            params['domain_id'] = \
-                self.operator_cloud.get_domain('default')['id']
+            params['domain_id'] = self.operator_cloud.get_domain('default')[
+                'id'
+            ]
 
         project = self.operator_cloud.create_project(**params)
 
@@ -66,15 +66,23 @@ class TestProject(base.KeystoneBaseFunctionalTest):
         user_id = self.operator_cloud.current_user_id
 
         # Grant the current user access to the project
-        self.assertTrue(self.operator_cloud.grant_role(
-            'member', user=user_id, project=project['id'], wait=True))
+        self.assertTrue(
+            self.operator_cloud.grant_role(
+                'member', user=user_id, project=project['id'], wait=True
+            )
+        )
         self.addCleanup(
             self.operator_cloud.revoke_role,
-            'member', user=user_id, project=project['id'], wait=True)
+            'member',
+            user=user_id,
+            project=project['id'],
+            wait=True,
+        )
 
         new_cloud = self.operator_cloud.connect_as_project(project)
         self.add_info_on_exception(
-            'new_cloud_config', pprint.pformat(new_cloud.config.config))
+            'new_cloud_config', pprint.pformat(new_cloud.config.config)
+        )
         location = new_cloud.current_location
         self.assertEqual(project_name, location['project']['name'])
 
@@ -84,15 +92,17 @@ class TestProject(base.KeystoneBaseFunctionalTest):
         params = {
             'name': project_name,
             'description': 'test_update_project',
-            'enabled': True
+            'enabled': True,
         }
         if self.identity_version == '3':
-            params['domain_id'] = \
-                self.operator_cloud.get_domain('default')['id']
+            params['domain_id'] = self.operator_cloud.get_domain('default')[
+                'id'
+            ]
 
         project = self.operator_cloud.create_project(**params)
         updated_project = self.operator_cloud.update_project(
-            project_name, enabled=False, description='new')
+            project_name, enabled=False, description='new'
+        )
         self.assertIsNotNone(updated_project)
         self.assertEqual(project['id'], updated_project['id'])
         self.assertEqual(project['name'], updated_project['name'])
@@ -102,12 +112,14 @@ class TestProject(base.KeystoneBaseFunctionalTest):
 
         # Revert the description and verify the project is still disabled
         updated_project = self.operator_cloud.update_project(
-            project_name, description=params['description'])
+            project_name, description=params['description']
+        )
         self.assertIsNotNone(updated_project)
         self.assertEqual(project['id'], updated_project['id'])
         self.assertEqual(project['name'], updated_project['name'])
-        self.assertEqual(project['description'],
-                         updated_project['description'])
+        self.assertEqual(
+            project['description'], updated_project['description']
+        )
         self.assertTrue(project['enabled'])
         self.assertFalse(updated_project['enabled'])
 
@@ -115,8 +127,9 @@ class TestProject(base.KeystoneBaseFunctionalTest):
         project_name = self.new_project_name + '_delete'
         params = {'name': project_name}
         if self.identity_version == '3':
-            params['domain_id'] = \
-                self.operator_cloud.get_domain('default')['id']
+            params['domain_id'] = self.operator_cloud.get_domain('default')[
+                'id'
+            ]
         project = self.operator_cloud.create_project(**params)
         self.assertIsNotNone(project)
         self.assertTrue(self.operator_cloud.delete_project(project['id']))

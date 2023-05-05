@@ -21,7 +21,6 @@ from openstack.tests.functional import base
 
 
 class TestMagnumServices(base.BaseFunctionalTest):
-
     def setUp(self):
         super(TestMagnumServices, self).setUp()
         if not self.user_cloud.has_service(

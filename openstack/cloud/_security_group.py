@@ -59,15 +59,16 @@ class SecurityGroupCloudMixin:
         if self._use_neutron_secgroups():
             # pass filters dict to the list to filter as much as possible on
             # the server side
-            return list(
-                self.network.security_groups(**filters))
+            return list(self.network.security_groups(**filters))
 
         # Handle nova security groups
         else:
-            data = proxy._json_response(self.compute.get(
-                '/os-security-groups', params=filters))
+            data = proxy._json_response(
+                self.compute.get('/os-security-groups', params=filters)
+            )
         return self._normalize_secgroups(
-            self._get_and_munchify('security_groups', data))
+            self._get_and_munchify('security_groups', data)
+        )
 
     def get_security_group(self, name_or_id, filters=None):
         """Get a security group by name or ID.
@@ -93,11 +94,10 @@ class SecurityGroupCloudMixin:
             or None if no matching security group is found.
 
         """
-        return _utils._get_entity(
-            self, 'security_group', name_or_id, filters)
+        return _utils._get_entity(self, 'security_group', name_or_id, filters)
 
     def get_security_group_by_id(self, id):
-        """ Get a security group by ID
+        """Get a security group by ID
 
         :param id: ID of the security group.
         :returns: A security group
@@ -107,20 +107,23 @@ class SecurityGroupCloudMixin:
             raise exc.OpenStackCloudUnavailableFeature(
                 "Unavailable feature: security groups"
             )
-        error_message = ("Error getting security group with"
-                         " ID {id}".format(id=id))
+        error_message = "Error getting security group with" " ID {id}".format(
+            id=id
+        )
         if self._use_neutron_secgroups():
             return self.network.get_security_group(id)
         else:
             data = proxy._json_response(
-                self.compute.get(
-                    '/os-security-groups/{id}'.format(id=id)),
-                error_message=error_message)
+                self.compute.get('/os-security-groups/{id}'.format(id=id)),
+                error_message=error_message,
+            )
         return self._normalize_secgroup(
-            self._get_and_munchify('security_group', data))
+            self._get_and_munchify('security_group', data)
+        )
 
-    def create_security_group(self, name, description,
-                              project_id=None, stateful=None):
+    def create_security_group(
+        self, name, description, project_id=None, stateful=None
+    ):
         """Create a new security group
 
         :param string name: A name for the security group.
@@ -145,22 +148,23 @@ class SecurityGroupCloudMixin:
             )
 
         data = []
-        security_group_json = {
-            'name': name, 'description': description
-        }
+        security_group_json = {'name': name, 'description': description}
         if stateful is not None:
             security_group_json['stateful'] = stateful
         if project_id is not None:
             security_group_json['tenant_id'] = project_id
         if self._use_neutron_secgroups():
-            return self.network.create_security_group(
-                **security_group_json)
+            return self.network.create_security_group(**security_group_json)
         else:
-            data = proxy._json_response(self.compute.post(
-                '/os-security-groups',
-                json={'security_group': security_group_json}))
+            data = proxy._json_response(
+                self.compute.post(
+                    '/os-security-groups',
+                    json={'security_group': security_group_json},
+                )
+            )
         return self._normalize_secgroup(
-            self._get_and_munchify('security_group', data))
+            self._get_and_munchify('security_group', data)
+        )
 
     def delete_security_group(self, name_or_id):
         """Delete a security group
@@ -183,18 +187,23 @@ class SecurityGroupCloudMixin:
         #                the delete.
         secgroup = self.get_security_group(name_or_id)
         if secgroup is None:
-            self.log.debug('Security group %s not found for deleting',
-                           name_or_id)
+            self.log.debug(
+                'Security group %s not found for deleting', name_or_id
+            )
             return False
 
         if self._use_neutron_secgroups():
             self.network.delete_security_group(
-                secgroup['id'], ignore_missing=False)
+                secgroup['id'], ignore_missing=False
+            )
             return True
 
         else:
-            proxy._json_response(self.compute.delete(
-                '/os-security-groups/{id}'.format(id=secgroup['id'])))
+            proxy._json_response(
+                self.compute.delete(
+                    '/os-security-groups/{id}'.format(id=secgroup['id'])
+                )
+            )
             return True
 
     @_utils.valid_kwargs('name', 'description', 'stateful')
@@ -220,35 +229,38 @@ class SecurityGroupCloudMixin:
 
         if group is None:
             raise exc.OpenStackCloudException(
-                "Security group %s not found." % name_or_id)
+                "Security group %s not found." % name_or_id
+            )
 
         if self._use_neutron_secgroups():
-            return self.network.update_security_group(
-                group['id'],
-                **kwargs
-            )
+            return self.network.update_security_group(group['id'], **kwargs)
         else:
             for key in ('name', 'description'):
                 kwargs.setdefault(key, group[key])
             data = proxy._json_response(
                 self.compute.put(
                     '/os-security-groups/{id}'.format(id=group['id']),
-                    json={'security_group': kwargs}))
+                    json={'security_group': kwargs},
+                )
+            )
         return self._normalize_secgroup(
-            self._get_and_munchify('security_group', data))
+            self._get_and_munchify('security_group', data)
+        )
 
-    def create_security_group_rule(self,
-                                   secgroup_name_or_id,
-                                   port_range_min=None,
-                                   port_range_max=None,
-                                   protocol=None,
-                                   remote_ip_prefix=None,
-                                   remote_group_id=None,
-                                   remote_address_group_id=None,
-                                   direction='ingress',
-                                   ethertype='IPv4',
-                                   project_id=None,
-                                   description=None):
+    def create_security_group_rule(
+        self,
+        secgroup_name_or_id,
+        port_range_min=None,
+        port_range_max=None,
+        protocol=None,
+        remote_ip_prefix=None,
+        remote_group_id=None,
+        remote_address_group_id=None,
+        direction='ingress',
+        ethertype='IPv4',
+        project_id=None,
+        description=None,
+    ):
         """Create a new security group rule
 
         :param string secgroup_name_or_id:
@@ -308,31 +320,32 @@ class SecurityGroupCloudMixin:
         secgroup = self.get_security_group(secgroup_name_or_id)
         if not secgroup:
             raise exc.OpenStackCloudException(
-                "Security group %s not found." % secgroup_name_or_id)
+                "Security group %s not found." % secgroup_name_or_id
+            )
 
         if self._use_neutron_secgroups():
             # NOTE: Nova accepts -1 port numbers, but Neutron accepts None
             # as the equivalent value.
             rule_def = {
                 'security_group_id': secgroup['id'],
-                'port_range_min':
-                    None if port_range_min == -1 else port_range_min,
-                'port_range_max':
-                    None if port_range_max == -1 else port_range_max,
+                'port_range_min': None
+                if port_range_min == -1
+                else port_range_min,
+                'port_range_max': None
+                if port_range_max == -1
+                else port_range_max,
                 'protocol': protocol,
                 'remote_ip_prefix': remote_ip_prefix,
                 'remote_group_id': remote_group_id,
                 'remote_address_group_id': remote_address_group_id,
                 'direction': direction,
-                'ethertype': ethertype
+                'ethertype': ethertype,
             }
             if project_id is not None:
                 rule_def['tenant_id'] = project_id
             if description is not None:
                 rule_def["description"] = description
-            return self.network.create_security_group_rule(
-                **rule_def
-            )
+            return self.network.create_security_group_rule(**rule_def)
         else:
             # NOTE: Neutron accepts None for protocol. Nova does not.
             if protocol is None:
@@ -343,7 +356,8 @@ class SecurityGroupCloudMixin:
                     'Rule creation failed: Nova does not support egress rules'
                 )
                 raise exc.OpenStackCloudException(
-                    'No support for egress rules')
+                    'No support for egress rules'
+                )
 
             # NOTE: Neutron accepts None for ports, but Nova requires -1
             # as the equivalent value for ICMP.
@@ -363,24 +377,28 @@ class SecurityGroupCloudMixin:
                     port_range_min = 1
                     port_range_max = 65535
 
-            security_group_rule_dict = dict(security_group_rule=dict(
-                parent_group_id=secgroup['id'],
-                ip_protocol=protocol,
-                from_port=port_range_min,
-                to_port=port_range_max,
-                cidr=remote_ip_prefix,
-                group_id=remote_group_id
-            ))
+            security_group_rule_dict = dict(
+                security_group_rule=dict(
+                    parent_group_id=secgroup['id'],
+                    ip_protocol=protocol,
+                    from_port=port_range_min,
+                    to_port=port_range_max,
+                    cidr=remote_ip_prefix,
+                    group_id=remote_group_id,
+                )
+            )
             if project_id is not None:
-                security_group_rule_dict[
-                    'security_group_rule']['tenant_id'] = project_id
+                security_group_rule_dict['security_group_rule'][
+                    'tenant_id'
+                ] = project_id
             data = proxy._json_response(
                 self.compute.post(
-                    '/os-security-group-rules',
-                    json=security_group_rule_dict
-                ))
+                    '/os-security-group-rules', json=security_group_rule_dict
+                )
+            )
         return self._normalize_secgroup_rule(
-            self._get_and_munchify('security_group_rule', data))
+            self._get_and_munchify('security_group_rule', data)
+        )
 
     def delete_security_group_rule(self, rule_id):
         """Delete a security group rule
@@ -401,8 +419,7 @@ class SecurityGroupCloudMixin:
 
         if self._use_neutron_secgroups():
             self.network.delete_security_group_rule(
-                rule_id,
-                ignore_missing=False
+                rule_id, ignore_missing=False
             )
             return True
 
@@ -410,7 +427,9 @@ class SecurityGroupCloudMixin:
             try:
                 exceptions.raise_from_response(
                     self.compute.delete(
-                        '/os-security-group-rules/{id}'.format(id=rule_id)))
+                        '/os-security-group-rules/{id}'.format(id=rule_id)
+                    )
+                )
             except exc.OpenStackCloudResourceNotFound:
                 return False
 
@@ -423,8 +442,9 @@ class SecurityGroupCloudMixin:
             return self.secgroup_source.lower() in ('nova', 'neutron')
 
     def _use_neutron_secgroups(self):
-        return (self.has_service('network')
-                and self.secgroup_source == 'neutron')
+        return (
+            self.has_service('network') and self.secgroup_source == 'neutron'
+        )
 
     def _normalize_secgroups(self, groups):
         """Normalize the structure of security groups
@@ -454,7 +474,8 @@ class SecurityGroupCloudMixin:
         self._remove_novaclient_artifacts(group)
 
         rules = self._normalize_secgroup_rules(
-            group.pop('security_group_rules', group.pop('rules', [])))
+            group.pop('security_group_rules', group.pop('rules', []))
+        )
         project_id = group.pop('tenant_id', '')
         project_id = group.pop('project_id', project_id)
 
@@ -506,14 +527,14 @@ class SecurityGroupCloudMixin:
         ret['direction'] = rule.pop('direction', 'ingress')
         ret['ethertype'] = rule.pop('ethertype', 'IPv4')
         port_range_min = rule.get(
-            'port_range_min', rule.pop('from_port', None))
+            'port_range_min', rule.pop('from_port', None)
+        )
         if port_range_min == -1:
             port_range_min = None
         if port_range_min is not None:
             port_range_min = int(port_range_min)
         ret['port_range_min'] = port_range_min
-        port_range_max = rule.pop(
-            'port_range_max', rule.pop('to_port', None))
+        port_range_max = rule.pop('port_range_max', rule.pop('to_port', None))
         if port_range_max == -1:
             port_range_max = None
         if port_range_min is not None:
@@ -521,9 +542,11 @@ class SecurityGroupCloudMixin:
         ret['port_range_max'] = port_range_max
         ret['protocol'] = rule.pop('protocol', rule.pop('ip_protocol', None))
         ret['remote_ip_prefix'] = rule.pop(
-            'remote_ip_prefix', rule.pop('ip_range', {}).get('cidr', None))
+            'remote_ip_prefix', rule.pop('ip_range', {}).get('cidr', None)
+        )
         ret['security_group_id'] = rule.pop(
-            'security_group_id', rule.pop('parent_group_id', None))
+            'security_group_id', rule.pop('parent_group_id', None)
+        )
         ret['remote_group_id'] = rule.pop('remote_group_id', None)
         project_id = rule.pop('tenant_id', '')
         project_id = rule.pop('project_id', project_id)

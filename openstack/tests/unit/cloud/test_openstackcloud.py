@@ -19,7 +19,6 @@ from openstack.tests.unit import base
 
 
 class TestSearch(base.TestCase):
-
     class FakeResource(resource.Resource):
         allow_fetch = True
         allow_list = True
@@ -33,9 +32,7 @@ class TestSearch(base.TestCase):
         self.session._sdk_connection = self.cloud
         self.session._get = mock.Mock()
         self.session._list = mock.Mock()
-        self.session._resource_registry = dict(
-            fake=self.FakeResource
-        )
+        self.session._resource_registry = dict(fake=self.FakeResource)
         # Set the mock into the cloud connection
         setattr(self.cloud, "mock_session", self.session)
 
@@ -44,7 +41,7 @@ class TestSearch(base.TestCase):
             exceptions.SDKException,
             self.cloud.search_resources,
             "wrong_service.wrong_resource",
-            "name"
+            "name",
         )
 
     def test_raises_unknown_resource(self):
@@ -52,44 +49,33 @@ class TestSearch(base.TestCase):
             exceptions.SDKException,
             self.cloud.search_resources,
             "mock_session.wrong_resource",
-            "name"
+            "name",
         )
 
     def test_search_resources_get_finds(self):
         self.session._get.return_value = self.FakeResource(foo="bar")
 
-        ret = self.cloud.search_resources(
-            "mock_session.fake",
-            "fake_name"
-        )
-        self.session._get.assert_called_with(
-            self.FakeResource, "fake_name")
+        ret = self.cloud.search_resources("mock_session.fake", "fake_name")
+        self.session._get.assert_called_with(self.FakeResource, "fake_name")
 
         self.assertEqual(1, len(ret))
         self.assertEqual(
-            self.FakeResource(foo="bar").to_dict(),
-            ret[0].to_dict()
+            self.FakeResource(foo="bar").to_dict(), ret[0].to_dict()
         )
 
     def test_search_resources_list(self):
         self.session._get.side_effect = exceptions.ResourceNotFound
-        self.session._list.return_value = [
-            self.FakeResource(foo="bar")
-        ]
+        self.session._list.return_value = [self.FakeResource(foo="bar")]
 
-        ret = self.cloud.search_resources(
-            "mock_session.fake",
-            "fake_name"
-        )
-        self.session._get.assert_called_with(
-            self.FakeResource, "fake_name")
+        ret = self.cloud.search_resources("mock_session.fake", "fake_name")
+        self.session._get.assert_called_with(self.FakeResource, "fake_name")
         self.session._list.assert_called_with(
-            self.FakeResource, name="fake_name")
+            self.FakeResource, name="fake_name"
+        )
 
         self.assertEqual(1, len(ret))
         self.assertEqual(
-            self.FakeResource(foo="bar").to_dict(),
-            ret[0].to_dict()
+            self.FakeResource(foo="bar").to_dict(), ret[0].to_dict()
         )
 
     def test_search_resources_args(self):
@@ -103,33 +89,27 @@ class TestSearch(base.TestCase):
             get_kwargs={"getkwarg1": "1"},
             list_args=["listarg1"],
             list_kwargs={"listkwarg1": "1"},
-            filter1="foo"
+            filter1="foo",
         )
         self.session._get.assert_called_with(
-            self.FakeResource, "fake_name",
-            "getarg1", getkwarg1="1")
+            self.FakeResource, "fake_name", "getarg1", getkwarg1="1"
+        )
         self.session._list.assert_called_with(
             self.FakeResource,
-            "listarg1", listkwarg1="1",
-            name="fake_name", filter1="foo"
+            "listarg1",
+            listkwarg1="1",
+            name="fake_name",
+            filter1="foo",
         )
 
     def test_search_resources_name_empty(self):
-        self.session._list.return_value = [
-            self.FakeResource(foo="bar")
-        ]
+        self.session._list.return_value = [self.FakeResource(foo="bar")]
 
-        ret = self.cloud.search_resources(
-            "mock_session.fake",
-            None,
-            foo="bar"
-        )
+        ret = self.cloud.search_resources("mock_session.fake", None, foo="bar")
         self.session._get.assert_not_called()
-        self.session._list.assert_called_with(
-            self.FakeResource, foo="bar")
+        self.session._list.assert_called_with(self.FakeResource, foo="bar")
 
         self.assertEqual(1, len(ret))
         self.assertEqual(
-            self.FakeResource(foo="bar").to_dict(),
-            ret[0].to_dict()
+            self.FakeResource(foo="bar").to_dict(), ret[0].to_dict()
         )

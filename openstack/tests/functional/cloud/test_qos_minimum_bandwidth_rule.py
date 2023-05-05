@@ -49,29 +49,31 @@ class TestQosMinimumBandwidthRule(base.BaseFunctionalTest):
 
         # Create min bw rule
         rule = self.operator_cloud.create_qos_minimum_bandwidth_rule(
-            self.policy['id'],
-            min_kbps=min_kbps)
+            self.policy['id'], min_kbps=min_kbps
+        )
         self.assertIn('id', rule)
         self.assertEqual(min_kbps, rule['min_kbps'])
 
         # Now try to update rule
         updated_rule = self.operator_cloud.update_qos_minimum_bandwidth_rule(
-            self.policy['id'],
-            rule['id'],
-            min_kbps=updated_min_kbps)
+            self.policy['id'], rule['id'], min_kbps=updated_min_kbps
+        )
         self.assertIn('id', updated_rule)
         self.assertEqual(updated_min_kbps, updated_rule['min_kbps'])
 
         # List rules from policy
         policy_rules = self.operator_cloud.list_qos_minimum_bandwidth_rules(
-            self.policy['id'])
+            self.policy['id']
+        )
         self.assertEqual([updated_rule], policy_rules)
 
         # Delete rule
         self.operator_cloud.delete_qos_minimum_bandwidth_rule(
-            self.policy['id'], updated_rule['id'])
+            self.policy['id'], updated_rule['id']
+        )
 
         # Check if there is no rules in policy
         policy_rules = self.operator_cloud.list_qos_minimum_bandwidth_rules(
-            self.policy['id'])
+            self.policy['id']
+        )
         self.assertEqual([], policy_rules)

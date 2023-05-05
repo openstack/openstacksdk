@@ -32,7 +32,6 @@ RANGE_DATA = [
 
 
 class TestUtils(base.TestCase):
-
     def test__filter_list_name_or_id(self):
         el1 = dict(id=100, name='donald')
         el2 = dict(id=200, name='pluto')
@@ -85,18 +84,28 @@ class TestUtils(base.TestCase):
         self.assertEqual([], ret)
 
     def test__filter_list_unicode(self):
-        el1 = dict(id=100, name=u'中文', last='duck',
-                   other=dict(category='duck', financial=dict(status='poor')))
-        el2 = dict(id=200, name=u'中文', last='trump',
-                   other=dict(category='human', financial=dict(status='rich')))
-        el3 = dict(id=300, name='donald', last='ronald mac',
-                   other=dict(category='clown', financial=dict(status='rich')))
+        el1 = dict(
+            id=100,
+            name=u'中文',
+            last='duck',
+            other=dict(category='duck', financial=dict(status='poor')),
+        )
+        el2 = dict(
+            id=200,
+            name=u'中文',
+            last='trump',
+            other=dict(category='human', financial=dict(status='rich')),
+        )
+        el3 = dict(
+            id=300,
+            name='donald',
+            last='ronald mac',
+            other=dict(category='clown', financial=dict(status='rich')),
+        )
         data = [el1, el2, el3]
         ret = _utils._filter_list(
-            data, u'中文',
-            {'other': {
-                'financial': {'status': 'rich'}
-            }})
+            data, u'中文', {'other': {'financial': {'status': 'rich'}}}
+        )
         self.assertEqual([el2], ret)
 
     def test__filter_list_filter(self):
@@ -114,30 +123,47 @@ class TestUtils(base.TestCase):
         self.assertEqual([el1], ret)
 
     def test__filter_list_dict1(self):
-        el1 = dict(id=100, name='donald', last='duck',
-                   other=dict(category='duck'))
-        el2 = dict(id=200, name='donald', last='trump',
-                   other=dict(category='human'))
-        el3 = dict(id=300, name='donald', last='ronald mac',
-                   other=dict(category='clown'))
+        el1 = dict(
+            id=100, name='donald', last='duck', other=dict(category='duck')
+        )
+        el2 = dict(
+            id=200, name='donald', last='trump', other=dict(category='human')
+        )
+        el3 = dict(
+            id=300,
+            name='donald',
+            last='ronald mac',
+            other=dict(category='clown'),
+        )
         data = [el1, el2, el3]
         ret = _utils._filter_list(
-            data, 'donald', {'other': {'category': 'clown'}})
+            data, 'donald', {'other': {'category': 'clown'}}
+        )
         self.assertEqual([el3], ret)
 
     def test__filter_list_dict2(self):
-        el1 = dict(id=100, name='donald', last='duck',
-                   other=dict(category='duck', financial=dict(status='poor')))
-        el2 = dict(id=200, name='donald', last='trump',
-                   other=dict(category='human', financial=dict(status='rich')))
-        el3 = dict(id=300, name='donald', last='ronald mac',
-                   other=dict(category='clown', financial=dict(status='rich')))
+        el1 = dict(
+            id=100,
+            name='donald',
+            last='duck',
+            other=dict(category='duck', financial=dict(status='poor')),
+        )
+        el2 = dict(
+            id=200,
+            name='donald',
+            last='trump',
+            other=dict(category='human', financial=dict(status='rich')),
+        )
+        el3 = dict(
+            id=300,
+            name='donald',
+            last='ronald mac',
+            other=dict(category='clown', financial=dict(status='rich')),
+        )
         data = [el1, el2, el3]
         ret = _utils._filter_list(
-            data, 'donald',
-            {'other': {
-                'financial': {'status': 'rich'}
-            }})
+            data, 'donald', {'other': {'financial': {'status': 'rich'}}}
+        )
         self.assertEqual([el2, el3], ret)
 
     def test_safe_dict_min_ints(self):
@@ -176,7 +202,7 @@ class TestUtils(base.TestCase):
         with testtools.ExpectedException(
             exc.OpenStackCloudException,
             "Search for minimum value failed. "
-            "Value for f1 is not an integer: aaa"
+            "Value for f1 is not an integer: aaa",
         ):
             _utils.safe_dict_min('f1', data)
 
@@ -216,7 +242,7 @@ class TestUtils(base.TestCase):
         with testtools.ExpectedException(
             exc.OpenStackCloudException,
             "Search for maximum value failed. "
-            "Value for f1 is not an integer: aaa"
+            "Value for f1 is not an integer: aaa",
         ):
             _utils.safe_dict_max('f1', data)
 
@@ -282,15 +308,13 @@ class TestUtils(base.TestCase):
 
     def test_range_filter_invalid_int(self):
         with testtools.ExpectedException(
-            exc.OpenStackCloudException,
-            "Invalid range value: <1A0"
+            exc.OpenStackCloudException, "Invalid range value: <1A0"
         ):
             _utils.range_filter(RANGE_DATA, "key1", "<1A0")
 
     def test_range_filter_invalid_op(self):
         with testtools.ExpectedException(
-            exc.OpenStackCloudException,
-            "Invalid range value: <>100"
+            exc.OpenStackCloudException, "Invalid range value: <>100"
         ):
             _utils.range_filter(RANGE_DATA, "key1", "<>100")
 
@@ -330,8 +354,16 @@ class TestUtils(base.TestCase):
     def test_get_entity_pass_uuid(self):
         uuid = uuid4().hex
         self.cloud.use_direct_get = True
-        resources = ['flavor', 'image', 'volume', 'network',
-                     'subnet', 'port', 'floating_ip', 'security_group']
+        resources = [
+            'flavor',
+            'image',
+            'volume',
+            'network',
+            'subnet',
+            'port',
+            'floating_ip',
+            'security_group',
+        ]
         for r in resources:
             f = 'get_%s_by_id' % r
             with mock.patch.object(self.cloud, f) as get:
@@ -340,8 +372,16 @@ class TestUtils(base.TestCase):
 
     def test_get_entity_pass_search_methods(self):
         self.cloud.use_direct_get = True
-        resources = ['flavor', 'image', 'volume', 'network',
-                     'subnet', 'port', 'floating_ip', 'security_group']
+        resources = [
+            'flavor',
+            'image',
+            'volume',
+            'network',
+            'subnet',
+            'port',
+            'floating_ip',
+            'security_group',
+        ]
         filters = {}
         name = 'name_no_uuid'
         for r in resources:
@@ -351,8 +391,16 @@ class TestUtils(base.TestCase):
                 search.assert_called_once_with(name, filters)
 
     def test_get_entity_get_and_search(self):
-        resources = ['flavor', 'image', 'volume', 'network',
-                     'subnet', 'port', 'floating_ip', 'security_group']
+        resources = [
+            'flavor',
+            'image',
+            'volume',
+            'network',
+            'subnet',
+            'port',
+            'floating_ip',
+            'security_group',
+        ]
         for r in resources:
             self.assertTrue(hasattr(self.cloud, 'get_%s_by_id' % r))
             self.assertTrue(hasattr(self.cloud, 'search_%ss' % r))

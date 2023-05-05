@@ -50,59 +50,61 @@ class TestQosBandwidthLimitRule(base.BaseFunctionalTest):
 
         # Create bw limit rule
         rule = self.operator_cloud.create_qos_bandwidth_limit_rule(
-            self.policy['id'],
-            max_kbps=max_kbps,
-            max_burst_kbps=max_burst_kbps)
+            self.policy['id'], max_kbps=max_kbps, max_burst_kbps=max_burst_kbps
+        )
         self.assertIn('id', rule)
         self.assertEqual(max_kbps, rule['max_kbps'])
         self.assertEqual(max_burst_kbps, rule['max_burst_kbps'])
 
         # Now try to update rule
         updated_rule = self.operator_cloud.update_qos_bandwidth_limit_rule(
-            self.policy['id'],
-            rule['id'],
-            max_kbps=updated_max_kbps)
+            self.policy['id'], rule['id'], max_kbps=updated_max_kbps
+        )
         self.assertIn('id', updated_rule)
         self.assertEqual(updated_max_kbps, updated_rule['max_kbps'])
         self.assertEqual(max_burst_kbps, updated_rule['max_burst_kbps'])
 
         # List rules from policy
         policy_rules = self.operator_cloud.list_qos_bandwidth_limit_rules(
-            self.policy['id'])
+            self.policy['id']
+        )
         self.assertEqual([updated_rule], policy_rules)
 
         # Delete rule
         self.operator_cloud.delete_qos_bandwidth_limit_rule(
-            self.policy['id'], updated_rule['id'])
+            self.policy['id'], updated_rule['id']
+        )
 
         # Check if there is no rules in policy
         policy_rules = self.operator_cloud.list_qos_bandwidth_limit_rules(
-            self.policy['id'])
+            self.policy['id']
+        )
         self.assertEqual([], policy_rules)
 
     def test_create_qos_bandwidth_limit_rule_direction(self):
         if not self.operator_cloud._has_neutron_extension(
-                'qos-bw-limit-direction'):
-            self.skipTest("'qos-bw-limit-direction' network extension "
-                          "not supported by cloud")
+            'qos-bw-limit-direction'
+        ):
+            self.skipTest(
+                "'qos-bw-limit-direction' network extension "
+                "not supported by cloud"
+            )
         max_kbps = 1500
         direction = "ingress"
         updated_direction = "egress"
 
         # Create bw limit rule
         rule = self.operator_cloud.create_qos_bandwidth_limit_rule(
-            self.policy['id'],
-            max_kbps=max_kbps,
-            direction=direction)
+            self.policy['id'], max_kbps=max_kbps, direction=direction
+        )
         self.assertIn('id', rule)
         self.assertEqual(max_kbps, rule['max_kbps'])
         self.assertEqual(direction, rule['direction'])
 
         # Now try to update direction in rule
         updated_rule = self.operator_cloud.update_qos_bandwidth_limit_rule(
-            self.policy['id'],
-            rule['id'],
-            direction=updated_direction)
+            self.policy['id'], rule['id'], direction=updated_direction
+        )
         self.assertIn('id', updated_rule)
         self.assertEqual(max_kbps, updated_rule['max_kbps'])
         self.assertEqual(updated_direction, updated_rule['direction'])

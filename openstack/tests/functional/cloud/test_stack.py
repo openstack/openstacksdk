@@ -73,7 +73,6 @@ validate_template = '''heat_template_version: asdf-no-such-version '''
 
 
 class TestStack(base.BaseFunctionalTest):
-
     def setUp(self):
         super(TestStack, self).setUp()
         if not self.user_cloud.has_service('orchestration'):
@@ -88,10 +87,12 @@ class TestStack(base.BaseFunctionalTest):
         test_template.write(validate_template.encode('utf-8'))
         test_template.close()
         stack_name = self.getUniqueString('validate_template')
-        self.assertRaises(exc.OpenStackCloudException,
-                          self.user_cloud.create_stack,
-                          name=stack_name,
-                          template_file=test_template.name)
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.user_cloud.create_stack,
+            name=stack_name,
+            template_file=test_template.name,
+        )
 
     def test_stack_simple(self):
         test_template = tempfile.NamedTemporaryFile(delete=False)
@@ -100,9 +101,8 @@ class TestStack(base.BaseFunctionalTest):
         self.stack_name = self.getUniqueString('simple_stack')
         self.addCleanup(self._cleanup_stack)
         stack = self.user_cloud.create_stack(
-            name=self.stack_name,
-            template_file=test_template.name,
-            wait=True)
+            name=self.stack_name, template_file=test_template.name, wait=True
+        )
 
         # assert expected values in stack
         self.assertEqual('CREATE_COMPLETE', stack['stack_status'])
@@ -121,9 +121,8 @@ class TestStack(base.BaseFunctionalTest):
 
         # update with no changes
         stack = self.user_cloud.update_stack(
-            self.stack_name,
-            template_file=test_template.name,
-            wait=True)
+            self.stack_name, template_file=test_template.name, wait=True
+        )
 
         # assert no change in updated stack
         self.assertEqual('UPDATE_COMPLETE', stack['stack_status'])
@@ -135,7 +134,8 @@ class TestStack(base.BaseFunctionalTest):
             self.stack_name,
             template_file=test_template.name,
             wait=True,
-            length=12)
+            length=12,
+        )
 
         # assert changed output in updated stack
         stack = self.user_cloud.get_stack(self.stack_name)
@@ -147,7 +147,8 @@ class TestStack(base.BaseFunctionalTest):
     def test_stack_nested(self):
 
         test_template = tempfile.NamedTemporaryFile(
-            suffix='.yaml', delete=False)
+            suffix='.yaml', delete=False
+        )
         test_template.write(root_template.encode('utf-8'))
         test_template.close()
 
@@ -166,7 +167,8 @@ class TestStack(base.BaseFunctionalTest):
             name=self.stack_name,
             template_file=test_template.name,
             environment_files=[env.name],
-            wait=True)
+            wait=True,
+        )
 
         # assert expected values in stack
         self.assertEqual('CREATE_COMPLETE', stack['stack_status'])

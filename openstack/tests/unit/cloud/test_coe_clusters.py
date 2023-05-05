@@ -212,7 +212,5 @@ class TestCOEClusters(base.TestCase):
                 ),
             ]
         )
-        self.cloud.update_coe_cluster(
-            coe_cluster_obj["uuid"], node_count=3
-        )
+        self.cloud.update_coe_cluster(coe_cluster_obj["uuid"], node_count=3)
         self.assert_calls()

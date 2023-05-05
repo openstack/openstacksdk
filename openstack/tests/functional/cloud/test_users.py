@@ -105,7 +105,8 @@ class TestUsers(base.KeystoneBaseFunctionalTest):
             email='somebody@nowhere.com',
             enabled=False,
             password='secret',
-            description='')
+            description='',
+        )
         self.assertIsNotNone(new_user)
         self.assertEqual(user['id'], new_user['id'])
         self.assertEqual(user_name + '2', new_user['name'])
@@ -115,30 +116,37 @@ class TestUsers(base.KeystoneBaseFunctionalTest):
     def test_update_user_password(self):
         user_name = self.user_prefix + '_password'
         user_email = 'nobody@nowhere.com'
-        user = self._create_user(name=user_name,
-                                 email=user_email,
-                                 password='old_secret')
+        user = self._create_user(
+            name=user_name, email=user_email, password='old_secret'
+        )
         self.assertIsNotNone(user)
         self.assertTrue(user['enabled'])
 
         # This should work for both v2 and v3
         new_user = self.operator_cloud.update_user(
-            user['id'], password='new_secret')
+            user['id'], password='new_secret'
+        )
         self.assertIsNotNone(new_user)
         self.assertEqual(user['id'], new_user['id'])
         self.assertEqual(user_name, new_user['name'])
         self.assertEqual(user_email, new_user['email'])
         self.assertTrue(new_user['enabled'])
-        self.assertTrue(self.operator_cloud.grant_role(
-            'member', user=user['id'], project='demo', wait=True))
+        self.assertTrue(
+            self.operator_cloud.grant_role(
+                'member', user=user['id'], project='demo', wait=True
+            )
+        )
         self.addCleanup(
             self.operator_cloud.revoke_role,
-            'member', user=user['id'], project='demo', wait=True)
+            'member',
+            user=user['id'],
+            project='demo',
+            wait=True,
+        )
 
         new_cloud = self.operator_cloud.connect_as(
-            user_id=user['id'],
-            password='new_secret',
-            project_name='demo')
+            user_id=user['id'], password='new_secret', project_name='demo'
+        )
 
         self.assertIsNotNone(new_cloud)
         location = new_cloud.current_location
@@ -166,9 +174,11 @@ class TestUsers(base.KeystoneBaseFunctionalTest):
         # Add the user to the group
         self.operator_cloud.add_user_to_group(user_name, group_name)
         self.assertTrue(
-            self.operator_cloud.is_user_in_group(user_name, group_name))
+            self.operator_cloud.is_user_in_group(user_name, group_name)
+        )
 
         # Remove them from the group
         self.operator_cloud.remove_user_from_group(user_name, group_name)
         self.assertFalse(
-            self.operator_cloud.is_user_in_group(user_name, group_name))
+            self.operator_cloud.is_user_in_group(user_name, group_name)
+        )

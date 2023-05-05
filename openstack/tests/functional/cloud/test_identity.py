@@ -30,7 +30,8 @@ class TestIdentity(base.KeystoneBaseFunctionalTest):
         if not self.operator_cloud:
             self.skipTest("Operator cloud is required for this test")
         self.role_prefix = 'test_role' + ''.join(
-            random.choice(string.ascii_lowercase) for _ in range(5))
+            random.choice(string.ascii_lowercase) for _ in range(5)
+        )
         self.user_prefix = self.getUniqueString('user')
         self.group_prefix = self.getUniqueString('group')
 
@@ -133,7 +134,8 @@ class TestIdentity(base.KeystoneBaseFunctionalTest):
         user = self.operator_cloud.get_user('demo')
         project = self.operator_cloud.get_project('demo')
         assignments = self.operator_cloud.list_role_assignments(
-            filters={'user': user['id'], 'project': project['id']})
+            filters={'user': user['id'], 'project': project['id']}
+        )
         self.assertIsInstance(assignments, list)
         self.assertGreater(len(assignments), 0)
 
@@ -142,25 +144,35 @@ class TestIdentity(base.KeystoneBaseFunctionalTest):
         user_email = 'nobody@nowhere.com'
         role_name = self.role_prefix + '_grant_user_project'
         role = self.operator_cloud.create_role(role_name)
-        user = self._create_user(name=user_name,
-                                 email=user_email,
-                                 default_project='demo')
-        self.assertTrue(self.operator_cloud.grant_role(
-            role_name, user=user['id'], project='demo', wait=True))
-        assignments = self.operator_cloud.list_role_assignments({
-            'role': role['id'],
-            'user': user['id'],
-            'project': self.operator_cloud.get_project('demo')['id']
-        })
+        user = self._create_user(
+            name=user_name, email=user_email, default_project='demo'
+        )
+        self.assertTrue(
+            self.operator_cloud.grant_role(
+                role_name, user=user['id'], project='demo', wait=True
+            )
+        )
+        assignments = self.operator_cloud.list_role_assignments(
+            {
+                'role': role['id'],
+                'user': user['id'],
+                'project': self.operator_cloud.get_project('demo')['id'],
+            }
+        )
         self.assertIsInstance(assignments, list)
         self.assertEqual(1, len(assignments))
-        self.assertTrue(self.operator_cloud.revoke_role(
-            role_name, user=user['id'], project='demo', wait=True))
-        assignments = self.operator_cloud.list_role_assignments({
-            'role': role['id'],
-            'user': user['id'],
-            'project': self.operator_cloud.get_project('demo')['id']
-        })
+        self.assertTrue(
+            self.operator_cloud.revoke_role(
+                role_name, user=user['id'], project='demo', wait=True
+            )
+        )
+        assignments = self.operator_cloud.list_role_assignments(
+            {
+                'role': role['id'],
+                'user': user['id'],
+                'project': self.operator_cloud.get_project('demo')['id'],
+            }
+        )
         self.assertIsInstance(assignments, list)
         self.assertEqual(0, len(assignments))
 
@@ -171,25 +183,34 @@ class TestIdentity(base.KeystoneBaseFunctionalTest):
         role = self.operator_cloud.create_role(role_name)
         group_name = self.group_prefix + '_group_project'
         group = self.operator_cloud.create_group(
-            name=group_name,
-            description='test group',
-            domain='default')
-        self.assertTrue(self.operator_cloud.grant_role(
-            role_name, group=group['id'], project='demo'))
-        assignments = self.operator_cloud.list_role_assignments({
-            'role': role['id'],
-            'group': group['id'],
-            'project': self.operator_cloud.get_project('demo')['id']
-        })
+            name=group_name, description='test group', domain='default'
+        )
+        self.assertTrue(
+            self.operator_cloud.grant_role(
+                role_name, group=group['id'], project='demo'
+            )
+        )
+        assignments = self.operator_cloud.list_role_assignments(
+            {
+                'role': role['id'],
+                'group': group['id'],
+                'project': self.operator_cloud.get_project('demo')['id'],
+            }
+        )
         self.assertIsInstance(assignments, list)
         self.assertEqual(1, len(assignments))
-        self.assertTrue(self.operator_cloud.revoke_role(
-            role_name, group=group['id'], project='demo'))
-        assignments = self.operator_cloud.list_role_assignments({
-            'role': role['id'],
-            'group': group['id'],
-            'project': self.operator_cloud.get_project('demo')['id']
-        })
+        self.assertTrue(
+            self.operator_cloud.revoke_role(
+                role_name, group=group['id'], project='demo'
+            )
+        )
+        assignments = self.operator_cloud.list_role_assignments(
+            {
+                'role': role['id'],
+                'group': group['id'],
+                'project': self.operator_cloud.get_project('demo')['id'],
+            }
+        )
         self.assertIsInstance(assignments, list)
         self.assertEqual(0, len(assignments))
 
@@ -200,25 +221,35 @@ class TestIdentity(base.KeystoneBaseFunctionalTest):
         role = self.operator_cloud.create_role(role_name)
         user_name = self.user_prefix + '_user_domain'
         user_email = 'nobody@nowhere.com'
-        user = self._create_user(name=user_name,
-                                 email=user_email,
-                                 default_project='demo')
-        self.assertTrue(self.operator_cloud.grant_role(
-            role_name, user=user['id'], domain='default'))
-        assignments = self.operator_cloud.list_role_assignments({
-            'role': role['id'],
-            'user': user['id'],
-            'domain': self.operator_cloud.get_domain('default')['id']
-        })
+        user = self._create_user(
+            name=user_name, email=user_email, default_project='demo'
+        )
+        self.assertTrue(
+            self.operator_cloud.grant_role(
+                role_name, user=user['id'], domain='default'
+            )
+        )
+        assignments = self.operator_cloud.list_role_assignments(
+            {
+                'role': role['id'],
+                'user': user['id'],
+                'domain': self.operator_cloud.get_domain('default')['id'],
+            }
+        )
         self.assertIsInstance(assignments, list)
         self.assertEqual(1, len(assignments))
-        self.assertTrue(self.operator_cloud.revoke_role(
-            role_name, user=user['id'], domain='default'))
-        assignments = self.operator_cloud.list_role_assignments({
-            'role': role['id'],
-            'user': user['id'],
-            'domain': self.operator_cloud.get_domain('default')['id']
-        })
+        self.assertTrue(
+            self.operator_cloud.revoke_role(
+                role_name, user=user['id'], domain='default'
+            )
+        )
+        assignments = self.operator_cloud.list_role_assignments(
+            {
+                'role': role['id'],
+                'user': user['id'],
+                'domain': self.operator_cloud.get_domain('default')['id'],
+            }
+        )
         self.assertIsInstance(assignments, list)
         self.assertEqual(0, len(assignments))
 
@@ -229,25 +260,34 @@ class TestIdentity(base.KeystoneBaseFunctionalTest):
         role = self.operator_cloud.create_role(role_name)
         group_name = self.group_prefix + '_group_domain'
         group = self.operator_cloud.create_group(
-            name=group_name,
-            description='test group',
-            domain='default')
-        self.assertTrue(self.operator_cloud.grant_role(
-            role_name, group=group['id'], domain='default'))
-        assignments = self.operator_cloud.list_role_assignments({
-            'role': role['id'],
-            'group': group['id'],
-            'domain': self.operator_cloud.get_domain('default')['id']
-        })
+            name=group_name, description='test group', domain='default'
+        )
+        self.assertTrue(
+            self.operator_cloud.grant_role(
+                role_name, group=group['id'], domain='default'
+            )
+        )
+        assignments = self.operator_cloud.list_role_assignments(
+            {
+                'role': role['id'],
+                'group': group['id'],
+                'domain': self.operator_cloud.get_domain('default')['id'],
+            }
+        )
         self.assertIsInstance(assignments, list)
         self.assertEqual(1, len(assignments))
-        self.assertTrue(self.operator_cloud.revoke_role(
-            role_name, group=group['id'], domain='default'))
-        assignments = self.operator_cloud.list_role_assignments({
-            'role': role['id'],
-            'group': group['id'],
-            'domain': self.operator_cloud.get_domain('default')['id']
-        })
+        self.assertTrue(
+            self.operator_cloud.revoke_role(
+                role_name, group=group['id'], domain='default'
+            )
+        )
+        assignments = self.operator_cloud.list_role_assignments(
+            {
+                'role': role['id'],
+                'group': group['id'],
+                'domain': self.operator_cloud.get_domain('default')['id'],
+            }
+        )
         self.assertIsInstance(assignments, list)
         self.assertEqual(0, len(assignments))
 
@@ -256,25 +296,27 @@ class TestIdentity(base.KeystoneBaseFunctionalTest):
         role = self.operator_cloud.create_role(role_name)
         user_name = self.user_prefix + '_user_system'
         user_email = 'nobody@nowhere.com'
-        user = self._create_user(name=user_name,
-                                 email=user_email,
-                                 default_project='demo')
-        self.assertTrue(self.operator_cloud.grant_role(
-            role_name, user=user['id'], system='all'))
-        assignments = self.operator_cloud.list_role_assignments({
-            'role': role['id'],
-            'user': user['id'],
-            'system': 'all'
-        })
+        user = self._create_user(
+            name=user_name, email=user_email, default_project='demo'
+        )
+        self.assertTrue(
+            self.operator_cloud.grant_role(
+                role_name, user=user['id'], system='all'
+            )
+        )
+        assignments = self.operator_cloud.list_role_assignments(
+            {'role': role['id'], 'user': user['id'], 'system': 'all'}
+        )
         self.assertIsInstance(assignments, list)
         self.assertEqual(1, len(assignments))
-        self.assertTrue(self.operator_cloud.revoke_role(
-            role_name, user=user['id'], system='all'))
-        assignments = self.operator_cloud.list_role_assignments({
-            'role': role['id'],
-            'user': user['id'],
-            'system': 'all'
-        })
+        self.assertTrue(
+            self.operator_cloud.revoke_role(
+                role_name, user=user['id'], system='all'
+            )
+        )
+        assignments = self.operator_cloud.list_role_assignments(
+            {'role': role['id'], 'user': user['id'], 'system': 'all'}
+        )
         self.assertIsInstance(assignments, list)
         self.assertEqual(0, len(assignments))
 
@@ -285,23 +327,25 @@ class TestIdentity(base.KeystoneBaseFunctionalTest):
         role = self.operator_cloud.create_role(role_name)
         group_name = self.group_prefix + '_group_system'
         group = self.operator_cloud.create_group(
-            name=group_name,
-            description='test group')
-        self.assertTrue(self.operator_cloud.grant_role(
-            role_name, group=group['id'], system='all'))
-        assignments = self.operator_cloud.list_role_assignments({
-            'role': role['id'],
-            'group': group['id'],
-            'system': 'all'
-        })
+            name=group_name, description='test group'
+        )
+        self.assertTrue(
+            self.operator_cloud.grant_role(
+                role_name, group=group['id'], system='all'
+            )
+        )
+        assignments = self.operator_cloud.list_role_assignments(
+            {'role': role['id'], 'group': group['id'], 'system': 'all'}
+        )
         self.assertIsInstance(assignments, list)
         self.assertEqual(1, len(assignments))
-        self.assertTrue(self.operator_cloud.revoke_role(
-            role_name, group=group['id'], system='all'))
-        assignments = self.operator_cloud.list_role_assignments({
-            'role': role['id'],
-            'group': group['id'],
-            'system': 'all'
-        })
+        self.assertTrue(
+            self.operator_cloud.revoke_role(
+                role_name, group=group['id'], system='all'
+            )
+        )
+        assignments = self.operator_cloud.list_role_assignments(
+            {'role': role['id'], 'group': group['id'], 'system': 'all'}
+        )
         self.assertIsInstance(assignments, list)
         self.assertEqual(0, len(assignments))

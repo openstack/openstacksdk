@@ -21,7 +21,6 @@ from openstack.tests.functional import base
 
 
 class TestKeypairs(base.BaseFunctionalTest):
-
     def test_create_and_delete(self):
         '''Test creating and deleting keypairs functionality'''
         name = self.getUniqueString('keypair')
@@ -46,7 +45,8 @@ class TestKeypairs(base.BaseFunctionalTest):
         name = self.getUniqueString('keypair')
         self.addCleanup(self.user_cloud.delete_keypair, name)
         keypair = self.user_cloud.create_keypair(
-            name=name, public_key=fakes.FAKE_PUBLIC_KEY)
+            name=name, public_key=fakes.FAKE_PUBLIC_KEY
+        )
         self.assertEqual(keypair['name'], name)
         self.assertIsNotNone(keypair['public_key'])
         self.assertIsNone(keypair['private_key'])

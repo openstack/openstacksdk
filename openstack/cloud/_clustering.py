@@ -23,9 +23,11 @@ class ClusteringCloudMixin:
     def _clustering_client(self):
         if 'clustering' not in self._raw_clients:
             clustering_client = self._get_versioned_client(
-                'clustering', min_version=1, max_version='1.latest')
+                'clustering', min_version=1, max_version='1.latest'
+            )
             self._raw_clients['clustering'] = clustering_client
         return self._raw_clients['clustering']
+
 
 # NOTE(gtema): work on getting rid of direct API calls showed that this
 # implementation never worked properly and tests in reality verifying wrong

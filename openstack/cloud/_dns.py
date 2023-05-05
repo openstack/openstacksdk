@@ -33,8 +33,7 @@ class DnsCloudMixin:
         """
         if not filters:
             filters = {}
-        return list(self.dns.zones(allow_unknown_params=True,
-                                   **filters))
+        return list(self.dns.zones(allow_unknown_params=True, **filters))
 
     def get_zone(self, name_or_id, filters=None):
         """Get a zone by name or ID.
@@ -49,7 +48,8 @@ class DnsCloudMixin:
         if not filters:
             filters = {}
         zone = self.dns.find_zone(
-            name_or_id=name_or_id, ignore_missing=True, **filters)
+            name_or_id=name_or_id, ignore_missing=True, **filters
+        )
         if not zone:
             return None
         return zone
@@ -58,8 +58,15 @@ class DnsCloudMixin:
         zones = self.list_zones(filters)
         return _utils._filter_list(zones, name_or_id, filters)
 
-    def create_zone(self, name, zone_type=None, email=None, description=None,
-                    ttl=None, masters=None):
+    def create_zone(
+        self,
+        name,
+        zone_type=None,
+        email=None,
+        description=None,
+        ttl=None,
+        masters=None,
+    ):
         """Create a new zone.
 
         :param name: Name of the zone being created.
@@ -82,8 +89,9 @@ class DnsCloudMixin:
             zone_type = zone_type.upper()
             if zone_type not in ('PRIMARY', 'SECONDARY'):
                 raise exc.OpenStackCloudException(
-                    "Invalid type %s, valid choices are PRIMARY or SECONDARY" %
-                    zone_type)
+                    "Invalid type %s, valid choices are PRIMARY or SECONDARY"
+                    % zone_type
+                )
 
         zone = {
             "name": name,
@@ -125,7 +133,8 @@ class DnsCloudMixin:
         zone = self.get_zone(name_or_id)
         if not zone:
             raise exc.OpenStackCloudException(
-                "Zone %s not found." % name_or_id)
+                "Zone %s not found." % name_or_id
+            )
 
         return self.dns.update_zone(zone['id'], **kwargs)
 
@@ -162,8 +171,7 @@ class DnsCloudMixin:
         else:
             zone_obj = self.get_zone(zone)
         if zone_obj is None:
-            raise exc.OpenStackCloudException(
-                "Zone %s not found." % zone)
+            raise exc.OpenStackCloudException("Zone %s not found." % zone)
         return list(self.dns.recordsets(zone_obj))
 
     def get_recordset(self, zone, name_or_id):
@@ -182,11 +190,11 @@ class DnsCloudMixin:
         else:
             zone_obj = self.get_zone(zone)
         if not zone_obj:
-            raise exc.OpenStackCloudException(
-                "Zone %s not found." % zone)
+            raise exc.OpenStackCloudException("Zone %s not found." % zone)
         try:
             return self.dns.find_recordset(
-                zone=zone_obj, name_or_id=name_or_id, ignore_missing=False)
+                zone=zone_obj, name_or_id=name_or_id, ignore_missing=False
+            )
         except Exception:
             return None
 
@@ -194,8 +202,9 @@ class DnsCloudMixin:
         recordsets = self.list_recordsets(zone=zone)
         return _utils._filter_list(recordsets, name_or_id, filters)
 
-    def create_recordset(self, zone, name, recordset_type, records,
-                         description=None, ttl=None):
+    def create_recordset(
+        self, zone, name, recordset_type, records, description=None, ttl=None
+    ):
         """Create a recordset.
 
         :param zone: Name, ID or :class:`openstack.dns.v2.zone.Zone` instance
@@ -216,17 +225,12 @@ class DnsCloudMixin:
         else:
             zone_obj = self.get_zone(zone)
         if not zone_obj:
-            raise exc.OpenStackCloudException(
-                "Zone %s not found." % zone)
+            raise exc.OpenStackCloudException("Zone %s not found." % zone)
 
         # We capitalize the type in case the user sends in lowercase
         recordset_type = recordset_type.upper()
 
-        body = {
-            'name': name,
-            'type': recordset_type,
-            'records': records
-        }
+        body = {'name': name, 'type': recordset_type, 'records': records}
 
         if description:
             body['description'] = description
@@ -255,7 +259,8 @@ class DnsCloudMixin:
         rs = self.get_recordset(zone, name_or_id)
         if not rs:
             raise exc.OpenStackCloudException(
-                "Recordset %s not found." % name_or_id)
+                "Recordset %s not found." % name_or_id
+            )
 
         rs = self.dns.update_recordset(recordset=rs, **kwargs)
 

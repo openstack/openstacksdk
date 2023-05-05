@@ -28,7 +28,8 @@ class IdentityCloudMixin:
     def _identity_client(self):
         if 'identity' not in self._raw_clients:
             self._raw_clients['identity'] = self._get_versioned_client(
-                'identity', min_version=2, max_version='3.latest')
+                'identity', min_version=2, max_version='3.latest'
+            )
         return self._raw_clients['identity']
 
     @_utils.cache_on_arguments()
@@ -129,8 +130,9 @@ class IdentityCloudMixin:
         :raises: ``OpenStackCloudException`` if something goes wrong during
             the OpenStack API call.
         """
-        return _utils._get_entity(self, 'project', name_or_id, filters,
-                                  domain_id=domain_id)
+        return _utils._get_entity(
+            self, 'project', name_or_id, filters, domain_id=domain_id
+        )
 
     def update_project(
         self,
@@ -178,7 +180,7 @@ class IdentityCloudMixin:
             name=name,
             description=description,
             domain_id=domain_id,
-            is_enabled=enabled
+            is_enabled=enabled,
         )
         if kwargs:
             attrs.update(kwargs)
@@ -195,19 +197,19 @@ class IdentityCloudMixin:
         """
         try:
             project = self.identity.find_project(
-                name_or_id=name_or_id,
-                ignore_missing=True,
-                domain_id=domain_id
+                name_or_id=name_or_id, ignore_missing=True, domain_id=domain_id
             )
             if not project:
-                self.log.debug(
-                    "Project %s not found for deleting", name_or_id)
+                self.log.debug("Project %s not found for deleting", name_or_id)
                 return False
             self.identity.delete_project(project)
             return True
         except exceptions.SDKException:
-            self.log.exception("Error in deleting project {project}".format(
-                project=name_or_id))
+            self.log.exception(
+                "Error in deleting project {project}".format(
+                    project=name_or_id
+                )
+            )
             return False
 
     @_utils.valid_kwargs('domain_id', 'name')
@@ -299,8 +301,15 @@ class IdentityCloudMixin:
         """
         return self.identity.get_user(user_id)
 
-    @_utils.valid_kwargs('name', 'email', 'enabled', 'domain_id', 'password',
-                         'description', 'default_project')
+    @_utils.valid_kwargs(
+        'name',
+        'email',
+        'enabled',
+        'domain_id',
+        'password',
+        'description',
+        'default_project',
+    )
     def update_user(self, name_or_id, **kwargs):
         self.list_users.invalidate(self)
         user_kwargs = {}
@@ -351,7 +360,8 @@ class IdentityCloudMixin:
             user = self.get_user(name_or_id, **kwargs)
             if not user:
                 self.log.debug(
-                    "User {0} not found for deleting".format(name_or_id))
+                    "User {0} not found for deleting".format(name_or_id)
+                )
                 return False
 
             self.identity.delete_user(user)
@@ -359,21 +369,23 @@ class IdentityCloudMixin:
             return True
 
         except exceptions.SDKException:
-            self.log.exception("Error in deleting user {user}".format(
-                user=name_or_id
-            ))
+            self.log.exception(
+                "Error in deleting user {user}".format(user=name_or_id)
+            )
             return False
 
     def _get_user_and_group(self, user_name_or_id, group_name_or_id):
         user = self.get_user(user_name_or_id)
         if not user:
             raise exc.OpenStackCloudException(
-                'User {user} not found'.format(user=user_name_or_id))
+                'User {user} not found'.format(user=user_name_or_id)
+            )
 
         group = self.get_group(group_name_or_id)
         if not group:
             raise exc.OpenStackCloudException(
-                'Group {user} not found'.format(user=group_name_or_id))
+                'Group {user} not found'.format(user=group_name_or_id)
+            )
 
         return (user, group)
 
@@ -438,8 +450,9 @@ class IdentityCloudMixin:
 
         return self.identity.create_service(**kwargs)
 
-    @_utils.valid_kwargs('name', 'enabled', 'type', 'service_type',
-                         'description')
+    @_utils.valid_kwargs(
+        'name', 'enabled', 'type', 'service_type', 'description'
+    )
     def update_service(self, name_or_id, **kwargs):
 
         # NOTE(SamYaple): Keystone v3 only accepts 'type' but shade accepts
@@ -519,7 +532,8 @@ class IdentityCloudMixin:
             return True
         except exceptions.SDKException:
             self.log.exception(
-                'Failed to delete service {id}'.format(id=service['id']))
+                'Failed to delete service {id}'.format(id=service['id'])
+            )
             return False
 
     @_utils.valid_kwargs('public_url', 'internal_url', 'admin_url')
@@ -560,31 +574,42 @@ class IdentityCloudMixin:
         if service is None:
             raise exc.OpenStackCloudException(
                 "service {service} not found".format(
-                    service=service_name_or_id))
+                    service=service_name_or_id
+                )
+            )
 
         endpoints_args = []
         if url:
             # v3 in use, v3-like arguments, one endpoint created
             endpoints_args.append(
-                {'url': url, 'interface': interface,
-                 'service_id': service['id'], 'enabled': enabled,
-                 'region_id': region})
+                {
+                    'url': url,
+                    'interface': interface,
+                    'service_id': service['id'],
+                    'enabled': enabled,
+                    'region_id': region,
+                }
+            )
         else:
             # v3 in use, v2.0-like arguments, one endpoint created for each
             # interface url provided
-            endpoint_args = {'region_id': region, 'enabled': enabled,
-                             'service_id': service['id']}
+            endpoint_args = {
+                'region_id': region,
+                'enabled': enabled,
+                'service_id': service['id'],
+            }
             if public_url:
-                endpoint_args.update({'url': public_url,
-                                      'interface': 'public'})
+                endpoint_args.update(
+                    {'url': public_url, 'interface': 'public'}
+                )
                 endpoints_args.append(endpoint_args.copy())
             if internal_url:
-                endpoint_args.update({'url': internal_url,
-                                      'interface': 'internal'})
+                endpoint_args.update(
+                    {'url': internal_url, 'interface': 'internal'}
+                )
                 endpoints_args.append(endpoint_args.copy())
             if admin_url:
-                endpoint_args.update({'url': admin_url,
-                                      'interface': 'admin'})
+                endpoint_args.update({'url': admin_url, 'interface': 'admin'})
                 endpoints_args.append(endpoint_args.copy())
 
         endpoints = []
@@ -592,8 +617,9 @@ class IdentityCloudMixin:
             endpoints.append(self.identity.create_endpoint(**args))
         return endpoints
 
-    @_utils.valid_kwargs('enabled', 'service_name_or_id', 'url', 'interface',
-                         'region')
+    @_utils.valid_kwargs(
+        'enabled', 'service_name_or_id', 'url', 'interface', 'region'
+    )
     def update_endpoint(self, endpoint_id, **kwargs):
         service_name_or_id = kwargs.pop('service_name_or_id', None)
         if service_name_or_id is not None:
@@ -670,8 +696,7 @@ class IdentityCloudMixin:
             self.identity.delete_endpoint(id)
             return True
         except exceptions.SDKException:
-            self.log.exception(
-                "Failed to delete endpoint {id}".format(id=id))
+            self.log.exception("Failed to delete endpoint {id}".format(id=id))
             return False
 
     def create_domain(self, name, description=None, enabled=True):
@@ -746,7 +771,8 @@ class IdentityCloudMixin:
                 dom = self.get_domain(name_or_id=name_or_id)
                 if dom is None:
                     self.log.debug(
-                        "Domain %s not found for deleting", name_or_id)
+                        "Domain %s not found for deleting", name_or_id
+                    )
                     return False
                 domain_id = dom['id']
 
@@ -963,8 +989,7 @@ class IdentityCloudMixin:
         try:
             group = self.identity.find_group(name_or_id)
             if group is None:
-                self.log.debug(
-                    "Group %s not found for deleting", name_or_id)
+                self.log.debug("Group %s not found for deleting", name_or_id)
                 return False
 
             self.identity.delete_group(group)
@@ -974,7 +999,8 @@ class IdentityCloudMixin:
 
         except exceptions.SDKException:
             self.log.exception(
-                "Unable to delete group {name}".format(name=name_or_id))
+                "Unable to delete group {name}".format(name=name_or_id)
+            )
             return False
 
     def list_roles(self, **kwargs):
@@ -1051,8 +1077,9 @@ class IdentityCloudMixin:
                     filters['scope.' + k + '.id'] = filters[k]
                 del filters[k]
         if 'os_inherit_extension_inherited_to' in filters:
-            filters['scope.OS-INHERIT:inherited_to'] = (
-                filters['os_inherit_extension_inherited_to'])
+            filters['scope.OS-INHERIT:inherited_to'] = filters[
+                'os_inherit_extension_inherited_to'
+            ]
             del filters['os_inherit_extension_inherited_to']
 
         return list(self.identity.role_assignments(**filters))
@@ -1138,8 +1165,7 @@ class IdentityCloudMixin:
         """
         role = self.get_role(name_or_id, **kwargs)
         if role is None:
-            self.log.debug(
-                "Role %s not found for updating", name_or_id)
+            self.log.debug("Role %s not found for updating", name_or_id)
             return False
 
         return self.identity.update_role(role, name=name, **kwargs)
@@ -1156,8 +1182,7 @@ class IdentityCloudMixin:
         """
         role = self.get_role(name_or_id, **kwargs)
         if role is None:
-            self.log.debug(
-                "Role %s not found for deleting", name_or_id)
+            self.log.debug("Role %s not found for deleting", name_or_id)
             return False
 
         try:
@@ -1165,17 +1190,25 @@ class IdentityCloudMixin:
             return True
         except exceptions.SDKExceptions:
             self.log.exception(
-                "Unable to delete role {name}".format(
-                    name=name_or_id))
+                "Unable to delete role {name}".format(name=name_or_id)
+            )
             raise
 
-    def _get_grant_revoke_params(self, role, user=None, group=None,
-                                 project=None, domain=None, system=None):
+    def _get_grant_revoke_params(
+        self,
+        role,
+        user=None,
+        group=None,
+        project=None,
+        domain=None,
+        system=None,
+    ):
         data = {}
         search_args = {}
         if domain:
             data['domain'] = self.identity.find_domain(
-                domain, ignore_missing=False)
+                domain, ignore_missing=False
+            )
             # We have domain. We should use it for further searching user,
             # group, role, project
             search_args['domain_id'] = data['domain'].id
@@ -1183,33 +1216,47 @@ class IdentityCloudMixin:
         data['role'] = self.identity.find_role(name_or_id=role)
         if not data['role']:
             raise exc.OpenStackCloudException(
-                'Role {0} not found.'.format(role))
+                'Role {0} not found.'.format(role)
+            )
 
         if user:
             # use cloud.get_user to save us from bad searching by name
             data['user'] = self.get_user(user, filters=search_args)
         if group:
             data['group'] = self.identity.find_group(
-                group, ignore_missing=False, **search_args)
+                group, ignore_missing=False, **search_args
+            )
 
         if data.get('user') and data.get('group'):
             raise exc.OpenStackCloudException(
-                'Specify either a group or a user, not both')
+                'Specify either a group or a user, not both'
+            )
         if data.get('user') is None and data.get('group') is None:
             raise exc.OpenStackCloudException(
-                'Must specify either a user or a group')
+                'Must specify either a user or a group'
+            )
         if project is None and domain is None and system is None:
             raise exc.OpenStackCloudException(
-                'Must specify either a domain, project or system')
+                'Must specify either a domain, project or system'
+            )
 
         if project:
             data['project'] = self.identity.find_project(
-                project, ignore_missing=False, **search_args)
+                project, ignore_missing=False, **search_args
+            )
         return data
 
-    def grant_role(self, name_or_id, user=None, group=None,
-                   project=None, domain=None, system=None, wait=False,
-                   timeout=60):
+    def grant_role(
+        self,
+        name_or_id,
+        user=None,
+        group=None,
+        project=None,
+        domain=None,
+        system=None,
+        wait=False,
+        timeout=60,
+    ):
         """Grant a role to a user.
 
         :param string name_or_id: Name or unique ID of the role.
@@ -1236,8 +1283,13 @@ class IdentityCloudMixin:
         :raise OpenStackCloudException: if the role cannot be granted
         """
         data = self._get_grant_revoke_params(
-            name_or_id, user=user, group=group,
-            project=project, domain=domain, system=system)
+            name_or_id,
+            user=user,
+            group=group,
+            project=project,
+            domain=domain,
+            system=system,
+        )
 
         user = data.get('user')
         group = data.get('group')
@@ -1249,63 +1301,73 @@ class IdentityCloudMixin:
             # Proceed with project - precedence over domain and system
             if user:
                 has_role = self.identity.validate_user_has_project_role(
-                    project, user, role)
+                    project, user, role
+                )
                 if has_role:
                     self.log.debug('Assignment already exists')
                     return False
-                self.identity.assign_project_role_to_user(
-                    project, user, role)
+                self.identity.assign_project_role_to_user(project, user, role)
             else:
                 has_role = self.identity.validate_group_has_project_role(
-                    project, group, role)
+                    project, group, role
+                )
                 if has_role:
                     self.log.debug('Assignment already exists')
                     return False
                 self.identity.assign_project_role_to_group(
-                    project, group, role)
+                    project, group, role
+                )
         elif domain:
             # Proceed with domain - precedence over system
             if user:
                 has_role = self.identity.validate_user_has_domain_role(
-                    domain, user, role)
+                    domain, user, role
+                )
                 if has_role:
                     self.log.debug('Assignment already exists')
                     return False
-                self.identity.assign_domain_role_to_user(
-                    domain, user, role)
+                self.identity.assign_domain_role_to_user(domain, user, role)
             else:
                 has_role = self.identity.validate_group_has_domain_role(
-                    domain, group, role)
+                    domain, group, role
+                )
                 if has_role:
                     self.log.debug('Assignment already exists')
                     return False
-                self.identity.assign_domain_role_to_group(
-                    domain, group, role)
+                self.identity.assign_domain_role_to_group(domain, group, role)
         else:
             # Proceed with system
             # System name must be 'all' due to checks performed in
             # _get_grant_revoke_params
             if user:
                 has_role = self.identity.validate_user_has_system_role(
-                    user, role, system)
+                    user, role, system
+                )
                 if has_role:
                     self.log.debug('Assignment already exists')
                     return False
-                self.identity.assign_system_role_to_user(
-                    user, role, system)
+                self.identity.assign_system_role_to_user(user, role, system)
             else:
                 has_role = self.identity.validate_group_has_system_role(
-                    group, role, system)
+                    group, role, system
+                )
                 if has_role:
                     self.log.debug('Assignment already exists')
                     return False
-                self.identity.assign_system_role_to_group(
-                    group, role, system)
+                self.identity.assign_system_role_to_group(group, role, system)
         return True
 
-    def revoke_role(self, name_or_id, user=None, group=None,
-                    project=None, domain=None, system=None,
-                    wait=False, timeout=60):
+    def revoke_role(
+        self,
+        name_or_id,
+        user=None,
+        group=None,
+        project=None,
+        domain=None,
+        system=None,
+        wait=False,
+        timeout=60,
+    ):
         """Revoke a role from a user.
 
         :param string name_or_id: Name or unique ID of the role.
@@ -1329,8 +1391,13 @@ class IdentityCloudMixin:
         :raise OpenStackCloudException: if the role cannot be removed
         """
         data = self._get_grant_revoke_params(
-            name_or_id, user=user, group=group,
-            project=project, domain=domain, system=system)
+            name_or_id,
+            user=user,
+            group=group,
+            project=project,
+            domain=domain,
+            system=system,
+        )
 
         user = data.get('user')
         group = data.get('group')
@@ -1342,58 +1409,70 @@ class IdentityCloudMixin:
             # Proceed with project - precedence over domain and system
             if user:
                 has_role = self.identity.validate_user_has_project_role(
-                    project, user, role)
+                    project, user, role
+                )
                 if not has_role:
                     self.log.debug('Assignment does not exists')
                     return False
                 self.identity.unassign_project_role_from_user(
-                    project, user, role)
+                    project, user, role
+                )
             else:
                 has_role = self.identity.validate_group_has_project_role(
-                    project, group, role)
+                    project, group, role
+                )
                 if not has_role:
                     self.log.debug('Assignment does not exists')
                     return False
                 self.identity.unassign_project_role_from_group(
-                    project, group, role)
+                    project, group, role
+                )
         elif domain:
             # Proceed with domain - precedence over system
             if user:
                 has_role = self.identity.validate_user_has_domain_role(
-                    domain, user, role)
+                    domain, user, role
+                )
                 if not has_role:
                     self.log.debug('Assignment does not exists')
                     return False
                 self.identity.unassign_domain_role_from_user(
-                    domain, user, role)
+                    domain, user, role
+                )
             else:
                 has_role = self.identity.validate_group_has_domain_role(
-                    domain, group, role)
+                    domain, group, role
+                )
                 if not has_role:
                     self.log.debug('Assignment does not exists')
                     return False
                 self.identity.unassign_domain_role_from_group(
-                    domain, group, role)
+                    domain, group, role
+                )
         else:
             # Proceed with system
             # System name must be 'all' due to checks performed in
             # _get_grant_revoke_params
             if user:
                 has_role = self.identity.validate_user_has_system_role(
-                    user, role, system)
+                    user, role, system
+                )
                 if not has_role:
                     self.log.debug('Assignment does not exist')
                     return False
                 self.identity.unassign_system_role_from_user(
-                    user, role, system)
+                    user, role, system
+                )
             else:
                 has_role = self.identity.validate_group_has_system_role(
-                    group, role, system)
+                    group, role, system
+                )
                 if not has_role:
                     self.log.debug('Assignment does not exist')
                     return False
                 self.identity.unassign_system_role_from_group(
-                    group, role, system)
+                    group, role, system
+                )
         return True
 
     def _get_identity_params(self, domain_id=None, project=None):
@@ -1406,7 +1485,8 @@ class IdentityCloudMixin:
         if not domain_id:
             raise exc.OpenStackCloudException(
                 "User or project creation requires an explicit"
-                " domain_id argument.")
+                " domain_id argument."
+            )
         else:
             ret.update({'domain_id': domain_id})
 

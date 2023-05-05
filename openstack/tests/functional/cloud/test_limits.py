@@ -21,7 +21,6 @@ from openstack.tests.functional import base
 
 
 class TestUsage(base.BaseFunctionalTest):
-
     def test_get_our_compute_limits(self):
         '''Test quotas functionality'''
         limits = self.user_cloud.get_compute_limits()

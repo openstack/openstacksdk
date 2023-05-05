@@ -25,7 +25,6 @@ from openstack.tests.functional import base
 
 
 class TestImage(base.BaseFunctionalTest):
-
     def test_create_image(self):
         test_image = tempfile.NamedTemporaryFile(delete=False)
         test_image.write(b'\0' * 1024 * 1024)
@@ -40,7 +39,8 @@ class TestImage(base.BaseFunctionalTest):
                 min_disk=10,
                 min_ram=1024,
                 tags=['custom'],
-                wait=True)
+                wait=True,
+            )
         finally:
             self.user_cloud.delete_image(image_name, wait=True)
 
@@ -57,13 +57,16 @@ class TestImage(base.BaseFunctionalTest):
             container_format='bare',
             min_disk=10,
             min_ram=1024,
-            wait=True)
+            wait=True,
+        )
         self.addCleanup(self.user_cloud.delete_image, image_name, wait=True)
         output = os.path.join(tempfile.gettempdir(), self.getUniqueString())
         self.user_cloud.download_image(image_name, output)
         self.addCleanup(os.remove, output)
-        self.assertTrue(filecmp.cmp(test_image.name, output),
-                        "Downloaded contents don't match created image")
+        self.assertTrue(
+            filecmp.cmp(test_image.name, output),
+            "Downloaded contents don't match created image",
+        )
 
     def test_create_image_skip_duplicate(self):
         test_image = tempfile.NamedTemporaryFile(delete=False)
@@ -79,7 +82,8 @@ class TestImage(base.BaseFunctionalTest):
                 min_disk=10,
                 min_ram=1024,
                 validate_checksum=True,
-                wait=True)
+                wait=True,
+            )
             second_image = self.user_cloud.create_image(
                 name=image_name,
                 filename=test_image.name,
@@ -88,7 +92,8 @@ class TestImage(base.BaseFunctionalTest):
                 min_disk=10,
                 min_ram=1024,
                 validate_checksum=True,
-                wait=True)
+                wait=True,
+            )
             self.assertEqual(first_image.id, second_image.id)
         finally:
             self.user_cloud.delete_image(image_name, wait=True)
@@ -108,7 +113,8 @@ class TestImage(base.BaseFunctionalTest):
                 container_format='bare',
                 min_disk=10,
                 min_ram=1024,
-                wait=True)
+                wait=True,
+            )
             second_image = self.user_cloud.create_image(
                 name=image_name,
                 filename=test_image.name,
@@ -117,7 +123,8 @@ class TestImage(base.BaseFunctionalTest):
                 min_disk=10,
                 min_ram=1024,
                 allow_duplicates=True,
-                wait=True)
+                wait=True,
+            )
             self.assertNotEqual(first_image.id, second_image.id)
         finally:
             if first_image:
@@ -138,11 +145,11 @@ class TestImage(base.BaseFunctionalTest):
                 container_format='bare',
                 min_disk=10,
                 min_ram=1024,
-                wait=True)
+                wait=True,
+            )
             self.user_cloud.update_image_properties(
-                image=image,
-                name=image_name,
-                foo='bar')
+                image=image, name=image_name, foo='bar'
+            )
             image = self.user_cloud.get_image(image_name)
             self.assertIn('foo', image.properties)
             self.assertEqual(image.properties['foo'], 'bar')
@@ -158,7 +165,8 @@ class TestImage(base.BaseFunctionalTest):
             min_disk=10,
             min_ram=1024,
             allow_duplicates=True,
-            wait=False)
+            wait=False,
+        )
         self.assertEqual(image_name, image.name)
         self.user_cloud.delete_image(image.id, wait=True)
 
@@ -175,7 +183,8 @@ class TestImage(base.BaseFunctionalTest):
                 container_format='bare',
                 min_disk=10,
                 min_ram=1024,
-                wait=True)
+                wait=True,
+            )
             image = self.user_cloud.get_image_by_id(image.id)
             self.assertEqual(image_name, image.name)
             self.assertEqual('raw', image.disk_format)

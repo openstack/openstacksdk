@@ -19,7 +19,6 @@ from openstack.tests.unit import base
 
 
 class TestInventory(base.TestCase):
-
     def setUp(self):
         super(TestInventory, self).setUp()
 
@@ -50,8 +49,7 @@ class TestInventory(base.TestCase):
         self.assertIsInstance(inv.clouds, list)
         self.assertEqual(1, len(inv.clouds))
         self.assertFalse(mock_config.return_value.get_all.called)
-        mock_config.return_value.get_one.assert_called_once_with(
-            'supercloud')
+        mock_config.return_value.get_one.assert_called_once_with('supercloud')
 
     @mock.patch("openstack.config.loader.OpenStackConfig")
     @mock.patch("openstack.connection.Connection")
@@ -68,8 +66,9 @@ class TestInventory(base.TestCase):
 
         ret = inv.list_hosts()
 
-        inv.clouds[0].list_servers.assert_called_once_with(detailed=True,
-                                                           all_projects=False)
+        inv.clouds[0].list_servers.assert_called_once_with(
+            detailed=True, all_projects=False
+        )
         self.assertFalse(inv.clouds[0].get_openstack_vars.called)
         self.assertEqual([server], ret)
 
@@ -81,16 +80,17 @@ class TestInventory(base.TestCase):
         inv = inventory.OpenStackInventory()
 
         server = self.cloud._normalize_server(
-            fakes.make_fake_server(
-                '1234', 'test', 'ACTIVE', addresses={}))
+            fakes.make_fake_server('1234', 'test', 'ACTIVE', addresses={})
+        )
         self.assertIsInstance(inv.clouds, list)
         self.assertEqual(1, len(inv.clouds))
         inv.clouds[0].list_servers.return_value = [server]
 
         inv.list_hosts(expand=False)
 
-        inv.clouds[0].list_servers.assert_called_once_with(detailed=False,
-                                                           all_projects=False)
+        inv.clouds[0].list_servers.assert_called_once_with(
+            detailed=False, all_projects=False
+        )
         self.assertFalse(inv.clouds[0].get_openstack_vars.called)
 
     @mock.patch("openstack.config.loader.OpenStackConfig")
@@ -108,8 +108,9 @@ class TestInventory(base.TestCase):
 
         ret = inv.list_hosts(all_projects=True)
 
-        inv.clouds[0].list_servers.assert_called_once_with(detailed=True,
-                                                           all_projects=True)
+        inv.clouds[0].list_servers.assert_called_once_with(
+            detailed=True, all_projects=True
+        )
         self.assertFalse(inv.clouds[0].get_openstack_vars.called)
         self.assertEqual([server], ret)
 

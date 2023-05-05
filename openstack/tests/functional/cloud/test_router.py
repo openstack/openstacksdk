@@ -24,8 +24,13 @@ from openstack.tests.functional import base
 
 
 EXPECTED_TOPLEVEL_FIELDS = (
-    'id', 'name', 'is_admin_state_up', 'external_gateway_info',
-    'project_id', 'routes', 'status'
+    'id',
+    'name',
+    'is_admin_state_up',
+    'external_gateway_info',
+    'project_id',
+    'routes',
+    'status',
 )
 
 EXPECTED_GW_INFO_FIELDS = ('network_id', 'enable_snat', 'external_fixed_ips')
@@ -90,7 +95,8 @@ class TestRouter(base.BaseFunctionalTest):
     def test_create_router_basic(self):
         net1_name = self.network_prefix + '_net1'
         net1 = self.operator_cloud.create_network(
-            name=net1_name, external=True)
+            name=net1_name, external=True
+        )
 
         router_name = self.router_prefix + '_create_basic'
         router = self.operator_cloud.create_router(
@@ -117,14 +123,15 @@ class TestRouter(base.BaseFunctionalTest):
         proj_id = project['id']
         net1_name = self.network_prefix + '_net1'
         net1 = self.operator_cloud.create_network(
-            name=net1_name, external=True, project_id=proj_id)
+            name=net1_name, external=True, project_id=proj_id
+        )
 
         router_name = self.router_prefix + '_create_project'
         router = self.operator_cloud.create_router(
             name=router_name,
             admin_state_up=True,
             ext_gateway_net_id=net1['id'],
-            project_id=proj_id
+            project_id=proj_id,
         )
 
         for field in EXPECTED_TOPLEVEL_FIELDS:
@@ -140,9 +147,9 @@ class TestRouter(base.BaseFunctionalTest):
         self.assertEqual(net1['id'], ext_gw_info['network_id'])
         self.assertTrue(ext_gw_info['enable_snat'])
 
-    def _create_and_verify_advanced_router(self,
-                                           external_cidr,
-                                           external_gateway_ip=None):
+    def _create_and_verify_advanced_router(
+        self, external_cidr, external_gateway_ip=None
+    ):
         # external_cidr must be passed in as unicode (u'')
         # NOTE(Shrews): The arguments are needed because these tests
         # will run in parallel and we want to make sure that each test
@@ -150,10 +157,13 @@ class TestRouter(base.BaseFunctionalTest):
         net1_name = self.network_prefix + '_net1'
         sub1_name = self.subnet_prefix + '_sub1'
         net1 = self.operator_cloud.create_network(
-            name=net1_name, external=True)
+            name=net1_name, external=True
+        )
         sub1 = self.operator_cloud.create_subnet(
-            net1['id'], external_cidr, subnet_name=sub1_name,
-            gateway_ip=external_gateway_ip
+            net1['id'],
+            external_cidr,
+            subnet_name=sub1_name,
+            gateway_ip=external_gateway_ip,
         )
 
         ip_net = ipaddress.IPv4Network(external_cidr)
@@ -165,9 +175,7 @@ class TestRouter(base.BaseFunctionalTest):
             admin_state_up=False,
             ext_gateway_net_id=net1['id'],
             enable_snat=False,
-            ext_fixed_ips=[
-                {'subnet_id': sub1['id'], 'ip_address': last_ip}
-            ]
+            ext_fixed_ips=[{'subnet_id': sub1['id'], 'ip_address': last_ip}],
         )
 
         for field in EXPECTED_TOPLEVEL_FIELDS:
@@ -183,12 +191,10 @@ class TestRouter(base.BaseFunctionalTest):
 
         self.assertEqual(1, len(ext_gw_info['external_fixed_ips']))
         self.assertEqual(
-            sub1['id'],
-            ext_gw_info['external_fixed_ips'][0]['subnet_id']
+            sub1['id'], ext_gw_info['external_fixed_ips'][0]['subnet_id']
         )
         self.assertEqual(
-            last_ip,
-            ext_gw_info['external_fixed_ips'][0]['ip_address']
+            last_ip, ext_gw_info['external_fixed_ips'][0]['ip_address']
         )
 
         return router
@@ -198,20 +204,25 @@ class TestRouter(base.BaseFunctionalTest):
 
     def test_add_remove_router_interface(self):
         router = self._create_and_verify_advanced_router(
-            external_cidr=u'10.3.3.0/24')
+            external_cidr=u'10.3.3.0/24'
+        )
         net_name = self.network_prefix + '_intnet1'
         sub_name = self.subnet_prefix + '_intsub1'
         net = self.operator_cloud.create_network(name=net_name)
         sub = self.operator_cloud.create_subnet(
-            net['id'], '10.4.4.0/24', subnet_name=sub_name,
-            gateway_ip='10.4.4.1'
+            net['id'],
+            '10.4.4.0/24',
+            subnet_name=sub_name,
+            gateway_ip='10.4.4.1',
         )
 
         iface = self.operator_cloud.add_router_interface(
-            router, subnet_id=sub['id'])
+            router, subnet_id=sub['id']
+        )
         self.assertIsNone(
             self.operator_cloud.remove_router_interface(
-                router, subnet_id=sub['id'])
+                router, subnet_id=sub['id']
+            )
         )
 
         # Test return values *after* the interface is detached so the
@@ -224,25 +235,32 @@ class TestRouter(base.BaseFunctionalTest):
 
     def test_list_router_interfaces(self):
         router = self._create_and_verify_advanced_router(
-            external_cidr=u'10.5.5.0/24')
+            external_cidr=u'10.5.5.0/24'
+        )
         net_name = self.network_prefix + '_intnet1'
         sub_name = self.subnet_prefix + '_intsub1'
         net = self.operator_cloud.create_network(name=net_name)
         sub = self.operator_cloud.create_subnet(
-            net['id'], '10.6.6.0/24', subnet_name=sub_name,
-            gateway_ip='10.6.6.1'
+            net['id'],
+            '10.6.6.0/24',
+            subnet_name=sub_name,
+            gateway_ip='10.6.6.1',
         )
 
         iface = self.operator_cloud.add_router_interface(
-            router, subnet_id=sub['id'])
+            router, subnet_id=sub['id']
+        )
         all_ifaces = self.operator_cloud.list_router_interfaces(router)
         int_ifaces = self.operator_cloud.list_router_interfaces(
-            router, interface_type='internal')
+            router, interface_type='internal'
+        )
         ext_ifaces = self.operator_cloud.list_router_interfaces(
-            router, interface_type='external')
+            router, interface_type='external'
+        )
         self.assertIsNone(
             self.operator_cloud.remove_router_interface(
-                router, subnet_id=sub['id'])
+                router, subnet_id=sub['id']
+            )
         )
 
         # Test return values *after* the interface is detached so the
@@ -253,17 +271,21 @@ class TestRouter(base.BaseFunctionalTest):
         self.assertEqual(1, len(ext_ifaces))
 
         ext_fixed_ips = router['external_gateway_info']['external_fixed_ips']
-        self.assertEqual(ext_fixed_ips[0]['subnet_id'],
-                         ext_ifaces[0]['fixed_ips'][0]['subnet_id'])
+        self.assertEqual(
+            ext_fixed_ips[0]['subnet_id'],
+            ext_ifaces[0]['fixed_ips'][0]['subnet_id'],
+        )
         self.assertEqual(sub['id'], int_ifaces[0]['fixed_ips'][0]['subnet_id'])
 
     def test_update_router_name(self):
         router = self._create_and_verify_advanced_router(
-            external_cidr=u'10.7.7.0/24')
+            external_cidr=u'10.7.7.0/24'
+        )
 
         new_name = self.router_prefix + '_update_name'
         updated = self.operator_cloud.update_router(
-            router['id'], name=new_name)
+            router['id'], name=new_name
+        )
         self.assertIsNotNone(updated)
 
         for field in EXPECTED_TOPLEVEL_FIELDS:
@@ -275,20 +297,20 @@ class TestRouter(base.BaseFunctionalTest):
         # Validate nothing else changed
         self.assertEqual(router['status'], updated['status'])
         self.assertEqual(router['admin_state_up'], updated['admin_state_up'])
-        self.assertEqual(router['external_gateway_info'],
-                         updated['external_gateway_info'])
+        self.assertEqual(
+            router['external_gateway_info'], updated['external_gateway_info']
+        )
 
     def test_update_router_routes(self):
         router = self._create_and_verify_advanced_router(
-            external_cidr=u'10.7.7.0/24')
+            external_cidr=u'10.7.7.0/24'
+        )
 
-        routes = [{
-            "destination": "10.7.7.0/24",
-            "nexthop": "10.7.7.99"
-        }]
+        routes = [{"destination": "10.7.7.0/24", "nexthop": "10.7.7.99"}]
 
         updated = self.operator_cloud.update_router(
-            router['id'], routes=routes)
+            router['id'], routes=routes
+        )
         self.assertIsNotNone(updated)
 
         for field in EXPECTED_TOPLEVEL_FIELDS:
@@ -300,15 +322,18 @@ class TestRouter(base.BaseFunctionalTest):
         # Validate nothing else changed
         self.assertEqual(router['status'], updated['status'])
         self.assertEqual(router['admin_state_up'], updated['admin_state_up'])
-        self.assertEqual(router['external_gateway_info'],
-                         updated['external_gateway_info'])
+        self.assertEqual(
+            router['external_gateway_info'], updated['external_gateway_info']
+        )
 
     def test_update_router_admin_state(self):
         router = self._create_and_verify_advanced_router(
-            external_cidr=u'10.8.8.0/24')
+            external_cidr=u'10.8.8.0/24'
+        )
 
         updated = self.operator_cloud.update_router(
-            router['id'], admin_state_up=True)
+            router['id'], admin_state_up=True
+        )
         self.assertIsNotNone(updated)
 
         for field in EXPECTED_TOPLEVEL_FIELDS:
@@ -316,25 +341,30 @@ class TestRouter(base.BaseFunctionalTest):
 
         # admin_state_up is the only change we expect
         self.assertTrue(updated['admin_state_up'])
-        self.assertNotEqual(router['admin_state_up'],
-                            updated['admin_state_up'])
+        self.assertNotEqual(
+            router['admin_state_up'], updated['admin_state_up']
+        )
 
         # Validate nothing else changed
         self.assertEqual(router['status'], updated['status'])
         self.assertEqual(router['name'], updated['name'])
-        self.assertEqual(router['external_gateway_info'],
-                         updated['external_gateway_info'])
+        self.assertEqual(
+            router['external_gateway_info'], updated['external_gateway_info']
+        )
 
     def test_update_router_ext_gw_info(self):
         router = self._create_and_verify_advanced_router(
-            external_cidr=u'10.9.9.0/24')
+            external_cidr=u'10.9.9.0/24'
+        )
 
         # create a new subnet
         existing_net_id = router['external_gateway_info']['network_id']
         sub_name = self.subnet_prefix + '_update'
         sub = self.operator_cloud.create_subnet(
-            existing_net_id, '10.10.10.0/24', subnet_name=sub_name,
-            gateway_ip='10.10.10.1'
+            existing_net_id,
+            '10.10.10.0/24',
+            subnet_name=sub_name,
+            gateway_ip='10.10.10.1',
         )
 
         updated = self.operator_cloud.update_router(
@@ -342,7 +372,7 @@ class TestRouter(base.BaseFunctionalTest):
             ext_gateway_net_id=existing_net_id,
             ext_fixed_ips=[
                 {'subnet_id': sub['id'], 'ip_address': '10.10.10.77'}
-            ]
+            ],
         )
         self.assertIsNotNone(updated)
 
@@ -353,12 +383,10 @@ class TestRouter(base.BaseFunctionalTest):
         ext_gw_info = updated['external_gateway_info']
         self.assertEqual(1, len(ext_gw_info['external_fixed_ips']))
         self.assertEqual(
-            sub['id'],
-            ext_gw_info['external_fixed_ips'][0]['subnet_id']
+            sub['id'], ext_gw_info['external_fixed_ips'][0]['subnet_id']
         )
         self.assertEqual(
-            '10.10.10.77',
-            ext_gw_info['external_fixed_ips'][0]['ip_address']
+            '10.10.10.77', ext_gw_info['external_fixed_ips'][0]['ip_address']
         )
 
         # Validate nothing else changed

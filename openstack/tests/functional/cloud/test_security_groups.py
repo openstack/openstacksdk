@@ -23,7 +23,8 @@ from openstack.tests.functional import base
 class TestSecurityGroups(base.BaseFunctionalTest):
     def test_create_list_security_groups(self):
         sg1 = self.user_cloud.create_security_group(
-            name="sg1", description="sg1")
+            name="sg1", description="sg1"
+        )
         self.addCleanup(self.user_cloud.delete_security_group, sg1['id'])
         if self.user_cloud.has_service('network'):
             # Neutron defaults to all_tenants=1 when admin
@@ -39,10 +40,12 @@ class TestSecurityGroups(base.BaseFunctionalTest):
             self.skipTest("Operator cloud is required for this test")
 
         sg1 = self.user_cloud.create_security_group(
-            name="sg1", description="sg1")
+            name="sg1", description="sg1"
+        )
         self.addCleanup(self.user_cloud.delete_security_group, sg1['id'])
         sg2 = self.operator_cloud.create_security_group(
-            name="sg2", description="sg2")
+            name="sg2", description="sg2"
+        )
         self.addCleanup(self.operator_cloud.delete_security_group, sg2['id'])
 
         if self.user_cloud.has_service('network'):
@@ -53,7 +56,8 @@ class TestSecurityGroups(base.BaseFunctionalTest):
             # Filter by tenant_id (filtering by project_id won't work with
             # Keystone V2)
             sg_list = self.operator_cloud.list_security_groups(
-                filters={'tenant_id': self.user_cloud.current_project_id})
+                filters={'tenant_id': self.user_cloud.current_project_id}
+            )
             self.assertIn(sg1['id'], [sg['id'] for sg in sg_list])
             self.assertNotIn(sg2['id'], [sg['id'] for sg in sg_list])
 
@@ -64,7 +68,8 @@ class TestSecurityGroups(base.BaseFunctionalTest):
             self.assertNotIn(sg1['id'], [sg['id'] for sg in sg_list])
 
             sg_list = self.operator_cloud.list_security_groups(
-                filters={'all_tenants': 1})
+                filters={'all_tenants': 1}
+            )
             self.assertIn(sg1['id'], [sg['id'] for sg in sg_list])
 
     def test_get_security_group_by_id(self):

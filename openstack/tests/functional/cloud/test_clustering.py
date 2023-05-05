@@ -24,8 +24,9 @@ from testtools import content
 from openstack.tests.functional import base
 
 
-def wait_for_status(client, client_args, field, value, check_interval=1,
-                    timeout=60):
+def wait_for_status(
+    client, client_args, field, value, check_interval=1, timeout=60
+):
     """Wait for an OpenStack resource to enter a specified state
 
     :param client: An uncalled client resource to be called with resource_args
@@ -55,15 +56,15 @@ def wait_for_status(client, client_args, field, value, check_interval=1,
 def wait_for_create(client, client_args, check_interval=1, timeout=60):
     """Wait for an OpenStack resource to be created
 
-     :param client: An uncalled client resource to be called with resource_args
-     :param client_args: Arguments to be passed to client
-     :param name: Name of the resource (for logging)
-     :param check_interval: Interval between checks
-     :param timeout: Time in seconds to wait for status to update.
-     :returns: True if openstack.exceptions.NotFoundException is caught
-     :raises: TimeoutException
+    :param client: An uncalled client resource to be called with resource_args
+    :param client_args: Arguments to be passed to client
+    :param name: Name of the resource (for logging)
+    :param check_interval: Interval between checks
+    :param timeout: Time in seconds to wait for status to update.
+    :returns: True if openstack.exceptions.NotFoundException is caught
+    :raises: TimeoutException
 
-     """
+    """
 
     resource = client(**client_args)
     start = time.time()
@@ -106,7 +107,6 @@ def wait_for_delete(client, client_args, check_interval=1, timeout=60):
 
 
 class TestClustering(base.BaseFunctionalTest):
-
     def setUp(self):
         super(TestClustering, self).setUp()
         self.skipTest('clustering service not supported by cloud')
@@ -117,24 +117,19 @@ class TestClustering(base.BaseFunctionalTest):
             "properties": {
                 "flavor": self.flavor.name,
                 "image": self.image.name,
-                "networks": [
-                    {
-                        "network": "private"
-                    }
-                ],
-                "security_groups": [
-                    "default"
-                ]
+                "networks": [{"network": "private"}],
+                "security_groups": ["default"],
             },
             "type": "os.nova.server",
-            "version": 1.0
+            "version": 1.0,
         }
 
         self.addDetail('profile', content.text_content(profile_name))
         # Test that we can create a profile and we get it returned
 
-        profile = self.user_cloud.create_cluster_profile(name=profile_name,
-                                                         spec=spec)
+        profile = self.user_cloud.create_cluster_profile(
+            name=profile_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_profile, profile['id'])
 
@@ -147,24 +142,19 @@ class TestClustering(base.BaseFunctionalTest):
             "properties": {
                 "flavor": self.flavor.name,
                 "image": self.image.name,
-                "networks": [
-                    {
-                        "network": "private"
-                    }
-                ],
-                "security_groups": [
-                    "default"
-                ]
+                "networks": [{"network": "private"}],
+                "security_groups": ["default"],
             },
             "type": "os.nova.server",
-            "version": 1.0
+            "version": 1.0,
         }
 
         self.addDetail('profile', content.text_content(profile_name))
         # Test that we can create a profile and we get it returned
 
-        profile = self.user_cloud.create_cluster_profile(name=profile_name,
-                                                         spec=spec)
+        profile = self.user_cloud.create_cluster_profile(
+            name=profile_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_profile, profile['id'])
 
@@ -175,15 +165,18 @@ class TestClustering(base.BaseFunctionalTest):
 
         # Test that we can create a cluster and we get it returned
         cluster = self.user_cloud.create_cluster(
-            name=cluster_name, profile=profile,
-            desired_capacity=desired_capacity)
+            name=cluster_name,
+            profile=profile,
+            desired_capacity=desired_capacity,
+        )
 
         self.addCleanup(self.cleanup_cluster, cluster['cluster']['id'])
 
         self.assertEqual(cluster['cluster']['name'], cluster_name)
         self.assertEqual(cluster['cluster']['profile_id'], profile['id'])
-        self.assertEqual(cluster['cluster']['desired_capacity'],
-                         desired_capacity)
+        self.assertEqual(
+            cluster['cluster']['desired_capacity'], desired_capacity
+        )
 
     def test_get_cluster_by_id(self):
         profile_name = "test_profile"
@@ -191,24 +184,19 @@ class TestClustering(base.BaseFunctionalTest):
             "properties": {
                 "flavor": self.flavor.name,
                 "image": self.image.name,
-                "networks": [
-                    {
-                        "network": "private"
-                    }
-                ],
-                "security_groups": [
-                    "default"
-                ]
+                "networks": [{"network": "private"}],
+                "security_groups": ["default"],
             },
             "type": "os.nova.server",
-            "version": 1.0
+            "version": 1.0,
         }
 
         self.addDetail('profile', content.text_content(profile_name))
         # Test that we can create a profile and we get it returned
 
-        profile = self.user_cloud.create_cluster_profile(name=profile_name,
-                                                         spec=spec)
+        profile = self.user_cloud.create_cluster_profile(
+            name=profile_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_profile, profile['id'])
         cluster_name = 'example_cluster'
@@ -218,14 +206,17 @@ class TestClustering(base.BaseFunctionalTest):
 
         # Test that we can create a cluster and we get it returned
         cluster = self.user_cloud.create_cluster(
-            name=cluster_name, profile=profile,
-            desired_capacity=desired_capacity)
+            name=cluster_name,
+            profile=profile,
+            desired_capacity=desired_capacity,
+        )
 
         self.addCleanup(self.cleanup_cluster, cluster['cluster']['id'])
 
         # Test that we get the same cluster with the get_cluster method
         cluster_get = self.user_cloud.get_cluster_by_id(
-            cluster['cluster']['id'])
+            cluster['cluster']['id']
+        )
         self.assertEqual(cluster_get['id'], cluster['cluster']['id'])
 
     def test_update_cluster(self):
@@ -234,24 +225,19 @@ class TestClustering(base.BaseFunctionalTest):
             "properties": {
                 "flavor": self.flavor.name,
                 "image": self.image.name,
-                "networks": [
-                    {
-                        "network": "private"
-                    }
-                ],
-                "security_groups": [
-                    "default"
-                ]
+                "networks": [{"network": "private"}],
+                "security_groups": ["default"],
             },
             "type": "os.nova.server",
-            "version": 1.0
+            "version": 1.0,
         }
 
         self.addDetail('profile', content.text_content(profile_name))
         # Test that we can create a profile and we get it returned
 
-        profile = self.user_cloud.create_cluster_profile(name=profile_name,
-                                                         spec=spec)
+        profile = self.user_cloud.create_cluster_profile(
+            name=profile_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_profile, profile['id'])
 
@@ -262,30 +248,40 @@ class TestClustering(base.BaseFunctionalTest):
 
         # Test that we can create a cluster and we get it returned
         cluster = self.user_cloud.create_cluster(
-            name=cluster_name, profile=profile,
-            desired_capacity=desired_capacity)
+            name=cluster_name,
+            profile=profile,
+            desired_capacity=desired_capacity,
+        )
 
         self.addCleanup(self.cleanup_cluster, cluster['cluster']['id'])
 
         # Test that we can update a field on the cluster and only that field
         # is updated
 
-        self.user_cloud.update_cluster(cluster['cluster']['id'],
-                                       new_name='new_cluster_name')
+        self.user_cloud.update_cluster(
+            cluster['cluster']['id'], new_name='new_cluster_name'
+        )
 
         wait = wait_for_status(
             self.user_cloud.get_cluster_by_id,
-            {'name_or_id': cluster['cluster']['id']}, 'status', 'ACTIVE')
+            {'name_or_id': cluster['cluster']['id']},
+            'status',
+            'ACTIVE',
+        )
 
         self.assertTrue(wait)
         cluster_update = self.user_cloud.get_cluster_by_id(
-            cluster['cluster']['id'])
+            cluster['cluster']['id']
+        )
         self.assertEqual(cluster_update['id'], cluster['cluster']['id'])
         self.assertEqual(cluster_update['name'], 'new_cluster_name')
-        self.assertEqual(cluster_update['profile_id'],
-                         cluster['cluster']['profile_id'])
-        self.assertEqual(cluster_update['desired_capacity'],
-                         cluster['cluster']['desired_capacity'])
+        self.assertEqual(
+            cluster_update['profile_id'], cluster['cluster']['profile_id']
+        )
+        self.assertEqual(
+            cluster_update['desired_capacity'],
+            cluster['cluster']['desired_capacity'],
+        )
 
     def test_create_cluster_policy(self):
         policy_name = 'example_policy'
@@ -294,20 +290,21 @@ class TestClustering(base.BaseFunctionalTest):
                 "adjustment": {
                     "min_step": 1,
                     "number": 1,
-                    "type": "CHANGE_IN_CAPACITY"
+                    "type": "CHANGE_IN_CAPACITY",
                 },
-                "event": "CLUSTER_SCALE_IN"
+                "event": "CLUSTER_SCALE_IN",
             },
             "type": "senlin.policy.scaling",
-            "version": "1.0"
+            "version": "1.0",
         }
 
         self.addDetail('policy', content.text_content(policy_name))
 
         # Test that we can create a policy and we get it returned
 
-        policy = self.user_cloud.create_cluster_policy(name=policy_name,
-                                                       spec=spec)
+        policy = self.user_cloud.create_cluster_policy(
+            name=policy_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_policy, policy['id'])
 
@@ -320,24 +317,19 @@ class TestClustering(base.BaseFunctionalTest):
             "properties": {
                 "flavor": self.flavor.name,
                 "image": self.image.name,
-                "networks": [
-                    {
-                        "network": "private"
-                    }
-                ],
-                "security_groups": [
-                    "default"
-                ]
+                "networks": [{"network": "private"}],
+                "security_groups": ["default"],
             },
             "type": "os.nova.server",
-            "version": 1.0
+            "version": 1.0,
         }
 
         self.addDetail('profile', content.text_content(profile_name))
         # Test that we can create a profile and we get it returned
 
-        profile = self.user_cloud.create_cluster_profile(name=profile_name,
-                                                         spec=spec)
+        profile = self.user_cloud.create_cluster_profile(
+            name=profile_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_profile, profile['id'])
 
@@ -348,8 +340,10 @@ class TestClustering(base.BaseFunctionalTest):
 
         # Test that we can create a cluster and we get it returned
         cluster = self.user_cloud.create_cluster(
-            name=cluster_name, profile=profile,
-            desired_capacity=desired_capacity)
+            name=cluster_name,
+            profile=profile,
+            desired_capacity=desired_capacity,
+        )
 
         self.addCleanup(self.cleanup_cluster, cluster['cluster']['id'])
 
@@ -359,33 +353,36 @@ class TestClustering(base.BaseFunctionalTest):
                 "adjustment": {
                     "min_step": 1,
                     "number": 1,
-                    "type": "CHANGE_IN_CAPACITY"
+                    "type": "CHANGE_IN_CAPACITY",
                 },
-                "event": "CLUSTER_SCALE_IN"
+                "event": "CLUSTER_SCALE_IN",
             },
             "type": "senlin.policy.scaling",
-            "version": "1.0"
+            "version": "1.0",
         }
 
         self.addDetail('policy', content.text_content(policy_name))
 
         # Test that we can create a policy and we get it returned
 
-        policy = self.user_cloud.create_cluster_policy(name=policy_name,
-                                                       spec=spec)
+        policy = self.user_cloud.create_cluster_policy(
+            name=policy_name, spec=spec
+        )
 
-        self.addCleanup(self.cleanup_policy, policy['id'],
-                        cluster['cluster']['id'])
+        self.addCleanup(
+            self.cleanup_policy, policy['id'], cluster['cluster']['id']
+        )
 
         # Test that we can attach policy to cluster and get True returned
 
         attach_cluster = self.user_cloud.get_cluster_by_id(
-            cluster['cluster']['id'])
-        attach_policy = self.user_cloud.get_cluster_policy_by_id(
-            policy['id'])
+            cluster['cluster']['id']
+        )
+        attach_policy = self.user_cloud.get_cluster_policy_by_id(policy['id'])
 
         policy_attach = self.user_cloud.attach_policy_to_cluster(
-            attach_cluster, attach_policy, is_enabled=True)
+            attach_cluster, attach_policy, is_enabled=True
+        )
         self.assertTrue(policy_attach)
 
     def test_detach_policy_from_cluster(self):
@@ -394,24 +391,19 @@ class TestClustering(base.BaseFunctionalTest):
             "properties": {
                 "flavor": self.flavor.name,
                 "image": self.image.name,
-                "networks": [
-                    {
-                        "network": "private"
-                    }
-                ],
-                "security_groups": [
-                    "default"
-                ]
+                "networks": [{"network": "private"}],
+                "security_groups": ["default"],
             },
             "type": "os.nova.server",
-            "version": 1.0
+            "version": 1.0,
         }
 
         self.addDetail('profile', content.text_content(profile_name))
         # Test that we can create a profile and we get it returned
 
-        profile = self.user_cloud.create_cluster_profile(name=profile_name,
-                                                         spec=spec)
+        profile = self.user_cloud.create_cluster_profile(
+            name=profile_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_profile, profile['id'])
 
@@ -422,8 +414,10 @@ class TestClustering(base.BaseFunctionalTest):
 
         # Test that we can create a cluster and we get it returned
         cluster = self.user_cloud.create_cluster(
-            name=cluster_name, profile=profile,
-            desired_capacity=desired_capacity)
+            name=cluster_name,
+            profile=profile,
+            desired_capacity=desired_capacity,
+        )
 
         self.addCleanup(self.cleanup_cluster, cluster['cluster']['id'])
 
@@ -433,39 +427,45 @@ class TestClustering(base.BaseFunctionalTest):
                 "adjustment": {
                     "min_step": 1,
                     "number": 1,
-                    "type": "CHANGE_IN_CAPACITY"
+                    "type": "CHANGE_IN_CAPACITY",
                 },
-                "event": "CLUSTER_SCALE_IN"
+                "event": "CLUSTER_SCALE_IN",
             },
             "type": "senlin.policy.scaling",
-            "version": "1.0"
+            "version": "1.0",
         }
 
         self.addDetail('policy', content.text_content(policy_name))
 
         # Test that we can create a policy and we get it returned
 
-        policy = self.user_cloud.create_cluster_policy(name=policy_name,
-                                                       spec=spec)
+        policy = self.user_cloud.create_cluster_policy(
+            name=policy_name, spec=spec
+        )
 
-        self.addCleanup(self.cleanup_policy, policy['id'],
-                        cluster['cluster']['id'])
+        self.addCleanup(
+            self.cleanup_policy, policy['id'], cluster['cluster']['id']
+        )
 
         attach_cluster = self.user_cloud.get_cluster_by_id(
-            cluster['cluster']['id'])
-        attach_policy = self.user_cloud.get_cluster_policy_by_id(
-            policy['id'])
+            cluster['cluster']['id']
+        )
+        attach_policy = self.user_cloud.get_cluster_policy_by_id(policy['id'])
 
         self.user_cloud.attach_policy_to_cluster(
-            attach_cluster, attach_policy, is_enabled=True)
+            attach_cluster, attach_policy, is_enabled=True
+        )
 
         wait = wait_for_status(
             self.user_cloud.get_cluster_by_id,
-            {'name_or_id': cluster['cluster']['id']}, 'policies',
-            ['{policy}'.format(policy=policy['id'])])
+            {'name_or_id': cluster['cluster']['id']},
+            'policies',
+            ['{policy}'.format(policy=policy['id'])],
+        )
 
         policy_detach = self.user_cloud.detach_policy_from_cluster(
-            attach_cluster, attach_policy)
+            attach_cluster, attach_policy
+        )
 
         self.assertTrue(policy_detach)
         self.assertTrue(wait)
@@ -476,24 +476,19 @@ class TestClustering(base.BaseFunctionalTest):
             "properties": {
                 "flavor": self.flavor.name,
                 "image": self.image.name,
-                "networks": [
-                    {
-                        "network": "private"
-                    }
-                ],
-                "security_groups": [
-                    "default"
-                ]
+                "networks": [{"network": "private"}],
+                "security_groups": ["default"],
             },
             "type": "os.nova.server",
-            "version": 1.0
+            "version": 1.0,
         }
 
         self.addDetail('profile', content.text_content(profile_name))
         # Test that we can create a profile and we get it returned
 
-        profile = self.user_cloud.create_cluster_profile(name=profile_name,
-                                                         spec=spec)
+        profile = self.user_cloud.create_cluster_profile(
+            name=profile_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_profile, profile['id'])
 
@@ -504,8 +499,10 @@ class TestClustering(base.BaseFunctionalTest):
 
         # Test that we can create a cluster and we get it returned
         cluster = self.user_cloud.create_cluster(
-            name=cluster_name, profile=profile,
-            desired_capacity=desired_capacity)
+            name=cluster_name,
+            profile=profile,
+            desired_capacity=desired_capacity,
+        )
 
         self.addCleanup(self.cleanup_cluster, cluster['cluster']['id'])
 
@@ -515,50 +512,58 @@ class TestClustering(base.BaseFunctionalTest):
                 "adjustment": {
                     "min_step": 1,
                     "number": 1,
-                    "type": "CHANGE_IN_CAPACITY"
+                    "type": "CHANGE_IN_CAPACITY",
                 },
-                "event": "CLUSTER_SCALE_IN"
+                "event": "CLUSTER_SCALE_IN",
             },
             "type": "senlin.policy.scaling",
-            "version": "1.0"
+            "version": "1.0",
         }
 
         self.addDetail('policy', content.text_content(policy_name))
 
         # Test that we can create a policy and we get it returned
 
-        policy = self.user_cloud.create_cluster_policy(name=policy_name,
-                                                       spec=spec)
+        policy = self.user_cloud.create_cluster_policy(
+            name=policy_name, spec=spec
+        )
 
-        self.addCleanup(self.cleanup_policy, policy['id'],
-                        cluster['cluster']['id'])
+        self.addCleanup(
+            self.cleanup_policy, policy['id'], cluster['cluster']['id']
+        )
 
         # Test that we can attach policy to cluster and get True returned
 
         attach_cluster = self.user_cloud.get_cluster_by_id(
-            cluster['cluster']['id'])
-        attach_policy = self.user_cloud.get_cluster_policy_by_id(
-            policy['id'])
+            cluster['cluster']['id']
+        )
+        attach_policy = self.user_cloud.get_cluster_policy_by_id(policy['id'])
 
         policy_attach = self.user_cloud.attach_policy_to_cluster(
-            attach_cluster, attach_policy, is_enabled=True)
+            attach_cluster, attach_policy, is_enabled=True
+        )
         self.assertTrue(policy_attach)
 
         wait = wait_for_status(
             self.user_cloud.get_cluster_by_id,
-            {'name_or_id': cluster['cluster']['id']}, 'policies',
-            ["{policy}".format(policy=policy['id'])])
+            {'name_or_id': cluster['cluster']['id']},
+            'policies',
+            ["{policy}".format(policy=policy['id'])],
+        )
 
         # Test that we get the same policy with the get_policy_on_cluster
         # method
 
         cluster_policy_get = self.user_cloud.get_policy_on_cluster(
-            cluster['cluster']["id"], policy['id'])
+            cluster['cluster']["id"], policy['id']
+        )
 
-        self.assertEqual(cluster_policy_get['cluster_id'],
-                         cluster['cluster']["id"])
-        self.assertEqual(cluster_policy_get['cluster_name'],
-                         cluster['cluster']["name"])
+        self.assertEqual(
+            cluster_policy_get['cluster_id'], cluster['cluster']["id"]
+        )
+        self.assertEqual(
+            cluster_policy_get['cluster_name'], cluster['cluster']["name"]
+        )
         self.assertEqual(cluster_policy_get['policy_id'], policy['id']),
         self.assertEqual(cluster_policy_get['policy_name'], policy['name'])
         self.assertTrue(wait)
@@ -569,24 +574,19 @@ class TestClustering(base.BaseFunctionalTest):
             "properties": {
                 "flavor": self.flavor.name,
                 "image": self.image.name,
-                "networks": [
-                    {
-                        "network": "private"
-                    }
-                ],
-                "security_groups": [
-                    "default"
-                ]
+                "networks": [{"network": "private"}],
+                "security_groups": ["default"],
             },
             "type": "os.nova.server",
-            "version": 1.0
+            "version": 1.0,
         }
 
         self.addDetail('profile', content.text_content(profile_name))
         # Test that we can create a profile and we get it returned
 
-        profile = self.user_cloud.create_cluster_profile(name=profile_name,
-                                                         spec=spec)
+        profile = self.user_cloud.create_cluster_profile(
+            name=profile_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_profile, profile['id'])
 
@@ -597,8 +597,10 @@ class TestClustering(base.BaseFunctionalTest):
 
         # Test that we can create a cluster and we get it returned
         cluster = self.user_cloud.create_cluster(
-            name=cluster_name, profile=profile,
-            desired_capacity=desired_capacity)
+            name=cluster_name,
+            profile=profile,
+            desired_capacity=desired_capacity,
+        )
 
         self.addCleanup(self.cleanup_cluster, cluster['cluster']['id'])
 
@@ -608,48 +610,53 @@ class TestClustering(base.BaseFunctionalTest):
                 "adjustment": {
                     "min_step": 1,
                     "number": 1,
-                    "type": "CHANGE_IN_CAPACITY"
+                    "type": "CHANGE_IN_CAPACITY",
                 },
-                "event": "CLUSTER_SCALE_IN"
+                "event": "CLUSTER_SCALE_IN",
             },
             "type": "senlin.policy.scaling",
-            "version": "1.0"
+            "version": "1.0",
         }
 
         self.addDetail('policy', content.text_content(policy_name))
 
         # Test that we can create a policy and we get it returned
 
-        policy = self.user_cloud.create_cluster_policy(name=policy_name,
-                                                       spec=spec)
+        policy = self.user_cloud.create_cluster_policy(
+            name=policy_name, spec=spec
+        )
 
-        self.addCleanup(self.cleanup_policy, policy['id'],
-                        cluster['cluster']['id'])
+        self.addCleanup(
+            self.cleanup_policy, policy['id'], cluster['cluster']['id']
+        )
 
         attach_cluster = self.user_cloud.get_cluster_by_id(
-            cluster['cluster']['id'])
-        attach_policy = self.user_cloud.get_cluster_policy_by_id(
-            policy['id'])
+            cluster['cluster']['id']
+        )
+        attach_policy = self.user_cloud.get_cluster_policy_by_id(policy['id'])
 
         self.user_cloud.attach_policy_to_cluster(
-            attach_cluster, attach_policy, is_enabled=True)
+            attach_cluster, attach_policy, is_enabled=True
+        )
 
         wait = wait_for_status(
             self.user_cloud.get_cluster_by_id,
-            {'name_or_id': cluster['cluster']['id']}, 'policies',
-            ["{policy}".format(policy=policy['id'])])
+            {'name_or_id': cluster['cluster']['id']},
+            'policies',
+            ["{policy}".format(policy=policy['id'])],
+        )
 
         cluster_policy = self.user_cloud.get_policy_on_cluster(
-            name_or_id=cluster['cluster']['id'],
-            policy_name_or_id=policy['id'])
+            name_or_id=cluster['cluster']['id'], policy_name_or_id=policy['id']
+        )
 
         policy_list = {"cluster_policies": [cluster_policy]}
 
         # Test that we can list the policies on a cluster
         cluster_policies = self.user_cloud.list_policies_on_cluster(
-            cluster['cluster']["id"])
-        self.assertEqual(
-            cluster_policies, policy_list)
+            cluster['cluster']["id"]
+        )
+        self.assertEqual(cluster_policies, policy_list)
         self.assertTrue(wait)
 
     def test_create_cluster_receiver(self):
@@ -658,24 +665,19 @@ class TestClustering(base.BaseFunctionalTest):
             "properties": {
                 "flavor": self.flavor.name,
                 "image": self.image.name,
-                "networks": [
-                    {
-                        "network": "private"
-                    }
-                ],
-                "security_groups": [
-                    "default"
-                ]
+                "networks": [{"network": "private"}],
+                "security_groups": ["default"],
             },
             "type": "os.nova.server",
-            "version": 1.0
+            "version": 1.0,
         }
 
         self.addDetail('profile', content.text_content(profile_name))
         # Test that we can create a profile and we get it returned
 
-        profile = self.user_cloud.create_cluster_profile(name=profile_name,
-                                                         spec=spec)
+        profile = self.user_cloud.create_cluster_profile(
+            name=profile_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_profile, profile['id'])
 
@@ -686,8 +688,10 @@ class TestClustering(base.BaseFunctionalTest):
 
         # Test that we can create a cluster and we get it returned
         cluster = self.user_cloud.create_cluster(
-            name=cluster_name, profile=profile,
-            desired_capacity=desired_capacity)
+            name=cluster_name,
+            profile=profile,
+            desired_capacity=desired_capacity,
+        )
 
         self.addCleanup(self.cleanup_cluster, cluster['cluster']['id'])
 
@@ -699,9 +703,11 @@ class TestClustering(base.BaseFunctionalTest):
         # Test that we can create a receiver and we get it returned
 
         receiver = self.user_cloud.create_cluster_receiver(
-            name=receiver_name, receiver_type=receiver_type,
+            name=receiver_name,
+            receiver_type=receiver_type,
             cluster_name_or_id=cluster['cluster']['id'],
-            action='CLUSTER_SCALE_OUT')
+            action='CLUSTER_SCALE_OUT',
+        )
 
         self.addCleanup(self.cleanup_receiver, receiver['id'])
 
@@ -715,24 +721,19 @@ class TestClustering(base.BaseFunctionalTest):
             "properties": {
                 "flavor": self.flavor.name,
                 "image": self.image.name,
-                "networks": [
-                    {
-                        "network": "private"
-                    }
-                ],
-                "security_groups": [
-                    "default"
-                ]
+                "networks": [{"network": "private"}],
+                "security_groups": ["default"],
             },
             "type": "os.nova.server",
-            "version": 1.0
+            "version": 1.0,
         }
 
         self.addDetail('profile', content.text_content(profile_name))
         # Test that we can create a profile and we get it returned
 
-        profile = self.user_cloud.create_cluster_profile(name=profile_name,
-                                                         spec=spec)
+        profile = self.user_cloud.create_cluster_profile(
+            name=profile_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_profile, profile['id'])
 
@@ -743,8 +744,10 @@ class TestClustering(base.BaseFunctionalTest):
 
         # Test that we can create a cluster and we get it returned
         cluster = self.user_cloud.create_cluster(
-            name=cluster_name, profile=profile,
-            desired_capacity=desired_capacity)
+            name=cluster_name,
+            profile=profile,
+            desired_capacity=desired_capacity,
+        )
 
         self.addCleanup(self.cleanup_cluster, cluster['cluster']['id'])
 
@@ -756,14 +759,17 @@ class TestClustering(base.BaseFunctionalTest):
         # Test that we can create a receiver and we get it returned
 
         receiver = self.user_cloud.create_cluster_receiver(
-            name=receiver_name, receiver_type=receiver_type,
+            name=receiver_name,
+            receiver_type=receiver_type,
             cluster_name_or_id=cluster['cluster']['id'],
-            action='CLUSTER_SCALE_OUT')
+            action='CLUSTER_SCALE_OUT',
+        )
 
         self.addCleanup(self.cleanup_receiver, receiver['id'])
 
         get_receiver = self.user_cloud.get_cluster_receiver_by_id(
-            receiver['id'])
+            receiver['id']
+        )
         receiver_list = {"receivers": [get_receiver]}
 
         # Test that we can list receivers
@@ -777,24 +783,19 @@ class TestClustering(base.BaseFunctionalTest):
             "properties": {
                 "flavor": self.flavor.name,
                 "image": self.image.name,
-                "networks": [
-                    {
-                        "network": "private"
-                    }
-                ],
-                "security_groups": [
-                    "default"
-                ]
+                "networks": [{"network": "private"}],
+                "security_groups": ["default"],
             },
             "type": "os.nova.server",
-            "version": 1.0
+            "version": 1.0,
         }
 
         self.addDetail('profile', content.text_content(profile_name))
         # Test that we can create a profile and we get it returned
 
-        profile = self.user_cloud.create_cluster_profile(name=profile_name,
-                                                         spec=spec)
+        profile = self.user_cloud.create_cluster_profile(
+            name=profile_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_profile, profile['id'])
 
@@ -805,8 +806,10 @@ class TestClustering(base.BaseFunctionalTest):
 
         # Test that we can create a cluster and we get it returned
         cluster = self.user_cloud.create_cluster(
-            name=cluster_name, profile=profile,
-            desired_capacity=desired_capacity)
+            name=cluster_name,
+            profile=profile,
+            desired_capacity=desired_capacity,
+        )
 
         self.addCleanup(self.cleanup_cluster, cluster['cluster']['id'])
 
@@ -816,31 +819,33 @@ class TestClustering(base.BaseFunctionalTest):
                 "adjustment": {
                     "min_step": 1,
                     "number": 1,
-                    "type": "CHANGE_IN_CAPACITY"
+                    "type": "CHANGE_IN_CAPACITY",
                 },
-                "event": "CLUSTER_SCALE_IN"
+                "event": "CLUSTER_SCALE_IN",
             },
             "type": "senlin.policy.scaling",
-            "version": "1.0"
+            "version": "1.0",
         }
 
         self.addDetail('policy', content.text_content(policy_name))
 
         # Test that we can create a policy and we get it returned
 
-        policy = self.user_cloud.create_cluster_policy(name=policy_name,
-                                                       spec=spec)
+        policy = self.user_cloud.create_cluster_policy(
+            name=policy_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_policy, policy['id'])
 
         # Test that we can attach policy to cluster and get True returned
         attach_cluster = self.user_cloud.get_cluster_by_id(
-            cluster['cluster']['id'])
-        attach_policy = self.user_cloud.get_cluster_policy_by_id(
-            policy['id'])
+            cluster['cluster']['id']
+        )
+        attach_policy = self.user_cloud.get_cluster_policy_by_id(policy['id'])
 
         self.user_cloud.attach_policy_to_cluster(
-            attach_cluster, attach_policy, is_enabled=True)
+            attach_cluster, attach_policy, is_enabled=True
+        )
 
         receiver_name = "example_receiver"
         receiver_type = "webhook"
@@ -850,13 +855,16 @@ class TestClustering(base.BaseFunctionalTest):
         # Test that we can create a receiver and we get it returned
 
         self.user_cloud.create_cluster_receiver(
-            name=receiver_name, receiver_type=receiver_type,
+            name=receiver_name,
+            receiver_type=receiver_type,
             cluster_name_or_id=cluster['cluster']['id'],
-            action='CLUSTER_SCALE_OUT')
+            action='CLUSTER_SCALE_OUT',
+        )
 
         # Test that we can delete cluster and get True returned
         cluster_delete = self.user_cloud.delete_cluster(
-            cluster['cluster']['id'])
+            cluster['cluster']['id']
+        )
         self.assertTrue(cluster_delete)
 
     def test_list_clusters(self):
@@ -865,24 +873,19 @@ class TestClustering(base.BaseFunctionalTest):
             "properties": {
                 "flavor": self.flavor.name,
                 "image": self.image.name,
-                "networks": [
-                    {
-                        "network": "private"
-                    }
-                ],
-                "security_groups": [
-                    "default"
-                ]
+                "networks": [{"network": "private"}],
+                "security_groups": ["default"],
             },
             "type": "os.nova.server",
-            "version": 1.0
+            "version": 1.0,
         }
 
         self.addDetail('profile', content.text_content(profile_name))
         # Test that we can create a profile and we get it returned
 
-        profile = self.user_cloud.create_cluster_profile(name=profile_name,
-                                                         spec=spec)
+        profile = self.user_cloud.create_cluster_profile(
+            name=profile_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_profile, profile['id'])
 
@@ -893,17 +896,23 @@ class TestClustering(base.BaseFunctionalTest):
 
         # Test that we can create a cluster and we get it returned
         cluster = self.user_cloud.create_cluster(
-            name=cluster_name, profile=profile,
-            desired_capacity=desired_capacity)
+            name=cluster_name,
+            profile=profile,
+            desired_capacity=desired_capacity,
+        )
 
         self.addCleanup(self.cleanup_cluster, cluster['cluster']['id'])
 
         wait = wait_for_status(
             self.user_cloud.get_cluster_by_id,
-            {'name_or_id': cluster['cluster']['id']}, 'status', 'ACTIVE')
+            {'name_or_id': cluster['cluster']['id']},
+            'status',
+            'ACTIVE',
+        )
 
         get_cluster = self.user_cloud.get_cluster_by_id(
-            cluster['cluster']['id'])
+            cluster['cluster']['id']
+        )
 
         # Test that we can list clusters
         clusters = self.user_cloud.list_clusters()
@@ -916,24 +925,19 @@ class TestClustering(base.BaseFunctionalTest):
             "properties": {
                 "flavor": self.flavor.name,
                 "image": self.image.name,
-                "networks": [
-                    {
-                        "network": "private"
-                    }
-                ],
-                "security_groups": [
-                    "default"
-                ]
+                "networks": [{"network": "private"}],
+                "security_groups": ["default"],
             },
             "type": "os.nova.server",
-            "version": 1.0
+            "version": 1.0,
         }
 
         self.addDetail('profile', content.text_content(profile_name))
         # Test that we can create a profile and we get it returned
 
-        profile = self.user_cloud.create_cluster_profile(name=profile_name,
-                                                         spec=spec)
+        profile = self.user_cloud.create_cluster_profile(
+            name=profile_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_profile, profile['id'])
 
@@ -944,8 +948,10 @@ class TestClustering(base.BaseFunctionalTest):
 
         # Test that we can create a cluster and we get it returned
         cluster = self.user_cloud.create_cluster(
-            name=cluster_name, profile=profile,
-            desired_capacity=desired_capacity)
+            name=cluster_name,
+            profile=profile,
+            desired_capacity=desired_capacity,
+        )
 
         self.addCleanup(self.cleanup_cluster, cluster['cluster']['id'])
 
@@ -955,56 +961,68 @@ class TestClustering(base.BaseFunctionalTest):
                 "adjustment": {
                     "min_step": 1,
                     "number": 1,
-                    "type": "CHANGE_IN_CAPACITY"
+                    "type": "CHANGE_IN_CAPACITY",
                 },
-                "event": "CLUSTER_SCALE_IN"
+                "event": "CLUSTER_SCALE_IN",
             },
             "type": "senlin.policy.scaling",
-            "version": "1.0"
+            "version": "1.0",
         }
 
         self.addDetail('policy', content.text_content(policy_name))
 
         # Test that we can create a policy and we get it returned
 
-        policy = self.user_cloud.create_cluster_policy(name=policy_name,
-                                                       spec=spec)
+        policy = self.user_cloud.create_cluster_policy(
+            name=policy_name, spec=spec
+        )
 
-        self.addCleanup(self.cleanup_policy, policy['id'],
-                        cluster['cluster']['id'])
+        self.addCleanup(
+            self.cleanup_policy, policy['id'], cluster['cluster']['id']
+        )
 
         # Test that we can attach policy to cluster and get True returned
 
         attach_cluster = self.user_cloud.get_cluster_by_id(
-            cluster['cluster']['id'])
-        attach_policy = self.user_cloud.get_cluster_policy_by_id(
-            policy['id'])
+            cluster['cluster']['id']
+        )
+        attach_policy = self.user_cloud.get_cluster_policy_by_id(policy['id'])
 
         self.user_cloud.attach_policy_to_cluster(
-            attach_cluster, attach_policy, is_enabled=True)
+            attach_cluster, attach_policy, is_enabled=True
+        )
 
         wait_attach = wait_for_status(
             self.user_cloud.get_cluster_by_id,
-            {'name_or_id': cluster['cluster']['id']}, 'policies',
-            ["{policy}".format(policy=policy['id'])])
+            {'name_or_id': cluster['cluster']['id']},
+            'policies',
+            ["{policy}".format(policy=policy['id'])],
+        )
 
         get_old_policy = self.user_cloud.get_policy_on_cluster(
-            cluster['cluster']["id"], policy['id'])
+            cluster['cluster']["id"], policy['id']
+        )
 
         # Test that we can update the policy on cluster
         policy_update = self.user_cloud.update_policy_on_cluster(
-            attach_cluster, attach_policy, is_enabled=False)
+            attach_cluster, attach_policy, is_enabled=False
+        )
 
         get_old_policy.update({'enabled': False})
 
         wait_update = wait_for_status(
             self.user_cloud.get_policy_on_cluster,
-            {'name_or_id': cluster['cluster']['id'],
-             'policy_name_or_id': policy['id']}, 'enabled',
-            False)
+            {
+                'name_or_id': cluster['cluster']['id'],
+                'policy_name_or_id': policy['id'],
+            },
+            'enabled',
+            False,
+        )
 
         get_new_policy = self.user_cloud.get_policy_on_cluster(
-            cluster['cluster']["id"], policy['id'])
+            cluster['cluster']["id"], policy['id']
+        )
 
         get_old_policy['last_op'] = None
         get_new_policy['last_op'] = None
@@ -1020,31 +1038,28 @@ class TestClustering(base.BaseFunctionalTest):
             "properties": {
                 "flavor": self.flavor.name,
                 "image": self.image.name,
-                "networks": [
-                    {
-                        "network": "private"
-                    }
-                ],
-                "security_groups": [
-                    "default"
-                ]
+                "networks": [{"network": "private"}],
+                "security_groups": ["default"],
             },
             "type": "os.nova.server",
-            "version": 1.0
+            "version": 1.0,
         }
 
         self.addDetail('profile', content.text_content(profile_name))
         # Test that we can create a profile and we get it returned
 
-        profile = self.user_cloud.create_cluster_profile(name=profile_name,
-                                                         spec=spec)
+        profile = self.user_cloud.create_cluster_profile(
+            name=profile_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_profile, profile['id'])
 
         # Test that we can list profiles
 
-        wait = wait_for_create(self.user_cloud.get_cluster_profile_by_id,
-                               {'name_or_id': profile['id']})
+        wait = wait_for_create(
+            self.user_cloud.get_cluster_profile_by_id,
+            {'name_or_id': profile['id']},
+        )
 
         get_profile = self.user_cloud.get_cluster_profile_by_id(profile['id'])
 
@@ -1058,24 +1073,19 @@ class TestClustering(base.BaseFunctionalTest):
             "properties": {
                 "flavor": self.flavor.name,
                 "image": self.image.name,
-                "networks": [
-                    {
-                        "network": "private"
-                    }
-                ],
-                "security_groups": [
-                    "default"
-                ]
+                "networks": [{"network": "private"}],
+                "security_groups": ["default"],
             },
             "type": "os.nova.server",
-            "version": 1.0
+            "version": 1.0,
         }
 
         self.addDetail('profile', content.text_content(profile_name))
         # Test that we can create a profile and we get it returned
 
-        profile = self.user_cloud.create_cluster_profile(name=profile_name,
-                                                         spec=spec)
+        profile = self.user_cloud.create_cluster_profile(
+            name=profile_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_profile, profile['id'])
 
@@ -1096,24 +1106,19 @@ class TestClustering(base.BaseFunctionalTest):
             "properties": {
                 "flavor": self.flavor.name,
                 "image": self.image.name,
-                "networks": [
-                    {
-                        "network": "private"
-                    }
-                ],
-                "security_groups": [
-                    "default"
-                ]
+                "networks": [{"network": "private"}],
+                "security_groups": ["default"],
             },
             "type": "os.nova.server",
-            "version": 1.0
+            "version": 1.0,
         }
 
         self.addDetail('profile', content.text_content(profile_name))
         # Test that we can create a profile and we get it returned
 
-        profile = self.user_cloud.create_cluster_profile(name=profile_name,
-                                                         spec=spec)
+        profile = self.user_cloud.create_cluster_profile(
+            name=profile_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_profile, profile['id'])
 
@@ -1121,7 +1126,8 @@ class TestClustering(base.BaseFunctionalTest):
         # is updated
 
         profile_update = self.user_cloud.update_cluster_profile(
-            profile['id'], new_name='new_profile_name')
+            profile['id'], new_name='new_profile_name'
+        )
         self.assertEqual(profile_update['profile']['id'], profile['id'])
         self.assertEqual(profile_update['profile']['spec'], profile['spec'])
         self.assertEqual(profile_update['profile']['name'], 'new_profile_name')
@@ -1132,24 +1138,19 @@ class TestClustering(base.BaseFunctionalTest):
             "properties": {
                 "flavor": self.flavor.name,
                 "image": self.image.name,
-                "networks": [
-                    {
-                        "network": "private"
-                    }
-                ],
-                "security_groups": [
-                    "default"
-                ]
+                "networks": [{"network": "private"}],
+                "security_groups": ["default"],
             },
             "type": "os.nova.server",
-            "version": 1.0
+            "version": 1.0,
         }
 
         self.addDetail('profile', content.text_content(profile_name))
         # Test that we can create a profile and we get it returned
 
-        profile = self.user_cloud.create_cluster_profile(name=profile_name,
-                                                         spec=spec)
+        profile = self.user_cloud.create_cluster_profile(
+            name=profile_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_profile, profile['id'])
 
@@ -1164,20 +1165,21 @@ class TestClustering(base.BaseFunctionalTest):
                 "adjustment": {
                     "min_step": 1,
                     "number": 1,
-                    "type": "CHANGE_IN_CAPACITY"
+                    "type": "CHANGE_IN_CAPACITY",
                 },
-                "event": "CLUSTER_SCALE_IN"
+                "event": "CLUSTER_SCALE_IN",
             },
             "type": "senlin.policy.scaling",
-            "version": "1.0"
+            "version": "1.0",
         }
 
         self.addDetail('policy', content.text_content(policy_name))
 
         # Test that we can create a policy and we get it returned
 
-        policy = self.user_cloud.create_cluster_policy(name=policy_name,
-                                                       spec=spec)
+        policy = self.user_cloud.create_cluster_policy(
+            name=policy_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_policy, policy['id'])
 
@@ -1202,20 +1204,21 @@ class TestClustering(base.BaseFunctionalTest):
                 "adjustment": {
                     "min_step": 1,
                     "number": 1,
-                    "type": "CHANGE_IN_CAPACITY"
+                    "type": "CHANGE_IN_CAPACITY",
                 },
-                "event": "CLUSTER_SCALE_IN"
+                "event": "CLUSTER_SCALE_IN",
             },
             "type": "senlin.policy.scaling",
-            "version": "1.0"
+            "version": "1.0",
         }
 
         self.addDetail('policy', content.text_content(policy_name))
 
         # Test that we can create a policy and we get it returned
 
-        policy = self.user_cloud.create_cluster_policy(name=policy_name,
-                                                       spec=spec)
+        policy = self.user_cloud.create_cluster_policy(
+            name=policy_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_policy, policy['id'])
 
@@ -1238,20 +1241,21 @@ class TestClustering(base.BaseFunctionalTest):
                 "adjustment": {
                     "min_step": 1,
                     "number": 1,
-                    "type": "CHANGE_IN_CAPACITY"
+                    "type": "CHANGE_IN_CAPACITY",
                 },
-                "event": "CLUSTER_SCALE_IN"
+                "event": "CLUSTER_SCALE_IN",
             },
             "type": "senlin.policy.scaling",
-            "version": "1.0"
+            "version": "1.0",
         }
 
         self.addDetail('policy', content.text_content(policy_name))
 
         # Test that we can create a policy and we get it returned
 
-        policy = self.user_cloud.create_cluster_policy(name=policy_name,
-                                                       spec=spec)
+        policy = self.user_cloud.create_cluster_policy(
+            name=policy_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_policy, policy['id'])
 
@@ -1259,7 +1263,8 @@ class TestClustering(base.BaseFunctionalTest):
         # is updated
 
         policy_update = self.user_cloud.update_cluster_policy(
-            policy['id'], new_name='new_policy_name')
+            policy['id'], new_name='new_policy_name'
+        )
         self.assertEqual(policy_update['policy']['id'], policy['id'])
         self.assertEqual(policy_update['policy']['spec'], policy['spec'])
         self.assertEqual(policy_update['policy']['name'], 'new_policy_name')
@@ -1271,26 +1276,26 @@ class TestClustering(base.BaseFunctionalTest):
                 "adjustment": {
                     "min_step": 1,
                     "number": 1,
-                    "type": "CHANGE_IN_CAPACITY"
+                    "type": "CHANGE_IN_CAPACITY",
                 },
-                "event": "CLUSTER_SCALE_IN"
+                "event": "CLUSTER_SCALE_IN",
             },
             "type": "senlin.policy.scaling",
-            "version": "1.0"
+            "version": "1.0",
         }
 
         self.addDetail('policy', content.text_content(policy_name))
 
         # Test that we can create a policy and we get it returned
 
-        policy = self.user_cloud.create_cluster_policy(name=policy_name,
-                                                       spec=spec)
+        policy = self.user_cloud.create_cluster_policy(
+            name=policy_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_policy, policy['id'])
 
         # Test that we can delete a policy and get True returned
-        policy_delete = self.user_cloud.delete_cluster_policy(
-            policy['id'])
+        policy_delete = self.user_cloud.delete_cluster_policy(policy['id'])
         self.assertTrue(policy_delete)
 
     def test_get_cluster_receiver_by_id(self):
@@ -1299,24 +1304,19 @@ class TestClustering(base.BaseFunctionalTest):
             "properties": {
                 "flavor": self.flavor.name,
                 "image": self.image.name,
-                "networks": [
-                    {
-                        "network": "private"
-                    }
-                ],
-                "security_groups": [
-                    "default"
-                ]
+                "networks": [{"network": "private"}],
+                "security_groups": ["default"],
             },
             "type": "os.nova.server",
-            "version": 1.0
+            "version": 1.0,
         }
 
         self.addDetail('profile', content.text_content(profile_name))
         # Test that we can create a profile and we get it returned
 
-        profile = self.user_cloud.create_cluster_profile(name=profile_name,
-                                                         spec=spec)
+        profile = self.user_cloud.create_cluster_profile(
+            name=profile_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_profile, profile['id'])
 
@@ -1327,8 +1327,10 @@ class TestClustering(base.BaseFunctionalTest):
 
         # Test that we can create a cluster and we get it returned
         cluster = self.user_cloud.create_cluster(
-            name=cluster_name, profile=profile,
-            desired_capacity=desired_capacity)
+            name=cluster_name,
+            profile=profile,
+            desired_capacity=desired_capacity,
+        )
 
         self.addCleanup(self.cleanup_cluster, cluster['cluster']['id'])
 
@@ -1340,16 +1342,19 @@ class TestClustering(base.BaseFunctionalTest):
         # Test that we can create a receiver and we get it returned
 
         receiver = self.user_cloud.create_cluster_receiver(
-            name=receiver_name, receiver_type=receiver_type,
+            name=receiver_name,
+            receiver_type=receiver_type,
             cluster_name_or_id=cluster['cluster']['id'],
-            action='CLUSTER_SCALE_OUT')
+            action='CLUSTER_SCALE_OUT',
+        )
 
         self.addCleanup(self.cleanup_receiver, receiver['id'])
 
         # Test that we get the same receiver with the get_receiver method
 
         receiver_get = self.user_cloud.get_cluster_receiver_by_id(
-            receiver['id'])
+            receiver['id']
+        )
         self.assertEqual(receiver_get['id'], receiver["id"])
 
     def test_update_cluster_receiver(self):
@@ -1358,24 +1363,19 @@ class TestClustering(base.BaseFunctionalTest):
             "properties": {
                 "flavor": self.flavor.name,
                 "image": self.image.name,
-                "networks": [
-                    {
-                        "network": "private"
-                    }
-                ],
-                "security_groups": [
-                    "default"
-                ]
+                "networks": [{"network": "private"}],
+                "security_groups": ["default"],
             },
             "type": "os.nova.server",
-            "version": 1.0
+            "version": 1.0,
         }
 
         self.addDetail('profile', content.text_content(profile_name))
         # Test that we can create a profile and we get it returned
 
-        profile = self.user_cloud.create_cluster_profile(name=profile_name,
-                                                         spec=spec)
+        profile = self.user_cloud.create_cluster_profile(
+            name=profile_name, spec=spec
+        )
 
         self.addCleanup(self.cleanup_profile, profile['id'])
 
@@ -1386,8 +1386,10 @@ class TestClustering(base.BaseFunctionalTest):
 
         # Test that we can create a cluster and we get it returned
         cluster = self.user_cloud.create_cluster(
-            name=cluster_name, profile=profile,
-            desired_capacity=desired_capacity)
+            name=cluster_name,
+            profile=profile,
+            desired_capacity=desired_capacity,
+        )
 
         self.addCleanup(self.cleanup_cluster, cluster['cluster']['id'])
 
@@ -1399,9 +1401,11 @@ class TestClustering(base.BaseFunctionalTest):
         # Test that we can create a receiver and we get it returned
 
         receiver = self.user_cloud.create_cluster_receiver(
-            name=receiver_name, receiver_type=receiver_type,
+            name=receiver_name,
+            receiver_type=receiver_type,
             cluster_name_or_id=cluster['cluster']['id'],
-            action='CLUSTER_SCALE_OUT')
+            action='CLUSTER_SCALE_OUT',
+        )
 
         self.addCleanup(self.cleanup_receiver, receiver['id'])
 
@@ -1409,13 +1413,16 @@ class TestClustering(base.BaseFunctionalTest):
         # is updated
 
         receiver_update = self.user_cloud.update_cluster_receiver(
-            receiver['id'], new_name='new_receiver_name')
+            receiver['id'], new_name='new_receiver_name'
+        )
         self.assertEqual(receiver_update['receiver']['id'], receiver['id'])
         self.assertEqual(receiver_update['receiver']['type'], receiver['type'])
-        self.assertEqual(receiver_update['receiver']['cluster_id'],
-                         receiver['cluster_id'])
-        self.assertEqual(receiver_update['receiver']['name'],
-                         'new_receiver_name')
+        self.assertEqual(
+            receiver_update['receiver']['cluster_id'], receiver['cluster_id']
+        )
+        self.assertEqual(
+            receiver_update['receiver']['name'], 'new_receiver_name'
+        )
 
     def cleanup_profile(self, name):
         time.sleep(5)
@@ -1431,8 +1438,9 @@ class TestClustering(base.BaseFunctionalTest):
         if cluster_name is not None:
             cluster = self.user_cloud.get_cluster_by_id(cluster_name)
             policy = self.user_cloud.get_cluster_policy_by_id(name)
-            policy_status = \
-                self.user_cloud.get_cluster_by_id(cluster['id'])['policies']
+            policy_status = self.user_cloud.get_cluster_by_id(cluster['id'])[
+                'policies'
+            ]
             if policy_status != []:
                 self.user_cloud.detach_policy_from_cluster(cluster, policy)
         self.user_cloud.delete_cluster_policy(name)

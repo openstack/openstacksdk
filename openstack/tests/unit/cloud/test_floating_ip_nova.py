@@ -28,6 +28,7 @@ def get_fake_has_service(has_service):
         if s == 'network':
             return False
         return has_service(s)
+
     return fake_has_service
 
 
@@ -38,27 +39,28 @@ class TestFloatingIP(base.TestCase):
             'id': 1,
             'instance_id': None,
             'ip': '203.0.113.1',
-            'pool': 'nova'
+            'pool': 'nova',
         },
         {
             'fixed_ip': None,
             'id': 2,
             'instance_id': None,
             'ip': '203.0.113.2',
-            'pool': 'nova'
+            'pool': 'nova',
         },
         {
             'fixed_ip': '192.0.2.3',
             'id': 29,
             'instance_id': 'myself',
             'ip': '198.51.100.29',
-            'pool': 'black_hole'
-        }
+            'pool': 'black_hole',
+        },
     ]
 
     mock_floating_ip_pools = [
         {'id': 'pool1_id', 'name': 'nova'},
-        {'id': 'pool2_id', 'name': 'pool2'}]
+        {'id': 'pool2_id', 'name': 'pool2'},
+    ]
 
     def assertAreInstances(self, elements, elem_type):
         for e in elements:
@@ -68,23 +70,36 @@ class TestFloatingIP(base.TestCase):
         super(TestFloatingIP, self).setUp()
 
         self.fake_server = fakes.make_fake_server(
-            'server-id', '', 'ACTIVE',
-            addresses={u'test_pnztt_net': [{
-                u'OS-EXT-IPS:type': u'fixed',
-                u'addr': '192.0.2.129',
-                u'version': 4,
-                u'OS-EXT-IPS-MAC:mac_addr':
-                u'fa:16:3e:ae:7d:42'}]})
+            'server-id',
+            '',
+            'ACTIVE',
+            addresses={
+                u'test_pnztt_net': [
+                    {
+                        u'OS-EXT-IPS:type': u'fixed',
+                        u'addr': '192.0.2.129',
+                        u'version': 4,
+                        u'OS-EXT-IPS-MAC:mac_addr': u'fa:16:3e:ae:7d:42',
+                    }
+                ]
+            },
+        )
 
         self.cloud.has_service = get_fake_has_service(self.cloud.has_service)
 
     def test_list_floating_ips(self):
 
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
-                 json={'floating_ips': self.mock_floating_ip_list_rep}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', append=['os-floating-ips']
+                    ),
+                    json={'floating_ips': self.mock_floating_ip_list_rep},
+                ),
+            ]
+        )
         floating_ips = self.cloud.list_floating_ips()
 
         self.assertIsInstance(floating_ips, list)
@@ -95,19 +110,28 @@ class TestFloatingIP(base.TestCase):
 
     def test_list_floating_ips_with_filters(self):
         self.assertRaisesRegex(
-            ValueError, "Nova-network don't support server-side",
-            self.cloud.list_floating_ips, filters={'Foo': 42}
+            ValueError,
+            "Nova-network don't support server-side",
+            self.cloud.list_floating_ips,
+            filters={'Foo': 42},
         )
 
     def test_search_floating_ips(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
-                 json={'floating_ips': self.mock_floating_ip_list_rep}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', append=['os-floating-ips']
+                    ),
+                    json={'floating_ips': self.mock_floating_ip_list_rep},
+                ),
+            ]
+        )
 
         floating_ips = self.cloud.search_floating_ips(
-            filters={'attached': False})
+            filters={'attached': False}
+        )
 
         self.assertIsInstance(floating_ips, list)
         self.assertEqual(2, len(floating_ips))
@@ -116,11 +140,17 @@ class TestFloatingIP(base.TestCase):
         self.assert_calls()
 
     def test_get_floating_ip(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
-                 json={'floating_ips': self.mock_floating_ip_list_rep}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', append=['os-floating-ips']
+                    ),
+                    json={'floating_ips': self.mock_floating_ip_list_rep},
+                ),
+            ]
+        )
 
         floating_ip = self.cloud.get_floating_ip(id='29')
 
@@ -130,11 +160,17 @@ class TestFloatingIP(base.TestCase):
         self.assert_calls()
 
     def test_get_floating_ip_not_found(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
-                 json={'floating_ips': self.mock_floating_ip_list_rep}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', append=['os-floating-ips']
+                    ),
+                    json={'floating_ips': self.mock_floating_ip_list_rep},
+                ),
+            ]
+        )
 
         floating_ip = self.cloud.get_floating_ip(id='666')
 
@@ -143,12 +179,17 @@ class TestFloatingIP(base.TestCase):
         self.assert_calls()
 
     def test_get_floating_ip_by_id(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url('compute', append=['os-floating-ips',
-                                                          '1']),
-                 json={'floating_ip': self.mock_floating_ip_list_rep[0]}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', append=['os-floating-ips', '1']
+                    ),
+                    json={'floating_ip': self.mock_floating_ip_list_rep[0]},
+                ),
+            ]
+        )
 
         floating_ip = self.cloud.get_floating_ip_by_id(id='1')
 
@@ -157,161 +198,240 @@ class TestFloatingIP(base.TestCase):
         self.assert_calls()
 
     def test_create_floating_ip(self):
-        self.register_uris([
-            dict(method='POST',
-                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
-                 json={'floating_ip': self.mock_floating_ip_list_rep[1]},
-                 validate=dict(
-                     json={'pool': 'nova'})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute',
-                     append=['os-floating-ips', '2']),
-                 json={'floating_ip': self.mock_floating_ip_list_rep[1]}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='POST',
+                    uri=self.get_mock_url(
+                        'compute', append=['os-floating-ips']
+                    ),
+                    json={'floating_ip': self.mock_floating_ip_list_rep[1]},
+                    validate=dict(json={'pool': 'nova'}),
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', append=['os-floating-ips', '2']
+                    ),
+                    json={'floating_ip': self.mock_floating_ip_list_rep[1]},
+                ),
+            ]
+        )
 
         self.cloud.create_floating_ip(network='nova')
 
         self.assert_calls()
 
     def test_available_floating_ip_existing(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
-                 json={'floating_ips': self.mock_floating_ip_list_rep[:1]}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', append=['os-floating-ips']
+                    ),
+                    json={'floating_ips': self.mock_floating_ip_list_rep[:1]},
+                ),
+            ]
+        )
 
         ip = self.cloud.available_floating_ip(network='nova')
 
-        self.assertEqual(self.mock_floating_ip_list_rep[0]['ip'],
-                         ip['floating_ip_address'])
+        self.assertEqual(
+            self.mock_floating_ip_list_rep[0]['ip'], ip['floating_ip_address']
+        )
         self.assert_calls()
 
     def test_available_floating_ip_new(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
-                 json={'floating_ips': []}),
-            dict(method='POST',
-                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
-                 json={'floating_ip': self.mock_floating_ip_list_rep[0]},
-                 validate=dict(
-                     json={'pool': 'nova'})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute',
-                     append=['os-floating-ips', '1']),
-                 json={'floating_ip': self.mock_floating_ip_list_rep[0]}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', append=['os-floating-ips']
+                    ),
+                    json={'floating_ips': []},
+                ),
+                dict(
+                    method='POST',
+                    uri=self.get_mock_url(
+                        'compute', append=['os-floating-ips']
+                    ),
+                    json={'floating_ip': self.mock_floating_ip_list_rep[0]},
+                    validate=dict(json={'pool': 'nova'}),
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', append=['os-floating-ips', '1']
+                    ),
+                    json={'floating_ip': self.mock_floating_ip_list_rep[0]},
+                ),
+            ]
+        )
 
         ip = self.cloud.available_floating_ip(network='nova')
 
-        self.assertEqual(self.mock_floating_ip_list_rep[0]['ip'],
-                         ip['floating_ip_address'])
+        self.assertEqual(
+            self.mock_floating_ip_list_rep[0]['ip'], ip['floating_ip_address']
+        )
         self.assert_calls()
 
     def test_delete_floating_ip_existing(self):
 
-        self.register_uris([
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'compute',
-                     append=['os-floating-ips', 'a-wild-id-appears'])),
-            dict(method='GET',
-                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
-                 json={'floating_ips': []}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'compute',
+                        append=['os-floating-ips', 'a-wild-id-appears'],
+                    ),
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', append=['os-floating-ips']
+                    ),
+                    json={'floating_ips': []},
+                ),
+            ]
+        )
 
-        ret = self.cloud.delete_floating_ip(
-            floating_ip_id='a-wild-id-appears')
+        ret = self.cloud.delete_floating_ip(floating_ip_id='a-wild-id-appears')
 
         self.assertTrue(ret)
         self.assert_calls()
 
     def test_delete_floating_ip_not_found(self):
-        self.register_uris([
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'compute',
-                     append=['os-floating-ips', 'a-wild-id-appears']),
-                 status_code=404),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'compute',
+                        append=['os-floating-ips', 'a-wild-id-appears'],
+                    ),
+                    status_code=404,
+                ),
+            ]
+        )
 
-        ret = self.cloud.delete_floating_ip(
-            floating_ip_id='a-wild-id-appears')
+        ret = self.cloud.delete_floating_ip(floating_ip_id='a-wild-id-appears')
 
         self.assertFalse(ret)
         self.assert_calls()
 
     def test_attach_ip_to_server(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
-                 json={'floating_ips': self.mock_floating_ip_list_rep}),
-            dict(method='POST',
-                 uri=self.get_mock_url(
-                     'compute',
-                     append=['servers', self.fake_server['id'], 'action']),
-                 validate=dict(
-                     json={
-                         "addFloatingIp": {
-                             "address": "203.0.113.1",
-                             "fixed_address": "192.0.2.129",
-                         }})),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', append=['os-floating-ips']
+                    ),
+                    json={'floating_ips': self.mock_floating_ip_list_rep},
+                ),
+                dict(
+                    method='POST',
+                    uri=self.get_mock_url(
+                        'compute',
+                        append=['servers', self.fake_server['id'], 'action'],
+                    ),
+                    validate=dict(
+                        json={
+                            "addFloatingIp": {
+                                "address": "203.0.113.1",
+                                "fixed_address": "192.0.2.129",
+                            }
+                        }
+                    ),
+                ),
+            ]
+        )
 
         self.cloud._attach_ip_to_server(
             server=self.fake_server,
             floating_ip=self.cloud._normalize_floating_ip(
-                self.mock_floating_ip_list_rep[0]),
-            fixed_address='192.0.2.129')
+                self.mock_floating_ip_list_rep[0]
+            ),
+            fixed_address='192.0.2.129',
+        )
 
         self.assert_calls()
 
     def test_detach_ip_from_server(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
-                 json={'floating_ips': self.mock_floating_ip_list_rep}),
-            dict(method='POST',
-                 uri=self.get_mock_url(
-                     'compute',
-                     append=['servers', self.fake_server['id'], 'action']),
-                 validate=dict(
-                     json={
-                         "removeFloatingIp": {
-                             "address": "203.0.113.1",
-                         }})),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', append=['os-floating-ips']
+                    ),
+                    json={'floating_ips': self.mock_floating_ip_list_rep},
+                ),
+                dict(
+                    method='POST',
+                    uri=self.get_mock_url(
+                        'compute',
+                        append=['servers', self.fake_server['id'], 'action'],
+                    ),
+                    validate=dict(
+                        json={
+                            "removeFloatingIp": {
+                                "address": "203.0.113.1",
+                            }
+                        }
+                    ),
+                ),
+            ]
+        )
 
         self.cloud.detach_ip_from_server(
-            server_id='server-id', floating_ip_id=1)
+            server_id='server-id', floating_ip_id=1
+        )
         self.assert_calls()
 
     def test_add_ip_from_pool(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
-                 json={'floating_ips': self.mock_floating_ip_list_rep}),
-            dict(method='GET',
-                 uri=self.get_mock_url('compute', append=['os-floating-ips']),
-                 json={'floating_ips': self.mock_floating_ip_list_rep}),
-            dict(method='POST',
-                 uri=self.get_mock_url(
-                     'compute',
-                     append=['servers', self.fake_server['id'], 'action']),
-                 validate=dict(
-                     json={
-                         "addFloatingIp": {
-                             "address": "203.0.113.1",
-                             "fixed_address": "192.0.2.129",
-                         }})),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', append=['os-floating-ips']
+                    ),
+                    json={'floating_ips': self.mock_floating_ip_list_rep},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', append=['os-floating-ips']
+                    ),
+                    json={'floating_ips': self.mock_floating_ip_list_rep},
+                ),
+                dict(
+                    method='POST',
+                    uri=self.get_mock_url(
+                        'compute',
+                        append=['servers', self.fake_server['id'], 'action'],
+                    ),
+                    validate=dict(
+                        json={
+                            "addFloatingIp": {
+                                "address": "203.0.113.1",
+                                "fixed_address": "192.0.2.129",
+                            }
+                        }
+                    ),
+                ),
+            ]
+        )
 
         server = self.cloud._add_ip_from_pool(
             server=self.fake_server,
             network='nova',
-            fixed_address='192.0.2.129')
+            fixed_address='192.0.2.129',
+        )
 
         self.assertEqual(server, self.fake_server)
         self.assert_calls()

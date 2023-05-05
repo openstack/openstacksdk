@@ -46,7 +46,8 @@ class ImageCloudMixin:
     def _image_client(self):
         if 'image' not in self._raw_clients:
             self._raw_clients['image'] = self._get_versioned_client(
-                'image', min_version=1, max_version='2.latest')
+                'image', min_version=1, max_version='2.latest'
+            )
         return self._raw_clients['image']
 
     def search_images(self, name_or_id=None, filters=None):
@@ -108,7 +109,7 @@ class ImageCloudMixin:
         return _utils._get_entity(self, 'image', name_or_id, filters)
 
     def get_image_by_id(self, id):
-        """ Get a image by ID
+        """Get a image by ID
 
         :param id: ID of the image.
         :returns: An image :class:`openstack.image.v2.image.Image` object.
@@ -145,20 +146,23 @@ class ImageCloudMixin:
         if output_path is None and output_file is None:
             raise exc.OpenStackCloudException(
                 'No output specified, an output path or file object'
-                ' is necessary to write the image data to')
+                ' is necessary to write the image data to'
+            )
         elif output_path is not None and output_file is not None:
             raise exc.OpenStackCloudException(
                 'Both an output path and file object were provided,'
-                ' however only one can be used at once')
+                ' however only one can be used at once'
+            )
 
         image = self.image.find_image(name_or_id)
         if not image:
             raise exc.OpenStackCloudResourceNotFound(
-                "No images with name or ID %s were found" % name_or_id, None)
+                "No images with name or ID %s were found" % name_or_id, None
+            )
 
         return self.image.download_image(
-            image, output=output_file or output_path,
-            chunk_size=chunk_size)
+            image, output=output_file or output_path, chunk_size=chunk_size
+        )
 
     def get_image_exclude(self, name_or_id, exclude):
         for image in self.search_images(name_or_id):
@@ -184,7 +188,8 @@ class ImageCloudMixin:
     def wait_for_image(self, image, timeout=3600):
         image_id = image['id']
         for count in utils.iterate_timeout(
-                timeout, "Timeout waiting for image to snapshot"):
+            timeout, "Timeout waiting for image to snapshot"
+        ):
             self.list_images.invalidate(self)
             image = self.get_image(image_id)
             if not image:
@@ -193,7 +198,8 @@ class ImageCloudMixin:
                 return image
             elif image['status'] == 'error':
                 raise exc.OpenStackCloudException(
-                    'Image {image} hit error state'.format(image=image_id))
+                    'Image {image} hit error state'.format(image=image_id)
+                )
 
     def delete_image(
         self,
@@ -222,17 +228,19 @@ class ImageCloudMixin:
         # Task API means an image was uploaded to swift
         # TODO(gtema) does it make sense to move this into proxy?
         if self.image_api_use_tasks and (
-                self.image._IMAGE_OBJECT_KEY in image.properties
-                or self.image._SHADE_IMAGE_OBJECT_KEY in image.properties):
+            self.image._IMAGE_OBJECT_KEY in image.properties
+            or self.image._SHADE_IMAGE_OBJECT_KEY in image.properties
+        ):
             (container, objname) = image.properties.get(
-                self.image._IMAGE_OBJECT_KEY, image.properties.get(
-                    self.image._SHADE_IMAGE_OBJECT_KEY)).split('/', 1)
+                self.image._IMAGE_OBJECT_KEY,
+                image.properties.get(self.image._SHADE_IMAGE_OBJECT_KEY),
+            ).split('/', 1)
             self.delete_object(container=container, name=objname)
 
         if wait:
             for count in utils.iterate_timeout(
-                    timeout,
-                    "Timeout waiting for the image to be deleted."):
+                timeout, "Timeout waiting for the image to be deleted."
+            ):
                 self._get_cache(None).invalidate()
                 if self.get_image(image.id) is None:
                     break
@@ -307,38 +315,53 @@ class ImageCloudMixin:
         """
         if volume:
             image = self.block_storage.create_image(
-                name=name, volume=volume,
+                name=name,
+                volume=volume,
                 allow_duplicates=allow_duplicates,
-                container_format=container_format, disk_format=disk_format,
-                wait=wait, timeout=timeout)
+                container_format=container_format,
+                disk_format=disk_format,
+                wait=wait,
+                timeout=timeout,
+            )
         else:
             image = self.image.create_image(
-                name, filename=filename,
+                name,
+                filename=filename,
                 container=container,
-                md5=md5, sha256=sha256,
-                disk_format=disk_format, container_format=container_format,
+                md5=md5,
+                sha256=sha256,
+                disk_format=disk_format,
+                container_format=container_format,
                 disable_vendor_agent=disable_vendor_agent,
-                wait=wait, timeout=timeout, tags=tags,
-                allow_duplicates=allow_duplicates, meta=meta, **kwargs)
+                wait=wait,
+                timeout=timeout,
+                tags=tags,
+                allow_duplicates=allow_duplicates,
+                meta=meta,
+                **kwargs,
+            )
 
         self._get_cache(None).invalidate()
         if not wait:
             return image
         try:
             for count in utils.iterate_timeout(
-                    timeout,
-                    "Timeout waiting for the image to finish."):
+                timeout, "Timeout waiting for the image to finish."
+            ):
                 image_obj = self.get_image(image.id)
                 if image_obj and image_obj.status not in ('queued', 'saving'):
                     return image_obj
         except exc.OpenStackCloudTimeout:
             self.log.debug(
-                "Timeout waiting for image to become ready. Deleting.")
+                "Timeout waiting for image to become ready. Deleting."
+            )
             self.delete_image(image.id, wait=True)
             raise
 
     def update_image_properties(
-            self, image=None, name_or_id=None, meta=None, **properties):
+        self, image=None, name_or_id=None, meta=None, **properties
+    ):
         image = image or name_or_id
         return self.image.update_image_properties(
-            image=image, meta=meta, **properties)
+            image=image, meta=meta, **properties
+        )

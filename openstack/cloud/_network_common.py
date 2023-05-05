@@ -20,8 +20,8 @@ from openstack.cloud import exc
 
 
 class NetworkCommonCloudMixin:
-    """Shared networking functions used by FloatingIP, Network, Compute classes
-    """
+    """Shared networking functions used by FloatingIP, Network, Compute
+    classes."""
 
     def __init__(self):
         self._external_ipv4_names = self.config.get_external_ipv4_networks()
@@ -33,9 +33,11 @@ class NetworkCommonCloudMixin:
         self._default_network = self.config.get_default_network()
 
         self._use_external_network = self.config.config.get(
-            'use_external_network', True)
+            'use_external_network', True
+        )
         self._use_internal_network = self.config.config.get(
-            'use_internal_network', True)
+            'use_internal_network', True
+        )
 
         self._networks_lock = threading.Lock()
         self._reset_network_caches()
@@ -90,46 +92,63 @@ class NetworkCommonCloudMixin:
         for network in all_networks:
 
             # External IPv4 networks
-            if (network['name'] in self._external_ipv4_names
-                    or network['id'] in self._external_ipv4_names):
+            if (
+                network['name'] in self._external_ipv4_names
+                or network['id'] in self._external_ipv4_names
+            ):
                 external_ipv4_networks.append(network)
-            elif ((network.is_router_external
-                   or network.provider_physical_network)
-                  and network['name'] not in self._internal_ipv4_names
-                  and network['id'] not in self._internal_ipv4_names):
+            elif (
+                (
+                    network.is_router_external
+                    or network.provider_physical_network
+                )
+                and network['name'] not in self._internal_ipv4_names
+                and network['id'] not in self._internal_ipv4_names
+            ):
                 external_ipv4_networks.append(network)
 
             # Internal networks
-            if (network['name'] in self._internal_ipv4_names
-                    or network['id'] in self._internal_ipv4_names):
+            if (
+                network['name'] in self._internal_ipv4_names
+                or network['id'] in self._internal_ipv4_names
+            ):
                 internal_ipv4_networks.append(network)
-            elif (not network.is_router_external
-                  and not network.provider_physical_network
-                  and network['name'] not in self._external_ipv4_names
-                  and network['id'] not in self._external_ipv4_names):
+            elif (
+                not network.is_router_external
+                and not network.provider_physical_network
+                and network['name'] not in self._external_ipv4_names
+                and network['id'] not in self._external_ipv4_names
+            ):
                 internal_ipv4_networks.append(network)
 
             # External networks
-            if (network['name'] in self._external_ipv6_names
-                    or network['id'] in self._external_ipv6_names):
+            if (
+                network['name'] in self._external_ipv6_names
+                or network['id'] in self._external_ipv6_names
+            ):
                 external_ipv6_networks.append(network)
-            elif (network.is_router_external
-                  and network['name'] not in self._internal_ipv6_names
-                  and network['id'] not in self._internal_ipv6_names):
+            elif (
+                network.is_router_external
+                and network['name'] not in self._internal_ipv6_names
+                and network['id'] not in self._internal_ipv6_names
+            ):
                 external_ipv6_networks.append(network)
 
             # Internal networks
-            if (network['name'] in self._internal_ipv6_names
-                    or network['id'] in self._internal_ipv6_names):
+            if (
+                network['name'] in self._internal_ipv6_names
+                or network['id'] in self._internal_ipv6_names
+            ):
                 internal_ipv6_networks.append(network)
-            elif (not network.is_router_external
-                  and network['name'] not in self._external_ipv6_names
-                  and network['id'] not in self._external_ipv6_names):
+            elif (
+                not network.is_router_external
+                and network['name'] not in self._external_ipv6_names
+                and network['id'] not in self._external_ipv6_names
+            ):
                 internal_ipv6_networks.append(network)
 
             # External Floating IPv4 networks
-            if self._nat_source in (
-                    network['name'], network['id']):
+            if self._nat_source in (network['name'], network['id']):
                 if nat_source:
                     raise exc.OpenStackCloudException(
                         'Multiple networks were found matching'
@@ -137,8 +156,8 @@ class NetworkCommonCloudMixin:
                         ' to be the NAT source. Please check your'
                         ' cloud resources. It is probably a good idea'
                         ' to configure this network by ID rather than'
-                        ' by name.'.format(
-                            nat_net=self._nat_source))
+                        ' by name.'.format(nat_net=self._nat_source)
+                    )
                 external_ipv4_floating_networks.append(network)
                 nat_source = network
             elif self._nat_source is None:
@@ -147,8 +166,7 @@ class NetworkCommonCloudMixin:
                     nat_source = nat_source or network
 
             # NAT Destination
-            if self._nat_destination in (
-                    network['name'], network['id']):
+            if self._nat_destination in (network['name'], network['id']):
                 if nat_destination:
                     raise exc.OpenStackCloudException(
                         'Multiple networks were found matching'
@@ -156,8 +174,8 @@ class NetworkCommonCloudMixin:
                         ' to be the NAT destination. Please check your'
                         ' cloud resources. It is probably a good idea'
                         ' to configure this network by ID rather than'
-                        ' by name.'.format(
-                            nat_net=self._nat_destination))
+                        ' by name.'.format(nat_net=self._nat_destination)
+                    )
                 nat_destination = network
             elif self._nat_destination is None:
                 # TODO(mordred) need a config value for floating
@@ -174,14 +192,16 @@ class NetworkCommonCloudMixin:
                 for subnet in all_subnets:
                     # TODO(mordred) trap for detecting more than
                     # one network with a gateway_ip without a config
-                    if ('gateway_ip' in subnet and subnet['gateway_ip']
-                            and network['id'] == subnet['network_id']):
+                    if (
+                        'gateway_ip' in subnet
+                        and subnet['gateway_ip']
+                        and network['id'] == subnet['network_id']
+                    ):
                         nat_destination = network
                         break
 
             # Default network
-            if self._default_network in (
-                    network['name'], network['id']):
+            if self._default_network in (network['name'], network['id']):
                 if default_network:
                     raise exc.OpenStackCloudException(
                         'Multiple networks were found matching'
@@ -190,8 +210,8 @@ class NetworkCommonCloudMixin:
                         ' network. Please check your cloud resources.'
                         ' It is probably a good idea'
                         ' to configure this network by ID rather than'
-                        ' by name.'.format(
-                            default_net=self._default_network))
+                        ' by name.'.format(default_net=self._default_network)
+                    )
                 default_network = network
 
         # Validate config vs. reality
@@ -200,49 +220,57 @@ class NetworkCommonCloudMixin:
                 raise exc.OpenStackCloudException(
                     "Networks: {network} was provided for external IPv4"
                     " access and those networks could not be found".format(
-                        network=net_name))
+                        network=net_name
+                    )
+                )
 
         for net_name in self._internal_ipv4_names:
             if net_name not in [net['name'] for net in internal_ipv4_networks]:
                 raise exc.OpenStackCloudException(
                     "Networks: {network} was provided for internal IPv4"
                     " access and those networks could not be found".format(
-                        network=net_name))
+                        network=net_name
+                    )
+                )
 
         for net_name in self._external_ipv6_names:
             if net_name not in [net['name'] for net in external_ipv6_networks]:
                 raise exc.OpenStackCloudException(
                     "Networks: {network} was provided for external IPv6"
                     " access and those networks could not be found".format(
-                        network=net_name))
+                        network=net_name
+                    )
+                )
 
         for net_name in self._internal_ipv6_names:
             if net_name not in [net['name'] for net in internal_ipv6_networks]:
                 raise exc.OpenStackCloudException(
                     "Networks: {network} was provided for internal IPv6"
                     " access and those networks could not be found".format(
-                        network=net_name))
+                        network=net_name
+                    )
+                )
 
         if self._nat_destination and not nat_destination:
             raise exc.OpenStackCloudException(
                 'Network {network} was configured to be the'
                 ' destination for inbound NAT but it could not be'
-                ' found'.format(
-                    network=self._nat_destination))
+                ' found'.format(network=self._nat_destination)
+            )
 
         if self._nat_source and not nat_source:
             raise exc.OpenStackCloudException(
                 'Network {network} was configured to be the'
                 ' source for inbound NAT but it could not be'
-                ' found'.format(
-                    network=self._nat_source))
+                ' found'.format(network=self._nat_source)
+            )
 
         if self._default_network and not default_network:
             raise exc.OpenStackCloudException(
                 'Network {network} was configured to be the'
                 ' default network interface but it could not be'
-                ' found'.format(
-                    network=self._default_network))
+                ' found'.format(network=self._default_network)
+            )
 
         self._external_ipv4_networks = external_ipv4_networks
         self._external_ipv4_floating_networks = external_ipv4_floating_networks
@@ -304,9 +332,8 @@ class NetworkCommonCloudMixin:
         :returns: A list of network ``Network`` objects if any are found
         """
         self._find_interesting_networks()
-        return (
-            list(self._external_ipv4_networks)
-            + list(self._external_ipv6_networks)
+        return list(self._external_ipv4_networks) + list(
+            self._external_ipv6_networks
         )
 
     def get_internal_networks(self):
@@ -318,9 +345,8 @@ class NetworkCommonCloudMixin:
         :returns: A list of network ``Network`` objects if any are found
         """
         self._find_interesting_networks()
-        return (
-            list(self._internal_ipv4_networks)
-            + list(self._internal_ipv6_networks)
+        return list(self._internal_ipv4_networks) + list(
+            self._internal_ipv6_networks
         )
 
     def get_external_ipv4_networks(self):

@@ -39,26 +39,23 @@ def _(msg):
 _TASK_PROPERTIES = {
     "id": {
         "description": _("An identifier for the task"),
-        "pattern": _('^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}'
-                     '-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$'),
-        "type": "string"
+        "pattern": _(
+            '^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}'
+            '-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$'
+        ),
+        "type": "string",
     },
     "type": {
         "description": _("The type of task represented by this content"),
         "enum": [
             "import",
         ],
-        "type": "string"
+        "type": "string",
     },
     "status": {
         "description": _("The current status of this task"),
-        "enum": [
-            "pending",
-            "processing",
-            "success",
-            "failure"
-        ],
-        "type": "string"
+        "enum": ["pending", "processing", "success", "failure"],
+        "type": "string",
     },
     "input": {
         "description": _("The parameters required by task, JSON blob"),
@@ -70,50 +67,55 @@ _TASK_PROPERTIES = {
     },
     "owner": {
         "description": _("An identifier for the owner of this task"),
-        "type": "string"
+        "type": "string",
     },
     "message": {
-        "description": _("Human-readable informative message only included"
-                         " when appropriate (usually on failure)"),
+        "description": _(
+            "Human-readable informative message only included"
+            " when appropriate (usually on failure)"
+        ),
         "type": "string",
     },
     "expires_at": {
-        "description": _("Datetime when this resource would be"
-                         " subject to removal"),
-        "type": ["null", "string"]
+        "description": _(
+            "Datetime when this resource would be" " subject to removal"
+        ),
+        "type": ["null", "string"],
     },
     "created_at": {
         "description": _("Datetime when this resource was created"),
-        "type": "string"
+        "type": "string",
     },
     "updated_at": {
         "description": _("Datetime when this resource was updated"),
-        "type": "string"
+        "type": "string",
     },
     'self': {'type': 'string'},
-    'schema': {'type': 'string'}
+    'schema': {'type': 'string'},
 }
 _TASK_SCHEMA = dict(
-    name='Task', properties=_TASK_PROPERTIES,
+    name='Task',
+    properties=_TASK_PROPERTIES,
     additionalProperties=False,
 )
 
 
 class TestMemoryCache(base.TestCase):
-
     def setUp(self):
         super(TestMemoryCache, self).setUp(
-            cloud_config_fixture='clouds_cache.yaml')
+            cloud_config_fixture='clouds_cache.yaml'
+        )
 
     def _compare_images(self, exp, real):
         self.assertDictEqual(
             _image.Image(**exp).to_dict(computed=False),
-            real.to_dict(computed=False))
+            real.to_dict(computed=False),
+        )
 
     def _compare_volumes(self, exp, real):
         self.assertDictEqual(
             _volume.Volume(**exp).to_dict(computed=False),
-            real.to_dict(computed=False)
+            real.to_dict(computed=False),
         )
 
     def test_openstack_cloud(self):
@@ -122,13 +124,13 @@ class TestMemoryCache(base.TestCase):
     def _compare_projects(self, exp, real):
         self.assertDictEqual(
             _project.Project(**exp).to_dict(computed=False),
-            real.to_dict(computed=False)
+            real.to_dict(computed=False),
         )
 
     def _compare_users(self, exp, real):
         self.assertDictEqual(
             _user.User(**exp).to_dict(computed=False),
-            real.to_dict(computed=False)
+            real.to_dict(computed=False),
         )
 
     def test_list_projects_v3(self):
@@ -137,28 +139,42 @@ class TestMemoryCache(base.TestCase):
         project_list = [project_one, project_two]
 
         first_response = {'projects': [project_one.json_response['project']]}
-        second_response = {'projects': [p.json_response['project']
-                                        for p in project_list]}
+        second_response = {
+            'projects': [p.json_response['project'] for p in project_list]
+        }
 
         mock_uri = self.get_mock_url(
-            service_type='identity', resource='projects',
-            base_url_append='v3')
+            service_type='identity', resource='projects', base_url_append='v3'
+        )
 
-        self.register_uris([
-            dict(method='GET', uri=mock_uri, status_code=200,
-                 json=first_response),
-            dict(method='GET', uri=mock_uri, status_code=200,
-                 json=second_response)])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=mock_uri,
+                    status_code=200,
+                    json=first_response,
+                ),
+                dict(
+                    method='GET',
+                    uri=mock_uri,
+                    status_code=200,
+                    json=second_response,
+                ),
+            ]
+        )
 
-        for a, b in zip(first_response['projects'],
-                        self.cloud.list_projects()):
+        for a, b in zip(
+            first_response['projects'], self.cloud.list_projects()
+        ):
             self._compare_projects(a, b)
 
         # invalidate the list_projects cache
         self.cloud.list_projects.invalidate(self.cloud)
 
-        for a, b in zip(second_response['projects'],
-                        self.cloud.list_projects()):
+        for a, b in zip(
+            second_response['projects'], self.cloud.list_projects()
+        ):
             self._compare_projects(a, b)
 
         self.assert_calls()
@@ -166,13 +182,18 @@ class TestMemoryCache(base.TestCase):
     def test_list_servers_no_herd(self):
         self.cloud._SERVER_AGE = 2
         fake_server = fakes.make_fake_server('1234', 'name')
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': [fake_server]}),
-        ])
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'detail']
+                    ),
+                    json={'servers': [fake_server]},
+                ),
+            ]
+        )
         with concurrent.futures.ThreadPoolExecutor(16) as pool:
             for i in range(16):
                 pool.submit(lambda: self.cloud.list_servers(bare=True))
@@ -183,125 +204,180 @@ class TestMemoryCache(base.TestCase):
         self.assert_calls()
 
     def test_list_volumes(self):
-        fake_volume = fakes.FakeVolume('volume1', 'available',
-                                       'Volume 1 Display Name')
+        fake_volume = fakes.FakeVolume(
+            'volume1', 'available', 'Volume 1 Display Name'
+        )
         fake_volume_dict = meta.obj_to_munch(fake_volume)
-        fake_volume2 = fakes.FakeVolume('volume2', 'available',
-                                        'Volume 2 Display Name')
+        fake_volume2 = fakes.FakeVolume(
+            'volume2', 'available', 'Volume 2 Display Name'
+        )
         fake_volume2_dict = meta.obj_to_munch(fake_volume2)
-        self.register_uris([
-            self.get_cinder_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'volumev3', 'public', append=['volumes', 'detail']),
-                 json={'volumes': [fake_volume_dict]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'volumev3', 'public', append=['volumes', 'detail']),
-                 json={'volumes': [fake_volume_dict, fake_volume2_dict]})])
+        self.register_uris(
+            [
+                self.get_cinder_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'volumev3', 'public', append=['volumes', 'detail']
+                    ),
+                    json={'volumes': [fake_volume_dict]},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'volumev3', 'public', append=['volumes', 'detail']
+                    ),
+                    json={'volumes': [fake_volume_dict, fake_volume2_dict]},
+                ),
+            ]
+        )
 
-        for a, b in zip([fake_volume_dict],
-                        self.cloud.list_volumes()):
+        for a, b in zip([fake_volume_dict], self.cloud.list_volumes()):
             self._compare_volumes(a, b)
         # this call should hit the cache
-        for a, b in zip([fake_volume_dict],
-                        self.cloud.list_volumes()):
+        for a, b in zip([fake_volume_dict], self.cloud.list_volumes()):
             self._compare_volumes(a, b)
         self.cloud.list_volumes.invalidate(self.cloud)
-        for a, b in zip([fake_volume_dict, fake_volume2_dict],
-                        self.cloud.list_volumes()):
+        for a, b in zip(
+            [fake_volume_dict, fake_volume2_dict], self.cloud.list_volumes()
+        ):
             self._compare_volumes(a, b)
         self.assert_calls()
 
     def test_list_volumes_creating_invalidates(self):
-        fake_volume = fakes.FakeVolume('volume1', 'creating',
-                                       'Volume 1 Display Name')
+        fake_volume = fakes.FakeVolume(
+            'volume1', 'creating', 'Volume 1 Display Name'
+        )
         fake_volume_dict = meta.obj_to_munch(fake_volume)
-        fake_volume2 = fakes.FakeVolume('volume2', 'available',
-                                        'Volume 2 Display Name')
+        fake_volume2 = fakes.FakeVolume(
+            'volume2', 'available', 'Volume 2 Display Name'
+        )
         fake_volume2_dict = meta.obj_to_munch(fake_volume2)
-        self.register_uris([
-            self.get_cinder_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'volumev3', 'public', append=['volumes', 'detail']),
-                 json={'volumes': [fake_volume_dict]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'volumev3', 'public', append=['volumes', 'detail']),
-                 json={'volumes': [fake_volume_dict, fake_volume2_dict]})])
-        for a, b in zip([fake_volume_dict],
-                        self.cloud.list_volumes()):
+        self.register_uris(
+            [
+                self.get_cinder_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'volumev3', 'public', append=['volumes', 'detail']
+                    ),
+                    json={'volumes': [fake_volume_dict]},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'volumev3', 'public', append=['volumes', 'detail']
+                    ),
+                    json={'volumes': [fake_volume_dict, fake_volume2_dict]},
+                ),
+            ]
+        )
+        for a, b in zip([fake_volume_dict], self.cloud.list_volumes()):
             self._compare_volumes(a, b)
-        for a, b in zip([fake_volume_dict, fake_volume2_dict],
-                        self.cloud.list_volumes()):
+        for a, b in zip(
+            [fake_volume_dict, fake_volume2_dict], self.cloud.list_volumes()
+        ):
             self._compare_volumes(a, b)
         self.assert_calls()
 
     def test_create_volume_invalidates(self):
         fake_volb4 = meta.obj_to_munch(
-            fakes.FakeVolume('volume1', 'available', ''))
+            fakes.FakeVolume('volume1', 'available', '')
+        )
         _id = '12345'
         fake_vol_creating = meta.obj_to_munch(
-            fakes.FakeVolume(_id, 'creating', ''))
+            fakes.FakeVolume(_id, 'creating', '')
+        )
         fake_vol_avail = meta.obj_to_munch(
-            fakes.FakeVolume(_id, 'available', ''))
+            fakes.FakeVolume(_id, 'available', '')
+        )
 
         def now_deleting(request, context):
             fake_vol_avail['status'] = 'deleting'
 
-        self.register_uris([
-            self.get_cinder_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'volumev3', 'public', append=['volumes', 'detail']),
-                 json={'volumes': [fake_volb4]}),
-            dict(method='POST',
-                 uri=self.get_mock_url(
-                     'volumev3', 'public', append=['volumes']),
-                 json={'volume': fake_vol_creating}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'volumev3', 'public', append=['volumes', _id]),
-                 json={'volume': fake_vol_creating}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'volumev3', 'public', append=['volumes', _id]),
-                 json={'volume': fake_vol_avail}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'volumev3', 'public', append=['volumes', 'detail']),
-                 json={'volumes': [fake_volb4, fake_vol_avail]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'volumev3', 'public',
-                     append=['volumes', _id]),
-                 json={'volume': fake_vol_avail}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'volumev3', 'public', append=['volumes', _id]),
-                 json=now_deleting),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'volumev3', 'public', append=['volumes', _id]),
-                 status_code=404),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'volumev3', 'public', append=['volumes', 'detail']),
-                 json={'volumes': [fake_volb4, fake_vol_avail]}),
-        ])
+        self.register_uris(
+            [
+                self.get_cinder_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'volumev3', 'public', append=['volumes', 'detail']
+                    ),
+                    json={'volumes': [fake_volb4]},
+                ),
+                dict(
+                    method='POST',
+                    uri=self.get_mock_url(
+                        'volumev3', 'public', append=['volumes']
+                    ),
+                    json={'volume': fake_vol_creating},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'volumev3', 'public', append=['volumes', _id]
+                    ),
+                    json={'volume': fake_vol_creating},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'volumev3', 'public', append=['volumes', _id]
+                    ),
+                    json={'volume': fake_vol_avail},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'volumev3', 'public', append=['volumes', 'detail']
+                    ),
+                    json={'volumes': [fake_volb4, fake_vol_avail]},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'volumev3', 'public', append=['volumes', _id]
+                    ),
+                    json={'volume': fake_vol_avail},
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'volumev3', 'public', append=['volumes', _id]
+                    ),
+                    json=now_deleting,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'volumev3', 'public', append=['volumes', _id]
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'volumev3', 'public', append=['volumes', 'detail']
+                    ),
+                    json={'volumes': [fake_volb4, fake_vol_avail]},
+                ),
+            ]
+        )
 
         for a, b in zip([fake_volb4], self.cloud.list_volumes()):
             self._compare_volumes(a, b)
-        volume = dict(display_name='junk_vol',
-                      size=1,
-                      display_description='test junk volume')
+        volume = dict(
+            display_name='junk_vol',
+            size=1,
+            display_description='test junk volume',
+        )
         self.cloud.create_volume(wait=True, timeout=2, **volume)
         # If cache was not invalidated, we would not see our own volume here
         # because the first volume was available and thus would already be
         # cached.
-        for a, b in zip([fake_volb4, fake_vol_avail],
-                        self.cloud.list_volumes()):
+        for a, b in zip(
+            [fake_volb4, fake_vol_avail], self.cloud.list_volumes()
+        ):
             self._compare_volumes(a, b)
         self.cloud.delete_volume(_id)
         # And now delete and check same thing since list is cached as all
@@ -312,14 +388,20 @@ class TestMemoryCache(base.TestCase):
 
     def test_list_users(self):
         user_data = self._get_user_data(email='test@example.com')
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     service_type='identity',
-                     resource='users',
-                     base_url_append='v3'),
-                 status_code=200,
-                 json={'users': [user_data.json_response['user']]})])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        service_type='identity',
+                        resource='users',
+                        base_url_append='v3',
+                    ),
+                    status_code=200,
+                    json={'users': [user_data.json_response['user']]},
+                )
+            ]
+        )
         users = self.cloud.list_users()
         self.assertEqual(1, len(users))
         self.assertEqual(user_data.user_id, users[0]['id'])
@@ -336,14 +418,14 @@ class TestMemoryCache(base.TestCase):
         new_req = {'user': {'email': new_resp['user']['email']}}
 
         mock_users_url = self.get_mock_url(
-            service_type='identity',
-            interface='admin',
-            resource='users')
+            service_type='identity', interface='admin', resource='users'
+        )
         mock_user_resource_url = self.get_mock_url(
             service_type='identity',
             interface='admin',
             resource='users',
-            append=[user_data.user_id])
+            append=[user_data.user_id],
+        )
 
         empty_user_list_resp = {'users': []}
         users_list_resp = {'users': [user_data.json_response['user']]}
@@ -354,35 +436,68 @@ class TestMemoryCache(base.TestCase):
 
         uris_to_mock = [
             # Inital User List is Empty
-            dict(method='GET', uri=mock_users_url, status_code=200,
-                 json=empty_user_list_resp),
+            dict(
+                method='GET',
+                uri=mock_users_url,
+                status_code=200,
+                json=empty_user_list_resp,
+            ),
             # POST to create the user
             # GET to get the user data after POST
-            dict(method='POST', uri=mock_users_url, status_code=200,
-                 json=user_data.json_response,
-                 validate=dict(json=user_data.json_request)),
+            dict(
+                method='POST',
+                uri=mock_users_url,
+                status_code=200,
+                json=user_data.json_response,
+                validate=dict(json=user_data.json_request),
+            ),
             # List Users Call
-            dict(method='GET', uri=mock_users_url, status_code=200,
-                 json=users_list_resp),
+            dict(
+                method='GET',
+                uri=mock_users_url,
+                status_code=200,
+                json=users_list_resp,
+            ),
             # List users to get ID for update
             # Get user using user_id from list
             # Update user
             # Get updated user
-            dict(method='GET', uri=mock_users_url, status_code=200,
-                 json=users_list_resp),
-            dict(method='PUT', uri=mock_user_resource_url, status_code=200,
-                 json=new_resp, validate=dict(json=new_req)),
+            dict(
+                method='GET',
+                uri=mock_users_url,
+                status_code=200,
+                json=users_list_resp,
+            ),
+            dict(
+                method='PUT',
+                uri=mock_user_resource_url,
+                status_code=200,
+                json=new_resp,
+                validate=dict(json=new_req),
+            ),
             # List Users Call
-            dict(method='GET', uri=mock_users_url, status_code=200,
-                 json=updated_users_list_resp),
+            dict(
+                method='GET',
+                uri=mock_users_url,
+                status_code=200,
+                json=updated_users_list_resp,
+            ),
             # List User to get ID for delete
             # delete user
-            dict(method='GET', uri=mock_users_url, status_code=200,
-                 json=updated_users_list_resp),
+            dict(
+                method='GET',
+                uri=mock_users_url,
+                status_code=200,
+                json=updated_users_list_resp,
+            ),
             dict(method='DELETE', uri=mock_user_resource_url, status_code=204),
             # List Users Call (empty post delete)
-            dict(method='GET', uri=mock_users_url, status_code=200,
-                 json=empty_user_list_resp)
+            dict(
+                method='GET',
+                uri=mock_users_url,
+                status_code=200,
+                json=empty_user_list_resp,
+            ),
         ]
 
         self.register_uris(uris_to_mock)
@@ -391,8 +506,9 @@ class TestMemoryCache(base.TestCase):
         self.assertEqual([], self.cloud.list_users())
 
         # now add one
-        created = self.cloud.create_user(name=user_data.name,
-                                         email=user_data.email)
+        created = self.cloud.create_user(
+            name=user_data.name, email=user_data.email
+        )
         self.assertEqual(user_data.user_id, created['id'])
         self.assertEqual(user_data.name, created['name'])
         self.assertEqual(user_data.email, created['email'])
@@ -403,8 +519,9 @@ class TestMemoryCache(base.TestCase):
         self.assertEqual(user_data.email, users[0]['email'])
 
         # Update and check to see if it is updated
-        updated = self.cloud.update_user(user_data.user_id,
-                                         email=new_resp['user']['email'])
+        updated = self.cloud.update_user(
+            user_data.user_id, email=new_resp['user']['email']
+        )
         self.assertEqual(user_data.user_id, updated.id)
         self.assertEqual(user_data.name, updated.name)
         self.assertEqual(new_resp['user']['email'], updated.email)
@@ -420,17 +537,26 @@ class TestMemoryCache(base.TestCase):
 
     def test_list_flavors(self):
         mock_uri = '{endpoint}/flavors/detail?is_public=None'.format(
-            endpoint=fakes.COMPUTE_ENDPOINT)
+            endpoint=fakes.COMPUTE_ENDPOINT
+        )
 
         uris_to_mock = [
-            dict(method='GET', uri=mock_uri,
-                 validate=dict(
-                     headers={'OpenStack-API-Version': 'compute 2.53'}),
-                 json={'flavors': []}),
-            dict(method='GET', uri=mock_uri,
-                 validate=dict(
-                     headers={'OpenStack-API-Version': 'compute 2.53'}),
-                 json={'flavors': fakes.FAKE_FLAVOR_LIST})
+            dict(
+                method='GET',
+                uri=mock_uri,
+                validate=dict(
+                    headers={'OpenStack-API-Version': 'compute 2.53'}
+                ),
+                json={'flavors': []},
+            ),
+            dict(
+                method='GET',
+                uri=mock_uri,
+                validate=dict(
+                    headers={'OpenStack-API-Version': 'compute 2.53'}
+                ),
+                json={'flavors': fakes.FAKE_FLAVOR_LIST},
+            ),
         ]
         self.use_compute_discovery()
 
@@ -442,9 +568,7 @@ class TestMemoryCache(base.TestCase):
 
         self.cloud.list_flavors.invalidate(self.cloud)
         self.assertResourceListEqual(
-            self.cloud.list_flavors(),
-            fakes.FAKE_FLAVOR_LIST,
-            _flavor.Flavor
+            self.cloud.list_flavors(), fakes.FAKE_FLAVOR_LIST, _flavor.Flavor
         )
 
         self.assert_calls()
@@ -454,23 +578,32 @@ class TestMemoryCache(base.TestCase):
         self.use_glance()
         fake_image = fakes.make_fake_image(image_id='42')
 
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url('image', 'public',
-                                       append=['v2', 'images']),
-                 json={'images': []}),
-            dict(method='GET',
-                 uri=self.get_mock_url('image', 'public',
-                                       append=['v2', 'images']),
-                 json={'images': [fake_image]}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'image', 'public', append=['v2', 'images']
+                    ),
+                    json={'images': []},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'image', 'public', append=['v2', 'images']
+                    ),
+                    json={'images': [fake_image]},
+                ),
+            ]
+        )
 
         self.assertEqual([], self.cloud.list_images())
         self.assertEqual([], self.cloud.list_images())
         self.cloud.list_images.invalidate(self.cloud)
-        [self._compare_images(a, b) for a, b in zip(
-            [fake_image],
-            self.cloud.list_images())]
+        [
+            self._compare_images(a, b)
+            for a, b in zip([fake_image], self.cloud.list_images())
+        ]
 
         self.assert_calls()
 
@@ -479,23 +612,30 @@ class TestMemoryCache(base.TestCase):
 
         deleted_image_id = self.getUniqueString()
         deleted_image = fakes.make_fake_image(
-            image_id=deleted_image_id, status='deleted')
+            image_id=deleted_image_id, status='deleted'
+        )
         active_image_id = self.getUniqueString()
         active_image = fakes.make_fake_image(image_id=active_image_id)
         list_return = {'images': [active_image, deleted_image]}
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://image.example.com/v2/images',
-                 json=list_return),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://image.example.com/v2/images',
+                    json=list_return,
+                ),
+            ]
+        )
 
-        [self._compare_images(a, b) for a, b in zip(
-            [active_image],
-            self.cloud.list_images())]
+        [
+            self._compare_images(a, b)
+            for a, b in zip([active_image], self.cloud.list_images())
+        ]
 
-        [self._compare_images(a, b) for a, b in zip(
-            [active_image],
-            self.cloud.list_images())]
+        [
+            self._compare_images(a, b)
+            for a, b in zip([active_image], self.cloud.list_images())
+        ]
 
         # We should only have one call
         self.assert_calls()
@@ -507,29 +647,38 @@ class TestMemoryCache(base.TestCase):
         fi = fakes.make_fake_image(image_id=self.getUniqueString())
         fi2 = fakes.make_fake_image(image_id=self.getUniqueString())
 
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://image.example.com/v2/images',
-                 json={'images': [fi]}),
-            dict(method='GET',
-                 uri='https://image.example.com/v2/images',
-                 json={'images': [fi, fi2]}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://image.example.com/v2/images',
+                    json={'images': [fi]},
+                ),
+                dict(
+                    method='GET',
+                    uri='https://image.example.com/v2/images',
+                    json={'images': [fi, fi2]},
+                ),
+            ]
+        )
 
-        [self._compare_images(a, b) for a, b in zip(
-            [fi],
-            self.cloud.list_images())]
+        [
+            self._compare_images(a, b)
+            for a, b in zip([fi], self.cloud.list_images())
+        ]
 
         # Now test that the list was cached
-        [self._compare_images(a, b) for a, b in zip(
-            [fi],
-            self.cloud.list_images())]
+        [
+            self._compare_images(a, b)
+            for a, b in zip([fi], self.cloud.list_images())
+        ]
 
         # Invalidation too
         self.cloud.list_images.invalidate(self.cloud)
-        [self._compare_images(a, b) for a, b in zip(
-            [fi, fi2],
-            self.cloud.list_images())]
+        [
+            self._compare_images(a, b)
+            for a, b in zip([fi, fi2], self.cloud.list_images())
+        ]
 
     def test_list_ports_filtered(self):
         down_port = test_port.TestPort.mock_neutron_port_create_rep['port']
@@ -537,21 +686,31 @@ class TestMemoryCache(base.TestCase):
         active_port['status'] = 'ACTIVE'
         # We're testing to make sure a query string is passed when we're
         # caching (cache by url), and that the results are still filtered.
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports'],
-                     qs_elements=['status=DOWN']),
-                 json={'ports': [
-                     down_port,
-                     active_port,
-                 ]}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'ports'],
+                        qs_elements=['status=DOWN'],
+                    ),
+                    json={
+                        'ports': [
+                            down_port,
+                            active_port,
+                        ]
+                    },
+                ),
+            ]
+        )
         ports = self.cloud.list_ports(filters={'status': 'DOWN'})
         for a, b in zip([down_port], ports):
             self.assertDictEqual(
                 _port.Port(**a).to_dict(computed=False),
-                b.to_dict(computed=False))
+                b.to_dict(computed=False),
+            )
         self.assert_calls()
 
 
@@ -565,41 +724,56 @@ class TestCacheIgnoresQueuedStatus(base.TestCase):
 
     def setUp(self):
         super(TestCacheIgnoresQueuedStatus, self).setUp(
-            cloud_config_fixture='clouds_cache.yaml')
+            cloud_config_fixture='clouds_cache.yaml'
+        )
         self.use_glance()
         active_image_id = self.getUniqueString()
         self.active_image = fakes.make_fake_image(
-            image_id=active_image_id, status=self.status)
+            image_id=active_image_id, status=self.status
+        )
         self.active_list_return = {'images': [self.active_image]}
         steady_image_id = self.getUniqueString()
         self.steady_image = fakes.make_fake_image(image_id=steady_image_id)
         self.steady_list_return = {
-            'images': [self.active_image, self.steady_image]}
+            'images': [self.active_image, self.steady_image]
+        }
 
     def _compare_images(self, exp, real):
         self.assertDictEqual(
             _image.Image(**exp).to_dict(computed=False),
-            real.to_dict(computed=False))
+            real.to_dict(computed=False),
+        )
 
     def test_list_images_ignores_pending_status(self):
 
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://image.example.com/v2/images',
-                 json=self.active_list_return),
-            dict(method='GET',
-                 uri='https://image.example.com/v2/images',
-                 json=self.steady_list_return),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://image.example.com/v2/images',
+                    json=self.active_list_return,
+                ),
+                dict(
+                    method='GET',
+                    uri='https://image.example.com/v2/images',
+                    json=self.steady_list_return,
+                ),
+            ]
+        )
 
-        [self._compare_images(a, b) for a, b in zip(
-            [self.active_image],
-            self.cloud.list_images())]
+        [
+            self._compare_images(a, b)
+            for a, b in zip([self.active_image], self.cloud.list_images())
+        ]
 
         # Should expect steady_image to appear if active wasn't cached
-        [self._compare_images(a, b) for a, b in zip(
-            [self.active_image, self.steady_image],
-            self.cloud.list_images())]
+        [
+            self._compare_images(a, b)
+            for a, b in zip(
+                [self.active_image, self.steady_image],
+                self.cloud.list_images(),
+            )
+        ]
 
 
 class TestCacheSteadyStatus(base.TestCase):
@@ -611,45 +785,53 @@ class TestCacheSteadyStatus(base.TestCase):
 
     def setUp(self):
         super(TestCacheSteadyStatus, self).setUp(
-            cloud_config_fixture='clouds_cache.yaml')
+            cloud_config_fixture='clouds_cache.yaml'
+        )
         self.use_glance()
         active_image_id = self.getUniqueString()
         self.active_image = fakes.make_fake_image(
-            image_id=active_image_id, status=self.status)
+            image_id=active_image_id, status=self.status
+        )
         self.active_list_return = {'images': [self.active_image]}
 
     def _compare_images(self, exp, real):
         self.assertDictEqual(
             _image.Image(**exp).to_dict(computed=False),
-            real.to_dict(computed=False))
+            real.to_dict(computed=False),
+        )
 
     def test_list_images_caches_steady_status(self):
 
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://image.example.com/v2/images',
-                 json=self.active_list_return),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://image.example.com/v2/images',
+                    json=self.active_list_return,
+                ),
+            ]
+        )
 
-        [self._compare_images(a, b) for a, b in zip(
-            [self.active_image],
-            self.cloud.list_images())]
+        [
+            self._compare_images(a, b)
+            for a, b in zip([self.active_image], self.cloud.list_images())
+        ]
 
-        [self._compare_images(a, b) for a, b in zip(
-            [self.active_image],
-            self.cloud.list_images())]
+        [
+            self._compare_images(a, b)
+            for a, b in zip([self.active_image], self.cloud.list_images())
+        ]
 
         # We should only have one call
         self.assert_calls()
 
 
 class TestBogusAuth(base.TestCase):
-
     def setUp(self):
         super(TestBogusAuth, self).setUp(
-            cloud_config_fixture='clouds_cache.yaml')
+            cloud_config_fixture='clouds_cache.yaml'
+        )
 
     def test_get_auth_bogus(self):
         with testtools.ExpectedException(exceptions.ConfigException):
-            openstack.connect(
-                cloud='_bogus_test_', config=self.config)
+            openstack.connect(cloud='_bogus_test_', config=self.config)

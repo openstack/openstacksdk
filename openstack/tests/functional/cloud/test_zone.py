@@ -23,7 +23,6 @@ from openstack.tests.functional import base
 
 
 class TestZone(base.BaseFunctionalTest):
-
     def setUp(self):
         super(TestZone, self).setUp()
         if not self.user_cloud.has_service('dns'):
@@ -43,9 +42,13 @@ class TestZone(base.BaseFunctionalTest):
 
         # Test we can create a zone and we get it returned
         zone = self.user_cloud.create_zone(
-            name=name, zone_type=zone_type, email=email,
-            description=description, ttl=ttl,
-            masters=masters)
+            name=name,
+            zone_type=zone_type,
+            email=email,
+            description=description,
+            ttl=ttl,
+            masters=masters,
+        )
         self.assertEqual(zone['name'], name)
         self.assertEqual(zone['type'], zone_type.upper())
         self.assertEqual(zone['email'], email)

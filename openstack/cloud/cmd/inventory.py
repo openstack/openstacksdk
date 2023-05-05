@@ -32,20 +32,35 @@ def output_format_dict(data, use_yaml):
 
 def parse_args():
     parser = argparse.ArgumentParser(description='OpenStack Inventory Module')
-    parser.add_argument('--refresh', action='store_true',
-                        help='Refresh cached information')
+    parser.add_argument(
+        '--refresh', action='store_true', help='Refresh cached information'
+    )
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--list', action='store_true',
-                       help='List active servers')
+    group.add_argument(
+        '--list', action='store_true', help='List active servers'
+    )
     group.add_argument('--host', help='List details about the specific host')
-    parser.add_argument('--private', action='store_true', default=False,
-                        help='Use private IPs for interface_ip')
-    parser.add_argument('--cloud', default=None,
-                        help='Return data for one cloud only')
-    parser.add_argument('--yaml', action='store_true', default=False,
-                        help='Output data in nicely readable yaml')
-    parser.add_argument('--debug', action='store_true', default=False,
-                        help='Enable debug output')
+    parser.add_argument(
+        '--private',
+        action='store_true',
+        default=False,
+        help='Use private IPs for interface_ip',
+    )
+    parser.add_argument(
+        '--cloud', default=None, help='Return data for one cloud only'
+    )
+    parser.add_argument(
+        '--yaml',
+        action='store_true',
+        default=False,
+        help='Output data in nicely readable yaml',
+    )
+    parser.add_argument(
+        '--debug',
+        action='store_true',
+        default=False,
+        help='Enable debug output',
+    )
     return parser.parse_args()
 
 
@@ -54,8 +69,8 @@ def main():
     try:
         openstack.enable_logging(debug=args.debug)
         inventory = openstack.cloud.inventory.OpenStackInventory(
-            refresh=args.refresh, private=args.private,
-            cloud=args.cloud)
+            refresh=args.refresh, private=args.private, cloud=args.cloud
+        )
         if args.list:
             output = inventory.list_hosts()
         elif args.host:

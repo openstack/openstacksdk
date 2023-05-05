@@ -19,7 +19,6 @@ from openstack.cloud import exc
 
 
 class CoeCloudMixin:
-
     @_utils.cache_on_arguments()
     def list_coe_clusters(self):
         """List COE (Container Orchestration Engine) cluster.
@@ -72,7 +71,10 @@ class CoeCloudMixin:
         return _utils._get_entity(self, 'coe_cluster', name_or_id, filters)
 
     def create_coe_cluster(
-        self, name, cluster_template_id, **kwargs,
+        self,
+        name,
+        cluster_template_id,
+        **kwargs,
     ):
         """Create a COE cluster based on given cluster template.
 
@@ -133,11 +135,11 @@ class CoeCloudMixin:
         cluster = self.get_coe_cluster(name_or_id)
         if not cluster:
             raise exc.OpenStackCloudException(
-                "COE cluster %s not found." % name_or_id)
+                "COE cluster %s not found." % name_or_id
+            )
 
         cluster = self.container_infrastructure_management.update_cluster(
-            cluster,
-            **kwargs
+            cluster, **kwargs
         )
 
         return cluster
@@ -149,8 +151,11 @@ class CoeCloudMixin:
 
         :returns: Details about the CA certificate for the given cluster.
         """
-        return self.container_infrastructure_management\
-            .get_cluster_certificate(cluster_id)
+        return (
+            self.container_infrastructure_management.get_cluster_certificate(
+                cluster_id
+            )
+        )
 
     def sign_coe_cluster_certificate(self, cluster_id, csr):
         """Sign client key and generate the CA certificate for a cluster
@@ -164,10 +169,9 @@ class CoeCloudMixin:
 
         :raises: OpenStackCloudException on operation error.
         """
-        return self.container_infrastructure_management\
-            .create_cluster_certificate(
-                cluster_uuid=cluster_id,
-                csr=csr)
+        return self.container_infrastructure_management.create_cluster_certificate(  # noqa: E501
+            cluster_uuid=cluster_id, csr=csr
+        )
 
     @_utils.cache_on_arguments()
     def list_cluster_templates(self, detail=False):
@@ -182,10 +186,12 @@ class CoeCloudMixin:
             the OpenStack API call.
         """
         return list(
-            self.container_infrastructure_management.cluster_templates())
+            self.container_infrastructure_management.cluster_templates()
+        )
 
     def search_cluster_templates(
-            self, name_or_id=None, filters=None, detail=False):
+        self, name_or_id=None, filters=None, detail=False
+    ):
         """Search cluster templates.
 
         :param name_or_id: cluster template name or ID.
@@ -199,8 +205,7 @@ class CoeCloudMixin:
             the OpenStack API call.
         """
         cluster_templates = self.list_cluster_templates(detail=detail)
-        return _utils._filter_list(
-            cluster_templates, name_or_id, filters)
+        return _utils._filter_list(cluster_templates, name_or_id, filters)
 
     def get_cluster_template(self, name_or_id, filters=None, detail=False):
         """Get a cluster template by name or ID.
@@ -225,11 +230,16 @@ class CoeCloudMixin:
             cluster template is found.
         """
         return _utils._get_entity(
-            self, 'cluster_template', name_or_id,
-            filters=filters, detail=detail)
+            self,
+            'cluster_template',
+            name_or_id,
+            filters=filters,
+            detail=detail,
+        )
 
     def create_cluster_template(
-            self, name, image_id=None, keypair_id=None, coe=None, **kwargs):
+        self, name, image_id=None, keypair_id=None, coe=None, **kwargs
+    ):
         """Create a cluster template.
 
         :param string name: Name of the cluster template.
@@ -243,14 +253,15 @@ class CoeCloudMixin:
         :raises: ``OpenStackCloudException`` if something goes wrong during
             the OpenStack API call
         """
-        cluster_template = self.container_infrastructure_management \
-            .create_cluster_template(
+        cluster_template = (
+            self.container_infrastructure_management.create_cluster_template(
                 name=name,
                 image_id=image_id,
                 keypair_id=keypair_id,
                 coe=coe,
                 **kwargs,
             )
+        )
 
         return cluster_template
 
@@ -270,11 +281,13 @@ class CoeCloudMixin:
             self.log.debug(
                 "Cluster template %(name_or_id)s does not exist",
                 {'name_or_id': name_or_id},
-                exc_info=True)
+                exc_info=True,
+            )
             return False
 
         self.container_infrastructure_management.delete_cluster_template(
-            cluster_template)
+            cluster_template
+        )
         return True
 
     def update_cluster_template(self, name_or_id, **kwargs):
@@ -289,13 +302,14 @@ class CoeCloudMixin:
         cluster_template = self.get_cluster_template(name_or_id)
         if not cluster_template:
             raise exc.OpenStackCloudException(
-                "Cluster template %s not found." % name_or_id)
-
-        cluster_template = self.container_infrastructure_management \
-            .update_cluster_template(
-                cluster_template,
-                **kwargs
+                "Cluster template %s not found." % name_or_id
             )
+
+        cluster_template = (
+            self.container_infrastructure_management.update_cluster_template(
+                cluster_template, **kwargs
+            )
+        )
 
         return cluster_template
 

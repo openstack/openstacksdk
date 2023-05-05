@@ -21,11 +21,9 @@ from openstack.tests.functional import base
 
 
 class TestComputeQuotas(base.BaseFunctionalTest):
-
     def test_get_quotas(self):
         '''Test quotas functionality'''
-        self.user_cloud.get_compute_quotas(
-            self.user_cloud.current_project_id)
+        self.user_cloud.get_compute_quotas(self.user_cloud.current_project_id)
 
     def test_set_quotas(self):
         '''Test quotas functionality'''
@@ -36,15 +34,15 @@ class TestComputeQuotas(base.BaseFunctionalTest):
         cores = quotas['cores']
         self.operator_cloud.set_compute_quotas('demo', cores=cores + 1)
         self.assertEqual(
-            cores + 1,
-            self.operator_cloud.get_compute_quotas('demo')['cores'])
+            cores + 1, self.operator_cloud.get_compute_quotas('demo')['cores']
+        )
         self.operator_cloud.delete_compute_quotas('demo')
         self.assertEqual(
-            cores, self.operator_cloud.get_compute_quotas('demo')['cores'])
+            cores, self.operator_cloud.get_compute_quotas('demo')['cores']
+        )
 
 
 class TestVolumeQuotas(base.BaseFunctionalTest):
-
     def setUp(self):
         super(TestVolumeQuotas, self).setUp()
         if not self.user_cloud.has_service('volume'):
@@ -52,9 +50,7 @@ class TestVolumeQuotas(base.BaseFunctionalTest):
 
     def test_get_quotas(self):
         '''Test get quotas functionality'''
-        self.user_cloud.get_volume_quotas(
-            self.user_cloud.current_project_id
-        )
+        self.user_cloud.get_volume_quotas(self.user_cloud.current_project_id)
 
     def test_set_quotas(self):
         '''Test set quotas functionality'''
@@ -66,19 +62,18 @@ class TestVolumeQuotas(base.BaseFunctionalTest):
         self.operator_cloud.set_volume_quotas('demo', volumes=volumes + 1)
         self.assertEqual(
             volumes + 1,
-            self.operator_cloud.get_volume_quotas('demo')['volumes'])
+            self.operator_cloud.get_volume_quotas('demo')['volumes'],
+        )
         self.operator_cloud.delete_volume_quotas('demo')
         self.assertEqual(
-            volumes,
-            self.operator_cloud.get_volume_quotas('demo')['volumes'])
+            volumes, self.operator_cloud.get_volume_quotas('demo')['volumes']
+        )
 
 
 class TestNetworkQuotas(base.BaseFunctionalTest):
-
     def test_get_quotas(self):
         '''Test get quotas functionality'''
-        self.user_cloud.get_network_quotas(
-            self.user_cloud.current_project_id)
+        self.user_cloud.get_network_quotas(self.user_cloud.current_project_id)
 
     def test_quotas(self):
         '''Test quotas functionality'''
@@ -92,11 +87,12 @@ class TestNetworkQuotas(base.BaseFunctionalTest):
         self.operator_cloud.set_network_quotas('demo', networks=network + 1)
         self.assertEqual(
             network + 1,
-            self.operator_cloud.get_network_quotas('demo')['networks'])
+            self.operator_cloud.get_network_quotas('demo')['networks'],
+        )
         self.operator_cloud.delete_network_quotas('demo')
         self.assertEqual(
-            network,
-            self.operator_cloud.get_network_quotas('demo')['networks'])
+            network, self.operator_cloud.get_network_quotas('demo')['networks']
+        )
 
     def test_get_quotas_details(self):
         if not self.operator_cloud:
@@ -105,14 +101,21 @@ class TestNetworkQuotas(base.BaseFunctionalTest):
             self.skipTest('network service not supported by cloud')
 
         quotas = [
-            'floating_ips', 'networks', 'ports',
-            'rbac_policies', 'routers', 'subnets',
-            'subnet_pools', 'security_group_rules',
-            'security_groups']
+            'floating_ips',
+            'networks',
+            'ports',
+            'rbac_policies',
+            'routers',
+            'subnets',
+            'subnet_pools',
+            'security_group_rules',
+            'security_groups',
+        ]
         expected_keys = ['limit', 'used', 'reserved']
         '''Test getting details about quota usage'''
         quota_details = self.operator_cloud.get_network_quotas(
-            'demo', details=True)
+            'demo', details=True
+        )
         for quota in quotas:
             quota_val = quota_details[quota]
             if quota_val:

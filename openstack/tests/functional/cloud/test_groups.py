@@ -22,7 +22,6 @@ from openstack.tests.functional import base
 
 
 class TestGroup(base.BaseFunctionalTest):
-
     def setUp(self):
         super(TestGroup, self).setUp()
         if not self.operator_cloud:
@@ -48,7 +47,8 @@ class TestGroup(base.BaseFunctionalTest):
             # Raise an error: we must make users aware that something went
             # wrong
             raise openstack.cloud.OpenStackCloudException(
-                '\n'.join(exception_list))
+                '\n'.join(exception_list)
+            )
 
     def test_create_group(self):
         group_name = self.group_prefix + '_create'
@@ -68,7 +68,8 @@ class TestGroup(base.BaseFunctionalTest):
         self.assertTrue(self.operator_cloud.delete_group(group_name))
 
         results = self.operator_cloud.search_groups(
-            filters=dict(name=group_name))
+            filters=dict(name=group_name)
+        )
         self.assertEqual(0, len(results))
 
     def test_delete_group_not_exists(self):
@@ -79,7 +80,8 @@ class TestGroup(base.BaseFunctionalTest):
 
         # Shouldn't find any group with this name yet
         results = self.operator_cloud.search_groups(
-            filters=dict(name=group_name))
+            filters=dict(name=group_name)
+        )
         self.assertEqual(0, len(results))
 
         # Now create a new group
@@ -88,7 +90,8 @@ class TestGroup(base.BaseFunctionalTest):
 
         # Now we should find only the new group
         results = self.operator_cloud.search_groups(
-            filters=dict(name=group_name))
+            filters=dict(name=group_name)
+        )
         self.assertEqual(1, len(results))
         self.assertEqual(group_name, results[0]['name'])
 
@@ -103,8 +106,7 @@ class TestGroup(base.BaseFunctionalTest):
         updated_group_name = group_name + '_xyz'
         updated_group_desc = group_desc + ' updated'
         updated_group = self.operator_cloud.update_group(
-            group_name,
-            name=updated_group_name,
-            description=updated_group_desc)
+            group_name, name=updated_group_name, description=updated_group_desc
+        )
         self.assertEqual(updated_group_name, updated_group['name'])
         self.assertEqual(updated_group_desc, updated_group['description'])

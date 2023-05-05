@@ -23,8 +23,9 @@ from openstack import utils
 NON_CALLABLES = (str, bool, dict, int, float, list, type(None))
 
 
-def find_nova_interfaces(addresses, ext_tag=None, key_name=None, version=4,
-                         mac_addr=None):
+def find_nova_interfaces(
+    addresses, ext_tag=None, key_name=None, version=4, mac_addr=None
+):
     ret = []
     for (k, v) in iter(addresses.items()):
         if key_name is not None and k != key_name:
@@ -64,10 +65,12 @@ def find_nova_interfaces(addresses, ext_tag=None, key_name=None, version=4,
     return ret
 
 
-def find_nova_addresses(addresses, ext_tag=None, key_name=None, version=4,
-                        mac_addr=None):
-    interfaces = find_nova_interfaces(addresses, ext_tag, key_name, version,
-                                      mac_addr)
+def find_nova_addresses(
+    addresses, ext_tag=None, key_name=None, version=4, mac_addr=None
+):
+    interfaces = find_nova_interfaces(
+        addresses, ext_tag, key_name, version, mac_addr
+    )
     floating_addrs = []
     fixed_addrs = []
     for i in interfaces:
@@ -91,8 +94,7 @@ def get_server_ip(server, public=False, cloud_public=True, **kwargs):
                          private ip we expect shade to be able to reach
     """
     addrs = find_nova_addresses(server['addresses'], **kwargs)
-    return find_best_address(
-        addrs, public=public, cloud_public=cloud_public)
+    return find_best_address(addrs, public=public, cloud_public=cloud_public)
 
 
 def get_server_private_ip(server, cloud=None):
@@ -126,30 +128,34 @@ def get_server_private_ip(server, cloud=None):
         int_nets = cloud.get_internal_ipv4_networks()
         for int_net in int_nets:
             int_ip = get_server_ip(
-                server, key_name=int_net['name'],
+                server,
+                key_name=int_net['name'],
                 ext_tag='fixed',
                 cloud_public=not cloud.private,
-                mac_addr=fip_mac)
+                mac_addr=fip_mac,
+            )
             if int_ip is not None:
                 return int_ip
         # Try a second time without the fixed tag. This is for old nova-network
         # results that do not have the fixed/floating tag.
         for int_net in int_nets:
             int_ip = get_server_ip(
-                server, key_name=int_net['name'],
+                server,
+                key_name=int_net['name'],
                 cloud_public=not cloud.private,
-                mac_addr=fip_mac)
+                mac_addr=fip_mac,
+            )
             if int_ip is not None:
                 return int_ip
 
     ip = get_server_ip(
-        server, ext_tag='fixed', key_name='private', mac_addr=fip_mac)
+        server, ext_tag='fixed', key_name='private', mac_addr=fip_mac
+    )
     if ip:
         return ip
 
     # Last resort, and Rackspace
-    return get_server_ip(
-        server, key_name='private')
+    return get_server_ip(server, key_name='private')
 
 
 def get_server_external_ipv4(cloud, server):
@@ -183,8 +189,11 @@ def get_server_external_ipv4(cloud, server):
     ext_nets = cloud.get_external_ipv4_networks()
     for ext_net in ext_nets:
         ext_ip = get_server_ip(
-            server, key_name=ext_net['name'], public=True,
-            cloud_public=not cloud.private)
+            server,
+            key_name=ext_net['name'],
+            public=True,
+            cloud_public=not cloud.private,
+        )
         if ext_ip is not None:
             return ext_ip
 
@@ -192,8 +201,8 @@ def get_server_external_ipv4(cloud, server):
     # Much as I might find floating IPs annoying, if it has one, that's
     # almost certainly the one that wants to be used
     ext_ip = get_server_ip(
-        server, ext_tag='floating', public=True,
-        cloud_public=not cloud.private)
+        server, ext_tag='floating', public=True, cloud_public=not cloud.private
+    )
     if ext_ip is not None:
         return ext_ip
 
@@ -203,8 +212,8 @@ def get_server_external_ipv4(cloud, server):
 
     # Try to get an address from a network named 'public'
     ext_ip = get_server_ip(
-        server, key_name='public', public=True,
-        cloud_public=not cloud.private)
+        server, key_name='public', public=True, cloud_public=not cloud.private
+    )
     if ext_ip is not None:
         return ext_ip
 
@@ -238,15 +247,21 @@ def find_best_address(addresses, public=False, cloud_public=True):
         for address in addresses:
             try:
                 for count in utils.iterate_timeout(
-                        5, "Timeout waiting for %s" % address, wait=0.1):
+                    5, "Timeout waiting for %s" % address, wait=0.1
+                ):
                     # Return the first one that is reachable
                     try:
                         for res in socket.getaddrinfo(
-                                address, 22, socket.AF_UNSPEC,
-                                socket.SOCK_STREAM, 0):
+                            address,
+                            22,
+                            socket.AF_UNSPEC,
+                            socket.SOCK_STREAM,
+                            0,
+                        ):
                             family, socktype, proto, _, sa = res
                             connect_socket = socket.socket(
-                                family, socktype, proto)
+                                family, socktype, proto
+                            )
                             connect_socket.settimeout(1)
                             connect_socket.connect(sa)
                             return address
@@ -265,12 +280,13 @@ def find_best_address(addresses, public=False, cloud_public=True):
             "The cloud returned multiple addresses %s:, and we could not "
             "connect to port 22 on either. That might be what you wanted, "
             "but we have no clue what's going on, so we picked the first one "
-            "%s" % (addresses, addresses[0]))
+            "%s" % (addresses, addresses[0])
+        )
     return addresses[0]
 
 
 def get_server_external_ipv6(server):
-    """ Get an IPv6 address reachable from outside the cloud.
+    """Get an IPv6 address reachable from outside the cloud.
 
     This function assumes that if a server has an IPv6 address, that address
     is reachable from outside the cloud.
@@ -286,7 +302,7 @@ def get_server_external_ipv6(server):
 
 
 def get_server_default_ip(cloud, server):
-    """ Get the configured 'default' address
+    """Get the configured 'default' address
 
     It is possible in clouds.yaml to configure for a cloud a network that
     is the 'default_interface'. This is the network that should be used
@@ -299,22 +315,26 @@ def get_server_default_ip(cloud, server):
     """
     ext_net = cloud.get_default_network()
     if ext_net:
-        if (cloud._local_ipv6 and not cloud.force_ipv4):
+        if cloud._local_ipv6 and not cloud.force_ipv4:
             # try 6 first, fall back to four
             versions = [6, 4]
         else:
             versions = [4]
         for version in versions:
             ext_ip = get_server_ip(
-                server, key_name=ext_net['name'], version=version, public=True,
-                cloud_public=not cloud.private)
+                server,
+                key_name=ext_net['name'],
+                version=version,
+                public=True,
+                cloud_public=not cloud.private,
+            )
             if ext_ip is not None:
                 return ext_ip
     return None
 
 
 def _get_interface_ip(cloud, server):
-    """ Get the interface IP for the server
+    """Get the interface IP for the server
 
     Interface IP is the IP that should be used for communicating with the
     server. It is:
@@ -329,7 +349,7 @@ def _get_interface_ip(cloud, server):
     if cloud.private and server['private_v4']:
         return server['private_v4']
 
-    if (server['public_v6'] and cloud._local_ipv6 and not cloud.force_ipv4):
+    if server['public_v6'] and cloud._local_ipv6 and not cloud.force_ipv4:
         return server['public_v6']
     else:
         return server['public_v4']
@@ -404,15 +424,19 @@ def _get_supplemental_addresses(cloud, server):
     try:
         # Don't bother doing this before the server is active, it's a waste
         # of an API call while polling for a server to come up
-        if (cloud.has_service('network')
-                and cloud._has_floating_ips()
-                and server['status'] == 'ACTIVE'):
+        if (
+            cloud.has_service('network')
+            and cloud._has_floating_ips()
+            and server['status'] == 'ACTIVE'
+        ):
             for port in cloud.search_ports(
-                    filters=dict(device_id=server['id'])):
+                filters=dict(device_id=server['id'])
+            ):
                 # This SHOULD return one and only one FIP - but doing it as a
                 # search/list lets the logic work regardless
                 for fip in cloud.search_floating_ips(
-                        filters=dict(port_id=port['id'])):
+                    filters=dict(port_id=port['id'])
+                ):
                     fixed_net = fixed_ip_mapping.get(fip['fixed_ip_address'])
                     if fixed_net is None:
                         log = _log.setup_logging('openstack')
@@ -422,10 +446,12 @@ def _get_supplemental_addresses(cloud, server):
                             " with the floating ip in the neutron listing"
                             " does not exist in the nova listing. Something"
                             " is exceptionally broken.",
-                            dict(fip=fip['id'], server=server['id']))
+                            dict(fip=fip['id'], server=server['id']),
+                        )
                     else:
                         server['addresses'][fixed_net].append(
-                            _make_address_dict(fip, port))
+                            _make_address_dict(fip, port)
+                        )
     except exc.OpenStackCloudException:
         # If something goes wrong with a cloud call, that's cool - this is
         # an attempt to provide additional data and should not block forward
@@ -485,8 +511,7 @@ def get_hostvars_from_server(cloud, server, mounts=None):
     expand_server_vars if caching is not set up. If caching is set up,
     the extra cost should be minimal.
     """
-    server_vars = obj_to_munch(
-        add_server_interfaces(cloud, server))
+    server_vars = obj_to_munch(add_server_interfaces(cloud, server))
 
     flavor_id = server['flavor'].get('id')
     if flavor_id:
@@ -539,7 +564,7 @@ def get_hostvars_from_server(cloud, server, mounts=None):
 
 
 def obj_to_munch(obj):
-    """ Turn an object with attributes into a dict suitable for serializing.
+    """Turn an object with attributes into a dict suitable for serializing.
 
     Some of the things that are returned in OpenStack are objects with
     attributes. That's awesome - except when you want to expose them as JSON

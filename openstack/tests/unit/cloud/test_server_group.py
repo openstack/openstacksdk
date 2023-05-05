@@ -18,48 +18,66 @@ from openstack.tests.unit import base
 
 
 class TestServerGroup(base.TestCase):
-
     def setUp(self):
         super(TestServerGroup, self).setUp()
         self.group_id = uuid.uuid4().hex
         self.group_name = self.getUniqueString('server-group')
         self.policies = ['affinity']
         self.fake_group = fakes.make_fake_server_group(
-            self.group_id, self.group_name, self.policies)
+            self.group_id, self.group_name, self.policies
+        )
 
     def test_create_server_group(self):
 
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(method='POST',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-server-groups']),
-                 json={'server_group': self.fake_group},
-                 validate=dict(
-                     json={'server_group': {
-                         'name': self.group_name,
-                         'policies': self.policies,
-                     }})),
-        ])
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='POST',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['os-server-groups']
+                    ),
+                    json={'server_group': self.fake_group},
+                    validate=dict(
+                        json={
+                            'server_group': {
+                                'name': self.group_name,
+                                'policies': self.policies,
+                            }
+                        }
+                    ),
+                ),
+            ]
+        )
 
-        self.cloud.create_server_group(name=self.group_name,
-                                       policies=self.policies)
+        self.cloud.create_server_group(
+            name=self.group_name, policies=self.policies
+        )
 
         self.assert_calls()
 
     def test_delete_server_group(self):
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-server-groups']),
-                 json={'server_groups': [self.fake_group]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'compute', 'public',
-                     append=['os-server-groups', self.group_id]),
-                 json={'server_groups': [self.fake_group]}),
-        ])
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['os-server-groups']
+                    ),
+                    json={'server_groups': [self.fake_group]},
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['os-server-groups', self.group_id],
+                    ),
+                    json={'server_groups': [self.fake_group]},
+                ),
+            ]
+        )
         self.assertTrue(self.cloud.delete_server_group(self.group_name))
 
         self.assert_calls()

@@ -28,15 +28,23 @@ class OpenStackInventory:
     extra_config = None
 
     def __init__(
-            self, config_files=None, refresh=False, private=False,
-            config_key=None, config_defaults=None, cloud=None,
-            use_direct_get=False):
+        self,
+        config_files=None,
+        refresh=False,
+        private=False,
+        config_key=None,
+        config_defaults=None,
+        cloud=None,
+        use_direct_get=False,
+    ):
         if config_files is None:
             config_files = []
         config = loader.OpenStackConfig(
-            config_files=loader.CONFIG_FILES + config_files)
+            config_files=loader.CONFIG_FILES + config_files
+        )
         self.extra_config = config.get_extra_config(
-            config_key, config_defaults)
+            config_key, config_defaults
+        )
 
         if cloud is None:
             self.clouds = [
@@ -44,9 +52,7 @@ class OpenStackInventory:
                 for cloud_region in config.get_all()
             ]
         else:
-            self.clouds = [
-                connection.Connection(config=config.get_one(cloud))
-            ]
+            self.clouds = [connection.Connection(config=config.get_one(cloud))]
 
         if private:
             for cloud in self.clouds:
@@ -57,15 +63,17 @@ class OpenStackInventory:
             for cloud in self.clouds:
                 cloud._cache.invalidate()
 
-    def list_hosts(self, expand=True, fail_on_cloud_config=True,
-                   all_projects=False):
+    def list_hosts(
+        self, expand=True, fail_on_cloud_config=True, all_projects=False
+    ):
         hostvars = []
 
         for cloud in self.clouds:
             try:
                 # Cycle on servers
-                for server in cloud.list_servers(detailed=expand,
-                                                 all_projects=all_projects):
+                for server in cloud.list_servers(
+                    detailed=expand, all_projects=all_projects
+                ):
                     hostvars.append(server)
             except exceptions.OpenStackCloudException:
                 # Don't fail on one particular cloud as others may work

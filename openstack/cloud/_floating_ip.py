@@ -14,7 +14,6 @@
 # We can't just use list, because sphinx gets confused by
 # openstack.resource.Resource.list and openstack.resource2.Resource.list
 import ipaddress
-# import jsonpatch
 import threading
 import time
 import types  # noqa
@@ -30,7 +29,8 @@ from openstack import utils
 
 _CONFIG_DOC_URL = (
     "https://docs.openstack.org/openstacksdk/latest/"
-    "user/config/configuration.html")
+    "user/config/configuration.html"
+)
 
 
 class FloatingIPCloudMixin:
@@ -39,8 +39,7 @@ class FloatingIPCloudMixin:
     def __init__(self):
         self.private = self.config.config.get('private', False)
 
-        self._floating_ip_source = self.config.config.get(
-            'floating_ip_source')
+        self._floating_ip_source = self.config.config.get('floating_ip_source')
         if self._floating_ip_source:
             if self._floating_ip_source.lower() == 'none':
                 self._floating_ip_source = None
@@ -68,7 +67,8 @@ class FloatingIPCloudMixin:
         # understand, obviously.
         warnings.warn(
             "search_floating_ips is deprecated. "
-            "Use search_resource instead.")
+            "Use search_resource instead."
+        )
         if self._use_neutron_floating() and isinstance(filters, dict):
             return list(self.network.ips(**filters))
         else:
@@ -83,8 +83,7 @@ class FloatingIPCloudMixin:
 
     def _nova_list_floating_ips(self):
         try:
-            data = proxy._json_response(
-                self.compute.get('/os-floating-ips'))
+            data = proxy._json_response(self.compute.get('/os-floating-ips'))
         except exc.OpenStackCloudURINotFound:
             return []
         return self._get_and_munchify('floating_ips', data)
@@ -137,10 +136,11 @@ class FloatingIPCloudMixin:
                         " using clouds.yaml to configure settings for your"
                         " cloud(s), and you want to configure this setting,"
                         " you will need a clouds.yaml file. For more"
-                        " information, please see %(doc_url)s", {
+                        " information, please see %(doc_url)s",
+                        {
                             'cloud': self.name,
                             'doc_url': _CONFIG_DOC_URL,
-                        }
+                        },
                     )
                     # We can't fallback to nova because we push-down filters.
                     # We got a 404 which means neutron doesn't exist. If the
@@ -148,7 +148,9 @@ class FloatingIPCloudMixin:
                     return []
                 self.log.debug(
                     "Something went wrong talking to neutron API: "
-                    "'%(msg)s'. Trying with Nova.", {'msg': str(e)})
+                    "'%(msg)s'. Trying with Nova.",
+                    {'msg': str(e)},
+                )
                 # Fall-through, trying with Nova
         else:
             if filters:
@@ -174,11 +176,13 @@ class FloatingIPCloudMixin:
         """
         if not self._has_nova_extension('os-floating-ip-pools'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'Floating IP pools extension is not available on target cloud')
+                'Floating IP pools extension is not available on target cloud'
+            )
 
         data = proxy._json_response(
             self.compute.get('os-floating-ip-pools'),
-            error_message="Error fetching floating IP pool list")
+            error_message="Error fetching floating IP pool list",
+        )
         pools = self._get_and_munchify('floating_ip_pools', data)
         return [{'name': p['name']} for p in pools]
 
@@ -217,7 +221,7 @@ class FloatingIPCloudMixin:
         return _utils._filter_list(self._floating_ips, None, filters)
 
     def get_floating_ip_by_id(self, id):
-        """ Get a floating ip by ID
+        """Get a floating ip by ID
 
         :param id: ID of the floating ip.
         :returns: A floating ip
@@ -231,12 +235,15 @@ class FloatingIPCloudMixin:
         else:
             data = proxy._json_response(
                 self.compute.get('/os-floating-ips/{id}'.format(id=id)),
-                error_message=error_message)
+                error_message=error_message,
+            )
             return self._normalize_floating_ip(
-                self._get_and_munchify('floating_ip', data))
+                self._get_and_munchify('floating_ip', data)
+            )
 
     def _neutron_available_floating_ips(
-            self, network=None, project_id=None, server=None):
+        self, network=None, project_id=None, server=None
+    ):
         """Get a floating IP from a network.
 
         Return a list of available floating IPs or allocate a new one and
@@ -271,8 +278,7 @@ class FloatingIPCloudMixin:
 
             if floating_network_id is None:
                 raise exc.OpenStackCloudResourceNotFound(
-                    "unable to find external network {net}".format(
-                        net=network)
+                    "unable to find external network {net}".format(net=network)
                 )
         else:
             floating_network_id = self._get_floating_network_id()
@@ -285,14 +291,16 @@ class FloatingIPCloudMixin:
 
         floating_ips = self._list_floating_ips()
         available_ips = _utils._filter_list(
-            floating_ips, name_or_id=None, filters=filters)
+            floating_ips, name_or_id=None, filters=filters
+        )
         if available_ips:
             return available_ips
 
         # No available IP found or we didn't try
         # allocate a new Floating IP
         f_ip = self._neutron_create_floating_ip(
-            network_id=floating_network_id, server=server)
+            network_id=floating_network_id, server=server
+        )
 
         return [f_ip]
 
@@ -311,23 +319,22 @@ class FloatingIPCloudMixin:
         """
 
         with _utils.shade_exceptions(
-                "Unable to create floating IP in pool {pool}".format(
-                    pool=pool)):
+            "Unable to create floating IP in pool {pool}".format(pool=pool)
+        ):
             if pool is None:
                 pools = self.list_floating_ip_pools()
                 if not pools:
                     raise exc.OpenStackCloudResourceNotFound(
-                        "unable to find a floating ip pool")
+                        "unable to find a floating ip pool"
+                    )
                 pool = pools[0]['name']
 
-            filters = {
-                'instance_id': None,
-                'pool': pool
-            }
+            filters = {'instance_id': None, 'pool': pool}
 
             floating_ips = self._nova_list_floating_ips()
             available_ips = _utils._filter_list(
-                floating_ips, name_or_id=None, filters=filters)
+                floating_ips, name_or_id=None, filters=filters
+            )
             if available_ips:
                 return available_ips
 
@@ -341,7 +348,8 @@ class FloatingIPCloudMixin:
         """Find the network providing floating ips by looking at routers."""
 
         if self._floating_network_by_router_lock.acquire(
-                not self._floating_network_by_router_run):
+            not self._floating_network_by_router_run
+        ):
             if self._floating_network_by_router_run:
                 self._floating_network_by_router_lock.release()
                 return self._floating_network_by_router
@@ -349,7 +357,8 @@ class FloatingIPCloudMixin:
                 for router in self.list_routers():
                     if router['admin_state_up']:
                         network_id = router.get(
-                            'external_gateway_info', {}).get('network_id')
+                            'external_gateway_info', {}
+                        ).get('network_id')
                         if network_id:
                             self._floating_network_by_router = network_id
             finally:
@@ -371,12 +380,15 @@ class FloatingIPCloudMixin:
         if self._use_neutron_floating():
             try:
                 f_ips = self._neutron_available_floating_ips(
-                    network=network, server=server)
+                    network=network, server=server
+                )
                 return f_ips[0]
             except exc.OpenStackCloudURINotFound as e:
                 self.log.debug(
                     "Something went wrong talking to neutron API: "
-                    "'%(msg)s'. Trying with Nova.", {'msg': str(e)})
+                    "'%(msg)s'. Trying with Nova.",
+                    {'msg': str(e)},
+                )
                 # Fall-through, trying with Nova
 
         f_ips = self._normalize_floating_ips(
@@ -395,12 +407,20 @@ class FloatingIPCloudMixin:
                 floating_network_id = floating_network
             else:
                 raise exc.OpenStackCloudResourceNotFound(
-                    "unable to find an external network")
+                    "unable to find an external network"
+                )
         return floating_network_id
 
-    def create_floating_ip(self, network=None, server=None,
-                           fixed_address=None, nat_destination=None,
-                           port=None, wait=False, timeout=60):
+    def create_floating_ip(
+        self,
+        network=None,
+        server=None,
+        fixed_address=None,
+        nat_destination=None,
+        port=None,
+        wait=False,
+        timeout=60,
+    ):
         """Allocate a new floating IP from a network or a pool.
 
         :param network: Name or ID of the network
@@ -430,15 +450,20 @@ class FloatingIPCloudMixin:
         if self._use_neutron_floating():
             try:
                 return self._neutron_create_floating_ip(
-                    network_name_or_id=network, server=server,
+                    network_name_or_id=network,
+                    server=server,
                     fixed_address=fixed_address,
                     nat_destination=nat_destination,
                     port=port,
-                    wait=wait, timeout=timeout)
+                    wait=wait,
+                    timeout=timeout,
+                )
             except exc.OpenStackCloudURINotFound as e:
                 self.log.debug(
                     "Something went wrong talking to neutron API: "
-                    "'%(msg)s'. Trying with Nova.", {'msg': str(e)})
+                    "'%(msg)s'. Trying with Nova.",
+                    {'msg': str(e)},
+                )
                 # Fall-through, trying with Nova
 
         if port:
@@ -447,10 +472,12 @@ class FloatingIPCloudMixin:
                 " arbitrary floating-ip/port mappings. Please nudge"
                 " your cloud provider to upgrade the networking stack"
                 " to neutron, or alternately provide the server,"
-                " fixed_address and nat_destination arguments as appropriate")
+                " fixed_address and nat_destination arguments as appropriate"
+            )
         # Else, we are using Nova network
         f_ips = self._normalize_floating_ips(
-            [self._nova_create_floating_ip(pool=network)])
+            [self._nova_create_floating_ip(pool=network)]
+        )
         return f_ips[0]
 
     def _submit_create_fip(self, kwargs):
@@ -458,10 +485,16 @@ class FloatingIPCloudMixin:
         return self.network.create_ip(**kwargs)
 
     def _neutron_create_floating_ip(
-            self, network_name_or_id=None, server=None,
-            fixed_address=None, nat_destination=None,
-            port=None,
-            wait=False, timeout=60, network_id=None):
+        self,
+        network_name_or_id=None,
+        server=None,
+        fixed_address=None,
+        nat_destination=None,
+        port=None,
+        wait=False,
+        timeout=60,
+        network_id=None,
+    ):
 
         if not network_id:
             if network_name_or_id:
@@ -470,7 +503,8 @@ class FloatingIPCloudMixin:
                 except exceptions.ResourceNotFound:
                     raise exc.OpenStackCloudResourceNotFound(
                         "unable to find network for floating ips with ID "
-                        "{0}".format(network_name_or_id))
+                        "{0}".format(network_name_or_id)
+                    )
                 network_id = network['id']
             else:
                 network_id = self._get_floating_network_id()
@@ -480,8 +514,10 @@ class FloatingIPCloudMixin:
         if not port:
             if server:
                 (port_obj, fixed_ip_address) = self._nat_destination_port(
-                    server, fixed_address=fixed_address,
-                    nat_destination=nat_destination)
+                    server,
+                    fixed_address=fixed_address,
+                    nat_destination=nat_destination,
+                )
                 if port_obj:
                     port = port_obj['id']
                 if fixed_ip_address:
@@ -499,57 +535,68 @@ class FloatingIPCloudMixin:
             if wait:
                 try:
                     for count in utils.iterate_timeout(
-                            timeout,
-                            "Timeout waiting for the floating IP"
-                            " to be ACTIVE",
-                            wait=self._FLOAT_AGE):
+                        timeout,
+                        "Timeout waiting for the floating IP" " to be ACTIVE",
+                        wait=self._FLOAT_AGE,
+                    ):
                         fip = self.get_floating_ip(fip_id)
                         if fip and fip['status'] == 'ACTIVE':
                             break
                 except exc.OpenStackCloudTimeout:
                     self.log.error(
                         "Timed out on floating ip %(fip)s becoming active."
-                        " Deleting", {'fip': fip_id})
+                        " Deleting",
+                        {'fip': fip_id},
+                    )
                     try:
                         self.delete_floating_ip(fip_id)
                     except Exception as e:
                         self.log.error(
                             "FIP LEAK: Attempted to delete floating ip "
                             "%(fip)s but received %(exc)s exception: "
-                            "%(err)s", {'fip': fip_id, 'exc': e.__class__,
-                                        'err': str(e)})
+                            "%(err)s",
+                            {'fip': fip_id, 'exc': e.__class__, 'err': str(e)},
+                        )
                     raise
             if fip['port_id'] != port:
                 if server:
                     raise exc.OpenStackCloudException(
                         "Attempted to create FIP on port {port} for server"
                         " {server} but FIP has port {port_id}".format(
-                            port=port, port_id=fip['port_id'],
-                            server=server['id']))
+                            port=port,
+                            port_id=fip['port_id'],
+                            server=server['id'],
+                        )
+                    )
                 else:
                     raise exc.OpenStackCloudException(
                         "Attempted to create FIP on port {port}"
-                        " but something went wrong".format(port=port))
+                        " but something went wrong".format(port=port)
+                    )
         return fip
 
     def _nova_create_floating_ip(self, pool=None):
         with _utils.shade_exceptions(
-                "Unable to create floating IP in pool {pool}".format(
-                    pool=pool)):
+            "Unable to create floating IP in pool {pool}".format(pool=pool)
+        ):
             if pool is None:
                 pools = self.list_floating_ip_pools()
                 if not pools:
                     raise exc.OpenStackCloudResourceNotFound(
-                        "unable to find a floating ip pool")
+                        "unable to find a floating ip pool"
+                    )
                 pool = pools[0]['name']
 
-            data = proxy._json_response(self.compute.post(
-                '/os-floating-ips', json=dict(pool=pool)))
+            data = proxy._json_response(
+                self.compute.post('/os-floating-ips', json=dict(pool=pool))
+            )
             pool_ip = self._get_and_munchify('floating_ip', data)
             # TODO(mordred) Remove this - it's just for compat
             data = proxy._json_response(
-                self.compute.get('/os-floating-ips/{id}'.format(
-                    id=pool_ip['id'])))
+                self.compute.get(
+                    '/os-floating-ips/{id}'.format(id=pool_ip['id'])
+                )
+            )
             return self._get_and_munchify('floating_ip', data)
 
     def delete_floating_ip(self, floating_ip_id, retry=1):
@@ -589,8 +636,11 @@ class FloatingIPCloudMixin:
             " {retry} times. Although the cloud did not indicate any errors"
             " the floating ip is still in existence. Aborting further"
             " operations.".format(
-                id=floating_ip_id, ip=f_ip['floating_ip_address'],
-                retry=retry + 1))
+                id=floating_ip_id,
+                ip=f_ip['floating_ip_address'],
+                retry=retry + 1,
+            )
+        )
 
     def _delete_floating_ip(self, floating_ip_id):
         if self._use_neutron_floating():
@@ -599,14 +649,14 @@ class FloatingIPCloudMixin:
             except exc.OpenStackCloudURINotFound as e:
                 self.log.debug(
                     "Something went wrong talking to neutron API: "
-                    "'%(msg)s'. Trying with Nova.", {'msg': str(e)})
+                    "'%(msg)s'. Trying with Nova.",
+                    {'msg': str(e)},
+                )
         return self._nova_delete_floating_ip(floating_ip_id)
 
     def _neutron_delete_floating_ip(self, floating_ip_id):
         try:
-            self.network.delete_ip(
-                floating_ip_id, ignore_missing=False
-            )
+            self.network.delete_ip(floating_ip_id, ignore_missing=False)
         except exceptions.ResourceNotFound:
             return False
         return True
@@ -615,9 +665,12 @@ class FloatingIPCloudMixin:
         try:
             proxy._json_response(
                 self.compute.delete(
-                    '/os-floating-ips/{id}'.format(id=floating_ip_id)),
+                    '/os-floating-ips/{id}'.format(id=floating_ip_id)
+                ),
                 error_message='Unable to delete floating IP {fip_id}'.format(
-                    fip_id=floating_ip_id))
+                    fip_id=floating_ip_id
+                ),
+            )
         except exc.OpenStackCloudURINotFound:
             return False
         return True
@@ -648,14 +701,23 @@ class FloatingIPCloudMixin:
         if self._use_neutron_floating():
             for ip in self.list_floating_ips():
                 if not bool(ip.port_id):
-                    processed.append(self.delete_floating_ip(
-                        floating_ip_id=ip['id'], retry=retry))
+                    processed.append(
+                        self.delete_floating_ip(
+                            floating_ip_id=ip['id'], retry=retry
+                        )
+                    )
         return len(processed) if all(processed) else False
 
     def _attach_ip_to_server(
-            self, server, floating_ip,
-            fixed_address=None, wait=False,
-            timeout=60, skip_attach=False, nat_destination=None):
+        self,
+        server,
+        floating_ip,
+        fixed_address=None,
+        wait=False,
+        timeout=60,
+        skip_attach=False,
+        nat_destination=None,
+    ):
         """Attach a floating IP to a server.
 
         :param server: Server dict
@@ -685,8 +747,9 @@ class FloatingIPCloudMixin:
             # the server data and try again. There are some clouds, which
             # explicitely forbids FIP assign call if it is already assigned.
             server = self.get_server_by_id(server['id'])
-            ext_ip = meta.get_server_ip(server, ext_tag='floating',
-                                        public=True)
+            ext_ip = meta.get_server_ip(
+                server, ext_tag='floating', public=True
+            )
         if ext_ip == floating_ip['floating_ip_address']:
             return server
 
@@ -694,74 +757,84 @@ class FloatingIPCloudMixin:
             if not skip_attach:
                 try:
                     self._neutron_attach_ip_to_server(
-                        server=server, floating_ip=floating_ip,
+                        server=server,
+                        floating_ip=floating_ip,
                         fixed_address=fixed_address,
-                        nat_destination=nat_destination)
+                        nat_destination=nat_destination,
+                    )
                 except exc.OpenStackCloudURINotFound as e:
                     self.log.debug(
                         "Something went wrong talking to neutron API: "
-                        "'%(msg)s'. Trying with Nova.", {'msg': str(e)})
+                        "'%(msg)s'. Trying with Nova.",
+                        {'msg': str(e)},
+                    )
                     # Fall-through, trying with Nova
         else:
             # Nova network
             self._nova_attach_ip_to_server(
-                server_id=server['id'], floating_ip_id=floating_ip['id'],
-                fixed_address=fixed_address)
+                server_id=server['id'],
+                floating_ip_id=floating_ip['id'],
+                fixed_address=fixed_address,
+            )
 
         if wait:
             # Wait for the address to be assigned to the server
             server_id = server['id']
             for _ in utils.iterate_timeout(
-                    timeout,
-                    "Timeout waiting for the floating IP to be attached.",
-                    wait=self._SERVER_AGE):
+                timeout,
+                "Timeout waiting for the floating IP to be attached.",
+                wait=self._SERVER_AGE,
+            ):
                 server = self.get_server_by_id(server_id)
                 ext_ip = meta.get_server_ip(
-                    server, ext_tag='floating', public=True)
+                    server, ext_tag='floating', public=True
+                )
                 if ext_ip == floating_ip['floating_ip_address']:
                     return server
         return server
 
     def _neutron_attach_ip_to_server(
-            self, server, floating_ip, fixed_address=None,
-            nat_destination=None):
+        self, server, floating_ip, fixed_address=None, nat_destination=None
+    ):
 
         # Find an available port
         (port, fixed_address) = self._nat_destination_port(
-            server, fixed_address=fixed_address,
-            nat_destination=nat_destination)
+            server,
+            fixed_address=fixed_address,
+            nat_destination=nat_destination,
+        )
         if not port:
             raise exc.OpenStackCloudException(
-                "unable to find a port for server {0}".format(
-                    server['id']))
+                "unable to find a port for server {0}".format(server['id'])
+            )
 
         floating_ip_args = {'port_id': port['id']}
         if fixed_address is not None:
             floating_ip_args['fixed_ip_address'] = fixed_address
 
-        return self.network.update_ip(
-            floating_ip,
-            **floating_ip_args)
+        return self.network.update_ip(floating_ip, **floating_ip_args)
 
-    def _nova_attach_ip_to_server(self, server_id, floating_ip_id,
-                                  fixed_address=None):
-        f_ip = self.get_floating_ip(
-            id=floating_ip_id)
+    def _nova_attach_ip_to_server(
+        self, server_id, floating_ip_id, fixed_address=None
+    ):
+        f_ip = self.get_floating_ip(id=floating_ip_id)
         if f_ip is None:
             raise exc.OpenStackCloudException(
-                "unable to find floating IP {0}".format(floating_ip_id))
+                "unable to find floating IP {0}".format(floating_ip_id)
+            )
         error_message = "Error attaching IP {ip} to instance {id}".format(
-            ip=floating_ip_id, id=server_id)
-        body = {
-            'address': f_ip['floating_ip_address']
-        }
+            ip=floating_ip_id, id=server_id
+        )
+        body = {'address': f_ip['floating_ip_address']}
         if fixed_address:
             body['fixed_address'] = fixed_address
         return proxy._json_response(
             self.compute.post(
                 '/servers/{server_id}/action'.format(server_id=server_id),
-                json=dict(addFloatingIp=body)),
-            error_message=error_message)
+                json=dict(addFloatingIp=body),
+            ),
+            error_message=error_message,
+        )
 
     def detach_ip_from_server(self, server_id, floating_ip_id):
         """Detach a floating IP from a server.
@@ -777,31 +850,36 @@ class FloatingIPCloudMixin:
         if self._use_neutron_floating():
             try:
                 return self._neutron_detach_ip_from_server(
-                    server_id=server_id, floating_ip_id=floating_ip_id)
+                    server_id=server_id, floating_ip_id=floating_ip_id
+                )
             except exc.OpenStackCloudURINotFound as e:
                 self.log.debug(
                     "Something went wrong talking to neutron API: "
-                    "'%(msg)s'. Trying with Nova.", {'msg': str(e)})
+                    "'%(msg)s'. Trying with Nova.",
+                    {'msg': str(e)},
+                )
                 # Fall-through, trying with Nova
 
         # Nova network
         self._nova_detach_ip_from_server(
-            server_id=server_id, floating_ip_id=floating_ip_id)
+            server_id=server_id, floating_ip_id=floating_ip_id
+        )
 
     def _neutron_detach_ip_from_server(self, server_id, floating_ip_id):
         f_ip = self.get_floating_ip(id=floating_ip_id)
         if f_ip is None or not bool(f_ip.port_id):
             return False
         try:
-            self.network.update_ip(
-                floating_ip_id,
-                port_id=None
-            )
+            self.network.update_ip(floating_ip_id, port_id=None)
         except exceptions.SDKException:
             raise exceptions.SDKException(
-                ("Error detaching IP {ip} from "
-                 "server {server_id}".format(
-                     ip=floating_ip_id, server_id=server_id)))
+                (
+                    "Error detaching IP {ip} from "
+                    "server {server_id}".format(
+                        ip=floating_ip_id, server_id=server_id
+                    )
+                )
+            )
 
         return True
 
@@ -810,21 +888,33 @@ class FloatingIPCloudMixin:
         f_ip = self.get_floating_ip(id=floating_ip_id)
         if f_ip is None:
             raise exc.OpenStackCloudException(
-                "unable to find floating IP {0}".format(floating_ip_id))
+                "unable to find floating IP {0}".format(floating_ip_id)
+            )
         error_message = "Error detaching IP {ip} from instance {id}".format(
-            ip=floating_ip_id, id=server_id)
+            ip=floating_ip_id, id=server_id
+        )
         return proxy._json_response(
             self.compute.post(
                 '/servers/{server_id}/action'.format(server_id=server_id),
-                json=dict(removeFloatingIp=dict(
-                    address=f_ip['floating_ip_address']))),
-            error_message=error_message)
+                json=dict(
+                    removeFloatingIp=dict(address=f_ip['floating_ip_address'])
+                ),
+            ),
+            error_message=error_message,
+        )
 
         return True
 
     def _add_ip_from_pool(
-            self, server, network, fixed_address=None, reuse=True,
-            wait=False, timeout=60, nat_destination=None):
+        self,
+        server,
+        network,
+        fixed_address=None,
+        reuse=True,
+        wait=False,
+        timeout=60,
+        nat_destination=None,
+    ):
         """Add a floating IP to a server from a given pool
 
         This method reuses available IPs, when possible, or allocate new IPs
@@ -851,9 +941,12 @@ class FloatingIPCloudMixin:
             start_time = time.time()
             f_ip = self.create_floating_ip(
                 server=server,
-                network=network, nat_destination=nat_destination,
+                network=network,
+                nat_destination=nat_destination,
                 fixed_address=fixed_address,
-                wait=wait, timeout=timeout)
+                wait=wait,
+                timeout=timeout,
+            )
             timeout = timeout - (time.time() - start_time)
             # Wait for cache invalidation time so that we don't try
             # to attach the FIP a second time below
@@ -866,12 +959,23 @@ class FloatingIPCloudMixin:
         # the attach function below to get back the server dict refreshed
         # with the FIP information.
         return self._attach_ip_to_server(
-            server=server, floating_ip=f_ip, fixed_address=fixed_address,
-            wait=wait, timeout=timeout, nat_destination=nat_destination)
+            server=server,
+            floating_ip=f_ip,
+            fixed_address=fixed_address,
+            wait=wait,
+            timeout=timeout,
+            nat_destination=nat_destination,
+        )
 
     def add_ip_list(
-            self, server, ips, wait=False, timeout=60,
-            fixed_address=None, nat_destination=None):
+        self,
+        server,
+        ips,
+        wait=False,
+        timeout=60,
+        fixed_address=None,
+        nat_destination=None,
+    ):
         """Attach a list of IPs to a server.
 
         :param server: a server object
@@ -896,10 +1000,16 @@ class FloatingIPCloudMixin:
 
         for ip in ips:
             f_ip = self.get_floating_ip(
-                id=None, filters={'floating_ip_address': ip})
+                id=None, filters={'floating_ip_address': ip}
+            )
             server = self._attach_ip_to_server(
-                server=server, floating_ip=f_ip, wait=wait, timeout=timeout,
-                fixed_address=fixed_address, nat_destination=nat_destination)
+                server=server,
+                floating_ip=f_ip,
+                wait=wait,
+                timeout=timeout,
+                fixed_address=fixed_address,
+                nat_destination=nat_destination,
+            )
         return server
 
     def add_auto_ip(self, server, wait=False, timeout=60, reuse=True):
@@ -925,7 +1035,8 @@ class FloatingIPCloudMixin:
 
         """
         server = self._add_auto_ip(
-            server, wait=wait, timeout=timeout, reuse=reuse)
+            server, wait=wait, timeout=timeout, reuse=reuse
+        )
         return server['interface_ip'] or None
 
     def _add_auto_ip(self, server, wait=False, timeout=60, reuse=True):
@@ -936,7 +1047,8 @@ class FloatingIPCloudMixin:
         else:
             start_time = time.time()
             f_ip = self.create_floating_ip(
-                server=server, wait=wait, timeout=timeout)
+                server=server, wait=wait, timeout=timeout
+            )
             timeout = timeout - (time.time() - start_time)
             if server:
                 # This gets passed in for both nova and neutron
@@ -951,8 +1063,12 @@ class FloatingIPCloudMixin:
             # the attach function below to get back the server dict refreshed
             # with the FIP information.
             return self._attach_ip_to_server(
-                server=server, floating_ip=f_ip, wait=wait, timeout=timeout,
-                skip_attach=skip_attach)
+                server=server,
+                floating_ip=f_ip,
+                wait=wait,
+                timeout=timeout,
+                skip_attach=skip_attach,
+            )
         except exc.OpenStackCloudTimeout:
             if self._use_neutron_floating() and created:
                 # We are here because we created an IP on the port
@@ -962,36 +1078,60 @@ class FloatingIPCloudMixin:
                     "Timeout waiting for floating IP to become"
                     " active. Floating IP %(ip)s:%(id)s was created for"
                     " server %(server)s but is being deleted due to"
-                    " activation failure.", {
+                    " activation failure.",
+                    {
                         'ip': f_ip['floating_ip_address'],
                         'id': f_ip['id'],
-                        'server': server['id']})
+                        'server': server['id'],
+                    },
+                )
                 try:
                     self.delete_floating_ip(f_ip['id'])
                 except Exception as e:
                     self.log.error(
                         "FIP LEAK: Attempted to delete floating ip "
                         "%(fip)s but received %(exc)s exception: %(err)s",
-                        {'fip': f_ip['id'], 'exc': e.__class__, 'err': str(e)})
+                        {'fip': f_ip['id'], 'exc': e.__class__, 'err': str(e)},
+                    )
                     raise e
             raise
 
     def add_ips_to_server(
-            self, server, auto_ip=True, ips=None, ip_pool=None,
-            wait=False, timeout=60, reuse=True, fixed_address=None,
-            nat_destination=None):
+        self,
+        server,
+        auto_ip=True,
+        ips=None,
+        ip_pool=None,
+        wait=False,
+        timeout=60,
+        reuse=True,
+        fixed_address=None,
+        nat_destination=None,
+    ):
         if ip_pool:
             server = self._add_ip_from_pool(
-                server, ip_pool, reuse=reuse, wait=wait, timeout=timeout,
-                fixed_address=fixed_address, nat_destination=nat_destination)
+                server,
+                ip_pool,
+                reuse=reuse,
+                wait=wait,
+                timeout=timeout,
+                fixed_address=fixed_address,
+                nat_destination=nat_destination,
+            )
         elif ips:
             server = self.add_ip_list(
-                server, ips, wait=wait, timeout=timeout,
-                fixed_address=fixed_address, nat_destination=nat_destination)
+                server,
+                ips,
+                wait=wait,
+                timeout=timeout,
+                fixed_address=fixed_address,
+                nat_destination=nat_destination,
+            )
         elif auto_ip:
             if self._needs_floating_ip(server, nat_destination):
                 server = self._add_auto_ip(
-                    server, wait=wait, timeout=timeout, reuse=reuse)
+                    server, wait=wait, timeout=timeout, reuse=reuse
+                )
         return server
 
     def _needs_floating_ip(self, server, nat_destination):
@@ -1026,18 +1166,30 @@ class FloatingIPCloudMixin:
             # meta.add_server_interfaces() was not called
             server = self.compute.get_server(server)
 
-        if server['public_v4'] \
-           or any([any([address['OS-EXT-IPS:type'] == 'floating'
-                        for address in addresses])
-                   for addresses
-                   in (server['addresses'] or {}).values()]):
+        if server['public_v4'] or any(
+            [
+                any(
+                    [
+                        address['OS-EXT-IPS:type'] == 'floating'
+                        for address in addresses
+                    ]
+                )
+                for addresses in (server['addresses'] or {}).values()
+            ]
+        ):
             return False
 
-        if not server['private_v4'] \
-           and not any([any([address['OS-EXT-IPS:type'] == 'fixed'
-                             for address in addresses])
-                        for addresses
-                        in (server['addresses'] or {}).values()]):
+        if not server['private_v4'] and not any(
+            [
+                any(
+                    [
+                        address['OS-EXT-IPS:type'] == 'fixed'
+                        for address in addresses
+                    ]
+                )
+                for addresses in (server['addresses'] or {}).values()
+            ]
+        ):
             return False
 
         if self.private:
@@ -1053,7 +1205,8 @@ class FloatingIPCloudMixin:
             return False
 
         (port_obj, fixed_ip_address) = self._nat_destination_port(
-            server, nat_destination=nat_destination)
+            server, nat_destination=nat_destination
+        )
 
         if not port_obj or not fixed_ip_address:
             return False
@@ -1061,7 +1214,8 @@ class FloatingIPCloudMixin:
         return True
 
     def _nat_destination_port(
-            self, server, fixed_address=None, nat_destination=None):
+        self, server, fixed_address=None, nat_destination=None
+    ):
         """Returns server port that is on a nat_destination network
 
         Find a port attached to the server which is on a network which
@@ -1082,9 +1236,10 @@ class FloatingIPCloudMixin:
         else:
             timeout = None
         for count in utils.iterate_timeout(
-                timeout,
-                "Timeout waiting for port to show up in list",
-                wait=self._PORT_AGE):
+            timeout,
+            "Timeout waiting for port to show up in list",
+            wait=self._PORT_AGE,
+        ):
             try:
                 port_filter = {'device_id': server['id']}
                 ports = self.search_ports(filters=port_filter)
@@ -1103,7 +1258,9 @@ class FloatingIPCloudMixin:
                             'NAT Destination {nat_destination} was configured'
                             ' but not found on the cloud. Please check your'
                             ' config and your cloud and try again.'.format(
-                                nat_destination=nat_destination))
+                                nat_destination=nat_destination
+                            )
+                        )
                 else:
                     nat_network = self.get_nat_destination()
 
@@ -1118,7 +1275,8 @@ class FloatingIPCloudMixin:
                         ' nat_destination property of the networks list in'
                         ' your clouds.yaml file. If you do not have a'
                         ' clouds.yaml file, please make one - your setup'
-                        ' is complicated.'.format(server=server['id']))
+                        ' is complicated.'.format(server=server['id'])
+                    )
 
                 maybe_ports = []
                 for maybe_port in ports:
@@ -1129,7 +1287,9 @@ class FloatingIPCloudMixin:
                         'No port on server {server} was found matching'
                         ' your NAT destination network {dest}. Please '
                         ' check your config'.format(
-                            server=server['id'], dest=nat_network['name']))
+                            server=server['id'], dest=nat_network['name']
+                        )
+                    )
                 ports = maybe_ports
 
             # Select the most recent available IPv4 address
@@ -1139,9 +1299,8 @@ class FloatingIPCloudMixin:
             # if there are more than one, will be the arbitrary port we
             # select.
             for port in sorted(
-                    ports,
-                    key=lambda p: p.get('created_at', 0),
-                    reverse=True):
+                ports, key=lambda p: p.get('created_at', 0), reverse=True
+            ):
                 for address in port.get('fixed_ips', list()):
                     try:
                         ip = ipaddress.ip_address(address['ip_address'])
@@ -1152,7 +1311,8 @@ class FloatingIPCloudMixin:
                         return port, fixed_address
             raise exc.OpenStackCloudException(
                 "unable to find a free fixed IPv4 address for server "
-                "{0}".format(server['id']))
+                "{0}".format(server['id'])
+            )
         # unfortunately a port can have more than one fixed IP:
         # we can't use the search_ports filtering for fixed_address as
         # they are contained in a list. e.g.
@@ -1178,8 +1338,10 @@ class FloatingIPCloudMixin:
             return self._floating_ip_source in ('nova', 'neutron')
 
     def _use_neutron_floating(self):
-        return (self.has_service('network')
-                and self._floating_ip_source == 'neutron')
+        return (
+            self.has_service('network')
+            and self._floating_ip_source == 'neutron'
+        )
 
     def _normalize_floating_ips(self, ips):
         """Normalize the structure of floating IPs
@@ -1210,16 +1372,13 @@ class FloatingIPCloudMixin:
                 ]
 
         """
-        return [
-            self._normalize_floating_ip(ip) for ip in ips
-        ]
+        return [self._normalize_floating_ip(ip) for ip in ips]
 
     def _normalize_floating_ip(self, ip):
         # Copy incoming floating ip because of shared dicts in unittests
         # Only import munch when we really need it
 
-        location = self._get_current_location(
-            project_id=ip.get('owner'))
+        location = self._get_current_location(project_id=ip.get('owner'))
         # This copy is to keep things from getting epically weird in tests
         ip = ip.copy()
 
@@ -1228,7 +1387,8 @@ class FloatingIPCloudMixin:
         fixed_ip_address = ip.pop('fixed_ip_address', ip.pop('fixed_ip', None))
         floating_ip_address = ip.pop('floating_ip_address', ip.pop('ip', None))
         network_id = ip.pop(
-            'floating_network_id', ip.pop('network', ip.pop('pool', None)))
+            'floating_network_id', ip.pop('network', ip.pop('pool', None))
+        )
         project_id = ip.pop('tenant_id', '')
         project_id = ip.pop('project_id', project_id)
 

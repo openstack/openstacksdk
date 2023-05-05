@@ -24,27 +24,39 @@ from openstack.tests.unit import base
 
 
 class TestDeleteServer(base.TestCase):
-
     def test_delete_server(self):
         """
         Test that server delete is called when wait=False
         """
         server = fakes.make_fake_server('1234', 'daffy', 'ACTIVE')
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'daffy']),
-                 status_code=404),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail'],
-                     qs_elements=['name=daffy']),
-                 json={'servers': [server]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '1234'])),
-        ])
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'daffy']
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['servers', 'detail'],
+                        qs_elements=['name=daffy'],
+                    ),
+                    json={'servers': [server]},
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', '1234']
+                    ),
+                ),
+            ]
+        )
         self.assertTrue(self.cloud.delete_server('daffy', wait=False))
 
         self.assert_calls()
@@ -53,35 +65,55 @@ class TestDeleteServer(base.TestCase):
         """
         Test that we return immediately when server is already gone
         """
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'tweety']),
-                 status_code=404),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail'],
-                     qs_elements=['name=tweety']),
-                 json={'servers': []}),
-        ])
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'tweety']
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['servers', 'detail'],
+                        qs_elements=['name=tweety'],
+                    ),
+                    json={'servers': []},
+                ),
+            ]
+        )
         self.assertFalse(self.cloud.delete_server('tweety', wait=False))
 
         self.assert_calls()
 
     def test_delete_server_already_gone_wait(self):
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'speedy']),
-                 status_code=404),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail'],
-                     qs_elements=['name=speedy']),
-                 json={'servers': []}),
-        ])
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'speedy']
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['servers', 'detail'],
+                        qs_elements=['name=speedy'],
+                    ),
+                    json={'servers': []},
+                ),
+            ]
+        )
         self.assertFalse(self.cloud.delete_server('speedy', wait=True))
         self.assert_calls()
 
@@ -90,29 +122,48 @@ class TestDeleteServer(base.TestCase):
         Test that delete_server waits for the server to be gone
         """
         server = fakes.make_fake_server('9999', 'wily', 'ACTIVE')
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'wily']),
-                 status_code=404),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail'],
-                     qs_elements=['name=wily']),
-                 json={'servers': [server]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '9999'])),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '9999']),
-                 json={'server': server}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '9999']),
-                 status_code=404),
-        ])
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'wily']
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['servers', 'detail'],
+                        qs_elements=['name=wily'],
+                    ),
+                    json={'servers': [server]},
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', '9999']
+                    ),
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', '9999']
+                    ),
+                    json={'server': server},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', '9999']
+                    ),
+                    status_code=404,
+                ),
+            ]
+        )
         self.assertTrue(self.cloud.delete_server('wily', wait=True))
 
         self.assert_calls()
@@ -122,27 +173,42 @@ class TestDeleteServer(base.TestCase):
         Test that delete_server raises non-404 exceptions
         """
         server = fakes.make_fake_server('1212', 'speedy', 'ACTIVE')
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'speedy']),
-                 status_code=404),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail'],
-                     qs_elements=['name=speedy']),
-                 json={'servers': [server]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '1212']),
-                 status_code=400),
-        ])
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'speedy']
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['servers', 'detail'],
+                        qs_elements=['name=speedy'],
+                    ),
+                    json={'servers': [server]},
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', '1212']
+                    ),
+                    status_code=400,
+                ),
+            ]
+        )
 
         self.assertRaises(
             shade_exc.OpenStackCloudException,
-            self.cloud.delete_server, 'speedy',
-            wait=False)
+            self.cloud.delete_server,
+            'speedy',
+            wait=False,
+        )
 
         self.assert_calls()
 
@@ -156,24 +222,38 @@ class TestDeleteServer(base.TestCase):
             if service_type == 'volume':
                 return False
             return orig_has_service(service_type)
+
         self.cloud.has_service = fake_has_service
 
         server = fakes.make_fake_server('1234', 'porky', 'ACTIVE')
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'porky']),
-                 status_code=404),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail'],
-                     qs_elements=['name=porky']),
-                 json={'servers': [server]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '1234'])),
-        ])
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'porky']
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['servers', 'detail'],
+                        qs_elements=['name=porky'],
+                    ),
+                    json={'servers': [server]},
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', '1234']
+                    ),
+                ),
+            ]
+        )
         self.assertTrue(self.cloud.delete_server('porky', wait=False))
 
         self.assert_calls()
@@ -185,50 +265,84 @@ class TestDeleteServer(base.TestCase):
         server = fakes.make_fake_server('1234', 'porky', 'ACTIVE')
         fip_id = uuid.uuid4().hex
 
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'porky']),
-                 status_code=404),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail'],
-                     qs_elements=['name=porky']),
-                 json={'servers': [server]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips'],
-                     qs_elements=['floating_ip_address=172.24.5.5']),
-                 complete_qs=True,
-                 json={'floatingips': [{
-                     'router_id': 'd23abc8d-2991-4a55-ba98-2aaea84cc72f',
-                     'tenant_id': '4969c491a3c74ee4af974e6d800c62de',
-                     'floating_network_id': '376da547-b977-4cfe-9cba7',
-                     'fixed_ip_address': '10.0.0.4',
-                     'floating_ip_address': '172.24.5.5',
-                     'port_id': 'ce705c24-c1ef-408a-bda3-7bbd946164ac',
-                     'id': fip_id,
-                     'status': 'ACTIVE'}]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'floatingips', fip_id])),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips']),
-                 complete_qs=True,
-                 json={'floatingips': []}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '1234'])),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '1234']),
-                 status_code=404),
-        ])
-        self.assertTrue(self.cloud.delete_server(
-            'porky', wait=True, delete_ips=True))
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'porky']
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['servers', 'detail'],
+                        qs_elements=['name=porky'],
+                    ),
+                    json={'servers': [server]},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'floatingips'],
+                        qs_elements=['floating_ip_address=172.24.5.5'],
+                    ),
+                    complete_qs=True,
+                    json={
+                        'floatingips': [
+                            {
+                                'router_id': 'd23abc8d-2991-4a55-ba98-2aaea84cc72f',  # noqa: E501
+                                'tenant_id': '4969c491a3c74ee4af974e6d800c62de',  # noqa: E501
+                                'floating_network_id': '376da547-b977-4cfe-9cba7',  # noqa: E501
+                                'fixed_ip_address': '10.0.0.4',
+                                'floating_ip_address': '172.24.5.5',
+                                'port_id': 'ce705c24-c1ef-408a-bda3-7bbd946164ac',  # noqa: E501
+                                'id': fip_id,
+                                'status': 'ACTIVE',
+                            }
+                        ]
+                    },
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'floatingips', fip_id],
+                    ),
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'floatingips']
+                    ),
+                    complete_qs=True,
+                    json={'floatingips': []},
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', '1234']
+                    ),
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', '1234']
+                    ),
+                    status_code=404,
+                ),
+            ]
+        )
+        self.assertTrue(
+            self.cloud.delete_server('porky', wait=True, delete_ips=True)
+        )
 
         self.assert_calls()
 
@@ -238,33 +352,55 @@ class TestDeleteServer(base.TestCase):
         """
         server = fakes.make_fake_server('1234', 'porky', 'ACTIVE')
 
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'porky']),
-                 status_code=404),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail'],
-                     qs_elements=['name=porky']),
-                 json={'servers': [server]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips'],
-                     qs_elements=['floating_ip_address=172.24.5.5']),
-                 complete_qs=True,
-                 status_code=404),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '1234'])),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '1234']),
-                 status_code=404),
-        ])
-        self.assertTrue(self.cloud.delete_server(
-            'porky', wait=True, delete_ips=True))
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'porky']
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['servers', 'detail'],
+                        qs_elements=['name=porky'],
+                    ),
+                    json={'servers': [server]},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'floatingips'],
+                        qs_elements=['floating_ip_address=172.24.5.5'],
+                    ),
+                    complete_qs=True,
+                    status_code=404,
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', '1234']
+                    ),
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', '1234']
+                    ),
+                    status_code=404,
+                ),
+            ]
+        )
+        self.assertTrue(
+            self.cloud.delete_server('porky', wait=True, delete_ips=True)
+        )
 
         self.assert_calls()
 
@@ -275,44 +411,73 @@ class TestDeleteServer(base.TestCase):
         self.cloud._floating_ip_source = 'nova'
         server = fakes.make_fake_server('1234', 'porky', 'ACTIVE')
 
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'porky']),
-                 status_code=404),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail'],
-                     qs_elements=['name=porky']),
-                 json={'servers': [server]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-floating-ips']),
-                 json={'floating_ips': [
-                     {
-                         'fixed_ip': None,
-                         'id': 1,
-                         'instance_id': None,
-                         'ip': '172.24.5.5',
-                         'pool': 'nova'
-                     }]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-floating-ips', '1'])),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-floating-ips']),
-                 json={'floating_ips': []}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '1234'])),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', '1234']),
-                 status_code=404),
-        ])
-        self.assertTrue(self.cloud.delete_server(
-            'porky', wait=True, delete_ips=True))
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'porky']
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['servers', 'detail'],
+                        qs_elements=['name=porky'],
+                    ),
+                    json={'servers': [server]},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['os-floating-ips']
+                    ),
+                    json={
+                        'floating_ips': [
+                            {
+                                'fixed_ip': None,
+                                'id': 1,
+                                'instance_id': None,
+                                'ip': '172.24.5.5',
+                                'pool': 'nova',
+                            }
+                        ]
+                    },
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['os-floating-ips', '1']
+                    ),
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['os-floating-ips']
+                    ),
+                    json={'floating_ips': []},
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', '1234']
+                    ),
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', '1234']
+                    ),
+                    status_code=404,
+                ),
+            ]
+        )
+        self.assertTrue(
+            self.cloud.delete_server('porky', wait=True, delete_ips=True)
+        )
 
         self.assert_calls()

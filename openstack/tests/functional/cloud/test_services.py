@@ -38,15 +38,17 @@ class TestServices(base.KeystoneBaseFunctionalTest):
 
         # Generate a random name for services in this test
         self.new_service_name = 'test_' + ''.join(
-            random.choice(string.ascii_lowercase) for _ in range(5))
+            random.choice(string.ascii_lowercase) for _ in range(5)
+        )
 
         self.addCleanup(self._cleanup_services)
 
     def _cleanup_services(self):
         exception_list = list()
         for s in self.operator_cloud.list_services():
-            if s['name'] is not None and \
-                    s['name'].startswith(self.new_service_name):
+            if s['name'] is not None and s['name'].startswith(
+                self.new_service_name
+            ):
                 try:
                     self.operator_cloud.delete_service(name_or_id=s['id'])
                 except Exception as e:
@@ -60,45 +62,57 @@ class TestServices(base.KeystoneBaseFunctionalTest):
 
     def test_create_service(self):
         service = self.operator_cloud.create_service(
-            name=self.new_service_name + '_create', type='test_type',
-            description='this is a test description')
+            name=self.new_service_name + '_create',
+            type='test_type',
+            description='this is a test description',
+        )
         self.assertIsNotNone(service.get('id'))
 
     def test_update_service(self):
         ver = self.operator_cloud.config.get_api_version('identity')
         if ver.startswith('2'):
             # NOTE(SamYaple): Update service only works with v3 api
-            self.assertRaises(OpenStackCloudUnavailableFeature,
-                              self.operator_cloud.update_service,
-                              'service_id', name='new name')
+            self.assertRaises(
+                OpenStackCloudUnavailableFeature,
+                self.operator_cloud.update_service,
+                'service_id',
+                name='new name',
+            )
         else:
             service = self.operator_cloud.create_service(
-                name=self.new_service_name + '_create', type='test_type',
-                description='this is a test description', enabled=True)
+                name=self.new_service_name + '_create',
+                type='test_type',
+                description='this is a test description',
+                enabled=True,
+            )
             new_service = self.operator_cloud.update_service(
                 service.id,
                 name=self.new_service_name + '_update',
                 description='this is an updated description',
-                enabled=False
+                enabled=False,
             )
-            self.assertEqual(new_service.name,
-                             self.new_service_name + '_update')
-            self.assertEqual(new_service.description,
-                             'this is an updated description')
+            self.assertEqual(
+                new_service.name, self.new_service_name + '_update'
+            )
+            self.assertEqual(
+                new_service.description, 'this is an updated description'
+            )
             self.assertFalse(new_service.is_enabled)
             self.assertEqual(service.id, new_service.id)
 
     def test_list_services(self):
         service = self.operator_cloud.create_service(
-            name=self.new_service_name + '_list', type='test_type')
+            name=self.new_service_name + '_list', type='test_type'
+        )
         observed_services = self.operator_cloud.list_services()
         self.assertIsInstance(observed_services, list)
         found = False
         for s in observed_services:
             # Test all attributes are returned
             if s['id'] == service['id']:
-                self.assertEqual(self.new_service_name + '_list',
-                                 s.get('name'))
+                self.assertEqual(
+                    self.new_service_name + '_list', s.get('name')
+                )
                 self.assertEqual('test_type', s.get('type'))
                 found = True
         self.assertTrue(found, msg='new service not found in service list!')
@@ -106,8 +120,8 @@ class TestServices(base.KeystoneBaseFunctionalTest):
     def test_delete_service_by_name(self):
         # Test delete by name
         service = self.operator_cloud.create_service(
-            name=self.new_service_name + '_delete_by_name',
-            type='test_type')
+            name=self.new_service_name + '_delete_by_name', type='test_type'
+        )
         self.operator_cloud.delete_service(name_or_id=service['name'])
         observed_services = self.operator_cloud.list_services()
         found = False
@@ -120,8 +134,8 @@ class TestServices(base.KeystoneBaseFunctionalTest):
     def test_delete_service_by_id(self):
         # Test delete by id
         service = self.operator_cloud.create_service(
-            name=self.new_service_name + '_delete_by_id',
-            type='test_type')
+            name=self.new_service_name + '_delete_by_id', type='test_type'
+        )
         self.operator_cloud.delete_service(name_or_id=service['id'])
         observed_services = self.operator_cloud.list_services()
         found = False

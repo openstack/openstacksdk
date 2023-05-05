@@ -39,7 +39,7 @@ class TestFloatingIP(base.TestCase):
                 'floating_ip_address': '172.24.4.229',
                 'port_id': 'ce705c24-c1ef-408a-bda3-7bbd946164ac',
                 'id': '2f245a7b-796b-4f26-9cf9-9e82d248fda7',
-                'status': 'ACTIVE'
+                'status': 'ACTIVE',
             },
             {
                 'router_id': None,
@@ -49,8 +49,8 @@ class TestFloatingIP(base.TestCase):
                 'floating_ip_address': '203.0.113.30',
                 'port_id': None,
                 'id': '61cea855-49cb-4846-997d-801b70c71bdd',
-                'status': 'DOWN'
-            }
+                'status': 'DOWN',
+            },
         ]
     }
 
@@ -63,7 +63,7 @@ class TestFloatingIP(base.TestCase):
             'port_id': None,
             'router_id': None,
             'status': 'ACTIVE',
-            'tenant_id': '4969c491a3c74ee4af974e6d800c62df'
+            'tenant_id': '4969c491a3c74ee4af974e6d800c62df',
         }
     }
 
@@ -76,15 +76,13 @@ class TestFloatingIP(base.TestCase):
             'port_id': 'ce705c24-c1ef-408a-bda3-7bbd946164ac',
             'router_id': None,
             'status': 'ACTIVE',
-            'tenant_id': '4969c491a3c74ee4af974e6d800c62df'
+            'tenant_id': '4969c491a3c74ee4af974e6d800c62df',
         }
     }
 
     mock_get_network_rep = {
         'status': 'ACTIVE',
-        'subnets': [
-            '54d6f61d-db07-451c-9ab3-b9609b6b6f0b'
-        ],
+        'subnets': ['54d6f61d-db07-451c-9ab3-b9609b6b6f0b'],
         'name': 'my-network',
         'provider:physical_network': None,
         'admin_state_up': True,
@@ -93,7 +91,7 @@ class TestFloatingIP(base.TestCase):
         'router:external': True,
         'shared': True,
         'id': 'my-network-id',
-        'provider:segmentation_id': None
+        'provider:segmentation_id': None,
     }
 
     mock_search_ports_rep = [
@@ -109,7 +107,7 @@ class TestFloatingIP(base.TestCase):
             'extra_dhcp_opts': [],
             'binding:vif_details': {
                 'port_filter': True,
-                'ovs_hybrid_plug': True
+                'ovs_hybrid_plug': True,
             },
             'binding:vif_type': 'ovs',
             'device_owner': 'compute:None',
@@ -119,12 +117,12 @@ class TestFloatingIP(base.TestCase):
             'fixed_ips': [
                 {
                     'subnet_id': '008ba151-0b8c-4a67-98b5-0d2b87666062',
-                    'ip_address': u'172.24.4.2'
+                    'ip_address': '172.24.4.2',
                 }
             ],
             'id': 'ce705c24-c1ef-408a-bda3-7bbd946164ac',
             'security_groups': [],
-            'device_id': 'server-id'
+            'device_id': 'server-id',
         }
     ]
 
@@ -136,20 +134,32 @@ class TestFloatingIP(base.TestCase):
         super(TestFloatingIP, self).setUp()
 
         self.fake_server = fakes.make_fake_server(
-            'server-id', '', 'ACTIVE',
-            addresses={u'test_pnztt_net': [{
-                u'OS-EXT-IPS:type': u'fixed',
-                u'addr': '192.0.2.129',
-                u'version': 4,
-                u'OS-EXT-IPS-MAC:mac_addr':
-                u'fa:16:3e:ae:7d:42'}]})
+            'server-id',
+            '',
+            'ACTIVE',
+            addresses={
+                'test_pnztt_net': [
+                    {
+                        'OS-EXT-IPS:type': 'fixed',
+                        'addr': '192.0.2.129',
+                        'version': 4,
+                        'OS-EXT-IPS-MAC:mac_addr': 'fa:16:3e:ae:7d:42',
+                    }
+                ]
+            },
+        )
         self.floating_ip = self.mock_floating_ip_list_rep['floatingips'][0]
 
     def test_list_floating_ips(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/floatingips',
-                 json=self.mock_floating_ip_list_rep)])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/floatingips',
+                    json=self.mock_floating_ip_list_rep,
+                )
+            ]
+        )
 
         floating_ips = self.cloud.list_floating_ips()
 
@@ -161,24 +171,37 @@ class TestFloatingIP(base.TestCase):
 
     def test_list_floating_ips_with_filters(self):
 
-        self.register_uris([
-            dict(method='GET',
-                 uri=('https://network.example.com/v2.0/floatingips?'
-                      'description=42'),
-                 json={'floatingips': []})])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=(
+                        'https://network.example.com/v2.0/floatingips?'
+                        'description=42'
+                    ),
+                    json={'floatingips': []},
+                )
+            ]
+        )
 
         self.cloud.list_floating_ips(filters={'description': 42})
 
         self.assert_calls()
 
     def test_search_floating_ips(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=('https://network.example.com/v2.0/floatingips'),
-                 json=self.mock_floating_ip_list_rep)])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=('https://network.example.com/v2.0/floatingips'),
+                    json=self.mock_floating_ip_list_rep,
+                )
+            ]
+        )
 
         floating_ips = self.cloud.search_floating_ips(
-            filters={'updated_at': 'never'})
+            filters={'updated_at': 'never'}
+        )
 
         self.assertIsInstance(floating_ips, list)
         self.assertAreInstances(floating_ips, dict)
@@ -186,32 +209,43 @@ class TestFloatingIP(base.TestCase):
         self.assert_calls()
 
     def test_get_floating_ip(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/floatingips',
-                 json=self.mock_floating_ip_list_rep)])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/floatingips',
+                    json=self.mock_floating_ip_list_rep,
+                )
+            ]
+        )
 
         floating_ip = self.cloud.get_floating_ip(
-            id='2f245a7b-796b-4f26-9cf9-9e82d248fda7')
+            id='2f245a7b-796b-4f26-9cf9-9e82d248fda7'
+        )
 
         self.assertIsInstance(floating_ip, dict)
         self.assertEqual('172.24.4.229', floating_ip['floating_ip_address'])
         self.assertEqual(
             self.mock_floating_ip_list_rep['floatingips'][0]['tenant_id'],
-            floating_ip['project_id']
+            floating_ip['project_id'],
         )
         self.assertEqual(
             self.mock_floating_ip_list_rep['floatingips'][0]['tenant_id'],
-            floating_ip['tenant_id']
+            floating_ip['tenant_id'],
         )
         self.assertIn('location', floating_ip)
         self.assert_calls()
 
     def test_get_floating_ip_not_found(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/floatingips',
-                 json=self.mock_floating_ip_list_rep)])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/floatingips',
+                    json=self.mock_floating_ip_list_rep,
+                )
+            ]
+        )
 
         floating_ip = self.cloud.get_floating_ip(id='non-existent')
 
@@ -220,11 +254,16 @@ class TestFloatingIP(base.TestCase):
 
     def test_get_floating_ip_by_id(self):
         fid = self.mock_floating_ip_new_rep['floatingip']['id']
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/floatingips/'
-                     '{id}'.format(id=fid),
-                 json=self.mock_floating_ip_new_rep)])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/floatingips/'
+                    '{id}'.format(id=fid),
+                    json=self.mock_floating_ip_new_rep,
+                )
+            ]
+        )
 
         floating_ip = self.cloud.get_floating_ip_by_id(id=fid)
 
@@ -232,83 +271,122 @@ class TestFloatingIP(base.TestCase):
         self.assertEqual('172.24.4.229', floating_ip['floating_ip_address'])
         self.assertEqual(
             self.mock_floating_ip_new_rep['floatingip']['tenant_id'],
-            floating_ip['project_id']
+            floating_ip['project_id'],
         )
         self.assertEqual(
             self.mock_floating_ip_new_rep['floatingip']['tenant_id'],
-            floating_ip['tenant_id']
+            floating_ip['tenant_id'],
         )
         self.assertIn('location', floating_ip)
         self.assert_calls()
 
     def test_create_floating_ip(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks/my-network',
-                 status_code=404),
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks'
-                     '?name=my-network',
-                 json={'networks': [self.mock_get_network_rep]}),
-            dict(method='POST',
-                 uri='https://network.example.com/v2.0/floatingips',
-                 json=self.mock_floating_ip_new_rep,
-                 validate=dict(
-                     json={'floatingip': {
-                         'floating_network_id': 'my-network-id'}}))
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/networks/my-network',
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/networks'
+                    '?name=my-network',
+                    json={'networks': [self.mock_get_network_rep]},
+                ),
+                dict(
+                    method='POST',
+                    uri='https://network.example.com/v2.0/floatingips',
+                    json=self.mock_floating_ip_new_rep,
+                    validate=dict(
+                        json={
+                            'floatingip': {
+                                'floating_network_id': 'my-network-id'
+                            }
+                        }
+                    ),
+                ),
+            ]
+        )
         ip = self.cloud.create_floating_ip(network='my-network')
 
         self.assertEqual(
             self.mock_floating_ip_new_rep['floatingip']['floating_ip_address'],
-            ip['floating_ip_address'])
+            ip['floating_ip_address'],
+        )
         self.assert_calls()
 
     def test_create_floating_ip_port_bad_response(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks/my-network',
-                 json=self.mock_get_network_rep),
-            dict(method='POST',
-                 uri='https://network.example.com/v2.0/floatingips',
-                 json=self.mock_floating_ip_new_rep,
-                 validate=dict(
-                     json={'floatingip': {
-                         'floating_network_id': 'my-network-id',
-                         'port_id': u'ce705c24-c1ef-408a-bda3-7bbd946164ab'}}))
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/networks/my-network',
+                    json=self.mock_get_network_rep,
+                ),
+                dict(
+                    method='POST',
+                    uri='https://network.example.com/v2.0/floatingips',
+                    json=self.mock_floating_ip_new_rep,
+                    validate=dict(
+                        json={
+                            'floatingip': {
+                                'floating_network_id': 'my-network-id',
+                                'port_id': 'ce705c24-c1ef-408a-bda3-7bbd946164ab',  # noqa: E501
+                            }
+                        }
+                    ),
+                ),
+            ]
+        )
 
         # Fails because we requested a port and the returned FIP has no port
         self.assertRaises(
             exc.OpenStackCloudException,
             self.cloud.create_floating_ip,
-            network='my-network', port='ce705c24-c1ef-408a-bda3-7bbd946164ab')
+            network='my-network',
+            port='ce705c24-c1ef-408a-bda3-7bbd946164ab',
+        )
         self.assert_calls()
 
     def test_create_floating_ip_port(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks/my-network',
-                 status_code=404),
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks'
-                     '?name=my-network',
-                 json={'networks': [self.mock_get_network_rep]}),
-            dict(method='POST',
-                 uri='https://network.example.com/v2.0/floatingips',
-                 json=self.mock_floating_ip_port_rep,
-                 validate=dict(
-                     json={'floatingip': {
-                         'floating_network_id': 'my-network-id',
-                         'port_id': u'ce705c24-c1ef-408a-bda3-7bbd946164ac'}}))
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/networks/my-network',
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/networks'
+                    '?name=my-network',
+                    json={'networks': [self.mock_get_network_rep]},
+                ),
+                dict(
+                    method='POST',
+                    uri='https://network.example.com/v2.0/floatingips',
+                    json=self.mock_floating_ip_port_rep,
+                    validate=dict(
+                        json={
+                            'floatingip': {
+                                'floating_network_id': 'my-network-id',
+                                'port_id': 'ce705c24-c1ef-408a-bda3-7bbd946164ac',  # noqa: E501
+                            }
+                        }
+                    ),
+                ),
+            ]
+        )
 
         ip = self.cloud.create_floating_ip(
-            network='my-network', port='ce705c24-c1ef-408a-bda3-7bbd946164ac')
+            network='my-network', port='ce705c24-c1ef-408a-bda3-7bbd946164ac'
+        )
 
         self.assertEqual(
             self.mock_floating_ip_new_rep['floatingip']['floating_ip_address'],
-            ip['floating_ip_address'])
+            ip['floating_ip_address'],
+        )
         self.assert_calls()
 
     def test_neutron_available_floating_ips(self):
@@ -316,21 +394,37 @@ class TestFloatingIP(base.TestCase):
         Test without specifying a network name.
         """
         fips_mock_uri = 'https://network.example.com/v2.0/floatingips'
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks',
-                 json={'networks': [self.mock_get_network_rep]}),
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets',
-                 json={'subnets': []}),
-            dict(method='GET', uri=fips_mock_uri, json={'floatingips': []}),
-            dict(method='POST', uri=fips_mock_uri,
-                 json=self.mock_floating_ip_new_rep,
-                 validate=dict(json={
-                     'floatingip': {
-                         'floating_network_id': self.mock_get_network_rep['id']
-                     }}))
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/networks',
+                    json={'networks': [self.mock_get_network_rep]},
+                ),
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/subnets',
+                    json={'subnets': []},
+                ),
+                dict(
+                    method='GET', uri=fips_mock_uri, json={'floatingips': []}
+                ),
+                dict(
+                    method='POST',
+                    uri=fips_mock_uri,
+                    json=self.mock_floating_ip_new_rep,
+                    validate=dict(
+                        json={
+                            'floatingip': {
+                                'floating_network_id': self.mock_get_network_rep[  # noqa: E501
+                                    'id'
+                                ]
+                            }
+                        }
+                    ),
+                ),
+            ]
+        )
 
         # Test if first network is selected if no network is given
         self.cloud._neutron_available_floating_ips()
@@ -341,21 +435,37 @@ class TestFloatingIP(base.TestCase):
         Test with specifying a network name.
         """
         fips_mock_uri = 'https://network.example.com/v2.0/floatingips'
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks',
-                 json={'networks': [self.mock_get_network_rep]}),
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets',
-                 json={'subnets': []}),
-            dict(method='GET', uri=fips_mock_uri, json={'floatingips': []}),
-            dict(method='POST', uri=fips_mock_uri,
-                 json=self.mock_floating_ip_new_rep,
-                 validate=dict(json={
-                     'floatingip': {
-                         'floating_network_id': self.mock_get_network_rep['id']
-                     }}))
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/networks',
+                    json={'networks': [self.mock_get_network_rep]},
+                ),
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/subnets',
+                    json={'subnets': []},
+                ),
+                dict(
+                    method='GET', uri=fips_mock_uri, json={'floatingips': []}
+                ),
+                dict(
+                    method='POST',
+                    uri=fips_mock_uri,
+                    json=self.mock_floating_ip_new_rep,
+                    validate=dict(
+                        json={
+                            'floatingip': {
+                                'floating_network_id': self.mock_get_network_rep[  # noqa: E501
+                                    'id'
+                                ]
+                            }
+                        }
+                    ),
+                ),
+            ]
+        )
 
         # Test if first network is selected if no network is given
         self.cloud._neutron_available_floating_ips(
@@ -367,249 +477,342 @@ class TestFloatingIP(base.TestCase):
         """
         Test with an invalid network name.
         """
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks',
-                 json={'networks': [self.mock_get_network_rep]}),
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets',
-                 json={'subnets': []})
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/networks',
+                    json={'networks': [self.mock_get_network_rep]},
+                ),
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/subnets',
+                    json={'subnets': []},
+                ),
+            ]
+        )
 
         self.assertRaises(
             exc.OpenStackCloudException,
             self.cloud._neutron_available_floating_ips,
-            network='INVALID')
+            network='INVALID',
+        )
 
         self.assert_calls()
 
     def test_auto_ip_pool_no_reuse(self):
         # payloads taken from citycloud
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks/ext-net',
-                 status_code=404),
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks?name=ext-net',
-                 json={"networks": [{
-                     "status": "ACTIVE",
-                     "subnets": [
-                         "df3e17fa-a4b2-47ae-9015-bc93eb076ba2",
-                         "6b0c3dc9-b0b8-4d87-976a-7f2ebf13e7ec",
-                         "fc541f48-fc7f-48c0-a063-18de6ee7bdd7"],
-                     "availability_zone_hints": [],
-                     "availability_zones": ["nova"],
-                     "name": "ext-net",
-                     "admin_state_up": True,
-                     "tenant_id": "a564613210ee43708b8a7fc6274ebd63",
-                     "tags": [],
-                     "ipv6_address_scope": "9f03124f-89af-483a-b6fd-10f08079db4d",  # noqa
-                     "mtu": 0,
-                     "is_default": False,
-                     "router:external": True,
-                     "ipv4_address_scope": None,
-                     "shared": False,
-                     "id": "0232c17f-2096-49bc-b205-d3dcd9a30ebf",
-                     "description": None
-                 }]}),
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/ports'
-                     '?device_id=f80e3ad0-e13e-41d4-8e9c-be79bccdb8f7',
-                 json={"ports": [{
-                     "status": "ACTIVE",
-                     "created_at": "2017-02-06T20:59:45",
-                     "description": "",
-                     "allowed_address_pairs": [],
-                     "admin_state_up": True,
-                     "network_id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",
-                     "dns_name": None,
-                     "extra_dhcp_opts": [],
-                     "mac_address": "fa:16:3e:e8:7f:03",
-                     "updated_at": "2017-02-06T20:59:49",
-                     "name": "",
-                     "device_owner": "compute:None",
-                     "tenant_id": "65222a4d09ea4c68934fa1028c77f394",
-                     "binding:vnic_type": "normal",
-                     "fixed_ips": [{
-                         "subnet_id": "f0ad1df5-53ee-473f-b86b-3604ea5591e9",
-                         "ip_address": "10.4.0.16"}],
-                     "id": "a767944e-057a-47d1-a669-824a21b8fb7b",
-                     "security_groups": [
-                         "9fb5ba44-5c46-4357-8e60-8b55526cab54"],
-                     "device_id": "f80e3ad0-e13e-41d4-8e9c-be79bccdb8f7",
-                 }]}),
-
-            dict(method='POST',
-                 uri='https://network.example.com/v2.0/floatingips',
-                 json={"floatingip": {
-                     "router_id": "9de9c787-8f89-4a53-8468-a5533d6d7fd1",
-                     "status": "DOWN",
-                     "description": "",
-                     "dns_domain": "",
-                     "floating_network_id": "0232c17f-2096-49bc-b205-d3dcd9a30ebf",  # noqa
-                     "fixed_ip_address": "10.4.0.16",
-                     "floating_ip_address": "89.40.216.153",
-                     "port_id": "a767944e-057a-47d1-a669-824a21b8fb7b",
-                     "id": "e69179dc-a904-4c9a-a4c9-891e2ecb984c",
-                     "dns_name": "",
-                     "tenant_id": "65222a4d09ea4c68934fa1028c77f394"
-                 }},
-                 validate=dict(json={"floatingip": {
-                     "floating_network_id": "0232c17f-2096-49bc-b205-d3dcd9a30ebf",  # noqa
-                     "fixed_ip_address": "10.4.0.16",
-                     "port_id": "a767944e-057a-47d1-a669-824a21b8fb7b",
-                 }})),
-            self.get_nova_discovery_mock_dict(),
-            dict(method='GET',
-                 uri='{endpoint}/servers/detail'.format(
-                     endpoint=fakes.COMPUTE_ENDPOINT),
-                 json={"servers": [{
-                     "status": "ACTIVE",
-                     "updated": "2017-02-06T20:59:49Z",
-                     "addresses": {
-                         "private": [{
-                             "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:e8:7f:03",
-                             "version": 4,
-                             "addr": "10.4.0.16",
-                             "OS-EXT-IPS:type": "fixed"
-                         }, {
-                             "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:e8:7f:03",
-                             "version": 4,
-                             "addr": "89.40.216.153",
-                             "OS-EXT-IPS:type": "floating"
-                         }]},
-                     "key_name": None,
-                     "image": {"id": "95e4c449-8abf-486e-97d9-dc3f82417d2d"},
-                     "OS-EXT-STS:task_state": None,
-                     "OS-EXT-STS:vm_state": "active",
-                     "OS-SRV-USG:launched_at": "2017-02-06T20:59:48.000000",
-                     "flavor": {"id": "2186bd79-a05e-4953-9dde-ddefb63c88d4"},
-                     "id": "f80e3ad0-e13e-41d4-8e9c-be79bccdb8f7",
-                     "security_groups": [{"name": "default"}],
-                     "OS-SRV-USG:terminated_at": None,
-                     "OS-EXT-AZ:availability_zone": "nova",
-                     "user_id": "c17534835f8f42bf98fc367e0bf35e09",
-                     "name": "testmt",
-                     "created": "2017-02-06T20:59:44Z",
-                     "tenant_id": "65222a4d09ea4c68934fa1028c77f394",
-                     "OS-DCF:diskConfig": "MANUAL",
-                     "os-extended-volumes:volumes_attached": [],
-                     "accessIPv4": "",
-                     "accessIPv6": "",
-                     "progress": 0,
-                     "OS-EXT-STS:power_state": 1,
-                     "config_drive": "",
-                     "metadata": {}
-                 }]}),
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks',
-                 json={"networks": [{
-                     "status": "ACTIVE",
-                     "subnets": [
-                         "df3e17fa-a4b2-47ae-9015-bc93eb076ba2",
-                         "6b0c3dc9-b0b8-4d87-976a-7f2ebf13e7ec",
-                         "fc541f48-fc7f-48c0-a063-18de6ee7bdd7"],
-                     "availability_zone_hints": [],
-                     "availability_zones": ["nova"],
-                     "name": "ext-net",
-                     "admin_state_up": True,
-                     "tenant_id": "a564613210ee43708b8a7fc6274ebd63",
-                     "tags": [],
-                     "ipv6_address_scope": "9f03124f-89af-483a-b6fd-10f08079db4d",  # noqa
-                     "mtu": 0,
-                     "is_default": False,
-                     "router:external": True,
-                     "ipv4_address_scope": None,
-                     "shared": False,
-                     "id": "0232c17f-2096-49bc-b205-d3dcd9a30ebf",
-                     "description": None
-                 }, {
-                     "status": "ACTIVE",
-                     "subnets": ["f0ad1df5-53ee-473f-b86b-3604ea5591e9"],
-                     "availability_zone_hints": [],
-                     "availability_zones": ["nova"],
-                     "name": "private",
-                     "admin_state_up": True,
-                     "tenant_id": "65222a4d09ea4c68934fa1028c77f394",
-                     "created_at": "2016-10-22T13:46:26",
-                     "tags": [],
-                     "updated_at": "2016-10-22T13:46:26",
-                     "ipv6_address_scope": None,
-                     "router:external": False,
-                     "ipv4_address_scope": None,
-                     "shared": False,
-                     "mtu": 1450,
-                     "id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",
-                     "description": ""
-                 }]}),
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets',
-                 json={"subnets": [{
-                     "description": "",
-                     "enable_dhcp": True,
-                     "network_id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",
-                     "tenant_id": "65222a4d09ea4c68934fa1028c77f394",
-                     "created_at": "2016-10-22T13:46:26",
-                     "dns_nameservers": [
-                         "89.36.90.101",
-                         "89.36.90.102"],
-                     "updated_at": "2016-10-22T13:46:26",
-                     "gateway_ip": "10.4.0.1",
-                     "ipv6_ra_mode": None,
-                     "allocation_pools": [{
-                         "start": "10.4.0.2",
-                         "end": "10.4.0.200"}],
-                     "host_routes": [],
-                     "ip_version": 4,
-                     "ipv6_address_mode": None,
-                     "cidr": "10.4.0.0/24",
-                     "id": "f0ad1df5-53ee-473f-b86b-3604ea5591e9",
-                     "subnetpool_id": None,
-                     "name": "private-subnet-ipv4",
-                 }]})])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/networks/ext-net',
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/networks?name=ext-net',  # noqa: E501
+                    json={
+                        "networks": [
+                            {
+                                "status": "ACTIVE",
+                                "subnets": [
+                                    "df3e17fa-a4b2-47ae-9015-bc93eb076ba2",
+                                    "6b0c3dc9-b0b8-4d87-976a-7f2ebf13e7ec",
+                                    "fc541f48-fc7f-48c0-a063-18de6ee7bdd7",
+                                ],
+                                "availability_zone_hints": [],
+                                "availability_zones": ["nova"],
+                                "name": "ext-net",
+                                "admin_state_up": True,
+                                "tenant_id": "a564613210ee43708b8a7fc6274ebd63",  # noqa: E501
+                                "tags": [],
+                                "ipv6_address_scope": "9f03124f-89af-483a-b6fd-10f08079db4d",  # noqa: E501
+                                "mtu": 0,
+                                "is_default": False,
+                                "router:external": True,
+                                "ipv4_address_scope": None,
+                                "shared": False,
+                                "id": "0232c17f-2096-49bc-b205-d3dcd9a30ebf",
+                                "description": None,
+                            }
+                        ]
+                    },
+                ),
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/ports'
+                    '?device_id=f80e3ad0-e13e-41d4-8e9c-be79bccdb8f7',
+                    json={
+                        "ports": [
+                            {
+                                "status": "ACTIVE",
+                                "created_at": "2017-02-06T20:59:45",
+                                "description": "",
+                                "allowed_address_pairs": [],
+                                "admin_state_up": True,
+                                "network_id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",  # noqa: E501
+                                "dns_name": None,
+                                "extra_dhcp_opts": [],
+                                "mac_address": "fa:16:3e:e8:7f:03",
+                                "updated_at": "2017-02-06T20:59:49",
+                                "name": "",
+                                "device_owner": "compute:None",
+                                "tenant_id": "65222a4d09ea4c68934fa1028c77f394",  # noqa: E501
+                                "binding:vnic_type": "normal",
+                                "fixed_ips": [
+                                    {
+                                        "subnet_id": "f0ad1df5-53ee-473f-b86b-3604ea5591e9",  # noqa: E501
+                                        "ip_address": "10.4.0.16",
+                                    }
+                                ],
+                                "id": "a767944e-057a-47d1-a669-824a21b8fb7b",
+                                "security_groups": [
+                                    "9fb5ba44-5c46-4357-8e60-8b55526cab54"
+                                ],
+                                "device_id": "f80e3ad0-e13e-41d4-8e9c-be79bccdb8f7",  # noqa: E501
+                            }
+                        ]
+                    },
+                ),
+                dict(
+                    method='POST',
+                    uri='https://network.example.com/v2.0/floatingips',
+                    json={
+                        "floatingip": {
+                            "router_id": "9de9c787-8f89-4a53-8468-a5533d6d7fd1",  # noqa: E501
+                            "status": "DOWN",
+                            "description": "",
+                            "dns_domain": "",
+                            "floating_network_id": "0232c17f-2096-49bc-b205-d3dcd9a30ebf",  # noqa: E501
+                            "fixed_ip_address": "10.4.0.16",
+                            "floating_ip_address": "89.40.216.153",
+                            "port_id": "a767944e-057a-47d1-a669-824a21b8fb7b",
+                            "id": "e69179dc-a904-4c9a-a4c9-891e2ecb984c",
+                            "dns_name": "",
+                            "tenant_id": "65222a4d09ea4c68934fa1028c77f394",
+                        }
+                    },
+                    validate=dict(
+                        json={
+                            "floatingip": {
+                                "floating_network_id": "0232c17f-2096-49bc-b205-d3dcd9a30ebf",  # noqa: E501
+                                "fixed_ip_address": "10.4.0.16",
+                                "port_id": "a767944e-057a-47d1-a669-824a21b8fb7b",  # noqa: E501
+                            }
+                        }
+                    ),
+                ),
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri='{endpoint}/servers/detail'.format(
+                        endpoint=fakes.COMPUTE_ENDPOINT
+                    ),
+                    json={
+                        "servers": [
+                            {
+                                "status": "ACTIVE",
+                                "updated": "2017-02-06T20:59:49Z",
+                                "addresses": {
+                                    "private": [
+                                        {
+                                            "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:e8:7f:03",  # noqa: E501
+                                            "version": 4,
+                                            "addr": "10.4.0.16",
+                                            "OS-EXT-IPS:type": "fixed",
+                                        },
+                                        {
+                                            "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:e8:7f:03",  # noqa: E501
+                                            "version": 4,
+                                            "addr": "89.40.216.153",
+                                            "OS-EXT-IPS:type": "floating",
+                                        },
+                                    ]
+                                },
+                                "key_name": None,
+                                "image": {
+                                    "id": "95e4c449-8abf-486e-97d9-dc3f82417d2d"  # noqa: E501
+                                },
+                                "OS-EXT-STS:task_state": None,
+                                "OS-EXT-STS:vm_state": "active",
+                                "OS-SRV-USG:launched_at": "2017-02-06T20:59:48.000000",  # noqa: E501
+                                "flavor": {
+                                    "id": "2186bd79-a05e-4953-9dde-ddefb63c88d4"  # noqa: E501
+                                },
+                                "id": "f80e3ad0-e13e-41d4-8e9c-be79bccdb8f7",
+                                "security_groups": [{"name": "default"}],
+                                "OS-SRV-USG:terminated_at": None,
+                                "OS-EXT-AZ:availability_zone": "nova",
+                                "user_id": "c17534835f8f42bf98fc367e0bf35e09",
+                                "name": "testmt",
+                                "created": "2017-02-06T20:59:44Z",
+                                "tenant_id": "65222a4d09ea4c68934fa1028c77f394",  # noqa: E501
+                                "OS-DCF:diskConfig": "MANUAL",
+                                "os-extended-volumes:volumes_attached": [],
+                                "accessIPv4": "",
+                                "accessIPv6": "",
+                                "progress": 0,
+                                "OS-EXT-STS:power_state": 1,
+                                "config_drive": "",
+                                "metadata": {},
+                            }
+                        ]
+                    },
+                ),
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/networks',
+                    json={
+                        "networks": [
+                            {
+                                "status": "ACTIVE",
+                                "subnets": [
+                                    "df3e17fa-a4b2-47ae-9015-bc93eb076ba2",
+                                    "6b0c3dc9-b0b8-4d87-976a-7f2ebf13e7ec",
+                                    "fc541f48-fc7f-48c0-a063-18de6ee7bdd7",
+                                ],
+                                "availability_zone_hints": [],
+                                "availability_zones": ["nova"],
+                                "name": "ext-net",
+                                "admin_state_up": True,
+                                "tenant_id": "a564613210ee43708b8a7fc6274ebd63",  # noqa: E501
+                                "tags": [],
+                                "ipv6_address_scope": "9f03124f-89af-483a-b6fd-10f08079db4d",  # noqa: E501
+                                "mtu": 0,
+                                "is_default": False,
+                                "router:external": True,
+                                "ipv4_address_scope": None,
+                                "shared": False,
+                                "id": "0232c17f-2096-49bc-b205-d3dcd9a30ebf",
+                                "description": None,
+                            },
+                            {
+                                "status": "ACTIVE",
+                                "subnets": [
+                                    "f0ad1df5-53ee-473f-b86b-3604ea5591e9"
+                                ],
+                                "availability_zone_hints": [],
+                                "availability_zones": ["nova"],
+                                "name": "private",
+                                "admin_state_up": True,
+                                "tenant_id": "65222a4d09ea4c68934fa1028c77f394",  # noqa: E501
+                                "created_at": "2016-10-22T13:46:26",
+                                "tags": [],
+                                "updated_at": "2016-10-22T13:46:26",
+                                "ipv6_address_scope": None,
+                                "router:external": False,
+                                "ipv4_address_scope": None,
+                                "shared": False,
+                                "mtu": 1450,
+                                "id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",
+                                "description": "",
+                            },
+                        ]
+                    },
+                ),
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/subnets',
+                    json={
+                        "subnets": [
+                            {
+                                "description": "",
+                                "enable_dhcp": True,
+                                "network_id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",  # noqa: E501
+                                "tenant_id": "65222a4d09ea4c68934fa1028c77f394",  # noqa: E501
+                                "created_at": "2016-10-22T13:46:26",
+                                "dns_nameservers": [
+                                    "89.36.90.101",
+                                    "89.36.90.102",
+                                ],
+                                "updated_at": "2016-10-22T13:46:26",
+                                "gateway_ip": "10.4.0.1",
+                                "ipv6_ra_mode": None,
+                                "allocation_pools": [
+                                    {"start": "10.4.0.2", "end": "10.4.0.200"}
+                                ],
+                                "host_routes": [],
+                                "ip_version": 4,
+                                "ipv6_address_mode": None,
+                                "cidr": "10.4.0.0/24",
+                                "id": "f0ad1df5-53ee-473f-b86b-3604ea5591e9",
+                                "subnetpool_id": None,
+                                "name": "private-subnet-ipv4",
+                            }
+                        ]
+                    },
+                ),
+            ]
+        )
 
         self.cloud.add_ips_to_server(
             utils.Munch(
                 id='f80e3ad0-e13e-41d4-8e9c-be79bccdb8f7',
                 addresses={
-                    "private": [{
-                        "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:e8:7f:03",
-                        "version": 4,
-                        "addr": "10.4.0.16",
-                        "OS-EXT-IPS:type": "fixed"
-                    }]}),
-            ip_pool='ext-net', reuse=False)
+                    "private": [
+                        {
+                            "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:e8:7f:03",
+                            "version": 4,
+                            "addr": "10.4.0.16",
+                            "OS-EXT-IPS:type": "fixed",
+                        }
+                    ]
+                },
+            ),
+            ip_pool='ext-net',
+            reuse=False,
+        )
 
         self.assert_calls()
 
     def test_available_floating_ip_new(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks']),
-                 json={'networks': [self.mock_get_network_rep]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets']),
-                 json={'subnets': []}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips']),
-                 json={'floatingips': []}),
-            dict(method='POST',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips']),
-                 validate=dict(
-                     json={'floatingip': {
-                         'floating_network_id': 'my-network-id'}}),
-                 json=self.mock_floating_ip_new_rep)
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'networks']
+                    ),
+                    json={'networks': [self.mock_get_network_rep]},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'subnets']
+                    ),
+                    json={'subnets': []},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'floatingips']
+                    ),
+                    json={'floatingips': []},
+                ),
+                dict(
+                    method='POST',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'floatingips']
+                    ),
+                    validate=dict(
+                        json={
+                            'floatingip': {
+                                'floating_network_id': 'my-network-id'
+                            }
+                        }
+                    ),
+                    json=self.mock_floating_ip_new_rep,
+                ),
+            ]
+        )
 
         ip = self.cloud.available_floating_ip(network='my-network')
 
         self.assertEqual(
             self.mock_floating_ip_new_rep['floatingip']['floating_ip_address'],
-            ip['floating_ip_address'])
+            ip['floating_ip_address'],
+        )
         self.assert_calls()
 
     def test_delete_floating_ip_existing(self):
@@ -619,38 +822,62 @@ class TestFloatingIP(base.TestCase):
             'floating_ip_address': '172.99.106.167',
             'status': 'ACTIVE',
         }
-        self.register_uris([
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'floatingips/{0}'.format(fip_id)]),
-                 json={}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips']),
-                 json={'floatingips': [fake_fip]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'floatingips/{0}'.format(fip_id)]),
-                 json={}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips']),
-                 json={'floatingips': [fake_fip]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'floatingips/{0}'.format(fip_id)]),
-                 json={}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips']),
-                 json={'floatingips': []}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'floatingips/{0}'.format(fip_id)],
+                    ),
+                    json={},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'floatingips']
+                    ),
+                    json={'floatingips': [fake_fip]},
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'floatingips/{0}'.format(fip_id)],
+                    ),
+                    json={},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'floatingips']
+                    ),
+                    json={'floatingips': [fake_fip]},
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'floatingips/{0}'.format(fip_id)],
+                    ),
+                    json={},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'floatingips']
+                    ),
+                    json={'floatingips': []},
+                ),
+            ]
+        )
 
         self.assertTrue(
-            self.cloud.delete_floating_ip(floating_ip_id=fip_id, retry=2))
+            self.cloud.delete_floating_ip(floating_ip_id=fip_id, retry=2)
+        )
         self.assert_calls()
 
     def test_delete_floating_ip_existing_down(self):
@@ -665,29 +892,46 @@ class TestFloatingIP(base.TestCase):
             'floating_ip_address': '172.99.106.167',
             'status': 'DOWN',
         }
-        self.register_uris([
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'floatingips/{0}'.format(fip_id)]),
-                 json={}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips']),
-                 json={'floatingips': [fake_fip]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'floatingips/{0}'.format(fip_id)]),
-                 json={}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips']),
-                 json={'floatingips': [down_fip]}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'floatingips/{0}'.format(fip_id)],
+                    ),
+                    json={},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'floatingips']
+                    ),
+                    json={'floatingips': [fake_fip]},
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'floatingips/{0}'.format(fip_id)],
+                    ),
+                    json={},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'floatingips']
+                    ),
+                    json={'floatingips': [down_fip]},
+                ),
+            ]
+        )
 
         self.assertTrue(
-            self.cloud.delete_floating_ip(floating_ip_id=fip_id, retry=2))
+            self.cloud.delete_floating_ip(floating_ip_id=fip_id, retry=2)
+        )
         self.assert_calls()
 
     def test_delete_floating_ip_existing_no_delete(self):
@@ -697,50 +941,81 @@ class TestFloatingIP(base.TestCase):
             'floating_ip_address': '172.99.106.167',
             'status': 'ACTIVE',
         }
-        self.register_uris([
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'floatingips/{0}'.format(fip_id)]),
-                 json={}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips']),
-                 json={'floatingips': [fake_fip]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'floatingips/{0}'.format(fip_id)]),
-                 json={}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips']),
-                 json={'floatingips': [fake_fip]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'floatingips/{0}'.format(fip_id)]),
-                 json={}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips']),
-                 json={'floatingips': [fake_fip]}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'floatingips/{0}'.format(fip_id)],
+                    ),
+                    json={},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'floatingips']
+                    ),
+                    json={'floatingips': [fake_fip]},
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'floatingips/{0}'.format(fip_id)],
+                    ),
+                    json={},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'floatingips']
+                    ),
+                    json={'floatingips': [fake_fip]},
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'floatingips/{0}'.format(fip_id)],
+                    ),
+                    json={},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'floatingips']
+                    ),
+                    json={'floatingips': [fake_fip]},
+                ),
+            ]
+        )
         self.assertRaises(
             exc.OpenStackCloudException,
             self.cloud.delete_floating_ip,
-            floating_ip_id=fip_id, retry=2)
+            floating_ip_id=fip_id,
+            retry=2,
+        )
         self.assert_calls()
 
     def test_delete_floating_ip_not_found(self):
-        self.register_uris([
-            dict(method='DELETE',
-                 uri=('https://network.example.com/v2.0/floatingips/'
-                      'a-wild-id-appears'),
-                 status_code=404)])
+        self.register_uris(
+            [
+                dict(
+                    method='DELETE',
+                    uri=(
+                        'https://network.example.com/v2.0/floatingips/'
+                        'a-wild-id-appears'
+                    ),
+                    status_code=404,
+                )
+            ]
+        )
 
-        ret = self.cloud.delete_floating_ip(
-            floating_ip_id='a-wild-id-appears')
+        ret = self.cloud.delete_floating_ip(floating_ip_id='a-wild-id-appears')
 
         self.assertFalse(ret)
         self.assert_calls()
@@ -750,52 +1025,78 @@ class TestFloatingIP(base.TestCase):
         fip.update({'status': 'DOWN', 'port_id': None, 'router_id': None})
         device_id = self.fake_server['id']
 
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports'],
-                     qs_elements=["device_id={0}".format(device_id)]),
-                 json={'ports': self.mock_search_ports_rep}),
-            dict(method='PUT',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'floatingips/{0}'.format(
-                         fip['id'])]),
-                 json={'floatingip':
-                       self.mock_floating_ip_list_rep['floatingips'][0]},
-                 validate=dict(
-                     json={'floatingip': {
-                         'port_id': self.mock_search_ports_rep[0]['id'],
-                         'fixed_ip_address': self.mock_search_ports_rep[0][
-                             'fixed_ips'][0]['ip_address']}})),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'ports'],
+                        qs_elements=["device_id={0}".format(device_id)],
+                    ),
+                    json={'ports': self.mock_search_ports_rep},
+                ),
+                dict(
+                    method='PUT',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'floatingips/{0}'.format(fip['id'])],
+                    ),
+                    json={
+                        'floatingip': self.mock_floating_ip_list_rep[
+                            'floatingips'
+                        ][0]
+                    },
+                    validate=dict(
+                        json={
+                            'floatingip': {
+                                'port_id': self.mock_search_ports_rep[0]['id'],
+                                'fixed_ip_address': self.mock_search_ports_rep[
+                                    0
+                                ]['fixed_ips'][0]['ip_address'],
+                            }
+                        }
+                    ),
+                ),
+            ]
+        )
 
         self.cloud._attach_ip_to_server(
             server=self.fake_server,
-            floating_ip=self.cloud._normalize_floating_ip(fip))
+            floating_ip=self.cloud._normalize_floating_ip(fip),
+        )
         self.assert_calls()
 
     def test_detach_ip_from_server(self):
         fip = self.mock_floating_ip_new_rep['floatingip']
         attached_fip = copy.copy(fip)
         attached_fip['port_id'] = 'server-port-id'
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips']),
-                 json={'floatingips': [attached_fip]}),
-            dict(method='PUT',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'floatingips/{0}'.format(
-                         fip['id'])]),
-                 json={'floatingip': fip},
-                 validate=dict(
-                     json={'floatingip': {'port_id': None}}))
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'floatingips']
+                    ),
+                    json={'floatingips': [attached_fip]},
+                ),
+                dict(
+                    method='PUT',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'floatingips/{0}'.format(fip['id'])],
+                    ),
+                    json={'floatingip': fip},
+                    validate=dict(json={'floatingip': {'port_id': None}}),
+                ),
+            ]
+        )
         self.cloud.detach_ip_from_server(
-            server_id='server-id',
-            floating_ip_id=fip['id'])
+            server_id='server-id', floating_ip_id=fip['id']
+        )
         self.assert_calls()
 
     def test_add_ip_from_pool(self):
@@ -803,106 +1104,165 @@ class TestFloatingIP(base.TestCase):
         fip = self.mock_floating_ip_new_rep['floatingip']
         fixed_ip = self.mock_search_ports_rep[0]['fixed_ips'][0]['ip_address']
         port_id = self.mock_search_ports_rep[0]['id']
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks']),
-                 json={'networks': [network]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets']),
-                 json={'subnets': []}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips']),
-                 json={'floatingips': [fip]}),
-            dict(method='POST',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips']),
-                 json={'floatingip': fip},
-                 validate=dict(
-                     json={'floatingip': {
-                         'floating_network_id': network['id']}})),
-            dict(method="GET",
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports'],
-                     qs_elements=[
-                        "device_id={0}".format(self.fake_server['id'])]),
-                 json={'ports': self.mock_search_ports_rep}),
-            dict(method='PUT',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'floatingips/{0}'.format(
-                         fip['id'])]),
-                 json={'floatingip': fip},
-                 validate=dict(
-                     json={'floatingip': {
-                         'fixed_ip_address': fixed_ip,
-                         'port_id': port_id}})),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'networks']
+                    ),
+                    json={'networks': [network]},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'subnets']
+                    ),
+                    json={'subnets': []},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'floatingips']
+                    ),
+                    json={'floatingips': [fip]},
+                ),
+                dict(
+                    method='POST',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'floatingips']
+                    ),
+                    json={'floatingip': fip},
+                    validate=dict(
+                        json={
+                            'floatingip': {
+                                'floating_network_id': network['id']
+                            }
+                        }
+                    ),
+                ),
+                dict(
+                    method="GET",
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'ports'],
+                        qs_elements=[
+                            "device_id={0}".format(self.fake_server['id'])
+                        ],
+                    ),
+                    json={'ports': self.mock_search_ports_rep},
+                ),
+                dict(
+                    method='PUT',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'floatingips/{0}'.format(fip['id'])],
+                    ),
+                    json={'floatingip': fip},
+                    validate=dict(
+                        json={
+                            'floatingip': {
+                                'fixed_ip_address': fixed_ip,
+                                'port_id': port_id,
+                            }
+                        }
+                    ),
+                ),
+            ]
+        )
 
         server = self.cloud._add_ip_from_pool(
             server=self.fake_server,
             network=network['id'],
-            fixed_address=fixed_ip)
+            fixed_address=fixed_ip,
+        )
 
         self.assertEqual(server, self.fake_server)
         self.assert_calls()
 
     def test_cleanup_floating_ips(self):
-        floating_ips = [{
-            "id": "this-is-a-floating-ip-id",
-            "fixed_ip_address": None,
-            "internal_network": None,
-            "floating_ip_address": "203.0.113.29",
-            "network": "this-is-a-net-or-pool-id",
-            "port_id": None,
-            "status": "ACTIVE"
-        }, {
-            "id": "this-is-a-second-floating-ip-id",
-            "fixed_ip_address": None,
-            "internal_network": None,
-            "floating_ip_address": "203.0.113.30",
-            "network": "this-is-a-net-or-pool-id",
-            "port_id": None,
-            "status": "ACTIVE"
-        }, {
-            "id": "this-is-an-attached-floating-ip-id",
-            "fixed_ip_address": None,
-            "internal_network": None,
-            "floating_ip_address": "203.0.113.29",
-            "network": "this-is-a-net-or-pool-id",
-            "attached": True,
-            "port_id": "this-is-id-of-port-with-fip",
-            "status": "ACTIVE"
-        }]
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips']),
-                 json={'floatingips': floating_ips}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'floatingips/{0}'.format(
-                         floating_ips[0]['id'])]),
-                 json={}),
-            # First IP has been deleted now, return just the second
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips']),
-                 json={'floatingips': floating_ips[1:]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'floatingips/{0}'.format(
-                         floating_ips[1]['id'])]),
-                 json={}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips']),
-                 json={'floatingips': [floating_ips[2]]}),
-        ])
+        floating_ips = [
+            {
+                "id": "this-is-a-floating-ip-id",
+                "fixed_ip_address": None,
+                "internal_network": None,
+                "floating_ip_address": "203.0.113.29",
+                "network": "this-is-a-net-or-pool-id",
+                "port_id": None,
+                "status": "ACTIVE",
+            },
+            {
+                "id": "this-is-a-second-floating-ip-id",
+                "fixed_ip_address": None,
+                "internal_network": None,
+                "floating_ip_address": "203.0.113.30",
+                "network": "this-is-a-net-or-pool-id",
+                "port_id": None,
+                "status": "ACTIVE",
+            },
+            {
+                "id": "this-is-an-attached-floating-ip-id",
+                "fixed_ip_address": None,
+                "internal_network": None,
+                "floating_ip_address": "203.0.113.29",
+                "network": "this-is-a-net-or-pool-id",
+                "attached": True,
+                "port_id": "this-is-id-of-port-with-fip",
+                "status": "ACTIVE",
+            },
+        ]
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'floatingips']
+                    ),
+                    json={'floatingips': floating_ips},
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=[
+                            'v2.0',
+                            'floatingips/{0}'.format(floating_ips[0]['id']),
+                        ],
+                    ),
+                    json={},
+                ),
+                # First IP has been deleted now, return just the second
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'floatingips']
+                    ),
+                    json={'floatingips': floating_ips[1:]},
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=[
+                            'v2.0',
+                            'floatingips/{0}'.format(floating_ips[1]['id']),
+                        ],
+                    ),
+                    json={},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'floatingips']
+                    ),
+                    json={'floatingips': [floating_ips[2]]},
+                ),
+            ]
+        )
         cleaned_up = self.cloud.delete_unattached_floating_ips()
         self.assertEqual(cleaned_up, 2)
         self.assert_calls()
@@ -913,135 +1273,166 @@ class TestFloatingIP(base.TestCase):
             "device_id": "some-server",
             'created_at': datetime.datetime.now().isoformat(),
             'fixed_ips': [
-                {
-                    'subnet_id': 'subnet-id',
-                    'ip_address': '172.24.4.2'
-                }
+                {'subnet_id': 'subnet-id', 'ip_address': '172.24.4.2'}
             ],
         }
-        floating_ip = {
-            "id": "floating-ip-id",
-            "port_id": None
-        }
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks']),
-                 json={'networks': [self.mock_get_network_rep]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets']),
-                 json={'subnets': []}),
-            dict(method="GET",
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports'],
-                     qs_elements=['device_id=some-server']),
-                 json={'ports': [server_port]}),
-            dict(method='POST',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips']),
-                 json={'floatingip': floating_ip})
-        ])
+        floating_ip = {"id": "floating-ip-id", "port_id": None}
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'networks']
+                    ),
+                    json={'networks': [self.mock_get_network_rep]},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'subnets']
+                    ),
+                    json={'subnets': []},
+                ),
+                dict(
+                    method="GET",
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'ports'],
+                        qs_elements=['device_id=some-server'],
+                    ),
+                    json={'ports': [server_port]},
+                ),
+                dict(
+                    method='POST',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'floatingips']
+                    ),
+                    json={'floatingip': floating_ip},
+                ),
+            ]
+        )
 
         self.assertRaises(
             exc.OpenStackCloudException,
             self.cloud._neutron_create_floating_ip,
-            server=dict(id='some-server'))
+            server=dict(id='some-server'),
+        )
         self.assert_calls()
 
     def test_find_nat_source_inferred(self):
         # payloads contrived but based on ones from citycloud
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks',
-                 json={"networks": [{
-                     "status": "ACTIVE",
-                     "subnets": [
-                         "df3e17fa-a4b2-47ae-9015-bc93eb076ba2",
-                         "6b0c3dc9-b0b8-4d87-976a-7f2ebf13e7ec",
-                         "fc541f48-fc7f-48c0-a063-18de6ee7bdd7"],
-                     "availability_zone_hints": [],
-                     "availability_zones": ["nova"],
-                     "name": "ext-net",
-                     "admin_state_up": True,
-                     "tenant_id": "a564613210ee43708b8a7fc6274ebd63",
-                     "tags": [],
-                     "ipv6_address_scope": "9f03124f-89af-483a-b6fd-10f08079db4d",  # noqa
-                     "mtu": 0,
-                     "is_default": False,
-                     "router:external": True,
-                     "ipv4_address_scope": None,
-                     "shared": False,
-                     "id": "0232c17f-2096-49bc-b205-d3dcd9a30ebf",
-                     "description": None
-                 }, {
-                     "status": "ACTIVE",
-                     "subnets": [
-                         "df3e17fa-a4b2-47ae-9015-bc93eb076ba2",
-                         "6b0c3dc9-b0b8-4d87-976a-7f2ebf13e7ec",
-                         "fc541f48-fc7f-48c0-a063-18de6ee7bdd7"],
-                     "availability_zone_hints": [],
-                     "availability_zones": ["nova"],
-                     "name": "my-network",
-                     "admin_state_up": True,
-                     "tenant_id": "a564613210ee43708b8a7fc6274ebd63",
-                     "tags": [],
-                     "ipv6_address_scope": "9f03124f-89af-483a-b6fd-10f08079db4d",  # noqa
-                     "mtu": 0,
-                     "is_default": False,
-                     "router:external": True,
-                     "ipv4_address_scope": None,
-                     "shared": False,
-                     "id": "0232c17f-2096-49bc-b205-d3dcd9a30ebg",
-                     "description": None
-                 }, {
-                     "status": "ACTIVE",
-                     "subnets": ["f0ad1df5-53ee-473f-b86b-3604ea5591e9"],
-                     "availability_zone_hints": [],
-                     "availability_zones": ["nova"],
-                     "name": "private",
-                     "admin_state_up": True,
-                     "tenant_id": "65222a4d09ea4c68934fa1028c77f394",
-                     "created_at": "2016-10-22T13:46:26",
-                     "tags": [],
-                     "updated_at": "2016-10-22T13:46:26",
-                     "ipv6_address_scope": None,
-                     "router:external": False,
-                     "ipv4_address_scope": None,
-                     "shared": False,
-                     "mtu": 1450,
-                     "id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",
-                     "description": ""
-                 }]}),
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets',
-                 json={"subnets": [{
-                     "description": "",
-                     "enable_dhcp": True,
-                     "network_id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",
-                     "tenant_id": "65222a4d09ea4c68934fa1028c77f394",
-                     "created_at": "2016-10-22T13:46:26",
-                     "dns_nameservers": [
-                         "89.36.90.101",
-                         "89.36.90.102"],
-                     "updated_at": "2016-10-22T13:46:26",
-                     "gateway_ip": "10.4.0.1",
-                     "ipv6_ra_mode": None,
-                     "allocation_pools": [{
-                         "start": "10.4.0.2",
-                         "end": "10.4.0.200"}],
-                     "host_routes": [],
-                     "ip_version": 4,
-                     "ipv6_address_mode": None,
-                     "cidr": "10.4.0.0/24",
-                     "id": "f0ad1df5-53ee-473f-b86b-3604ea5591e9",
-                     "subnetpool_id": None,
-                     "name": "private-subnet-ipv4",
-                 }]})
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/networks',
+                    json={
+                        "networks": [
+                            {
+                                "status": "ACTIVE",
+                                "subnets": [
+                                    "df3e17fa-a4b2-47ae-9015-bc93eb076ba2",
+                                    "6b0c3dc9-b0b8-4d87-976a-7f2ebf13e7ec",
+                                    "fc541f48-fc7f-48c0-a063-18de6ee7bdd7",
+                                ],
+                                "availability_zone_hints": [],
+                                "availability_zones": ["nova"],
+                                "name": "ext-net",
+                                "admin_state_up": True,
+                                "tenant_id": "a564613210ee43708b8a7fc6274ebd63",  # noqa: E501
+                                "tags": [],
+                                "ipv6_address_scope": "9f03124f-89af-483a-b6fd-10f08079db4d",  # noqa: E501
+                                "mtu": 0,
+                                "is_default": False,
+                                "router:external": True,
+                                "ipv4_address_scope": None,
+                                "shared": False,
+                                "id": "0232c17f-2096-49bc-b205-d3dcd9a30ebf",
+                                "description": None,
+                            },
+                            {
+                                "status": "ACTIVE",
+                                "subnets": [
+                                    "df3e17fa-a4b2-47ae-9015-bc93eb076ba2",
+                                    "6b0c3dc9-b0b8-4d87-976a-7f2ebf13e7ec",
+                                    "fc541f48-fc7f-48c0-a063-18de6ee7bdd7",
+                                ],
+                                "availability_zone_hints": [],
+                                "availability_zones": ["nova"],
+                                "name": "my-network",
+                                "admin_state_up": True,
+                                "tenant_id": "a564613210ee43708b8a7fc6274ebd63",  # noqa: E501
+                                "tags": [],
+                                "ipv6_address_scope": "9f03124f-89af-483a-b6fd-10f08079db4d",  # noqa: E501
+                                "mtu": 0,
+                                "is_default": False,
+                                "router:external": True,
+                                "ipv4_address_scope": None,
+                                "shared": False,
+                                "id": "0232c17f-2096-49bc-b205-d3dcd9a30ebg",
+                                "description": None,
+                            },
+                            {
+                                "status": "ACTIVE",
+                                "subnets": [
+                                    "f0ad1df5-53ee-473f-b86b-3604ea5591e9"
+                                ],
+                                "availability_zone_hints": [],
+                                "availability_zones": ["nova"],
+                                "name": "private",
+                                "admin_state_up": True,
+                                "tenant_id": "65222a4d09ea4c68934fa1028c77f394",  # noqa: E501
+                                "created_at": "2016-10-22T13:46:26",
+                                "tags": [],
+                                "updated_at": "2016-10-22T13:46:26",
+                                "ipv6_address_scope": None,
+                                "router:external": False,
+                                "ipv4_address_scope": None,
+                                "shared": False,
+                                "mtu": 1450,
+                                "id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",
+                                "description": "",
+                            },
+                        ]
+                    },
+                ),
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/subnets',
+                    json={
+                        "subnets": [
+                            {
+                                "description": "",
+                                "enable_dhcp": True,
+                                "network_id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",  # noqa: E501
+                                "tenant_id": "65222a4d09ea4c68934fa1028c77f394",  # noqa: E501
+                                "created_at": "2016-10-22T13:46:26",
+                                "dns_nameservers": [
+                                    "89.36.90.101",
+                                    "89.36.90.102",
+                                ],
+                                "updated_at": "2016-10-22T13:46:26",
+                                "gateway_ip": "10.4.0.1",
+                                "ipv6_ra_mode": None,
+                                "allocation_pools": [
+                                    {"start": "10.4.0.2", "end": "10.4.0.200"}
+                                ],
+                                "host_routes": [],
+                                "ip_version": 4,
+                                "ipv6_address_mode": None,
+                                "cidr": "10.4.0.0/24",
+                                "id": "f0ad1df5-53ee-473f-b86b-3604ea5591e9",
+                                "subnetpool_id": None,
+                                "name": "private-subnet-ipv4",
+                            }
+                        ]
+                    },
+                ),
+            ]
+        )
 
-        self.assertEqual(
-            'ext-net', self.cloud.get_nat_source()['name'])
+        self.assertEqual('ext-net', self.cloud.get_nat_source()['name'])
 
         self.assert_calls()
 
@@ -1049,96 +1440,116 @@ class TestFloatingIP(base.TestCase):
         self.cloud._nat_source = 'my-network'
 
         # payloads contrived but based on ones from citycloud
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks',
-                 json={"networks": [{
-                     "status": "ACTIVE",
-                     "subnets": [
-                         "df3e17fa-a4b2-47ae-9015-bc93eb076ba2",
-                         "6b0c3dc9-b0b8-4d87-976a-7f2ebf13e7ec",
-                         "fc541f48-fc7f-48c0-a063-18de6ee7bdd7"],
-                     "availability_zone_hints": [],
-                     "availability_zones": ["nova"],
-                     "name": "ext-net",
-                     "admin_state_up": True,
-                     "tenant_id": "a564613210ee43708b8a7fc6274ebd63",
-                     "tags": [],
-                     "ipv6_address_scope": "9f03124f-89af-483a-b6fd-10f08079db4d",  # noqa
-                     "mtu": 0,
-                     "is_default": False,
-                     "router:external": True,
-                     "ipv4_address_scope": None,
-                     "shared": False,
-                     "id": "0232c17f-2096-49bc-b205-d3dcd9a30ebf",
-                     "description": None
-                 }, {
-                     "status": "ACTIVE",
-                     "subnets": [
-                         "df3e17fa-a4b2-47ae-9015-bc93eb076ba2",
-                         "6b0c3dc9-b0b8-4d87-976a-7f2ebf13e7ec",
-                         "fc541f48-fc7f-48c0-a063-18de6ee7bdd7"],
-                     "availability_zone_hints": [],
-                     "availability_zones": ["nova"],
-                     "name": "my-network",
-                     "admin_state_up": True,
-                     "tenant_id": "a564613210ee43708b8a7fc6274ebd63",
-                     "tags": [],
-                     "ipv6_address_scope": "9f03124f-89af-483a-b6fd-10f08079db4d",  # noqa
-                     "mtu": 0,
-                     "is_default": False,
-                     "router:external": True,
-                     "ipv4_address_scope": None,
-                     "shared": False,
-                     "id": "0232c17f-2096-49bc-b205-d3dcd9a30ebg",
-                     "description": None
-                 }, {
-                     "status": "ACTIVE",
-                     "subnets": ["f0ad1df5-53ee-473f-b86b-3604ea5591e9"],
-                     "availability_zone_hints": [],
-                     "availability_zones": ["nova"],
-                     "name": "private",
-                     "admin_state_up": True,
-                     "tenant_id": "65222a4d09ea4c68934fa1028c77f394",
-                     "created_at": "2016-10-22T13:46:26",
-                     "tags": [],
-                     "updated_at": "2016-10-22T13:46:26",
-                     "ipv6_address_scope": None,
-                     "router:external": False,
-                     "ipv4_address_scope": None,
-                     "shared": False,
-                     "mtu": 1450,
-                     "id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",
-                     "description": ""
-                 }]}),
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets',
-                 json={"subnets": [{
-                     "description": "",
-                     "enable_dhcp": True,
-                     "network_id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",
-                     "tenant_id": "65222a4d09ea4c68934fa1028c77f394",
-                     "created_at": "2016-10-22T13:46:26",
-                     "dns_nameservers": [
-                         "89.36.90.101",
-                         "89.36.90.102"],
-                     "updated_at": "2016-10-22T13:46:26",
-                     "gateway_ip": "10.4.0.1",
-                     "ipv6_ra_mode": None,
-                     "allocation_pools": [{
-                         "start": "10.4.0.2",
-                         "end": "10.4.0.200"}],
-                     "host_routes": [],
-                     "ip_version": 4,
-                     "ipv6_address_mode": None,
-                     "cidr": "10.4.0.0/24",
-                     "id": "f0ad1df5-53ee-473f-b86b-3604ea5591e9",
-                     "subnetpool_id": None,
-                     "name": "private-subnet-ipv4",
-                 }]})
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/networks',
+                    json={
+                        "networks": [
+                            {
+                                "status": "ACTIVE",
+                                "subnets": [
+                                    "df3e17fa-a4b2-47ae-9015-bc93eb076ba2",
+                                    "6b0c3dc9-b0b8-4d87-976a-7f2ebf13e7ec",
+                                    "fc541f48-fc7f-48c0-a063-18de6ee7bdd7",
+                                ],
+                                "availability_zone_hints": [],
+                                "availability_zones": ["nova"],
+                                "name": "ext-net",
+                                "admin_state_up": True,
+                                "tenant_id": "a564613210ee43708b8a7fc6274ebd63",  # noqa: E501
+                                "tags": [],
+                                "ipv6_address_scope": "9f03124f-89af-483a-b6fd-10f08079db4d",  # noqa: E501
+                                "mtu": 0,
+                                "is_default": False,
+                                "router:external": True,
+                                "ipv4_address_scope": None,
+                                "shared": False,
+                                "id": "0232c17f-2096-49bc-b205-d3dcd9a30ebf",
+                                "description": None,
+                            },
+                            {
+                                "status": "ACTIVE",
+                                "subnets": [
+                                    "df3e17fa-a4b2-47ae-9015-bc93eb076ba2",
+                                    "6b0c3dc9-b0b8-4d87-976a-7f2ebf13e7ec",
+                                    "fc541f48-fc7f-48c0-a063-18de6ee7bdd7",
+                                ],
+                                "availability_zone_hints": [],
+                                "availability_zones": ["nova"],
+                                "name": "my-network",
+                                "admin_state_up": True,
+                                "tenant_id": "a564613210ee43708b8a7fc6274ebd63",  # noqa: E501
+                                "tags": [],
+                                "ipv6_address_scope": "9f03124f-89af-483a-b6fd-10f08079db4d",  # noqa: E501
+                                "mtu": 0,
+                                "is_default": False,
+                                "router:external": True,
+                                "ipv4_address_scope": None,
+                                "shared": False,
+                                "id": "0232c17f-2096-49bc-b205-d3dcd9a30ebg",
+                                "description": None,
+                            },
+                            {
+                                "status": "ACTIVE",
+                                "subnets": [
+                                    "f0ad1df5-53ee-473f-b86b-3604ea5591e9"
+                                ],
+                                "availability_zone_hints": [],
+                                "availability_zones": ["nova"],
+                                "name": "private",
+                                "admin_state_up": True,
+                                "tenant_id": "65222a4d09ea4c68934fa1028c77f394",  # noqa: E501
+                                "created_at": "2016-10-22T13:46:26",
+                                "tags": [],
+                                "updated_at": "2016-10-22T13:46:26",
+                                "ipv6_address_scope": None,
+                                "router:external": False,
+                                "ipv4_address_scope": None,
+                                "shared": False,
+                                "mtu": 1450,
+                                "id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",
+                                "description": "",
+                            },
+                        ]
+                    },
+                ),
+                dict(
+                    method='GET',
+                    uri='https://network.example.com/v2.0/subnets',
+                    json={
+                        "subnets": [
+                            {
+                                "description": "",
+                                "enable_dhcp": True,
+                                "network_id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",  # noqa: E501
+                                "tenant_id": "65222a4d09ea4c68934fa1028c77f394",  # noqa: E501
+                                "created_at": "2016-10-22T13:46:26",
+                                "dns_nameservers": [
+                                    "89.36.90.101",
+                                    "89.36.90.102",
+                                ],
+                                "updated_at": "2016-10-22T13:46:26",
+                                "gateway_ip": "10.4.0.1",
+                                "ipv6_ra_mode": None,
+                                "allocation_pools": [
+                                    {"start": "10.4.0.2", "end": "10.4.0.200"}
+                                ],
+                                "host_routes": [],
+                                "ip_version": 4,
+                                "ipv6_address_mode": None,
+                                "cidr": "10.4.0.0/24",
+                                "id": "f0ad1df5-53ee-473f-b86b-3604ea5591e9",
+                                "subnetpool_id": None,
+                                "name": "private-subnet-ipv4",
+                            }
+                        ]
+                    },
+                ),
+            ]
+        )
 
-        self.assertEqual(
-            'my-network', self.cloud.get_nat_source()['name'])
+        self.assertEqual('my-network', self.cloud.get_nat_source()['name'])
 
         self.assert_calls()

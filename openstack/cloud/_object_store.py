@@ -105,9 +105,7 @@ class ObjectStoreCloudMixin:
         container = self.get_container(name)
         if container:
             return container
-        attrs = dict(
-            name=name
-        )
+        attrs = dict(name=name)
         if public:
             attrs['read_ACL'] = OBJECT_CONTAINER_ACLS['public']
         container = self.object_store.create_container(**attrs)
@@ -129,7 +127,9 @@ class ObjectStoreCloudMixin:
                 'Attempt to delete container {container} failed. The'
                 ' container is not empty. Please delete the objects'
                 ' inside it before deleting the container'.format(
-                    container=name))
+                    container=name
+                )
+            )
 
     def update_container(self, name, headers):
         """Update the metadata in a container.
@@ -138,7 +138,8 @@ class ObjectStoreCloudMixin:
         :param dict headers: Key/Value headers to set on the container.
         """
         self.object_store.set_container_metadata(
-            name, refresh=False, **headers)
+            name, refresh=False, **headers
+        )
 
     def set_container_access(self, name, access, refresh=False):
         """Set the access control list on a container.
@@ -152,11 +153,10 @@ class ObjectStoreCloudMixin:
         if access not in OBJECT_CONTAINER_ACLS:
             raise exc.OpenStackCloudException(
                 "Invalid container access specified: %s.  Must be one of %s"
-                % (access, list(OBJECT_CONTAINER_ACLS.keys())))
+                % (access, list(OBJECT_CONTAINER_ACLS.keys()))
+            )
         return self.object_store.set_container_metadata(
-            name,
-            read_ACL=OBJECT_CONTAINER_ACLS[access],
-            refresh=refresh
+            name, read_ACL=OBJECT_CONTAINER_ACLS[access], refresh=refresh
         )
 
     def get_container_access(self, name):
@@ -179,7 +179,8 @@ class ObjectStoreCloudMixin:
             if str(acl) == str(value):
                 return key
         raise exc.OpenStackCloudException(
-            "Could not determine container access for ACL: %s." % acl)
+            "Could not determine container access for ACL: %s." % acl
+        )
 
     @_utils.cache_on_arguments()
     def get_object_capabilities(self):
@@ -201,7 +202,8 @@ class ObjectStoreCloudMixin:
         return self.object_store.get_object_segment_size(segment_size)
 
     def is_object_stale(
-            self, container, name, filename, file_md5=None, file_sha256=None):
+        self, container, name, filename, file_md5=None, file_sha256=None
+    ):
         """Check to see if an object matches the hashes of a file.
 
         :param container: Name of the container.
@@ -213,8 +215,11 @@ class ObjectStoreCloudMixin:
             Defaults to None which means calculate locally.
         """
         return self.object_store.is_object_stale(
-            container, name, filename,
-            file_md5=file_md5, file_sha256=file_sha256
+            container,
+            name,
+            filename,
+            file_md5=file_md5,
+            file_sha256=file_sha256,
         )
 
     def create_directory_marker_object(self, container, name, **headers):
@@ -241,11 +246,8 @@ class ObjectStoreCloudMixin:
         headers['content-type'] = 'application/directory'
 
         return self.create_object(
-            container,
-            name,
-            data='',
-            generate_checksums=False,
-            **headers)
+            container, name, data='', generate_checksums=False, **headers
+        )
 
     def create_object(
         self,
@@ -295,12 +297,16 @@ class ObjectStoreCloudMixin:
         :raises: ``OpenStackCloudException`` on operation error.
         """
         return self.object_store.create_object(
-            container, name,
-            filename=filename, data=data,
-            md5=md5, sha256=sha256, use_slo=use_slo,
+            container,
+            name,
+            filename=filename,
+            data=data,
+            md5=md5,
+            sha256=sha256,
+            use_slo=use_slo,
             generate_checksums=generate_checksums,
             metadata=metadata,
-            **headers
+            **headers,
         )
 
     def update_object(self, container, name, metadata=None, **headers):
@@ -317,8 +323,7 @@ class ObjectStoreCloudMixin:
         """
         meta = metadata.copy() or {}
         meta.update(**headers)
-        self.object_store.set_object_metadata(
-            name, container, **meta)
+        self.object_store.set_object_metadata(name, container, **meta)
 
     def list_objects(self, container, full_listing=True, prefix=None):
         """List objects.
@@ -330,10 +335,9 @@ class ObjectStoreCloudMixin:
         :returns: A list of object store ``Object`` objects.
         :raises: OpenStackCloudException on operation error.
         """
-        return list(self.object_store.objects(
-            container=container,
-            prefix=prefix
-        ))
+        return list(
+            self.object_store.objects(container=container, prefix=prefix)
+        )
 
     def search_objects(self, container, name=None, filters=None):
         """Search objects.
@@ -364,7 +368,9 @@ class ObjectStoreCloudMixin:
         """
         try:
             self.object_store.delete_object(
-                name, ignore_missing=False, container=container,
+                name,
+                ignore_missing=False,
+                container=container,
             )
             return True
         except exceptions.SDKException:
@@ -400,9 +406,7 @@ class ObjectStoreCloudMixin:
         :param name:
         :returns: The object metadata.
         """
-        return self.object_store.get_object_metadata(
-            name, container
-        ).metadata
+        return self.object_store.get_object_metadata(name, container).metadata
 
     def get_object_raw(self, container, obj, query_string=None, stream=False):
         """Get a raw response object for an object.
@@ -422,12 +426,12 @@ class ObjectStoreCloudMixin:
         endpoint = urllib.parse.quote(container)
         if obj:
             endpoint = '{endpoint}/{object}'.format(
-                endpoint=endpoint,
-                object=urllib.parse.quote(obj)
+                endpoint=endpoint, object=urllib.parse.quote(obj)
             )
         if query_string:
             endpoint = '{endpoint}?{query_string}'.format(
-                endpoint=endpoint, query_string=query_string)
+                endpoint=endpoint, query_string=query_string
+            )
         return endpoint
 
     def stream_object(
@@ -451,13 +455,21 @@ class ObjectStoreCloudMixin:
         """
         try:
             for ret in self.object_store.stream_object(
-                    obj, container, chunk_size=resp_chunk_size):
+                obj, container, chunk_size=resp_chunk_size
+            ):
                 yield ret
         except exceptions.ResourceNotFound:
             return
 
-    def get_object(self, container, obj, query_string=None,
-                   resp_chunk_size=1024, outfile=None, stream=False):
+    def get_object(
+        self,
+        container,
+        obj,
+        query_string=None,
+        resp_chunk_size=1024,
+        outfile=None,
+        stream=False,
+    ):
         """Get the headers and body of an object
 
         :param string container: Name of the container.
@@ -477,13 +489,13 @@ class ObjectStoreCloudMixin:
         """
         try:
             obj = self.object_store.get_object(
-                obj, container=container,
+                obj,
+                container=container,
                 resp_chunk_size=resp_chunk_size,
                 outfile=outfile,
-                remember_content=(outfile is None)
+                remember_content=(outfile is None),
             )
-            headers = {
-                k.lower(): v for k, v in obj._last_headers.items()}
+            headers = {k.lower(): v for k, v in obj._last_headers.items()}
             return (headers, obj.data)
 
         except exceptions.ResourceNotFound:
@@ -500,10 +512,13 @@ class ObjectStoreCloudMixin:
                 result = completed.result()
                 exceptions.raise_from_response(result)
                 results.append(result)
-            except (keystoneauth1.exceptions.RetriableConnectionFailure,
-                    exceptions.HttpException) as e:
+            except (
+                keystoneauth1.exceptions.RetriableConnectionFailure,
+                exceptions.HttpException,
+            ) as e:
                 error_text = "Exception processing async task: {}".format(
-                    str(e))
+                    str(e)
+                )
                 if raise_on_error:
                     self.log.exception(error_text)
                     raise

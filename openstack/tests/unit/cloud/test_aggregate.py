@@ -15,7 +15,6 @@ from openstack.tests.unit import base
 
 
 class TestAggregate(base.TestCase):
-
     def setUp(self):
         super(TestAggregate, self).setUp()
         self.aggregate_name = self.getUniqueString('aggregate')
@@ -27,17 +26,25 @@ class TestAggregate(base.TestCase):
         del create_aggregate['metadata']
         del create_aggregate['hosts']
 
-        self.register_uris([
-            dict(method='POST',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-aggregates']),
-                 json={'aggregate': create_aggregate},
-                 validate=dict(json={
-                     'aggregate': {
-                         'name': self.aggregate_name,
-                         'availability_zone': None,
-                     }})),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='POST',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['os-aggregates']
+                    ),
+                    json={'aggregate': create_aggregate},
+                    validate=dict(
+                        json={
+                            'aggregate': {
+                                'name': self.aggregate_name,
+                                'availability_zone': None,
+                            }
+                        }
+                    ),
+                ),
+            ]
+        )
         self.cloud.create_aggregate(name=self.aggregate_name)
 
         self.assert_calls()
@@ -45,100 +52,144 @@ class TestAggregate(base.TestCase):
     def test_create_aggregate_with_az(self):
         availability_zone = 'az1'
         az_aggregate = fakes.make_fake_aggregate(
-            1, self.aggregate_name, availability_zone=availability_zone)
+            1, self.aggregate_name, availability_zone=availability_zone
+        )
 
         create_aggregate = az_aggregate.copy()
         del create_aggregate['metadata']
         del create_aggregate['hosts']
 
-        self.register_uris([
-            dict(method='POST',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-aggregates']),
-                 json={'aggregate': create_aggregate},
-                 validate=dict(json={
-                     'aggregate': {
-                         'name': self.aggregate_name,
-                         'availability_zone': availability_zone,
-                     }})),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='POST',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['os-aggregates']
+                    ),
+                    json={'aggregate': create_aggregate},
+                    validate=dict(
+                        json={
+                            'aggregate': {
+                                'name': self.aggregate_name,
+                                'availability_zone': availability_zone,
+                            }
+                        }
+                    ),
+                ),
+            ]
+        )
 
         self.cloud.create_aggregate(
-            name=self.aggregate_name, availability_zone=availability_zone)
+            name=self.aggregate_name, availability_zone=availability_zone
+        )
 
         self.assert_calls()
 
     def test_delete_aggregate(self):
-        self.register_uris([
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-aggregates', '1'])),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['os-aggregates', '1']
+                    ),
+                ),
+            ]
+        )
 
         self.assertTrue(self.cloud.delete_aggregate('1'))
 
         self.assert_calls()
 
     def test_delete_aggregate_by_name(self):
-        self.register_uris([
-            dict(
-                method='GET',
-                uri=self.get_mock_url(
-                    'compute', 'public', append=['os-aggregates',
-                                                 self.aggregate_name]
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['os-aggregates', self.aggregate_name],
+                    ),
+                    status_code=404,
                 ),
-                status_code=404,
-            ),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-aggregates']),
-                 json={'aggregates': [self.fake_aggregate]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-aggregates', '1'])),
-        ])
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['os-aggregates']
+                    ),
+                    json={'aggregates': [self.fake_aggregate]},
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['os-aggregates', '1']
+                    ),
+                ),
+            ]
+        )
 
         self.assertTrue(self.cloud.delete_aggregate(self.aggregate_name))
 
         self.assert_calls()
 
     def test_update_aggregate_set_az(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-aggregates', '1']),
-                 json=self.fake_aggregate),
-            dict(method='PUT',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-aggregates', '1']),
-                 json={'aggregate': self.fake_aggregate},
-                 validate=dict(
-                     json={
-                         'aggregate': {
-                             'availability_zone': 'az',
-                         }})),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['os-aggregates', '1']
+                    ),
+                    json=self.fake_aggregate,
+                ),
+                dict(
+                    method='PUT',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['os-aggregates', '1']
+                    ),
+                    json={'aggregate': self.fake_aggregate},
+                    validate=dict(
+                        json={
+                            'aggregate': {
+                                'availability_zone': 'az',
+                            }
+                        }
+                    ),
+                ),
+            ]
+        )
 
         self.cloud.update_aggregate(1, availability_zone='az')
 
         self.assert_calls()
 
     def test_update_aggregate_unset_az(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-aggregates', '1']),
-                 json=self.fake_aggregate),
-            dict(method='PUT',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-aggregates', '1']),
-                 json={'aggregate': self.fake_aggregate},
-                 validate=dict(
-                     json={
-                         'aggregate': {
-                             'availability_zone': None,
-                         }})),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['os-aggregates', '1']
+                    ),
+                    json=self.fake_aggregate,
+                ),
+                dict(
+                    method='PUT',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['os-aggregates', '1']
+                    ),
+                    json={'aggregate': self.fake_aggregate},
+                    validate=dict(
+                        json={
+                            'aggregate': {
+                                'availability_zone': None,
+                            }
+                        }
+                    ),
+                ),
+            ]
+        )
 
         self.cloud.update_aggregate(1, availability_zone=None)
 
@@ -146,57 +197,83 @@ class TestAggregate(base.TestCase):
 
     def test_set_aggregate_metadata(self):
         metadata = {'key': 'value'}
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-aggregates', '1']),
-                 json=self.fake_aggregate),
-            dict(method='POST',
-                 uri=self.get_mock_url(
-                     'compute', 'public',
-                     append=['os-aggregates', '1', 'action']),
-                 json={'aggregate': self.fake_aggregate},
-                 validate=dict(
-                     json={'set_metadata': {'metadata': metadata}})),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['os-aggregates', '1']
+                    ),
+                    json=self.fake_aggregate,
+                ),
+                dict(
+                    method='POST',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['os-aggregates', '1', 'action'],
+                    ),
+                    json={'aggregate': self.fake_aggregate},
+                    validate=dict(
+                        json={'set_metadata': {'metadata': metadata}}
+                    ),
+                ),
+            ]
+        )
         self.cloud.set_aggregate_metadata('1', metadata)
 
         self.assert_calls()
 
     def test_add_host_to_aggregate(self):
         hostname = 'host1'
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-aggregates', '1']),
-                 json=self.fake_aggregate),
-            dict(method='POST',
-                 uri=self.get_mock_url(
-                     'compute', 'public',
-                     append=['os-aggregates', '1', 'action']),
-                 json={'aggregate': self.fake_aggregate},
-                 validate=dict(
-                     json={'add_host': {'host': hostname}})),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['os-aggregates', '1']
+                    ),
+                    json=self.fake_aggregate,
+                ),
+                dict(
+                    method='POST',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['os-aggregates', '1', 'action'],
+                    ),
+                    json={'aggregate': self.fake_aggregate},
+                    validate=dict(json={'add_host': {'host': hostname}}),
+                ),
+            ]
+        )
         self.cloud.add_host_to_aggregate('1', hostname)
 
         self.assert_calls()
 
     def test_remove_host_from_aggregate(self):
         hostname = 'host1'
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-aggregates', '1']),
-                 json=self.fake_aggregate),
-            dict(method='POST',
-                 uri=self.get_mock_url(
-                     'compute', 'public',
-                     append=['os-aggregates', '1', 'action']),
-                 json={'aggregate': self.fake_aggregate},
-                 validate=dict(
-                     json={'remove_host': {'host': hostname}})),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['os-aggregates', '1']
+                    ),
+                    json=self.fake_aggregate,
+                ),
+                dict(
+                    method='POST',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['os-aggregates', '1', 'action'],
+                    ),
+                    json={'aggregate': self.fake_aggregate},
+                    validate=dict(json={'remove_host': {'host': hostname}}),
+                ),
+            ]
+        )
         self.cloud.remove_host_from_aggregate('1', hostname)
 
         self.assert_calls()

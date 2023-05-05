@@ -102,8 +102,9 @@ def _filter_list(data, name_or_id, filters):
             e_id = _make_unicode(e.get('id', None))
             e_name = _make_unicode(e.get('name', None))
 
-            if ((e_id and e_id == name_or_id)
-                    or (e_name and e_name == name_or_id)):
+            if (e_id and e_id == name_or_id) or (
+                e_name and e_name == name_or_id
+            ):
                 identifier_matches.append(e)
             else:
                 # Only try fnmatch if we don't match exactly
@@ -112,8 +113,9 @@ def _filter_list(data, name_or_id, filters):
                     # so that we log the bad pattern
                     bad_pattern = True
                     continue
-                if ((e_id and fn_reg.match(e_id))
-                        or (e_name and fn_reg.match(e_name))):
+                if (e_id and fn_reg.match(e_id)) or (
+                    e_name and fn_reg.match(e_name)
+                ):
                     identifier_matches.append(e)
         if not identifier_matches and bad_pattern:
             log.debug("Bad pattern passed to fnmatch", exc_info=True)
@@ -172,8 +174,9 @@ def _get_entity(cloud, resource, name_or_id, filters, **kwargs):
     # an additional call, it's simple enough to test to see if we got an
     # object and just short-circuit return it.
 
-    if (hasattr(name_or_id, 'id')
-            or (isinstance(name_or_id, dict) and 'id' in name_or_id)):
+    if hasattr(name_or_id, 'id') or (
+        isinstance(name_or_id, dict) and 'id' in name_or_id
+    ):
         return name_or_id
 
     # If a uuid is passed short-circuit it calling the
@@ -183,14 +186,18 @@ def _get_entity(cloud, resource, name_or_id, filters, **kwargs):
         if get_resource:
             return get_resource(name_or_id)
 
-    search = resource if callable(resource) else getattr(
-        cloud, 'search_%ss' % resource, None)
+    search = (
+        resource
+        if callable(resource)
+        else getattr(cloud, 'search_%ss' % resource, None)
+    )
     if search:
         entities = search(name_or_id, filters, **kwargs)
         if entities:
             if len(entities) > 1:
                 raise exc.OpenStackCloudException(
-                    "Multiple matches found for %s" % name_or_id)
+                    "Multiple matches found for %s" % name_or_id
+                )
             return entities[0]
     return None
 
@@ -230,8 +237,10 @@ def valid_kwargs(*valid_args):
             if k not in argspec.args[1:] and k not in valid_args:
                 raise TypeError(
                     "{f}() got an unexpected keyword argument "
-                    "'{arg}'".format(f=inspect.stack()[1][3], arg=k))
+                    "'{arg}'".format(f=inspect.stack()[1][3], arg=k)
+                )
         return func(*args, **kwargs)
+
     return func_wrapper
 
 
@@ -244,6 +253,7 @@ def _func_wrap(f):
     @functools.wraps(f)
     def inner(*args, **kwargs):
         return f(*args, **kwargs)
+
     return inner
 
 
@@ -253,20 +263,23 @@ def cache_on_arguments(*cache_on_args, **cache_on_kwargs):
     def _inner_cache_on_arguments(func):
         def _cache_decorator(obj, *args, **kwargs):
             the_method = obj._get_cache(_cache_name).cache_on_arguments(
-                *cache_on_args, **cache_on_kwargs)(
-                    _func_wrap(func.__get__(obj, type(obj))))
+                *cache_on_args, **cache_on_kwargs
+            )(_func_wrap(func.__get__(obj, type(obj))))
             return the_method(*args, **kwargs)
 
         def invalidate(obj, *args, **kwargs):
-            return obj._get_cache(
-                _cache_name).cache_on_arguments()(func).invalidate(
-                    *args, **kwargs)
+            return (
+                obj._get_cache(_cache_name)
+                .cache_on_arguments()(func)
+                .invalidate(*args, **kwargs)
+            )
 
         _cache_decorator.invalidate = invalidate
         _cache_decorator.func = func
         _decorated_methods.append(func.__name__)
 
         return _cache_decorator
+
     return _inner_cache_on_arguments
 
 
@@ -320,7 +333,8 @@ def safe_dict_min(key, data):
                 raise exc.OpenStackCloudException(
                     "Search for minimum value failed. "
                     "Value for {key} is not an integer: {value}".format(
-                        key=key, value=d[key])
+                        key=key, value=d[key]
+                    )
                 )
             if (min_value is None) or (val < min_value):
                 min_value = val
@@ -352,16 +366,17 @@ def safe_dict_max(key, data):
                 raise exc.OpenStackCloudException(
                     "Search for maximum value failed. "
                     "Value for {key} is not an integer: {value}".format(
-                        key=key, value=d[key])
+                        key=key, value=d[key]
+                    )
                 )
             if (max_value is None) or (val > max_value):
                 max_value = val
     return max_value
 
 
-def _call_client_and_retry(client, url, retry_on=None,
-                           call_retries=3, retry_wait=2,
-                           **kwargs):
+def _call_client_and_retry(
+    client, url, retry_on=None, call_retries=3, retry_wait=2, **kwargs
+):
     """Method to provide retry operations.
 
     Some APIs utilize HTTP errors on certain operations to indicate that
@@ -391,18 +406,17 @@ def _call_client_and_retry(client, url, retry_on=None,
         retry_on = [retry_on]
 
     count = 0
-    while (count < call_retries):
+    while count < call_retries:
         count += 1
         try:
             ret_val = client(url, **kwargs)
         except exc.OpenStackCloudHTTPError as e:
-            if (retry_on is not None
-                    and e.response.status_code in retry_on):
-                log.debug('Received retryable error %(err)s, waiting '
-                          '%(wait)s seconds to retry', {
-                              'err': e.response.status_code,
-                              'wait': retry_wait
-                          })
+            if retry_on is not None and e.response.status_code in retry_on:
+                log.debug(
+                    'Received retryable error %(err)s, waiting '
+                    '%(wait)s seconds to retry',
+                    {'err': e.response.status_code, 'wait': retry_wait},
+                )
                 time.sleep(retry_wait)
                 continue
             else:
@@ -484,7 +498,8 @@ def range_filter(data, key, range_exp):
     # If parsing the range fails, it must be a bad value.
     if val_range is None:
         raise exc.OpenStackCloudException(
-            "Invalid range value: {value}".format(value=range_exp))
+            "Invalid range value: {value}".format(value=range_exp)
+        )
 
     op = val_range[0]
     if op:
@@ -523,9 +538,7 @@ def generate_patches_from_kwargs(operation, **kwargs):
     """
     patches = []
     for k, v in kwargs.items():
-        patch = {'op': operation,
-                 'value': v,
-                 'path': '/%s' % k}
+        patch = {'op': operation, 'value': v, 'path': '/%s' % k}
         patches.append(patch)
     return sorted(patches)
 
@@ -568,11 +581,13 @@ class FileSegment:
 
 
 def _format_uuid_string(string):
-    return (string.replace('urn:', '')
-                  .replace('uuid:', '')
-                  .strip('{}')
-                  .replace('-', '')
-                  .lower())
+    return (
+        string.replace('urn:', '')
+        .replace('uuid:', '')
+        .strip('{}')
+        .replace('-', '')
+        .lower()
+    )
 
 
 def _is_uuid_like(val):

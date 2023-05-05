@@ -19,29 +19,41 @@ from openstack.tests.unit import base
 
 
 class TestKeypair(base.TestCase):
-
     def setUp(self):
         super(TestKeypair, self).setUp()
         self.keyname = self.getUniqueString('key')
         self.key = fakes.make_fake_keypair(self.keyname)
-        self.useFixture(fixtures.MonkeyPatch(
-            'openstack.utils.maximum_supported_microversion',
-            lambda *args, **kwargs: '2.10'))
+        self.useFixture(
+            fixtures.MonkeyPatch(
+                'openstack.utils.maximum_supported_microversion',
+                lambda *args, **kwargs: '2.10',
+            )
+        )
 
     def test_create_keypair(self):
-        self.register_uris([
-            dict(method='POST',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-keypairs']),
-                 json={'keypair': self.key},
-                 validate=dict(json={
-                     'keypair': {
-                         'name': self.key['name'],
-                         'public_key': self.key['public_key']}})),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='POST',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['os-keypairs']
+                    ),
+                    json={'keypair': self.key},
+                    validate=dict(
+                        json={
+                            'keypair': {
+                                'name': self.key['name'],
+                                'public_key': self.key['public_key'],
+                            }
+                        }
+                    ),
+                ),
+            ]
+        )
 
         new_key = self.cloud.create_keypair(
-            self.keyname, self.key['public_key'])
+            self.keyname, self.key['public_key']
+        )
         new_key_cmp = new_key.to_dict(ignore_none=True)
         new_key_cmp.pop('location')
         new_key_cmp.pop('id')
@@ -50,97 +62,140 @@ class TestKeypair(base.TestCase):
         self.assert_calls()
 
     def test_create_keypair_exception(self):
-        self.register_uris([
-            dict(method='POST',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-keypairs']),
-                 status_code=400,
-                 validate=dict(json={
-                     'keypair': {
-                         'name': self.key['name'],
-                         'public_key': self.key['public_key']}})),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='POST',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['os-keypairs']
+                    ),
+                    status_code=400,
+                    validate=dict(
+                        json={
+                            'keypair': {
+                                'name': self.key['name'],
+                                'public_key': self.key['public_key'],
+                            }
+                        }
+                    ),
+                ),
+            ]
+        )
 
         self.assertRaises(
             exc.OpenStackCloudException,
             self.cloud.create_keypair,
-            self.keyname, self.key['public_key'])
+            self.keyname,
+            self.key['public_key'],
+        )
 
         self.assert_calls()
 
     def test_delete_keypair(self):
-        self.register_uris([
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'compute', 'public',
-                     append=['os-keypairs', self.keyname]),
-                 status_code=202),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['os-keypairs', self.keyname],
+                    ),
+                    status_code=202,
+                ),
+            ]
+        )
         self.assertTrue(self.cloud.delete_keypair(self.keyname))
 
         self.assert_calls()
 
     def test_delete_keypair_not_found(self):
-        self.register_uris([
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'compute', 'public',
-                     append=['os-keypairs', self.keyname]),
-                 status_code=404),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['os-keypairs', self.keyname],
+                    ),
+                    status_code=404,
+                ),
+            ]
+        )
         self.assertFalse(self.cloud.delete_keypair(self.keyname))
 
         self.assert_calls()
 
     def test_list_keypairs(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-keypairs']),
-                 json={'keypairs': [{'keypair': self.key}]}),
-
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['os-keypairs']
+                    ),
+                    json={'keypairs': [{'keypair': self.key}]},
+                ),
+            ]
+        )
         keypairs = self.cloud.list_keypairs()
         self.assertEqual(len(keypairs), 1)
         self.assertEqual(keypairs[0].name, self.key['name'])
         self.assert_calls()
 
     def test_list_keypairs_empty_filters(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-keypairs']),
-                 json={'keypairs': [{'keypair': self.key}]}),
-
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['os-keypairs']
+                    ),
+                    json={'keypairs': [{'keypair': self.key}]},
+                ),
+            ]
+        )
         keypairs = self.cloud.list_keypairs(filters=None)
         self.assertEqual(len(keypairs), 1)
         self.assertEqual(keypairs[0].name, self.key['name'])
         self.assert_calls()
 
     def test_list_keypairs_notempty_filters(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-keypairs'],
-                     qs_elements=['user_id=b']),
-                 json={'keypairs': [{'keypair': self.key}]}),
-
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['os-keypairs'],
+                        qs_elements=['user_id=b'],
+                    ),
+                    json={'keypairs': [{'keypair': self.key}]},
+                ),
+            ]
+        )
         keypairs = self.cloud.list_keypairs(
-            filters={'user_id': 'b', 'fake': 'dummy'})
+            filters={'user_id': 'b', 'fake': 'dummy'}
+        )
         self.assertEqual(len(keypairs), 1)
         self.assertEqual(keypairs[0].name, self.key['name'])
         self.assert_calls()
 
     def test_list_keypairs_exception(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-keypairs']),
-                 status_code=400),
-
-        ])
-        self.assertRaises(exc.OpenStackCloudException,
-                          self.cloud.list_keypairs)
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['os-keypairs']
+                    ),
+                    status_code=400,
+                ),
+            ]
+        )
+        self.assertRaises(
+            exc.OpenStackCloudException, self.cloud.list_keypairs
+        )
         self.assert_calls()

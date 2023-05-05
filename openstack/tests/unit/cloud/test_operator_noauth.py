@@ -32,19 +32,34 @@ class TestOpenStackCloudOperatorNoAuth(base.TestCase):
         # By clearing the URI registry, we remove all calls to a keystone
         # catalog or getting a token
         self._uri_registry.clear()
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     service_type='baremetal', base_url_append='v1'),
-                 json={'id': 'v1',
-                       'links': [{"href": "https://baremetal.example.com/v1",
-                                  "rel": "self"}]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     service_type='baremetal', base_url_append='v1',
-                     resource='nodes'),
-                 json={'nodes': []}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        service_type='baremetal', base_url_append='v1'
+                    ),
+                    json={
+                        'id': 'v1',
+                        'links': [
+                            {
+                                "href": "https://baremetal.example.com/v1",
+                                "rel": "self",
+                            }
+                        ],
+                    },
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        service_type='baremetal',
+                        base_url_append='v1',
+                        resource='nodes',
+                    ),
+                    json={'nodes': []},
+                ),
+            ]
+        )
 
     def test_ironic_noauth_none_auth_type(self):
         """Test noauth selection for Ironic in OpenStackCloud
@@ -58,7 +73,8 @@ class TestOpenStackCloudOperatorNoAuth(base.TestCase):
         # client library.
         self.cloud_noauth = openstack.connect(
             auth_type='none',
-            baremetal_endpoint_override="https://baremetal.example.com/v1")
+            baremetal_endpoint_override="https://baremetal.example.com/v1",
+        )
 
         self.cloud_noauth.list_machines()
 
@@ -92,8 +108,9 @@ class TestOpenStackCloudOperatorNoAuth(base.TestCase):
         self.cloud_noauth = openstack.connect(
             auth_type='admin_token',
             auth=dict(
-                endpoint='https://baremetal.example.com/v1',
-                token='ignored'))
+                endpoint='https://baremetal.example.com/v1', token='ignored'
+            ),
+        )
 
         self.cloud_noauth.list_machines()
 
@@ -116,65 +133,94 @@ class TestOpenStackCloudOperatorNoAuthUnversioned(base.TestCase):
         # By clearing the URI registry, we remove all calls to a keystone
         # catalog or getting a token
         self._uri_registry.clear()
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://baremetal.example.com/',
-                 json={
-                     "default_version": {
-                         "status": "CURRENT",
-                         "min_version": "1.1",
-                         "version": "1.46",
-                         "id": "v1",
-                         "links": [{
-                             "href": "https://baremetal.example.com/v1",
-                             "rel": "self"
-                         }]},
-                     "versions": [{
-                         "status": "CURRENT",
-                         "min_version": "1.1",
-                         "version": "1.46",
-                         "id": "v1",
-                         "links": [{
-                             "href": "https://baremetal.example.com/v1",
-                             "rel": "self"
-                         }]}],
-                     "name": "OpenStack Ironic API",
-                     "description": "Ironic is an OpenStack project."
-                 }),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     service_type='baremetal', base_url_append='v1'),
-                 json={
-                     "media_types": [{
-                         "base": "application/json",
-                         "type": "application/vnd.openstack.ironic.v1+json"
-                     }],
-                     "links": [{
-                         "href": "https://baremetal.example.com/v1",
-                         "rel": "self"
-                     }],
-                     "ports": [{
-                         "href": "https://baremetal.example.com/v1/ports/",
-                         "rel": "self"
-                     }, {
-                         "href": "https://baremetal.example.com/ports/",
-                         "rel": "bookmark"
-                     }],
-                     "nodes": [{
-                         "href": "https://baremetal.example.com/v1/nodes/",
-                         "rel": "self"
-                     }, {
-                         "href": "https://baremetal.example.com/nodes/",
-                         "rel": "bookmark"
-                     }],
-                     "id": "v1"
-                 }),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     service_type='baremetal', base_url_append='v1',
-                     resource='nodes'),
-                 json={'nodes': []}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://baremetal.example.com/',
+                    json={
+                        "default_version": {
+                            "status": "CURRENT",
+                            "min_version": "1.1",
+                            "version": "1.46",
+                            "id": "v1",
+                            "links": [
+                                {
+                                    "href": "https://baremetal.example.com/v1",
+                                    "rel": "self",
+                                }
+                            ],
+                        },
+                        "versions": [
+                            {
+                                "status": "CURRENT",
+                                "min_version": "1.1",
+                                "version": "1.46",
+                                "id": "v1",
+                                "links": [
+                                    {
+                                        "href": "https://baremetal.example.com/v1",  # noqa: E501
+                                        "rel": "self",
+                                    }
+                                ],
+                            }
+                        ],
+                        "name": "OpenStack Ironic API",
+                        "description": "Ironic is an OpenStack project.",
+                    },
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        service_type='baremetal', base_url_append='v1'
+                    ),
+                    json={
+                        "media_types": [
+                            {
+                                "base": "application/json",
+                                "type": "application/vnd.openstack.ironic.v1+json",  # noqa: E501
+                            }
+                        ],
+                        "links": [
+                            {
+                                "href": "https://baremetal.example.com/v1",
+                                "rel": "self",
+                            }
+                        ],
+                        "ports": [
+                            {
+                                "href": "https://baremetal.example.com/v1/ports/",  # noqa: E501
+                                "rel": "self",
+                            },
+                            {
+                                "href": "https://baremetal.example.com/ports/",
+                                "rel": "bookmark",
+                            },
+                        ],
+                        "nodes": [
+                            {
+                                "href": "https://baremetal.example.com/v1/nodes/",  # noqa: E501
+                                "rel": "self",
+                            },
+                            {
+                                "href": "https://baremetal.example.com/nodes/",
+                                "rel": "bookmark",
+                            },
+                        ],
+                        "id": "v1",
+                    },
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        service_type='baremetal',
+                        base_url_append='v1',
+                        resource='nodes',
+                    ),
+                    json={'nodes': []},
+                ),
+            ]
+        )
 
     def test_ironic_noauth_none_auth_type(self):
         """Test noauth selection for Ironic in OpenStackCloud
@@ -188,7 +234,8 @@ class TestOpenStackCloudOperatorNoAuthUnversioned(base.TestCase):
         # client library.
         self.cloud_noauth = openstack.connect(
             auth_type='none',
-            baremetal_endpoint_override="https://baremetal.example.com")
+            baremetal_endpoint_override="https://baremetal.example.com",
+        )
 
         self.cloud_noauth.list_machines()
 

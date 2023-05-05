@@ -21,7 +21,6 @@ from openstack.tests.functional import base
 
 
 class TestAggregate(base.BaseFunctionalTest):
-
     def test_aggregates(self):
         if not self.operator_cloud:
             self.skipTest("Operator cloud is required for this test")
@@ -30,31 +29,28 @@ class TestAggregate(base.BaseFunctionalTest):
         self.addCleanup(self.cleanup, aggregate_name)
         aggregate = self.operator_cloud.create_aggregate(aggregate_name)
 
-        aggregate_ids = [v['id']
-                         for v in self.operator_cloud.list_aggregates()]
+        aggregate_ids = [
+            v['id'] for v in self.operator_cloud.list_aggregates()
+        ]
         self.assertIn(aggregate['id'], aggregate_ids)
 
         aggregate = self.operator_cloud.update_aggregate(
-            aggregate_name,
-            availability_zone=availability_zone
+            aggregate_name, availability_zone=availability_zone
         )
         self.assertEqual(availability_zone, aggregate['availability_zone'])
 
         aggregate = self.operator_cloud.set_aggregate_metadata(
-            aggregate_name,
-            {'key': 'value'}
+            aggregate_name, {'key': 'value'}
         )
         self.assertIn('key', aggregate['metadata'])
 
         aggregate = self.operator_cloud.set_aggregate_metadata(
-            aggregate_name,
-            {'key': None}
+            aggregate_name, {'key': None}
         )
         self.assertNotIn('key', aggregate['metadata'])
 
         # Validate that we can delete by name
-        self.assertTrue(
-            self.operator_cloud.delete_aggregate(aggregate_name))
+        self.assertTrue(self.operator_cloud.delete_aggregate(aggregate_name))
 
     def cleanup(self, aggregate_name):
         aggregate = self.operator_cloud.get_aggregate(aggregate_name)

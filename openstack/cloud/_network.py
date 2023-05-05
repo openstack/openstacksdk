@@ -1,4 +1,3 @@
-
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -231,14 +230,14 @@ class NetworkCloudMixin:
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'QoS extension is not available on target cloud')
+                'QoS extension is not available on target cloud'
+            )
 
         if not filters:
             filters = {}
         return self.network.find_qos_policy(
-            name_or_id=name_or_id,
-            ignore_missing=True,
-            **filters)
+            name_or_id=name_or_id, ignore_missing=True, **filters
+        )
 
     # TODO(stephenfin): Deprecate this in favour of the 'list' function
     def search_qos_policies(self, name_or_id=None, filters=None):
@@ -254,7 +253,8 @@ class NetworkCloudMixin:
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'QoS extension is not available on target cloud')
+                'QoS extension is not available on target cloud'
+            )
 
         query = {}
         if name_or_id:
@@ -271,7 +271,8 @@ class NetworkCloudMixin:
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'QoS extension is not available on target cloud')
+                'QoS extension is not available on target cloud'
+            )
 
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
@@ -302,12 +303,14 @@ class NetworkCloudMixin:
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'QoS extension is not available on target cloud')
+                'QoS extension is not available on target cloud'
+            )
 
         if not self._has_neutron_extension('qos-rule-type-details'):
             raise exc.OpenStackCloudUnavailableExtension(
                 'qos-rule-type-details extension is not available '
-                'on target cloud')
+                'on target cloud'
+            )
 
         return self.network.get_qos_rule_type(rule_type)
 
@@ -319,7 +322,8 @@ class NetworkCloudMixin:
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'QoS extension is not available on target cloud')
+                'QoS extension is not available on target cloud'
+            )
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
@@ -350,9 +354,8 @@ class NetworkCloudMixin:
         if not filters:
             filters = {}
         return self.network.find_network(
-            name_or_id=name_or_id,
-            ignore_missing=True,
-            **filters)
+            name_or_id=name_or_id, ignore_missing=True, **filters
+        )
 
     def get_network_by_id(self, id):
         """Get a network by ID
@@ -387,9 +390,8 @@ class NetworkCloudMixin:
         if not filters:
             filters = {}
         return self.network.find_router(
-            name_or_id=name_or_id,
-            ignore_missing=True,
-            **filters)
+            name_or_id=name_or_id, ignore_missing=True, **filters
+        )
 
     # TODO(stephenfin): Deprecate 'filters'; users should use 'list' for this
     def get_subnet(self, name_or_id, filters=None):
@@ -412,9 +414,8 @@ class NetworkCloudMixin:
         if not filters:
             filters = {}
         return self.network.find_subnet(
-            name_or_id=name_or_id,
-            ignore_missing=True,
-            **filters)
+            name_or_id=name_or_id, ignore_missing=True, **filters
+        )
 
     def get_subnet_by_id(self, id):
         """Get a subnet by ID
@@ -449,9 +450,8 @@ class NetworkCloudMixin:
         if not filters:
             filters = {}
         return self.network.find_port(
-            name_or_id=name_or_id,
-            ignore_missing=True,
-            **filters)
+            name_or_id=name_or_id, ignore_missing=True, **filters
+        )
 
     def get_port_by_id(self, id):
         """Get a port by ID
@@ -510,20 +510,26 @@ class NetworkCloudMixin:
         if availability_zone_hints is not None:
             if not isinstance(availability_zone_hints, list):
                 raise exc.OpenStackCloudException(
-                    "Parameter 'availability_zone_hints' must be a list")
+                    "Parameter 'availability_zone_hints' must be a list"
+                )
             if not self._has_neutron_extension('network_availability_zone'):
                 raise exc.OpenStackCloudUnavailableExtension(
                     'network_availability_zone extension is not available on '
-                    'target cloud')
+                    'target cloud'
+                )
             network['availability_zone_hints'] = availability_zone_hints
 
         if provider:
             if not isinstance(provider, dict):
                 raise exc.OpenStackCloudException(
-                    "Parameter 'provider' must be a dict")
+                    "Parameter 'provider' must be a dict"
+                )
             # Only pass what we know
-            for attr in ('physical_network', 'network_type',
-                         'segmentation_id'):
+            for attr in (
+                'physical_network',
+                'network_type',
+                'segmentation_id',
+            ):
                 if attr in provider:
                     arg = "provider:" + attr
                     network[arg] = provider[attr]
@@ -537,16 +543,19 @@ class NetworkCloudMixin:
         if port_security_enabled is not None:
             if not isinstance(port_security_enabled, bool):
                 raise exc.OpenStackCloudException(
-                    "Parameter 'port_security_enabled' must be a bool")
+                    "Parameter 'port_security_enabled' must be a bool"
+                )
             network['port_security_enabled'] = port_security_enabled
 
         if mtu_size:
             if not isinstance(mtu_size, int):
                 raise exc.OpenStackCloudException(
-                    "Parameter 'mtu_size' must be an integer.")
+                    "Parameter 'mtu_size' must be an integer."
+                )
             if not mtu_size >= 68:
                 raise exc.OpenStackCloudException(
-                    "Parameter 'mtu_size' must be greater than 67.")
+                    "Parameter 'mtu_size' must be greater than 67."
+                )
 
             network['mtu'] = mtu_size
 
@@ -559,9 +568,16 @@ class NetworkCloudMixin:
         self._reset_network_caches()
         return network
 
-    @_utils.valid_kwargs("name", "shared", "admin_state_up", "external",
-                         "provider", "mtu_size", "port_security_enabled",
-                         "dns_domain")
+    @_utils.valid_kwargs(
+        "name",
+        "shared",
+        "admin_state_up",
+        "external",
+        "provider",
+        "mtu_size",
+        "port_security_enabled",
+        "dns_domain",
+    )
     def update_network(self, name_or_id, **kwargs):
         """Update a network.
 
@@ -586,9 +602,9 @@ class NetworkCloudMixin:
         if provider:
             if not isinstance(provider, dict):
                 raise exc.OpenStackCloudException(
-                    "Parameter 'provider' must be a dict")
-            for key in ('physical_network', 'network_type',
-                        'segmentation_id'):
+                    "Parameter 'provider' must be a dict"
+                )
+            for key in ('physical_network', 'network_type', 'segmentation_id'):
                 if key in provider:
                     kwargs['provider:' + key] = provider.pop(key)
 
@@ -598,21 +614,25 @@ class NetworkCloudMixin:
         if 'port_security_enabled' in kwargs:
             if not isinstance(kwargs['port_security_enabled'], bool):
                 raise exc.OpenStackCloudException(
-                    "Parameter 'port_security_enabled' must be a bool")
+                    "Parameter 'port_security_enabled' must be a bool"
+                )
 
         if 'mtu_size' in kwargs:
             if not isinstance(kwargs['mtu_size'], int):
                 raise exc.OpenStackCloudException(
-                    "Parameter 'mtu_size' must be an integer.")
+                    "Parameter 'mtu_size' must be an integer."
+                )
             if kwargs['mtu_size'] < 68:
                 raise exc.OpenStackCloudException(
-                    "Parameter 'mtu_size' must be greater than 67.")
+                    "Parameter 'mtu_size' must be greater than 67."
+                )
             kwargs['mtu'] = kwargs.pop('mtu_size')
 
         network = self.get_network(name_or_id)
         if not network:
             raise exc.OpenStackCloudException(
-                "Network %s not found." % name_or_id)
+                "Network %s not found." % name_or_id
+            )
 
         network = self.network.update_network(network, **kwargs)
 
@@ -666,8 +686,7 @@ class NetworkCloudMixin:
         :raises: OpenStackCloudException if it's not a valid project
         :returns: A network ``Quota`` object if found, else None.
         """
-        proj = self.identity.find_project(
-            name_or_id, ignore_missing=False)
+        proj = self.identity.find_project(name_or_id, ignore_missing=False)
         return self.network.get_quota(proj.id, details)
 
     def get_network_extensions(self):
@@ -692,10 +711,21 @@ class NetworkCloudMixin:
         self.network.delete_quota(proj.id)
 
     @_utils.valid_kwargs(
-        'action', 'description', 'destination_firewall_group_id',
-        'destination_ip_address', 'destination_port', 'enabled', 'ip_version',
-        'name', 'project_id', 'protocol', 'shared', 'source_firewall_group_id',
-        'source_ip_address', 'source_port')
+        'action',
+        'description',
+        'destination_firewall_group_id',
+        'destination_ip_address',
+        'destination_port',
+        'enabled',
+        'ip_version',
+        'name',
+        'project_id',
+        'protocol',
+        'shared',
+        'source_firewall_group_id',
+        'source_ip_address',
+        'source_port',
+    )
     def create_firewall_rule(self, **kwargs):
         """
         Creates firewall rule.
@@ -753,12 +783,15 @@ class NetworkCloudMixin:
             filters = {}
         try:
             firewall_rule = self.network.find_firewall_rule(
-                name_or_id, ignore_missing=False, **filters)
-            self.network.delete_firewall_rule(firewall_rule,
-                                              ignore_missing=False)
+                name_or_id, ignore_missing=False, **filters
+            )
+            self.network.delete_firewall_rule(
+                firewall_rule, ignore_missing=False
+            )
         except exceptions.ResourceNotFound:
-            self.log.debug('Firewall rule %s not found for deleting',
-                           name_or_id)
+            self.log.debug(
+                'Firewall rule %s not found for deleting', name_or_id
+            )
             return False
         return True
 
@@ -789,9 +822,8 @@ class NetworkCloudMixin:
         if not filters:
             filters = {}
         return self.network.find_firewall_rule(
-            name_or_id,
-            ignore_missing=True,
-            **filters)
+            name_or_id, ignore_missing=True, **filters
+        )
 
     def list_firewall_rules(self, filters=None):
         """
@@ -820,10 +852,21 @@ class NetworkCloudMixin:
         return list(self.network.firewall_rules(**filters))
 
     @_utils.valid_kwargs(
-        'action', 'description', 'destination_firewall_group_id',
-        'destination_ip_address', 'destination_port', 'enabled', 'ip_version',
-        'name', 'project_id', 'protocol', 'shared', 'source_firewall_group_id',
-        'source_ip_address', 'source_port')
+        'action',
+        'description',
+        'destination_firewall_group_id',
+        'destination_ip_address',
+        'destination_port',
+        'enabled',
+        'ip_version',
+        'name',
+        'project_id',
+        'protocol',
+        'shared',
+        'source_firewall_group_id',
+        'source_ip_address',
+        'source_port',
+    )
     def update_firewall_rule(self, name_or_id, filters=None, **kwargs):
         """
         Updates firewall rule.
@@ -853,7 +896,8 @@ class NetworkCloudMixin:
         if not filters:
             filters = {}
         firewall_rule = self.network.find_firewall_rule(
-            name_or_id, ignore_missing=False, **filters)
+            name_or_id, ignore_missing=False, **filters
+        )
 
         return self.network.update_firewall_rule(firewall_rule, **kwargs)
 
@@ -875,12 +919,21 @@ class NetworkCloudMixin:
             filters = {}
         ids_list = []
         for name_or_id in name_or_id_list:
-            ids_list.append(self.network.find_firewall_rule(
-                name_or_id, ignore_missing=False, **filters)['id'])
+            ids_list.append(
+                self.network.find_firewall_rule(
+                    name_or_id, ignore_missing=False, **filters
+                )['id']
+            )
         return ids_list
 
-    @_utils.valid_kwargs('audited', 'description', 'firewall_rules', 'name',
-                         'project_id', 'shared')
+    @_utils.valid_kwargs(
+        'audited',
+        'description',
+        'firewall_rules',
+        'name',
+        'project_id',
+        'shared',
+    )
     def create_firewall_policy(self, **kwargs):
         """
         Create firewall policy.
@@ -900,7 +953,8 @@ class NetworkCloudMixin:
         """
         if 'firewall_rules' in kwargs:
             kwargs['firewall_rules'] = self._get_firewall_rule_ids(
-                kwargs['firewall_rules'])
+                kwargs['firewall_rules']
+            )
 
         return self.network.create_firewall_policy(**kwargs)
 
@@ -933,12 +987,15 @@ class NetworkCloudMixin:
             filters = {}
         try:
             firewall_policy = self.network.find_firewall_policy(
-                name_or_id, ignore_missing=False, **filters)
-            self.network.delete_firewall_policy(firewall_policy,
-                                                ignore_missing=False)
+                name_or_id, ignore_missing=False, **filters
+            )
+            self.network.delete_firewall_policy(
+                firewall_policy, ignore_missing=False
+            )
         except exceptions.ResourceNotFound:
-            self.log.debug('Firewall policy %s not found for deleting',
-                           name_or_id)
+            self.log.debug(
+                'Firewall policy %s not found for deleting', name_or_id
+            )
             return False
         return True
 
@@ -969,9 +1026,8 @@ class NetworkCloudMixin:
         if not filters:
             filters = {}
         return self.network.find_firewall_policy(
-            name_or_id,
-            ignore_missing=True,
-            **filters)
+            name_or_id, ignore_missing=True, **filters
+        )
 
     def list_firewall_policies(self, filters=None):
         """
@@ -999,8 +1055,14 @@ class NetworkCloudMixin:
             filters = {}
         return list(self.network.firewall_policies(**filters))
 
-    @_utils.valid_kwargs('audited', 'description', 'firewall_rules', 'name',
-                         'project_id', 'shared')
+    @_utils.valid_kwargs(
+        'audited',
+        'description',
+        'firewall_rules',
+        'name',
+        'project_id',
+        'shared',
+    )
     def update_firewall_policy(self, name_or_id, filters=None, **kwargs):
         """
         Updates firewall policy.
@@ -1031,17 +1093,24 @@ class NetworkCloudMixin:
         if not filters:
             filters = {}
         firewall_policy = self.network.find_firewall_policy(
-            name_or_id, ignore_missing=False, **filters)
+            name_or_id, ignore_missing=False, **filters
+        )
 
         if 'firewall_rules' in kwargs:
             kwargs['firewall_rules'] = self._get_firewall_rule_ids(
-                kwargs['firewall_rules'])
+                kwargs['firewall_rules']
+            )
 
         return self.network.update_firewall_policy(firewall_policy, **kwargs)
 
-    def insert_rule_into_policy(self, name_or_id, rule_name_or_id,
-                                insert_after=None, insert_before=None,
-                                filters=None):
+    def insert_rule_into_policy(
+        self,
+        name_or_id,
+        rule_name_or_id,
+        insert_after=None,
+        insert_before=None,
+        filters=None,
+    ):
         """Add firewall rule to a policy.
 
         Adds firewall rule to the firewall_rules list of a firewall policy.
@@ -1064,33 +1133,40 @@ class NetworkCloudMixin:
         if not filters:
             filters = {}
         firewall_policy = self.network.find_firewall_policy(
-            name_or_id, ignore_missing=False, **filters)
+            name_or_id, ignore_missing=False, **filters
+        )
 
         firewall_rule = self.network.find_firewall_rule(
-            rule_name_or_id, ignore_missing=False)
+            rule_name_or_id, ignore_missing=False
+        )
         # short-circuit if rule already in firewall_rules list
         # the API can't do any re-ordering of existing rules
         if firewall_rule['id'] in firewall_policy['firewall_rules']:
             self.log.debug(
                 'Firewall rule %s already associated with firewall policy %s',
-                rule_name_or_id, name_or_id)
+                rule_name_or_id,
+                name_or_id,
+            )
             return firewall_policy
 
         pos_params = {}
         if insert_after is not None:
             pos_params['insert_after'] = self.network.find_firewall_rule(
-                insert_after, ignore_missing=False)['id']
+                insert_after, ignore_missing=False
+            )['id']
 
         if insert_before is not None:
             pos_params['insert_before'] = self.network.find_firewall_rule(
-                insert_before, ignore_missing=False)['id']
+                insert_before, ignore_missing=False
+            )['id']
 
-        return self.network.insert_rule_into_policy(firewall_policy['id'],
-                                                    firewall_rule['id'],
-                                                    **pos_params)
+        return self.network.insert_rule_into_policy(
+            firewall_policy['id'], firewall_rule['id'], **pos_params
+        )
 
-    def remove_rule_from_policy(self, name_or_id, rule_name_or_id,
-                                filters=None):
+    def remove_rule_from_policy(
+        self, name_or_id, rule_name_or_id, filters=None
+    ):
         """
         Remove firewall rule from firewall policy's firewall_rules list.
         Short-circuits and returns firewall policy early if firewall rule
@@ -1107,14 +1183,16 @@ class NetworkCloudMixin:
         if not filters:
             filters = {}
         firewall_policy = self.network.find_firewall_policy(
-            name_or_id, ignore_missing=False, **filters)
+            name_or_id, ignore_missing=False, **filters
+        )
 
         firewall_rule = self.network.find_firewall_rule(rule_name_or_id)
         if not firewall_rule:
             # short-circuit: if firewall rule is not found,
             # return current firewall policy
-            self.log.debug('Firewall rule %s not found for removing',
-                           rule_name_or_id)
+            self.log.debug(
+                'Firewall rule %s not found for removing', rule_name_or_id
+            )
             return firewall_policy
 
         if firewall_rule['id'] not in firewall_policy['firewall_rules']:
@@ -1122,15 +1200,25 @@ class NetworkCloudMixin:
             # log it to debug and return current firewall policy
             self.log.debug(
                 'Firewall rule %s not associated with firewall policy %s',
-                rule_name_or_id, name_or_id)
+                rule_name_or_id,
+                name_or_id,
+            )
             return firewall_policy
 
-        return self.network.remove_rule_from_policy(firewall_policy['id'],
-                                                    firewall_rule['id'])
+        return self.network.remove_rule_from_policy(
+            firewall_policy['id'], firewall_rule['id']
+        )
 
     @_utils.valid_kwargs(
-        'admin_state_up', 'description', 'egress_firewall_policy',
-        'ingress_firewall_policy', 'name', 'ports', 'project_id', 'shared')
+        'admin_state_up',
+        'description',
+        'egress_firewall_policy',
+        'ingress_firewall_policy',
+        'name',
+        'ports',
+        'project_id',
+        'shared',
+    )
     def create_firewall_group(self, **kwargs):
         """
         Creates firewall group. The keys egress_firewall_policy and
@@ -1174,12 +1262,15 @@ class NetworkCloudMixin:
             filters = {}
         try:
             firewall_group = self.network.find_firewall_group(
-                name_or_id, ignore_missing=False, **filters)
-            self.network.delete_firewall_group(firewall_group,
-                                               ignore_missing=False)
+                name_or_id, ignore_missing=False, **filters
+            )
+            self.network.delete_firewall_group(
+                firewall_group, ignore_missing=False
+            )
         except exceptions.ResourceNotFound:
-            self.log.debug('Firewall group %s not found for deleting',
-                           name_or_id)
+            self.log.debug(
+                'Firewall group %s not found for deleting', name_or_id
+            )
             return False
         return True
 
@@ -1196,9 +1287,8 @@ class NetworkCloudMixin:
         if not filters:
             filters = {}
         return self.network.find_firewall_group(
-            name_or_id,
-            ignore_missing=True,
-            **filters)
+            name_or_id, ignore_missing=True, **filters
+        )
 
     def list_firewall_groups(self, filters=None):
         """
@@ -1211,8 +1301,15 @@ class NetworkCloudMixin:
         return list(self.network.firewall_groups(**filters))
 
     @_utils.valid_kwargs(
-        'admin_state_up', 'description', 'egress_firewall_policy',
-        'ingress_firewall_policy', 'name', 'ports', 'project_id', 'shared')
+        'admin_state_up',
+        'description',
+        'egress_firewall_policy',
+        'ingress_firewall_policy',
+        'name',
+        'ports',
+        'project_id',
+        'shared',
+    )
     def update_firewall_group(self, name_or_id, filters=None, **kwargs):
         """
         Updates firewall group.
@@ -1234,7 +1331,8 @@ class NetworkCloudMixin:
         if not filters:
             filters = {}
         firewall_group = self.network.find_firewall_group(
-            name_or_id, ignore_missing=False, **filters)
+            name_or_id, ignore_missing=False, **filters
+        )
         self._lookup_ingress_egress_firewall_policy_ids(kwargs)
 
         if 'ports' in kwargs:
@@ -1260,12 +1358,14 @@ class NetworkCloudMixin:
                 val = None
             else:
                 val = self.network.find_firewall_policy(
-                    firewall_group[key], ignore_missing=False)['id']
+                    firewall_group[key], ignore_missing=False
+                )['id']
             firewall_group[key + '_id'] = val
             del firewall_group[key]
 
-    @_utils.valid_kwargs("name", "description", "shared", "default",
-                         "project_id")
+    @_utils.valid_kwargs(
+        "name", "description", "shared", "default", "project_id"
+    )
     def create_qos_policy(self, **kwargs):
         """Create a QoS policy.
 
@@ -1280,20 +1380,24 @@ class NetworkCloudMixin:
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'QoS extension is not available on target cloud')
+                'QoS extension is not available on target cloud'
+            )
 
         default = kwargs.pop("default", None)
         if default is not None:
             if self._has_neutron_extension('qos-default'):
                 kwargs['is_default'] = default
             else:
-                self.log.debug("'qos-default' extension is not available on "
-                               "target cloud")
+                self.log.debug(
+                    "'qos-default' extension is not available on "
+                    "target cloud"
+                )
 
         return self.network.create_qos_policy(**kwargs)
 
-    @_utils.valid_kwargs("name", "description", "shared", "default",
-                         "project_id")
+    @_utils.valid_kwargs(
+        "name", "description", "shared", "default", "project_id"
+    )
     def update_qos_policy(self, name_or_id, **kwargs):
         """Update an existing QoS policy.
 
@@ -1308,15 +1412,18 @@ class NetworkCloudMixin:
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'QoS extension is not available on target cloud')
+                'QoS extension is not available on target cloud'
+            )
 
         default = kwargs.pop("default", None)
         if default is not None:
             if self._has_neutron_extension('qos-default'):
                 kwargs['is_default'] = default
             else:
-                self.log.debug("'qos-default' extension is not available on "
-                               "target cloud")
+                self.log.debug(
+                    "'qos-default' extension is not available on "
+                    "target cloud"
+                )
 
         if not kwargs:
             self.log.debug("No QoS policy data to update")
@@ -1325,7 +1432,8 @@ class NetworkCloudMixin:
         curr_policy = self.network.find_qos_policy(name_or_id)
         if not curr_policy:
             raise exc.OpenStackCloudException(
-                "QoS policy %s not found." % name_or_id)
+                "QoS policy %s not found." % name_or_id
+            )
 
         return self.network.update_qos_policy(curr_policy, **kwargs)
 
@@ -1340,7 +1448,8 @@ class NetworkCloudMixin:
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'QoS extension is not available on target cloud')
+                'QoS extension is not available on target cloud'
+            )
         policy = self.network.find_qos_policy(name_or_id)
         if not policy:
             self.log.debug("QoS policy %s not found for deleting", name_or_id)
@@ -1384,20 +1493,26 @@ class NetworkCloudMixin:
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'QoS extension is not available on target cloud')
+                'QoS extension is not available on target cloud'
+            )
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id))
+                    name_or_id=policy_name_or_id
+                )
+            )
 
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
 
-        return list(self.network.qos_bandwidth_limit_rules(
-            qos_policy=policy, **filters))
+        return list(
+            self.network.qos_bandwidth_limit_rules(
+                qos_policy=policy, **filters
+            )
+        )
 
     def get_qos_bandwidth_limit_rule(self, policy_name_or_id, rule_id):
         """Get a QoS bandwidth limit rule by name or ID.
@@ -1410,16 +1525,18 @@ class NetworkCloudMixin:
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'QoS extension is not available on target cloud')
+                'QoS extension is not available on target cloud'
+            )
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id))
+                    name_or_id=policy_name_or_id
+                )
+            )
 
-        return self.network.get_qos_bandwidth_limit_rule(
-            rule_id, policy)
+        return self.network.get_qos_bandwidth_limit_rule(rule_id, policy)
 
     @_utils.valid_kwargs("max_burst_kbps", "direction")
     def create_qos_bandwidth_limit_rule(
@@ -1442,28 +1559,33 @@ class NetworkCloudMixin:
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'QoS extension is not available on target cloud')
+                'QoS extension is not available on target cloud'
+            )
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id))
+                    name_or_id=policy_name_or_id
+                )
+            )
 
         if kwargs.get("direction") is not None:
             if not self._has_neutron_extension('qos-bw-limit-direction'):
                 kwargs.pop("direction")
                 self.log.debug(
                     "'qos-bw-limit-direction' extension is not available on "
-                    "target cloud")
+                    "target cloud"
+                )
 
         kwargs['max_kbps'] = max_kbps
 
         return self.network.create_qos_bandwidth_limit_rule(policy, **kwargs)
 
     @_utils.valid_kwargs("max_kbps", "max_burst_kbps", "direction")
-    def update_qos_bandwidth_limit_rule(self, policy_name_or_id, rule_id,
-                                        **kwargs):
+    def update_qos_bandwidth_limit_rule(
+        self, policy_name_or_id, rule_id, **kwargs
+    ):
         """Update a QoS bandwidth limit rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -1479,37 +1601,43 @@ class NetworkCloudMixin:
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'QoS extension is not available on target cloud')
+                'QoS extension is not available on target cloud'
+            )
 
         policy = self.network.find_qos_policy(
-            policy_name_or_id,
-            ignore_missing=True)
+            policy_name_or_id, ignore_missing=True
+        )
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id))
+                    name_or_id=policy_name_or_id
+                )
+            )
 
         if kwargs.get("direction") is not None:
             if not self._has_neutron_extension('qos-bw-limit-direction'):
                 kwargs.pop("direction")
                 self.log.debug(
                     "'qos-bw-limit-direction' extension is not available on "
-                    "target cloud")
+                    "target cloud"
+                )
 
         if not kwargs:
             self.log.debug("No QoS bandwidth limit rule data to update")
             return
 
         curr_rule = self.network.get_qos_bandwidth_limit_rule(
-            qos_rule=rule_id, qos_policy=policy)
+            qos_rule=rule_id, qos_policy=policy
+        )
         if not curr_rule:
             raise exc.OpenStackCloudException(
                 "QoS bandwidth_limit_rule {rule_id} not found in policy "
-                "{policy_id}".format(rule_id=rule_id,
-                                     policy_id=policy['id']))
+                "{policy_id}".format(rule_id=rule_id, policy_id=policy['id'])
+            )
 
         return self.network.update_qos_bandwidth_limit_rule(
-            qos_rule=curr_rule, qos_policy=policy, **kwargs)
+            qos_rule=curr_rule, qos_policy=policy, **kwargs
+        )
 
     def delete_qos_bandwidth_limit_rule(self, policy_name_or_id, rule_id):
         """Delete a QoS bandwidth limit rule.
@@ -1522,22 +1650,28 @@ class NetworkCloudMixin:
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'QoS extension is not available on target cloud')
+                'QoS extension is not available on target cloud'
+            )
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id))
+                    name_or_id=policy_name_or_id
+                )
+            )
 
         try:
             self.network.delete_qos_bandwidth_limit_rule(
-                rule_id, policy, ignore_missing=False)
+                rule_id, policy, ignore_missing=False
+            )
         except exceptions.ResourceNotFound:
             self.log.debug(
                 "QoS bandwidth limit rule {rule_id} not found in policy "
-                "{policy_id}. Ignoring.".format(rule_id=rule_id,
-                                                policy_id=policy['id']))
+                "{policy_id}. Ignoring.".format(
+                    rule_id=rule_id, policy_id=policy['id']
+                )
+            )
             return False
 
         return True
@@ -1576,14 +1710,18 @@ class NetworkCloudMixin:
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'QoS extension is not available on target cloud')
+                'QoS extension is not available on target cloud'
+            )
 
         policy = self.network.find_qos_policy(
-            policy_name_or_id, ignore_missing=True)
+            policy_name_or_id, ignore_missing=True
+        )
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id))
+                    name_or_id=policy_name_or_id
+                )
+            )
 
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
@@ -1601,13 +1739,16 @@ class NetworkCloudMixin:
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'QoS extension is not available on target cloud')
+                'QoS extension is not available on target cloud'
+            )
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id))
+                    name_or_id=policy_name_or_id
+                )
+            )
 
         return self.network.get_qos_dscp_marking_rule(rule_id, policy)
 
@@ -1626,20 +1767,25 @@ class NetworkCloudMixin:
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'QoS extension is not available on target cloud')
+                'QoS extension is not available on target cloud'
+            )
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id))
+                    name_or_id=policy_name_or_id
+                )
+            )
 
         return self.network.create_qos_dscp_marking_rule(
-            policy, dscp_mark=dscp_mark)
+            policy, dscp_mark=dscp_mark
+        )
 
     @_utils.valid_kwargs("dscp_mark")
-    def update_qos_dscp_marking_rule(self, policy_name_or_id, rule_id,
-                                     **kwargs):
+    def update_qos_dscp_marking_rule(
+        self, policy_name_or_id, rule_id, **kwargs
+    ):
         """Update a QoS DSCP marking rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -1651,28 +1797,31 @@ class NetworkCloudMixin:
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'QoS extension is not available on target cloud')
+                'QoS extension is not available on target cloud'
+            )
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id))
+                    name_or_id=policy_name_or_id
+                )
+            )
 
         if not kwargs:
             self.log.debug("No QoS DSCP marking rule data to update")
             return
 
-        curr_rule = self.network.get_qos_dscp_marking_rule(
-            rule_id, policy)
+        curr_rule = self.network.get_qos_dscp_marking_rule(rule_id, policy)
         if not curr_rule:
             raise exc.OpenStackCloudException(
                 "QoS dscp_marking_rule {rule_id} not found in policy "
-                "{policy_id}".format(rule_id=rule_id,
-                                     policy_id=policy['id']))
+                "{policy_id}".format(rule_id=rule_id, policy_id=policy['id'])
+            )
 
         return self.network.update_qos_dscp_marking_rule(
-            curr_rule, policy, **kwargs)
+            curr_rule, policy, **kwargs
+        )
 
     def delete_qos_dscp_marking_rule(self, policy_name_or_id, rule_id):
         """Delete a QoS DSCP marking rule.
@@ -1685,22 +1834,28 @@ class NetworkCloudMixin:
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'QoS extension is not available on target cloud')
+                'QoS extension is not available on target cloud'
+            )
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id))
+                    name_or_id=policy_name_or_id
+                )
+            )
 
         try:
             self.network.delete_qos_dscp_marking_rule(
-                rule_id, policy, ignore_missing=False)
+                rule_id, policy, ignore_missing=False
+            )
         except exceptions.ResourceNotFound:
             self.log.debug(
                 "QoS DSCP marking rule {rule_id} not found in policy "
-                "{policy_id}. Ignoring.".format(rule_id=rule_id,
-                                                policy_id=policy['id']))
+                "{policy_id}. Ignoring.".format(
+                    rule_id=rule_id, policy_id=policy['id']
+                )
+            )
             return False
 
         return True
@@ -1725,11 +1880,13 @@ class NetworkCloudMixin:
             OpenStack API call.
         """
         rules = self.list_qos_minimum_bandwidth_rules(
-            policy_name_or_id, filters)
+            policy_name_or_id, filters
+        )
         return _utils._filter_list(rules, rule_id, filters)
 
-    def list_qos_minimum_bandwidth_rules(self, policy_name_or_id,
-                                         filters=None):
+    def list_qos_minimum_bandwidth_rules(
+        self, policy_name_or_id, filters=None
+    ):
         """List all available QoS minimum bandwidth rules.
 
         :param string policy_name_or_id: Name or ID of the QoS policy from
@@ -1741,21 +1898,24 @@ class NetworkCloudMixin:
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'QoS extension is not available on target cloud')
+                'QoS extension is not available on target cloud'
+            )
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id))
+                    name_or_id=policy_name_or_id
+                )
+            )
 
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
 
         return list(
-            self.network.qos_minimum_bandwidth_rules(
-                policy, **filters))
+            self.network.qos_minimum_bandwidth_rules(policy, **filters)
+        )
 
     def get_qos_minimum_bandwidth_rule(self, policy_name_or_id, rule_id):
         """Get a QoS minimum bandwidth rule by name or ID.
@@ -1768,13 +1928,16 @@ class NetworkCloudMixin:
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'QoS extension is not available on target cloud')
+                'QoS extension is not available on target cloud'
+            )
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id))
+                    name_or_id=policy_name_or_id
+                )
+            )
 
         return self.network.get_qos_minimum_bandwidth_rule(rule_id, policy)
 
@@ -1797,13 +1960,16 @@ class NetworkCloudMixin:
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'QoS extension is not available on target cloud')
+                'QoS extension is not available on target cloud'
+            )
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id))
+                    name_or_id=policy_name_or_id
+                )
+            )
 
         kwargs['min_kbps'] = min_kbps
 
@@ -1826,28 +1992,33 @@ class NetworkCloudMixin:
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'QoS extension is not available on target cloud')
+                'QoS extension is not available on target cloud'
+            )
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id))
+                    name_or_id=policy_name_or_id
+                )
+            )
 
         if not kwargs:
             self.log.debug("No QoS minimum bandwidth rule data to update")
             return
 
         curr_rule = self.network.get_qos_minimum_bandwidth_rule(
-            rule_id, policy)
+            rule_id, policy
+        )
         if not curr_rule:
             raise exc.OpenStackCloudException(
                 "QoS minimum_bandwidth_rule {rule_id} not found in policy "
-                "{policy_id}".format(rule_id=rule_id,
-                                     policy_id=policy['id']))
+                "{policy_id}".format(rule_id=rule_id, policy_id=policy['id'])
+            )
 
         return self.network.update_qos_minimum_bandwidth_rule(
-            curr_rule, policy, **kwargs)
+            curr_rule, policy, **kwargs
+        )
 
     def delete_qos_minimum_bandwidth_rule(self, policy_name_or_id, rule_id):
         """Delete a QoS minimum bandwidth rule.
@@ -1860,22 +2031,28 @@ class NetworkCloudMixin:
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
-                'QoS extension is not available on target cloud')
+                'QoS extension is not available on target cloud'
+            )
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id))
+                    name_or_id=policy_name_or_id
+                )
+            )
 
         try:
             self.network.delete_qos_minimum_bandwidth_rule(
-                rule_id, policy, ignore_missing=False)
+                rule_id, policy, ignore_missing=False
+            )
         except exceptions.ResourceNotFound:
             self.log.debug(
                 "QoS minimum bandwidth rule {rule_id} not found in policy "
-                "{policy_id}. Ignoring.".format(rule_id=rule_id,
-                                                policy_id=policy['id']))
+                "{policy_id}. Ignoring.".format(
+                    rule_id=rule_id, policy_id=policy['id']
+                )
+            )
             return False
 
         return True
@@ -1893,9 +2070,7 @@ class NetworkCloudMixin:
         :raises: OpenStackCloudException on operation error.
         """
         return self.network.add_interface_to_router(
-            router=router,
-            subnet_id=subnet_id,
-            port_id=port_id
+            router=router, subnet_id=subnet_id, port_id=port_id
         )
 
     def remove_router_interface(self, router, subnet_id=None, port_id=None):
@@ -1917,12 +2092,11 @@ class NetworkCloudMixin:
         """
         if not subnet_id and not port_id:
             raise ValueError(
-                "At least one of subnet_id or port_id must be supplied.")
+                "At least one of subnet_id or port_id must be supplied."
+            )
 
         self.network.remove_interface_from_router(
-            router=router,
-            subnet_id=subnet_id,
-            port_id=port_id
+            router=router, subnet_id=subnet_id, port_id=port_id
         )
 
     def list_router_interfaces(self, router, interface_type=None):
@@ -1938,17 +2112,31 @@ class NetworkCloudMixin:
         ports = list(self.network.ports(device_id=router['id']))
 
         router_interfaces = (
-            [port for port in ports
-             if (port['device_owner'] in
-                 ['network:router_interface',
-                  'network:router_interface_distributed',
-                  'network:ha_router_replicated_interface'])
-             ] if not interface_type or interface_type == 'internal' else [])
+            [
+                port
+                for port in ports
+                if (
+                    port['device_owner']
+                    in [
+                        'network:router_interface',
+                        'network:router_interface_distributed',
+                        'network:ha_router_replicated_interface',
+                    ]
+                )
+            ]
+            if not interface_type or interface_type == 'internal'
+            else []
+        )
 
         router_gateways = (
-            [port for port in ports
-             if port['device_owner'] == 'network:router_gateway'
-             ] if not interface_type or interface_type == 'external' else [])
+            [
+                port
+                for port in ports
+                if port['device_owner'] == 'network:router_gateway'
+            ]
+            if not interface_type or interface_type == 'external'
+            else []
+        )
 
         return router_interfaces + router_gateways
 
@@ -1985,9 +2173,7 @@ class NetworkCloudMixin:
         :returns: The created network ``Router`` object.
         :raises: OpenStackCloudException on operation error.
         """
-        router = {
-            'admin_state_up': admin_state_up
-        }
+        router = {'admin_state_up': admin_state_up}
         if project_id is not None:
             router['project_id'] = project_id
         if name:
@@ -2000,18 +2186,27 @@ class NetworkCloudMixin:
         if availability_zone_hints is not None:
             if not isinstance(availability_zone_hints, list):
                 raise exc.OpenStackCloudException(
-                    "Parameter 'availability_zone_hints' must be a list")
+                    "Parameter 'availability_zone_hints' must be a list"
+                )
             if not self._has_neutron_extension('router_availability_zone'):
                 raise exc.OpenStackCloudUnavailableExtension(
                     'router_availability_zone extension is not available on '
-                    'target cloud')
+                    'target cloud'
+                )
             router['availability_zone_hints'] = availability_zone_hints
 
         return self.network.create_router(**router)
 
-    def update_router(self, name_or_id, name=None, admin_state_up=None,
-                      ext_gateway_net_id=None, enable_snat=None,
-                      ext_fixed_ips=None, routes=None):
+    def update_router(
+        self,
+        name_or_id,
+        name=None,
+        admin_state_up=None,
+        ext_gateway_net_id=None,
+        enable_snat=None,
+        ext_fixed_ips=None,
+        routes=None,
+    ):
         """Update an existing logical router.
 
         :param string name_or_id: The name or UUID of the router to update.
@@ -2063,7 +2258,8 @@ class NetworkCloudMixin:
                 router['routes'] = routes
             else:
                 self.log.warning(
-                    'extra routes extension is not available on target cloud')
+                    'extra routes extension is not available on target cloud'
+                )
 
         if not router:
             self.log.debug("No router data to update")
@@ -2072,7 +2268,8 @@ class NetworkCloudMixin:
         curr_router = self.get_router(name_or_id)
         if not curr_router:
             raise exc.OpenStackCloudException(
-                "Router %s not found." % name_or_id)
+                "Router %s not found." % name_or_id
+            )
 
         return self.network.update_router(curr_router, **router)
 
@@ -2186,20 +2383,24 @@ class NetworkCloudMixin:
         network = self.get_network(network_name_or_id, filters)
         if not network:
             raise exc.OpenStackCloudException(
-                "Network %s not found." % network_name_or_id)
+                "Network %s not found." % network_name_or_id
+            )
 
         if disable_gateway_ip and gateway_ip:
             raise exc.OpenStackCloudException(
-                'arg:disable_gateway_ip is not allowed with arg:gateway_ip')
+                'arg:disable_gateway_ip is not allowed with arg:gateway_ip'
+            )
 
         if not cidr and not use_default_subnetpool:
             raise exc.OpenStackCloudException(
-                'arg:cidr is required when a subnetpool is not used')
+                'arg:cidr is required when a subnetpool is not used'
+            )
 
         if cidr and use_default_subnetpool:
             raise exc.OpenStackCloudException(
                 'arg:cidr must be set to None when use_default_subnetpool == '
-                'True')
+                'True'
+            )
 
         # Be friendly on ip_version and allow strings
         if isinstance(ip_version, str):
@@ -2207,15 +2408,19 @@ class NetworkCloudMixin:
                 ip_version = int(ip_version)
             except ValueError:
                 raise exc.OpenStackCloudException(
-                    'ip_version must be an integer')
+                    'ip_version must be an integer'
+                )
 
         # The body of the neutron message for the subnet we wish to create.
         # This includes attributes that are required or have defaults.
-        subnet = dict({
-            'network_id': network['id'],
-            'ip_version': ip_version,
-            'enable_dhcp': enable_dhcp,
-        }, **kwargs)
+        subnet = dict(
+            {
+                'network_id': network['id'],
+                'ip_version': ip_version,
+                'enable_dhcp': enable_dhcp,
+            },
+            **kwargs,
+        )
 
         # Add optional attributes to the message.
         if cidr:
@@ -2267,10 +2472,17 @@ class NetworkCloudMixin:
 
         return True
 
-    def update_subnet(self, name_or_id, subnet_name=None, enable_dhcp=None,
-                      gateway_ip=None, disable_gateway_ip=None,
-                      allocation_pools=None, dns_nameservers=None,
-                      host_routes=None):
+    def update_subnet(
+        self,
+        name_or_id,
+        subnet_name=None,
+        enable_dhcp=None,
+        gateway_ip=None,
+        disable_gateway_ip=None,
+        allocation_pools=None,
+        dns_nameservers=None,
+        host_routes=None,
+    ):
         """Update an existing subnet.
 
         :param string name_or_id: Name or ID of the subnet to update.
@@ -2337,24 +2549,42 @@ class NetworkCloudMixin:
 
         if disable_gateway_ip and gateway_ip:
             raise exc.OpenStackCloudException(
-                'arg:disable_gateway_ip is not allowed with arg:gateway_ip')
+                'arg:disable_gateway_ip is not allowed with arg:gateway_ip'
+            )
 
         curr_subnet = self.get_subnet(name_or_id)
         if not curr_subnet:
             raise exc.OpenStackCloudException(
-                "Subnet %s not found." % name_or_id)
+                "Subnet %s not found." % name_or_id
+            )
 
         return self.network.update_subnet(curr_subnet, **subnet)
 
-    @_utils.valid_kwargs('name', 'admin_state_up', 'mac_address', 'fixed_ips',
-                         'subnet_id', 'ip_address', 'security_groups',
-                         'allowed_address_pairs', 'extra_dhcp_opts',
-                         'device_owner', 'device_id', 'binding:vnic_type',
-                         'binding:profile', 'port_security_enabled',
-                         'qos_policy_id', 'binding:host_id', 'project_id',
-                         'description', 'dns_domain', 'dns_name',
-                         'numa_affinity_policy', 'propagate_uplink_status',
-                         'mac_learning_enabled')
+    @_utils.valid_kwargs(
+        'name',
+        'admin_state_up',
+        'mac_address',
+        'fixed_ips',
+        'subnet_id',
+        'ip_address',
+        'security_groups',
+        'allowed_address_pairs',
+        'extra_dhcp_opts',
+        'device_owner',
+        'device_id',
+        'binding:vnic_type',
+        'binding:profile',
+        'port_security_enabled',
+        'qos_policy_id',
+        'binding:host_id',
+        'project_id',
+        'description',
+        'dns_domain',
+        'dns_name',
+        'numa_affinity_policy',
+        'propagate_uplink_status',
+        'mac_learning_enabled',
+    )
     def create_port(self, network_id, **kwargs):
         """Create a port
 
@@ -2427,12 +2657,21 @@ class NetworkCloudMixin:
 
         return self.network.create_port(**kwargs)
 
-    @_utils.valid_kwargs('name', 'admin_state_up', 'fixed_ips',
-                         'security_groups', 'allowed_address_pairs',
-                         'extra_dhcp_opts', 'device_owner', 'device_id',
-                         'binding:vnic_type', 'binding:profile',
-                         'port_security_enabled', 'qos_policy_id',
-                         'binding:host_id')
+    @_utils.valid_kwargs(
+        'name',
+        'admin_state_up',
+        'fixed_ips',
+        'security_groups',
+        'allowed_address_pairs',
+        'extra_dhcp_opts',
+        'device_owner',
+        'device_id',
+        'binding:vnic_type',
+        'binding:profile',
+        'port_security_enabled',
+        'qos_policy_id',
+        'binding:host_id',
+    )
     def update_port(self, name_or_id, **kwargs):
         """Update a port
 
@@ -2491,7 +2730,8 @@ class NetworkCloudMixin:
         port = self.get_port(name_or_id=name_or_id)
         if port is None:
             raise exc.OpenStackCloudException(
-                "failed to find port '{port}'".format(port=name_or_id))
+                "failed to find port '{port}'".format(port=name_or_id)
+            )
 
         return self.network.update_port(port, **kwargs)
 
@@ -2531,12 +2771,14 @@ class NetworkCloudMixin:
             port = self.get_port(name_or_id, filters)
             if not port:
                 raise exceptions.ResourceNotFound(
-                    'Port {id} not found'.format(id=name_or_id))
+                    'Port {id} not found'.format(id=name_or_id)
+                )
             ids_list.append(port['id'])
         return ids_list
 
-    def _build_external_gateway_info(self, ext_gateway_net_id, enable_snat,
-                                     ext_fixed_ips):
+    def _build_external_gateway_info(
+        self, ext_gateway_net_id, enable_snat, ext_fixed_ips
+    ):
         info = {}
         if ext_gateway_net_id:
             info['network_id'] = ext_gateway_net_id

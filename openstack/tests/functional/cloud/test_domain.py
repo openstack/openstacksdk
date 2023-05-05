@@ -22,7 +22,6 @@ from openstack.tests.functional import base
 
 
 class TestDomain(base.BaseFunctionalTest):
-
     def setUp(self):
         super(TestDomain, self).setUp()
         if not self.operator_cloud:
@@ -47,14 +46,16 @@ class TestDomain(base.BaseFunctionalTest):
             # Raise an error: we must make users aware that something went
             # wrong
             raise openstack.cloud.OpenStackCloudException(
-                '\n'.join(exception_list))
+                '\n'.join(exception_list)
+            )
 
     def test_search_domains(self):
         domain_name = self.domain_prefix + '_search'
 
         # Shouldn't find any domain with this name yet
         results = self.operator_cloud.search_domains(
-            filters=dict(name=domain_name))
+            filters=dict(name=domain_name)
+        )
         self.assertEqual(0, len(results))
 
         # Now create a new domain
@@ -63,7 +64,8 @@ class TestDomain(base.BaseFunctionalTest):
 
         # Now we should find only the new domain
         results = self.operator_cloud.search_domains(
-            filters=dict(name=domain_name))
+            filters=dict(name=domain_name)
+        )
         self.assertEqual(1, len(results))
         self.assertEqual(domain_name, results[0]['name'])
 
@@ -74,13 +76,17 @@ class TestDomain(base.BaseFunctionalTest):
 
     def test_update_domain(self):
         domain = self.operator_cloud.create_domain(
-            self.domain_prefix, 'description')
+            self.domain_prefix, 'description'
+        )
         self.assertEqual(self.domain_prefix, domain['name'])
         self.assertEqual('description', domain['description'])
         self.assertTrue(domain['enabled'])
         updated = self.operator_cloud.update_domain(
-            domain['id'], name='updated name',
-            description='updated description', enabled=False)
+            domain['id'],
+            name='updated name',
+            description='updated description',
+            enabled=False,
+        )
         self.assertEqual('updated name', updated['name'])
         self.assertEqual('updated description', updated['description'])
         self.assertFalse(updated['enabled'])
@@ -91,14 +97,16 @@ class TestDomain(base.BaseFunctionalTest):
             name_or_id='updated name',
             name='updated name 2',
             description='updated description 2',
-            enabled=True)
+            enabled=True,
+        )
         self.assertEqual('updated name 2', updated['name'])
         self.assertEqual('updated description 2', updated['description'])
         self.assertTrue(updated['enabled'])
 
     def test_delete_domain(self):
-        domain = self.operator_cloud.create_domain(self.domain_prefix,
-                                                   'description')
+        domain = self.operator_cloud.create_domain(
+            self.domain_prefix, 'description'
+        )
         self.assertEqual(self.domain_prefix, domain['name'])
         self.assertEqual('description', domain['description'])
         self.assertTrue(domain['enabled'])
@@ -107,7 +115,8 @@ class TestDomain(base.BaseFunctionalTest):
 
         # Now we delete domain by name with name_or_id
         domain = self.operator_cloud.create_domain(
-            self.domain_prefix, 'description')
+            self.domain_prefix, 'description'
+        )
         self.assertEqual(self.domain_prefix, domain['name'])
         self.assertEqual('description', domain['description'])
         self.assertTrue(domain['enabled'])
@@ -117,7 +126,8 @@ class TestDomain(base.BaseFunctionalTest):
         # Finally, we assert we get False from delete_domain if domain does
         # not exist
         domain = self.operator_cloud.create_domain(
-            self.domain_prefix, 'description')
+            self.domain_prefix, 'description'
+        )
         self.assertEqual(self.domain_prefix, domain['name'])
         self.assertEqual('description', domain['description'])
         self.assertTrue(domain['enabled'])

@@ -84,7 +84,8 @@ class TestNetwork(base.BaseFunctionalTest):
 
     def test_create_network_provider_flat(self):
         existing_public = self.operator_cloud.search_networks(
-            filters={'provider:network_type': 'flat'})
+            filters={'provider:network_type': 'flat'}
+        )
         if existing_public:
             self.skipTest('Physical network already allocated')
         net1 = self.operator_cloud.create_network(
@@ -93,7 +94,7 @@ class TestNetwork(base.BaseFunctionalTest):
             provider={
                 'physical_network': 'public',
                 'network_type': 'flat',
-            }
+            },
         )
         self.assertIn('id', net1)
         self.assertEqual(self.network_name, net1['name'])
@@ -117,10 +118,12 @@ class TestNetwork(base.BaseFunctionalTest):
         net1 = self.operator_cloud.create_network(name=self.network_name)
         self.assertIsNotNone(net1)
         net2 = self.operator_cloud.create_network(
-            name=self.network_name + 'other')
+            name=self.network_name + 'other'
+        )
         self.assertIsNotNone(net2)
         match = self.operator_cloud.list_networks(
-            filters=dict(name=self.network_name))
+            filters=dict(name=self.network_name)
+        )
         self.assertEqual(1, len(match))
         self.assertEqual(net1['name'], match[0]['name'])
 

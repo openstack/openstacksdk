@@ -35,8 +35,13 @@ class TestInventory(base.BaseFunctionalTest):
         self.server_name = self.getUniqueString('inventory')
         self.addCleanup(self._cleanup_server)
         server = self.operator_cloud.create_server(
-            name=self.server_name, image=self.image, flavor=self.flavor,
-            wait=True, auto_ip=True, network='public')
+            name=self.server_name,
+            image=self.image,
+            flavor=self.flavor,
+            wait=True,
+            auto_ip=True,
+            network='public',
+        )
         self.server_id = server['id']
 
     def _cleanup_server(self):

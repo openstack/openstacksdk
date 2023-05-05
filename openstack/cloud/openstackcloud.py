@@ -12,6 +12,7 @@
 import copy
 import functools
 import queue
+
 # import types so that we can reference ListType in sphinx param declarations.
 # We can't just use list, because sphinx gets confused by
 # openstack.resource.Resource.list and openstack.resource2.Resource.list
@@ -60,6 +61,7 @@ class _OpenStackCloudMixin:
     :param bool strict: Only return documented attributes for each resource
                         as per the Data Model contract. (Default False)
     """
+
     _OBJECT_MD5_KEY = 'x-sdk-md5'
     _OBJECT_SHA256_KEY = 'x-sdk-sha256'
     _OBJECT_AUTOCREATE_KEY = 'x-sdk-autocreated'
@@ -90,7 +92,8 @@ class _OpenStackCloudMixin:
         # cert verification
         if not self.verify:
             self.log.debug(
-                "Turning off Insecure SSL warnings since verify=False")
+                "Turning off Insecure SSL warnings since verify=False"
+            )
             category = requestsexceptions.InsecureRequestWarning
             if category:
                 # InsecureRequestWarning references a Warning class or is None
@@ -131,19 +134,20 @@ class _OpenStackCloudMixin:
                 meth_obj = getattr(self, method, None)
                 if not meth_obj:
                     continue
-                if (hasattr(meth_obj, 'invalidate')
-                        and hasattr(meth_obj, 'func')):
+                if hasattr(meth_obj, 'invalidate') and hasattr(
+                    meth_obj, 'func'
+                ):
                     new_func = functools.partial(meth_obj.func, self)
                     new_func.invalidate = _fake_invalidate
                     setattr(self, method, new_func)
 
         # Uncoditionally create cache even with a "null" backend
         self._cache = self._make_cache(
-            cache_class, cache_expiration_time, cache_arguments)
+            cache_class, cache_expiration_time, cache_arguments
+        )
         expirations = self.config.get_cache_expirations()
         for expire_key in expirations.keys():
-            self._cache_expirations[expire_key] = \
-                expirations[expire_key]
+            self._cache_expirations[expire_key] = expirations[expire_key]
 
         # TODO(gtema): delete in next change
         self._SERVER_AGE = 0
@@ -159,7 +163,8 @@ class _OpenStackCloudMixin:
         self._raw_clients = {}
 
         self._local_ipv6 = (
-            _utils.localhost_supports_ipv6() if not self.force_ipv4 else False)
+            _utils.localhost_supports_ipv6() if not self.force_ipv4 else False
+        )
 
     def connect_as(self, **kwargs):
         """Make a new OpenStackCloud object with new auth context.
@@ -191,7 +196,8 @@ class _OpenStackCloudMixin:
             config = openstack.config.OpenStackConfig(
                 app_name=self.config._app_name,
                 app_version=self.config._app_version,
-                load_yaml_config=False)
+                load_yaml_config=False,
+            )
         params = copy.deepcopy(self.config.config)
         # Remove profile from current cloud so that overridding works
         params.pop('profile', None)
@@ -298,7 +304,8 @@ class _OpenStackCloudMixin:
             app_name=self.config._app_name,
             app_version=self.config._app_version,
             discovery_cache=self.session._discovery_cache,
-            **params)
+            **params
+        )
 
         # Override the cloud name so that logging/location work right
         cloud_region._name = self.name
@@ -313,9 +320,8 @@ class _OpenStackCloudMixin:
         return dogpile.cache.make_region(
             function_key_generator=self._make_cache_key
         ).configure(
-            cache_class,
-            expiration_time=expiration_time,
-            arguments=arguments)
+            cache_class, expiration_time=expiration_time, arguments=arguments
+        )
 
     def _make_cache_key(self, namespace, fn):
         fname = fn.__name__
@@ -329,10 +335,11 @@ class _OpenStackCloudMixin:
             arg_key = ''
             kw_keys = sorted(kwargs.keys())
             kwargs_key = ','.join(
-                ['%s:%s' % (k, kwargs[k]) for k in kw_keys if k != 'cache'])
-            ans = "_".join(
-                [str(name_key), fname, arg_key, kwargs_key])
+                ['%s:%s' % (k, kwargs[k]) for k in kw_keys if k != 'cache']
+            )
+            ans = "_".join([str(name_key), fname, arg_key, kwargs_key])
             return ans
+
         return generate_key
 
     def _get_cache(self, resource_name):
@@ -349,7 +356,8 @@ class _OpenStackCloudMixin:
         return version
 
     def _get_versioned_client(
-            self, service_type, min_version=None, max_version=None):
+        self, service_type, min_version=None, max_version=None
+    ):
         config_version = self.config.get_api_version(service_type)
         config_major = self._get_major_version_id(config_version)
         max_major = self._get_major_version_id(max_version)
@@ -372,7 +380,9 @@ class _OpenStackCloudMixin:
                     " but shade understands a minimum of {min_version}".format(
                         config_version=config_version,
                         service_type=service_type,
-                        min_version=min_version))
+                        min_version=min_version,
+                    )
+                )
             elif max_major and config_major > max_major:
                 raise exc.OpenStackCloudException(
                     "Version {config_version} requested for {service_type}"
@@ -380,10 +390,13 @@ class _OpenStackCloudMixin:
                     " {max_version}".format(
                         config_version=config_version,
                         service_type=service_type,
-                        max_version=max_version))
+                        max_version=max_version,
+                    )
+                )
             request_min_version = config_version
             request_max_version = '{version}.latest'.format(
-                version=config_major)
+                version=config_major
+            )
             adapter = proxy._ShadeAdapter(
                 session=self.session,
                 service_type=self.config.get_service_type(service_type),
@@ -397,7 +410,8 @@ class _OpenStackCloudMixin:
                 prometheus_histogram=self.config.get_prometheus_histogram(),
                 influxdb_client=self.config.get_influxdb_client(),
                 min_version=request_min_version,
-                max_version=request_max_version)
+                max_version=request_max_version,
+            )
             if adapter.get_endpoint():
                 return adapter
 
@@ -409,12 +423,14 @@ class _OpenStackCloudMixin:
             endpoint_override=self.config.get_endpoint(service_type),
             region_name=self.config.get_region_name(service_type),
             min_version=min_version,
-            max_version=max_version)
+            max_version=max_version,
+        )
 
         # data.api_version can be None if no version was detected, such
         # as with neutron
         api_version = adapter.get_api_major_version(
-            endpoint_override=self.config.get_endpoint(service_type))
+            endpoint_override=self.config.get_endpoint(service_type)
+        )
         api_major = self._get_major_version_id(api_version)
 
         # If we detect a different version that was configured, warn the user.
@@ -430,7 +446,9 @@ class _OpenStackCloudMixin:
                 ' your config.'.format(
                     service_type=service_type,
                     config_version=config_version,
-                    api_version='.'.join([str(f) for f in api_version])))
+                    api_version='.'.join([str(f) for f in api_version]),
+                )
+            )
             self.log.debug(warning_msg)
             warnings.warn(warning_msg)
         return adapter
@@ -438,19 +456,22 @@ class _OpenStackCloudMixin:
     # TODO(shade) This should be replaced with using openstack Connection
     #             object.
     def _get_raw_client(
-            self, service_type, api_version=None, endpoint_override=None):
+        self, service_type, api_version=None, endpoint_override=None
+    ):
         return proxy._ShadeAdapter(
             session=self.session,
             service_type=self.config.get_service_type(service_type),
             service_name=self.config.get_service_name(service_type),
             interface=self.config.get_interface(service_type),
-            endpoint_override=self.config.get_endpoint(
-                service_type) or endpoint_override,
-            region_name=self.config.get_region_name(service_type))
+            endpoint_override=self.config.get_endpoint(service_type)
+            or endpoint_override,
+            region_name=self.config.get_region_name(service_type),
+        )
 
     def _is_client_version(self, client, version):
         client_name = '_{client}_client'.format(
-            client=client.replace('-', '_'))
+            client=client.replace('-', '_')
+        )
         client = getattr(self, client_name)
         return client._version_matches(version)
 
@@ -458,7 +479,8 @@ class _OpenStackCloudMixin:
     def _application_catalog_client(self):
         if 'application-catalog' not in self._raw_clients:
             self._raw_clients['application-catalog'] = self._get_raw_client(
-                'application-catalog')
+                'application-catalog'
+            )
         return self._raw_clients['application-catalog']
 
     @property
@@ -478,6 +500,7 @@ class _OpenStackCloudMixin:
         """Wrapper around pprint that groks munch objects"""
         # import late since this is a utility function
         import pprint
+
         new_resource = _utils._dictify_resource(resource)
         pprint.pprint(new_resource)
 
@@ -485,6 +508,7 @@ class _OpenStackCloudMixin:
         """Wrapper around pformat that groks munch objects"""
         # import late since this is a utility function
         import pprint
+
         new_resource = _utils._dictify_resource(resource)
         return pprint.pformat(new_resource)
 
@@ -521,7 +545,8 @@ class _OpenStackCloudMixin:
         return self.config.get_endpoint_from_catalog(
             service_type=service_type,
             interface=interface,
-            region_name=region_name)
+            region_name=region_name,
+        )
 
     @property
     def auth_token(self):
@@ -600,10 +625,9 @@ class _OpenStackCloudMixin:
             region_name=None,
             zone=None,
             project=utils.Munch(
-                id=None,
-                name=None,
-                domain_id=None,
-                domain_name=None))
+                id=None, name=None, domain_id=None, domain_name=None
+            ),
+        )
 
     def _get_project_id_param_dict(self, name_or_id):
         if name_or_id:
@@ -628,7 +652,8 @@ class _OpenStackCloudMixin:
             if not domain_id:
                 raise exc.OpenStackCloudException(
                     "User or project creation requires an explicit"
-                    " domain_id argument.")
+                    " domain_id argument."
+                )
             else:
                 return {'domain_id': domain_id}
         else:
@@ -714,7 +739,8 @@ class _OpenStackCloudMixin:
             return self.config.get_session_endpoint(service_key, **kwargs)
         except keystoneauth1.exceptions.catalog.EndpointNotFound as e:
             self.log.debug(
-                "Endpoint not found in %s cloud: %s", self.name, str(e))
+                "Endpoint not found in %s cloud: %s", self.name, str(e)
+            )
             endpoint = None
         except exc.OpenStackCloudException:
             raise
@@ -725,17 +751,22 @@ class _OpenStackCloudMixin:
                     service=service_key,
                     cloud=self.name,
                     region=self.config.get_region_name(service_key),
-                    error=str(e)))
+                    error=str(e),
+                )
+            )
         return endpoint
 
     def has_service(self, service_key, version=None):
         if not self.config.has_service(service_key):
             # TODO(mordred) add a stamp here so that we only report this once
-            if not (service_key in self._disable_warnings
-                    and self._disable_warnings[service_key]):
+            if not (
+                service_key in self._disable_warnings
+                and self._disable_warnings[service_key]
+            ):
                 self.log.debug(
-                    "Disabling %(service_key)s entry in catalog"
-                    " per config", {'service_key': service_key})
+                    "Disabling %(service_key)s entry in catalog" " per config",
+                    {'service_key': service_key},
+                )
                 self._disable_warnings[service_key] = True
             return False
         try:
@@ -786,26 +817,23 @@ class _OpenStackCloudMixin:
         (service_name, resource_name) = resource_type.split('.')
         if not hasattr(self, service_name):
             raise exceptions.SDKException(
-                "service %s is not existing/enabled" %
-                service_name
+                "service %s is not existing/enabled" % service_name
             )
         service_proxy = getattr(self, service_name)
         try:
             resource_type = service_proxy._resource_registry[resource_name]
         except KeyError:
             raise exceptions.SDKException(
-                "Resource %s is not known in service %s" %
-                (resource_name, service_name)
+                "Resource %s is not known in service %s"
+                % (resource_name, service_name)
             )
 
         if name_or_id:
             # name_or_id is definitely not None
             try:
                 resource_by_id = service_proxy._get(
-                    resource_type,
-                    name_or_id,
-                    *get_args,
-                    **get_kwargs)
+                    resource_type, name_or_id, *get_args, **get_kwargs
+                )
                 return [resource_by_id]
             except exceptions.ResourceNotFound:
                 pass
@@ -817,11 +845,9 @@ class _OpenStackCloudMixin:
             filters["name"] = name_or_id
         list_kwargs.update(filters)
 
-        return list(service_proxy._list(
-            resource_type,
-            *list_args,
-            **list_kwargs
-        ))
+        return list(
+            service_proxy._list(resource_type, *list_args, **list_kwargs)
+        )
 
     def project_cleanup(
         self,
@@ -829,7 +855,7 @@ class _OpenStackCloudMixin:
         wait_timeout=120,
         status_queue=None,
         filters=None,
-        resource_evaluation_fn=None
+        resource_evaluation_fn=None,
     ):
         """Cleanup the project resources.
 
@@ -866,7 +892,7 @@ class _OpenStackCloudMixin:
                             dependencies.update(deps)
             except (
                 exceptions.NotSupported,
-                exceptions.ServiceDisabledException
+                exceptions.ServiceDisabledException,
             ):
                 # Cloud may include endpoint in catalog but not
                 # implement the service or disable it
@@ -895,7 +921,7 @@ class _OpenStackCloudMixin:
                             client_status_queue=status_queue,
                             identified_resources=cleanup_resources,
                             filters=filters,
-                            resource_evaluation_fn=resource_evaluation_fn
+                            resource_evaluation_fn=resource_evaluation_fn,
                         )
             except exceptions.ServiceDisabledException:
                 # same reason as above
@@ -908,9 +934,10 @@ class _OpenStackCloudMixin:
                 dep_graph.node_done(service)
 
         for count in utils.iterate_timeout(
-                timeout=wait_timeout,
-                message="Timeout waiting for cleanup to finish",
-                wait=1):
+            timeout=wait_timeout,
+            message="Timeout waiting for cleanup to finish",
+            wait=1,
+        ):
             if dep_graph.is_complete():
                 return
 

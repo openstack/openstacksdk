@@ -26,43 +26,59 @@ from openstack.tests.unit import base
 
 
 class CloudServices(base.TestCase):
-
     def setUp(self, cloud_config_fixture='clouds.yaml'):
         super(CloudServices, self).setUp(cloud_config_fixture)
 
-    def get_mock_url(self, service_type='identity', interface='public',
-                     resource='services', append=None, base_url_append='v3'):
+    def get_mock_url(
+        self,
+        service_type='identity',
+        interface='public',
+        resource='services',
+        append=None,
+        base_url_append='v3',
+    ):
 
         return super(CloudServices, self).get_mock_url(
-            service_type, interface, resource, append, base_url_append)
+            service_type, interface, resource, append, base_url_append
+        )
 
     def test_create_service_v3(self):
-        service_data = self._get_service_data(name='a service', type='network',
-                                              description='A test service')
-        self.register_uris([
-            dict(method='POST',
-                 uri=self.get_mock_url(),
-                 status_code=200,
-                 json=service_data.json_response_v3,
-                 validate=dict(json={'service': service_data.json_request}))
-        ])
+        service_data = self._get_service_data(
+            name='a service', type='network', description='A test service'
+        )
+        self.register_uris(
+            [
+                dict(
+                    method='POST',
+                    uri=self.get_mock_url(),
+                    status_code=200,
+                    json=service_data.json_response_v3,
+                    validate=dict(json={'service': service_data.json_request}),
+                )
+            ]
+        )
 
         service = self.cloud.create_service(
             name=service_data.service_name,
             service_type=service_data.service_type,
-            description=service_data.description)
-        self.assertThat(service.name,
-                        matchers.Equals(service_data.service_name))
+            description=service_data.description,
+        )
+        self.assertThat(
+            service.name, matchers.Equals(service_data.service_name)
+        )
         self.assertThat(service.id, matchers.Equals(service_data.service_id))
-        self.assertThat(service.description,
-                        matchers.Equals(service_data.description))
-        self.assertThat(service.type,
-                        matchers.Equals(service_data.service_type))
+        self.assertThat(
+            service.description, matchers.Equals(service_data.description)
+        )
+        self.assertThat(
+            service.type, matchers.Equals(service_data.service_type)
+        )
         self.assert_calls()
 
     def test_update_service_v3(self):
-        service_data = self._get_service_data(name='a service', type='network',
-                                              description='A test service')
+        service_data = self._get_service_data(
+            name='a service', type='network', description='A test service'
+        )
         request = service_data.json_request.copy()
         request['enabled'] = False
         resp = service_data.json_response_v3.copy()
@@ -70,81 +86,114 @@ class CloudServices(base.TestCase):
         request.pop('description')
         request.pop('name')
         request.pop('type')
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(),
-                 status_code=200,
-                 json={'services': [resp['service']]}),
-            dict(method='PATCH',
-                 uri=self.get_mock_url(append=[service_data.service_id]),
-                 status_code=200,
-                 json=resp,
-                 validate=dict(json={'service': request}))
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(),
+                    status_code=200,
+                    json={'services': [resp['service']]},
+                ),
+                dict(
+                    method='PATCH',
+                    uri=self.get_mock_url(append=[service_data.service_id]),
+                    status_code=200,
+                    json=resp,
+                    validate=dict(json={'service': request}),
+                ),
+            ]
+        )
 
         service = self.cloud.update_service(
-            service_data.service_id, enabled=False)
-        self.assertThat(service.name,
-                        matchers.Equals(service_data.service_name))
+            service_data.service_id, enabled=False
+        )
+        self.assertThat(
+            service.name, matchers.Equals(service_data.service_name)
+        )
         self.assertThat(service.id, matchers.Equals(service_data.service_id))
-        self.assertThat(service.description,
-                        matchers.Equals(service_data.description))
-        self.assertThat(service.type,
-                        matchers.Equals(service_data.service_type))
+        self.assertThat(
+            service.description, matchers.Equals(service_data.description)
+        )
+        self.assertThat(
+            service.type, matchers.Equals(service_data.service_type)
+        )
         self.assert_calls()
 
     def test_list_services(self):
         service_data = self._get_service_data()
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(),
-                 status_code=200,
-                 json={'services': [service_data.json_response_v3['service']]})
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(),
+                    status_code=200,
+                    json={
+                        'services': [service_data.json_response_v3['service']]
+                    },
+                )
+            ]
+        )
         services = self.cloud.list_services()
         self.assertThat(len(services), matchers.Equals(1))
-        self.assertThat(services[0].id,
-                        matchers.Equals(service_data.service_id))
-        self.assertThat(services[0].name,
-                        matchers.Equals(service_data.service_name))
-        self.assertThat(services[0].type,
-                        matchers.Equals(service_data.service_type))
+        self.assertThat(
+            services[0].id, matchers.Equals(service_data.service_id)
+        )
+        self.assertThat(
+            services[0].name, matchers.Equals(service_data.service_name)
+        )
+        self.assertThat(
+            services[0].type, matchers.Equals(service_data.service_type)
+        )
         self.assert_calls()
 
     def test_get_service(self):
         service_data = self._get_service_data()
         service2_data = self._get_service_data()
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(),
-                 status_code=200,
-                 json={'services': [
-                     service_data.json_response_v3['service'],
-                     service2_data.json_response_v3['service']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(),
-                 status_code=200,
-                 json={'services': [
-                     service_data.json_response_v3['service'],
-                     service2_data.json_response_v3['service']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(),
-                 status_code=200,
-                 json={'services': [
-                     service_data.json_response_v3['service'],
-                     service2_data.json_response_v3['service']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(),
-                 status_code=400),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(),
+                    status_code=200,
+                    json={
+                        'services': [
+                            service_data.json_response_v3['service'],
+                            service2_data.json_response_v3['service'],
+                        ]
+                    },
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(),
+                    status_code=200,
+                    json={
+                        'services': [
+                            service_data.json_response_v3['service'],
+                            service2_data.json_response_v3['service'],
+                        ]
+                    },
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(),
+                    status_code=200,
+                    json={
+                        'services': [
+                            service_data.json_response_v3['service'],
+                            service2_data.json_response_v3['service'],
+                        ]
+                    },
+                ),
+                dict(method='GET', uri=self.get_mock_url(), status_code=400),
+            ]
+        )
 
         # Search by id
         service = self.cloud.get_service(name_or_id=service_data.service_id)
         self.assertThat(service.id, matchers.Equals(service_data.service_id))
 
         # Search by name
-        service = self.cloud.get_service(
-            name_or_id=service_data.service_name)
+        service = self.cloud.get_service(name_or_id=service_data.service_name)
         # test we are getting exactly 1 element
         self.assertThat(service.id, matchers.Equals(service_data.service_id))
 
@@ -154,55 +203,85 @@ class CloudServices(base.TestCase):
 
         # Multiple matches
         # test we are getting an Exception
-        self.assertRaises(OpenStackCloudException, self.cloud.get_service,
-                          name_or_id=None, filters={'type': 'type2'})
+        self.assertRaises(
+            OpenStackCloudException,
+            self.cloud.get_service,
+            name_or_id=None,
+            filters={'type': 'type2'},
+        )
         self.assert_calls()
 
     def test_search_services(self):
         service_data = self._get_service_data()
         service2_data = self._get_service_data(type=service_data.service_type)
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(),
-                 status_code=200,
-                 json={'services': [
-                     service_data.json_response_v3['service'],
-                     service2_data.json_response_v3['service']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(),
-                 status_code=200,
-                 json={'services': [
-                     service_data.json_response_v3['service'],
-                     service2_data.json_response_v3['service']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(),
-                 status_code=200,
-                 json={'services': [
-                     service_data.json_response_v3['service'],
-                     service2_data.json_response_v3['service']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(),
-                 status_code=200,
-                 json={'services': [
-                     service_data.json_response_v3['service'],
-                     service2_data.json_response_v3['service']]}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(),
+                    status_code=200,
+                    json={
+                        'services': [
+                            service_data.json_response_v3['service'],
+                            service2_data.json_response_v3['service'],
+                        ]
+                    },
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(),
+                    status_code=200,
+                    json={
+                        'services': [
+                            service_data.json_response_v3['service'],
+                            service2_data.json_response_v3['service'],
+                        ]
+                    },
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(),
+                    status_code=200,
+                    json={
+                        'services': [
+                            service_data.json_response_v3['service'],
+                            service2_data.json_response_v3['service'],
+                        ]
+                    },
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(),
+                    status_code=200,
+                    json={
+                        'services': [
+                            service_data.json_response_v3['service'],
+                            service2_data.json_response_v3['service'],
+                        ]
+                    },
+                ),
+            ]
+        )
 
         # Search by id
         services = self.cloud.search_services(
-            name_or_id=service_data.service_id)
+            name_or_id=service_data.service_id
+        )
         # test we are getting exactly 1 element
         self.assertThat(len(services), matchers.Equals(1))
-        self.assertThat(services[0].id,
-                        matchers.Equals(service_data.service_id))
+        self.assertThat(
+            services[0].id, matchers.Equals(service_data.service_id)
+        )
 
         # Search by name
         services = self.cloud.search_services(
-            name_or_id=service_data.service_name)
+            name_or_id=service_data.service_name
+        )
         # test we are getting exactly 1 element
         self.assertThat(len(services), matchers.Equals(1))
-        self.assertThat(services[0].name,
-                        matchers.Equals(service_data.service_name))
+        self.assertThat(
+            services[0].name, matchers.Equals(service_data.service_name)
+        )
 
         # Not found
         services = self.cloud.search_services(name_or_id='!INVALID!')
@@ -210,35 +289,50 @@ class CloudServices(base.TestCase):
 
         # Multiple matches
         services = self.cloud.search_services(
-            filters={'type': service_data.service_type})
+            filters={'type': service_data.service_type}
+        )
         # test we are getting exactly 2 elements
         self.assertThat(len(services), matchers.Equals(2))
-        self.assertThat(services[0].id,
-                        matchers.Equals(service_data.service_id))
-        self.assertThat(services[1].id,
-                        matchers.Equals(service2_data.service_id))
+        self.assertThat(
+            services[0].id, matchers.Equals(service_data.service_id)
+        )
+        self.assertThat(
+            services[1].id, matchers.Equals(service2_data.service_id)
+        )
         self.assert_calls()
 
     def test_delete_service(self):
         service_data = self._get_service_data()
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(),
-                 status_code=200,
-                 json={'services': [
-                     service_data.json_response_v3['service']]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(append=[service_data.service_id]),
-                 status_code=204),
-            dict(method='GET',
-                 uri=self.get_mock_url(),
-                 status_code=200,
-                 json={'services': [
-                     service_data.json_response_v3['service']]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(append=[service_data.service_id]),
-                 status_code=204)
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(),
+                    status_code=200,
+                    json={
+                        'services': [service_data.json_response_v3['service']]
+                    },
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(append=[service_data.service_id]),
+                    status_code=204,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(),
+                    status_code=200,
+                    json={
+                        'services': [service_data.json_response_v3['service']]
+                    },
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(append=[service_data.service_id]),
+                    status_code=204,
+                ),
+            ]
+        )
 
         # Delete by name
         self.cloud.delete_service(name_or_id=service_data.service_name)

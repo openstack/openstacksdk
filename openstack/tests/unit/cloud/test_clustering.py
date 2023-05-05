@@ -24,14 +24,10 @@ CLUSTERING_DICT = {
     'max_size': 1,
     'min_size': 1,
     'timeout': 100,
-    'metadata': {}
+    'metadata': {},
 }
 
-PROFILE_DICT = {
-    'name': 'fake-profile-name',
-    'spec': {},
-    'metadata': {}
-}
+PROFILE_DICT = {'name': 'fake-profile-name', 'spec': {}, 'metadata': {}}
 
 POLICY_DICT = {
     'name': 'fake-profile-name',
@@ -43,7 +39,7 @@ RECEIVER_DICT = {
     'cluster_id': 'fake-cluster-id',
     'name': 'fake-receiver-name',
     'params': {},
-    'type': 'webhook'
+    'type': 'webhook',
 }
 
 NEW_CLUSTERING_DICT = copy.copy(CLUSTERING_DICT)
@@ -57,7 +53,6 @@ NEW_RECEIVER_DICT['id'] = '1'
 
 
 class TestClustering(base.TestCase):
-
     def assertAreInstances(self, elements, elem_type):
         for e in elements:
             self.assertIsInstance(e, elem_type)
@@ -65,11 +60,13 @@ class TestClustering(base.TestCase):
     def _compare_clusters(self, exp, real):
         self.assertEqual(
             cluster.Cluster(**exp).to_dict(computed=False),
-            real.to_dict(computed=False))
+            real.to_dict(computed=False),
+        )
 
     def setUp(self):
         super(TestClustering, self).setUp()
         self.use_senlin()
+
 
 #    def test_create_cluster(self):
 #        self.register_uris([

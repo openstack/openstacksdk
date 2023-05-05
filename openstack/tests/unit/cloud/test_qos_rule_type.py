@@ -27,131 +27,192 @@ class TestQosRuleType(base.TestCase):
         "name": "Quality of Service",
         "links": [],
         "alias": "qos",
-        "description": "The Quality of Service extension."
+        "description": "The Quality of Service extension.",
     }
     qos_rule_type_details_extension = {
         "updated": "2017-06-22T10:00:00-00:00",
         "name": "Details of QoS rule types",
         "links": [],
         "alias": "qos-rule-type-details",
-        "description": ("Expose details about QoS rule types supported by "
-                        "loaded backend drivers")
+        "description": (
+            "Expose details about QoS rule types supported by "
+            "loaded backend drivers"
+        ),
     }
 
-    mock_rule_type_bandwidth_limit = {
-        'type': 'bandwidth_limit'
-    }
-    mock_rule_type_dscp_marking = {
-        'type': 'dscp_marking'
-    }
+    mock_rule_type_bandwidth_limit = {'type': 'bandwidth_limit'}
+    mock_rule_type_dscp_marking = {'type': 'dscp_marking'}
     mock_rule_types = [
-        mock_rule_type_bandwidth_limit, mock_rule_type_dscp_marking]
+        mock_rule_type_bandwidth_limit,
+        mock_rule_type_dscp_marking,
+    ]
 
     mock_rule_type_details = {
-        'drivers': [{
-            'name': 'linuxbridge',
-            'supported_parameters': [{
-                'parameter_values': {'start': 0, 'end': 2147483647},
-                'parameter_type': 'range',
-                'parameter_name': u'max_kbps'
-            }, {
-                'parameter_values': ['ingress', 'egress'],
-                'parameter_type': 'choices',
-                'parameter_name': u'direction'
-            }, {
-                'parameter_values': {'start': 0, 'end': 2147483647},
-                'parameter_type': 'range',
-                'parameter_name': 'max_burst_kbps'
-            }]
-        }],
-        'type': rule_type_name
+        'drivers': [
+            {
+                'name': 'linuxbridge',
+                'supported_parameters': [
+                    {
+                        'parameter_values': {'start': 0, 'end': 2147483647},
+                        'parameter_type': 'range',
+                        'parameter_name': u'max_kbps',
+                    },
+                    {
+                        'parameter_values': ['ingress', 'egress'],
+                        'parameter_type': 'choices',
+                        'parameter_name': u'direction',
+                    },
+                    {
+                        'parameter_values': {'start': 0, 'end': 2147483647},
+                        'parameter_type': 'range',
+                        'parameter_name': 'max_burst_kbps',
+                    },
+                ],
+            }
+        ],
+        'type': rule_type_name,
     }
 
     def _compare_rule_types(self, exp, real):
         self.assertDictEqual(
             qos_rule_type.QoSRuleType(**exp).to_dict(computed=False),
-            real.to_dict(computed=False))
+            real.to_dict(computed=False),
+        )
 
     def test_list_qos_rule_types(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': [self.qos_extension]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'rule-types']),
-                 json={'rule_types': self.mock_rule_types})
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json={'extensions': [self.qos_extension]},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'qos', 'rule-types'],
+                    ),
+                    json={'rule_types': self.mock_rule_types},
+                ),
+            ]
+        )
         rule_types = self.cloud.list_qos_rule_types()
         for a, b in zip(self.mock_rule_types, rule_types):
             self._compare_rule_types(a, b)
         self.assert_calls()
 
     def test_list_qos_rule_types_no_qos_extension(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': []})
-        ])
-        self.assertRaises(exc.OpenStackCloudException,
-                          self.cloud.list_qos_rule_types)
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json={'extensions': []},
+                )
+            ]
+        )
+        self.assertRaises(
+            exc.OpenStackCloudException, self.cloud.list_qos_rule_types
+        )
         self.assert_calls()
 
     def test_get_qos_rule_type_details(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': [
-                     self.qos_extension,
-                     self.qos_rule_type_details_extension]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': [
-                     self.qos_extension,
-                     self.qos_rule_type_details_extension]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'rule-types',
-                             self.rule_type_name]),
-                     json={'rule_type': self.mock_rule_type_details})
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json={
+                        'extensions': [
+                            self.qos_extension,
+                            self.qos_rule_type_details_extension,
+                        ]
+                    },
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json={
+                        'extensions': [
+                            self.qos_extension,
+                            self.qos_rule_type_details_extension,
+                        ]
+                    },
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=[
+                            'v2.0',
+                            'qos',
+                            'rule-types',
+                            self.rule_type_name,
+                        ],
+                    ),
+                    json={'rule_type': self.mock_rule_type_details},
+                ),
+            ]
+        )
 
         self._compare_rule_types(
             self.mock_rule_type_details,
-            self.cloud.get_qos_rule_type_details(self.rule_type_name)
+            self.cloud.get_qos_rule_type_details(self.rule_type_name),
         )
         self.assert_calls()
 
     def test_get_qos_rule_type_details_no_qos_extension(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': []})
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json={'extensions': []},
+                )
+            ]
+        )
         self.assertRaises(
             exc.OpenStackCloudException,
-            self.cloud.get_qos_rule_type_details, self.rule_type_name)
+            self.cloud.get_qos_rule_type_details,
+            self.rule_type_name,
+        )
         self.assert_calls()
 
     def test_get_qos_rule_type_details_no_qos_details_extension(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': [self.qos_extension]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': [self.qos_extension]})
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json={'extensions': [self.qos_extension]},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json={'extensions': [self.qos_extension]},
+                ),
+            ]
+        )
         self.assertRaises(
             exc.OpenStackCloudException,
-            self.cloud.get_qos_rule_type_details, self.rule_type_name)
+            self.cloud.get_qos_rule_type_details,
+            self.rule_type_name,
+        )
         self.assert_calls()

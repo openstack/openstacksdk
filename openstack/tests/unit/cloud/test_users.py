@@ -19,16 +19,19 @@ from openstack.tests.unit import base
 
 
 class TestUsers(base.TestCase):
-
-    def _get_keystone_mock_url(self, resource, append=None, v3=True,
-                               qs_elements=None):
+    def _get_keystone_mock_url(
+        self, resource, append=None, v3=True, qs_elements=None
+    ):
         base_url_append = None
         if v3:
             base_url_append = 'v3'
         return self.get_mock_url(
-            service_type='identity', resource=resource,
-            append=append, base_url_append=base_url_append,
-            qs_elements=qs_elements)
+            service_type='identity',
+            resource=resource,
+            append=append,
+            base_url_append=base_url_append,
+            qs_elements=qs_elements,
+        )
 
     def _get_user_list(self, user_data):
         uri = self._get_keystone_mock_url(resource='users')
@@ -40,26 +43,34 @@ class TestUsers(base.TestCase):
                 'self': uri,
                 'previous': None,
                 'next': None,
-            }
+            },
         }
 
     def test_create_user_v3(self):
         user_data = self._get_user_data(
             domain_id=uuid.uuid4().hex,
-            description=self.getUniqueString('description'))
+            description=self.getUniqueString('description'),
+        )
 
-        self.register_uris([
-            dict(method='POST',
-                 uri=self._get_keystone_mock_url(resource='users'),
-                 status_code=200, json=user_data.json_response,
-                 validate=dict(json=user_data.json_request)),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='POST',
+                    uri=self._get_keystone_mock_url(resource='users'),
+                    status_code=200,
+                    json=user_data.json_response,
+                    validate=dict(json=user_data.json_request),
+                ),
+            ]
+        )
 
         user = self.cloud.create_user(
-            name=user_data.name, email=user_data.email,
+            name=user_data.name,
+            email=user_data.email,
             password=user_data.password,
             description=user_data.description,
-            domain_id=user_data.domain_id)
+            domain_id=user_data.domain_id,
+        )
 
         self.assertEqual(user_data.name, user.name)
         self.assertEqual(user_data.email, user.email)
@@ -68,59 +79,89 @@ class TestUsers(base.TestCase):
         self.assert_calls()
 
     def test_create_user_v3_no_domain(self):
-        user_data = self._get_user_data(domain_id=uuid.uuid4().hex,
-                                        email='test@example.com')
+        user_data = self._get_user_data(
+            domain_id=uuid.uuid4().hex, email='test@example.com'
+        )
         with testtools.ExpectedException(
-                openstack.cloud.OpenStackCloudException,
-                "User or project creation requires an explicit"
-                " domain_id argument."
+            openstack.cloud.OpenStackCloudException,
+            "User or project creation requires an explicit"
+            " domain_id argument.",
         ):
             self.cloud.create_user(
-                name=user_data.name, email=user_data.email,
-                password=user_data.password)
+                name=user_data.name,
+                email=user_data.email,
+                password=user_data.password,
+            )
 
     def test_delete_user(self):
         user_data = self._get_user_data(domain_id=uuid.uuid4().hex)
         user_resource_uri = self._get_keystone_mock_url(
-            resource='users', append=[user_data.user_id])
+            resource='users', append=[user_data.user_id]
+        )
 
-        self.register_uris([
-            dict(method='GET',
-                 uri=self._get_keystone_mock_url(
-                     resource='users',
-                     qs_elements=['name=%s' % user_data.name]),
-                 status_code=200,
-                 json=self._get_user_list(user_data)),
-            dict(method='DELETE', uri=user_resource_uri, status_code=204)])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self._get_keystone_mock_url(
+                        resource='users',
+                        qs_elements=['name=%s' % user_data.name],
+                    ),
+                    status_code=200,
+                    json=self._get_user_list(user_data),
+                ),
+                dict(method='DELETE', uri=user_resource_uri, status_code=204),
+            ]
+        )
 
         self.cloud.delete_user(user_data.name)
         self.assert_calls()
 
     def test_delete_user_not_found(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self._get_keystone_mock_url(resource='users'),
-                 status_code=200, json={'users': []})])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self._get_keystone_mock_url(resource='users'),
+                    status_code=200,
+                    json={'users': []},
+                )
+            ]
+        )
         self.assertFalse(self.cloud.delete_user(self.getUniqueString()))
 
     def test_add_user_to_group(self):
         user_data = self._get_user_data()
         group_data = self._get_group_data()
 
-        self.register_uris([
-            dict(method='GET',
-                 uri=self._get_keystone_mock_url(resource='users'),
-                 status_code=200,
-                 json=self._get_user_list(user_data)),
-            dict(method='GET',
-                 uri=self._get_keystone_mock_url(resource='groups'),
-                 status_code=200,
-                 json={'groups': [group_data.json_response['group']]}),
-            dict(method='PUT',
-                 uri=self._get_keystone_mock_url(
-                     resource='groups',
-                     append=[group_data.group_id, 'users', user_data.user_id]),
-                 status_code=200)])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self._get_keystone_mock_url(resource='users'),
+                    status_code=200,
+                    json=self._get_user_list(user_data),
+                ),
+                dict(
+                    method='GET',
+                    uri=self._get_keystone_mock_url(resource='groups'),
+                    status_code=200,
+                    json={'groups': [group_data.json_response['group']]},
+                ),
+                dict(
+                    method='PUT',
+                    uri=self._get_keystone_mock_url(
+                        resource='groups',
+                        append=[
+                            group_data.group_id,
+                            'users',
+                            user_data.user_id,
+                        ],
+                    ),
+                    status_code=200,
+                ),
+            ]
+        )
         self.cloud.add_user_to_group(user_data.user_id, group_data.group_id)
         self.assert_calls()
 
@@ -128,43 +169,73 @@ class TestUsers(base.TestCase):
         user_data = self._get_user_data()
         group_data = self._get_group_data()
 
-        self.register_uris([
-            dict(method='GET',
-                 uri=self._get_keystone_mock_url(resource='users'),
-                 status_code=200,
-                 json=self._get_user_list(user_data)),
-            dict(method='GET',
-                 uri=self._get_keystone_mock_url(resource='groups'),
-                 status_code=200,
-                 json={'groups': [group_data.json_response['group']]}),
-            dict(method='HEAD',
-                 uri=self._get_keystone_mock_url(
-                     resource='groups',
-                     append=[group_data.group_id, 'users', user_data.user_id]),
-                 status_code=204)])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self._get_keystone_mock_url(resource='users'),
+                    status_code=200,
+                    json=self._get_user_list(user_data),
+                ),
+                dict(
+                    method='GET',
+                    uri=self._get_keystone_mock_url(resource='groups'),
+                    status_code=200,
+                    json={'groups': [group_data.json_response['group']]},
+                ),
+                dict(
+                    method='HEAD',
+                    uri=self._get_keystone_mock_url(
+                        resource='groups',
+                        append=[
+                            group_data.group_id,
+                            'users',
+                            user_data.user_id,
+                        ],
+                    ),
+                    status_code=204,
+                ),
+            ]
+        )
 
-        self.assertTrue(self.cloud.is_user_in_group(
-            user_data.user_id, group_data.group_id))
+        self.assertTrue(
+            self.cloud.is_user_in_group(user_data.user_id, group_data.group_id)
+        )
         self.assert_calls()
 
     def test_remove_user_from_group(self):
         user_data = self._get_user_data()
         group_data = self._get_group_data()
 
-        self.register_uris([
-            dict(method='GET',
-                 uri=self._get_keystone_mock_url(resource='users'),
-                 json=self._get_user_list(user_data)),
-            dict(method='GET',
-                 uri=self._get_keystone_mock_url(resource='groups'),
-                 status_code=200,
-                 json={'groups': [group_data.json_response['group']]}),
-            dict(method='DELETE',
-                 uri=self._get_keystone_mock_url(
-                     resource='groups',
-                     append=[group_data.group_id, 'users', user_data.user_id]),
-                 status_code=204)])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self._get_keystone_mock_url(resource='users'),
+                    json=self._get_user_list(user_data),
+                ),
+                dict(
+                    method='GET',
+                    uri=self._get_keystone_mock_url(resource='groups'),
+                    status_code=200,
+                    json={'groups': [group_data.json_response['group']]},
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self._get_keystone_mock_url(
+                        resource='groups',
+                        append=[
+                            group_data.group_id,
+                            'users',
+                            user_data.user_id,
+                        ],
+                    ),
+                    status_code=204,
+                ),
+            ]
+        )
 
         self.cloud.remove_user_from_group(
-            user_data.user_id, group_data.group_id)
+            user_data.user_id, group_data.group_id
+        )
         self.assert_calls()

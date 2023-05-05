@@ -43,10 +43,10 @@ class TestVolume(base.BaseFunctionalTest):
         self.addDetail('volume', content.text_content(volume_name))
         self.addCleanup(self.cleanup, volume_name, snapshot_name=snapshot_name)
         volume = self.user_cloud.create_volume(
-            display_name=volume_name, size=1)
+            display_name=volume_name, size=1
+        )
         snapshot = self.user_cloud.create_volume_snapshot(
-            volume['id'],
-            display_name=snapshot_name
+            volume['id'], display_name=snapshot_name
         )
 
         ret_volume = self.user_cloud.get_volume_by_id(volume['id'])
@@ -60,7 +60,8 @@ class TestVolume(base.BaseFunctionalTest):
         self.assertIn(snapshot['id'], snapshot_ids)
 
         ret_snapshot = self.user_cloud.get_volume_snapshot_by_id(
-            snapshot['id'])
+            snapshot['id']
+        )
         self.assertEqual(snapshot['id'], ret_snapshot['id'])
 
         self.user_cloud.delete_volume_snapshot(snapshot_name, wait=True)
@@ -73,9 +74,11 @@ class TestVolume(base.BaseFunctionalTest):
         self.addDetail('volume', content.text_content(volume_name))
         self.addCleanup(self.cleanup, volume_name, image_name=image_name)
         volume = self.user_cloud.create_volume(
-            display_name=volume_name, size=1)
+            display_name=volume_name, size=1
+        )
         image = self.user_cloud.create_image(
-            image_name, volume=volume, wait=True)
+            image_name, volume=volume, wait=True
+        )
 
         volume_ids = [v['id'] for v in self.user_cloud.list_volumes()]
         self.assertIn(volume['id'], volume_ids)
@@ -93,7 +96,8 @@ class TestVolume(base.BaseFunctionalTest):
             snapshot = self.user_cloud.get_volume_snapshot(snapshot_name)
             if snapshot:
                 self.user_cloud.delete_volume_snapshot(
-                    snapshot_name, wait=True)
+                    snapshot_name, wait=True
+                )
         if image_name:
             image = self.user_cloud.get_image(image_name)
             if image:
@@ -108,7 +112,8 @@ class TestVolume(base.BaseFunctionalTest):
                 self.user_cloud.delete_volume(v, wait=False)
             try:
                 for count in utils.iterate_timeout(
-                        180, "Timeout waiting for volume cleanup"):
+                    180, "Timeout waiting for volume cleanup"
+                ):
                     found = False
                     for existing in self.user_cloud.list_volumes():
                         for v in volume:
@@ -127,7 +132,8 @@ class TestVolume(base.BaseFunctionalTest):
                     for v in volume:
                         if v['id'] == existing['id']:
                             self.operator_cloud.delete_volume(
-                                v, wait=False, force=True)
+                                v, wait=False, force=True
+                            )
 
     def test_list_volumes_pagination(self):
         '''Test pagination for list volumes functionality'''
@@ -146,9 +152,7 @@ class TestVolume(base.BaseFunctionalTest):
         for i in self.user_cloud.list_volumes():
             if i['name'] and i['name'].startswith(self.id()):
                 result.append(i['id'])
-        self.assertEqual(
-            sorted([i['id'] for i in volumes]),
-            sorted(result))
+        self.assertEqual(sorted([i['id'] for i in volumes]), sorted(result))
 
     def test_update_volume(self):
         name, desc = self.getUniqueString('name'), self.getUniqueString('desc')

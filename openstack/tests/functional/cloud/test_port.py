@@ -27,7 +27,6 @@ from openstack.tests.functional import base
 
 
 class TestPort(base.BaseFunctionalTest):
-
     def setUp(self):
         super(TestPort, self).setUp()
         # Skip Neutron tests if neutron is not present
@@ -40,7 +39,8 @@ class TestPort(base.BaseFunctionalTest):
 
         # Generate a unique port name to allow concurrent tests
         self.new_port_name = 'test_' + ''.join(
-            random.choice(string.ascii_lowercase) for _ in range(5))
+            random.choice(string.ascii_lowercase) for _ in range(5)
+        )
 
         self.addCleanup(self._cleanup_ports)
 
@@ -65,7 +65,8 @@ class TestPort(base.BaseFunctionalTest):
         port_name = self.new_port_name + '_create'
 
         port = self.user_cloud.create_port(
-            network_id=self.net.id, name=port_name)
+            network_id=self.net.id, name=port_name
+        )
         self.assertIsInstance(port, dict)
         self.assertIn('id', port)
         self.assertEqual(port.get('name'), port_name)
@@ -74,7 +75,8 @@ class TestPort(base.BaseFunctionalTest):
         port_name = self.new_port_name + '_get'
 
         port = self.user_cloud.create_port(
-            network_id=self.net.id, name=port_name)
+            network_id=self.net.id, name=port_name
+        )
         self.assertIsInstance(port, dict)
         self.assertIn('id', port)
         self.assertEqual(port.get('name'), port_name)
@@ -89,7 +91,8 @@ class TestPort(base.BaseFunctionalTest):
         port_name = self.new_port_name + '_get_by_id'
 
         port = self.user_cloud.create_port(
-            network_id=self.net.id, name=port_name)
+            network_id=self.net.id, name=port_name
+        )
         self.assertIsInstance(port, dict)
         self.assertIn('id', port)
         self.assertEqual(port.get('name'), port_name)
@@ -104,11 +107,11 @@ class TestPort(base.BaseFunctionalTest):
         port_name = self.new_port_name + '_update'
         new_port_name = port_name + '_new'
 
-        self.user_cloud.create_port(
-            network_id=self.net.id, name=port_name)
+        self.user_cloud.create_port(network_id=self.net.id, name=port_name)
 
         port = self.user_cloud.update_port(
-            name_or_id=port_name, name=new_port_name)
+            name_or_id=port_name, name=new_port_name
+        )
         self.assertIsInstance(port, dict)
         self.assertEqual(port.get('name'), new_port_name)
 
@@ -129,7 +132,8 @@ class TestPort(base.BaseFunctionalTest):
         port_name = self.new_port_name + '_delete'
 
         port = self.user_cloud.create_port(
-            network_id=self.net.id, name=port_name)
+            network_id=self.net.id, name=port_name
+        )
         self.assertIsInstance(port, dict)
         self.assertIn('id', port)
         self.assertEqual(port.get('name'), port_name)

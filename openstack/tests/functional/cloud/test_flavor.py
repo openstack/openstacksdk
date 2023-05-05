@@ -24,7 +24,6 @@ from openstack.tests.functional import base
 
 
 class TestFlavor(base.BaseFunctionalTest):
-
     def setUp(self):
         super(TestFlavor, self).setUp()
 
@@ -56,8 +55,14 @@ class TestFlavor(base.BaseFunctionalTest):
 
         flavor_name = self.new_item_name + '_create'
         flavor_kwargs = dict(
-            name=flavor_name, ram=1024, vcpus=2, disk=10, ephemeral=5,
-            swap=100, rxtx_factor=1.5, is_public=True
+            name=flavor_name,
+            ram=1024,
+            vcpus=2,
+            disk=10,
+            ephemeral=5,
+            swap=100,
+            rxtx_factor=1.5,
+            is_public=True,
         )
 
         flavor = self.operator_cloud.create_flavor(**flavor_kwargs)
@@ -144,8 +149,9 @@ class TestFlavor(base.BaseFunctionalTest):
         self.assertEqual(project['id'], acls[0]['tenant_id'])
 
         # Now revoke the access and make sure we can't find it
-        self.operator_cloud.remove_flavor_access(new_flavor['id'],
-                                                 project['id'])
+        self.operator_cloud.remove_flavor_access(
+            new_flavor['id'], project['id']
+        )
         flavors = self.user_cloud.search_flavors(priv_flavor_name)
         self.assertEqual(0, len(flavors))
 
@@ -157,9 +163,7 @@ class TestFlavor(base.BaseFunctionalTest):
             self.skipTest("Operator cloud is required for this test")
 
         flavor_name = self.new_item_name + '_spec_test'
-        kwargs = dict(
-            name=flavor_name, ram=1024, vcpus=2, disk=10
-        )
+        kwargs = dict(name=flavor_name, ram=1024, vcpus=2, disk=10)
         new_flavor = self.operator_cloud.create_flavor(**kwargs)
 
         # Expect no extra_specs
@@ -169,7 +173,8 @@ class TestFlavor(base.BaseFunctionalTest):
         extra_specs = {'foo': 'aaa', 'bar': 'bbb'}
         self.operator_cloud.set_flavor_specs(new_flavor['id'], extra_specs)
         mod_flavor = self.operator_cloud.get_flavor(
-            new_flavor['id'], get_extra=True)
+            new_flavor['id'], get_extra=True
+        )
 
         # Verify extra_specs were set
         self.assertIn('extra_specs', mod_flavor)
@@ -178,7 +183,8 @@ class TestFlavor(base.BaseFunctionalTest):
         # Unset the 'foo' value
         self.operator_cloud.unset_flavor_specs(mod_flavor['id'], ['foo'])
         mod_flavor = self.operator_cloud.get_flavor_by_id(
-            new_flavor['id'], get_extra=True)
+            new_flavor['id'], get_extra=True
+        )
 
         # Verify 'foo' is unset and 'bar' is still set
         self.assertEqual({'bar': 'bbb'}, mod_flavor['extra_specs'])

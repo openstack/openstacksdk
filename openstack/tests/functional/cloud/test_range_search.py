@@ -17,7 +17,6 @@ from openstack.tests.functional import base
 
 
 class TestRangeSearch(base.BaseFunctionalTest):
-
     def _filter_m1_flavors(self, results):
         """The m1 flavors are the original devstack flavors"""
         new_results = []
@@ -30,7 +29,10 @@ class TestRangeSearch(base.BaseFunctionalTest):
         flavors = self.user_cloud.list_flavors(get_extra=False)
         self.assertRaises(
             exc.OpenStackCloudException,
-            self.user_cloud.range_search, flavors, {"ram": "<1a0"})
+            self.user_cloud.range_search,
+            flavors,
+            {"ram": "<1a0"},
+        )
 
     def test_range_search_exact(self):
         flavors = self.user_cloud.list_flavors(get_extra=False)
@@ -103,7 +105,8 @@ class TestRangeSearch(base.BaseFunctionalTest):
     def test_range_search_multi_1(self):
         flavors = self.user_cloud.list_flavors(get_extra=False)
         result = self.user_cloud.range_search(
-            flavors, {"ram": "MIN", "vcpus": "MIN"})
+            flavors, {"ram": "MIN", "vcpus": "MIN"}
+        )
         self.assertIsInstance(result, list)
         self.assertEqual(1, len(result))
         # older devstack does not have cirros256
@@ -112,7 +115,8 @@ class TestRangeSearch(base.BaseFunctionalTest):
     def test_range_search_multi_2(self):
         flavors = self.user_cloud.list_flavors(get_extra=False)
         result = self.user_cloud.range_search(
-            flavors, {"ram": "<1024", "vcpus": "MIN"})
+            flavors, {"ram": "<1024", "vcpus": "MIN"}
+        )
         self.assertIsInstance(result, list)
         result = self._filter_m1_flavors(result)
         self.assertEqual(1, len(result))
@@ -122,7 +126,8 @@ class TestRangeSearch(base.BaseFunctionalTest):
     def test_range_search_multi_3(self):
         flavors = self.user_cloud.list_flavors(get_extra=False)
         result = self.user_cloud.range_search(
-            flavors, {"ram": ">=4096", "vcpus": "<6"})
+            flavors, {"ram": ">=4096", "vcpus": "<6"}
+        )
         self.assertIsInstance(result, list)
         result = self._filter_m1_flavors(result)
         self.assertEqual(2, len(result))
@@ -133,7 +138,8 @@ class TestRangeSearch(base.BaseFunctionalTest):
     def test_range_search_multi_4(self):
         flavors = self.user_cloud.list_flavors(get_extra=False)
         result = self.user_cloud.range_search(
-            flavors, {"ram": ">=4096", "vcpus": "MAX"})
+            flavors, {"ram": ">=4096", "vcpus": "MAX"}
+        )
         self.assertIsInstance(result, list)
         self.assertEqual(1, len(result))
         # This is the only result that should have max vcpu

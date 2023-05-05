@@ -38,14 +38,14 @@ class TestQosBandwidthLimitRule(base.TestCase):
         'project_id': project_id,
         'tenant_id': project_id,
         'shared': False,
-        'is_default': False
+        'is_default': False,
     }
 
     mock_rule = {
         'id': rule_id,
         'max_kbps': rule_max_kbps,
         'max_burst_kbps': rule_max_burst,
-        'direction': 'egress'
+        'direction': 'egress',
     }
 
     qos_extension = {
@@ -53,7 +53,7 @@ class TestQosBandwidthLimitRule(base.TestCase):
         "name": "Quality of Service",
         "links": [],
         "alias": "qos",
-        "description": "The Quality of Service extension."
+        "description": "The Quality of Service extension.",
     }
 
     qos_bw_limit_direction_extension = {
@@ -61,316 +61,561 @@ class TestQosBandwidthLimitRule(base.TestCase):
         "name": "Direction for QoS bandwidth limit rule",
         "links": [],
         "alias": "qos-bw-limit-direction",
-        "description": ("Allow to configure QoS bandwidth limit rule with "
-                        "specific direction: ingress or egress")
+        "description": (
+            "Allow to configure QoS bandwidth limit rule with "
+            "specific direction: ingress or egress"
+        ),
     }
 
-    enabled_neutron_extensions = [qos_extension,
-                                  qos_bw_limit_direction_extension]
+    enabled_neutron_extensions = [
+        qos_extension,
+        qos_bw_limit_direction_extension,
+    ]
 
     def _compare_rules(self, exp, real):
         self.assertDictEqual(
             qos_bandwidth_limit_rule.QoSBandwidthLimitRule(**exp).to_dict(
-                computed=False),
-            real.to_dict(computed=False))
+                computed=False
+            ),
+            real.to_dict(computed=False),
+        )
 
     def test_get_qos_bandwidth_limit_rule(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': self.enabled_neutron_extensions}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies', self.policy_name]),
-                 status_code=404),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies'],
-                     qs_elements=['name=%s' % self.policy_name]),
-                 json={'policies': [self.mock_policy]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies', self.policy_id,
-                             'bandwidth_limit_rules', self.rule_id]),
-                 json={'bandwidth_limit_rule': self.mock_rule})
-        ])
-        r = self.cloud.get_qos_bandwidth_limit_rule(self.policy_name,
-                                                    self.rule_id)
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json={'extensions': self.enabled_neutron_extensions},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'qos', 'policies', self.policy_name],
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'qos', 'policies'],
+                        qs_elements=['name=%s' % self.policy_name],
+                    ),
+                    json={'policies': [self.mock_policy]},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=[
+                            'v2.0',
+                            'qos',
+                            'policies',
+                            self.policy_id,
+                            'bandwidth_limit_rules',
+                            self.rule_id,
+                        ],
+                    ),
+                    json={'bandwidth_limit_rule': self.mock_rule},
+                ),
+            ]
+        )
+        r = self.cloud.get_qos_bandwidth_limit_rule(
+            self.policy_name, self.rule_id
+        )
         self._compare_rules(self.mock_rule, r)
         self.assert_calls()
 
     def test_get_qos_bandwidth_limit_rule_no_qos_policy_found(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': self.enabled_neutron_extensions}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies', self.policy_name]),
-                 status_code=404),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies'],
-                     qs_elements=['name=%s' % self.policy_name]),
-                 json={'policies': []})
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json={'extensions': self.enabled_neutron_extensions},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'qos', 'policies', self.policy_name],
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'qos', 'policies'],
+                        qs_elements=['name=%s' % self.policy_name],
+                    ),
+                    json={'policies': []},
+                ),
+            ]
+        )
         self.assertRaises(
             exc.OpenStackCloudResourceNotFound,
             self.cloud.get_qos_bandwidth_limit_rule,
-            self.policy_name, self.rule_id)
+            self.policy_name,
+            self.rule_id,
+        )
         self.assert_calls()
 
     def test_get_qos_bandwidth_limit_rule_no_qos_extension(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': []})
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json={'extensions': []},
+                )
+            ]
+        )
         self.assertRaises(
             exc.OpenStackCloudException,
             self.cloud.get_qos_bandwidth_limit_rule,
-            self.policy_name, self.rule_id)
+            self.policy_name,
+            self.rule_id,
+        )
         self.assert_calls()
 
     def test_create_qos_bandwidth_limit_rule(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': self.enabled_neutron_extensions}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies', self.policy_name]),
-                 status_code=404),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies'],
-                     qs_elements=['name=%s' % self.policy_name]),
-                 json={'policies': [self.mock_policy]}),
-            dict(method='POST',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies', self.policy_id,
-                             'bandwidth_limit_rules']),
-                 json={'bandwidth_limit_rule': self.mock_rule})
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json={'extensions': self.enabled_neutron_extensions},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'qos', 'policies', self.policy_name],
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'qos', 'policies'],
+                        qs_elements=['name=%s' % self.policy_name],
+                    ),
+                    json={'policies': [self.mock_policy]},
+                ),
+                dict(
+                    method='POST',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=[
+                            'v2.0',
+                            'qos',
+                            'policies',
+                            self.policy_id,
+                            'bandwidth_limit_rules',
+                        ],
+                    ),
+                    json={'bandwidth_limit_rule': self.mock_rule},
+                ),
+            ]
+        )
         rule = self.cloud.create_qos_bandwidth_limit_rule(
-            self.policy_name, max_kbps=self.rule_max_kbps)
+            self.policy_name, max_kbps=self.rule_max_kbps
+        )
         self._compare_rules(self.mock_rule, rule)
         self.assert_calls()
 
     def test_create_qos_bandwidth_limit_rule_no_qos_extension(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': []})
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json={'extensions': []},
+                )
+            ]
+        )
         self.assertRaises(
             exc.OpenStackCloudException,
-            self.cloud.create_qos_bandwidth_limit_rule, self.policy_name,
-            max_kbps=100)
+            self.cloud.create_qos_bandwidth_limit_rule,
+            self.policy_name,
+            max_kbps=100,
+        )
         self.assert_calls()
 
     def test_create_qos_bandwidth_limit_rule_no_qos_direction_extension(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': [self.qos_extension]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies', self.policy_name]),
-                 status_code=404),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies'],
-                     qs_elements=['name=%s' % self.policy_name]),
-                 json={'policies': [self.mock_policy]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': [self.qos_extension]}),
-            dict(method='POST',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies', self.policy_id,
-                             'bandwidth_limit_rules']),
-                 json={'bandwidth_limit_rule': self.mock_rule})
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json={'extensions': [self.qos_extension]},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'qos', 'policies', self.policy_name],
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'qos', 'policies'],
+                        qs_elements=['name=%s' % self.policy_name],
+                    ),
+                    json={'policies': [self.mock_policy]},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json={'extensions': [self.qos_extension]},
+                ),
+                dict(
+                    method='POST',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=[
+                            'v2.0',
+                            'qos',
+                            'policies',
+                            self.policy_id,
+                            'bandwidth_limit_rules',
+                        ],
+                    ),
+                    json={'bandwidth_limit_rule': self.mock_rule},
+                ),
+            ]
+        )
         rule = self.cloud.create_qos_bandwidth_limit_rule(
-            self.policy_name, max_kbps=self.rule_max_kbps, direction="ingress")
+            self.policy_name, max_kbps=self.rule_max_kbps, direction="ingress"
+        )
         self._compare_rules(self.mock_rule, rule)
         self.assert_calls()
 
     def test_update_qos_bandwidth_limit_rule(self):
         expected_rule = copy.copy(self.mock_rule)
         expected_rule['max_kbps'] = self.rule_max_kbps + 100
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': [self.qos_extension]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies', self.policy_id]),
-                 json=self.mock_policy),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies', self.policy_id,
-                             'bandwidth_limit_rules', self.rule_id]),
-                 json={'bandwidth_limit_rule': self.mock_rule}),
-            dict(method='PUT',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies', self.policy_id,
-                             'bandwidth_limit_rules', self.rule_id]),
-                 json={'bandwidth_limit_rule': expected_rule},
-                 validate=dict(
-                     json={'bandwidth_limit_rule': {
-                         'max_kbps': self.rule_max_kbps + 100}}))
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json={'extensions': [self.qos_extension]},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'qos', 'policies', self.policy_id],
+                    ),
+                    json=self.mock_policy,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=[
+                            'v2.0',
+                            'qos',
+                            'policies',
+                            self.policy_id,
+                            'bandwidth_limit_rules',
+                            self.rule_id,
+                        ],
+                    ),
+                    json={'bandwidth_limit_rule': self.mock_rule},
+                ),
+                dict(
+                    method='PUT',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=[
+                            'v2.0',
+                            'qos',
+                            'policies',
+                            self.policy_id,
+                            'bandwidth_limit_rules',
+                            self.rule_id,
+                        ],
+                    ),
+                    json={'bandwidth_limit_rule': expected_rule},
+                    validate=dict(
+                        json={
+                            'bandwidth_limit_rule': {
+                                'max_kbps': self.rule_max_kbps + 100
+                            }
+                        }
+                    ),
+                ),
+            ]
+        )
         rule = self.cloud.update_qos_bandwidth_limit_rule(
-            self.policy_id, self.rule_id, max_kbps=self.rule_max_kbps + 100)
+            self.policy_id, self.rule_id, max_kbps=self.rule_max_kbps + 100
+        )
         self._compare_rules(expected_rule, rule)
         self.assert_calls()
 
     def test_update_qos_bandwidth_limit_rule_no_qos_extension(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': []})
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json={'extensions': []},
+                )
+            ]
+        )
         self.assertRaises(
             exc.OpenStackCloudException,
             self.cloud.update_qos_bandwidth_limit_rule,
-            self.policy_id, self.rule_id, max_kbps=2000)
+            self.policy_id,
+            self.rule_id,
+            max_kbps=2000,
+        )
         self.assert_calls()
 
     def test_update_qos_bandwidth_limit_rule_no_qos_direction_extension(self):
         expected_rule = copy.copy(self.mock_rule)
         expected_rule['direction'] = self.rule_max_kbps + 100
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': [self.qos_extension]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies', self.policy_id]),
-                 json=self.mock_policy),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': [self.qos_extension]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies', self.policy_id,
-                             'bandwidth_limit_rules', self.rule_id]),
-                 json={'bandwidth_limit_rule': self.mock_rule}),
-            dict(method='PUT',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies', self.policy_id,
-                             'bandwidth_limit_rules',
-                             self.rule_id]),
-                 json={'bandwidth_limit_rule': expected_rule},
-                 validate=dict(
-                     json={'bandwidth_limit_rule': {
-                         'max_kbps': self.rule_max_kbps + 100}}))
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json={'extensions': [self.qos_extension]},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'qos', 'policies', self.policy_id],
+                    ),
+                    json=self.mock_policy,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json={'extensions': [self.qos_extension]},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=[
+                            'v2.0',
+                            'qos',
+                            'policies',
+                            self.policy_id,
+                            'bandwidth_limit_rules',
+                            self.rule_id,
+                        ],
+                    ),
+                    json={'bandwidth_limit_rule': self.mock_rule},
+                ),
+                dict(
+                    method='PUT',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=[
+                            'v2.0',
+                            'qos',
+                            'policies',
+                            self.policy_id,
+                            'bandwidth_limit_rules',
+                            self.rule_id,
+                        ],
+                    ),
+                    json={'bandwidth_limit_rule': expected_rule},
+                    validate=dict(
+                        json={
+                            'bandwidth_limit_rule': {
+                                'max_kbps': self.rule_max_kbps + 100
+                            }
+                        }
+                    ),
+                ),
+            ]
+        )
         rule = self.cloud.update_qos_bandwidth_limit_rule(
-            self.policy_id, self.rule_id, max_kbps=self.rule_max_kbps + 100,
-            direction="ingress")
+            self.policy_id,
+            self.rule_id,
+            max_kbps=self.rule_max_kbps + 100,
+            direction="ingress",
+        )
         # Even if there was attempt to change direction to 'ingress' it should
         # be not changed in returned rule
         self._compare_rules(expected_rule, rule)
         self.assert_calls()
 
     def test_delete_qos_bandwidth_limit_rule(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': self.enabled_neutron_extensions}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies', self.policy_name]),
-                 status_code=404),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies'],
-                     qs_elements=['name=%s' % self.policy_name]),
-                 json={'policies': [self.mock_policy]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies', self.policy_id,
-                             'bandwidth_limit_rules', self.rule_id]),
-                 json={})
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json={'extensions': self.enabled_neutron_extensions},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'qos', 'policies', self.policy_name],
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'qos', 'policies'],
+                        qs_elements=['name=%s' % self.policy_name],
+                    ),
+                    json={'policies': [self.mock_policy]},
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=[
+                            'v2.0',
+                            'qos',
+                            'policies',
+                            self.policy_id,
+                            'bandwidth_limit_rules',
+                            self.rule_id,
+                        ],
+                    ),
+                    json={},
+                ),
+            ]
+        )
         self.assertTrue(
             self.cloud.delete_qos_bandwidth_limit_rule(
-                self.policy_name, self.rule_id))
+                self.policy_name, self.rule_id
+            )
+        )
         self.assert_calls()
 
     def test_delete_qos_bandwidth_limit_rule_no_qos_extension(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': []})
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json={'extensions': []},
+                )
+            ]
+        )
         self.assertRaises(
             exc.OpenStackCloudException,
             self.cloud.delete_qos_bandwidth_limit_rule,
-            self.policy_name, self.rule_id)
+            self.policy_name,
+            self.rule_id,
+        )
         self.assert_calls()
 
     def test_delete_qos_bandwidth_limit_rule_not_found(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': self.enabled_neutron_extensions}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies', self.policy_name]),
-                 status_code=404),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies'],
-                     qs_elements=['name=%s' % self.policy_name]),
-                 json={'policies': [self.mock_policy]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies', self.policy_id,
-                             'bandwidth_limit_rules', self.rule_id]),
-                 status_code=404)
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json={'extensions': self.enabled_neutron_extensions},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'qos', 'policies', self.policy_name],
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=['v2.0', 'qos', 'policies'],
+                        qs_elements=['name=%s' % self.policy_name],
+                    ),
+                    json={'policies': [self.mock_policy]},
+                ),
+                dict(
+                    method='DELETE',
+                    uri=self.get_mock_url(
+                        'network',
+                        'public',
+                        append=[
+                            'v2.0',
+                            'qos',
+                            'policies',
+                            self.policy_id,
+                            'bandwidth_limit_rules',
+                            self.rule_id,
+                        ],
+                    ),
+                    status_code=404,
+                ),
+            ]
+        )
         self.assertFalse(
             self.cloud.delete_qos_bandwidth_limit_rule(
-                self.policy_name, self.rule_id))
+                self.policy_name, self.rule_id
+            )
+        )
         self.assert_calls()

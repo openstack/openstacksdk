@@ -56,7 +56,8 @@ class TestQosPolicy(base.BaseFunctionalTest):
 
     def test_create_qos_policy_shared(self):
         policy = self.operator_cloud.create_qos_policy(
-            name=self.policy_name, shared=True)
+            name=self.policy_name, shared=True
+        )
         self.assertIn('id', policy)
         self.assertEqual(self.policy_name, policy['name'])
         self.assertTrue(policy['is_shared'])
@@ -64,10 +65,12 @@ class TestQosPolicy(base.BaseFunctionalTest):
 
     def test_create_qos_policy_default(self):
         if not self.operator_cloud._has_neutron_extension('qos-default'):
-            self.skipTest("'qos-default' network extension not supported "
-                          "by cloud")
+            self.skipTest(
+                "'qos-default' network extension not supported " "by cloud"
+            )
         policy = self.operator_cloud.create_qos_policy(
-            name=self.policy_name, default=True)
+            name=self.policy_name, default=True
+        )
         self.assertIn('id', policy)
         self.assertEqual(self.policy_name, policy['name'])
         self.assertFalse(policy['is_shared'])
@@ -80,7 +83,8 @@ class TestQosPolicy(base.BaseFunctionalTest):
         self.assertFalse(policy['is_default'])
 
         updated_policy = self.operator_cloud.update_qos_policy(
-            policy['id'], shared=True, default=True)
+            policy['id'], shared=True, default=True
+        )
         self.assertEqual(self.policy_name, updated_policy['name'])
         self.assertTrue(updated_policy['is_shared'])
         self.assertTrue(updated_policy['is_default'])
@@ -89,9 +93,11 @@ class TestQosPolicy(base.BaseFunctionalTest):
         policy1 = self.operator_cloud.create_qos_policy(name=self.policy_name)
         self.assertIsNotNone(policy1)
         policy2 = self.operator_cloud.create_qos_policy(
-            name=self.policy_name + 'other')
+            name=self.policy_name + 'other'
+        )
         self.assertIsNotNone(policy2)
         match = self.operator_cloud.list_qos_policies(
-            filters=dict(name=self.policy_name))
+            filters=dict(name=self.policy_name)
+        )
         self.assertEqual(1, len(match))
         self.assertEqual(policy1['name'], match[0]['name'])

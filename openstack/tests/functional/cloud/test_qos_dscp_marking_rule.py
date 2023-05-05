@@ -49,29 +49,31 @@ class TestQosDscpMarkingRule(base.BaseFunctionalTest):
 
         # Create DSCP marking rule
         rule = self.operator_cloud.create_qos_dscp_marking_rule(
-            self.policy['id'],
-            dscp_mark=dscp_mark)
+            self.policy['id'], dscp_mark=dscp_mark
+        )
         self.assertIn('id', rule)
         self.assertEqual(dscp_mark, rule['dscp_mark'])
 
         # Now try to update rule
         updated_rule = self.operator_cloud.update_qos_dscp_marking_rule(
-            self.policy['id'],
-            rule['id'],
-            dscp_mark=updated_dscp_mark)
+            self.policy['id'], rule['id'], dscp_mark=updated_dscp_mark
+        )
         self.assertIn('id', updated_rule)
         self.assertEqual(updated_dscp_mark, updated_rule['dscp_mark'])
 
         # List rules from policy
         policy_rules = self.operator_cloud.list_qos_dscp_marking_rules(
-            self.policy['id'])
+            self.policy['id']
+        )
         self.assertEqual([updated_rule], policy_rules)
 
         # Delete rule
         self.operator_cloud.delete_qos_dscp_marking_rule(
-            self.policy['id'], updated_rule['id'])
+            self.policy['id'], updated_rule['id']
+        )
 
         # Check if there is no rules in policy
         policy_rules = self.operator_cloud.list_qos_dscp_marking_rules(
-            self.policy['id'])
+            self.policy['id']
+        )
         self.assertEqual([], policy_rules)

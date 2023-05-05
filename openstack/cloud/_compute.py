@@ -114,12 +114,15 @@ class ComputeCloudMixin:
         """
         flavors = self.list_flavors(get_extra=get_extra)
         for flavor in sorted(flavors, key=operator.itemgetter('ram')):
-            if (flavor['ram'] >= ram
-                    and (not include or include in flavor['name'])):
+            if flavor['ram'] >= ram and (
+                not include or include in flavor['name']
+            ):
                 return flavor
         raise exc.OpenStackCloudException(
             "Could not find a flavor with {ram} and '{include}'".format(
-                ram=ram, include=include))
+                ram=ram, include=include
+            )
+        )
 
     @_utils.cache_on_arguments()
     def _nova_extensions(self):
@@ -155,8 +158,12 @@ class ComputeCloudMixin:
         return _utils._filter_list(flavors, name_or_id, filters)
 
     def search_servers(
-        self, name_or_id=None, filters=None, detailed=False,
-        all_projects=False, bare=False,
+        self,
+        name_or_id=None,
+        filters=None,
+        detailed=False,
+        all_projects=False,
+        bare=False,
     ):
         """Search servers.
 
@@ -169,7 +176,8 @@ class ComputeCloudMixin:
             criteria.
         """
         servers = self.list_servers(
-            detailed=detailed, all_projects=all_projects, bare=bare)
+            detailed=detailed, all_projects=all_projects, bare=bare
+        )
         return _utils._filter_list(servers, name_or_id, filters)
 
     def search_server_groups(self, name_or_id=None, filters=None):
@@ -213,8 +221,8 @@ class ComputeCloudMixin:
             return ret
         except exceptions.SDKException:
             self.log.debug(
-                "Availability zone list could not be fetched",
-                exc_info=True)
+                "Availability zone list could not be fetched", exc_info=True
+            )
             return []
 
     @_utils.cache_on_arguments()
@@ -226,8 +234,9 @@ class ComputeCloudMixin:
             clouds.yaml by setting openstack.cloud.get_extra_specs to False.
         :returns: A list of compute ``Flavor`` objects.
         """
-        return list(self.compute.flavors(
-            details=True, get_extra_specs=get_extra))
+        return list(
+            self.compute.flavors(details=True, get_extra_specs=get_extra)
+        )
 
     def list_server_security_groups(self, server):
         """List all security groups associated with the given server.
@@ -268,8 +277,9 @@ class ComputeCloudMixin:
                 sg = self.get_security_group(sg)
 
                 if sg is None:
-                    self.log.debug('Security group %s not found for adding',
-                                   sg)
+                    self.log.debug(
+                        'Security group %s not found for adding', sg
+                    )
 
                     return None, None
 
@@ -288,7 +298,8 @@ class ComputeCloudMixin:
         :raises: ``OpenStackCloudException``, on operation error.
         """
         server, security_groups = self._get_server_security_groups(
-            server, security_groups)
+            server, security_groups
+        )
 
         if not (server and security_groups):
             return False
@@ -310,7 +321,8 @@ class ComputeCloudMixin:
         :raises: ``OpenStackCloudException``, on operation error.
         """
         server, security_groups = self._get_server_security_groups(
-            server, security_groups)
+            server, security_groups
+        )
 
         if not (server and security_groups):
             return False
@@ -327,7 +339,10 @@ class ComputeCloudMixin:
                 # error? Nova returns ok if you try to add a group twice.
                 self.log.debug(
                     "The security group %s was not present on server %s so "
-                    "no action was performed", sg.name, server.name)
+                    "no action was performed",
+                    sg.name,
+                    server.name,
+                )
                 ret = False
 
         return ret
@@ -377,7 +392,8 @@ class ComputeCloudMixin:
                         self._servers = self._list_servers(
                             detailed=detailed,
                             all_projects=all_projects,
-                            bare=bare)
+                            bare=bare,
+                        )
                         self._servers_time = time.time()
                 finally:
                     self._servers_lock.release()
@@ -386,14 +402,15 @@ class ComputeCloudMixin:
         # list from the cloud, we still return a filtered list.
         return _utils._filter_list(self._servers, None, filters)
 
-    def _list_servers(self, detailed=False, all_projects=False, bare=False,
-                      filters=None):
+    def _list_servers(
+        self, detailed=False, all_projects=False, bare=False, filters=None
+    ):
         filters = filters or {}
         return [
             self._expand_server(server, detailed, bare)
             for server in self.compute.servers(
-                all_projects=all_projects,
-                **filters)
+                all_projects=all_projects, **filters
+            )
         ]
 
     def list_server_groups(self):
@@ -472,12 +489,15 @@ class ComputeCloudMixin:
         if not filters:
             filters = {}
         flavor = self.compute.find_flavor(
-            name_or_id, get_extra_specs=get_extra,
-            ignore_missing=True, **filters)
+            name_or_id,
+            get_extra_specs=get_extra,
+            ignore_missing=True,
+            **filters,
+        )
         return flavor
 
     def get_flavor_by_id(self, id, get_extra=False):
-        """ Get a flavor by ID
+        """Get a flavor by ID
 
         :param id: ID of the flavor.
         :param get_extra: Whether or not the list_flavors call should get the
@@ -505,7 +525,8 @@ class ComputeCloudMixin:
 
         if not server:
             raise exc.OpenStackCloudException(
-                "Console log requested for invalid server")
+                "Console log requested for invalid server"
+            )
 
         try:
             return self._get_server_console_output(server['id'], length)
@@ -514,8 +535,7 @@ class ComputeCloudMixin:
 
     def _get_server_console_output(self, server_id, length=None):
         output = self.compute.get_server_console_output(
-            server=server_id,
-            length=length
+            server=server_id, length=length
         )
         if 'output' in output:
             return output['output']
@@ -555,9 +575,12 @@ class ComputeCloudMixin:
             the current auth scoped project.
         :returns: A compute ``Server`` object if found, else None.
         """
-        searchfunc = functools.partial(self.search_servers,
-                                       detailed=detailed, bare=True,
-                                       all_projects=all_projects)
+        searchfunc = functools.partial(
+            self.search_servers,
+            detailed=detailed,
+            bare=True,
+            all_projects=all_projects,
+        )
         server = _utils._get_entity(self, searchfunc, name_or_id, filters)
         return self._expand_server(server, detailed, bare)
 
@@ -600,8 +623,7 @@ class ComputeCloudMixin:
 
         :returns: A compute ``ServerGroup`` object if found, else None.
         """
-        return _utils._get_entity(self, 'server_group', name_or_id,
-                                  filters)
+        return _utils._get_entity(self, 'server_group', name_or_id, filters)
 
     def create_keypair(self, name, public_key=None):
         """Create a new keypair.
@@ -664,10 +686,12 @@ class ComputeCloudMixin:
             if not server_obj:
                 raise exc.OpenStackCloudException(
                     "Server {server} could not be found and therefore"
-                    " could not be snapshotted.".format(server=server))
+                    " could not be snapshotted.".format(server=server)
+                )
             server = server_obj
         image = self.compute.create_server_image(
-            server, name=name, metadata=metadata, wait=wait, timeout=timeout)
+            server, name=name, metadata=metadata, wait=wait, timeout=timeout
+        )
         return image
 
     def get_server_id(self, name_or_id):
@@ -709,12 +733,25 @@ class ComputeCloudMixin:
         return dict(server_vars=server_vars, groups=groups)
 
     @_utils.valid_kwargs(
-        'meta', 'files', 'userdata', 'description',
-        'reservation_id', 'return_raw', 'min_count',
-        'max_count', 'security_groups', 'key_name',
-        'availability_zone', 'block_device_mapping',
-        'block_device_mapping_v2', 'nics', 'scheduler_hints',
-        'config_drive', 'admin_pass', 'disk_config')
+        'meta',
+        'files',
+        'userdata',
+        'description',
+        'reservation_id',
+        'return_raw',
+        'min_count',
+        'max_count',
+        'security_groups',
+        'key_name',
+        'availability_zone',
+        'block_device_mapping',
+        'block_device_mapping_v2',
+        'nics',
+        'scheduler_hints',
+        'config_drive',
+        'admin_pass',
+        'disk_config',
+    )
     def create_server(
         self,
         name,
@@ -818,10 +855,12 @@ class ComputeCloudMixin:
         # after image in the argument list. Doh.
         if not flavor:
             raise TypeError(
-                "create_server() missing 1 required argument: 'flavor'")
+                "create_server() missing 1 required argument: 'flavor'"
+            )
         if not image and not boot_volume:
             raise TypeError(
-                "create_server() requires either 'image' or 'boot_volume'")
+                "create_server() requires either 'image' or 'boot_volume'"
+            )
 
         # TODO(mordred) Add support for description starting in 2.19
         security_groups = kwargs.get('security_groups', [])
@@ -836,11 +875,12 @@ class ComputeCloudMixin:
             if user_data:
                 kwargs['user_data'] = self._encode_server_userdata(user_data)
         for (desired, given) in (
-                ('OS-DCF:diskConfig', 'disk_config'),
-                ('config_drive', 'config_drive'),
-                ('key_name', 'key_name'),
-                ('metadata', 'meta'),
-                ('adminPass', 'admin_pass')):
+            ('OS-DCF:diskConfig', 'disk_config'),
+            ('config_drive', 'config_drive'),
+            ('key_name', 'key_name'),
+            ('metadata', 'meta'),
+            ('adminPass', 'admin_pass'),
+        ):
             value = kwargs.pop(given, None)
             if value:
                 kwargs[desired] = value
@@ -850,7 +890,8 @@ class ComputeCloudMixin:
             if not group_obj:
                 raise exc.OpenStackCloudException(
                     "Server Group {group} was requested but was not found"
-                    " on the cloud".format(group=group))
+                    " on the cloud".format(group=group)
+                )
             if 'scheduler_hints' not in kwargs:
                 kwargs['scheduler_hints'] = {}
             kwargs['scheduler_hints']['group'] = group_obj['id']
@@ -865,7 +906,8 @@ class ComputeCloudMixin:
             else:
                 raise exc.OpenStackCloudException(
                     'nics parameter to create_server takes a list of dicts.'
-                    ' Got: {nics}'.format(nics=kwargs['nics']))
+                    ' Got: {nics}'.format(nics=kwargs['nics'])
+                )
 
         if network and ('nics' not in kwargs or not kwargs['nics']):
             nics = []
@@ -881,7 +923,10 @@ class ComputeCloudMixin:
                         'Network {network} is not a valid network in'
                         ' {cloud}:{region}'.format(
                             network=network,
-                            cloud=self.name, region=self._compute_region))
+                            cloud=self.name,
+                            region=self._compute_region,
+                        )
+                    )
                 nics.append({'net-id': network_obj['id']})
 
             kwargs['nics'] = nics
@@ -904,14 +949,17 @@ class ComputeCloudMixin:
                 if not nic_net:
                     raise exc.OpenStackCloudException(
                         "Requested network {net} could not be found.".format(
-                            net=net_name))
+                            net=net_name
+                        )
+                    )
                 net['uuid'] = nic_net['id']
             for ip_key in ('v4-fixed-ip', 'v6-fixed-ip', 'fixed_ip'):
                 fixed_ip = nic.pop(ip_key, None)
                 if fixed_ip and net.get('fixed_ip'):
                     raise exc.OpenStackCloudException(
                         "Only one of v4-fixed-ip, v6-fixed-ip or fixed_ip"
-                        " may be given")
+                        " may be given"
+                    )
                 if fixed_ip:
                     net['fixed_ip'] = fixed_ip
             for key in ('port', 'port-id'):
@@ -920,13 +968,13 @@ class ComputeCloudMixin:
             # A tag supported only in server microversion 2.32-2.36 or >= 2.42
             # Bumping the version to 2.42 to support the 'tag' implementation
             if 'tag' in nic:
-                utils.require_microversion(
-                    self.compute, '2.42')
+                utils.require_microversion(self.compute, '2.42')
                 net['tag'] = nic.pop('tag')
             if nic:
                 raise exc.OpenStackCloudException(
                     "Additional unsupported keys given for server network"
-                    " creation: {keys}".format(keys=nic.keys()))
+                    " creation: {keys}".format(keys=nic.keys())
+                )
             networks.append(net)
         if networks:
             kwargs['networks'] = networks
@@ -954,10 +1002,14 @@ class ComputeCloudMixin:
             boot_volume = root_volume
 
         kwargs = self._get_boot_from_volume_kwargs(
-            image=image, boot_from_volume=boot_from_volume,
-            boot_volume=boot_volume, volume_size=str(volume_size),
+            image=image,
+            boot_from_volume=boot_from_volume,
+            boot_volume=boot_volume,
+            volume_size=str(volume_size),
             terminate_volume=terminate_volume,
-            volumes=volumes, kwargs=kwargs)
+            volumes=volumes,
+            kwargs=kwargs,
+        )
 
         kwargs['name'] = name
 
@@ -977,14 +1029,18 @@ class ComputeCloudMixin:
             server = self.compute.get_server(server.id)
             if server.status == 'ERROR':
                 raise exc.OpenStackCloudCreateException(
-                    resource='server', resource_id=server.id)
+                    resource='server', resource_id=server.id
+                )
             server = meta.add_server_interfaces(self, server)
 
         else:
             server = self.wait_for_server(
                 server,
-                auto_ip=auto_ip, ips=ips, ip_pool=ip_pool,
-                reuse=reuse_ips, timeout=timeout,
+                auto_ip=auto_ip,
+                ips=ips,
+                ip_pool=ip_pool,
+                reuse=reuse_ips,
+                timeout=timeout,
                 nat_destination=nat_destination,
             )
 
@@ -992,8 +1048,15 @@ class ComputeCloudMixin:
         return server
 
     def _get_boot_from_volume_kwargs(
-            self, image, boot_from_volume, boot_volume, volume_size,
-            terminate_volume, volumes, kwargs):
+        self,
+        image,
+        boot_from_volume,
+        boot_volume,
+        volume_size,
+        terminate_volume,
+        volumes,
+        kwargs,
+    ):
         """Return block device mappings
 
         :param image: Image dict, name or id to boot with.
@@ -1015,7 +1078,10 @@ class ComputeCloudMixin:
                     'Volume {boot_volume} is not a valid volume'
                     ' in {cloud}:{region}'.format(
                         boot_volume=boot_volume,
-                        cloud=self.name, region=self._compute_region))
+                        cloud=self.name,
+                        region=self._compute_region,
+                    )
+                )
             block_mapping = {
                 'boot_index': '0',
                 'delete_on_termination': terminate_volume,
@@ -1036,7 +1102,10 @@ class ComputeCloudMixin:
                     'Image {image} is not a valid image in'
                     ' {cloud}:{region}'.format(
                         image=image,
-                        cloud=self.name, region=self._compute_region))
+                        cloud=self.name,
+                        region=self._compute_region,
+                    )
+                )
 
             block_mapping = {
                 'boot_index': '0',
@@ -1066,7 +1135,10 @@ class ComputeCloudMixin:
                     'Volume {volume} is not a valid volume'
                     ' in {cloud}:{region}'.format(
                         volume=volume,
-                        cloud=self.name, region=self._compute_region))
+                        cloud=self.name,
+                        region=self._compute_region,
+                    )
+                )
             block_mapping = {
                 'boot_index': '-1',
                 'delete_on_termination': False,
@@ -1080,8 +1152,15 @@ class ComputeCloudMixin:
         return kwargs
 
     def wait_for_server(
-            self, server, auto_ip=True, ips=None, ip_pool=None,
-            reuse=True, timeout=180, nat_destination=None):
+        self,
+        server,
+        auto_ip=True,
+        ips=None,
+        ip_pool=None,
+        reuse=True,
+        timeout=180,
+        nat_destination=None,
+    ):
         """
         Wait for a server to reach ACTIVE status.
         """
@@ -1094,11 +1173,12 @@ class ComputeCloudMixin:
 
         # There is no point in iterating faster than the list_servers cache
         for count in utils.iterate_timeout(
-                timeout,
-                timeout_message,
-                # if _SERVER_AGE is 0 we still want to wait a bit
-                # to be friendly with the server.
-                wait=self._SERVER_AGE or 2):
+            timeout,
+            timeout_message,
+            # if _SERVER_AGE is 0 we still want to wait a bit
+            # to be friendly with the server.
+            wait=self._SERVER_AGE or 2,
+        ):
             try:
                 # Use the get_server call so that the list_servers
                 # cache can be leveraged
@@ -1116,10 +1196,15 @@ class ComputeCloudMixin:
                 raise exc.OpenStackCloudTimeout(timeout_message)
 
             server = self.get_active_server(
-                server=server, reuse=reuse,
-                auto_ip=auto_ip, ips=ips, ip_pool=ip_pool,
-                wait=True, timeout=remaining_timeout,
-                nat_destination=nat_destination)
+                server=server,
+                reuse=reuse,
+                auto_ip=auto_ip,
+                ips=ips,
+                ip_pool=ip_pool,
+                wait=True,
+                timeout=remaining_timeout,
+                nat_destination=nat_destination,
+            )
 
             if server is not None and server['status'] == 'ACTIVE':
                 return server
@@ -1136,43 +1221,58 @@ class ComputeCloudMixin:
         nat_destination=None,
     ):
         if server['status'] == 'ERROR':
-            if ('fault' in server and server['fault'] is not None
-                    and 'message' in server['fault']):
+            if (
+                'fault' in server
+                and server['fault'] is not None
+                and 'message' in server['fault']
+            ):
                 raise exc.OpenStackCloudException(
                     "Error in creating the server."
                     " Compute service reports fault: {reason}".format(
-                        reason=server['fault']['message']),
-                    extra_data=dict(server=server))
+                        reason=server['fault']['message']
+                    ),
+                    extra_data=dict(server=server),
+                )
 
             raise exc.OpenStackCloudException(
                 "Error in creating the server"
                 " (no further information available)",
-                extra_data=dict(server=server))
+                extra_data=dict(server=server),
+            )
 
         if server['status'] == 'ACTIVE':
             if 'addresses' in server and server['addresses']:
                 return self.add_ips_to_server(
-                    server, auto_ip, ips, ip_pool, reuse=reuse,
+                    server,
+                    auto_ip,
+                    ips,
+                    ip_pool,
+                    reuse=reuse,
                     nat_destination=nat_destination,
-                    wait=wait, timeout=timeout)
+                    wait=wait,
+                    timeout=timeout,
+                )
 
             self.log.debug(
                 'Server %(server)s reached ACTIVE state without'
                 ' being allocated an IP address.'
-                ' Deleting server.', {'server': server['id']})
+                ' Deleting server.',
+                {'server': server['id']},
+            )
             try:
-                self._delete_server(
-                    server=server, wait=wait, timeout=timeout)
+                self._delete_server(server=server, wait=wait, timeout=timeout)
             except Exception as e:
                 raise exc.OpenStackCloudException(
                     'Server reached ACTIVE state without being'
                     ' allocated an IP address AND then could not'
                     ' be deleted: {0}'.format(e),
-                    extra_data=dict(server=server))
+                    extra_data=dict(server=server),
+                )
             raise exc.OpenStackCloudException(
                 'Server reached ACTIVE state without being'
                 ' allocated an IP address.',
-                extra_data=dict(server=server))
+                extra_data=dict(server=server),
+            )
         return None
 
     def rebuild_server(
@@ -1202,17 +1302,12 @@ class ComputeCloudMixin:
         if admin_pass:
             kwargs['admin_password'] = admin_pass
 
-        server = self.compute.rebuild_server(
-            server_id,
-            **kwargs
-        )
+        server = self.compute.rebuild_server(server_id, **kwargs)
         if not wait:
-            return self._expand_server(
-                server, bare=bare, detailed=detailed)
+            return self._expand_server(server, bare=bare, detailed=detailed)
 
         admin_pass = server.get('adminPass') or admin_pass
-        server = self.compute.wait_for_server(
-            server, wait=timeout)
+        server = self.compute.wait_for_server(server, wait=timeout)
         if server['status'] == 'ACTIVE':
             server.adminPass = admin_pass
 
@@ -1231,7 +1326,8 @@ class ComputeCloudMixin:
         server = self.get_server(name_or_id, bare=True)
         if not server:
             raise exc.OpenStackCloudException(
-                'Invalid Server {server}'.format(server=name_or_id))
+                'Invalid Server {server}'.format(server=name_or_id)
+            )
 
         self.compute.set_server_metadata(server=server.id, **metadata)
 
@@ -1248,10 +1344,12 @@ class ComputeCloudMixin:
         server = self.get_server(name_or_id, bare=True)
         if not server:
             raise exc.OpenStackCloudException(
-                'Invalid Server {server}'.format(server=name_or_id))
+                'Invalid Server {server}'.format(server=name_or_id)
+            )
 
-        self.compute.delete_server_metadata(server=server.id,
-                                            keys=metadata_keys)
+        self.compute.delete_server_metadata(
+            server=server.id, keys=metadata_keys
+        )
 
     def delete_server(
         self,
@@ -1275,8 +1373,7 @@ class ComputeCloudMixin:
         :raises: OpenStackCloudException on operation error.
         """
         # If delete_ips is True, we need the server to not be bare.
-        server = self.compute.find_server(
-            name_or_id, ignore_missing=True)
+        server = self.compute.find_server(name_or_id, ignore_missing=True)
         if not server:
             return False
 
@@ -1284,18 +1381,24 @@ class ComputeCloudMixin:
         # private method in order to avoid an unnecessary API call to get
         # a server we already have.
         return self._delete_server(
-            server, wait=wait, timeout=timeout, delete_ips=delete_ips,
-            delete_ip_retry=delete_ip_retry)
+            server,
+            wait=wait,
+            timeout=timeout,
+            delete_ips=delete_ips,
+            delete_ip_retry=delete_ip_retry,
+        )
 
     def _delete_server_floating_ips(self, server, delete_ip_retry):
         # Does the server have floating ips in its
         # addresses dict? If not, skip this.
         server_floats = meta.find_nova_interfaces(
-            server['addresses'], ext_tag='floating')
+            server['addresses'], ext_tag='floating'
+        )
         for fip in server_floats:
             try:
-                ip = self.get_floating_ip(id=None, filters={
-                    'floating_ip_address': fip['addr']})
+                ip = self.get_floating_ip(
+                    id=None, filters={'floating_ip_address': fip['addr']}
+                )
             except exc.OpenStackCloudURINotFound:
                 # We're deleting. If it doesn't exist - awesome
                 # NOTE(mordred) If the cloud is a nova FIP cloud but
@@ -1304,19 +1407,24 @@ class ComputeCloudMixin:
                 continue
             if not ip:
                 continue
-            deleted = self.delete_floating_ip(
-                ip['id'], retry=delete_ip_retry)
+            deleted = self.delete_floating_ip(ip['id'], retry=delete_ip_retry)
             if not deleted:
                 raise exc.OpenStackCloudException(
                     "Tried to delete floating ip {floating_ip}"
                     " associated with server {id} but there was"
                     " an error deleting it. Not deleting server.".format(
-                        floating_ip=ip['floating_ip_address'],
-                        id=server['id']))
+                        floating_ip=ip['floating_ip_address'], id=server['id']
+                    )
+                )
 
     def _delete_server(
-            self, server, wait=False, timeout=180, delete_ips=False,
-            delete_ip_retry=1):
+        self,
+        server,
+        wait=False,
+        timeout=180,
+        delete_ips=False,
+        delete_ip_retry=1,
+    ):
         if not server:
             return False
 
@@ -1324,8 +1432,7 @@ class ComputeCloudMixin:
             self._delete_server_floating_ips(server, delete_ip_retry)
 
         try:
-            self.compute.delete_server(
-                server)
+            self.compute.delete_server(server)
         except exceptions.ResourceNotFound:
             return False
         except Exception:
@@ -1339,9 +1446,11 @@ class ComputeCloudMixin:
         # need to invalidate the cache. Avoid the extra API call if
         # caching is not enabled.
         reset_volume_cache = False
-        if (self.cache_enabled
-                and self.has_service('volume')
-                and self.get_volumes(server)):
+        if (
+            self.cache_enabled
+            and self.has_service('volume')
+            and self.get_volumes(server)
+        ):
             reset_volume_cache = True
 
         if not isinstance(server, _server.Server):
@@ -1349,8 +1458,7 @@ class ComputeCloudMixin:
             # If this is the case - convert it into real server to be able to
             # use wait_for_delete
             server = _server.Server(id=server['id'])
-        self.compute.wait_for_delete(
-            server, wait=timeout)
+        self.compute.wait_for_delete(server, wait=timeout)
 
         if reset_volume_cache:
             self.list_volumes.invalidate(self)
@@ -1360,8 +1468,7 @@ class ComputeCloudMixin:
         self._servers_time = self._servers_time - self._SERVER_AGE
         return True
 
-    @_utils.valid_kwargs(
-        'name', 'description')
+    @_utils.valid_kwargs('name', 'description')
     def update_server(self, name_or_id, detailed=False, bare=False, **kwargs):
         """Update a server.
 
@@ -1377,13 +1484,9 @@ class ComputeCloudMixin:
         :returns: The updated compute ``Server`` object.
         :raises: OpenStackCloudException on operation error.
         """
-        server = self.compute.find_server(
-            name_or_id,
-            ignore_missing=False
-        )
+        server = self.compute.find_server(name_or_id, ignore_missing=False)
 
-        server = self.compute.update_server(
-            server, **kwargs)
+        server = self.compute.update_server(server, **kwargs)
 
         return self._expand_server(server, bare=bare, detailed=detailed)
 
@@ -1395,16 +1498,12 @@ class ComputeCloudMixin:
         :returns: The created compute ``ServerGroup`` object.
         :raises: OpenStackCloudException on operation error.
         """
-        sg_attrs = {
-            'name': name
-        }
+        sg_attrs = {'name': name}
         if policies:
             sg_attrs['policies'] = policies
         if policy:
             sg_attrs['policy'] = policy
-        return self.compute.create_server_group(
-            **sg_attrs
-        )
+        return self.compute.create_server_group(**sg_attrs)
 
     def delete_server_group(self, name_or_id):
         """Delete a server group.
@@ -1415,8 +1514,9 @@ class ComputeCloudMixin:
         """
         server_group = self.get_server_group(name_or_id)
         if not server_group:
-            self.log.debug("Server group %s not found for deleting",
-                           name_or_id)
+            self.log.debug(
+                "Server group %s not found for deleting", name_or_id
+            )
             return False
 
         self.compute.delete_server_group(server_group, ignore_missing=False)
@@ -1477,14 +1577,14 @@ class ComputeCloudMixin:
         try:
             flavor = self.compute.find_flavor(name_or_id)
             if not flavor:
-                self.log.debug(
-                    "Flavor %s not found for deleting", name_or_id)
+                self.log.debug("Flavor %s not found for deleting", name_or_id)
                 return False
             self.compute.delete_flavor(flavor)
             return True
         except exceptions.SDKException:
             raise exceptions.OpenStackCloudException(
-                "Unable to delete flavor {name}".format(name=name_or_id))
+                "Unable to delete flavor {name}".format(name=name_or_id)
+            )
 
     def set_flavor_specs(self, flavor_id, extra_specs):
         """Add extra specs to a flavor
@@ -1545,9 +1645,7 @@ class ComputeCloudMixin:
         :returns: A list of compute ``Hypervisor`` objects.
         """
 
-        return list(self.compute.hypervisors(
-            details=True,
-            **filters))
+        return list(self.compute.hypervisors(details=True, **filters))
 
     def search_aggregates(self, name_or_id=None, filters=None):
         """Seach host aggregates.
@@ -1587,8 +1685,7 @@ class ComputeCloudMixin:
         :returns: An aggregate dict or None if no matching aggregate is
             found.
         """
-        return self.compute.find_aggregate(
-            name_or_id, ignore_missing=True)
+        return self.compute.find_aggregate(name_or_id, ignore_missing=True)
 
     def create_aggregate(self, name, availability_zone=None):
         """Create a new host aggregate.
@@ -1599,8 +1696,7 @@ class ComputeCloudMixin:
         :raises: OpenStackCloudException on operation error.
         """
         return self.compute.create_aggregate(
-            name=name,
-            availability_zone=availability_zone
+            name=name, availability_zone=availability_zone
         )
 
     @_utils.valid_kwargs('name', 'availability_zone')
@@ -1623,14 +1719,12 @@ class ComputeCloudMixin:
         :returns: True if delete succeeded, False otherwise.
         :raises: OpenStackCloudException on operation error.
         """
-        if (
-            isinstance(name_or_id, (str, bytes))
-            and not name_or_id.isdigit()
-        ):
+        if isinstance(name_or_id, (str, bytes)) and not name_or_id.isdigit():
             aggregate = self.get_aggregate(name_or_id)
             if not aggregate:
                 self.log.debug(
-                    "Aggregate %s not found for deleting", name_or_id)
+                    "Aggregate %s not found for deleting", name_or_id
+                )
                 return False
             name_or_id = aggregate.id
         try:
@@ -1654,7 +1748,8 @@ class ComputeCloudMixin:
         aggregate = self.get_aggregate(name_or_id)
         if not aggregate:
             raise exc.OpenStackCloudException(
-                "Host aggregate %s not found." % name_or_id)
+                "Host aggregate %s not found." % name_or_id
+            )
 
         return self.compute.set_aggregate_metadata(aggregate, metadata)
 
@@ -1669,7 +1764,8 @@ class ComputeCloudMixin:
         aggregate = self.get_aggregate(name_or_id)
         if not aggregate:
             raise exc.OpenStackCloudException(
-                "Host aggregate %s not found." % name_or_id)
+                "Host aggregate %s not found." % name_or_id
+            )
 
         return self.compute.add_host_to_aggregate(aggregate, host_name)
 
@@ -1684,12 +1780,13 @@ class ComputeCloudMixin:
         aggregate = self.get_aggregate(name_or_id)
         if not aggregate:
             raise exc.OpenStackCloudException(
-                "Host aggregate %s not found." % name_or_id)
+                "Host aggregate %s not found." % name_or_id
+            )
 
         return self.compute.remove_host_from_aggregate(aggregate, host_name)
 
     def set_compute_quotas(self, name_or_id, **kwargs):
-        """ Set a quota in a project
+        """Set a quota in a project
 
         :param name_or_id: project name or id
         :param kwargs: key/value pairs of quota name and quota value
@@ -1697,39 +1794,35 @@ class ComputeCloudMixin:
         :raises: OpenStackCloudException if the resource to set the
             quota does not exist.
         """
-        proj = self.identity.find_project(
-            name_or_id, ignore_missing=False)
+        proj = self.identity.find_project(name_or_id, ignore_missing=False)
         kwargs['force'] = True
         self.compute.update_quota_set(
-            _qs.QuotaSet(project_id=proj.id),
-            **kwargs
+            _qs.QuotaSet(project_id=proj.id), **kwargs
         )
 
     def get_compute_quotas(self, name_or_id):
-        """ Get quota for a project
+        """Get quota for a project
 
         :param name_or_id: project name or id
         :returns: A compute ``QuotaSet`` object if found, else None.
         :raises: OpenStackCloudException if it's not a valid project
         """
-        proj = self.identity.find_project(
-            name_or_id, ignore_missing=False)
+        proj = self.identity.find_project(name_or_id, ignore_missing=False)
         return self.compute.get_quota_set(proj)
 
     def delete_compute_quotas(self, name_or_id):
-        """ Delete quota for a project
+        """Delete quota for a project
 
         :param name_or_id: project name or id
         :raises: OpenStackCloudException if it's not a valid project or the
             nova client call failed
         :returns: None
         """
-        proj = self.identity.find_project(
-            name_or_id, ignore_missing=False)
+        proj = self.identity.find_project(name_or_id, ignore_missing=False)
         self.compute.revert_quota_set(proj)
 
     def get_compute_usage(self, name_or_id, start=None, end=None):
-        """ Get usage for a specific project
+        """Get usage for a specific project
 
         :param name_or_id: project name or id
         :param start: :class:`datetime.datetime` or string. Start date in UTC
@@ -1741,6 +1834,7 @@ class ComputeCloudMixin:
 
         :returns: A :class:`~openstack.compute.v2.usage.Usage` object
         """
+
         def parse_date(date):
             try:
                 return iso8601.parse_date(date)
@@ -1751,8 +1845,8 @@ class ComputeCloudMixin:
                 raise exc.OpenStackCloudException(
                     "Date given, {date}, is invalid. Please pass in a date"
                     " string in ISO 8601 format -"
-                    " YYYY-MM-DDTHH:MM:SS".format(
-                        date=date))
+                    " YYYY-MM-DDTHH:MM:SS".format(date=date)
+                )
 
         if isinstance(start, str):
             start = parse_date(start)
@@ -1762,7 +1856,8 @@ class ComputeCloudMixin:
         proj = self.get_project(name_or_id)
         if not proj:
             raise exc.OpenStackCloudException(
-                "project does not exist: {name}".format(name=proj.id))
+                "project does not exist: {name}".format(name=proj.id)
+            )
 
         return self.compute.get_usage(proj, start, end)
 
@@ -1830,22 +1925,28 @@ class ComputeCloudMixin:
         project_id = server.pop('project_id', project_id)
 
         az = _pop_or_get(
-            server, 'OS-EXT-AZ:availability_zone', None, self.strict_mode)
+            server, 'OS-EXT-AZ:availability_zone', None, self.strict_mode
+        )
         # the server resource has this already, but it's missing az info
         # from the resource.
         # TODO(mordred) create_server is still normalizing servers that aren't
         # from the resource layer.
         ret['location'] = server.pop(
-            'location', self._get_current_location(
-                project_id=project_id, zone=az))
+            'location',
+            self._get_current_location(project_id=project_id, zone=az),
+        )
 
         # Ensure volumes is always in the server dict, even if empty
         ret['volumes'] = _pop_or_get(
-            server, 'os-extended-volumes:volumes_attached',
-            [], self.strict_mode)
+            server,
+            'os-extended-volumes:volumes_attached',
+            [],
+            self.strict_mode,
+        )
 
         config_drive = server.pop(
-            'has_config_drive', server.pop('config_drive', False))
+            'has_config_drive', server.pop('config_drive', False)
+        )
         ret['has_config_drive'] = _to_bool(config_drive)
 
         host_id = server.pop('hostId', server.pop('host_id', None))
@@ -1855,24 +1956,25 @@ class ComputeCloudMixin:
 
         # Leave these in so that the general properties handling works
         ret['disk_config'] = _pop_or_get(
-            server, 'OS-DCF:diskConfig', None, self.strict_mode)
+            server, 'OS-DCF:diskConfig', None, self.strict_mode
+        )
         for key in (
-                'OS-EXT-STS:power_state',
-                'OS-EXT-STS:task_state',
-                'OS-EXT-STS:vm_state',
-                'OS-SRV-USG:launched_at',
-                'OS-SRV-USG:terminated_at',
-                'OS-EXT-SRV-ATTR:hypervisor_hostname',
-                'OS-EXT-SRV-ATTR:instance_name',
-                'OS-EXT-SRV-ATTR:user_data',
-                'OS-EXT-SRV-ATTR:host',
-                'OS-EXT-SRV-ATTR:hostname',
-                'OS-EXT-SRV-ATTR:kernel_id',
-                'OS-EXT-SRV-ATTR:launch_index',
-                'OS-EXT-SRV-ATTR:ramdisk_id',
-                'OS-EXT-SRV-ATTR:reservation_id',
-                'OS-EXT-SRV-ATTR:root_device_name',
-                'OS-SCH-HNT:scheduler_hints',
+            'OS-EXT-STS:power_state',
+            'OS-EXT-STS:task_state',
+            'OS-EXT-STS:vm_state',
+            'OS-SRV-USG:launched_at',
+            'OS-SRV-USG:terminated_at',
+            'OS-EXT-SRV-ATTR:hypervisor_hostname',
+            'OS-EXT-SRV-ATTR:instance_name',
+            'OS-EXT-SRV-ATTR:user_data',
+            'OS-EXT-SRV-ATTR:host',
+            'OS-EXT-SRV-ATTR:hostname',
+            'OS-EXT-SRV-ATTR:kernel_id',
+            'OS-EXT-SRV-ATTR:launch_index',
+            'OS-EXT-SRV-ATTR:ramdisk_id',
+            'OS-EXT-SRV-ATTR:reservation_id',
+            'OS-EXT-SRV-ATTR:root_device_name',
+            'OS-SCH-HNT:scheduler_hints',
         ):
             short_key = key.split(':')[1]
             ret[short_key] = _pop_or_get(server, key, None, self.strict_mode)

@@ -48,8 +48,8 @@ class TestProjectCleanup(base.BaseFunctionalTest):
             name=self.getUniqueString('router')
         )
         conn.network.add_interface_to_router(
-            self.router.id,
-            subnet_id=self.subnet.id)
+            self.router.id, subnet_id=self.subnet.id
+        )
 
     def test_cleanup(self):
         self._create_network_resources()
@@ -60,7 +60,8 @@ class TestProjectCleanup(base.BaseFunctionalTest):
             dry_run=True,
             wait_timeout=120,
             status_queue=status_queue,
-            filters={'created_at': '2000-01-01'})
+            filters={'created_at': '2000-01-01'},
+        )
 
         self.assertTrue(status_queue.empty())
 
@@ -71,7 +72,8 @@ class TestProjectCleanup(base.BaseFunctionalTest):
             wait_timeout=120,
             status_queue=status_queue,
             filters={'created_at': '2200-01-01'},
-            resource_evaluation_fn=lambda x, y, z: False)
+            resource_evaluation_fn=lambda x, y, z: False,
+        )
 
         self.assertTrue(status_queue.empty())
 
@@ -80,7 +82,8 @@ class TestProjectCleanup(base.BaseFunctionalTest):
             dry_run=True,
             wait_timeout=120,
             status_queue=status_queue,
-            filters={'created_at': '2200-01-01'})
+            filters={'created_at': '2200-01-01'},
+        )
 
         objects = []
         while not status_queue.empty():
@@ -92,9 +95,8 @@ class TestProjectCleanup(base.BaseFunctionalTest):
 
         # Fourth round - dry run with no filters, ensure everything identified
         self.conn.project_cleanup(
-            dry_run=True,
-            wait_timeout=120,
-            status_queue=status_queue)
+            dry_run=True, wait_timeout=120, status_queue=status_queue
+        )
 
         objects = []
         while not status_queue.empty():
@@ -109,9 +111,8 @@ class TestProjectCleanup(base.BaseFunctionalTest):
 
         # Last round - do a real cleanup
         self.conn.project_cleanup(
-            dry_run=False,
-            wait_timeout=600,
-            status_queue=status_queue)
+            dry_run=False, wait_timeout=600, status_queue=status_queue
+        )
 
         objects = []
         while not status_queue.empty():
@@ -136,10 +137,12 @@ class TestProjectCleanup(base.BaseFunctionalTest):
         b1 = self.conn.block_storage.create_backup(volume_id=vol.id)
         self.conn.block_storage.wait_for_status(b1)
         b2 = self.conn.block_storage.create_backup(
-            volume_id=vol.id, is_incremental=True, snapshot_id=s1.id)
+            volume_id=vol.id, is_incremental=True, snapshot_id=s1.id
+        )
         self.conn.block_storage.wait_for_status(b2)
         b3 = self.conn.block_storage.create_backup(
-            volume_id=vol.id, is_incremental=True, snapshot_id=s1.id)
+            volume_id=vol.id, is_incremental=True, snapshot_id=s1.id
+        )
         self.conn.block_storage.wait_for_status(b3)
 
         # First round - check no resources are old enough
@@ -147,7 +150,8 @@ class TestProjectCleanup(base.BaseFunctionalTest):
             dry_run=True,
             wait_timeout=120,
             status_queue=status_queue,
-            filters={'created_at': '2000-01-01'})
+            filters={'created_at': '2000-01-01'},
+        )
 
         self.assertTrue(status_queue.empty())
 
@@ -158,7 +162,8 @@ class TestProjectCleanup(base.BaseFunctionalTest):
             wait_timeout=120,
             status_queue=status_queue,
             filters={'created_at': '2200-01-01'},
-            resource_evaluation_fn=lambda x, y, z: False)
+            resource_evaluation_fn=lambda x, y, z: False,
+        )
 
         self.assertTrue(status_queue.empty())
 
@@ -167,7 +172,8 @@ class TestProjectCleanup(base.BaseFunctionalTest):
             dry_run=True,
             wait_timeout=120,
             status_queue=status_queue,
-            filters={'created_at': '2200-01-01'})
+            filters={'created_at': '2200-01-01'},
+        )
 
         objects = []
         while not status_queue.empty():
@@ -179,9 +185,8 @@ class TestProjectCleanup(base.BaseFunctionalTest):
 
         # Fourth round - dry run with no filters, ensure everything identified
         self.conn.project_cleanup(
-            dry_run=True,
-            wait_timeout=120,
-            status_queue=status_queue)
+            dry_run=True, wait_timeout=120, status_queue=status_queue
+        )
 
         objects = []
         while not status_queue.empty():
@@ -196,9 +201,8 @@ class TestProjectCleanup(base.BaseFunctionalTest):
 
         # Last round - do a real cleanup
         self.conn.project_cleanup(
-            dry_run=False,
-            wait_timeout=600,
-            status_queue=status_queue)
+            dry_run=False, wait_timeout=600, status_queue=status_queue
+        )
         # Ensure no backups remain
         self.assertEqual(0, len(list(self.conn.block_storage.backups())))
         # Ensure no snapshots remain
@@ -212,14 +216,16 @@ class TestProjectCleanup(base.BaseFunctionalTest):
         self.conn.object_store.create_container('test_cleanup')
         for i in range(1, 10):
             self.conn.object_store.create_object(
-                "test_cleanup", f"test{i}", data="test{i}")
+                "test_cleanup", f"test{i}", data="test{i}"
+            )
 
         # First round - check no resources are old enough
         self.conn.project_cleanup(
             dry_run=True,
             wait_timeout=120,
             status_queue=status_queue,
-            filters={'updated_at': '2000-01-01'})
+            filters={'updated_at': '2000-01-01'},
+        )
 
         self.assertTrue(status_queue.empty())
 
@@ -228,7 +234,8 @@ class TestProjectCleanup(base.BaseFunctionalTest):
             dry_run=True,
             wait_timeout=120,
             status_queue=status_queue,
-            filters={'updated_at': '2200-01-01'})
+            filters={'updated_at': '2200-01-01'},
+        )
         objects = []
         while not status_queue.empty():
             objects.append(status_queue.get())
@@ -238,19 +245,15 @@ class TestProjectCleanup(base.BaseFunctionalTest):
         self.assertIn('test1', obj_names)
 
         # Ensure object still exists
-        obj = self.conn.object_store.get_object(
-            "test1", "test_cleanup")
+        obj = self.conn.object_store.get_object("test1", "test_cleanup")
         self.assertIsNotNone(obj)
 
         # Last round - do a real cleanup
         self.conn.project_cleanup(
-            dry_run=False,
-            wait_timeout=600,
-            status_queue=status_queue)
+            dry_run=False, wait_timeout=600, status_queue=status_queue
+        )
 
         objects.clear()
         while not status_queue.empty():
             objects.append(status_queue.get())
-        self.assertIsNone(
-            self.conn.get_container('test_container')
-        )
+        self.assertIsNone(self.conn.get_container('test_container'))

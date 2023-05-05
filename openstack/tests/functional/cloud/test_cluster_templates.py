@@ -26,7 +26,6 @@ from openstack.tests.functional import base
 
 
 class TestClusterTemplate(base.BaseFunctionalTest):
-
     def setUp(self):
         super(TestClusterTemplate, self).setUp()
         if not self.user_cloud.has_service(
@@ -52,8 +51,16 @@ class TestClusterTemplate(base.BaseFunctionalTest):
 
         # generate a keypair to add to nova
         subprocess.call(
-            ['ssh-keygen', '-t', 'rsa', '-N', '', '-f',
-             '%s/id_rsa_sdk' % self.ssh_directory])
+            [
+                'ssh-keygen',
+                '-t',
+                'rsa',
+                '-N',
+                '',
+                '-f',
+                '%s/id_rsa_sdk' % self.ssh_directory,
+            ]
+        )
 
         # add keypair to nova
         with open('%s/id_rsa_sdk.pub' % self.ssh_directory) as f:
@@ -62,8 +69,8 @@ class TestClusterTemplate(base.BaseFunctionalTest):
 
         # Test we can create a cluster_template and we get it returned
         self.ct = self.user_cloud.create_cluster_template(
-            name=name, image_id=image_id,
-            keypair_id=keypair_id, coe=coe)
+            name=name, image_id=image_id, keypair_id=keypair_id, coe=coe
+        )
         self.assertEqual(self.ct['name'], name)
         self.assertEqual(self.ct['image_id'], image_id)
         self.assertEqual(self.ct['keypair_id'], keypair_id)
@@ -80,7 +87,8 @@ class TestClusterTemplate(base.BaseFunctionalTest):
         # Test we get the same cluster_template with the
         # get_cluster_template method
         cluster_template_get = self.user_cloud.get_cluster_template(
-            self.ct['uuid'])
+            self.ct['uuid']
+        )
         self.assertEqual(cluster_template_get['uuid'], self.ct['uuid'])
 
         # Test the get method also works by name
@@ -90,14 +98,15 @@ class TestClusterTemplate(base.BaseFunctionalTest):
         # Test we can update a field on the cluster_template and only that
         # field is updated
         cluster_template_update = self.user_cloud.update_cluster_template(
-            self.ct, tls_disabled=True)
-        self.assertEqual(
-            cluster_template_update['uuid'], self.ct['uuid'])
+            self.ct, tls_disabled=True
+        )
+        self.assertEqual(cluster_template_update['uuid'], self.ct['uuid'])
         self.assertTrue(cluster_template_update['tls_disabled'])
 
         # Test we can delete and get True returned
         cluster_template_delete = self.user_cloud.delete_cluster_template(
-            self.ct['uuid'])
+            self.ct['uuid']
+        )
         self.assertTrue(cluster_template_delete)
 
     def cleanup(self, name):

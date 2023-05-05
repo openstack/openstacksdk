@@ -41,20 +41,33 @@ class OrchestrationCloudMixin:
         return self._raw_clients['orchestration']
 
     def get_template_contents(
-            self, template_file=None, template_url=None,
-            template_object=None, files=None):
+        self,
+        template_file=None,
+        template_url=None,
+        template_object=None,
+        files=None,
+    ):
         return self.orchestration.get_template_contents(
-            template_file=template_file, template_url=template_url,
-            template_object=template_object, files=files)
+            template_file=template_file,
+            template_url=template_url,
+            template_object=template_object,
+            files=files,
+        )
 
     def create_stack(
-            self, name, tags=None,
-            template_file=None, template_url=None,
-            template_object=None, files=None,
-            rollback=True,
-            wait=False, timeout=3600,
-            environment_files=None,
-            **parameters):
+        self,
+        name,
+        tags=None,
+        template_file=None,
+        template_url=None,
+        template_object=None,
+        files=None,
+        rollback=True,
+        wait=False,
+        timeout=3600,
+        environment_files=None,
+        **parameters
+    ):
         """Create a stack.
 
         :param string name: Name of the stack.
@@ -83,27 +96,36 @@ class OrchestrationCloudMixin:
             tags=tags,
             is_rollback_disabled=not rollback,
             timeout_mins=timeout // 60,
-            parameters=parameters
+            parameters=parameters,
         )
-        params.update(self.orchestration.read_env_and_templates(
-            template_file=template_file, template_url=template_url,
-            template_object=template_object, files=files,
-            environment_files=environment_files
-        ))
+        params.update(
+            self.orchestration.read_env_and_templates(
+                template_file=template_file,
+                template_url=template_url,
+                template_object=template_object,
+                files=files,
+                environment_files=environment_files,
+            )
+        )
         self.orchestration.create_stack(name=name, **params)
         if wait:
-            event_utils.poll_for_events(self, stack_name=name,
-                                        action='CREATE')
+            event_utils.poll_for_events(self, stack_name=name, action='CREATE')
         return self.get_stack(name)
 
     def update_stack(
-            self, name_or_id,
-            template_file=None, template_url=None,
-            template_object=None, files=None,
-            rollback=True, tags=None,
-            wait=False, timeout=3600,
-            environment_files=None,
-            **parameters):
+        self,
+        name_or_id,
+        template_file=None,
+        template_url=None,
+        template_object=None,
+        files=None,
+        rollback=True,
+        tags=None,
+        wait=False,
+        timeout=3600,
+        environment_files=None,
+        **parameters
+    ):
         """Update a stack.
 
         :param string name_or_id: Name or ID of the stack to update.
@@ -131,27 +153,31 @@ class OrchestrationCloudMixin:
             tags=tags,
             is_rollback_disabled=not rollback,
             timeout_mins=timeout // 60,
-            parameters=parameters
+            parameters=parameters,
         )
-        params.update(self.orchestration.read_env_and_templates(
-            template_file=template_file, template_url=template_url,
-            template_object=template_object, files=files,
-            environment_files=environment_files
-        ))
+        params.update(
+            self.orchestration.read_env_and_templates(
+                template_file=template_file,
+                template_url=template_url,
+                template_object=template_object,
+                files=files,
+                environment_files=environment_files,
+            )
+        )
         if wait:
             # find the last event to use as the marker
             events = event_utils.get_events(
-                self, name_or_id, event_args={'sort_dir': 'desc', 'limit': 1})
+                self, name_or_id, event_args={'sort_dir': 'desc', 'limit': 1}
+            )
             marker = events[0].id if events else None
 
         # Not to cause update of ID field pass stack as dict
         self.orchestration.update_stack(stack={'id': name_or_id}, **params)
 
         if wait:
-            event_utils.poll_for_events(self,
-                                        name_or_id,
-                                        action='UPDATE',
-                                        marker=marker)
+            event_utils.poll_for_events(
+                self, name_or_id, action='UPDATE', marker=marker
+            )
         return self.get_stack(name_or_id)
 
     def delete_stack(self, name_or_id, wait=False):
@@ -173,24 +199,26 @@ class OrchestrationCloudMixin:
         if wait:
             # find the last event to use as the marker
             events = event_utils.get_events(
-                self, name_or_id, event_args={'sort_dir': 'desc', 'limit': 1})
+                self, name_or_id, event_args={'sort_dir': 'desc', 'limit': 1}
+            )
             marker = events[0].id if events else None
 
         self.orchestration.delete_stack(stack)
 
         if wait:
             try:
-                event_utils.poll_for_events(self,
-                                            stack_name=name_or_id,
-                                            action='DELETE',
-                                            marker=marker)
+                event_utils.poll_for_events(
+                    self, stack_name=name_or_id, action='DELETE', marker=marker
+                )
             except exc.OpenStackCloudHTTPError:
                 pass
             stack = self.get_stack(name_or_id, resolve_outputs=False)
             if stack and stack['stack_status'] == 'DELETE_FAILED':
                 raise exc.OpenStackCloudException(
                     "Failed to delete stack {id}: {reason}".format(
-                        id=name_or_id, reason=stack['stack_status_reason']))
+                        id=name_or_id, reason=stack['stack_status_reason']
+                    )
+                )
 
         return True
 
@@ -246,12 +274,12 @@ class OrchestrationCloudMixin:
                 stack = self.orchestration.find_stack(
                     name_or_id,
                     ignore_missing=False,
-                    resolve_outputs=resolve_outputs)
+                    resolve_outputs=resolve_outputs,
+                )
                 if stack.status == 'DELETE_COMPLETE':
                     return []
             except exc.OpenStackCloudURINotFound:
                 return []
             return _utils._filter_list([stack], name_or_id, filters)
 
-        return _utils._get_entity(
-            self, _search_one_stack, name_or_id, filters)
+        return _utils._get_entity(self, _search_one_stack, name_or_id, filters)

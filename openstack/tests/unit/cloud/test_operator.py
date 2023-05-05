@@ -22,7 +22,6 @@ from openstack.tests.unit import base
 
 
 class TestOperatorCloud(base.TestCase):
-
     def test_get_image_name(self):
         self.use_glance()
 
@@ -30,14 +29,20 @@ class TestOperatorCloud(base.TestCase):
         fake_image = fakes.make_fake_image(image_id=image_id)
         list_return = {'images': [fake_image]}
 
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://image.example.com/v2/images',
-                 json=list_return),
-            dict(method='GET',
-                 uri='https://image.example.com/v2/images',
-                 json=list_return),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://image.example.com/v2/images',
+                    json=list_return,
+                ),
+                dict(
+                    method='GET',
+                    uri='https://image.example.com/v2/images',
+                    json=list_return,
+                ),
+            ]
+        )
 
         self.assertEqual('fake_image', self.cloud.get_image_name(image_id))
         self.assertEqual('fake_image', self.cloud.get_image_name('fake_image'))
@@ -51,14 +56,20 @@ class TestOperatorCloud(base.TestCase):
         fake_image = fakes.make_fake_image(image_id=image_id)
         list_return = {'images': [fake_image]}
 
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://image.example.com/v2/images',
-                 json=list_return),
-            dict(method='GET',
-                 uri='https://image.example.com/v2/images',
-                 json=list_return),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://image.example.com/v2/images',
+                    json=list_return,
+                ),
+                dict(
+                    method='GET',
+                    uri='https://image.example.com/v2/images',
+                    json=list_return,
+                ),
+            ]
+        )
 
         self.assertEqual(image_id, self.cloud.get_image_id(image_id))
         self.assertEqual(image_id, self.cloud.get_image_id('fake_image'))
@@ -72,15 +83,17 @@ class TestOperatorCloud(base.TestCase):
 
         def side_effect(*args, **kwargs):
             raise FakeException("No service")
+
         session_mock = mock.Mock()
         session_mock.get_endpoint.side_effect = side_effect
         get_session_mock.return_value = session_mock
         self.cloud.name = 'testcloud'
         self.cloud.config.config['region_name'] = 'testregion'
         with testtools.ExpectedException(
-                exc.OpenStackCloudException,
-                "Error getting image endpoint on testcloud:testregion:"
-                " No service"):
+            exc.OpenStackCloudException,
+            "Error getting image endpoint on testcloud:testregion:"
+            " No service",
+        ):
             self.cloud.get_session_endpoint("image")
 
     @mock.patch.object(cloud_region.CloudRegion, 'get_session')
@@ -97,8 +110,11 @@ class TestOperatorCloud(base.TestCase):
         get_session_mock.return_value = session_mock
         self.cloud.get_session_endpoint('identity')
         kwargs = dict(
-            interface='public', region_name='RegionOne',
-            service_name=None, service_type='identity')
+            interface='public',
+            region_name='RegionOne',
+            service_name=None,
+            service_type='identity',
+        )
 
         session_mock.get_endpoint.assert_called_with(**kwargs)
 
@@ -122,23 +138,23 @@ class TestOperatorCloud(base.TestCase):
         uuid1 = uuid.uuid4().hex
         uuid2 = uuid.uuid4().hex
         self.use_compute_discovery()
-        self.register_uris([
-            dict(
-                method='GET',
-                uri='https://compute.example.com/v2.1/os-hypervisors/detail',
-                json={
-                    'hypervisors': [
-                        fakes.make_fake_hypervisor(uuid1, 'testserver1'),
-                        fakes.make_fake_hypervisor(uuid2, 'testserver2'),
-                    ]
-                },
-                validate={
-                    'headers': {
-                        'OpenStack-API-Version': 'compute 2.53'
-                    }
-                }
-            ),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://compute.example.com/v2.1/os-hypervisors/detail',  # noqa: E501
+                    json={
+                        'hypervisors': [
+                            fakes.make_fake_hypervisor(uuid1, 'testserver1'),
+                            fakes.make_fake_hypervisor(uuid2, 'testserver2'),
+                        ]
+                    },
+                    validate={
+                        'headers': {'OpenStack-API-Version': 'compute 2.53'}
+                    },
+                ),
+            ]
+        )
 
         r = self.cloud.list_hypervisors()
 
@@ -154,19 +170,22 @@ class TestOperatorCloud(base.TestCase):
         '''This test verifies that calling list_hypervisors on a pre-2.53 cloud
         calls the old version.'''
         self.use_compute_discovery(
-            compute_version_json='old-compute-version.json')
-        self.register_uris([
-            dict(
-                method='GET',
-                uri='https://compute.example.com/v2.1/os-hypervisors/detail',
-                json={
-                    'hypervisors': [
-                        fakes.make_fake_hypervisor('1', 'testserver1'),
-                        fakes.make_fake_hypervisor('2', 'testserver2'),
-                    ]
-                }
-            ),
-        ])
+            compute_version_json='old-compute-version.json'
+        )
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://compute.example.com/v2.1/os-hypervisors/detail',  # noqa: E501
+                    json={
+                        'hypervisors': [
+                            fakes.make_fake_hypervisor('1', 'testserver1'),
+                            fakes.make_fake_hypervisor('2', 'testserver2'),
+                        ]
+                    },
+                ),
+            ]
+        )
 
         r = self.cloud.list_hypervisors()
 

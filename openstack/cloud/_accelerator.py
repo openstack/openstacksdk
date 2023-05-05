@@ -70,7 +70,7 @@ class AcceleratorCloudMixin:
         """
         device_profile = self.accelerator.get_device_profile(
             name_or_id,
-            filters
+            filters,
         )
         if device_profile is None:
             self.log.debug(
@@ -104,7 +104,7 @@ class AcceleratorCloudMixin:
         """
         accelerator_request = self.accelerator.get_accelerator_request(
             name_or_id,
-            filters
+            filters,
         )
         if accelerator_request is None:
             self.log.debug(

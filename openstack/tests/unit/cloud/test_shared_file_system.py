@@ -25,20 +25,24 @@ MANILA_AZ_DICT = {
 
 
 class TestSharedFileSystem(base.TestCase):
-
     def setUp(self):
         super(TestSharedFileSystem, self).setUp()
         self.use_manila()
 
     def test_list_availability_zones(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'shared-file-system',
-                     'public',
-                     append=['v2', 'availability-zones']),
-                 json={'availability_zones': [MANILA_AZ_DICT]}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'shared-file-system',
+                        'public',
+                        append=['v2', 'availability-zones'],
+                    ),
+                    json={'availability_zones': [MANILA_AZ_DICT]},
+                ),
+            ]
+        )
         az_list = self.cloud.list_share_availability_zones()
         self.assertEqual(len(az_list), 1)
         self.assertEqual(MANILA_AZ_DICT['id'], az_list[0].id)

@@ -127,8 +127,7 @@ class BlockStorageCloudMixin:
 
         :returns: A volume ``Type`` object if found, else None.
         """
-        return _utils._get_entity(
-            self, 'volume_type', name_or_id, filters)
+        return _utils._get_entity(self, 'volume_type', name_or_id, filters)
 
     def create_volume(
         self,
@@ -162,7 +161,9 @@ class BlockStorageCloudMixin:
                 raise exc.OpenStackCloudException(
                     "Image {image} was requested as the basis for a new"
                     " volume, but was not found on the cloud".format(
-                        image=image))
+                        image=image
+                    )
+                )
             kwargs['imageRef'] = image_obj['id']
         kwargs = self._get_volume_kwargs(kwargs)
         kwargs['size'] = size
@@ -193,10 +194,10 @@ class BlockStorageCloudMixin:
         volume = self.get_volume(name_or_id)
         if not volume:
             raise exc.OpenStackCloudException(
-                "Volume %s not found." % name_or_id)
+                "Volume %s not found." % name_or_id
+            )
 
-        volume = self.block_storage.update_volume(
-            volume, **kwargs)
+        volume = self.block_storage.update_volume(volume, **kwargs)
 
         self.list_volumes.invalidate(self)
 
@@ -219,7 +220,9 @@ class BlockStorageCloudMixin:
         if not volume:
             raise exc.OpenStackCloudException(
                 "Volume {name_or_id} does not exist".format(
-                    name_or_id=name_or_id))
+                    name_or_id=name_or_id
+                )
+            )
 
         self.block_storage.set_volume_bootable_status(volume, bootable)
 
@@ -249,7 +252,8 @@ class BlockStorageCloudMixin:
             self.log.debug(
                 "Volume %(name_or_id)s does not exist",
                 {'name_or_id': name_or_id},
-                exc_info=True)
+                exc_info=True,
+            )
             return False
         try:
             self.block_storage.delete_volume(volume, force=force)
@@ -297,10 +301,12 @@ class BlockStorageCloudMixin:
             project_id = proj.id
             params['tenant_id'] = project_id
             error_msg = "{msg} for the project: {project} ".format(
-                msg=error_msg, project=name_or_id)
+                msg=error_msg, project=name_or_id
+            )
 
         data = proxy._json_response(
-            self.block_storage.get('/limits', params=params))
+            self.block_storage.get('/limits', params=params)
+        )
         limits = self._get_and_munchify('limits', data)
         return limits
 
@@ -413,22 +419,23 @@ class BlockStorageCloudMixin:
                 # If we got volume as dict we need to re-fetch it to be able to
                 # use wait_for_status.
                 volume = self.block_storage.get_volume(volume['id'])
-            self.block_storage.wait_for_status(
-                volume, 'in-use', wait=timeout)
+            self.block_storage.wait_for_status(volume, 'in-use', wait=timeout)
         return attachment
 
     def _get_volume_kwargs(self, kwargs):
         name = kwargs.pop('name', kwargs.pop('display_name', None))
-        description = kwargs.pop('description',
-                                 kwargs.pop('display_description', None))
+        description = kwargs.pop(
+            'description', kwargs.pop('display_description', None)
+        )
         if name:
             kwargs['name'] = name
         if description:
             kwargs['description'] = description
         return kwargs
 
-    @_utils.valid_kwargs('name', 'display_name',
-                         'description', 'display_description')
+    @_utils.valid_kwargs(
+        'name', 'display_name', 'description', 'display_description'
+    )
     def create_volume_snapshot(
         self,
         volume_id,
@@ -459,7 +466,8 @@ class BlockStorageCloudMixin:
         snapshot = self.block_storage.create_snapshot(**payload)
         if wait:
             snapshot = self.block_storage.wait_for_status(
-                snapshot, wait=timeout)
+                snapshot, wait=timeout
+            )
 
         return snapshot
 
@@ -499,8 +507,7 @@ class BlockStorageCloudMixin:
 
         :returns: A volume ``Snapshot`` object if found, else None.
         """
-        return _utils._get_entity(self, 'volume_snapshot', name_or_id,
-                                  filters)
+        return _utils._get_entity(self, 'volume_snapshot', name_or_id, filters)
 
     def create_volume_backup(
         self,
@@ -572,8 +579,7 @@ class BlockStorageCloudMixin:
 
         :returns: A volume ``Backup`` object if found, else None.
         """
-        return _utils._get_entity(self, 'volume_backup', name_or_id,
-                                  filters)
+        return _utils._get_entity(self, 'volume_backup', name_or_id, filters)
 
     def list_volume_snapshots(self, detailed=True, filters=None):
         """List all volume snapshots.
@@ -615,8 +621,9 @@ class BlockStorageCloudMixin:
 
         return list(self.block_storage.backups(details=detailed, **filters))
 
-    def delete_volume_backup(self, name_or_id=None, force=False, wait=False,
-                             timeout=None):
+    def delete_volume_backup(
+        self, name_or_id=None, force=False, wait=False, timeout=None
+    ):
         """Delete a volume backup.
 
         :param name_or_id: Name or unique ID of the volume backup.
@@ -635,7 +642,8 @@ class BlockStorageCloudMixin:
             return False
 
         self.block_storage.delete_backup(
-            volume_backup, ignore_missing=False, force=force)
+            volume_backup, ignore_missing=False, force=force
+        )
         if wait:
             self.block_storage.wait_for_delete(volume_backup, wait=timeout)
 
@@ -663,7 +671,8 @@ class BlockStorageCloudMixin:
             return False
 
         self.block_storage.delete_snapshot(
-            volumesnapshot, ignore_missing=False)
+            volumesnapshot, ignore_missing=False
+        )
 
         if wait:
             self.block_storage.wait_for_delete(volumesnapshot, wait=timeout)
@@ -695,8 +704,7 @@ class BlockStorageCloudMixin:
         :returns: A list of volume ``Volume`` objects, if any are found.
         """
         volumes = self.list_volumes()
-        return _utils._filter_list(
-            volumes, name_or_id, filters)
+        return _utils._filter_list(volumes, name_or_id, filters)
 
     def search_volume_snapshots(self, name_or_id=None, filters=None):
         """Search for one or more volume snapshots.
@@ -723,8 +731,7 @@ class BlockStorageCloudMixin:
         :returns: A list of volume ``Snapshot`` objects, if any are found.
         """
         volumesnapshots = self.list_volume_snapshots()
-        return _utils._filter_list(
-            volumesnapshots, name_or_id, filters)
+        return _utils._filter_list(volumesnapshots, name_or_id, filters)
 
     def search_volume_backups(self, name_or_id=None, filters=None):
         """Search for one or more volume backups.
@@ -751,8 +758,7 @@ class BlockStorageCloudMixin:
         :returns: A list of volume ``Backup`` objects, if any are found.
         """
         volume_backups = self.list_volume_backups()
-        return _utils._filter_list(
-            volume_backups, name_or_id, filters)
+        return _utils._filter_list(volume_backups, name_or_id, filters)
 
     # TODO(stephenfin): Remove 'get_extra' in a future major version
     def search_volume_types(
@@ -797,7 +803,8 @@ class BlockStorageCloudMixin:
         volume_type = self.get_volume_type(name_or_id)
         if not volume_type:
             raise exc.OpenStackCloudException(
-                "VolumeType not found: %s" % name_or_id)
+                "VolumeType not found: %s" % name_or_id
+            )
 
         return self.block_storage.get_type_access(volume_type)
 
@@ -814,7 +821,8 @@ class BlockStorageCloudMixin:
         volume_type = self.get_volume_type(name_or_id)
         if not volume_type:
             raise exc.OpenStackCloudException(
-                "VolumeType not found: %s" % name_or_id)
+                "VolumeType not found: %s" % name_or_id
+            )
 
         self.block_storage.add_type_access(volume_type, project_id)
 
@@ -829,7 +837,8 @@ class BlockStorageCloudMixin:
         volume_type = self.get_volume_type(name_or_id)
         if not volume_type:
             raise exc.OpenStackCloudException(
-                "VolumeType not found: %s" % name_or_id)
+                "VolumeType not found: %s" % name_or_id
+            )
         self.block_storage.remove_type_access(volume_type, project_id)
 
     def set_volume_quotas(self, name_or_id, **kwargs):
@@ -842,12 +851,11 @@ class BlockStorageCloudMixin:
             quota does not exist.
         """
 
-        proj = self.identity.find_project(
-            name_or_id, ignore_missing=False)
+        proj = self.identity.find_project(name_or_id, ignore_missing=False)
 
         self.block_storage.update_quota_set(
-            _qs.QuotaSet(project_id=proj.id),
-            **kwargs)
+            _qs.QuotaSet(project_id=proj.id), **kwargs
+        )
 
     def get_volume_quotas(self, name_or_id):
         """Get volume quotas for a project
