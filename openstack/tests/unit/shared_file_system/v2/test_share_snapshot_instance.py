@@ -22,12 +22,11 @@ EXAMPLE = {
     "created_at": "2021-06-04T00:44:52.000000",
     "id": "275516e8-c998-4e78-a41e-7dd3a03e71cd",
     "provider_location": "/path/to/fake...",
-    "updated_at": "2017-06-04T00:44:54.000000"
+    "updated_at": "2017-06-04T00:44:54.000000",
 }
 
 
 class TestShareSnapshotInstances(base.TestCase):
-
     def test_basic(self):
         instances = share_snapshot_instance.ShareSnapshotInstance()
         self.assertEqual('snapshot_instance', instances.resource_key)
@@ -40,11 +39,13 @@ class TestShareSnapshotInstances(base.TestCase):
         self.assertEqual(EXAMPLE['id'], instance.id)
         self.assertEqual(EXAMPLE['share_id'], instance.share_id)
         self.assertEqual(
-            EXAMPLE['share_instance_id'], instance.share_instance_id)
+            EXAMPLE['share_instance_id'], instance.share_instance_id
+        )
         self.assertEqual(EXAMPLE['snapshot_id'], instance.snapshot_id)
         self.assertEqual(EXAMPLE['status'], instance.status)
         self.assertEqual(EXAMPLE['progress'], instance.progress)
         self.assertEqual(EXAMPLE['created_at'], instance.created_at)
         self.assertEqual(EXAMPLE['updated_at'], instance.updated_at)
         self.assertEqual(
-            EXAMPLE['provider_location'], instance.provider_location)
+            EXAMPLE['provider_location'], instance.provider_location
+        )

@@ -15,27 +15,28 @@ from openstack.tests.functional.shared_file_system import base
 
 
 class ShareNetworkTest(base.BaseSharedFileSystemTest):
-
     def setUp(self):
         super(ShareNetworkTest, self).setUp()
 
         self.SHARE_NETWORK_NAME = self.getUniqueString()
         snt = self.user_cloud.shared_file_system.create_share_network(
-            name=self.SHARE_NETWORK_NAME)
+            name=self.SHARE_NETWORK_NAME
+        )
         self.assertIsNotNone(snt)
         self.assertIsNotNone(snt.id)
         self.SHARE_NETWORK_ID = snt.id
 
     def tearDown(self):
         sot = self.user_cloud.shared_file_system.delete_share_network(
-            self.SHARE_NETWORK_ID,
-            ignore_missing=True)
+            self.SHARE_NETWORK_ID, ignore_missing=True
+        )
         self.assertIsNone(sot)
         super(ShareNetworkTest, self).tearDown()
 
     def test_get(self):
         sot = self.user_cloud.shared_file_system.get_share_network(
-            self.SHARE_NETWORK_ID)
+            self.SHARE_NETWORK_ID
+        )
         assert isinstance(sot, _share_network.ShareNetwork)
         self.assertEqual(self.SHARE_NETWORK_ID, sot.id)
 
@@ -50,12 +51,13 @@ class ShareNetworkTest(base.BaseSharedFileSystemTest):
 
     def test_delete_share_network(self):
         sot = self.user_cloud.shared_file_system.delete_share_network(
-            self.SHARE_NETWORK_ID)
+            self.SHARE_NETWORK_ID
+        )
         self.assertIsNone(sot)
 
     def test_update(self):
         unt = self.user_cloud.shared_file_system.update_share_network(
-            self.SHARE_NETWORK_ID, description='updated share network')
-        get_unt = self.user_cloud.shared_file_system.get_share_network(
-            unt.id)
+            self.SHARE_NETWORK_ID, description='updated share network'
+        )
+        get_unt = self.user_cloud.shared_file_system.get_share_network(unt.id)
         self.assertEqual('updated share network', get_unt.description)

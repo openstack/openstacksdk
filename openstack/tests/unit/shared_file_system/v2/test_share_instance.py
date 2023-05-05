@@ -31,16 +31,16 @@ EXAMPLE = {
     "share_server_id": "ba11930a-bf1a-4aa7-bae4-a8dfbaa3cc73",
     "host": "manila2@generic1#GENERIC1",
     "access_rules_status": "active",
-    "id": IDENTIFIER
+    "id": IDENTIFIER,
 }
 
 
 class TestShareInstances(base.TestCase):
-
     def test_basic(self):
         share_instance_resource = share_instance.ShareInstance()
-        self.assertEqual('share_instances',
-                         share_instance_resource.resources_key)
+        self.assertEqual(
+            'share_instances', share_instance_resource.resources_key
+        )
         self.assertEqual('/share_instances', share_instance_resource.base_path)
         self.assertTrue(share_instance_resource.allow_list)
         self.assertFalse(share_instance_resource.allow_create)
@@ -53,26 +53,36 @@ class TestShareInstances(base.TestCase):
         self.assertEqual(EXAMPLE['status'], share_instance_resource.status)
         self.assertEqual(EXAMPLE['progress'], share_instance_resource.progress)
         self.assertEqual(EXAMPLE['share_id'], share_instance_resource.share_id)
-        self.assertEqual(EXAMPLE['availability_zone'],
-                         share_instance_resource.availability_zone)
-        self.assertEqual(EXAMPLE['replica_state'],
-                         share_instance_resource.replica_state)
-        self.assertEqual(EXAMPLE['created_at'],
-                         share_instance_resource.created_at)
-        self.assertEqual(EXAMPLE['cast_rules_to_readonly'],
-                         share_instance_resource.cast_rules_to_readonly)
-        self.assertEqual(EXAMPLE['share_network_id'],
-                         share_instance_resource.share_network_id)
-        self.assertEqual(EXAMPLE['share_server_id'],
-                         share_instance_resource.share_server_id)
+        self.assertEqual(
+            EXAMPLE['availability_zone'],
+            share_instance_resource.availability_zone,
+        )
+        self.assertEqual(
+            EXAMPLE['replica_state'], share_instance_resource.replica_state
+        )
+        self.assertEqual(
+            EXAMPLE['created_at'], share_instance_resource.created_at
+        )
+        self.assertEqual(
+            EXAMPLE['cast_rules_to_readonly'],
+            share_instance_resource.cast_rules_to_readonly,
+        )
+        self.assertEqual(
+            EXAMPLE['share_network_id'],
+            share_instance_resource.share_network_id,
+        )
+        self.assertEqual(
+            EXAMPLE['share_server_id'], share_instance_resource.share_server_id
+        )
         self.assertEqual(EXAMPLE['host'], share_instance_resource.host)
-        self.assertEqual(EXAMPLE['access_rules_status'],
-                         share_instance_resource.access_rules_status)
+        self.assertEqual(
+            EXAMPLE['access_rules_status'],
+            share_instance_resource.access_rules_status,
+        )
         self.assertEqual(EXAMPLE['id'], share_instance_resource.id)
 
 
 class TestShareInstanceActions(TestShareInstances):
-
     def setUp(self):
         super(TestShareInstanceActions, self).setUp()
         self.resp = mock.Mock()
@@ -94,8 +104,8 @@ class TestShareInstanceActions(TestShareInstances):
         body = {"reset_status": {"status": 'active'}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers,
-            microversion=microversion)
+            url, json=body, headers=headers, microversion=microversion
+        )
 
     def test_force_delete(self):
         sot = share_instance.ShareInstance(**EXAMPLE)
@@ -107,5 +117,5 @@ class TestShareInstanceActions(TestShareInstances):
         body = {'force_delete': None}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers,
-            microversion=microversion)
+            url, json=body, headers=headers, microversion=microversion
+        )

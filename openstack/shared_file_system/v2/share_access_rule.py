@@ -55,28 +55,26 @@ class ShareAccessRule(resource.Resource):
     #: the service’s database.
     updated_at = resource.Body("updated_at", type=str)
 
-    def _action(self, session, body, url,
-                action='patch', microversion=None):
+    def _action(self, session, body, url, action='patch', microversion=None):
         headers = {'Accept': ''}
 
         if microversion is None:
-            microversion = \
-                self._get_microversion(session, action=action)
+            microversion = self._get_microversion(session, action=action)
 
         session.post(
-            url,
-            json=body,
-            headers=headers,
-            microversion=microversion)
+            url, json=body, headers=headers, microversion=microversion
+        )
 
     def create(self, session, **kwargs):
-        return super().create(session,
-                              resource_request_key='allow_access',
-                              resource_response_key='access',
-                              **kwargs)
+        return super().create(
+            session,
+            resource_request_key='allow_access',
+            resource_response_key='access',
+            **kwargs
+        )
 
     def delete(self, session, share_id, ignore_missing=True):
-        body = {'deny_access': {'access_id' : self.id}}
+        body = {'deny_access': {'access_id': self.id}}
         url = utils.urljoin('/shares', share_id, 'action')
         try:
             response = self._action(session, body, url)

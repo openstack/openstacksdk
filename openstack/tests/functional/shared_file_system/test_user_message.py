@@ -14,7 +14,6 @@ from openstack.tests.functional.shared_file_system import base
 
 
 class UserMessageTest(base.BaseSharedFileSystemTest):
-
     def test_user_messages(self):
         # TODO(kafilat): We must intentionally cause an asynchronous failure to
         # ensure that at least one user message exists;
@@ -22,11 +21,19 @@ class UserMessageTest(base.BaseSharedFileSystemTest):
         # self.assertGreater(len(list(u_messages)), 0)
         for u_message in u_messages:
             for attribute in (
-                    'id', 'created_at', 'action_id', 'detail_id',
-                    'expires_at', 'message_level', 'project_id', 'request_id',
-                    'resource_id', 'resource_type', 'user_message'):
+                'id',
+                'created_at',
+                'action_id',
+                'detail_id',
+                'expires_at',
+                'message_level',
+                'project_id',
+                'request_id',
+                'resource_id',
+                'resource_type',
+                'user_message',
+            ):
                 self.assertTrue(hasattr(u_message, attribute))
                 self.assertIsInstance(getattr(u_message, attribute), str)
 
-            self.conn.shared_file_system.delete_user_message(
-                u_message)
+            self.conn.shared_file_system.delete_user_message(u_message)

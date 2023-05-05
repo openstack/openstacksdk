@@ -11,65 +11,76 @@
 # under the License.
 
 from openstack.shared_file_system.v2 import (
-    share_network_subnet as _share_network_subnet
+    share_network_subnet as _share_network_subnet,
 )
 from openstack.tests.functional.shared_file_system import base
 
 
 class ShareNetworkSubnetTest(base.BaseSharedFileSystemTest):
-
     def setUp(self):
         super().setUp()
 
-        zones = self.user_cloud.shared_file_system.\
-            availability_zones()
+        zones = self.user_cloud.shared_file_system.availability_zones()
         first_zone = next(zones)
 
         self.SHARE_NETWORK_NAME = self.getUniqueString()
         snt = self.user_cloud.shared_file_system.create_share_network(
-            name=self.SHARE_NETWORK_NAME)
+            name=self.SHARE_NETWORK_NAME
+        )
         self.assertIsNotNone(snt)
         self.assertIsNotNone(snt.id)
         self.SHARE_NETWORK_ID = snt.id
-        snsb = self.user_cloud.shared_file_system.\
-            create_share_network_subnet(self.SHARE_NETWORK_ID,
-                                        availability_zone=first_zone.name)
+        snsb = self.user_cloud.shared_file_system.create_share_network_subnet(
+            self.SHARE_NETWORK_ID, availability_zone=first_zone.name
+        )
         self.assertIsNotNone(snsb)
         self.assertIsNotNone(snsb.id)
         self.SHARE_NETWORK_SUBNET_ID = snsb.id
 
     def tearDown(self):
-        subnet = self.user_cloud.shared_file_system.\
-            get_share_network_subnet(self.SHARE_NETWORK_ID,
-                                     self.SHARE_NETWORK_SUBNET_ID)
-        fdel = self.user_cloud.shared_file_system.\
-            delete_share_network_subnet(self.SHARE_NETWORK_ID,
-                                        self.SHARE_NETWORK_SUBNET_ID,
-                                        ignore_missing=True)
+        subnet = self.user_cloud.shared_file_system.get_share_network_subnet(
+            self.SHARE_NETWORK_ID, self.SHARE_NETWORK_SUBNET_ID
+        )
+        fdel = self.user_cloud.shared_file_system.delete_share_network_subnet(
+            self.SHARE_NETWORK_ID,
+            self.SHARE_NETWORK_SUBNET_ID,
+            ignore_missing=True,
+        )
         self.assertIsNone(fdel)
-        self.user_cloud.shared_file_system.\
-            wait_for_delete(subnet)
-        sot = self.user_cloud.shared_file_system.\
-            delete_share_network(self.SHARE_NETWORK_ID,
-                                 ignore_missing=True)
+        self.user_cloud.shared_file_system.wait_for_delete(subnet)
+        sot = self.user_cloud.shared_file_system.delete_share_network(
+            self.SHARE_NETWORK_ID, ignore_missing=True
+        )
         self.assertIsNone(sot)
         super().tearDown()
 
     def test_get(self):
-        sub = self.user_cloud.shared_file_system.\
-            get_share_network_subnet(self.SHARE_NETWORK_ID,
-                                     self.SHARE_NETWORK_SUBNET_ID)
+        sub = self.user_cloud.shared_file_system.get_share_network_subnet(
+            self.SHARE_NETWORK_ID, self.SHARE_NETWORK_SUBNET_ID
+        )
         assert isinstance(sub, _share_network_subnet.ShareNetworkSubnet)
 
     def test_list(self):
         subs = self.user_cloud.shared_file_system.share_network_subnets(
-            self.SHARE_NETWORK_ID)
+            self.SHARE_NETWORK_ID
+        )
         self.assertGreater(len(list(subs)), 0)
         for sub in subs:
-            for attribute in ('id', 'name', 'created_at', 'updated_at',
-                              'share_network_id', 'availability_zone',
-                              'cidr', 'gateway', 'ip_version', 'mtu',
-                              'network_type', 'neutron_net_id',
-                              'neutron_subnet_id', 'segmentation_id',
-                              'share_network_name'):
+            for attribute in (
+                'id',
+                'name',
+                'created_at',
+                'updated_at',
+                'share_network_id',
+                'availability_zone',
+                'cidr',
+                'gateway',
+                'ip_version',
+                'mtu',
+                'network_type',
+                'neutron_net_id',
+                'neutron_subnet_id',
+                'segmentation_id',
+                'share_network_name',
+            ):
                 self.assertTrue(hasattr(sub, attribute))

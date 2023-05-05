@@ -23,7 +23,6 @@ EXAMPLE = {
 
 
 class TestAvailabilityZone(base.TestCase):
-
     def test_basic(self):
         az_resource = az.AvailabilityZone()
         self.assertEqual('availability_zones', az_resource.resources_key)

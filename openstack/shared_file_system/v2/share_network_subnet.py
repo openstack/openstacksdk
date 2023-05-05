@@ -56,7 +56,6 @@ class ShareNetworkSubnet(resource.Resource):
     updated_at = resource.Body("updated_at", type=str)
 
     def create(self, session, **kwargs):
-        return super().\
-            create(session,
-                   resource_request_key='share-network-subnet',
-                   **kwargs)
+        return super().create(
+            session, resource_request_key='share-network-subnet', **kwargs
+        )

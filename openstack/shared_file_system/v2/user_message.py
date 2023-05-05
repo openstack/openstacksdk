@@ -25,9 +25,7 @@ class UserMessage(resource.Resource):
     allow_list = True
     allow_head = False
 
-    _query_mapping = resource.QueryParameters(
-        "message_id"
-    )
+    _query_mapping = resource.QueryParameters("message_id")
 
     _max_microversion = '2.37'
 

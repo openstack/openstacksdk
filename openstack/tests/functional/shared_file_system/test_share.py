@@ -15,19 +15,20 @@ from openstack.tests.functional.shared_file_system import base
 
 
 class ShareTest(base.BaseSharedFileSystemTest):
-
     def setUp(self):
         super(ShareTest, self).setUp()
 
         self.SHARE_NAME = self.getUniqueString()
         my_share = self.create_share(
-            name=self.SHARE_NAME, size=2, share_type="dhss_false",
-            share_protocol='NFS', description=None)
+            name=self.SHARE_NAME,
+            size=2,
+            share_type="dhss_false",
+            share_protocol='NFS',
+            description=None,
+        )
         self.SHARE_ID = my_share.id
         self.SHARE_SIZE = my_share.size
-        my_share_snapshot = self.create_share_snapshot(
-            share_id=self.SHARE_ID
-        )
+        my_share_snapshot = self.create_share_snapshot(share_id=self.SHARE_ID)
         self.SHARE_SNAPSHOT_ID = my_share_snapshot.id
 
     def test_get(self):
@@ -44,73 +45,73 @@ class ShareTest(base.BaseSharedFileSystemTest):
 
     def test_update(self):
         updated_share = self.user_cloud.share.update_share(
-            self.SHARE_ID, display_description='updated share')
-        get_updated_share = self.user_cloud.share.get_share(
-            updated_share.id)
+            self.SHARE_ID, display_description='updated share'
+        )
+        get_updated_share = self.user_cloud.share.get_share(updated_share.id)
         self.assertEqual('updated share', get_updated_share.description)
 
     def test_revert_share_to_snapshot(self):
         self.user_cloud.share.revert_share_to_snapshot(
-            self.SHARE_ID, self.SHARE_SNAPSHOT_ID)
-        get_reverted_share = self.user_cloud.share.get_share(
-            self.SHARE_ID)
+            self.SHARE_ID, self.SHARE_SNAPSHOT_ID
+        )
+        get_reverted_share = self.user_cloud.share.get_share(self.SHARE_ID)
         self.user_cloud.share.wait_for_status(
             get_reverted_share,
             status='available',
             failures=['error'],
             interval=5,
-            wait=self._wait_for_timeout)
+            wait=self._wait_for_timeout,
+        )
         self.assertIsNotNone(get_reverted_share.id)
 
     def test_resize_share_larger(self):
         larger_size = 3
-        self.user_cloud.share.resize_share(
-            self.SHARE_ID, larger_size)
+        self.user_cloud.share.resize_share(self.SHARE_ID, larger_size)
 
-        get_resized_share = self.user_cloud.share.get_share(
-            self.SHARE_ID)
+        get_resized_share = self.user_cloud.share.get_share(self.SHARE_ID)
 
         self.user_cloud.share.wait_for_status(
             get_resized_share,
             status='available',
             failures=['error'],
             interval=5,
-            wait=self._wait_for_timeout)
+            wait=self._wait_for_timeout,
+        )
         self.assertEqual(larger_size, get_resized_share.size)
 
     def test_resize_share_smaller(self):
         # Resize to 3 GiB
         smaller_size = 1
 
-        self.user_cloud.share.resize_share(
-            self.SHARE_ID, smaller_size)
+        self.user_cloud.share.resize_share(self.SHARE_ID, smaller_size)
 
-        get_resized_share = self.user_cloud.share.get_share(
-            self.SHARE_ID)
+        get_resized_share = self.user_cloud.share.get_share(self.SHARE_ID)
 
         self.user_cloud.share.wait_for_status(
             get_resized_share,
             status='available',
             failures=['error'],
             interval=5,
-            wait=self._wait_for_timeout)
+            wait=self._wait_for_timeout,
+        )
         self.assertEqual(smaller_size, get_resized_share.size)
 
     def test_resize_share_larger_no_extend(self):
         larger_size = 3
 
         self.user_cloud.share.resize_share(
-            self.SHARE_ID, larger_size, no_extend=True)
+            self.SHARE_ID, larger_size, no_extend=True
+        )
 
-        get_resized_share = self.user_cloud.share.get_share(
-            self.SHARE_ID)
+        get_resized_share = self.user_cloud.share.get_share(self.SHARE_ID)
 
         self.user_cloud.share.wait_for_status(
             get_resized_share,
             status='available',
             failures=['error'],
             interval=5,
-            wait=self._wait_for_timeout)
+            wait=self._wait_for_timeout,
+        )
 
         # Assert that no change was made.
         self.assertEqual(self.SHARE_SIZE, get_resized_share.size)
@@ -119,17 +120,18 @@ class ShareTest(base.BaseSharedFileSystemTest):
         smaller_size = 1
 
         self.user_cloud.share.resize_share(
-            self.SHARE_ID, smaller_size, no_shrink=True)
+            self.SHARE_ID, smaller_size, no_shrink=True
+        )
 
-        get_resized_share = self.user_cloud.share.get_share(
-            self.SHARE_ID)
+        get_resized_share = self.user_cloud.share.get_share(self.SHARE_ID)
 
         self.user_cloud.share.wait_for_status(
             get_resized_share,
             status='available',
             failures=['error'],
             interval=5,
-            wait=self._wait_for_timeout)
+            wait=self._wait_for_timeout,
+        )
 
         # Assert that no change was made.
         self.assertEqual(self.SHARE_SIZE, get_resized_share.size)
@@ -138,15 +140,16 @@ class ShareTest(base.BaseSharedFileSystemTest):
         # Resize to 3 GiB
         larger_size = 3
         self.user_cloud.share.resize_share(
-            self.SHARE_ID, larger_size, force=True)
+            self.SHARE_ID, larger_size, force=True
+        )
 
-        get_resized_share = self.user_cloud.share.get_share(
-            self.SHARE_ID)
+        get_resized_share = self.user_cloud.share.get_share(self.SHARE_ID)
 
         self.user_cloud.share.wait_for_status(
             get_resized_share,
             status='available',
             failures=['error'],
             interval=5,
-            wait=self._wait_for_timeout)
+            wait=self._wait_for_timeout,
+        )
         self.assertEqual(larger_size, get_resized_share.size)

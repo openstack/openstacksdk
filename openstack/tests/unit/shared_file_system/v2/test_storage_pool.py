@@ -40,29 +40,30 @@ EXAMPLE = {
         "replication_domain": None,
         "sg_consistent_snapshot_support": "pool",
         "ipv4_support": True,
-        "ipv6_support": False}
+        "ipv6_support": False,
+    },
 }
 
 
 class TestStoragePool(base.TestCase):
-
     def test_basic(self):
         pool_resource = storage_pool.StoragePool()
         self.assertEqual('pools', pool_resource.resources_key)
-        self.assertEqual(
-            '/scheduler-stats/pools', pool_resource.base_path)
+        self.assertEqual('/scheduler-stats/pools', pool_resource.base_path)
         self.assertTrue(pool_resource.allow_list)
 
-        self.assertDictEqual({
-            'pool': 'pool',
-            'backend': 'backend',
-            'host': 'host',
-            'limit': 'limit',
-            'marker': 'marker',
-            'capabilities': 'capabilities',
-            'share_type': 'share_type',
-        },
-            pool_resource._query_mapping._mapping)
+        self.assertDictEqual(
+            {
+                'pool': 'pool',
+                'backend': 'backend',
+                'host': 'host',
+                'limit': 'limit',
+                'marker': 'marker',
+                'capabilities': 'capabilities',
+                'share_type': 'share_type',
+            },
+            pool_resource._query_mapping._mapping,
+        )
 
     def test_make_storage_pool(self):
         pool_resource = storage_pool.StoragePool(**EXAMPLE)
@@ -70,5 +71,4 @@ class TestStoragePool(base.TestCase):
         self.assertEqual(EXAMPLE['host'], pool_resource.host)
         self.assertEqual(EXAMPLE['name'], pool_resource.name)
         self.assertEqual(EXAMPLE['backend'], pool_resource.backend)
-        self.assertEqual(
-            EXAMPLE['capabilities'], pool_resource.capabilities)
+        self.assertEqual(EXAMPLE['capabilities'], pool_resource.capabilities)

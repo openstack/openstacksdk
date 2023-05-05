@@ -23,26 +23,21 @@ EXAMPLE = {
     "access_key": None,
     "created_at": "2021-09-12T02:01:04.000000",
     "updated_at": "2021-09-12T02:01:04.000000",
-    "metadata": {
-        "key1": "value1",
-        "key2": "value2"}
+    "metadata": {"key1": "value1", "key2": "value2"},
 }
 
 
 class TestShareAccessRule(base.TestCase):
-
     def test_basic(self):
         rules_resource = share_access_rule.ShareAccessRule()
         self.assertEqual('access_list', rules_resource.resources_key)
         self.assertEqual('/share-access-rules', rules_resource.base_path)
         self.assertTrue(rules_resource.allow_list)
 
-        self.assertDictEqual({
-            "limit": "limit",
-            "marker": "marker",
-            "share_id": "share_id"
-        },
-            rules_resource._query_mapping._mapping)
+        self.assertDictEqual(
+            {"limit": "limit", "marker": "marker", "share_id": "share_id"},
+            rules_resource._query_mapping._mapping,
+        )
 
     def test_make_share_access_rules(self):
         rules_resource = share_access_rule.ShareAccessRule(**EXAMPLE)

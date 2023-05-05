@@ -27,7 +27,11 @@ class StoragePool(resource.Resource):
     allow_head = False
 
     _query_mapping = resource.QueryParameters(
-        'pool', 'backend', 'host', 'capabilities', 'share_type',
+        'pool',
+        'backend',
+        'host',
+        'capabilities',
+        'share_type',
     )
 
     #: Properties

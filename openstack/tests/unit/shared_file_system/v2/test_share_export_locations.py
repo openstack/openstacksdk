@@ -17,21 +17,23 @@ from openstack.tests.unit import base
 IDENTIFIER = '08a87d37-5ca2-4308-86c5-cba06d8d796c'
 EXAMPLE = {
     "id": "f87589cb-f4bc-4a9b-b481-ab701206eb85",
-    "path": ("199.19.213.225:/opt/stack/data/manila/mnt/"
-             "share-6ba490c5-5225-4c3b-9982-14b8f475c6d9"),
+    "path": (
+        "199.19.213.225:/opt/stack/data/manila/mnt/"
+        "share-6ba490c5-5225-4c3b-9982-14b8f475c6d9"
+    ),
     "preferred": False,
     "share_instance_id": "6ba490c5-5225-4c3b-9982-14b8f475c6d9",
-    "is_admin_only": False
+    "is_admin_only": False,
 }
 
 
 class TestShareExportLocations(base.TestCase):
-
     def test_basic(self):
         export = el.ShareExportLocation()
         self.assertEqual('export_locations', export.resources_key)
         self.assertEqual(
-            '/shares/%(share_id)s/export_locations', export.base_path)
+            '/shares/%(share_id)s/export_locations', export.base_path
+        )
         self.assertTrue(export.allow_list)
 
     def test_share_export_locations(self):
@@ -40,5 +42,6 @@ class TestShareExportLocations(base.TestCase):
         self.assertEqual(EXAMPLE['path'], export.path)
         self.assertEqual(EXAMPLE['preferred'], export.is_preferred)
         self.assertEqual(
-            EXAMPLE['share_instance_id'], export.share_instance_id)
+            EXAMPLE['share_instance_id'], export.share_instance_id
+        )
         self.assertEqual(EXAMPLE['is_admin_only'], export.is_admin)

@@ -27,9 +27,15 @@ class ShareNetwork(resource.Resource):
     allow_head = False
 
     _query_mapping = resource.QueryParameters(
-        "project_id", "name", "description",
-        "created_since", "created_before", "security_service_id",
-        "limit", "offset", all_projects="all_tenants",
+        "project_id",
+        "name",
+        "description",
+        "created_since",
+        "created_before",
+        "security_service_id",
+        "limit",
+        "offset",
+        all_projects="all_tenants",
     )
 
     #: Properties

@@ -22,8 +22,12 @@ class TestExportLocation(base.BaseSharedFileSystemTest):
 
         self.SHARE_NAME = self.getUniqueString()
         my_share = self.create_share(
-            name=self.SHARE_NAME, size=2, share_type="dhss_false",
-            share_protocol='NFS', description=None)
+            name=self.SHARE_NAME,
+            size=2,
+            share_type="dhss_false",
+            share_protocol='NFS',
+            description=None,
+        )
         self.SHARE_ID = my_share.id
 
     def test_export_locations(self):
@@ -33,8 +37,12 @@ class TestExportLocation(base.BaseSharedFileSystemTest):
         self.assertGreater(len(list(exs)), 0)
         for ex in exs:
             for attribute in (
-                    'id', 'path', 'share_instance_id',
-                    'updated_at', 'created_at'):
+                'id',
+                'path',
+                'share_instance_id',
+                'updated_at',
+                'created_at',
+            ):
                 self.assertTrue(hasattr(ex, attribute))
                 self.assertIsInstance(getattr(ex, attribute), 'str')
             for attribute in ('is_preferred', 'is_admin'):

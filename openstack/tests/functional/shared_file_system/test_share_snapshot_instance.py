@@ -14,22 +14,24 @@ from openstack.tests.functional.shared_file_system import base
 
 
 class ShareSnapshotInstanceTest(base.BaseSharedFileSystemTest):
-
     def setUp(self):
         super(ShareSnapshotInstanceTest, self).setUp()
 
         self.SHARE_NAME = self.getUniqueString()
         my_share = self.create_share(
-            name=self.SHARE_NAME, size=2, share_type="dhss_false",
-            share_protocol='NFS', description=None)
-        self.SHARE_ID = my_share.id
-        self.create_share_snapshot(
-            share_id=self.SHARE_ID
+            name=self.SHARE_NAME,
+            size=2,
+            share_type="dhss_false",
+            share_protocol='NFS',
+            description=None,
         )
+        self.SHARE_ID = my_share.id
+        self.create_share_snapshot(share_id=self.SHARE_ID)
 
     def test_share_snapshot_instances(self):
-        sots = \
+        sots = (
             self.operator_cloud.shared_file_system.share_snapshot_instances()
+        )
         self.assertGreater(len(list(sots)), 0)
         for sot in sots:
             for attribute in ('id', 'name', 'created_at', 'updated_at'):

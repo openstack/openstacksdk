@@ -13,34 +13,27 @@
 from openstack import proxy
 from openstack import resource
 from openstack.shared_file_system.v2 import (
-    availability_zone as _availability_zone)
-from openstack.shared_file_system.v2 import (
-    share_access_rule as _share_access_rule
-)
-from openstack.shared_file_system.v2 import (
-    share_export_locations as _share_export_locations
-)
-from openstack.shared_file_system.v2 import (
-    share_network as _share_network
-)
-from openstack.shared_file_system.v2 import (
-    share_network_subnet as _share_network_subnet
-)
-from openstack.shared_file_system.v2 import (
-    share_snapshot as _share_snapshot
-)
-from openstack.shared_file_system.v2 import (
-    share_snapshot_instance as _share_snapshot_instance
-)
-from openstack.shared_file_system.v2 import (
-    storage_pool as _storage_pool
-)
-from openstack.shared_file_system.v2 import (
-    user_message as _user_message
+    availability_zone as _availability_zone,
 )
 from openstack.shared_file_system.v2 import limit as _limit
 from openstack.shared_file_system.v2 import share as _share
+from openstack.shared_file_system.v2 import (
+    share_access_rule as _share_access_rule,
+)
+from openstack.shared_file_system.v2 import (
+    share_export_locations as _share_export_locations,
+)
 from openstack.shared_file_system.v2 import share_instance as _share_instance
+from openstack.shared_file_system.v2 import share_network as _share_network
+from openstack.shared_file_system.v2 import (
+    share_network_subnet as _share_network_subnet,
+)
+from openstack.shared_file_system.v2 import share_snapshot as _share_snapshot
+from openstack.shared_file_system.v2 import (
+    share_snapshot_instance as _share_snapshot_instance,
+)
+from openstack.shared_file_system.v2 import storage_pool as _storage_pool
+from openstack.shared_file_system.v2 import user_message as _user_message
 
 
 class Proxy(proxy.Proxy):
@@ -53,11 +46,9 @@ class Proxy(proxy.Proxy):
         "share": _share.Share,
         "share_network": _share_network.ShareNetwork,
         "share_network_subnet": _share_network_subnet.ShareNetworkSubnet,
-        "share_snapshot_instance":
-            _share_snapshot_instance.ShareSnapshotInstance,
+        "share_snapshot_instance": _share_snapshot_instance.ShareSnapshotInstance,  # noqa: E501
         "share_instance": _share_instance.ShareInstance,
-        "share_export_locations":
-            _share_export_locations.ShareExportLocation,
+        "share_export_locations": _share_export_locations.ShareExportLocation,
         "share_access_rule": _share_access_rule.ShareAccessRule,
     }
 
@@ -134,8 +125,7 @@ class Proxy(proxy.Proxy):
         :returns: Result of the ``delete``
         :rtype: ``None``
         """
-        self._delete(_share.Share, share,
-                     ignore_missing=ignore_missing)
+        self._delete(_share.Share, share, ignore_missing=ignore_missing)
 
     def update_share(self, share_id, **attrs):
         """Updates details of a single share.
@@ -172,12 +162,7 @@ class Proxy(proxy.Proxy):
         res.revert_to_snapshot(self, snapshot_id)
 
     def resize_share(
-        self,
-        share_id,
-        new_size,
-        no_shrink=False,
-        no_extend=False,
-        force=False
+        self, share_id, new_size, no_shrink=False, no_extend=False, force=False
     ):
         """Resizes a share, extending/shrinking the share as needed.
 
@@ -206,8 +191,9 @@ class Proxy(proxy.Proxy):
         elif new_size < res.size and no_shrink is not True:
             res.shrink_share(self, new_size)
 
-    def wait_for_status(self, res, status='active', failures=None,
-                        interval=2, wait=120):
+    def wait_for_status(
+        self, res, status='active', failures=None, interval=2, wait=120
+    ):
         """Wait for a resource to be in a particular status.
         :param res: The resource to wait on to reach the specified status.
             The resource must have a ``status`` attribute.
@@ -229,7 +215,8 @@ class Proxy(proxy.Proxy):
         """
         failures = [] if failures is None else failures
         return resource.wait_for_status(
-            self, res, status, failures, interval, wait)
+            self, res, status, failures, interval, wait
+        )
 
     def storage_pools(self, details=True, **query):
         """Lists all back-end storage pools with details
@@ -248,7 +235,8 @@ class Proxy(proxy.Proxy):
         """
         base_path = '/scheduler-stats/pools/detail' if details else None
         return self._list(
-            _storage_pool.StoragePool, base_path=base_path, **query)
+            _storage_pool.StoragePool, base_path=base_path, **query
+        )
 
     def user_messages(self, **query):
         """List shared file system user messages
@@ -278,8 +266,7 @@ class Proxy(proxy.Proxy):
         :rtype:
             :class:`~openstack.shared_file_system.v2.user_message.UserMessage`
         """
-        return self._list(
-            _user_message.UserMessage, **query)
+        return self._list(_user_message.UserMessage, **query)
 
     def get_user_message(self, message_id):
         """List details of a single user message
@@ -300,8 +287,10 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.shared_file_system.v2.user_message.UserMessage`
         """
         return self._delete(
-            _user_message.UserMessage, message_id,
-            ignore_missing=ignore_missing)
+            _user_message.UserMessage,
+            message_id,
+            ignore_missing=ignore_missing,
+        )
 
     def limits(self, **query):
         """Lists all share limits.
@@ -312,8 +301,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of manila share limits resources
         :rtype: :class:`~openstack.shared_file_system.v2.limit.Limit`
         """
-        return self._list(
-            _limit.Limit, **query)
+        return self._list(_limit.Limit, **query)
 
     def share_snapshots(self, details=True, **query):
         """Lists all share snapshots with details.
@@ -329,7 +317,8 @@ class Proxy(proxy.Proxy):
         """
         base_path = '/snapshots/detail' if details else None
         return self._list(
-            _share_snapshot.ShareSnapshot, base_path=base_path, **query)
+            _share_snapshot.ShareSnapshot, base_path=base_path, **query
+        )
 
     def get_share_snapshot(self, snapshot_id):
         """Lists details of a single share snapshot
@@ -359,8 +348,9 @@ class Proxy(proxy.Proxy):
         :rtype:
             :class:`~openstack.shared_file_system.v2.share_snapshot.ShareSnapshot`
         """
-        return self._update(_share_snapshot.ShareSnapshot, snapshot_id,
-                            **attrs)
+        return self._update(
+            _share_snapshot.ShareSnapshot, snapshot_id, **attrs
+        )
 
     def delete_share_snapshot(self, snapshot_id, ignore_missing=True):
         """Deletes a single share snapshot
@@ -369,8 +359,11 @@ class Proxy(proxy.Proxy):
         :returns: Result of the ``delete``
         :rtype: ``None``
         """
-        self._delete(_share_snapshot.ShareSnapshot, snapshot_id,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _share_snapshot.ShareSnapshot,
+            snapshot_id,
+            ignore_missing=ignore_missing,
+        )
 
     # ========= Network Subnets ==========
     def share_network_subnets(self, share_network_id):
@@ -384,10 +377,13 @@ class Proxy(proxy.Proxy):
         """
         return self._list(
             _share_network_subnet.ShareNetworkSubnet,
-            share_network_id=share_network_id)
+            share_network_id=share_network_id,
+        )
 
     def get_share_network_subnet(
-        self, share_network_id, share_network_subnet_id,
+        self,
+        share_network_id,
+        share_network_subnet_id,
     ):
         """Lists details of a single share network subnet.
 
@@ -403,7 +399,8 @@ class Proxy(proxy.Proxy):
         return self._get(
             _share_network_subnet.ShareNetworkSubnet,
             share_network_subnet_id,
-            share_network_id=share_network_id)
+            share_network_id=share_network_id,
+        )
 
     def create_share_network_subnet(self, share_network_id, **attrs):
         """Creates a share network subnet from attributes
@@ -419,7 +416,8 @@ class Proxy(proxy.Proxy):
         return self._create(
             _share_network_subnet.ShareNetworkSubnet,
             **attrs,
-            share_network_id=share_network_id)
+            share_network_id=share_network_id
+        )
 
     def delete_share_network_subnet(
         self, share_network_id, share_network_subnet, ignore_missing=True
@@ -438,7 +436,8 @@ class Proxy(proxy.Proxy):
             _share_network_subnet.ShareNetworkSubnet,
             share_network_subnet,
             share_network_id=share_network_id,
-            ignore_missing=ignore_missing)
+            ignore_missing=ignore_missing,
+        )
 
     def wait_for_delete(self, res, interval=2, wait=120):
         """Wait for a resource to be deleted.
@@ -474,8 +473,11 @@ class Proxy(proxy.Proxy):
             share_snapshot_instance.ShareSnapshotInstance`
         """
         base_path = '/snapshot-instances/detail' if details else None
-        return self._list(_share_snapshot_instance.ShareSnapshotInstance,
-                          base_path=base_path, **query)
+        return self._list(
+            _share_snapshot_instance.ShareSnapshotInstance,
+            base_path=base_path,
+            **query
+        )
 
     def get_share_snapshot_instance(self, snapshot_instance_id):
         """Lists details of a single share snapshot instance
@@ -485,8 +487,10 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.shared_file_system.v2.
             share_snapshot_instance.ShareSnapshotInstance`
         """
-        return self._get(_share_snapshot_instance.ShareSnapshotInstance,
-                         snapshot_instance_id)
+        return self._get(
+            _share_snapshot_instance.ShareSnapshotInstance,
+            snapshot_instance_id,
+        )
 
     def share_networks(self, details=True, **query):
         """Lists all share networks with details.
@@ -508,7 +512,8 @@ class Proxy(proxy.Proxy):
         """
         base_path = '/share-networks/detail' if details else None
         return self._list(
-            _share_network.ShareNetwork, base_path=base_path, **query)
+            _share_network.ShareNetwork, base_path=base_path, **query
+        )
 
     def get_share_network(self, share_network_id):
         """Lists details of a single share network
@@ -527,8 +532,10 @@ class Proxy(proxy.Proxy):
         :rtype: ``None``
         """
         self._delete(
-            _share_network.ShareNetwork, share_network_id,
-            ignore_missing=ignore_missing)
+            _share_network.ShareNetwork,
+            share_network_id,
+            ignore_missing=ignore_missing,
+        )
 
     def update_share_network(self, share_network_id, **attrs):
         """Updates details of a single share network.
@@ -540,7 +547,8 @@ class Proxy(proxy.Proxy):
             share_network.ShareNetwork`
         """
         return self._update(
-            _share_network.ShareNetwork, share_network_id, **attrs)
+            _share_network.ShareNetwork, share_network_id, **attrs
+        )
 
     def create_share_network(self, **attrs):
         """Creates a share network from attributes
@@ -570,8 +578,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.shared_file_system.v2.
             share_instance.ShareInstance`
         """
-        return self._list(
-            _share_instance.ShareInstance, **query)
+        return self._list(_share_instance.ShareInstance, **query)
 
     def get_share_instance(self, share_instance_id):
         """Shows details for a single share instance
@@ -592,8 +599,9 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        res = self._get_resource(_share_instance.ShareInstance,
-                                 share_instance_id)
+        res = self._get_resource(
+            _share_instance.ShareInstance, share_instance_id
+        )
         res.reset_status(self, status)
 
     def delete_share_instance(self, share_instance_id):
@@ -603,8 +611,9 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        res = self._get_resource(_share_instance.ShareInstance,
-                                 share_instance_id)
+        res = self._get_resource(
+            _share_instance.ShareInstance, share_instance_id
+        )
         res.force_delete(self)
 
     def export_locations(self, share_id):
@@ -615,8 +624,9 @@ class Proxy(proxy.Proxy):
         :rtype: List of :class:`~openstack.shared_filesystem_storage.v2.
             share_export_locations.ShareExportLocations`
         """
-        return self._list(_share_export_locations.ShareExportLocation,
-                          share_id=share_id)
+        return self._list(
+            _share_export_locations.ShareExportLocation, share_id=share_id
+        )
 
     def get_export_location(self, export_location, share_id):
         """List details of export location
@@ -631,7 +641,9 @@ class Proxy(proxy.Proxy):
         export_location_id = resource.Resource._get_id(export_location)
         return self._get(
             _share_export_locations.ShareExportLocation,
-            export_location_id, share_id=share_id)
+            export_location_id,
+            share_id=share_id,
+        )
 
     def access_rules(self, share, **query):
         """Lists the access rules on a share.
@@ -642,8 +654,8 @@ class Proxy(proxy.Proxy):
         """
         share = self._get_resource(_share.Share, share)
         return self._list(
-            _share_access_rule.ShareAccessRule,
-            share_id=share.id, **query)
+            _share_access_rule.ShareAccessRule, share_id=share.id, **query
+        )
 
     def get_access_rule(self, access_id):
         """List details of an access rule.
@@ -653,8 +665,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.shared_file_system.v2.
             share_access_rules.ShareAccessRules`
         """
-        return self._get(
-            _share_access_rule.ShareAccessRule, access_id)
+        return self._get(_share_access_rule.ShareAccessRule, access_id)
 
     def create_access_rule(self, share_id, **attrs):
         """Creates an access rule from attributes
@@ -670,7 +681,8 @@ class Proxy(proxy.Proxy):
         """
         base_path = "/shares/%s/action" % (share_id,)
         return self._create(
-            _share_access_rule.ShareAccessRule, base_path=base_path, **attrs)
+            _share_access_rule.ShareAccessRule, base_path=base_path, **attrs
+        )
 
     def delete_access_rule(self, access_id, share_id, ignore_missing=True):
         """Deletes an access rule
@@ -680,6 +692,5 @@ class Proxy(proxy.Proxy):
 
         :rtype: ``None``
         """
-        res = self._get_resource(
-            _share_access_rule.ShareAccessRule, access_id)
+        res = self._get_resource(_share_access_rule.ShareAccessRule, access_id)
         res.delete(self, share_id, ignore_missing=ignore_missing)

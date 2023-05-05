@@ -26,9 +26,7 @@ class ShareSnapshot(resource.Resource):
     allow_list = True
     allow_head = False
 
-    _query_mapping = resource.QueryParameters(
-        "snapshot_id"
-    )
+    _query_mapping = resource.QueryParameters("snapshot_id")
 
     #: Properties
     #: The date and time stamp when the resource was
@@ -39,8 +37,7 @@ class ShareSnapshot(resource.Resource):
     #: The user defined name of the resource.
     display_name = resource.Body("display_name", type=str)
     #: The user defined description of the resource
-    display_description = resource.Body(
-        "display_description", type=str)
+    display_description = resource.Body("display_description", type=str)
     #: ID of the project that the snapshot belongs to.
     project_id = resource.Body("project_id", type=str)
     #: The UUID of the source share that was used to

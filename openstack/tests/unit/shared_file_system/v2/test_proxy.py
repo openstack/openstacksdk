@@ -12,12 +12,10 @@
 
 from unittest import mock
 
-from openstack.shared_file_system.v2 import (
-    share_access_rule
-)
 from openstack.shared_file_system.v2 import _proxy
 from openstack.shared_file_system.v2 import limit
 from openstack.shared_file_system.v2 import share
+from openstack.shared_file_system.v2 import share_access_rule
 from openstack.shared_file_system.v2 import share_instance
 from openstack.shared_file_system.v2 import share_network
 from openstack.shared_file_system.v2 import share_network_subnet
@@ -29,7 +27,6 @@ from openstack.tests.unit import test_proxy_base
 
 
 class TestSharedFileSystemProxy(test_proxy_base.TestProxyBase):
-
     def setUp(self):
         super(TestSharedFileSystemProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
@@ -40,25 +37,29 @@ class TestSharedFileSystemShare(TestSharedFileSystemProxy):
         self.verify_list(self.proxy.shares, share.Share)
 
     def test_shares_detailed(self):
-        self.verify_list(self.proxy.shares, share.Share,
-                         method_kwargs={"details": True, "query": 1},
-                         expected_kwargs={"query": 1})
+        self.verify_list(
+            self.proxy.shares,
+            share.Share,
+            method_kwargs={"details": True, "query": 1},
+            expected_kwargs={"query": 1},
+        )
 
     def test_shares_not_detailed(self):
-        self.verify_list(self.proxy.shares, share.Share,
-                         method_kwargs={"details": False, "query": 1},
-                         expected_kwargs={"query": 1})
+        self.verify_list(
+            self.proxy.shares,
+            share.Share,
+            method_kwargs={"details": False, "query": 1},
+            expected_kwargs={"query": 1},
+        )
 
     def test_share_get(self):
         self.verify_get(self.proxy.get_share, share.Share)
 
     def test_share_delete(self):
-        self.verify_delete(
-            self.proxy.delete_share, share.Share, False)
+        self.verify_delete(self.proxy.delete_share, share.Share, False)
 
     def test_share_delete_ignore(self):
-        self.verify_delete(
-            self.proxy.delete_share, share.Share, True)
+        self.verify_delete(self.proxy.delete_share, share.Share, True)
 
     def test_share_create(self):
         self.verify_create(self.proxy.create_share, share.Share)
@@ -71,8 +72,7 @@ class TestSharedFileSystemShare(TestSharedFileSystemProxy):
         self.proxy._get = mock.Mock(return_value=mock_share)
 
         self._verify(
-            "openstack.shared_file_system.v2.share."
-            + "Share.extend_share",
+            "openstack.shared_file_system.v2.share." + "Share.extend_share",
             self.proxy.resize_share,
             method_args=['fakeId', 20],
             expected_args=[self.proxy, 20, False],
@@ -83,20 +83,21 @@ class TestSharedFileSystemShare(TestSharedFileSystemProxy):
         self.proxy._get = mock.Mock(return_value=mock_share)
 
         self._verify(
-            "openstack.shared_file_system.v2.share."
-            + "Share.shrink_share",
+            "openstack.shared_file_system.v2.share." + "Share.shrink_share",
             self.proxy.resize_share,
             method_args=['fakeId', 20],
             expected_args=[self.proxy, 20],
         )
 
     def test_share_instances(self):
-        self.verify_list(self.proxy.share_instances,
-                         share_instance.ShareInstance)
+        self.verify_list(
+            self.proxy.share_instances, share_instance.ShareInstance
+        )
 
     def test_share_instance_get(self):
-        self.verify_get(self.proxy.get_share_instance,
-                        share_instance.ShareInstance)
+        self.verify_get(
+            self.proxy.get_share_instance, share_instance.ShareInstance
+        )
 
     def test_share_instance_reset(self):
         self._verify(
@@ -113,7 +114,8 @@ class TestSharedFileSystemShare(TestSharedFileSystemProxy):
             + "ShareInstance.force_delete",
             self.proxy.delete_share_instance,
             method_args=['id'],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     @mock.patch("openstack.resource.wait_for_status")
     def test_wait_for(self, mock_wait):
@@ -122,30 +124,33 @@ class TestSharedFileSystemShare(TestSharedFileSystemProxy):
 
         self.proxy.wait_for_status(mock_resource, 'ACTIVE')
 
-        mock_wait.assert_called_once_with(self.proxy, mock_resource,
-                                          'ACTIVE', [], 2, 120)
+        mock_wait.assert_called_once_with(
+            self.proxy, mock_resource, 'ACTIVE', [], 2, 120
+        )
 
 
 class TestSharedFileSystemStoragePool(TestSharedFileSystemProxy):
     def test_storage_pools(self):
-        self.verify_list(
-            self.proxy.storage_pools, storage_pool.StoragePool)
+        self.verify_list(self.proxy.storage_pools, storage_pool.StoragePool)
 
     def test_storage_pool_detailed(self):
         self.verify_list(
-            self.proxy.storage_pools, storage_pool.StoragePool,
+            self.proxy.storage_pools,
+            storage_pool.StoragePool,
             method_kwargs={"details": True, "backend": "alpha"},
-            expected_kwargs={"backend": "alpha"})
+            expected_kwargs={"backend": "alpha"},
+        )
 
     def test_storage_pool_not_detailed(self):
         self.verify_list(
-            self.proxy.storage_pools, storage_pool.StoragePool,
+            self.proxy.storage_pools,
+            storage_pool.StoragePool,
             method_kwargs={"details": False, "backend": "alpha"},
-            expected_kwargs={"backend": "alpha"})
+            expected_kwargs={"backend": "alpha"},
+        )
 
 
 class TestUserMessageProxy(test_proxy_base.TestProxyBase):
-
     def setUp(self):
         super(TestUserMessageProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
@@ -155,70 +160,83 @@ class TestUserMessageProxy(test_proxy_base.TestProxyBase):
 
     def test_user_messages_queried(self):
         self.verify_list(
-            self.proxy.user_messages, user_message.UserMessage,
+            self.proxy.user_messages,
+            user_message.UserMessage,
             method_kwargs={"action_id": "1"},
-            expected_kwargs={"action_id": "1"})
+            expected_kwargs={"action_id": "1"},
+        )
 
     def test_user_message_get(self):
         self.verify_get(self.proxy.get_user_message, user_message.UserMessage)
 
     def test_delete_user_message(self):
         self.verify_delete(
-            self.proxy.delete_user_message, user_message.UserMessage, False)
+            self.proxy.delete_user_message, user_message.UserMessage, False
+        )
 
     def test_delete_user_message_true(self):
         self.verify_delete(
-            self.proxy.delete_user_message, user_message.UserMessage, True)
+            self.proxy.delete_user_message, user_message.UserMessage, True
+        )
 
     def test_limit(self):
         self.verify_list(self.proxy.limits, limit.Limit)
 
 
 class TestShareSnapshotResource(test_proxy_base.TestProxyBase):
-
     def setUp(self):
         super(TestShareSnapshotResource, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
     def test_share_snapshots(self):
         self.verify_list(
-            self.proxy.share_snapshots, share_snapshot.ShareSnapshot)
+            self.proxy.share_snapshots, share_snapshot.ShareSnapshot
+        )
 
     def test_share_snapshots_detailed(self):
         self.verify_list(
             self.proxy.share_snapshots,
             share_snapshot.ShareSnapshot,
             method_kwargs={"details": True, "name": "my_snapshot"},
-            expected_kwargs={"name": "my_snapshot"})
+            expected_kwargs={"name": "my_snapshot"},
+        )
 
     def test_share_snapshots_not_detailed(self):
         self.verify_list(
             self.proxy.share_snapshots,
             share_snapshot.ShareSnapshot,
             method_kwargs={"details": False, "name": "my_snapshot"},
-            expected_kwargs={"name": "my_snapshot"})
+            expected_kwargs={"name": "my_snapshot"},
+        )
 
     def test_share_snapshot_get(self):
         self.verify_get(
-            self.proxy.get_share_snapshot, share_snapshot.ShareSnapshot)
+            self.proxy.get_share_snapshot, share_snapshot.ShareSnapshot
+        )
 
     def test_share_snapshot_delete(self):
         self.verify_delete(
             self.proxy.delete_share_snapshot,
-            share_snapshot.ShareSnapshot, False)
+            share_snapshot.ShareSnapshot,
+            False,
+        )
 
     def test_share_snapshot_delete_ignore(self):
         self.verify_delete(
             self.proxy.delete_share_snapshot,
-            share_snapshot.ShareSnapshot, True)
+            share_snapshot.ShareSnapshot,
+            True,
+        )
 
     def test_share_snapshot_create(self):
         self.verify_create(
-            self.proxy.create_share_snapshot, share_snapshot.ShareSnapshot)
+            self.proxy.create_share_snapshot, share_snapshot.ShareSnapshot
+        )
 
     def test_share_snapshot_update(self):
         self.verify_update(
-            self.proxy.update_share_snapshot, share_snapshot.ShareSnapshot)
+            self.proxy.update_share_snapshot, share_snapshot.ShareSnapshot
+        )
 
     @mock.patch("openstack.resource.wait_for_delete")
     def test_wait_for_delete(self, mock_wait):
@@ -231,7 +249,6 @@ class TestShareSnapshotResource(test_proxy_base.TestProxyBase):
 
 
 class TestShareSnapshotInstanceResource(test_proxy_base.TestProxyBase):
-
     def setUp(self):
         super(TestShareSnapshotInstanceResource, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
@@ -239,34 +256,33 @@ class TestShareSnapshotInstanceResource(test_proxy_base.TestProxyBase):
     def test_share_snapshot_instances(self):
         self.verify_list(
             self.proxy.share_snapshot_instances,
-            share_snapshot_instance.ShareSnapshotInstance)
+            share_snapshot_instance.ShareSnapshotInstance,
+        )
 
     def test_share_snapshot_instance_detailed(self):
-        self.verify_list(self.proxy.share_snapshot_instances,
-                         share_snapshot_instance.ShareSnapshotInstance,
-                         method_kwargs={
-                             "details": True,
-                             "query": {'snapshot_id': 'fake'}
-                         },
-                         expected_kwargs={"query": {'snapshot_id': 'fake'}})
+        self.verify_list(
+            self.proxy.share_snapshot_instances,
+            share_snapshot_instance.ShareSnapshotInstance,
+            method_kwargs={"details": True, "query": {'snapshot_id': 'fake'}},
+            expected_kwargs={"query": {'snapshot_id': 'fake'}},
+        )
 
     def test_share_snapshot_instance_not_detailed(self):
-        self.verify_list(self.proxy.share_snapshot_instances,
-                         share_snapshot_instance.ShareSnapshotInstance,
-                         method_kwargs={
-                             "details": False,
-                             "query": {'snapshot_id': 'fake'}
-                         },
-                         expected_kwargs={"query": {'snapshot_id': 'fake'}})
+        self.verify_list(
+            self.proxy.share_snapshot_instances,
+            share_snapshot_instance.ShareSnapshotInstance,
+            method_kwargs={"details": False, "query": {'snapshot_id': 'fake'}},
+            expected_kwargs={"query": {'snapshot_id': 'fake'}},
+        )
 
     def test_share_snapshot_instance_get(self):
         self.verify_get(
             self.proxy.get_share_snapshot_instance,
-            share_snapshot_instance.ShareSnapshotInstance)
+            share_snapshot_instance.ShareSnapshotInstance,
+        )
 
 
 class TestShareNetworkResource(test_proxy_base.TestProxyBase):
-
     def setUp(self):
         super(TestShareNetworkResource, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
@@ -275,38 +291,48 @@ class TestShareNetworkResource(test_proxy_base.TestProxyBase):
         self.verify_list(self.proxy.share_networks, share_network.ShareNetwork)
 
     def test_share_networks_detailed(self):
-        self.verify_list(self.proxy.share_networks, share_network.ShareNetwork,
-                         method_kwargs={"details": True, "name": "my_net"},
-                         expected_kwargs={"name": "my_net"})
+        self.verify_list(
+            self.proxy.share_networks,
+            share_network.ShareNetwork,
+            method_kwargs={"details": True, "name": "my_net"},
+            expected_kwargs={"name": "my_net"},
+        )
 
     def test_share_networks_not_detailed(self):
-        self.verify_list(self.proxy.share_networks, share_network.ShareNetwork,
-                         method_kwargs={"details": False, "name": "my_net"},
-                         expected_kwargs={"name": "my_net"})
+        self.verify_list(
+            self.proxy.share_networks,
+            share_network.ShareNetwork,
+            method_kwargs={"details": False, "name": "my_net"},
+            expected_kwargs={"name": "my_net"},
+        )
 
     def test_share_network_get(self):
         self.verify_get(
-            self.proxy.get_share_network, share_network.ShareNetwork)
+            self.proxy.get_share_network, share_network.ShareNetwork
+        )
 
     def test_share_network_delete(self):
         self.verify_delete(
-            self.proxy.delete_share_network, share_network.ShareNetwork, False)
+            self.proxy.delete_share_network, share_network.ShareNetwork, False
+        )
 
     def test_share_network_delete_ignore(self):
         self.verify_delete(
-            self.proxy.delete_share_network, share_network.ShareNetwork, True)
+            self.proxy.delete_share_network, share_network.ShareNetwork, True
+        )
 
     def test_share_network_create(self):
         self.verify_create(
-            self.proxy.create_share_network, share_network.ShareNetwork)
+            self.proxy.create_share_network, share_network.ShareNetwork
+        )
 
     def test_share_network_update(self):
         self.verify_update(
-            self.proxy.update_share_network, share_network.ShareNetwork)
+            self.proxy.update_share_network, share_network.ShareNetwork
+        )
 
 
 class TestShareNetworkSubnetResource(test_proxy_base.TestProxyBase):
-
     def setUp(self):
         super(TestShareNetworkSubnetResource, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
@@ -317,7 +343,8 @@ class TestShareNetworkSubnetResource(test_proxy_base.TestProxyBase):
             share_network_subnet.ShareNetworkSubnet,
             method_args=["test_share"],
             expected_args=[],
-            expected_kwargs={"share_network_id": "test_share"})
+            expected_kwargs={"share_network_id": "test_share"},
+        )
 
     def test_share_network_subnet_get(self):
         self.verify_get(
@@ -325,7 +352,8 @@ class TestShareNetworkSubnetResource(test_proxy_base.TestProxyBase):
             share_network_subnet.ShareNetworkSubnet,
             method_args=["fake_network_id", "fake_sub_network_id"],
             expected_args=['fake_sub_network_id'],
-            expected_kwargs={'share_network_id': 'fake_network_id'})
+            expected_kwargs={'share_network_id': 'fake_network_id'},
+        )
 
     def test_share_network_subnet_create(self):
         self.verify_create(
@@ -336,7 +364,9 @@ class TestShareNetworkSubnetResource(test_proxy_base.TestProxyBase):
             expected_args=[],
             expected_kwargs={
                 "share_network_id": "fake_network_id",
-                "p1": "v1"})
+                "p1": "v1",
+            },
+        )
 
     def test_share_network_subnet_delete(self):
         self.verify_delete(
@@ -345,11 +375,11 @@ class TestShareNetworkSubnetResource(test_proxy_base.TestProxyBase):
             False,
             method_args=["fake_network_id", "fake_sub_network_id"],
             expected_args=["fake_sub_network_id"],
-            expected_kwargs={'share_network_id': 'fake_network_id'})
+            expected_kwargs={'share_network_id': 'fake_network_id'},
+        )
 
 
 class TestAccessRuleProxy(test_proxy_base.TestProxyBase):
-
     def setUp(self):
         super(TestAccessRuleProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
@@ -360,18 +390,21 @@ class TestAccessRuleProxy(test_proxy_base.TestProxyBase):
             share_access_rule.ShareAccessRule,
             method_args=["test_share"],
             expected_args=[],
-            expected_kwargs={"share_id": "test_share"})
+            expected_kwargs={"share_id": "test_share"},
+        )
 
     def test_access_rules_get(self):
         self.verify_get(
-            self.proxy.get_access_rule, share_access_rule.ShareAccessRule)
+            self.proxy.get_access_rule, share_access_rule.ShareAccessRule
+        )
 
     def test_access_rules_create(self):
         self.verify_create(
             self.proxy.create_access_rule,
             share_access_rule.ShareAccessRule,
             method_args=["share_id"],
-            expected_args=[])
+            expected_args=[],
+        )
 
     def test_access_rules_delete(self):
         self._verify(
@@ -379,4 +412,5 @@ class TestAccessRuleProxy(test_proxy_base.TestProxyBase):
             + "ShareAccessRule.delete",
             self.proxy.delete_access_rule,
             method_args=['access_id', 'share_id', 'ignore_missing'],
-            expected_args=[self.proxy , 'share_id'])
+            expected_args=[self.proxy, 'share_id'],
+        )

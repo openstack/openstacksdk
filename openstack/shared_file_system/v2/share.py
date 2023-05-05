@@ -46,18 +46,20 @@ class Share(resource.Resource):
     #: Whether or not this share supports snapshots that can be
     #: cloned into new shares.
     is_creating_new_share_from_snapshot_supported = resource.Body(
-        "create_share_from_snapshot_support", type=bool)
+        "create_share_from_snapshot_support", type=bool
+    )
     #: Whether the share's snapshots can be mounted directly and access
     #: controlled independently or not.
     is_mounting_snapshot_supported = resource.Body(
-        "mount_snapshot_support", type=bool)
+        "mount_snapshot_support", type=bool
+    )
     #: Whether the share can be reverted to its latest snapshot or not.
     is_reverting_to_snapshot_supported = resource.Body(
-        "revert_to_snapshot_support", type=bool)
+        "revert_to_snapshot_support", type=bool
+    )
     #: An extra specification that filters back ends by whether the share
     #: supports snapshots or not.
-    is_snapshot_supported = resource.Body(
-        "snapshot_support", type=bool)
+    is_snapshot_supported = resource.Body("snapshot_support", type=bool)
     #: Indicates whether the share has replicas or not.
     is_replicated = resource.Body("has_replicas", type=bool)
     #: One or more metadata key and value pairs as a dictionary of strings.
@@ -91,7 +93,8 @@ class Share(resource.Resource):
     #: The ID of the group snapshot instance that was used to create
     #: this share.
     source_share_group_snapshot_member_id = resource.Body(
-        "source_share_group_snapshot_member_id", type=str)
+        "source_share_group_snapshot_member_id", type=str
+    )
     #: The share status
     status = resource.Body("status", type=str)
     #: For the share migration, the migration task state.
@@ -109,14 +112,11 @@ class Share(resource.Resource):
         headers = {'Accept': ''}
 
         if microversion is None:
-            microversion = \
-                self._get_microversion(session, action=action)
+            microversion = self._get_microversion(session, action=action)
 
         response = session.post(
-            url,
-            json=body,
-            headers=headers,
-            microversion=microversion)
+            url, json=body, headers=headers, microversion=microversion
+        )
 
         exceptions.raise_from_response(response)
         return response

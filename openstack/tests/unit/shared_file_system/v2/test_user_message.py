@@ -29,12 +29,12 @@ EXAMPLE = {
     "user_message": (
         "allocate host: No storage could be allocated"
         "for this share request, Capabilities filter"
-        "didn't succeed.")
+        "didn't succeed."
+    ),
 }
 
 
 class TestUserMessage(base.TestCase):
-
     def test_basic(self):
         message = user_message.UserMessage()
         self.assertEqual('messages', message.resources_key)
@@ -46,29 +46,21 @@ class TestUserMessage(base.TestCase):
         self.assertTrue(message.allow_fetch)
         self.assertFalse(message.allow_head)
 
-        self.assertDictEqual({
-            "limit": "limit",
-            "marker": "marker",
-            "message_id": "message_id"
-        },
-            message._query_mapping._mapping)
+        self.assertDictEqual(
+            {"limit": "limit", "marker": "marker", "message_id": "message_id"},
+            message._query_mapping._mapping,
+        )
 
     def test_user_message(self):
         messages = user_message.UserMessage(**EXAMPLE)
         self.assertEqual(EXAMPLE['id'], messages.id)
         self.assertEqual(EXAMPLE['resource_id'], messages.resource_id)
-        self.assertEqual(
-            EXAMPLE['message_level'], messages.message_level)
-        self.assertEqual(
-            EXAMPLE['user_message'], messages.user_message)
+        self.assertEqual(EXAMPLE['message_level'], messages.message_level)
+        self.assertEqual(EXAMPLE['user_message'], messages.user_message)
         self.assertEqual(EXAMPLE['expires_at'], messages.expires_at)
         self.assertEqual(EXAMPLE['detail_id'], messages.detail_id)
         self.assertEqual(EXAMPLE['created_at'], messages.created_at)
-        self.assertEqual(
-            EXAMPLE['request_id'], messages.request_id)
-        self.assertEqual(
-            EXAMPLE['project_id'], messages.project_id)
-        self.assertEqual(
-            EXAMPLE['resource_type'], messages.resource_type)
-        self.assertEqual(
-            EXAMPLE['action_id'], messages.action_id)
+        self.assertEqual(EXAMPLE['request_id'], messages.request_id)
+        self.assertEqual(EXAMPLE['project_id'], messages.project_id)
+        self.assertEqual(EXAMPLE['resource_type'], messages.resource_type)
+        self.assertEqual(EXAMPLE['action_id'], messages.action_id)

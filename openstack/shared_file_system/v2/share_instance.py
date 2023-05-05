@@ -66,8 +66,9 @@ class ShareInstance(resource.Resource):
             # Set microversion override
             extra_attrs['microversion'] = microversion
         else:
-            extra_attrs['microversion'] = \
-                self._get_microversion(session, action=action)
+            extra_attrs['microversion'] = self._get_microversion(
+                session, action=action
+            )
         response = session.post(url, json=body, headers=headers, **extra_attrs)
         exceptions.raise_from_response(response)
         return response
