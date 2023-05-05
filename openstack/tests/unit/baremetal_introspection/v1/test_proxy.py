@@ -24,7 +24,6 @@ from openstack.tests.unit import test_proxy_base
 
 @mock.patch.object(introspection.Introspection, 'create', autospec=True)
 class TestStartIntrospection(base.TestCase):
-
     def setUp(self):
         super(TestStartIntrospection, self).setUp()
         self.session = mock.Mock(spec=adapter.Adapter)
@@ -44,27 +43,27 @@ class TestStartIntrospection(base.TestCase):
 
     def test_create_introspection_manage_boot(self, mock_create):
         self.proxy.start_introspection('abcd', manage_boot=False)
-        mock_create.assert_called_once_with(mock.ANY, self.proxy,
-                                            manage_boot=False)
+        mock_create.assert_called_once_with(
+            mock.ANY, self.proxy, manage_boot=False
+        )
         introspect = mock_create.call_args[0][0]
         self.assertEqual('abcd', introspect.id)
 
 
 class TestBaremetalIntrospectionProxy(test_proxy_base.TestProxyBase):
-
     def setUp(self):
         super(TestBaremetalIntrospectionProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
     def test_get_introspection(self):
-        self.verify_get(self.proxy.get_introspection,
-                        introspection.Introspection)
+        self.verify_get(
+            self.proxy.get_introspection, introspection.Introspection
+        )
 
 
 @mock.patch('time.sleep', lambda _sec: None)
 @mock.patch.object(introspection.Introspection, 'fetch', autospec=True)
 class TestWaitForIntrospection(base.TestCase):
-
     def setUp(self):
         super(TestWaitForIntrospection, self).setUp()
         self.session = mock.Mock(spec=adapter.Adapter)
@@ -96,10 +95,12 @@ class TestWaitForIntrospection(base.TestCase):
         self.assertEqual(2, mock_fetch.call_count)
 
     def test_timeout(self, mock_fetch):
-        self.assertRaises(exceptions.ResourceTimeout,
-                          self.proxy.wait_for_introspection,
-                          self.introspection,
-                          timeout=0.001)
+        self.assertRaises(
+            exceptions.ResourceTimeout,
+            self.proxy.wait_for_introspection,
+            self.introspection,
+            timeout=0.001,
+        )
         mock_fetch.assert_called_with(self.introspection, self.proxy)
 
     def test_failure(self, mock_fetch):
@@ -109,9 +110,12 @@ class TestWaitForIntrospection(base.TestCase):
             self.introspection.error = 'boom'
 
         mock_fetch.side_effect = _side_effect
-        self.assertRaisesRegex(exceptions.ResourceFailure, 'boom',
-                               self.proxy.wait_for_introspection,
-                               self.introspection)
+        self.assertRaisesRegex(
+            exceptions.ResourceFailure,
+            'boom',
+            self.proxy.wait_for_introspection,
+            self.introspection,
+        )
         mock_fetch.assert_called_once_with(self.introspection, self.proxy)
 
     def test_failure_ignored(self, mock_fetch):
@@ -121,15 +125,15 @@ class TestWaitForIntrospection(base.TestCase):
             self.introspection.error = 'boom'
 
         mock_fetch.side_effect = _side_effect
-        result = self.proxy.wait_for_introspection(self.introspection,
-                                                   ignore_error=True)
+        result = self.proxy.wait_for_introspection(
+            self.introspection, ignore_error=True
+        )
         self.assertIs(result, self.introspection)
         mock_fetch.assert_called_once_with(self.introspection, self.proxy)
 
 
 @mock.patch.object(_proxy.Proxy, 'request', autospec=True)
 class TestAbortIntrospection(base.TestCase):
-
     def setUp(self):
         super(TestAbortIntrospection, self).setUp()
         self.session = mock.Mock(spec=adapter.Adapter)
@@ -141,14 +145,17 @@ class TestAbortIntrospection(base.TestCase):
         mock_request.return_value.status_code = 202
         self.proxy.abort_introspection(self.introspection)
         mock_request.assert_called_once_with(
-            self.proxy, 'introspection/1234/abort', 'POST',
-            headers=mock.ANY, microversion=mock.ANY,
-            retriable_status_codes=[409, 503])
+            self.proxy,
+            'introspection/1234/abort',
+            'POST',
+            headers=mock.ANY,
+            microversion=mock.ANY,
+            retriable_status_codes=[409, 503],
+        )
 
 
 @mock.patch.object(_proxy.Proxy, 'request', autospec=True)
 class TestGetData(base.TestCase):
-
     def setUp(self):
         super(TestGetData, self).setUp()
         self.session = mock.Mock(spec=adapter.Adapter)
@@ -160,15 +167,24 @@ class TestGetData(base.TestCase):
         mock_request.return_value.status_code = 200
         data = self.proxy.get_introspection_data(self.introspection)
         mock_request.assert_called_once_with(
-            self.proxy, 'introspection/1234/data', 'GET',
-            headers=mock.ANY, microversion=mock.ANY)
+            self.proxy,
+            'introspection/1234/data',
+            'GET',
+            headers=mock.ANY,
+            microversion=mock.ANY,
+        )
         self.assertIs(data, mock_request.return_value.json.return_value)
 
     def test_get_unprocessed_data(self, mock_request):
         mock_request.return_value.status_code = 200
-        data = self.proxy.get_introspection_data(self.introspection,
-                                                 processed=False)
+        data = self.proxy.get_introspection_data(
+            self.introspection, processed=False
+        )
         mock_request.assert_called_once_with(
-            self.proxy, 'introspection/1234/data/unprocessed', 'GET',
-            headers=mock.ANY, microversion='1.17')
+            self.proxy,
+            'introspection/1234/data/unprocessed',
+            'GET',
+            headers=mock.ANY,
+            microversion='1.17',
+        )
         self.assertIs(data, mock_request.return_value.json.return_value)

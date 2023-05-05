@@ -63,7 +63,8 @@ class Driver(resource.Resource):
     #: Default management interface implementation.
     #: Introduced in API microversion 1.30.
     default_management_interface = resource.Body(
-        "default_management_interface")
+        "default_management_interface"
+    )
     #: Default network interface implementation.
     #: Introduced in API microversion 1.30.
     default_network_interface = resource.Body("default_network_interface")
@@ -101,7 +102,8 @@ class Driver(resource.Resource):
     #: Enabled management interface implementations.
     #: Introduced in API microversion 1.30.
     enabled_management_interfaces = resource.Body(
-        "enabled_management_interfaces")
+        "enabled_management_interfaces"
+    )
     #: Enabled network interface implementations.
     #: Introduced in API microversion 1.30.
     enabled_network_interfaces = resource.Body("enabled_network_interfaces")
@@ -135,17 +137,18 @@ class Driver(resource.Resource):
         """
         session = self._get_session(session)
         request = self._prepare_request()
-        request.url = utils.urljoin(
-            request.url, 'vendor_passthru', 'methods')
+        request.url = utils.urljoin(request.url, 'vendor_passthru', 'methods')
         response = session.get(request.url, headers=request.headers)
 
-        msg = ("Failed to list list vendor_passthru methods for {driver_name}"
-               .format(driver_name=self.name))
-        exceptions.raise_from_response(response, error_message=msg)
+        msg = "Failed to list list vendor_passthru methods for {driver_name}"
+        exceptions.raise_from_response(
+            response, error_message=msg.format(driver_name=self.name)
+        )
         return response.json()
 
-    def call_vendor_passthru(self, session,
-                             verb: str, method: str, body: dict = None):
+    def call_vendor_passthru(
+        self, session, verb: str, method: str, body: dict = None
+    ):
         """Call a vendor specific passthru method
 
         Contents of body are params passed to the hardware driver
@@ -167,13 +170,18 @@ class Driver(resource.Resource):
         session = self._get_session(session)
         request = self._prepare_request()
         request.url = utils.urljoin(
-            request.url, f'vendor_passthru?method={method}')
+            request.url, f'vendor_passthru?method={method}'
+        )
         call = getattr(session, verb.lower())
         response = call(
-            request.url, json=body, headers=request.headers,
-            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+            request.url,
+            json=body,
+            headers=request.headers,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
 
-        msg = ("Failed call to method {method} on driver {driver_name}"
-               .format(method=method, driver_name=self.name))
+        msg = "Failed call to method {method} on driver {driver_name}".format(
+            method=method, driver_name=self.name
+        )
         exceptions.raise_from_response(response, error_message=msg)
         return response

@@ -16,7 +16,6 @@ from openstack.tests.functional.baremetal import base
 
 
 class TestBareMetalPort(base.BaseBaremetalTest):
-
     def setUp(self):
         super(TestBareMetalPort, self).setUp()
         self.node = self.create_node()
@@ -34,21 +33,23 @@ class TestBareMetalPort(base.BaseBaremetalTest):
         self.assertIsNotNone(loaded.address)
 
         with_fields = self.conn.baremetal.get_port(
-            port.id, fields=['uuid', 'extra', 'node_id'])
+            port.id, fields=['uuid', 'extra', 'node_id']
+        )
         self.assertEqual(port.id, with_fields.id)
         self.assertIsNone(with_fields.address)
 
         self.conn.baremetal.delete_port(port, ignore_missing=False)
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.conn.baremetal.get_port, port.id)
+        self.assertRaises(
+            exceptions.ResourceNotFound, self.conn.baremetal.get_port, port.id
+        )
 
     def test_port_list(self):
         node2 = self.create_node(name='test-node')
 
-        port1 = self.create_port(address='11:22:33:44:55:66',
-                                 node_id=node2.id)
-        port2 = self.create_port(address='11:22:33:44:55:77',
-                                 node_id=self.node.id)
+        port1 = self.create_port(address='11:22:33:44:55:66', node_id=node2.id)
+        port2 = self.create_port(
+            address='11:22:33:44:55:77', node_id=self.node.id
+        )
 
         ports = self.conn.baremetal.ports(address='11:22:33:44:55:77')
         self.assertEqual([p.id for p in ports], [port2.id])
@@ -60,10 +61,16 @@ class TestBareMetalPort(base.BaseBaremetalTest):
         self.assertEqual([p.id for p in ports], [port1.id])
 
     def test_port_list_update_delete(self):
-        self.create_port(address='11:22:33:44:55:66', node_id=self.node.id,
-                         extra={'foo': 'bar'})
-        port = next(self.conn.baremetal.ports(details=True,
-                                              address='11:22:33:44:55:66'))
+        self.create_port(
+            address='11:22:33:44:55:66',
+            node_id=self.node.id,
+            extra={'foo': 'bar'},
+        )
+        port = next(
+            self.conn.baremetal.ports(
+                details=True, address='11:22:33:44:55:66'
+            )
+        )
         self.assertEqual(port.extra, {'foo': 'bar'})
 
         # This test checks that resources returned from listing are usable
@@ -88,7 +95,8 @@ class TestBareMetalPort(base.BaseBaremetalTest):
         port.address = '66:55:44:33:22:11'
 
         port = self.conn.baremetal.patch_port(
-            port, dict(path='/extra/answer', op='add', value=42))
+            port, dict(path='/extra/answer', op='add', value=42)
+        )
         self.assertEqual('66:55:44:33:22:11', port.address)
         self.assertEqual({'answer': 42}, port.extra)
 
@@ -98,17 +106,27 @@ class TestBareMetalPort(base.BaseBaremetalTest):
 
     def test_port_negative_non_existing(self):
         uuid = "5c9dcd04-2073-49bc-9618-99ae634d8971"
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.conn.baremetal.get_port, uuid)
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.conn.baremetal.find_port, uuid,
-                          ignore_missing=False)
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.conn.baremetal.delete_port, uuid,
-                          ignore_missing=False)
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.conn.baremetal.update_port, uuid,
-                          pxe_enabled=True)
+        self.assertRaises(
+            exceptions.ResourceNotFound, self.conn.baremetal.get_port, uuid
+        )
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.conn.baremetal.find_port,
+            uuid,
+            ignore_missing=False,
+        )
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.conn.baremetal.delete_port,
+            uuid,
+            ignore_missing=False,
+        )
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.conn.baremetal.update_port,
+            uuid,
+            pxe_enabled=True,
+        )
         self.assertIsNone(self.conn.baremetal.find_port(uuid))
         self.assertIsNone(self.conn.baremetal.delete_port(uuid))
 

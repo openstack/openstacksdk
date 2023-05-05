@@ -31,22 +31,27 @@ class TestBareMetalPortGroup(base.BaseBaremetalTest):
         self.assertIsNotNone(loaded.node_id)
 
         with_fields = self.conn.baremetal.get_port_group(
-            port_group.id, fields=['uuid', 'extra'])
+            port_group.id, fields=['uuid', 'extra']
+        )
         self.assertEqual(port_group.id, with_fields.id)
         self.assertIsNone(with_fields.node_id)
 
-        self.conn.baremetal.delete_port_group(port_group,
-                                              ignore_missing=False)
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.conn.baremetal.get_port_group, port_group.id)
+        self.conn.baremetal.delete_port_group(port_group, ignore_missing=False)
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.conn.baremetal.get_port_group,
+            port_group.id,
+        )
 
     def test_port_list(self):
         node2 = self.create_node(name='test-node')
 
-        pg1 = self.create_port_group(address='11:22:33:44:55:66',
-                                     node_id=node2.id)
-        pg2 = self.create_port_group(address='11:22:33:44:55:77',
-                                     node_id=self.node.id)
+        pg1 = self.create_port_group(
+            address='11:22:33:44:55:66', node_id=node2.id
+        )
+        pg2 = self.create_port_group(
+            address='11:22:33:44:55:77', node_id=self.node.id
+        )
 
         pgs = self.conn.baremetal.port_groups(address='11:22:33:44:55:77')
         self.assertEqual([p.id for p in pgs], [pg2.id])
@@ -58,10 +63,14 @@ class TestBareMetalPortGroup(base.BaseBaremetalTest):
         self.assertEqual([p.id for p in pgs], [pg1.id])
 
     def test_port_list_update_delete(self):
-        self.create_port_group(address='11:22:33:44:55:66',
-                               extra={'foo': 'bar'})
-        port_group = next(self.conn.baremetal.port_groups(
-            details=True, address='11:22:33:44:55:66'))
+        self.create_port_group(
+            address='11:22:33:44:55:66', extra={'foo': 'bar'}
+        )
+        port_group = next(
+            self.conn.baremetal.port_groups(
+                details=True, address='11:22:33:44:55:66'
+            )
+        )
         self.assertEqual(port_group.extra, {'foo': 'bar'})
 
         # This test checks that resources returned from listing are usable
@@ -82,7 +91,8 @@ class TestBareMetalPortGroup(base.BaseBaremetalTest):
         port_group = self.create_port_group()
 
         port_group = self.conn.baremetal.patch_port_group(
-            port_group, dict(path='/extra/answer', op='add', value=42))
+            port_group, dict(path='/extra/answer', op='add', value=42)
+        )
         self.assertEqual({'answer': 42}, port_group.extra)
 
         port_group = self.conn.baremetal.get_port_group(port_group.id)
@@ -90,14 +100,23 @@ class TestBareMetalPortGroup(base.BaseBaremetalTest):
 
     def test_port_group_negative_non_existing(self):
         uuid = "5c9dcd04-2073-49bc-9618-99ae634d8971"
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.conn.baremetal.get_port_group, uuid)
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.conn.baremetal.find_port_group, uuid,
-                          ignore_missing=False)
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.conn.baremetal.delete_port_group, uuid,
-                          ignore_missing=False)
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.conn.baremetal.get_port_group,
+            uuid,
+        )
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.conn.baremetal.find_port_group,
+            uuid,
+            ignore_missing=False,
+        )
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.conn.baremetal.delete_port_group,
+            uuid,
+            ignore_missing=False,
+        )
         self.assertIsNone(self.conn.baremetal.find_port_group(uuid))
         self.assertIsNone(self.conn.baremetal.delete_port_group(uuid))
 

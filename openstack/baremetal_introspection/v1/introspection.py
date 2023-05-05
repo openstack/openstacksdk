@@ -67,10 +67,12 @@ class Introspection(resource.Resource):
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'abort')
         response = session.post(
-            request.url, headers=request.headers, microversion=version,
-            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
-        msg = ("Failed to abort introspection for node {id}"
-               .format(id=self.id))
+            request.url,
+            headers=request.headers,
+            microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
+        msg = "Failed to abort introspection for node {id}".format(id=self.id)
         exceptions.raise_from_response(response, error_message=msg)
 
     def get_data(self, session, processed=True):
@@ -89,16 +91,21 @@ class Introspection(resource.Resource):
         """
         session = self._get_session(session)
 
-        version = (self._get_microversion(session, action='fetch')
-                   if processed else '1.17')
+        version = (
+            self._get_microversion(session, action='fetch')
+            if processed
+            else '1.17'
+        )
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'data')
         if not processed:
             request.url = utils.urljoin(request.url, 'unprocessed')
         response = session.get(
-            request.url, headers=request.headers, microversion=version)
-        msg = ("Failed to fetch introspection data for node {id}"
-               .format(id=self.id))
+            request.url, headers=request.headers, microversion=version
+        )
+        msg = "Failed to fetch introspection data for node {id}".format(
+            id=self.id
+        )
         exceptions.raise_from_response(response, error_message=msg)
         return response.json()
 
@@ -121,20 +128,23 @@ class Introspection(resource.Resource):
             return self
 
         for count in utils.iterate_timeout(
-                timeout,
-                "Timeout waiting for introspection on node %s" % self.id):
+            timeout, "Timeout waiting for introspection on node %s" % self.id
+        ):
             self.fetch(session)
             if self._check_state(ignore_error):
                 return self
 
-            _logger.debug('Still waiting for introspection of node %(node)s, '
-                          'the current state is "%(state)s"',
-                          {'node': self.id, 'state': self.state})
+            _logger.debug(
+                'Still waiting for introspection of node %(node)s, '
+                'the current state is "%(state)s"',
+                {'node': self.id, 'state': self.state},
+            )
 
     def _check_state(self, ignore_error):
         if self.state == 'error' and not ignore_error:
             raise exceptions.ResourceFailure(
-                "Introspection of node %(node)s failed: %(error)s" %
-                {'node': self.id, 'error': self.error})
+                "Introspection of node %(node)s failed: %(error)s"
+                % {'node': self.id, 'error': self.error}
+            )
         else:
             return self.is_finished

@@ -27,17 +27,19 @@ class TestBareMetalNode(base.BaseBaremetalTest):
 
         # NOTE(dtantsur): get_node and find_node only differ in handing missing
         # nodes, otherwise they are identical.
-        for call, ident in [(self.conn.baremetal.get_node, self.node_id),
-                            (self.conn.baremetal.get_node, 'node-name'),
-                            (self.conn.baremetal.find_node, self.node_id),
-                            (self.conn.baremetal.find_node, 'node-name')]:
+        for call, ident in [
+            (self.conn.baremetal.get_node, self.node_id),
+            (self.conn.baremetal.get_node, 'node-name'),
+            (self.conn.baremetal.find_node, self.node_id),
+            (self.conn.baremetal.find_node, 'node-name'),
+        ]:
             found = call(ident)
             self.assertEqual(node.id, found.id)
             self.assertEqual(node.name, found.name)
 
         with_fields = self.conn.baremetal.get_node(
-            'node-name',
-            fields=['uuid', 'driver', 'instance_id'])
+            'node-name', fields=['uuid', 'driver', 'instance_id']
+        )
         self.assertEqual(node.id, with_fields.id)
         self.assertEqual(node.driver, with_fields.driver)
         self.assertIsNone(with_fields.name)
@@ -47,8 +49,11 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         self.assertIn(node.id, [n.id for n in nodes])
 
         self.conn.baremetal.delete_node(node, ignore_missing=False)
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.conn.baremetal.get_node, self.node_id)
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.conn.baremetal.get_node,
+            self.node_id,
+        )
 
     def test_node_create_in_available(self):
         node = self.create_node(name='node-name', provision_state='available')
@@ -57,8 +62,11 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         self.assertEqual(node.provision_state, 'available')
 
         self.conn.baremetal.delete_node(node, ignore_missing=False)
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.conn.baremetal.get_node, self.node_id)
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.conn.baremetal.get_node,
+            self.node_id,
+        )
 
     def test_node_update(self):
         node = self.create_node(name='node-name', extra={'foo': 'bar'})
@@ -66,8 +74,7 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         node.extra = {'answer': 42}
         instance_uuid = str(uuid.uuid4())
 
-        node = self.conn.baremetal.update_node(node,
-                                               instance_id=instance_uuid)
+        node = self.conn.baremetal.update_node(node, instance_id=instance_uuid)
         self.assertEqual('new-name', node.name)
         self.assertEqual({'answer': 42}, node.extra)
         self.assertEqual(instance_uuid, node.instance_id)
@@ -77,8 +84,7 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         self.assertEqual({'answer': 42}, node.extra)
         self.assertEqual(instance_uuid, node.instance_id)
 
-        node = self.conn.baremetal.update_node(node,
-                                               instance_id=None)
+        node = self.conn.baremetal.update_node(node, instance_id=None)
         self.assertIsNone(node.instance_id)
 
         node = self.conn.baremetal.get_node('new-name')
@@ -88,9 +94,9 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         self.create_node(name='node-name', extra={'foo': 'bar'})
         instance_uuid = str(uuid.uuid4())
 
-        node = self.conn.baremetal.update_node('node-name',
-                                               instance_id=instance_uuid,
-                                               extra={'answer': 42})
+        node = self.conn.baremetal.update_node(
+            'node-name', instance_id=instance_uuid, extra={'answer': 42}
+        )
         self.assertEqual({'answer': 42}, node.extra)
         self.assertEqual(instance_uuid, node.instance_id)
 
@@ -98,8 +104,7 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         self.assertEqual({'answer': 42}, node.extra)
         self.assertEqual(instance_uuid, node.instance_id)
 
-        node = self.conn.baremetal.update_node('node-name',
-                                               instance_id=None)
+        node = self.conn.baremetal.update_node('node-name', instance_id=None)
         self.assertIsNone(node.instance_id)
 
         node = self.conn.baremetal.get_node('node-name')
@@ -112,8 +117,11 @@ class TestBareMetalNode(base.BaseBaremetalTest):
 
         node = self.conn.baremetal.patch_node(
             node,
-            [dict(path='/instance_id', op='replace', value=instance_uuid),
-             dict(path='/extra/answer', op='add', value=42)])
+            [
+                dict(path='/instance_id', op='replace', value=instance_uuid),
+                dict(path='/extra/answer', op='add', value=42),
+            ],
+        )
         self.assertEqual('new-name', node.name)
         self.assertEqual({'foo': 'bar', 'answer': 42}, node.extra)
         self.assertEqual(instance_uuid, node.instance_id)
@@ -125,8 +133,11 @@ class TestBareMetalNode(base.BaseBaremetalTest):
 
         node = self.conn.baremetal.patch_node(
             node,
-            [dict(path='/instance_id', op='remove'),
-             dict(path='/extra/answer', op='remove')])
+            [
+                dict(path='/instance_id', op='remove'),
+                dict(path='/extra/answer', op='remove'),
+            ],
+        )
         self.assertIsNone(node.instance_id)
         self.assertNotIn('answer', node.extra)
 
@@ -136,12 +147,16 @@ class TestBareMetalNode(base.BaseBaremetalTest):
 
     def test_node_list_update_delete(self):
         self.create_node(name='node-name', extra={'foo': 'bar'})
-        node = next(n for n in
-                    self.conn.baremetal.nodes(details=True,
-                                              provision_state='enroll',
-                                              is_maintenance=False,
-                                              associated=False)
-                    if n.name == 'node-name')
+        node = next(
+            n
+            for n in self.conn.baremetal.nodes(
+                details=True,
+                provision_state='enroll',
+                is_maintenance=False,
+                associated=False,
+            )
+            if n.name == 'node-name'
+        )
         self.assertEqual(node.extra, {'foo': 'bar'})
 
         # This test checks that resources returned from listing are usable
@@ -157,12 +172,12 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         self.assertIsNone(node.power_state)
         self.assertFalse(node.is_maintenance)
 
-        self.conn.baremetal.set_node_provision_state(node, 'manage',
-                                                     wait=True)
+        self.conn.baremetal.set_node_provision_state(node, 'manage', wait=True)
         self.assertEqual(node.provision_state, 'manageable')
 
-        self.conn.baremetal.set_node_provision_state(node, 'provide',
-                                                     wait=True)
+        self.conn.baremetal.set_node_provision_state(
+            node, 'provide', wait=True
+        )
         self.assertEqual(node.provision_state, 'available')
 
     def test_node_create_in_enroll_provide_by_name(self):
@@ -175,12 +190,14 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         self.assertIsNone(node.power_state)
         self.assertFalse(node.is_maintenance)
 
-        node = self.conn.baremetal.set_node_provision_state(name, 'manage',
-                                                            wait=True)
+        node = self.conn.baremetal.set_node_provision_state(
+            name, 'manage', wait=True
+        )
         self.assertEqual(node.provision_state, 'manageable')
 
-        node = self.conn.baremetal.set_node_provision_state(name, 'provide',
-                                                            wait=True)
+        node = self.conn.baremetal.set_node_provision_state(
+            name, 'provide', wait=True
+        )
         self.assertEqual(node.provision_state, 'available')
 
     def test_node_power_state(self):
@@ -205,17 +222,27 @@ class TestBareMetalNode(base.BaseBaremetalTest):
 
     def test_node_negative_non_existing(self):
         uuid = "5c9dcd04-2073-49bc-9618-99ae634d8971"
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.conn.baremetal.get_node, uuid)
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.conn.baremetal.find_node, uuid,
-                          ignore_missing=False)
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.conn.baremetal.delete_node, uuid,
-                          ignore_missing=False)
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.conn.baremetal.update_node, uuid,
-                          name='new-name')
+        self.assertRaises(
+            exceptions.ResourceNotFound, self.conn.baremetal.get_node, uuid
+        )
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.conn.baremetal.find_node,
+            uuid,
+            ignore_missing=False,
+        )
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.conn.baremetal.delete_node,
+            uuid,
+            ignore_missing=False,
+        )
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.conn.baremetal.update_node,
+            uuid,
+            name='new-name',
+        )
         self.assertIsNone(self.conn.baremetal.find_node(uuid))
         self.assertIsNone(self.conn.baremetal.delete_node(uuid))
 
@@ -287,8 +314,9 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         self.assertIsNone(node.maintenance_reason)
 
         # Initial setting with the reason
-        node = self.conn.baremetal.update_node(node, is_maintenance=True,
-                                               maintenance_reason=reason)
+        node = self.conn.baremetal.update_node(
+            node, is_maintenance=True, maintenance_reason=reason
+        )
         self.assertTrue(node.is_maintenance)
         self.assertEqual(reason, node.maintenance_reason)
 
@@ -338,8 +366,9 @@ class TestNodeRetired(base.BaseBaremetalTest):
         self.assertIsNone(node.retired_reason)
 
         # Set retired with reason
-        node = self.conn.baremetal.update_node(node, is_retired=True,
-                                               retired_reason=reason)
+        node = self.conn.baremetal.update_node(
+            node, is_retired=True, retired_reason=reason
+        )
         self.assertTrue(node.is_retired)
         self.assertEqual(reason, node.retired_reason)
 
@@ -354,7 +383,10 @@ class TestNodeRetired(base.BaseBaremetalTest):
         # Set retired when node state available should fail!
         self.assertRaises(
             exceptions.ConflictException,
-            self.conn.baremetal.update_node, node, is_retired=True)
+            self.conn.baremetal.update_node,
+            node,
+            is_retired=True,
+        )
 
 
 class TestBareMetalNodeFields(base.BaseBaremetalTest):
@@ -364,7 +396,8 @@ class TestBareMetalNodeFields(base.BaseBaremetalTest):
     def test_node_fields(self):
         self.create_node()
         result = self.conn.baremetal.nodes(
-            fields=['uuid', 'name', 'instance_id'])
+            fields=['uuid', 'name', 'instance_id']
+        )
         for item in result:
             self.assertIsNotNone(item.id)
             self.assertIsNone(item.driver)
@@ -384,21 +417,31 @@ class TestBareMetalVif(base.BaseBaremetalTest):
         # NOTE(dtantsur): The noop networking driver is completely noop - the
         # VIF list does not return anything of value.
         self.conn.baremetal.list_node_vifs(self.node)
-        res = self.conn.baremetal.detach_vif_from_node(self.node, self.vif_id,
-                                                       ignore_missing=False)
+        res = self.conn.baremetal.detach_vif_from_node(
+            self.node, self.vif_id, ignore_missing=False
+        )
         self.assertTrue(res)
 
     def test_node_vif_negative(self):
         uuid = "5c9dcd04-2073-49bc-9618-99ae634d8971"
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.conn.baremetal.attach_vif_to_node,
-                          uuid, self.vif_id)
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.conn.baremetal.list_node_vifs,
-                          uuid)
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.conn.baremetal.detach_vif_from_node,
-                          uuid, self.vif_id, ignore_missing=False)
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.conn.baremetal.attach_vif_to_node,
+            uuid,
+            self.vif_id,
+        )
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.conn.baremetal.list_node_vifs,
+            uuid,
+        )
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.conn.baremetal.detach_vif_from_node,
+            uuid,
+            self.vif_id,
+            ignore_missing=False,
+        )
 
 
 class TestTraits(base.BaseBaremetalTest):
@@ -419,14 +462,17 @@ class TestTraits(base.BaseBaremetalTest):
         self.assertEqual(['CUSTOM_FAKE'], node.traits)
 
         self.conn.baremetal.add_node_trait(self.node, 'CUSTOM_REAL')
-        self.assertEqual(sorted(['CUSTOM_FAKE', 'CUSTOM_REAL']),
-                         sorted(self.node.traits))
+        self.assertEqual(
+            sorted(['CUSTOM_FAKE', 'CUSTOM_REAL']), sorted(self.node.traits)
+        )
         node = self.conn.baremetal.get_node(self.node)
-        self.assertEqual(sorted(['CUSTOM_FAKE', 'CUSTOM_REAL']),
-                         sorted(node.traits))
+        self.assertEqual(
+            sorted(['CUSTOM_FAKE', 'CUSTOM_REAL']), sorted(node.traits)
+        )
 
-        self.conn.baremetal.remove_node_trait(node, 'CUSTOM_FAKE',
-                                              ignore_missing=False)
+        self.conn.baremetal.remove_node_trait(
+            node, 'CUSTOM_FAKE', ignore_missing=False
+        )
         self.assertEqual(['CUSTOM_REAL'], self.node.traits)
         node = self.conn.baremetal.get_node(self.node)
         self.assertEqual(['CUSTOM_REAL'], node.traits)

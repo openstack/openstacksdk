@@ -18,26 +18,23 @@ FAKE = {
     "links": [
         {
             "href": "http://127.0.0.1:6385/v1/conductors/compute2.localdomain",
-            "rel": "self"
+            "rel": "self",
         },
         {
             "href": "http://127.0.0.1:6385/conductors/compute2.localdomain",
-            "rel": "bookmark"
-        }
+            "rel": "bookmark",
+        },
     ],
     "created_at": "2018-12-05T07:03:19+00:00",
     "hostname": "compute2.localdomain",
     "conductor_group": "",
     "updated_at": "2018-12-05T07:03:21+00:00",
     "alive": True,
-    "drivers": [
-        "ipmi"
-    ]
+    "drivers": ["ipmi"],
 }
 
 
 class TestContainer(base.TestCase):
-
     def test_basic(self):
         sot = conductor.Conductor()
         self.assertIsNone(sot.resource_key)

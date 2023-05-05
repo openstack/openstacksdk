@@ -30,7 +30,8 @@ class VolumeConnector(_common.ListMixin, resource.Resource):
     commit_jsonpatch = True
 
     _query_mapping = resource.QueryParameters(
-        'node', 'detail',
+        'node',
+        'detail',
         fields={'type': _common.fields_type},
     )
 

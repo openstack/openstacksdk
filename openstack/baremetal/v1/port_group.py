@@ -30,7 +30,8 @@ class PortGroup(_common.ListMixin, resource.Resource):
     commit_jsonpatch = True
 
     _query_mapping = resource.QueryParameters(
-        'node', 'address',
+        'node',
+        'address',
         fields={'type': _common.fields_type},
     )
 
@@ -52,8 +53,9 @@ class PortGroup(_common.ListMixin, resource.Resource):
     internal_info = resource.Body('internal_info')
     #: Whether ports that are members of this portgroup can be used as
     #: standalone ports. Added in API microversion 1.23.
-    is_standalone_ports_supported = resource.Body('standalone_ports_supported',
-                                                  type=bool)
+    is_standalone_ports_supported = resource.Body(
+        'standalone_ports_supported', type=bool
+    )
     #: A list of relative links, including the self and bookmark links.
     links = resource.Body('links', type=list)
     #: Port bonding mode. Added in API microversion 1.26.

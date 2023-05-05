@@ -51,8 +51,9 @@ class PowerAction(enum.Enum):
     """Reboot the node using soft power off."""
 
 
-class WaitResult(collections.namedtuple('WaitResult',
-                                        ['success', 'failure', 'timeout'])):
+class WaitResult(
+    collections.namedtuple('WaitResult', ['success', 'failure', 'timeout'])
+):
     """A named tuple representing a result of waiting for several nodes.
 
     Each component is a list of :class:`~openstack.baremetal.v1.node.Node`
@@ -65,6 +66,7 @@ class WaitResult(collections.namedtuple('WaitResult',
     :ivar ~.failure: a list of :class:`~openstack.baremetal.v1.node.Node`
         objects that hit a failure.
     """
+
     __slots__ = ()
 
 
@@ -84,8 +86,12 @@ class Node(_common.ListMixin, resource.Resource):
     commit_jsonpatch = True
 
     _query_mapping = resource.QueryParameters(
-        'associated', 'conductor_group', 'driver', 'fault',
-        'provision_state', 'resource_class',
+        'associated',
+        'conductor_group',
+        'driver',
+        'fault',
+        'provision_state',
+        'resource_class',
         fields={'type': _common.fields_type},
         instance_id='instance_uuid',
         is_maintenance='maintenance',
@@ -292,21 +298,30 @@ class Node(_common.ListMixin, resource.Resource):
             # Verify that the requested provision state is reachable with
             # the API version we are going to use.
             try:
-                microversion = _common.STATE_VERSIONS[
-                    expected_provision_state]
+                microversion = _common.STATE_VERSIONS[expected_provision_state]
             except KeyError:
                 raise ValueError(
                     "Node's provision_state must be one of %s for creation, "
-                    "got %s" % (', '.join(_common.STATE_VERSIONS),
-                                expected_provision_state))
+                    "got %s"
+                    % (
+                        ', '.join(_common.STATE_VERSIONS),
+                        expected_provision_state,
+                    )
+                )
             else:
-                error_message = ("Cannot create a node with initial provision "
-                                 "state %s" % expected_provision_state)
+                error_message = (
+                    "Cannot create a node with initial provision "
+                    "state %s" % expected_provision_state
+                )
                 # Nodes cannot be created as available using new API versions
-                maximum = ('1.10' if expected_provision_state == 'available'
-                           else None)
+                maximum = (
+                    '1.10' if expected_provision_state == 'available' else None
+                )
                 microversion = self._assert_microversion_for(
-                    session, 'create', microversion, maximum=maximum,
+                    session,
+                    'create',
+                    microversion,
+                    maximum=maximum,
                     error_message=error_message,
                 )
         else:
@@ -315,11 +330,14 @@ class Node(_common.ListMixin, resource.Resource):
         # Ironic cannot set provision_state itself, so marking it as unchanged
         self._clean_body_attrs({'provision_state'})
 
-        super(Node, self).create(session, *args, microversion=microversion,
-                                 **kwargs)
+        super(Node, self).create(
+            session, *args, microversion=microversion, **kwargs
+        )
 
-        if (expected_provision_state == 'manageable'
-                and self.provision_state != 'manageable'):
+        if (
+            expected_provision_state == 'manageable'
+            and self.provision_state != 'manageable'
+        ):
             # Manageable is not reachable directly
             self.set_provision_state(session, 'manage', wait=True)
 
@@ -334,17 +352,22 @@ class Node(_common.ListMixin, resource.Resource):
         :return: This :class:`Node` instance.
         """
         # These fields have to be set through separate API.
-        if ('maintenance_reason' in self._body.dirty
-                or 'maintenance' in self._body.dirty):
+        if (
+            'maintenance_reason' in self._body.dirty
+            or 'maintenance' in self._body.dirty
+        ):
             if not self.is_maintenance and self.maintenance_reason:
                 if 'maintenance' in self._body.dirty:
                     self.maintenance_reason = None
                 else:
-                    raise ValueError('Maintenance reason cannot be set when '
-                                     'maintenance is False')
+                    raise ValueError(
+                        'Maintenance reason cannot be set when '
+                        'maintenance is False'
+                    )
             if self.is_maintenance:
                 self._do_maintenance_action(
-                    session, 'put', {'reason': self.maintenance_reason})
+                    session, 'put', {'reason': self.maintenance_reason}
+                )
             else:
                 # This corresponds to setting maintenance=False and
                 # maintenance_reason=None in the same request.
@@ -358,9 +381,17 @@ class Node(_common.ListMixin, resource.Resource):
 
         return super(Node, self).commit(session, *args, **kwargs)
 
-    def set_provision_state(self, session, target, config_drive=None,
-                            clean_steps=None, rescue_password=None,
-                            wait=False, timeout=None, deploy_steps=None):
+    def set_provision_state(
+        self,
+        session,
+        target,
+        config_drive=None,
+        clean_steps=None,
+        rescue_password=None,
+        wait=False,
+        timeout=None,
+        deploy_steps=None,
+    ):
         """Run an action modifying this node's provision state.
 
         This call is asynchronous, it will return success as soon as the Bare
@@ -413,51 +444,65 @@ class Node(_common.ListMixin, resource.Resource):
         body = {'target': target}
         if config_drive:
             if target not in ('active', 'rebuild'):
-                raise ValueError('Config drive can only be provided with '
-                                 '"active" and "rebuild" targets')
+                raise ValueError(
+                    'Config drive can only be provided with '
+                    '"active" and "rebuild" targets'
+                )
             # Not a typo - ironic accepts "configdrive" (without underscore)
             body['configdrive'] = config_drive
 
         if clean_steps is not None:
             if target != 'clean':
-                raise ValueError('Clean steps can only be provided with '
-                                 '"clean" target')
+                raise ValueError(
+                    'Clean steps can only be provided with ' '"clean" target'
+                )
             body['clean_steps'] = clean_steps
 
         if deploy_steps is not None:
             if target not in ('active', 'rebuild'):
-                raise ValueError('Deploy steps can only be provided with '
-                                 '"deploy" and "rebuild" target')
+                raise ValueError(
+                    'Deploy steps can only be provided with '
+                    '"deploy" and "rebuild" target'
+                )
             body['deploy_steps'] = deploy_steps
 
         if rescue_password is not None:
             if target != 'rescue':
-                raise ValueError('Rescue password can only be provided with '
-                                 '"rescue" target')
+                raise ValueError(
+                    'Rescue password can only be provided with '
+                    '"rescue" target'
+                )
             body['rescue_password'] = rescue_password
 
         if wait:
             try:
                 expected_state = _common.EXPECTED_STATES[target]
             except KeyError:
-                raise ValueError('For target %s the expected state is not '
-                                 'known, cannot wait for it' % target)
+                raise ValueError(
+                    'For target %s the expected state is not '
+                    'known, cannot wait for it' % target
+                )
 
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'states', 'provision')
         response = session.put(
-            request.url, json=body,
-            headers=request.headers, microversion=version,
-            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+            request.url,
+            json=body,
+            headers=request.headers,
+            microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
 
-        msg = ("Failed to set provision state for bare metal node {node} "
-               "to {target}".format(node=self.id, target=target))
+        msg = (
+            "Failed to set provision state for bare metal node {node} "
+            "to {target}".format(node=self.id, target=target)
+        )
         exceptions.raise_from_response(response, error_message=msg)
 
         if wait:
-            return self.wait_for_provision_state(session,
-                                                 expected_state,
-                                                 timeout=timeout)
+            return self.wait_for_provision_state(
+                session, expected_state, timeout=timeout
+            )
         else:
             return self.fetch(session)
 
@@ -475,10 +520,11 @@ class Node(_common.ListMixin, resource.Resource):
         :raises: :class:`~openstack.exceptions.ResourceTimeout` on timeout.
         """
         for count in utils.iterate_timeout(
-                timeout,
-                "Timeout waiting for node %(node)s to reach "
-                "power state '%(state)s'" % {'node': self.id,
-                                             'state': expected_state}):
+            timeout,
+            "Timeout waiting for node %(node)s to reach "
+            "power state '%(state)s'"
+            % {'node': self.id, 'state': expected_state},
+        ):
             self.fetch(session)
             if self.power_state == expected_state:
                 return self
@@ -486,11 +532,16 @@ class Node(_common.ListMixin, resource.Resource):
             session.log.debug(
                 'Still waiting for node %(node)s to reach power state '
                 '"%(target)s", the current state is "%(state)s"',
-                {'node': self.id, 'target': expected_state,
-                 'state': self.power_state})
+                {
+                    'node': self.id,
+                    'target': expected_state,
+                    'state': self.power_state,
+                },
+            )
 
-    def wait_for_provision_state(self, session, expected_state, timeout=None,
-                                 abort_on_failed_state=True):
+    def wait_for_provision_state(
+        self, session, expected_state, timeout=None, abort_on_failed_state=True
+    ):
         """Wait for the node to reach the expected state.
 
         :param session: The session to use for making this request.
@@ -510,20 +561,26 @@ class Node(_common.ListMixin, resource.Resource):
         :raises: :class:`~openstack.exceptions.ResourceTimeout` on timeout.
         """
         for count in utils.iterate_timeout(
-                timeout,
-                "Timeout waiting for node %(node)s to reach "
-                "target state '%(state)s'" % {'node': self.id,
-                                              'state': expected_state}):
+            timeout,
+            "Timeout waiting for node %(node)s to reach "
+            "target state '%(state)s'"
+            % {'node': self.id, 'state': expected_state},
+        ):
             self.fetch(session)
-            if self._check_state_reached(session, expected_state,
-                                         abort_on_failed_state):
+            if self._check_state_reached(
+                session, expected_state, abort_on_failed_state
+            ):
                 return self
 
             session.log.debug(
                 'Still waiting for node %(node)s to reach state '
                 '"%(target)s", the current state is "%(state)s"',
-                {'node': self.id, 'target': expected_state,
-                 'state': self.provision_state})
+                {
+                    'node': self.id,
+                    'target': expected_state,
+                    'state': self.provision_state,
+                },
+            )
 
     def wait_for_reservation(self, session, timeout=None):
         """Wait for a lock on the node to be released.
@@ -552,9 +609,9 @@ class Node(_common.ListMixin, resource.Resource):
             return self
 
         for count in utils.iterate_timeout(
-                timeout,
-                "Timeout waiting for the lock to be released on node %s" %
-                self.id):
+            timeout,
+            "Timeout waiting for the lock to be released on node %s" % self.id,
+        ):
             self.fetch(session)
             if self.reservation is None:
                 return self
@@ -562,10 +619,12 @@ class Node(_common.ListMixin, resource.Resource):
             session.log.debug(
                 'Still waiting for the lock to be released on node '
                 '%(node)s, currently locked by conductor %(host)s',
-                {'node': self.id, 'host': self.reservation})
+                {'node': self.id, 'host': self.reservation},
+            )
 
-    def _check_state_reached(self, session, expected_state,
-                             abort_on_failed_state=True):
+    def _check_state_reached(
+        self, session, expected_state, abort_on_failed_state=True
+    ):
         """Wait for the node to reach the expected state.
 
         :param session: The session to use for making this request.
@@ -581,29 +640,39 @@ class Node(_common.ListMixin, resource.Resource):
             reaches an error state and ``abort_on_failed_state`` is ``True``.
         """
         # NOTE(dtantsur): microversion 1.2 changed None to available
-        if (self.provision_state == expected_state
-                or (expected_state == 'available'
-                    and self.provision_state is None)):
+        if self.provision_state == expected_state or (
+            expected_state == 'available' and self.provision_state is None
+        ):
             return True
         elif not abort_on_failed_state:
             return False
 
-        if (self.provision_state.endswith(' failed')
-                or self.provision_state == 'error'):
+        if (
+            self.provision_state.endswith(' failed')
+            or self.provision_state == 'error'
+        ):
             raise exceptions.ResourceFailure(
                 "Node %(node)s reached failure state \"%(state)s\"; "
-                "the last error is %(error)s" %
-                {'node': self.id, 'state': self.provision_state,
-                 'error': self.last_error})
+                "the last error is %(error)s"
+                % {
+                    'node': self.id,
+                    'state': self.provision_state,
+                    'error': self.last_error,
+                }
+            )
         # Special case: a failure state for "manage" transition can be
         # "enroll"
-        elif (expected_state == 'manageable'
-              and self.provision_state == 'enroll' and self.last_error):
+        elif (
+            expected_state == 'manageable'
+            and self.provision_state == 'enroll'
+            and self.last_error
+        ):
             raise exceptions.ResourceFailure(
                 "Node %(node)s could not reach state manageable: "
                 "failed to verify management credentials; "
-                "the last error is %(error)s" %
-                {'node': self.id, 'error': self.last_error})
+                "the last error is %(error)s"
+                % {'node': self.id, 'error': self.last_error}
+            )
 
     def inject_nmi(self, session):
         """Inject NMI.
@@ -630,7 +699,7 @@ class Node(_common.ListMixin, resource.Resource):
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 
-        msg = ("Failed to inject NMI to node {node}".format(node=self.id))
+        msg = "Failed to inject NMI to node {node}".format(node=self.id)
         exceptions.raise_from_response(response, error_message=msg)
 
     def set_power_state(self, session, target, wait=False, timeout=None):
@@ -654,8 +723,10 @@ class Node(_common.ListMixin, resource.Resource):
             try:
                 expected = _common.EXPECTED_POWER_STATES[target]
             except KeyError:
-                raise ValueError("Cannot use target power state %s with wait, "
-                                 "the expected state is not known" % target)
+                raise ValueError(
+                    "Cannot use target power state %s with wait, "
+                    "the expected state is not known" % target
+                )
 
         session = self._get_session(session)
 
@@ -672,12 +743,17 @@ class Node(_common.ListMixin, resource.Resource):
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'states', 'power')
         response = session.put(
-            request.url, json=body,
-            headers=request.headers, microversion=version,
-            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+            request.url,
+            json=body,
+            headers=request.headers,
+            microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
 
-        msg = ("Failed to set power state for bare metal node {node} "
-               "to {target}".format(node=self.id, target=target))
+        msg = (
+            "Failed to set power state for bare metal node {node} "
+            "to {target}".format(node=self.id, target=target)
+        )
         exceptions.raise_from_response(response, error_message=msg)
 
         if wait:
@@ -704,8 +780,11 @@ class Node(_common.ListMixin, resource.Resource):
         """
         session = self._get_session(session)
         version = self._assert_microversion_for(
-            session, 'commit', _common.VIF_VERSION,
-            error_message=("Cannot use VIF attachment API"))
+            session,
+            'commit',
+            _common.VIF_VERSION,
+            error_message=("Cannot use VIF attachment API"),
+        )
 
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'vifs')
@@ -714,12 +793,16 @@ class Node(_common.ListMixin, resource.Resource):
         if not retry_on_conflict:
             retriable_status_codes = set(retriable_status_codes) - {409}
         response = session.post(
-            request.url, json=body,
-            headers=request.headers, microversion=version,
-            retriable_status_codes=retriable_status_codes)
+            request.url,
+            json=body,
+            headers=request.headers,
+            microversion=version,
+            retriable_status_codes=retriable_status_codes,
+        )
 
-        msg = ("Failed to attach VIF {vif} to bare metal node {node}"
-               .format(node=self.id, vif=vif_id))
+        msg = "Failed to attach VIF {vif} to bare metal node {node}".format(
+            node=self.id, vif=vif_id
+        )
         exceptions.raise_from_response(response, error_message=msg)
 
     def detach_vif(self, session, vif_id, ignore_missing=True):
@@ -742,23 +825,31 @@ class Node(_common.ListMixin, resource.Resource):
         """
         session = self._get_session(session)
         version = self._assert_microversion_for(
-            session, 'commit', _common.VIF_VERSION,
-            error_message=("Cannot use VIF attachment API"))
+            session,
+            'commit',
+            _common.VIF_VERSION,
+            error_message=("Cannot use VIF attachment API"),
+        )
 
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'vifs', vif_id)
         response = session.delete(
-            request.url, headers=request.headers, microversion=version,
-            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+            request.url,
+            headers=request.headers,
+            microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
 
         if ignore_missing and response.status_code == 400:
             session.log.debug(
                 'VIF %(vif)s was already removed from node %(node)s',
-                {'vif': vif_id, 'node': self.id})
+                {'vif': vif_id, 'node': self.id},
+            )
             return False
 
-        msg = ("Failed to detach VIF {vif} from bare metal node {node}"
-               .format(node=self.id, vif=vif_id))
+        msg = "Failed to detach VIF {vif} from bare metal node {node}".format(
+            node=self.id, vif=vif_id
+        )
         exceptions.raise_from_response(response, error_message=msg)
         return True
 
@@ -777,16 +868,21 @@ class Node(_common.ListMixin, resource.Resource):
         """
         session = self._get_session(session)
         version = self._assert_microversion_for(
-            session, 'fetch', _common.VIF_VERSION,
-            error_message=("Cannot use VIF attachment API"))
+            session,
+            'fetch',
+            _common.VIF_VERSION,
+            error_message=("Cannot use VIF attachment API"),
+        )
 
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'vifs')
         response = session.get(
-            request.url, headers=request.headers, microversion=version)
+            request.url, headers=request.headers, microversion=version
+        )
 
-        msg = ("Failed to list VIFs attached to bare metal node {node}"
-               .format(node=self.id))
+        msg = "Failed to list VIFs attached to bare metal node {node}".format(
+            node=self.id
+        )
         exceptions.raise_from_response(response, error_message=msg)
         return [vif['id'] for vif in response.json()['vifs']]
 
@@ -809,10 +905,11 @@ class Node(_common.ListMixin, resource.Resource):
 
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'validate')
-        response = session.get(request.url, headers=request.headers,
-                               microversion=version)
+        response = session.get(
+            request.url, headers=request.headers, microversion=version
+        )
 
-        msg = ("Failed to validate node {node}".format(node=self.id))
+        msg = "Failed to validate node {node}".format(node=self.id)
         exceptions.raise_from_response(response, error_message=msg)
         result = response.json()
 
@@ -826,11 +923,15 @@ class Node(_common.ListMixin, resource.Resource):
             if failed:
                 raise exceptions.ValidationException(
                     'Validation failed for required interfaces of node {node}:'
-                    ' {failures}'.format(node=self.id,
-                                         failures=', '.join(failed)))
+                    ' {failures}'.format(
+                        node=self.id, failures=', '.join(failed)
+                    )
+                )
 
-        return {key: ValidationResult(value.get('result'), value.get('reason'))
-                for key, value in result.items()}
+        return {
+            key: ValidationResult(value.get('result'), value.get('reason'))
+            for key, value in result.items()
+        }
 
     def set_maintenance(self, session, reason=None):
         """Enable maintenance mode on the node.
@@ -859,10 +960,14 @@ class Node(_common.ListMixin, resource.Resource):
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'maintenance')
         response = getattr(session, verb)(
-            request.url, json=body,
-            headers=request.headers, microversion=version)
-        msg = ("Failed to change maintenance mode for node {node}"
-               .format(node=self.id))
+            request.url,
+            json=body,
+            headers=request.headers,
+            microversion=version,
+        )
+        msg = "Failed to change maintenance mode for node {node}".format(
+            node=self.id
+        )
         exceptions.raise_from_response(response, error_message=msg)
 
     def get_boot_device(self, session):
@@ -901,12 +1006,14 @@ class Node(_common.ListMixin, resource.Resource):
         body = {'boot_device': boot_device, 'persistent': persistent}
 
         response = session.put(
-            request.url, json=body,
-            headers=request.headers, microversion=version,
-            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+            request.url,
+            json=body,
+            headers=request.headers,
+            microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
 
-        msg = ("Failed to set boot device for node {node}"
-               .format(node=self.id))
+        msg = "Failed to set boot device for node {node}".format(node=self.id)
         exceptions.raise_from_response(response, error_message=msg)
 
     def get_supported_boot_devices(self, session):
@@ -945,23 +1052,27 @@ class Node(_common.ListMixin, resource.Resource):
         :raises: ValueError if ``target`` is not one of 'uefi or 'bios'.
         """
         session = self._get_session(session)
-        version = utils.pick_microversion(session,
-                                          _common.CHANGE_BOOT_MODE_VERSION)
+        version = utils.pick_microversion(
+            session, _common.CHANGE_BOOT_MODE_VERSION
+        )
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'states', 'boot_mode')
         if target not in ('uefi', 'bios'):
-            raise ValueError("Unrecognized boot mode %s."
-                             "Boot mode should be one of 'uefi' or 'bios'."
-                             % target)
+            raise ValueError(
+                "Unrecognized boot mode %s."
+                "Boot mode should be one of 'uefi' or 'bios'." % target
+            )
         body = {'target': target}
 
         response = session.put(
-            request.url, json=body,
-            headers=request.headers, microversion=version,
-            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+            request.url,
+            json=body,
+            headers=request.headers,
+            microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
 
-        msg = ("Failed to change boot mode for node {node}"
-               .format(node=self.id))
+        msg = "Failed to change boot mode for node {node}".format(node=self.id)
         exceptions.raise_from_response(response, error_message=msg)
 
     def set_secure_boot(self, session, target):
@@ -976,23 +1087,29 @@ class Node(_common.ListMixin, resource.Resource):
         :raises: ValueError if ``target`` is not boolean.
         """
         session = self._get_session(session)
-        version = utils.pick_microversion(session,
-                                          _common.CHANGE_BOOT_MODE_VERSION)
+        version = utils.pick_microversion(
+            session, _common.CHANGE_BOOT_MODE_VERSION
+        )
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'states', 'secure_boot')
         if not isinstance(target, bool):
-            raise ValueError("Invalid target %s. It should be True or False "
-                             "corresponding to secure boot state 'on' or 'off'"
-                             % target)
+            raise ValueError(
+                "Invalid target %s. It should be True or False "
+                "corresponding to secure boot state 'on' or 'off'" % target
+            )
         body = {'target': target}
 
         response = session.put(
-            request.url, json=body,
-            headers=request.headers, microversion=version,
-            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+            request.url,
+            json=body,
+            headers=request.headers,
+            microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
 
-        msg = ("Failed to change secure boot state for {node}"
-               .format(node=self.id))
+        msg = "Failed to change secure boot state for {node}".format(
+            node=self.id
+        )
         exceptions.raise_from_response(response, error_message=msg)
 
     def add_trait(self, session, trait):
@@ -1006,12 +1123,16 @@ class Node(_common.ListMixin, resource.Resource):
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'traits', trait)
         response = session.put(
-            request.url, json=None,
-            headers=request.headers, microversion=version,
-            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+            request.url,
+            json=None,
+            headers=request.headers,
+            microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
 
-        msg = ("Failed to add trait {trait} for node {node}"
-               .format(trait=trait, node=self.id))
+        msg = "Failed to add trait {trait} for node {node}".format(
+            trait=trait, node=self.id
+        )
         exceptions.raise_from_response(response, error_message=msg)
 
         self.traits = list(set(self.traits or ()) | {trait})
@@ -1034,18 +1155,24 @@ class Node(_common.ListMixin, resource.Resource):
         request.url = utils.urljoin(request.url, 'traits', trait)
 
         response = session.delete(
-            request.url, headers=request.headers, microversion=version,
-            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+            request.url,
+            headers=request.headers,
+            microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
 
         if ignore_missing and response.status_code == 400:
             session.log.debug(
                 'Trait %(trait)s was already removed from node %(node)s',
-                {'trait': trait, 'node': self.id})
+                {'trait': trait, 'node': self.id},
+            )
             return False
 
-        msg = ("Failed to remove trait {trait} from bare metal node {node}"
-               .format(node=self.id, trait=trait))
-        exceptions.raise_from_response(response, error_message=msg)
+        msg = "Failed to remove trait {trait} from bare metal node {node}"
+        exceptions.raise_from_response(
+            response,
+            error_message=msg.format(node=self.id, trait=trait),
+        )
 
         if self.traits:
             self.traits = list(set(self.traits) - {trait})
@@ -1069,12 +1196,14 @@ class Node(_common.ListMixin, resource.Resource):
         body = {'traits': traits}
 
         response = session.put(
-            request.url, json=body,
-            headers=request.headers, microversion=version,
-            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+            request.url,
+            json=body,
+            headers=request.headers,
+            microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
 
-        msg = ("Failed to set traits for node {node}"
-               .format(node=self.id))
+        msg = "Failed to set traits for node {node}".format(node=self.id)
         exceptions.raise_from_response(response, error_message=msg)
 
         self.traits = traits
@@ -1091,18 +1220,25 @@ class Node(_common.ListMixin, resource.Resource):
         session = self._get_session(session)
         version = self._get_microversion(session, action='commit')
         request = self._prepare_request(requires_id=True)
-        request.url = utils.urljoin(request.url, 'vendor_passthru?method={}'
-                                    .format(method))
+        request.url = utils.urljoin(
+            request.url, 'vendor_passthru?method={}'.format(method)
+        )
 
         call = getattr(session, verb.lower())
         response = call(
-            request.url, json=body,
-            headers=request.headers, microversion=version,
-            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+            request.url,
+            json=body,
+            headers=request.headers,
+            microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
 
-        msg = ("Failed to call vendor_passthru for node {node}, verb {verb}"
-               " and method {method}"
-               .format(node=self.id, verb=verb, method=method))
+        msg = (
+            "Failed to call vendor_passthru for node {node}, verb {verb}"
+            " and method {method}".format(
+                node=self.id, verb=verb, method=method
+            )
+        )
         exceptions.raise_from_response(response, error_message=msg)
 
         return response
@@ -1119,11 +1255,15 @@ class Node(_common.ListMixin, resource.Resource):
         request.url = utils.urljoin(request.url, 'vendor_passthru/methods')
 
         response = session.get(
-            request.url, headers=request.headers, microversion=version,
-            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+            request.url,
+            headers=request.headers,
+            microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
 
-        msg = ("Failed to list vendor_passthru methods for node {node}"
-               .format(node=self.id))
+        msg = "Failed to list vendor_passthru methods for node {node}".format(
+            node=self.id
+        )
         exceptions.raise_from_response(response, error_message=msg)
 
         return response.json()
@@ -1156,8 +1296,7 @@ class Node(_common.ListMixin, resource.Resource):
         if not isinstance(enabled, bool):
             raise ValueError(
                 "Invalid enabled %s. It should be True or False "
-                "corresponding to console enabled or disabled"
-                % enabled
+                "corresponding to console enabled or disabled" % enabled
             )
         body = {'enabled': enabled}
 
@@ -1174,8 +1313,16 @@ class Node(_common.ListMixin, resource.Resource):
         )
         exceptions.raise_from_response(response, error_message=msg)
 
-    def patch(self, session, patch=None, prepend_key=True, has_body=True,
-              retry_on_conflict=None, base_path=None, reset_interfaces=None):
+    def patch(
+        self,
+        session,
+        patch=None,
+        prepend_key=True,
+        has_body=True,
+        retry_on_conflict=None,
+        base_path=None,
+        reset_interfaces=None,
+    ):
 
         if reset_interfaces is not None:
             # The id cannot be dirty for an commit
@@ -1190,24 +1337,34 @@ class Node(_common.ListMixin, resource.Resource):
 
             session = self._get_session(session)
             microversion = self._assert_microversion_for(
-                session, 'commit', _common.RESET_INTERFACES_VERSION)
+                session, 'commit', _common.RESET_INTERFACES_VERSION
+            )
             params = [('reset_interfaces', reset_interfaces)]
 
-            request = self._prepare_request(requires_id=True,
-                                            prepend_key=prepend_key,
-                                            base_path=base_path, patch=True,
-                                            params=params)
+            request = self._prepare_request(
+                requires_id=True,
+                prepend_key=prepend_key,
+                base_path=base_path,
+                patch=True,
+                params=params,
+            )
 
             if patch:
                 request.body += self._convert_patch(patch)
 
-            return self._commit(session, request, 'PATCH', microversion,
-                                has_body=has_body,
-                                retry_on_conflict=retry_on_conflict)
+            return self._commit(
+                session,
+                request,
+                'PATCH',
+                microversion,
+                has_body=has_body,
+                retry_on_conflict=retry_on_conflict,
+            )
 
         else:
-            return super(Node, self).patch(session, patch=patch,
-                                           retry_on_conflict=retry_on_conflict)
+            return super(Node, self).patch(
+                session, patch=patch, retry_on_conflict=retry_on_conflict
+            )
 
 
 NodeDetail = Node

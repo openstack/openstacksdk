@@ -23,8 +23,13 @@ import tempfile
 
 
 @contextlib.contextmanager
-def populate_directory(metadata, user_data=None, versions=None,
-                       network_data=None, vendor_data=None):
+def populate_directory(
+    metadata,
+    user_data=None,
+    versions=None,
+    network_data=None,
+    vendor_data=None,
+):
     """Populate a directory with configdrive files.
 
     :param dict metadata: Metadata.
@@ -46,21 +51,24 @@ def populate_directory(metadata, user_data=None, versions=None,
                 json.dump(metadata, fp)
 
             if network_data:
-                with open(os.path.join(subdir, 'network_data.json'),
-                          'w') as fp:
+                with open(
+                    os.path.join(subdir, 'network_data.json'), 'w'
+                ) as fp:
                     json.dump(network_data, fp)
 
             if vendor_data:
-                with open(os.path.join(subdir, 'vendor_data2.json'),
-                          'w') as fp:
+                with open(
+                    os.path.join(subdir, 'vendor_data2.json'), 'w'
+                ) as fp:
                     json.dump(vendor_data, fp)
 
             if user_data:
                 # Strictly speaking, user data is binary, but in many cases
                 # it's actually a text (cloud-init, ignition, etc).
                 flag = 't' if isinstance(user_data, str) else 'b'
-                with open(os.path.join(subdir, 'user_data'),
-                          'w%s' % flag) as fp:
+                with open(
+                    os.path.join(subdir, 'user_data'), 'w%s' % flag
+                ) as fp:
                     fp.write(user_data)
 
         yield d
@@ -68,8 +76,13 @@ def populate_directory(metadata, user_data=None, versions=None,
         shutil.rmtree(d)
 
 
-def build(metadata, user_data=None, versions=None, network_data=None,
-          vendor_data=None):
+def build(
+    metadata,
+    user_data=None,
+    versions=None,
+    network_data=None,
+    vendor_data=None,
+):
     """Make a configdrive compatible with the Bare Metal service.
 
     Requires the genisoimage utility to be available.
@@ -81,8 +94,9 @@ def build(metadata, user_data=None, versions=None, network_data=None,
     :param dict vendor_data: Extra supplied vendor data.
     :return: configdrive contents as a base64-encoded string.
     """
-    with populate_directory(metadata, user_data, versions,
-                            network_data, vendor_data) as path:
+    with populate_directory(
+        metadata, user_data, versions, network_data, vendor_data
+    ) as path:
         return pack(path)
 
 
@@ -100,16 +114,27 @@ def pack(path):
         cmds = ['genisoimage', 'mkisofs', 'xorrisofs']
         for c in cmds:
             try:
-                p = subprocess.Popen([c,
-                                      '-o', tmpfile.name,
-                                      '-ldots', '-allow-lowercase',
-                                      '-allow-multidot', '-l',
-                                      '-publisher', 'metalsmith',
-                                      '-quiet', '-J',
-                                      '-r', '-V', 'config-2',
-                                      path],
-                                     stdout=subprocess.PIPE,
-                                     stderr=subprocess.PIPE)
+                p = subprocess.Popen(
+                    [
+                        c,
+                        '-o',
+                        tmpfile.name,
+                        '-ldots',
+                        '-allow-lowercase',
+                        '-allow-multidot',
+                        '-l',
+                        '-publisher',
+                        'metalsmith',
+                        '-quiet',
+                        '-J',
+                        '-r',
+                        '-V',
+                        'config-2',
+                        path,
+                    ],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                )
             except OSError as e:
                 error = e
             else:
@@ -120,14 +145,16 @@ def pack(path):
             raise RuntimeError(
                 'Error generating the configdrive. Make sure the '
                 '"genisoimage", "mkisofs" or "xorrisofs" tool is installed. '
-                'Error: %s' % error)
+                'Error: %s' % error
+            )
 
         stdout, stderr = p.communicate()
         if p.returncode != 0:
             raise RuntimeError(
                 'Error generating the configdrive.'
-                'Stdout: "%(stdout)s". Stderr: "%(stderr)s"' %
-                {'stdout': stdout, 'stderr': stderr})
+                'Stdout: "%(stdout)s". Stderr: "%(stderr)s"'
+                % {'stdout': stdout, 'stderr': stderr}
+            )
 
         tmpfile.seek(0)
 

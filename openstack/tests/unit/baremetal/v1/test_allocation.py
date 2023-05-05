@@ -26,12 +26,12 @@ FAKE = {
     "links": [
         {
             "href": "http://127.0.0.1:6385/v1/allocations/<PG_ID>",
-            "rel": "self"
+            "rel": "self",
         },
         {
             "href": "http://127.0.0.1:6385/allocations/<PG_ID>",
-            "rel": "bookmark"
-        }
+            "rel": "bookmark",
+        },
     ],
     "name": "test_allocation",
     "node_uuid": "6d85703a-565d-469a-96ce-30b6de53079d",
@@ -44,7 +44,6 @@ FAKE = {
 
 
 class TestAllocation(base.TestCase):
-
     def test_basic(self):
         sot = allocation.Allocation()
         self.assertIsNone(sot.resource_key)
@@ -75,7 +74,6 @@ class TestAllocation(base.TestCase):
 @mock.patch('time.sleep', lambda _t: None)
 @mock.patch.object(allocation.Allocation, 'fetch', autospec=True)
 class TestWaitForAllocation(base.TestCase):
-
     def setUp(self):
         super(TestWaitForAllocation, self).setUp()
         self.session = mock.Mock(spec=adapter.Adapter)
@@ -116,8 +114,9 @@ class TestWaitForAllocation(base.TestCase):
                 marker[0] = True
 
         mock_fetch.side_effect = _side_effect
-        self.assertRaises(exceptions.ResourceFailure,
-                          self.allocation.wait, self.session)
+        self.assertRaises(
+            exceptions.ResourceFailure, self.allocation.wait, self.session
+        )
         self.assertEqual(2, mock_fetch.call_count)
 
     def test_failure_ignored(self, mock_fetch):
@@ -136,6 +135,10 @@ class TestWaitForAllocation(base.TestCase):
         self.assertEqual(2, mock_fetch.call_count)
 
     def test_timeout(self, mock_fetch):
-        self.assertRaises(exceptions.ResourceTimeout,
-                          self.allocation.wait, self.session, timeout=0.001)
+        self.assertRaises(
+            exceptions.ResourceTimeout,
+            self.allocation.wait,
+            self.session,
+            timeout=0.001,
+        )
         mock_fetch.assert_called_with(self.allocation, self.session)

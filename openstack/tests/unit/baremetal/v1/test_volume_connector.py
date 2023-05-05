@@ -21,22 +21,21 @@ FAKE = {
     "links": [
         {
             "href": "http://127.0.0.1:6385/v1/volume/connector/<ID>",
-            "rel": "self"
+            "rel": "self",
         },
         {
             "href": "http://127.0.0.1:6385/volume/connector/<ID>",
-            "rel": "bookmark"
-        }
+            "rel": "bookmark",
+        },
     ],
     "node_uuid": "6d85703a-565d-469a-96ce-30b6de53079d",
     "type": "iqn",
     "updated_at": None,
-    "uuid": "9bf93e01-d728-47a3-ad4b-5e66a835037c"
+    "uuid": "9bf93e01-d728-47a3-ad4b-5e66a835037c",
 }
 
 
 class TestVolumeconnector(base.TestCase):
-
     def test_basic(self):
         sot = volume_connector.VolumeConnector()
         self.assertIsNone(sot.resource_key)

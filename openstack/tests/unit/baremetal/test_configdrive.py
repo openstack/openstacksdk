@@ -23,24 +23,31 @@ from openstack.baremetal import configdrive
 
 
 class TestPopulateDirectory(testtools.TestCase):
-    def _check(self, metadata, user_data=None, network_data=None,
-               vendor_data=None):
-        with configdrive.populate_directory(metadata,
-                                            user_data=user_data,
-                                            network_data=network_data,
-                                            vendor_data=vendor_data) as d:
+    def _check(
+        self, metadata, user_data=None, network_data=None, vendor_data=None
+    ):
+        with configdrive.populate_directory(
+            metadata,
+            user_data=user_data,
+            network_data=network_data,
+            vendor_data=vendor_data,
+        ) as d:
             for version in ('2012-08-10', 'latest'):
-                with open(os.path.join(d, 'openstack', version,
-                                       'meta_data.json')) as fp:
+                with open(
+                    os.path.join(d, 'openstack', version, 'meta_data.json')
+                ) as fp:
                     actual_metadata = json.load(fp)
 
                 self.assertEqual(metadata, actual_metadata)
-                network_data_file = os.path.join(d, 'openstack', version,
-                                                 'network_data.json')
-                user_data_file = os.path.join(d, 'openstack', version,
-                                              'user_data')
-                vendor_data_file = os.path.join(d, 'openstack', version,
-                                                'vendor_data2.json')
+                network_data_file = os.path.join(
+                    d, 'openstack', version, 'network_data.json'
+                )
+                user_data_file = os.path.join(
+                    d, 'openstack', version, 'user_data'
+                )
+                vendor_data_file = os.path.join(
+                    d, 'openstack', version, 'vendor_data2.json'
+                )
 
                 if network_data is None:
                     self.assertFalse(os.path.exists(network_data_file))
@@ -83,17 +90,16 @@ class TestPopulateDirectory(testtools.TestCase):
 
 @mock.patch('subprocess.Popen', autospec=True)
 class TestPack(testtools.TestCase):
-
     def test_no_genisoimage(self, mock_popen):
         mock_popen.side_effect = OSError
-        self.assertRaisesRegex(RuntimeError, "genisoimage",
-                               configdrive.pack, "/fake")
+        self.assertRaisesRegex(
+            RuntimeError, "genisoimage", configdrive.pack, "/fake"
+        )
 
     def test_genisoimage_fails(self, mock_popen):
         mock_popen.return_value.communicate.return_value = "", "BOOM"
         mock_popen.return_value.returncode = 1
-        self.assertRaisesRegex(RuntimeError, "BOOM",
-                               configdrive.pack, "/fake")
+        self.assertRaisesRegex(RuntimeError, "BOOM", configdrive.pack, "/fake")
 
     def test_success(self, mock_popen):
         mock_popen.return_value.communicate.return_value = "", ""

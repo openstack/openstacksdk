@@ -63,8 +63,10 @@ class Proxy(proxy.Proxy):
         return res.fetch(
             self,
             error_message="No {resource_type} found for {value}".format(
-                resource_type=resource_type.__name__, value=value),
-            **kwargs)
+                resource_type=resource_type.__name__, value=value
+            ),
+            **kwargs
+        )
 
     def chassis(self, details=False, **query):
         """Retrieve a generator of chassis.
@@ -123,8 +125,9 @@ class Proxy(proxy.Proxy):
         :returns: One :class:`~openstack.baremetal.v1.chassis.Chassis` object
             or None.
         """
-        return self._find(_chassis.Chassis, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _chassis.Chassis, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_chassis(self, chassis, fields=None):
         """Get a specific chassis.
@@ -178,8 +181,9 @@ class Proxy(proxy.Proxy):
         :returns: The instance of the chassis which was deleted.
         :rtype: :class:`~openstack.baremetal.v1.chassis.Chassis`.
         """
-        return self._delete(_chassis.Chassis, chassis,
-                            ignore_missing=ignore_missing)
+        return self._delete(
+            _chassis.Chassis, chassis, ignore_missing=ignore_missing
+        )
 
     def drivers(self, details=False, **query):
         """Retrieve a generator of drivers.
@@ -221,8 +225,9 @@ class Proxy(proxy.Proxy):
         driver = self.get_driver(driver)
         return driver.list_vendor_passthru(self)
 
-    def call_driver_vendor_passthru(self, driver,
-                                    verb: str, method: str, body=None):
+    def call_driver_vendor_passthru(
+        self, driver, verb: str, method: str, body=None
+    ):
         """Call driver's vendor_passthru method.
 
         :param driver: The value can be the name of a driver or a
@@ -311,8 +316,9 @@ class Proxy(proxy.Proxy):
         :returns: One :class:`~openstack.baremetal.v1.node.Node` object
             or None.
         """
-        return self._find(_node.Node, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _node.Node, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_node(self, node, fields=None):
         """Get a specific node.
@@ -345,8 +351,9 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node, **attrs)
         return res.commit(self, retry_on_conflict=retry_on_conflict)
 
-    def patch_node(self, node, patch, reset_interfaces=None,
-                   retry_on_conflict=True):
+    def patch_node(
+        self, node, patch, reset_interfaces=None, retry_on_conflict=True
+    ):
         """Apply a JSON patch to the node.
 
         :param node: The value can be the name or ID of a node or a
@@ -368,12 +375,24 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.baremetal.v1.node.Node`
         """
         res = self._get_resource(_node.Node, node)
-        return res.patch(self, patch, retry_on_conflict=retry_on_conflict,
-                         reset_interfaces=reset_interfaces)
+        return res.patch(
+            self,
+            patch,
+            retry_on_conflict=retry_on_conflict,
+            reset_interfaces=reset_interfaces,
+        )
 
-    def set_node_provision_state(self, node, target, config_drive=None,
-                                 clean_steps=None, rescue_password=None,
-                                 wait=False, timeout=None, deploy_steps=None):
+    def set_node_provision_state(
+        self,
+        node,
+        target,
+        config_drive=None,
+        clean_steps=None,
+        rescue_password=None,
+        wait=False,
+        timeout=None,
+        deploy_steps=None,
+    ):
         """Run an action modifying node's provision state.
 
         This call is asynchronous, it will return success as soon as the Bare
@@ -405,11 +424,16 @@ class Proxy(proxy.Proxy):
             invalid ``target``.
         """
         res = self._get_resource(_node.Node, node)
-        return res.set_provision_state(self, target, config_drive=config_drive,
-                                       clean_steps=clean_steps,
-                                       rescue_password=rescue_password,
-                                       wait=wait, timeout=timeout,
-                                       deploy_steps=deploy_steps)
+        return res.set_provision_state(
+            self,
+            target,
+            config_drive=config_drive,
+            clean_steps=clean_steps,
+            rescue_password=rescue_password,
+            wait=wait,
+            timeout=timeout,
+            deploy_steps=deploy_steps,
+        )
 
     def get_node_boot_device(self, node):
         """Get node boot device
@@ -480,10 +504,14 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         res.inject_nmi(self)
 
-    def wait_for_nodes_provision_state(self, nodes, expected_state,
-                                       timeout=None,
-                                       abort_on_failed_state=True,
-                                       fail=True):
+    def wait_for_nodes_provision_state(
+        self,
+        nodes,
+        expected_state,
+        timeout=None,
+        abort_on_failed_state=True,
+        fail=True,
+    ):
         """Wait for the nodes to reach the expected state.
 
         :param nodes: List of nodes - name, ID or
@@ -507,24 +535,27 @@ class Proxy(proxy.Proxy):
             reaches an error state and ``abort_on_failed_state`` is ``True``.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` on timeout.
         """
-        log_nodes = ', '.join(n.id if isinstance(n, _node.Node) else n
-                              for n in nodes)
+        log_nodes = ', '.join(
+            n.id if isinstance(n, _node.Node) else n for n in nodes
+        )
 
         finished = []
         failed = []
         remaining = nodes
         try:
             for count in utils.iterate_timeout(
-                    timeout,
-                    "Timeout waiting for nodes %(nodes)s to reach "
-                    "target state '%(state)s'" % {'nodes': log_nodes,
-                                                  'state': expected_state}):
+                timeout,
+                "Timeout waiting for nodes %(nodes)s to reach "
+                "target state '%(state)s'"
+                % {'nodes': log_nodes, 'state': expected_state},
+            ):
                 nodes = [self.get_node(n) for n in remaining]
                 remaining = []
                 for n in nodes:
                     try:
-                        if n._check_state_reached(self, expected_state,
-                                                  abort_on_failed_state):
+                        if n._check_state_reached(
+                            self, expected_state, abort_on_failed_state
+                        ):
                             finished.append(n)
                         else:
                             remaining.append(n)
@@ -543,8 +574,11 @@ class Proxy(proxy.Proxy):
                 self.log.debug(
                     'Still waiting for nodes %(nodes)s to reach state '
                     '"%(target)s"',
-                    {'nodes': ', '.join(n.id for n in remaining),
-                     'target': expected_state})
+                    {
+                        'nodes': ', '.join(n.id for n in remaining),
+                        'target': expected_state,
+                    },
+                )
         except exceptions.ResourceTimeout:
             if fail:
                 raise
@@ -568,7 +602,8 @@ class Proxy(proxy.Proxy):
             ``None`` (the default) means no client-side timeout.
         """
         self._get_resource(_node.Node, node).set_power_state(
-            self, target, wait=wait, timeout=timeout)
+            self, target, wait=wait, timeout=timeout
+        )
 
     def wait_for_node_power_state(self, node, expected_state, timeout=None):
         """Wait for the node to reach the power state.
@@ -731,8 +766,9 @@ class Proxy(proxy.Proxy):
         :returns: One :class:`~openstack.baremetal.v1.port.Port` object
             or None.
         """
-        return self._find(_port.Port, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _port.Port, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_port(self, port, fields=None):
         """Get a specific port.
@@ -849,8 +885,9 @@ class Proxy(proxy.Proxy):
         :returns: One :class:`~openstack.baremetal.v1.port_group.PortGroup`
             object or None.
         """
-        return self._find(_portgroup.PortGroup, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _portgroup.PortGroup, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_port_group(self, port_group, fields=None):
         """Get a specific port group.
@@ -863,8 +900,9 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             port group matching the name or ID could be found.
         """
-        return self._get_with_fields(_portgroup.PortGroup, port_group,
-                                     fields=fields)
+        return self._get_with_fields(
+            _portgroup.PortGroup, port_group, fields=fields
+        )
 
     def update_port_group(self, port_group, **attrs):
         """Update a port group.
@@ -909,8 +947,9 @@ class Proxy(proxy.Proxy):
         :returns: The instance of the port group which was deleted.
         :rtype: :class:`~openstack.baremetal.v1.port_group.PortGroup`.
         """
-        return self._delete(_portgroup.PortGroup, port_group,
-                            ignore_missing=ignore_missing)
+        return self._delete(
+            _portgroup.PortGroup, port_group, ignore_missing=ignore_missing
+        )
 
     def attach_vif_to_node(self, node, vif_id, retry_on_conflict=True):
         """Attach a VIF to the node.
@@ -1026,8 +1065,9 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             allocation matching the name or ID could be found.
         """
-        return self._get_with_fields(_allocation.Allocation, allocation,
-                                     fields=fields)
+        return self._get_with_fields(
+            _allocation.Allocation, allocation, fields=fields
+        )
 
     def update_allocation(self, allocation, **attrs):
         """Update an allocation.
@@ -1052,8 +1092,9 @@ class Proxy(proxy.Proxy):
         :returns: The updated allocation.
         :rtype: :class:`~openstack.baremetal.v1.allocation.Allocation`
         """
-        return self._get_resource(_allocation.Allocation,
-                                  allocation).patch(self, patch)
+        return self._get_resource(_allocation.Allocation, allocation).patch(
+            self, patch
+        )
 
     def delete_allocation(self, allocation, ignore_missing=True):
         """Delete an allocation.
@@ -1069,11 +1110,13 @@ class Proxy(proxy.Proxy):
         :returns: The instance of the allocation which was deleted.
         :rtype: :class:`~openstack.baremetal.v1.allocation.Allocation`.
         """
-        return self._delete(_allocation.Allocation, allocation,
-                            ignore_missing=ignore_missing)
+        return self._delete(
+            _allocation.Allocation, allocation, ignore_missing=ignore_missing
+        )
 
-    def wait_for_allocation(self, allocation, timeout=None,
-                            ignore_error=False):
+    def wait_for_allocation(
+        self, allocation, timeout=None, ignore_error=False
+    ):
         """Wait for the allocation to become active.
 
         :param allocation: The value can be the name or ID of an allocation or
@@ -1252,8 +1295,11 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.baremetal.v1.volumeconnector.VolumeConnector`
             object or None.
         """
-        return self._find(_volumeconnector.VolumeConnector, vc_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _volumeconnector.VolumeConnector,
+            vc_id,
+            ignore_missing=ignore_missing,
+        )
 
     def get_volume_connector(self, volume_connector, fields=None):
         """Get a specific volume_connector.
@@ -1269,9 +1315,9 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             volume_connector matching the name or ID could be found.`
         """
-        return self._get_with_fields(_volumeconnector.VolumeConnector,
-                                     volume_connector,
-                                     fields=fields)
+        return self._get_with_fields(
+            _volumeconnector.VolumeConnector, volume_connector, fields=fields
+        )
 
     def update_volume_connector(self, volume_connector, **attrs):
         """Update a volume_connector.
@@ -1287,8 +1333,9 @@ class Proxy(proxy.Proxy):
         :rtype:
             :class:`~openstack.baremetal.v1.volume_connector.VolumeConnector`
         """
-        return self._update(_volumeconnector.VolumeConnector,
-                            volume_connector, **attrs)
+        return self._update(
+            _volumeconnector.VolumeConnector, volume_connector, **attrs
+        )
 
     def patch_volume_connector(self, volume_connector, patch):
         """Apply a JSON patch to the volume_connector.
@@ -1303,11 +1350,11 @@ class Proxy(proxy.Proxy):
         :rtype:
             :class:`~openstack.baremetal.v1.volume_connector.VolumeConnector.`
         """
-        return self._get_resource(_volumeconnector.VolumeConnector,
-                                  volume_connector).patch(self, patch)
+        return self._get_resource(
+            _volumeconnector.VolumeConnector, volume_connector
+        ).patch(self, patch)
 
-    def delete_volume_connector(self, volume_connector,
-                                ignore_missing=True):
+    def delete_volume_connector(self, volume_connector, ignore_missing=True):
         """Delete an volume_connector.
 
         :param volume_connector: The value can be either the ID of a
@@ -1324,8 +1371,11 @@ class Proxy(proxy.Proxy):
         :rtype:
             :class:`~openstack.baremetal.v1.volume_connector.VolumeConnector`.
         """
-        return self._delete(_volumeconnector.VolumeConnector,
-                            volume_connector, ignore_missing=ignore_missing)
+        return self._delete(
+            _volumeconnector.VolumeConnector,
+            volume_connector,
+            ignore_missing=ignore_missing,
+        )
 
     def volume_targets(self, details=False, **query):
         """Retrieve a generator of volume_target.
@@ -1392,8 +1442,9 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.baremetal.v1.volumetarget.VolumeTarget`
             object or None.
         """
-        return self._find(_volumetarget.VolumeTarget, vt_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _volumetarget.VolumeTarget, vt_id, ignore_missing=ignore_missing
+        )
 
     def get_volume_target(self, volume_target, fields=None):
         """Get a specific volume_target.
@@ -1409,9 +1460,9 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             volume_target matching the name or ID could be found.`
         """
-        return self._get_with_fields(_volumetarget.VolumeTarget,
-                                     volume_target,
-                                     fields=fields)
+        return self._get_with_fields(
+            _volumetarget.VolumeTarget, volume_target, fields=fields
+        )
 
     def update_volume_target(self, volume_target, **attrs):
         """Update a volume_target.
@@ -1426,8 +1477,7 @@ class Proxy(proxy.Proxy):
         :rtype:
             :class:`~openstack.baremetal.v1.volume_target.VolumeTarget`
         """
-        return self._update(_volumetarget.VolumeTarget,
-                            volume_target, **attrs)
+        return self._update(_volumetarget.VolumeTarget, volume_target, **attrs)
 
     def patch_volume_target(self, volume_target, patch):
         """Apply a JSON patch to the volume_target.
@@ -1442,11 +1492,11 @@ class Proxy(proxy.Proxy):
         :rtype:
             :class:`~openstack.baremetal.v1.volume_target.VolumeTarget.`
         """
-        return self._get_resource(_volumetarget.VolumeTarget,
-                                  volume_target).patch(self, patch)
+        return self._get_resource(
+            _volumetarget.VolumeTarget, volume_target
+        ).patch(self, patch)
 
-    def delete_volume_target(self, volume_target,
-                             ignore_missing=True):
+    def delete_volume_target(self, volume_target, ignore_missing=True):
         """Delete an volume_target.
 
         :param volume_target: The value can be either the ID of a
@@ -1463,8 +1513,11 @@ class Proxy(proxy.Proxy):
         :rtype:
             :class:`~openstack.baremetal.v1.volume_target.VolumeTarget`.
         """
-        return self._delete(_volumetarget.VolumeTarget,
-                            volume_target, ignore_missing=ignore_missing)
+        return self._delete(
+            _volumetarget.VolumeTarget,
+            volume_target,
+            ignore_missing=ignore_missing,
+        )
 
     def deploy_templates(self, details=False, **query):
         """Retrieve a generator of deploy_templates.
@@ -1506,11 +1559,11 @@ class Proxy(proxy.Proxy):
         :rtype:
             :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`
         """
-        return self._update(_deploytemplates.DeployTemplate,
-                            deploy_template, **attrs)
+        return self._update(
+            _deploytemplates.DeployTemplate, deploy_template, **attrs
+        )
 
-    def delete_deploy_template(self, deploy_template,
-                               ignore_missing=True):
+    def delete_deploy_template(self, deploy_template, ignore_missing=True):
         """Delete a deploy_template.
 
         :param deploy_template:The value can be
@@ -1532,8 +1585,11 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`.
         """
 
-        return self._delete(_deploytemplates.DeployTemplate,
-                            deploy_template, ignore_missing=ignore_missing)
+        return self._delete(
+            _deploytemplates.DeployTemplate,
+            deploy_template,
+            ignore_missing=ignore_missing,
+        )
 
     def get_deploy_template(self, deploy_template, fields=None):
         """Get a specific deployment template.
@@ -1551,8 +1607,9 @@ class Proxy(proxy.Proxy):
             when no deployment template matching the name or
             ID could be found.
         """
-        return self._get_with_fields(_deploytemplates.DeployTemplate,
-                                     deploy_template, fields=fields)
+        return self._get_with_fields(
+            _deploytemplates.DeployTemplate, deploy_template, fields=fields
+        )
 
     def patch_deploy_template(self, deploy_template, patch):
         """Apply a JSON patch to the deploy_templates.
@@ -1568,8 +1625,9 @@ class Proxy(proxy.Proxy):
         :rtype:
             :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`
         """
-        return self._get_resource(_deploytemplates.DeployTemplate,
-                                  deploy_template).patch(self, patch)
+        return self._get_resource(
+            _deploytemplates.DeployTemplate, deploy_template
+        ).patch(self, patch)
 
     def conductors(self, details=False, **query):
         """Retrieve a generator of conductors.
@@ -1595,5 +1653,6 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             conductor matching the name could be found.
         """
-        return self._get_with_fields(_conductor.Conductor,
-                                     conductor, fields=fields)
+        return self._get_with_fields(
+            _conductor.Conductor, conductor, fields=fields
+        )

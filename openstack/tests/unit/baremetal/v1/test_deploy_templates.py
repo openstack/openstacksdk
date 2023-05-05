@@ -18,40 +18,34 @@ FAKE = {
     "created_at": "2016-08-18T22:28:48.643434+11:11",
     "extra": {},
     "links": [
-       {
-           "href": """http://10.60.253.180:6385/v1/deploy_templates
-                    /bbb45f41-d4bc-4307-8d1d-32f95ce1e920""",
-           "rel": "self"
-       },
         {
-           "href": """http://10.60.253.180:6385/deploy_templates
+            "href": """http://10.60.253.180:6385/v1/deploy_templates
+                    /bbb45f41-d4bc-4307-8d1d-32f95ce1e920""",
+            "rel": "self",
+        },
+        {
+            "href": """http://10.60.253.180:6385/deploy_templates
                    /bbb45f41-d4bc-4307-8d1d-32f95ce1e920""",
-           "rel": "bookmark"
-       }
+            "rel": "bookmark",
+        },
     ],
     "name": "CUSTOM_HYPERTHREADING_ON",
     "steps": [
-            {
-                "args": {
-                    "settings": [
-                        {
-                            "name": "LogicalProc",
-                            "value": "Enabled"
-                        }
-                    ]
-                },
-                "interface": "bios",
-                "priority": 150,
-                "step": "apply_configuration"
-            }
+        {
+            "args": {
+                "settings": [{"name": "LogicalProc", "value": "Enabled"}]
+            },
+            "interface": "bios",
+            "priority": 150,
+            "step": "apply_configuration",
+        }
     ],
     "updated_at": None,
-    "uuid": "bbb45f41-d4bc-4307-8d1d-32f95ce1e920"
+    "uuid": "bbb45f41-d4bc-4307-8d1d-32f95ce1e920",
 }
 
 
 class DeployTemplates(base.TestCase):
-
     def test_basic(self):
         sot = deploy_templates.DeployTemplate()
         self.assertIsNone(sot.resource_key)

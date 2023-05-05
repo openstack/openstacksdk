@@ -63,9 +63,12 @@ class TestChassis(TestBaremetalProxy):
         self.verify_find(self.proxy.find_chassis, chassis.Chassis)
 
     def test_get_chassis(self):
-        self.verify_get(self.proxy.get_chassis, chassis.Chassis,
-                        mock_method=_MOCK_METHOD,
-                        expected_kwargs={'fields': None})
+        self.verify_get(
+            self.proxy.get_chassis,
+            chassis.Chassis,
+            mock_method=_MOCK_METHOD,
+            expected_kwargs={'fields': None},
+        )
 
     def test_update_chassis(self):
         self.verify_update(self.proxy.update_chassis, chassis.Chassis)
@@ -97,23 +100,29 @@ class TestNode(TestBaremetalProxy):
         self.verify_find(self.proxy.find_node, node.Node)
 
     def test_get_node(self):
-        self.verify_get(self.proxy.get_node, node.Node,
-                        mock_method=_MOCK_METHOD,
-                        expected_kwargs={'fields': None})
+        self.verify_get(
+            self.proxy.get_node,
+            node.Node,
+            mock_method=_MOCK_METHOD,
+            expected_kwargs={'fields': None},
+        )
 
     @mock.patch.object(node.Node, 'commit', autospec=True)
     def test_update_node(self, mock_commit):
         self.proxy.update_node('uuid', instance_id='new value')
-        mock_commit.assert_called_once_with(mock.ANY, self.proxy,
-                                            retry_on_conflict=True)
+        mock_commit.assert_called_once_with(
+            mock.ANY, self.proxy, retry_on_conflict=True
+        )
         self.assertEqual('new value', mock_commit.call_args[0][0].instance_id)
 
     @mock.patch.object(node.Node, 'commit', autospec=True)
     def test_update_node_no_retries(self, mock_commit):
-        self.proxy.update_node('uuid', instance_id='new value',
-                               retry_on_conflict=False)
-        mock_commit.assert_called_once_with(mock.ANY, self.proxy,
-                                            retry_on_conflict=False)
+        self.proxy.update_node(
+            'uuid', instance_id='new value', retry_on_conflict=False
+        )
+        mock_commit.assert_called_once_with(
+            mock.ANY, self.proxy, retry_on_conflict=False
+        )
         self.assertEqual('new value', mock_commit.call_args[0][0].instance_id)
 
     def test_delete_node(self):
@@ -143,9 +152,12 @@ class TestPort(TestBaremetalProxy):
         self.verify_find(self.proxy.find_port, port.Port)
 
     def test_get_port(self):
-        self.verify_get(self.proxy.get_port, port.Port,
-                        mock_method=_MOCK_METHOD,
-                        expected_kwargs={'fields': None})
+        self.verify_get(
+            self.proxy.get_port,
+            port.Port,
+            mock_method=_MOCK_METHOD,
+            expected_kwargs={'fields': None},
+        )
 
     def test_update_port(self):
         self.verify_update(self.proxy.update_port, port.Port)
@@ -171,9 +183,12 @@ class TestPortGroups(TestBaremetalProxy):
         mock_list.assert_called_once_with(self.proxy, details=False, query=1)
 
     def test_get_port_group(self):
-        self.verify_get(self.proxy.get_port_group, port_group.PortGroup,
-                        mock_method=_MOCK_METHOD,
-                        expected_kwargs={'fields': None})
+        self.verify_get(
+            self.proxy.get_port_group,
+            port_group.PortGroup,
+            mock_method=_MOCK_METHOD,
+            expected_kwargs={'fields': None},
+        )
 
 
 class TestAllocation(TestBaremetalProxy):
@@ -181,43 +196,57 @@ class TestAllocation(TestBaremetalProxy):
         self.verify_create(self.proxy.create_allocation, allocation.Allocation)
 
     def test_get_allocation(self):
-        self.verify_get(self.proxy.get_allocation, allocation.Allocation,
-                        mock_method=_MOCK_METHOD,
-                        expected_kwargs={'fields': None})
+        self.verify_get(
+            self.proxy.get_allocation,
+            allocation.Allocation,
+            mock_method=_MOCK_METHOD,
+            expected_kwargs={'fields': None},
+        )
 
     def test_delete_allocation(self):
-        self.verify_delete(self.proxy.delete_allocation, allocation.Allocation,
-                           False)
+        self.verify_delete(
+            self.proxy.delete_allocation, allocation.Allocation, False
+        )
 
     def test_delete_allocation_ignore(self):
-        self.verify_delete(self.proxy.delete_allocation, allocation.Allocation,
-                           True)
+        self.verify_delete(
+            self.proxy.delete_allocation, allocation.Allocation, True
+        )
 
 
 class TestVolumeConnector(TestBaremetalProxy):
     def test_create_volume_connector(self):
-        self.verify_create(self.proxy.create_volume_connector,
-                           volume_connector.VolumeConnector)
+        self.verify_create(
+            self.proxy.create_volume_connector,
+            volume_connector.VolumeConnector,
+        )
 
     def test_find_volume_connector(self):
-        self.verify_find(self.proxy.find_volume_connector,
-                         volume_connector.VolumeConnector)
+        self.verify_find(
+            self.proxy.find_volume_connector, volume_connector.VolumeConnector
+        )
 
     def test_get_volume_connector(self):
-        self.verify_get(self.proxy.get_volume_connector,
-                        volume_connector.VolumeConnector,
-                        mock_method=_MOCK_METHOD,
-                        expected_kwargs={'fields': None})
+        self.verify_get(
+            self.proxy.get_volume_connector,
+            volume_connector.VolumeConnector,
+            mock_method=_MOCK_METHOD,
+            expected_kwargs={'fields': None},
+        )
 
     def test_delete_volume_connector(self):
-        self.verify_delete(self.proxy.delete_volume_connector,
-                           volume_connector.VolumeConnector,
-                           False)
+        self.verify_delete(
+            self.proxy.delete_volume_connector,
+            volume_connector.VolumeConnector,
+            False,
+        )
 
     def test_delete_volume_connector_ignore(self):
-        self.verify_delete(self.proxy.delete_volume_connector,
-                           volume_connector.VolumeConnector,
-                           True)
+        self.verify_delete(
+            self.proxy.delete_volume_connector,
+            volume_connector.VolumeConnector,
+            True,
+        )
 
 
 class TestVolumeTarget(TestBaremetalProxy):
@@ -234,28 +263,32 @@ class TestVolumeTarget(TestBaremetalProxy):
         mock_list.assert_called_once_with(self.proxy, query=1)
 
     def test_create_volume_target(self):
-        self.verify_create(self.proxy.create_volume_target,
-                           volume_target.VolumeTarget)
+        self.verify_create(
+            self.proxy.create_volume_target, volume_target.VolumeTarget
+        )
 
     def test_find_volume_target(self):
-        self.verify_find(self.proxy.find_volume_target,
-                         volume_target.VolumeTarget)
+        self.verify_find(
+            self.proxy.find_volume_target, volume_target.VolumeTarget
+        )
 
     def test_get_volume_target(self):
-        self.verify_get(self.proxy.get_volume_target,
-                        volume_target.VolumeTarget,
-                        mock_method=_MOCK_METHOD,
-                        expected_kwargs={'fields': None})
+        self.verify_get(
+            self.proxy.get_volume_target,
+            volume_target.VolumeTarget,
+            mock_method=_MOCK_METHOD,
+            expected_kwargs={'fields': None},
+        )
 
     def test_delete_volume_target(self):
-        self.verify_delete(self.proxy.delete_volume_target,
-                           volume_target.VolumeTarget,
-                           False)
+        self.verify_delete(
+            self.proxy.delete_volume_target, volume_target.VolumeTarget, False
+        )
 
     def test_delete_volume_target_ignore(self):
-        self.verify_delete(self.proxy.delete_volume_target,
-                           volume_target.VolumeTarget,
-                           True)
+        self.verify_delete(
+            self.proxy.delete_volume_target, volume_target.VolumeTarget, True
+        )
 
 
 class TestMisc(TestBaremetalProxy):
@@ -263,35 +296,45 @@ class TestMisc(TestBaremetalProxy):
     def test__get_with_fields_none(self, mock_fetch):
         result = self.proxy._get_with_fields(node.Node, 'value')
         self.assertIs(result, mock_fetch.return_value)
-        mock_fetch.assert_called_once_with(mock.ANY, self.proxy,
-                                           error_message=mock.ANY)
+        mock_fetch.assert_called_once_with(
+            mock.ANY, self.proxy, error_message=mock.ANY
+        )
 
     @mock.patch.object(node.Node, 'fetch', autospec=True)
     def test__get_with_fields_node(self, mock_fetch):
         result = self.proxy._get_with_fields(
             # Mix of server-side and client-side fields
-            node.Node, 'value', fields=['maintenance', 'id', 'instance_id'])
+            node.Node,
+            'value',
+            fields=['maintenance', 'id', 'instance_id'],
+        )
         self.assertIs(result, mock_fetch.return_value)
         mock_fetch.assert_called_once_with(
-            mock.ANY, self.proxy, error_message=mock.ANY,
+            mock.ANY,
+            self.proxy,
+            error_message=mock.ANY,
             # instance_id converted to server-side instance_uuid
-            fields='maintenance,uuid,instance_uuid')
+            fields='maintenance,uuid,instance_uuid',
+        )
 
     @mock.patch.object(port.Port, 'fetch', autospec=True)
     def test__get_with_fields_port(self, mock_fetch):
         result = self.proxy._get_with_fields(
-            port.Port, 'value', fields=['address', 'id', 'node_id'])
+            port.Port, 'value', fields=['address', 'id', 'node_id']
+        )
         self.assertIs(result, mock_fetch.return_value)
         mock_fetch.assert_called_once_with(
-            mock.ANY, self.proxy, error_message=mock.ANY,
+            mock.ANY,
+            self.proxy,
+            error_message=mock.ANY,
             # node_id converted to server-side node_uuid
-            fields='address,uuid,node_uuid')
+            fields='address,uuid,node_uuid',
+        )
 
 
 @mock.patch('time.sleep', lambda _sec: None)
 @mock.patch.object(_proxy.Proxy, 'get_node', autospec=True)
 class TestWaitForNodesProvisionState(base.TestCase):
-
     def setUp(self):
         super(TestWaitForNodesProvisionState, self).setUp()
         self.session = mock.Mock()
@@ -299,59 +342,67 @@ class TestWaitForNodesProvisionState(base.TestCase):
 
     def test_success(self, mock_get):
         # two attempts, one node succeeds after the 1st
-        nodes = [mock.Mock(spec=node.Node, id=str(i))
-                 for i in range(3)]
+        nodes = [mock.Mock(spec=node.Node, id=str(i)) for i in range(3)]
         for i, n in enumerate(nodes):
             # 1st attempt on 1st node, 2nd attempt on 2nd node
             n._check_state_reached.return_value = not (i % 2)
             mock_get.side_effect = nodes
 
         result = self.proxy.wait_for_nodes_provision_state(
-            ['abcd', node.Node(id='1234')], 'fake state')
+            ['abcd', node.Node(id='1234')], 'fake state'
+        )
         self.assertEqual([nodes[0], nodes[2]], result)
 
         for n in nodes:
             n._check_state_reached.assert_called_once_with(
-                self.proxy, 'fake state', True)
+                self.proxy, 'fake state', True
+            )
 
     def test_success_no_fail(self, mock_get):
         # two attempts, one node succeeds after the 1st
-        nodes = [mock.Mock(spec=node.Node, id=str(i))
-                 for i in range(3)]
+        nodes = [mock.Mock(spec=node.Node, id=str(i)) for i in range(3)]
         for i, n in enumerate(nodes):
             # 1st attempt on 1st node, 2nd attempt on 2nd node
             n._check_state_reached.return_value = not (i % 2)
             mock_get.side_effect = nodes
 
         result = self.proxy.wait_for_nodes_provision_state(
-            ['abcd', node.Node(id='1234')], 'fake state', fail=False)
+            ['abcd', node.Node(id='1234')], 'fake state', fail=False
+        )
         self.assertEqual([nodes[0], nodes[2]], result.success)
         self.assertEqual([], result.failure)
         self.assertEqual([], result.timeout)
 
         for n in nodes:
             n._check_state_reached.assert_called_once_with(
-                self.proxy, 'fake state', True)
+                self.proxy, 'fake state', True
+            )
 
     def test_timeout(self, mock_get):
         mock_get.return_value._check_state_reached.return_value = False
         mock_get.return_value.id = '1234'
 
-        self.assertRaises(exceptions.ResourceTimeout,
-                          self.proxy.wait_for_nodes_provision_state,
-                          ['abcd', node.Node(id='1234')], 'fake state',
-                          timeout=0.001)
+        self.assertRaises(
+            exceptions.ResourceTimeout,
+            self.proxy.wait_for_nodes_provision_state,
+            ['abcd', node.Node(id='1234')],
+            'fake state',
+            timeout=0.001,
+        )
         mock_get.return_value._check_state_reached.assert_called_with(
-            self.proxy, 'fake state', True)
+            self.proxy, 'fake state', True
+        )
 
     def test_timeout_no_fail(self, mock_get):
         mock_get.return_value._check_state_reached.return_value = False
         mock_get.return_value.id = '1234'
 
         result = self.proxy.wait_for_nodes_provision_state(
-            ['abcd'], 'fake state', timeout=0.001, fail=False)
+            ['abcd'], 'fake state', timeout=0.001, fail=False
+        )
         mock_get.return_value._check_state_reached.assert_called_with(
-            self.proxy, 'fake state', True)
+            self.proxy, 'fake state', True
+        )
 
         self.assertEqual([], result.success)
         self.assertEqual([mock_get.return_value], result.timeout)
@@ -364,8 +415,9 @@ class TestWaitForNodesProvisionState(base.TestCase):
             if result.id == '1':
                 result._check_state_reached.return_value = True
             elif result.id == '2':
-                result._check_state_reached.side_effect = \
+                result._check_state_reached.side_effect = (
                     exceptions.ResourceFailure("boom")
+                )
             else:
                 result._check_state_reached.return_value = False
             return result
@@ -373,7 +425,8 @@ class TestWaitForNodesProvisionState(base.TestCase):
         mock_get.side_effect = _fake_get
 
         result = self.proxy.wait_for_nodes_provision_state(
-            ['1', '2', '3'], 'fake state', timeout=0.001, fail=False)
+            ['1', '2', '3'], 'fake state', timeout=0.001, fail=False
+        )
 
         self.assertEqual(['1'], [x.id for x in result.success])
         self.assertEqual(['3'], [x.id for x in result.timeout])

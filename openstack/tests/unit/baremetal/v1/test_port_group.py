@@ -20,26 +20,23 @@ FAKE = {
     "extra": {},
     "internal_info": {},
     "links": [
-        {
-            "href": "http://127.0.0.1:6385/v1/portgroups/<PG_ID>",
-            "rel": "self"
-        },
+        {"href": "http://127.0.0.1:6385/v1/portgroups/<PG_ID>", "rel": "self"},
         {
             "href": "http://127.0.0.1:6385/portgroups/<PG_ID>",
-            "rel": "bookmark"
-        }
+            "rel": "bookmark",
+        },
     ],
     "name": "test_portgroup",
     "node_uuid": "6d85703a-565d-469a-96ce-30b6de53079d",
     "ports": [
         {
             "href": "http://127.0.0.1:6385/v1/portgroups/<PG_ID>/ports",
-            "rel": "self"
+            "rel": "self",
         },
         {
             "href": "http://127.0.0.1:6385/portgroups/<PG_ID>/ports",
-            "rel": "bookmark"
-        }
+            "rel": "bookmark",
+        },
     ],
     "standalone_ports_supported": True,
     "updated_at": None,
@@ -48,7 +45,6 @@ FAKE = {
 
 
 class TestPortGroup(base.TestCase):
-
     def test_basic(self):
         sot = port_group.PortGroup()
         self.assertIsNone(sot.resource_key)
@@ -72,6 +68,8 @@ class TestPortGroup(base.TestCase):
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['node_uuid'], sot.node_id)
         self.assertEqual(FAKE['ports'], sot.ports)
-        self.assertEqual(FAKE['standalone_ports_supported'],
-                         sot.is_standalone_ports_supported)
+        self.assertEqual(
+            FAKE['standalone_ports_supported'],
+            sot.is_standalone_ports_supported,
+        )
         self.assertEqual(FAKE['updated_at'], sot.updated_at)

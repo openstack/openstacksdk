@@ -27,27 +27,24 @@ class TestBareMetalDeployTemplate(base.BaseBaremetalTest):
                 "interface": "bios",
                 "step": "apply_configuration",
                 "args": {
-                    "settings": [
-                        {
-                            "name": "LogicalProc",
-                            "value": "Enabled"
-                        }
-                    ]
+                    "settings": [{"name": "LogicalProc", "value": "Enabled"}]
                 },
-                "priority": 150
+                "priority": 150,
             }
         ]
         deploy_template = self.create_deploy_template(
-            name='CUSTOM_DEPLOY_TEMPLATE',
-            steps=steps)
-        loaded = self.conn.baremetal.get_deploy_template(
-            deploy_template.id)
+            name='CUSTOM_DEPLOY_TEMPLATE', steps=steps
+        )
+        loaded = self.conn.baremetal.get_deploy_template(deploy_template.id)
         self.assertEqual(loaded.id, deploy_template.id)
-        self.conn.baremetal.delete_deploy_template(deploy_template,
-                                                   ignore_missing=False)
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.conn.baremetal.get_deploy_template,
-                          deploy_template.id)
+        self.conn.baremetal.delete_deploy_template(
+            deploy_template, ignore_missing=False
+        )
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.conn.baremetal.get_deploy_template,
+            deploy_template.id,
+        )
 
     def test_baremetal_deploy_template_list(self):
         steps = [
@@ -55,36 +52,33 @@ class TestBareMetalDeployTemplate(base.BaseBaremetalTest):
                 "interface": "bios",
                 "step": "apply_configuration",
                 "args": {
-                    "settings": [
-                        {
-                            "name": "LogicalProc",
-                            "value": "Enabled"
-                        }
-                    ]
+                    "settings": [{"name": "LogicalProc", "value": "Enabled"}]
                 },
-                "priority": 150
+                "priority": 150,
             }
         ]
 
         deploy_template1 = self.create_deploy_template(
-            name='CUSTOM_DEPLOY_TEMPLATE1',
-            steps=steps)
+            name='CUSTOM_DEPLOY_TEMPLATE1', steps=steps
+        )
         deploy_template2 = self.create_deploy_template(
-            name='CUSTOM_DEPLOY_TEMPLATE2',
-            steps=steps)
+            name='CUSTOM_DEPLOY_TEMPLATE2', steps=steps
+        )
         deploy_templates = self.conn.baremetal.deploy_templates()
         ids = [template.id for template in deploy_templates]
         self.assertIn(deploy_template1.id, ids)
         self.assertIn(deploy_template2.id, ids)
 
         deploy_templates_with_details = self.conn.baremetal.deploy_templates(
-            details=True)
+            details=True
+        )
         for dp in deploy_templates_with_details:
             self.assertIsNotNone(dp.id)
             self.assertIsNotNone(dp.name)
 
         deploy_tempalte_with_fields = self.conn.baremetal.deploy_templates(
-            fields=['uuid'])
+            fields=['uuid']
+        )
         for dp in deploy_tempalte_with_fields:
             self.assertIsNotNone(dp.id)
             self.assertIsNone(dp.name)
@@ -95,31 +89,29 @@ class TestBareMetalDeployTemplate(base.BaseBaremetalTest):
                 "interface": "bios",
                 "step": "apply_configuration",
                 "args": {
-                    "settings": [
-                        {
-                            "name": "LogicalProc",
-                            "value": "Enabled"
-                        }
-                    ]
+                    "settings": [{"name": "LogicalProc", "value": "Enabled"}]
                 },
-                "priority": 150
+                "priority": 150,
             }
         ]
         deploy_template = self.create_deploy_template(
-            name='CUSTOM_DEPLOY_TEMPLATE4',
-            steps=steps)
+            name='CUSTOM_DEPLOY_TEMPLATE4', steps=steps
+        )
         self.assertFalse(deploy_template.extra)
         deploy_template.extra = {'answer': 42}
 
         deploy_template = self.conn.baremetal.update_deploy_template(
-            deploy_template)
+            deploy_template
+        )
         self.assertEqual({'answer': 42}, deploy_template.extra)
 
         deploy_template = self.conn.baremetal.get_deploy_template(
-            deploy_template.id)
+            deploy_template.id
+        )
 
-        self.conn.baremetal.delete_deploy_template(deploy_template.id,
-                                                   ignore_missing=False)
+        self.conn.baremetal.delete_deploy_template(
+            deploy_template.id, ignore_missing=False
+        )
 
     def test_baremetal_deploy_update(self):
         steps = [
@@ -127,27 +119,24 @@ class TestBareMetalDeployTemplate(base.BaseBaremetalTest):
                 "interface": "bios",
                 "step": "apply_configuration",
                 "args": {
-                    "settings": [
-                        {
-                            "name": "LogicalProc",
-                            "value": "Enabled"
-                        }
-                    ]
+                    "settings": [{"name": "LogicalProc", "value": "Enabled"}]
                 },
-                "priority": 150
+                "priority": 150,
             }
         ]
         deploy_template = self.create_deploy_template(
-            name='CUSTOM_DEPLOY_TEMPLATE4',
-            steps=steps)
+            name='CUSTOM_DEPLOY_TEMPLATE4', steps=steps
+        )
         deploy_template.extra = {'answer': 42}
 
         deploy_template = self.conn.baremetal.update_deploy_template(
-            deploy_template)
+            deploy_template
+        )
         self.assertEqual({'answer': 42}, deploy_template.extra)
 
         deploy_template = self.conn.baremetal.get_deploy_template(
-            deploy_template.id)
+            deploy_template.id
+        )
         self.assertEqual({'answer': 42}, deploy_template.extra)
 
     def test_deploy_template_patch(self):
@@ -157,34 +146,34 @@ class TestBareMetalDeployTemplate(base.BaseBaremetalTest):
                 "interface": "bios",
                 "step": "apply_configuration",
                 "args": {
-                    "settings": [
-                        {
-                            "name": "LogicalProc",
-                            "value": "Enabled"
-                        }
-                    ]
+                    "settings": [{"name": "LogicalProc", "value": "Enabled"}]
                 },
-                "priority": 150
+                "priority": 150,
             }
         ]
-        deploy_template = self.create_deploy_template(
-            name=name,
-            steps=steps)
+        deploy_template = self.create_deploy_template(name=name, steps=steps)
         deploy_template = self.conn.baremetal.patch_deploy_template(
-            deploy_template, dict(path='/extra/answer', op='add', value=42))
+            deploy_template, dict(path='/extra/answer', op='add', value=42)
+        )
         self.assertEqual({'answer': 42}, deploy_template.extra)
-        self.assertEqual(name,
-                         deploy_template.name)
+        self.assertEqual(name, deploy_template.name)
 
         deploy_template = self.conn.baremetal.get_deploy_template(
-            deploy_template.id)
+            deploy_template.id
+        )
         self.assertEqual({'answer': 42}, deploy_template.extra)
 
     def test_deploy_template_negative_non_existing(self):
         uuid = "bbb45f41-d4bc-4307-8d1d-32f95ce1e920"
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.conn.baremetal.get_deploy_template, uuid)
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.conn.baremetal.delete_deploy_template, uuid,
-                          ignore_missing=False)
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.conn.baremetal.get_deploy_template,
+            uuid,
+        )
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.conn.baremetal.delete_deploy_template,
+            uuid,
+            ignore_missing=False,
+        )
         self.assertIsNone(self.conn.baremetal.delete_deploy_template(uuid))

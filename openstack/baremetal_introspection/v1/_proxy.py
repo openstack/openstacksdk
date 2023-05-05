@@ -70,8 +70,9 @@ class Proxy(proxy.Proxy):
         :returns: :class:`~.introspection.Introspection` instance.
         """
         node = self._get_resource(_node.Node, node)
-        res = _introspect.Introspection.new(connection=self._get_connection(),
-                                            id=node.id)
+        res = _introspect.Introspection.new(
+            connection=self._get_connection(), id=node.id
+        )
         kwargs = {}
         if manage_boot is not None:
             kwargs['manage_boot'] = manage_boot
@@ -126,8 +127,9 @@ class Proxy(proxy.Proxy):
             if not ignore_missing:
                 raise
 
-    def wait_for_introspection(self, introspection, timeout=None,
-                               ignore_error=False):
+    def wait_for_introspection(
+        self, introspection, timeout=None, ignore_error=False
+    ):
         """Wait for the introspection to finish.
 
         :param introspection: The value can be the name or ID of an

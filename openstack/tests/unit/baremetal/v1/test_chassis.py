@@ -19,32 +19,19 @@ FAKE = {
     "description": "Sample chassis",
     "extra": {},
     "links": [
-        {
-            "href": "http://127.0.0.1:6385/v1/chassis/ID",
-            "rel": "self"
-        },
-        {
-            "href": "http://127.0.0.1:6385/chassis/ID",
-            "rel": "bookmark"
-        }
+        {"href": "http://127.0.0.1:6385/v1/chassis/ID", "rel": "self"},
+        {"href": "http://127.0.0.1:6385/chassis/ID", "rel": "bookmark"},
     ],
     "nodes": [
-        {
-            "href": "http://127.0.0.1:6385/v1/chassis/ID/nodes",
-            "rel": "self"
-        },
-        {
-            "href": "http://127.0.0.1:6385/chassis/ID/nodes",
-            "rel": "bookmark"
-        }
+        {"href": "http://127.0.0.1:6385/v1/chassis/ID/nodes", "rel": "self"},
+        {"href": "http://127.0.0.1:6385/chassis/ID/nodes", "rel": "bookmark"},
     ],
     "updated_at": None,
-    "uuid": "dff29d23-1ded-43b4-8ae1-5eebb3e30de1"
+    "uuid": "dff29d23-1ded-43b4-8ae1-5eebb3e30de1",
 }
 
 
 class TestChassis(base.TestCase):
-
     def test_basic(self):
         sot = chassis.Chassis()
         self.assertIsNone(sot.resource_key)

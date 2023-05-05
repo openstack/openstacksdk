@@ -32,7 +32,9 @@ class Allocation(_common.ListMixin, resource.Resource):
     commit_jsonpatch = True
 
     _query_mapping = resource.QueryParameters(
-        'node', 'resource_class', 'state',
+        'node',
+        'resource_class',
+        'state',
         fields={'type': _common.fields_type},
     )
 
@@ -88,18 +90,20 @@ class Allocation(_common.ListMixin, resource.Resource):
             return self
 
         for count in utils.iterate_timeout(
-                timeout,
-                "Timeout waiting for the allocation %s" % self.id):
+            timeout, "Timeout waiting for the allocation %s" % self.id
+        ):
             self.fetch(session)
 
             if self.state == 'error' and not ignore_error:
                 raise exceptions.ResourceFailure(
-                    "Allocation %(allocation)s failed: %(error)s" %
-                    {'allocation': self.id, 'error': self.last_error})
+                    "Allocation %(allocation)s failed: %(error)s"
+                    % {'allocation': self.id, 'error': self.last_error}
+                )
             elif self.state != 'allocating':
                 return self
 
             session.log.debug(
                 'Still waiting for the allocation %(allocation)s '
                 'to become active, the current state is %(state)s',
-                {'allocation': self.id, 'state': self.state})
+                {'allocation': self.id, 'state': self.state},
+            )

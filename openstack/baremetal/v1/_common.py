@@ -17,7 +17,7 @@ RETRIABLE_STATUS_CODES = [
     # HTTP Conflict - happens if a node is locked
     409,
     # HTTP Service Unavailable happens if there's no free conductor
-    503
+    503,
 ]
 """HTTP status codes that should be retried."""
 
@@ -88,7 +88,6 @@ CHANGE_BOOT_MODE_VERSION = '1.76'
 
 
 class ListMixin:
-
     @classmethod
     def list(cls, session, details=False, **params):
         """This method is a generator which yields resource objects.
@@ -112,8 +111,9 @@ class ListMixin:
         base_path = cls.base_path
         if details:
             base_path += '/detail'
-        return super(ListMixin, cls).list(session, paginated=True,
-                                          base_path=base_path, **params)
+        return super(ListMixin, cls).list(
+            session, paginated=True, base_path=base_path, **params
+        )
 
 
 def comma_separated_list(value):

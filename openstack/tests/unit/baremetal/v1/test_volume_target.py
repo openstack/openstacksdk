@@ -21,24 +21,23 @@ FAKE = {
     "links": [
         {
             "href": "http://127.0.0.1:6385/v1/volume/targets/<ID>",
-            "rel": "self"
+            "rel": "self",
         },
         {
             "href": "http://127.0.0.1:6385/volume/targets/<ID>",
-            "rel": "bookmark"
-        }
+            "rel": "bookmark",
+        },
     ],
     "node_uuid": "6d85703a-565d-469a-96ce-30b6de53079d",
     "properties": {},
     "updated_at": None,
     "uuid": "bd4d008c-7d31-463d-abf9-6c23d9d55f7f",
     "volume_id": "04452bed-5367-4202-8bf5-de4335ac56d2",
-    "volume_type": "iscsi"
+    "volume_type": "iscsi",
 }
 
 
 class TestVolumeTarget(base.TestCase):
-
     def test_basic(self):
         sot = volume_target.VolumeTarget()
         self.assertIsNone(sot.resource_key)
