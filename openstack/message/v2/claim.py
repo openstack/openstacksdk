@@ -62,16 +62,17 @@ class Claim(resource.Resource):
             self.id = self.location.split("claims/")[1]
 
     def create(self, session, prepend_key=False, base_path=None):
-        request = self._prepare_request(requires_id=False,
-                                        prepend_key=prepend_key,
-                                        base_path=base_path)
+        request = self._prepare_request(
+            requires_id=False, prepend_key=prepend_key, base_path=base_path
+        )
         headers = {
             "Client-ID": self.client_id or str(uuid.uuid4()),
-            "X-PROJECT-ID": self.project_id or session.get_project_id()
+            "X-PROJECT-ID": self.project_id or session.get_project_id(),
         }
         request.headers.update(headers)
-        response = session.post(request.url,
-                                json=request.body, headers=request.headers)
+        response = session.post(
+            request.url, json=request.body, headers=request.headers
+        )
 
         # For case no message was claimed successfully, 204 No Content
         # message will be returned. In other cases, we translate response
@@ -81,34 +82,43 @@ class Claim(resource.Resource):
 
         return self
 
-    def fetch(self, session, requires_id=True,
-              base_path=None, error_message=None, skip_cache=False):
-        request = self._prepare_request(requires_id=requires_id,
-                                        base_path=base_path)
+    def fetch(
+        self,
+        session,
+        requires_id=True,
+        base_path=None,
+        error_message=None,
+        skip_cache=False,
+    ):
+        request = self._prepare_request(
+            requires_id=requires_id, base_path=base_path
+        )
         headers = {
             "Client-ID": self.client_id or str(uuid.uuid4()),
-            "X-PROJECT-ID": self.project_id or session.get_project_id()
+            "X-PROJECT-ID": self.project_id or session.get_project_id(),
         }
 
         request.headers.update(headers)
         response = session.get(
-            request.url, headers=request.headers, skip_cache=False)
+            request.url, headers=request.headers, skip_cache=False
+        )
         self._translate_response(response)
 
         return self
 
-    def commit(self, session, prepend_key=False, has_body=False,
-               base_path=None):
-        request = self._prepare_request(prepend_key=prepend_key,
-                                        base_path=base_path)
+    def commit(
+        self, session, prepend_key=False, has_body=False, base_path=None
+    ):
+        request = self._prepare_request(
+            prepend_key=prepend_key, base_path=base_path
+        )
         headers = {
             "Client-ID": self.client_id or str(uuid.uuid4()),
-            "X-PROJECT-ID": self.project_id or session.get_project_id()
+            "X-PROJECT-ID": self.project_id or session.get_project_id(),
         }
 
         request.headers.update(headers)
-        session.patch(request.url,
-                      json=request.body, headers=request.headers)
+        session.patch(request.url, json=request.body, headers=request.headers)
 
         return self
 
@@ -116,12 +126,11 @@ class Claim(resource.Resource):
         request = self._prepare_request()
         headers = {
             "Client-ID": self.client_id or str(uuid.uuid4()),
-            "X-PROJECT-ID": self.project_id or session.get_project_id()
+            "X-PROJECT-ID": self.project_id or session.get_project_id(),
         }
 
         request.headers.update(headers)
-        response = session.delete(request.url,
-                                  headers=request.headers)
+        response = session.delete(request.url, headers=request.headers)
 
         self._translate_response(response, has_body=False)
         return self

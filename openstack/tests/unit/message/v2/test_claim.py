@@ -24,7 +24,7 @@ FAKE1 = {
     "limit": 10,
     "messages": [{"id": "1"}, {"id": "2"}],
     "ttl": 3600,
-    "queue_name": "queue1"
+    "queue_name": "queue1",
 }
 
 
@@ -37,7 +37,7 @@ FAKE2 = {
     "ttl": 3600,
     "queue_name": "queue1",
     "client_id": "OLD_CLIENT_ID",
-    "project_id": "OLD_PROJECT_ID"
+    "project_id": "OLD_PROJECT_ID",
 }
 
 
@@ -77,10 +77,11 @@ class TestClaim(base.TestCase):
         res = sot.create(sess)
 
         url = "/queues/%(queue)s/claims" % {"queue": FAKE.pop("queue_name")}
-        headers = {"Client-ID": "NEW_CLIENT_ID",
-                   "X-PROJECT-ID": "NEW_PROJECT_ID"}
-        sess.post.assert_called_once_with(url,
-                                          headers=headers, json=FAKE)
+        headers = {
+            "Client-ID": "NEW_CLIENT_ID",
+            "X-PROJECT-ID": "NEW_PROJECT_ID",
+        }
+        sess.post.assert_called_once_with(url, headers=headers, json=FAKE)
         sess.get_project_id.assert_called_once_with()
         self.assertEqual(sot, res)
 
@@ -99,10 +100,11 @@ class TestClaim(base.TestCase):
         res = sot.create(sess)
 
         url = "/queues/%(queue)s/claims" % {"queue": FAKE.pop("queue_name")}
-        headers = {"Client-ID": "NEW_CLIENT_ID",
-                   "X-PROJECT-ID": "NEW_PROJECT_ID"}
-        sess.post.assert_called_once_with(url,
-                                          headers=headers, json=FAKE)
+        headers = {
+            "Client-ID": "NEW_CLIENT_ID",
+            "X-PROJECT-ID": "NEW_PROJECT_ID",
+        }
+        sess.post.assert_called_once_with(url, headers=headers, json=FAKE)
         sess.get_project_id.assert_called_once_with()
         self.assertEqual(sot, res)
         sot._translate_response.assert_called_once_with(resp)
@@ -119,10 +121,11 @@ class TestClaim(base.TestCase):
         res = sot.create(sess)
 
         url = "/queues/%(queue)s/claims" % {"queue": FAKE.pop("queue_name")}
-        headers = {"Client-ID": FAKE.pop("client_id"),
-                   "X-PROJECT-ID": FAKE.pop("project_id")}
-        sess.post.assert_called_once_with(url,
-                                          headers=headers, json=FAKE)
+        headers = {
+            "Client-ID": FAKE.pop("client_id"),
+            "X-PROJECT-ID": FAKE.pop("project_id"),
+        }
+        sess.post.assert_called_once_with(url, headers=headers, json=FAKE)
         self.assertEqual(sot, res)
 
     @mock.patch.object(uuid, "uuid4")
@@ -138,11 +141,14 @@ class TestClaim(base.TestCase):
         res = sot.fetch(sess)
 
         url = "queues/%(queue)s/claims/%(claim)s" % {
-            "queue": FAKE1["queue_name"], "claim": FAKE1["id"]}
-        headers = {"Client-ID": "NEW_CLIENT_ID",
-                   "X-PROJECT-ID": "NEW_PROJECT_ID"}
-        sess.get.assert_called_with(
-            url, headers=headers, skip_cache=False)
+            "queue": FAKE1["queue_name"],
+            "claim": FAKE1["id"],
+        }
+        headers = {
+            "Client-ID": "NEW_CLIENT_ID",
+            "X-PROJECT-ID": "NEW_PROJECT_ID",
+        }
+        sess.get.assert_called_with(url, headers=headers, skip_cache=False)
         sess.get_project_id.assert_called_once_with()
         sot._translate_response.assert_called_once_with(resp)
         self.assertEqual(sot, res)
@@ -157,11 +163,14 @@ class TestClaim(base.TestCase):
         res = sot.fetch(sess)
 
         url = "queues/%(queue)s/claims/%(claim)s" % {
-            "queue": FAKE2["queue_name"], "claim": FAKE2["id"]}
-        headers = {"Client-ID": "OLD_CLIENT_ID",
-                   "X-PROJECT-ID": "OLD_PROJECT_ID"}
-        sess.get.assert_called_with(
-            url, headers=headers, skip_cache=False)
+            "queue": FAKE2["queue_name"],
+            "claim": FAKE2["id"],
+        }
+        headers = {
+            "Client-ID": "OLD_CLIENT_ID",
+            "X-PROJECT-ID": "OLD_PROJECT_ID",
+        }
+        sess.get.assert_called_with(url, headers=headers, skip_cache=False)
         sot._translate_response.assert_called_once_with(resp)
         self.assertEqual(sot, res)
 
@@ -178,11 +187,14 @@ class TestClaim(base.TestCase):
         res = sot.commit(sess)
 
         url = "queues/%(queue)s/claims/%(claim)s" % {
-            "queue": FAKE.pop("queue_name"), "claim": FAKE["id"]}
-        headers = {"Client-ID": "NEW_CLIENT_ID",
-                   "X-PROJECT-ID": "NEW_PROJECT_ID"}
-        sess.patch.assert_called_with(url,
-                                      headers=headers, json=FAKE)
+            "queue": FAKE.pop("queue_name"),
+            "claim": FAKE["id"],
+        }
+        headers = {
+            "Client-ID": "NEW_CLIENT_ID",
+            "X-PROJECT-ID": "NEW_PROJECT_ID",
+        }
+        sess.patch.assert_called_with(url, headers=headers, json=FAKE)
         sess.get_project_id.assert_called_once_with()
         self.assertEqual(sot, res)
 
@@ -196,11 +208,14 @@ class TestClaim(base.TestCase):
         res = sot.commit(sess)
 
         url = "queues/%(queue)s/claims/%(claim)s" % {
-            "queue": FAKE.pop("queue_name"), "claim": FAKE["id"]}
-        headers = {"Client-ID": FAKE.pop("client_id"),
-                   "X-PROJECT-ID": FAKE.pop("project_id")}
-        sess.patch.assert_called_with(url,
-                                      headers=headers, json=FAKE)
+            "queue": FAKE.pop("queue_name"),
+            "claim": FAKE["id"],
+        }
+        headers = {
+            "Client-ID": FAKE.pop("client_id"),
+            "X-PROJECT-ID": FAKE.pop("project_id"),
+        }
+        sess.patch.assert_called_with(url, headers=headers, json=FAKE)
         self.assertEqual(sot, res)
 
     @mock.patch.object(uuid, "uuid4")
@@ -216,11 +231,14 @@ class TestClaim(base.TestCase):
         sot.delete(sess)
 
         url = "queues/%(queue)s/claims/%(claim)s" % {
-            "queue": FAKE1["queue_name"], "claim": FAKE1["id"]}
-        headers = {"Client-ID": "NEW_CLIENT_ID",
-                   "X-PROJECT-ID": "NEW_PROJECT_ID"}
-        sess.delete.assert_called_with(url,
-                                       headers=headers)
+            "queue": FAKE1["queue_name"],
+            "claim": FAKE1["id"],
+        }
+        headers = {
+            "Client-ID": "NEW_CLIENT_ID",
+            "X-PROJECT-ID": "NEW_PROJECT_ID",
+        }
+        sess.delete.assert_called_with(url, headers=headers)
         sess.get_project_id.assert_called_once_with()
         sot._translate_response.assert_called_once_with(resp, has_body=False)
 
@@ -234,9 +252,12 @@ class TestClaim(base.TestCase):
         sot.delete(sess)
 
         url = "queues/%(queue)s/claims/%(claim)s" % {
-            "queue": FAKE2["queue_name"], "claim": FAKE2["id"]}
-        headers = {"Client-ID": "OLD_CLIENT_ID",
-                   "X-PROJECT-ID": "OLD_PROJECT_ID"}
-        sess.delete.assert_called_with(url,
-                                       headers=headers)
+            "queue": FAKE2["queue_name"],
+            "claim": FAKE2["id"],
+        }
+        headers = {
+            "Client-ID": "OLD_CLIENT_ID",
+            "X-PROJECT-ID": "OLD_PROJECT_ID",
+        }
+        sess.delete.assert_called_with(url, headers=headers)
         sot._translate_response.assert_called_once_with(resp, has_body=False)

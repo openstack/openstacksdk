@@ -91,8 +91,9 @@ class Proxy(proxy.Proxy):
 
         :returns: A string includes location of messages successfully posted.
         """
-        message = self._get_resource(_message.Message, None,
-                                     queue_name=queue_name)
+        message = self._get_resource(
+            _message.Message, None, queue_name=queue_name
+        )
         return message.post(self, messages)
 
     def messages(self, queue_name, **query):
@@ -129,12 +130,14 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             message matching the criteria could be found.
         """
-        message = self._get_resource(_message.Message, message,
-                                     queue_name=queue_name)
+        message = self._get_resource(
+            _message.Message, message, queue_name=queue_name
+        )
         return self._get(_message.Message, message)
 
-    def delete_message(self, queue_name, value, claim=None,
-                       ignore_missing=True):
+    def delete_message(
+        self, queue_name, value, claim=None, ignore_missing=True
+    ):
         """Delete a message
 
         :param queue_name: The name of target queue to delete message from.
@@ -152,11 +155,13 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        message = self._get_resource(_message.Message, value,
-                                     queue_name=queue_name)
+        message = self._get_resource(
+            _message.Message, value, queue_name=queue_name
+        )
         message.claim_id = resource.Resource._get_id(claim)
-        return self._delete(_message.Message, message,
-                            ignore_missing=ignore_missing)
+        return self._delete(
+            _message.Message, message, ignore_missing=ignore_missing
+        )
 
     def create_subscription(self, queue_name, **attrs):
         """Create a new subscription from attributes
@@ -169,8 +174,9 @@ class Proxy(proxy.Proxy):
         :returns: The results of subscription creation
         :rtype: :class:`~openstack.message.v2.subscription.Subscription`
         """
-        return self._create(_subscription.Subscription, queue_name=queue_name,
-                            **attrs)
+        return self._create(
+            _subscription.Subscription, queue_name=queue_name, **attrs
+        )
 
     def subscriptions(self, queue_name, **query):
         """Retrieve a generator of subscriptions
@@ -203,9 +209,9 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             subscription matching the criteria could be found.
         """
-        subscription = self._get_resource(_subscription.Subscription,
-                                          subscription,
-                                          queue_name=queue_name)
+        subscription = self._get_resource(
+            _subscription.Subscription, subscription, queue_name=queue_name
+        )
         return self._get(_subscription.Subscription, subscription)
 
     def delete_subscription(self, queue_name, value, ignore_missing=True):
@@ -224,10 +230,14 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        subscription = self._get_resource(_subscription.Subscription, value,
-                                          queue_name=queue_name)
-        return self._delete(_subscription.Subscription, subscription,
-                            ignore_missing=ignore_missing)
+        subscription = self._get_resource(
+            _subscription.Subscription, value, queue_name=queue_name
+        )
+        return self._delete(
+            _subscription.Subscription,
+            subscription,
+            ignore_missing=ignore_missing,
+        )
 
     def create_claim(self, queue_name, **attrs):
         """Create a new claim from attributes
@@ -268,8 +278,9 @@ class Proxy(proxy.Proxy):
         :returns: The results of claim update
         :rtype: :class:`~openstack.message.v2.claim.Claim`
         """
-        return self._update(_claim.Claim, claim, queue_name=queue_name,
-                            **attrs)
+        return self._update(
+            _claim.Claim, claim, queue_name=queue_name, **attrs
+        )
 
     def delete_claim(self, queue_name, claim, ignore_missing=True):
         """Delete a claim
@@ -285,5 +296,9 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        return self._delete(_claim.Claim, claim, queue_name=queue_name,
-                            ignore_missing=ignore_missing)
+        return self._delete(
+            _claim.Claim,
+            claim,
+            queue_name=queue_name,
+            ignore_missing=ignore_missing,
+        )

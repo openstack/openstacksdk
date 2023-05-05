@@ -59,16 +59,17 @@ class Subscription(resource.Resource):
     project_id = resource.Header("X-PROJECT-ID")
 
     def create(self, session, prepend_key=True, base_path=None):
-        request = self._prepare_request(requires_id=False,
-                                        prepend_key=prepend_key,
-                                        base_path=base_path)
+        request = self._prepare_request(
+            requires_id=False, prepend_key=prepend_key, base_path=base_path
+        )
         headers = {
             "Client-ID": self.client_id or str(uuid.uuid4()),
-            "X-PROJECT-ID": self.project_id or session.get_project_id()
+            "X-PROJECT-ID": self.project_id or session.get_project_id(),
         }
         request.headers.update(headers)
-        response = session.post(request.url,
-                                json=request.body, headers=request.headers)
+        response = session.post(
+            request.url, json=request.body, headers=request.headers
+        )
 
         self._translate_response(response)
         return self
@@ -89,14 +90,13 @@ class Subscription(resource.Resource):
         uri = base_path % params
         headers = {
             "Client-ID": params.get('client_id', None) or str(uuid.uuid4()),
-            "X-PROJECT-ID": params.get('project_id', None
-                                       ) or session.get_project_id()
+            "X-PROJECT-ID": params.get('project_id', None)
+            or session.get_project_id(),
         }
 
         query_params = cls._query_mapping._transpose(params, cls)
         while more_data:
-            resp = session.get(uri,
-                               headers=headers, params=query_params)
+            resp = session.get(uri, headers=headers, params=query_params)
             resp = resp.json()
             resp = resp[cls.resources_key]
 
@@ -118,18 +118,26 @@ class Subscription(resource.Resource):
             query_params["limit"] = yielded
             query_params["marker"] = new_marker
 
-    def fetch(self, session, requires_id=True,
-              base_path=None, error_message=None, skip_cache=False):
-        request = self._prepare_request(requires_id=requires_id,
-                                        base_path=base_path)
+    def fetch(
+        self,
+        session,
+        requires_id=True,
+        base_path=None,
+        error_message=None,
+        skip_cache=False,
+    ):
+        request = self._prepare_request(
+            requires_id=requires_id, base_path=base_path
+        )
         headers = {
             "Client-ID": self.client_id or str(uuid.uuid4()),
-            "X-PROJECT-ID": self.project_id or session.get_project_id()
+            "X-PROJECT-ID": self.project_id or session.get_project_id(),
         }
 
         request.headers.update(headers)
         response = session.get(
-            request.url, headers=request.headers, skip_cache=skip_cache)
+            request.url, headers=request.headers, skip_cache=skip_cache
+        )
         self._translate_response(response)
 
         return self
@@ -138,12 +146,11 @@ class Subscription(resource.Resource):
         request = self._prepare_request()
         headers = {
             "Client-ID": self.client_id or str(uuid.uuid4()),
-            "X-PROJECT-ID": self.project_id or session.get_project_id()
+            "X-PROJECT-ID": self.project_id or session.get_project_id(),
         }
 
         request.headers.update(headers)
-        response = session.delete(request.url,
-                                  headers=request.headers)
+        response = session.delete(request.url, headers=request.headers)
 
         self._translate_response(response, has_body=False)
         return self

@@ -23,7 +23,6 @@ EXAMPLE = {
 
 
 class TestVersion(base.TestCase):
-
     def test_basic(self):
         sot = version.Version()
         self.assertEqual('version', sot.resource_key)

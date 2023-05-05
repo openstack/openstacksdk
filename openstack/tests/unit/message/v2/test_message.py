@@ -21,12 +21,12 @@ FAKE1 = {
     'body': {
         'current_bytes': '0',
         'event': 'BackupProgress',
-        'total_bytes': '99614720'
+        'total_bytes': '99614720',
     },
     'id': '578ee000508f153f256f717d',
     'href': '/v2/queues/queue1/messages/578ee000508f153f256f717d',
     'ttl': 3600,
-    'queue_name': 'queue1'
+    'queue_name': 'queue1',
 }
 
 
@@ -35,14 +35,14 @@ FAKE2 = {
     'body': {
         'current_bytes': '0',
         'event': 'BackupProgress',
-        'total_bytes': '99614720'
+        'total_bytes': '99614720',
     },
     'id': '578ee000508f153f256f717d',
     'href': '/v2/queues/queue1/messages/578ee000508f153f256f717d',
     'ttl': 3600,
     'queue_name': 'queue1',
     'client_id': 'OLD_CLIENT_ID',
-    'project_id': 'OLD_PROJECT_ID'
+    'project_id': 'OLD_PROJECT_ID',
 }
 
 
@@ -80,25 +80,21 @@ class TestMessage(base.TestCase):
         sess.get_project_id.return_value = 'NEW_PROJECT_ID'
         mock_uuid.return_value = 'NEW_CLIENT_ID'
         messages = [
-            {
-                'body': {'key': 'value1'},
-                'ttl': 3600
-            },
-            {
-                'body': {'key': 'value2'},
-                'ttl': 1800
-            }
+            {'body': {'key': 'value1'}, 'ttl': 3600},
+            {'body': {'key': 'value2'}, 'ttl': 1800},
         ]
 
         sot = message.Message(**FAKE1)
         res = sot.post(sess, messages)
 
         url = '/queues/%(queue)s/messages' % {'queue': FAKE1['queue_name']}
-        headers = {'Client-ID': 'NEW_CLIENT_ID',
-                   'X-PROJECT-ID': 'NEW_PROJECT_ID'}
-        sess.post.assert_called_once_with(url,
-                                          headers=headers,
-                                          json={'messages': messages})
+        headers = {
+            'Client-ID': 'NEW_CLIENT_ID',
+            'X-PROJECT-ID': 'NEW_PROJECT_ID',
+        }
+        sess.post.assert_called_once_with(
+            url, headers=headers, json={'messages': messages}
+        )
         sess.get_project_id.assert_called_once_with()
         resp.json.assert_called_once_with()
         self.assertEqual(resources, res)
@@ -113,25 +109,21 @@ class TestMessage(base.TestCase):
         ]
         resp.json.return_value = {'resources': resources}
         messages = [
-            {
-                'body': {'key': 'value1'},
-                'ttl': 3600
-            },
-            {
-                'body': {'key': 'value2'},
-                'ttl': 1800
-            }
+            {'body': {'key': 'value1'}, 'ttl': 3600},
+            {'body': {'key': 'value2'}, 'ttl': 1800},
         ]
 
         sot = message.Message(**FAKE2)
         res = sot.post(sess, messages)
 
         url = '/queues/%(queue)s/messages' % {'queue': FAKE2['queue_name']}
-        headers = {'Client-ID': 'OLD_CLIENT_ID',
-                   'X-PROJECT-ID': 'OLD_PROJECT_ID'}
-        sess.post.assert_called_once_with(url,
-                                          headers=headers,
-                                          json={'messages': messages})
+        headers = {
+            'Client-ID': 'OLD_CLIENT_ID',
+            'X-PROJECT-ID': 'OLD_PROJECT_ID',
+        }
+        sess.post.assert_called_once_with(
+            url, headers=headers, json={'messages': messages}
+        )
         resp.json.assert_called_once_with()
         self.assertEqual(resources, res)
 
@@ -148,11 +140,14 @@ class TestMessage(base.TestCase):
         res = sot.fetch(sess)
 
         url = 'queues/%(queue)s/messages/%(message)s' % {
-            'queue': FAKE1['queue_name'], 'message': FAKE1['id']}
-        headers = {'Client-ID': 'NEW_CLIENT_ID',
-                   'X-PROJECT-ID': 'NEW_PROJECT_ID'}
-        sess.get.assert_called_with(
-            url, headers=headers, skip_cache=False)
+            'queue': FAKE1['queue_name'],
+            'message': FAKE1['id'],
+        }
+        headers = {
+            'Client-ID': 'NEW_CLIENT_ID',
+            'X-PROJECT-ID': 'NEW_PROJECT_ID',
+        }
+        sess.get.assert_called_with(url, headers=headers, skip_cache=False)
         sess.get_project_id.assert_called_once_with()
         sot._translate_response.assert_called_once_with(resp)
         self.assertEqual(sot, res)
@@ -167,14 +162,17 @@ class TestMessage(base.TestCase):
         res = sot.fetch(sess)
 
         url = 'queues/%(queue)s/messages/%(message)s' % {
-            'queue': FAKE2['queue_name'], 'message': FAKE2['id']}
+            'queue': FAKE2['queue_name'],
+            'message': FAKE2['id'],
+        }
         sot = message.Message(**FAKE2)
         sot._translate_response = mock.Mock()
         res = sot.fetch(sess)
-        headers = {'Client-ID': 'OLD_CLIENT_ID',
-                   'X-PROJECT-ID': 'OLD_PROJECT_ID'}
-        sess.get.assert_called_with(
-            url, headers=headers, skip_cache=False)
+        headers = {
+            'Client-ID': 'OLD_CLIENT_ID',
+            'X-PROJECT-ID': 'OLD_PROJECT_ID',
+        }
+        sess.get.assert_called_with(url, headers=headers, skip_cache=False)
         sot._translate_response.assert_called_once_with(resp)
         self.assertEqual(sot, res)
 
@@ -192,11 +190,14 @@ class TestMessage(base.TestCase):
         sot.delete(sess)
 
         url = 'queues/%(queue)s/messages/%(message)s' % {
-            'queue': FAKE1['queue_name'], 'message': FAKE1['id']}
-        headers = {'Client-ID': 'NEW_CLIENT_ID',
-                   'X-PROJECT-ID': 'NEW_PROJECT_ID'}
-        sess.delete.assert_called_with(url,
-                                       headers=headers)
+            'queue': FAKE1['queue_name'],
+            'message': FAKE1['id'],
+        }
+        headers = {
+            'Client-ID': 'NEW_CLIENT_ID',
+            'X-PROJECT-ID': 'NEW_PROJECT_ID',
+        }
+        sess.delete.assert_called_with(url, headers=headers)
         sess.get_project_id.assert_called_once_with()
         sot._translate_response.assert_called_once_with(resp, has_body=False)
 
@@ -214,12 +215,15 @@ class TestMessage(base.TestCase):
         sot.delete(sess)
 
         url = 'queues/%(queue)s/messages/%(message)s?claim_id=%(cid)s' % {
-            'queue': FAKE1['queue_name'], 'message': FAKE1['id'],
-            'cid': 'CLAIM_ID'}
-        headers = {'Client-ID': 'NEW_CLIENT_ID',
-                   'X-PROJECT-ID': 'NEW_PROJECT_ID'}
-        sess.delete.assert_called_with(url,
-                                       headers=headers)
+            'queue': FAKE1['queue_name'],
+            'message': FAKE1['id'],
+            'cid': 'CLAIM_ID',
+        }
+        headers = {
+            'Client-ID': 'NEW_CLIENT_ID',
+            'X-PROJECT-ID': 'NEW_PROJECT_ID',
+        }
+        sess.delete.assert_called_with(url, headers=headers)
         sess.get_project_id.assert_called_once_with()
         sot._translate_response.assert_called_once_with(resp, has_body=False)
 
@@ -234,9 +238,12 @@ class TestMessage(base.TestCase):
         sot.delete(sess)
 
         url = 'queues/%(queue)s/messages/%(message)s' % {
-            'queue': FAKE2['queue_name'], 'message': FAKE2['id']}
-        headers = {'Client-ID': 'OLD_CLIENT_ID',
-                   'X-PROJECT-ID': 'OLD_PROJECT_ID'}
-        sess.delete.assert_called_with(url,
-                                       headers=headers)
+            'queue': FAKE2['queue_name'],
+            'message': FAKE2['id'],
+        }
+        headers = {
+            'Client-ID': 'OLD_CLIENT_ID',
+            'X-PROJECT-ID': 'OLD_PROJECT_ID',
+        }
+        sess.delete.assert_called_with(url, headers=headers)
         sot._translate_response.assert_called_once_with(resp, has_body=False)
