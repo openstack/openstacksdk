@@ -41,8 +41,15 @@ class Deployable(resource.Resource):
     #: The timestamp when this deployable was updated.
     updated_at = resource.Body('updated_at')
 
-    def _commit(self, session, request, method, microversion, has_body=True,
-                retry_on_conflict=None):
+    def _commit(
+        self,
+        session,
+        request,
+        method,
+        microversion,
+        has_body=True,
+        retry_on_conflict=None,
+    ):
         session = self._get_session(session)
         kwargs = {}
         retriable_status_codes = set(session.retriable_status_codes or ())
@@ -57,12 +64,17 @@ class Deployable(resource.Resource):
             call = getattr(session, method.lower())
         except AttributeError:
             raise exceptions.ResourceFailure(
-                "Invalid commit method: %s" % method)
+                "Invalid commit method: %s" % method
+            )
 
         request.url = request.url + "/program"
-        response = call(request.url, json=request.body,
-                        headers=request.headers, microversion=microversion,
-                        **kwargs)
+        response = call(
+            request.url,
+            json=request.body,
+            headers=request.headers,
+            microversion=microversion,
+            **kwargs
+        )
         self.microversion = microversion
         self._translate_response(response, has_body=has_body)
         return self

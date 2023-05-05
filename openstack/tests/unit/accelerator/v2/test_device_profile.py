@@ -19,21 +19,22 @@ FAKE = {
     "uuid": u"a95e10ae-b3e3-4eab-a513-1afae6f17c51",
     "name": u'afaas_example_1',
     "groups": [
-        {"resources:ACCELERATOR_FPGA": "1",
-         "trait:CUSTOM_FPGA_INTEL_PAC_ARRIA10": "required",
-         "trait:CUSTOM_FUNCTION_ID_3AFB": "required",
-         },
-        {"resources:CUSTOM_ACCELERATOR_FOO": "2",
-         "resources:CUSTOM_MEMORY": "200",
-         "trait:CUSTOM_TRAIT_ALWAYS": "required",
-         }
+        {
+            "resources:ACCELERATOR_FPGA": "1",
+            "trait:CUSTOM_FPGA_INTEL_PAC_ARRIA10": "required",
+            "trait:CUSTOM_FUNCTION_ID_3AFB": "required",
+        },
+        {
+            "resources:CUSTOM_ACCELERATOR_FOO": "2",
+            "resources:CUSTOM_MEMORY": "200",
+            "trait:CUSTOM_TRAIT_ALWAYS": "required",
+        },
     ],
-    'description': 'description_test'
+    'description': 'description_test',
 }
 
 
 class TestDeviceProfile(base.TestCase):
-
     def test_basic(self):
         sot = device_profile.DeviceProfile()
         self.assertEqual('device_profile', sot.resource_key)

@@ -40,11 +40,13 @@ class DeviceProfile(resource.Resource):
     # cannot treat multiple DeviceProfiles in list.
     def _prepare_request_body(self, patch, prepend_key):
         body = super(DeviceProfile, self)._prepare_request_body(
-            patch, prepend_key)
+            patch, prepend_key
+        )
         return [body]
 
     def create(self, session, base_path=None):
         # This overrides the default behavior of resource creation because
         # cyborg doesn't accept resource_key in its request.
         return super(DeviceProfile, self).create(
-            session, prepend_key=False, base_path=base_path)
+            session, prepend_key=False, base_path=base_path
+        )

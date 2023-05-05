@@ -56,8 +56,15 @@ class AcceleratorRequest(resource.Resource):
         converted = {self.id: converted}
         return converted
 
-    def patch(self, session, patch=None, prepend_key=True, has_body=True,
-              retry_on_conflict=None, base_path=None):
+    def patch(
+        self,
+        session,
+        patch=None,
+        prepend_key=True,
+        has_body=True,
+        retry_on_conflict=None,
+        base_path=None,
+    ):
         # This overrides the default behavior of patch because
         # the PATCH method consumes a dict rather than a list. spec:
         # https://specs.openstack.org/openstack/cyborg-specs/specs/train/implemented/cyborg-api
@@ -72,15 +79,21 @@ class AcceleratorRequest(resource.Resource):
         if not self.allow_patch:
             raise exceptions.MethodNotSupported(self, "patch")
 
-        request = self._prepare_request(prepend_key=prepend_key,
-                                        base_path=base_path, patch=True)
+        request = self._prepare_request(
+            prepend_key=prepend_key, base_path=base_path, patch=True
+        )
         microversion = self._get_microversion(session, action='patch')
         if patch:
             request.body = self._convert_patch(patch)
 
-        return self._commit(session, request, 'PATCH', microversion,
-                            has_body=has_body,
-                            retry_on_conflict=retry_on_conflict)
+        return self._commit(
+            session,
+            request,
+            'PATCH',
+            microversion,
+            has_body=has_body,
+            retry_on_conflict=retry_on_conflict,
+        )
 
     def _consume_attrs(self, mapping, attrs):
         # This overrides the default behavior of _consume_attrs because
@@ -95,4 +108,5 @@ class AcceleratorRequest(resource.Resource):
         # This overrides the default behavior of resource creation because
         # cyborg doesn't accept resource_key in its request.
         return super(AcceleratorRequest, self).create(
-            session, prepend_key=False, base_path=base_path)
+            session, prepend_key=False, base_path=base_path
+        )

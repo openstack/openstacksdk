@@ -18,7 +18,6 @@ from openstack import proxy
 
 
 class Proxy(proxy.Proxy):
-
     def deployables(self, **query):
         """Retrieve a generator of deployables.
 
@@ -45,8 +44,9 @@ class Proxy(proxy.Proxy):
         :param patch: The information to reconfig.
         :returns: The results of FPGA reconfig.
         """
-        return self._get_resource(_deployable.Deployable,
-                                  uuid).patch(self, patch)
+        return self._get_resource(_deployable.Deployable, uuid).patch(
+            self, patch
+        )
 
     def devices(self, **query):
         """Retrieve a generator of devices.
@@ -115,7 +115,8 @@ class Proxy(proxy.Proxy):
         return self._delete(
             _device_profile.DeviceProfile,
             device_profile,
-            ignore_missing=ignore_missing)
+            ignore_missing=ignore_missing,
+        )
 
     def get_device_profile(self, uuid, fields=None):
         """Get a single device profile.
@@ -146,7 +147,9 @@ class Proxy(proxy.Proxy):
         return self._create(_arq.AcceleratorRequest, **attrs)
 
     def delete_accelerator_request(
-        self, accelerator_request, ignore_missing=True,
+        self,
+        accelerator_request,
+        ignore_missing=True,
     ):
         """Delete a device profile
 
@@ -164,7 +167,8 @@ class Proxy(proxy.Proxy):
         return self._delete(
             _arq.AcceleratorRequest,
             accelerator_request,
-            ignore_missing=ignore_missing)
+            ignore_missing=ignore_missing,
+        )
 
     def get_accelerator_request(self, uuid, fields=None):
         """Get a single accelerator request.
@@ -185,5 +189,6 @@ class Proxy(proxy.Proxy):
             that will bind/unbind the accelerator.
         :returns: True if bind/unbind succeeded, False otherwise.
         """
-        return self._get_resource(_arq.AcceleratorRequest,
-                                  uuid).patch(self, properties)
+        return self._get_resource(_arq.AcceleratorRequest, uuid).patch(
+            self, properties
+        )

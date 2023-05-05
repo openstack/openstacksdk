@@ -30,43 +30,64 @@ class TestAcceleratorDeployable(TestAcceleratorProxy):
 
 class TestAcceleratorDevice(TestAcceleratorProxy):
     def test_list_device_profile(self):
-        self.verify_list(self.proxy.device_profiles,
-                         device_profile.DeviceProfile)
+        self.verify_list(
+            self.proxy.device_profiles, device_profile.DeviceProfile
+        )
 
     def test_create_device_profile(self):
-        self.verify_create(self.proxy.create_device_profile,
-                           device_profile.DeviceProfile)
+        self.verify_create(
+            self.proxy.create_device_profile, device_profile.DeviceProfile
+        )
 
     def test_delete_device_profile(self):
-        self.verify_delete(self.proxy.delete_device_profile,
-                           device_profile.DeviceProfile, False)
+        self.verify_delete(
+            self.proxy.delete_device_profile,
+            device_profile.DeviceProfile,
+            False,
+        )
 
     def test_delete_device_profile_ignore(self):
-        self.verify_delete(self.proxy.delete_device_profile,
-                           device_profile.DeviceProfile, True)
+        self.verify_delete(
+            self.proxy.delete_device_profile,
+            device_profile.DeviceProfile,
+            True,
+        )
 
     def test_get_device_profile(self):
-        self.verify_get(self.proxy.get_device_profile,
-                        device_profile.DeviceProfile)
+        self.verify_get(
+            self.proxy.get_device_profile, device_profile.DeviceProfile
+        )
 
 
 class TestAcceleratorRequest(TestAcceleratorProxy):
     def test_list_accelerator_request(self):
-        self.verify_list(self.proxy.accelerator_requests,
-                         accelerator_request.AcceleratorRequest)
+        self.verify_list(
+            self.proxy.accelerator_requests,
+            accelerator_request.AcceleratorRequest,
+        )
 
     def test_create_accelerator_request(self):
-        self.verify_create(self.proxy.create_accelerator_request,
-                           accelerator_request.AcceleratorRequest)
+        self.verify_create(
+            self.proxy.create_accelerator_request,
+            accelerator_request.AcceleratorRequest,
+        )
 
     def test_delete_accelerator_request(self):
-        self.verify_delete(self.proxy.delete_accelerator_request,
-                           accelerator_request.AcceleratorRequest, False)
+        self.verify_delete(
+            self.proxy.delete_accelerator_request,
+            accelerator_request.AcceleratorRequest,
+            False,
+        )
 
     def test_delete_accelerator_request_ignore(self):
-        self.verify_delete(self.proxy.delete_accelerator_request,
-                           accelerator_request.AcceleratorRequest, True)
+        self.verify_delete(
+            self.proxy.delete_accelerator_request,
+            accelerator_request.AcceleratorRequest,
+            True,
+        )
 
     def test_get_accelerator_request(self):
-        self.verify_get(self.proxy.get_accelerator_request,
-                        accelerator_request.AcceleratorRequest)
+        self.verify_get(
+            self.proxy.get_accelerator_request,
+            accelerator_request.AcceleratorRequest,
+        )

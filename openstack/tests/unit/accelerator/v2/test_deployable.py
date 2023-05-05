@@ -29,7 +29,6 @@ EXAMPLE = {
 
 
 class TestDeployable(base.TestCase):
-
     def test_basic(self):
         sot = deployable.Deployable()
         self.assertEqual('deployable', sot.resource_key)

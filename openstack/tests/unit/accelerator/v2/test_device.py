@@ -30,7 +30,6 @@ EXAMPLE = {
 
 
 class TestDevice(base.TestCase):
-
     def test_basic(self):
         sot = device.Device()
         self.assertEqual('device', sot.resource_key)
