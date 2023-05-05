@@ -16,7 +16,6 @@ from openstack import resource
 
 
 class Resource(resource.Resource):
-
     @classmethod
     def find(cls, session, name_or_id, ignore_missing=True, **params):
         """Find a resource by its name or id.
@@ -46,16 +45,17 @@ class Resource(resource.Resource):
         # Try to short-circuit by looking directly for a matching ID.
         try:
             match = cls.existing(
-                id=name_or_id,
-                connection=session._get_connection(),
-                **params)
+                id=name_or_id, connection=session._get_connection(), **params
+            )
             return match.fetch(session)
         except exceptions.SDKException:
             # DNS may return 400 when we try to do GET with name
             pass
 
-        if ('name' in cls._query_mapping._mapping.keys()
-                and 'name' not in params):
+        if (
+            'name' in cls._query_mapping._mapping.keys()
+            and 'name' not in params
+        ):
             params['name'] = name_or_id
 
         data = cls.list(session, **params)
@@ -67,7 +67,8 @@ class Resource(resource.Resource):
         if ignore_missing:
             return None
         raise exceptions.ResourceNotFound(
-            "No %s found for %s" % (cls.__name__, name_or_id))
+            "No %s found for %s" % (cls.__name__, name_or_id)
+        )
 
     @classmethod
     def _get_next_link(cls, uri, response, data, marker, limit, total_yielded):

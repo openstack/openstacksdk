@@ -18,9 +18,7 @@ IDENTIFIER = 'NAME'
 EXAMPLE = {
     'description': 'This is an example record set.',
     'updated_at': None,
-    'records': [
-        '10.1.0.2'
-    ],
+    'records': ['10.1.0.2'],
     'ttl': 3600,
     'id': IDENTIFIER,
     'name': 'example.org.',
@@ -31,12 +29,11 @@ EXAMPLE = {
     'version': 1,
     'type': 'A',
     'status': 'ACTIVE',
-    'action': 'NONE'
+    'action': 'NONE',
 }
 
 
 class TestRecordset(base.TestCase):
-
     def test_basic(self):
         sot = recordset.Recordset()
         self.assertIsNone(sot.resource_key)
@@ -48,15 +45,19 @@ class TestRecordset(base.TestCase):
         self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
 
-        self.assertDictEqual({'data': 'data',
-                              'description': 'description',
-                              'limit': 'limit',
-                              'marker': 'marker',
-                              'name': 'name',
-                              'status': 'status',
-                              'ttl': 'ttl',
-                              'type': 'type'},
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {
+                'data': 'data',
+                'description': 'description',
+                'limit': 'limit',
+                'marker': 'marker',
+                'name': 'name',
+                'status': 'status',
+                'ttl': 'ttl',
+                'type': 'type',
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = recordset.Recordset(**EXAMPLE)

@@ -16,6 +16,7 @@ from openstack import resource
 
 class FloatingIP(_base.Resource):
     """DNS Floating IP Resource"""
+
     resource_key = ''
     resources_key = 'floatingips'
     base_path = '/reverse/floatingips'

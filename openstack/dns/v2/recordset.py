@@ -16,6 +16,7 @@ from openstack import resource
 
 class Recordset(_base.Resource):
     """DNS Recordset Resource"""
+
     resources_key = 'recordsets'
     base_path = '/zones/%(zone_id)s/recordsets'
 
@@ -27,8 +28,15 @@ class Recordset(_base.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'name', 'type', 'ttl', 'data', 'status', 'description',
-        'limit', 'marker')
+        'name',
+        'type',
+        'ttl',
+        'data',
+        'status',
+        'description',
+        'limit',
+        'marker',
+    )
 
     #: Properties
     #: current action in progress on the resource

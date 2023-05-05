@@ -18,6 +18,7 @@ from openstack import utils
 
 class Zone(_base.Resource):
     """DNS ZONE Resource"""
+
     resources_key = 'zones'
     base_path = '/zones'
 
@@ -31,8 +32,14 @@ class Zone(_base.Resource):
     commit_method = "PATCH"
 
     _query_mapping = resource.QueryParameters(
-        'name', 'type', 'email', 'status', 'description', 'ttl',
-        'limit', 'marker'
+        'name',
+        'type',
+        'email',
+        'status',
+        'description',
+        'ttl',
+        'limit',
+        'marker',
     )
 
     #: Properties
@@ -88,13 +95,9 @@ class Zone(_base.Resource):
     delete_shares = resource.Header('x-designate-delete-shares', type=bool)
 
     def _action(self, session, action, body):
-        """Preform actions given the message body.
-
-        """
+        """Preform actions given the message body."""
         url = utils.urljoin(self.base_path, self.id, 'tasks', action)
-        response = session.post(
-            url,
-            json=body)
+        response = session.post(url, json=body)
         exceptions.raise_from_response(response)
         return response
 

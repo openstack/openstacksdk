@@ -17,6 +17,7 @@ from openstack import resource
 
 class ZoneExport(_base.Resource):
     """DNS Zone Exports Resource"""
+
     resource_key = ''
     resources_key = 'exports'
     base_path = '/zones/tasks/export'
@@ -27,9 +28,7 @@ class ZoneExport(_base.Resource):
     allow_delete = True
     allow_list = True
 
-    _query_mapping = resource.QueryParameters(
-        'zone_id', 'message', 'status'
-    )
+    _query_mapping = resource.QueryParameters('zone_id', 'message', 'status')
 
     #: Properties
     #: Timestamp when the zone was created
@@ -74,14 +73,13 @@ class ZoneExport(_base.Resource):
         microversion = self._get_microversion(session, action='create')
         # Create ZoneExport requires empty body
         # skip _prepare_request completely, since we need just empty body
-        request = resource._Request(
-            self.base_path,
-            None,
-            None
+        request = resource._Request(self.base_path, None, None)
+        response = session.post(
+            request.url,
+            json=request.body,
+            headers=request.headers,
+            microversion=microversion,
         )
-        response = session.post(request.url,
-                                json=request.body, headers=request.headers,
-                                microversion=microversion)
 
         self.microversion = microversion
         self._translate_response(response)

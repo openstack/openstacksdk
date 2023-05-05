@@ -87,8 +87,12 @@ class Proxy(proxy.Proxy):
         :returns: Zone been deleted
         :rtype: :class:`~openstack.dns.v2.zone.Zone`
         """
-        return self._delete(_zone.Zone, zone, ignore_missing=ignore_missing,
-                            delete_shares=delete_shares)
+        return self._delete(
+            _zone.Zone,
+            zone,
+            ignore_missing=ignore_missing,
+            delete_shares=delete_shares,
+        )
 
     def update_zone(self, zone, **attrs):
         """Update zone attributes
@@ -114,8 +118,9 @@ class Proxy(proxy.Proxy):
 
         :returns: :class:`~openstack.dns.v2.zone.Zone`
         """
-        return self._find(_zone.Zone, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _zone.Zone, name_or_id, ignore_missing=ignore_missing
+        )
 
     def abandon_zone(self, zone, **attrs):
         """Abandon Zone
@@ -225,10 +230,10 @@ class Proxy(proxy.Proxy):
         """
         if zone:
             zone = self._get_resource(_zone.Zone, zone)
-            recordset = self._get(
-                _rs.Recordset, recordset, zone_id=zone.id)
-        return self._delete(_rs.Recordset, recordset,
-                            ignore_missing=ignore_missing)
+            recordset = self._get(_rs.Recordset, recordset, zone_id=zone.id)
+        return self._delete(
+            _rs.Recordset, recordset, ignore_missing=ignore_missing
+        )
 
     def find_recordset(self, zone, name_or_id, ignore_missing=True, **query):
         """Find a single recordset
@@ -278,8 +283,9 @@ class Proxy(proxy.Proxy):
         :returns: The results of zone creation.
         :rtype: :class:`~openstack.dns.v2.zone_import.ZoneImport`
         """
-        return self._create(_zone_import.ZoneImport, prepend_key=False,
-                            **attrs)
+        return self._create(
+            _zone_import.ZoneImport, prepend_key=False, **attrs
+        )
 
     def get_zone_import(self, zone_import):
         """Get a zone import record
@@ -304,8 +310,9 @@ class Proxy(proxy.Proxy):
 
         :returns: None
         """
-        return self._delete(_zone_import.ZoneImport, zone_import,
-                            ignore_missing=ignore_missing)
+        return self._delete(
+            _zone_import.ZoneImport, zone_import, ignore_missing=ignore_missing
+        )
 
     # ======== Zone Exports ========
     def zone_exports(self, **query):
@@ -335,11 +342,13 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.dns.v2.zone_export.ZoneExport`
         """
         zone = self._get_resource(_zone.Zone, zone)
-        return self._create(_zone_export.ZoneExport,
-                            base_path='/zones/%(zone_id)s/tasks/export',
-                            prepend_key=False,
-                            zone_id=zone.id,
-                            **attrs)
+        return self._create(
+            _zone_export.ZoneExport,
+            base_path='/zones/%(zone_id)s/tasks/export',
+            prepend_key=False,
+            zone_id=zone.id,
+            **attrs,
+        )
 
     def get_zone_export(self, zone_export):
         """Get a zone export record
@@ -359,8 +368,11 @@ class Proxy(proxy.Proxy):
         :returns: ZoneExport instance.
         :rtype: :class:`~openstack.dns.v2.zone_export.ZoneExport`
         """
-        return self._get(_zone_export.ZoneExport, zone_export,
-                         base_path='/zones/tasks/export/%(id)s/export')
+        return self._get(
+            _zone_export.ZoneExport,
+            zone_export,
+            base_path='/zones/tasks/export/%(id)s/export',
+        )
 
     def delete_zone_export(self, zone_export, ignore_missing=True):
         """Delete a zone export
@@ -375,8 +387,9 @@ class Proxy(proxy.Proxy):
 
         :returns: None
         """
-        return self._delete(_zone_export.ZoneExport, zone_export,
-                            ignore_missing=ignore_missing)
+        return self._delete(
+            _zone_export.ZoneExport, zone_export, ignore_missing=ignore_missing
+        )
 
     # ======== FloatingIPs ========
     def floating_ips(self, **query):
@@ -473,7 +486,8 @@ class Proxy(proxy.Proxy):
             base_path='/zones/%(zone_id)s/tasks/transfer_requests',
             prepend_key=False,
             zone_id=zone.id,
-            **attrs)
+            **attrs,
+        )
 
     def update_zone_transfer_request(self, request, **attrs):
         """Update ZoneTransfer Request attributes
@@ -485,8 +499,9 @@ class Proxy(proxy.Proxy):
 
         :rtype: :class:`~openstack.dns.v2.zone_transfer.ZoneTransferRequest`
         """
-        return self._update(_zone_transfer.ZoneTransferRequest,
-                            request, **attrs)
+        return self._update(
+            _zone_transfer.ZoneTransferRequest, request, **attrs
+        )
 
     def delete_zone_transfer_request(self, request, ignore_missing=True):
         """Delete a ZoneTransfer Request
@@ -502,8 +517,11 @@ class Proxy(proxy.Proxy):
 
         :returns: None
         """
-        return self._delete(_zone_transfer.ZoneTransferRequest, request,
-                            ignore_missing=ignore_missing)
+        return self._delete(
+            _zone_transfer.ZoneTransferRequest,
+            request,
+            ignore_missing=ignore_missing,
+        )
 
     def zone_transfer_accepts(self, **query):
         """Retrieve a generator of zone transfer accepts
@@ -571,8 +589,9 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.dns.v2.zone_share.ZoneShare`
         """
         zone_obj = self._get_resource(_zone.Zone, zone)
-        return self._get(_zone_share.ZoneShare, zone_share,
-                         zone_id=zone_obj.id)
+        return self._get(
+            _zone_share.ZoneShare, zone_share, zone_id=zone_obj.id
+        )
 
     def find_zone_share(self, zone, zone_share_id, ignore_missing=True):
         """Find a single zone share
@@ -589,8 +608,12 @@ class Proxy(proxy.Proxy):
         :returns: :class:`~openstack.dns.v2.zone_share.ZoneShare`
         """
         zone_obj = self._get_resource(_zone.Zone, zone)
-        return self._find(_zone_share.ZoneShare, zone_share_id,
-                          ignore_missing=ignore_missing, zone_id=zone_obj.id)
+        return self._find(
+            _zone_share.ZoneShare,
+            zone_share_id,
+            ignore_missing=ignore_missing,
+            zone_id=zone_obj.id,
+        )
 
     def create_zone_share(self, zone, **attrs):
         """Create a new zone share from attributes
@@ -605,8 +628,9 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.dns.v2.zone_share.ZoneShare`
         """
         zone_obj = self._get_resource(_zone.Zone, zone)
-        return self._create(_zone_share.ZoneShare, zone_id=zone_obj.id,
-                            **attrs)
+        return self._create(
+            _zone_share.ZoneShare, zone_id=zone_obj.id, **attrs
+        )
 
     def delete_zone_share(self, zone, zone_share, ignore_missing=True):
         """Delete a zone share
@@ -625,20 +649,25 @@ class Proxy(proxy.Proxy):
         :returns: ``None``
         """
         zone_obj = self._get_resource(_zone.Zone, zone)
-        self._delete(_zone_share.ZoneShare, zone_share,
-                     ignore_missing=ignore_missing, zone_id=zone_obj.id)
+        self._delete(
+            _zone_share.ZoneShare,
+            zone_share,
+            ignore_missing=ignore_missing,
+            zone_id=zone_obj.id,
+        )
 
     def _get_cleanup_dependencies(self):
         # DNS may depend on floating ip
-        return {
-            'dns': {
-                'before': ['network']
-            }
-        }
+        return {'dns': {'before': ['network']}}
 
-    def _service_cleanup(self, dry_run=True, client_status_queue=False,
-                         identified_resources=None,
-                         filters=None, resource_evaluation_fn=None):
+    def _service_cleanup(
+        self,
+        dry_run=True,
+        client_status_queue=False,
+        identified_resources=None,
+        filters=None,
+        resource_evaluation_fn=None,
+    ):
         # Delete all zones
         for obj in self.zones():
             self._service_cleanup_del_res(
@@ -648,7 +677,8 @@ class Proxy(proxy.Proxy):
                 client_status_queue=client_status_queue,
                 identified_resources=identified_resources,
                 filters=filters,
-                resource_evaluation_fn=resource_evaluation_fn)
+                resource_evaluation_fn=resource_evaluation_fn,
+            )
         # Unset all floatingIPs
         # NOTE: FloatingIPs are not cleaned when filters are set
         for obj in self.floating_ips():
@@ -659,4 +689,5 @@ class Proxy(proxy.Proxy):
                 client_status_queue=client_status_queue,
                 identified_resources=identified_resources,
                 filters=filters,
-                resource_evaluation_fn=resource_evaluation_fn)
+                resource_evaluation_fn=resource_evaluation_fn,
+            )

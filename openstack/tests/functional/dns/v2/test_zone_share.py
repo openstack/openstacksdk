@@ -16,7 +16,6 @@ from openstack.tests.functional import base
 
 
 class TestZoneShare(base.BaseFunctionalTest):
-
     def setUp(self):
         super(TestZoneShare, self).setUp()
         self.require_service('dns')
@@ -34,19 +33,22 @@ class TestZoneShare(base.BaseFunctionalTest):
             email='joe@example.org',
             type='PRIMARY',
             ttl=7200,
-            description='example zone for sdk zone share tests'
+            description='example zone for sdk zone share tests',
         )
-        self.addCleanup(self.operator_cloud.dns.delete_zone, self.zone,
-                        delete_shares=True)
+        self.addCleanup(
+            self.operator_cloud.dns.delete_zone, self.zone, delete_shares=True
+        )
 
         self.project_id = self.operator_cloud.session.get_project_id()
         self.demo_project_id = self.user_cloud.session.get_project_id()
 
     def test_create_delete_zone_share(self):
         zone_share = self.operator_cloud.dns.create_zone_share(
-            self.zone, target_project_id=self.demo_project_id)
-        self.addCleanup(self.operator_cloud.dns.delete_zone_share, self.zone,
-                        zone_share)
+            self.zone, target_project_id=self.demo_project_id
+        )
+        self.addCleanup(
+            self.operator_cloud.dns.delete_zone_share, self.zone, zone_share
+        )
 
         self.assertEqual(self.zone.id, zone_share.zone_id)
         self.assertEqual(self.project_id, zone_share.project_id)
@@ -57,12 +59,17 @@ class TestZoneShare(base.BaseFunctionalTest):
 
     def test_get_zone_share(self):
         orig_zone_share = self.operator_cloud.dns.create_zone_share(
-            self.zone, target_project_id=self.demo_project_id)
-        self.addCleanup(self.operator_cloud.dns.delete_zone_share, self.zone,
-                        orig_zone_share)
+            self.zone, target_project_id=self.demo_project_id
+        )
+        self.addCleanup(
+            self.operator_cloud.dns.delete_zone_share,
+            self.zone,
+            orig_zone_share,
+        )
 
-        zone_share = self.operator_cloud.dns.get_zone_share(self.zone,
-                                                            orig_zone_share)
+        zone_share = self.operator_cloud.dns.get_zone_share(
+            self.zone, orig_zone_share
+        )
 
         self.assertEqual(self.zone.id, zone_share.zone_id)
         self.assertEqual(self.project_id, zone_share.project_id)
@@ -73,12 +80,17 @@ class TestZoneShare(base.BaseFunctionalTest):
 
     def test_find_zone_share(self):
         orig_zone_share = self.operator_cloud.dns.create_zone_share(
-            self.zone, target_project_id=self.demo_project_id)
-        self.addCleanup(self.operator_cloud.dns.delete_zone_share, self.zone,
-                        orig_zone_share)
+            self.zone, target_project_id=self.demo_project_id
+        )
+        self.addCleanup(
+            self.operator_cloud.dns.delete_zone_share,
+            self.zone,
+            orig_zone_share,
+        )
 
         zone_share = self.operator_cloud.dns.find_zone_share(
-            self.zone, orig_zone_share.id)
+            self.zone, orig_zone_share.id
+        )
 
         self.assertEqual(self.zone.id, zone_share.zone_id)
         self.assertEqual(self.project_id, zone_share.project_id)
@@ -88,32 +100,46 @@ class TestZoneShare(base.BaseFunctionalTest):
         self.assertEqual(orig_zone_share.updated_at, zone_share.updated_at)
 
     def test_find_zone_share_ignore_missing(self):
-        zone_share = self.operator_cloud.dns.find_zone_share(self.zone,
-                                                             'bogus_id')
+        zone_share = self.operator_cloud.dns.find_zone_share(
+            self.zone, 'bogus_id'
+        )
         self.assertIsNone(zone_share)
 
     def test_find_zone_share_ignore_missing_false(self):
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.operator_cloud.dns.find_zone_share,
-                          self.zone, 'bogus_id', ignore_missing=False)
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.operator_cloud.dns.find_zone_share,
+            self.zone,
+            'bogus_id',
+            ignore_missing=False,
+        )
 
     def test_list_zone_shares(self):
         zone_share = self.operator_cloud.dns.create_zone_share(
-            self.zone, target_project_id=self.demo_project_id)
-        self.addCleanup(self.operator_cloud.dns.delete_zone_share, self.zone,
-                        zone_share)
+            self.zone, target_project_id=self.demo_project_id
+        )
+        self.addCleanup(
+            self.operator_cloud.dns.delete_zone_share, self.zone, zone_share
+        )
 
-        target_ids = [o.target_project_id for o in
-                      self.operator_cloud.dns.zone_shares(self.zone)]
+        target_ids = [
+            o.target_project_id
+            for o in self.operator_cloud.dns.zone_shares(self.zone)
+        ]
         self.assertIn(self.demo_project_id, target_ids)
 
     def test_list_zone_shares_with_target_id(self):
         zone_share = self.operator_cloud.dns.create_zone_share(
-            self.zone, target_project_id=self.demo_project_id)
-        self.addCleanup(self.operator_cloud.dns.delete_zone_share, self.zone,
-                        zone_share)
+            self.zone, target_project_id=self.demo_project_id
+        )
+        self.addCleanup(
+            self.operator_cloud.dns.delete_zone_share, self.zone, zone_share
+        )
 
-        target_ids = [o.target_project_id for o in
-                      self.operator_cloud.dns.zone_shares(
-                          self.zone, target_project_id=self.demo_project_id)]
+        target_ids = [
+            o.target_project_id
+            for o in self.operator_cloud.dns.zone_shares(
+                self.zone, target_project_id=self.demo_project_id
+            )
+        ]
         self.assertIn(self.demo_project_id, target_ids)

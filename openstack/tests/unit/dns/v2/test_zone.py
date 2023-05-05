@@ -19,9 +19,7 @@ from openstack.tests.unit import base
 
 IDENTIFIER = 'NAME'
 EXAMPLE = {
-    'attributes': {
-        'tier': 'gold', 'ha': 'true'
-    },
+    'attributes': {'tier': 'gold', 'ha': 'true'},
     'id': IDENTIFIER,
     'name': 'test.org',
     'email': 'joe@example.org',
@@ -29,12 +27,11 @@ EXAMPLE = {
     'ttl': 7200,
     'description': 'This is an example zone.',
     'status': 'ACTIVE',
-    'shared': False
+    'shared': False,
 }
 
 
 class TestZone(base.TestCase):
-
     def setUp(self):
         super(TestZone, self).setUp()
         self.resp = mock.Mock()
@@ -58,15 +55,19 @@ class TestZone(base.TestCase):
 
         self.assertEqual('PATCH', sot.commit_method)
 
-        self.assertDictEqual({'description': 'description',
-                              'email': 'email',
-                              'limit': 'limit',
-                              'marker': 'marker',
-                              'name': 'name',
-                              'status': 'status',
-                              'ttl': 'ttl',
-                              'type': 'type'},
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {
+                'description': 'description',
+                'email': 'email',
+                'limit': 'limit',
+                'marker': 'marker',
+                'name': 'name',
+                'status': 'status',
+                'ttl': 'ttl',
+                'type': 'type',
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = zone.Zone(**EXAMPLE)
@@ -83,6 +84,5 @@ class TestZone(base.TestCase):
         sot = zone.Zone(**EXAMPLE)
         self.assertIsNone(sot.abandon(self.sess))
         self.sess.post.assert_called_with(
-            'zones/NAME/tasks/abandon',
-            json=None
+            'zones/NAME/tasks/abandon', json=None
         )

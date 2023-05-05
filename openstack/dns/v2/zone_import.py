@@ -17,6 +17,7 @@ from openstack import resource
 
 class ZoneImport(_base.Resource):
     """DNS Zone Import Resource"""
+
     resource_key = ''
     resources_key = 'imports'
     base_path = '/zones/tasks/import'
@@ -27,9 +28,7 @@ class ZoneImport(_base.Resource):
     allow_delete = True
     allow_list = True
 
-    _query_mapping = resource.QueryParameters(
-        'zone_id', 'message', 'status'
-    )
+    _query_mapping = resource.QueryParameters('zone_id', 'message', 'status')
 
     #: Properties
     #: Timestamp when the zone was created
@@ -75,13 +74,14 @@ class ZoneImport(_base.Resource):
         # Create ZoneImport requires empty body and 'text/dns' as content-type
         # skip _prepare_request completely, since we need just empty body
         request = resource._Request(
-            self.base_path,
-            None,
-            {'content-type': 'text/dns'}
+            self.base_path, None, {'content-type': 'text/dns'}
         )
-        response = session.post(request.url,
-                                json=request.body, headers=request.headers,
-                                microversion=microversion)
+        response = session.post(
+            request.url,
+            json=request.body,
+            headers=request.headers,
+            microversion=microversion,
+        )
 
         self.microversion = microversion
         self._translate_response(response)

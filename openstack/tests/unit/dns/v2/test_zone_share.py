@@ -19,7 +19,6 @@ from openstack.tests.unit import base
 
 
 class TestZoneShare(base.TestCase):
-
     def setUp(self):
         super(TestZoneShare, self).setUp()
         self.resp = mock.Mock()
@@ -41,9 +40,14 @@ class TestZoneShare(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertFalse(sot.allow_commit)
 
-        self.assertDictEqual({'target_project_id': 'target_project_id',
-                              'limit': 'limit', 'marker': 'marker'},
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {
+                'target_project_id': 'target_project_id',
+                'limit': 'limit',
+                'marker': 'marker',
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         share_id = 'bogus_id'
@@ -54,7 +58,8 @@ class TestZoneShare(base.TestCase):
             'id': share_id,
             'zone_id': zone_id,
             'project_id': project_id,
-            'target_project_id': target_id}
+            'target_project_id': target_id,
+        }
 
         sot = zone_share.ZoneShare(**expected)
         self.assertEqual(share_id, sot.id)

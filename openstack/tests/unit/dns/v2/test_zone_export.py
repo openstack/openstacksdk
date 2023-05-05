@@ -23,7 +23,7 @@ EXAMPLE = {
     'zone_id': '6625198b-d67d-47dc-8d29-f90bd60f3ac4',
     'links': {
         'self': 'http://127.0.0.1:9001/v2/zones/tasks/exports/074e805e-f',
-        'href': 'http://127.0.0.1:9001/v2/zones/6625198b-d67d-'
+        'href': 'http://127.0.0.1:9001/v2/zones/6625198b-d67d-',
     },
     'created_at': '2015-05-08T15:43:42.000000',
     'updated_at': '2015-05-08T15:43:43.000000',
@@ -31,13 +31,12 @@ EXAMPLE = {
     'location': 'designate://v2/zones/tasks/exports/8ec17fe1/export',
     'message': 'example.com. exported',
     'project_id': 'noauth-project',
-    'id': IDENTIFIER
+    'id': IDENTIFIER,
 }
 
 
 @mock.patch.object(zone_export.ZoneExport, '_translate_response', mock.Mock())
 class TestZoneExport(base.TestCase):
-
     def test_basic(self):
         sot = zone_export.ZoneExport()
         self.assertEqual('', sot.resource_key)
@@ -49,12 +48,16 @@ class TestZoneExport(base.TestCase):
         self.assertFalse(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
 
-        self.assertDictEqual({'limit': 'limit',
-                              'marker': 'marker',
-                              'message': 'message',
-                              'status': 'status',
-                              'zone_id': 'zone_id'},
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {
+                'limit': 'limit',
+                'marker': 'marker',
+                'message': 'message',
+                'status': 'status',
+                'zone_id': 'zone_id',
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = zone_export.ZoneExport(**EXAMPLE)
@@ -76,6 +79,8 @@ class TestZoneExport(base.TestCase):
 
         sot.create(self.session)
         self.session.post.assert_called_once_with(
-            mock.ANY, json=None,
+            mock.ANY,
+            json=None,
             headers=None,
-            microversion=self.session.default_microversion)
+            microversion=self.session.default_microversion,
+        )

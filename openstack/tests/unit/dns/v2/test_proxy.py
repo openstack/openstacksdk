@@ -29,15 +29,20 @@ class TestDnsProxy(test_proxy_base.TestProxyBase):
 
 class TestDnsZone(TestDnsProxy):
     def test_zone_create(self):
-        self.verify_create(self.proxy.create_zone, zone.Zone,
-                           method_kwargs={'name': 'id'},
-                           expected_kwargs={'name': 'id',
-                                            'prepend_key': False})
+        self.verify_create(
+            self.proxy.create_zone,
+            zone.Zone,
+            method_kwargs={'name': 'id'},
+            expected_kwargs={'name': 'id', 'prepend_key': False},
+        )
 
     def test_zone_delete(self):
         self.verify_delete(
-            self.proxy.delete_zone, zone.Zone, True,
-            expected_kwargs={'ignore_missing': True, 'delete_shares': False})
+            self.proxy.delete_zone,
+            zone.Zone,
+            True,
+            expected_kwargs={'ignore_missing': True, 'delete_shares': False},
+        )
 
     def test_zone_find(self):
         self.verify_find(self.proxy.find_zone, zone.Zone)
@@ -56,44 +61,57 @@ class TestDnsZone(TestDnsProxy):
             "openstack.dns.v2.zone.Zone.abandon",
             self.proxy.abandon_zone,
             method_args=[{'zone': 'id'}],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_zone_xfr(self):
         self._verify(
             "openstack.dns.v2.zone.Zone.xfr",
             self.proxy.xfr_zone,
             method_args=[{'zone': 'id'}],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
 
 class TestDnsRecordset(TestDnsProxy):
     def test_recordset_create(self):
-        self.verify_create(self.proxy.create_recordset, recordset.Recordset,
-                           method_kwargs={'zone': 'id'},
-                           expected_kwargs={'zone_id': 'id',
-                                            'prepend_key': False})
+        self.verify_create(
+            self.proxy.create_recordset,
+            recordset.Recordset,
+            method_kwargs={'zone': 'id'},
+            expected_kwargs={'zone_id': 'id', 'prepend_key': False},
+        )
 
     def test_recordset_delete(self):
-        self.verify_delete(self.proxy.delete_recordset,
-                           recordset.Recordset, True)
+        self.verify_delete(
+            self.proxy.delete_recordset, recordset.Recordset, True
+        )
 
     def test_recordset_update(self):
         self.verify_update(self.proxy.update_recordset, recordset.Recordset)
 
     def test_recordset_get(self):
-        self.verify_get(self.proxy.get_recordset, recordset.Recordset,
-                        method_kwargs={'zone': 'zid'},
-                        expected_kwargs={'zone_id': 'zid'}
-                        )
+        self.verify_get(
+            self.proxy.get_recordset,
+            recordset.Recordset,
+            method_kwargs={'zone': 'zid'},
+            expected_kwargs={'zone_id': 'zid'},
+        )
 
     def test_recordsets(self):
-        self.verify_list(self.proxy.recordsets, recordset.Recordset,
-                         expected_kwargs={'base_path': '/recordsets'})
+        self.verify_list(
+            self.proxy.recordsets,
+            recordset.Recordset,
+            expected_kwargs={'base_path': '/recordsets'},
+        )
 
     def test_recordsets_zone(self):
-        self.verify_list(self.proxy.recordsets, recordset.Recordset,
-                         method_kwargs={'zone': 'zid'},
-                         expected_kwargs={'zone_id': 'zid'})
+        self.verify_list(
+            self.proxy.recordsets,
+            recordset.Recordset,
+            method_kwargs={'zone': 'zid'},
+            expected_kwargs={'zone_id': 'zid'},
+        )
 
     def test_recordset_find(self):
         self._verify(
@@ -102,7 +120,8 @@ class TestDnsRecordset(TestDnsProxy):
             method_args=['zone', 'rs'],
             method_kwargs={},
             expected_args=[recordset.Recordset, 'rs'],
-            expected_kwargs={'ignore_missing': True, 'zone_id': 'zone'})
+            expected_kwargs={'ignore_missing': True, 'zone_id': 'zone'},
+        )
 
 
 class TestDnsFloatIP(TestDnsProxy):
@@ -113,8 +132,9 @@ class TestDnsFloatIP(TestDnsProxy):
         self.verify_get(self.proxy.get_floating_ip, floating_ip.FloatingIP)
 
     def test_floating_ip_update(self):
-        self.verify_update(self.proxy.update_floating_ip,
-                           floating_ip.FloatingIP)
+        self.verify_update(
+            self.proxy.update_floating_ip, floating_ip.FloatingIP
+        )
 
     def test_floating_ip_unset(self):
         self._verify(
@@ -123,13 +143,15 @@ class TestDnsFloatIP(TestDnsProxy):
             method_args=['value'],
             method_kwargs={},
             expected_args=[floating_ip.FloatingIP, 'value'],
-            expected_kwargs={'ptrdname': None})
+            expected_kwargs={'ptrdname': None},
+        )
 
 
 class TestDnsZoneImport(TestDnsProxy):
     def test_zone_import_delete(self):
-        self.verify_delete(self.proxy.delete_zone_import,
-                           zone_import.ZoneImport, True)
+        self.verify_delete(
+            self.proxy.delete_zone_import, zone_import.ZoneImport, True
+        )
 
     def test_zone_import_get(self):
         self.verify_get(self.proxy.get_zone_import, zone_import.ZoneImport)
@@ -138,117 +160,154 @@ class TestDnsZoneImport(TestDnsProxy):
         self.verify_list(self.proxy.zone_imports, zone_import.ZoneImport)
 
     def test_zone_import_create(self):
-        self.verify_create(self.proxy.create_zone_import,
-                           zone_import.ZoneImport,
-                           method_kwargs={'name': 'id'},
-                           expected_kwargs={'name': 'id',
-                                            'prepend_key': False})
+        self.verify_create(
+            self.proxy.create_zone_import,
+            zone_import.ZoneImport,
+            method_kwargs={'name': 'id'},
+            expected_kwargs={'name': 'id', 'prepend_key': False},
+        )
 
 
 class TestDnsZoneExport(TestDnsProxy):
     def test_zone_export_delete(self):
-        self.verify_delete(self.proxy.delete_zone_export,
-                           zone_export.ZoneExport, True)
+        self.verify_delete(
+            self.proxy.delete_zone_export, zone_export.ZoneExport, True
+        )
 
     def test_zone_export_get(self):
         self.verify_get(self.proxy.get_zone_export, zone_export.ZoneExport)
 
     def test_zone_export_get_text(self):
-        self.verify_get(self.proxy.get_zone_export_text,
-                        zone_export.ZoneExport,
-                        method_args=[{'id': 'zone_export_id_value'}],
-                        expected_kwargs={
-                            'base_path': '/zones/tasks/export/%(id)s/export'
-                        })
+        self.verify_get(
+            self.proxy.get_zone_export_text,
+            zone_export.ZoneExport,
+            method_args=[{'id': 'zone_export_id_value'}],
+            expected_kwargs={'base_path': '/zones/tasks/export/%(id)s/export'},
+        )
 
     def test_zone_exports(self):
         self.verify_list(self.proxy.zone_exports, zone_export.ZoneExport)
 
     def test_zone_export_create(self):
-        self.verify_create(self.proxy.create_zone_export,
-                           zone_export.ZoneExport,
-                           method_args=[{'id': 'zone_id_value'}],
-                           method_kwargs={'name': 'id'},
-                           expected_args=[],
-                           expected_kwargs={'name': 'id',
-                                            'zone_id': 'zone_id_value',
-                                            'prepend_key': False})
+        self.verify_create(
+            self.proxy.create_zone_export,
+            zone_export.ZoneExport,
+            method_args=[{'id': 'zone_id_value'}],
+            method_kwargs={'name': 'id'},
+            expected_args=[],
+            expected_kwargs={
+                'name': 'id',
+                'zone_id': 'zone_id_value',
+                'prepend_key': False,
+            },
+        )
 
 
 class TestDnsZoneTransferRequest(TestDnsProxy):
     def test_zone_transfer_request_delete(self):
-        self.verify_delete(self.proxy.delete_zone_transfer_request,
-                           zone_transfer.ZoneTransferRequest, True)
+        self.verify_delete(
+            self.proxy.delete_zone_transfer_request,
+            zone_transfer.ZoneTransferRequest,
+            True,
+        )
 
     def test_zone_transfer_request_get(self):
-        self.verify_get(self.proxy.get_zone_transfer_request,
-                        zone_transfer.ZoneTransferRequest)
+        self.verify_get(
+            self.proxy.get_zone_transfer_request,
+            zone_transfer.ZoneTransferRequest,
+        )
 
     def test_zone_transfer_requests(self):
-        self.verify_list(self.proxy.zone_transfer_requests,
-                         zone_transfer.ZoneTransferRequest)
+        self.verify_list(
+            self.proxy.zone_transfer_requests,
+            zone_transfer.ZoneTransferRequest,
+        )
 
     def test_zone_transfer_request_create(self):
-        self.verify_create(self.proxy.create_zone_transfer_request,
-                           zone_transfer.ZoneTransferRequest,
-                           method_args=[{'id': 'zone_id_value'}],
-                           method_kwargs={'name': 'id'},
-                           expected_args=[],
-                           expected_kwargs={'name': 'id',
-                                            'zone_id': 'zone_id_value',
-                                            'prepend_key': False})
+        self.verify_create(
+            self.proxy.create_zone_transfer_request,
+            zone_transfer.ZoneTransferRequest,
+            method_args=[{'id': 'zone_id_value'}],
+            method_kwargs={'name': 'id'},
+            expected_args=[],
+            expected_kwargs={
+                'name': 'id',
+                'zone_id': 'zone_id_value',
+                'prepend_key': False,
+            },
+        )
 
     def test_zone_transfer_request_update(self):
-        self.verify_update(self.proxy.update_zone_transfer_request,
-                           zone_transfer.ZoneTransferRequest)
+        self.verify_update(
+            self.proxy.update_zone_transfer_request,
+            zone_transfer.ZoneTransferRequest,
+        )
 
 
 class TestDnsZoneTransferAccept(TestDnsProxy):
     def test_zone_transfer_accept_get(self):
-        self.verify_get(self.proxy.get_zone_transfer_accept,
-                        zone_transfer.ZoneTransferAccept)
+        self.verify_get(
+            self.proxy.get_zone_transfer_accept,
+            zone_transfer.ZoneTransferAccept,
+        )
 
     def test_zone_transfer_accepts(self):
-        self.verify_list(self.proxy.zone_transfer_accepts,
-                         zone_transfer.ZoneTransferAccept)
+        self.verify_list(
+            self.proxy.zone_transfer_accepts, zone_transfer.ZoneTransferAccept
+        )
 
     def test_zone_transfer_accept_create(self):
-        self.verify_create(self.proxy.create_zone_transfer_accept,
-                           zone_transfer.ZoneTransferAccept)
+        self.verify_create(
+            self.proxy.create_zone_transfer_accept,
+            zone_transfer.ZoneTransferAccept,
+        )
 
 
 class TestDnsZoneShare(TestDnsProxy):
     def test_zone_share_create(self):
-        self.verify_create(self.proxy.create_zone_share, zone_share.ZoneShare,
-                           method_kwargs={'zone': 'bogus_id'},
-                           expected_kwargs={'zone_id': 'bogus_id'})
+        self.verify_create(
+            self.proxy.create_zone_share,
+            zone_share.ZoneShare,
+            method_kwargs={'zone': 'bogus_id'},
+            expected_kwargs={'zone_id': 'bogus_id'},
+        )
 
     def test_zone_share_delete(self):
         self.verify_delete(
-            self.proxy.delete_zone_share, zone_share.ZoneShare,
+            self.proxy.delete_zone_share,
+            zone_share.ZoneShare,
             ignore_missing=True,
             method_args={'zone': 'bogus_id', 'zone_share': 'bogus_id'},
             expected_args=['zone_share'],
-            expected_kwargs={'zone_id': 'zone', 'ignore_missing': True})
+            expected_kwargs={'zone_id': 'zone', 'ignore_missing': True},
+        )
 
     def test_zone_share_find(self):
         self.verify_find(
-            self.proxy.find_zone_share, zone_share.ZoneShare,
+            self.proxy.find_zone_share,
+            zone_share.ZoneShare,
             method_args=['zone'],
             expected_args=['zone'],
-            expected_kwargs={'zone_id': 'resource_name',
-                             'ignore_missing': True})
+            expected_kwargs={
+                'zone_id': 'resource_name',
+                'ignore_missing': True,
+            },
+        )
 
     def test_zone_share_get(self):
         self.verify_get(
-            self.proxy.get_zone_share, zone_share.ZoneShare,
+            self.proxy.get_zone_share,
+            zone_share.ZoneShare,
             method_args=['zone', 'zone_share'],
             expected_args=['zone_share'],
-            expected_kwargs={'zone_id': 'zone'})
+            expected_kwargs={'zone_id': 'zone'},
+        )
 
     def test_zone_shares(self):
         self.verify_list(
-            self.proxy.zone_shares, zone_share.ZoneShare,
+            self.proxy.zone_shares,
+            zone_share.ZoneShare,
             method_args=['zone'],
             expected_args=[],
-            expected_kwargs={'zone_id': 'zone'})
+            expected_kwargs={'zone_id': 'zone'},
+        )

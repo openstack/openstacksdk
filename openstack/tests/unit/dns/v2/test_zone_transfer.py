@@ -35,12 +35,11 @@ EXAMPLE_ACCEPT = {
     'key': 'FUGXMZ5N',
     'project_id': '2e43de7ce3504a8fb90a45382532c37e',
     'id': IDENTIFIER,
-    'zone_transfer_request_id': '794fdf58-6e1d-41da-8b2d-16b6d10c8827'
+    'zone_transfer_request_id': '794fdf58-6e1d-41da-8b2d-16b6d10c8827',
 }
 
 
 class TestZoneTransferRequest(base.TestCase):
-
     def test_basic(self):
         sot = zone_transfer.ZoneTransferRequest()
         # self.assertEqual('', sot.resource_key)
@@ -52,10 +51,10 @@ class TestZoneTransferRequest(base.TestCase):
         self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
 
-        self.assertDictEqual({'limit': 'limit',
-                              'marker': 'marker',
-                              'status': 'status'},
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {'limit': 'limit', 'marker': 'marker', 'status': 'status'},
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = zone_transfer.ZoneTransferRequest(**EXAMPLE_REQUEST)
@@ -66,14 +65,14 @@ class TestZoneTransferRequest(base.TestCase):
         self.assertEqual(EXAMPLE_REQUEST['key'], sot.key)
         self.assertEqual(EXAMPLE_REQUEST['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE_REQUEST['status'], sot.status)
-        self.assertEqual(EXAMPLE_REQUEST['target_project_id'],
-                         sot.target_project_id)
+        self.assertEqual(
+            EXAMPLE_REQUEST['target_project_id'], sot.target_project_id
+        )
         self.assertEqual(EXAMPLE_REQUEST['zone_id'], sot.zone_id)
         self.assertEqual(EXAMPLE_REQUEST['zone_name'], sot.zone_name)
 
 
 class TestZoneTransferAccept(base.TestCase):
-
     def test_basic(self):
         sot = zone_transfer.ZoneTransferAccept()
         # self.assertEqual('', sot.resource_key)
@@ -85,10 +84,10 @@ class TestZoneTransferAccept(base.TestCase):
         self.assertFalse(sot.allow_commit)
         self.assertFalse(sot.allow_delete)
 
-        self.assertDictEqual({'limit': 'limit',
-                              'marker': 'marker',
-                              'status': 'status'},
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {'limit': 'limit', 'marker': 'marker', 'status': 'status'},
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = zone_transfer.ZoneTransferAccept(**EXAMPLE_ACCEPT)
@@ -99,5 +98,7 @@ class TestZoneTransferAccept(base.TestCase):
         self.assertEqual(EXAMPLE_ACCEPT['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE_ACCEPT['status'], sot.status)
         self.assertEqual(EXAMPLE_ACCEPT['zone_id'], sot.zone_id)
-        self.assertEqual(EXAMPLE_ACCEPT['zone_transfer_request_id'],
-                         sot.zone_transfer_request_id)
+        self.assertEqual(
+            EXAMPLE_ACCEPT['zone_transfer_request_id'],
+            sot.zone_transfer_request_id,
+        )

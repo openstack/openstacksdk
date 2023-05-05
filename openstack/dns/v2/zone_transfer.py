@@ -17,9 +17,7 @@ from openstack import resource
 class ZoneTransferBase(_base.Resource):
     """DNS Zone Transfer Request/Accept Base Resource"""
 
-    _query_mapping = resource.QueryParameters(
-        'status'
-    )
+    _query_mapping = resource.QueryParameters('status')
 
     #: Properties
     #: Timestamp when the resource was created
@@ -41,6 +39,7 @@ class ZoneTransferBase(_base.Resource):
 
 class ZoneTransferRequest(ZoneTransferBase):
     """DNS Zone Transfer Request Resource"""
+
     base_path = '/zones/tasks/transfer_requests'
     resources_key = 'transfer_requests'
 
@@ -62,6 +61,7 @@ class ZoneTransferRequest(ZoneTransferBase):
 
 class ZoneTransferAccept(ZoneTransferBase):
     """DNS Zone Transfer Accept Resource"""
+
     base_path = '/zones/tasks/transfer_accepts'
     resources_key = 'transfer_accepts'
 

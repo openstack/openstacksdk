@@ -19,18 +19,15 @@ EXAMPLE = {
     'status': 'PENDING',
     'ptrdname': 'smtp.example.com.',
     'description': 'This is a floating ip for 127.0.0.1',
-    'links': {
-        'self': 'dummylink/reverse/floatingips/RegionOne:id'
-    },
+    'links': {'self': 'dummylink/reverse/floatingips/RegionOne:id'},
     'ttl': 600,
     'address': '172.24.4.10',
     'action': 'CREATE',
-    'id': IDENTIFIER
+    'id': IDENTIFIER,
 }
 
 
 class TestFloatingIP(base.TestCase):
-
     def test_basic(self):
         sot = fip.FloatingIP()
         self.assertEqual('', sot.resource_key)
