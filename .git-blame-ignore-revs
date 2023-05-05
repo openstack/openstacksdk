@@ -1,6 +1,7 @@
 # You can configure git to automatically use this file with the following config:
 # git config --global blame.ignoreRevsFile .git-blame-ignore-revs
 
+c7010a2f929de9fad4e1a7c7f5a17cb8e210432a  # Bump black to 23.3.0
 a36f514295a4b4e6157ce69a210f653bcc4df7f2  # Blackify everything else
 004c7352d0a4fb467a319ae9743eb6ca5ee9ce7f  # Blackify openstack.cloud
 c2ff7336cecabc665e7bf04cbe87ef8d0c2e6f9f  # Blackify openstack.clustering
