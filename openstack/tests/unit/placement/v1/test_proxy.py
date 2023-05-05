@@ -17,7 +17,6 @@ from openstack.tests.unit import test_proxy_base as test_proxy_base
 
 
 class TestPlacementProxy(test_proxy_base.TestProxyBase):
-
     def setUp(self):
         super().setUp()
         self.proxy = _proxy.Proxy(self.session)

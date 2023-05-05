@@ -15,7 +15,6 @@ from openstack.tests.functional import base
 
 
 class TestResourceProvider(base.BaseFunctionalTest):
-
     def setUp(self):
         super().setUp()
         self._set_operator_cloud(interface='admin')
@@ -29,7 +28,8 @@ class TestResourceProvider(base.BaseFunctionalTest):
 
     def tearDown(self):
         sot = self.conn.placement.delete_resource_provider(
-            self._resource_provider)
+            self._resource_provider
+        )
         self.assertIsNone(sot)
         super().tearDown()
 
@@ -39,7 +39,8 @@ class TestResourceProvider(base.BaseFunctionalTest):
 
     def test_get(self):
         sot = self.conn.placement.get_resource_provider(
-            self._resource_provider.id)
+            self._resource_provider.id
+        )
         self.assertEqual(self.NAME, sot.name)
 
     def test_list(self):

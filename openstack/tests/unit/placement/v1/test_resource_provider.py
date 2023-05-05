@@ -21,7 +21,6 @@ FAKE = {
 
 
 class TestResourceProvider(base.TestCase):
-
     def test_basic(self):
         sot = rp.ResourceProvider()
         self.assertEqual(None, sot.resource_key)
@@ -45,12 +44,14 @@ class TestResourceProvider(base.TestCase):
                 'required': 'required',
                 'id': 'uuid',
             },
-            sot._query_mapping._mapping)
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = rp.ResourceProvider(**FAKE)
         self.assertEqual(FAKE['uuid'], sot.id)
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(
-            FAKE['parent_provider_uuid'], sot.parent_provider_id,
+            FAKE['parent_provider_uuid'],
+            sot.parent_provider_id,
         )

@@ -19,7 +19,6 @@ FAKE = {
 
 
 class TestResourceClass(base.TestCase):
-
     def test_basic(self):
         sot = rc.ResourceClass()
         self.assertEqual(None, sot.resource_key)
@@ -33,8 +32,8 @@ class TestResourceClass(base.TestCase):
         self.assertFalse(sot.allow_patch)
 
         self.assertDictEqual(
-            {'limit': 'limit', 'marker': 'marker'},
-            sot._query_mapping._mapping)
+            {'limit': 'limit', 'marker': 'marker'}, sot._query_mapping._mapping
+        )
 
     def test_make_it(self):
         sot = rc.ResourceClass(**FAKE)

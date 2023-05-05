@@ -29,7 +29,12 @@ class ResourceProvider(resource.Resource):
     # Filters
 
     _query_mapping = resource.QueryParameters(
-        'name', 'member_of', 'resources', 'in_tree', 'required', id='uuid',
+        'name',
+        'member_of',
+        'resources',
+        'in_tree',
+        'required',
+        id='uuid',
     )
 
     # The parent_provider_uuid and root_provider_uuid fields were introduced in

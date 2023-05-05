@@ -70,7 +70,9 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.placement.v1.resource_class.ResourceClass`
         """
         return self._update(
-            _resource_class.ResourceClass, resource_class, **attrs,
+            _resource_class.ResourceClass,
+            resource_class,
+            **attrs,
         )
 
     def get_resource_class(self, resource_class):
@@ -87,7 +89,8 @@ class Proxy(proxy.Proxy):
             resource class matching the criteria could be found.
         """
         return self._get(
-            _resource_class.ResourceClass, resource_class,
+            _resource_class.ResourceClass,
+            resource_class,
         )
 
     def resource_classes(self, **query):
@@ -149,7 +152,9 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.placement.v1.resource_provider.ResourceProvider`
         """  # noqa: E501
         return self._update(
-            _resource_provider.ResourceProvider, resource_provider, **attrs,
+            _resource_provider.ResourceProvider,
+            resource_provider,
+            **attrs,
         )
 
     def get_resource_provider(self, resource_provider):
@@ -166,7 +171,8 @@ class Proxy(proxy.Proxy):
             resource provider matching the criteria could be found.
         """
         return self._get(
-            _resource_provider.ResourceProvider, resource_provider,
+            _resource_provider.ResourceProvider,
+            resource_provider,
         )
 
     def find_resource_provider(self, name_or_id, ignore_missing=True):
