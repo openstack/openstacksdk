@@ -37,44 +37,49 @@ from openstack.tests import fakes
 _ProjectData = collections.namedtuple(
     'ProjectData',
     'project_id, project_name, enabled, domain_id, description, '
-    'parent_id, json_response, json_request')
+    'parent_id, json_response, json_request',
+)
 
 
 _UserData = collections.namedtuple(
     'UserData',
     'user_id, password, name, email, description, domain_id, enabled, '
-    'json_response, json_request')
+    'json_response, json_request',
+)
 
 
 _GroupData = collections.namedtuple(
     'GroupData',
     'group_id, group_name, domain_id, description, json_response, '
-    'json_request')
+    'json_request',
+)
 
 
 _DomainData = collections.namedtuple(
     'DomainData',
-    'domain_id, domain_name, description, json_response, '
-    'json_request')
+    'domain_id, domain_name, description, json_response, ' 'json_request',
+)
 
 
 _ServiceData = collections.namedtuple(
     'Servicedata',
     'service_id, service_name, service_type, description, enabled, '
-    'json_response_v3, json_response_v2, json_request')
+    'json_response_v3, json_response_v2, json_request',
+)
 
 
 _EndpointDataV3 = collections.namedtuple(
     'EndpointData',
     'endpoint_id, service_id, interface, region_id, url, enabled, '
-    'json_response, json_request')
+    'json_response, json_request',
+)
 
 
 # NOTE(notmorgan): Shade does not support domain-specific roles
 # This should eventually be fixed if it becomes a main-stream feature.
 _RoleData = collections.namedtuple(
-    'RoleData',
-    'role_id, role_name, json_response, json_request')
+    'RoleData', 'role_id, role_name, json_response, json_request'
+)
 
 
 class TestCase(base.TestCase):
@@ -92,17 +97,20 @@ class TestCase(base.TestCase):
         def _nosleep(seconds):
             return realsleep(seconds * 0.0001)
 
-        self.sleep_fixture = self.useFixture(fixtures.MonkeyPatch(
-                                             'time.sleep',
-                                             _nosleep))
+        self.sleep_fixture = self.useFixture(
+            fixtures.MonkeyPatch('time.sleep', _nosleep)
+        )
         self.fixtures_directory = 'openstack/tests/unit/fixtures'
         self.os_fixture = self.useFixture(
-            os_fixture.ConnectionFixture(project_id=fakes.PROJECT_ID))
+            os_fixture.ConnectionFixture(project_id=fakes.PROJECT_ID)
+        )
 
         # Isolate openstack.config from test environment
         config = tempfile.NamedTemporaryFile(delete=False)
-        cloud_path = '%s/clouds/%s' % (self.fixtures_directory,
-                                       cloud_config_fixture)
+        cloud_path = '%s/clouds/%s' % (
+            self.fixtures_directory,
+            cloud_config_fixture,
+        )
         with open(cloud_path, 'rb') as f:
             content = f.read()
             config.write(content)
@@ -115,7 +123,8 @@ class TestCase(base.TestCase):
         self.config = occ.OpenStackConfig(
             config_files=[config.name],
             vendor_files=[vendor.name],
-            secure_files=['non-existant'])
+            secure_files=['non-existant'],
+        )
 
         self.oslo_config_dict = {
             # All defaults for nova
@@ -126,7 +135,7 @@ class TestCase(base.TestCase):
             'heat': {
                 'region_name': 'SpecialRegion',
                 'interface': 'internal',
-                'endpoint_override': 'https://example.org:8888/heat/v2'
+                'endpoint_override': 'https://example.org:8888/heat/v2',
             },
             # test a service with dashes
             'ironic_inspector': {
@@ -151,7 +160,8 @@ class TestCase(base.TestCase):
         # request in the correct orders.
         self._uri_registry = collections.OrderedDict()
         self.discovery_json = os.path.join(
-            self.fixtures_directory, 'discovery.json')
+            self.fixtures_directory, 'discovery.json'
+        )
         self.use_keystone_v3()
         self.__register_uris_called = False
 
@@ -166,11 +176,18 @@ class TestCase(base.TestCase):
         return conf
 
     # TODO(shade) Update this to handle service type aliases
-    def get_mock_url(self, service_type, interface='public', resource=None,
-                     append=None, base_url_append=None,
-                     qs_elements=None):
+    def get_mock_url(
+        self,
+        service_type,
+        interface='public',
+        resource=None,
+        append=None,
+        base_url_append=None,
+        qs_elements=None,
+    ):
         endpoint_url = self.cloud.endpoint_for(
-            service_type=service_type, interface=interface)
+            service_type=service_type, interface=interface
+        )
         # Strip trailing slashes, so as not to produce double-slashes below
         if endpoint_url.endswith('/'):
             endpoint_url = endpoint_url[:-1]
@@ -184,13 +201,17 @@ class TestCase(base.TestCase):
             to_join.extend([urllib.parse.quote(i) for i in append])
         if qs_elements is not None:
             qs = '?%s' % '&'.join(qs_elements)
-        return '%(uri)s%(qs)s' % {
-            'uri': '/'.join(to_join),
-            'qs': qs}
+        return '%(uri)s%(qs)s' % {'uri': '/'.join(to_join), 'qs': qs}
 
-    def mock_for_keystone_projects(self, project=None, v3=True,
-                                   list_get=False, id_get=False,
-                                   project_list=None, project_count=None):
+    def mock_for_keystone_projects(
+        self,
+        project=None,
+        v3=True,
+        list_get=False,
+        id_get=False,
+        project_list=None,
+        project_count=None,
+    ):
         if project:
             assert not (project_list or project_count)
         elif project_list:
@@ -198,8 +219,9 @@ class TestCase(base.TestCase):
         elif project_count:
             assert not (project or project_list)
         else:
-            raise Exception('Must specify a project, project_list, '
-                            'or project_count')
+            raise Exception(
+                'Must specify a project, project_list, ' 'or project_count'
+            )
         assert list_get or id_get
 
         base_url_append = 'v3' if v3 else None
@@ -207,40 +229,57 @@ class TestCase(base.TestCase):
             project_list = [project]
         elif project_count:
             # Generate multiple projects
-            project_list = [self._get_project_data(v3=v3)
-                            for c in range(0, project_count)]
+            project_list = [
+                self._get_project_data(v3=v3) for c in range(0, project_count)
+            ]
         uri_mock_list = []
         if list_get:
             uri_mock_list.append(
-                dict(method='GET',
-                     uri=self.get_mock_url(
-                         service_type='identity',
-                         interface='admin',
-                         resource='projects',
-                         base_url_append=base_url_append),
-                     status_code=200,
-                     json={'projects': [p.json_response['project']
-                                        for p in project_list]})
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        service_type='identity',
+                        interface='admin',
+                        resource='projects',
+                        base_url_append=base_url_append,
+                    ),
+                    status_code=200,
+                    json={
+                        'projects': [
+                            p.json_response['project'] for p in project_list
+                        ]
+                    },
+                )
             )
         if id_get:
             for p in project_list:
                 uri_mock_list.append(
-                    dict(method='GET',
-                         uri=self.get_mock_url(
-                             service_type='identity',
-                             interface='admin',
-                             resource='projects',
-                             append=[p.project_id],
-                             base_url_append=base_url_append),
-                         status_code=200,
-                         json=p.json_response)
+                    dict(
+                        method='GET',
+                        uri=self.get_mock_url(
+                            service_type='identity',
+                            interface='admin',
+                            resource='projects',
+                            append=[p.project_id],
+                            base_url_append=base_url_append,
+                        ),
+                        status_code=200,
+                        json=p.json_response,
+                    )
                 )
         self.__do_register_uris(uri_mock_list)
         return project_list
 
-    def _get_project_data(self, project_name=None, enabled=None,
-                          domain_id=None, description=None, v3=True,
-                          project_id=None, parent_id=None):
+    def _get_project_data(
+        self,
+        project_name=None,
+        enabled=None,
+        domain_id=None,
+        description=None,
+        v3=True,
+        project_id=None,
+        parent_id=None,
+    ):
         project_name = project_name or self.getUniqueString('projectName')
         project_id = uuid.UUID(project_id or uuid.uuid4().hex).hex
         if parent_id:
@@ -264,9 +303,16 @@ class TestCase(base.TestCase):
             response['description'] = description
             request['description'] = description
         request.setdefault('description', None)
-        return _ProjectData(project_id, project_name, enabled, domain_id,
-                            description, parent_id,
-                            {'project': response}, {'project': request})
+        return _ProjectData(
+            project_id,
+            project_name,
+            enabled,
+            domain_id,
+            description,
+            parent_id,
+            {'project': response},
+            {'project': request},
+        )
 
     def _get_group_data(self, name=None, domain_id=None, description=None):
         group_id = uuid.uuid4().hex
@@ -278,8 +324,14 @@ class TestCase(base.TestCase):
             response['description'] = description
             request['description'] = description
 
-        return _GroupData(group_id, name, domain_id, description,
-                          {'group': response}, {'group': request})
+        return _GroupData(
+            group_id,
+            name,
+            domain_id,
+            description,
+            {'group': response},
+            {'group': request},
+        )
 
     def _get_user_data(self, name=None, password=None, **kwargs):
 
@@ -305,16 +357,27 @@ class TestCase(base.TestCase):
         if response['description']:
             request['description'] = response['description']
 
-        self.assertIs(0, len(kwargs), message='extra key-word args received '
-                                              'on _get_user_data')
+        self.assertIs(
+            0,
+            len(kwargs),
+            message='extra key-word args received ' 'on _get_user_data',
+        )
 
-        return _UserData(user_id, password, name, response['email'],
-                         response['description'], response.get('domain_id'),
-                         response.get('enabled'), {'user': response},
-                         {'user': request})
+        return _UserData(
+            user_id,
+            password,
+            name,
+            response['email'],
+            response['description'],
+            response.get('domain_id'),
+            response.get('enabled'),
+            {'user': response},
+            {'user': request},
+        )
 
-    def _get_domain_data(self, domain_name=None, description=None,
-                         enabled=None):
+    def _get_domain_data(
+        self, domain_name=None, description=None, enabled=None
+    ):
         domain_id = uuid.uuid4().hex
         domain_name = domain_name or self.getUniqueString('domainName')
         response = {'id': domain_id, 'name': domain_name}
@@ -326,41 +389,76 @@ class TestCase(base.TestCase):
             response['description'] = description
             request['description'] = description
         response.setdefault('enabled', True)
-        return _DomainData(domain_id, domain_name, description,
-                           {'domain': response}, {'domain': request})
+        return _DomainData(
+            domain_id,
+            domain_name,
+            description,
+            {'domain': response},
+            {'domain': request},
+        )
 
-    def _get_service_data(self, type=None, name=None, description=None,
-                          enabled=True):
+    def _get_service_data(
+        self, type=None, name=None, description=None, enabled=True
+    ):
         service_id = uuid.uuid4().hex
         name = name or uuid.uuid4().hex
         type = type or uuid.uuid4().hex
 
-        response = {'id': service_id, 'name': name, 'type': type,
-                    'enabled': enabled}
+        response = {
+            'id': service_id,
+            'name': name,
+            'type': type,
+            'enabled': enabled,
+        }
         if description is not None:
             response['description'] = description
         request = response.copy()
         request.pop('id')
-        return _ServiceData(service_id, name, type, description, enabled,
-                            {'service': response},
-                            {'OS-KSADM:service': response}, request)
+        return _ServiceData(
+            service_id,
+            name,
+            type,
+            description,
+            enabled,
+            {'service': response},
+            {'OS-KSADM:service': response},
+            request,
+        )
 
-    def _get_endpoint_v3_data(self, service_id=None, region=None,
-                              url=None, interface=None, enabled=True):
+    def _get_endpoint_v3_data(
+        self,
+        service_id=None,
+        region=None,
+        url=None,
+        interface=None,
+        enabled=True,
+    ):
         endpoint_id = uuid.uuid4().hex
         service_id = service_id or uuid.uuid4().hex
         region = region or uuid.uuid4().hex
         url = url or 'https://example.com/'
         interface = interface or uuid.uuid4().hex
 
-        response = {'id': endpoint_id, 'service_id': service_id,
-                    'region_id': region, 'interface': interface,
-                    'url': url, 'enabled': enabled}
+        response = {
+            'id': endpoint_id,
+            'service_id': service_id,
+            'region_id': region,
+            'interface': interface,
+            'url': url,
+            'enabled': enabled,
+        }
         request = response.copy()
         request.pop('id')
-        return _EndpointDataV3(endpoint_id, service_id, interface, region,
-                               url, enabled, {'endpoint': response},
-                               {'endpoint': request})
+        return _EndpointDataV3(
+            endpoint_id,
+            service_id,
+            interface,
+            region,
+            url,
+            enabled,
+            {'endpoint': response},
+            {'endpoint': request},
+        )
 
     def _get_role_data(self, role_name=None):
         role_id = uuid.uuid4().hex
@@ -368,20 +466,28 @@ class TestCase(base.TestCase):
         request = {'name': role_name}
         response = request.copy()
         response['id'] = role_id
-        return _RoleData(role_id, role_name, {'role': response},
-                         {'role': request})
+        return _RoleData(
+            role_id, role_name, {'role': response}, {'role': request}
+        )
 
     def use_broken_keystone(self):
         self.adapter = self.useFixture(rm_fixture.Fixture())
         self.calls = []
         self._uri_registry.clear()
-        self.__do_register_uris([
-            dict(method='GET', uri='https://identity.example.com/',
-                 text=open(self.discovery_json, 'r').read()),
-            dict(method='POST',
-                 uri='https://identity.example.com/v3/auth/tokens',
-                 status_code=400),
-        ])
+        self.__do_register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://identity.example.com/',
+                    text=open(self.discovery_json, 'r').read(),
+                ),
+                dict(
+                    method='POST',
+                    uri='https://identity.example.com/v3/auth/tokens',
+                    status_code=400,
+                ),
+            ]
+        )
         self._make_test_cloud(identity_api_version='3')
 
     def use_nothing(self):
@@ -389,40 +495,38 @@ class TestCase(base.TestCase):
         self._uri_registry.clear()
 
     def get_keystone_v3_token(
-            self,
-            project_name='admin',
+        self,
+        project_name='admin',
     ):
         return dict(
             method='POST',
             uri='https://identity.example.com/v3/auth/tokens',
-            headers={
-                'X-Subject-Token': self.getUniqueString('KeystoneToken')
-            },
+            headers={'X-Subject-Token': self.getUniqueString('KeystoneToken')},
             json=self.os_fixture.v3_token,
-            validate=dict(json={
-                'auth': {
-                    'identity': {
-                        'methods': ['password'],
-                        'password': {
-                            'user': {
-                                'domain': {
-                                    'name': 'default',
-                                },
-                                'name': 'admin',
-                                'password': 'password'
-                            }
-                        }
-                    },
-                    'scope': {
-                        'project': {
-                            'domain': {
-                                'name': 'default'
+            validate=dict(
+                json={
+                    'auth': {
+                        'identity': {
+                            'methods': ['password'],
+                            'password': {
+                                'user': {
+                                    'domain': {
+                                        'name': 'default',
+                                    },
+                                    'name': 'admin',
+                                    'password': 'password',
+                                }
                             },
-                            'name': project_name
-                        }
+                        },
+                        'scope': {
+                            'project': {
+                                'domain': {'name': 'default'},
+                                'name': project_name,
+                            }
+                        },
                     }
                 }
-            }),
+            ),
         )
 
     def get_keystone_discovery(self):
@@ -437,10 +541,12 @@ class TestCase(base.TestCase):
         self.adapter = self.useFixture(rm_fixture.Fixture())
         self.calls = []
         self._uri_registry.clear()
-        self.__do_register_uris([
-            self.get_keystone_discovery(),
-            self.get_keystone_v3_token(),
-        ])
+        self.__do_register_uris(
+            [
+                self.get_keystone_discovery(),
+                self.get_keystone_v3_token(),
+            ]
+        )
         self._make_test_cloud(identity_api_version='3')
 
     def use_keystone_v2(self):
@@ -448,119 +554,171 @@ class TestCase(base.TestCase):
         self.calls = []
         self._uri_registry.clear()
 
-        self.__do_register_uris([
-            self.get_keystone_discovery(),
-            dict(method='POST',
-                 uri='https://identity.example.com/v2.0/tokens',
-                 json=self.os_fixture.v2_token,
-                 ),
-        ])
+        self.__do_register_uris(
+            [
+                self.get_keystone_discovery(),
+                dict(
+                    method='POST',
+                    uri='https://identity.example.com/v2.0/tokens',
+                    json=self.os_fixture.v2_token,
+                ),
+            ]
+        )
 
-        self._make_test_cloud(cloud_name='_test_cloud_v2_',
-                              identity_api_version='2.0')
+        self._make_test_cloud(
+            cloud_name='_test_cloud_v2_', identity_api_version='2.0'
+        )
 
     def _make_test_cloud(self, cloud_name='_test_cloud_', **kwargs):
         test_cloud = os.environ.get('OPENSTACKSDK_OS_CLOUD', cloud_name)
         self.cloud_config = self.config.get_one(
-            cloud=test_cloud, validate=True, **kwargs)
+            cloud=test_cloud, validate=True, **kwargs
+        )
         self.cloud = openstack.connection.Connection(
-            config=self.cloud_config, strict=self.strict_cloud)
+            config=self.cloud_config, strict=self.strict_cloud
+        )
 
     def get_cinder_discovery_mock_dict(
-            self,
-            block_storage_version_json='block-storage-version.json',
-            block_storage_discovery_url='https://block-storage.example.com/'):
+        self,
+        block_storage_version_json='block-storage-version.json',
+        block_storage_discovery_url='https://block-storage.example.com/',
+    ):
         discovery_fixture = os.path.join(
-            self.fixtures_directory, block_storage_version_json)
-        return dict(method='GET', uri=block_storage_discovery_url,
-                    text=open(discovery_fixture, 'r').read())
+            self.fixtures_directory, block_storage_version_json
+        )
+        return dict(
+            method='GET',
+            uri=block_storage_discovery_url,
+            text=open(discovery_fixture, 'r').read(),
+        )
 
     def get_glance_discovery_mock_dict(
-            self,
-            image_version_json='image-version.json',
-            image_discovery_url='https://image.example.com/'):
+        self,
+        image_version_json='image-version.json',
+        image_discovery_url='https://image.example.com/',
+    ):
         discovery_fixture = os.path.join(
-            self.fixtures_directory, image_version_json)
-        return dict(method='GET', uri=image_discovery_url,
-                    status_code=300,
-                    text=open(discovery_fixture, 'r').read())
+            self.fixtures_directory, image_version_json
+        )
+        return dict(
+            method='GET',
+            uri=image_discovery_url,
+            status_code=300,
+            text=open(discovery_fixture, 'r').read(),
+        )
 
     def get_nova_discovery_mock_dict(
-            self,
-            compute_version_json='compute-version.json',
-            compute_discovery_url='https://compute.example.com/v2.1/'):
+        self,
+        compute_version_json='compute-version.json',
+        compute_discovery_url='https://compute.example.com/v2.1/',
+    ):
         discovery_fixture = os.path.join(
-            self.fixtures_directory, compute_version_json)
+            self.fixtures_directory, compute_version_json
+        )
         return dict(
             method='GET',
             uri=compute_discovery_url,
-            text=open(discovery_fixture, 'r').read())
+            text=open(discovery_fixture, 'r').read(),
+        )
 
     def get_placement_discovery_mock_dict(
-            self, discovery_fixture='placement.json'):
+        self, discovery_fixture='placement.json'
+    ):
         discovery_fixture = os.path.join(
-            self.fixtures_directory, discovery_fixture)
-        return dict(method='GET', uri="https://placement.example.com/",
-                    text=open(discovery_fixture, 'r').read())
+            self.fixtures_directory, discovery_fixture
+        )
+        return dict(
+            method='GET',
+            uri="https://placement.example.com/",
+            text=open(discovery_fixture, 'r').read(),
+        )
 
     def get_designate_discovery_mock_dict(self):
-        discovery_fixture = os.path.join(
-            self.fixtures_directory, "dns.json")
-        return dict(method='GET', uri="https://dns.example.com/",
-                    text=open(discovery_fixture, 'r').read())
+        discovery_fixture = os.path.join(self.fixtures_directory, "dns.json")
+        return dict(
+            method='GET',
+            uri="https://dns.example.com/",
+            text=open(discovery_fixture, 'r').read(),
+        )
 
     def get_ironic_discovery_mock_dict(self):
         discovery_fixture = os.path.join(
-            self.fixtures_directory, "baremetal.json")
-        return dict(method='GET', uri="https://baremetal.example.com/",
-                    text=open(discovery_fixture, 'r').read())
+            self.fixtures_directory, "baremetal.json"
+        )
+        return dict(
+            method='GET',
+            uri="https://baremetal.example.com/",
+            text=open(discovery_fixture, 'r').read(),
+        )
 
     def get_senlin_discovery_mock_dict(self):
         discovery_fixture = os.path.join(
-            self.fixtures_directory, "clustering.json")
-        return dict(method='GET', uri="https://clustering.example.com/",
-                    text=open(discovery_fixture, 'r').read())
+            self.fixtures_directory, "clustering.json"
+        )
+        return dict(
+            method='GET',
+            uri="https://clustering.example.com/",
+            text=open(discovery_fixture, 'r').read(),
+        )
 
     def use_compute_discovery(
-            self, compute_version_json='compute-version.json',
-            compute_discovery_url='https://compute.example.com/v2.1/'):
-        self.__do_register_uris([
-            self.get_nova_discovery_mock_dict(
-                compute_version_json, compute_discovery_url),
-        ])
+        self,
+        compute_version_json='compute-version.json',
+        compute_discovery_url='https://compute.example.com/v2.1/',
+    ):
+        self.__do_register_uris(
+            [
+                self.get_nova_discovery_mock_dict(
+                    compute_version_json, compute_discovery_url
+                ),
+            ]
+        )
 
     def get_cyborg_discovery_mock_dict(self):
         discovery_fixture = os.path.join(
-            self.fixtures_directory, "accelerator.json")
-        return dict(method='GET', uri="https://accelerator.example.com/",
-                    text=open(discovery_fixture, 'r').read())
+            self.fixtures_directory, "accelerator.json"
+        )
+        return dict(
+            method='GET',
+            uri="https://accelerator.example.com/",
+            text=open(discovery_fixture, 'r').read(),
+        )
 
     def get_manila_discovery_mock_dict(self):
         discovery_fixture = os.path.join(
-            self.fixtures_directory, "shared-file-system.json")
-        return dict(method='GET',
-                    uri="https://shared-file-system.example.com/",
-                    text=open(discovery_fixture, 'r').read())
+            self.fixtures_directory, "shared-file-system.json"
+        )
+        return dict(
+            method='GET',
+            uri="https://shared-file-system.example.com/",
+            text=open(discovery_fixture, 'r').read(),
+        )
 
     def use_glance(
-            self, image_version_json='image-version.json',
-            image_discovery_url='https://image.example.com/'):
+        self,
+        image_version_json='image-version.json',
+        image_discovery_url='https://image.example.com/',
+    ):
         # NOTE(notmorgan): This method is only meant to be used in "setUp"
         # where the ordering of the url being registered is tightly controlled
         # if the functionality of .use_glance is meant to be used during an
         # actual test case, use .get_glance_discovery_mock and apply to the
         # right location in the mock_uris when calling .register_uris
-        self.__do_register_uris([
-            self.get_glance_discovery_mock_dict(
-                image_version_json, image_discovery_url)])
+        self.__do_register_uris(
+            [
+                self.get_glance_discovery_mock_dict(
+                    image_version_json, image_discovery_url
+                )
+            ]
+        )
 
     def use_cinder(self):
-        self.__do_register_uris([
-            self.get_cinder_discovery_mock_dict()])
+        self.__do_register_uris([self.get_cinder_discovery_mock_dict()])
 
     def use_placement(self, **kwargs):
-        self.__do_register_uris([
-            self.get_placement_discovery_mock_dict(**kwargs)])
+        self.__do_register_uris(
+            [self.get_placement_discovery_mock_dict(**kwargs)]
+        )
 
     def use_designate(self):
         # NOTE(slaweq): This method is only meant to be used in "setUp"
@@ -568,8 +726,7 @@ class TestCase(base.TestCase):
         # if the functionality of .use_designate is meant to be used during an
         # actual test case, use .get_designate_discovery_mock and apply to the
         # right location in the mock_uris when calling .register_uris
-        self.__do_register_uris([
-            self.get_designate_discovery_mock_dict()])
+        self.__do_register_uris([self.get_designate_discovery_mock_dict()])
 
     def use_ironic(self):
         # NOTE(TheJulia): This method is only meant to be used in "setUp"
@@ -577,8 +734,7 @@ class TestCase(base.TestCase):
         # if the functionality of .use_ironic is meant to be used during an
         # actual test case, use .get_ironic_discovery_mock and apply to the
         # right location in the mock_uris when calling .register_uris
-        self.__do_register_uris([
-            self.get_ironic_discovery_mock_dict()])
+        self.__do_register_uris([self.get_ironic_discovery_mock_dict()])
 
     def use_senlin(self):
         # NOTE(elachance): This method is only meant to be used in "setUp"
@@ -586,8 +742,7 @@ class TestCase(base.TestCase):
         # if the functionality of .use_senlin is meant to be used during an
         # actual test case, use .get_senlin_discovery_mock and apply to the
         # right location in the mock_uris when calling .register_uris
-        self.__do_register_uris([
-            self.get_senlin_discovery_mock_dict()])
+        self.__do_register_uris([self.get_senlin_discovery_mock_dict()])
 
     def use_cyborg(self):
         # NOTE(s_shogo): This method is only meant to be used in "setUp"
@@ -595,8 +750,7 @@ class TestCase(base.TestCase):
         # if the functionality of .use_cyborg is meant to be used during an
         # actual test case, use .get_cyborg_discovery_mock and apply to the
         # right location in the mock_uris when calling .register_uris
-        self.__do_register_uris([
-            self.get_cyborg_discovery_mock_dict()])
+        self.__do_register_uris([self.get_cyborg_discovery_mock_dict()])
 
     def use_manila(self):
         # NOTE(gouthamr): This method is only meant to be used in "setUp"
@@ -604,8 +758,7 @@ class TestCase(base.TestCase):
         # if the functionality of .use_manila is meant to be used during an
         # actual test case, use .get_manila_discovery_mock and apply to the
         # right location in the mock_uris when calling .register_uris
-        self.__do_register_uris([
-            self.get_manila_discovery_mock_dict()])
+        self.__do_register_uris([self.get_manila_discovery_mock_dict()])
 
     def register_uris(self, uri_mock_list=None):
         """Mock a list of URIs and responses via requests mock.
@@ -645,10 +798,11 @@ class TestCase(base.TestCase):
 
     def __do_register_uris(self, uri_mock_list=None):
         for to_mock in uri_mock_list:
-            kw_params = {k: to_mock.pop(k)
-                         for k in ('request_headers', 'complete_qs',
-                                   '_real_http')
-                         if k in to_mock}
+            kw_params = {
+                k: to_mock.pop(k)
+                for k in ('request_headers', 'complete_qs', '_real_http')
+                if k in to_mock
+            }
 
             method = to_mock.pop('method')
             uri = to_mock.pop('uri')
@@ -656,44 +810,51 @@ class TestCase(base.TestCase):
             # case "|" is used so that the split can be a bit easier on
             # maintainers of this code.
             key = '{method}|{uri}|{params}'.format(
-                method=method, uri=uri, params=kw_params)
+                method=method, uri=uri, params=kw_params
+            )
             validate = to_mock.pop('validate', {})
             valid_keys = set(['json', 'headers', 'params', 'data'])
             invalid_keys = set(validate.keys()) - valid_keys
             if invalid_keys:
                 raise TypeError(
                     "Invalid values passed to validate: {keys}".format(
-                        keys=invalid_keys))
-            headers = structures.CaseInsensitiveDict(to_mock.pop('headers',
-                                                                 {}))
+                        keys=invalid_keys
+                    )
+                )
+            headers = structures.CaseInsensitiveDict(
+                to_mock.pop('headers', {})
+            )
             if 'content-type' not in headers:
                 headers[u'content-type'] = 'application/json'
 
             if 'exc' not in to_mock:
                 to_mock['headers'] = headers
 
-            self.calls += [
-                dict(
-                    method=method,
-                    url=uri, **validate)
-            ]
+            self.calls += [dict(method=method, url=uri, **validate)]
             self._uri_registry.setdefault(
-                key, {'response_list': [], 'kw_params': kw_params})
+                key, {'response_list': [], 'kw_params': kw_params}
+            )
             if self._uri_registry[key]['kw_params'] != kw_params:
                 raise AssertionError(
                     'PROGRAMMING ERROR: key-word-params '
                     'should be part of the uri_key and cannot change, '
                     'it will affect the matcher in requests_mock. '
-                    '%(old)r != %(new)r' %
-                    {'old': self._uri_registry[key]['kw_params'],
-                     'new': kw_params})
+                    '%(old)r != %(new)r'
+                    % {
+                        'old': self._uri_registry[key]['kw_params'],
+                        'new': kw_params,
+                    }
+                )
             self._uri_registry[key]['response_list'].append(to_mock)
 
         for mocked, params in self._uri_registry.items():
             mock_method, mock_uri, _ignored = mocked.split('|', 2)
             self.adapter.register_uri(
-                mock_method, mock_uri, params['response_list'],
-                **params['kw_params'])
+                mock_method,
+                mock_uri,
+                params['response_list'],
+                **params['kw_params']
+            )
 
     def assert_no_calls(self):
         # TODO(mordred) For now, creating the adapter for self.conn is
@@ -704,46 +865,65 @@ class TestCase(base.TestCase):
 
     def assert_calls(self, stop_after=None, do_count=True):
         for (x, (call, history)) in enumerate(
-                zip(self.calls, self.adapter.request_history)):
+            zip(self.calls, self.adapter.request_history)
+        ):
             if stop_after and x > stop_after:
                 break
 
             call_uri_parts = urllib.parse.urlparse(call['url'])
             history_uri_parts = urllib.parse.urlparse(history.url)
             self.assertEqual(
-                (call['method'], call_uri_parts.scheme, call_uri_parts.netloc,
-                 call_uri_parts.path, call_uri_parts.params,
-                 urllib.parse.parse_qs(call_uri_parts.query)),
-                (history.method, history_uri_parts.scheme,
-                 history_uri_parts.netloc, history_uri_parts.path,
-                 history_uri_parts.params,
-                 urllib.parse.parse_qs(history_uri_parts.query)),
-                ('REST mismatch on call %(index)d. Expected %(call)r. '
-                 'Got %(history)r). '
-                 'NOTE: query string order differences wont cause mismatch' %
-                 {
-                     'index': x,
-                     'call': '{method} {url}'.format(method=call['method'],
-                                                     url=call['url']),
-                     'history': '{method} {url}'.format(
-                         method=history.method,
-                         url=history.url)})
+                (
+                    call['method'],
+                    call_uri_parts.scheme,
+                    call_uri_parts.netloc,
+                    call_uri_parts.path,
+                    call_uri_parts.params,
+                    urllib.parse.parse_qs(call_uri_parts.query),
+                ),
+                (
+                    history.method,
+                    history_uri_parts.scheme,
+                    history_uri_parts.netloc,
+                    history_uri_parts.path,
+                    history_uri_parts.params,
+                    urllib.parse.parse_qs(history_uri_parts.query),
+                ),
+                (
+                    'REST mismatch on call %(index)d. Expected %(call)r. '
+                    'Got %(history)r). '
+                    'NOTE: query string order differences wont cause mismatch'
+                    % {
+                        'index': x,
+                        'call': '{method} {url}'.format(
+                            method=call['method'], url=call['url']
+                        ),
+                        'history': '{method} {url}'.format(
+                            method=history.method, url=history.url
+                        ),
+                    }
+                ),
             )
             if 'json' in call:
                 self.assertEqual(
-                    call['json'], history.json(),
-                    'json content mismatch in call {index}'.format(index=x))
+                    call['json'],
+                    history.json(),
+                    'json content mismatch in call {index}'.format(index=x),
+                )
             # headers in a call isn't exhaustive - it's checking to make sure
             # a specific header or headers are there, not that they are the
             # only headers
             if 'headers' in call:
                 for key, value in call['headers'].items():
                     self.assertEqual(
-                        value, history.headers[key],
-                        'header mismatch in call {index}'.format(index=x))
+                        value,
+                        history.headers[key],
+                        'header mismatch in call {index}'.format(index=x),
+                    )
         if do_count:
             self.assertEqual(
-                len(self.calls), len(self.adapter.request_history))
+                len(self.calls), len(self.adapter.request_history)
+            )
 
     def assertResourceEqual(self, actual, expected, resource_type):
         """Helper for the assertEqual which compares Resource object against
@@ -756,7 +936,7 @@ class TestCase(base.TestCase):
         """
         return self.assertEqual(
             resource_type(**expected).to_dict(computed=False),
-            actual.to_dict(computed=False)
+            actual.to_dict(computed=False),
         )
 
     def assertResourceListEqual(self, actual, expected, resource_type):
@@ -771,12 +951,11 @@ class TestCase(base.TestCase):
         """
         self.assertEqual(
             [resource_type(**f).to_dict(computed=False) for f in expected],
-            [f.to_dict(computed=False) for f in actual]
+            [f.to_dict(computed=False) for f in actual],
         )
 
 
 class IronicTestCase(TestCase):
-
     def setUp(self):
         super(IronicTestCase, self).setUp()
         self.use_ironic()

@@ -12,7 +12,6 @@
 
 
 class Formatter:
-
     @classmethod
     def serialize(cls, value):
         """Return a string representing the formatted value"""
@@ -25,7 +24,6 @@ class Formatter:
 
 
 class BoolStr(Formatter):
-
     @classmethod
     def deserialize(cls, value):
         """Convert a boolean string to a boolean"""
@@ -35,8 +33,9 @@ class BoolStr(Formatter):
         elif "false" == expr:
             return False
         else:
-            raise ValueError("Unable to deserialize boolean string: %s"
-                             % value)
+            raise ValueError(
+                "Unable to deserialize boolean string: %s" % value
+            )
 
     @classmethod
     def serialize(cls, value):
@@ -47,5 +46,4 @@ class BoolStr(Formatter):
             else:
                 return "false"
         else:
-            raise ValueError("Unable to serialize boolean string: %s"
-                             % value)
+            raise ValueError("Unable to serialize boolean string: %s" % value)

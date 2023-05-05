@@ -19,16 +19,18 @@ import pbr.version
 
 
 def show_version(args):
-    print("OpenstackSDK Version %s" %
-          pbr.version.VersionInfo('openstacksdk').version_string_with_vcs())
+    print(
+        "OpenstackSDK Version %s"
+        % pbr.version.VersionInfo('openstacksdk').version_string_with_vcs()
+    )
 
 
 parser = argparse.ArgumentParser(description="Openstack SDK")
-subparsers = parser.add_subparsers(title='commands',
-                                   dest='command')
+subparsers = parser.add_subparsers(title='commands', dest='command')
 
-cmd_version = subparsers.add_parser('version',
-                                    help='show Openstack SDK version')
+cmd_version = subparsers.add_parser(
+    'version', help='show Openstack SDK version'
+)
 cmd_version.set_defaults(func=show_version)
 
 args = parser.parse_args()

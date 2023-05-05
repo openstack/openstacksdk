@@ -48,10 +48,7 @@ USER_CONF = {
         'force_ipv4': True,
     },
     'metrics': {
-        'statsd': {
-            'host': '127.0.0.1',
-            'port': '1234'
-        },
+        'statsd': {'host': '127.0.0.1', 'port': '1234'},
         'influxdb': {
             'host': '127.0.0.1',
             'port': '1234',
@@ -61,7 +58,7 @@ USER_CONF = {
             'database': 'database',
             'measurement': 'measurement.name',
             'timeout': 10,
-        }
+        },
     },
     'clouds': {
         '_test-cloud_': {
@@ -112,30 +109,37 @@ USER_CONF = {
                 'domain_id': '6789',
                 'project_domain_id': '123456789',
             },
-            'networks': [{
-                'name': 'a-public',
-                'routes_externally': True,
-                'nat_source': True,
-            }, {
-                'name': 'another-public',
-                'routes_externally': True,
-                'default_interface': True,
-            }, {
-                'name': 'a-private',
-                'routes_externally': False,
-            }, {
-                'name': 'another-private',
-                'routes_externally': False,
-                'nat_destination': True,
-            }, {
-                'name': 'split-default',
-                'routes_externally': True,
-                'routes_ipv4_externally': False,
-            }, {
-                'name': 'split-no-default',
-                'routes_ipv6_externally': False,
-                'routes_ipv4_externally': True,
-            }],
+            'networks': [
+                {
+                    'name': 'a-public',
+                    'routes_externally': True,
+                    'nat_source': True,
+                },
+                {
+                    'name': 'another-public',
+                    'routes_externally': True,
+                    'default_interface': True,
+                },
+                {
+                    'name': 'a-private',
+                    'routes_externally': False,
+                },
+                {
+                    'name': 'another-private',
+                    'routes_externally': False,
+                    'nat_destination': True,
+                },
+                {
+                    'name': 'split-default',
+                    'routes_externally': True,
+                    'routes_ipv4_externally': False,
+                },
+                {
+                    'name': 'split-no-default',
+                    'routes_ipv6_externally': False,
+                    'routes_ipv4_externally': True,
+                },
+            ],
             'region_name': 'test-region',
         },
         '_test_cloud_regions': {
@@ -150,13 +154,13 @@ USER_CONF = {
                     'name': 'region1',
                     'values': {
                         'external_network': 'region1-network',
-                    }
+                    },
                 },
                 {
                     'name': 'region2',
                     'values': {
                         'external_network': 'my-network',
-                    }
+                    },
                 },
                 {
                     'name': 'region-no-value',
@@ -198,13 +202,13 @@ USER_CONF = {
                 'statsd': {
                     'host': '127.0.0.1',
                     'port': 4321,
-                    'prefix': 'statsd.override.prefix'
+                    'prefix': 'statsd.override.prefix',
                 },
                 'influxdb': {
                     'username': 'override-username',
                     'password': 'override-password',
                     'database': 'override-database',
-                }
+                },
             },
         },
     },

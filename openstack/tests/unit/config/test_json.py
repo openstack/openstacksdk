@@ -24,7 +24,6 @@ from openstack.tests.unit.config import base
 
 
 class TestConfig(base.TestCase):
-
     def json_diagnostics(self, exc_info):
         self.addDetail('filename', content.text_content(self.filename))
         for error in sorted(self.validator.iter_errors(self.json_data)):
@@ -32,8 +31,8 @@ class TestConfig(base.TestCase):
 
     def test_defaults_valid_json(self):
         _schema_path = os.path.join(
-            os.path.dirname(os.path.realpath(defaults.__file__)),
-            'schema.json')
+            os.path.dirname(os.path.realpath(defaults.__file__)), 'schema.json'
+        )
         with open(_schema_path, 'r') as f:
             schema = json.load(f)
         self.validator = jsonschema.Draft4Validator(schema)
@@ -41,7 +40,8 @@ class TestConfig(base.TestCase):
 
         self.filename = os.path.join(
             os.path.dirname(os.path.realpath(defaults.__file__)),
-            'defaults.json')
+            'defaults.json',
+        )
         with open(self.filename, 'r') as f:
             self.json_data = json.load(f)
 
@@ -50,7 +50,8 @@ class TestConfig(base.TestCase):
     def test_vendors_valid_json(self):
         _schema_path = os.path.join(
             os.path.dirname(os.path.realpath(defaults.__file__)),
-            'vendor-schema.json')
+            'vendor-schema.json',
+        )
         with open(_schema_path, 'r') as f:
             schema = json.load(f)
             self.validator = jsonschema.Draft4Validator(schema)
@@ -58,8 +59,8 @@ class TestConfig(base.TestCase):
         self.addOnException(self.json_diagnostics)
 
         _vendors_path = os.path.join(
-            os.path.dirname(os.path.realpath(defaults.__file__)),
-            'vendors')
+            os.path.dirname(os.path.realpath(defaults.__file__)), 'vendors'
+        )
         for self.filename in glob.glob(os.path.join(_vendors_path, '*.json')):
             with open(self.filename, 'r') as f:
                 self.json_data = json.load(f)

@@ -25,26 +25,13 @@ BASIC_EXAMPLE = {
 }
 
 USAGE_EXAMPLE = {
-    "backup_gigabytes": {
-        "in_use": 0,
-        "limit": 1000,
-        "reserved": 0
-    },
-    "backups": {
-        "in_use": 0,
-        "limit": 10,
-        "reserved": 0
-    },
-    "gigabytes___DEFAULT__": {
-        "in_use": 0,
-        "limit": -1,
-        "reserved": 0
-    }
+    "backup_gigabytes": {"in_use": 0, "limit": 1000, "reserved": 0},
+    "backups": {"in_use": 0, "limit": 10, "reserved": 0},
+    "gigabytes___DEFAULT__": {"in_use": 0, "limit": -1, "reserved": 0},
 }
 
 
 class TestQuotaSet(base.TestCase):
-
     def setUp(self):
         super(TestQuotaSet, self).setUp()
         self.sess = mock.Mock(spec=adapter.Adapter)
@@ -64,10 +51,9 @@ class TestQuotaSet(base.TestCase):
         self.assertTrue(sot.allow_commit)
 
         self.assertDictEqual(
-            {"usage": "usage",
-             "limit": "limit",
-             "marker": "marker"},
-            sot._query_mapping._mapping)
+            {"usage": "usage", "limit": "limit", "marker": "marker"},
+            sot._query_mapping._mapping,
+        )
 
     def test_make_basic(self):
         sot = _qs.QuotaSet(**BASIC_EXAMPLE)
@@ -87,10 +73,8 @@ class TestQuotaSet(base.TestCase):
         sot.fetch(self.sess)
 
         self.sess.get.assert_called_with(
-            '/os-quota-sets/proj',
-            microversion=1,
-            params={},
-            skip_cache=False)
+            '/os-quota-sets/proj', microversion=1, params={}, skip_cache=False
+        )
 
         self.assertEqual(BASIC_EXAMPLE['backups'], sot.backups)
         self.assertEqual({}, sot.reservation)
@@ -112,11 +96,10 @@ class TestQuotaSet(base.TestCase):
             '/os-quota-sets/proj',
             microversion=1,
             params={'usage': True},
-            skip_cache=False)
+            skip_cache=False,
+        )
 
-        self.assertEqual(
-            USAGE_EXAMPLE['backups']['limit'],
-            sot.backups)
+        self.assertEqual(USAGE_EXAMPLE['backups']['limit'], sot.backups)
 
     def test_update_quota(self):
         # Use QuotaSet as if it was returned by get(usage=True)
@@ -124,7 +107,8 @@ class TestQuotaSet(base.TestCase):
             project_id='proj',
             reservation={'a': 'b'},
             usage={'c': 'd'},
-            foo='bar')
+            foo='bar',
+        )
 
         resp = mock.Mock()
         resp.body = {'quota_set': copy.deepcopy(BASIC_EXAMPLE)}
@@ -133,10 +117,7 @@ class TestQuotaSet(base.TestCase):
         resp.headers = {}
         self.sess.put = mock.Mock(return_value=resp)
 
-        sot._update(
-            reservation={'b': 'd'},
-            backups=15,
-            something_else=20)
+        sot._update(reservation={'b': 'd'}, backups=15, something_else=20)
 
         sot.commit(self.sess)
 
@@ -144,12 +125,8 @@ class TestQuotaSet(base.TestCase):
             '/os-quota-sets/proj',
             microversion=1,
             headers={},
-            json={
-                'quota_set': {
-                    'backups': 15,
-                    'something_else': 20
-                }
-            })
+            json={'quota_set': {'backups': 15, 'something_else': 20}},
+        )
 
     def test_delete_quota(self):
         # Use QuotaSet as if it was returned by get(usage=True)
@@ -157,7 +134,8 @@ class TestQuotaSet(base.TestCase):
             project_id='proj',
             reservation={'a': 'b'},
             usage={'c': 'd'},
-            foo='bar')
+            foo='bar',
+        )
 
         resp = mock.Mock()
         resp.body = None

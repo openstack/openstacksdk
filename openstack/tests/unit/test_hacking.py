@@ -49,12 +49,23 @@ class HackingTestCase(base.TestCase):
     just assertTrue if the check is expected to fail and assertFalse if it
     should pass.
     """
+
     def test_assert_no_setupclass(self):
-        self.assertEqual(len(list(_hacking.assert_no_setupclass(
-            "def setUpClass(cls)"))), 1)
+        self.assertEqual(
+            len(list(_hacking.assert_no_setupclass("def setUpClass(cls)"))), 1
+        )
 
-        self.assertEqual(len(list(_hacking.assert_no_setupclass(
-            "# setUpClass is evil"))), 0)
+        self.assertEqual(
+            len(list(_hacking.assert_no_setupclass("# setUpClass is evil"))), 0
+        )
 
-        self.assertEqual(len(list(_hacking.assert_no_setupclass(
-            "def setUpClassyDrinkingLocation(cls)"))), 0)
+        self.assertEqual(
+            len(
+                list(
+                    _hacking.assert_no_setupclass(
+                        "def setUpClassyDrinkingLocation(cls)"
+                    )
+                )
+            ),
+            0,
+        )

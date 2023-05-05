@@ -11,10 +11,11 @@
 # under the License.
 
 import openstack
+
 openstack.enable_logging()
 
-cloud = openstack.connect(
-    cloud='fuga', region_name='cystack', strict=True)
+cloud = openstack.connect(cloud='fuga', region_name='cystack', strict=True)
 image = cloud.get_image(
-    'Ubuntu 16.04 LTS - Xenial Xerus - 64-bit - Fuga Cloud Based Image')
+    'Ubuntu 16.04 LTS - Xenial Xerus - 64-bit - Fuga Cloud Based Image'
+)
 cloud.pprint(image)

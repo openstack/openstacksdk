@@ -107,9 +107,7 @@ def replace_nodes_in_cluster(conn):
 
     old_node = NODE_ID
     new_node = "cd803d4a-015d-4223-b15f-db29bad3146c"
-    spec = {
-        old_node: new_node
-    }
+    spec = {old_node: new_node}
     res = conn.clustering.replace_nodes_in_cluster(CLUSTER_ID, **spec)
     print(res)
 
@@ -135,7 +133,7 @@ def resize_cluster(conn):
         'min_size': 1,
         'max_size': 6,
         'adjustment_type': 'EXACT_CAPACITY',
-        'number': 2
+        'number': 2,
     }
     res = conn.clustering.resize_cluster(CLUSTER_ID, **spec)
     print(res)
@@ -146,7 +144,8 @@ def attach_policy_to_cluster(conn):
 
     spec = {'enabled': True}
     res = conn.clustering.attach_policy_to_cluster(
-        CLUSTER_ID, POLICY_ID, **spec)
+        CLUSTER_ID, POLICY_ID, **spec
+    )
     print(res)
 
 

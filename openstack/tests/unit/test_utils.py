@@ -29,7 +29,6 @@ from openstack import utils
 
 
 class Test_enable_logging(base.TestCase):
-
     def setUp(self):
         super(Test_enable_logging, self).setUp()
         self.openstack_logger = mock.Mock()
@@ -54,10 +53,11 @@ class Test_enable_logging(base.TestCase):
             self.stevedore_logger,
             self.ksa_logger_1,
             self.ksa_logger_2,
-            self.ksa_logger_3
+            self.ksa_logger_3,
         ]
         self.useFixture(
-            fixtures.MonkeyPatch('logging.getLogger', self.fake_get_logger))
+            fixtures.MonkeyPatch('logging.getLogger', self.fake_get_logger)
+        )
 
     def _console_tests(self, level, debug, stream):
 
@@ -69,7 +69,8 @@ class Test_enable_logging(base.TestCase):
     def _file_tests(self, level, debug):
         file_handler = mock.Mock()
         self.useFixture(
-            fixtures.MonkeyPatch('logging.FileHandler', file_handler))
+            fixtures.MonkeyPatch('logging.FileHandler', file_handler)
+        )
         fake_path = "fake/path.log"
 
         openstack.enable_logging(debug=debug, path=fake_path)
@@ -85,7 +86,8 @@ class Test_enable_logging(base.TestCase):
         self.assertEqual(self.openstack_logger.addHandler.call_count, 1)
         self.assertIsInstance(
             self.openstack_logger.addHandler.call_args_list[0][0][0],
-            logging.StreamHandler)
+            logging.StreamHandler,
+        )
 
     def test_debug_console_stderr(self):
         self._console_tests(logging.DEBUG, True, sys.stderr)
@@ -107,7 +109,6 @@ class Test_enable_logging(base.TestCase):
 
 
 class Test_urljoin(base.TestCase):
-
     def test_strings(self):
         root = "http://www.example.com"
         leaves = "foo", "bar"
@@ -138,21 +139,20 @@ class TestSupportsMicroversion(base.TestCase):
     def setUp(self):
         super(TestSupportsMicroversion, self).setUp()
         self.adapter = mock.Mock(spec=['get_endpoint_data'])
-        self.endpoint_data = mock.Mock(spec=['min_microversion',
-                                             'max_microversion'],
-                                       min_microversion='1.1',
-                                       max_microversion='1.99')
+        self.endpoint_data = mock.Mock(
+            spec=['min_microversion', 'max_microversion'],
+            min_microversion='1.1',
+            max_microversion='1.99',
+        )
         self.adapter.get_endpoint_data.return_value = self.endpoint_data
 
     def test_requested_supported_no_default(self):
         self.adapter.default_microversion = None
-        self.assertTrue(
-            utils.supports_microversion(self.adapter, '1.2'))
+        self.assertTrue(utils.supports_microversion(self.adapter, '1.2'))
 
     def test_requested_not_supported_no_default(self):
         self.adapter.default_microversion = None
-        self.assertFalse(
-            utils.supports_microversion(self.adapter, '2.2'))
+        self.assertFalse(utils.supports_microversion(self.adapter, '2.2'))
 
     def test_requested_not_supported_no_default_exception(self):
         self.adapter.default_microversion = None
@@ -161,22 +161,20 @@ class TestSupportsMicroversion(base.TestCase):
             utils.supports_microversion,
             self.adapter,
             '2.2',
-            True)
+            True,
+        )
 
     def test_requested_supported_higher_default(self):
         self.adapter.default_microversion = '1.8'
-        self.assertTrue(
-            utils.supports_microversion(self.adapter, '1.6'))
+        self.assertTrue(utils.supports_microversion(self.adapter, '1.6'))
 
     def test_requested_supported_equal_default(self):
         self.adapter.default_microversion = '1.8'
-        self.assertTrue(
-            utils.supports_microversion(self.adapter, '1.8'))
+        self.assertTrue(utils.supports_microversion(self.adapter, '1.8'))
 
     def test_requested_supported_lower_default(self):
         self.adapter.default_microversion = '1.2'
-        self.assertFalse(
-            utils.supports_microversion(self.adapter, '1.8'))
+        self.assertFalse(utils.supports_microversion(self.adapter, '1.8'))
 
     def test_requested_supported_lower_default_exception(self):
         self.adapter.default_microversion = '1.2'
@@ -185,54 +183,58 @@ class TestSupportsMicroversion(base.TestCase):
             utils.supports_microversion,
             self.adapter,
             '1.8',
-            True)
+            True,
+        )
 
     @mock.patch('openstack.utils.supports_microversion')
     def test_require_microversion(self, sm_mock):
         utils.require_microversion(self.adapter, '1.2')
-        sm_mock.assert_called_with(self.adapter,
-                                   '1.2',
-                                   raise_exception=True)
+        sm_mock.assert_called_with(self.adapter, '1.2', raise_exception=True)
 
 
 class TestMaximumSupportedMicroversion(base.TestCase):
     def setUp(self):
         super(TestMaximumSupportedMicroversion, self).setUp()
         self.adapter = mock.Mock(spec=['get_endpoint_data'])
-        self.endpoint_data = mock.Mock(spec=['min_microversion',
-                                             'max_microversion'],
-                                       min_microversion=None,
-                                       max_microversion='1.99')
+        self.endpoint_data = mock.Mock(
+            spec=['min_microversion', 'max_microversion'],
+            min_microversion=None,
+            max_microversion='1.99',
+        )
         self.adapter.get_endpoint_data.return_value = self.endpoint_data
 
     def test_with_none(self):
-        self.assertIsNone(utils.maximum_supported_microversion(self.adapter,
-                                                               None))
+        self.assertIsNone(
+            utils.maximum_supported_microversion(self.adapter, None)
+        )
 
     def test_with_value(self):
-        self.assertEqual('1.42',
-                         utils.maximum_supported_microversion(self.adapter,
-                                                              '1.42'))
+        self.assertEqual(
+            '1.42', utils.maximum_supported_microversion(self.adapter, '1.42')
+        )
 
     def test_value_more_than_max(self):
-        self.assertEqual('1.99',
-                         utils.maximum_supported_microversion(self.adapter,
-                                                              '1.100'))
+        self.assertEqual(
+            '1.99', utils.maximum_supported_microversion(self.adapter, '1.100')
+        )
 
     def test_value_less_than_min(self):
         self.endpoint_data.min_microversion = '1.42'
-        self.assertIsNone(utils.maximum_supported_microversion(self.adapter,
-                                                               '1.2'))
+        self.assertIsNone(
+            utils.maximum_supported_microversion(self.adapter, '1.2')
+        )
 
 
 class TestOsServiceTypesVersion(base.TestCase):
     def test_ost_version(self):
         ost_version = '2019-05-01T19:53:21.498745'
         self.assertEqual(
-            ost_version, os_service_types.ServiceTypes().version,
+            ost_version,
+            os_service_types.ServiceTypes().version,
             "This project must be pinned to the latest version of "
             "os-service-types. Please bump requirements.txt and "
-            "lower-constraints.txt accordingly.")
+            "lower-constraints.txt accordingly.",
+        )
 
 
 class TestTinyDAG(base.TestCase):
@@ -243,7 +245,7 @@ class TestTinyDAG(base.TestCase):
         'd': ['e'],
         'e': [],
         'f': ['e'],
-        'g': ['e']
+        'g': ['e'],
     }
 
     def _verify_order(self, test_graph, test_list):
@@ -306,13 +308,13 @@ def test_walker_fn(graph, node, lst):
 
 
 class Test_md5(base.TestCase):
-
     def setUp(self):
         super(Test_md5, self).setUp()
         self.md5_test_data = "Openstack forever".encode('utf-8')
         try:
             self.md5_digest = hashlib.md5(  # nosec
-                self.md5_test_data).hexdigest()
+                self.md5_test_data
+            ).hexdigest()
             self.fips_enabled = False
         except ValueError:
             self.md5_digest = '0d6dc3c588ae71a04ce9a6beebbbba06'
@@ -327,15 +329,17 @@ class Test_md5(base.TestCase):
             # [digital envelope routines: EVP_DigestInit_ex] disabled for FIPS
             self.assertRaises(ValueError, utils.md5, self.md5_test_data)
         if not self.fips_enabled:
-            digest = utils.md5(self.md5_test_data,
-                               usedforsecurity=True).hexdigest()
+            digest = utils.md5(
+                self.md5_test_data, usedforsecurity=True
+            ).hexdigest()
             self.assertEqual(digest, self.md5_digest)
         else:
             self.assertRaises(
-                ValueError, utils.md5, self.md5_test_data,
-                usedforsecurity=True)
-        digest = utils.md5(self.md5_test_data,
-                           usedforsecurity=False).hexdigest()
+                ValueError, utils.md5, self.md5_test_data, usedforsecurity=True
+            )
+        digest = utils.md5(
+            self.md5_test_data, usedforsecurity=False
+        ).hexdigest()
         self.assertEqual(digest, self.md5_digest)
 
     def test_md5_without_data(self):
@@ -363,25 +367,25 @@ class Test_md5(base.TestCase):
             self.assertRaises(TypeError, hashlib.md5, u'foo')
             self.assertRaises(TypeError, utils.md5, u'foo')
             self.assertRaises(
-                TypeError, utils.md5, u'foo', usedforsecurity=True)
+                TypeError, utils.md5, u'foo', usedforsecurity=True
+            )
         else:
             self.assertRaises(ValueError, hashlib.md5, u'foo')
             self.assertRaises(ValueError, utils.md5, u'foo')
             self.assertRaises(
-                ValueError, utils.md5, u'foo', usedforsecurity=True)
-        self.assertRaises(
-            TypeError, utils.md5, u'foo', usedforsecurity=False)
+                ValueError, utils.md5, u'foo', usedforsecurity=True
+            )
+        self.assertRaises(TypeError, utils.md5, u'foo', usedforsecurity=False)
 
     def test_none_data_raises_type_error(self):
         if not self.fips_enabled:
             self.assertRaises(TypeError, hashlib.md5, None)
             self.assertRaises(TypeError, utils.md5, None)
-            self.assertRaises(
-                TypeError, utils.md5, None, usedforsecurity=True)
+            self.assertRaises(TypeError, utils.md5, None, usedforsecurity=True)
         else:
             self.assertRaises(ValueError, hashlib.md5, None)
             self.assertRaises(ValueError, utils.md5, None)
             self.assertRaises(
-                ValueError, utils.md5, None, usedforsecurity=True)
-        self.assertRaises(
-            TypeError, utils.md5, None, usedforsecurity=False)
+                ValueError, utils.md5, None, usedforsecurity=True
+            )
+        self.assertRaises(TypeError, utils.md5, None, usedforsecurity=False)

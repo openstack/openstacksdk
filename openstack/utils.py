@@ -57,7 +57,8 @@ def iterate_timeout(timeout, message, wait=2):
     except ValueError:
         raise exceptions.SDKException(
             "Wait value must be an int or float value. {wait} given"
-            " instead".format(wait=wait))
+            " instead".format(wait=wait)
+        )
 
     start = time.time()
     count = 0
@@ -76,6 +77,7 @@ def get_string_format_keys(fmt_string, old_style=True):
     use the old style string formatting.
     """
     if old_style:
+
         class AccessSaver:
             def __init__(self):
                 self.keys = []
@@ -115,25 +117,29 @@ def supports_microversion(adapter, microversion, raise_exception=False):
     """
 
     endpoint_data = adapter.get_endpoint_data()
-    if (endpoint_data.min_microversion
-            and endpoint_data.max_microversion
-            and discover.version_between(
-                endpoint_data.min_microversion,
-                endpoint_data.max_microversion,
-                microversion)):
+    if (
+        endpoint_data.min_microversion
+        and endpoint_data.max_microversion
+        and discover.version_between(
+            endpoint_data.min_microversion,
+            endpoint_data.max_microversion,
+            microversion,
+        )
+    ):
         if adapter.default_microversion is not None:
             # If default_microversion is set - evaluate
             # whether it match the expectation
             candidate = discover.normalize_version_number(
-                adapter.default_microversion)
+                adapter.default_microversion
+            )
             required = discover.normalize_version_number(microversion)
             supports = discover.version_match(required, candidate)
             if raise_exception and not supports:
                 raise exceptions.SDKException(
                     'Required microversion {ver} is higher than currently '
                     'selected {curr}'.format(
-                        ver=microversion,
-                        curr=adapter.default_microversion)
+                        ver=microversion, curr=adapter.default_microversion
+                    )
                 )
             return supports
         return True
@@ -175,19 +181,24 @@ def pick_microversion(session, required):
 
     if session.default_microversion is not None:
         default = discover.normalize_version_number(
-            session.default_microversion)
+            session.default_microversion
+        )
 
         if required is None:
             required = default
         else:
-            required = (default if discover.version_match(required, default)
-                        else required)
+            required = (
+                default
+                if discover.version_match(required, default)
+                else required
+            )
 
     if required is not None:
         if not supports_microversion(session, required):
             raise exceptions.SDKException(
                 'Requested microversion is not supported by the server side '
-                'or the default microversion is too low')
+                'or the default microversion is too low'
+            )
         return discover.version_to_string(required)
 
 
@@ -212,8 +223,10 @@ def maximum_supported_microversion(adapter, client_maximum):
 
     if endpoint_data is None:
         log = _log.setup_logging('openstack')
-        log.warning('Cannot determine endpoint data for service %s',
-                    adapter.service_type or adapter.service_name)
+        log.warning(
+            'Cannot determine endpoint data for service %s',
+            adapter.service_type or adapter.service_name,
+        )
         return None
 
     if not endpoint_data.max_microversion:
@@ -221,11 +234,13 @@ def maximum_supported_microversion(adapter, client_maximum):
 
     client_max = discover.normalize_version_number(client_maximum)
     server_max = discover.normalize_version_number(
-        endpoint_data.max_microversion)
+        endpoint_data.max_microversion
+    )
 
     if endpoint_data.min_microversion:
         server_min = discover.normalize_version_number(
-            endpoint_data.min_microversion)
+            endpoint_data.min_microversion
+        )
         if client_max < server_min:
             # NOTE(dtantsur): we may want to raise in this case, but this keeps
             # the current behavior intact.
@@ -265,6 +280,7 @@ try:
     # See https://docs.python.org/3.9/library/hashlib.html
     md5 = hashlib.md5
 except TypeError:
+
     def md5(string=b'', usedforsecurity=True):
         """Return an md5 hashlib object without usedforsecurity parameter
         For python distributions that do not yet support this keyword
@@ -314,8 +330,7 @@ class TinyDAG:
 
     @property
     def graph(self):
-        """Get graph as adjacency dict
-        """
+        """Get graph as adjacency dict"""
         return self._graph
 
     def add_node(self, node):
@@ -332,8 +347,7 @@ class TinyDAG:
                 self.add_edge(k, dep)
 
     def walk(self, timeout=None):
-        """Start the walking from the beginning.
-        """
+        """Start the walking from the beginning."""
         if timeout:
             self._wait_timeout = timeout
         return self
@@ -345,17 +359,16 @@ class TinyDAG:
     def __next__(self):
         # Start waiting if it is expected to get something
         # (counting down from graph length to 0).
-        if (self._it_cnt > 0):
+        if self._it_cnt > 0:
             self._it_cnt -= 1
             try:
-                res = self._queue.get(
-                    block=True,
-                    timeout=self._wait_timeout)
+                res = self._queue.get(block=True, timeout=self._wait_timeout)
                 return res
 
             except queue.Empty:
-                raise exceptions.SDKException('Timeout waiting for '
-                                              'cleanup task to complete')
+                raise exceptions.SDKException(
+                    'Timeout waiting for ' 'cleanup task to complete'
+                )
         else:
             raise StopIteration
 
@@ -410,13 +423,13 @@ class TinyDAG:
 # it we can have a reduced version.
 class Munch(dict):
     """A slightly stripped version of munch.Munch class"""
+
     def __init__(self, *args, **kwargs):
         self.update(*args, **kwargs)
 
     # only called if k not found in normal places
     def __getattr__(self, k):
-        """Gets key if it exists, otherwise throws AttributeError.
-        """
+        """Gets key if it exists, otherwise throws AttributeError."""
         try:
             return object.__getattribute__(self, k)
         except AttributeError:
@@ -427,8 +440,8 @@ class Munch(dict):
 
     def __setattr__(self, k, v):
         """Sets attribute k if it exists, otherwise sets key k. A KeyError
-           raised by set-item (only likely if you subclass Munch) will
-           propagate as an AttributeError instead.
+        raised by set-item (only likely if you subclass Munch) will
+        propagate as an AttributeError instead.
         """
         try:
             # Throws exception if not in prototype chain
@@ -459,8 +472,7 @@ class Munch(dict):
             object.__delattr__(self, k)
 
     def toDict(self):
-        """Recursively converts a munch back into a dictionary.
-        """
+        """Recursively converts a munch back into a dictionary."""
         return unmunchify(self)
 
     @property
@@ -468,7 +480,7 @@ class Munch(dict):
         return self.toDict()
 
     def __repr__(self):
-        """Invertible* string-form of a Munch. """
+        """Invertible* string-form of a Munch."""
         return f'{self.__class__.__name__}({dict.__repr__(self)})'
 
     def __dir__(self):

@@ -15,7 +15,6 @@ from openstack.tests.unit import base
 
 
 class TestBoolStrFormatter(base.TestCase):
-
     def test_deserialize(self):
         self.assertTrue(format.BoolStr.deserialize(True))
         self.assertTrue(format.BoolStr.deserialize('True'))

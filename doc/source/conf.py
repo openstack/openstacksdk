@@ -77,10 +77,13 @@ htmlhelp_basename = 'openstacksdkdoc'
 # (source start file, target name, title, author, documentclass
 # [howto/manual]).
 latex_documents = [
-    ('index',
-     'doc-openstacksdk.tex',
-     'OpenStackSDK Documentation',
-     'OpenStack Foundation', 'manual'),
+    (
+        'index',
+        'doc-openstacksdk.tex',
+        'OpenStackSDK Documentation',
+        'OpenStack Foundation',
+        'manual',
+    ),
 ]
 
 # Allow deeper levels of nesting for \begin...\end stanzas

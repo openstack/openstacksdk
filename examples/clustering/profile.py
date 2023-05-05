@@ -44,10 +44,8 @@ def create_profile(conn):
             'name': SERVER_NAME,
             'flavor': FLAVOR_NAME,
             'image': IMAGE_NAME,
-            'networks': {
-                'network': NETWORK_NAME
-            }
-        }
+            'networks': {'network': NETWORK_NAME},
+        },
     }
 
     profile = conn.clustering.create_profile(spec)

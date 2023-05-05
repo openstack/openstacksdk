@@ -22,7 +22,9 @@ def normalize_keys(config):
         elif isinstance(value, bool):
             new_config[key] = value
         elif isinstance(value, int) and key not in (
-                'verbose_level', 'api_timeout'):
+            'verbose_level',
+            'api_timeout',
+        ):
             new_config[key] = str(value)
         elif isinstance(value, float):
             new_config[key] = str(value)

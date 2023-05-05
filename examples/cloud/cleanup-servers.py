@@ -16,11 +16,11 @@ from openstack import cloud as openstack
 openstack.enable_logging(debug=True)
 
 for cloud_name, region_name in [
-        ('my-vexxhost', 'ca-ymq-1'),
-        ('my-citycloud', 'Buf1'),
-        ('my-internap', 'ams01')]:
+    ('my-vexxhost', 'ca-ymq-1'),
+    ('my-citycloud', 'Buf1'),
+    ('my-internap', 'ams01'),
+]:
     # Initialize cloud
-    cloud = openstack.connect(
-        cloud=cloud_name, region_name=region_name)
+    cloud = openstack.connect(cloud=cloud_name, region_name=region_name)
     for server in cloud.search_servers('my-server'):
         cloud.delete_server(server, wait=True, delete_ips=True)

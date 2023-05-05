@@ -51,10 +51,12 @@ class BaseFunctionalTest(base.TestCase):
 
         self._demo_name = os.environ.get('OPENSTACKSDK_DEMO_CLOUD', 'devstack')
         self._demo_name_alt = os.environ.get(
-            'OPENSTACKSDK_DEMO_CLOUD_ALT', 'devstack-alt',
+            'OPENSTACKSDK_DEMO_CLOUD_ALT',
+            'devstack-alt',
         )
         self._op_name = os.environ.get(
-            'OPENSTACKSDK_OPERATOR_CLOUD', 'devstack-admin',
+            'OPENSTACKSDK_OPERATOR_CLOUD',
+            'devstack-admin',
         )
 
         self.config = openstack.config.OpenStackConfig()
@@ -64,8 +66,9 @@ class BaseFunctionalTest(base.TestCase):
         else:
             self.operator_cloud = None
 
-        self.identity_version = \
-            self.user_cloud.config.get_api_version('identity')
+        self.identity_version = self.user_cloud.config.get_api_version(
+            'identity'
+        )
 
         self.flavor = self._pick_flavor()
         self.image = self._pick_image()
@@ -73,8 +76,11 @@ class BaseFunctionalTest(base.TestCase):
         # Defines default timeout for wait_for methods used
         # in the functional tests
         self._wait_for_timeout = int(
-            os.getenv(self._wait_for_timeout_key, os.getenv(
-                'OPENSTACKSDK_FUNC_TEST_TIMEOUT', 300)))
+            os.getenv(
+                self._wait_for_timeout_key,
+                os.getenv('OPENSTACKSDK_FUNC_TEST_TIMEOUT', 300),
+            )
+        )
 
     def _set_user_cloud(self, **kwargs):
         user_config = self.config.get_one(cloud=self._demo_name, **kwargs)
@@ -85,7 +91,8 @@ class BaseFunctionalTest(base.TestCase):
         # it
         if self._demo_name_alt:
             user_config_alt = self.config.get_one(
-                cloud=self._demo_name_alt, **kwargs)
+                cloud=self._demo_name_alt, **kwargs
+            )
             self.user_cloud_alt = connection.Connection(config=user_config_alt)
             _disable_keep_alive(self.user_cloud_alt)
         else:
@@ -119,7 +126,8 @@ class BaseFunctionalTest(base.TestCase):
                     return flavor
 
             raise self.failureException(
-                "Cloud does not have flavor '%s'", flavor_name,
+                "Cloud does not have flavor '%s'",
+                flavor_name,
             )
 
         # Enable running functional tests against RAX, which requires
@@ -159,7 +167,8 @@ class BaseFunctionalTest(base.TestCase):
                     return image
 
             raise self.failureException(
-                "Cloud does not have image '%s'", image_name,
+                "Cloud does not have image '%s'",
+                image_name,
             )
 
         for image in images:
@@ -186,6 +195,7 @@ class BaseFunctionalTest(base.TestCase):
         def cleanup():
             result = func(*args, **kwargs)
             self.assertIsNone(result)
+
         self.addCleanup(cleanup)
 
     def require_service(self, service_type, min_microversion=None, **kwargs):
@@ -201,14 +211,18 @@ class BaseFunctionalTest(base.TestCase):
         :returns: True if the service exists, otherwise False.
         """
         if not self.conn.has_service(service_type):
-            self.skipTest('Service {service_type} not found in cloud'.format(
-                service_type=service_type))
+            self.skipTest(
+                'Service {service_type} not found in cloud'.format(
+                    service_type=service_type
+                )
+            )
 
         if not min_microversion:
             return
 
         data = self.conn.session.get_endpoint_data(
-            service_type=service_type, **kwargs)
+            service_type=service_type, **kwargs
+        )
 
         if not (
             data.min_microversion
@@ -230,12 +244,11 @@ class BaseFunctionalTest(base.TestCase):
         # unix_t is also used to easier determine orphans when running real
         # functional tests on a real cloud
         return (prefix if prefix else '') + "{time}-{uuid}".format(
-            time=int(time.time()),
-            uuid=uuid.uuid4().hex)
+            time=int(time.time()), uuid=uuid.uuid4().hex
+        )
 
 
 class KeystoneBaseFunctionalTest(BaseFunctionalTest):
-
     def setUp(self):
         super(KeystoneBaseFunctionalTest, self).setUp()
 

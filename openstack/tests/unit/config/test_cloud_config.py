@@ -40,7 +40,6 @@ fake_services_dict = {
 
 
 class TestCloudRegion(base.TestCase):
-
     def test_arbitrary_attributes(self):
         cc = cloud_region.CloudRegion("test1", "region-al", fake_config_dict)
         self.assertEqual("test1", cc.name)
@@ -89,12 +88,10 @@ class TestCloudRegion(base.TestCase):
         self.assertIsNone(cc._get_config('nothing', None))
         # This is what is happening behind the scenes in get_default_interface.
         self.assertEqual(
-            fake_services_dict['interface'],
-            cc._get_config('interface', None))
+            fake_services_dict['interface'], cc._get_config('interface', None)
+        )
         # The same call as above, but from one step up the stack
-        self.assertEqual(
-            fake_services_dict['interface'],
-            cc.get_interface())
+        self.assertEqual(fake_services_dict['interface'], cc.get_interface())
         # Which finally is what is called to populate the below
         self.assertEqual('public', self.cloud.default_interface)
 
@@ -150,16 +147,21 @@ class TestCloudRegion(base.TestCase):
 
     def test_ipv6(self):
         cc = cloud_region.CloudRegion(
-            "test1", "region-al", fake_config_dict, force_ipv4=True)
+            "test1", "region-al", fake_config_dict, force_ipv4=True
+        )
         self.assertTrue(cc.force_ipv4)
 
     def test_getters(self):
         cc = cloud_region.CloudRegion("test1", "region-al", fake_services_dict)
 
-        self.assertEqual(['compute', 'identity', 'image', 'volume'],
-                         sorted(cc.get_services()))
-        self.assertEqual({'password': 'hunter2', 'username': 'AzureDiamond'},
-                         cc.get_auth_args())
+        self.assertEqual(
+            ['compute', 'identity', 'image', 'volume'],
+            sorted(cc.get_services()),
+        )
+        self.assertEqual(
+            {'password': 'hunter2', 'username': 'AzureDiamond'},
+            cc.get_auth_args(),
+        )
         self.assertEqual('public', cc.get_interface())
         self.assertEqual('public', cc.get_interface('compute'))
         self.assertEqual('admin', cc.get_interface('identity'))
@@ -170,8 +172,9 @@ class TestCloudRegion(base.TestCase):
         self.assertEqual('compute', cc.get_service_type('compute'))
         self.assertEqual('1', cc.get_api_version('volume'))
         self.assertEqual('block-storage', cc.get_service_type('volume'))
-        self.assertEqual('http://compute.example.com',
-                         cc.get_endpoint('compute'))
+        self.assertEqual(
+            'http://compute.example.com', cc.get_endpoint('compute')
+        )
         self.assertIsNone(cc.get_endpoint('image'))
         self.assertIsNone(cc.get_service_name('compute'))
         self.assertEqual('locks', cc.get_service_name('identity'))
@@ -184,38 +187,45 @@ class TestCloudRegion(base.TestCase):
         # We're skipping loader here, so we have to expand relevant
         # parts from the rackspace profile. The thing we're testing
         # is that the project_id logic works.
-        cc = cloud_region.CloudRegion("test1", "DFW", {
-            'profile': 'rackspace',
-            'region_name': 'DFW',
-            'auth': {'project_id': '123456'},
-            'block_storage_endpoint_override': 'https://example.com/v2/',
-        })
+        cc = cloud_region.CloudRegion(
+            "test1",
+            "DFW",
+            {
+                'profile': 'rackspace',
+                'region_name': 'DFW',
+                'auth': {'project_id': '123456'},
+                'block_storage_endpoint_override': 'https://example.com/v2/',
+            },
+        )
         self.assertEqual(
-            'https://example.com/v2/123456',
-            cc.get_endpoint('block-storage')
+            'https://example.com/v2/123456', cc.get_endpoint('block-storage')
         )
 
     def test_rackspace_workaround_only_rax(self):
-        cc = cloud_region.CloudRegion("test1", "DFW", {
-            'region_name': 'DFW',
-            'auth': {'project_id': '123456'},
-            'block_storage_endpoint_override': 'https://example.com/v2/',
-        })
+        cc = cloud_region.CloudRegion(
+            "test1",
+            "DFW",
+            {
+                'region_name': 'DFW',
+                'auth': {'project_id': '123456'},
+                'block_storage_endpoint_override': 'https://example.com/v2/',
+            },
+        )
         self.assertEqual(
-            'https://example.com/v2/',
-            cc.get_endpoint('block-storage')
+            'https://example.com/v2/', cc.get_endpoint('block-storage')
         )
 
     def test_get_region_name(self):
-
         def assert_region_name(default, compute):
             self.assertEqual(default, cc.region_name)
             self.assertEqual(default, cc.get_region_name())
             self.assertEqual(default, cc.get_region_name(service_type=None))
             self.assertEqual(
-                compute, cc.get_region_name(service_type='compute'))
+                compute, cc.get_region_name(service_type='compute')
+            )
             self.assertEqual(
-                default, cc.get_region_name(service_type='placement'))
+                default, cc.get_region_name(service_type='placement')
+            )
 
         # No region_name kwarg, no regions specified in services dict
         # (including the default).
@@ -224,14 +234,17 @@ class TestCloudRegion(base.TestCase):
 
         # Only region_name kwarg; it's returned for everything
         cc = cloud_region.CloudRegion(
-            region_name='foo', config=fake_services_dict)
+            region_name='foo', config=fake_services_dict
+        )
         assert_region_name('foo', 'foo')
 
         # No region_name kwarg; values (including default) show through from
         # config dict
         services_dict = dict(
             fake_services_dict,
-            region_name='the-default', compute_region_name='compute-region')
+            region_name='the-default',
+            compute_region_name='compute-region',
+        )
         cc = cloud_region.CloudRegion(config=services_dict)
         assert_region_name('the-default', 'compute-region')
 
@@ -239,9 +252,12 @@ class TestCloudRegion(base.TestCase):
         # compatibility), but service-specific region_name takes precedence.
         services_dict = dict(
             fake_services_dict,
-            region_name='dict', compute_region_name='compute-region')
+            region_name='dict',
+            compute_region_name='compute-region',
+        )
         cc = cloud_region.CloudRegion(
-            region_name='kwarg', config=services_dict)
+            region_name='kwarg', config=services_dict
+        )
         assert_region_name('kwarg', 'compute-region')
 
     def test_aliases(self):
@@ -265,9 +281,7 @@ class TestCloudRegion(base.TestCase):
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
         cc = cloud_region.CloudRegion("test1", "region-al", config_dict)
-        self.assertRaises(
-            exceptions.ConfigException,
-            cc.get_session)
+        self.assertRaises(exceptions.ConfigException, cc.get_session)
 
     @mock.patch.object(ksa_session, 'Session')
     def test_get_session(self, mock_session):
@@ -277,15 +291,21 @@ class TestCloudRegion(base.TestCase):
         fake_session.additional_user_agent = []
         mock_session.return_value = fake_session
         cc = cloud_region.CloudRegion(
-            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock()
+        )
         cc.get_session()
         mock_session.assert_called_with(
             auth=mock.ANY,
-            verify=True, cert=None, timeout=None, collect_timing=None,
-            discovery_cache=None)
+            verify=True,
+            cert=None,
+            timeout=None,
+            collect_timing=None,
+            discovery_cache=None,
+        )
         self.assertEqual(
             fake_session.additional_user_agent,
-            [('openstacksdk', openstack_version.__version__)])
+            [('openstacksdk', openstack_version.__version__)],
+        )
 
     @mock.patch.object(ksa_session, 'Session')
     def test_get_session_with_app_name(self, mock_session):
@@ -297,18 +317,28 @@ class TestCloudRegion(base.TestCase):
         fake_session.app_version = None
         mock_session.return_value = fake_session
         cc = cloud_region.CloudRegion(
-            "test1", "region-al", config_dict, auth_plugin=mock.Mock(),
-            app_name="test_app", app_version="test_version")
+            "test1",
+            "region-al",
+            config_dict,
+            auth_plugin=mock.Mock(),
+            app_name="test_app",
+            app_version="test_version",
+        )
         cc.get_session()
         mock_session.assert_called_with(
             auth=mock.ANY,
-            verify=True, cert=None, timeout=None, collect_timing=None,
-            discovery_cache=None)
+            verify=True,
+            cert=None,
+            timeout=None,
+            collect_timing=None,
+            discovery_cache=None,
+        )
         self.assertEqual(fake_session.app_name, "test_app")
         self.assertEqual(fake_session.app_version, "test_version")
         self.assertEqual(
             fake_session.additional_user_agent,
-            [('openstacksdk', openstack_version.__version__)])
+            [('openstacksdk', openstack_version.__version__)],
+        )
 
     @mock.patch.object(ksa_session, 'Session')
     def test_get_session_with_timeout(self, mock_session):
@@ -319,15 +349,21 @@ class TestCloudRegion(base.TestCase):
         config_dict.update(fake_services_dict)
         config_dict['api_timeout'] = 9
         cc = cloud_region.CloudRegion(
-            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock()
+        )
         cc.get_session()
         mock_session.assert_called_with(
             auth=mock.ANY,
-            verify=True, cert=None, timeout=9,
-            collect_timing=None, discovery_cache=None)
+            verify=True,
+            cert=None,
+            timeout=9,
+            collect_timing=None,
+            discovery_cache=None,
+        )
         self.assertEqual(
             fake_session.additional_user_agent,
-            [('openstacksdk', openstack_version.__version__)])
+            [('openstacksdk', openstack_version.__version__)],
+        )
 
     @mock.patch.object(ksa_session, 'Session')
     def test_get_session_with_timing(self, mock_session):
@@ -338,35 +374,45 @@ class TestCloudRegion(base.TestCase):
         config_dict.update(fake_services_dict)
         config_dict['timing'] = True
         cc = cloud_region.CloudRegion(
-            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock()
+        )
         cc.get_session()
         mock_session.assert_called_with(
             auth=mock.ANY,
-            verify=True, cert=None, timeout=None,
-            collect_timing=True, discovery_cache=None)
+            verify=True,
+            cert=None,
+            timeout=None,
+            collect_timing=True,
+            discovery_cache=None,
+        )
         self.assertEqual(
             fake_session.additional_user_agent,
-            [('openstacksdk', openstack_version.__version__)])
+            [('openstacksdk', openstack_version.__version__)],
+        )
 
     @mock.patch.object(ksa_session, 'Session')
     def test_override_session_endpoint_override(self, mock_session):
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
         cc = cloud_region.CloudRegion(
-            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock()
+        )
         self.assertEqual(
             cc.get_session_endpoint('compute'),
-            fake_services_dict['compute_endpoint_override'])
+            fake_services_dict['compute_endpoint_override'],
+        )
 
     @mock.patch.object(ksa_session, 'Session')
     def test_override_session_endpoint(self, mock_session):
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
         cc = cloud_region.CloudRegion(
-            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock()
+        )
         self.assertEqual(
             cc.get_session_endpoint('telemetry'),
-            fake_services_dict['telemetry_endpoint'])
+            fake_services_dict['telemetry_endpoint'],
+        )
 
     @mock.patch.object(cloud_region.CloudRegion, 'get_session')
     def test_session_endpoint(self, mock_get_session):
@@ -375,20 +421,23 @@ class TestCloudRegion(base.TestCase):
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
         cc = cloud_region.CloudRegion(
-            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock()
+        )
         cc.get_session_endpoint('orchestration')
         mock_session.get_endpoint.assert_called_with(
             interface='public',
             service_name=None,
             region_name='region-al',
-            service_type='orchestration')
+            service_type='orchestration',
+        )
 
     @mock.patch.object(cloud_region.CloudRegion, 'get_session')
     def test_session_endpoint_not_found(self, mock_get_session):
         exc_to_raise = ksa_exceptions.catalog.EndpointNotFound
         mock_get_session.return_value.get_endpoint.side_effect = exc_to_raise
         cc = cloud_region.CloudRegion(
-            "test1", "region-al", {}, auth_plugin=mock.Mock())
+            "test1", "region-al", {}, auth_plugin=mock.Mock()
+        )
         self.assertIsNone(cc.get_session_endpoint('notfound'))
 
     def test_get_endpoint_from_catalog(self):
@@ -396,14 +445,20 @@ class TestCloudRegion(base.TestCase):
         self.cloud.config.config['dns_endpoint_override'] = dns_override
         self.assertEqual(
             'https://compute.example.com/v2.1/',
-            self.cloud.config.get_endpoint_from_catalog('compute'))
+            self.cloud.config.get_endpoint_from_catalog('compute'),
+        )
         self.assertEqual(
             'https://internal.compute.example.com/v2.1/',
             self.cloud.config.get_endpoint_from_catalog(
-                'compute', interface='internal'))
+                'compute', interface='internal'
+            ),
+        )
         self.assertIsNone(
             self.cloud.config.get_endpoint_from_catalog(
-                'compute', region_name='unknown-region'))
+                'compute', region_name='unknown-region'
+            )
+        )
         self.assertEqual(
             'https://dns.example.com',
-            self.cloud.config.get_endpoint_from_catalog('dns'))
+            self.cloud.config.get_endpoint_from_catalog('dns'),
+        )

@@ -220,7 +220,8 @@ __all__ = [
 
 if requestsexceptions.SubjectAltNameWarning:
     warnings.filterwarnings(
-        'ignore', category=requestsexceptions.SubjectAltNameWarning)
+        'ignore', category=requestsexceptions.SubjectAltNameWarning
+    )
 
 _logger = _log.setup_logging('openstack')
 
@@ -249,7 +250,8 @@ def from_config(cloud=None, config=None, options=None, **kwargs):
     config = kwargs.pop('cloud_config', config)
     if config is None:
         config = _config.OpenStackConfig().get_one(
-            cloud=cloud, argparse=options, **kwargs)
+            cloud=cloud, argparse=options, **kwargs
+        )
 
     return Connection(config=config)
 
@@ -274,20 +276,25 @@ class Connection(
     _security_group.SecurityGroupCloudMixin,
     _shared_file_system.SharedFileSystemCloudMixin,
 ):
-
-    def __init__(self, cloud=None, config=None, session=None,
-                 app_name=None, app_version=None,
-                 extra_services=None,
-                 strict=False,
-                 use_direct_get=False,
-                 task_manager=None,
-                 rate_limit=None,
-                 oslo_conf=None,
-                 service_types=None,
-                 global_request_id=None,
-                 strict_proxies=False,
-                 pool_executor=None,
-                 **kwargs):
+    def __init__(
+        self,
+        cloud=None,
+        config=None,
+        session=None,
+        app_name=None,
+        app_version=None,
+        extra_services=None,
+        strict=False,
+        use_direct_get=False,
+        task_manager=None,
+        rate_limit=None,
+        oslo_conf=None,
+        service_types=None,
+        global_request_id=None,
+        strict_proxies=False,
+        pool_executor=None,
+        **kwargs
+    ):
         """Create a connection to a cloud.
 
         A connection needs information about how to connect, how to
@@ -373,24 +380,32 @@ class Connection(
         if not self.config:
             if oslo_conf:
                 self.config = cloud_region.from_conf(
-                    oslo_conf, session=session, app_name=app_name,
-                    app_version=app_version, service_types=service_types)
+                    oslo_conf,
+                    session=session,
+                    app_name=app_name,
+                    app_version=app_version,
+                    service_types=service_types,
+                )
             elif session:
                 self.config = cloud_region.from_session(
                     session=session,
-                    app_name=app_name, app_version=app_version,
+                    app_name=app_name,
+                    app_version=app_version,
                     load_yaml_config=False,
                     load_envvars=False,
                     rate_limit=rate_limit,
-                    **kwargs)
+                    **kwargs
+                )
             else:
                 self.config = _config.get_cloud_region(
                     cloud=cloud,
-                    app_name=app_name, app_version=app_version,
+                    app_name=app_name,
+                    app_version=app_version,
                     load_yaml_config=cloud is not None,
                     load_envvars=cloud is not None,
                     rate_limit=rate_limit,
-                    **kwargs)
+                    **kwargs
+                )
 
         self._session = None
         self._proxies = {}
@@ -440,19 +455,25 @@ class Connection(
                         hook = ep.load()
                         hook(self)
                 except ValueError:
-                    self.log.warning('Hook should be in the entrypoint '
-                                     'module:attribute format')
+                    self.log.warning(
+                        'Hook should be in the entrypoint '
+                        'module:attribute format'
+                    )
             except (ImportError, TypeError, AttributeError) as e:
-                self.log.warning('Configured hook %s cannot be executed: %s',
-                                 vendor_hook, e)
+                self.log.warning(
+                    'Configured hook %s cannot be executed: %s', vendor_hook, e
+                )
 
         # Add additional metrics into the configuration according to the
         # selected connection. We don't want to deal with overall config in the
         # proxy, just pass required part.
-        if (self.config._influxdb_config
-                and 'additional_metric_tags' in self.config.config):
-            self.config._influxdb_config['additional_metric_tags'] = \
-                self.config.config['additional_metric_tags']
+        if (
+            self.config._influxdb_config
+            and 'additional_metric_tags' in self.config.config
+        ):
+            self.config._influxdb_config[
+                'additional_metric_tags'
+            ] = self.config.config['additional_metric_tags']
 
     def __del__(self):
         # try to force release of resources and save authorization
@@ -500,7 +521,7 @@ class Connection(
             setattr(
                 self.__class__,
                 attr_name.replace('-', '_'),
-                property(fget=getter)
+                property(fget=getter),
             )
         self.config.enable_service(service.service_type)
 
@@ -527,7 +548,8 @@ class Connection(
     def _pool_executor(self):
         if not self.__pool_executor:
             self.__pool_executor = concurrent.futures.ThreadPoolExecutor(
-                max_workers=5)
+                max_workers=5
+            )
         return self.__pool_executor
 
     def close(self):

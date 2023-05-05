@@ -23,13 +23,14 @@ from openstack.tests.unit import base
 class Test_Exception(base.TestCase):
     def test_method_not_supported(self):
         exc = exceptions.MethodNotSupported(self.__class__, 'list')
-        expected = ('The list method is not supported for '
-                    + 'openstack.tests.unit.test_exceptions.Test_Exception')
+        expected = (
+            'The list method is not supported for '
+            + 'openstack.tests.unit.test_exceptions.Test_Exception'
+        )
         self.assertEqual(expected, str(exc))
 
 
 class Test_HttpException(base.TestCase):
-
     def setUp(self):
         super(Test_HttpException, self).setUp()
         self.message = "mayday"
@@ -38,32 +39,38 @@ class Test_HttpException(base.TestCase):
         raise exceptions.HttpException(*args, **kwargs)
 
     def test_message(self):
-        exc = self.assertRaises(exceptions.HttpException,
-                                self._do_raise, self.message)
+        exc = self.assertRaises(
+            exceptions.HttpException, self._do_raise, self.message
+        )
 
         self.assertEqual(self.message, exc.message)
 
     def test_details(self):
         details = "some details"
-        exc = self.assertRaises(exceptions.HttpException,
-                                self._do_raise, self.message,
-                                details=details)
+        exc = self.assertRaises(
+            exceptions.HttpException,
+            self._do_raise,
+            self.message,
+            details=details,
+        )
 
         self.assertEqual(self.message, exc.message)
         self.assertEqual(details, exc.details)
 
     def test_http_status(self):
         http_status = 123
-        exc = self.assertRaises(exceptions.HttpException,
-                                self._do_raise, self.message,
-                                http_status=http_status)
+        exc = self.assertRaises(
+            exceptions.HttpException,
+            self._do_raise,
+            self.message,
+            http_status=http_status,
+        )
 
         self.assertEqual(self.message, exc.message)
         self.assertEqual(http_status, exc.status_code)
 
 
 class TestRaiseFromResponse(base.TestCase):
-
     def setUp(self):
         super(TestRaiseFromResponse, self).setUp()
         self.message = "Where is my kitty?"
@@ -83,14 +90,16 @@ class TestRaiseFromResponse(base.TestCase):
             'content-type': 'application/json',
             'x-openstack-request-id': uuid.uuid4().hex,
         }
-        exc = self.assertRaises(exceptions.NotFoundException,
-                                self._do_raise, response,
-                                error_message=self.message)
+        exc = self.assertRaises(
+            exceptions.NotFoundException,
+            self._do_raise,
+            response,
+            error_message=self.message,
+        )
         self.assertEqual(self.message, exc.message)
         self.assertEqual(response.status_code, exc.status_code)
         self.assertEqual(
-            response.headers.get('x-openstack-request-id'),
-            exc.request_id
+            response.headers.get('x-openstack-request-id'), exc.request_id
         )
 
     def test_raise_bad_request_exception(self):
@@ -100,14 +109,16 @@ class TestRaiseFromResponse(base.TestCase):
             'content-type': 'application/json',
             'x-openstack-request-id': uuid.uuid4().hex,
         }
-        exc = self.assertRaises(exceptions.BadRequestException,
-                                self._do_raise, response,
-                                error_message=self.message)
+        exc = self.assertRaises(
+            exceptions.BadRequestException,
+            self._do_raise,
+            response,
+            error_message=self.message,
+        )
         self.assertEqual(self.message, exc.message)
         self.assertEqual(response.status_code, exc.status_code)
         self.assertEqual(
-            response.headers.get('x-openstack-request-id'),
-            exc.request_id
+            response.headers.get('x-openstack-request-id'), exc.request_id
         )
 
     def test_raise_http_exception(self):
@@ -117,14 +128,16 @@ class TestRaiseFromResponse(base.TestCase):
             'content-type': 'application/json',
             'x-openstack-request-id': uuid.uuid4().hex,
         }
-        exc = self.assertRaises(exceptions.HttpException,
-                                self._do_raise, response,
-                                error_message=self.message)
+        exc = self.assertRaises(
+            exceptions.HttpException,
+            self._do_raise,
+            response,
+            error_message=self.message,
+        )
         self.assertEqual(self.message, exc.message)
         self.assertEqual(response.status_code, exc.status_code)
         self.assertEqual(
-            response.headers.get('x-openstack-request-id'),
-            exc.request_id
+            response.headers.get('x-openstack-request-id'), exc.request_id
         )
 
     def test_raise_compute_format(self):
@@ -139,9 +152,12 @@ class TestRaiseFromResponse(base.TestCase):
                 'code': 404,
             }
         }
-        exc = self.assertRaises(exceptions.NotFoundException,
-                                self._do_raise, response,
-                                error_message=self.message)
+        exc = self.assertRaises(
+            exceptions.NotFoundException,
+            self._do_raise,
+            response,
+            error_message=self.message,
+        )
         self.assertEqual(response.status_code, exc.status_code)
         self.assertEqual(self.message, exc.details)
         self.assertIn(self.message, str(exc))
@@ -159,9 +175,12 @@ class TestRaiseFromResponse(base.TestCase):
                 'detail': '',
             }
         }
-        exc = self.assertRaises(exceptions.NotFoundException,
-                                self._do_raise, response,
-                                error_message=self.message)
+        exc = self.assertRaises(
+            exceptions.NotFoundException,
+            self._do_raise,
+            response,
+            error_message=self.message,
+        )
         self.assertEqual(response.status_code, exc.status_code)
         self.assertEqual(self.message, exc.details)
         self.assertIn(self.message, str(exc))
@@ -173,15 +192,20 @@ class TestRaiseFromResponse(base.TestCase):
             'content-type': 'application/json',
         }
         response.json.return_value = {
-            'error_message': json.dumps({
-                'faultstring': self.message,
-                'faultcode': 'Client',
-                'debuginfo': None,
-            })
+            'error_message': json.dumps(
+                {
+                    'faultstring': self.message,
+                    'faultcode': 'Client',
+                    'debuginfo': None,
+                }
+            )
         }
-        exc = self.assertRaises(exceptions.NotFoundException,
-                                self._do_raise, response,
-                                error_message=self.message)
+        exc = self.assertRaises(
+            exceptions.NotFoundException,
+            self._do_raise,
+            response,
+            error_message=self.message,
+        )
         self.assertEqual(response.status_code, exc.status_code)
         self.assertEqual(self.message, exc.details)
         self.assertIn(self.message, str(exc))
@@ -199,9 +223,12 @@ class TestRaiseFromResponse(base.TestCase):
                 'debuginfo': None,
             }
         }
-        exc = self.assertRaises(exceptions.NotFoundException,
-                                self._do_raise, response,
-                                error_message=self.message)
+        exc = self.assertRaises(
+            exceptions.NotFoundException,
+            self._do_raise,
+            response,
+            error_message=self.message,
+        )
         self.assertEqual(response.status_code, exc.status_code)
         self.assertEqual(self.message, exc.details)
         self.assertIn(self.message, str(exc))
@@ -217,9 +244,12 @@ class TestRaiseFromResponse(base.TestCase):
             'faultcode': 'Client',
             'debuginfo': None,
         }
-        exc = self.assertRaises(exceptions.NotFoundException,
-                                self._do_raise, response,
-                                error_message=self.message)
+        exc = self.assertRaises(
+            exceptions.NotFoundException,
+            self._do_raise,
+            response,
+            error_message=self.message,
+        )
         self.assertEqual(response.status_code, exc.status_code)
         self.assertEqual(self.message, exc.details)
         self.assertIn(self.message, str(exc))

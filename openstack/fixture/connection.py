@@ -61,7 +61,8 @@ class ConnectionFixture(fixtures.Fixture):
         templates = {}
         for k, v in self._endpoint_templates.items():
             suffix = self._suffixes.get(
-                alias, self._suffixes.get(service_type, ''))
+                alias, self._suffixes.get(service_type, '')
+            )
             # For a keystone v2 catalog, we want to list the
             # versioned endpoint in the catalog, because that's
             # more likely how those were deployed.
@@ -88,10 +89,8 @@ class ConnectionFixture(fixtures.Fixture):
                 continue
             service_name = service['project']
             ets = self._get_endpoint_templates(service_type)
-            v3_svc = self.v3_token.add_service(
-                service_type, name=service_name)
-            v2_svc = self.v2_token.add_service(
-                service_type, name=service_name)
+            v3_svc = self.v3_token.add_service(service_type, name=service_name)
+            v2_svc = self.v2_token.add_service(service_type, name=service_name)
             v3_svc.add_standard_endpoints(region='RegionOne', **ets)
             if service_type == 'identity':
                 ets = self._get_endpoint_templates(service_type, v2=True)

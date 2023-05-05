@@ -22,7 +22,8 @@ def open_port(conn):
     print("Open a port:")
 
     example_sec_group = conn.network.create_security_group(
-        name='openstacksdk-example-security-group')
+        name='openstacksdk-example-security-group'
+    )
 
     print(example_sec_group)
 
@@ -33,7 +34,8 @@ def open_port(conn):
         protocol='HTTPS',
         port_range_max='443',
         port_range_min='443',
-        ethertype='IPv4')
+        ethertype='IPv4',
+    )
 
     print(example_rule)
 
@@ -42,7 +44,8 @@ def allow_ping(conn):
     print("Allow pings:")
 
     example_sec_group = conn.network.create_security_group(
-        name='openstacksdk-example-security-group2')
+        name='openstacksdk-example-security-group2'
+    )
 
     print(example_sec_group)
 
@@ -53,6 +56,7 @@ def allow_ping(conn):
         protocol='icmp',
         port_range_max=None,
         port_range_min=None,
-        ethertype='IPv4')
+        ethertype='IPv4',
+    )
 
     print(example_rule)

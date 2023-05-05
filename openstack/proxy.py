@@ -437,8 +437,7 @@ class Proxy(adapter.Adapter, Generic[T]):
             self, '_connection', getattr(self.session, '_sdk_connection', None)
         )
 
-    def _get_resource(self, resource_type: Type[T], value,
-                      **attrs) -> T:
+    def _get_resource(self, resource_type: Type[T], value, **attrs) -> T:
         """Get a resource object to work on
 
         :param resource_type: The type of resource to operate on. This should
@@ -484,8 +483,9 @@ class Proxy(adapter.Adapter, Generic[T]):
             value = resource.Resource._get_id(parent)
         return value
 
-    def _find(self, resource_type: Type[T], name_or_id, ignore_missing=True,
-              **attrs) -> Optional[T]:
+    def _find(
+        self, resource_type: Type[T], name_or_id, ignore_missing=True, **attrs
+    ) -> Optional[T]:
         """Find a resource
 
         :param name_or_id: The name or ID of a resource to find.
@@ -505,8 +505,9 @@ class Proxy(adapter.Adapter, Generic[T]):
         )
 
     @_check_resource(strict=False)
-    def _delete(self, resource_type: Type[T], value, ignore_missing=True,
-                **attrs):
+    def _delete(
+        self, resource_type: Type[T], value, ignore_missing=True, **attrs
+    ):
         """Delete a resource
 
         :param resource_type: The type of resource to delete. This should
@@ -542,8 +543,9 @@ class Proxy(adapter.Adapter, Generic[T]):
         return rv
 
     @_check_resource(strict=False)
-    def _update(self, resource_type: Type[T], value, base_path=None,
-                **attrs) -> T:
+    def _update(
+        self, resource_type: Type[T], value, base_path=None, **attrs
+    ) -> T:
         """Update a resource
 
         :param resource_type: The type of resource to update.
@@ -591,8 +593,9 @@ class Proxy(adapter.Adapter, Generic[T]):
         res = resource_type.new(connection=conn, **attrs)
         return res.create(self, base_path=base_path)
 
-    def _bulk_create(self, resource_type: Type[T], data, base_path=None
-                     ) -> Generator[T, None, None]:
+    def _bulk_create(
+        self, resource_type: Type[T], data, base_path=None
+    ) -> Generator[T, None, None]:
         """Create a resource from attributes
 
         :param resource_type: The type of resource to create.
@@ -614,13 +617,13 @@ class Proxy(adapter.Adapter, Generic[T]):
 
     @_check_resource(strict=False)
     def _get(
-            self,
-            resource_type: Type[T],
-            value=None,
-            requires_id=True,
-            base_path=None,
-            skip_cache=False,
-            **attrs
+        self,
+        resource_type: Type[T],
+        value=None,
+        requires_id=True,
+        base_path=None,
+        skip_cache=False,
+        **attrs
     ):
         """Fetch a resource
 
@@ -657,12 +660,12 @@ class Proxy(adapter.Adapter, Generic[T]):
         )
 
     def _list(
-            self,
-            resource_type: Type[T],
-            paginated=True,
-            base_path=None,
-            jmespath_filters=None,
-            **attrs
+        self,
+        resource_type: Type[T],
+        paginated=True,
+        base_path=None,
+        jmespath_filters=None,
+        **attrs
     ) -> Generator[T, None, None]:
         """List a resource
 
@@ -690,8 +693,7 @@ class Proxy(adapter.Adapter, Generic[T]):
             the ``resource_type``.
         """
         data = resource_type.list(
-            self, paginated=paginated, base_path=base_path,
-            **attrs
+            self, paginated=paginated, base_path=base_path, **attrs
         )
 
         if jmespath_filters and isinstance(jmespath_filters, str):
@@ -699,8 +701,9 @@ class Proxy(adapter.Adapter, Generic[T]):
 
         return data
 
-    def _head(self, resource_type: Type[T], value=None, base_path=None,
-              **attrs):
+    def _head(
+        self, resource_type: Type[T], value=None, base_path=None, **attrs
+    ):
         """Retrieve a resource's header
 
         :param resource_type: The type of resource to retrieve.

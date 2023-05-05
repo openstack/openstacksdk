@@ -18,8 +18,10 @@ List resources from the Key Manager service.
 def create_secret(conn):
     print("Create a secret:")
 
-    conn.key_manager.create_secret(name="My public key",
-                                   secret_type="public",
-                                   expiration="2020-02-28T23:59:59",
-                                   payload="ssh rsa...",
-                                   payload_content_type="text/plain")
+    conn.key_manager.create_secret(
+        name="My public key",
+        secret_type="public",
+        expiration="2020-02-28T23:59:59",
+        payload="ssh rsa...",
+        payload_content_type="text/plain",
+    )

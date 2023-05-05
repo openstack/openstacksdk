@@ -45,8 +45,9 @@ class Opts:
 
 
 def _get_resource_value(resource_key, default):
-    return config.get_extra_config(
-        EXAMPLE_CONFIG_KEY).get(resource_key, default)
+    return config.get_extra_config(EXAMPLE_CONFIG_KEY).get(
+        resource_key, default
+    )
 
 
 SERVER_NAME = 'openstacksdk-example'
@@ -55,10 +56,12 @@ FLAVOR_NAME = _get_resource_value('flavor_name', 'm1.small')
 NETWORK_NAME = _get_resource_value('network_name', 'private')
 KEYPAIR_NAME = _get_resource_value('keypair_name', 'openstacksdk-example')
 SSH_DIR = _get_resource_value(
-    'ssh_dir', '{home}/.ssh'.format(home=os.path.expanduser("~")))
+    'ssh_dir', '{home}/.ssh'.format(home=os.path.expanduser("~"))
+)
 PRIVATE_KEYPAIR_FILE = _get_resource_value(
-    'private_keypair_file', '{ssh_dir}/id_rsa.{key}'.format(
-        ssh_dir=SSH_DIR, key=KEYPAIR_NAME))
+    'private_keypair_file',
+    '{ssh_dir}/id_rsa.{key}'.format(ssh_dir=SSH_DIR, key=KEYPAIR_NAME),
+)
 
 EXAMPLE_IMAGE_NAME = 'openstacksdk-example-public-image'
 
@@ -72,8 +75,15 @@ def create_connection_from_args():
     return openstack.connect(options=parser)
 
 
-def create_connection(auth_url, region, project_name, username, password,
-                      user_domain, project_domain):
+def create_connection(
+    auth_url,
+    region,
+    project_name,
+    username,
+    password,
+    user_domain,
+    project_domain,
+):
     return openstack.connect(
         auth_url=auth_url,
         project_name=project_name,

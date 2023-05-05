@@ -66,16 +66,17 @@ class StatsdFixture(fixtures.Fixture):
 
 
 class TestStats(base.TestCase):
-
     def setUp(self):
         self.statsd = StatsdFixture()
         self.useFixture(self.statsd)
         # note, use 127.0.0.1 rather than localhost to avoid getting ipv6
         # see: https://github.com/jsocol/pystatsd/issues/61
         self.useFixture(
-            fixtures.EnvironmentVariable('STATSD_HOST', '127.0.0.1'))
+            fixtures.EnvironmentVariable('STATSD_HOST', '127.0.0.1')
+        )
         self.useFixture(
-            fixtures.EnvironmentVariable('STATSD_PORT', str(self.statsd.port)))
+            fixtures.EnvironmentVariable('STATSD_PORT', str(self.statsd.port))
+        )
 
         self.add_info_on_exception('statsd_content', self.statsd.stats)
         # Set up the above things before the super setup so that we have the
@@ -93,7 +94,8 @@ class TestStats(base.TestCase):
                 samples.append(s)
         self.addDetail(
             'prometheus_samples',
-            testtools.content.text_content(pprint.pformat(samples)))
+            testtools.content.text_content(pprint.pformat(samples)),
+        )
 
     def assert_reported_stat(self, key, value=None, kind=None):
         """Check statsd output
@@ -127,7 +129,8 @@ class TestStats(base.TestCase):
             # newlines; thus we first flatten the stats out into
             # single entries.
             stats = itertools.chain.from_iterable(
-                [s.decode('utf-8').split('\n') for s in self.statsd.stats])
+                [s.decode('utf-8').split('\n') for s in self.statsd.stats]
+            )
             for stat in stats:
                 k, v = stat.split(':')
                 if key == k:
@@ -166,127 +169,184 @@ class TestStats(base.TestCase):
     def test_list_projects(self):
 
         mock_uri = self.get_mock_url(
-            service_type='identity', resource='projects',
-            base_url_append='v3')
+            service_type='identity', resource='projects', base_url_append='v3'
+        )
 
-        self.register_uris([
-            dict(method='GET', uri=mock_uri, status_code=200,
-                 json={'projects': []})])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=mock_uri,
+                    status_code=200,
+                    json={'projects': []},
+                )
+            ]
+        )
 
         self.cloud.list_projects()
         self.assert_calls()
 
         self.assert_reported_stat(
-            'openstack.api.identity.GET.projects.200', value='1', kind='c')
+            'openstack.api.identity.GET.projects.200', value='1', kind='c'
+        )
         self.assert_prometheus_stat(
-            'openstack_http_requests_total', 1, dict(
+            'openstack_http_requests_total',
+            1,
+            dict(
                 service_type='identity',
                 endpoint=mock_uri,
                 method='GET',
-                status_code='200'))
+                status_code='200',
+            ),
+        )
 
     def test_projects(self):
         mock_uri = self.get_mock_url(
-            service_type='identity', resource='projects',
-            base_url_append='v3')
+            service_type='identity', resource='projects', base_url_append='v3'
+        )
 
-        self.register_uris([
-            dict(method='GET', uri=mock_uri, status_code=200,
-                 json={'projects': []})])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=mock_uri,
+                    status_code=200,
+                    json={'projects': []},
+                )
+            ]
+        )
 
         list(self.cloud.identity.projects())
         self.assert_calls()
 
         self.assert_reported_stat(
-            'openstack.api.identity.GET.projects.200', value='1', kind='c')
+            'openstack.api.identity.GET.projects.200', value='1', kind='c'
+        )
         self.assert_prometheus_stat(
-            'openstack_http_requests_total', 1, dict(
+            'openstack_http_requests_total',
+            1,
+            dict(
                 service_type='identity',
                 endpoint=mock_uri,
                 method='GET',
-                status_code='200'))
+                status_code='200',
+            ),
+        )
 
     def test_servers(self):
 
         mock_uri = 'https://compute.example.com/v2.1/servers/detail'
 
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(method='GET', uri=mock_uri, status_code=200,
-                 json={'servers': []})])
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=mock_uri,
+                    status_code=200,
+                    json={'servers': []},
+                ),
+            ]
+        )
 
         list(self.cloud.compute.servers())
         self.assert_calls()
 
         self.assert_reported_stat(
-            'openstack.api.compute.GET.servers_detail.200',
-            value='1', kind='c')
+            'openstack.api.compute.GET.servers_detail.200', value='1', kind='c'
+        )
         self.assert_reported_stat(
             'openstack.api.compute.GET.servers_detail.200',
-            value='0', kind='ms')
+            value='0',
+            kind='ms',
+        )
         self.assert_prometheus_stat(
-            'openstack_http_requests_total', 1, dict(
+            'openstack_http_requests_total',
+            1,
+            dict(
                 service_type='compute',
                 endpoint=mock_uri,
                 method='GET',
-                status_code='200'))
+                status_code='200',
+            ),
+        )
 
     def test_servers_no_detail(self):
 
         mock_uri = 'https://compute.example.com/v2.1/servers'
 
-        self.register_uris([
-            dict(method='GET', uri=mock_uri, status_code=200,
-                 json={'servers': []})])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=mock_uri,
+                    status_code=200,
+                    json={'servers': []},
+                )
+            ]
+        )
 
         self.cloud.compute.get('/servers')
         self.assert_calls()
 
         self.assert_reported_stat(
-            'openstack.api.compute.GET.servers.200', value='1', kind='c')
+            'openstack.api.compute.GET.servers.200', value='1', kind='c'
+        )
         self.assert_reported_stat(
-            'openstack.api.compute.GET.servers.200', value='0', kind='ms')
+            'openstack.api.compute.GET.servers.200', value='0', kind='ms'
+        )
         self.assert_reported_stat(
-            'openstack.api.compute.GET.servers.attempted', value='1', kind='c')
+            'openstack.api.compute.GET.servers.attempted', value='1', kind='c'
+        )
         self.assert_prometheus_stat(
-            'openstack_http_requests_total', 1, dict(
+            'openstack_http_requests_total',
+            1,
+            dict(
                 service_type='compute',
                 endpoint=mock_uri,
                 method='GET',
-                status_code='200'))
+                status_code='200',
+            ),
+        )
 
     def test_servers_error(self):
 
         mock_uri = 'https://compute.example.com/v2.1/servers'
 
-        self.register_uris([
-            dict(method='GET', uri=mock_uri, status_code=500,
-                 json={})])
+        self.register_uris(
+            [dict(method='GET', uri=mock_uri, status_code=500, json={})]
+        )
 
         self.cloud.compute.get('/servers')
         self.assert_calls()
 
         self.assert_reported_stat(
-            'openstack.api.compute.GET.servers.500', value='1', kind='c')
+            'openstack.api.compute.GET.servers.500', value='1', kind='c'
+        )
         self.assert_reported_stat(
-            'openstack.api.compute.GET.servers.500', value='0', kind='ms')
+            'openstack.api.compute.GET.servers.500', value='0', kind='ms'
+        )
         self.assert_reported_stat(
-            'openstack.api.compute.GET.servers.attempted', value='1', kind='c')
+            'openstack.api.compute.GET.servers.attempted', value='1', kind='c'
+        )
         self.assert_prometheus_stat(
-            'openstack_http_requests_total', 1, dict(
+            'openstack_http_requests_total',
+            1,
+            dict(
                 service_type='compute',
                 endpoint=mock_uri,
                 method='GET',
-                status_code='500'))
+                status_code='500',
+            ),
+        )
 
     def test_timeout(self):
 
         mock_uri = 'https://compute.example.com/v2.1/servers'
 
-        self.register_uris([
-            dict(method='GET', uri=mock_uri,
-                 exc=rexceptions.ConnectTimeout)
-        ])
+        self.register_uris(
+            [dict(method='GET', uri=mock_uri, exc=rexceptions.ConnectTimeout)]
+        )
 
         try:
             self.cloud.compute.get('/servers')
@@ -294,13 +354,14 @@ class TestStats(base.TestCase):
             pass
 
         self.assert_reported_stat(
-            'openstack.api.compute.GET.servers.failed', value='1', kind='c')
+            'openstack.api.compute.GET.servers.failed', value='1', kind='c'
+        )
         self.assert_reported_stat(
-            'openstack.api.compute.GET.servers.attempted', value='1', kind='c')
+            'openstack.api.compute.GET.servers.attempted', value='1', kind='c'
+        )
 
 
 class TestNoStats(base.TestCase):
-
     def setUp(self):
         super(TestNoStats, self).setUp()
         self.statsd = StatsdFixture()
@@ -309,12 +370,19 @@ class TestNoStats(base.TestCase):
     def test_no_stats(self):
 
         mock_uri = self.get_mock_url(
-            service_type='identity', resource='projects',
-            base_url_append='v3')
+            service_type='identity', resource='projects', base_url_append='v3'
+        )
 
-        self.register_uris([
-            dict(method='GET', uri=mock_uri, status_code=200,
-                 json={'projects': []})])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=mock_uri,
+                    status_code=200,
+                    json={'projects': []},
+                )
+            ]
+        )
 
         self.cloud.identity._statsd_client = None
         list(self.cloud.identity.projects())

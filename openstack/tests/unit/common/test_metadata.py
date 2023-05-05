@@ -23,7 +23,6 @@ IDENTIFIER = 'IDENTIFIER'
 
 
 class TestMetadata(base.TestCase):
-
     def setUp(self):
         super(TestMetadata, self).setUp()
 
@@ -95,8 +94,7 @@ class TestMetadata(base.TestCase):
         self.assertEqual(res, result)
         url = self.base_path + '/' + res.id + '/metadata'
         self.session.post.assert_called_once_with(
-            url,
-            json={'metadata': {'foo': 'bar'}}
+            url, json={'metadata': {'foo': 'bar'}}
         )
 
     def test_replace_metadata(self):
@@ -109,8 +107,7 @@ class TestMetadata(base.TestCase):
         self.assertEqual(res, result)
         url = self.base_path + '/' + res.id + '/metadata'
         self.session.put.assert_called_once_with(
-            url,
-            json={'metadata': {'foo': 'bar'}}
+            url, json={'metadata': {'foo': 'bar'}}
         )
 
     def test_delete_all_metadata(self):
@@ -125,9 +122,7 @@ class TestMetadata(base.TestCase):
         # Check passed resource is returned
         self.assertEqual(res, result)
         url = self.base_path + '/' + res.id + '/metadata'
-        self.session.put.assert_called_once_with(
-            url,
-            json={'metadata': {}})
+        self.session.put.assert_called_once_with(url, json={'metadata': {}})
 
     def test_get_metadata_item(self):
         res = self.sot
@@ -198,5 +193,5 @@ class TestMetadata(base.TestCase):
         self.assertEqual(res, result)
         url = self.base_path + '/' + res.id + '/metadata/foo'
         self.session.put.assert_called_once_with(
-            url,
-            json={'meta': {'foo': 'black'}})
+            url, json={'meta': {'foo': 'black'}}
+        )

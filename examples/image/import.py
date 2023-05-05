@@ -24,8 +24,10 @@ def import_image(conn):
     print("Import Image:")
 
     # Url where glance can download the image
-    uri = 'https://download.cirros-cloud.net/0.4.0/' \
-          'cirros-0.4.0-x86_64-disk.img'
+    uri = (
+        'https://download.cirros-cloud.net/0.4.0/'
+        'cirros-0.4.0-x86_64-disk.img'
+    )
 
     # Build the image attributes and import the image.
     image_attrs = {

@@ -61,7 +61,9 @@ def get_profile(profile_name):
             " {status_code} {reason}".format(
                 profile_name=profile_name,
                 status_code=response.status_code,
-                reason=response.reason))
+                reason=response.reason,
+            )
+        )
         vendor_defaults[profile_name] = None
         return
     vendor_data = response.json()
@@ -69,8 +71,8 @@ def get_profile(profile_name):
     # Merge named and url cloud config, but make named config override the
     # config from the cloud so that we can supply local overrides if needed.
     profile = _util.merge_clouds(
-        vendor_data['profile'],
-        vendor_defaults.get(name, {}))
+        vendor_data['profile'], vendor_defaults.get(name, {})
+    )
     # If there is (or was) a profile listed in a named config profile, it
     # might still be here. We just merged in content from a URL though, so
     # pop the key to prevent doing it again in the future.

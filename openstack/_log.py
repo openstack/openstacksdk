@@ -44,7 +44,10 @@ def setup_logging(name, handlers=None, level=None):
 
 
 def enable_logging(
-    debug=False, http_debug=False, path=None, stream=None,
+    debug=False,
+    http_debug=False,
+    path=None,
+    stream=None,
     format_stream=False,
     format_template='%(asctime)s %(levelname)s: %(name)s %(message)s',
     handlers=None,
@@ -121,9 +124,11 @@ def enable_logging(
     # enable_logging should not be used and instead python logging should
     # be configured directly.
     setup_logging(
-        'urllib3', handlers=[logging.NullHandler()], level=logging.INFO)
+        'urllib3', handlers=[logging.NullHandler()], level=logging.INFO
+    )
     setup_logging(
-        'stevedore', handlers=[logging.NullHandler()], level=logging.INFO)
+        'stevedore', handlers=[logging.NullHandler()], level=logging.INFO
+    )
     # Suppress warning about keystoneauth loggers
     setup_logging('keystoneauth.discovery')
     setup_logging('keystoneauth.identity.base')

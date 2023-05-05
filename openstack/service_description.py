@@ -36,7 +36,9 @@ class _ServiceDisabledProxyShim:
         raise exceptions.ServiceDisabledException(
             "Service '{service_type}' is disabled because its configuration "
             "could not be loaded. {reason}".format(
-                service_type=self.service_type, reason=self.reason or ''))
+                service_type=self.service_type, reason=self.reason or ''
+            )
+        )
 
 
 class ServiceDescription:
@@ -73,9 +75,8 @@ class ServiceDescription:
         """
         self.service_type = service_type or self.service_type
         self.supported_versions = (
-            supported_versions
-            or self.supported_versions
-            or {})
+            supported_versions or self.supported_versions or {}
+        )
 
         self.aliases = aliases or self.aliases
         self.all_types = [service_type] + self.aliases
@@ -135,7 +136,9 @@ class ServiceDescription:
                 "Failed to create a working proxy for service {service_type}: "
                 "{message}".format(
                     service_type=self.service_type,
-                    message=exc or "No valid endpoint was discoverable."))
+                    message=exc or "No valid endpoint was discoverable.",
+                )
+            )
 
     def _make_proxy(self, instance):
         """Create a Proxy for the service in question.
@@ -148,7 +151,8 @@ class ServiceDescription:
         if not config.has_service(self.service_type):
             return _ServiceDisabledProxyShim(
                 self.service_type,
-                config.get_disabled_reason(self.service_type))
+                config.get_disabled_reason(self.service_type),
+            )
 
         # We don't know anything about this service, so the user is
         # explicitly just using us for a passthrough REST adapter.
@@ -186,13 +190,12 @@ class ServiceDescription:
                     " {service_type} is not known or supported by"
                     " openstacksdk. The resulting Proxy object will only"
                     " have direct passthrough REST capabilities.".format(
-                        version=version_string,
-                        service_type=self.service_type),
-                    category=exceptions.UnsupportedServiceVersion)
+                        version=version_string, service_type=self.service_type
+                    ),
+                    category=exceptions.UnsupportedServiceVersion,
+                )
         elif endpoint_override:
-            temp_adapter = config.get_session_client(
-                self.service_type
-            )
+            temp_adapter = config.get_session_client(self.service_type)
             api_version = temp_adapter.get_endpoint_data().api_version
             proxy_class = self.supported_versions.get(str(api_version[0]))
             if proxy_class:
@@ -207,9 +210,10 @@ class ServiceDescription:
                     " is not supported by openstacksdk. The resulting Proxy"
                     " object will only have direct passthrough REST"
                     " capabilities.".format(
-                        version=api_version,
-                        service_type=self.service_type),
-                    category=exceptions.UnsupportedServiceVersion)
+                        version=api_version, service_type=self.service_type
+                    ),
+                    category=exceptions.UnsupportedServiceVersion,
+                )
 
         if proxy_obj:
 
@@ -225,7 +229,9 @@ class ServiceDescription:
                 raise exceptions.ServiceDiscoveryException(
                     "Failed to create a working proxy for service "
                     "{service_type}: No endpoint data found.".format(
-                        service_type=self.service_type))
+                        service_type=self.service_type
+                    )
+                )
 
             # If we've gotten here with a proxy object it means we have
             # an endpoint_override in place. If the catalog_url and
@@ -235,7 +241,8 @@ class ServiceDescription:
             # so that subsequent discovery calls don't get made incorrectly.
             if data.catalog_url != data.service_url:
                 ep_key = '{service_type}_endpoint_override'.format(
-                    service_type=self.service_type.replace('-', '_'))
+                    service_type=self.service_type.replace('-', '_')
+                )
                 config.config[ep_key] = data.service_url
                 proxy_obj = config.get_session_client(
                     self.service_type,
@@ -248,16 +255,16 @@ class ServiceDescription:
         if version_string:
             version_kwargs['version'] = version_string
         else:
-            supported_versions = sorted([
-                int(f) for f in self.supported_versions])
+            supported_versions = sorted(
+                [int(f) for f in self.supported_versions]
+            )
             version_kwargs['min_version'] = str(supported_versions[0])
             version_kwargs['max_version'] = '{version}.latest'.format(
-                version=str(supported_versions[-1]))
+                version=str(supported_versions[-1])
+            )
 
         temp_adapter = config.get_session_client(
-            self.service_type,
-            allow_version_hack=True,
-            **version_kwargs
+            self.service_type, allow_version_hack=True, **version_kwargs
         )
         found_version = temp_adapter.get_api_major_version()
         if found_version is None:
@@ -268,14 +275,18 @@ class ServiceDescription:
                     " exists but does not have any supported versions.".format(
                         service_type=self.service_type,
                         cloud=instance.name,
-                        region_name=region_name))
+                        region_name=region_name,
+                    )
+                )
             else:
                 raise exceptions.NotSupported(
                     "The {service_type} service for {cloud}:{region_name}"
                     " exists but no version was discoverable.".format(
                         service_type=self.service_type,
                         cloud=instance.name,
-                        region_name=region_name))
+                        region_name=region_name,
+                    )
+                )
         proxy_class = self.supported_versions.get(str(found_version[0]))
         if proxy_class:
             return config.get_session_client(
@@ -294,8 +305,10 @@ class ServiceDescription:
             "Service {service_type} has no discoverable version."
             " The resulting Proxy object will only have direct"
             " passthrough REST capabilities.".format(
-                service_type=self.service_type),
-            category=exceptions.UnsupportedServiceVersion)
+                service_type=self.service_type
+            ),
+            category=exceptions.UnsupportedServiceVersion,
+        )
         return temp_adapter
 
     def __set__(self, instance, value):

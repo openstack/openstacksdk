@@ -38,8 +38,8 @@ def create_policy(conn):
             'properties': {
                 'criteria': 'oldest_first',
                 'destroy_after_deletion': True,
-            }
-        }
+            },
+        },
     }
 
     policy = conn.clustering.create_policy(attrs)

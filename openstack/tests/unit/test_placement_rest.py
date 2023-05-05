@@ -20,7 +20,6 @@ from openstack.tests.unit import base
 
 @ddt.ddt
 class TestPlacementRest(base.TestCase):
-
     def setUp(self):
         super(TestPlacementRest, self).setUp()
         self.use_placement()
@@ -29,8 +28,10 @@ class TestPlacementRest(base.TestCase):
         uri = dict(
             method='GET',
             uri=self.get_mock_url(
-                'placement', 'public', append=['allocation_candidates']),
-            json={})
+                'placement', 'public', append=['allocation_candidates']
+            ),
+            json={},
+        )
         if status_code is not None:
             uri['status_code'] = status_code
         self.register_uris([uri])
@@ -38,8 +39,8 @@ class TestPlacementRest(base.TestCase):
     def _validate_resp(self, resp, status_code):
         self.assertEqual(status_code, resp.status_code)
         self.assertEqual(
-            'https://placement.example.com/allocation_candidates',
-            resp.url)
+            'https://placement.example.com/allocation_candidates', resp.url
+        )
         self.assert_calls()
 
     @ddt.data({}, {'raise_exc': False}, {'raise_exc': True})
@@ -61,18 +62,20 @@ class TestPlacementRest(base.TestCase):
         # raise_exc=True raises a ksa exception appropriate to the status code
         ex = self.assertRaises(
             exceptions.InternalServerError,
-            self.cloud.placement.get, '/allocation_candidates', raise_exc=True)
+            self.cloud.placement.get,
+            '/allocation_candidates',
+            raise_exc=True,
+        )
         self._validate_resp(ex.response, 500)
 
     def test_microversion_discovery(self):
         self.assertEqual(
-            (1, 17),
-            self.cloud.placement.get_endpoint_data().max_microversion)
+            (1, 17), self.cloud.placement.get_endpoint_data().max_microversion
+        )
         self.assert_calls()
 
 
 class TestBadPlacementRest(base.TestCase):
-
     def setUp(self):
         self.skipTest('Need to re-add support for broken placement versions')
         super(TestBadPlacementRest, self).setUp()
@@ -85,8 +88,10 @@ class TestBadPlacementRest(base.TestCase):
         uri = dict(
             method='GET',
             uri=self.get_mock_url(
-                'placement', 'public', append=['allocation_candidates']),
-            json={})
+                'placement', 'public', append=['allocation_candidates']
+            ),
+            json={},
+        )
         if status_code is not None:
             uri['status_code'] = status_code
         self.register_uris([uri])
@@ -94,8 +99,8 @@ class TestBadPlacementRest(base.TestCase):
     def _validate_resp(self, resp, status_code):
         self.assertEqual(status_code, resp.status_code)
         self.assertEqual(
-            'https://placement.example.com/allocation_candidates',
-            resp.url)
+            'https://placement.example.com/allocation_candidates', resp.url
+        )
         self.assert_calls()
 
     def test_discovery(self):

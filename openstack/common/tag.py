@@ -81,8 +81,9 @@ class TagMixin:
         url = utils.urljoin(self.base_path, self.id, 'tags', tag)
         session = self._get_session(session)
         response = session.get(url)
-        exceptions.raise_from_response(response,
-                                       error_message='Tag does not exist')
+        exceptions.raise_from_response(
+            response, error_message='Tag does not exist'
+        )
         return self
 
     def add_tag(self, session, tag):
@@ -98,9 +99,7 @@ class TagMixin:
         # we do not want to update tags directly
         tags = self.tags
         tags.append(tag)
-        self._body.attributes.update({
-            'tags': tags
-        })
+        self._body.attributes.update({'tags': tags})
         return self
 
     def remove_tag(self, session, tag):
@@ -121,7 +120,5 @@ class TagMixin:
             tags.remove(tag)
         except ValueError:
             pass  # do nothing!
-        self._body.attributes.update({
-            'tags': tags
-        })
+        self._body.attributes.update({'tags': tags})
         return self

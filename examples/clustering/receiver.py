@@ -39,10 +39,8 @@ def create_receiver(conn):
         "action": "CLUSTER_SCALE_OUT",
         "cluster_id": CLUSTER_ID,
         "name": FAKE_NAME,
-        "params": {
-            "count": "1"
-        },
-        "type": "webhook"
+        "params": {"count": "1"},
+        "type": "webhook",
     }
 
     receiver = conn.clustering.create_receiver(**spec)
@@ -66,12 +64,7 @@ def find_receiver(conn):
 def update_receiver(conn):
     print("Update Receiver:")
 
-    spec = {
-        "name": "test_receiver2",
-        "params": {
-            "count": "2"
-        }
-    }
+    spec = {"name": "test_receiver2", "params": {"count": "2"}}
     receiver = conn.clustering.update_receiver(FAKE_NAME, **spec)
     print(receiver.to_dict())
 

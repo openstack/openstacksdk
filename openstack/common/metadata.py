@@ -82,14 +82,13 @@ class MetadataMixin:
         url = utils.urljoin(self.base_path, self.id, 'metadata', key)
         response = session.get(url)
         exceptions.raise_from_response(
-            response, error_message='Metadata item does not exist')
+            response, error_message='Metadata item does not exist'
+        )
         meta = response.json().get('meta', {})
         # Here we need to potentially init metadata
         metadata = self.metadata or {}
         metadata[key] = meta.get(key)
-        self._body.attributes.update({
-            'metadata': metadata
-        })
+        self._body.attributes.update({'metadata': metadata})
 
         return self
 
@@ -101,17 +100,12 @@ class MetadataMixin:
         :param str value: The value.
         """
         url = utils.urljoin(self.base_path, self.id, 'metadata', key)
-        response = session.put(
-            url,
-            json={'meta': {key: value}}
-        )
+        response = session.put(url, json={'meta': {key: value}})
         exceptions.raise_from_response(response)
         # we do not want to update tags directly
         metadata = self.metadata
         metadata[key] = value
-        self._body.attributes.update({
-            'metadata': metadata
-        })
+        self._body.attributes.update({'metadata': metadata})
         return self
 
     def delete_metadata_item(self, session, key):
@@ -132,7 +126,5 @@ class MetadataMixin:
                 metadata = {}
         except ValueError:
             pass  # do nothing!
-        self._body.attributes.update({
-            'metadata': metadata
-        })
+        self._body.attributes.update({'metadata': metadata})
         return self

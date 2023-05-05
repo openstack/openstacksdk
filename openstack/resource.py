@@ -207,15 +207,14 @@ class _BaseComponent:
     def warn_if_deprecated_property(self, value):
         deprecated = object.__getattribute__(self, 'deprecated')
         deprecation_reason = object.__getattribute__(
-            self, 'deprecation_reason',
+            self,
+            'deprecation_reason',
         )
 
         if value and deprecated:
             warnings.warn(
-                "The field %r has been deprecated. %s" % (
-                    self.name,
-                    deprecation_reason or "Avoid usage."
-                ),
+                "The field %r has been deprecated. %s"
+                % (self.name, deprecation_reason or "Avoid usage."),
                 os_warnings.RemovedFieldWarning,
             )
         return value
@@ -1027,9 +1026,7 @@ class Resource(dict):
             converted = []
             for raw in value:
                 if isinstance(raw, Resource):
-                    converted.append(
-                        raw.to_dict(_to_munch=to_munch)
-                    )
+                    converted.append(raw.to_dict(_to_munch=to_munch))
                 elif isinstance(raw, dict) and to_munch:
                     converted.append(utils.Munch(raw))
                 else:
@@ -1223,10 +1220,7 @@ class Resource(dict):
             requires_id = self.requires_id
 
         # Conditionally construct arguments for _prepare_request_body
-        request_kwargs = {
-            "patch": patch,
-            "prepend_key": prepend_key
-        }
+        request_kwargs = {"patch": patch, "prepend_key": prepend_key}
         if resource_request_key is not None:
             request_kwargs['resource_request_key'] = resource_request_key
         body = self._prepare_request_body(**request_kwargs)
@@ -1443,7 +1437,7 @@ class Resource(dict):
         resource_request_key=None,
         resource_response_key=None,
         microversion=None,
-        **params
+        **params,
     ):
         """Create a remote resource based on this instance.
 
@@ -1532,8 +1526,7 @@ class Resource(dict):
             # fetch the body if it's required but not returned by create
             fetch_kwargs = {}
             if resource_response_key is not None:
-                fetch_kwargs = \
-                    {'resource_response_key': resource_response_key}
+                fetch_kwargs = {'resource_response_key': resource_response_key}
             return self.fetch(session, **fetch_kwargs)
         return self
 
@@ -1681,7 +1674,8 @@ class Resource(dict):
             raise exceptions.MethodNotSupported(self, 'fetch')
 
         request = self._prepare_request(
-            requires_id=requires_id, base_path=base_path,
+            requires_id=requires_id,
+            base_path=base_path,
         )
         session = self._get_session(session)
         if microversion is None:
@@ -1931,8 +1925,9 @@ class Resource(dict):
             retry_on_conflict=retry_on_conflict,
         )
 
-    def delete(self, session, error_message=None, *, microversion=None,
-               **kwargs):
+    def delete(
+        self, session, error_message=None, *, microversion=None, **kwargs
+    ):
         """Delete the remote resource based on this instance.
 
         :param session: The session to use for making this request.
@@ -1948,8 +1943,9 @@ class Resource(dict):
             the resource was not found.
         """
 
-        response = self._raw_delete(session, microversion=microversion,
-                                    **kwargs)
+        response = self._raw_delete(
+            session, microversion=microversion, **kwargs
+        )
         kwargs = {}
         if error_message:
             kwargs['error_message'] = error_message
@@ -2116,7 +2112,8 @@ class Resource(dict):
                 for key in client_filters.keys():
                     if isinstance(client_filters[key], dict):
                         if not _dict_filter(
-                                client_filters[key], value.get(key, None)):
+                            client_filters[key], value.get(key, None)
+                        ):
                             filters_matched = False
                             break
                     elif value.get(key, None) != client_filters[key]:
@@ -2176,7 +2173,7 @@ class Resource(dict):
             # Glance has a next field in the main body
             next_link = next_link or data.get('next')
             if next_link and next_link.startswith('/v'):
-                next_link = next_link[next_link.find('/', 1):]
+                next_link = next_link[next_link.find('/', 1) :]
 
         if not next_link and 'next' in response.links:
             # RFC5988 specifies Link headers and requests parses them if they
@@ -2281,8 +2278,11 @@ class Resource(dict):
                 **params,
             )
             return match.fetch(session, microversion=microversion, **params)
-        except (exceptions.NotFoundException, exceptions.BadRequestException,
-                exceptions.ForbiddenException):
+        except (
+            exceptions.NotFoundException,
+            exceptions.BadRequestException,
+            exceptions.ForbiddenException,
+        ):
             # NOTE(gtema): There are few places around openstack that return
             # 400 if we try to GET resource and it doesn't exist.
             pass

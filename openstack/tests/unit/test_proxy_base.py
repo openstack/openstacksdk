@@ -21,18 +21,27 @@ class TestProxyBase(base.TestCase):
         self.session = mock.Mock()
 
     def _verify(
-        self, mock_method, test_method, *,
-        method_args=None, method_kwargs=None, method_result=None,
-        expected_args=None, expected_kwargs=None, expected_result=None,
+        self,
+        mock_method,
+        test_method,
+        *,
+        method_args=None,
+        method_kwargs=None,
+        method_result=None,
+        expected_args=None,
+        expected_kwargs=None,
+        expected_result=None,
     ):
         with mock.patch(mock_method) as mocked:
             mocked.return_value = expected_result
-            if any([
-                method_args,
-                method_kwargs,
-                expected_args,
-                expected_kwargs,
-            ]):
+            if any(
+                [
+                    method_args,
+                    method_kwargs,
+                    expected_args,
+                    expected_kwargs,
+                ]
+            ):
                 method_args = method_args or ()
                 method_kwargs = method_kwargs or {}
                 expected_args = expected_args or ()
@@ -77,9 +86,16 @@ class TestProxyBase(base.TestCase):
                 mocked.assert_called_with(test_method.__self__)
 
     def verify_create(
-        self, test_method, resource_type, base_path=None, *,
-        method_args=None, method_kwargs=None,
-        expected_args=None, expected_kwargs=None, expected_result="result",
+        self,
+        test_method,
+        resource_type,
+        base_path=None,
+        *,
+        method_args=None,
+        method_kwargs=None,
+        expected_args=None,
+        expected_kwargs=None,
+        expected_result="result",
         mock_method="openstack.proxy.Proxy._create",
     ):
         if method_args is None:
@@ -103,9 +119,15 @@ class TestProxyBase(base.TestCase):
         )
 
     def verify_delete(
-        self, test_method, resource_type, ignore_missing=True, *,
-        method_args=None, method_kwargs=None,
-        expected_args=None, expected_kwargs=None,
+        self,
+        test_method,
+        resource_type,
+        ignore_missing=True,
+        *,
+        method_args=None,
+        method_kwargs=None,
+        expected_args=None,
+        expected_kwargs=None,
         mock_method="openstack.proxy.Proxy._delete",
     ):
         if method_args is None:
@@ -128,9 +150,16 @@ class TestProxyBase(base.TestCase):
         )
 
     def verify_get(
-        self, test_method, resource_type, requires_id=False, base_path=None, *,
-        method_args=None, method_kwargs=None,
-        expected_args=None, expected_kwargs=None,
+        self,
+        test_method,
+        resource_type,
+        requires_id=False,
+        base_path=None,
+        *,
+        method_args=None,
+        method_kwargs=None,
+        expected_args=None,
+        expected_kwargs=None,
         mock_method="openstack.proxy.Proxy._get",
     ):
         if method_args is None:
@@ -156,15 +185,23 @@ class TestProxyBase(base.TestCase):
             proxy._get_resource = mock.Mock(return_value=res)
             proxy._get(resource_type)
             res.fetch.assert_called_once_with(
-                proxy, requires_id=True,
+                proxy,
+                requires_id=True,
                 base_path=None,
                 error_message=mock.ANY,
-                skip_cache=False)
+                skip_cache=False,
+            )
 
     def verify_head(
-        self, test_method, resource_type, base_path=None, *,
-        method_args=None, method_kwargs=None,
-        expected_args=None, expected_kwargs=None,
+        self,
+        test_method,
+        resource_type,
+        base_path=None,
+        *,
+        method_args=None,
+        method_kwargs=None,
+        expected_args=None,
+        expected_kwargs=None,
         mock_method="openstack.proxy.Proxy._head",
     ):
         if method_args is None:
@@ -184,10 +221,16 @@ class TestProxyBase(base.TestCase):
         )
 
     def verify_find(
-        self, test_method, resource_type, name_or_id='resource_name',
-        ignore_missing=True, *,
-        method_args=None, method_kwargs=None,
-        expected_args=None, expected_kwargs=None,
+        self,
+        test_method,
+        resource_type,
+        name_or_id='resource_name',
+        ignore_missing=True,
+        *,
+        method_args=None,
+        method_kwargs=None,
+        expected_args=None,
+        expected_kwargs=None,
         mock_method="openstack.proxy.Proxy._find",
     ):
         method_args = [name_or_id] + (method_args or [])
@@ -206,9 +249,16 @@ class TestProxyBase(base.TestCase):
         )
 
     def verify_list(
-        self, test_method, resource_type, paginated=None, base_path=None, *,
-        method_args=None, method_kwargs=None,
-        expected_args=None, expected_kwargs=None,
+        self,
+        test_method,
+        resource_type,
+        paginated=None,
+        base_path=None,
+        *,
+        method_args=None,
+        method_kwargs=None,
+        expected_args=None,
+        expected_kwargs=None,
         mock_method="openstack.proxy.Proxy._list",
     ):
         if method_args is None:
@@ -234,9 +284,16 @@ class TestProxyBase(base.TestCase):
         )
 
     def verify_update(
-        self, test_method, resource_type, base_path=None, *,
-        method_args=None, method_kwargs=None,
-        expected_args=None, expected_kwargs=None, expected_result="result",
+        self,
+        test_method,
+        resource_type,
+        base_path=None,
+        *,
+        method_args=None,
+        method_kwargs=None,
+        expected_args=None,
+        expected_kwargs=None,
+        expected_result="result",
         mock_method="openstack.proxy.Proxy._update",
     ):
         if method_args is None:
@@ -259,7 +316,8 @@ class TestProxyBase(base.TestCase):
         )
 
     def verify_wait_for_status(
-        self, test_method,
+        self,
+        test_method,
         mock_method="openstack.resource.wait_for_status",
         **kwargs,
     ):

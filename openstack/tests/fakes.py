@@ -32,7 +32,8 @@ CHOCOLATE_FLAVOR_ID = u'0c1d9008-f546-4608-9e8f-f8bdaec8ddde'
 STRAWBERRY_FLAVOR_ID = u'0c1d9008-f546-4608-9e8f-f8bdaec8dddf'
 COMPUTE_ENDPOINT = 'https://compute.example.com/v2.1'
 ORCHESTRATION_ENDPOINT = 'https://orchestration.example.com/v1/{p}'.format(
-    p=PROJECT_ID)
+    p=PROJECT_ID
+)
 NO_MD5 = '93b885adfe0da089cdf634904fd59f71'
 NO_SHA256 = '6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d'
 FAKE_PUBLIC_KEY = (
@@ -41,7 +42,8 @@ FAKE_PUBLIC_KEY = (
     "sZacm0cZNuL69EObEGHdprfGJQajrpz22NQoCD8TFB8Wv+8om9NH9Le6s+WPe98WC77KLw8qg"
     "fQsbIey+JawPWl4O67ZdL5xrypuRjfIPWjgy/VH85IXg/Z/GONZ2nxHgSShMkwqSFECAC5L3P"
     "HB+0+/12M/iikdatFSVGjpuHvkLOs3oe7m6HlOfluSJ85BzLWBbvva93qkGmLg4ZAc8rPh2O+"
-    "YIsBUHNLLMM/oQp Generated-by-Nova\n")
+    "YIsBUHNLLMM/oQp Generated-by-Nova\n"
+)
 
 
 def make_fake_flavor(flavor_id, name, ram=100, disk=1600, vcpus=24):
@@ -50,29 +52,36 @@ def make_fake_flavor(flavor_id, name, ram=100, disk=1600, vcpus=24):
         u'OS-FLV-EXT-DATA:ephemeral': 0,
         u'disk': disk,
         u'id': flavor_id,
-        u'links': [{
-            u'href': u'{endpoint}/flavors/{id}'.format(
-                endpoint=COMPUTE_ENDPOINT, id=flavor_id),
-            u'rel': u'self'
-        }, {
-            u'href': u'{endpoint}/flavors/{id}'.format(
-                endpoint=COMPUTE_ENDPOINT, id=flavor_id),
-            u'rel': u'bookmark'
-        }],
+        u'links': [
+            {
+                u'href': u'{endpoint}/flavors/{id}'.format(
+                    endpoint=COMPUTE_ENDPOINT, id=flavor_id
+                ),
+                u'rel': u'self',
+            },
+            {
+                u'href': u'{endpoint}/flavors/{id}'.format(
+                    endpoint=COMPUTE_ENDPOINT, id=flavor_id
+                ),
+                u'rel': u'bookmark',
+            },
+        ],
         u'name': name,
         u'os-flavor-access:is_public': True,
         u'ram': ram,
         u'rxtx_factor': 1.0,
         u'swap': u'',
-        u'vcpus': vcpus
+        u'vcpus': vcpus,
     }
 
 
 FAKE_FLAVOR = make_fake_flavor(FLAVOR_ID, 'vanilla')
 FAKE_CHOCOLATE_FLAVOR = make_fake_flavor(
-    CHOCOLATE_FLAVOR_ID, 'chocolate', ram=200)
+    CHOCOLATE_FLAVOR_ID, 'chocolate', ram=200
+)
 FAKE_STRAWBERRY_FLAVOR = make_fake_flavor(
-    STRAWBERRY_FLAVOR_ID, 'strawberry', ram=300)
+    STRAWBERRY_FLAVOR_ID, 'strawberry', ram=300
+)
 FAKE_FLAVOR_LIST = [FAKE_FLAVOR, FAKE_CHOCOLATE_FLAVOR, FAKE_STRAWBERRY_FLAVOR]
 FAKE_TEMPLATE = '''heat_template_version: 2014-10-16
 
@@ -95,8 +104,14 @@ FAKE_TEMPLATE_CONTENT = template_format.parse(FAKE_TEMPLATE)
 
 
 def make_fake_server(
-        server_id, name, status='ACTIVE', admin_pass=None,
-        addresses=None, image=None, flavor=None):
+    server_id,
+    name,
+    status='ACTIVE',
+    admin_pass=None,
+    addresses=None,
+    image=None,
+    flavor=None,
+):
     if addresses is None:
         if status == 'ACTIVE':
             addresses = {
@@ -105,25 +120,28 @@ def make_fake_server(
                         "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:df:b0:8d",
                         "version": 6,
                         "addr": "fddb:b018:307:0:f816:3eff:fedf:b08d",
-                        "OS-EXT-IPS:type": "fixed"},
+                        "OS-EXT-IPS:type": "fixed",
+                    },
                     {
                         "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:df:b0:8d",
                         "version": 4,
                         "addr": "10.1.0.9",
-                        "OS-EXT-IPS:type": "fixed"},
+                        "OS-EXT-IPS:type": "fixed",
+                    },
                     {
                         "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:df:b0:8d",
                         "version": 4,
                         "addr": "172.24.5.5",
-                        "OS-EXT-IPS:type": "floating"}]}
+                        "OS-EXT-IPS:type": "floating",
+                    },
+                ]
+            }
         else:
             addresses = {}
     if image is None:
-        image = {"id": "217f3ab1-03e0-4450-bf27-63d52b421e9e",
-                 "links": []}
+        image = {"id": "217f3ab1-03e0-4450-bf27-63d52b421e9e", "links": []}
     if flavor is None:
-        flavor = {"id": "64",
-                  "links": []}
+        flavor = {"id": "64", "links": []}
 
     server = {
         "OS-EXT-STS:task_state": None,
@@ -152,7 +170,8 @@ def make_fake_server(
         "created": "2017-03-23T23:57:12Z",
         "tenant_id": PROJECT_ID,
         "os-extended-volumes:volumes_attached": [],
-        "config_drive": "True"}
+        "config_drive": "True",
+    }
     if admin_pass:
         server['adminPass'] = admin_pass
     return json.loads(json.dumps(server))
@@ -188,7 +207,8 @@ def make_fake_stack(id, name, description=None, status='CREATE_COMPLETE'):
 
 
 def make_fake_stack_event(
-        id, name, status='CREATE_COMPLETED', resource_name='id'):
+    id, name, status='CREATE_COMPLETED', resource_name='id'
+):
     event_id = uuid.uuid4().hex
     self_url = "{endpoint}/stacks/{name}/{id}/resources/{name}/events/{event}"
     resource_url = "{endpoint}/stacks/{name}/{id}/resources/{name}"
@@ -199,19 +219,25 @@ def make_fake_stack_event(
             {
                 "href": self_url.format(
                     endpoint=ORCHESTRATION_ENDPOINT,
-                    name=name, id=id, event=event_id),
-                "rel": "self"
-            }, {
+                    name=name,
+                    id=id,
+                    event=event_id,
+                ),
+                "rel": "self",
+            },
+            {
                 "href": resource_url.format(
-                    endpoint=ORCHESTRATION_ENDPOINT,
-                    name=name, id=id),
-                "rel": "resource"
-            }, {
+                    endpoint=ORCHESTRATION_ENDPOINT, name=name, id=id
+                ),
+                "rel": "resource",
+            },
+            {
                 "href": "{endpoint}/stacks/{name}/{id}".format(
-                    endpoint=ORCHESTRATION_ENDPOINT,
-                    name=name, id=id),
-                "rel": "stack"
-            }],
+                    endpoint=ORCHESTRATION_ENDPOINT, name=name, id=id
+                ),
+                "rel": "stack",
+            },
+        ],
         "logical_resource_id": name,
         "resource_status": status,
         "resource_status_reason": "",
@@ -221,10 +247,14 @@ def make_fake_stack_event(
 
 
 def make_fake_image(
-        image_id=None, md5=NO_MD5, sha256=NO_SHA256, status='active',
-        image_name=u'fake_image',
-        data=None,
-        checksum=u'ee36e35a297980dee1b514de9803ec6d'):
+    image_id=None,
+    md5=NO_MD5,
+    sha256=NO_SHA256,
+    status='active',
+    image_name=u'fake_image',
+    data=None,
+    checksum=u'ee36e35a297980dee1b514de9803ec6d',
+):
     if data:
         md5 = utils.md5(usedforsecurity=False)
         sha256 = hashlib.sha256()
@@ -249,9 +279,9 @@ def make_fake_image(
         u'status': status,
         u'tags': [],
         u'visibility': u'private',
-        u'locations': [{
-            u'url': u'http://127.0.0.1/images/' + image_id,
-            u'metadata': {}}],
+        u'locations': [
+            {u'url': u'http://127.0.0.1/images/' + image_id, u'metadata': {}}
+        ],
         u'min_disk': 40,
         u'virtual_size': None,
         u'name': image_name,
@@ -260,16 +290,16 @@ def make_fake_image(
         u'owner_specified.openstack.md5': md5 or NO_MD5,
         u'owner_specified.openstack.sha256': sha256 or NO_SHA256,
         u'owner_specified.openstack.object': 'images/{name}'.format(
-            name=image_name),
-        u'protected': False}
+            name=image_name
+        ),
+        u'protected': False,
+    }
 
 
 def make_fake_machine(machine_name, machine_id=None):
     if not machine_id:
         machine_id = uuid.uuid4().hex
-    return meta.obj_to_munch(FakeMachine(
-        id=machine_id,
-        name=machine_name))
+    return meta.obj_to_munch(FakeMachine(id=machine_id, name=machine_name))
 
 
 def make_fake_port(address, node_id=None, port_id=None):
@@ -277,10 +307,9 @@ def make_fake_port(address, node_id=None, port_id=None):
         node_id = uuid.uuid4().hex
     if not port_id:
         port_id = uuid.uuid4().hex
-    return meta.obj_to_munch(FakeMachinePort(
-        id=port_id,
-        address=address,
-        node_id=node_id))
+    return meta.obj_to_munch(
+        FakeMachinePort(id=port_id, address=address, node_id=node_id)
+    )
 
 
 class FakeFloatingIP:
@@ -293,63 +322,58 @@ class FakeFloatingIP:
 
 
 def make_fake_server_group(id, name, policies):
-    return json.loads(json.dumps({
-        'id': id,
-        'name': name,
-        'policies': policies,
-        'members': [],
-        'metadata': {},
-    }))
+    return json.loads(
+        json.dumps(
+            {
+                'id': id,
+                'name': name,
+                'policies': policies,
+                'members': [],
+                'metadata': {},
+            }
+        )
+    )
 
 
 def make_fake_hypervisor(id, name):
-    return json.loads(json.dumps({
-        'id': id,
-        'hypervisor_hostname': name,
-        'state': 'up',
-        'status': 'enabled',
-        "cpu_info": {
-            "arch": "x86_64",
-            "model": "Nehalem",
-            "vendor": "Intel",
-            "features": [
-                "pge",
-                "clflush"
-            ],
-            "topology": {
-                "cores": 1,
-                "threads": 1,
-                "sockets": 4
+    return json.loads(
+        json.dumps(
+            {
+                'id': id,
+                'hypervisor_hostname': name,
+                'state': 'up',
+                'status': 'enabled',
+                "cpu_info": {
+                    "arch": "x86_64",
+                    "model": "Nehalem",
+                    "vendor": "Intel",
+                    "features": ["pge", "clflush"],
+                    "topology": {"cores": 1, "threads": 1, "sockets": 4},
+                },
+                "current_workload": 0,
+                "status": "enabled",
+                "state": "up",
+                "disk_available_least": 0,
+                "host_ip": "1.1.1.1",
+                "free_disk_gb": 1028,
+                "free_ram_mb": 7680,
+                "hypervisor_type": "fake",
+                "hypervisor_version": 1000,
+                "local_gb": 1028,
+                "local_gb_used": 0,
+                "memory_mb": 8192,
+                "memory_mb_used": 512,
+                "running_vms": 0,
+                "service": {"host": "host1", "id": 7, "disabled_reason": None},
+                "vcpus": 1,
+                "vcpus_used": 0,
             }
-        },
-        "current_workload": 0,
-        "status": "enabled",
-        "state": "up",
-        "disk_available_least": 0,
-        "host_ip": "1.1.1.1",
-        "free_disk_gb": 1028,
-        "free_ram_mb": 7680,
-        "hypervisor_type": "fake",
-        "hypervisor_version": 1000,
-        "local_gb": 1028,
-        "local_gb_used": 0,
-        "memory_mb": 8192,
-        "memory_mb_used": 512,
-        "running_vms": 0,
-        "service": {
-            "host": "host1",
-            "id": 7,
-            "disabled_reason": None
-        },
-        "vcpus": 1,
-        "vcpus_used": 0
-    }))
+        )
+    )
 
 
 class FakeVolume:
-    def __init__(
-            self, id, status, name, attachments=[],
-            size=75):
+    def __init__(self, id, status, name, attachments=[], size=75):
         self.id = id
         self.status = status
         self.name = name
@@ -366,8 +390,7 @@ class FakeVolume:
 
 
 class FakeVolumeSnapshot:
-    def __init__(
-            self, id, status, name, description, size=75):
+    def __init__(self, id, status, name, description, size=75):
         self.id = id
         self.status = status
         self.name = name
@@ -380,10 +403,20 @@ class FakeVolumeSnapshot:
 
 
 class FakeMachine:
-    def __init__(self, id, name=None, driver=None, driver_info=None,
-                 chassis_uuid=None, instance_info=None, instance_uuid=None,
-                 properties=None, reservation=None, last_error=None,
-                 provision_state='available'):
+    def __init__(
+        self,
+        id,
+        name=None,
+        driver=None,
+        driver_info=None,
+        chassis_uuid=None,
+        instance_info=None,
+        instance_uuid=None,
+        properties=None,
+        reservation=None,
+        last_error=None,
+        provision_state='available',
+    ):
         self.uuid = id
         self.name = name
         self.driver = driver
@@ -405,50 +438,69 @@ class FakeMachinePort:
 
 
 def make_fake_neutron_security_group(
-        id, name, description, rules, stateful=True, project_id=None):
+    id, name, description, rules, stateful=True, project_id=None
+):
     if not rules:
         rules = []
     if not project_id:
         project_id = PROJECT_ID
-    return json.loads(json.dumps({
-        'id': id,
-        'name': name,
-        'description': description,
-        'stateful': stateful,
-        'project_id': project_id,
-        'tenant_id': project_id,
-        'security_group_rules': rules,
-    }))
+    return json.loads(
+        json.dumps(
+            {
+                'id': id,
+                'name': name,
+                'description': description,
+                'stateful': stateful,
+                'project_id': project_id,
+                'tenant_id': project_id,
+                'security_group_rules': rules,
+            }
+        )
+    )
 
 
 def make_fake_nova_security_group_rule(
-        id, from_port, to_port, ip_protocol, cidr):
-    return json.loads(json.dumps({
-        'id': id,
-        'from_port': int(from_port),
-        'to_port': int(to_port),
-        'ip_protcol': 'tcp',
-        'ip_range': {
-            'cidr': cidr
-        }
-    }))
+    id, from_port, to_port, ip_protocol, cidr
+):
+    return json.loads(
+        json.dumps(
+            {
+                'id': id,
+                'from_port': int(from_port),
+                'to_port': int(to_port),
+                'ip_protcol': 'tcp',
+                'ip_range': {'cidr': cidr},
+            }
+        )
+    )
 
 
 def make_fake_nova_security_group(id, name, description, rules):
     if not rules:
         rules = []
-    return json.loads(json.dumps({
-        'id': id,
-        'name': name,
-        'description': description,
-        'tenant_id': PROJECT_ID,
-        'rules': rules,
-    }))
+    return json.loads(
+        json.dumps(
+            {
+                'id': id,
+                'name': name,
+                'description': description,
+                'tenant_id': PROJECT_ID,
+                'rules': rules,
+            }
+        )
+    )
 
 
 class FakeNovaSecgroupRule:
-    def __init__(self, id, from_port=None, to_port=None, ip_protocol=None,
-                 cidr=None, parent_group_id=None):
+    def __init__(
+        self,
+        id,
+        from_port=None,
+        to_port=None,
+        ip_protocol=None,
+        cidr=None,
+        parent_group_id=None,
+    ):
         self.id = id
         self.from_port = from_port
         self.to_port = to_port
@@ -465,8 +517,7 @@ class FakeHypervisor:
 
 
 class FakeZone:
-    def __init__(self, id, name, type_, email, description,
-                 ttl, masters):
+    def __init__(self, id, name, type_, email, description, ttl, masters):
         self.id = id
         self.name = name
         self.type_ = type_
@@ -477,8 +528,7 @@ class FakeZone:
 
 
 class FakeRecordset:
-    def __init__(self, zone, id, name, type_, description,
-                 ttl, records):
+    def __init__(self, zone, id, name, type_, description, ttl, records):
         self.zone = zone
         self.id = id
         self.name = name
@@ -488,22 +538,27 @@ class FakeRecordset:
         self.records = records
 
 
-def make_fake_aggregate(id, name, availability_zone='nova',
-                        metadata=None, hosts=None):
+def make_fake_aggregate(
+    id, name, availability_zone='nova', metadata=None, hosts=None
+):
     if not metadata:
         metadata = {}
     if not hosts:
         hosts = []
-    return json.loads(json.dumps({
-        "availability_zone": availability_zone,
-        "created_at": datetime.datetime.now().isoformat(),
-        "deleted": False,
-        "deleted_at": None,
-        "hosts": hosts,
-        "id": int(id),
-        "metadata": {
-            "availability_zone": availability_zone,
-        },
-        "name": name,
-        "updated_at": None,
-    }))
+    return json.loads(
+        json.dumps(
+            {
+                "availability_zone": availability_zone,
+                "created_at": datetime.datetime.now().isoformat(),
+                "deleted": False,
+                "deleted_at": None,
+                "hosts": hosts,
+                "id": int(id),
+                "metadata": {
+                    "availability_zone": availability_zone,
+                },
+                "name": name,
+                "updated_at": None,
+            }
+        )
+    )

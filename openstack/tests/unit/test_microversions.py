@@ -16,7 +16,6 @@ from openstack.tests.unit import base
 
 
 class TestMicroversions(base.TestCase):
-
     def setUp(self):
         super(TestMicroversions, self).setUp()
         self.use_compute_discovery()
@@ -27,7 +26,8 @@ class TestMicroversions(base.TestCase):
 
         self.assertRaises(
             exceptions.ConfigException,
-            self.cloud.get_server, 'doesNotExist',
+            self.cloud.get_server,
+            'doesNotExist',
         )
 
         self.assert_calls()
@@ -38,7 +38,8 @@ class TestMicroversions(base.TestCase):
 
         self.assertRaises(
             exceptions.ConfigException,
-            self.cloud.get_server, 'doesNotExist',
+            self.cloud.get_server,
+            'doesNotExist',
         )
 
         self.assert_calls()
@@ -49,7 +50,8 @@ class TestMicroversions(base.TestCase):
 
         self.assertRaises(
             exceptions.ConfigException,
-            self.cloud.get_server, 'doesNotExist',
+            self.cloud.get_server,
+            'doesNotExist',
         )
 
         self.assert_calls()
@@ -60,7 +62,8 @@ class TestMicroversions(base.TestCase):
 
         self.assertRaises(
             exceptions.ConfigException,
-            self.cloud.get_server, 'doesNotExist',
+            self.cloud.get_server,
+            'doesNotExist',
         )
 
         self.assert_calls()
@@ -72,13 +75,18 @@ class TestMicroversions(base.TestCase):
         server1 = fakes.make_fake_server('123', 'mickey')
         server2 = fakes.make_fake_server('345', 'mouse')
 
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail']),
-                 request_headers={'OpenStack-API-Version': 'compute 2.42'},
-                 json={'servers': [server1, server2]}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'detail']
+                    ),
+                    request_headers={'OpenStack-API-Version': 'compute 2.42'},
+                    json={'servers': [server1, server2]},
+                ),
+            ]
+        )
 
         r = self.cloud.get_server('mickey', bare=True)
         self.assertIsNotNone(r)
@@ -93,13 +101,18 @@ class TestMicroversions(base.TestCase):
         server1 = fakes.make_fake_server('123', 'mickey')
         server2 = fakes.make_fake_server('345', 'mouse')
 
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail']),
-                 request_headers={'OpenStack-API-Version': 'compute 2.42'},
-                 json={'servers': [server1, server2]}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'detail']
+                    ),
+                    request_headers={'OpenStack-API-Version': 'compute 2.42'},
+                    json={'servers': [server1, server2]},
+                ),
+            ]
+        )
 
         r = self.cloud.get_server('mickey', bare=True)
         self.assertIsNotNone(r)

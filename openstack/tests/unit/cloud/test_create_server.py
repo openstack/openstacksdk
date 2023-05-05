@@ -706,7 +706,9 @@ class TestCreateServer(base.TestCase):
             ]
         )
         self.cloud.create_server(
-            'server-name', dict(id='image-id'), dict(id='flavor-id'),
+            'server-name',
+            dict(id='image-id'),
+            dict(id='flavor-id'),
             wait=True,
         ),
 

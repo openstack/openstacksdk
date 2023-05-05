@@ -21,14 +21,17 @@ from openstack import exceptions
 from openstack.tests.unit.config import base
 
 FILES = {
-    'yaml': textwrap.dedent('''
+    'yaml': textwrap.dedent(
+        '''
         foo: bar
         baz:
             - 1
             - 2
             - 3
-    '''),
-    'json': textwrap.dedent('''
+    '''
+    ),
+    'json': textwrap.dedent(
+        '''
         {
             "foo": "bar",
             "baz": [
@@ -37,18 +40,20 @@ FILES = {
                 3
             ]
         }
-    '''),
-    'txt': textwrap.dedent('''
+    '''
+    ),
+    'txt': textwrap.dedent(
+        '''
         foo
         bar baz
         test
             one two
-    '''),
+    '''
+    ),
 }
 
 
 class TestLoader(base.TestCase):
-
     def test_base_load_yaml_json_file(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tested_files = []
@@ -59,7 +64,8 @@ class TestLoader(base.TestCase):
                 tested_files.append(fn)
 
             path, result = loader.OpenStackConfig()._load_yaml_json_file(
-                tested_files)
+                tested_files
+            )
             # NOTE(hberaud): Prefer to test path rather than file because
             # our FILES var is a dict so results are appened
             # without keeping the initial order (python 3.5)
@@ -77,7 +83,8 @@ class TestLoader(base.TestCase):
                 tested_files.append(fn)
 
             path, result = loader.OpenStackConfig()._load_yaml_json_file(
-                tested_files)
+                tested_files
+            )
             # NOTE(hberaud): Prefer to test path rather than file because
             # our FILES var is a dict so results are appened
             # without keeping the initial order (python 3.5)
@@ -92,7 +99,8 @@ class TestLoader(base.TestCase):
             tested_files.append(fn)
 
             path, result = loader.OpenStackConfig()._load_yaml_json_file(
-                tested_files)
+                tested_files
+            )
             self.assertEqual(fn, path)
 
     def test__load_yaml_json_file_without_perm(self):
@@ -105,7 +113,8 @@ class TestLoader(base.TestCase):
             tested_files.append(fn)
 
             path, result = loader.OpenStackConfig()._load_yaml_json_file(
-                tested_files)
+                tested_files
+            )
             self.assertEqual(None, path)
 
     def test__load_yaml_json_file_nonexisting(self):
@@ -114,28 +123,56 @@ class TestLoader(base.TestCase):
         tested_files.append(fn)
 
         path, result = loader.OpenStackConfig()._load_yaml_json_file(
-            tested_files)
+            tested_files
+        )
         self.assertEqual(None, path)
 
 
 class TestFixArgv(base.TestCase):
     def test_no_changes(self):
-        argv = ['-a', '-b', '--long-arg', '--multi-value', 'key1=value1',
-                '--multi-value', 'key2=value2']
+        argv = [
+            '-a',
+            '-b',
+            '--long-arg',
+            '--multi-value',
+            'key1=value1',
+            '--multi-value',
+            'key2=value2',
+        ]
         expected = argv[:]
         loader._fix_argv(argv)
         self.assertEqual(expected, argv)
 
     def test_replace(self):
-        argv = ['-a', '-b', '--long-arg', '--multi_value', 'key1=value1',
-                '--multi_value', 'key2=value2']
-        expected = ['-a', '-b', '--long-arg', '--multi-value', 'key1=value1',
-                    '--multi-value', 'key2=value2']
+        argv = [
+            '-a',
+            '-b',
+            '--long-arg',
+            '--multi_value',
+            'key1=value1',
+            '--multi_value',
+            'key2=value2',
+        ]
+        expected = [
+            '-a',
+            '-b',
+            '--long-arg',
+            '--multi-value',
+            'key1=value1',
+            '--multi-value',
+            'key2=value2',
+        ]
         loader._fix_argv(argv)
         self.assertEqual(expected, argv)
 
     def test_mix(self):
-        argv = ['-a', '-b', '--long-arg', '--multi_value', 'key1=value1',
-                '--multi-value', 'key2=value2']
-        self.assertRaises(exceptions.ConfigException,
-                          loader._fix_argv, argv)
+        argv = [
+            '-a',
+            '-b',
+            '--long-arg',
+            '--multi_value',
+            'key1=value1',
+            '--multi-value',
+            'key2=value2',
+        ]
+        self.assertRaises(exceptions.ConfigException, loader._fix_argv, argv)

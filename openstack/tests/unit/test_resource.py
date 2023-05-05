@@ -36,7 +36,6 @@ class FakeResponse:
 
 
 class TestComponent(base.TestCase):
-
     class ExampleComponent(resource._BaseComponent):
         key = "_example"
 
@@ -54,7 +53,8 @@ class TestComponent(base.TestCase):
 
     def test_creation(self):
         sot = resource._BaseComponent(
-            "name", type=int, default=1, alternate_id=True, aka="alias")
+            "name", type=int, default=1, alternate_id=True, aka="alias"
+        )
 
         self.assertEqual("name", sot.name)
         self.assertEqual(int, sot.type)
@@ -93,8 +93,9 @@ class TestComponent(base.TestCase):
         instance = Parent()
         # NOTE: type=dict but the default value is an int. If we didn't
         # short-circuit the typing part of __get__ it would fail.
-        sot = TestComponent.ExampleComponent("name", type=dict,
-                                             default=expected_result)
+        sot = TestComponent.ExampleComponent(
+            "name", type=dict, default=expected_result
+        )
 
         # Test that we directly return any default value.
         result = sot.__get__(instance, None)
@@ -248,7 +249,6 @@ class TestComponent(base.TestCase):
 
 
 class TestComponentManager(base.TestCase):
-
     def test_create_basic(self):
         sot = resource._ComponentManager()
         self.assertEqual(dict(), sot.attributes)
@@ -344,7 +344,6 @@ class TestComponentManager(base.TestCase):
 
 
 class Test_Request(base.TestCase):
-
     def test_create(self):
         uri = 1
         body = 2
@@ -358,22 +357,27 @@ class Test_Request(base.TestCase):
 
 
 class TestQueryParameters(base.TestCase):
-
     def test_create(self):
         location = "location"
-        mapping = {"first_name": "first-name",
-                   "second_name": {"name": "second-name"},
-                   "third_name": {"name": "third", "type": int}}
+        mapping = {
+            "first_name": "first-name",
+            "second_name": {"name": "second-name"},
+            "third_name": {"name": "third", "type": int},
+        }
 
         sot = resource.QueryParameters(location, **mapping)
 
-        self.assertEqual({"location": "location",
-                          "first_name": "first-name",
-                          "second_name": {"name": "second-name"},
-                          "third_name": {"name": "third", "type": int},
-                          "limit": "limit",
-                          "marker": "marker"},
-                         sot._mapping)
+        self.assertEqual(
+            {
+                "location": "location",
+                "first_name": "first-name",
+                "second_name": {"name": "second-name"},
+                "third_name": {"name": "third", "type": int},
+                "limit": "limit",
+                "marker": "marker",
+            },
+            sot._mapping,
+        )
 
     def test_transpose_unmapped(self):
         def _type(value, rtype):
@@ -381,59 +385,76 @@ class TestQueryParameters(base.TestCase):
             return value * 10
 
         location = "location"
-        mapping = {"first_name": "first-name",
-                   "pet_name": {"name": "pet"},
-                   "answer": {"name": "answer", "type": int},
-                   "complex": {"type": _type}}
+        mapping = {
+            "first_name": "first-name",
+            "pet_name": {"name": "pet"},
+            "answer": {"name": "answer", "type": int},
+            "complex": {"type": _type},
+        }
 
         sot = resource.QueryParameters(location, **mapping)
-        result = sot._transpose({"location": "Brooklyn",
-                                 "first_name": "Brian",
-                                 "pet_name": "Meow",
-                                 "answer": "42",
-                                 "last_name": "Curtin",
-                                 "complex": 1},
-                                mock.sentinel.resource_type)
+        result = sot._transpose(
+            {
+                "location": "Brooklyn",
+                "first_name": "Brian",
+                "pet_name": "Meow",
+                "answer": "42",
+                "last_name": "Curtin",
+                "complex": 1,
+            },
+            mock.sentinel.resource_type,
+        )
 
         # last_name isn't mapped and shouldn't be included
-        self.assertEqual({"location": "Brooklyn", "first-name": "Brian",
-                          "pet": "Meow", "answer": 42, "complex": 10},
-                         result)
+        self.assertEqual(
+            {
+                "location": "Brooklyn",
+                "first-name": "Brian",
+                "pet": "Meow",
+                "answer": 42,
+                "complex": 10,
+            },
+            result,
+        )
 
     def test_transpose_not_in_query(self):
         location = "location"
-        mapping = {"first_name": "first-name",
-                   "pet_name": {"name": "pet"},
-                   "answer": {"name": "answer", "type": int}}
+        mapping = {
+            "first_name": "first-name",
+            "pet_name": {"name": "pet"},
+            "answer": {"name": "answer", "type": int},
+        }
 
         sot = resource.QueryParameters(location, **mapping)
-        result = sot._transpose({"location": "Brooklyn"},
-                                mock.sentinel.resource_type)
+        result = sot._transpose(
+            {"location": "Brooklyn"}, mock.sentinel.resource_type
+        )
 
         # first_name not being in the query shouldn't affect results
-        self.assertEqual({"location": "Brooklyn"},
-                         result)
+        self.assertEqual({"location": "Brooklyn"}, result)
 
 
 class TestResource(base.TestCase):
-
     def test_initialize_basic(self):
         body = {"body": 1}
         header = {"header": 2, "Location": "somewhere"}
         uri = {"uri": 3}
         computed = {"computed": 4}
-        everything = dict(itertools.chain(
-            body.items(),
-            header.items(),
-            uri.items(),
-            computed.items(),
-        ))
+        everything = dict(
+            itertools.chain(
+                body.items(),
+                header.items(),
+                uri.items(),
+                computed.items(),
+            )
+        )
 
         mock_collect = mock.Mock()
         mock_collect.return_value = body, header, uri, computed
 
-        with mock.patch.object(resource.Resource,
-                               "_collect_attrs", mock_collect):
+        with mock.patch.object(
+            resource.Resource, "_collect_attrs", mock_collect
+        ):
             sot = resource.Resource(_synchronized=False, **everything)
             mock_collect.assert_called_once_with(everything)
         self.assertIsNone(sot.location)
@@ -463,20 +484,20 @@ class TestResource(base.TestCase):
         class Test(resource.Resource):
             def __init__(self):
                 self._body = mock.Mock()
-                self._body.attributes.items = mock.Mock(
-                    return_value=a.items())
+                self._body.attributes.items = mock.Mock(return_value=a.items())
 
                 self._header = mock.Mock()
                 self._header.attributes.items = mock.Mock(
-                    return_value=b.items())
+                    return_value=b.items()
+                )
 
                 self._uri = mock.Mock()
-                self._uri.attributes.items = mock.Mock(
-                    return_value=c.items())
+                self._uri.attributes.items = mock.Mock(return_value=c.items())
 
                 self._computed = mock.Mock()
                 self._computed.attributes.items = mock.Mock(
-                    return_value=d.items())
+                    return_value=d.items()
+                )
 
         the_repr = repr(Test())
 
@@ -511,7 +532,8 @@ class TestResource(base.TestCase):
         computed = "computed"
 
         sot._collect_attrs = mock.Mock(
-            return_value=(body, header, uri, computed))
+            return_value=(body, header, uri, computed)
+        )
         sot._body.update = mock.Mock()
         sot._header.update = mock.Mock()
         sot._uri.update = mock.Mock()
@@ -533,14 +555,18 @@ class TestResource(base.TestCase):
         clientside_key2 = "some_key2"
         value1 = "value1"
         value2 = "value2"
-        mapping = {serverside_key1: clientside_key1,
-                   serverside_key2: clientside_key2}
+        mapping = {
+            serverside_key1: clientside_key1,
+            serverside_key2: clientside_key2,
+        }
 
         other_key = "otherKey"
         other_value = "other"
-        attrs = {clientside_key1: value1,
-                 serverside_key2: value2,
-                 other_key: other_value}
+        attrs = {
+            clientside_key1: value1,
+            serverside_key2: value2,
+            other_key: other_value,
+        }
 
         sot = resource.Resource()
 
@@ -553,8 +579,9 @@ class TestResource(base.TestCase):
         # Make sure that after we've popped our relevant client-side
         # key off that we are returning it keyed off of its server-side
         # name.
-        self.assertDictEqual({serverside_key1: value1,
-                              serverside_key2: value2}, result)
+        self.assertDictEqual(
+            {serverside_key1: value1, serverside_key2: value2}, result
+        )
 
     def test__mapping_defaults(self):
         # Check that even on an empty class, we get the expected
@@ -702,31 +729,36 @@ class TestResource(base.TestCase):
         sot = Test()
 
         self.assertEqual(
-            sorted(['foo', 'bar', '_bar', 'bar_local',
-                    'id', 'name', 'location']),
-            sorted(sot._attributes())
+            sorted(
+                ['foo', 'bar', '_bar', 'bar_local', 'id', 'name', 'location']
+            ),
+            sorted(sot._attributes()),
         )
 
         self.assertEqual(
             sorted(['foo', 'bar', 'bar_local', 'id', 'name', 'location']),
-            sorted(sot._attributes(include_aliases=False))
+            sorted(sot._attributes(include_aliases=False)),
         )
 
         self.assertEqual(
-            sorted(['foo', 'bar', '_bar', 'bar_remote',
-                    'id', 'name', 'location']),
-            sorted(sot._attributes(remote_names=True))
+            sorted(
+                ['foo', 'bar', '_bar', 'bar_remote', 'id', 'name', 'location']
+            ),
+            sorted(sot._attributes(remote_names=True)),
         )
 
         self.assertEqual(
             sorted(['bar', '_bar', 'bar_local', 'id', 'name', 'location']),
-            sorted(sot._attributes(
-                components=tuple([resource.Body, resource.Computed])))
+            sorted(
+                sot._attributes(
+                    components=tuple([resource.Body, resource.Computed])
+                )
+            ),
         )
 
         self.assertEqual(
             ('foo',),
-            tuple(sot._attributes(components=tuple([resource.Header])))
+            tuple(sot._attributes(components=tuple([resource.Header]))),
         )
 
     def test__attributes_iterator(self):
@@ -750,13 +782,13 @@ class TestResource(base.TestCase):
 
         # Check we iterate only over headers
         for attr, component in sot._attributes_iterator(
-                components=tuple([resource.Header])):
+            components=tuple([resource.Header])
+        ):
             if attr in expected:
                 expected.remove(attr)
         self.assertEqual([], expected)
 
     def test_to_dict(self):
-
         class Test(resource.Resource):
             foo = resource.Header('foo')
             bar = resource.Body('bar', aka='_bar')
@@ -769,12 +801,11 @@ class TestResource(base.TestCase):
             'location': None,
             'foo': None,
             'bar': None,
-            '_bar': None
+            '_bar': None,
         }
         self.assertEqual(expected, res.to_dict())
 
     def test_to_dict_nested(self):
-
         class Test(resource.Resource):
             foo = resource.Header('foo')
             bar = resource.Body('bar')
@@ -785,10 +816,7 @@ class TestResource(base.TestCase):
 
         sub = Sub(id='ANOTHER_ID', foo='bar')
 
-        res = Test(
-            id='FAKE_ID',
-            bar=sub,
-            a_list=[sub])
+        res = Test(id='FAKE_ID', bar=sub, a_list=[sub])
 
         expected = {
             'id': 'FAKE_ID',
@@ -801,12 +829,14 @@ class TestResource(base.TestCase):
                 'sub': 'bar',
                 'location': None,
             },
-            'a_list': [{
-                'id': 'ANOTHER_ID',
-                'name': None,
-                'sub': 'bar',
-                'location': None,
-            }],
+            'a_list': [
+                {
+                    'id': 'ANOTHER_ID',
+                    'name': None,
+                    'sub': 'bar',
+                    'location': None,
+                }
+            ],
         }
         self.assertEqual(expected, res.to_dict())
         a_munch = res.to_dict(_to_munch=True)
@@ -816,7 +846,6 @@ class TestResource(base.TestCase):
         self.assertEqual(a_munch.a_list[0].sub, 'bar')
 
     def test_to_dict_no_body(self):
-
         class Test(resource.Resource):
             foo = resource.Header('foo')
             bar = resource.Body('bar')
@@ -830,7 +859,6 @@ class TestResource(base.TestCase):
         self.assertEqual(expected, res.to_dict(body=False))
 
     def test_to_dict_no_header(self):
-
         class Test(resource.Resource):
             foo = resource.Header('foo')
             bar = resource.Body('bar')
@@ -846,7 +874,6 @@ class TestResource(base.TestCase):
         self.assertEqual(expected, res.to_dict(headers=False))
 
     def test_to_dict_ignore_none(self):
-
         class Test(resource.Resource):
             foo = resource.Header('foo')
             bar = resource.Body('bar')
@@ -860,7 +887,6 @@ class TestResource(base.TestCase):
         self.assertEqual(expected, res.to_dict(ignore_none=True))
 
     def test_to_dict_with_mro(self):
-
         class Parent(resource.Resource):
             foo = resource.Header('foo')
             bar = resource.Body('bar', aka='_bar')
@@ -879,7 +905,7 @@ class TestResource(base.TestCase):
             'bar_new': None,
             'id': 'FAKE_ID',
             'location': None,
-            'name': None
+            'name': None,
         }
         self.assertEqual(expected, res.to_dict())
 
@@ -910,12 +936,12 @@ class TestResource(base.TestCase):
         actual = json.dumps(res, sort_keys=True)
         self.assertEqual(expected, actual)
 
-        response = FakeResponse({
-            'foo': 'new_bar'})
+        response = FakeResponse({'foo': 'new_bar'})
         res._translate_response(response)
 
-        expected = ('{"foo": "new_bar", "id": null, '
-                    '"location": null, "name": null}')
+        expected = (
+            '{"foo": "new_bar", "id": null, ' '"location": null, "name": null}'
+        )
         actual = json.dumps(res, sort_keys=True)
         self.assertEqual(expected, actual)
 
@@ -925,11 +951,7 @@ class TestResource(base.TestCase):
             bar = resource.Body('bar')
             foot = resource.Body('foot')
 
-        data = {
-            'foo': 'bar',
-            'bar': 'foo\n',
-            'foot': 'a:b:c:d'
-        }
+        data = {'foo': 'bar', 'bar': 'foo\n', 'foot': 'a:b:c:d'}
 
         res = Test(**data)
         for k, v in res.items():
@@ -947,13 +969,15 @@ class TestResource(base.TestCase):
         self.assertEqual('bar', res.foo_alias)
         self.assertTrue('foo' in res.keys())
         self.assertTrue('foo_alias' in res.keys())
-        expected = utils.Munch({
-            'id': None,
-            'name': 'test',
-            'location': None,
-            'foo': 'bar',
-            'foo_alias': 'bar'
-        })
+        expected = utils.Munch(
+            {
+                'id': None,
+                'name': 'test',
+                'location': None,
+                'foo': 'bar',
+                'foo_alias': 'bar',
+            }
+        )
         actual = utils.Munch(res)
         self.assertEqual(expected, actual)
         self.assertEqual(expected, res.toDict())
@@ -962,7 +986,6 @@ class TestResource(base.TestCase):
         self.assertDictEqual(expected, dict(res))
 
     def test_access_by_resource_name(self):
-
         class Test(resource.Resource):
             blah = resource.Body("blah_resource")
 
@@ -972,7 +995,6 @@ class TestResource(base.TestCase):
         self.assertEqual(result, sot.blah)
 
     def test_to_dict_value_error(self):
-
         class Test(resource.Resource):
             foo = resource.Header('foo')
             bar = resource.Body('bar')
@@ -980,15 +1002,14 @@ class TestResource(base.TestCase):
         res = Test(id='FAKE_ID')
 
         err = self.assertRaises(
-            ValueError,
-            res.to_dict,
-            body=False, headers=False, computed=False)
+            ValueError, res.to_dict, body=False, headers=False, computed=False
+        )
         self.assertEqual(
             'At least one of `body`, `headers` or `computed` must be True',
-            str(err))
+            str(err),
+        )
 
     def test_to_dict_with_mro_no_override(self):
-
         class Parent(resource.Resource):
             header = resource.Header('HEADER')
             body = resource.Body('BODY')
@@ -1006,7 +1027,7 @@ class TestResource(base.TestCase):
             'header': 'HEADER_VALUE',
             'id': 'FAKE_ID',
             'location': None,
-            'name': None
+            'name': None,
         }
         self.assertEqual(expected, res.to_dict())
 
@@ -1061,8 +1082,12 @@ class TestResource(base.TestCase):
         the_id = "id"
         body_value = "body"
         header_value = "header"
-        sot = Test(id=the_id, body_attr=body_value, header_attr=header_value,
-                   _synchronized=False)
+        sot = Test(
+            id=the_id,
+            body_attr=body_value,
+            header_attr=header_value,
+            _synchronized=False,
+        )
 
         result = sot._prepare_request(requires_id=True)
 
@@ -1079,8 +1104,12 @@ class TestResource(base.TestCase):
         the_id = "id"
         body_value = "body"
         header_value = "header"
-        sot = Test(id=the_id, body_attr=body_value, header_attr=header_value,
-                   _synchronized=False)
+        sot = Test(
+            id=the_id,
+            body_attr=body_value,
+            header_attr=header_value,
+            _synchronized=False,
+        )
         sot._body._dirty.discard("id")
 
         result = sot._prepare_request(requires_id=True)
@@ -1092,8 +1121,9 @@ class TestResource(base.TestCase):
     def test__prepare_request_missing_id(self):
         sot = resource.Resource(id=None)
 
-        self.assertRaises(exceptions.InvalidRequest,
-                          sot._prepare_request, requires_id=True)
+        self.assertRaises(
+            exceptions.InvalidRequest, sot._prepare_request, requires_id=True
+        )
 
     def test__prepare_request_with_resource_key(self):
         key = "key"
@@ -1106,8 +1136,9 @@ class TestResource(base.TestCase):
 
         body_value = "body"
         header_value = "header"
-        sot = Test(body_attr=body_value, header_attr=header_value,
-                   _synchronized=False)
+        sot = Test(
+            body_attr=body_value, header_attr=header_value, _synchronized=False
+        )
 
         result = sot._prepare_request(requires_id=False, prepend_key=True)
 
@@ -1127,13 +1158,15 @@ class TestResource(base.TestCase):
 
         body_value = "body"
         header_value = "header"
-        sot = Test(body_attr=body_value, header_attr=header_value,
-                   _synchronized=False)
+        sot = Test(
+            body_attr=body_value, header_attr=header_value, _synchronized=False
+        )
 
         result = sot._prepare_request(
             requires_id=False,
             prepend_key=True,
-            resource_request_key=override_key)
+            resource_request_key=override_key,
+        )
 
         self.assertEqual("/something", result.url)
         self.assertEqual({override_key: {"x": body_value}}, result.body)
@@ -1153,8 +1186,9 @@ class TestResource(base.TestCase):
         result = sot._prepare_request(requires_id=True, patch=True)
 
         self.assertEqual("something/id", result.url)
-        self.assertEqual([{'op': 'replace', 'path': '/x', 'value': 3}],
-                         result.body)
+        self.assertEqual(
+            [{'op': 'replace', 'path': '/x', 'value': 3}], result.body
+        )
 
     def test__prepare_request_with_patch_not_synchronized(self):
         class Test(resource.Resource):
@@ -1169,8 +1203,9 @@ class TestResource(base.TestCase):
         result = sot._prepare_request(requires_id=True, patch=True)
 
         self.assertEqual("something/id", result.url)
-        self.assertEqual([{'op': 'add', 'path': '/x', 'value': 1}],
-                         result.body)
+        self.assertEqual(
+            [{'op': 'add', 'path': '/x', 'value': 1}], result.body
+        )
 
     def test__prepare_request_with_patch_params(self):
         class Test(resource.Resource):
@@ -1183,15 +1218,16 @@ class TestResource(base.TestCase):
         sot = Test.existing(id=the_id, x=1, y=2)
         sot.x = 3
 
-        params = [('foo', 'bar'),
-                  ('life', 42)]
+        params = [('foo', 'bar'), ('life', 42)]
 
-        result = sot._prepare_request(requires_id=True, patch=True,
-                                      params=params)
+        result = sot._prepare_request(
+            requires_id=True, patch=True, params=params
+        )
 
         self.assertEqual("something/id?foo=bar&life=42", result.url)
-        self.assertEqual([{'op': 'replace', 'path': '/x', 'value': 3}],
-                         result.body)
+        self.assertEqual(
+            [{'op': 'replace', 'path': '/x', 'value': 3}], result.body
+        )
 
     def test__translate_response_no_body(self):
         class Test(resource.Resource):
@@ -1275,29 +1311,23 @@ class TestResource(base.TestCase):
             properties = resource.Body("properties")
             _store_unknown_attrs_as_properties = True
 
-        sot = Test.new(**{
-            'dummy': 'value',
-        })
+        sot = Test.new(
+            **{
+                'dummy': 'value',
+            }
+        )
         self.assertDictEqual({'dummy': 'value'}, sot.properties)
-        self.assertDictEqual(
-            {'dummy': 'value'}, sot.to_dict()['properties']
-        )
-        self.assertDictEqual(
-            {'dummy': 'value'}, sot['properties']
-        )
+        self.assertDictEqual({'dummy': 'value'}, sot.to_dict()['properties'])
+        self.assertDictEqual({'dummy': 'value'}, sot['properties'])
         self.assertEqual('value', sot['properties']['dummy'])
 
-        sot = Test.new(**{
-            'dummy': 'value',
-            'properties': 'a,b,c'
-        })
+        sot = Test.new(**{'dummy': 'value', 'properties': 'a,b,c'})
         self.assertDictEqual(
-            {'dummy': 'value', 'properties': 'a,b,c'},
-            sot.properties
+            {'dummy': 'value', 'properties': 'a,b,c'}, sot.properties
         )
         self.assertDictEqual(
             {'dummy': 'value', 'properties': 'a,b,c'},
-            sot.to_dict()['properties']
+            sot.to_dict()['properties'],
         )
 
         sot = Test.new(**{'properties': None})
@@ -1308,18 +1338,22 @@ class TestResource(base.TestCase):
         class Test(resource.Resource):
             properties = resource.Body("properties")
 
-        sot = Test.new(**{
-            'dummy': 'value',
-        })
+        sot = Test.new(
+            **{
+                'dummy': 'value',
+            }
+        )
         self.assertIsNone(sot.properties)
 
     def test_unknown_attrs_not_stored1(self):
         class Test(resource.Resource):
             _store_unknown_attrs_as_properties = True
 
-        sot = Test.new(**{
-            'dummy': 'value',
-        })
+        sot = Test.new(
+            **{
+                'dummy': 'value',
+            }
+        )
         self.assertRaises(KeyError, sot.__getitem__, 'properties')
 
     def test_unknown_attrs_under_props_set(self):
@@ -1327,9 +1361,11 @@ class TestResource(base.TestCase):
             properties = resource.Body("properties")
             _store_unknown_attrs_as_properties = True
 
-        sot = Test.new(**{
-            'dummy': 'value',
-        })
+        sot = Test.new(
+            **{
+                'dummy': 'value',
+            }
+        )
 
         sot['properties'] = {'dummy': 'new_value'}
         self.assertEqual('new_value', sot['properties']['dummy'])
@@ -1342,22 +1378,16 @@ class TestResource(base.TestCase):
             _store_unknown_attrs_as_properties = True
 
         # Unknown attribute given as root attribute
-        sot = Test.new(**{
-            'dummy': 'value',
-            'properties': 'a,b,c'
-        })
+        sot = Test.new(**{'dummy': 'value', 'properties': 'a,b,c'})
 
         request_body = sot._prepare_request(requires_id=False).body
         self.assertEqual('value', request_body['dummy'])
         self.assertEqual('a,b,c', request_body['properties'])
 
         # properties are already a dict
-        sot = Test.new(**{
-            'properties': {
-                'properties': 'a,b,c',
-                'dummy': 'value'
-            }
-        })
+        sot = Test.new(
+            **{'properties': {'properties': 'a,b,c', 'dummy': 'value'}}
+        )
 
         request_body = sot._prepare_request(requires_id=False).body
         self.assertEqual('value', request_body['dummy'])
@@ -1367,17 +1397,16 @@ class TestResource(base.TestCase):
         # if props type is not None - ensure no unpacking is done
         class Test(resource.Resource):
             properties = resource.Body("properties", type=dict)
-        sot = Test.new(**{
-            'properties': {
-                'properties': 'a,b,c',
-                'dummy': 'value'
-            }
-        })
+
+        sot = Test.new(
+            **{'properties': {'properties': 'a,b,c', 'dummy': 'value'}}
+        )
 
         request_body = sot._prepare_request(requires_id=False).body
         self.assertDictEqual(
             {'dummy': 'value', 'properties': 'a,b,c'},
-            request_body['properties'])
+            request_body['properties'],
+        )
 
     def test_unknown_attrs_prepare_request_patch_unpacked(self):
         class Test(resource.Resource):
@@ -1385,21 +1414,15 @@ class TestResource(base.TestCase):
             _store_unknown_attrs_as_properties = True
             commit_jsonpatch = True
 
-        sot = Test.existing(**{
-            'dummy': 'value',
-            'properties': 'a,b,c'
-        })
+        sot = Test.existing(**{'dummy': 'value', 'properties': 'a,b,c'})
 
         sot._update(**{'properties': {'dummy': 'new_value'}})
 
         request_body = sot._prepare_request(requires_id=False, patch=True).body
         self.assertDictEqual(
-            {
-                u'path': u'/dummy',
-                u'value': u'new_value',
-                u'op': u'replace'
-            },
-            request_body[0])
+            {u'path': u'/dummy', u'value': u'new_value', u'op': u'replace'},
+            request_body[0],
+        )
 
     def test_unknown_attrs_under_props_translate_response(self):
         class Test(resource.Resource):
@@ -1414,8 +1437,7 @@ class TestResource(base.TestCase):
         sot._translate_response(response, has_body=True)
 
         self.assertDictEqual(
-            {'dummy': 'value', 'properties': 'a,b,c'},
-            sot.properties
+            {'dummy': 'value', 'properties': 'a,b,c'}, sot.properties
         )
 
     def test_unknown_attrs_in_body_create(self):
@@ -1423,10 +1445,7 @@ class TestResource(base.TestCase):
             known_param = resource.Body("known_param")
             _allow_unknown_attrs_in_body = True
 
-        sot = Test.new(**{
-            'known_param': 'v1',
-            'unknown_param': 'v2'
-        })
+        sot = Test.new(**{'known_param': 'v1', 'unknown_param': 'v2'})
         self.assertEqual('v1', sot.known_param)
         self.assertEqual('v2', sot.unknown_param)
 
@@ -1435,10 +1454,7 @@ class TestResource(base.TestCase):
             known_param = resource.Body("known_param")
             properties = resource.Body("properties")
 
-        sot = Test.new(**{
-            'known_param': 'v1',
-            'unknown_param': 'v2'
-        })
+        sot = Test.new(**{'known_param': 'v1', 'unknown_param': 'v2'})
         self.assertEqual('v1', sot.known_param)
         self.assertNotIn('unknown_param', sot)
 
@@ -1447,9 +1463,11 @@ class TestResource(base.TestCase):
             known_param = resource.Body("known_param")
             _allow_unknown_attrs_in_body = True
 
-        sot = Test.new(**{
-            'known_param': 'v1',
-        })
+        sot = Test.new(
+            **{
+                'known_param': 'v1',
+            }
+        )
         sot['unknown_param'] = 'v2'
 
         self.assertEqual('v1', sot.known_param)
@@ -1460,17 +1478,21 @@ class TestResource(base.TestCase):
             known_param = resource.Body("known_param")
             _allow_unknown_attrs_in_body = False
 
-        sot = Test.new(**{
-            'known_param': 'v1',
-        })
+        sot = Test.new(
+            **{
+                'known_param': 'v1',
+            }
+        )
         try:
             sot['unknown_param'] = 'v2'
         except KeyError:
             self.assertEqual('v1', sot.known_param)
             self.assertNotIn('unknown_param', sot)
             return
-        self.fail("Parameter 'unknown_param' unexpectedly set through the "
-                  "dict interface")
+        self.fail(
+            "Parameter 'unknown_param' unexpectedly set through the "
+            "dict interface"
+        )
 
     def test_unknown_attrs_in_body_translate_response(self):
         class Test(resource.Resource):
@@ -1502,7 +1524,6 @@ class TestResource(base.TestCase):
 
 
 class TestResourceActions(base.TestCase):
-
     def setUp(self):
         super(TestResourceActions, self).setUp()
 
@@ -1546,14 +1567,24 @@ class TestResourceActions(base.TestCase):
         self.session.default_microversion = None
         self.session.retriable_status_codes = None
 
-        self.endpoint_data = mock.Mock(max_microversion='1.99',
-                                       min_microversion=None)
+        self.endpoint_data = mock.Mock(
+            max_microversion='1.99', min_microversion=None
+        )
         self.session.get_endpoint_data.return_value = self.endpoint_data
 
-    def _test_create(self, cls, requires_id=False, prepend_key=False,
-                     microversion=None, base_path=None, params=None,
-                     id_marked_dirty=True, explicit_microversion=None,
-                     resource_request_key=None, resource_response_key=None):
+    def _test_create(
+        self,
+        cls,
+        requires_id=False,
+        prepend_key=False,
+        microversion=None,
+        base_path=None,
+        params=None,
+        id_marked_dirty=True,
+        explicit_microversion=None,
+        resource_request_key=None,
+        resource_response_key=None,
+    ):
         id = "id" if requires_id else None
         sot = cls(id=id)
         sot._prepare_request = mock.Mock(return_value=self.request)
@@ -1564,40 +1595,51 @@ class TestResourceActions(base.TestCase):
         if explicit_microversion is not None:
             kwargs['microversion'] = explicit_microversion
             microversion = explicit_microversion
-        result = sot.create(self.session, prepend_key=prepend_key,
-                            base_path=base_path,
-                            resource_request_key=resource_request_key,
-                            resource_response_key=resource_response_key,
-                            **kwargs)
+        result = sot.create(
+            self.session,
+            prepend_key=prepend_key,
+            base_path=base_path,
+            resource_request_key=resource_request_key,
+            resource_response_key=resource_response_key,
+            **kwargs
+        )
 
-        id_is_dirty = ('id' in sot._body._dirty)
+        id_is_dirty = 'id' in sot._body._dirty
         self.assertEqual(id_marked_dirty, id_is_dirty)
         prepare_kwargs = {}
         if resource_request_key is not None:
             prepare_kwargs['resource_request_key'] = resource_request_key
 
         sot._prepare_request.assert_called_once_with(
-            requires_id=requires_id, prepend_key=prepend_key,
-            base_path=base_path, **prepare_kwargs)
+            requires_id=requires_id,
+            prepend_key=prepend_key,
+            base_path=base_path,
+            **prepare_kwargs
+        )
         if requires_id:
             self.session.put.assert_called_once_with(
                 self.request.url,
-                json=self.request.body, headers=self.request.headers,
-                microversion=microversion, params=params)
+                json=self.request.body,
+                headers=self.request.headers,
+                microversion=microversion,
+                params=params,
+            )
         else:
             self.session.post.assert_called_once_with(
                 self.request.url,
-                json=self.request.body, headers=self.request.headers,
-                microversion=microversion, params=params)
+                json=self.request.body,
+                headers=self.request.headers,
+                microversion=microversion,
+                params=params,
+            )
 
         self.assertEqual(sot.microversion, microversion)
         res_kwargs = {}
         if resource_response_key is not None:
             res_kwargs['resource_response_key'] = resource_response_key
         sot._translate_response.assert_called_once_with(
-            self.response,
-            has_body=sot.has_body,
-            **res_kwargs)
+            self.response, has_body=sot.has_body, **res_kwargs
+        )
         self.assertEqual(result, sot)
 
     def test_put_create(self):
@@ -1617,8 +1659,9 @@ class TestResourceActions(base.TestCase):
             create_method = 'PUT'
             create_exclude_id_from_body = True
 
-        self._test_create(Test, requires_id=True, prepend_key=True,
-                          id_marked_dirty=False)
+        self._test_create(
+            Test, requires_id=True, prepend_key=True, id_marked_dirty=False
+        )
 
     def test_put_create_with_microversion(self):
         class Test(resource.Resource):
@@ -1628,8 +1671,9 @@ class TestResourceActions(base.TestCase):
             create_method = 'PUT'
             _max_microversion = '1.42'
 
-        self._test_create(Test, requires_id=True, prepend_key=True,
-                          microversion='1.42')
+        self._test_create(
+            Test, requires_id=True, prepend_key=True, microversion='1.42'
+        )
 
     def test_put_create_with_explicit_microversion(self):
         class Test(resource.Resource):
@@ -1639,8 +1683,12 @@ class TestResourceActions(base.TestCase):
             create_method = 'PUT'
             _max_microversion = '1.99'
 
-        self._test_create(Test, requires_id=True, prepend_key=True,
-                          explicit_microversion='1.42')
+        self._test_create(
+            Test,
+            requires_id=True,
+            prepend_key=True,
+            explicit_microversion='1.42',
+        )
 
     def test_put_create_with_params(self):
         class Test(resource.Resource):
@@ -1649,8 +1697,9 @@ class TestResourceActions(base.TestCase):
             allow_create = True
             create_method = 'PUT'
 
-        self._test_create(Test, requires_id=True, prepend_key=True,
-                          params={'answer': 42})
+        self._test_create(
+            Test, requires_id=True, prepend_key=True, params={'answer': 42}
+        )
 
     def test_post_create(self):
         class Test(resource.Resource):
@@ -1673,7 +1722,8 @@ class TestResourceActions(base.TestCase):
             Test,
             requires_id=False,
             prepend_key=True,
-            resource_request_key="OtherKey")
+            resource_request_key="OtherKey",
+        )
 
     def test_post_create_override_response_key(self):
         class Test(resource.Resource):
@@ -1687,7 +1737,8 @@ class TestResourceActions(base.TestCase):
             Test,
             requires_id=False,
             prepend_key=True,
-            resource_response_key="OtherKey")
+            resource_response_key="OtherKey",
+        )
 
     def test_post_create_override_key_both(self):
         class Test(resource.Resource):
@@ -1702,7 +1753,8 @@ class TestResourceActions(base.TestCase):
             requires_id=False,
             prepend_key=True,
             resource_request_key="OtherKey",
-            resource_response_key="SomeOtherKey")
+            resource_response_key="SomeOtherKey",
+        )
 
     def test_post_create_base_path(self):
         class Test(resource.Resource):
@@ -1711,8 +1763,9 @@ class TestResourceActions(base.TestCase):
             allow_create = True
             create_method = 'POST'
 
-        self._test_create(Test, requires_id=False, prepend_key=True,
-                          base_path='dummy')
+        self._test_create(
+            Test, requires_id=False, prepend_key=True, base_path='dummy'
+        )
 
     def test_post_create_with_params(self):
         class Test(resource.Resource):
@@ -1721,46 +1774,52 @@ class TestResourceActions(base.TestCase):
             allow_create = True
             create_method = 'POST'
 
-        self._test_create(Test, requires_id=False, prepend_key=True,
-                          params={'answer': 42})
+        self._test_create(
+            Test, requires_id=False, prepend_key=True, params={'answer': 42}
+        )
 
     def test_fetch(self):
         result = self.sot.fetch(self.session)
 
         self.sot._prepare_request.assert_called_once_with(
-            requires_id=True, base_path=None)
+            requires_id=True, base_path=None
+        )
         self.session.get.assert_called_once_with(
-            self.request.url, microversion=None, params={},
-            skip_cache=False)
+            self.request.url, microversion=None, params={}, skip_cache=False
+        )
 
         self.assertIsNone(self.sot.microversion)
         self.sot._translate_response.assert_called_once_with(self.response)
         self.assertEqual(result, self.sot)
 
     def test_fetch_with_override_key(self):
-        result = self.sot.fetch(
-            self.session, resource_response_key="SomeKey")
+        result = self.sot.fetch(self.session, resource_response_key="SomeKey")
 
         self.sot._prepare_request.assert_called_once_with(
-            requires_id=True, base_path=None)
+            requires_id=True, base_path=None
+        )
         self.session.get.assert_called_once_with(
-            self.request.url, microversion=None, params={},
-            skip_cache=False)
+            self.request.url, microversion=None, params={}, skip_cache=False
+        )
 
         self.assertIsNone(self.sot.microversion)
         self.sot._translate_response.assert_called_once_with(
-            self.response,
-            resource_response_key="SomeKey")
+            self.response, resource_response_key="SomeKey"
+        )
         self.assertEqual(result, self.sot)
 
     def test_fetch_with_params(self):
         result = self.sot.fetch(self.session, fields='a,b')
 
         self.sot._prepare_request.assert_called_once_with(
-            requires_id=True, base_path=None)
+            requires_id=True, base_path=None
+        )
         self.session.get.assert_called_once_with(
-            self.request.url, microversion=None, params={'fields': 'a,b'},
-            skip_cache=False)
+            self.request.url,
+            microversion=None,
+            params={'fields': 'a,b'},
+            skip_cache=False,
+        )
 
         self.assertIsNone(self.sot.microversion)
         self.sot._translate_response.assert_called_once_with(self.response)
@@ -1780,10 +1839,11 @@ class TestResourceActions(base.TestCase):
         result = sot.fetch(self.session)
 
         sot._prepare_request.assert_called_once_with(
-            requires_id=True, base_path=None)
+            requires_id=True, base_path=None
+        )
         self.session.get.assert_called_once_with(
-            self.request.url, microversion='1.42', params={},
-            skip_cache=False)
+            self.request.url, microversion='1.42', params={}, skip_cache=False
+        )
 
         self.assertEqual(sot.microversion, '1.42')
         sot._translate_response.assert_called_once_with(self.response)
@@ -1803,10 +1863,11 @@ class TestResourceActions(base.TestCase):
         result = sot.fetch(self.session, microversion='1.42')
 
         sot._prepare_request.assert_called_once_with(
-            requires_id=True, base_path=None)
+            requires_id=True, base_path=None
+        )
         self.session.get.assert_called_once_with(
-            self.request.url, microversion='1.42', params={},
-            skip_cache=False)
+            self.request.url, microversion='1.42', params={}, skip_cache=False
+        )
 
         self.assertEqual(sot.microversion, '1.42')
         sot._translate_response.assert_called_once_with(self.response)
@@ -1816,10 +1877,11 @@ class TestResourceActions(base.TestCase):
         result = self.sot.fetch(self.session, False)
 
         self.sot._prepare_request.assert_called_once_with(
-            requires_id=False, base_path=None)
+            requires_id=False, base_path=None
+        )
         self.session.get.assert_called_once_with(
-            self.request.url, microversion=None, params={},
-            skip_cache=False)
+            self.request.url, microversion=None, params={}, skip_cache=False
+        )
 
         self.sot._translate_response.assert_called_once_with(self.response)
         self.assertEqual(result, self.sot)
@@ -1828,11 +1890,11 @@ class TestResourceActions(base.TestCase):
         result = self.sot.fetch(self.session, False, base_path='dummy')
 
         self.sot._prepare_request.assert_called_once_with(
-            requires_id=False,
-            base_path='dummy')
+            requires_id=False, base_path='dummy'
+        )
         self.session.get.assert_called_once_with(
-            self.request.url, microversion=None, params={},
-            skip_cache=False)
+            self.request.url, microversion=None, params={}, skip_cache=False
+        )
 
         self.sot._translate_response.assert_called_once_with(self.response)
         self.assertEqual(result, self.sot)
@@ -1842,12 +1904,13 @@ class TestResourceActions(base.TestCase):
 
         self.sot._prepare_request.assert_called_once_with(base_path=None)
         self.session.head.assert_called_once_with(
-            self.request.url,
-            microversion=None)
+            self.request.url, microversion=None
+        )
 
         self.assertIsNone(self.sot.microversion)
         self.sot._translate_response.assert_called_once_with(
-            self.response, has_body=False)
+            self.response, has_body=False
+        )
         self.assertEqual(result, self.sot)
 
     def test_head_base_path(self):
@@ -1855,12 +1918,13 @@ class TestResourceActions(base.TestCase):
 
         self.sot._prepare_request.assert_called_once_with(base_path='dummy')
         self.session.head.assert_called_once_with(
-            self.request.url,
-            microversion=None)
+            self.request.url, microversion=None
+        )
 
         self.assertIsNone(self.sot.microversion)
         self.sot._translate_response.assert_called_once_with(
-            self.response, has_body=False)
+            self.response, has_body=False
+        )
         self.assertEqual(result, self.sot)
 
     def test_head_with_microversion(self):
@@ -1878,18 +1942,26 @@ class TestResourceActions(base.TestCase):
 
         sot._prepare_request.assert_called_once_with(base_path=None)
         self.session.head.assert_called_once_with(
-            self.request.url,
-            microversion='1.42')
+            self.request.url, microversion='1.42'
+        )
 
         self.assertEqual(sot.microversion, '1.42')
         sot._translate_response.assert_called_once_with(
-            self.response, has_body=False)
+            self.response, has_body=False
+        )
         self.assertEqual(result, sot)
 
-    def _test_commit(self, commit_method='PUT', prepend_key=True,
-                     has_body=True, microversion=None,
-                     commit_args=None, expected_args=None, base_path=None,
-                     explicit_microversion=None):
+    def _test_commit(
+        self,
+        commit_method='PUT',
+        prepend_key=True,
+        has_body=True,
+        microversion=None,
+        commit_args=None,
+        expected_args=None,
+        base_path=None,
+        explicit_microversion=None,
+    ):
         self.sot.commit_method = commit_method
 
         # Need to make sot look dirty so we can attempt an update
@@ -1900,73 +1972,101 @@ class TestResourceActions(base.TestCase):
         if explicit_microversion is not None:
             commit_args['microversion'] = explicit_microversion
             microversion = explicit_microversion
-        self.sot.commit(self.session, prepend_key=prepend_key,
-                        has_body=has_body, base_path=base_path,
-                        **commit_args)
+        self.sot.commit(
+            self.session,
+            prepend_key=prepend_key,
+            has_body=has_body,
+            base_path=base_path,
+            **commit_args
+        )
 
         self.sot._prepare_request.assert_called_once_with(
-            prepend_key=prepend_key, base_path=base_path)
+            prepend_key=prepend_key, base_path=base_path
+        )
 
         if commit_method == 'PATCH':
             self.session.patch.assert_called_once_with(
                 self.request.url,
-                json=self.request.body, headers=self.request.headers,
-                microversion=microversion, **(expected_args or {}))
+                json=self.request.body,
+                headers=self.request.headers,
+                microversion=microversion,
+                **(expected_args or {})
+            )
         elif commit_method == 'POST':
             self.session.post.assert_called_once_with(
                 self.request.url,
-                json=self.request.body, headers=self.request.headers,
-                microversion=microversion, **(expected_args or {}))
+                json=self.request.body,
+                headers=self.request.headers,
+                microversion=microversion,
+                **(expected_args or {})
+            )
         elif commit_method == 'PUT':
             self.session.put.assert_called_once_with(
                 self.request.url,
-                json=self.request.body, headers=self.request.headers,
-                microversion=microversion, **(expected_args or {}))
+                json=self.request.body,
+                headers=self.request.headers,
+                microversion=microversion,
+                **(expected_args or {})
+            )
 
         self.assertEqual(self.sot.microversion, microversion)
         self.sot._translate_response.assert_called_once_with(
-            self.response, has_body=has_body)
+            self.response, has_body=has_body
+        )
 
     def test_commit_put(self):
         self._test_commit(commit_method='PUT', prepend_key=True, has_body=True)
 
     def test_commit_patch(self):
         self._test_commit(
-            commit_method='PATCH', prepend_key=False, has_body=False)
+            commit_method='PATCH', prepend_key=False, has_body=False
+        )
 
     def test_commit_base_path(self):
-        self._test_commit(commit_method='PUT', prepend_key=True, has_body=True,
-                          base_path='dummy')
+        self._test_commit(
+            commit_method='PUT',
+            prepend_key=True,
+            has_body=True,
+            base_path='dummy',
+        )
 
     def test_commit_patch_retry_on_conflict(self):
         self._test_commit(
             commit_method='PATCH',
             commit_args={'retry_on_conflict': True},
-            expected_args={'retriable_status_codes': {409}})
+            expected_args={'retriable_status_codes': {409}},
+        )
 
     def test_commit_put_retry_on_conflict(self):
         self._test_commit(
             commit_method='PUT',
             commit_args={'retry_on_conflict': True},
-            expected_args={'retriable_status_codes': {409}})
+            expected_args={'retriable_status_codes': {409}},
+        )
 
     def test_commit_patch_no_retry_on_conflict(self):
         self.session.retriable_status_codes = {409, 503}
         self._test_commit(
             commit_method='PATCH',
             commit_args={'retry_on_conflict': False},
-            expected_args={'retriable_status_codes': {503}})
+            expected_args={'retriable_status_codes': {503}},
+        )
 
     def test_commit_put_no_retry_on_conflict(self):
         self.session.retriable_status_codes = {409, 503}
         self._test_commit(
             commit_method='PATCH',
             commit_args={'retry_on_conflict': False},
-            expected_args={'retriable_status_codes': {503}})
+            expected_args={'retriable_status_codes': {503}},
+        )
 
     def test_commit_put_explicit_microversion(self):
-        self._test_commit(commit_method='PUT', prepend_key=True, has_body=True,
-                          explicit_microversion='1.42')
+        self._test_commit(
+            commit_method='PUT',
+            prepend_key=True,
+            has_body=True,
+            explicit_microversion='1.42',
+        )
 
     def test_commit_not_dirty(self):
         self.sot._body = mock.Mock()
@@ -1987,16 +2087,21 @@ class TestResourceActions(base.TestCase):
             nested = resource.Body('renamed')
             other = resource.Body('other')
 
-        test_patch = [{'path': '/attr', 'op': 'replace', 'value': 'new'},
-                      {'path': '/nested/dog', 'op': 'remove'},
-                      {'path': '/nested/cat', 'op': 'add', 'value': 'meow'}]
-        expected = [{'path': '/attr', 'op': 'replace', 'value': 'new'},
-                    {'path': '/renamed/dog', 'op': 'remove'},
-                    {'path': '/renamed/cat', 'op': 'add', 'value': 'meow'}]
+        test_patch = [
+            {'path': '/attr', 'op': 'replace', 'value': 'new'},
+            {'path': '/nested/dog', 'op': 'remove'},
+            {'path': '/nested/cat', 'op': 'add', 'value': 'meow'},
+        ]
+        expected = [
+            {'path': '/attr', 'op': 'replace', 'value': 'new'},
+            {'path': '/renamed/dog', 'op': 'remove'},
+            {'path': '/renamed/cat', 'op': 'add', 'value': 'meow'},
+        ]
         sot = Test.existing(id=1, attr=42, nested={'dog': 'bark'})
         sot.patch(self.session, test_patch)
         self.session.patch.assert_called_once_with(
-            '/1', json=expected, headers=mock.ANY, microversion=None)
+            '/1', json=expected, headers=mock.ANY, microversion=None
+        )
 
     def test_patch_with_server_names(self):
         class Test(resource.Resource):
@@ -2007,13 +2112,16 @@ class TestResourceActions(base.TestCase):
             nested = resource.Body('renamed')
             other = resource.Body('other')
 
-        test_patch = [{'path': '/attr', 'op': 'replace', 'value': 'new'},
-                      {'path': '/renamed/dog', 'op': 'remove'},
-                      {'path': '/renamed/cat', 'op': 'add', 'value': 'meow'}]
+        test_patch = [
+            {'path': '/attr', 'op': 'replace', 'value': 'new'},
+            {'path': '/renamed/dog', 'op': 'remove'},
+            {'path': '/renamed/cat', 'op': 'add', 'value': 'meow'},
+        ]
         sot = Test.existing(id=1, attr=42, nested={'dog': 'bark'})
         sot.patch(self.session, test_patch)
         self.session.patch.assert_called_once_with(
-            '/1', json=test_patch, headers=mock.ANY, microversion=None)
+            '/1', json=test_patch, headers=mock.ANY, microversion=None
+        )
 
     def test_patch_with_changed_fields(self):
         class Test(resource.Resource):
@@ -2027,22 +2135,25 @@ class TestResourceActions(base.TestCase):
         sot.attr = 'new'
         sot.patch(self.session, {'path': '/renamed/dog', 'op': 'remove'})
 
-        expected = [{'path': '/attr', 'op': 'replace', 'value': 'new'},
-                    {'path': '/renamed/dog', 'op': 'remove'}]
+        expected = [
+            {'path': '/attr', 'op': 'replace', 'value': 'new'},
+            {'path': '/renamed/dog', 'op': 'remove'},
+        ]
         self.session.patch.assert_called_once_with(
-            '/1', json=expected, headers=mock.ANY, microversion=None)
+            '/1', json=expected, headers=mock.ANY, microversion=None
+        )
 
     def test_delete(self):
         result = self.sot.delete(self.session)
 
         self.sot._prepare_request.assert_called_once_with()
         self.session.delete.assert_called_once_with(
-            self.request.url,
-            headers='headers',
-            microversion=None)
+            self.request.url, headers='headers', microversion=None
+        )
 
         self.sot._translate_response.assert_called_once_with(
-            self.response, has_body=False)
+            self.response, has_body=False
+        )
         self.assertEqual(result, self.sot)
 
     def test_delete_with_microversion(self):
@@ -2060,12 +2171,12 @@ class TestResourceActions(base.TestCase):
 
         sot._prepare_request.assert_called_once_with()
         self.session.delete.assert_called_once_with(
-            self.request.url,
-            headers='headers',
-            microversion='1.42')
+            self.request.url, headers='headers', microversion='1.42'
+        )
 
         sot._translate_response.assert_called_once_with(
-            self.response, has_body=False)
+            self.response, has_body=False
+        )
         self.assertEqual(result, sot)
 
     def test_delete_with_explicit_microversion(self):
@@ -2083,12 +2194,12 @@ class TestResourceActions(base.TestCase):
 
         sot._prepare_request.assert_called_once_with()
         self.session.delete.assert_called_once_with(
-            self.request.url,
-            headers='headers',
-            microversion='1.42')
+            self.request.url, headers='headers', microversion='1.42'
+        )
 
         sot._translate_response.assert_called_once_with(
-            self.response, has_body=False)
+            self.response, has_body=False
+        )
         self.assertEqual(result, sot)
 
     # NOTE: As list returns a generator, testing it requires consuming
@@ -2107,7 +2218,8 @@ class TestResourceActions(base.TestCase):
             self.base_path,
             headers={"Accept": "application/json"},
             params={},
-            microversion=None)
+            microversion=None,
+        )
 
         self.assertEqual([], result)
 
@@ -2144,7 +2256,8 @@ class TestResourceActions(base.TestCase):
             self.base_path,
             headers={"Accept": "application/json"},
             params={},
-            microversion=None)
+            microversion=None,
+        )
 
         self.assertEqual(1, len(results))
         self.assertEqual(id_value, results[0].id)
@@ -2172,7 +2285,8 @@ class TestResourceActions(base.TestCase):
             self.base_path,
             headers={"Accept": "application/json"},
             params={},
-            microversion=None)
+            microversion=None,
+        )
 
         self.assertEqual(1, len(results))
         self.assertEqual(id_value, results[0].id)
@@ -2185,10 +2299,12 @@ class TestResourceActions(base.TestCase):
         mock_response.links = {}
         mock_response.json.return_value = {
             "resources": [{"id": ids[0]}],
-            "resources_links": [{
-                "href": "https://example.com/next-url",
-                "rel": "next",
-            }]
+            "resources_links": [
+                {
+                    "href": "https://example.com/next-url",
+                    "rel": "next",
+                }
+            ],
         }
         mock_response2 = mock.Mock()
         mock_response2.status_code = 200
@@ -2205,15 +2321,23 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(ids[0], results[0].id)
         self.assertEqual(ids[1], results[1].id)
         self.assertEqual(
-            mock.call('base_path',
-                      headers={'Accept': 'application/json'}, params={},
-                      microversion=None),
-            self.session.get.mock_calls[0])
+            mock.call(
+                'base_path',
+                headers={'Accept': 'application/json'},
+                params={},
+                microversion=None,
+            ),
+            self.session.get.mock_calls[0],
+        )
         self.assertEqual(
-            mock.call('https://example.com/next-url',
-                      headers={'Accept': 'application/json'}, params={},
-                      microversion=None),
-            self.session.get.mock_calls[1])
+            mock.call(
+                'https://example.com/next-url',
+                headers={'Accept': 'application/json'},
+                params={},
+                microversion=None,
+            ),
+            self.session.get.mock_calls[1],
+        )
         self.assertEqual(2, len(self.session.get.call_args_list))
         self.assertIsInstance(results[0], self.test_class)
 
@@ -2225,13 +2349,17 @@ class TestResourceActions(base.TestCase):
         mock_response.json.side_effect = [
             {
                 "resources": [{"id": ids[0]}],
-                "resources_links": [{
-                    "href": "https://example.com/next-url",
-                    "rel": "next",
-                }]
-            }, {
+                "resources_links": [
+                    {
+                        "href": "https://example.com/next-url",
+                        "rel": "next",
+                    }
+                ],
+            },
+            {
                 "resources": [{"id": ids[1]}],
-            }]
+            },
+        ]
 
         self.session.get.return_value = mock_response
 
@@ -2241,15 +2369,23 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(ids[0], results[0].id)
         self.assertEqual(ids[1], results[1].id)
         self.assertEqual(
-            mock.call('base_path',
-                      headers={'Accept': 'application/json'}, params={},
-                      microversion=None),
-            self.session.get.mock_calls[0])
+            mock.call(
+                'base_path',
+                headers={'Accept': 'application/json'},
+                params={},
+                microversion=None,
+            ),
+            self.session.get.mock_calls[0],
+        )
         self.assertEqual(
-            mock.call('https://example.com/next-url',
-                      headers={'Accept': 'application/json'}, params={},
-                      microversion=None),
-            self.session.get.mock_calls[2])
+            mock.call(
+                'https://example.com/next-url',
+                headers={'Accept': 'application/json'},
+                params={},
+                microversion=None,
+            ),
+            self.session.get.mock_calls[2],
+        )
         self.assertEqual(2, len(self.session.get.call_args_list))
         self.assertIsInstance(results[0], self.test_class)
 
@@ -2262,15 +2398,21 @@ class TestResourceActions(base.TestCase):
         mock_response.json.side_effect = [
             {
                 "resources": [{"id": ids[0]}],
-                "resources_links": [{
-                    "href": "https://example.com/next-url?limit=%d" % q_limit,
-                    "rel": "next",
-                }]
-            }, {
+                "resources_links": [
+                    {
+                        "href": "https://example.com/next-url?limit=%d"
+                        % q_limit,
+                        "rel": "next",
+                    }
+                ],
+            },
+            {
                 "resources": [{"id": ids[1]}],
-            }, {
+            },
+            {
                 "resources": [],
-            }]
+            },
+        ]
 
         self.session.get.return_value = mock_response
 
@@ -2283,19 +2425,27 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(ids[0], results[0].id)
         self.assertEqual(ids[1], results[1].id)
         self.assertEqual(
-            mock.call('base_path',
-                      headers={'Accept': 'application/json'}, params={
-                          'limit': q_limit,
-                      },
-                      microversion=None),
-            self.session.get.mock_calls[0])
+            mock.call(
+                'base_path',
+                headers={'Accept': 'application/json'},
+                params={
+                    'limit': q_limit,
+                },
+                microversion=None,
+            ),
+            self.session.get.mock_calls[0],
+        )
         self.assertEqual(
-            mock.call('https://example.com/next-url',
-                      headers={'Accept': 'application/json'}, params={
-                          'limit': [str(q_limit)],
-                      },
-                      microversion=None),
-            self.session.get.mock_calls[2])
+            mock.call(
+                'https://example.com/next-url',
+                headers={'Accept': 'application/json'},
+                params={
+                    'limit': [str(q_limit)],
+                },
+                microversion=None,
+            ),
+            self.session.get.mock_calls[2],
+        )
 
         self.assertEqual(3, len(self.session.get.call_args_list))
         self.assertIsInstance(results[0], self.test_class)
@@ -2307,6 +2457,7 @@ class TestResourceActions(base.TestCase):
         returns a 'first' field and, if there are more pages, a 'next' field in
         the response body. Ensure we correctly parse these.
         """
+
         class Test(resource.Resource):
             service = self.service_name
             base_path = '/foos/bars'
@@ -2344,7 +2495,7 @@ class TestResourceActions(base.TestCase):
                 params={'wow': 'cool'},
                 microversion=None,
             ),
-            self.session.get.mock_calls[0]
+            self.session.get.mock_calls[0],
         )
         self.assertEqual(
             mock.call(
@@ -2373,10 +2524,12 @@ class TestResourceActions(base.TestCase):
         mock_response.links = {}
         mock_response.json.return_value = {
             "resources": [{"id": ids[0]}],
-            "resources_links": [{
-                "href": "https://example.com/next-url",
-                "rel": "next",
-            }]
+            "resources_links": [
+                {
+                    "href": "https://example.com/next-url",
+                    "rel": "next",
+                }
+            ],
         }
         mock_response2 = mock.Mock()
         mock_response2.status_code = 200
@@ -2393,15 +2546,23 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(ids[0], results[0].id)
         self.assertEqual(ids[1], results[1].id)
         self.assertEqual(
-            mock.call('base_path',
-                      headers={'Accept': 'application/json'}, params={},
-                      microversion='1.42'),
-            self.session.get.mock_calls[0])
+            mock.call(
+                'base_path',
+                headers={'Accept': 'application/json'},
+                params={},
+                microversion='1.42',
+            ),
+            self.session.get.mock_calls[0],
+        )
         self.assertEqual(
-            mock.call('https://example.com/next-url',
-                      headers={'Accept': 'application/json'}, params={},
-                      microversion='1.42'),
-            self.session.get.mock_calls[1])
+            mock.call(
+                'https://example.com/next-url',
+                headers={'Accept': 'application/json'},
+                params={},
+                microversion='1.42',
+            ),
+            self.session.get.mock_calls[1],
+        )
         self.assertEqual(2, len(self.session.get.call_args_list))
         self.assertIsInstance(results[0], Test)
         self.assertEqual('1.42', results[0].microversion)
@@ -2431,9 +2592,11 @@ class TestResourceActions(base.TestCase):
         mock_response.json.side_effect = [
             {
                 "resources": [{"id": 1}],
-            }, {
+            },
+            {
                 "resources": [{"id": 1}],
-            }]
+            },
+        ]
 
         self.session.get.return_value = mock_response
 
@@ -2442,11 +2605,7 @@ class TestResourceActions(base.TestCase):
 
         res = Test.list(self.session, paginated=True, limit=q_limit)
 
-        self.assertRaises(
-            exceptions.SDKException,
-            list,
-            res
-        )
+        self.assertRaises(exceptions.SDKException, list, res)
 
     def test_list_query_params(self):
         id = 1
@@ -2471,8 +2630,14 @@ class TestResourceActions(base.TestCase):
             base_path = "/%(something)s/blah"
             something = resource.URI("something")
 
-        results = list(Test.list(self.session, paginated=True,
-                                 query_param=qp, something=uri_param))
+        results = list(
+            Test.list(
+                self.session,
+                paginated=True,
+                query_param=qp,
+                something=uri_param,
+            )
+        )
 
         self.assertEqual(1, len(results))
         # Verify URI attribute is set on the resource
@@ -2481,11 +2646,13 @@ class TestResourceActions(base.TestCase):
         # Look at the `params` argument to each of the get calls that
         # were made.
         self.assertEqual(
-            self.session.get.call_args_list[0][1]["params"],
-            {qp_name: qp})
+            self.session.get.call_args_list[0][1]["params"], {qp_name: qp}
+        )
 
-        self.assertEqual(self.session.get.call_args_list[0][0][0],
-                         Test.base_path % {"something": uri_param})
+        self.assertEqual(
+            self.session.get.call_args_list[0][0][0],
+            Test.base_path % {"something": uri_param},
+        )
 
     def test_allow_invalid_list_params(self):
         qp = "query param!"
@@ -2504,14 +2671,21 @@ class TestResourceActions(base.TestCase):
             base_path = "/%(something)s/blah"
             something = resource.URI("something")
 
-        list(Test.list(self.session, paginated=True, query_param=qp,
-                       allow_unknown_params=True, something=uri_param,
-                       something_wrong=True))
+        list(
+            Test.list(
+                self.session,
+                paginated=True,
+                query_param=qp,
+                allow_unknown_params=True,
+                something=uri_param,
+                something_wrong=True,
+            )
+        )
         self.session.get.assert_called_once_with(
             "/{something}/blah".format(something=uri_param),
             headers={'Accept': 'application/json'},
             microversion=None,
-            params={qp_name: qp}
+            params={qp_name: qp},
         )
 
     def test_list_client_filters(self):
@@ -2521,10 +2695,12 @@ class TestResourceActions(base.TestCase):
         mock_empty = mock.Mock()
         mock_empty.status_code = 200
         mock_empty.links = {}
-        mock_empty.json.return_value = {"resources": [
-            {"a": "1", "b": "1"},
-            {"a": "1", "b": "2"},
-        ]}
+        mock_empty.json.return_value = {
+            "resources": [
+                {"a": "1", "b": "1"},
+                {"a": "1", "b": "2"},
+            ]
+        }
 
         self.session.get.side_effect = [mock_empty]
 
@@ -2535,15 +2711,22 @@ class TestResourceActions(base.TestCase):
             a = resource.Body("a")
             b = resource.Body("b")
 
-        res = list(Test.list(
-            self.session, paginated=True, query_param=qp,
-            allow_unknown_params=True, something=uri_param,
-            a='1', b='2'))
+        res = list(
+            Test.list(
+                self.session,
+                paginated=True,
+                query_param=qp,
+                allow_unknown_params=True,
+                something=uri_param,
+                a='1',
+                b='2',
+            )
+        )
         self.session.get.assert_called_once_with(
             "/{something}/blah".format(something=uri_param),
             headers={'Accept': 'application/json'},
             microversion=None,
-            params={'a': '1'}
+            params={'a': '1'},
         )
         self.assertEqual(1, len(res))
         self.assertEqual("2", res[0].b)
@@ -2571,19 +2754,27 @@ class TestResourceActions(base.TestCase):
             base_path = "/%(something)s/blah"
             something = resource.URI("something")
 
-        results = list(Test.list(self.session, paginated=True,
-                       something=uri_param, **{qp_name: qp}))
+        results = list(
+            Test.list(
+                self.session,
+                paginated=True,
+                something=uri_param,
+                **{qp_name: qp}
+            )
+        )
 
         self.assertEqual(1, len(results))
 
         # Look at the `params` argument to each of the get calls that
         # were made.
         self.assertEqual(
-            self.session.get.call_args_list[0][1]["params"],
-            {qp_name: qp})
+            self.session.get.call_args_list[0][1]["params"], {qp_name: qp}
+        )
 
-        self.assertEqual(self.session.get.call_args_list[0][0][0],
-                         Test.base_path % {"something": uri_param})
+        self.assertEqual(
+            self.session.get.call_args_list[0][0][0],
+            Test.base_path % {"something": uri_param},
+        )
 
     def test_values_as_list_params_precedence(self):
         id = 1
@@ -2609,19 +2800,28 @@ class TestResourceActions(base.TestCase):
             base_path = "/%(something)s/blah"
             something = resource.URI("something")
 
-        results = list(Test.list(self.session, paginated=True, query_param=qp2,
-                       something=uri_param, **{qp_name: qp}))
+        results = list(
+            Test.list(
+                self.session,
+                paginated=True,
+                query_param=qp2,
+                something=uri_param,
+                **{qp_name: qp}
+            )
+        )
 
         self.assertEqual(1, len(results))
 
         # Look at the `params` argument to each of the get calls that
         # were made.
         self.assertEqual(
-            self.session.get.call_args_list[0][1]["params"],
-            {qp_name: qp2})
+            self.session.get.call_args_list[0][1]["params"], {qp_name: qp2}
+        )
 
-        self.assertEqual(self.session.get.call_args_list[0][0][0],
-                         Test.base_path % {"something": uri_param})
+        self.assertEqual(
+            self.session.get.call_args_list[0][0][0],
+            Test.base_path % {"something": uri_param},
+        )
 
     def test_list_multi_page_response_paginated(self):
         ids = [1, 2]
@@ -2630,27 +2830,29 @@ class TestResourceActions(base.TestCase):
         resp1.links = {}
         resp1.json.return_value = {
             "resources": [{"id": ids[0]}],
-            "resources_links": [{
-                "href": "https://example.com/next-url",
-                "rel": "next",
-            }],
+            "resources_links": [
+                {
+                    "href": "https://example.com/next-url",
+                    "rel": "next",
+                }
+            ],
         }
         resp2 = mock.Mock()
         resp2.status_code = 200
         resp2.links = {}
         resp2.json.return_value = {
             "resources": [{"id": ids[1]}],
-            "resources_links": [{
-                "href": "https://example.com/next-url",
-                "rel": "next",
-            }],
+            "resources_links": [
+                {
+                    "href": "https://example.com/next-url",
+                    "rel": "next",
+                }
+            ],
         }
         resp3 = mock.Mock()
         resp3.status_code = 200
         resp3.links = {}
-        resp3.json.return_value = {
-            "resources": []
-        }
+        resp3.json.return_value = {"resources": []}
 
         self.session.get.side_effect = [resp1, resp2, resp3]
 
@@ -2662,7 +2864,8 @@ class TestResourceActions(base.TestCase):
             self.base_path,
             headers={"Accept": "application/json"},
             params={},
-            microversion=None)
+            microversion=None,
+        )
 
         result1 = next(results)
         self.assertEqual(result1.id, ids[1])
@@ -2670,14 +2873,16 @@ class TestResourceActions(base.TestCase):
             'https://example.com/next-url',
             headers={"Accept": "application/json"},
             params={},
-            microversion=None)
+            microversion=None,
+        )
 
         self.assertRaises(StopIteration, next, results)
         self.session.get.assert_called_with(
             'https://example.com/next-url',
             headers={"Accept": "application/json"},
             params={},
-            microversion=None)
+            microversion=None,
+        )
 
     def test_list_multi_page_no_early_termination(self):
         # This tests verifies that multipages are not early terminated.
@@ -2720,7 +2925,8 @@ class TestResourceActions(base.TestCase):
             self.base_path,
             headers={"Accept": "application/json"},
             params={"limit": 3},
-            microversion=None)
+            microversion=None,
+        )
 
         # Second page contains another two items
         result2 = next(results)
@@ -2731,7 +2937,8 @@ class TestResourceActions(base.TestCase):
             self.base_path,
             headers={"Accept": "application/json"},
             params={"limit": 3, "marker": 2},
-            microversion=None)
+            microversion=None,
+        )
 
         # Ensure we're done after those four items
         self.assertRaises(StopIteration, next, results)
@@ -2741,7 +2948,8 @@ class TestResourceActions(base.TestCase):
             self.base_path,
             headers={"Accept": "application/json"},
             params={"limit": 3, "marker": 4},
-            microversion=None)
+            microversion=None,
+        )
 
         # Ensure we made three calls to get this done
         self.assertEqual(3, len(self.session.get.call_args_list))
@@ -2779,7 +2987,8 @@ class TestResourceActions(base.TestCase):
             self.base_path,
             headers={"Accept": "application/json"},
             params={"limit": 2},
-            microversion=None)
+            microversion=None,
+        )
 
         result2 = next(results)
         self.assertEqual(result2.id, ids[2])
@@ -2787,7 +2996,8 @@ class TestResourceActions(base.TestCase):
             self.base_path,
             headers={"Accept": "application/json"},
             params={'limit': 2, 'marker': 2},
-            microversion=None)
+            microversion=None,
+        )
 
         # Ensure we're done after those three items
         # In python3.7, PEP 479 is enabled for all code, and StopIteration
@@ -2802,6 +3012,7 @@ class TestResourceActions(base.TestCase):
         class Test(self.test_class):
             resources_key = None
             pagination_key = 'X-Container-Object-Count'
+
         self.sot = Test()
 
         # Swift returns a total number of objects in a header and we compare
@@ -2832,7 +3043,8 @@ class TestResourceActions(base.TestCase):
             self.base_path,
             headers={"Accept": "application/json"},
             params={},
-            microversion=None)
+            microversion=None,
+        )
 
         result2 = next(results)
         self.assertEqual(result2.id, ids[2])
@@ -2840,7 +3052,8 @@ class TestResourceActions(base.TestCase):
             self.base_path,
             headers={"Accept": "application/json"},
             params={'marker': 2},
-            microversion=None)
+            microversion=None,
+        )
 
         # Ensure we're done after those three items
         self.assertRaises(StopIteration, next, results)
@@ -2856,7 +3069,8 @@ class TestResourceActions(base.TestCase):
         resp1 = mock.Mock()
         resp1.status_code = 200
         resp1.links = {
-            'next': {'uri': 'https://example.com/next-url', 'rel': 'next'}}
+            'next': {'uri': 'https://example.com/next-url', 'rel': 'next'}
+        }
         resp1.headers = {}
         resp1.json.return_value = {
             "resources": [{"id": ids[0]}, {"id": ids[1]}],
@@ -2880,7 +3094,8 @@ class TestResourceActions(base.TestCase):
             self.base_path,
             headers={"Accept": "application/json"},
             params={},
-            microversion=None)
+            microversion=None,
+        )
 
         result2 = next(results)
         self.assertEqual(result2.id, ids[2])
@@ -2888,7 +3103,8 @@ class TestResourceActions(base.TestCase):
             'https://example.com/next-url',
             headers={"Accept": "application/json"},
             params={},
-            microversion=None)
+            microversion=None,
+        )
 
         # Ensure we're done after those three items
         self.assertRaises(StopIteration, next, results)
@@ -2911,8 +3127,9 @@ class TestResourceActions(base.TestCase):
         self.assertRaises(ValueError, Test.bulk_create, self.session, "hi!")
         self.assertRaises(ValueError, Test.bulk_create, self.session, ["hi!"])
 
-    def _test_bulk_create(self, cls, http_method, microversion=None,
-                          base_path=None, **params):
+    def _test_bulk_create(
+        self, cls, http_method, microversion=None, base_path=None, **params
+    ):
         req1 = mock.Mock()
         req2 = mock.Mock()
         req1.body = {'name': 'resource1'}
@@ -2922,8 +3139,12 @@ class TestResourceActions(base.TestCase):
         req1.headers = 'headers'
         req2.headers = 'headers'
 
-        request_body = {"tests": [{'name': 'resource1', 'id': 'id1'},
-                                  {'name': 'resource2', 'id': 'id2'}]}
+        request_body = {
+            "tests": [
+                {'name': 'resource1', 'id': 'id1'},
+                {'name': 'resource2', 'id': 'id2'},
+            ]
+        }
 
         cls._prepare_request = mock.Mock(side_effect=[req1, req2])
         mock_response = mock.Mock()
@@ -2932,19 +3153,25 @@ class TestResourceActions(base.TestCase):
         mock_response.json.return_value = request_body
         http_method.return_value = mock_response
 
-        res = list(cls.bulk_create(self.session, [{'name': 'resource1'},
-                                                  {'name': 'resource2'}],
-                                   base_path=base_path, **params))
+        res = list(
+            cls.bulk_create(
+                self.session,
+                [{'name': 'resource1'}, {'name': 'resource2'}],
+                base_path=base_path,
+                **params
+            )
+        )
 
         self.assertEqual(len(res), 2)
         self.assertEqual(res[0].id, 'id1')
         self.assertEqual(res[1].id, 'id2')
-        http_method.assert_called_once_with(self.request.url,
-                                            json={'tests': [req1.body,
-                                                            req2.body]},
-                                            headers=self.request.headers,
-                                            microversion=microversion,
-                                            params=params)
+        http_method.assert_called_once_with(
+            self.request.url,
+            json={'tests': [req1.body, req2.body]},
+            headers=self.request.headers,
+            microversion=microversion,
+            params=params,
+        )
 
     def test_bulk_create_post(self):
         class Test(resource.Resource):
@@ -3005,8 +3232,12 @@ class TestResourceActions(base.TestCase):
             allow_create = False
             resources_key = 'tests'
 
-        self.assertRaises(exceptions.MethodNotSupported, Test.bulk_create,
-                          self.session, [{'name': 'name'}])
+        self.assertRaises(
+            exceptions.MethodNotSupported,
+            Test.bulk_create,
+            self.session,
+            [{'name': 'name'}],
+        )
 
     def test_bulk_create_fail_on_request(self):
         class Test(resource.Resource):
@@ -3017,14 +3248,20 @@ class TestResourceActions(base.TestCase):
             resources_key = 'tests'
 
         response = FakeResponse({}, status_code=409)
-        response.content = ('{"TestError": {"message": "Failed to parse '
-                            'request. Required attribute \'foo\' not '
-                            'specified", "type": "HTTPBadRequest", '
-                            '"detail": ""}}')
+        response.content = (
+            '{"TestError": {"message": "Failed to parse '
+            'request. Required attribute \'foo\' not '
+            'specified", "type": "HTTPBadRequest", '
+            '"detail": ""}}'
+        )
         response.reason = 'Bad Request'
         self.session.post.return_value = response
-        self.assertRaises(exceptions.ConflictException, Test.bulk_create,
-                          self.session, [{'name': 'name'}])
+        self.assertRaises(
+            exceptions.ConflictException,
+            Test.bulk_create,
+            self.session,
+            [{'name': 'name'}],
+        )
 
 
 class TestResourceFind(base.TestCase):
@@ -3032,26 +3269,22 @@ class TestResourceFind(base.TestCase):
     result = 1
 
     class Base(resource.Resource):
-
         @classmethod
         def existing(cls, **kwargs):
             response = mock.Mock()
             response.status_code = 404
-            raise exceptions.ResourceNotFound(
-                'Not Found', response=response)
+            raise exceptions.ResourceNotFound('Not Found', response=response)
 
         @classmethod
         def list(cls, session, **params):
             return []
 
     class OneResult(Base):
-
         @classmethod
         def _get_one_match(cls, *args):
             return TestResourceFind.result
 
     class NoResults(Base):
-
         @classmethod
         def _get_one_match(cls, *args):
             return None
@@ -3070,7 +3303,6 @@ class TestResourceFind(base.TestCase):
         value = 1
 
         class Test(resource.Resource):
-
             @classmethod
             def existing(cls, **kwargs):
                 mock_match = mock.Mock()
@@ -3082,32 +3314,40 @@ class TestResourceFind(base.TestCase):
         self.assertEqual(result, value)
 
     def test_no_match_raise(self):
-        self.assertRaises(exceptions.ResourceNotFound, self.no_results.find,
-                          self.cloud.compute, "name", ignore_missing=False)
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.no_results.find,
+            self.cloud.compute,
+            "name",
+            ignore_missing=False,
+        )
 
     def test_no_match_return(self):
         self.assertIsNone(
             self.no_results.find(
-                self.cloud.compute, "name", ignore_missing=True))
+                self.cloud.compute, "name", ignore_missing=True
+            )
+        )
 
     def test_find_result_name_not_in_query_parameters(self):
-        with mock.patch.object(self.one_result, 'existing',
-                               side_effect=self.OneResult.existing) \
-                as mock_existing, \
-                mock.patch.object(self.one_result, 'list',
-                                  side_effect=self.OneResult.list) \
-                as mock_list:
+        with mock.patch.object(
+            self.one_result, 'existing', side_effect=self.OneResult.existing
+        ) as mock_existing, mock.patch.object(
+            self.one_result, 'list', side_effect=self.OneResult.list
+        ) as mock_list:
             self.assertEqual(
-                self.result,
-                self.one_result.find(self.cloud.compute, "name"))
-            mock_existing.assert_called_once_with(id='name',
-                                                  connection=mock.ANY)
+                self.result, self.one_result.find(self.cloud.compute, "name")
+            )
+            mock_existing.assert_called_once_with(
+                id='name', connection=mock.ANY
+            )
             mock_list.assert_called_once_with(mock.ANY)
 
     def test_find_result_name_in_query_parameters(self):
         self.assertEqual(
             self.result,
-            self.one_result_with_qparams.find(self.cloud.compute, "name"))
+            self.one_result_with_qparams.find(self.cloud.compute, "name"),
+        )
 
     def test_match_empty_results(self):
         self.assertIsNone(resource.Resource._get_one_match("name", []))
@@ -3161,7 +3401,10 @@ class TestResourceFind(base.TestCase):
 
         self.assertRaises(
             exceptions.DuplicateResource,
-            resource.Resource._get_one_match, the_id, [match, match])
+            resource.Resource._get_one_match,
+            the_id,
+            [match, match],
+        )
 
     def test_list_no_base_path(self):
 
@@ -3174,21 +3417,23 @@ class TestResourceFind(base.TestCase):
 
         with mock.patch.object(self.Base, "list") as list_mock:
             self.Base.find(
-                self.cloud.compute, "name", list_base_path='/dummy/list')
+                self.cloud.compute, "name", list_base_path='/dummy/list'
+            )
 
             list_mock.assert_called_with(
-                self.cloud.compute, base_path='/dummy/list')
+                self.cloud.compute, base_path='/dummy/list'
+            )
 
 
 class TestWaitForStatus(base.TestCase):
-
     def test_immediate_status(self):
         status = "loling"
         res = mock.Mock(spec=['id', 'status'])
         res.status = status
 
         result = resource.wait_for_status(
-            self.cloud.compute, res, status, "failures", "interval", "wait")
+            self.cloud.compute, res, status, "failures", "interval", "wait"
+        )
 
         self.assertEqual(res, result)
 
@@ -3198,7 +3443,8 @@ class TestWaitForStatus(base.TestCase):
         res.status = status
 
         result = resource.wait_for_status(
-            self.cloud.compute, res, 'lOling', "failures", "interval", "wait")
+            self.cloud.compute, res, 'lOling', "failures", "interval", "wait"
+        )
 
         self.assertEqual(res, result)
 
@@ -3208,8 +3454,14 @@ class TestWaitForStatus(base.TestCase):
         res.mood = status
 
         result = resource.wait_for_status(
-            self.cloud.compute, res, status, "failures", "interval", "wait",
-            attribute='mood')
+            self.cloud.compute,
+            res,
+            status,
+            "failures",
+            "interval",
+            "wait",
+            attribute='mood',
+        )
 
         self.assertEqual(res, result)
 
@@ -3231,10 +3483,12 @@ class TestWaitForStatus(base.TestCase):
         # other gets past the first check, two anothers gets through
         # the sleep loop, and the third matches
         resources = self._resources_from_statuses(
-            "first", "other", "another", "another", status)
+            "first", "other", "another", "another", status
+        )
 
         result = resource.wait_for_status(
-            mock.Mock(), resources[0], status, None, 1, 5)
+            mock.Mock(), resources[0], status, None, 1, 5
+        )
 
         self.assertEqual(result, resources[-1])
 
@@ -3243,10 +3497,12 @@ class TestWaitForStatus(base.TestCase):
 
         # apparently, None is a correct state in some cases
         resources = self._resources_from_statuses(
-            None, "other", None, "another", status)
+            None, "other", None, "another", status
+        )
 
         result = resource.wait_for_status(
-            mock.Mock(), resources[0], status, None, 1, 5)
+            mock.Mock(), resources[0], status, None, 1, 5
+        )
 
         self.assertEqual(result, resources[-1])
 
@@ -3255,10 +3511,12 @@ class TestWaitForStatus(base.TestCase):
 
         # apparently, None can be expected status in some cases
         resources = self._resources_from_statuses(
-            "first", "other", "another", "another", status)
+            "first", "other", "another", "another", status
+        )
 
         result = resource.wait_for_status(
-            mock.Mock(), resources[0], status, None, 1, 5)
+            mock.Mock(), resources[0], status, None, 1, 5
+        )
 
         self.assertEqual(result, resources[-1])
 
@@ -3266,12 +3524,12 @@ class TestWaitForStatus(base.TestCase):
         status = "loling"
 
         resources = self._resources_from_statuses(
-            "first", "other", "another", "another", status,
-            attribute='mood')
+            "first", "other", "another", "another", status, attribute='mood'
+        )
 
         result = resource.wait_for_status(
-            mock.Mock(), resources[0], status, None, 1, 5,
-            attribute='mood')
+            mock.Mock(), resources[0], status, None, 1, 5, attribute='mood'
+        )
 
         self.assertEqual(result, resources[-1])
 
@@ -3283,19 +3541,32 @@ class TestWaitForStatus(base.TestCase):
         self.assertRaises(
             exceptions.ResourceFailure,
             resource.wait_for_status,
-            mock.Mock(), resources[0], "loling", [failure], 1, 5)
+            mock.Mock(),
+            resources[0],
+            "loling",
+            [failure],
+            1,
+            5,
+        )
 
     def test_status_fails_different_attribute(self):
         failure = "crying"
 
-        resources = self._resources_from_statuses("success", "other", failure,
-                                                  attribute='mood')
+        resources = self._resources_from_statuses(
+            "success", "other", failure, attribute='mood'
+        )
 
         self.assertRaises(
             exceptions.ResourceFailure,
             resource.wait_for_status,
-            mock.Mock(), resources[0], "loling", [failure.upper()], 1, 5,
-            attribute='mood')
+            mock.Mock(),
+            resources[0],
+            "loling",
+            [failure.upper()],
+            1,
+            5,
+            attribute='mood',
+        )
 
     def test_timeout(self):
         status = "loling"
@@ -3308,30 +3579,45 @@ class TestWaitForStatus(base.TestCase):
         statuses = ["other"] * 7
         type(res).status = mock.PropertyMock(side_effect=statuses)
 
-        self.assertRaises(exceptions.ResourceTimeout,
-                          resource.wait_for_status,
-                          self.cloud.compute, res, status, None, 0.01, 0.1)
+        self.assertRaises(
+            exceptions.ResourceTimeout,
+            resource.wait_for_status,
+            self.cloud.compute,
+            res,
+            status,
+            None,
+            0.01,
+            0.1,
+        )
 
     def test_no_sleep(self):
         res = mock.Mock()
         statuses = ["other"]
         type(res).status = mock.PropertyMock(side_effect=statuses)
 
-        self.assertRaises(exceptions.ResourceTimeout,
-                          resource.wait_for_status,
-                          self.cloud.compute, res, "status", None, 0, -1)
+        self.assertRaises(
+            exceptions.ResourceTimeout,
+            resource.wait_for_status,
+            self.cloud.compute,
+            res,
+            "status",
+            None,
+            0,
+            -1,
+        )
 
 
 class TestWaitForDelete(base.TestCase):
-
     def test_success(self):
         response = mock.Mock()
         response.headers = {}
         response.status_code = 404
         res = mock.Mock()
         res.fetch.side_effect = [
-            None, None,
-            exceptions.ResourceNotFound('Not Found', response)]
+            None,
+            None,
+            exceptions.ResourceNotFound('Not Found', response),
+        ]
 
         result = resource.wait_for_delete(self.cloud.compute, res, 1, 3)
 
@@ -3345,7 +3631,11 @@ class TestWaitForDelete(base.TestCase):
         self.assertRaises(
             exceptions.ResourceTimeout,
             resource.wait_for_delete,
-            self.cloud.compute, res, 0.1, 0.3)
+            self.cloud.compute,
+            res,
+            0.1,
+            0.3,
+        )
 
 
 @mock.patch.object(resource.Resource, '_get_microversion', autospec=True)
@@ -3358,33 +3648,46 @@ class TestAssertMicroversionFor(base.TestCase):
 
         self.assertEqual(
             '1.42',
-            self.res._assert_microversion_for(self.session, 'fetch', '1.6'))
+            self.res._assert_microversion_for(self.session, 'fetch', '1.6'),
+        )
         mock_get_ver.assert_called_once_with(self.session, action='fetch')
 
     def test_incompatible(self, mock_get_ver):
         mock_get_ver.return_value = '1.1'
 
-        self.assertRaisesRegex(exceptions.NotSupported,
-                               '1.6 is required, but 1.1 will be used',
-                               self.res._assert_microversion_for,
-                               self.session, 'fetch', '1.6')
+        self.assertRaisesRegex(
+            exceptions.NotSupported,
+            '1.6 is required, but 1.1 will be used',
+            self.res._assert_microversion_for,
+            self.session,
+            'fetch',
+            '1.6',
+        )
         mock_get_ver.assert_called_once_with(self.session, action='fetch')
 
     def test_custom_message(self, mock_get_ver):
         mock_get_ver.return_value = '1.1'
 
-        self.assertRaisesRegex(exceptions.NotSupported,
-                               'boom.*1.6 is required, but 1.1 will be used',
-                               self.res._assert_microversion_for,
-                               self.session, 'fetch', '1.6',
-                               error_message='boom')
+        self.assertRaisesRegex(
+            exceptions.NotSupported,
+            'boom.*1.6 is required, but 1.1 will be used',
+            self.res._assert_microversion_for,
+            self.session,
+            'fetch',
+            '1.6',
+            error_message='boom',
+        )
         mock_get_ver.assert_called_once_with(self.session, action='fetch')
 
     def test_none(self, mock_get_ver):
         mock_get_ver.return_value = None
 
-        self.assertRaisesRegex(exceptions.NotSupported,
-                               '1.6 is required, but the default version',
-                               self.res._assert_microversion_for,
-                               self.session, 'fetch', '1.6')
+        self.assertRaisesRegex(
+            exceptions.NotSupported,
+            '1.6 is required, but the default version',
+            self.res._assert_microversion_for,
+            self.session,
+            'fetch',
+            '1.6',
+        )
         mock_get_ver.assert_called_once_with(self.session, action='fetch')

@@ -36,8 +36,9 @@ def print_version(version):
     if version['status'] in ('CURRENT', 'stable'):
         print(
             "\tVersion ID: {id} updated {updated}".format(
-                id=version.get('id'),
-                updated=version.get('updated')))
+                id=version.get('id'), updated=version.get('updated')
+            )
+        )
 
 
 verbose = '-v' in sys.argv
@@ -71,7 +72,8 @@ for cloud in openstack.config.OpenStackConfig().get_all_clouds():
         if port:
             stripped = '{stripped}:{port}'.format(stripped=stripped, port=port)
         endpoint = urlparse.urlunsplit(
-            (url.scheme, url.netloc, stripped, url.params, url.query))
+            (url.scheme, url.netloc, stripped, url.params, url.query)
+        )
         print("  also {endpoint}".format(endpoint=endpoint))
         try:
             r = c.get(endpoint).json()

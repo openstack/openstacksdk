@@ -30,7 +30,8 @@ class TestFromSession(base.TestCase):
 
     def test_from_session(self):
         config = cloud_region.from_session(
-            self.cloud.session, region_name=self.test_region)
+            self.cloud.session, region_name=self.test_region
+        )
         self.assertEqual(config.name, 'identity.example.com')
         if not self.test_region:
             self.assertIsNone(config.region_name)
@@ -40,13 +41,18 @@ class TestFromSession(base.TestCase):
         server_id = str(uuid.uuid4())
         server_name = self.getUniqueString('name')
         fake_server = fakes.make_fake_server(server_id, server_name)
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': [fake_server]}),
-        ])
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'detail']
+                    ),
+                    json={'servers': [fake_server]},
+                ),
+            ]
+        )
 
         conn = connection.Connection(config=config)
         s = next(conn.compute.servers())

@@ -26,8 +26,7 @@ class QuotaSet(resource.Resource):
     allow_delete = True
     allow_commit = True
 
-    _query_mapping = resource.QueryParameters(
-        "usage")
+    _query_mapping = resource.QueryParameters("usage")
 
     # NOTE(gtema) Sadly this attribute is useless in all the methods, but keep
     # it here extra as a reminder
@@ -47,8 +46,14 @@ class QuotaSet(resource.Resource):
 
     project_id = resource.URI('project_id')
 
-    def fetch(self, session, requires_id=False,
-              base_path=None, error_message=None, **params):
+    def fetch(
+        self,
+        session,
+        requires_id=False,
+        base_path=None,
+        error_message=None,
+        **params
+    ):
         return super(QuotaSet, self).fetch(
             session,
             requires_id=False,
@@ -93,8 +98,9 @@ class QuotaSet(resource.Resource):
                         if 'in_use' in val:
                             normalized_attrs['usage'][key] = val['in_use']
                         if 'reserved' in val:
-                            normalized_attrs['reservation'][key] = \
-                                val['reserved']
+                            normalized_attrs['reservation'][key] = val[
+                                'reserved'
+                            ]
                         if 'limit' in val:
                             normalized_attrs[key] = val['limit']
                     else:

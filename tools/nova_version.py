@@ -35,22 +35,27 @@ for cloud in openstack.config.OpenStackConfig().get_all_clouds():
             have_current = True
             print(
                 "\tVersion ID: {id} updated {updated}".format(
-                    id=version.get('id'),
-                    updated=version.get('updated')))
+                    id=version.get('id'), updated=version.get('updated')
+                )
+            )
+            print("\tVersion Max: {max}".format(max=version.get('version')))
             print(
-                "\tVersion Max: {max}".format(max=version.get('version')))
-            print(
-                "\tVersion Min: {min}".format(min=version.get('min_version')))
+                "\tVersion Min: {min}".format(min=version.get('min_version'))
+            )
     if not have_current:
         for version in r['versions']:
             if version['status'] == 'SUPPORTED':
                 have_current = True
                 print(
                     "\tVersion ID: {id} updated {updated}".format(
-                        id=version.get('id'),
-                        updated=version.get('updated')))
+                        id=version.get('id'), updated=version.get('updated')
+                    )
+                )
                 print(
-                    "\tVersion Max: {max}".format(max=version.get('version')))
+                    "\tVersion Max: {max}".format(max=version.get('version'))
+                )
                 print(
                     "\tVersion Min: {min}".format(
-                        min=version.get('min_version')))
+                        min=version.get('min_version')
+                    )
+                )

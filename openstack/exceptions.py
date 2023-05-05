@@ -24,6 +24,7 @@ from requests import exceptions as _rex
 
 class SDKException(Exception):
     """The base exception class for all exceptions this library raises."""
+
     def __init__(self, message=None, extra_data=None):
         self.message = self.__class__.__name__ if message is None else message
         self.extra_data = extra_data
@@ -35,6 +36,7 @@ OpenStackCloudException = SDKException
 
 class EndpointNotFound(SDKException):
     """A mismatch occurred between what the client and server expect."""
+
     def __init__(self, message=None):
         super(EndpointNotFound, self).__init__(message)
 
@@ -55,20 +57,25 @@ class InvalidRequest(SDKException):
 
 
 class HttpException(SDKException, _rex.HTTPError):
-
-    def __init__(self, message='Error', response=None,
-                 http_status=None,
-                 details=None, request_id=None):
+    def __init__(
+        self,
+        message='Error',
+        response=None,
+        http_status=None,
+        details=None,
+        request_id=None,
+    ):
         # TODO(shade) Remove http_status parameter and the ability for response
         # to be None once we're not mocking Session everywhere.
         if not message:
             if response is not None:
                 message = "{name}: {code}".format(
-                    name=self.__class__.__name__,
-                    code=response.status_code)
+                    name=self.__class__.__name__, code=response.status_code
+                )
             else:
                 message = "{name}: Unknown error".format(
-                    name=self.__class__.__name__)
+                    name=self.__class__.__name__
+                )
 
         # Call directly rather than via super to control parameters
         SDKException.__init__(self, message=message)
@@ -96,7 +103,8 @@ class HttpException(SDKException, _rex.HTTPError):
             return self.message
         if self.url:
             remote_error = "{source} Error for url: {url}".format(
-                source=self.source, url=self.url)
+                source=self.source, url=self.url
+            )
             if self.details:
                 remote_error += ', '
         if self.details:
@@ -104,31 +112,37 @@ class HttpException(SDKException, _rex.HTTPError):
 
         return "{message}: {remote_error}".format(
             message=super(HttpException, self).__str__(),
-            remote_error=remote_error)
+            remote_error=remote_error,
+        )
 
 
 class BadRequestException(HttpException):
     """HTTP 400 Bad Request."""
+
     pass
 
 
 class ForbiddenException(HttpException):
     """HTTP 403 Forbidden Request."""
+
     pass
 
 
 class ConflictException(HttpException):
     """HTTP 409 Conflict."""
+
     pass
 
 
 class PreconditionFailedException(HttpException):
     """HTTP 412 Precondition Failed."""
+
     pass
 
 
 class MethodNotSupported(SDKException):
     """The resource does not support this operation type."""
+
     def __init__(self, resource, method):
         # This needs to work with both classes and instances.
         try:
@@ -136,18 +150,23 @@ class MethodNotSupported(SDKException):
         except AttributeError:
             name = resource.__class__.__name__
 
-        message = ('The %s method is not supported for %s.%s' %
-                   (method, resource.__module__, name))
+        message = 'The %s method is not supported for %s.%s' % (
+            method,
+            resource.__module__,
+            name,
+        )
         super(MethodNotSupported, self).__init__(message=message)
 
 
 class DuplicateResource(SDKException):
     """More than one resource exists with that name."""
+
     pass
 
 
 class ResourceNotFound(HttpException):
     """No resource exists with that name or id."""
+
     pass
 
 
@@ -156,16 +175,19 @@ NotFoundException = ResourceNotFound
 
 class ResourceTimeout(SDKException):
     """Timeout waiting for resource."""
+
     pass
 
 
 class ResourceFailure(SDKException):
     """General resource failure."""
+
     pass
 
 
 class InvalidResourceQuery(SDKException):
     """Invalid query params for resource."""
+
     pass
 
 
@@ -225,8 +247,9 @@ def raise_from_response(response, error_message=None):
             details = response.text
     elif response.content and 'text/html' in content_type:
         # Split the lines, strip whitespace and inline HTML from the response.
-        details = [re.sub(r'<.+?>', '', i.strip())
-                   for i in response.text.splitlines()]
+        details = [
+            re.sub(r'<.+?>', '', i.strip()) for i in response.text.splitlines()
+        ]
         details = list(set([msg for msg in details if msg]))
         # Return joined string separated by colons.
         details = ': '.join(details)
@@ -238,8 +261,11 @@ def raise_from_response(response, error_message=None):
     request_id = response.headers.get('x-openstack-request-id')
 
     raise cls(
-        message=error_message, response=response, details=details,
-        http_status=http_status, request_id=request_id
+        message=error_message,
+        response=response,
+        details=details,
+        http_status=http_status,
+        request_id=request_id,
     )
 
 
@@ -249,6 +275,7 @@ class UnsupportedServiceVersion(Warning):
 
 class ArgumentDeprecationWarning(Warning):
     """A deprecated argument has been provided."""
+
     pass
 
 

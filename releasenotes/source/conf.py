@@ -197,9 +197,13 @@ htmlhelp_basename = 'shadeReleaseNotesdoc'
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    ('index', 'shadeReleaseNotes.tex',
-     'Shade Release Notes Documentation',
-     'Shade Developers', 'manual'),
+    (
+        'index',
+        'shadeReleaseNotes.tex',
+        'Shade Release Notes Documentation',
+        'Shade Developers',
+        'manual',
+    ),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -228,9 +232,13 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'shadereleasenotes',
-     'shade Release Notes Documentation',
-     ['shade Developers'], 1)
+    (
+        'index',
+        'shadereleasenotes',
+        'shade Release Notes Documentation',
+        ['shade Developers'],
+        1,
+    )
 ]
 
 # If true, show URL addresses after external links.
@@ -243,11 +251,15 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'shadeReleaseNotes',
-     'shade Release Notes Documentation',
-     'shade Developers', 'shadeReleaseNotes',
-     'A client library for interacting with OpenStack clouds',
-     'Miscellaneous'),
+    (
+        'index',
+        'shadeReleaseNotes',
+        'shade Release Notes Documentation',
+        'shade Developers',
+        'shadeReleaseNotes',
+        'A client library for interacting with OpenStack clouds',
+        'Miscellaneous',
+    ),
 ]
 
 # Documents to append as an appendix to all manuals.

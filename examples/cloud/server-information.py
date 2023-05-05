@@ -11,14 +11,18 @@
 # under the License.
 
 import openstack
+
 openstack.enable_logging(debug=True)
 
 cloud = openstack.connect(cloud='my-citycloud', region_name='Buf1')
 try:
     server = cloud.create_server(
-        'my-server', image='Ubuntu 16.04 Xenial Xerus',
+        'my-server',
+        image='Ubuntu 16.04 Xenial Xerus',
         flavor=dict(id='0dab10b5-42a2-438e-be7b-505741a7ffcc'),
-        wait=True, auto_ip=True)
+        wait=True,
+        auto_ip=True,
+    )
 
     print("\n\nFull Server\n\n")
     cloud.pprint(server)

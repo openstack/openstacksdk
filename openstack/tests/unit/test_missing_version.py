@@ -18,18 +18,20 @@ from openstack.tests.unit import base
 
 
 class TestMissingVersion(base.TestCase):
-
     def setUp(self):
         super(TestMissingVersion, self).setUp()
         self.os_fixture.clear_tokens()
         svc = self.os_fixture.v3_token.add_service('image')
         svc.add_endpoint(
             url='https://example.com/image/',
-            region='RegionOne', interface='public')
+            region='RegionOne',
+            interface='public',
+        )
         self.use_keystone_v3()
         self.use_glance(
             image_version_json='bad-glance-version.json',
-            image_discovery_url='https://example.com/image/')
+            image_discovery_url='https://example.com/image/',
+        )
 
     def test_unsupported_version(self):
 

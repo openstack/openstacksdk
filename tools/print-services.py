@@ -42,16 +42,16 @@ def make_names():
         if desc_class.__module__ != 'openstack.service_description':
             base_mod, dm = desc_class.__module__.rsplit('.', 1)
             imports.append(
-                'from {base_mod} import {dm}'.format(
-                    base_mod=base_mod,
-                    dm=dm))
+                'from {base_mod} import {dm}'.format(base_mod=base_mod, dm=dm)
+            )
         else:
             dm = 'service_description'
 
         dc = desc_class.__name__
         services.append(
             "{st} = {dm}.{dc}(service_type='{service_type}')".format(
-                st=st, dm=dm, dc=dc, service_type=service_type),
+                st=st, dm=dm, dc=dc, service_type=service_type
+            ),
         )
 
         # Register the descriptor class with every known alias. Don't
@@ -63,9 +63,8 @@ def make_names():
             if alias_name[-1].isdigit():
                 continue
             services.append(
-                '{alias_name} = {st}'.format(
-                    alias_name=alias_name,
-                    st=st))
+                '{alias_name} = {st}'.format(alias_name=alias_name, st=st)
+            )
         services.append('')
     print("# Generated file, to change, run tools/print-services.py")
     for imp in sorted(imports):

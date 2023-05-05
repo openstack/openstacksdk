@@ -21,7 +21,6 @@ from openstack.tests.unit.test_resource import FakeResponse
 
 
 class TestTagMixin(base.TestCase):
-
     def setUp(self):
         super(TestTagMixin, self).setUp()
 
@@ -94,10 +93,7 @@ class TestTagMixin(base.TestCase):
         # Check the passed resource is returned
         self.assertEqual(res, result)
         url = self.base_path + '/' + res.id + '/tags'
-        sess.put.assert_called_once_with(
-            url,
-            json={'tags': ['blue', 'green']}
-        )
+        sess.put.assert_called_once_with(url, json={'tags': ['blue', 'green']})
 
     def test_remove_all_tags(self):
         res = self.sot

@@ -47,7 +47,9 @@ class TestCase(base.BaseTestCase):
             test_timeout = int(test_timeout * self.TIMEOUT_SCALING_FACTOR)
             self.useFixture(
                 fixtures.EnvironmentVariable(
-                    'OS_TEST_TIMEOUT', str(test_timeout)))
+                    'OS_TEST_TIMEOUT', str(test_timeout)
+                )
+            )
         except ValueError:
             # Let oslotest do its thing
             pass
@@ -90,7 +92,8 @@ class TestCase(base.BaseTestCase):
         if isinstance(second, utils.Munch):
             second = second.toDict()
         return super(TestCase, self).assertEqual(
-            first, second, *args, **kwargs)
+            first, second, *args, **kwargs
+        )
 
     def printLogs(self, *args):
         self._log_stream.seek(0)
@@ -104,16 +107,18 @@ class TestCase(base.BaseTestCase):
                 if not x:
                     break
                 yield x.encode('utf8')
+
         content = testtools.content.content_from_reader(
-            reader,
-            testtools.content_type.UTF8_TEXT,
-            False)
+            reader, testtools.content_type.UTF8_TEXT, False
+        )
         self.addDetail('logging', content)
 
     def add_info_on_exception(self, name, text):
         def add_content(unused):
-            self.addDetail(name, testtools.content.text_content(
-                pprint.pformat(text)))
+            self.addDetail(
+                name, testtools.content.text_content(pprint.pformat(text))
+            )
+
         self.addOnException(add_content)
 
     def assertSubdict(self, part, whole):
@@ -124,11 +129,18 @@ class TestCase(base.BaseTestCase):
             if not whole[key] and part[key]:
                 missing_keys.append(key)
         if missing_keys:
-            self.fail("Keys %s are in %s but not in %s" %
-                      (missing_keys, part, whole))
-        wrong_values = [(key, part[key], whole[key])
-                        for key in part if part[key] != whole[key]]
+            self.fail(
+                "Keys %s are in %s but not in %s" % (missing_keys, part, whole)
+            )
+        wrong_values = [
+            (key, part[key], whole[key])
+            for key in part
+            if part[key] != whole[key]
+        ]
         if wrong_values:
-            self.fail("Mismatched values: %s" %
-                      ", ".join("for %s got %s and %s" % tpl
-                                for tpl in wrong_values))
+            self.fail(
+                "Mismatched values: %s"
+                % ", ".join(
+                    "for %s got %s and %s" % tpl for tpl in wrong_values
+                )
+            )

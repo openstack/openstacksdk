@@ -26,6 +26,6 @@ def list_secrets_query(conn):
     print("List Secrets:")
 
     for secret in conn.key_manager.secrets(
-            secret_type="symmetric",
-            expiration="gte:2020-01-01T00:00:00"):
+        secret_type="symmetric", expiration="gte:2020-01-01T00:00:00"
+    ):
         print(secret)

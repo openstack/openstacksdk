@@ -31,8 +31,10 @@ def get_share_instance(conn, share_instance_id):
 
 
 def reset_share_instance_status(conn, share_instance_id, status):
-    print('Reset the status of the share instance with the given '
-          'share_instance_id to the given status')
+    print(
+        'Reset the status of the share instance with the given '
+        'share_instance_id to the given status'
+    )
     conn.share.reset_share_instance_status(share_instance_id, status)
 
 

@@ -23,13 +23,15 @@ from openstack.tests.unit import base
 
 
 class TestFromConf(base.TestCase):
-
     def _get_conn(self, **from_conf_kwargs):
         oslocfg = self._load_ks_cfg_opts()
         # Throw name in here to prove **kwargs is working
         config = cloud_region.from_conf(
-            oslocfg, session=self.cloud.session, name='from_conf.example.com',
-            **from_conf_kwargs)
+            oslocfg,
+            session=self.cloud.session,
+            name='from_conf.example.com',
+            **from_conf_kwargs
+        )
         self.assertEqual('from_conf.example.com', config.name)
 
         return connection.Connection(config=config, strict_proxies=True)
@@ -41,33 +43,48 @@ class TestFromConf(base.TestCase):
         discovery = {
             "versions": {
                 "values": [
-                    {"status": "stable",
-                     "updated": "2019-06-01T00:00:00Z",
-                     "media-types": [{
-                         "base": "application/json",
-                         "type": "application/vnd.openstack.heat-v2+json"}],
-                     "id": "v2.0",
-                     "links": [{
-                         "href": "https://example.org:8888/heat/v2",
-                         "rel": "self"}]
-                     }]
+                    {
+                        "status": "stable",
+                        "updated": "2019-06-01T00:00:00Z",
+                        "media-types": [
+                            {
+                                "base": "application/json",
+                                "type": "application/vnd.openstack.heat-v2+json",  # noqa: E501
+                            }
+                        ],
+                        "id": "v2.0",
+                        "links": [
+                            {
+                                "href": "https://example.org:8888/heat/v2",
+                                "rel": "self",
+                            }
+                        ],
+                    }
+                ]
             }
         }
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://example.org:8888/heat/v2',
-                 json=discovery),
-            dict(method='GET',
-                 uri='https://example.org:8888/heat/v2/foo',
-                 json={'foo': {}}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://example.org:8888/heat/v2',
+                    json=discovery,
+                ),
+                dict(
+                    method='GET',
+                    uri='https://example.org:8888/heat/v2/foo',
+                    json={'foo': {}},
+                ),
+            ]
+        )
 
         adap = conn.orchestration
         self.assertEqual('SpecialRegion', adap.region_name)
         self.assertEqual('orchestration', adap.service_type)
         self.assertEqual('internal', adap.interface)
-        self.assertEqual('https://example.org:8888/heat/v2',
-                         adap.endpoint_override)
+        self.assertEqual(
+            'https://example.org:8888/heat/v2', adap.endpoint_override
+        )
 
         adap.get('/foo')
         self.assert_calls()
@@ -80,13 +97,18 @@ class TestFromConf(base.TestCase):
         server_name = self.getUniqueString('name')
         fake_server = fakes.make_fake_server(server_id, server_name)
 
-        self.register_uris([
-            self.get_nova_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': [fake_server]}),
-        ])
+        self.register_uris(
+            [
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'detail']
+                    ),
+                    json={'servers': [fake_server]},
+                ),
+            ]
+        )
 
         # Nova has empty adapter config, so these default
         adap = conn.compute
@@ -108,20 +130,27 @@ class TestFromConf(base.TestCase):
         server_name = self.getUniqueString('name')
         fake_server = fakes.make_fake_server(server_id, server_name)
 
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://compute.example.com/v2.1/',
-                 exc=requests.exceptions.ConnectionError),
-            self.get_nova_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': [fake_server]}),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://compute.example.com/v2.1/',
+                    exc=requests.exceptions.ConnectionError,
+                ),
+                self.get_nova_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute', 'public', append=['servers', 'detail']
+                    ),
+                    json={'servers': [fake_server]},
+                ),
+            ]
+        )
 
         self.assertRaises(
-            exceptions.ServiceDiscoveryException,
-            getattr, conn, 'compute')
+            exceptions.ServiceDiscoveryException, getattr, conn, 'compute'
+        )
 
         # Nova has empty adapter config, so these default
         adap = conn.compute
@@ -141,31 +170,41 @@ class TestFromConf(base.TestCase):
         discovery = {
             "versions": {
                 "values": [
-                    {"status": "stable",
-                     "id": "v1",
-                     "links": [{
-                         "href": "https://example.org:5050/v1",
-                         "rel": "self"}]
-                     }]
+                    {
+                        "status": "stable",
+                        "id": "v1",
+                        "links": [
+                            {
+                                "href": "https://example.org:5050/v1",
+                                "rel": "self",
+                            }
+                        ],
+                    }
+                ]
             }
         }
-        status = {
-            'finished': True,
-            'error': None
-        }
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://example.org:5050',
-                 json=discovery),
-            # strict-proxies means we're going to fetch the discovery
-            # doc from the versioned endpoint to verify it works.
-            dict(method='GET',
-                 uri='https://example.org:5050/v1',
-                 json=discovery),
-            dict(method='GET',
-                 uri='https://example.org:5050/v1/introspection/abcd',
-                 json=status),
-        ])
+        status = {'finished': True, 'error': None}
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://example.org:5050',
+                    json=discovery,
+                ),
+                # strict-proxies means we're going to fetch the discovery
+                # doc from the versioned endpoint to verify it works.
+                dict(
+                    method='GET',
+                    uri='https://example.org:5050/v1',
+                    json=discovery,
+                ),
+                dict(
+                    method='GET',
+                    uri='https://example.org:5050/v1/introspection/abcd',
+                    json=status,
+                ),
+            ]
+        )
 
         adap = conn.baremetal_introspection
         self.assertEqual('baremetal-introspection', adap.service_type)
@@ -180,38 +219,53 @@ class TestFromConf(base.TestCase):
         discovery = {
             "versions": {
                 "values": [
-                    {"status": "stable",
-                     "id": "v1",
-                     "links": [{
-                         "href": "https://example.org:5050/v1",
-                         "rel": "self"}]
-                     }]
+                    {
+                        "status": "stable",
+                        "id": "v1",
+                        "links": [
+                            {
+                                "href": "https://example.org:5050/v1",
+                                "rel": "self",
+                            }
+                        ],
+                    }
+                ]
             }
         }
-        status = {
-            'finished': True,
-            'error': None
-        }
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://example.org:5050',
-                 exc=requests.exceptions.ConnectTimeout),
-            dict(method='GET',
-                 uri='https://example.org:5050',
-                 json=discovery),
-            # strict-proxies means we're going to fetch the discovery
-            # doc from the versioned endpoint to verify it works.
-            dict(method='GET',
-                 uri='https://example.org:5050/v1',
-                 json=discovery),
-            dict(method='GET',
-                 uri='https://example.org:5050/v1/introspection/abcd',
-                 json=status),
-        ])
+        status = {'finished': True, 'error': None}
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri='https://example.org:5050',
+                    exc=requests.exceptions.ConnectTimeout,
+                ),
+                dict(
+                    method='GET',
+                    uri='https://example.org:5050',
+                    json=discovery,
+                ),
+                # strict-proxies means we're going to fetch the discovery
+                # doc from the versioned endpoint to verify it works.
+                dict(
+                    method='GET',
+                    uri='https://example.org:5050/v1',
+                    json=discovery,
+                ),
+                dict(
+                    method='GET',
+                    uri='https://example.org:5050/v1/introspection/abcd',
+                    json=status,
+                ),
+            ]
+        )
 
         self.assertRaises(
             exceptions.ServiceDiscoveryException,
-            getattr, conn, 'baremetal_introspection')
+            getattr,
+            conn,
+            'baremetal_introspection',
+        )
 
         adap = conn.baremetal_introspection
         self.assertEqual('baremetal-introspection', adap.service_type)
@@ -220,16 +274,21 @@ class TestFromConf(base.TestCase):
 
         self.assertTrue(adap.get_introspection('abcd').is_finished)
 
-    def assert_service_disabled(self, service_type, expected_reason,
-                                **from_conf_kwargs):
+    def assert_service_disabled(
+        self, service_type, expected_reason, **from_conf_kwargs
+    ):
         conn = self._get_conn(**from_conf_kwargs)
         # The _ServiceDisabledProxyShim loads up okay...
         adap = getattr(conn, service_type)
         # ...but freaks out if you try to use it.
         ex = self.assertRaises(
-            exceptions.ServiceDisabledException, getattr, adap, 'get')
-        self.assertIn("Service '%s' is disabled because its configuration "
-                      "could not be loaded." % service_type, ex.message)
+            exceptions.ServiceDisabledException, getattr, adap, 'get'
+        )
+        self.assertIn(
+            "Service '%s' is disabled because its configuration "
+            "could not be loaded." % service_type,
+            ex.message,
+        )
         self.assertIn(expected_reason, ex.message)
 
     def test_no_such_conf_section(self):
@@ -238,15 +297,18 @@ class TestFromConf(base.TestCase):
         self.assert_service_disabled(
             'orchestration',
             "No section for project 'heat' (service type 'orchestration') was "
-            "present in the config.")
+            "present in the config.",
+        )
 
     def test_no_such_conf_section_ignore_service_type(self):
         """Ignore absent conf section if service type not requested."""
         del self.oslo_config_dict['heat']
         self.assert_service_disabled(
-            'orchestration', "Not in the list of requested service_types.",
+            'orchestration',
+            "Not in the list of requested service_types.",
             # 'orchestration' absent from this list
-            service_types=['compute'])
+            service_types=['compute'],
+        )
 
     def test_no_adapter_opts(self):
         """Conf section present, but opts for service type not registered."""
@@ -254,15 +316,18 @@ class TestFromConf(base.TestCase):
         self.assert_service_disabled(
             'orchestration',
             "Encountered an exception attempting to process config for "
-            "project 'heat' (service type 'orchestration'): no such option")
+            "project 'heat' (service type 'orchestration'): no such option",
+        )
 
     def test_no_adapter_opts_ignore_service_type(self):
         """Ignore unregistered conf section if service type not requested."""
         self.oslo_config_dict['heat'] = None
         self.assert_service_disabled(
-            'orchestration', "Not in the list of requested service_types.",
+            'orchestration',
+            "Not in the list of requested service_types.",
             # 'orchestration' absent from this list
-            service_types=['compute'])
+            service_types=['compute'],
+        )
 
     def test_invalid_adapter_opts(self):
         """Adapter opts are bogus, in exception-raising ways."""
@@ -274,24 +339,31 @@ class TestFromConf(base.TestCase):
             'orchestration',
             "Encountered an exception attempting to process config for "
             "project 'heat' (service type 'orchestration'): interface and "
-            "valid_interfaces are mutually exclusive.")
+            "valid_interfaces are mutually exclusive.",
+        )
 
     def test_no_session(self):
         # TODO(efried): Currently calling without a Session is not implemented.
-        self.assertRaises(exceptions.ConfigException,
-                          cloud_region.from_conf, self._load_ks_cfg_opts())
+        self.assertRaises(
+            exceptions.ConfigException,
+            cloud_region.from_conf,
+            self._load_ks_cfg_opts(),
+        )
 
     def test_no_endpoint(self):
         """Conf contains adapter opts, but service type not in catalog."""
         self.os_fixture.v3_token.remove_service('monitoring')
         conn = self._get_conn()
         # Monasca is not in the service catalog
-        self.assertRaises(ks_exc.catalog.EndpointNotFound,
-                          getattr, conn, 'monitoring')
+        self.assertRaises(
+            ks_exc.catalog.EndpointNotFound, getattr, conn, 'monitoring'
+        )
 
     def test_no_endpoint_ignore_service_type(self):
         """Bogus service type disabled if not in requested service_types."""
         self.assert_service_disabled(
-            'monitoring', "Not in the list of requested service_types.",
+            'monitoring',
+            "Not in the list of requested service_types.",
             # 'monitoring' absent from this list
-            service_types={'compute', 'orchestration', 'bogus'})
+            service_types={'compute', 'orchestration', 'bogus'},
+        )

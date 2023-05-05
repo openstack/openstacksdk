@@ -46,19 +46,23 @@ CACHE_PATH = APPDIRS.user_cache_dir
 # see https://snapcraft.io/docs/environment-variables
 SNAP_REAL_HOME = os.getenv('SNAP_REAL_HOME')
 if SNAP_REAL_HOME:
-    UNIX_CONFIG_HOME = os.path.join(os.path.join(SNAP_REAL_HOME, '.config'),
-                                    'openstack')
+    UNIX_CONFIG_HOME = os.path.join(
+        os.path.join(SNAP_REAL_HOME, '.config'), 'openstack'
+    )
 else:
     UNIX_CONFIG_HOME = os.path.join(
-        os.path.expanduser(os.path.join('~', '.config')), 'openstack')
+        os.path.expanduser(os.path.join('~', '.config')), 'openstack'
+    )
 UNIX_SITE_CONFIG_HOME = '/etc/openstack'
 
 SITE_CONFIG_HOME = APPDIRS.site_config_dir
 
 CONFIG_SEARCH_PATH = [
     os.getcwd(),
-    CONFIG_HOME, UNIX_CONFIG_HOME,
-    SITE_CONFIG_HOME, UNIX_SITE_CONFIG_HOME
+    CONFIG_HOME,
+    UNIX_CONFIG_HOME,
+    SITE_CONFIG_HOME,
+    UNIX_SITE_CONFIG_HOME,
 ]
 YAML_SUFFIXES = ('.yaml', '.yml')
 JSON_SUFFIXES = ('.json',)
@@ -134,8 +138,8 @@ def _fix_argv(argv):
             "The following options were given: '{options}' which contain"
             " duplicates except that one has _ and one has -. There is"
             " no sane way for us to know what you're doing. Remove the"
-            " duplicate option and try again".format(
-                options=','.join(overlap)))
+            " duplicate option and try again".format(options=','.join(overlap))
+        )
 
 
 class OpenStackConfig:
@@ -146,14 +150,25 @@ class OpenStackConfig:
     _cloud_region_class = cloud_region.CloudRegion
     _defaults_module = defaults
 
-    def __init__(self, config_files=None, vendor_files=None,
-                 override_defaults=None, force_ipv4=None,
-                 envvar_prefix=None, secure_files=None,
-                 pw_func=None, session_constructor=None,
-                 app_name=None, app_version=None,
-                 load_yaml_config=True, load_envvars=True,
-                 statsd_host=None, statsd_port=None,
-                 statsd_prefix=None, influxdb_config=None):
+    def __init__(
+        self,
+        config_files=None,
+        vendor_files=None,
+        override_defaults=None,
+        force_ipv4=None,
+        envvar_prefix=None,
+        secure_files=None,
+        pw_func=None,
+        session_constructor=None,
+        app_name=None,
+        app_version=None,
+        load_yaml_config=True,
+        load_envvars=True,
+        statsd_host=None,
+        statsd_port=None,
+        statsd_prefix=None,
+        influxdb_config=None,
+    ):
         self.log = _log.setup_logging('openstack.config')
         self._session_constructor = session_constructor
         self._app_name = app_name
@@ -196,7 +211,8 @@ class OpenStackConfig:
         _, secure_config = self._load_secure_file()
         if secure_config:
             self.cloud_config = _util.merge_clouds(
-                self.cloud_config, secure_config)
+                self.cloud_config, secure_config
+            )
 
         if not self.cloud_config:
             self.cloud_config = {'clouds': {}}
@@ -217,14 +233,20 @@ class OpenStackConfig:
             # Get the backwards compat value
             prefer_ipv6 = get_boolean(
                 self._get_envvar(
-                    'OS_PREFER_IPV6', client_config.get(
-                        'prefer_ipv6', client_config.get(
-                            'prefer-ipv6', True))))
+                    'OS_PREFER_IPV6',
+                    client_config.get(
+                        'prefer_ipv6', client_config.get('prefer-ipv6', True)
+                    ),
+                )
+            )
             force_ipv4 = get_boolean(
                 self._get_envvar(
-                    'OS_FORCE_IPV4', client_config.get(
-                        'force_ipv4', client_config.get(
-                            'broken-ipv6', False))))
+                    'OS_FORCE_IPV4',
+                    client_config.get(
+                        'force_ipv4', client_config.get('broken-ipv6', False)
+                    ),
+                )
+            )
 
             self.force_ipv4 = force_ipv4
             if not prefer_ipv6:
@@ -239,8 +261,10 @@ class OpenStackConfig:
                 '"{0}" defines a cloud named "{1}", but'
                 ' OS_CLOUD_NAME is also set to "{1}". Please rename'
                 ' either your environment based cloud, or one of your'
-                ' file-based clouds.'.format(self.config_filename,
-                                             self.envvar_key))
+                ' file-based clouds.'.format(
+                    self.config_filename, self.envvar_key
+                )
+            )
 
         self.default_cloud = self._get_envvar('OS_CLOUD')
 
@@ -259,15 +283,15 @@ class OpenStackConfig:
                 # clouds.yaml.
                 # The next/iter thing is for python3 compat where dict.keys
                 # returns an iterator but in python2 it's a list.
-                self.default_cloud = next(iter(
-                    self.cloud_config['clouds'].keys()))
+                self.default_cloud = next(
+                    iter(self.cloud_config['clouds'].keys())
+                )
 
         # Finally, fall through and make a cloud that starts with defaults
         # because we need somewhere to put arguments, and there are neither
         # config files or env vars
         if not self.cloud_config['clouds']:
-            self.cloud_config = dict(
-                clouds=dict(defaults=dict(self.defaults)))
+            self.cloud_config = dict(clouds=dict(defaults=dict(self.defaults)))
             self.default_cloud = 'defaults'
 
         self._cache_auth = False
@@ -281,13 +305,15 @@ class OpenStackConfig:
             cache_settings = _util.normalize_keys(self.cloud_config['cache'])
 
             self._cache_auth = get_boolean(
-                cache_settings.get('auth', self._cache_auth))
+                cache_settings.get('auth', self._cache_auth)
+            )
 
             # expiration_time used to be 'max_age' but the dogpile setting
             # is expiration_time. Support max_age for backwards compat.
             self._cache_expiration_time = cache_settings.get(
-                'expiration_time', cache_settings.get(
-                    'max_age', self._cache_expiration_time))
+                'expiration_time',
+                cache_settings.get('max_age', self._cache_expiration_time),
+            )
 
             # If cache class is given, use that. If not, but if cache time
             # is given, default to memory. Otherwise, default to nothing.
@@ -295,14 +321,18 @@ class OpenStackConfig:
             if self._cache_expiration_time:
                 self._cache_class = 'dogpile.cache.memory'
             self._cache_class = self.cloud_config['cache'].get(
-                'class', self._cache_class)
+                'class', self._cache_class
+            )
 
             self._cache_path = os.path.expanduser(
-                cache_settings.get('path', self._cache_path))
+                cache_settings.get('path', self._cache_path)
+            )
             self._cache_arguments = cache_settings.get(
-                'arguments', self._cache_arguments)
+                'arguments', self._cache_arguments
+            )
             self._cache_expirations = cache_settings.get(
-                'expiration', self._cache_expirations)
+                'expiration', self._cache_expirations
+            )
 
         if load_yaml_config:
             metrics_config = self.cloud_config.get('metrics', {})
@@ -326,12 +356,21 @@ class OpenStackConfig:
                     use_udp = use_udp.lower() in ('true', 'yes', '1')
                 elif not isinstance(use_udp, bool):
                     use_udp = False
-                    self.log.warning('InfluxDB.use_udp value type is not '
-                                     'supported. Use one of '
-                                     '[true|false|yes|no|1|0]')
+                    self.log.warning(
+                        'InfluxDB.use_udp value type is not '
+                        'supported. Use one of '
+                        '[true|false|yes|no|1|0]'
+                    )
                 config['use_udp'] = use_udp
-            for key in ['host', 'port', 'username', 'password', 'database',
-                        'measurement', 'timeout']:
+            for key in [
+                'host',
+                'port',
+                'username',
+                'password',
+                'database',
+                'measurement',
+                'timeout',
+            ]:
                 if key in influxdb_config:
                     config[key] = influxdb_config[key]
             self._influxdb_config = config
@@ -357,20 +396,28 @@ class OpenStackConfig:
         if not envvar_prefix:
             # This makes the or below be OS_ or OS_ which is a no-op
             envvar_prefix = 'OS_'
-        environkeys = [k for k in os.environ.keys()
-                       if (k.startswith('OS_') or k.startswith(envvar_prefix))
-                       and not k.startswith('OS_TEST')  # infra CI var
-                       and not k.startswith('OS_STD')   # oslotest var
-                       and not k.startswith('OS_LOG')   # oslotest var
-                       ]
+        environkeys = [
+            k
+            for k in os.environ.keys()
+            if (k.startswith('OS_') or k.startswith(envvar_prefix))
+            and not k.startswith('OS_TEST')  # infra CI var
+            and not k.startswith('OS_STD')  # oslotest var
+            and not k.startswith('OS_LOG')  # oslotest var
+        ]
         for k in environkeys:
             newkey = k.split('_', 1)[-1].lower()
             ret[newkey] = os.environ[k]
         # If the only environ keys are selectors or behavior modification,
         # don't return anything
-        selectors = set([
-            'OS_CLOUD', 'OS_REGION_NAME',
-            'OS_CLIENT_CONFIG_FILE', 'OS_CLIENT_SECURE_FILE', 'OS_CLOUD_NAME'])
+        selectors = set(
+            [
+                'OS_CLOUD',
+                'OS_REGION_NAME',
+                'OS_CLIENT_CONFIG_FILE',
+                'OS_CLIENT_SECURE_FILE',
+                'OS_CLOUD_NAME',
+            ]
+        )
         if set(environkeys) - selectors:
             return ret
         return None
@@ -391,8 +438,8 @@ class OpenStackConfig:
         if not key:
             return defaults
         return _util.merge_clouds(
-            defaults,
-            _util.normalize_keys(self.cloud_config.get(key, {})))
+            defaults, _util.normalize_keys(self.cloud_config.get(key, {}))
+        )
 
     def _load_config_file(self):
         return self._load_yaml_json_file(self._config_files)
@@ -427,10 +474,12 @@ class OpenStackConfig:
         for region in regions:
             if isinstance(region, dict):
                 # i.e. must have name key, and only name,values keys
-                if 'name' not in region or \
-                   not {'name', 'values'} >= set(region):
+                if 'name' not in region or not {'name', 'values'} >= set(
+                    region
+                ):
                     raise exceptions.ConfigException(
-                        'Invalid region entry at: %s' % region)
+                        'Invalid region entry at: %s' % region
+                    )
                 if 'values' not in region:
                     region['values'] = {}
                 ret.append(copy.deepcopy(region))
@@ -460,7 +509,8 @@ class OpenStackConfig:
                 warnings.warn(
                     "Comma separated lists in region_name are deprecated."
                     " Please use a yaml list in the regions"
-                    " parameter in {0} instead.".format(self.config_filename))
+                    " parameter in {0} instead.".format(self.config_filename)
+                )
             return self._expand_regions(regions)
         else:
             # crappit. we don't have a region defined.
@@ -495,7 +545,9 @@ class OpenStackConfig:
             ' region names are case sensitive.'.format(
                 region_name=region_name,
                 region_list=','.join([r['name'] for r in regions]),
-                cloud=cloud))
+                cloud=cloud,
+            )
+        )
 
     def get_cloud_names(self):
         return self.cloud_config['clouds'].keys()
@@ -506,8 +558,8 @@ class OpenStackConfig:
         # Only validate cloud name if one was given
         if name and name not in self.cloud_config['clouds']:
             raise exceptions.ConfigException(
-                "Cloud {name} was not found.".format(
-                    name=name))
+                "Cloud {name} was not found.".format(name=name)
+            )
 
         our_cloud = self.cloud_config['clouds'].get(name, dict())
         if profile:
@@ -536,11 +588,15 @@ class OpenStackConfig:
             warnings.warn(
                 "{0} uses the keyword 'cloud' to reference a known "
                 "vendor profile. This has been deprecated in favor of the "
-                "'profile' keyword.".format(self.config_filename))
+                "'profile' keyword.".format(self.config_filename)
+            )
 
         vendor_filename, vendor_file = self._load_vendor_file()
-        if (vendor_file and 'public-clouds' in vendor_file
-                and profile_name in vendor_file['public-clouds']):
+        if (
+            vendor_file
+            and 'public-clouds' in vendor_file
+            and profile_name in vendor_file['public-clouds']
+        ):
             _auth_update(cloud, vendor_file['public-clouds'][profile_name])
         else:
             profile_data = vendors.get_profile(profile_name)
@@ -555,23 +611,31 @@ class OpenStackConfig:
                 if status == 'deprecated':
                     warnings.warn(
                         "{profile_name} is deprecated: {message}".format(
-                            profile_name=profile_name, message=message))
+                            profile_name=profile_name, message=message
+                        )
+                    )
                 elif status == 'shutdown':
                     raise exceptions.ConfigException(
                         "{profile_name} references a cloud that no longer"
                         " exists: {message}".format(
-                            profile_name=profile_name, message=message))
+                            profile_name=profile_name, message=message
+                        )
+                    )
                 _auth_update(cloud, profile_data)
             else:
                 # Can't find the requested vendor config, go about business
-                warnings.warn("Couldn't find the vendor profile '{0}', for"
-                              " the cloud '{1}'".format(profile_name,
-                                                        name))
+                warnings.warn(
+                    "Couldn't find the vendor profile '{0}', for"
+                    " the cloud '{1}'".format(profile_name, name)
+                )
 
     def _project_scoped(self, cloud):
-        return ('project_id' in cloud or 'project_name' in cloud
-                or 'project_id' in cloud['auth']
-                or 'project_name' in cloud['auth'])
+        return (
+            'project_id' in cloud
+            or 'project_name' in cloud
+            or 'project_id' in cloud['auth']
+            or 'project_name' in cloud['auth']
+        )
 
     def _validate_networks(self, networks, key):
         value = None
@@ -580,9 +644,9 @@ class OpenStackConfig:
                 raise exceptions.ConfigException(
                     "Duplicate network entries for {key}: {net1} and {net2}."
                     " Only one network can be flagged with {key}".format(
-                        key=key,
-                        net1=value['name'],
-                        net2=net['name']))
+                        key=key, net1=value['name'], net2=net['name']
+                    )
+                )
             if not value and net[key]:
                 value = net
 
@@ -595,7 +659,8 @@ class OpenStackConfig:
             name = net.get('name')
             if not name:
                 raise exceptions.ConfigException(
-                    'Entry in network list is missing required field "name".')
+                    'Entry in network list is missing required field "name".'
+                )
             network = dict(
                 name=name,
                 routes_externally=get_boolean(net.get('routes_externally')),
@@ -605,12 +670,12 @@ class OpenStackConfig:
             )
             # routes_ipv4_externally defaults to the value of routes_externally
             network['routes_ipv4_externally'] = get_boolean(
-                net.get(
-                    'routes_ipv4_externally', network['routes_externally']))
+                net.get('routes_ipv4_externally', network['routes_externally'])
+            )
             # routes_ipv6_externally defaults to the value of routes_externally
             network['routes_ipv6_externally'] = get_boolean(
-                net.get(
-                    'routes_ipv6_externally', network['routes_externally']))
+                net.get('routes_ipv6_externally', network['routes_externally'])
+            )
             networks.append(network)
 
         for key in ('external_network', 'internal_network'):
@@ -619,18 +684,24 @@ class OpenStackConfig:
                 raise exceptions.ConfigException(
                     "Both {key} and networks were specified in the config."
                     " Please remove {key} from the config and use the network"
-                    " list to configure network behavior.".format(key=key))
+                    " list to configure network behavior.".format(key=key)
+                )
             if key in cloud:
                 warnings.warn(
                     "{key} is deprecated. Please replace with an entry in"
                     " a dict inside of the networks list with name: {name}"
                     " and routes_externally: {external}".format(
-                        key=key, name=cloud[key], external=external))
-                networks.append(dict(
-                    name=cloud[key],
-                    routes_externally=external,
-                    nat_destination=not external,
-                    default_interface=external))
+                        key=key, name=cloud[key], external=external
+                    )
+                )
+                networks.append(
+                    dict(
+                        name=cloud[key],
+                        routes_externally=external,
+                        nat_destination=not external,
+                        default_interface=external,
+                    )
+                )
 
         # Validate that we don't have duplicates
         self._validate_networks(networks, 'nat_destination')
@@ -668,7 +739,9 @@ class OpenStackConfig:
             'user_domain_name': ('user_domain_name', 'user-domain-name'),
             'project_domain_id': ('project_domain_id', 'project-domain-id'),
             'project_domain_name': (
-                'project_domain_name', 'project-domain-name'),
+                'project_domain_name',
+                'project-domain-name',
+            ),
             'token': ('auth-token', 'auth_token', 'token'),
         }
         if cloud.get('auth_type', None) == 'v2password':
@@ -676,14 +749,30 @@ class OpenStackConfig:
             # clouds. That's fine - we need to map settings in the opposite
             # direction
             mappings['tenant_id'] = (
-                'project_id', 'project-id', 'tenant_id', 'tenant-id')
+                'project_id',
+                'project-id',
+                'tenant_id',
+                'tenant-id',
+            )
             mappings['tenant_name'] = (
-                'project_name', 'project-name', 'tenant_name', 'tenant-name')
+                'project_name',
+                'project-name',
+                'tenant_name',
+                'tenant-name',
+            )
         else:
             mappings['project_id'] = (
-                'tenant_id', 'tenant-id', 'project_id', 'project-id')
+                'tenant_id',
+                'tenant-id',
+                'project_id',
+                'project-id',
+            )
             mappings['project_name'] = (
-                'tenant_name', 'tenant-name', 'project_name', 'project-name')
+                'tenant_name',
+                'tenant-name',
+                'project_name',
+                'project-name',
+            )
         for target_key, possible_values in mappings.items():
             target = None
             for key in possible_values:
@@ -747,7 +836,8 @@ class OpenStackConfig:
                 '--os-cloud',
                 metavar='<name>',
                 default=self._get_envvar('OS_CLOUD', None),
-                help='Named cloud to connect to')
+                help='Named cloud to connect to',
+            )
 
         # we need to peek to see if timeout was actually passed, since
         # the keystoneauth declaration of it has a default, which means
@@ -782,7 +872,8 @@ class OpenStackConfig:
 
         try:
             loading.register_auth_argparse_arguments(
-                parser, argv, default=default_auth_type)
+                parser, argv, default=default_auth_type
+            )
         except Exception:
             # Hidiing the keystoneauth exception because we're not actually
             # loading the auth plugin at this point, so the error message
@@ -793,7 +884,9 @@ class OpenStackConfig:
                 "An invalid auth-type was specified: {auth_type}."
                 " Valid choices are: {plugin_names}.".format(
                     auth_type=options.os_auth_type,
-                    plugin_names=",".join(plugin_names)))
+                    plugin_names=",".join(plugin_names),
+                )
+            )
 
         if service_keys:
             primary_service = service_keys[0]
@@ -801,15 +894,19 @@ class OpenStackConfig:
             primary_service = None
         loading.register_session_argparse_arguments(parser)
         adapter.register_adapter_argparse_arguments(
-            parser, service_type=primary_service)
+            parser, service_type=primary_service
+        )
         for service_key in service_keys:
             # legacy clients have un-prefixed api-version options
             parser.add_argument(
                 '--{service_key}-api-version'.format(
-                    service_key=service_key.replace('_', '-')),
-                help=argparse_mod.SUPPRESS)
+                    service_key=service_key.replace('_', '-')
+                ),
+                help=argparse_mod.SUPPRESS,
+            )
             adapter.register_service_adapter_argparse_arguments(
-                parser, service_type=service_key)
+                parser, service_type=service_key
+            )
 
         # Backwards compat options for legacy clients
         parser.add_argument('--http-timeout', help=argparse_mod.SUPPRESS)
@@ -837,7 +934,8 @@ class OpenStackConfig:
         service_timeout = None
         for key in cloud.keys():
             if key.endswith('timeout') and not (
-                    key == 'timeout' or key == 'api_timeout'):
+                key == 'timeout' or key == 'api_timeout'
+            ):
                 service_timeout = cloud[key]
             else:
                 new_cloud[key] = cloud[key]
@@ -857,9 +955,11 @@ class OpenStackConfig:
         for cloud in self.get_cloud_names():
             for region in self._get_regions(cloud):
                 if region:
-                    clouds.append(self.get_one(
-                        cloud, region_name=region['name']))
+                    clouds.append(
+                        self.get_one(cloud, region_name=region['name'])
+                    )
         return clouds
+
     # TODO(mordred) Backwards compat for OSC transition
     get_all_clouds = get_all
 
@@ -904,8 +1004,9 @@ class OpenStackConfig:
         if opt_name in config:
             return config[opt_name]
         else:
-            deprecated = getattr(opt, 'deprecated', getattr(
-                opt, 'deprecated_opts', []))
+            deprecated = getattr(
+                opt, 'deprecated', getattr(opt, 'deprecated_opts', [])
+            )
             for d_opt in deprecated:
                 d_opt_name = d_opt.name.replace('-', '_')
                 if d_opt_name in config:
@@ -1027,9 +1128,9 @@ class OpenStackConfig:
     def option_prompt(self, config, p_opt):
         """Prompt user for option that requires a value"""
         if (
-                getattr(p_opt, 'prompt', None) is not None
-                and p_opt.dest not in config['auth']
-                and self._pw_callback is not None
+            getattr(p_opt, 'prompt', None) is not None
+            and p_opt.dest not in config['auth']
+            and self._pw_callback is not None
         ):
             config['auth'][p_opt.dest] = self._pw_callback(p_opt.prompt)
         return config
@@ -1046,8 +1147,7 @@ class OpenStackConfig:
             # Prefer the plugin configuration dest value if the value's key
             # is marked as depreciated.
             if p_opt.dest is None:
-                config['auth'][p_opt.name.replace('-', '_')] = (
-                    winning_value)
+                config['auth'][p_opt.name.replace('-', '_')] = winning_value
             else:
                 config['auth'][p_opt.dest] = winning_value
         return config
@@ -1056,9 +1156,11 @@ class OpenStackConfig:
         """Perform the set of magic argument fixups"""
 
         # Infer token plugin if a token was given
-        if (('auth' in config and 'token' in config['auth'])
-                or ('auth_token' in config and config['auth_token'])
-                or ('token' in config and config['token'])):
+        if (
+            ('auth' in config and 'token' in config['auth'])
+            or ('auth_token' in config and config['auth_token'])
+            or ('token' in config and config['token'])
+        ):
             config.setdefault('token', config.pop('auth_token', None))
 
         # Infer passcode if it was given separately
@@ -1094,12 +1196,12 @@ class OpenStackConfig:
         #                more generalized
         if 'auth' in config and 'auth_url' in config['auth']:
             config['auth']['auth_url'] = config['auth']['auth_url'].format(
-                **config)
+                **config
+            )
 
         return config
 
-    def get_one(
-            self, cloud=None, validate=True, argparse=None, **kwargs):
+    def get_one(self, cloud=None, validate=True, argparse=None, **kwargs):
         """Retrieve a single CloudRegion and merge additional options
 
         :param string cloud:
@@ -1217,15 +1319,12 @@ class OpenStackConfig:
             statsd_prefix=statsd_prefix,
             influxdb_config=influxdb_config,
         )
+
     # TODO(mordred) Backwards compat for OSC transition
     get_one_cloud = get_one
 
     def get_one_cloud_osc(
-        self,
-        cloud=None,
-        validate=True,
-        argparse=None,
-        **kwargs
+        self, cloud=None, validate=True, argparse=None, **kwargs
     ):
         """Retrieve a single CloudRegion and merge additional options
 
@@ -1359,10 +1458,10 @@ if __name__ == '__main__':
         if len(sys.argv) == 1:
             print_cloud = True
         elif len(sys.argv) == 3 and (
-                sys.argv[1] == cloud.name and sys.argv[2] == cloud.region):
+            sys.argv[1] == cloud.name and sys.argv[2] == cloud.region
+        ):
             print_cloud = True
-        elif len(sys.argv) == 2 and (
-                sys.argv[1] == cloud.name):
+        elif len(sys.argv) == 2 and (sys.argv[1] == cloud.name):
             print_cloud = True
 
         if print_cloud:
