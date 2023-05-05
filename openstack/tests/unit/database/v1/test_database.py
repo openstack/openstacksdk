@@ -25,7 +25,6 @@ EXAMPLE = {
 
 
 class TestDatabase(base.TestCase):
-
     def test_basic(self):
         sot = database.Database()
         self.assertEqual('database', sot.resource_key)

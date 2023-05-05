@@ -63,7 +63,9 @@ class Instance(resource.Resource):
             the login credentials.
         """
         url = utils.urljoin(self.base_path, self.id, 'root')
-        resp = session.post(url,)
+        resp = session.post(
+            url,
+        )
         return resp.json()['user']
 
     def is_root_enabled(self, session):
@@ -77,7 +79,9 @@ class Instance(resource.Resource):
             instance or ``False`` otherwise.
         """
         url = utils.urljoin(self.base_path, self.id, 'root')
-        resp = session.get(url,)
+        resp = session.get(
+            url,
+        )
         return resp.json()['rootEnabled']
 
     def restart(self, session):

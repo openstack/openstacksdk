@@ -24,7 +24,6 @@ CREATING = {
 
 
 class TestUser(base.TestCase):
-
     def test_basic(self):
         sot = user.User()
         self.assertEqual('user', sot.resource_key)

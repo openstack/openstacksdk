@@ -24,7 +24,6 @@ EXAMPLE = {
 
 
 class TestFlavor(base.TestCase):
-
     def test_basic(self):
         sot = flavor.Flavor()
         self.assertEqual('flavor', sot.resource_key)

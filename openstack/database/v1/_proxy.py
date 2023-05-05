@@ -38,8 +38,9 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.database.v1.database.Database`
         """
         instance = self._get_resource(_instance.Instance, instance)
-        return self._create(_database.Database, instance_id=instance.id,
-                            **attrs)
+        return self._create(
+            _database.Database, instance_id=instance.id, **attrs
+        )
 
     def delete_database(self, database, instance=None, ignore_missing=True):
         """Delete a database
@@ -58,10 +59,15 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        instance_id = self._get_uri_attribute(database, instance,
-                                              "instance_id")
-        self._delete(_database.Database, database, instance_id=instance_id,
-                     ignore_missing=ignore_missing)
+        instance_id = self._get_uri_attribute(
+            database, instance, "instance_id"
+        )
+        self._delete(
+            _database.Database,
+            database,
+            instance_id=instance_id,
+            ignore_missing=ignore_missing,
+        )
 
     def find_database(self, name_or_id, instance, ignore_missing=True):
         """Find a single database
@@ -77,9 +83,12 @@ class Proxy(proxy.Proxy):
         :returns: One :class:`~openstack.database.v1.database.Database` or None
         """
         instance = self._get_resource(_instance.Instance, instance)
-        return self._find(_database.Database, name_or_id,
-                          instance_id=instance.id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _database.Database,
+            name_or_id,
+            instance_id=instance.id,
+            ignore_missing=ignore_missing,
+        )
 
     def databases(self, instance, **query):
         """Return a generator of databases
@@ -124,8 +133,9 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.database.v1.flavor.Flavor` or None
         """
-        return self._find(_flavor.Flavor, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _flavor.Flavor, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_flavor(self, flavor):
         """Get a single flavor
@@ -175,8 +185,9 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        self._delete(_instance.Instance, instance,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _instance.Instance, instance, ignore_missing=ignore_missing
+        )
 
     def find_instance(self, name_or_id, ignore_missing=True):
         """Find a single instance
@@ -189,8 +200,9 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.database.v1.instance.Instance` or None
         """
-        return self._find(_instance.Instance, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _instance.Instance, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_instance(self, instance):
         """Get a single instance
@@ -262,8 +274,12 @@ class Proxy(proxy.Proxy):
         :returns: ``None``
         """
         instance = self._get_resource(_instance.Instance, instance)
-        self._delete(_user.User, user, ignore_missing=ignore_missing,
-                     instance_id=instance.id)
+        self._delete(
+            _user.User,
+            user,
+            ignore_missing=ignore_missing,
+            instance_id=instance.id,
+        )
 
     def find_user(self, name_or_id, instance, ignore_missing=True):
         """Find a single user
@@ -279,8 +295,12 @@ class Proxy(proxy.Proxy):
         :returns: One :class:`~openstack.database.v1.user.User` or None
         """
         instance = self._get_resource(_instance.Instance, instance)
-        return self._find(_user.User, name_or_id, instance_id=instance.id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _user.User,
+            name_or_id,
+            instance_id=instance.id,
+            ignore_missing=ignore_missing,
+        )
 
     def users(self, instance, **query):
         """Return a generator of users

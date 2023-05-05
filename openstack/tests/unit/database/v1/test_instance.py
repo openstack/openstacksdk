@@ -32,7 +32,6 @@ EXAMPLE = {
 
 
 class TestInstance(base.TestCase):
-
     def test_basic(self):
         sot = instance.Instance()
         self.assertEqual('instance', sot.resource_key)
@@ -68,8 +67,10 @@ class TestInstance(base.TestCase):
 
         self.assertEqual(response.body['user'], sot.enable_root_user(sess))
 
-        url = ("instances/%s/root" % IDENTIFIER)
-        sess.post.assert_called_with(url,)
+        url = "instances/%s/root" % IDENTIFIER
+        sess.post.assert_called_with(
+            url,
+        )
 
     def test_is_root_enabled(self):
         sot = instance.Instance(**EXAMPLE)
@@ -81,8 +82,10 @@ class TestInstance(base.TestCase):
 
         self.assertTrue(sot.is_root_enabled(sess))
 
-        url = ("instances/%s/root" % IDENTIFIER)
-        sess.get.assert_called_with(url,)
+        url = "instances/%s/root" % IDENTIFIER
+        sess.get.assert_called_with(
+            url,
+        )
 
     def test_action_restart(self):
         sot = instance.Instance(**EXAMPLE)
@@ -93,10 +96,9 @@ class TestInstance(base.TestCase):
 
         self.assertIsNone(sot.restart(sess))
 
-        url = ("instances/%s/action" % IDENTIFIER)
+        url = "instances/%s/action" % IDENTIFIER
         body = {'restart': {}}
-        sess.post.assert_called_with(url,
-                                     json=body)
+        sess.post.assert_called_with(url, json=body)
 
     def test_action_resize(self):
         sot = instance.Instance(**EXAMPLE)
@@ -108,10 +110,9 @@ class TestInstance(base.TestCase):
 
         self.assertIsNone(sot.resize(sess, flavor))
 
-        url = ("instances/%s/action" % IDENTIFIER)
+        url = "instances/%s/action" % IDENTIFIER
         body = {'resize': {'flavorRef': flavor}}
-        sess.post.assert_called_with(url,
-                                     json=body)
+        sess.post.assert_called_with(url, json=body)
 
     def test_action_resize_volume(self):
         sot = instance.Instance(**EXAMPLE)
@@ -123,7 +124,6 @@ class TestInstance(base.TestCase):
 
         self.assertIsNone(sot.resize_volume(sess, size))
 
-        url = ("instances/%s/action" % IDENTIFIER)
+        url = "instances/%s/action" % IDENTIFIER
         body = {'resize': {'volume': size}}
-        sess.post.assert_called_with(url,
-                                     json=body)
+        sess.post.assert_called_with(url, json=body)
