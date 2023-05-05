@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.container_infrastructure_management.v1 import (
-    cluster_certificate
+    cluster_certificate,
 )
 from openstack.container_infrastructure_management.v1 import _proxy
 from openstack.container_infrastructure_management.v1 import cluster
@@ -60,7 +60,7 @@ class TestClusterCertificate(TestMagnumProxy):
     def test_cluster_certificate_get(self):
         self.verify_get(
             self.proxy.get_cluster_certificate,
-            cluster_certificate.ClusterCertificate
+            cluster_certificate.ClusterCertificate,
         )
 
     def test_cluster_certificate_create_attrs(self):
@@ -114,7 +114,6 @@ class TestClusterTemplate(TestMagnumProxy):
 
 
 class TestService(TestMagnumProxy):
-
     def test_services(self):
         self.verify_list(
             self.proxy.services,

@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.container_infrastructure_management.v1 import (
-    cluster_certificate
+    cluster_certificate,
 )
 from openstack.tests.unit import base
 
@@ -19,7 +19,7 @@ EXAMPLE = {
     "cluster_uuid": "0b4b766f-1500-44b3-9804-5a6e12fe6df4",
     "pem": "-----BEGIN CERTIFICATE-----\nMIICzDCCAbSgAwIBAgIQOOkVcEN7TNa9E80G",
     "bay_uuid": "0b4b766f-1500-44b3-9804-5a6e12fe6df4",
-    "csr": "-----BEGIN CERTIFICATE REQUEST-----\nMIIEfzCCAmcCAQAwFDESMBAGA1UE"
+    "csr": "-----BEGIN CERTIFICATE REQUEST-----\nMIIEfzCCAmcCAQAwFDESMBAGA1UE",
 }
 
 

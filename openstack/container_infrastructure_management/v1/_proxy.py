@@ -11,16 +11,16 @@
 # under the License.
 
 from openstack.container_infrastructure_management.v1 import (
-    cluster as _cluster
+    cluster as _cluster,
 )
 from openstack.container_infrastructure_management.v1 import (
-    cluster_certificate as _cluster_cert
+    cluster_certificate as _cluster_cert,
 )
 from openstack.container_infrastructure_management.v1 import (
-    cluster_template as _cluster_template
+    cluster_template as _cluster_template,
 )
 from openstack.container_infrastructure_management.v1 import (
-    service as _service
+    service as _service,
 )
 from openstack import proxy
 
@@ -30,7 +30,7 @@ class Proxy(proxy.Proxy):
     _resource_registry = {
         "cluster": _cluster.Cluster,
         "cluster_template": _cluster_template.ClusterTemplate,
-        "service": _service.Service
+        "service": _service.Service,
     }
 
     def create_cluster(self, **attrs):

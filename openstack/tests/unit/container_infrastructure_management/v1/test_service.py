@@ -21,7 +21,7 @@ EXAMPLE = {
     "updated_at": "2016-08-25T01:13:16+00:00",
     "host": "magnum-manager",
     "disabled_reason": None,
-    "id": 1
+    "id": 1,
 }
 
 

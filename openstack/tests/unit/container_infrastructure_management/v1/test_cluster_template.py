@@ -67,12 +67,14 @@ class TestClusterTemplate(base.TestCase):
         self.assertEqual(EXAMPLE['cluster_distro'], sot.cluster_distro)
         self.assertEqual(EXAMPLE['coe'], sot.coe)
         self.assertEqual(EXAMPLE['created_at'], sot.created_at)
-        self.assertEqual(EXAMPLE['docker_storage_driver'],
-                         sot.docker_storage_driver)
+        self.assertEqual(
+            EXAMPLE['docker_storage_driver'], sot.docker_storage_driver
+        )
         self.assertEqual(EXAMPLE['docker_volume_size'], sot.docker_volume_size)
         self.assertEqual(EXAMPLE['dns_nameserver'], sot.dns_nameserver)
-        self.assertEqual(EXAMPLE['external_network_id'],
-                         sot.external_network_id)
+        self.assertEqual(
+            EXAMPLE['external_network_id'], sot.external_network_id
+        )
         self.assertEqual(EXAMPLE['fixed_network'], sot.fixed_network)
         self.assertEqual(EXAMPLE['fixed_subnet'], sot.fixed_subnet)
         self.assertEqual(EXAMPLE['flavor_id'], sot.flavor_id)
@@ -80,11 +82,13 @@ class TestClusterTemplate(base.TestCase):
         self.assertEqual(EXAMPLE['https_proxy'], sot.https_proxy)
         self.assertEqual(EXAMPLE['image_id'], sot.image_id)
         self.assertEqual(EXAMPLE['insecure_registry'], sot.insecure_registry)
-        self.assertEqual(EXAMPLE['floating_ip_enabled'],
-                         sot.is_floating_ip_enabled)
+        self.assertEqual(
+            EXAMPLE['floating_ip_enabled'], sot.is_floating_ip_enabled
+        )
         self.assertEqual(EXAMPLE['hidden'], sot.is_hidden)
-        self.assertEqual(EXAMPLE['master_lb_enabled'],
-                         sot.is_master_lb_enabled)
+        self.assertEqual(
+            EXAMPLE['master_lb_enabled'], sot.is_master_lb_enabled
+        )
         self.assertEqual(EXAMPLE['tls_disabled'], sot.is_tls_disabled)
         self.assertEqual(EXAMPLE['public'], sot.is_public)
         self.assertEqual(EXAMPLE['registry_enabled'], sot.is_registry_enabled)
