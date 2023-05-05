@@ -21,6 +21,11 @@ repos:
     rev: v1.1.1
     hooks:
       - id: doc8
+  - repo: https://github.com/psf/black
+    rev: 22.8.0
+    hooks:
+      - id: black
+        args: ['-S', '-l', '79']
   - repo: local
     hooks:
       - id: flake8
