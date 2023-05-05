@@ -16,7 +16,6 @@ from openstack.tests.functional import base
 
 
 class TestAddressScope(base.BaseFunctionalTest):
-
     ADDRESS_SCOPE_ID = None
     IS_SHARED = False
     IP_VERSION = 4

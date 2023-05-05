@@ -18,7 +18,6 @@ from openstack.tests.functional import base
 
 
 class TestRouterInterface(base.BaseFunctionalTest):
-
     CIDR = "10.100.0.0/16"
     IPV4 = 4
     ROUTER_ID = None

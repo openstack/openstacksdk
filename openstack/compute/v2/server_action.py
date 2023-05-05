@@ -14,7 +14,6 @@ from openstack import resource
 
 
 class ServerActionEvent(resource.Resource):
-
     # Added the 'details' field in 2.84
     _max_microversion = '2.84'
 

@@ -13,7 +13,6 @@ from openstack import proxy
 
 
 class Proxy(proxy.Proxy):
-
     skip_discovery = True
 
     def dummy(self):

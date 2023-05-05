@@ -24,7 +24,6 @@ from openstack.tests.unit import base
 
 
 class TestRouter(base.TestCase):
-
     router_name = 'goofy'
     router_id = '57076620-dcfb-42ed-8ad6-79ccb4a79ed2'
     subnet_id = '1f1696eb-7f47-47f6-835c-4889bff88604'

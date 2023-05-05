@@ -19,7 +19,6 @@ from openstack.tests.functional import base
 
 
 class TestNDPProxy(base.BaseFunctionalTest):
-
     IPV6 = 6
     EXT_CIDR = "2002::1:0/112"
     INT_CIDR = "2002::2:0/112"

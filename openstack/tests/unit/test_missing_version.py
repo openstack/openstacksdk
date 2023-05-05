@@ -34,7 +34,6 @@ class TestMissingVersion(base.TestCase):
         )
 
     def test_unsupported_version(self):
-
         with testtools.ExpectedException(exceptions.NotSupported):
             self.cloud.image.get('/')
 

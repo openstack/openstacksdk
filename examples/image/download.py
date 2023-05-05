@@ -38,7 +38,6 @@ def download_image_stream(conn):
         # Read only 1024 bytes of memory at a time until
         # all of the image data has been consumed.
         for chunk in response.iter_content(chunk_size=1024):
-
             # With each chunk, add it to the hash to be computed.
             md5.update(chunk)
 

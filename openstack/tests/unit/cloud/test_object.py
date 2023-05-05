@@ -375,7 +375,6 @@ class TestObject(BaseTestObject):
 
     @mock.patch('time.time', autospec=True)
     def test_generate_form_signature_container_key(self, mock_time):
-
         mock_time.return_value = 12345
 
         self.register_uris(
@@ -414,7 +413,6 @@ class TestObject(BaseTestObject):
 
     @mock.patch('time.time', autospec=True)
     def test_generate_form_signature_account_key(self, mock_time):
-
         mock_time.return_value = 12345
 
         self.register_uris(
@@ -459,7 +457,6 @@ class TestObject(BaseTestObject):
 
     @mock.patch('time.time')
     def test_generate_form_signature_key_argument(self, mock_time):
-
         mock_time.return_value = 12345
 
         self.assertEqual(
@@ -477,7 +474,6 @@ class TestObject(BaseTestObject):
         self.assert_calls()
 
     def test_generate_form_signature_no_key(self):
-
         self.register_uris(
             [
                 dict(
@@ -512,7 +508,6 @@ class TestObject(BaseTestObject):
         self.assert_calls()
 
     def test_set_account_temp_url_key(self):
-
         key = 'super-secure-key'
 
         self.register_uris(
@@ -536,7 +531,6 @@ class TestObject(BaseTestObject):
         self.assert_calls()
 
     def test_set_account_temp_url_key_secondary(self):
-
         key = 'super-secure-key'
 
         self.register_uris(
@@ -560,7 +554,6 @@ class TestObject(BaseTestObject):
         self.assert_calls()
 
     def test_set_container_temp_url_key(self):
-
         key = 'super-secure-key'
 
         self.register_uris(
@@ -584,7 +577,6 @@ class TestObject(BaseTestObject):
         self.assert_calls()
 
     def test_set_container_temp_url_key_secondary(self):
-
         key = 'super-secure-key'
 
         self.register_uris(
@@ -907,7 +899,6 @@ class TestObjectUploads(BaseTestObject):
         self.endpoint = self.cloud._object_store_client.get_endpoint()
 
     def test_create_object(self):
-
         self.register_uris(
             [
                 dict(
@@ -954,7 +945,6 @@ class TestObjectUploads(BaseTestObject):
         self.assert_calls()
 
     def test_create_object_index_rax(self):
-
         self.register_uris(
             [
                 dict(
@@ -986,7 +976,6 @@ class TestObjectUploads(BaseTestObject):
         self.assert_calls()
 
     def test_create_directory_marker_object(self):
-
         self.register_uris(
             [
                 dict(
@@ -1013,7 +1002,6 @@ class TestObjectUploads(BaseTestObject):
         self.assert_calls()
 
     def test_create_dynamic_large_object(self):
-
         max_file_size = 2
         min_file_size = 1
 
@@ -1094,7 +1082,6 @@ class TestObjectUploads(BaseTestObject):
             )
 
     def test_create_static_large_object(self):
-
         max_file_size = 25
         min_file_size = 1
 
@@ -1542,7 +1529,6 @@ class TestObjectUploads(BaseTestObject):
         self.assert_calls(stop_after=3)
 
     def test_object_segment_retry_failure(self):
-
         max_file_size = 25
         min_file_size = 1
 
@@ -1626,7 +1612,6 @@ class TestObjectUploads(BaseTestObject):
         self.assert_calls(stop_after=3)
 
     def test_object_segment_retries(self):
-
         max_file_size = 25
         min_file_size = 1
 
@@ -1773,7 +1758,6 @@ class TestObjectUploads(BaseTestObject):
         )
 
     def test_create_object_skip_checksum(self):
-
         self.register_uris(
             [
                 dict(
@@ -1816,7 +1800,6 @@ class TestObjectUploads(BaseTestObject):
         self.assert_calls()
 
     def test_create_object_data(self):
-
         self.register_uris(
             [
                 dict(

@@ -294,7 +294,6 @@ class BlockStorageCloudMixin:
         project_id = None
         error_msg = "Failed to get limits"
         if name_or_id:
-
             proj = self.get_project(name_or_id)
             if not proj:
                 raise exc.OpenStackCloudException("project does not exist")

@@ -187,7 +187,6 @@ class Stack(resource.Resource):
         skip_cache=False,
         resolve_outputs=True,
     ):
-
         if not self.allow_fetch:
             raise exceptions.MethodNotSupported(self, "fetch")
 

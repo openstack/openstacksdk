@@ -15,7 +15,6 @@ from openstack import resource
 
 
 class DeployTemplate(_common.ListMixin, resource.Resource):
-
     resources_key = 'deploy_templates'
     base_path = '/deploy_templates'
 

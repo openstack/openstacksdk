@@ -15,7 +15,6 @@ from openstack import utils
 
 
 class MetadataMixin:
-
     #: *Type: list of tag strings*
     metadata = resource.Body('metadata', type=dict)
 

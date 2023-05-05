@@ -15,7 +15,6 @@ from openstack import utils
 
 
 class TagMixin:
-
     _tag_query_parameters = {
         'tags': 'tags',
         'any_tags': 'tags-any',

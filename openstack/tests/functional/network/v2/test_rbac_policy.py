@@ -17,7 +17,6 @@ from openstack.tests.functional import base
 
 
 class TestRBACPolicy(base.BaseFunctionalTest):
-
     ACTION = "access_as_shared"
     OBJ_TYPE = "network"
     TARGET_TENANT_ID = "*"

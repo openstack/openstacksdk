@@ -16,7 +16,6 @@ from openstack.tests.functional import base
 
 
 class TestSubnetPool(base.BaseFunctionalTest):
-
     SUBNET_POOL_ID = None
     MINIMUM_PREFIX_LENGTH = 8
     DEFAULT_PREFIX_LENGTH = 24

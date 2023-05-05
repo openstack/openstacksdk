@@ -170,7 +170,6 @@ class TestFloatingIP(base.TestCase):
         self.assert_calls()
 
     def test_list_floating_ips_with_filters(self):
-
         self.register_uris(
             [
                 dict(

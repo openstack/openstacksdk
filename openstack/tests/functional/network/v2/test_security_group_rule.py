@@ -17,7 +17,6 @@ from openstack.tests.functional import base
 
 
 class TestSecurityGroupRule(base.BaseFunctionalTest):
-
     IPV4 = "IPv4"
     PROTO = "tcp"
     PORT = 22

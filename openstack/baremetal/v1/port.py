@@ -15,7 +15,6 @@ from openstack import resource
 
 
 class Port(_common.ListMixin, resource.Resource):
-
     resources_key = 'ports'
     base_path = '/ports'
 

@@ -15,7 +15,6 @@ from openstack import resource
 
 
 class Chassis(_common.ListMixin, resource.Resource):
-
     resources_key = 'chassis'
     base_path = '/chassis'
 

@@ -70,7 +70,6 @@ class TestClusterTemplates(base.TestCase):
         )
 
     def test_list_cluster_templates_without_detail(self):
-
         self.register_uris(
             [
                 dict(
@@ -124,7 +123,6 @@ class TestClusterTemplates(base.TestCase):
         self.assert_calls()
 
     def test_search_cluster_templates_not_found(self):
-
         self.register_uris(
             [
                 dict(

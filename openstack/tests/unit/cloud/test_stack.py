@@ -616,7 +616,6 @@ class TestStack(base.TestCase):
         self.assert_calls()
 
     def test_create_stack_wait(self):
-
         test_template = tempfile.NamedTemporaryFile(delete=False)
         test_template.write(fakes.FAKE_TEMPLATE.encode('utf-8'))
         test_template.close()

@@ -465,7 +465,6 @@ class SecurityGroupCloudMixin:
     # TODO(stephenfin): Remove this once we get rid of support for nova
     # secgroups
     def _normalize_secgroup(self, group):
-
         ret = utils.Munch()
         # Copy incoming group because of shared dicts in unittests
         group = group.copy()
@@ -518,7 +517,6 @@ class SecurityGroupCloudMixin:
     # TODO(stephenfin): Remove this once we get rid of support for nova
     # secgroups
     def _normalize_secgroup_rule(self, rule):
-
         ret = utils.Munch()
         # Copy incoming rule because of shared dicts in unittests
         rule = rule.copy()

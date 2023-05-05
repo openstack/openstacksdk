@@ -18,7 +18,6 @@ from openstack.tests.functional import base
 
 
 class TestNetworkSegmentRange(base.BaseFunctionalTest):
-
     NETWORK_SEGMENT_RANGE_ID = None
     NAME = "test_name"
     DEFAULT = False

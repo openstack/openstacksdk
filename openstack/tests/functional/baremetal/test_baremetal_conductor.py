@@ -15,7 +15,6 @@ from openstack.tests.functional.baremetal import base
 
 
 class TestBareMetalConductor(base.BaseBaremetalTest):
-
     min_microversion = '1.49'
 
     def test_list_get_conductor(self):

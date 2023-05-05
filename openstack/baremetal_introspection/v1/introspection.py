@@ -21,7 +21,6 @@ _logger = _log.setup_logging('openstack')
 
 
 class Introspection(resource.Resource):
-
     resources_key = 'introspection'
     base_path = '/introspection'
 

@@ -15,7 +15,6 @@ from openstack import resource
 
 
 class Conductor(_common.ListMixin, resource.Resource):
-
     resources_key = 'conductors'
     base_path = '/conductors'
 

@@ -119,7 +119,6 @@ class TestFloatingIP(base.BaseFunctionalTest):
             raise OpenStackCloudException('\n'.join(exception_list))
 
     def _cleanup_ips(self, server):
-
         exception_list = list()
 
         fixed_ip = meta.get_server_private_ip(server)

@@ -21,7 +21,6 @@ from openstack.tests.functional import base
 
 
 class TestPortForwarding(base.BaseFunctionalTest):
-
     IPV4 = 4
     FIP_ID = None
     EXT_CIDR = "10.100.0.0/24"

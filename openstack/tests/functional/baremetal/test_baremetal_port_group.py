@@ -16,7 +16,6 @@ from openstack.tests.functional.baremetal import base
 
 
 class TestBareMetalPortGroup(base.BaseBaremetalTest):
-
     min_microversion = '1.23'
 
     def setUp(self):

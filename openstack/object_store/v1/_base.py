@@ -16,7 +16,6 @@ from openstack import resource
 
 
 class BaseResource(resource.Resource):
-
     commit_method = 'POST'
     create_method = 'PUT'
 

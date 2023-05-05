@@ -26,7 +26,6 @@ from openstack.workflow import workflow_service
 
 
 class ServicesMixin:
-
     identity = identity_service.IdentityService(service_type='identity')
 
     compute = compute_service.ComputeService(service_type='compute')

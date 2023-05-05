@@ -41,7 +41,6 @@ def _disable_keep_alive(conn):
 
 
 class BaseFunctionalTest(base.TestCase):
-
     _wait_for_timeout_key = ''
 
     def setUp(self):

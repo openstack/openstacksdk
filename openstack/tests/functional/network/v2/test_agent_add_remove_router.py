@@ -16,7 +16,6 @@ from openstack.tests.functional import base
 
 
 class TestAgentRouters(base.BaseFunctionalTest):
-
     ROUTER = None
     AGENT = None
 

@@ -28,7 +28,6 @@ class TestServerGroup(base.TestCase):
         )
 
     def test_create_server_group(self):
-
         self.register_uris(
             [
                 self.get_nova_discovery_mock_dict(),

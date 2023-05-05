@@ -16,7 +16,6 @@ from openstack import utils
 
 
 class Cluster(resource.Resource):
-
     resources_key = 'clusters'
     base_path = '/clusters'
 

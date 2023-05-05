@@ -447,7 +447,6 @@ class Proxy(proxy.Proxy):
         file_size = os.path.getsize(filename)
 
         if self.is_object_stale(container_name, name, filename, md5, sha256):
-
             self._connection.log.debug(
                 "swift uploading %(filename)s to %(endpoint)s",
                 {'filename': filename, 'endpoint': endpoint},
@@ -744,7 +743,7 @@ class Proxy(proxy.Proxy):
     def _get_file_segments(self, endpoint, filename, file_size, segment_size):
         # Use an ordered dict here so that testing can replicate things
         segments = collections.OrderedDict()
-        for (index, offset) in enumerate(range(0, file_size, segment_size)):
+        for index, offset in enumerate(range(0, file_size, segment_size)):
             remaining = file_size - (index * segment_size)
             segment = _utils.FileSegment(
                 filename,

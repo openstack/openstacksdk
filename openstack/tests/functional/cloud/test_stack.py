@@ -145,7 +145,6 @@ class TestStack(base.BaseFunctionalTest):
         self.assertEqual(12, len(new_rand))
 
     def test_stack_nested(self):
-
         test_template = tempfile.NamedTemporaryFile(
             suffix='.yaml', delete=False
         )

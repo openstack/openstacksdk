@@ -49,7 +49,6 @@ def _get_name_and_filename(name, image_format):
 
 
 class Proxy(proxy.Proxy):
-
     _resource_registry = {
         "cache": _cache.Cache,
         "image": _image.Image,

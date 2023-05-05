@@ -17,7 +17,6 @@ from openstack.tests.functional.shared_file_system import base
 
 
 class ShareInstanceTest(base.BaseSharedFileSystemTest):
-
     min_microversion = '2.7'
 
     def setUp(self):

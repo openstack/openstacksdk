@@ -26,7 +26,6 @@ from openstack.tests.functional import base
 
 
 class TestDevstack(base.BaseFunctionalTest):
-
     scenarios = [
         ('designate', dict(env='DESIGNATE', service='dns')),
         ('heat', dict(env='HEAT', service='orchestration')),

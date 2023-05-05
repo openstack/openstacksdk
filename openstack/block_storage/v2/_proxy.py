@@ -22,7 +22,6 @@ from openstack import resource
 
 
 class Proxy(_base_proxy.BaseBlockStorageProxy):
-
     # ====== SNAPSHOTS ======
     def get_snapshot(self, snapshot):
         """Get a single snapshot

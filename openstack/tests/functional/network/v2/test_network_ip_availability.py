@@ -18,7 +18,6 @@ from openstack.tests.functional import base
 
 
 class TestNetworkIPAvailability(base.BaseFunctionalTest):
-
     IPV4 = 4
     CIDR = "10.100.0.0/24"
     NET_ID = None

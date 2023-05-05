@@ -17,7 +17,6 @@ from openstack import utils
 
 
 class Allocation(_common.ListMixin, resource.Resource):
-
     resources_key = 'allocations'
     base_path = '/allocations'
 

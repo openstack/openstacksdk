@@ -3265,7 +3265,6 @@ class TestResourceActions(base.TestCase):
 
 
 class TestResourceFind(base.TestCase):
-
     result = 1
 
     class Base(resource.Resource):
@@ -3290,7 +3289,6 @@ class TestResourceFind(base.TestCase):
             return None
 
     class OneResultWithQueryParams(OneResult):
-
         _query_mapping = resource.QueryParameters('name')
 
     def setUp(self):
@@ -3407,14 +3405,12 @@ class TestResourceFind(base.TestCase):
         )
 
     def test_list_no_base_path(self):
-
         with mock.patch.object(self.Base, "list") as list_mock:
             self.Base.find(self.cloud.compute, "name")
 
             list_mock.assert_called_with(self.cloud.compute)
 
     def test_list_base_path(self):
-
         with mock.patch.object(self.Base, "list") as list_mock:
             self.Base.find(
                 self.cloud.compute, "name", list_base_path='/dummy/list'

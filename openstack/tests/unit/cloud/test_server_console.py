@@ -48,7 +48,6 @@ class TestServerConsole(base.TestCase):
         self.assert_calls()
 
     def test_get_server_console_name_or_id(self):
-
         self.register_uris(
             [
                 self.get_nova_discovery_mock_dict(),
@@ -77,7 +76,6 @@ class TestServerConsole(base.TestCase):
         self.assert_calls()
 
     def test_get_server_console_no_console(self):
-
         self.register_uris(
             [
                 self.get_nova_discovery_mock_dict(),

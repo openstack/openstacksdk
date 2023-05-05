@@ -83,7 +83,6 @@ _RoleData = collections.namedtuple(
 
 
 class TestCase(base.TestCase):
-
     strict_cloud = False
 
     def setUp(self, cloud_config_fixture='clouds.yaml'):
@@ -334,7 +333,6 @@ class TestCase(base.TestCase):
         )
 
     def _get_user_data(self, name=None, password=None, **kwargs):
-
         name = name or self.getUniqueString('username')
         password = password or self.getUniqueString('user_password')
         user_id = uuid.uuid4().hex
@@ -864,7 +862,7 @@ class TestCase(base.TestCase):
         self.assertEqual(2, len(self.adapter.request_history))
 
     def assert_calls(self, stop_after=None, do_count=True):
-        for (x, (call, history)) in enumerate(
+        for x, (call, history) in enumerate(
             zip(self.calls, self.adapter.request_history)
         ):
             if stop_after and x > stop_after:

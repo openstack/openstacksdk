@@ -21,7 +21,6 @@ from openstack.tests.functional import base
 
 
 class TestFirewallPolicyRuleAssociations(base.BaseFunctionalTest):
-
     POLICY_NAME = uuid.uuid4().hex
     RULE1_NAME = uuid.uuid4().hex
     RULE2_NAME = uuid.uuid4().hex

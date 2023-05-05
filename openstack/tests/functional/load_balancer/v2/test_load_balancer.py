@@ -26,7 +26,6 @@ from openstack.tests.functional import base
 
 
 class TestLoadBalancer(base.BaseFunctionalTest):
-
     HM_ID = None
     L7POLICY_ID = None
     LB_ID = None

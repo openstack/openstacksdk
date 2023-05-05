@@ -16,7 +16,6 @@ from openstack.tests.functional import base
 
 
 class TestAddressGroup(base.BaseFunctionalTest):
-
     ADDRESS_GROUP_ID = None
     ADDRESSES = ["10.0.0.1/32", "2001:db8::/32"]
 

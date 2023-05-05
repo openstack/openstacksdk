@@ -584,7 +584,6 @@ class TestProxyHead(base.TestCase):
 
 
 class TestExtractName(base.TestCase):
-
     scenarios = [
         ('slash_servers_bare', dict(url='/servers', parts=['servers'])),
         ('slash_servers_arg', dict(url='/servers/1', parts=['server'])),
@@ -605,7 +604,6 @@ class TestExtractName(base.TestCase):
     ]
 
     def test_extract_name(self):
-
         results = proxy.Proxy(mock.Mock())._extract_name(self.url)
         self.assertEqual(self.parts, results)
 

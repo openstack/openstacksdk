@@ -15,7 +15,6 @@ from openstack import resource
 
 
 class VolumeConnector(_common.ListMixin, resource.Resource):
-
     resources_key = 'connectors'
     base_path = '/volume/connectors'
 

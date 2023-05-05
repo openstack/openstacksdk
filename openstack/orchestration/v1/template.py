@@ -16,7 +16,6 @@ from openstack import resource
 
 
 class Template(resource.Resource):
-
     # capabilities
     allow_create = False
     allow_list = False

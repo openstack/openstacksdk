@@ -1310,7 +1310,6 @@ class TestCompute(TestComputeProxy):
         with mock.patch(
             'openstack.compute.v2.server.Server.create_image'
         ) as ci_mock:
-
             ci_mock.return_value = 'image_id'
             connection_mock = mock.Mock()
             connection_mock.get_image = mock.Mock(return_value='image')

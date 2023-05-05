@@ -16,7 +16,6 @@ from openstack.tests.functional.baremetal import base
 
 
 class TestBareMetalVolumetarget(base.BaseBaremetalTest):
-
     min_microversion = '1.32'
 
     def setUp(self):

@@ -18,7 +18,6 @@ from openstack.tests.functional import base
 
 
 class TestQoSMinimumBandwidthRule(base.BaseFunctionalTest):
-
     QOS_POLICY_ID = None
     QOS_IS_SHARED = False
     QOS_POLICY_DESCRIPTION = "QoS policy description"

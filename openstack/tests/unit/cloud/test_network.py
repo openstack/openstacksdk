@@ -21,7 +21,6 @@ from openstack.tests.unit import base
 
 
 class TestNetwork(base.TestCase):
-
     mock_new_network_rep = {
         'provider:physical_network': None,
         'ipv6_address_scope': None,

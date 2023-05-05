@@ -34,7 +34,6 @@ class TestBareMetalDriver(base.BaseBaremetalTest):
 
 
 class TestBareMetalDriverDetails(base.BaseBaremetalTest):
-
     min_microversion = '1.30'
 
     def test_fake_hardware_get(self):

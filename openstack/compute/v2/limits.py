@@ -14,7 +14,6 @@ from openstack import resource
 
 
 class AbsoluteLimits(resource.Resource):
-
     _max_microversion = '2.57'
 
     #: The number of key-value pairs that can be set as image metadata.
@@ -74,7 +73,6 @@ class AbsoluteLimits(resource.Resource):
 
 
 class RateLimit(resource.Resource):
-
     # TODO(mordred) Make a resource type for the contents of limit and add
     # it to list_type here.
     #: A list of the specific limits that apply to the ``regex`` and ``uri``.

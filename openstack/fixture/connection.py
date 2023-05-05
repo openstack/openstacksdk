@@ -34,7 +34,6 @@ _ENDPOINT_TEMPLATES = {
 
 
 class ConnectionFixture(fixtures.Fixture):
-
     _suffixes = {
         'baremetal': '/',
         'block-storage': '/{project_id}',

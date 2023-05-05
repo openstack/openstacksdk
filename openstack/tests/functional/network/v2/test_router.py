@@ -16,7 +16,6 @@ from openstack.tests.functional import base
 
 
 class TestRouter(base.BaseFunctionalTest):
-
     ID = None
 
     def setUp(self):

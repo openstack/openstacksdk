@@ -28,7 +28,6 @@ class TestFloatingIPPool(base.TestCase):
     pools = [{'name': 'public'}]
 
     def test_list_floating_ip_pools(self):
-
         self.register_uris(
             [
                 dict(
@@ -66,7 +65,6 @@ class TestFloatingIPPool(base.TestCase):
         self.assert_calls()
 
     def test_list_floating_ip_pools_exception(self):
-
         self.register_uris(
             [
                 dict(

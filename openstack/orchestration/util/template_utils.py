@@ -31,7 +31,6 @@ def get_template_contents(
     files=None,
     existing=False,
 ):
-
     is_object = False
     tpl = None
 
@@ -123,7 +122,6 @@ def get_file_contents(
     is_object=False,
     object_request=None,
 ):
-
     if recurse_if and recurse_if(from_data):
         if isinstance(from_data, dict):
             recurse_data = from_data.values()

@@ -14,7 +14,6 @@ from openstack import resource
 
 
 class StoragePool(resource.Resource):
-
     resources_key = "pools"
     base_path = "/scheduler-stats/pools"
 

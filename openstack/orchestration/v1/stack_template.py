@@ -14,7 +14,6 @@ from openstack import resource
 
 
 class StackTemplate(resource.Resource):
-
     base_path = "/stacks/%(stack_name)s/%(stack_id)s/template"
 
     # capabilities

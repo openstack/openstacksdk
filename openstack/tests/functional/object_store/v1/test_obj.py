@@ -14,7 +14,6 @@ from openstack.tests.functional import base
 
 
 class TestObject(base.BaseFunctionalTest):
-
     DATA = b'abc'
 
     def setUp(self):

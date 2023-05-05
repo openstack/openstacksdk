@@ -87,7 +87,6 @@ def _convert_type(value, data_type, list_type=None):
 
 
 class _BaseComponent:
-
     # The name this component is being tracked as in the Resource
     key = None
     # The class to be used for mappings
@@ -2031,7 +2030,7 @@ class Resource(dict):
         )
         client_filters = dict()
         # Gather query parameters which are not supported by the server
-        for (k, v) in params.items():
+        for k, v in params.items():
             if (
                 # Known attr
                 hasattr(cls, k)

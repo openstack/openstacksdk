@@ -17,7 +17,6 @@ from openstack.tests.functional import base
 
 
 class TestSegment(base.BaseFunctionalTest):
-
     NETWORK_TYPE = None
     PHYSICAL_NETWORK = None
     SEGMENTATION_ID = None

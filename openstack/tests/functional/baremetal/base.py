@@ -14,7 +14,6 @@ from openstack.tests.functional import base
 
 
 class BaseBaremetalTest(base.BaseFunctionalTest):
-
     min_microversion = None
     node_id = None
 

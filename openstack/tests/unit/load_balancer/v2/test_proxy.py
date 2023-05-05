@@ -33,7 +33,6 @@ from openstack.tests.unit import test_proxy_base
 
 
 class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
-
     LB_ID = uuid.uuid4()
     LISTENER_ID = uuid.uuid4()
     POOL_ID = uuid.uuid4()

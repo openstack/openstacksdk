@@ -101,7 +101,7 @@ def get_boolean(value):
 def _auth_update(old_dict, new_dict_source):
     """Like dict.update, except handling the nested dict called auth."""
     new_dict = copy.deepcopy(new_dict_source)
-    for (k, v) in new_dict.items():
+    for k, v in new_dict.items():
         if k == 'auth':
             if k in old_dict:
                 old_dict[k].update(v)
@@ -143,7 +143,6 @@ def _fix_argv(argv):
 
 
 class OpenStackConfig:
-
     # These two attribute are to allow os-client-config to plumb in its
     # local versions for backwards compat.
     # They should not be used by anyone else.
@@ -949,7 +948,6 @@ class OpenStackConfig:
         return new_cloud
 
     def get_all(self):
-
         clouds = []
 
         for cloud in self.get_cloud_names():
@@ -985,7 +983,7 @@ class OpenStackConfig:
 
         os_args = dict()
         new_args = dict()
-        for (key, val) in iter(args.items()):
+        for key, val in iter(args.items()):
             if type(args[key]) == dict:
                 # dive into the auth dict
                 new_args[key] = self._fix_args(args[key])
@@ -1136,7 +1134,6 @@ class OpenStackConfig:
         return config
 
     def _clean_up_after_ourselves(self, config, p_opt, winning_value):
-
         # Clean up after ourselves
         for opt in [p_opt.name] + [o.name for o in p_opt.deprecated]:
             opt = opt.replace('-', '_')
@@ -1245,7 +1242,7 @@ class OpenStackConfig:
 
         # Can't just do update, because None values take over
         for arg_list in region_args, args:
-            for (key, val) in iter(arg_list.items()):
+            for key, val in iter(arg_list.items()):
                 if val is not None:
                     if key == 'auth' and config[key] is not None:
                         config[key] = _auth_update(config[key], val)
@@ -1268,7 +1265,7 @@ class OpenStackConfig:
             auth_plugin = None
 
         # If any of the defaults reference other values, we need to expand
-        for (key, value) in config.items():
+        for key, value in config.items():
             if hasattr(value, 'format') and key not in FORMAT_EXCLUSIONS:
                 config[key] = value.format(**config)
 
@@ -1367,7 +1364,7 @@ class OpenStackConfig:
 
         # Can't just do update, because None values take over
         for arg_list in region_args, args:
-            for (key, val) in iter(arg_list.items()):
+            for key, val in iter(arg_list.items()):
                 if val is not None:
                     if key == 'auth' and config[key] is not None:
                         config[key] = _auth_update(config[key], val)
@@ -1389,7 +1386,7 @@ class OpenStackConfig:
             auth_plugin = None
 
         # If any of the defaults reference other values, we need to expand
-        for (key, value) in config.items():
+        for key, value in config.items():
             if hasattr(value, 'format') and key not in FORMAT_EXCLUSIONS:
                 config[key] = value.format(**config)
 

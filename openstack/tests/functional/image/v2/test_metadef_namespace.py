@@ -15,7 +15,6 @@ from openstack.tests.functional.image.v2 import base
 
 
 class TestMetadefNamespace(base.BaseImageTest):
-
     # TODO(stephenfin): We should use setUpClass here for MOAR SPEED!!!
     def setUp(self):
         super().setUp()

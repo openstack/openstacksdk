@@ -15,7 +15,6 @@ from openstack.tests.functional import base
 
 
 class TestVpnIkePolicy(base.BaseFunctionalTest):
-
     ID = None
 
     def setUp(self):

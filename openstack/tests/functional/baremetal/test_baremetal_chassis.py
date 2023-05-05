@@ -72,7 +72,6 @@ class TestBareMetalChassis(base.BaseBaremetalTest):
 
 
 class TestBareMetalChassisFields(base.BaseBaremetalTest):
-
     min_microversion = '1.8'
 
     def test_chassis_fields(self):

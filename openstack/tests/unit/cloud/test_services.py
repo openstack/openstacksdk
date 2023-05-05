@@ -37,7 +37,6 @@ class CloudServices(base.TestCase):
         append=None,
         base_url_append='v3',
     ):
-
         return super(CloudServices, self).get_mock_url(
             service_type, interface, resource, append, base_url_append
         )

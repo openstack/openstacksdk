@@ -28,7 +28,6 @@ from openstack.tests.functional import base
 
 
 class TestEndpoints(base.KeystoneBaseFunctionalTest):
-
     endpoint_attributes = [
         'id',
         'region',

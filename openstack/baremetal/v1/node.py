@@ -71,7 +71,6 @@ class WaitResult(
 
 
 class Node(_common.ListMixin, resource.Resource):
-
     resources_key = 'nodes'
     base_path = '/nodes'
 
@@ -1323,7 +1322,6 @@ class Node(_common.ListMixin, resource.Resource):
         base_path=None,
         reset_interfaces=None,
     ):
-
         if reset_interfaces is not None:
             # The id cannot be dirty for an commit
             self._body._dirty.discard("id")

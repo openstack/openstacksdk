@@ -50,7 +50,7 @@ class StatsdFixture(fixtures.Fixture):
             poll.register(self.sock, select.POLLIN)
             poll.register(self.wake_read, select.POLLIN)
             ret = poll.poll()
-            for (fd, event) in ret:
+            for fd, event in ret:
                 if fd == self.sock.fileno():
                     data = self.sock.recvfrom(1024)
                     if not data:
@@ -167,7 +167,6 @@ class TestStats(base.TestCase):
         self.assertEqual(sample_value, value)
 
     def test_list_projects(self):
-
         mock_uri = self.get_mock_url(
             service_type='identity', resource='projects', base_url_append='v3'
         )
@@ -234,7 +233,6 @@ class TestStats(base.TestCase):
         )
 
     def test_servers(self):
-
         mock_uri = 'https://compute.example.com/v2.1/servers/detail'
 
         self.register_uris(
@@ -272,7 +270,6 @@ class TestStats(base.TestCase):
         )
 
     def test_servers_no_detail(self):
-
         mock_uri = 'https://compute.example.com/v2.1/servers'
 
         self.register_uris(
@@ -310,7 +307,6 @@ class TestStats(base.TestCase):
         )
 
     def test_servers_error(self):
-
         mock_uri = 'https://compute.example.com/v2.1/servers'
 
         self.register_uris(
@@ -341,7 +337,6 @@ class TestStats(base.TestCase):
         )
 
     def test_timeout(self):
-
         mock_uri = 'https://compute.example.com/v2.1/servers'
 
         self.register_uris(
@@ -368,7 +363,6 @@ class TestNoStats(base.TestCase):
         self.useFixture(self.statsd)
 
     def test_no_stats(self):
-
         mock_uri = self.get_mock_url(
             service_type='identity', resource='projects', base_url_append='v3'
         )

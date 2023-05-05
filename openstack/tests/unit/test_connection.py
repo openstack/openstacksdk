@@ -328,7 +328,6 @@ class TestOsloConfig(_TestConnectionBase):
 
 
 class TestNetworkConnection(base.TestCase):
-
     # Verify that if the catalog has the suffix we don't mess things up.
     def test_network_proxy(self):
         self.os_fixture.v3_token.remove_service('network')
@@ -533,7 +532,6 @@ class TestVendorProfile(base.TestCase):
         )
 
     def test_conn_from_profile(self):
-
         self.cloud = self.config.get_one(cloud='profiled-cloud')
 
         conn = connection.Connection(config=self.cloud)
@@ -541,7 +539,6 @@ class TestVendorProfile(base.TestCase):
         self.assertIsNotNone(conn)
 
     def test_hook_from_profile(self):
-
         self.cloud = self.config.get_one(cloud='profiled-cloud')
 
         conn = connection.Connection(config=self.cloud)
@@ -549,7 +546,6 @@ class TestVendorProfile(base.TestCase):
         self.assertEqual('test_val', conn.test)
 
     def test_hook_from_connection_param(self):
-
         conn = connection.Connection(
             cloud='sample-cloud',
             vendor_hook='openstack.tests.unit.test_connection:vendor_hook',
@@ -558,7 +554,6 @@ class TestVendorProfile(base.TestCase):
         self.assertEqual('test_val', conn.test)
 
     def test_hook_from_connection_ignore_missing(self):
-
         conn = connection.Connection(
             cloud='sample-cloud',
             vendor_hook='openstack.tests.unit.test_connection:missing',

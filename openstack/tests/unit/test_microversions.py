@@ -21,7 +21,6 @@ class TestMicroversions(base.TestCase):
         self.use_compute_discovery()
 
     def test_get_bad_inferred_max_microversion(self):
-
         self.cloud.config.config['compute_api_version'] = '2.61'
 
         self.assertRaises(
@@ -33,7 +32,6 @@ class TestMicroversions(base.TestCase):
         self.assert_calls()
 
     def test_get_bad_default_max_microversion(self):
-
         self.cloud.config.config['compute_default_microversion'] = '2.61'
 
         self.assertRaises(
@@ -45,7 +43,6 @@ class TestMicroversions(base.TestCase):
         self.assert_calls()
 
     def test_get_bad_inferred_min_microversion(self):
-
         self.cloud.config.config['compute_api_version'] = '2.7'
 
         self.assertRaises(
@@ -57,7 +54,6 @@ class TestMicroversions(base.TestCase):
         self.assert_calls()
 
     def test_get_bad_default_min_microversion(self):
-
         self.cloud.config.config['compute_default_microversion'] = '2.7'
 
         self.assertRaises(
@@ -69,7 +65,6 @@ class TestMicroversions(base.TestCase):
         self.assert_calls()
 
     def test_inferred_default_microversion(self):
-
         self.cloud.config.config['compute_api_version'] = '2.42'
 
         server1 = fakes.make_fake_server('123', 'mickey')
@@ -95,7 +90,6 @@ class TestMicroversions(base.TestCase):
         self.assert_calls()
 
     def test_default_microversion(self):
-
         self.cloud.config.config['compute_default_microversion'] = '2.42'
 
         server1 = fakes.make_fake_server('123', 'mickey')
@@ -121,7 +115,6 @@ class TestMicroversions(base.TestCase):
         self.assert_calls()
 
     def test_conflicting_implied_and_direct(self):
-
         self.cloud.config.config['compute_default_microversion'] = '2.7'
         self.cloud.config.config['compute_api_version'] = '2.13'
 

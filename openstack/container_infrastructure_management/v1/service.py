@@ -14,7 +14,6 @@ from openstack import resource
 
 
 class Service(resource.Resource):
-
     resources_key = 'mservices'
     base_path = '/mservices'
 

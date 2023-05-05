@@ -16,7 +16,6 @@ from openstack.tests.functional import base
 
 
 class TestSecurityGroup(base.BaseFunctionalTest):
-
     ID = None
 
     def setUp(self):

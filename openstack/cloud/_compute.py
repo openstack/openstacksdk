@@ -432,7 +432,6 @@ class ComputeCloudMixin:
         params = {}
         project_id = None
         if name_or_id:
-
             proj = self.get_project(name_or_id)
             if not proj:
                 raise exc.OpenStackCloudException("project does not exist")
@@ -874,7 +873,7 @@ class ComputeCloudMixin:
             user_data = kwargs.pop('userdata')
             if user_data:
                 kwargs['user_data'] = self._encode_server_userdata(user_data)
-        for (desired, given) in (
+        for desired, given in (
             ('OS-DCF:diskConfig', 'disk_config'),
             ('config_drive', 'config_drive'),
             ('key_name', 'key_name'),
@@ -1092,7 +1091,6 @@ class ComputeCloudMixin:
             kwargs['block_device_mapping_v2'].append(block_mapping)
             kwargs['imageRef'] = ''
         elif boot_from_volume:
-
             if isinstance(image, dict):
                 image_obj = image
             else:

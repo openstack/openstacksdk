@@ -451,7 +451,6 @@ class TestMeta(base.TestCase):
         mock_get_volumes,
         mock_has_service,
     ):
-
         mock_get_image_name.return_value = 'cirros-0.3.4-x86_64-uec'
         mock_get_flavor_name.return_value = 'm1.tiny'
         mock_get_volumes.return_value = []

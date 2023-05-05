@@ -132,7 +132,6 @@ class TestBareMetalPort(base.BaseBaremetalTest):
 
 
 class TestBareMetalPortFields(base.BaseBaremetalTest):
-
     min_microversion = '1.8'
 
     def test_port_fields(self):

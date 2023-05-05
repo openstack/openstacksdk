@@ -403,7 +403,6 @@ class TestOrchestrationTemplate(TestOrchestrationProxy):
 
 
 class TestExtractName(TestOrchestrationProxy):
-
     scenarios = [
         ('stacks', dict(url='/stacks', parts=['stacks'])),
         ('name_id', dict(url='/stacks/name/id', parts=['stack'])),
@@ -452,6 +451,5 @@ class TestExtractName(TestOrchestrationProxy):
     ]
 
     def test_extract_name(self):
-
         results = self.proxy._extract_name(self.url)
         self.assertEqual(self.parts, results)

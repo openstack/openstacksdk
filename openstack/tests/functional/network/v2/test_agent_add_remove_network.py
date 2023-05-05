@@ -16,7 +16,6 @@ from openstack.tests.functional import base
 
 
 class TestAgentNetworks(base.BaseFunctionalTest):
-
     NETWORK_ID = None
     AGENT = None
     AGENT_ID = None

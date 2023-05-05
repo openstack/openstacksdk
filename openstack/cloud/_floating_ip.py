@@ -495,7 +495,6 @@ class FloatingIPCloudMixin:
         timeout=60,
         network_id=None,
     ):
-
         if not network_id:
             if network_name_or_id:
                 try:
@@ -796,7 +795,6 @@ class FloatingIPCloudMixin:
     def _neutron_attach_ip_to_server(
         self, server, floating_ip, fixed_address=None, nat_destination=None
     ):
-
         # Find an available port
         (port, fixed_address) = self._nat_destination_port(
             server,
@@ -884,7 +882,6 @@ class FloatingIPCloudMixin:
         return True
 
     def _nova_detach_ip_from_server(self, server_id, floating_ip_id):
-
         f_ip = self.get_floating_ip(id=floating_ip_id)
         if f_ip is None:
             raise exc.OpenStackCloudException(

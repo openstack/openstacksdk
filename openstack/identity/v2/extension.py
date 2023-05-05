@@ -44,7 +44,6 @@ class Extension(resource.Resource):
 
     @classmethod
     def list(cls, session, paginated=False, base_path=None, **params):
-
         if base_path is None:
             base_path = cls.base_path
 

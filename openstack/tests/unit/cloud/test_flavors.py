@@ -22,7 +22,6 @@ class TestFlavors(base.TestCase):
         # self.use_compute_discovery()
 
     def test_create_flavor(self):
-
         self.use_compute_discovery()
         self.register_uris(
             [

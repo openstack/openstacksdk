@@ -15,7 +15,6 @@ from openstack import resource
 
 
 class PortGroup(_common.ListMixin, resource.Resource):
-
     resources_key = 'portgroups'
     base_path = '/portgroups'
 

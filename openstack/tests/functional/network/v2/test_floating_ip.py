@@ -20,7 +20,6 @@ from openstack.tests.functional import base
 
 
 class TestFloatingIP(base.BaseFunctionalTest):
-
     IPV4 = 4
     EXT_CIDR = "10.100.0.0/24"
     INT_CIDR = "10.101.0.0/24"

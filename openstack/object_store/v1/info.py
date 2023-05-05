@@ -18,7 +18,6 @@ from openstack import resource
 
 
 class Info(resource.Resource):
-
     base_path = "/info"
 
     allow_fetch = True

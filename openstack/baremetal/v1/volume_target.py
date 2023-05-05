@@ -15,7 +15,6 @@ from openstack import resource
 
 
 class VolumeTarget(_common.ListMixin, resource.Resource):
-
     resources_key = 'targets'
     base_path = '/volume/targets'
 

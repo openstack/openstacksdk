@@ -88,7 +88,6 @@ class TestFloatingIP(base.TestCase):
         self.cloud.has_service = get_fake_has_service(self.cloud.has_service)
 
     def test_list_floating_ips(self):
-
         self.register_uris(
             [
                 dict(
@@ -278,7 +277,6 @@ class TestFloatingIP(base.TestCase):
         self.assert_calls()
 
     def test_delete_floating_ip_existing(self):
-
         self.register_uris(
             [
                 dict(

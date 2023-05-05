@@ -19,7 +19,6 @@ from openstack.tests.functional.network.v2 import test_network
 
 
 class TestStack(base.BaseFunctionalTest):
-
     NAME = 'test_stack'
     stack = None
     network = None

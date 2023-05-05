@@ -17,7 +17,6 @@ from openstack import utils
 
 
 class Driver(resource.Resource):
-
     resources_key = 'drivers'
     base_path = '/drivers'
 

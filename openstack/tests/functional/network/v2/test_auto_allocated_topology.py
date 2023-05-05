@@ -14,7 +14,6 @@ from openstack.tests.functional import base
 
 
 class TestAutoAllocatedTopology(base.BaseFunctionalTest):
-
     NETWORK_NAME = "auto_allocated_network"
     NETWORK_ID = None
     PROJECT_ID = None

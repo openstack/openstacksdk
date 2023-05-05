@@ -28,7 +28,6 @@ from openstack.tests.functional import base
 
 
 class TestServices(base.KeystoneBaseFunctionalTest):
-
     service_attributes = ['id', 'name', 'type', 'description']
 
     def setUp(self):

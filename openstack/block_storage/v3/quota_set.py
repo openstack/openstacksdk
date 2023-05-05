@@ -14,7 +14,6 @@ from openstack import resource
 
 
 class QuotaSet(quota_set.QuotaSet):
-
     #: Properties
     #: The size (GB) of backups that are allowed for each project.
     backup_gigabytes = resource.Body('backup_gigabytes', type=int)

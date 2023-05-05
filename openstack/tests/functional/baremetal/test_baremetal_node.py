@@ -327,7 +327,6 @@ class TestBareMetalNode(base.BaseBaremetalTest):
 
 
 class TestNodeRetired(base.BaseBaremetalTest):
-
     min_microversion = '1.61'
 
     def test_retired(self):
@@ -390,7 +389,6 @@ class TestNodeRetired(base.BaseBaremetalTest):
 
 
 class TestBareMetalNodeFields(base.BaseBaremetalTest):
-
     min_microversion = '1.8'
 
     def test_node_fields(self):
@@ -404,7 +402,6 @@ class TestBareMetalNodeFields(base.BaseBaremetalTest):
 
 
 class TestBareMetalVif(base.BaseBaremetalTest):
-
     min_microversion = '1.28'
 
     def setUp(self):
@@ -445,7 +442,6 @@ class TestBareMetalVif(base.BaseBaremetalTest):
 
 
 class TestTraits(base.BaseBaremetalTest):
-
     min_microversion = '1.37'
 
     def setUp(self):

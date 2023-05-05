@@ -60,7 +60,6 @@ class Test_enable_logging(base.TestCase):
         )
 
     def _console_tests(self, level, debug, stream):
-
         openstack.enable_logging(debug=debug, stream=stream)
 
         self.assertEqual(self.openstack_logger.addHandler.call_count, 1)

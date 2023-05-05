@@ -41,7 +41,6 @@ class ServerIP(resource.Resource):
         base_path=None,
         **params
     ):
-
         if base_path is None:
             base_path = cls.base_path
 

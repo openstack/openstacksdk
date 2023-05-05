@@ -19,7 +19,6 @@ from openstack.tests.functional import base
 
 
 class TestFirewallGroup(base.BaseFunctionalTest):
-
     ID = None
 
     def setUp(self):

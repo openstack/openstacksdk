@@ -17,7 +17,6 @@ from openstack.tests.functional import base
 
 
 class TestL3ConntrackHelper(base.BaseFunctionalTest):
-
     PROTOCOL = "udp"
     HELPER = "tftp"
     PORT = 69

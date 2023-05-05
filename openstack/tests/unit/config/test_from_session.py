@@ -22,7 +22,6 @@ from openstack.tests.unit import base
 
 
 class TestFromSession(base.TestCase):
-
     scenarios = [
         ('no_region', dict(test_region=None)),
         ('with_region', dict(test_region='RegionOne')),

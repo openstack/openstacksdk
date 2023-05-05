@@ -14,7 +14,6 @@ from openstack.tests.functional.shared_file_system import base
 
 
 class AvailabilityZoneTest(base.BaseSharedFileSystemTest):
-
     min_microversion = '2.7'
 
     def test_availability_zones(self):

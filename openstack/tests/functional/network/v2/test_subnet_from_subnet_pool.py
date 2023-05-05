@@ -18,7 +18,6 @@ from openstack.tests.functional import base
 
 
 class TestSubnetFromSubnetPool(base.BaseFunctionalTest):
-
     IPV4 = 4
     CIDR = "10.100.0.0/28"
     MINIMUM_PREFIX_LENGTH = 8

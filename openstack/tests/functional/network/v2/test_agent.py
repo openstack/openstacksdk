@@ -17,7 +17,6 @@ from openstack.tests.functional import base
 
 
 class TestAgent(base.BaseFunctionalTest):
-
     AGENT = None
     DESC = "test description"
 

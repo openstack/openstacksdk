@@ -14,7 +14,6 @@ from openstack import resource
 
 
 class ClusterTemplate(resource.Resource):
-
     resources_key = 'clustertemplates'
     base_path = '/clustertemplates'
 

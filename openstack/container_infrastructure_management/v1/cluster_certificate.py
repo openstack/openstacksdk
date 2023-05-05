@@ -14,7 +14,6 @@ from openstack import resource
 
 
 class ClusterCertificate(resource.Resource):
-
     base_path = '/certificates'
 
     # capabilities

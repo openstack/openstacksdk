@@ -27,7 +27,6 @@ from openstack import utils
 
 
 class Proxy(proxy.Proxy):
-
     retriable_status_codes = _common.RETRIABLE_STATUS_CODES
 
     _resource_registry = {

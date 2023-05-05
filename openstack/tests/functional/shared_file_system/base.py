@@ -15,7 +15,6 @@ from openstack.tests.functional import base
 
 
 class BaseSharedFileSystemTest(base.BaseFunctionalTest):
-
     min_microversion = None
 
     def setUp(self):

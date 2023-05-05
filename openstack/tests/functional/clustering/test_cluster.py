@@ -18,7 +18,6 @@ from openstack.tests.functional.network.v2 import test_network
 
 
 class TestCluster(base.BaseFunctionalTest):
-
     _wait_for_timeout_key = 'OPENSTACKSDK_FUNC_TEST_TIMEOUT_CLUSTER'
 
     def setUp(self):

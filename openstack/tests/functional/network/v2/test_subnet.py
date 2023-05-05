@@ -17,7 +17,6 @@ from openstack.tests.functional import base
 
 
 class TestSubnet(base.BaseFunctionalTest):
-
     IPV4 = 4
     CIDR = "10.100.0.0/24"
     DNS_SERVERS = ["8.8.4.4", "8.8.8.8"]

@@ -574,7 +574,6 @@ class TestMemoryCache(base.TestCase):
         self.assert_calls()
 
     def test_list_images(self):
-
         self.use_glance()
         fake_image = fakes.make_fake_image(image_id='42')
 
@@ -715,7 +714,6 @@ class TestMemoryCache(base.TestCase):
 
 
 class TestCacheIgnoresQueuedStatus(base.TestCase):
-
     scenarios = [
         ('queued', dict(status='queued')),
         ('saving', dict(status='saving')),
@@ -745,7 +743,6 @@ class TestCacheIgnoresQueuedStatus(base.TestCase):
         )
 
     def test_list_images_ignores_pending_status(self):
-
         self.register_uris(
             [
                 dict(
@@ -777,7 +774,6 @@ class TestCacheIgnoresQueuedStatus(base.TestCase):
 
 
 class TestCacheSteadyStatus(base.TestCase):
-
     scenarios = [
         ('active', dict(status='active')),
         ('killed', dict(status='killed')),
@@ -801,7 +797,6 @@ class TestCacheSteadyStatus(base.TestCase):
         )
 
     def test_list_images_caches_steady_status(self):
-
         self.register_uris(
             [
                 dict(

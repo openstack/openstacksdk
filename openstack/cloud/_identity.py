@@ -454,7 +454,6 @@ class IdentityCloudMixin:
         'name', 'enabled', 'type', 'service_type', 'description'
     )
     def update_service(self, name_or_id, **kwargs):
-
         # NOTE(SamYaple): Keystone v3 only accepts 'type' but shade accepts
         #                 both 'type' and 'service_type' with a preference
         #                 towards 'type'

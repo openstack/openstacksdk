@@ -39,7 +39,6 @@ class Base(base.BaseBaremetalTest):
 
 
 class TestBareMetalAllocation(Base):
-
     min_microversion = '1.52'
 
     def test_allocation_create_get_delete(self):
@@ -135,7 +134,6 @@ class TestBareMetalAllocation(Base):
 
 
 class TestBareMetalAllocationUpdate(Base):
-
     min_microversion = '1.57'
 
     def test_allocation_update(self):

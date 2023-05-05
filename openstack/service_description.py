@@ -42,7 +42,6 @@ class _ServiceDisabledProxyShim:
 
 
 class ServiceDescription:
-
     #: Dictionary of supported versions and proxy classes for that version
     supported_versions = None
     #: main service_type to use to find this service in the catalog
@@ -216,7 +215,6 @@ class ServiceDescription:
                 )
 
         if proxy_obj:
-
             if getattr(proxy_obj, 'skip_discovery', False):
                 # Some services, like swift, don't have discovery. While
                 # keystoneauth will behave correctly and handle such

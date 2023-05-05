@@ -1930,7 +1930,6 @@ class TestImageV1Only(base.TestCase):
         self.use_glance(image_version_json='image-version-v1.json')
 
     def test_config_v1(self):
-
         self.cloud.config.config['image_api_version'] = '1'
         # We override the scheme of the endpoint with the scheme of the service
         # because glance has a bug where it doesn't return https properly.
@@ -2032,7 +2031,6 @@ class TestImageVolume(BaseTestImage):
         self.assert_calls()
 
     def test_create_image_volume_duplicate(self):
-
         self.register_uris(
             [
                 self.get_cinder_discovery_mock_dict(),

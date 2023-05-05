@@ -18,7 +18,6 @@ from openstack.tests.functional import base
 
 
 class TestLocalIP(base.BaseFunctionalTest):
-
     LOCAL_IP_ID = None
 
     def setUp(self):

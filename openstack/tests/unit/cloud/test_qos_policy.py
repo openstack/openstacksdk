@@ -21,7 +21,6 @@ from openstack.tests.unit import base
 
 
 class TestQosPolicy(base.TestCase):
-
     policy_name = 'qos test policy'
     policy_id = '881d1bb7-a663-44c0-8f9f-ee2765b74486'
     project_id = 'c88fc89f-5121-4a4c-87fd-496b5af864e9'

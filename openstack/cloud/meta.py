@@ -27,7 +27,7 @@ def find_nova_interfaces(
     addresses, ext_tag=None, key_name=None, version=4, mac_addr=None
 ):
     ret = []
-    for (k, v) in iter(addresses.items()):
+    for k, v in iter(addresses.items()):
         if key_name is not None and k != key_name:
             # key_name is specified and it doesn't match the current network.
             # Continue with the next one

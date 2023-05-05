@@ -101,7 +101,6 @@ class TestSecurityGroups(base.TestCase):
         self.assert_calls()
 
     def test_list_security_groups_none(self):
-
         self.cloud.secgroup_source = None
         self.has_neutron = False
         self.assertRaises(
@@ -625,7 +624,6 @@ class TestSecurityGroups(base.TestCase):
         self.assert_calls()
 
     def test_create_security_group_rule_nova_no_ports(self):
-
         self.has_neutron = False
         self.cloud.secgroup_source = 'nova'
 
@@ -836,7 +834,6 @@ class TestSecurityGroups(base.TestCase):
         self.assertEqual([], ret)
 
     def test_add_security_group_to_server_nova(self):
-
         self.has_neutron = False
         self.cloud.secgroup_source = 'nova'
 
@@ -916,7 +913,6 @@ class TestSecurityGroups(base.TestCase):
         self.assert_calls()
 
     def test_remove_security_group_from_server_nova(self):
-
         self.has_neutron = False
         self.cloud.secgroup_source = 'nova'
 

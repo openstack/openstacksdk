@@ -75,7 +75,6 @@ class _OpenStackCloudMixin:
     _SHADE_OBJECT_AUTOCREATE_KEY = 'x-object-meta-x-shade-autocreated'
 
     def __init__(self):
-
         super(_OpenStackCloudMixin, self).__init__()
 
         self.log = _log.setup_logging('openstack')

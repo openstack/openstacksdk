@@ -15,7 +15,6 @@ from openstack.tests.functional.baremetal import base
 
 
 class TestBareMetalDeployTemplate(base.BaseBaremetalTest):
-
     min_microversion = '1.55'
 
     def setUp(self):

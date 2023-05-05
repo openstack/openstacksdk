@@ -38,7 +38,6 @@ class FakeResponse:
 
 
 class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
-
     kwargs_to_path_args = False
 
     def setUp(self):
@@ -156,7 +155,6 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
             self.assertEqual(res.data, "data")
 
     def test_set_temp_url_key(self):
-
         key = 'super-secure-key'
 
         self.register_uris(
@@ -180,7 +178,6 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
         self.assert_calls()
 
     def test_set_account_temp_url_key_second(self):
-
         key = 'super-secure-key'
 
         self.register_uris(
@@ -204,7 +201,6 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
         self.assert_calls()
 
     def test_set_container_temp_url_key(self):
-
         key = 'super-secure-key'
 
         self.register_uris(
@@ -228,7 +224,6 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
         self.assert_calls()
 
     def test_set_container_temp_url_key_second(self):
-
         key = 'super-secure-key'
 
         self.register_uris(
@@ -274,7 +269,7 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
         )
         self.assertEqual(len(segments), 5)
         segment_content = b''
-        for (index, (name, segment)) in enumerate(segments.items()):
+        for index, (name, segment) in enumerate(segments.items()):
             self.assertEqual(
                 'test_container/test_image/{index:0>6}'.format(index=index),
                 name,
@@ -333,7 +328,6 @@ class TestDownloadObject(base_test_object.BaseTestObject):
 
 
 class TestExtractName(TestObjectStoreProxy):
-
     scenarios = [
         ('discovery', dict(url='/', parts=['account'])),
         ('endpoints', dict(url='/endpoints', parts=['endpoints'])),
@@ -351,7 +345,6 @@ class TestExtractName(TestObjectStoreProxy):
     ]
 
     def test_extract_name(self):
-
         results = self.proxy._extract_name(self.url, project_id='123')
         self.assertEqual(self.parts, results)
 

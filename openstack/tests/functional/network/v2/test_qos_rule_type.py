@@ -15,7 +15,6 @@ from openstack.tests.functional import base
 
 
 class TestQoSRuleType(base.BaseFunctionalTest):
-
     QOS_RULE_TYPE = "bandwidth_limit"
 
     def setUp(self):

@@ -90,7 +90,6 @@ class NetworkCommonCloudMixin:
             return
 
         for network in all_networks:
-
             # External IPv4 networks
             if (
                 network['name'] in self._external_ipv4_names

@@ -19,7 +19,6 @@ from openstack.tests.functional import base
 
 
 class TestFirewallRule(base.BaseFunctionalTest):
-
     ACTION = "allow"
     DEST_IP = "10.0.0.0/24"
     DEST_PORT = "80"

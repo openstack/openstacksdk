@@ -563,7 +563,7 @@ def munchify(x, factory=Munch):
         elif isinstance(obj, list):
             partial.extend(munchify_cycles(item) for item in obj)
         elif isinstance(obj, tuple):
-            for (item_partial, item) in zip(partial, obj):
+            for item_partial, item in zip(partial, obj):
                 post_munchify(item_partial, item)
 
         return partial
@@ -603,7 +603,7 @@ def unmunchify(x):
         elif isinstance(obj, list):
             partial.extend(unmunchify_cycles(v) for v in obj)
         elif isinstance(obj, tuple):
-            for (value_partial, value) in zip(partial, obj):
+            for value_partial, value in zip(partial, obj):
                 post_unmunchify(value_partial, value)
 
         return partial

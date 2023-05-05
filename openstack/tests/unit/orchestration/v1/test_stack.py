@@ -213,7 +213,6 @@ class TestStack(base.TestCase):
         sot._action.assert_called_with(sess, body)
 
     def test_fetch(self):
-
         sess = mock.Mock()
         sess.default_microversion = None
         sot = stack.Stack(**FAKE)

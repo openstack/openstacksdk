@@ -23,7 +23,6 @@ from openstack.tests.unit import base
 
 
 class TestSubnet(base.TestCase):
-
     network_name = 'network_name'
     subnet_name = 'subnet_name'
     subnet_id = '1f1696eb-7f47-47f6-835c-4889bff88604'
