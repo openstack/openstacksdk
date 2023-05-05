@@ -20,12 +20,11 @@ FAKE = {
     },
     'engine': {
         'revision': '1.0.0',
-    }
+    },
 }
 
 
 class TestBuildInfo(base.TestCase):
-
     def setUp(self):
         super(TestBuildInfo, self).setUp()
 

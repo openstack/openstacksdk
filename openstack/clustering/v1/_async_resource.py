@@ -16,7 +16,6 @@ from openstack import resource
 
 
 class AsyncResource(resource.Resource):
-
     def delete(self, session, error_message=None):
         """Delete the remote resource based on this instance.
 
@@ -39,6 +38,6 @@ class AsyncResource(resource.Resource):
         location = response.headers['Location']
         action_id = location.split('/')[-1]
         action = _action.Action.existing(
-            id=action_id,
-            connection=self._connection)
+            id=action_id, connection=self._connection
+        )
         return action

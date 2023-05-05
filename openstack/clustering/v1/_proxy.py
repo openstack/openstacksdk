@@ -132,8 +132,9 @@ class Proxy(proxy.Proxy):
         :returns: One :class:`~openstack.clustering.v1.profile.Profile` object
             or None
         """
-        return self._find(_profile.Profile, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _profile.Profile, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_profile(self, profile):
         """Get a single profile.
@@ -231,8 +232,9 @@ class Proxy(proxy.Proxy):
             server = self._get_resource(_cluster.Cluster, cluster)
             return server.force_delete(self)
         else:
-            return self._delete(_cluster.Cluster, cluster,
-                                ignore_missing=ignore_missing)
+            return self._delete(
+                _cluster.Cluster, cluster, ignore_missing=ignore_missing
+            )
 
     def find_cluster(self, name_or_id, ignore_missing=True):
         """Find a single cluster.
@@ -246,8 +248,9 @@ class Proxy(proxy.Proxy):
         :returns: One :class:`~openstack.clustering.v1.cluster.Cluster` object
             or None
         """
-        return self._find(_cluster.Cluster, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _cluster.Cluster, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_cluster(self, cluster):
         """Get a single cluster.
@@ -495,8 +498,9 @@ class Proxy(proxy.Proxy):
 
         :returns: A dictionary containing the list of attribute values.
         """
-        return self._list(_cluster_attr.ClusterAttr, cluster_id=cluster,
-                          path=path)
+        return self._list(
+            _cluster_attr.ClusterAttr, cluster_id=cluster, path=path
+        )
 
     def check_cluster(self, cluster, **params):
         """Check a cluster.
@@ -569,8 +573,9 @@ class Proxy(proxy.Proxy):
             server = self._get_resource(_node.Node, node)
             return server.force_delete(self)
         else:
-            return self._delete(_node.Node, node,
-                                ignore_missing=ignore_missing)
+            return self._delete(
+                _node.Node, node, ignore_missing=ignore_missing
+            )
 
     def find_node(self, name_or_id, ignore_missing=True):
         """Find a single node.
@@ -584,8 +589,9 @@ class Proxy(proxy.Proxy):
         :returns: One :class:`~openstack.clustering.v1.node.Node` object
             or None.
         """
-        return self._find(_node.Node, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _node.Node, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_node(self, node, details=False):
         """Get a single node.
@@ -755,8 +761,9 @@ class Proxy(proxy.Proxy):
         :returns: A policy object or None.
         :rtype: :class:`~openstack.clustering.v1.policy.Policy`
         """
-        return self._find(_policy.Policy, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _policy.Policy, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_policy(self, policy):
         """Get a single policy.
@@ -834,8 +841,9 @@ class Proxy(proxy.Proxy):
         :returns: A generator of cluster-policy binding instances.
         """
         cluster_id = resource.Resource._get_id(cluster)
-        return self._list(_cluster_policy.ClusterPolicy, cluster_id=cluster_id,
-                          **query)
+        return self._list(
+            _cluster_policy.ClusterPolicy, cluster_id=cluster_id, **query
+        )
 
     def get_cluster_policy(self, cluster_policy, cluster):
         """Get a cluster-policy binding.
@@ -851,8 +859,9 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             cluster-policy binding matching the criteria could be found.
         """
-        return self._get(_cluster_policy.ClusterPolicy, cluster_policy,
-                         cluster_id=cluster)
+        return self._get(
+            _cluster_policy.ClusterPolicy, cluster_policy, cluster_id=cluster
+        )
 
     def create_receiver(self, **attrs):
         """Create a new receiver from attributes.
@@ -890,8 +899,9 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        self._delete(_receiver.Receiver, receiver,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _receiver.Receiver, receiver, ignore_missing=ignore_missing
+        )
 
     def find_receiver(self, name_or_id, ignore_missing=True):
         """Find a single receiver.
@@ -905,8 +915,9 @@ class Proxy(proxy.Proxy):
         :returns: A receiver object or None.
         :rtype: :class:`~openstack.clustering.v1.receiver.Receiver`
         """
-        return self._find(_receiver.Receiver, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _receiver.Receiver, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_receiver(self, receiver):
         """Get a single receiver.
@@ -1035,8 +1046,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_event.Event, **query)
 
-    def wait_for_status(self, res, status, failures=None, interval=2,
-                        wait=120):
+    def wait_for_status(
+        self, res, status, failures=None, interval=2, wait=120
+    ):
         """Wait for a resource to be in a particular status.
 
         :param res: The resource to wait on to reach the specified status.
@@ -1059,7 +1071,8 @@ class Proxy(proxy.Proxy):
         """
         failures = [] if failures is None else failures
         return resource.wait_for_status(
-            self, res, status, failures, interval, wait)
+            self, res, status, failures, interval, wait
+        )
 
     def wait_for_delete(self, res, interval=2, wait=120):
         """Wait for a resource to be deleted.

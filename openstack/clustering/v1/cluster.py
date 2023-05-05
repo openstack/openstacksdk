@@ -29,7 +29,8 @@ class Cluster(_async_resource.AsyncResource, metadata.MetadataMixin):
     commit_method = 'PATCH'
 
     _query_mapping = resource.QueryParameters(
-        'name', 'status', 'sort', 'global_project')
+        'name', 'status', 'sort', 'global_project'
+    )
 
     # Properties
     #: The name of the cluster.
@@ -96,9 +97,7 @@ class Cluster(_async_resource.AsyncResource, metadata.MetadataMixin):
     def del_nodes(self, session, nodes, **params):
         data = {'nodes': nodes}
         data.update(params)
-        body = {
-            'del_nodes': data
-        }
+        body = {'del_nodes': data}
         return self.action(session, body)
 
     def replace_nodes(self, session, nodes):
@@ -126,17 +125,13 @@ class Cluster(_async_resource.AsyncResource, metadata.MetadataMixin):
         return self.action(session, body)
 
     def resize(self, session, **params):
-        body = {
-            'resize': params
-        }
+        body = {'resize': params}
         return self.action(session, body)
 
     def policy_attach(self, session, policy_id, **params):
         data = {'policy_id': policy_id}
         data.update(params)
-        body = {
-            'policy_attach': data
-        }
+        body = {'policy_attach': data}
         return self.action(session, body)
 
     def policy_detach(self, session, policy_id):
@@ -150,21 +145,15 @@ class Cluster(_async_resource.AsyncResource, metadata.MetadataMixin):
     def policy_update(self, session, policy_id, **params):
         data = {'policy_id': policy_id}
         data.update(params)
-        body = {
-            'policy_update': data
-        }
+        body = {'policy_update': data}
         return self.action(session, body)
 
     def check(self, session, **params):
-        body = {
-            'check': params
-        }
+        body = {'check': params}
         return self.action(session, body)
 
     def recover(self, session, **params):
-        body = {
-            'recover': params
-        }
+        body = {'recover': params}
         return self.action(session, body)
 
     def op(self, session, operation, **params):
@@ -177,8 +166,7 @@ class Cluster(_async_resource.AsyncResource, metadata.MetadataMixin):
         :returns: A dictionary containing the action ID.
         """
         url = utils.urljoin(self.base_path, self.id, 'ops')
-        resp = session.post(url,
-                            json={operation: params})
+        resp = session.post(url, json={operation: params})
         return resp.json()
 
     def force_delete(self, session):

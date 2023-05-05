@@ -28,16 +28,12 @@ FAKE = {
     'timestamp': '2016-10-10T12:46:36.000000',
     'user': '5e5bf8027826429c96af157f68dc9072',
     'meta_data': {
-        "action": {
-            "created_at": "2019-07-13T13:18:18Z",
-            "outputs": {}
-        }
-    }
+        "action": {"created_at": "2019-07-13T13:18:18Z", "outputs": {}}
+    },
 }
 
 
 class TestEvent(base.TestCase):
-
     def setUp(self):
         super(TestEvent, self).setUp()
 

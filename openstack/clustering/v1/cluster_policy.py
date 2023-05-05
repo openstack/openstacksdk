@@ -23,7 +23,8 @@ class ClusterPolicy(resource.Resource):
     allow_fetch = True
 
     _query_mapping = resource.QueryParameters(
-        'sort', 'policy_name', 'policy_type', is_enabled='enabled')
+        'sort', 'policy_name', 'policy_type', is_enabled='enabled'
+    )
 
     # Properties
     #: ID of the policy object.

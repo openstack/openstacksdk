@@ -30,8 +30,13 @@ class Node(_async_resource.AsyncResource):
     commit_method = 'PATCH'
 
     _query_mapping = resource.QueryParameters(
-        'show_details', 'name', 'sort', 'global_project', 'cluster_id',
-        'status')
+        'show_details',
+        'name',
+        'sort',
+        'global_project',
+        'cluster_id',
+        'status',
+    )
 
     # Properties
     #: The name of the node.
@@ -98,9 +103,7 @@ class Node(_async_resource.AsyncResource):
         :param session: A session object used for sending request.
         :returns: A dictionary containing the action ID.
         """
-        body = {
-            'check': params
-        }
+        body = {'check': params}
         return self._action(session, body)
 
     def recover(self, session, **params):
@@ -109,9 +112,7 @@ class Node(_async_resource.AsyncResource):
         :param session: A session object used for sending request.
         :returns: A dictionary containing the action ID.
         """
-        body = {
-            'recover': params
-        }
+        body = {'recover': params}
         return self._action(session, body)
 
     def op(self, session, operation, **params):
@@ -124,8 +125,7 @@ class Node(_async_resource.AsyncResource):
         :returns: A dictionary containing the action ID.
         """
         url = utils.urljoin(self.base_path, self.id, 'ops')
-        resp = session.post(url,
-                            json={operation: params})
+        resp = session.post(url, json={operation: params})
         return resp.json()
 
     def adopt(self, session, preview=False, **params):
@@ -143,7 +143,7 @@ class Node(_async_resource.AsyncResource):
                 'identity': params.get('identity'),
                 'overrides': params.get('overrides'),
                 'type': params.get('type'),
-                'snapshot': params.get('snapshot')
+                'snapshot': params.get('snapshot'),
             }
         else:
             path = 'adopt'

@@ -65,7 +65,6 @@ FAKE_CREATE_RESP = {
 
 
 class TestCluster(base.TestCase):
-
     def setUp(self):
         super(TestCluster, self).setUp()
 
@@ -102,13 +101,17 @@ class TestCluster(base.TestCase):
         self.assertEqual(FAKE['dependents'], sot.dependents)
         self.assertTrue(sot.is_profile_only)
 
-        self.assertDictEqual({"limit": "limit",
-                              "marker": "marker",
-                              "name": "name",
-                              "status": "status",
-                              "sort": "sort",
-                              "global_project": "global_project"},
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {
+                "limit": "limit",
+                "marker": "marker",
+                "name": "name",
+                "status": "status",
+                "sort": "sort",
+                "global_project": "global_project",
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_scale_in(self):
         sot = cluster.Cluster(**FAKE)
@@ -120,8 +123,7 @@ class TestCluster(base.TestCase):
         self.assertEqual('', sot.scale_in(sess, 3))
         url = 'clusters/%s/actions' % sot.id
         body = {'scale_in': {'count': 3}}
-        sess.post.assert_called_once_with(url,
-                                          json=body)
+        sess.post.assert_called_once_with(url, json=body)
 
     def test_scale_out(self):
         sot = cluster.Cluster(**FAKE)
@@ -133,8 +135,7 @@ class TestCluster(base.TestCase):
         self.assertEqual('', sot.scale_out(sess, 3))
         url = 'clusters/%s/actions' % sot.id
         body = {'scale_out': {'count': 3}}
-        sess.post.assert_called_once_with(url,
-                                          json=body)
+        sess.post.assert_called_once_with(url, json=body)
 
     def test_resize(self):
         sot = cluster.Cluster(**FAKE)
@@ -146,8 +147,7 @@ class TestCluster(base.TestCase):
         self.assertEqual('', sot.resize(sess, foo='bar', zoo=5))
         url = 'clusters/%s/actions' % sot.id
         body = {'resize': {'foo': 'bar', 'zoo': 5}}
-        sess.post.assert_called_once_with(url,
-                                          json=body)
+        sess.post.assert_called_once_with(url, json=body)
 
     def test_add_nodes(self):
         sot = cluster.Cluster(**FAKE)
@@ -159,8 +159,7 @@ class TestCluster(base.TestCase):
         self.assertEqual('', sot.add_nodes(sess, ['node-33']))
         url = 'clusters/%s/actions' % sot.id
         body = {'add_nodes': {'nodes': ['node-33']}}
-        sess.post.assert_called_once_with(url,
-                                          json=body)
+        sess.post.assert_called_once_with(url, json=body)
 
     def test_del_nodes(self):
         sot = cluster.Cluster(**FAKE)
@@ -172,8 +171,7 @@ class TestCluster(base.TestCase):
         self.assertEqual('', sot.del_nodes(sess, ['node-11']))
         url = 'clusters/%s/actions' % sot.id
         body = {'del_nodes': {'nodes': ['node-11']}}
-        sess.post.assert_called_once_with(url,
-                                          json=body)
+        sess.post.assert_called_once_with(url, json=body)
 
     def test_del_nodes_with_params(self):
         sot = cluster.Cluster(**FAKE)
@@ -193,8 +191,7 @@ class TestCluster(base.TestCase):
                 'destroy_after_deletion': True,
             }
         }
-        sess.post.assert_called_once_with(url,
-                                          json=body)
+        sess.post.assert_called_once_with(url, json=body)
 
     def test_replace_nodes(self):
         sot = cluster.Cluster(**FAKE)
@@ -206,8 +203,7 @@ class TestCluster(base.TestCase):
         self.assertEqual('', sot.replace_nodes(sess, {'node-22': 'node-44'}))
         url = 'clusters/%s/actions' % sot.id
         body = {'replace_nodes': {'nodes': {'node-22': 'node-44'}}}
-        sess.post.assert_called_once_with(url,
-                                          json=body)
+        sess.post.assert_called_once_with(url, json=body)
 
     def test_policy_attach(self):
         sot = cluster.Cluster(**FAKE)
@@ -228,8 +224,7 @@ class TestCluster(base.TestCase):
                 'enabled': True,
             }
         }
-        sess.post.assert_called_once_with(url,
-                                          json=body)
+        sess.post.assert_called_once_with(url, json=body)
 
     def test_policy_detach(self):
         sot = cluster.Cluster(**FAKE)
@@ -242,8 +237,7 @@ class TestCluster(base.TestCase):
 
         url = 'clusters/%s/actions' % sot.id
         body = {'policy_detach': {'policy_id': 'POLICY'}}
-        sess.post.assert_called_once_with(url,
-                                          json=body)
+        sess.post.assert_called_once_with(url, json=body)
 
     def test_policy_update(self):
         sot = cluster.Cluster(**FAKE)
@@ -252,20 +246,12 @@ class TestCluster(base.TestCase):
         resp.json = mock.Mock(return_value='')
         sess = mock.Mock()
         sess.post = mock.Mock(return_value=resp)
-        params = {
-            'enabled': False
-        }
+        params = {'enabled': False}
         self.assertEqual('', sot.policy_update(sess, 'POLICY', **params))
 
         url = 'clusters/%s/actions' % sot.id
-        body = {
-            'policy_update': {
-                'policy_id': 'POLICY',
-                'enabled': False
-            }
-        }
-        sess.post.assert_called_once_with(url,
-                                          json=body)
+        body = {'policy_update': {'policy_id': 'POLICY', 'enabled': False}}
+        sess.post.assert_called_once_with(url, json=body)
 
     def test_check(self):
         sot = cluster.Cluster(**FAKE)
@@ -277,8 +263,7 @@ class TestCluster(base.TestCase):
         self.assertEqual('', sot.check(sess))
         url = 'clusters/%s/actions' % sot.id
         body = {'check': {}}
-        sess.post.assert_called_once_with(url,
-                                          json=body)
+        sess.post.assert_called_once_with(url, json=body)
 
     def test_recover(self):
         sot = cluster.Cluster(**FAKE)
@@ -290,8 +275,7 @@ class TestCluster(base.TestCase):
         self.assertEqual('', sot.recover(sess))
         url = 'clusters/%s/actions' % sot.id
         body = {'recover': {}}
-        sess.post.assert_called_once_with(url,
-                                          json=body)
+        sess.post.assert_called_once_with(url, json=body)
 
     def test_operation(self):
         sot = cluster.Cluster(**FAKE)
@@ -303,8 +287,7 @@ class TestCluster(base.TestCase):
         self.assertEqual('', sot.op(sess, 'dance', style='tango'))
         url = 'clusters/%s/ops' % sot.id
         body = {'dance': {'style': 'tango'}}
-        sess.post.assert_called_once_with(url,
-                                          json=body)
+        sess.post.assert_called_once_with(url, json=body)
 
     def test_force_delete(self):
         sot = cluster.Cluster(**FAKE)

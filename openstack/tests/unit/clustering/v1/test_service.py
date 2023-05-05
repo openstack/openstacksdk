@@ -27,7 +27,6 @@ EXAMPLE = {
 
 
 class TestService(base.TestCase):
-
     def setUp(self):
         super(TestService, self).setUp()
         self.resp = mock.Mock()

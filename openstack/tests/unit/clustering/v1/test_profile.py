@@ -28,8 +28,8 @@ FAKE = {
             'flavor': 1,
             'image': 'cirros-0.3.2-x86_64-uec',
             'key_name': 'oskey',
-            'name': 'cirros_server'
-        }
+            'name': 'cirros_server',
+        },
     },
     'project': '42d9e9663331431f97b75e25136307ff',
     'domain': '204ccccd267b40aea871750116b5b184',
@@ -41,7 +41,6 @@ FAKE = {
 
 
 class TestProfile(base.TestCase):
-
     def setUp(self):
         super(TestProfile, self).setUp()
 
@@ -72,7 +71,6 @@ class TestProfile(base.TestCase):
 
 
 class TestProfileValidate(base.TestCase):
-
     def setUp(self):
         super(TestProfileValidate, self).setUp()
 

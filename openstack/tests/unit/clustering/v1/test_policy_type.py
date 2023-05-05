@@ -16,20 +16,12 @@ from openstack.tests.unit import base
 
 FAKE = {
     'name': 'FAKE_POLICY_TYPE',
-    'schema': {
-        'foo': 'bar'
-    },
-    'support_status': {
-        '1.0': [{
-            'status': 'supported',
-            'since': '2016.10'
-        }]
-    }
+    'schema': {'foo': 'bar'},
+    'support_status': {'1.0': [{'status': 'supported', 'since': '2016.10'}]},
 }
 
 
 class TestPolicyType(base.TestCase):
-
     def test_basic(self):
         sot = policy_type.PolicyType()
         self.assertEqual('policy_type', sot.resource_key)

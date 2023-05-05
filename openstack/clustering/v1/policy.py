@@ -28,7 +28,8 @@ class Policy(resource.Resource):
     commit_method = 'PATCH'
 
     _query_mapping = resource.QueryParameters(
-        'name', 'type', 'sort', 'global_project')
+        'name', 'type', 'sort', 'global_project'
+    )
 
     # Properties
     #: The name of the policy.

@@ -17,20 +17,19 @@ from openstack.tests.unit import base
 
 FAKE = {
     'name': 'FAKE_PROFILE_TYPE',
-    'schema': {
-        'foo': 'bar'
-    },
+    'schema': {'foo': 'bar'},
     'support_status': {
-        '1.0': [{
-            'status': 'supported',
-            'since': '2016.10',
-        }]
-    }
+        '1.0': [
+            {
+                'status': 'supported',
+                'since': '2016.10',
+            }
+        ]
+    },
 }
 
 
 class TestProfileType(base.TestCase):
-
     def test_basic(self):
         sot = profile_type.ProfileType()
         self.assertEqual('profile_type', sot.resource_key)

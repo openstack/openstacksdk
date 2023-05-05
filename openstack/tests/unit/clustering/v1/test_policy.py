@@ -28,7 +28,7 @@ FAKE = {
             'grace_period': 60,
             'reduce_desired_capacity': False,
             'destroy_after_deletion': True,
-        }
+        },
     },
     'project': '42d9e9663331431f97b75e25136307ff',
     'domain': '204ccccd267b40aea871750116b5b184',
@@ -41,7 +41,6 @@ FAKE = {
 
 
 class TestPolicy(base.TestCase):
-
     def setUp(self):
         super(TestPolicy, self).setUp()
 
@@ -70,7 +69,6 @@ class TestPolicy(base.TestCase):
 
 
 class TestPolicyValidate(base.TestCase):
-
     def setUp(self):
         super(TestPolicyValidate, self).setUp()
 

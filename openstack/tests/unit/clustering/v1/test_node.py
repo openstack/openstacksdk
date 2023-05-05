@@ -33,12 +33,11 @@ FAKE = {
     'created_at': '2015-10-10T12:46:36.000000',
     'updated_at': '2016-10-10T12:46:36.000000',
     'init_at': '2015-10-10T12:46:36.000000',
-    'tainted': True
+    'tainted': True,
 }
 
 
 class TestNode(base.TestCase):
-
     def test_basic(self):
         sot = node.Node()
         self.assertEqual('node', sot.resource_key)
@@ -78,8 +77,7 @@ class TestNode(base.TestCase):
         self.assertEqual('', sot.check(sess))
         url = 'nodes/%s/actions' % sot.id
         body = {'check': {}}
-        sess.post.assert_called_once_with(url,
-                                          json=body)
+        sess.post.assert_called_once_with(url, json=body)
 
     def test_recover(self):
         sot = node.Node(**FAKE)
@@ -91,8 +89,7 @@ class TestNode(base.TestCase):
         self.assertEqual('', sot.recover(sess))
         url = 'nodes/%s/actions' % sot.id
         body = {'recover': {}}
-        sess.post.assert_called_once_with(url,
-                                          json=body)
+        sess.post.assert_called_once_with(url, json=body)
 
     def test_operation(self):
         sot = node.Node(**FAKE)
@@ -103,8 +100,9 @@ class TestNode(base.TestCase):
         sess.post = mock.Mock(return_value=resp)
         self.assertEqual('', sot.op(sess, 'dance', style='tango'))
         url = 'nodes/%s/ops' % sot.id
-        sess.post.assert_called_once_with(url,
-                                          json={'dance': {'style': 'tango'}})
+        sess.post.assert_called_once_with(
+            url, json={'dance': {'style': 'tango'}}
+        )
 
     def test_adopt_preview(self):
         sot = node.Node.new()
@@ -118,12 +116,11 @@ class TestNode(base.TestCase):
             'identity': 'fake-resource-id',
             'overrides': {},
             'type': 'os.nova.server-1.0',
-            'snapshot': False
+            'snapshot': False,
         }
         res = sot.adopt(sess, True, **attrs)
         self.assertEqual({"foo": "bar"}, res)
-        sess.post.assert_called_once_with("nodes/adopt-preview",
-                                          json=attrs)
+        sess.post.assert_called_once_with("nodes/adopt-preview", json=attrs)
 
     def test_adopt(self):
         sot = node.Node.new()
@@ -136,8 +133,9 @@ class TestNode(base.TestCase):
 
         res = sot.adopt(sess, False, param="value")
         self.assertEqual(sot, res)
-        sess.post.assert_called_once_with("nodes/adopt",
-                                          json={"param": "value"})
+        sess.post.assert_called_once_with(
+            "nodes/adopt", json={"param": "value"}
+        )
 
     def test_force_delete(self):
         sot = node.Node(**FAKE)
@@ -158,7 +156,6 @@ class TestNode(base.TestCase):
 
 
 class TestNodeDetail(base.TestCase):
-
     def test_basic(self):
         sot = node.NodeDetail()
         self.assertEqual('/nodes/%(node_id)s?show_details=True', sot.base_path)

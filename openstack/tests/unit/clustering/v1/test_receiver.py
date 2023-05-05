@@ -26,10 +26,7 @@ FAKE = {
     'created_at': '2015-10-10T12:46:36.000000',
     'updated_at': '2016-10-10T12:46:36.000000',
     'actor': {},
-    'params': {
-        'adjustment_type': 'CHANGE_IN_CAPACITY',
-        'adjustment': 2
-    },
+    'params': {'adjustment_type': 'CHANGE_IN_CAPACITY', 'adjustment': 2},
     'channel': {
         'alarm_url': 'http://host:port/webhooks/AN_ID/trigger?V=1',
     },
@@ -40,7 +37,6 @@ FAKE = {
 
 
 class TestReceiver(base.TestCase):
-
     def setUp(self):
         super(TestReceiver, self).setUp()
 

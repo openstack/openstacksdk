@@ -24,8 +24,14 @@ class Event(resource.Resource):
     allow_fetch = True
 
     _query_mapping = resource.QueryParameters(
-        'cluster_id', 'action', 'level', 'sort', 'global_project',
-        obj_id='oid', obj_name='oname', obj_type='otype',
+        'cluster_id',
+        'action',
+        'level',
+        'sort',
+        'global_project',
+        obj_id='oid',
+        obj_name='oname',
+        obj_type='otype',
     )
 
     # Properties

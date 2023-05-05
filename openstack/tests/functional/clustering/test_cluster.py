@@ -28,9 +28,8 @@ class TestCluster(base.BaseFunctionalTest):
         self.cidr = '10.99.99.0/16'
 
         self.network, self.subnet = test_network.create_network(
-            self.conn,
-            self.getUniqueString(),
-            self.cidr)
+            self.conn, self.getUniqueString(), self.cidr
+        )
         self.assertIsNotNone(self.network)
 
         profile_attrs = {
@@ -42,8 +41,10 @@ class TestCluster(base.BaseFunctionalTest):
                     'name': self.getUniqueString(),
                     'flavor': self.flavor.name,
                     'image': self.image.name,
-                    'networks': [{'network': self.network.id}]
-                }}}
+                    'networks': [{'network': self.network.id}],
+                },
+            },
+        }
 
         self.profile = self.conn.clustering.create_profile(**profile_attrs)
         self.assertIsNotNone(self.profile)
@@ -59,15 +60,16 @@ class TestCluster(base.BaseFunctionalTest):
 
         self.cluster = self.conn.clustering.create_cluster(**cluster_spec)
         self.conn.clustering.wait_for_status(
-            self.cluster, 'ACTIVE',
-            wait=self._wait_for_timeout)
+            self.cluster, 'ACTIVE', wait=self._wait_for_timeout
+        )
         assert isinstance(self.cluster, cluster.Cluster)
 
     def tearDown(self):
         if self.cluster:
             self.conn.clustering.delete_cluster(self.cluster.id)
             self.conn.clustering.wait_for_delete(
-                self.cluster, wait=self._wait_for_timeout)
+                self.cluster, wait=self._wait_for_timeout
+            )
 
         test_network.delete_network(self.conn, self.network, self.subnet)
 
@@ -90,7 +92,8 @@ class TestCluster(base.BaseFunctionalTest):
     def test_update(self):
         new_cluster_name = self.getUniqueString()
         sot = self.conn.clustering.update_cluster(
-            self.cluster, name=new_cluster_name, profile_only=False)
+            self.cluster, name=new_cluster_name, profile_only=False
+        )
 
         time.sleep(2)
         sot = self.conn.clustering.get_cluster(self.cluster)
@@ -98,10 +101,12 @@ class TestCluster(base.BaseFunctionalTest):
 
     def test_delete(self):
         cluster_delete_action = self.conn.clustering.delete_cluster(
-            self.cluster.id)
+            self.cluster.id
+        )
 
-        self.conn.clustering.wait_for_delete(self.cluster,
-                                             wait=self._wait_for_timeout)
+        self.conn.clustering.wait_for_delete(
+            self.cluster, wait=self._wait_for_timeout
+        )
 
         action = self.conn.clustering.get_action(cluster_delete_action.id)
         self.assertEqual(action.target_id, self.cluster.id)
@@ -112,10 +117,12 @@ class TestCluster(base.BaseFunctionalTest):
 
     def test_force_delete(self):
         cluster_delete_action = self.conn.clustering.delete_cluster(
-            self.cluster.id, False, True)
+            self.cluster.id, False, True
+        )
 
-        self.conn.clustering.wait_for_delete(self.cluster,
-                                             wait=self._wait_for_timeout)
+        self.conn.clustering.wait_for_delete(
+            self.cluster, wait=self._wait_for_timeout
+        )
 
         action = self.conn.clustering.get_action(cluster_delete_action.id)
         self.assertEqual(action.target_id, self.cluster.id)

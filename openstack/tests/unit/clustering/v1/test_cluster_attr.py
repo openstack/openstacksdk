@@ -23,15 +23,15 @@ FAKE = {
 
 
 class TestClusterAttr(base.TestCase):
-
     def setUp(self):
         super(TestClusterAttr, self).setUp()
 
     def test_basic(self):
         sot = ca.ClusterAttr()
         self.assertEqual('cluster_attributes', sot.resources_key)
-        self.assertEqual('/clusters/%(cluster_id)s/attrs/%(path)s',
-                         sot.base_path)
+        self.assertEqual(
+            '/clusters/%(cluster_id)s/attrs/%(path)s', sot.base_path
+        )
         self.assertTrue(sot.allow_list)
 
     def test_instantiate(self):

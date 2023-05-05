@@ -26,7 +26,6 @@ FAKE = {
 
 
 class TestClusterPolicy(base.TestCase):
-
     def setUp(self):
         super(TestClusterPolicy, self).setUp()
 
@@ -34,18 +33,21 @@ class TestClusterPolicy(base.TestCase):
         sot = cluster_policy.ClusterPolicy()
         self.assertEqual('cluster_policy', sot.resource_key)
         self.assertEqual('cluster_policies', sot.resources_key)
-        self.assertEqual('/clusters/%(cluster_id)s/policies',
-                         sot.base_path)
+        self.assertEqual('/clusters/%(cluster_id)s/policies', sot.base_path)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_list)
 
-        self.assertDictEqual({"policy_name": "policy_name",
-                              "policy_type": "policy_type",
-                              "is_enabled": "enabled",
-                              "sort": "sort",
-                              "limit": "limit",
-                              "marker": "marker"},
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {
+                "policy_name": "policy_name",
+                "policy_type": "policy_type",
+                "is_enabled": "enabled",
+                "sort": "sort",
+                "limit": "limit",
+                "marker": "marker",
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_instantiate(self):
         sot = cluster_policy.ClusterPolicy(**FAKE)
