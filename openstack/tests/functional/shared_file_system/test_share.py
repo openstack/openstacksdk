@@ -36,6 +36,11 @@ class ShareTest(base.BaseSharedFileSystemTest):
         assert isinstance(sot, _share.Share)
         self.assertEqual(self.SHARE_ID, sot.id)
 
+    def test_find(self):
+        sot = self.user_cloud.share.find_share(name_or_id=self.SHARE_NAME)
+        assert isinstance(sot, _share.Share)
+        self.assertEqual(self.SHARE_ID, sot.id)
+
     def test_list_share(self):
         shares = self.user_cloud.share.shares(details=False)
         self.assertGreater(len(list(shares)), 0)
