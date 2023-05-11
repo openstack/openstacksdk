@@ -44,7 +44,7 @@ string replacement is used, e.g., ``base_path = "/servers/%(server_id)s/ips"``.
 requires a key to obtain the response value. For example, the ``Server``
 class sets ``resource_key = "server"`` as an individual ``Server`` is
 stored in a dictionary keyed with the singular noun,
-and ``resource_keys = "servers"`` as multiple ``Server``\s are stored in
+and ``resources_key = "servers"`` as multiple ``Server``\s are stored in
 a dictionary keyed with the plural noun in the response.
 
 Proxy
