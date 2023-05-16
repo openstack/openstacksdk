@@ -7,7 +7,10 @@
       "project_domain_name": "Default"
     },
     "regions": [
-      "US-EAST-VA-1"
+      "US-EAST-VA-1",
+      "US-WEST-OR-1",
+      "US-EAST-VA",
+      "US-WEST-OR"
     ],
     "identity_api_version": "3",
     "floating_ip_source": "None"
