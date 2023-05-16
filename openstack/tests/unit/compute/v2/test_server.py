@@ -461,6 +461,21 @@ class TestServer(base.TestCase):
             microversion=self.sess.default_microversion,
         )
 
+    def test_shelve_offload(self):
+        sot = server.Server(**EXAMPLE)
+
+        self.assertIsNone(sot.shelve_offload(self.sess))
+
+        url = 'servers/IDENTIFIER/action'
+        body = {"shelveOffload": None}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url,
+            json=body,
+            headers=headers,
+            microversion=self.sess.default_microversion,
+        )
+
     def test_create_image_header(self):
         sot = server.Server(**EXAMPLE)
         name = 'noo'
