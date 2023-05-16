@@ -1,5 +1,5 @@
 openstack.accelerator.v2.device_profile
-============================================
+=======================================
 
 .. automodule:: openstack.accelerator.v2.device_profile
 
