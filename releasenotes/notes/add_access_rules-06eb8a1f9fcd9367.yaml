@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added support for `access_rules
+    <https://docs.openstack.org/keystone/latest/user/application_credentials.html#access-rules>`_.

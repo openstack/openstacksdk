@@ -13,6 +13,7 @@
 import uuid
 
 from openstack.identity.v3 import _proxy
+from openstack.identity.v3 import access_rule
 from openstack.identity.v3 import credential
 from openstack.identity.v3 import domain
 from openstack.identity.v3 import endpoint
@@ -567,4 +568,46 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
                 self.proxy._get_resource(group.Group, 'uid'),
                 self.proxy._get_resource(role.Role, 'rid'),
             ],
+        )
+
+
+class TestAccessRule(TestIdentityProxyBase):
+    def test_access_rule_delete(self):
+        self.verify_delete(
+            self.proxy.delete_access_rule,
+            access_rule.AccessRule,
+            False,
+            method_args=[],
+            method_kwargs={'user': USER_ID, 'access_rule': 'access_rule'},
+            expected_args=['access_rule'],
+            expected_kwargs={'user_id': USER_ID},
+        )
+
+    def test_access_rule_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_access_rule,
+            access_rule.AccessRule,
+            True,
+            method_args=[],
+            method_kwargs={'user': USER_ID, 'access_rule': 'access_rule'},
+            expected_args=['access_rule'],
+            expected_kwargs={'user_id': USER_ID},
+        )
+
+    def test_access_rule_get(self):
+        self.verify_get(
+            self.proxy.get_access_rule,
+            access_rule.AccessRule,
+            method_args=[],
+            method_kwargs={'user': USER_ID, 'access_rule': 'access_rule'},
+            expected_args=['access_rule'],
+            expected_kwargs={'user_id': USER_ID},
+        )
+
+    def test_access_rules(self):
+        self.verify_list(
+            self.proxy.access_rules,
+            access_rule.AccessRule,
+            method_kwargs={'user': USER_ID},
+            expected_kwargs={'user_id': USER_ID},
         )

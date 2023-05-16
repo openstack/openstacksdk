@@ -14,6 +14,7 @@ import openstack.exceptions as exception
 from openstack.identity.v3 import (
     application_credential as _application_credential,
 )
+from openstack.identity.v3 import access_rule as _access_rule
 from openstack.identity.v3 import credential as _credential
 from openstack.identity.v3 import domain as _domain
 from openstack.identity.v3 import endpoint as _endpoint
@@ -57,6 +58,7 @@ from openstack import utils
 class Proxy(proxy.Proxy):
     _resource_registry = {
         "application_credential": _application_credential.ApplicationCredential,  # noqa: E501
+        "access_rule": _access_rule.AccessRule,
         "credential": _credential.Credential,
         "domain": _domain.Domain,
         "endpoint": _endpoint.Endpoint,
@@ -2010,4 +2012,57 @@ class Proxy(proxy.Proxy):
         """
         return self._update(
             _identity_provider.IdentityProvider, identity_provider, **attrs
+        )
+
+    # ========== Access rules ==========
+
+    def access_rules(self, user, **query):
+        """Retrieve a generator of access rules
+
+        :param user: Either the ID of a user or a :class:`~.user.User`
+            instance.
+        :param kwargs query: Optional query parameters to be sent to
+            limit the resources being returned.
+
+        :returns: A generator of access rules instances.
+        :rtype: :class:`~openstack.identity.v3.access_rule.AccessRule`
+        """
+        user = self._get_resource(_user.User, user)
+        return self._list(_access_rule.AccessRule, user_id=user.id, **query)
+
+    def get_access_rule(self, user, access_rule):
+        """Get a single access rule
+
+        :param user: Either the ID of a user or a :class:`~.user.User`
+            instance.
+        :param access rule: The value can be the ID of an access rule or a
+            :class:`~.access_rule.AccessRule` instance.
+
+        :returns: One :class:`~.access_rule.AccessRule`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            resource can be found.
+        """
+        user = self._get_resource(_user.User, user)
+        return self._get(_access_rule.AccessRule, access_rule, user_id=user.id)
+
+    def delete_access_rule(self, user, access_rule, ignore_missing=True):
+        """Delete an access rule
+
+        :param user: Either the ID of a user or a :class:`~.user.User`
+            instance.
+        :param access rule: The value can be either the ID of an
+            access rule or a :class:`~.access_rule.AccessRule` instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the access rule does not exist. When set to ``True``, no exception
+            will be thrown when attempting to delete a nonexistent access rule.
+
+        :returns: ``None``
+        """
+        user = self._get_resource(_user.User, user)
+        self._delete(
+            _access_rule.AccessRule,
+            access_rule,
+            user_id=user.id,
+            ignore_missing=ignore_missing,
         )
