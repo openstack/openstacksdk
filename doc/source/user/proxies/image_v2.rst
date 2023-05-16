@@ -29,6 +29,13 @@ Image Task Operations
   :noindex:
   :members: image_tasks
 
+Image Location Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.image.v2._proxy.Proxy
+  :noindex:
+  :members: add_image_location, image_locations
+
 Member Operations
 ^^^^^^^^^^^^^^^^^
 
