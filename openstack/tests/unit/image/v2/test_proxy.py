@@ -96,7 +96,7 @@ class TestImage(TestImageProxy):
         )
         self.assertIn('filename and data are mutually exclusive', str(exc))
 
-    def test_image_create_minimal(self):
+    def test_image_create(self):
         self.verify_create(
             self.proxy.create_image,
             _image.Image,
@@ -105,12 +105,16 @@ class TestImage(TestImageProxy):
                 'disk_format': 'fake_dformat',
                 'container_format': 'fake_cformat',
                 'allow_duplicates': True,
+                'is_protected': True,
             },
             expected_kwargs={
                 'name': 'fake',
                 'disk_format': 'fake_dformat',
                 'container_format': 'fake_cformat',
-                'properties': mock.ANY,
+                'is_protected': True,
+                'owner_specified.openstack.md5': '',
+                'owner_specified.openstack.object': 'images/fake',
+                'owner_specified.openstack.sha256': '',
             },
         )
 
@@ -187,9 +191,7 @@ class TestImage(TestImageProxy):
             meta={},
             properties={
                 self.proxy._IMAGE_MD5_KEY: '144c9defac04969c7bfad8efaa8ea194',
-                self.proxy._IMAGE_SHA256_KEY: 'b5d54c39e66671c9731b9f471e585'
-                'd8262cd4f54963f0c93082d8dcf33'
-                '4d4c78',
+                self.proxy._IMAGE_SHA256_KEY: 'b5d54c39e66671c9731b9f471e585d8262cd4f54963f0c93082d8dcf334d4c78',  # noqa: E501
                 self.proxy._IMAGE_OBJECT_KEY: 'bare/fake',
             },
             timeout=3600,
