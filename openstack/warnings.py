@@ -29,3 +29,7 @@ class RemovedFieldWarning(OpenStackDeprecationWarning):
 
 class LegacyAPIWarning(OpenStackDeprecationWarning):
     """Indicates an API that is in 'legacy' status, a long term deprecation."""
+
+
+class UnsupportedServiceVersion(Warning):
+    """Indicates a major version that SDK doesn't understand."""
