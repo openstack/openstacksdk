@@ -35,9 +35,9 @@ def download_image_stream(conn):
     with open("myimage.qcow2", "wb") as local_image:
         response = conn.image.download_image(image, stream=True)
 
-        # Read only 1024 bytes of memory at a time until
+        # Read only 1 MiB of memory at a time until
         # all of the image data has been consumed.
-        for chunk in response.iter_content(chunk_size=1024):
+        for chunk in response.iter_content(chunk_size=1024 * 1024):
             # With each chunk, add it to the hash to be computed.
             md5.update(chunk)
 

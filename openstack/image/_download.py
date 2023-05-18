@@ -25,7 +25,9 @@ def _verify_checksum(md5, checksum):
 
 
 class DownloadMixin:
-    def download(self, session, stream=False, output=None, chunk_size=1024):
+    def download(
+        self, session, stream=False, output=None, chunk_size=1024 * 1024
+    ):
         """Download the data contained in an image"""
         # TODO(briancurtin): This method should probably offload the get
         # operation into another thread or something of that nature.
