@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import fixtures
 import testtools
 
 from openstack import exceptions
@@ -41,5 +42,8 @@ class TestMissingVersion(base.TestCase):
 
     def test_unsupported_version_override(self):
         self.cloud.config.config['image_api_version'] = '7'
-        self.assertIsInstance(self.cloud.image, proxy.Proxy)
+        w = fixtures.WarningsCapture()
+        with w:
+            self.assertIsInstance(self.cloud.image, proxy.Proxy)
+            self.assertEqual(1, len(w.captures))
         self.assert_calls()
