@@ -29,6 +29,11 @@ EXAMPLE_STORE = {
     'id': IDENTIFIER,
     'description': 'Fast access to rbd store',
     'default': True,
+    'properties': {
+        "pool": "pool1",
+        "chunk_size": 65536,
+        "thin_provisioning": False,
+    },
 }
 
 
@@ -49,6 +54,7 @@ class TestStore(base.TestCase):
         self.assertEqual(EXAMPLE_STORE['id'], sot.id)
         self.assertEqual(EXAMPLE_STORE['description'], sot.description)
         self.assertEqual(EXAMPLE_STORE['default'], sot.is_default)
+        self.assertEqual(EXAMPLE_STORE['properties'], sot.properties)
 
     @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
     def test_delete_image(self):

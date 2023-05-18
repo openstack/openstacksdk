@@ -1615,7 +1615,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.image.v2.service_info.Store`
         """
         if details:
-            query['base_path'] = utils.urljoin(_si.Store, 'details')
+            query['base_path'] = utils.urljoin(_si.Store.base_path, 'detail')
         return self._list(_si.Store, **query)
 
     # ====== IMPORTS ======
