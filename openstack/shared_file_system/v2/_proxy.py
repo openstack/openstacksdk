@@ -109,6 +109,26 @@ class Proxy(proxy.Proxy):
         base_path = '/shares/detail' if details else None
         return self._list(_share.Share, base_path=base_path, **query)
 
+    def find_share(self, name_or_id, ignore_missing=True, **query):
+        """Find a single share
+
+        :param name_or_id: The name or ID of a share.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :param dict query: Any additional parameters to be passed into
+            underlying methods. such as query filters.
+
+        :returns: One :class:`~openstack.shared_file_system.v2.share.Share`
+                  or None
+        """
+
+        return self._find(
+            _share.Share, name_or_id, ignore_missing=ignore_missing, **query
+        )
+
     def get_share(self, share_id):
         """Lists details of a single share
 

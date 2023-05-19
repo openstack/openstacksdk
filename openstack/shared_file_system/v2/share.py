@@ -24,9 +24,9 @@ class Share(resource.Resource):
     allow_create = True
     allow_fetch = True
     allow_commit = True
-    allow_delete = True
     allow_list = True
     allow_head = False
+    allow_delete = True
 
     #: Properties
     #: The share instance access rules status. A valid value is active,

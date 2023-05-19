@@ -55,6 +55,9 @@ class TestSharedFileSystemShare(TestSharedFileSystemProxy):
     def test_share_get(self):
         self.verify_get(self.proxy.get_share, share.Share)
 
+    def test_share_find(self):
+        self.verify_find(self.proxy.find_share, share.Share)
+
     def test_share_delete(self):
         self.verify_delete(self.proxy.delete_share, share.Share, False)
 
