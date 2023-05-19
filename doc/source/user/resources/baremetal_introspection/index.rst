@@ -5,3 +5,4 @@ Baremetal Introspection Resources
    :maxdepth: 1
 
    v1/introspection
+   v1/introspection_rule

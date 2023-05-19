@@ -17,6 +17,7 @@ from keystoneauth1 import adapter
 from openstack.baremetal.v1 import node as _node
 from openstack.baremetal_introspection.v1 import _proxy
 from openstack.baremetal_introspection.v1 import introspection
+from openstack.baremetal_introspection.v1 import introspection_rule
 from openstack import exceptions
 from openstack.tests.unit import base
 from openstack.tests.unit import test_proxy_base
@@ -188,3 +189,41 @@ class TestGetData(base.TestCase):
             microversion='1.17',
         )
         self.assertIs(data, mock_request.return_value.json.return_value)
+
+
+class TestIntrospectionRule(test_proxy_base.TestProxyBase):
+    def setUp(self):
+        super().setUp()
+        self.proxy = _proxy.Proxy(self.session)
+
+    def test_introspection_rule_create(self):
+        self.verify_create(
+            self.proxy.create_introspection_rule,
+            introspection_rule.IntrospectionRule,
+        )
+
+    def test_introspection_rule_delete(self):
+        self.verify_delete(
+            self.proxy.delete_introspection_rule,
+            introspection_rule.IntrospectionRule,
+            False,
+        )
+
+    def test_introspection_rule_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_introspection_rule,
+            introspection_rule.IntrospectionRule,
+            True,
+        )
+
+    def test_introspection_rule_get(self):
+        self.verify_get(
+            self.proxy.get_introspection_rule,
+            introspection_rule.IntrospectionRule,
+        )
+
+    def test_introspection_rules(self):
+        self.verify_list(
+            self.proxy.introspection_rules,
+            introspection_rule.IntrospectionRule,
+        )

@@ -13,6 +13,9 @@
 from openstack import _log
 from openstack.baremetal.v1 import node as _node
 from openstack.baremetal_introspection.v1 import introspection as _introspect
+from openstack.baremetal_introspection.v1 import (
+    introspection_rule as _introspection_rule,
+)
 from openstack import exceptions
 from openstack import proxy
 
@@ -23,6 +26,7 @@ _logger = _log.setup_logging('openstack')
 class Proxy(proxy.Proxy):
     _resource_registry = {
         "introspection": _introspect.Introspection,
+        "introspection_rule": _introspection_rule.IntrospectionRule,
     }
 
     def introspections(self, **query):
@@ -128,7 +132,10 @@ class Proxy(proxy.Proxy):
                 raise
 
     def wait_for_introspection(
-        self, introspection, timeout=None, ignore_error=False
+        self,
+        introspection,
+        timeout=None,
+        ignore_error=False,
     ):
         """Wait for the introspection to finish.
 
@@ -147,3 +154,76 @@ class Proxy(proxy.Proxy):
         """
         res = self._get_resource(_introspect.Introspection, introspection)
         return res.wait(self, timeout=timeout, ignore_error=ignore_error)
+
+    def create_introspection_rule(self, **attrs):
+        """Create a new introspection rules from attributes.
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~.introspection_rule.IntrospectionRule`,
+            comprised of the properties on the IntrospectionRule class.
+
+        :returns: :class:`~.introspection_rule.IntrospectionRule` instance.
+        """
+        return self._create(_introspection_rule.IntrospectionRule, **attrs)
+
+    def delete_introspection_rule(
+        self,
+        introspection_rule,
+        ignore_missing=True,
+    ):
+        """Delete an introspection rule.
+
+        :param introspection_rule: The value can be either the ID of an
+            introspection rule or a
+            :class:`~.introspection_rule.IntrospectionRule` instance.
+        :param bool ignore_missing: When set to ``False``, an
+            exception:class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the introspection rule could not be found. When set to
+            ``True``, no exception will be raised when attempting to delete a
+            non-existent introspection rule.
+
+        :returns: ``None``
+        """
+        self._delete(
+            _introspection_rule.IntrospectionRule,
+            introspection_rule,
+            ignore_missing=ignore_missing,
+        )
+
+    def get_introspection_rule(self, introspection_rule):
+        """Get a specific introspection rule.
+
+        :param introspection_rule: The value can be the name or ID of an
+            introspection rule or a
+            :class:`~.introspection_rule.IntrospectionRule` instance.
+
+        :returns: :class:`~.introspection_rule.IntrospectionRule` instance.
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            introspection rule matching the name or ID could be found.
+        """
+        return self._get(
+            _introspection_rule.IntrospectionRule,
+            introspection_rule,
+        )
+
+    def introspection_rules(self, **query):
+        """Retrieve a generator of introspection rules.
+
+        :param dict query: Optional query parameters to be sent to restrict
+            the records to be returned. Available parameters include:
+
+            * ``uuid``: The UUID of the Ironic Inspector rule.
+            * ``limit``: List of a logic statementd or operations in rules,
+                         that can be evaluated as True or False.
+            * ``actions``: List of operations that will be performed
+                           if conditions of this rule are fulfilled.
+            * ``description``: Rule human-readable description.
+            * ``scope``: Scope of an introspection rule. If set, the rule
+                         is only applied to nodes that have
+                         matching inspection_scope property.
+
+        :returns: A generator of
+            :class:`~.introspection_rule.IntrospectionRule`
+            objects
+        """
+        return self._list(_introspection_rule.IntrospectionRule, **query)
