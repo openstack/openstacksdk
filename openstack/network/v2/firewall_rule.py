@@ -73,6 +73,10 @@ class FirewallRule(resource.Resource):
     source_ip_address = resource.Body('source_ip_address')
     #: The source port or port range for the firewall rule.
     source_port = resource.Body('source_port')
+    #: Summary field of a FirewallRule, composed of the protocol,
+    #: source_ip_address:source_port,
+    #: destination_ip_address:destination_port and action.
+    summary = resource.Computed('summary', default='')
     #: The ID of the firewall policy.
     firewall_policy_id = resource.Body('firewall_policy_id')
     #: The ID of the firewall rule.
