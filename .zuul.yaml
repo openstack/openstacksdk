@@ -105,13 +105,14 @@
     description: |
       Run openstacksdk functional tests against a master devstack
     required-projects:
-      - openstack/heat
+      - name: openstack/heat
+        override-checkout: ussuri-eol
     vars:
       devstack_localrc:
         DISABLE_AMP_IMAGE_BUILD: true
         Q_SERVICE_PLUGIN_CLASSES: qos,trunk
       devstack_plugins:
-        heat: https://opendev.org/openstack/heat
+        heat: https://opendev.org/openstack/heat refs/tags/ussuri-eol
       tox_environment:
         OPENSTACKSDK_HAS_HEAT: 1
       devstack_services:
@@ -406,7 +407,6 @@
       jobs:
         - opendev-buildset-registry
         - nodepool-build-image-siblings
-        - dib-nodepool-functional-openstack-centos-8-stream-src
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-senlin
@@ -431,7 +431,6 @@
       jobs:
         - opendev-buildset-registry
         - nodepool-build-image-siblings
-        - dib-nodepool-functional-openstack-centos-8-stream-src
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-senlin
