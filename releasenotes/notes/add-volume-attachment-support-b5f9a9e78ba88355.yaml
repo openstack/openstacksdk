@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    Added support for:
+
+    * Create Attachment
+    * Update Attachment
+    * List Attachment
+    * Get Attachment
+    * Delete Attachment
+    * Complete Attachment
