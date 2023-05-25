@@ -133,3 +133,11 @@ Helpers
 .. autoclass:: openstack.block_storage.v3._proxy.Proxy
   :noindex:
   :members: wait_for_status, wait_for_delete
+
+BlockStorageSummary Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v3._proxy.Proxy
+  :noindex:
+  :members: summary
+
