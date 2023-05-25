@@ -750,6 +750,7 @@ class ComputeCloudMixin:
         'config_drive',
         'admin_pass',
         'disk_config',
+        'tags',
     )
     def create_server(
         self,
