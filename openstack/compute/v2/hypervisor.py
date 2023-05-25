@@ -15,6 +15,7 @@ import warnings
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
+from openstack import warnings as os_warnings
 
 
 class Hypervisor(resource.Resource):
@@ -86,7 +87,8 @@ class Hypervisor(resource.Resource):
         Updates uptime attribute of the hypervisor object
         """
         warnings.warn(
-            "This call is deprecated and is only available until Nova 2.88"
+            "This call is deprecated and is only available until Nova 2.88",
+            os_warnings.LegacyAPIWarning,
         )
         if utils.supports_microversion(session, '2.88'):
             raise exceptions.SDKException(

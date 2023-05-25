@@ -12,7 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
 # alias because we already had an option named argparse
 import argparse as argparse_mod
 import collections
@@ -35,6 +34,7 @@ from openstack.config import cloud_region
 from openstack.config import defaults
 from openstack.config import vendors
 from openstack import exceptions
+from openstack import warnings as os_warnings
 
 APPDIRS = appdirs.AppDirs('openstack', 'OpenStack', multipath='/etc')
 CONFIG_HOME = APPDIRS.user_config_dir
@@ -506,9 +506,10 @@ class OpenStackConfig:
                 regions = config['region_name'].split(',')
             if len(regions) > 1:
                 warnings.warn(
-                    "Comma separated lists in region_name are deprecated."
-                    " Please use a yaml list in the regions"
-                    " parameter in {0} instead.".format(self.config_filename)
+                    f"Comma separated lists in region_name are deprecated. "
+                    f"Please use a yaml list in the regions "
+                    f"parameter in {self.config_filename} instead.",
+                    os_warnings.OpenStackDeprecationWarning,
                 )
             return self._expand_regions(regions)
         else:
@@ -585,9 +586,10 @@ class OpenStackConfig:
             return
         if 'cloud' in our_cloud:
             warnings.warn(
-                "{0} uses the keyword 'cloud' to reference a known "
-                "vendor profile. This has been deprecated in favor of the "
-                "'profile' keyword.".format(self.config_filename)
+                f"{self.config_filename} uses the keyword 'cloud' to "
+                f"reference a known vendor profile. This has been deprecated "
+                f"in favor of the 'profile' keyword.",
+                os_warnings.OpenStackDeprecationWarning,
             )
 
         vendor_filename, vendor_file = self._load_vendor_file()
@@ -609,9 +611,8 @@ class OpenStackConfig:
                 message = profile_data.pop('message', '')
                 if status == 'deprecated':
                     warnings.warn(
-                        "{profile_name} is deprecated: {message}".format(
-                            profile_name=profile_name, message=message
-                        )
+                        f"{profile_name} is deprecated: {message}",
+                        os_warnings.OpenStackDeprecationWarning,
                     )
                 elif status == 'shutdown':
                     raise exceptions.ConfigException(
@@ -624,8 +625,9 @@ class OpenStackConfig:
             else:
                 # Can't find the requested vendor config, go about business
                 warnings.warn(
-                    "Couldn't find the vendor profile '{0}', for"
-                    " the cloud '{1}'".format(profile_name, name)
+                    f"Couldn't find the vendor profile {profile_name} for"
+                    f"the cloud {name}",
+                    os_warnings.ConfigurationWarning,
                 )
 
     def _project_scoped(self, cloud):
@@ -687,11 +689,10 @@ class OpenStackConfig:
                 )
             if key in cloud:
                 warnings.warn(
-                    "{key} is deprecated. Please replace with an entry in"
-                    " a dict inside of the networks list with name: {name}"
-                    " and routes_externally: {external}".format(
-                        key=key, name=cloud[key], external=external
-                    )
+                    f"{key} is deprecated. Please replace with an entry in "
+                    f"a dict inside of the networks list with name: "
+                    f"{cloud[key]} and routes_externally: {external}",
+                    os_warnings.OpenStackDeprecationWarning,
                 )
                 networks.append(
                     dict(

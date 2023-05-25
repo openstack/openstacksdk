@@ -23,6 +23,7 @@ import jsonpatch
 
 from openstack.baremetal.v1._proxy import Proxy
 from openstack.cloud import exc
+from openstack import warnings as os_warnings
 
 
 def _normalize_port_list(nics):
@@ -317,7 +318,7 @@ class BaremetalCloudMixin:
         if wait is not None:
             warnings.warn(
                 "wait argument is deprecated and has no effect",
-                DeprecationWarning,
+                os_warnings.OpenStackDeprecationWarning,
             )
 
         machine = self.get_machine(uuid)
@@ -480,9 +481,8 @@ class BaremetalCloudMixin:
 
     def validate_node(self, uuid):
         warnings.warn(
-            'validate_node is deprecated, please use '
-            'validate_machine instead',
-            DeprecationWarning,
+            'validate_node is deprecated, please use validate_machine instead',
+            os_warnings.OpenStackDeprecationWarning,
         )
         self.baremetal.validate_node(uuid)
 
@@ -623,7 +623,7 @@ class BaremetalCloudMixin:
         warnings.warn(
             "The set_node_instance_info call is deprecated, "
             "use patch_machine or update_machine instead",
-            DeprecationWarning,
+            os_warnings.OpenStackDeprecationWarning,
         )
         return self.patch_machine(uuid, patch)
 
@@ -631,7 +631,7 @@ class BaremetalCloudMixin:
         warnings.warn(
             "The purge_node_instance_info call is deprecated, "
             "use patch_machine or update_machine instead",
-            DeprecationWarning,
+            os_warnings.OpenStackDeprecationWarning,
         )
         return self.patch_machine(
             uuid, dict(path='/instance_info', op='remove')
@@ -649,6 +649,6 @@ class BaremetalCloudMixin:
             "The wait_for_baremetal_node_lock call is deprecated "
             "in favor of wait_for_node_reservation on the baremetal "
             "proxy",
-            DeprecationWarning,
+            os_warnings.OpenStackDeprecationWarning,
         )
         self.baremetal.wait_for_node_reservation(node, timeout)

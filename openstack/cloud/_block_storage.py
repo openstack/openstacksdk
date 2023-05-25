@@ -22,6 +22,7 @@ from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack import exceptions
 from openstack import proxy
+from openstack import warnings as os_warnings
 
 
 def _no_pending_volumes(volumes):
@@ -46,7 +47,7 @@ class BlockStorageCloudMixin:
         warnings.warn(
             "the 'cache' argument is deprecated and no longer does anything; "
             "consider removing it from calls",
-            DeprecationWarning,
+            os_warnings.OpenStackDeprecationWarning,
         )
         return list(self.block_storage.volumes())
 
@@ -63,7 +64,7 @@ class BlockStorageCloudMixin:
             warnings.warn(
                 "the 'get_extra' argument is deprecated and no longer does "
                 "anything; consider removing it from calls",
-                DeprecationWarning,
+                os_warnings.OpenStackDeprecationWarning,
             )
         return list(self.block_storage.types())
 

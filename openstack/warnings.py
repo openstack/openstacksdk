@@ -31,5 +31,13 @@ class LegacyAPIWarning(OpenStackDeprecationWarning):
     """Indicates an API that is in 'legacy' status, a long term deprecation."""
 
 
-class UnsupportedServiceVersion(Warning):
+class OpenStackWarning(Warning):
+    """Base class for general warnings in openstacksdk."""
+
+
+class ConfigurationWarning(OpenStackWarning):
+    """Indicates an issue with configuration."""
+
+
+class UnsupportedServiceVersion(OpenStackWarning):
     """Indicates a major version that SDK doesn't understand."""

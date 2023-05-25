@@ -40,6 +40,7 @@ from openstack.network.v2 import security_group as _sg
 from openstack import proxy
 from openstack import resource
 from openstack import utils
+from openstack import warnings as os_warnings
 
 
 class Proxy(proxy.Proxy):
@@ -483,7 +484,7 @@ class Proxy(proxy.Proxy):
         warnings.warn(
             'This API is a proxy to the image service and has been '
             'deprecated; use the image service proxy API instead',
-            DeprecationWarning,
+            os_warnings.OpenStackDeprecationWarning,
         )
         self._delete(_image.Image, image, ignore_missing=ignore_missing)
 
@@ -508,7 +509,7 @@ class Proxy(proxy.Proxy):
         warnings.warn(
             'This API is a proxy to the image service and has been '
             'deprecated; use the image service proxy API instead',
-            DeprecationWarning,
+            os_warnings.OpenStackDeprecationWarning,
         )
         return self._find(
             _image.Image,
@@ -529,7 +530,7 @@ class Proxy(proxy.Proxy):
         warnings.warn(
             'This API is a proxy to the image service and has been '
             'deprecated; use the image service proxy API instead',
-            DeprecationWarning,
+            os_warnings.OpenStackDeprecationWarning,
         )
         return self._get(_image.Image, image)
 
@@ -548,7 +549,7 @@ class Proxy(proxy.Proxy):
         warnings.warn(
             'This API is a proxy to the image service and has been '
             'deprecated; use the image service proxy API instead',
-            DeprecationWarning,
+            os_warnings.OpenStackDeprecationWarning,
         )
         base_path = '/images/detail' if details else None
         return self._list(_image.Image, base_path=base_path, **query)
@@ -1859,7 +1860,10 @@ class Proxy(proxy.Proxy):
                 'argument. This is legacy behavior that will be removed in '
                 'a future version. Update callers to use a volume argument.'
             )
-            warnings.warn(deprecation_msg, DeprecationWarning)
+            warnings.warn(
+                deprecation_msg,
+                os_warnings.OpenStackDeprecationWarning,
+            )
         else:
             volume_id = resource.Resource._get_id(volume)
 
@@ -1932,7 +1936,10 @@ class Proxy(proxy.Proxy):
         if isinstance(server, _volume.Volume) or isinstance(
             volume, _server.Server
         ):
-            warnings.warn(deprecation_msg, DeprecationWarning)
+            warnings.warn(
+                deprecation_msg,
+                os_warnings.OpenStackDeprecationWarning,
+            )
             return volume, server
 
         # without type info we have to try a find the server corresponding to
@@ -1940,7 +1947,10 @@ class Proxy(proxy.Proxy):
         if self.find_server(server, ignore_missing=True) is not None:
             return server, volume
         else:
-            warnings.warn(deprecation_msg, DeprecationWarning)
+            warnings.warn(
+                deprecation_msg,
+                os_warnings.OpenStackDeprecationWarning,
+            )
             return volume, server
 
     def delete_volume_attachment(self, server, volume, ignore_missing=True):
