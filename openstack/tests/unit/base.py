@@ -105,9 +105,13 @@ class TestCase(base.TestCase):
         )
 
         # Isolate openstack.config from test environment
+        self.os_cloud_fixture = self.useFixture(
+            fixtures.EnvironmentVariable('OS_CLOUD'),
+        )
         config = tempfile.NamedTemporaryFile(delete=False)
-        cloud_path = '%s/clouds/%s' % (
+        cloud_path = os.path.join(
             self.fixtures_directory,
+            'clouds',
             cloud_config_fixture,
         )
         with open(cloud_path, 'rb') as f:
