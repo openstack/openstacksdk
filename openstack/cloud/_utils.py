@@ -168,7 +168,7 @@ def _get_entity(cloud, resource, name_or_id, filters, **kwargs):
         Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
     """
 
-    # Sometimes in the control flow of shade, we already have an object
+    # Sometimes in the control flow of openstacksdk, we already have an object
     # fetched. Rather than then needing to pull the name or id out of that
     # object, pass it in here and rely on caching to prevent us from making
     # an additional call, it's simple enough to test to see if we got an
@@ -284,13 +284,13 @@ def cache_on_arguments(*cache_on_args, **cache_on_kwargs):
 
 
 @contextlib.contextmanager
-def shade_exceptions(error_message=None):
-    """Context manager for dealing with shade exceptions.
+def openstacksdk_exceptions(error_message=None):
+    """Context manager for dealing with openstack exceptions.
 
     :param string error_message: String to use for the exception message
         content on non-OpenStackCloudExceptions.
 
-        Useful for avoiding wrapping shade OpenStackCloudException exceptions
+        Useful for avoiding wrapping OpenStackCloudException exceptions
         within themselves. Code called from within the context may throw such
         exceptions without having to catch and reraise them.
 

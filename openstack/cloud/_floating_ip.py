@@ -318,7 +318,7 @@ class FloatingIPCloudMixin:
             is not specified and cannot be found.
         """
 
-        with _utils.shade_exceptions(
+        with _utils.openstacksdk_exceptions(
             "Unable to create floating IP in pool {pool}".format(pool=pool)
         ):
             if pool is None:
@@ -575,7 +575,7 @@ class FloatingIPCloudMixin:
         return fip
 
     def _nova_create_floating_ip(self, pool=None):
-        with _utils.shade_exceptions(
+        with _utils.openstacksdk_exceptions(
             "Unable to create floating IP in pool {pool}".format(pool=pool)
         ):
             if pool is None:
