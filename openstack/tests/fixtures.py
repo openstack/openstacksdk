@@ -34,6 +34,9 @@ class WarningsFixture(fixtures.Fixture):
 
         self._original_warning_filters = warnings.filters[:]
 
+        # enable user warnings as many libraries use this (it's the default)
+        warnings.simplefilter("error", UserWarning)
+
         # enable deprecation warnings in general...
         warnings.simplefilter("once", DeprecationWarning)
 
