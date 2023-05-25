@@ -64,7 +64,7 @@ class TestUsers(base.KeystoneBaseFunctionalTest):
         self.assertEqual('admin', user['name'])
 
     def test_search_users(self):
-        users = self.operator_cloud.search_users(filters={'enabled': True})
+        users = self.operator_cloud.search_users(filters={'is_enabled': True})
         self.assertIsNotNone(users)
 
     def test_search_users_jmespath(self):
