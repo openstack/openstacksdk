@@ -479,18 +479,6 @@ class _OpenStackCloudMixin:
             project=self._get_project_info(project_id),
         )
 
-    # TODO(stephenfin): This looks unused? Can we delete it?
-    def _get_identity_location(self):
-        '''Identity resources do not exist inside of projects.'''
-        return utils.Munch(
-            cloud=self.name,
-            region_name=None,
-            zone=None,
-            project=utils.Munch(
-                id=None, name=None, domain_id=None, domain_name=None
-            ),
-        )
-
     def range_search(self, data, filters):
         """Perform integer range searches across a list of dictionaries.
 
