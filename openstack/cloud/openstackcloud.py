@@ -36,7 +36,6 @@ from openstack.config import cloud_region as cloud_region_mod
 from openstack import exceptions
 from openstack import proxy
 from openstack import utils
-from openstack import warnings as os_warnings
 
 DEFAULT_SERVER_AGE = 5
 DEFAULT_PORT_AGE = 5
@@ -347,109 +346,6 @@ class _OpenStackCloudMixin:
         else:
             return self._cache
 
-    def _get_major_version_id(self, version):
-        if isinstance(version, int):
-            return version
-        elif isinstance(version, (str, tuple)):
-            return int(version[0])
-        return version
-
-    def _get_versioned_client(
-        self, service_type, min_version=None, max_version=None
-    ):
-        config_version = self.config.get_api_version(service_type)
-        config_major = self._get_major_version_id(config_version)
-        max_major = self._get_major_version_id(max_version)
-        min_major = self._get_major_version_id(min_version)
-        # TODO(shade) This should be replaced with use of Connection. However,
-        #             we need to find a sane way to deal with this additional
-        #             logic - or we need to give up on it. If we give up on it,
-        #             we need to make sure we can still support it in the shade
-        #             compat layer.
-        # NOTE(mordred) This logic for versions is slightly different
-        # than the ksa Adapter constructor logic. openstack.cloud knows the
-        # versions it knows, and uses them when it detects them. However, if
-        # a user requests a version, and it's not found, and a different one
-        # openstack.cloud does know about is found, that's a warning in
-        # openstack.cloud.
-        if config_version:
-            if min_major and config_major < min_major:
-                raise exc.OpenStackCloudException(
-                    "Version {config_version} requested for {service_type}"
-                    " but shade understands a minimum of {min_version}".format(
-                        config_version=config_version,
-                        service_type=service_type,
-                        min_version=min_version,
-                    )
-                )
-            elif max_major and config_major > max_major:
-                raise exc.OpenStackCloudException(
-                    "Version {config_version} requested for {service_type}"
-                    " but openstack.cloud understands a maximum of"
-                    " {max_version}".format(
-                        config_version=config_version,
-                        service_type=service_type,
-                        max_version=max_version,
-                    )
-                )
-            request_min_version = config_version
-            request_max_version = '{version}.latest'.format(
-                version=config_major
-            )
-            adapter = proxy.Proxy(
-                session=self.session,
-                service_type=self.config.get_service_type(service_type),
-                service_name=self.config.get_service_name(service_type),
-                interface=self.config.get_interface(service_type),
-                endpoint_override=self.config.get_endpoint(service_type),
-                region_name=self.config.get_region_name(service_type),
-                statsd_prefix=self.config.get_statsd_prefix(),
-                statsd_client=self.config.get_statsd_client(),
-                prometheus_counter=self.config.get_prometheus_counter(),
-                prometheus_histogram=self.config.get_prometheus_histogram(),
-                influxdb_client=self.config.get_influxdb_client(),
-                min_version=request_min_version,
-                max_version=request_max_version,
-            )
-            if adapter.get_endpoint():
-                return adapter
-
-        adapter = proxy.Proxy(
-            session=self.session,
-            service_type=self.config.get_service_type(service_type),
-            service_name=self.config.get_service_name(service_type),
-            interface=self.config.get_interface(service_type),
-            endpoint_override=self.config.get_endpoint(service_type),
-            region_name=self.config.get_region_name(service_type),
-            min_version=min_version,
-            max_version=max_version,
-        )
-
-        # data.api_version can be None if no version was detected, such
-        # as with neutron
-        api_version = adapter.get_api_major_version(
-            endpoint_override=self.config.get_endpoint(service_type)
-        )
-        api_major = self._get_major_version_id(api_version)
-
-        # If we detect a different version that was configured, warn the user.
-        # openstacksdk still knows what to do - but if the user gave us an
-        # explicit version and we couldn't find it, they may want to
-        # investigate
-        if api_version and config_version and (api_major != config_major):
-            api_version_str = '.'.join([str(f) for f in api_version])
-            warning_msg = (
-                f'{service_type} is configured for {config_version} but only '
-                f'{api_version_str} is available. openstacksdk is happy '
-                f'with this version, but if you were trying to force an '
-                f'override, that did not happen. You may want to check '
-                f'your cloud, or remove the version specification from '
-                f'your config.'
-            )
-            self.log.debug(warning_msg)
-            warnings.warn(warning_msg, os_warnings.OpenStackDeprecationWarning)
-        return adapter
-
     # TODO(shade) This should be replaced with using openstack Connection
     #             object.
     def _get_raw_client(
@@ -464,27 +360,6 @@ class _OpenStackCloudMixin:
             or endpoint_override,
             region_name=self.config.get_region_name(service_type),
         )
-
-    @property
-    def _application_catalog_client(self):
-        if 'application-catalog' not in self._raw_clients:
-            self._raw_clients['application-catalog'] = self._get_raw_client(
-                'application-catalog'
-            )
-        return self._raw_clients['application-catalog']
-
-    @property
-    def _database_client(self):
-        if 'database' not in self._raw_clients:
-            self._raw_clients['database'] = self._get_raw_client('database')
-        return self._raw_clients['database']
-
-    @property
-    def _raw_image_client(self):
-        if 'raw-image' not in self._raw_clients:
-            image_client = self._get_raw_client('image')
-            self._raw_clients['raw-image'] = image_client
-        return self._raw_clients['raw-image']
 
     def pprint(self, resource):
         """Wrapper around pprint that groks munch objects"""
