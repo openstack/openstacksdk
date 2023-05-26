@@ -420,12 +420,6 @@ class Proxy(adapter.Adapter, Generic[T]):
         except Exception:
             self.log.exception('Error writing statistics to InfluxDB')
 
-    def _version_matches(self, version):
-        api_version = self.get_api_major_version()
-        if api_version:
-            return api_version[0] == version
-        return False
-
     def _get_connection(self):
         """Get the Connection object associated with this Proxy.
 

@@ -10,15 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# import types so that we can reference ListType in sphinx param declarations.
-# We can't just use list, because sphinx gets confused by
-# openstack.resource.Resource.list and openstack.resource2.Resource.list
-import types  # noqa
-
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack import exceptions
 from openstack.identity.v3._proxy import Proxy
+from openstack import utils
 
 
 class IdentityCloudMixin:
@@ -37,7 +33,7 @@ class IdentityCloudMixin:
             project = self.get_project(name_or_id)
             if not project:
                 return {}
-            if self._is_client_version('identity', 3):
+            if utils.supports_version(self.identity, '3'):
                 return {'default_project_id': project['id']}
             else:
                 return {'tenant_id': project['id']}
@@ -51,7 +47,7 @@ class IdentityCloudMixin:
         # not. However, keystone v2 does not allow user creation by non-admin
         # users, so we can throw an error to the user that does not need to
         # mention api versions
-        if self._is_client_version('identity', 3):
+        if utils.supports_version(self.identity, '3'):
             if not domain_id:
                 raise exc.OpenStackCloudException(
                     "User or project creation requires an explicit domain_id "

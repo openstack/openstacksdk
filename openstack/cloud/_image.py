@@ -71,7 +71,7 @@ class ImageCloudMixin:
         images = []
         params = {}
         image_list = []
-        if self._is_client_version('image', 2):
+        if utils.supports_version(self.image, '2'):
             if show_all:
                 params['member_status'] = 'all'
         image_list = list(self.image.images(**params))
