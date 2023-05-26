@@ -38,14 +38,6 @@ OBJECT_CONTAINER_ACLS = {
 class ObjectStoreCloudMixin:
     object_store: Proxy
 
-    # TODO(stephenfin): Remove final user of this
-    @property
-    def _object_store_client(self):
-        if 'object-store' not in self._raw_clients:
-            raw_client = self._get_raw_client('object-store')
-            self._raw_clients['object-store'] = raw_client
-        return self._raw_clients['object-store']
-
     # TODO(stephenfin): Remove 'full_listing' as it's a noop
     def list_containers(self, full_listing=True, prefix=None):
         """List containers.
@@ -421,7 +413,7 @@ class ObjectStoreCloudMixin:
         :raises: OpenStackCloudException on operation error.
         """
         endpoint = self._get_object_endpoint(container, obj, query_string)
-        return self._object_store_client.get(endpoint, stream=stream)
+        return self.object_store.get(endpoint, stream=stream)
 
     def _get_object_endpoint(self, container, obj=None, query_string=None):
         endpoint = urllib.parse.quote(container)

@@ -35,6 +35,10 @@ EXPIRES_ISO8601_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 SHORT_EXPIRES_ISO8601_FORMAT = '%Y-%m-%d'
 
 
+def _get_expiration(expiration):
+    return int(time.time() + expiration)
+
+
 class Proxy(proxy.Proxy):
     _resource_registry = {
         "account": _account.Account,
@@ -913,7 +917,7 @@ class Proxy(proxy.Proxy):
             raise exceptions.SDKException(
                 'Please use a positive <timeout> value.'
             )
-        expires = int(time.time() + int(timeout))
+        expires = _get_expiration(timeout)
 
         temp_url_key = self._check_temp_url_key(
             container=container, temp_url_key=temp_url_key
@@ -1042,7 +1046,7 @@ class Proxy(proxy.Proxy):
             )
 
         if not absolute:
-            expiration = int(time.time() + timestamp)
+            expiration = _get_expiration(timestamp)
         else:
             expiration = timestamp
 

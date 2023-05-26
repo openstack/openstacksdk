@@ -34,7 +34,7 @@ class BaseTestObject(base.TestCase):
 
         self.container = self.getUniqueString()
         self.object = self.getUniqueString()
-        self.endpoint = self.cloud._object_store_client.get_endpoint()
+        self.endpoint = self.cloud.object_store.get_endpoint()
         self.container_endpoint = '{endpoint}/{container}'.format(
             endpoint=self.endpoint, container=self.container
         )
@@ -373,10 +373,8 @@ class TestObject(BaseTestObject):
         )
         self.assert_calls()
 
-    @mock.patch('time.time', autospec=True)
-    def test_generate_form_signature_container_key(self, mock_time):
-        mock_time.return_value = 12345
-
+    @mock.patch.object(_proxy, '_get_expiration', return_value=13345)
+    def test_generate_form_signature_container_key(self, mock_expiration):
         self.register_uris(
             [
                 dict(
@@ -411,10 +409,8 @@ class TestObject(BaseTestObject):
         )
         self.assert_calls()
 
-    @mock.patch('time.time', autospec=True)
-    def test_generate_form_signature_account_key(self, mock_time):
-        mock_time.return_value = 12345
-
+    @mock.patch.object(_proxy, '_get_expiration', return_value=13345)
+    def test_generate_form_signature_account_key(self, mock_expiration):
         self.register_uris(
             [
                 dict(
@@ -455,10 +451,8 @@ class TestObject(BaseTestObject):
         )
         self.assert_calls()
 
-    @mock.patch('time.time')
-    def test_generate_form_signature_key_argument(self, mock_time):
-        mock_time.return_value = 12345
-
+    @mock.patch.object(_proxy, '_get_expiration', return_value=13345)
+    def test_generate_form_signature_key_argument(self, mock_expiration):
         self.assertEqual(
             (13345, '1c283a05c6628274b732212d9a885265e6f67b63'),
             self.cloud.object_store.generate_form_signature(
@@ -895,8 +889,8 @@ class TestObjectUploads(BaseTestObject):
         self.object_file = tempfile.NamedTemporaryFile(delete=False)
         self.object_file.write(self.content)
         self.object_file.close()
-        (self.md5, self.sha256) = utils._get_file_hashes(self.object_file.name)
-        self.endpoint = self.cloud._object_store_client.get_endpoint()
+        self.md5, self.sha256 = utils._get_file_hashes(self.object_file.name)
+        self.endpoint = self.cloud.object_store.get_endpoint()
 
     def test_create_object(self):
         self.register_uris(
