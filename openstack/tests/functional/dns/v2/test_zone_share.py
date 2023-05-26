@@ -9,7 +9,8 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-import random
+
+import uuid
 
 from openstack import exceptions
 from openstack.tests.functional import base
@@ -26,7 +27,7 @@ class TestZoneShare(base.BaseFunctionalTest):
         # chose a new zone name for a test
         # getUniqueString is not guaranteed to return unique string between
         # different tests of the same class.
-        self.ZONE_NAME = 'example-{0}.org.'.format(random.randint(1, 10000))
+        self.ZONE_NAME = 'example-{0}.org.'.format(uuid.uuid4().hex)
 
         self.zone = self.operator_cloud.dns.create_zone(
             name=self.ZONE_NAME,
@@ -36,7 +37,9 @@ class TestZoneShare(base.BaseFunctionalTest):
             description='example zone for sdk zone share tests',
         )
         self.addCleanup(
-            self.operator_cloud.dns.delete_zone, self.zone, delete_shares=True
+            self.operator_cloud.dns.delete_zone,
+            self.zone,
+            delete_shares=True,
         )
 
         self.project_id = self.operator_cloud.session.get_project_id()
@@ -47,7 +50,9 @@ class TestZoneShare(base.BaseFunctionalTest):
             self.zone, target_project_id=self.demo_project_id
         )
         self.addCleanup(
-            self.operator_cloud.dns.delete_zone_share, self.zone, zone_share
+            self.operator_cloud.dns.delete_zone_share,
+            self.zone,
+            zone_share,
         )
 
         self.assertEqual(self.zone.id, zone_share.zone_id)
@@ -59,7 +64,8 @@ class TestZoneShare(base.BaseFunctionalTest):
 
     def test_get_zone_share(self):
         orig_zone_share = self.operator_cloud.dns.create_zone_share(
-            self.zone, target_project_id=self.demo_project_id
+            self.zone,
+            target_project_id=self.demo_project_id,
         )
         self.addCleanup(
             self.operator_cloud.dns.delete_zone_share,
@@ -68,7 +74,8 @@ class TestZoneShare(base.BaseFunctionalTest):
         )
 
         zone_share = self.operator_cloud.dns.get_zone_share(
-            self.zone, orig_zone_share
+            self.zone,
+            orig_zone_share,
         )
 
         self.assertEqual(self.zone.id, zone_share.zone_id)
@@ -89,7 +96,8 @@ class TestZoneShare(base.BaseFunctionalTest):
         )
 
         zone_share = self.operator_cloud.dns.find_zone_share(
-            self.zone, orig_zone_share.id
+            self.zone,
+            orig_zone_share.id,
         )
 
         self.assertEqual(self.zone.id, zone_share.zone_id)
@@ -101,7 +109,8 @@ class TestZoneShare(base.BaseFunctionalTest):
 
     def test_find_zone_share_ignore_missing(self):
         zone_share = self.operator_cloud.dns.find_zone_share(
-            self.zone, 'bogus_id'
+            self.zone,
+            'bogus_id',
         )
         self.assertIsNone(zone_share)
 
@@ -116,10 +125,13 @@ class TestZoneShare(base.BaseFunctionalTest):
 
     def test_list_zone_shares(self):
         zone_share = self.operator_cloud.dns.create_zone_share(
-            self.zone, target_project_id=self.demo_project_id
+            self.zone,
+            target_project_id=self.demo_project_id,
         )
         self.addCleanup(
-            self.operator_cloud.dns.delete_zone_share, self.zone, zone_share
+            self.operator_cloud.dns.delete_zone_share,
+            self.zone,
+            zone_share,
         )
 
         target_ids = [
@@ -130,10 +142,13 @@ class TestZoneShare(base.BaseFunctionalTest):
 
     def test_list_zone_shares_with_target_id(self):
         zone_share = self.operator_cloud.dns.create_zone_share(
-            self.zone, target_project_id=self.demo_project_id
+            self.zone,
+            target_project_id=self.demo_project_id,
         )
         self.addCleanup(
-            self.operator_cloud.dns.delete_zone_share, self.zone, zone_share
+            self.operator_cloud.dns.delete_zone_share,
+            self.zone,
+            zone_share,
         )
 
         target_ids = [
