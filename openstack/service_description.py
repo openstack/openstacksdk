@@ -18,6 +18,7 @@ import os_service_types
 from openstack import _log
 from openstack import exceptions
 from openstack import proxy as proxy_mod
+from openstack import warnings as os_warnings
 
 __all__ = [
     'ServiceDescription',
@@ -185,13 +186,11 @@ class ServiceDescription:
                 )
             else:
                 warnings.warn(
-                    "The configured version, {version} for service"
-                    " {service_type} is not known or supported by"
-                    " openstacksdk. The resulting Proxy object will only"
-                    " have direct passthrough REST capabilities.".format(
-                        version=version_string, service_type=self.service_type
-                    ),
-                    category=exceptions.UnsupportedServiceVersion,
+                    f"The configured version, {version_string} for service "
+                    f"{self.service_type} is not known or supported by "
+                    f"openstacksdk. The resulting Proxy object will only "
+                    f"have direct passthrough REST capabilities.",
+                    category=os_warnings.UnsupportedServiceVersion,
                 )
         elif endpoint_override:
             temp_adapter = config.get_session_client(self.service_type)
@@ -204,14 +203,12 @@ class ServiceDescription:
                 )
             else:
                 warnings.warn(
-                    "Service {service_type} has an endpoint override set"
-                    " but the version discovered at that endpoint, {version}"
-                    " is not supported by openstacksdk. The resulting Proxy"
-                    " object will only have direct passthrough REST"
-                    " capabilities.".format(
-                        version=api_version, service_type=self.service_type
-                    ),
-                    category=exceptions.UnsupportedServiceVersion,
+                    f"Service {self.service_type} has an endpoint override "
+                    f"set but the version discovered at that endpoint, "
+                    f"{api_version}, is not supported by openstacksdk. "
+                    f"The resulting Proxy object will only have direct "
+                    f"passthrough REST capabilities.",
+                    category=os_warnings.UnsupportedServiceVersion,
                 )
 
         if proxy_obj:
@@ -291,7 +288,7 @@ class ServiceDescription:
                 self.service_type,
                 allow_version_hack=True,
                 constructor=proxy_class,
-                **version_kwargs
+                **version_kwargs,
             )
 
         # No proxy_class
@@ -300,12 +297,12 @@ class ServiceDescription:
         # service catalog that also doesn't have any useful
         # version discovery?
         warnings.warn(
-            "Service {service_type} has no discoverable version."
-            " The resulting Proxy object will only have direct"
-            " passthrough REST capabilities.".format(
+            "Service {service_type} has no discoverable version. "
+            "The resulting Proxy object will only have direct "
+            "passthrough REST capabilities.".format(
                 service_type=self.service_type
             ),
-            category=exceptions.UnsupportedServiceVersion,
+            category=os_warnings.UnsupportedServiceVersion,
         )
         return temp_adapter
 
