@@ -54,6 +54,8 @@ class Proxy(proxy.Proxy):
         "image": _image.Image,
         "image_member": _member.Member,
         "metadef_namespace": _metadef_namespace.MetadefNamespace,
+        "metadef_resource_type": _metadef_resource_type.MetadefResourceType,
+        "metadef_resource_type_association": _metadef_resource_type.MetadefResourceTypeAssociation,  # noqa
         "schema": _schema.Schema,
         "info_import": _si.Import,
         "info_store": _si.Store,
