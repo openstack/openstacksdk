@@ -28,14 +28,6 @@ def _no_pending_stacks(stacks):
 class OrchestrationCloudMixin:
     orchestration: Proxy
 
-    # TODO(stephenfin): Remove final user of this
-    @property
-    def _orchestration_client(self):
-        if 'orchestration' not in self._raw_clients:
-            raw_client = self._get_raw_client('orchestration')
-            self._raw_clients['orchestration'] = raw_client
-        return self._raw_clients['orchestration']
-
     def get_template_contents(
         self,
         template_file=None,

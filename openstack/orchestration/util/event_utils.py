@@ -16,10 +16,10 @@ import collections
 import time
 
 from openstack.cloud import meta
-from openstack import proxy
+from openstack import exceptions
 
 
-# TODO(stephenfin): Convert to use proxy
+# TODO(stephenfin): Convert to use real resources
 def get_events(cloud, stack_id, event_args, marker=None, limit=None):
     # TODO(mordred) FIX THIS ONCE assert_calls CAN HANDLE QUERY STRINGS
     params = collections.OrderedDict()
@@ -31,15 +31,14 @@ def get_events(cloud, stack_id, event_args, marker=None, limit=None):
     if limit:
         event_args['limit'] = limit
 
-    data = proxy._json_response(
-        cloud._orchestration_client.get(
-            '/stacks/{id}/events'.format(id=stack_id),
-            params=params,
-        )
+    response = cloud.orchestration.get(
+        f'/stacks/{stack_id}/events',
+        params=params,
     )
-    events = meta.get_and_munchify('events', data)
+    exceptions.raise_from_response(response)
 
     # Show which stack the event comes from (for nested events)
+    events = meta.get_and_munchify('events', response.json())
     for e in events:
         e['stack_name'] = stack_id.split("/")[0]
     return events
