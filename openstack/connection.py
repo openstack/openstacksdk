@@ -194,7 +194,6 @@ from openstack import _services_mixin
 from openstack.cloud import _accelerator
 from openstack.cloud import _baremetal
 from openstack.cloud import _block_storage
-from openstack.cloud import _clustering
 from openstack.cloud import _coe
 from openstack.cloud import _compute
 from openstack.cloud import _dns
@@ -263,7 +262,6 @@ class Connection(
     _baremetal.BaremetalCloudMixin,
     _block_storage.BlockStorageCloudMixin,
     _compute.ComputeCloudMixin,
-    _clustering.ClusteringCloudMixin,
     _coe.CoeCloudMixin,
     _dns.DnsCloudMixin,
     _floating_ip.FloatingIPCloudMixin,
@@ -419,7 +417,6 @@ class Connection(
         _accelerator.AcceleratorCloudMixin.__init__(self)
         _baremetal.BaremetalCloudMixin.__init__(self)
         _block_storage.BlockStorageCloudMixin.__init__(self)
-        _clustering.ClusteringCloudMixin.__init__(self)
         _coe.CoeCloudMixin.__init__(self)
         _compute.ComputeCloudMixin.__init__(self)
         _dns.DnsCloudMixin.__init__(self)
