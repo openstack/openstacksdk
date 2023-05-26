@@ -32,6 +32,47 @@ class IdentityCloudMixin:
             )
         return self._raw_clients['identity']
 
+    def _get_project_id_param_dict(self, name_or_id):
+        if name_or_id:
+            project = self.get_project(name_or_id)
+            if not project:
+                return {}
+            if self._is_client_version('identity', 3):
+                return {'default_project_id': project['id']}
+            else:
+                return {'tenant_id': project['id']}
+        else:
+            return {}
+
+    def _get_domain_id_param_dict(self, domain_id):
+        """Get a useable domain."""
+
+        # Keystone v3 requires domains for user and project creation. v2 does
+        # not. However, keystone v2 does not allow user creation by non-admin
+        # users, so we can throw an error to the user that does not need to
+        # mention api versions
+        if self._is_client_version('identity', 3):
+            if not domain_id:
+                raise exc.OpenStackCloudException(
+                    "User or project creation requires an explicit domain_id "
+                    "argument."
+                )
+            else:
+                return {'domain_id': domain_id}
+        else:
+            return {}
+
+    def _get_identity_params(self, domain_id=None, project=None):
+        """Get the domain and project/tenant parameters if needed.
+
+        keystone v2 and v3 are divergent enough that we need to pass or not
+        pass project or tenant_id or domain or nothing in a sane manner.
+        """
+        ret = {}
+        ret.update(self._get_domain_id_param_dict(domain_id))
+        ret.update(self._get_project_id_param_dict(project))
+        return ret
+
     @_utils.cache_on_arguments()
     def list_projects(self, domain_id=None, name_or_id=None, filters=None):
         """List projects.
@@ -1473,26 +1514,3 @@ class IdentityCloudMixin:
                     group, role, system
                 )
         return True
-
-    def _get_identity_params(self, domain_id=None, project=None):
-        """Get the domain and project/tenant parameters if needed.
-
-        keystone v2 and v3 are divergent enough that we need to pass or not
-        pass project or tenant_id or domain or nothing in a sane manner.
-        """
-        ret = {}
-        if not domain_id:
-            raise exc.OpenStackCloudException(
-                "User or project creation requires an explicit"
-                " domain_id argument."
-            )
-        else:
-            ret.update({'domain_id': domain_id})
-
-        ret.update(self._get_project_id_param_dict(project))
-        if project:
-            project_obj = self.get_project(project)
-            if project_obj:
-                ret.update({'default_project_id': project['id']})
-
-        return ret

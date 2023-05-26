@@ -617,6 +617,7 @@ class _OpenStackCloudMixin:
             project=self._get_project_info(project_id),
         )
 
+    # TODO(stephenfin): This looks unused? Can we delete it?
     def _get_identity_location(self):
         '''Identity resources do not exist inside of projects.'''
         return utils.Munch(
@@ -627,47 +628,6 @@ class _OpenStackCloudMixin:
                 id=None, name=None, domain_id=None, domain_name=None
             ),
         )
-
-    def _get_project_id_param_dict(self, name_or_id):
-        if name_or_id:
-            project = self.get_project(name_or_id)
-            if not project:
-                return {}
-            if self._is_client_version('identity', 3):
-                return {'default_project_id': project['id']}
-            else:
-                return {'tenant_id': project['id']}
-        else:
-            return {}
-
-    def _get_domain_id_param_dict(self, domain_id):
-        """Get a useable domain."""
-
-        # Keystone v3 requires domains for user and project creation. v2 does
-        # not. However, keystone v2 does not allow user creation by non-admin
-        # users, so we can throw an error to the user that does not need to
-        # mention api versions
-        if self._is_client_version('identity', 3):
-            if not domain_id:
-                raise exc.OpenStackCloudException(
-                    "User or project creation requires an explicit"
-                    " domain_id argument."
-                )
-            else:
-                return {'domain_id': domain_id}
-        else:
-            return {}
-
-    def _get_identity_params(self, domain_id=None, project=None):
-        """Get the domain and project/tenant parameters if needed.
-
-        keystone v2 and v3 are divergent enough that we need to pass or not
-        pass project or tenant_id or domain or nothing in a sane manner.
-        """
-        ret = {}
-        ret.update(self._get_domain_id_param_dict(domain_id))
-        ret.update(self._get_project_id_param_dict(project))
-        return ret
 
     def range_search(self, data, filters):
         """Perform integer range searches across a list of dictionaries.
