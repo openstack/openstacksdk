@@ -535,7 +535,7 @@ class FloatingIPCloudMixin:
                 try:
                     for count in utils.iterate_timeout(
                         timeout,
-                        "Timeout waiting for the floating IP" " to be ACTIVE",
+                        "Timeout waiting for the floating IP to be ACTIVE",
                         wait=self._FLOAT_AGE,
                     ):
                         fip = self.get_floating_ip(fip_id)

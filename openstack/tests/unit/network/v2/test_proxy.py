@@ -173,7 +173,7 @@ class TestNetworkAddressGroup(TestNetworkProxy):
         )
 
     @mock.patch(
-        'openstack.network.v2._proxy.Proxy.' 'add_addresses_to_address_group'
+        'openstack.network.v2._proxy.Proxy.add_addresses_to_address_group'
     )
     def test_add_addresses_to_address_group(self, add_addresses):
         data = mock.sentinel

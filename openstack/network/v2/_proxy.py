@@ -628,7 +628,7 @@ class Proxy(proxy.Proxy, Generic[T]):
         self._delete(_bgp_peer.BgpPeer, peer, ignore_missing=ignore_missing)
 
     def find_bgp_peer(self, name_or_id, ignore_missing=True, **query):
-        """ "Find a single BGP Peer"""
+        """Find a single BGP Peer"""
         return self._find(
             _bgp_peer.BgpPeer,
             name_or_id,
@@ -659,7 +659,7 @@ class Proxy(proxy.Proxy, Generic[T]):
         )
 
     def find_bgp_speaker(self, name_or_id, ignore_missing=True, **query):
-        """ "Find a single BGP Peer"""
+        """Find a single BGP Peer"""
         return self._find(
             _bgp_speaker.BgpSpeaker,
             name_or_id,
@@ -756,7 +756,7 @@ class Proxy(proxy.Proxy, Generic[T]):
         self._delete(_bgpvpn.BgpVpn, bgpvpn, ignore_missing=ignore_missing)
 
     def find_bgpvpn(self, name_or_id, ignore_missing=True, **query):
-        """ "Find a single BGPVPN
+        """Find a single BGPVPN
 
         :param name_or_id: The name or ID of a BGPVPN.
         :param bool ignore_missing: When set to ``False``
@@ -949,7 +949,7 @@ class Proxy(proxy.Proxy, Generic[T]):
     def find_bgpvpn_port_association(
         self, name_or_id, bgpvpn_id, ignore_missing=True, **query
     ):
-        """ "Find a single BGPVPN Port Association
+        """Find a single BGPVPN Port Association
 
         :param name_or_id: The name or ID of a BgpVpnNetworkAssociation.
         :param bgpvpn_id: The value can be the ID of a BGPVPN.
@@ -6151,7 +6151,7 @@ class Proxy(proxy.Proxy, Generic[T]):
         )
 
     def find_tap_flow(self, name_or_id, ignore_missing=True, **query):
-        """ "Find a single Tap Service"""
+        """Find a single Tap Service"""
         return self._find(
             _tap_flow.TapFlow,
             name_or_id,
@@ -6182,7 +6182,7 @@ class Proxy(proxy.Proxy, Generic[T]):
         )
 
     def find_tap_service(self, name_or_id, ignore_missing=True, **query):
-        """ "Find a single Tap Service"""
+        """Find a single Tap Service"""
         return self._find(
             _tap_service.TapService,
             name_or_id,

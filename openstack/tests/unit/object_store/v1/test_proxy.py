@@ -353,7 +353,7 @@ class TestTempURL(TestObjectStoreProxy):
     expires_iso8601_format = '%Y-%m-%dT%H:%M:%SZ'
     short_expires_iso8601_format = '%Y-%m-%d'
     time_errmsg = (
-        'time must either be a whole number or in specific ' 'ISO 8601 format.'
+        'time must either be a whole number or in specific ISO 8601 format.'
     )
     path_errmsg = 'path must be full path to an object e.g. /v1/a/c/o'
     url = '/v1/AUTH_account/c/o'
@@ -361,7 +361,7 @@ class TestTempURL(TestObjectStoreProxy):
     key = 'correcthorsebatterystaple'
     method = 'GET'
     expected_url = url + (
-        '?temp_url_sig=temp_url_signature' '&temp_url_expires=1400003600'
+        '?temp_url_sig=temp_url_signature&temp_url_expires=1400003600'
     )
     expected_body = '\n'.join(
         [

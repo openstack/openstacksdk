@@ -941,7 +941,7 @@ class TestResource(base.TestCase):
         res._translate_response(response)
 
         expected = (
-            '{"foo": "new_bar", "id": null, ' '"location": null, "name": null}'
+            '{"foo": "new_bar", "id": null, "location": null, "name": null}'
         )
         actual = json.dumps(res, sort_keys=True)
         self.assertEqual(expected, actual)

@@ -397,7 +397,7 @@ class TestOrchestrationTemplate(TestOrchestrationProxy):
             template_url=None,
         )
         self.assertEqual(
-            "'template_url' must be specified when template is " "None",
+            "'template_url' must be specified when template is None",
             str(err),
         )
 

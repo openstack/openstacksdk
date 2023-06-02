@@ -194,7 +194,7 @@ class Backup(resource.Resource):
             body['restore']['name'] = name
         if not (volume_id or name):
             raise exceptions.SDKException(
-                'Either of `name` or `volume_id`' ' must be specified.'
+                'Either of `name` or `volume_id` must be specified.'
             )
         response = session.post(url, json=body)
         self._translate_response(response, has_body=False)
