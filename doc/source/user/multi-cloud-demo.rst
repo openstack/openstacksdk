@@ -1,4 +1,3 @@
-================
 Multi-Cloud Demo
 ================
 
@@ -10,15 +9,12 @@ walk through it like a presentation, install `presentty` and run:
     presentty doc/source/user/multi-cloud-demo.rst
 
 The content is hopefully helpful even if it's not being narrated, so it's being
-included in the `shade` docs.
+included in the openstacksdk docs.
 
 .. _presentty: https://pypi.org/project/presentty
 
-Using Multiple OpenStack Clouds Easily with Shade
-=================================================
-
 Who am I?
-=========
+---------
 
 Monty Taylor
 
@@ -27,7 +23,7 @@ Monty Taylor
 * twitter: @e_monty
 
 What are we going to talk about?
-================================
+--------------------------------
 
 `OpenStackSDK`
 
@@ -43,22 +39,22 @@ What are we going to talk about?
 * Librified to re-use in Ansible
 
 OpenStackSDK is Free Software
-=============================
+-----------------------------
 
 * https://opendev.org/openstack/openstacksdk
 * openstack-discuss@lists.openstack.org
 * #openstack-sdks on oftc
 
 This talk is Free Software, too
-===============================
+-------------------------------
 
 * Written for presentty (https://pypi.org/project/presentty)
-* doc/source/multi-cloud-demo.rst
-* examples in doc/source/examples
-* Paths subject to change- this is the first presentation in tree!
+* doc/source/user/multi-cloud-demo.rst
+* examples in examples/cloud
+* Paths subject to change - this is the first presentation in tree!
 
 Complete Example
-================
+----------------
 
 .. code:: python
 
@@ -68,15 +64,19 @@ Complete Example
   openstack.enable_logging(debug=True)
 
   for cloud_name, region_name in [
-          ('my-vexxhost', 'ca-ymq-1'),
-          ('my-citycloud', 'Buf1'),
-          ('my-internap', 'ams01')]:
+      ('my-vexxhost', 'ca-ymq-1'),
+      ('my-citycloud', 'Buf1'),
+      ('my-internap', 'ams01'),
+  ]:
       # Initialize cloud
       cloud = openstack.connect(cloud=cloud_name, region_name=region_name)
 
       # Upload an image to the cloud
       image = cloud.create_image(
-          'devuan-jessie', filename='devuan-jessie.qcow2', wait=True)
+          'devuan-jessie',
+          filename='devuan-jessie.qcow2',
+          wait=True,
+      )
 
       # Find a flavor with at least 512M of RAM
       flavor = cloud.get_flavor_by_ram(512)
@@ -84,19 +84,24 @@ Complete Example
       # Boot a server, wait for it to boot, and then do whatever is needed
       # to get a public ip for it.
       cloud.create_server(
-          'my-server', image=image, flavor=flavor, wait=True, auto_ip=True)
+          'my-server',
+          image=image,
+          flavor=flavor,
+          wait=True,
+          auto_ip=True,
+      )
 
 Let's Take a Few Steps Back
-===========================
+---------------------------
 
 Multi-cloud is easy, but you need to know a few things.
 
 * Terminology
 * Config
-* Shade API
+* OpenStackSDK API
 
 Cloud Terminology
-=================
+-----------------
 
 Let's define a few terms, so that we can use them with ease:
 
@@ -108,7 +113,7 @@ Let's define a few terms, so that we can use them with ease:
 * `domain` - collection of users and projects
 
 Cloud Terminology Relationships
-===============================
+-------------------------------
 
 * A `cloud` has one or more `regions`
 * A `patron` has one or more `users`
@@ -121,14 +126,14 @@ Cloud Terminology Relationships
 * A `user` has one or more `roles` on one or more `projects`
 
 HTTP Sessions
-=============
+-------------
 
 * HTTP interactions are authenticated via keystone
 * Authenticating returns a `token`
 * An authenticated HTTP Session is shared across a `region`
 
 Cloud Regions
-=============
+-------------
 
 A `cloud region` is the basic unit of REST interaction.
 
@@ -138,7 +143,7 @@ A `cloud region` is the basic unit of REST interaction.
 * A `region` is completely autonomous
 
 Users, Projects and Domains
-===========================
+---------------------------
 
 In clouds with multiple domains, project and user names are
 only unique within a region.
@@ -151,12 +156,12 @@ only unique within a region.
 * `user_id` does not
 
 Confused Yet?
-=============
+-------------
 
 Don't worry - you don't have to deal with most of that.
 
 Auth per cloud, select per region
-=================================
+---------------------------------
 
 In general, the thing you need to know is:
 
@@ -164,7 +169,7 @@ In general, the thing you need to know is:
 * Select config to use by `cloud` and `region`
 
 clouds.yaml
-===========
+-----------
 
 Information about the clouds you want to connect to is stored in a file
 called `clouds.yaml`.
@@ -178,7 +183,7 @@ Full docs on `clouds.yaml` are at
 https://docs.openstack.org/os-client-config/latest/
 
 What about Mac and Windows?
-===========================
+---------------------------
 
 `USER_CONFIG_DIR` is different on Linux, OSX and Windows.
 
@@ -193,7 +198,7 @@ What about Mac and Windows?
 * Windows: `C:\\ProgramData\\OpenStack\\openstack`
 
 Config Terminology
-==================
+------------------
 
 For multi-cloud, think of two types:
 
@@ -203,7 +208,7 @@ For multi-cloud, think of two types:
 Apologies for the use of `cloud` twice.
 
 Environment Variables and Simple Usage
-======================================
+--------------------------------------
 
 * Environment variables starting with `OS_` go into a cloud called `envvars`
 * If you only have one cloud, you don't have to specify it
@@ -211,10 +216,10 @@ Environment Variables and Simple Usage
   `cloud` and `region_name`
 
 TOO MUCH TALKING - NOT ENOUGH CODE
-==================================
+----------------------------------
 
 basic clouds.yaml for the example code
-======================================
+--------------------------------------
 
 Simple example of a clouds.yaml
 
@@ -239,14 +244,14 @@ Simple example of a clouds.yaml
 Where's the password?
 
 secure.yaml
-===========
+-----------
 
 * Optional additional file just like `clouds.yaml`
 * Values overlaid on `clouds.yaml`
 * Useful if you want to protect secrets more stringently
 
 Example secure.yaml
-===================
+-------------------
 
 * No, my password isn't XXXXXXXX
 * `cloud` name should match `clouds.yaml`
@@ -260,7 +265,7 @@ Example secure.yaml
         password: XXXXXXXX
 
 more clouds.yaml
-================
+----------------
 
 More information can be provided.
 
@@ -281,7 +286,7 @@ More information can be provided.
         username: 0b8c435b-cc4d-4e05-8a47-a2ada0539af1
 
 Much more complex clouds.yaml example
-=====================================
+-------------------------------------
 
 * Not using a profile - all settings included
 * In the `ams01` `region` there are two networks with undiscoverable qualities
@@ -310,7 +315,7 @@ Much more complex clouds.yaml example
             routes_externally: false
 
 Complete Example Again
-======================
+----------------------
 
 .. code:: python
 
@@ -339,17 +344,17 @@ Complete Example Again
           'my-server', image=image, flavor=flavor, wait=True, auto_ip=True)
 
 Step By Step
-============
+------------
 
 Import the library
-==================
+------------------
 
 .. code:: python
 
   from openstack import cloud as openstack
 
 Logging
-=======
+-------
 
 * `openstacksdk` uses standard python logging
 * ``openstack.enable_logging`` does easy defaults
@@ -357,7 +362,7 @@ Logging
 
   * `debug`
 
-     * Logs shade loggers at debug level
+     * Logs openstacksdk loggers at debug level
 
   * `http_debug` Implies `debug`, turns on HTTP tracing
 
@@ -367,23 +372,22 @@ Logging
   openstack.enable_logging(debug=True)
 
 Example with Debug Logging
-==========================
+--------------------------
 
-* doc/source/examples/debug-logging.py
+* examples/cloud/debug-logging.py
 
 .. code:: python
 
   from openstack import cloud as openstack
   openstack.enable_logging(debug=True)
 
-  cloud = openstack.connect(
-      cloud='my-vexxhost', region_name='ca-ymq-1')
+  cloud = openstack.connect(cloud='my-vexxhost', region_name='ca-ymq-1')
   cloud.get_image('Ubuntu 16.04.1 LTS [2017-03-03]')
 
 Example with HTTP Debug Logging
-===============================
+-------------------------------
 
-* doc/source/examples/http-debug-logging.py
+* examples/cloud/http-debug-logging.py
 
 .. code:: python
 
@@ -395,7 +399,7 @@ Example with HTTP Debug Logging
   cloud.get_image('Ubuntu 16.04.1 LTS [2017-03-03]')
 
 Cloud Regions
-=============
+-------------
 
 * `cloud` constructor needs `cloud` and `region_name`
 * `openstack.connect` is a helper factory function
@@ -403,14 +407,15 @@ Cloud Regions
 .. code:: python
 
   for cloud_name, region_name in [
-          ('my-vexxhost', 'ca-ymq-1'),
-          ('my-citycloud', 'Buf1'),
-          ('my-internap', 'ams01')]:
+      ('my-vexxhost', 'ca-ymq-1'),
+      ('my-citycloud', 'Buf1'),
+      ('my-internap', 'ams01')
+  ]:
       # Initialize cloud
       cloud = openstack.connect(cloud=cloud_name, region_name=region_name)
 
 Upload an Image
-===============
+---------------
 
 * Picks the correct upload mechanism
 * **SUGGESTION** Always upload your own base images
@@ -419,10 +424,13 @@ Upload an Image
 
       # Upload an image to the cloud
       image = cloud.create_image(
-          'devuan-jessie', filename='devuan-jessie.qcow2', wait=True)
+          'devuan-jessie',
+          filename='devuan-jessie.qcow2',
+          wait=True,
+      )
 
 Always Upload an Image
-======================
+----------------------
 
 Ok. You don't have to. But, for multi-cloud...
 
@@ -432,7 +440,7 @@ Ok. You don't have to. But, for multi-cloud...
 * Download from OS vendor or build with `diskimage-builder`
 
 Find a flavor
-=============
+-------------
 
 * Flavors are all named differently on clouds
 * Flavors can be found via RAM
@@ -444,7 +452,7 @@ Find a flavor
       flavor = cloud.get_flavor_by_ram(512)
 
 Create a server
-===============
+---------------
 
 * my-vexxhost
 
@@ -472,15 +480,15 @@ Create a server
           'my-server', image=image, flavor=flavor, wait=True, auto_ip=True)
 
 Wow. We didn't even deploy Wordpress!
-=====================================
+-------------------------------------
 
 Image and Flavor by Name or ID
-==============================
+------------------------------
 
 * Pass string to image/flavor
 * Image/Flavor will be found by name or ID
 * Common pattern
-* doc/source/examples/create-server-name-or-id.py
+* examples/cloud/create-server-name-or-id.py
 
 .. code:: python
 
@@ -509,11 +517,8 @@ Image and Flavor by Name or ID
       # Delete it - this is a demo
       cloud.delete_server(server, wait=True, delete_ips=True)
 
-cloud.pprint method was just added this morning
-===============================================
-
 Delete Servers
-==============
+--------------
 
 * `delete_ips` Delete any `floating_ips` the server may have
 
@@ -522,12 +527,12 @@ Delete Servers
       cloud.delete_server('my-server', wait=True, delete_ips=True)
 
 Image and Flavor by Dict
-========================
+------------------------
 
 * Pass dict to image/flavor
 * If you know if the value is Name or ID
 * Common pattern
-* doc/source/examples/create-server-dict.py
+* examples/cloud/create-server-dict.py
 
 .. code:: python
 
@@ -555,10 +560,10 @@ Image and Flavor by Dict
       cloud.delete_server(server, wait=True, delete_ips=True)
 
 Munch Objects
-=============
+-------------
 
 * Behave like a dict and an object
-* doc/source/examples/munch-dict-object.py
+* examples/cloud/munch-dict-object.py
 
 .. code:: python
 
@@ -571,7 +576,7 @@ Munch Objects
   print(image['name'])
 
 API Organized by Logical Resource
-=================================
+---------------------------------
 
 * list_servers
 * search_servers
@@ -587,10 +592,10 @@ For other things, it's still {verb}_{noun}
 * add_auto_ip
 
 Cleanup Script
-==============
+--------------
 
 * Sometimes my examples had bugs
-* doc/source/examples/cleanup-servers.py
+* examples/cloud/cleanup-servers.py
 
 .. code:: python
 
@@ -609,10 +614,9 @@ Cleanup Script
           cloud.delete_server(server, wait=True, delete_ips=True)
 
 Normalization
-=============
+-------------
 
-* https://docs.openstack.org/shade/latest/user/model.html#image
-* doc/source/examples/normalization.py
+* examples/cloud/normalization.py
 
 .. code:: python
 
@@ -625,10 +629,10 @@ Normalization
   cloud.pprint(image)
 
 Strict Normalized Results
-=========================
+-------------------------
 
 * Return only the declared model
-* doc/source/examples/strict-mode.py
+* examples/cloud/strict-mode.py
 
 .. code:: python
 
@@ -642,10 +646,10 @@ Strict Normalized Results
   cloud.pprint(image)
 
 How Did I Find the Image Name for the Last Example?
-===================================================
+---------------------------------------------------
 
 * I often make stupid little utility scripts
-* doc/source/examples/find-an-image.py
+* examples/cloud/find-an-image.py
 
 .. code:: python
 
@@ -658,7 +662,7 @@ How Did I Find the Image Name for the Last Example?
       if 'ubuntu' in image.name.lower()])
 
 Added / Modified Information
-============================
+----------------------------
 
 * Servers need more extra help
 * Fetch addresses dict from neutron
@@ -666,7 +670,7 @@ Added / Modified Information
 * `detailed` - defaults to True, add everything
 * `bare` - no extra calls - don't even fix broken things
 * `bare` is still normalized
-* doc/source/examples/server-information.py
+* examples/cloud/server-information.py
 
 .. code:: python
 
@@ -694,9 +698,9 @@ Added / Modified Information
       cloud.delete_server(server, wait=True, delete_ips=True)
 
 Exceptions
-==========
+----------
 
-* All shade exceptions are subclasses of `OpenStackCloudException`
+* All openstacksdk exceptions are subclasses of `OpenStackCloudException`
 * Direct REST calls throw `OpenStackCloudHTTPError`
 * `OpenStackCloudHTTPError` subclasses `OpenStackCloudException`
   and `requests.exceptions.HTTPError`
@@ -704,11 +708,11 @@ Exceptions
 * `OpenStackCloudBadRequest` for 400
 
 User Agent Info
-===============
+---------------
 
 * Set `app_name` and `app_version` for User Agents
-* (sssh ... `region_name` is optional if the cloud has one region)
-* doc/source/examples/user-agent.py
+* (ssh ... `region_name` is optional if the cloud has one region)
+* examples/cloud/user-agent.py
 
 .. code:: python
 
@@ -716,17 +720,20 @@ User Agent Info
   openstack.enable_logging(http_debug=True)
 
   cloud = openstack.connect(
-      cloud='datacentred', app_name='AmazingApp', app_version='1.0')
+      cloud='datacentred',
+      app_name='AmazingApp',
+      app_version='1.0',
+  )
   cloud.list_networks()
 
 Uploading Large Objects
-=======================
+-----------------------
 
 * swift has a maximum object size
 * Large Objects are uploaded specially
-* shade figures this out and does it
+* openstacksdk figures this out and does it
 * multi-threaded
-* doc/source/examples/upload-object.py
+* examples/cloud/upload-object.py
 
 .. code:: python
 
@@ -735,19 +742,21 @@ Uploading Large Objects
 
   cloud = openstack.connect(cloud='ovh', region_name='SBG1')
   cloud.create_object(
-      container='my-container', name='my-object',
-      filename='/home/mordred/briarcliff.sh3d')
+      container='my-container',
+      name='my-object',
+      filename='/home/mordred/briarcliff.sh3d',
+  )
   cloud.delete_object('my-container', 'my-object')
   cloud.delete_container('my-container')
 
 Uploading Large Objects
-=======================
+-----------------------
 
 * Default max_file_size is 5G
 * This is a conference demo
 * Let's force a segment_size
 * One MILLION bytes
-* doc/source/examples/upload-object.py
+* examples/cloud/upload-object.py
 
 .. code:: python
 
@@ -756,14 +765,16 @@ Uploading Large Objects
 
   cloud = openstack.connect(cloud='ovh', region_name='SBG1')
   cloud.create_object(
-      container='my-container', name='my-object',
+      container='my-container',
+      name='my-object',
       filename='/home/mordred/briarcliff.sh3d',
-      segment_size=1000000)
+      segment_size=1000000,
+  )
   cloud.delete_object('my-container', 'my-object')
   cloud.delete_container('my-container')
 
 Service Conditionals
-====================
+--------------------
 
 .. code:: python
 
@@ -775,7 +786,7 @@ Service Conditionals
   print(cloud.has_service('container-orchestration'))
 
 Service Conditional Overrides
-=============================
+-----------------------------
 
 * Sometimes clouds are weird and figuring that out won't work
 
@@ -798,12 +809,5 @@ Service Conditional Overrides
       # This is already in profile: rackspace
       has_network: false
 
-Coming Soon
-===========
-
-* Completion of RESTification
-* Full version discovery support
-* Multi-cloud facade layer
-* Microversion support (talk tomorrow)
-* Completion of caching tier (talk tomorrow)
-* All of you helping hacking on shade!!! (we're friendly)
+FIN
+---
