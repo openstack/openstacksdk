@@ -924,7 +924,12 @@ class TestCase(base.TestCase):
                     )
         if do_count:
             self.assertEqual(
-                len(self.calls), len(self.adapter.request_history)
+                len(self.calls),
+                len(self.adapter.request_history),
+                "Expected:\n{}'\nGot:\n{}".format(
+                    '\n'.join([c['url'] for c in self.calls]),
+                    '\n'.join([h.url for h in self.adapter.request_history]),
+                ),
             )
 
     def assertResourceEqual(self, actual, expected, resource_type):
