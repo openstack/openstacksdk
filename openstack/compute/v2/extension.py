@@ -17,7 +17,6 @@ class Extension(resource.Resource):
     resource_key = 'extension'
     resources_key = 'extensions'
     base_path = '/extensions'
-    id_attribute = "alias"
 
     # capabilities
     allow_fetch = True
@@ -30,7 +29,7 @@ class Extension(resource.Resource):
     description = resource.Body('description')
     #: Links pertaining to this extension. This is a list of dictionaries,
     #: each including keys ``href`` and ``rel``.
-    links = resource.Body('links')
+    links = resource.Body('links', type=list, list_type=dict)
     #: The name of the extension.
     name = resource.Body('name')
     #: A URL pointing to the namespace for this extension.

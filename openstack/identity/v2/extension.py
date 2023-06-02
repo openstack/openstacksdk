@@ -31,7 +31,7 @@ class Extension(resource.Resource):
     #: A description of the extension. *Type: string*
     description = resource.Body('description')
     #: Links to the documentation in various format. *Type: string*
-    links = resource.Body('links')
+    links = resource.Body('links', type=list, list_type=dict)
     #: The name of the extension. *Type: string*
     name = resource.Body('name')
     #: The second unique identifier of the extension after the alias.
