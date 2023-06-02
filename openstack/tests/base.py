@@ -23,6 +23,7 @@ import fixtures
 from oslotest import base
 import testtools.content
 
+from openstack.tests import fixtures as os_fixtures
 from openstack import utils
 
 _TRUE_VALUES = ('true', '1', 'yes')
@@ -54,7 +55,9 @@ class TestCase(base.BaseTestCase):
             # Let oslotest do its thing
             pass
 
-        super(TestCase, self).setUp()
+        super().setUp()
+
+        self.warnings = self.useFixture(os_fixtures.WarningsFixture())
 
         if os.environ.get('OS_LOG_CAPTURE') in _TRUE_VALUES:
             self._log_stream = StringIO()
