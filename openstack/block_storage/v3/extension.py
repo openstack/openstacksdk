@@ -14,8 +14,6 @@ from openstack import resource
 
 
 class Extension(resource.Resource):
-    """Extension"""
-
     resources_key = "extensions"
     base_path = "/extensions"
 
@@ -27,6 +25,10 @@ class Extension(resource.Resource):
     alias = resource.Body('alias', type=str)
     #: The extension description.
     description = resource.Body('description', type=str)
+    #: Links pertaining to this extension.
+    links = resource.Body('links', type=list)
+    #: The name of this extension.
+    name = resource.Body('name')
     #: The date and time when the resource was updated.
     #: The date and time stamp format is ISO 8601.
-    updated = resource.Body('updated', type=str)
+    updated_at = resource.Body('updated', type=str)

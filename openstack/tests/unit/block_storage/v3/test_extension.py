@@ -38,4 +38,6 @@ class TestExtension(base.TestCase):
         self.assertEqual(
             EXTENSION['description'], extension_resource.description
         )
-        self.assertEqual(EXTENSION['updated'], extension_resource.updated)
+        self.assertEqual(EXTENSION['links'], extension_resource.links)
+        self.assertEqual(EXTENSION['name'], extension_resource.name)
+        self.assertEqual(EXTENSION['updated'], extension_resource.updated_at)
