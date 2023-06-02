@@ -26,6 +26,7 @@ from openstack import exceptions
 from openstack.network.v2._proxy import Proxy
 from openstack import proxy
 from openstack import utils
+from openstack import warnings as os_warnings
 
 _CONFIG_DOC_URL = (
     "https://docs.openstack.org/openstacksdk/latest/"
@@ -66,8 +67,8 @@ class FloatingIPCloudMixin:
         # `filters` could be a jmespath expression which Neutron server doesn't
         # understand, obviously.
         warnings.warn(
-            "search_floating_ips is deprecated. "
-            "Use search_resource instead."
+            "search_floating_ips is deprecated. Use search_resource instead.",
+            os_warnings.OpenStackDeprecationWarning,
         )
         if self._use_neutron_floating() and isinstance(filters, dict):
             return list(self.network.ips(**filters))

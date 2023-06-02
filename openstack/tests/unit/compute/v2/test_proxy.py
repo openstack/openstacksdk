@@ -39,6 +39,7 @@ from openstack.compute.v2 import usage
 from openstack.compute.v2 import volume_attachment
 from openstack import resource
 from openstack.tests.unit import test_proxy_base
+from openstack import warnings as os_warnings
 
 
 class TestComputeProxy(test_proxy_base.TestProxyBase):
@@ -523,7 +524,10 @@ class TestVolumeAttachment(TestComputeProxy):
             )
 
             self.assertEqual(1, len(w))
-            self.assertEqual(w[-1].category, DeprecationWarning)
+            self.assertEqual(
+                os_warnings.OpenStackDeprecationWarning,
+                w[-1].category,
+            )
             self.assertIn(
                 'This method was called with a volume_id or volumeId argument',
                 str(w[-1]),

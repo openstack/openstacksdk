@@ -48,6 +48,7 @@ from openstack.config import defaults as config_defaults
 from openstack import exceptions
 from openstack import proxy
 from openstack import version as openstack_version
+from openstack import warnings as os_warnings
 
 
 _logger = _log.setup_logging('openstack')
@@ -100,7 +101,7 @@ def from_session(
     force_ipv4=False,
     app_name=None,
     app_version=None,
-    **kwargs
+    **kwargs,
 ):
     """Construct a CloudRegion from an existing `keystoneauth1.session.Session`
 
@@ -387,11 +388,10 @@ class CloudRegion:
         else:
             if cacert:
                 warnings.warn(
-                    "You are specifying a cacert for the cloud {full_name}"
-                    " but also to ignore the host verification. The host SSL"
-                    " cert will not be verified.".format(
-                        full_name=self.full_name
-                    )
+                    f"You are specifying a cacert for the cloud "
+                    f"{self.full_name} but also to ignore the host "
+                    f"verification. The host SSL cert will not be verified.",
+                    os_warnings.ConfigurationWarning,
                 )
 
         cert = self.config.get('cert')
@@ -505,9 +505,10 @@ class CloudRegion:
             except ValueError:
                 if 'latest' in version:
                     warnings.warn(
-                        "You have a configured API_VERSION with 'latest' in"
-                        " it. In the context of openstacksdk this doesn't make"
-                        " any sense."
+                        "You have a configured API_VERSION with 'latest' in "
+                        "it. In the context of openstacksdk this doesn't make "
+                        "any sense.",
+                        os_warnings.ConfigurationWarning,
                     )
                 return None
         return version
@@ -686,7 +687,7 @@ class CloudRegion:
                 raise exceptions.ConfigException(
                     "Problem with auth parameters"
                 )
-            (verify, cert) = self.get_requests_verify_args()
+            verify, cert = self.get_requests_verify_args()
             # Turn off urllib3 warnings about insecure certs if we have
             # explicitly configured requests to tell it we do not want
             # cert verification
@@ -876,7 +877,7 @@ class CloudRegion:
             default_microversion=version_request.default_microversion,
             rate_limit=self.get_rate_limit(service_type),
             concurrency=self.get_concurrency(service_type),
-            **kwargs
+            **kwargs,
         )
         if version_request.default_microversion:
             default_microversion = version_request.default_microversion
@@ -962,7 +963,7 @@ class CloudRegion:
                 region_name=region_name,
                 interface=interface,
                 service_name=service_name,
-                **version_kwargs
+                **version_kwargs,
             )
         except keystoneauth1.exceptions.catalog.EndpointNotFound:
             endpoint = None

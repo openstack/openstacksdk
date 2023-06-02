@@ -27,6 +27,7 @@ from openstack.image.v2 import task as _task
 from openstack import proxy
 from openstack import resource
 from openstack import utils
+from openstack import warnings as os_warnings
 
 # Rackspace returns this for intermittent import errors
 _IMAGE_ERROR_396 = "Image cannot be imported. Error code: '396'"
@@ -502,7 +503,10 @@ class Proxy(proxy.Proxy):
         :returns: The results of image creation
         :rtype: :class:`~openstack.image.v2.image.Image`
         """
-        warnings.warn("upload_image is deprecated. Use create_image instead.")
+        warnings.warn(
+            "upload_image is deprecated. Use create_image instead.",
+            os_warnings.OpenStackDeprecationWarning,
+        )
         # container_format and disk_format are required to be set
         # on the image by the time upload_image is called, but they're not
         # required by the _create call. Enforce them here so that we don't

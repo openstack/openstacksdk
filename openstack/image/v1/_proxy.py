@@ -18,6 +18,7 @@ from openstack import exceptions
 from openstack.image.v1 import image as _image
 from openstack import proxy
 from openstack import utils
+from openstack import warnings as os_warnings
 
 
 def _get_name_and_filename(name, image_format):
@@ -258,7 +259,10 @@ class Proxy(proxy.Proxy):
         :returns: The results of image creation
         :rtype: :class:`~openstack.image.v1.image.Image`
         """
-        warnings.warn("upload_image is deprecated. Use create_image instead.")
+        warnings.warn(
+            "upload_image is deprecated. Use create_image instead.",
+            os_warnings.OpenStackDeprecationWarning,
+        )
         return self._create(_image.Image, **attrs)
 
     def _upload_image(

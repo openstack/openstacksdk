@@ -36,7 +36,7 @@ from openstack.config import cloud_region as cloud_region_mod
 from openstack import exceptions
 from openstack import proxy
 from openstack import utils
-
+from openstack import warnings as os_warnings
 
 DEFAULT_SERVER_AGE = 5
 DEFAULT_PORT_AGE = 5
@@ -303,7 +303,7 @@ class _OpenStackCloudMixin:
             app_name=self.config._app_name,
             app_version=self.config._app_version,
             discovery_cache=self.session._discovery_cache,
-            **params
+            **params,
         )
 
         # Override the cloud name so that logging/location work right
@@ -433,23 +433,21 @@ class _OpenStackCloudMixin:
         api_major = self._get_major_version_id(api_version)
 
         # If we detect a different version that was configured, warn the user.
-        # shade still knows what to do - but if the user gave us an explicit
-        # version and we couldn't find it, they may want to investigate.
+        # openstacksdk still knows what to do - but if the user gave us an
+        # explicit version and we couldn't find it, they may want to
+        # investigate
         if api_version and config_version and (api_major != config_major):
+            api_version_str = '.'.join([str(f) for f in api_version])
             warning_msg = (
-                '{service_type} is configured for {config_version}'
-                ' but only {api_version} is available. shade is happy'
-                ' with this version, but if you were trying to force an'
-                ' override, that did not happen. You may want to check'
-                ' your cloud, or remove the version specification from'
-                ' your config.'.format(
-                    service_type=service_type,
-                    config_version=config_version,
-                    api_version='.'.join([str(f) for f in api_version]),
-                )
+                f'{service_type} is configured for {config_version} but only '
+                f'{api_version_str} is available. openstacksdk is happy '
+                f'with this version, but if you were trying to force an '
+                f'override, that did not happen. You may want to check '
+                f'your cloud, or remove the version specification from '
+                f'your config.'
             )
             self.log.debug(warning_msg)
-            warnings.warn(warning_msg)
+            warnings.warn(warning_msg, os_warnings.OpenStackDeprecationWarning)
         return adapter
 
     # TODO(shade) This should be replaced with using openstack Connection
@@ -750,7 +748,7 @@ class _OpenStackCloudMixin:
         get_kwargs=None,
         list_args=None,
         list_kwargs=None,
-        **filters
+        **filters,
     ):
         """Search resources
 
