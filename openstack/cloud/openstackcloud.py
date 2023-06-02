@@ -396,7 +396,7 @@ class _OpenStackCloudMixin:
             request_max_version = '{version}.latest'.format(
                 version=config_major
             )
-            adapter = proxy._ShadeAdapter(
+            adapter = proxy.Proxy(
                 session=self.session,
                 service_type=self.config.get_service_type(service_type),
                 service_name=self.config.get_service_name(service_type),
@@ -414,7 +414,7 @@ class _OpenStackCloudMixin:
             if adapter.get_endpoint():
                 return adapter
 
-        adapter = proxy._ShadeAdapter(
+        adapter = proxy.Proxy(
             session=self.session,
             service_type=self.config.get_service_type(service_type),
             service_name=self.config.get_service_name(service_type),
@@ -457,7 +457,7 @@ class _OpenStackCloudMixin:
     def _get_raw_client(
         self, service_type, api_version=None, endpoint_override=None
     ):
-        return proxy._ShadeAdapter(
+        return proxy.Proxy(
             session=self.session,
             service_type=self.config.get_service_type(service_type),
             service_name=self.config.get_service_name(service_type),

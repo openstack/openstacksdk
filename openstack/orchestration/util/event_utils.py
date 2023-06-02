@@ -16,8 +16,10 @@ import collections
 import time
 
 from openstack.cloud import meta
+from openstack import proxy
 
 
+# TODO(stephenfin): Convert to use proxy
 def get_events(cloud, stack_id, event_args, marker=None, limit=None):
     # TODO(mordred) FIX THIS ONCE assert_calls CAN HANDLE QUERY STRINGS
     params = collections.OrderedDict()
@@ -29,8 +31,11 @@ def get_events(cloud, stack_id, event_args, marker=None, limit=None):
     if limit:
         event_args['limit'] = limit
 
-    data = cloud._orchestration_client.get(
-        '/stacks/{id}/events'.format(id=stack_id), params=params
+    data = proxy._json_response(
+        cloud._orchestration_client.get(
+            '/stacks/{id}/events'.format(id=stack_id),
+            params=params,
+        )
     )
     events = meta.get_and_munchify('events', data)
 
