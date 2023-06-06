@@ -64,7 +64,7 @@ ARQ_UUID = uuid.uuid4().hex
 ARQ_DEV_RP_UUID = uuid.uuid4().hex
 ARQ_INSTANCE_UUID = uuid.uuid4().hex
 ARQ_ATTACH_INFO_STR = (
-    '{"bus": "5e", ' '"device": "00", ' '"domain": "0000", ' '"function": "1"}'
+    '{"bus": "5e", "device": "00", "domain": "0000", "function": "1"}'
 )
 ARQ_DICT = {
     'uuid': ARQ_UUID,

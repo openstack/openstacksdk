@@ -78,7 +78,7 @@ _TASK_PROPERTIES = {
     },
     "expires_at": {
         "description": _(
-            "Datetime when this resource would be" " subject to removal"
+            "Datetime when this resource would be subject to removal"
         ),
         "type": ["null", "string"],
     },

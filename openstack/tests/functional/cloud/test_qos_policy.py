@@ -66,7 +66,7 @@ class TestQosPolicy(base.BaseFunctionalTest):
     def test_create_qos_policy_default(self):
         if not self.operator_cloud._has_neutron_extension('qos-default'):
             self.skipTest(
-                "'qos-default' network extension not supported " "by cloud"
+                "'qos-default' network extension not supported by cloud"
             )
         policy = self.operator_cloud.create_qos_policy(
             name=self.policy_name, default=True

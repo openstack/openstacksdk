@@ -18,7 +18,7 @@ FAKE_ID = '0725b527-e51a-41df-ad22-adad5f4546ad'
 FAKE_RP_UUID = 'f4b7fe6c-8ab4-4914-a113-547af022935b'
 FAKE_INSTANCE_UUID = '1ce4a597-9836-4e02-bea1-a3a6cbe7b9f9'
 FAKE_ATTACH_INFO_STR = (
-    '{"bus": "5e", ' '"device": "00", ' '"domain": "0000", ' '"function": "1"}'
+    '{"bus": "5e", "device": "00", "domain": "0000", "function": "1"}'
 )
 
 FAKE = {

@@ -53,7 +53,7 @@ class ServerRemoteConsole(resource.Resource):
             and self.type == 'webmks'
         ):
             raise ValueError(
-                'Console type webmks is not supported on ' 'server side'
+                'Console type webmks is not supported on server side'
             )
         return super(ServerRemoteConsole, self).create(
             session, prepend_key=prepend_key, base_path=base_path, **params

@@ -402,7 +402,7 @@ class TinyDAG:
 
             except queue.Empty:
                 raise exceptions.SDKException(
-                    'Timeout waiting for ' 'cleanup task to complete'
+                    'Timeout waiting for cleanup task to complete'
                 )
         else:
             raise StopIteration

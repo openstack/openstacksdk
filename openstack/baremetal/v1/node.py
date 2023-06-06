@@ -453,7 +453,7 @@ class Node(_common.ListMixin, resource.Resource):
         if clean_steps is not None:
             if target != 'clean':
                 raise ValueError(
-                    'Clean steps can only be provided with ' '"clean" target'
+                    'Clean steps can only be provided with "clean" target'
                 )
             body['clean_steps'] = clean_steps
 

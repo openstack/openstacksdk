@@ -57,7 +57,7 @@ FAKE_UPDATE_PREVIEW_RESPONSE = {
         {
             'updated_time': 'datetime',
             'resource_name': '',
-            'physical_resource_id': '{resource id or ' '}',
+            'physical_resource_id': '{resource id or }',
             'resource_action': 'CREATE',
             'resource_status': 'COMPLETE',
             'resource_status_reason': '',
@@ -70,7 +70,7 @@ FAKE_UPDATE_PREVIEW_RESPONSE = {
         {
             'updated_time': 'datetime',
             'resource_name': '',
-            'physical_resource_id': '{resource id or ' '}',
+            'physical_resource_id': '{resource id or }',
             'resource_action': 'CREATE',
             'resource_status': 'COMPLETE',
             'resource_status_reason': '',
@@ -83,7 +83,7 @@ FAKE_UPDATE_PREVIEW_RESPONSE = {
         {
             'updated_time': 'datetime',
             'resource_name': '',
-            'physical_resource_id': '{resource id or ' '}',
+            'physical_resource_id': '{resource id or }',
             'resource_action': 'CREATE',
             'resource_status': 'COMPLETE',
             'resource_status_reason': '',
@@ -96,7 +96,7 @@ FAKE_UPDATE_PREVIEW_RESPONSE = {
         {
             'updated_time': 'datetime',
             'resource_name': '',
-            'physical_resource_id': '{resource id or ' '}',
+            'physical_resource_id': '{resource id or }',
             'resource_action': 'CREATE',
             'resource_status': 'COMPLETE',
             'resource_status_reason': '',
@@ -109,7 +109,7 @@ FAKE_UPDATE_PREVIEW_RESPONSE = {
         {
             'updated_time': 'datetime',
             'resource_name': '',
-            'physical_resource_id': '{resource id or ' '}',
+            'physical_resource_id': '{resource id or }',
             'resource_action': 'CREATE',
             'resource_status': 'COMPLETE',
             'resource_status_reason': '',

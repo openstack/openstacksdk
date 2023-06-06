@@ -107,14 +107,12 @@ class SecurityGroupCloudMixin:
             raise exc.OpenStackCloudUnavailableFeature(
                 "Unavailable feature: security groups"
             )
-        error_message = "Error getting security group with" " ID {id}".format(
-            id=id
-        )
+        error_message = f"Error getting security group with ID {id}"
         if self._use_neutron_secgroups():
             return self.network.get_security_group(id)
         else:
             data = proxy._json_response(
-                self.compute.get('/os-security-groups/{id}'.format(id=id)),
+                self.compute.get(f'/os-security-groups/{id}'),
                 error_message=error_message,
             )
         return self._normalize_secgroup(

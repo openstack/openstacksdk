@@ -57,7 +57,7 @@ _GroupData = collections.namedtuple(
 
 _DomainData = collections.namedtuple(
     'DomainData',
-    'domain_id, domain_name, description, json_response, ' 'json_request',
+    'domain_id, domain_name, description, json_response, json_request',
 )
 
 
@@ -223,7 +223,7 @@ class TestCase(base.TestCase):
             assert not (project or project_list)
         else:
             raise Exception(
-                'Must specify a project, project_list, ' 'or project_count'
+                'Must specify a project, project_list, or project_count'
             )
         assert list_get or id_get
 
@@ -362,7 +362,7 @@ class TestCase(base.TestCase):
         self.assertIs(
             0,
             len(kwargs),
-            message='extra key-word args received ' 'on _get_user_data',
+            message='extra key-word args received on _get_user_data',
         )
 
         return _UserData(

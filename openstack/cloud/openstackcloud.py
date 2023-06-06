@@ -721,7 +721,7 @@ class _OpenStackCloudMixin:
                 and self._disable_warnings[service_key]
             ):
                 self.log.debug(
-                    "Disabling %(service_key)s entry in catalog" " per config",
+                    "Disabling %(service_key)s entry in catalog per config",
                     {'service_key': service_key},
                 )
                 self._disable_warnings[service_key] = True

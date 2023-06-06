@@ -1030,7 +1030,7 @@ class Proxy(proxy.Proxy):
                 raise ValueError('path must at least contain /v1/a/c/')
             else:
                 raise ValueError(
-                    'path must be full path to an object' ' e.g. /v1/a/c/o'
+                    'path must be full path to an object e.g. /v1/a/c/o'
                 )
 
         standard_methods = ['GET', 'PUT', 'HEAD', 'POST', 'DELETE']
