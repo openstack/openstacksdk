@@ -70,7 +70,7 @@ def make_fake_flavor(flavor_id, name, ram=100, disk=1600, vcpus=24):
         u'os-flavor-access:is_public': True,
         u'ram': ram,
         u'rxtx_factor': 1.0,
-        u'swap': u'',
+        u'swap': 0,
         u'vcpus': vcpus,
     }
 
