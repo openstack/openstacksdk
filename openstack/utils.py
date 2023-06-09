@@ -109,7 +109,7 @@ def supports_version(
     """Determine if the given adapter supports the given version.
 
     Checks the version asserted by the service and ensures this matches the
-    provided version. ``version`` can be a major version of a major-minor
+    provided version. ``version`` can be a major version or a major-minor
     version
 
     :param adapter: :class:`~keystoneauth1.adapter.Adapter` instance.
