@@ -96,8 +96,8 @@ class Node(_common.ListMixin, resource.Resource):
         is_maintenance='maintenance',
     )
 
-    # Ability to change boot_mode and secure_boot, introduced in 1.76 (Xena).
-    _max_microversion = '1.76'
+    # Ability to get node inventory, introduced in 1.81 (Antelope).
+    _max_microversion = '1.81'
 
     # Properties
     #: The UUID of the allocation associated with this node. Added in API
@@ -1311,6 +1311,25 @@ class Node(_common.ListMixin, resource.Resource):
             node=self.id,
         )
         exceptions.raise_from_response(response, error_message=msg)
+
+    def get_node_inventory(self, session, node_id):
+        session = self._get_session(session)
+        version = self._get_microversion(session, action='fetch')
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'inventory')
+
+        response = session.get(
+            request.url,
+            headers=request.headers,
+            microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
+
+        msg = "Failed to get inventory for node {node}".format(
+            node=node_id,
+        )
+        exceptions.raise_from_response(response, error_message=msg)
+        return response.json()
 
     def patch(
         self,
