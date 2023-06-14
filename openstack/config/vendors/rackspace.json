@@ -4,6 +4,7 @@
     "auth": {
       "auth_url": "https://identity.api.rackspacecloud.com/v2.0/"
     },
+    "identity_api_version": "2.0",
     "regions": [
       "DFW",
       "HKG",
