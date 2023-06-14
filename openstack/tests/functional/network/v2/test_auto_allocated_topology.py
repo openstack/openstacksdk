@@ -30,9 +30,7 @@ class TestAutoAllocatedTopology(base.BaseFunctionalTest):
                 "required for this test"
             )
 
-        projects = [
-            o.project_id for o in self.operator_cloud.network.networks()
-        ]
+        projects = [o.id for o in self.operator_cloud.identity.projects()]
         self.PROJECT_ID = projects[0]
 
     def tearDown(self):
