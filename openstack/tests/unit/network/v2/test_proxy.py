@@ -64,6 +64,7 @@ from openstack.network.v2 import service_profile
 from openstack.network.v2 import service_provider
 from openstack.network.v2 import subnet
 from openstack.network.v2 import subnet_pool
+from openstack.network.v2 import tap_mirror
 from openstack.network.v2 import vpn_endpoint_group
 from openstack.network.v2 import vpn_ike_policy
 from openstack.network.v2 import vpn_ipsec_policy
@@ -2638,3 +2639,30 @@ class TestNetworkBGPVPN(TestNetworkProxy):
             expected_args=[self.ROUTER_ASSOCIATION],
             expected_kwargs={'bgpvpn_id': BGPVPN_ID},
         )
+
+
+class TestNetworkTapMirror(TestNetworkProxy):
+    def test_create_tap_mirror(self):
+        self.verify_create(self.proxy.create_tap_mirror, tap_mirror.TapMirror)
+
+    def test_delete_tap_mirror(self):
+        self.verify_delete(
+            self.proxy.delete_tap_mirror, tap_mirror.TapMirror, False
+        )
+
+    def test_delete_tap_mirror_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_tap_mirror, tap_mirror.TapMirror, True
+        )
+
+    def test_find_tap_mirror(self):
+        self.verify_find(self.proxy.find_tap_mirror, tap_mirror.TapMirror)
+
+    def test_get_tap_mirror(self):
+        self.verify_get(self.proxy.get_tap_mirror, tap_mirror.TapMirror)
+
+    def test_tap_mirrors(self):
+        self.verify_list(self.proxy.tap_mirrors, tap_mirror.TapMirror)
+
+    def test_update_tap_mirror(self):
+        self.verify_update(self.proxy.update_tap_mirror, tap_mirror.TapMirror)

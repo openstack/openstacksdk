@@ -89,6 +89,7 @@ from openstack.network.v2 import sfc_service_graph as _sfc_sservice_graph
 from openstack.network.v2 import subnet as _subnet
 from openstack.network.v2 import subnet_pool as _subnet_pool
 from openstack.network.v2 import tap_flow as _tap_flow
+from openstack.network.v2 import tap_mirror as _tap_mirror
 from openstack.network.v2 import tap_service as _tap_service
 from openstack.network.v2 import trunk as _trunk
 from openstack.network.v2 import vpn_endpoint_group as _vpn_endpoint_group
@@ -178,6 +179,7 @@ class Proxy(proxy.Proxy):
         "subnet": _subnet.Subnet,
         "subnet_pool": _subnet_pool.SubnetPool,
         "tap_flow": _tap_flow.TapFlow,
+        "tap_mirror": _tap_mirror.TapMirror,
         "tap_service": _tap_service.TapService,
         "trunk": _trunk.Trunk,
         "vpn_endpoint_group": _vpn_endpoint_group.VpnEndpointGroup,
@@ -6327,6 +6329,37 @@ class Proxy(proxy.Proxy):
     def tap_flows(self, **query):
         """Return a generator of Tap Flows"""
         return self._list(_tap_flow.TapFlow, **query)
+
+    def create_tap_mirror(self, **attrs):
+        """Create a new Tap Mirror from attributes"""
+        return self._create(_tap_mirror.TapMirror, **attrs)
+
+    def delete_tap_mirror(self, tap_mirror, ignore_missing=True):
+        """Delete a Tap Mirror"""
+        self._delete(
+            _tap_mirror.TapMirror, tap_mirror, ignore_missing=ignore_missing
+        )
+
+    def find_tap_mirror(self, name_or_id, ignore_missing=True, **query):
+        """Find a single Tap Mirror"""
+        return self._find(
+            _tap_mirror.TapMirror,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
+
+    def get_tap_mirror(self, tap_mirror):
+        """Get a signle Tap Mirror"""
+        return self._get(_tap_mirror.TapMirror, tap_mirror)
+
+    def update_tap_mirror(self, tap_mirror, **attrs):
+        """Update a Tap Mirror"""
+        return self._update(_tap_mirror.TapMirror, tap_mirror, **attrs)
+
+    def tap_mirrors(self, **query):
+        """Return a generator of Tap Mirrors"""
+        return self._list(_tap_mirror.TapMirror, **query)
 
     def create_tap_service(self, **attrs):
         """Create a new Tap Service from attributes"""

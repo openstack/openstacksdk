@@ -357,3 +357,11 @@ SFC operations
             update_sfc_port_pair_group, create_sfc_service_graph,
             delete_sfc_service_graph, find_sfc_service_graph,
             get_sfc_service_graph, update_sfc_service_graph
+
+Tap Mirror operations
+^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.network.v2._proxy.Proxy
+  :noindex:
+  :members: create_tap_mirror, delete_tap_mirror, find_tap_mirror,
+            get_tap_mirror, tap_mirrors, update_tap_mirror

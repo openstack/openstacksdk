@@ -152,6 +152,7 @@
     required-projects:
       - openstack/neutron-fwaas
       - openstack/neutron-vpnaas
+      - openstack/tap-as-a-service
     vars:
       INSTALL_OVN: False
       configure_swap_size: 4096
@@ -184,17 +185,19 @@
             agent:
               availability_zone: nova
       devstack_localrc:
-        Q_SERVICE_PLUGIN_CLASSES: qos,trunk
-        NETWORK_API_EXTENSIONS: "agent,binding,dhcp_agent_scheduler,external-net,ext-gw-mode,extra_dhcp_opts,quotas,router,security-group,subnet_allocation,network-ip-availability,auto-allocated-topology,timestamp_core,tag,service-type,rbac-policies,standard-attr-description,pagination,sorting,project-id,fwaas_v2,vpnaas"
+        Q_SERVICE_PLUGIN_CLASSES: qos,trunk,taas
+        NETWORK_API_EXTENSIONS: "agent,binding,dhcp_agent_scheduler,external-net,ext-gw-mode,extra_dhcp_opts,quotas,router,security-group,subnet_allocation,network-ip-availability,auto-allocated-topology,timestamp_core,tag,service-type,rbac-policies,standard-attr-description,pagination,sorting,project-id,fwaas_v2,vpnaas,taas,tap_mirror"
         Q_AGENT: openvswitch
         Q_ML2_TENANT_NETWORK_TYPE: vxlan
         Q_ML2_PLUGIN_MECHANISM_DRIVERS: openvswitch
         IPSEC_PACKAGE: libreswan
+        TAAS_SERVICE_DRIVER: TAAS:TAAS:neutron_taas.services.taas.service_drivers.taas_rpc.TaasRpcDriver:default
       devstack_plugins:
         designate: https://opendev.org/openstack/designate
         octavia: https://opendev.org/openstack/octavia
         neutron-fwaas: https://opendev.org/openstack/neutron-fwaas.git
         neutron-vpnaas: https://opendev.org/openstack/neutron-vpnaas.git
+        tap-as-a-service: https://opendev.org/openstack/tap-as-a-service.git
       devstack_services:
         designate: true
         octavia: true
@@ -211,6 +214,8 @@
         h-api: false
         h-api-cfn: false
         q-fwaas-v2: true
+        taas: true
+        tap_mirror: true
       tox_environment:
         OPENSTACKSDK_HAS_DESIGNATE: 1
         OPENSTACKSDK_HAS_SWIFT: 0
