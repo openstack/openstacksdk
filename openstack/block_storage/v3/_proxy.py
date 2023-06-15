@@ -13,6 +13,7 @@
 from openstack.block_storage import _base_proxy
 from openstack.block_storage.v3 import availability_zone
 from openstack.block_storage.v3 import backup as _backup
+from openstack.block_storage.v3 import block_storage_summary as _summary
 from openstack.block_storage.v3 import capabilities as _capabilities
 from openstack.block_storage.v3 import extension as _extension
 from openstack.block_storage.v3 import group as _group
@@ -44,6 +45,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         "resource_filter": _resource_filter.ResourceFilter,
         "snapshot": _snapshot.Snapshot,
         "stats_pools": _stats.Pools,
+        "summary": _summary.BlockStorageSummary,
         "type": _type.Type,
         "volume": _volume.Volume,
     }
@@ -661,6 +663,26 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
                 volume.delete_metadata_item(self, key)
         else:
             volume.delete_metadata(self)
+
+    def summary(self, all_projects):
+        """Get Volumes Summary
+
+        This method returns the volumes summary in the deployment.
+
+        :param all_projects: Whether to return the summary of all projects
+            or not.
+
+        :returns: One :class:
+            `~openstack.block_storage.v3.block_storage_summary.Summary`
+            instance.
+        """
+        res = self._get(_summary.BlockStorageSummary, requires_id=False)
+        return res.fetch(
+            self,
+            requires_id=False,
+            resource_response_key='volume-summary',
+            all_projects=all_projects,
+        )
 
     # ====== VOLUME ACTIONS ======
     def extend_volume(self, volume, size):
