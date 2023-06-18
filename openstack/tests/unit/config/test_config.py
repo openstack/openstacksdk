@@ -609,6 +609,21 @@ class TestConfig(base.TestCase):
         ks_mock.assert_called_with(fake_auth)
 
     @mock.patch('openstack.config.cloud_region.keyring')
+    def test_set_auth_cache_empty_auth(self, kr_mock):
+        c = config.OpenStackConfig(
+            config_files=[self.cloud_yaml], secure_files=[]
+        )
+        c._cache_auth = True
+
+        kr_mock.get_password = mock.Mock(side_effect=[RuntimeError])
+        kr_mock.set_password = mock.Mock()
+
+        region = c.get_one('_test-cloud_')
+
+        region.set_auth_cache()
+        kr_mock.set_password.assert_not_called()
+
+    @mock.patch('openstack.config.cloud_region.keyring')
     def test_set_auth_cache(self, kr_mock):
         c = config.OpenStackConfig(
             config_files=[self.cloud_yaml], secure_files=[]
@@ -619,6 +634,9 @@ class TestConfig(base.TestCase):
         kr_mock.set_password = mock.Mock()
 
         region = c.get_one('_test-cloud_')
+        region._auth.set_auth_state(
+            '{"auth_token":"foo", "body":{"token":"bar"}}'
+        )
 
         region.set_auth_cache()
         kr_mock.set_password.assert_called_with(

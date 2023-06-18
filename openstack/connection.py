@@ -176,6 +176,7 @@ try to find it and if that fails, you would create it::
 Additional information about the services can be found in the
 :ref:`service-proxies` documentation.
 """
+import atexit
 import concurrent.futures
 import warnings
 import weakref
@@ -472,9 +473,8 @@ class Connection(
                 'additional_metric_tags'
             ] = self.config.config['additional_metric_tags']
 
-    def __del__(self):
-        # try to force release of resources and save authorization
-        self.close()
+        # Register cleanup steps
+        atexit.register(self.close)
 
     @property
     def session(self):
@@ -551,9 +551,9 @@ class Connection(
 
     def close(self):
         """Release any resources held open."""
+        self.config.set_auth_cache()
         if self.__pool_executor:
             self.__pool_executor.shutdown()
-        self.config.set_auth_cache()
 
     def set_global_request_id(self, global_request_id):
         self._global_request_id = global_request_id
