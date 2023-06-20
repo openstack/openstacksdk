@@ -332,6 +332,19 @@ class Proxy(proxy.Proxy):
         """
         return self._get_with_fields(_node.Node, node, fields=fields)
 
+    def get_node_inventory(self, node):
+        """Get a specific node's hardware inventory.
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+
+        :returns: The node inventory
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            inventory could be found.
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.get_node_inventory(self, node)
+
     def update_node(self, node, retry_on_conflict=True, **attrs):
         """Update a node.
 
