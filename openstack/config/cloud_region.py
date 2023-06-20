@@ -658,7 +658,11 @@ class CloudRegion:
         state = self._auth.get_auth_state()
 
         try:
-            keyring.set_password('openstacksdk', cache_id, state)
+            if state:
+                # NOTE: under some conditions the method may be invoked when auth
+                # is empty. This may lead to exception in the keyring lib, thus do
+                # nothing.
+                keyring.set_password('openstacksdk', cache_id, state)
         except RuntimeError:  # the fail backend raises this
             self.log.debug('Failed to set auth into keyring')
 
