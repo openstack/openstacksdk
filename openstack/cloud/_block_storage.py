@@ -461,7 +461,7 @@ class BlockStorageCloudMixin:
         :raises: OpenStackCloudException on operation error.
         """
         kwargs = self._get_volume_kwargs(kwargs)
-        payload = {'volume_id': volume_id}
+        payload = {'volume_id': volume_id, 'force': force}
         payload.update(kwargs)
         snapshot = self.block_storage.create_snapshot(**payload)
         if wait:

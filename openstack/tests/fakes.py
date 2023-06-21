@@ -400,6 +400,7 @@ class FakeVolumeSnapshot:
         self.updated_at = None
         self.volume_id = '12345'
         self.metadata = {}
+        self.is_forced = False
 
 
 class FakeMachine:
