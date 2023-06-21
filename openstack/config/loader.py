@@ -23,9 +23,9 @@ import re
 import sys
 import warnings
 
-import appdirs
 from keystoneauth1 import adapter
 from keystoneauth1 import loading
+import platformdirs
 import yaml
 
 from openstack import _log
@@ -36,9 +36,11 @@ from openstack.config import vendors
 from openstack import exceptions
 from openstack import warnings as os_warnings
 
-APPDIRS = appdirs.AppDirs('openstack', 'OpenStack', multipath='/etc')
-CONFIG_HOME = APPDIRS.user_config_dir
-CACHE_PATH = APPDIRS.user_cache_dir
+PLATFORMDIRS = platformdirs.PlatformDirs(
+    'openstack', 'OpenStack', multipath='/etc'
+)
+CONFIG_HOME = PLATFORMDIRS.user_config_dir
+CACHE_PATH = PLATFORMDIRS.user_cache_dir
 
 # snaps do set $HOME to something like
 # /home/$USER/snap/openstackclients/$SNAP_VERSION
@@ -55,7 +57,7 @@ else:
     )
 UNIX_SITE_CONFIG_HOME = '/etc/openstack'
 
-SITE_CONFIG_HOME = APPDIRS.site_config_dir
+SITE_CONFIG_HOME = PLATFORMDIRS.site_config_dir
 
 CONFIG_SEARCH_PATH = [
     os.getcwd(),
