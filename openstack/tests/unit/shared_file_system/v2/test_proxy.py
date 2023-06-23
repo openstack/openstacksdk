@@ -155,6 +155,63 @@ class TestSharedFileSystemStoragePool(TestSharedFileSystemProxy):
         )
 
 
+class TestSharedFileSystemShareMetadata(TestSharedFileSystemProxy):
+    def test_get_share_metadata(self):
+        self._verify(
+            "openstack.shared_file_system.v2.share.Share.fetch_metadata",
+            self.proxy.get_share_metadata,
+            method_args=["share_id"],
+            expected_args=[self.proxy],
+            expected_result=share.Share(
+                id="share_id", metadata={"key": "value"}
+            ),
+        )
+
+    def test_get_share_metadata_item(self):
+        self._verify(
+            "openstack.shared_file_system.v2.share.Share.get_metadata_item",
+            self.proxy.get_share_metadata_item,
+            method_args=["share_id", "key"],
+            expected_args=[self.proxy, "key"],
+            expected_result=share.Share(
+                id="share_id", metadata={"key": "value"}
+            ),
+        )
+
+    def test_create_share_metadata(self):
+        metadata = {"foo": "bar", "newFoo": "newBar"}
+        self._verify(
+            "openstack.shared_file_system.v2.share.Share.set_metadata",
+            self.proxy.create_share_metadata,
+            method_args=["share_id"],
+            method_kwargs=metadata,
+            expected_args=[self.proxy],
+            expected_kwargs={"metadata": metadata},
+            expected_result=share.Share(id="share_id", metadata=metadata),
+        )
+
+    def test_update_share_metadata(self):
+        metadata = {"foo": "bar", "newFoo": "newBar"}
+        replace = True
+        self._verify(
+            "openstack.shared_file_system.v2.share.Share.set_metadata",
+            self.proxy.update_share_metadata,
+            method_args=["share_id", metadata, replace],
+            expected_args=[self.proxy],
+            expected_kwargs={"metadata": metadata, "replace": replace},
+            expected_result=share.Share(id="share_id", metadata=metadata),
+        )
+
+    def test_delete_share_metadata(self):
+        self._verify(
+            "openstack.shared_file_system.v2.share.Share.delete_metadata_item",
+            self.proxy.delete_share_metadata,
+            expected_result=None,
+            method_args=["share_id", ["key"]],
+            expected_args=[self.proxy, "key"],
+        )
+
+
 class TestUserMessageProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
         super(TestUserMessageProxy, self).setUp()

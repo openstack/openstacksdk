@@ -163,3 +163,16 @@ service.
   :members: share_group_snapshots, get_share_group_snapshot, create_share_group_snapshot,
             reset_share_group_snapshot_status, update_share_group_snapshot,
             delete_share_group_snapshot
+
+
+Shared File System Share Metadata
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+List, Get, Create, Update, and Delete metadata for shares from the
+Shared File Systems service.
+
+.. autoclass:: openstack.shared_file_system.v2._proxy.Proxy
+  :noindex:
+  :members: get_share_metadata, get_share_metadata_item,
+            create_share_metadata, update_share_metadata,
+            delete_share_metadata
