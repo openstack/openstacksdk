@@ -28,11 +28,13 @@ class VpnIpsecPolicy(resource.Resource):
     _query_mapping = resource.QueryParameters(
         'auth_algorithm',
         'description',
+        'encapsulation_mode',
         'encryption_algorithm',
         'name',
         'pfs',
         'project_id',
         'phase1_negotiation_mode',
+        'transform_protocol',
     )
 
     # Properties
@@ -42,6 +44,8 @@ class VpnIpsecPolicy(resource.Resource):
     #: A human-readable description for the resource.
     # Default is an empty string.
     description = resource.Body('description')
+    #: The encapsulation mode. A valid value is tunnel or transport
+    encapsulation_mode = resource.Body('encapsulation_mode')
     #: The encryption algorithm. A valid value is 3des, aes-128,
     # aes-192, aes-256, and so on. Default is aes-128.
     encryption_algorithm = resource.Body('encryption_algorithm')
@@ -59,6 +63,8 @@ class VpnIpsecPolicy(resource.Resource):
     project_id = resource.Body('project_id')
     #: The IKE mode. A valid value is main, which is the default.
     phase1_negotiation_mode = resource.Body('phase1_negotiation_mode')
+    #: The transform protocol. A valid value is ESP, AH, or AH- ESP.
+    transform_protocol = resource.Body('transform_protocol')
     #: The units for the lifetime of the security association.
     # The lifetime consists of a unit and integer value.
     # You can omit either the unit or value portion of the lifetime.
