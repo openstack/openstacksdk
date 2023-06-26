@@ -59,7 +59,11 @@ class TestCreateVolumeSnapshot(base.TestCase):
                         'volumev3', 'public', append=['snapshots']
                     ),
                     json={'snapshot': build_snapshot_dict},
-                    validate=dict(json={'snapshot': {'volume_id': '1234'}}),
+                    validate=dict(
+                        json={
+                            'snapshot': {'volume_id': '1234', 'force': False}
+                        }
+                    ),
                 ),
                 dict(
                     method='GET',
@@ -104,7 +108,11 @@ class TestCreateVolumeSnapshot(base.TestCase):
                         'volumev3', 'public', append=['snapshots']
                     ),
                     json={'snapshot': build_snapshot_dict},
-                    validate=dict(json={'snapshot': {'volume_id': '1234'}}),
+                    validate=dict(
+                        json={
+                            'snapshot': {'volume_id': '1234', 'force': False}
+                        }
+                    ),
                 ),
                 dict(
                     method='GET',
@@ -149,7 +157,11 @@ class TestCreateVolumeSnapshot(base.TestCase):
                         'volumev3', 'public', append=['snapshots']
                     ),
                     json={'snapshot': build_snapshot_dict},
-                    validate=dict(json={'snapshot': {'volume_id': '1234'}}),
+                    validate=dict(
+                        json={
+                            'snapshot': {'volume_id': '1234', 'force': False}
+                        }
+                    ),
                 ),
                 dict(
                     method='GET',
