@@ -80,6 +80,11 @@ from openstack.network.v2 import security_group_rule as _security_group_rule
 from openstack.network.v2 import segment as _segment
 from openstack.network.v2 import service_profile as _service_profile
 from openstack.network.v2 import service_provider as _service_provider
+from openstack.network.v2 import sfc_flow_classifier as _sfc_flow_classifier
+from openstack.network.v2 import sfc_port_chain as _sfc_port_chain
+from openstack.network.v2 import sfc_port_pair as _sfc_port_pair
+from openstack.network.v2 import sfc_port_pair_group as _sfc_port_pair_group
+from openstack.network.v2 import sfc_service_graph as _sfc_sservice_graph
 from openstack.network.v2 import subnet as _subnet
 from openstack.network.v2 import subnet_pool as _subnet_pool
 from openstack.network.v2 import tap_flow as _tap_flow
@@ -162,6 +167,11 @@ class Proxy(proxy.Proxy, Generic[T]):
         "segment": _segment.Segment,
         "service_profile": _service_profile.ServiceProfile,
         "service_provider": _service_provider.ServiceProvider,
+        "sfc_flow_classifier": _sfc_flow_classifier.SfcFlowClassifier,
+        "sfc_port_chain": _sfc_port_chain.SfcPortChain,
+        "sfc_port_pair": _sfc_port_pair.SfcPortPair,
+        "sfc_port_pair_group": _sfc_port_pair_group.SfcPortPairGroup,
+        "sfc_service_graph": _sfc_sservice_graph.SfcServiceGraph,
         "subnet": _subnet.Subnet,
         "subnet_pool": _subnet_pool.SubnetPool,
         "tap_flow": _tap_flow.TapFlow,
@@ -6201,6 +6211,523 @@ class Proxy(proxy.Proxy, Generic[T]):
     def tap_services(self, **query):
         """Return a generator of Tap Services"""
         return self._list(_tap_service.TapService, **query)
+
+    def create_sfc_flow_classifier(self, **attrs):
+        """Create a new Flow Classifier from attributes
+
+        :param attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.network.v2.sfc_flow_classifier.SfcFlowClassifier`,
+            comprised of the properties on the SfcFlowClassifier class.
+
+        :returns: The results of SFC Flow Classifier creation
+        :rtype:
+            :class:`~openstack.network.v2.sfc_flow_classifier.SfcFlowClassifier`
+        """
+
+        return self._create(_sfc_flow_classifier.SfcFlowClassifier, **attrs)
+
+    def delete_sfc_flow_classifier(self, flow_classifier, ignore_missing=True):
+        """Delete a Flow Classifier
+
+        :param flow_classifier:
+            The value can be either the ID of a flow classifier or a
+            :class:`~openstack.network.v2.sfc_flow_classifier.SfcFlowClassifier`
+            instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the  flow classifier does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent flow classifier.
+
+        :returns: ``None``
+        """
+        self._delete(
+            _sfc_flow_classifier.SfcFlowClassifier,
+            flow_classifier,
+            ignore_missing=ignore_missing,
+        )
+
+    def find_sfc_flow_classifier(
+        self, name_or_id, ignore_missing=True, **query
+    ):
+        """Find a single Flow Classifier
+
+        :param str name_or_id: The name or ID of an SFC flow classifier.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :param dict query: Any additional parameters to be passed into
+            underlying methods. such as query filters.
+        :returns: One
+            :class:`~openstack.network.v2.sfc_flow_classifier.
+            SfcFlowClassifier` or None
+        """
+        return self._find(
+            _sfc_flow_classifier.SfcFlowClassifier,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
+
+    def get_sfc_flow_classifier(self, flow_classifier):
+        """Get a single Flow Classifier
+
+        :param flow_classifier:
+            The value can be the ID of an SFC flow classifier or a
+            :class:`~openstack.network.v2.sfc_flow_classifier.SfcFlowClassifier` instance.
+
+        :returns:
+            :class:`~openstack.network.v2.sfc_flow_classifier.SfcFlowClassifier`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(
+            _sfc_flow_classifier.SfcFlowClassifier, flow_classifier
+        )
+
+    def update_sfc_flow_classifier(self, flow_classifier, **attrs):
+        """Update a Flow Classifier
+
+        :param flow_classifier: The value can be the ID of a Flow Classifier
+            :class:`~openstack.network.v2.sfc_flow_classifier.SfcFlowClassifier`,
+            instance.
+        :param attrs: The attributes to update on the Flow Classifier
+
+        :returns: The updated Flow Classifier.
+        :rtype:
+            :class:`~openstack.network.v2.sfc_flow_classifier.SfcFlowClassifier`
+        """
+        return self._update(
+            _sfc_flow_classifier.SfcFlowClassifier, flow_classifier, **attrs
+        )
+
+    def sfc_flow_classifiers(self, **query):
+        """Return a generator of Flow Classifiers
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the resources being returned. Available parameters include:
+
+            * ``name``: The name of the flow classifier.
+            * ``description``: The flow classifier description
+            * ``ethertype``: Must be IPv4 or IPv6.
+            * ``protocol``: Flow classifier protocol
+
+        :returns: A generator of SFC Flow classifier objects
+        :rtype:
+            :class:`~openstack.network.v2.sfc_flow_classifier.
+            SfcFlowClassifier`
+        """
+        return self._list(_sfc_flow_classifier.SfcFlowClassifier, **query)
+
+    def create_sfc_port_chain(self, **attrs):
+        """Create a new Port Chain from attributes
+
+        :param attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.network.v2.sfc_port_chain.SfcPortChain`,
+            comprised of the properties on the SfcPortchain class.
+
+        :returns: The results of SFC Port Chain creation
+        :rtype:
+            :class:`~openstack.network.v2.sfc_port_chain.SfcPortChain`
+        """
+        return self._create(_sfc_port_chain.SfcPortChain, **attrs)
+
+    def delete_sfc_port_chain(self, port_chain, ignore_missing=True):
+        """Delete a Port Chain
+
+        :param port_chain:
+            The value can be either the ID of a port chain or a
+            :class:`~openstack.network.v2.sfc_port_chain.SfcPortChain`
+            instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the port chain does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent port chain.
+
+        :returns: ``None``
+        """
+        self._delete(
+            _sfc_port_chain.SfcPortChain,
+            port_chain,
+            ignore_missing=ignore_missing,
+        )
+
+    def find_sfc_port_chain(self, name_or_id, ignore_missing=True, **query):
+        """Find a single Port Chain
+
+        :param str name_or_id: The name or ID of an SFC port chain.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :param dict query: Any additional parameters to be passed into
+            underlying methods. such as query filters.
+        :returns: One
+            :class:`~openstack.network.v2.sfc_port_chain.
+            SfcPortChain` or None
+        """
+        return self._find(
+            _sfc_port_chain.SfcPortChain,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
+
+    def get_sfc_port_chain(self, port_chain):
+        """Get a signle Port Chain
+
+        :param port_chain:
+            The value can be the ID of an SFC port chain or a
+            :class:`~openstack.network.v2.sfc_port_chain.SfcPortChain`
+            instance.
+
+        :returns:
+            :class:`~openstack.network.v2.sfc_port_chain.SfcPortchain`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_sfc_port_chain.SfcPortChain, port_chain)
+
+    def update_sfc_port_chain(self, port_chain, **attrs):
+        """Update a Port Chain
+
+        :param flow_classifier: The value can be the ID of a Flow Classifier
+            :class:`~openstack.network.v2.sfc_flow_classifier.SfcFlowClassifier`,
+            instance.
+        :param attrs: The attributes to update on the Flow Classifier
+
+        :returns: The updated Flow Classifier.
+        :rtype:
+            :class:`~openstack.network.v2.sfc_flow_classifier.SfcFlowClassifier`
+        """
+        return self._update(_sfc_port_chain.SfcPortChain, port_chain, **attrs)
+
+    def sfc_port_chains(self, **query):
+        """Return a generator of Port Chains
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the resources being returned. Available parameters include:
+
+            * ``name``: The name of the port chain
+            * ``description``: The port chain description
+
+        :returns: A generator of SFC port chain objects
+        :rtype:
+            :class:`~openstack.network.v2.sfc_port_chain.SfcPortChain`
+        """
+        return self._list(_sfc_port_chain.SfcPortChain, **query)
+
+    def create_sfc_port_pair(self, **attrs):
+        """Create a new Port Pair from attributes
+
+        :param attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.network.v2.sfc_port_pair.SfcPortPair`,
+            comprised of the properties on the SfcPortPair class.
+
+        :returns: The results of SFC Port Pair creation
+        :rtype:
+            :class:`~openstack.network.v2.sfc_port_pair.SfPortPair`
+        """
+        return self._create(_sfc_port_pair.SfcPortPair, **attrs)
+
+    def delete_sfc_port_pair(self, port_pair, ignore_missing=True):
+        """Delete a Port Pair
+
+        :param port_pair:
+            The value can be either the ID of a port pair or a
+            :class:`~openstack.network.v2.sfc_port_pair.SfcPortPair`
+            instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the port pair does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent port pair.
+
+        :returns: ``None``
+        """
+        self._delete(
+            _sfc_port_pair.SfcPortPair,
+            port_pair,
+            ignore_missing=ignore_missing,
+        )
+
+    def find_sfc_port_pair(self, name_or_id, ignore_missing=True, **query):
+        """Find a single Port Pair
+
+        :param str name_or_id: The name or ID of an SFC port pair.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :param dict query: Any additional parameters to be passed into
+            underlying methods. such as query filters.
+        :returns: One
+            :class:`~openstack.network.v2.sfc_port_pair.SfcPortPair` or None
+        """
+        return self._find(
+            _sfc_port_pair.SfcPortPair,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
+
+    def get_sfc_port_pair(self, port_pair):
+        """Get a signle Port Pair
+
+        :param port_pair:
+            The value can be the ID of an SFC port pair or a
+            :class:`~openstack.network.v2.sfc_port_pair.SfcPortPair`
+            instance.
+
+        :returns:
+            :class:`~openstack.network.v2.sfc_port_pair.SfcPortPair`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_sfc_port_pair.SfcPortPair, port_pair)
+
+    def update_sfc_port_pair(self, port_pair, **attrs):
+        """Update a Port Pair
+
+        :param port_pair: The value can be the ID of a Port Pair
+            :class:`~openstack.network.v2.sfc_port_pair.SfcPortPair`,
+            instance.
+        :param attrs: The attributes to update on the Port Pair
+
+        :returns: The updated Port Pair.
+        :rtype:
+            :class:`~openstack.network.v2.sfc_port_pair.SfcPortPair`
+        """
+        return self._update(_sfc_port_pair.SfcPortPair, port_pair, **attrs)
+
+    def sfc_port_pairs(self, **query):
+        """Return a generator of Port Pairs
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the resources being returned. Available parameters include:
+
+            * ``name``: The name of the port pair.
+            * ``description``: The port pair description.
+
+        :returns: A generator of SFC port pair objects
+        :rtype:
+            :class:`~openstack.network.v2.sfc_port_pair.SfcPortPair`
+        """
+        return self._list(_sfc_port_pair.SfcPortPair, **query)
+
+    def create_sfc_port_pair_group(self, **attrs):
+        """Create a new Port Pair Group from attributes
+
+        :param attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.network.v2.sfc_port_pair_group.SfcPortPairGroup`,
+            comprised of the properties on the SfcPortPairGroup class.
+
+        :returns: The results of SFC Port Pair Group creation
+        :rtype:
+            :class:`~openstack.network.v2.sfc_port_pair_group.SfcPortPairGroup`
+        """
+        return self._create(_sfc_port_pair_group.SfcPortPairGroup, **attrs)
+
+    def delete_sfc_port_pair_group(self, port_pair_group, ignore_missing=True):
+        """Delete a Port Pair Group
+
+        :param port_pair_group:
+            The value can be either the ID of a port pair group or a
+            :class:`~openstack.network.v2.sfc_port_pair_group.
+            SfcPortPairGroup` instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the port pair group does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent port pair group.
+
+        :returns: ``None``
+        """
+        self._delete(
+            _sfc_port_pair_group.SfcPortPairGroup,
+            port_pair_group,
+            ignore_missing=ignore_missing,
+        )
+
+    def find_sfc_port_pair_group(
+        self, name_or_id, ignore_missing=True, **query
+    ):
+        """Find a single Port Pair Group
+
+        :param str name_or_id: The name or ID of an SFC port pair group.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :param dict query: Any additional parameters to be passed into
+            underlying methods. such as query filters.
+        :returns: One
+            :class:`~openstack.network.v2.sfc_port_pair_group.
+            SfcPortPairGroup` or None
+        """
+        return self._find(
+            _sfc_port_pair_group.SfcPortPairGroup,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
+
+    def get_sfc_port_pair_group(self, port_pair_group):
+        """Get a signle Port Pair Group
+
+        :param port_pair_group:
+            The value can be the ID of an SFC port pair group or a
+            :class:`~openstack.network.v2.sfc_port_pair_group.SfcPortPairGroup`
+            instance.
+
+        :returns:
+            :class:`~openstack.network.v2.sfc_port_pair_group.SfcPortPairGroup`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(
+            _sfc_port_pair_group.SfcPortPairGroup, port_pair_group
+        )
+
+    def update_sfc_port_pair_group(self, port_pair_group, **attrs):
+        """Update a Port Pair Group
+
+        :param port_pair_group: The value can be the ID of a Port Pair Group
+            :class:`~openstack.network.v2.sfc_port_pair.SfcPortPairGroup`,
+            instance.
+        :param attrs: The attributes to update on the Port Pair Group
+
+        :returns: The updated Port Pair Group.
+        :rtype:
+            :class:`~openstack.network.v2.sfc_port_pair_group.SfcPortPairGroup`
+        """
+        return self._update(
+            _sfc_port_pair_group.SfcPortPairGroup, port_pair_group, **attrs
+        )
+
+    def sfc_port_pair_groups(self, **query):
+        """Return a generator of Port Pair Groups
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the resources being returned. Available parameters include:
+
+            * ``name``: The name of the port pair.
+            * ``description``: The port pair description.
+
+        :returns: A generator of SFC port pair group objects
+        :rtype:
+            :class:`~openstack.network.v2.sfc_port_pair_group.
+            SfcPortPairGroup`
+        """
+        return self._list(_sfc_port_pair_group.SfcPortPairGroup, **query)
+
+    def create_sfc_service_graph(self, **attrs):
+        """Create a new Service Graph from attributes
+
+        :param attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.network.v2.sfc_service_graph.SfcServiceGraph`,
+            comprised of the properties on the SfcServiceGraph class.
+
+        :returns: The results of SFC Service Graph creation
+        :rtype:
+            :class:`~openstack.network.v2.sfc_service_graph.SfcServiceGraph`
+        """
+        return self._create(_sfc_sservice_graph.SfcServiceGraph, **attrs)
+
+    def delete_sfc_service_graph(self, service_graph, ignore_missing=True):
+        """Delete a Service Graph
+
+        :param service_graph:
+            The value can be either the ID of a service graph or a
+            :class:`~openstack.network.v2.sfc_service_graph.SfcServiceGraph`
+            instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the service graph does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent service graph.
+
+        :returns: ``None``
+        """
+        self._delete(
+            _sfc_sservice_graph.SfcServiceGraph,
+            service_graph,
+            ignore_missing=ignore_missing,
+        )
+
+    def find_sfc_service_graph(self, name_or_id, ignore_missing=True, **query):
+        """Find a single Service Graph
+
+        :param str name_or_id: The name or ID of an SFC service graph.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :param dict query: Any additional parameters to be passed into
+            underlying methods. such as query filters.
+        :returns: One
+            :class:`~openstack.network.v2.sfc_service_graph.
+            SfcServiceGraph` or None
+        """
+        return self._find(
+            _sfc_sservice_graph.SfcServiceGraph,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
+
+    def get_sfc_service_graph(self, service_graph):
+        """Get a signle Service Graph
+
+        :param service_graph:
+            The value can be the ID of an SFC service graph or a
+            :class:`~openstack.network.v2.sfc_service_graph.SfcServiceGraph`
+            instance.
+
+        :returns:
+            :class:`~openstack.network.v2.sfc_service_graph.SfcServiceGraph`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_sfc_sservice_graph.SfcServiceGraph, service_graph)
+
+    def update_sfc_service_graph(self, service_graph, **attrs):
+        """Update a Service Graph
+
+        :param service_graph: The value can be the ID of a Service Graph
+            :class:`~openstack.network.v2.sfc_service_graph.SfcServiceGraph`,
+            instance.
+        :param attrs: The attributes to update on the Service Graph
+
+        :returns: The updated Service Graph.
+        :rtype:
+            :class:`~openstack.network.v2.sfc_service_graph.SfcServiceGraph`
+        """
+        return self._update(
+            _sfc_sservice_graph.SfcServiceGraph, service_graph, **attrs
+        )
+
+    def sfc_service_graphs(self, **query):
+        """Return a generator of Service Graphs
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the resources being returned. Available parameters include:
+
+            * ``name``: The name of the port pair.
+            * ``description``: The port pair description.
+
+        :returns: A generator of SFC service graph objects
+        :rtype:
+            :class:`~openstack.network.v2.sfc_service_graph.SfcServiceGraph`
+        """
+        return self._list(_sfc_sservice_graph.SfcServiceGraph, **query)
 
     def _get_cleanup_dependencies(self):
         return {'network': {'before': ['identity']}}

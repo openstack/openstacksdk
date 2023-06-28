@@ -46,6 +46,11 @@ Network Resources
    v2/segment
    v2/service_profile
    v2/service_provider
+   v2/sfc_flow_classifier
+   v2/sfc_port_chain
+   v2/sfc_port_pair_group
+   v2/sfc_port_pair
+   v2/sfc_service_graph
    v2/subnet
    v2/subnet_pool
    v2/tap_flow
