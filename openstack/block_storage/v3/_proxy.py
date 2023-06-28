@@ -883,7 +883,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :returns: dictionary describing the image.
         """
         volume = self._get_resource(_volume.Volume, volume)
-        volume.upload_to_image(
+        return volume.upload_to_image(
             self,
             image_name,
             force=force,
