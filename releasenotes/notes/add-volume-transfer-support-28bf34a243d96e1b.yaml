@@ -1,5 +1,5 @@
 ---
 features:
   - |
-    Added support for volume transfer create, find
-    and delete.
+    Added support for volume transfer create, find,
+    delete, get, list and accept.

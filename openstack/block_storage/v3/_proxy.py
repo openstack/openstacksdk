@@ -34,6 +34,7 @@ from openstack.block_storage.v3 import volume as _volume
 from openstack import exceptions
 from openstack.identity.v3 import project as _project
 from openstack import resource
+from openstack import utils
 
 
 class Proxy(_base_proxy.BaseBlockStorageProxy):
@@ -1916,6 +1917,55 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             name_or_id,
             ignore_missing=ignore_missing,
         )
+
+    def get_transfer(self, transfer):
+        """Get a single transfer
+
+        :param transfer: The value can be the ID of a transfer or a
+            :class:`~openstack.block_storage.v3.transfer.Transfer`
+            instance.
+
+        :returns: One :class:`~openstack.block_storage.v3.transfer.Transfer`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_transfer.Transfer, transfer)
+
+    def transfers(self, *, details=True, all_projects=False, **query):
+        """Retrieve a generator of transfers
+
+        :param bool details: When set to ``False`` no extended attributes
+            will be returned. The default, ``True``, will cause objects with
+            additional attributes to be returned.
+        :param bool all_projects: When set to ``True``, list transfers from
+            all projects. Admin-only by default.
+        :param kwargs query: Optional query parameters to be sent to limit
+            the transfers being returned.
+
+        :returns: A generator of transfer objects.
+        """
+        if all_projects:
+            query['all_projects'] = True
+        base_path = '/volume-transfers'
+        if not utils.supports_microversion(self, '3.55'):
+            base_path = '/os-volume-transfer'
+        if details:
+            base_path = utils.urljoin(base_path, 'detail')
+        return self._list(_transfer.Transfer, base_path=base_path, **query)
+
+    def accept_transfer(self, transfer_id, auth_key):
+        """Accept a Transfer
+
+        :param transfer_id: The value can be the ID of a transfer or a
+            :class:`~openstack.block_storage.v3.transfer.Transfer`
+            instance.
+        :param auth_key: The key to authenticate volume transfer.
+
+        :returns: The results of Transfer creation
+        :rtype: :class:`~openstack.block_storage.v3.transfer.Transfer`
+        """
+        transfer = self._get_resource(_transfer.Transfer, transfer_id)
+        return transfer.accept(self, auth_key=auth_key)
 
     # ====== UTILS ======
     def wait_for_status(

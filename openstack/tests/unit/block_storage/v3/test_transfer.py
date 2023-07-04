@@ -22,9 +22,11 @@ from openstack.tests.unit import base
 FAKE_ID = "09d18b36-9e8d-4438-a4da-3f5eff5e1130"
 FAKE_VOL_ID = "390de1bc-19d1-41e7-ba67-c492bb36cae5"
 FAKE_VOL_NAME = "test-volume"
+FAKE_TRANSFER = "7d048960-7c3f-4bf0-952f-4312fdea1dec"
+FAKE_AUTH_KEY = "95bc670c0068821d"
 
 TRANSFER = {
-    "auth_key": "95bc670c0068821d",
+    "auth_key": FAKE_AUTH_KEY,
     "created_at": "2023-06-27T08:47:23.035010",
     "id": FAKE_ID,
     "name": FAKE_VOL_NAME,
@@ -96,4 +98,47 @@ class TestTransfer(base.TestCase):
             microversion="3.0",
             headers={},
             params={'volume_id': FAKE_VOL_ID, 'name': FAKE_VOL_NAME},
+        )
+
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=True,
+    )
+    @mock.patch.object(resource.Resource, '_translate_response')
+    def test_accept(self, mock_mv, mock_translate):
+        sot = transfer.Transfer()
+        sot.id = FAKE_TRANSFER
+
+        sot.accept(self.sess, auth_key=FAKE_AUTH_KEY)
+        self.sess.post.assert_called_with(
+            'volume-transfers/%s/accept' % FAKE_TRANSFER,
+            json={
+                'accept': {
+                    'auth_key': FAKE_AUTH_KEY,
+                }
+            },
+            microversion="3.55",
+        )
+
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=False,
+    )
+    @mock.patch.object(resource.Resource, '_translate_response')
+    def test_accept_pre_v355(self, mock_mv, mock_translate):
+        self.sess.default_microversion = "3.0"
+        sot = transfer.Transfer()
+        sot.id = FAKE_TRANSFER
+
+        sot.accept(self.sess, auth_key=FAKE_AUTH_KEY)
+        self.sess.post.assert_called_with(
+            'os-volume-transfer/%s/accept' % FAKE_TRANSFER,
+            json={
+                'accept': {
+                    'auth_key': FAKE_AUTH_KEY,
+                }
+            },
+            microversion="3.0",
         )

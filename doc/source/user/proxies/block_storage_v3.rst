@@ -162,4 +162,5 @@ Transfer Operations
 
 .. autoclass:: openstack.block_storage.v3._proxy.Proxy
   :noindex:
-  :members: create_transfer, delete_transfer, find_transfer
+  :members: create_transfer, delete_transfer, find_transfer,
+            get_transfer, transfers, accept_transfer

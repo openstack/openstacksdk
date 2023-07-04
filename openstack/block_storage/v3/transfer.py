@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import exceptions
 from openstack import resource
 from openstack import utils
 
@@ -23,6 +24,8 @@ class Transfer(resource.Resource):
     allow_create = True
     allow_delete = True
     allow_fetch = True
+    allow_list = True
+    allow_get = True
 
     # Properties
     #: UUID of the transfer.
@@ -171,3 +174,30 @@ class Transfer(resource.Resource):
             microversion=microversion,
             **kwargs,
         )
+
+    def accept(self, session, *, auth_key=None):
+        """Accept a volume transfer.
+
+        :param session: The session to use for making this request.
+        :param auth_key: The authentication key for the volume transfer.
+
+        :return: This :class:`Transfer` instance.
+        """
+        body = {'accept': {'auth_key': auth_key}}
+
+        path = self.base_path
+        if not utils.supports_microversion(session, '3.55'):
+            path = '/os-volume-transfer'
+
+        url = utils.urljoin(path, self.id, 'accept')
+        microversion = self._get_microversion(session, action='commit')
+        resp = session.post(
+            url,
+            json=body,
+            microversion=microversion,
+        )
+        exceptions.raise_from_response(resp)
+
+        transfer = Transfer()
+        transfer._translate_response(response=resp)
+        return transfer
