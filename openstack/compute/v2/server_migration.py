@@ -18,15 +18,15 @@ from openstack import utils
 class ServerMigration(resource.Resource):
     resource_key = 'migration'
     resources_key = 'migrations'
-    base_path = '/servers/%(server_uuid)s/migrations'
+    base_path = '/servers/%(server_id)s/migrations'
 
     # capabilities
     allow_fetch = True
     allow_list = True
     allow_delete = True
 
-    #: The ID for the server.
-    server_id = resource.URI('server_uuid')
+    #: The ID for the server from the URI of the resource
+    server_id = resource.URI('server_id')
 
     #: The date and time when the resource was created.
     created_at = resource.Body('created_at')
@@ -53,11 +53,8 @@ class ServerMigration(resource.Resource):
     #: The ID of the project that initiated the server migration (since
     #: microversion 2.80)
     project_id = resource.Body('project_id')
-    # FIXME(stephenfin): This conflicts since there is a server ID in the URI
-    # *and* in the body. We need a field that handles both or we need to use
-    # different names.
-    # #: The UUID of the server
-    # server_id = resource.Body('server_uuid')
+    #: The UUID of the server from the response body
+    server_uuid = resource.Body('server_uuid')
     #: The source compute of the migration.
     source_compute = resource.Body('source_compute')
     #: The source node of the migration.
@@ -80,7 +77,7 @@ class ServerMigration(resource.Resource):
         microversion = self._get_microversion(session, action='list')
 
         url = utils.urljoin(
-            self.base_path % {'server_uuid': self.server_id},
+            self.base_path % {'server_id': self.server_id},
             self.id,
             'action',
         )
