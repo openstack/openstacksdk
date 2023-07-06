@@ -487,10 +487,10 @@ def add_server_interfaces(cloud, server):
     # where they were set previous, we use the values, so this will not break
     # clouds that provide the information
     if cloud.private and server.private_v4:
-        server.access_ipv4 = server.private_v4
+        server['access_ipv4'] = server['private_v4']
     else:
-        server.access_ipv4 = server.public_v4
-    server.access_ipv6 = server.public_v6
+        server['access_ipv4'] = server['public_v4']
+    server['access_ipv6'] = server['public_v6']
 
     return server
 
