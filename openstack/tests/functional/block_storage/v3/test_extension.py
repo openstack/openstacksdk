@@ -20,4 +20,4 @@ class Extensions(base.BaseBlockStorageTest):
         for extension in extensions:
             self.assertIsInstance(extension.alias, str)
             self.assertIsInstance(extension.description, str)
-            self.assertIsInstance(extension.updated, str)
+            self.assertIsInstance(extension.updated_at, str)
