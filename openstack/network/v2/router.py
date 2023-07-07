@@ -177,6 +177,52 @@ class Router(_base.NetworkResource, tag.TagMixin):
         resp = session.put(url, json=body)
         return resp.json()
 
+    def add_external_gateways(self, session, body):
+        """Add external gateways to a router.
+
+        :param session: The session to communicate through.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param dict body: The body requested to be updated on the router
+
+        :returns: The body of the response as a dictionary.
+        """
+        url = utils.urljoin(self.base_path, self.id, 'add_external_gateways')
+        resp = session.put(url, json=body)
+        self._translate_response(resp)
+        return self
+
+    def update_external_gateways(self, session, body):
+        """Update external gateways of a router.
+
+        :param session: The session to communicate through.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param dict body: The body requested to be updated on the router
+
+        :returns: The body of the response as a dictionary.
+        """
+        url = utils.urljoin(
+            self.base_path, self.id, 'update_external_gateways'
+        )
+        resp = session.put(url, json=body)
+        self._translate_response(resp)
+        return self
+
+    def remove_external_gateways(self, session, body):
+        """Remove external gateways from a router.
+
+        :param session: The session to communicate through.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param dict body: The body requested to be updated on the router
+
+        :returns: The body of the response as a dictionary.
+        """
+        url = utils.urljoin(
+            self.base_path, self.id, 'remove_external_gateways'
+        )
+        resp = session.put(url, json=body)
+        self._translate_response(resp)
+        return self
+
 
 class L3AgentRouter(Router):
     resource_key = 'router'
