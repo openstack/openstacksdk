@@ -784,7 +784,7 @@ class Proxy(proxy.Proxy):
         *,
         stream=False,
         output=None,
-        chunk_size=1024,
+        chunk_size=1024 * 1024,
     ):
         """Download an image
 
@@ -808,7 +808,7 @@ class Proxy(proxy.Proxy):
             When ``False``, return the entire contents of the response.
         :param output: Either a file object or a path to store data into.
         :param int chunk_size: size in bytes to read from the wire and buffer
-            at one time. Defaults to 1024
+            at one time. Defaults to 1024 * 1024 = 1 MiB
 
         :returns: When output is not given - the bytes comprising the given
             Image when stream is False, otherwise a :class:`requests.Response`

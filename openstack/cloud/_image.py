@@ -121,7 +121,7 @@ class ImageCloudMixin:
         name_or_id,
         output_path=None,
         output_file=None,
-        chunk_size=1024,
+        chunk_size=1024 * 1024,
     ):
         """Download an image by name or ID
 
@@ -132,7 +132,7 @@ class ImageCloudMixin:
             image data to. Only write() will be called on this object. Either
             this or output_path must be specified
         :param int chunk_size: size in bytes to read from the wire and buffer
-            at one time. Defaults to 1024
+            at one time. Defaults to 1024 * 1024 = 1 MiB
         :returns: When output_path and output_file are not given - the bytes
             comprising the given Image when stream is False, otherwise a
             :class:`requests.Response` instance. When output_path or
