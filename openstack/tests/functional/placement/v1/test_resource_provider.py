@@ -10,39 +10,86 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.placement.v1 import resource_provider
+from openstack.placement.v1 import resource_provider as _resource_provider
 from openstack.tests.functional import base
 
 
 class TestResourceProvider(base.BaseFunctionalTest):
     def setUp(self):
         super().setUp()
-        self._set_operator_cloud(interface='admin')
 
-        self.NAME = self.getUniqueString()
+        if not self.operator_cloud.has_service('placement'):
+            self.skipTest('placement service not supported by cloud')
 
-        sot = self.conn.placement.create_resource_provider(name=self.NAME)
-        assert isinstance(sot, resource_provider.ResourceProvider)
-        self.assertEqual(self.NAME, sot.name)
-        self._resource_provider = sot
+        self.resource_provider_name = self.getUniqueString()
+
+        resource_provider = (
+            self.operator_cloud.placement.create_resource_provider(
+                name=self.resource_provider_name,
+            )
+        )
+        self.assertIsInstance(
+            resource_provider, _resource_provider.ResourceProvider
+        )
+        self.assertEqual(self.resource_provider_name, resource_provider.name)
+        self.resource_provider = resource_provider
 
     def tearDown(self):
-        sot = self.conn.placement.delete_resource_provider(
-            self._resource_provider
+        result = self.conn.placement.delete_resource_provider(
+            self.resource_provider,
         )
-        self.assertIsNone(sot)
+        self.assertIsNone(result)
         super().tearDown()
 
-    def test_find(self):
-        sot = self.conn.placement.find_resource_provider(self.NAME)
-        self.assertEqual(self.NAME, sot.name)
+    def test_resource_provider(self):
+        # list all resource providers
 
-    def test_get(self):
-        sot = self.conn.placement.get_resource_provider(
-            self._resource_provider.id
+        resource_providers = list(
+            self.operator_cloud.placement.resource_providers()
         )
-        self.assertEqual(self.NAME, sot.name)
+        self.assertIsInstance(
+            resource_providers[0],
+            _resource_provider.ResourceProvider,
+        )
+        self.assertIn(
+            self.resource_provider_name,
+            {x.name for x in resource_providers},
+        )
 
-    def test_list(self):
-        names = [o.name for o in self.conn.placement.resource_providers()]
-        self.assertIn(self.NAME, names)
+        # retrieve details of the resource provider by name
+
+        resource_provider = (
+            self.operator_cloud.placement.find_resource_provider(
+                self.resource_provider.name,
+            )
+        )
+        self.assertEqual(self.resource_provider_name, resource_provider.name)
+
+        # retrieve details of the resource provider by ID
+
+        resource_provider = (
+            self.operator_cloud.placement.get_resource_provider(
+                self.resource_provider.id,
+            )
+        )
+        self.assertEqual(self.resource_provider_name, resource_provider.name)
+
+        # update the resource provider
+
+        new_resource_provider_name = self.getUniqueString()
+
+        resource_provider = (
+            self.operator_cloud.placement.update_resource_provider(
+                self.resource_provider,
+                name=new_resource_provider_name,
+                generation=self.resource_provider.generation,
+            )
+        )
+        self.assertIsInstance(
+            resource_provider,
+            _resource_provider.ResourceProvider,
+        )
+        self.assertEqual(
+            new_resource_provider_name,
+            resource_provider.name,
+        )
