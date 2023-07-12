@@ -21,9 +21,14 @@ class MetadataMixin:
     id: str
     base_path: str
     _body: resource._ComponentManager
+    _uri: resource._ComponentManager
 
     #: *Type: list of tag strings*
     metadata = resource.Body('metadata', type=dict)
+
+    def _base_path_with_uri(self) -> str:
+        """Return base_path with URI template variables substituted."""
+        return self.base_path % {'id': self.id, **self._uri.attributes}
 
     def fetch_metadata(self, session: resource.AdapterT) -> Self:
         """Lists metadata set on the entity.
@@ -31,7 +36,7 @@ class MetadataMixin:
         :param session: The session to use for making this request.
         :return: The dictionary with metadata attached to the entity
         """
-        url = utils.urljoin(self.base_path, self.id, 'metadata')
+        url = utils.urljoin(self._base_path_with_uri(), self.id, 'metadata')
         response = session.get(url)
         exceptions.raise_from_response(response)
         json = response.json()
@@ -53,7 +58,7 @@ class MetadataMixin:
         :param bool replace: Replace all resource metadata with the new object
             or merge new and existing.
         """
-        url = utils.urljoin(self.base_path, self.id, 'metadata')
+        url = utils.urljoin(self._base_path_with_uri(), self.id, 'metadata')
         if not metadata:
             metadata = {}
         if not replace:
@@ -94,7 +99,9 @@ class MetadataMixin:
         :param session: The session to use for making this request.
         :param str key: The key of a metadata item.
         """
-        url = utils.urljoin(self.base_path, self.id, 'metadata', key)
+        url = utils.urljoin(
+            self._base_path_with_uri(), self.id, 'metadata', key
+        )
         response = session.get(url)
         exceptions.raise_from_response(
             response, error_message='Metadata item does not exist'
@@ -116,7 +123,9 @@ class MetadataMixin:
         :param str key: The key for the metadata item.
         :param str value: The value.
         """
-        url = utils.urljoin(self.base_path, self.id, 'metadata', key)
+        url = utils.urljoin(
+            self._base_path_with_uri(), self.id, 'metadata', key
+        )
         response = session.put(url, json={'meta': {key: value}})
         exceptions.raise_from_response(response)
         # we do not want to update tags directly
@@ -133,7 +142,9 @@ class MetadataMixin:
         :param session: The session to use for making this request.
         :param str key: The key as a string.
         """
-        url = utils.urljoin(self.base_path, self.id, 'metadata', key)
+        url = utils.urljoin(
+            self._base_path_with_uri(), self.id, 'metadata', key
+        )
         response = session.delete(url)
         exceptions.raise_from_response(response)
         # we do not want to update tags directly

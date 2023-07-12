@@ -446,6 +446,53 @@ class TestShareNetworkSubnetResource(test_proxy_base.TestProxyBase):
         )
 
 
+class TestShareNetworkSubnetMetadata(TestSharedFileSystemProxy):
+    def test_fetch_share_network_subnet_metadata(self):
+        self._verify(
+            "openstack.shared_file_system.v2.share_network_subnet.ShareNetworkSubnet.fetch_metadata",
+            self.proxy.fetch_share_network_subnet_metadata,
+            method_args=["network_id", "subnet_id"],
+            expected_args=[self.proxy],
+            expected_result=share_network_subnet.ShareNetworkSubnet(
+                id="subnet_id", metadata={"key": "value"}
+            ),
+        )
+
+    def test_fetch_share_network_subnet_metadata_item(self):
+        self._verify(
+            "openstack.shared_file_system.v2.share_network_subnet.ShareNetworkSubnet.get_metadata_item",
+            self.proxy.fetch_share_network_subnet_metadata_item,
+            method_args=["network_id", "subnet_id", "key"],
+            expected_args=[self.proxy, "key"],
+            expected_result=share_network_subnet.ShareNetworkSubnet(
+                id="subnet_id", metadata={"key": "value"}
+            ),
+        )
+
+    def test_set_share_network_subnet_metadata(self):
+        metadata = {"foo": "bar", "newFoo": "newBar"}
+        self._verify(
+            "openstack.shared_file_system.v2.share_network_subnet.ShareNetworkSubnet.set_metadata",
+            self.proxy.set_share_network_subnet_metadata,
+            method_args=["network_id", "subnet_id"],
+            method_kwargs=metadata,
+            expected_args=[self.proxy],
+            expected_kwargs={"metadata": metadata, "replace": False},
+            expected_result=share_network_subnet.ShareNetworkSubnet(
+                id="subnet_id", metadata=metadata
+            ),
+        )
+
+    def test_delete_share_network_subnet_metadata(self):
+        self._verify(
+            "openstack.shared_file_system.v2.share_network_subnet.ShareNetworkSubnet.delete_metadata_item",
+            self.proxy.delete_share_network_subnet_metadata,
+            method_args=["network_id", "subnet_id", ["key"]],
+            expected_args=[self.proxy, "key"],
+            expected_result=None,
+        )
+
+
 class TestAccessRuleProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
         super().setUp()

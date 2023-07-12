@@ -144,7 +144,11 @@ service.
 .. autoclass:: openstack.shared_file_system.v2._proxy.Proxy
   :noindex:
   :members: share_network_subnets, get_share_network_subnet,
-            create_share_network_subnet, delete_share_network_subnet
+            create_share_network_subnet, delete_share_network_subnet,
+            fetch_share_network_subnet_metadata,
+            fetch_share_network_subnet_metadata_item,
+            set_share_network_subnet_metadata,
+            delete_share_network_subnet_metadata
 
 
 Share Replica Operations

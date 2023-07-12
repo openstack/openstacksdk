@@ -1277,6 +1277,128 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
+    def fetch_share_network_subnet_metadata(
+        self,
+        share_network: str | _share_network.ShareNetwork,
+        share_network_subnet: str | _share_network_subnet.ShareNetworkSubnet,
+    ) -> _share_network_subnet.ShareNetworkSubnet:
+        """Lists all metadata of a given share network subnet.
+
+        :param share_network: The value can be the ID of a share network or a
+            :class:`~openstack.shared_file_system.v2.share_network.ShareNetwork`
+            instance.
+        :param share_network_subnet: The value can be the ID of a share network
+            subnet or a
+            :class:`~openstack.shared_file_system.v2.share_network_subnet.ShareNetworkSubnet`
+            instance.
+        :returns: Details of the identified share network subnet, including its
+            metadata.
+        """
+        share_network_id = resource.Resource._get_id(share_network)
+        share_network_subnet_id = resource.Resource._get_id(
+            share_network_subnet
+        )
+        res = self._get_resource(
+            _share_network_subnet.ShareNetworkSubnet,
+            share_network_subnet_id,
+            share_network_id=share_network_id,
+        )
+        return res.fetch_metadata(self)
+
+    def fetch_share_network_subnet_metadata_item(
+        self,
+        share_network: str | _share_network.ShareNetwork,
+        share_network_subnet: str | _share_network_subnet.ShareNetworkSubnet,
+        key: str,
+    ) -> _share_network_subnet.ShareNetworkSubnet:
+        """Retrieve specific subnet metadata item by key.
+
+        :param share_network: The value can be the ID of a share network or a
+            :class:`~openstack.shared_file_system.v2.share_network.ShareNetwork`
+            instance.
+        :param share_network_subnet: The value can be the ID of a share network
+            subnet or a
+            :class:`~openstack.shared_file_system.v2.share_network_subnet.ShareNetworkSubnet`
+            instance.
+        :param key: The key of the Share Network Subnet Metadata.
+        :returns: A single metadata key and value pair.
+        """
+        share_network_id = resource.Resource._get_id(share_network)
+        share_network_subnet_id = resource.Resource._get_id(
+            share_network_subnet
+        )
+        res = self._get_resource(
+            _share_network_subnet.ShareNetworkSubnet,
+            share_network_subnet_id,
+            share_network_id=share_network_id,
+        )
+        return res.get_metadata_item(self, key)
+
+    def set_share_network_subnet_metadata(
+        self,
+        share_network: str | _share_network.ShareNetwork,
+        share_network_subnet: str | _share_network_subnet.ShareNetworkSubnet,
+        *,
+        replace: bool = False,
+        **metadata: Any,
+    ) -> _share_network_subnet.ShareNetworkSubnet:
+        """Updates metadata of given share network subnet.
+
+        :param share_network: The value can be the ID of a share network or a
+            :class:`~openstack.shared_file_system.v2.share_network.ShareNetwork`
+            instance.
+        :param share_network_subnet: The value can be the ID of a share network
+            subnet or a
+            :class:`~openstack.shared_file_system.v2.share_network_subnet.ShareNetworkSubnet`
+            instance.
+        :param metadata: The metadata to be created.
+        :returns: Details of the identified share network subnet.
+        """
+        share_network_id = resource.Resource._get_id(share_network)
+        share_network_subnet_id = resource.Resource._get_id(
+            share_network_subnet
+        )
+        res = self._get_resource(
+            _share_network_subnet.ShareNetworkSubnet,
+            share_network_subnet_id,
+            share_network_id=share_network_id,
+        )
+        return res.set_metadata(self, metadata=metadata, replace=replace)
+
+    def delete_share_network_subnet_metadata(
+        self,
+        share_network: str | _share_network.ShareNetwork,
+        share_network_subnet: str | _share_network_subnet.ShareNetworkSubnet,
+        keys: Iterable[str],
+        ignore_missing: bool = True,
+    ) -> None:
+        """Deletes one or more subnet metadata items identified by their keys.
+
+        :param share_network: The value can be the ID of a share network or a
+            :class:`~openstack.shared_file_system.v2.share_network.ShareNetwork`
+            instance.
+        :param share_network_subnet: The value can be the ID of a share network
+            subnet or a
+            :class:`~openstack.shared_file_system.v2.share_network_subnet.ShareNetworkSubnet`
+            instance.
+        :param keys: The keys of the metadata items to be deleted.
+        :returns: ``None``
+        """
+        share_network_id = resource.Resource._get_id(share_network)
+        share_network_subnet_id = resource.Resource._get_id(
+            share_network_subnet
+        )
+        res = self._get_resource(
+            _share_network_subnet.ShareNetworkSubnet,
+            share_network_subnet_id,
+            share_network_id=share_network_id,
+        )
+        if keys is not None:
+            for key in set(keys):
+                res.delete_metadata_item(self, key)
+        else:
+            res.delete_metadata(self)
+
     # ========= Share Replicas ==========
 
     def create_share_replica(

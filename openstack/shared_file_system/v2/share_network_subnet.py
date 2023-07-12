@@ -10,10 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.common import metadata
 from openstack import resource
 
 
-class ShareNetworkSubnet(resource.Resource):
+class ShareNetworkSubnet(resource.Resource, metadata.MetadataMixin):
     resource_key = "share_network_subnet"
     resources_key = "share_network_subnets"
     base_path = "/share-networks/%(share_network_id)s/subnets"
