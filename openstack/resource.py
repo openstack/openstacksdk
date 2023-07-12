@@ -321,25 +321,32 @@ class _Request:
 
 
 class QueryParameters:
-    def __init__(self, *names, **mappings):
+    def __init__(
+        self,
+        *names,
+        include_pagination_defaults=True,
+        **mappings,
+    ):
         """Create a dict of accepted query parameters
 
         :param names: List of strings containing client-side query parameter
-                      names. Each name in the list maps directly to the name
-                      expected by the server.
-
+            names. Each name in the list maps directly to the name
+            expected by the server.
         :param mappings: Key-value pairs where the key is the client-side
-                         name we'll accept here and the value is the name
-                         the server expects, e.g, changes_since=changes-since.
-                         Additionally, a value can be a dict with optional keys
-                         name - server-side name,
-                         type - callable to convert from client to server
-                         representation.
+            name we'll accept here and the value is the name
+            the server expects, e.g, ``changes_since=changes-since``.
+            Additionally, a value can be a dict with optional keys:
 
-        By default, both limit and marker are included in the initial mapping
-        as they're the most common query parameters used for listing resources.
+            - ``name`` - server-side name,
+            - ``type`` - callable to convert from client to server
+              representation
+        :param include_pagination_defaults: If true, include default pagination
+            parameters, ``limit`` and ``marker``. These are the most common
+            query parameters used for listing resources in OpenStack APIs.
         """
-        self._mapping = {"limit": "limit", "marker": "marker"}
+        self._mapping = {}
+        if include_pagination_defaults:
+            self._mapping.update({"limit": "limit", "marker": "marker"})
         self._mapping.update({name: name for name in names})
         self._mapping.update(mappings)
 
