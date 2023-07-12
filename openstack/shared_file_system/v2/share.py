@@ -160,3 +160,54 @@ class Share(resource.Resource, metadata.MetadataMixin):
         """
         body = {"revert": {"snapshot_id": snapshot_id}}
         self._action(session, body)
+
+    def manage(self, session, protocol, export_path, service_host, **params):
+        """Manage a share.
+
+        :param session: A session object used for sending request.
+        :param str protocol: The shared file systems protocol of this share.
+        :param str export_path: The export path formatted according to the
+            protocol.
+        :param str service_host: The manage-share service host.
+        :param kwargs params: Optional parameters to be sent. Available
+            parameters include:
+
+            * name: The user defined name of the resource.
+            * share_type: The name or ID of the share type to be used to create
+              the resource.
+            * driver_options: A set of one or more key and value pairs, as a
+              dictionary of strings, that describe driver options.
+            * is_public: The level of visibility for the share.
+            * description: The user defiend description of the resource.
+            * share_server_id: The UUID of the share server.
+
+        :returns: The share that was managed.
+        """
+
+        path = 'manage'
+        attrs = {
+            'share': {
+                'protocol': protocol,
+                'export_path': export_path,
+                'service_host': service_host,
+            }
+        }
+
+        attrs['share'].update(params)
+
+        url = utils.urljoin(self.base_path, path)
+        resp = session.post(url, json=attrs)
+
+        self._translate_response(resp)
+        return self
+
+    def unmanage(self, session):
+        """Unmanage a share.
+
+        :param session: A session object used for sending request.
+        :returns: ``None``
+        """
+
+        body = {'unmanage': None}
+
+        self._action(session, body)

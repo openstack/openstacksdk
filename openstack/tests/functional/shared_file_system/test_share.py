@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import exceptions
 from openstack.shared_file_system.v2 import share as _share
 from openstack.tests.functional.shared_file_system import base
 
@@ -158,3 +159,59 @@ class ShareTest(base.BaseSharedFileSystemTest):
             wait=self._wait_for_timeout,
         )
         self.assertEqual(larger_size, get_resized_share.size)
+
+
+class ManageUnmanageShareTest(base.BaseSharedFileSystemTest):
+    def setUp(self):
+        super(ManageUnmanageShareTest, self).setUp()
+
+        self.NEW_SHARE = self.create_share(
+            share_proto="NFS",
+            name="accounting_p8787",
+            size=2,
+        )
+        self.SHARE_ID = self.NEW_SHARE.id
+
+        self.export_locations = self.operator_cloud.share.export_locations(
+            self.SHARE_ID
+        )
+        export_paths = [export['path'] for export in self.export_locations]
+        self.export_path = export_paths[0]
+
+        self.share_host = self.operator_cloud.share.get_share(self.SHARE_ID)[
+            'host'
+        ]
+
+    def test_manage_and_unmanage_share(self):
+        self.operator_cloud.share.unmanage_share(self.SHARE_ID)
+
+        self.operator_cloud.shared_file_system.wait_for_delete(
+            self.NEW_SHARE, interval=2, wait=self._wait_for_timeout
+        )
+
+        try:
+            self.operator_cloud.share.get_share(self.SHARE_ID)
+        except exceptions.ResourceNotFound:
+            pass
+
+        managed_share = self.operator_cloud.share.manage_share(
+            self.NEW_SHARE.share_protocol, self.export_path, self.share_host
+        )
+
+        self.operator_cloud.share.wait_for_status(
+            managed_share,
+            status='available',
+            failures=['error'],
+            interval=5,
+            wait=self._wait_for_timeout,
+        )
+
+        self.assertEqual(
+            self.NEW_SHARE.share_protocol, managed_share.share_protocol
+        )
+
+        managed_host = self.operator_cloud.share.get_share(managed_share.id)[
+            'host'
+        ]
+
+        self.assertEqual(self.share_host, managed_host)

@@ -31,3 +31,26 @@ def resize_shares_without_shrink(conn, min_size):
         # Extend shares smaller than min_size to min_size,
         # but don't shrink shares larger than min_size.
         conn.share.resize_share(share.id, min_size, no_shrink=True)
+
+
+def manage_share(conn, protocol, export_path, service_host, **params):
+    # Manage a share with the given protocol, export path, service host, and
+    # optional additional parameters
+    managed_share = conn.share.manage_share(
+        protocol, export_path, service_host, **params
+    )
+
+    # Can get the ID of the share, which is now being managed with Manila
+    managed_share_id = managed_share.id
+    print("The ID of the share which was managed: %s", managed_share_id)
+
+
+def unmanage_share(conn, share_id):
+    # Unmanage the share with the given share ID
+    conn.share.unmanage_share(share_id)
+
+    try:
+        # Getting the share will raise an exception as it has been unmanaged
+        conn.share.get_share(share_id)
+    except Exception:
+        pass

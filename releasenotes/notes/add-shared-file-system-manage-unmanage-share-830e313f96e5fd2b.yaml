@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added support to manage and unmanage shares
+    from the shared file system service.
