@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Project cleanup now supports skipping specific resources,
+    which will be kept as-is. Resource names are based on the
+    resource registry names, e. g. "block_storage.volume".

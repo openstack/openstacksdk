@@ -813,6 +813,7 @@ class _OpenStackCloudMixin:
         status_queue=None,
         filters=None,
         resource_evaluation_fn=None,
+        skip_resources=None,
     ):
         """Cleanup the project resources.
 
@@ -829,6 +830,8 @@ class _OpenStackCloudMixin:
         :param resource_evaluation_fn: A callback function, which will be
             invoked for each resurce and must return True/False depending on
             whether resource need to be deleted or not.
+        :param skip_resources: List of specific resources whose cleanup should
+            be skipped.
         """
         dependencies = {}
         get_dep_fn_name = '_get_cleanup_dependencies'
@@ -879,6 +882,7 @@ class _OpenStackCloudMixin:
                             identified_resources=cleanup_resources,
                             filters=filters,
                             resource_evaluation_fn=resource_evaluation_fn,
+                            skip_resources=skip_resources,
                         )
             except exceptions.ServiceDisabledException:
                 # same reason as above

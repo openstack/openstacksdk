@@ -100,7 +100,7 @@ class Proxy(adapter.Adapter, Generic[T]):
         influxdb_config=None,
         influxdb_client=None,
         *args,
-        **kwargs
+        **kwargs,
     ):
         # NOTE(dtantsur): keystoneauth defaults retriable_status_codes to None,
         # override it with a class-level value.
@@ -144,7 +144,7 @@ class Proxy(adapter.Adapter, Generic[T]):
         connect_retries=1,
         global_request_id=None,
         *args,
-        **kwargs
+        **kwargs,
     ):
         conn = self._get_connection()
         if not global_request_id:
@@ -180,7 +180,7 @@ class Proxy(adapter.Adapter, Generic[T]):
                             connect_retries=connect_retries,
                             raise_exc=raise_exc,
                             global_request_id=global_request_id,
-                            **kwargs
+                            **kwargs,
                         ),
                     ),
                     expiration_time=expiration_time,
@@ -196,7 +196,7 @@ class Proxy(adapter.Adapter, Generic[T]):
                     connect_retries=connect_retries,
                     raise_exc=raise_exc,
                     global_request_id=global_request_id,
-                    **kwargs
+                    **kwargs,
                 )
 
             for h in response.history:
@@ -623,7 +623,7 @@ class Proxy(adapter.Adapter, Generic[T]):
         requires_id=True,
         base_path=None,
         skip_cache=False,
-        **attrs
+        **attrs,
     ):
         """Fetch a resource
 
@@ -665,7 +665,7 @@ class Proxy(adapter.Adapter, Generic[T]):
         paginated=True,
         base_path=None,
         jmespath_filters=None,
-        **attrs
+        **attrs,
     ) -> Generator[T, None, None]:
         """List a resource
 
@@ -736,6 +736,7 @@ class Proxy(adapter.Adapter, Generic[T]):
         identified_resources=None,
         filters=None,
         resource_evaluation_fn=None,
+        skip_resources=None,
     ):
         return None
 
@@ -813,6 +814,20 @@ class Proxy(adapter.Adapter, Generic[T]):
             return True
         else:
             return False
+
+    def should_skip_resource_cleanup(self, resource=None, skip_resources=None):
+        if resource is None or skip_resources is None:
+            return False
+
+        resource_name = f"{self.service_type.replace('-', '_')}.{resource}"
+
+        if resource_name in skip_resources:
+            self.log.debug(
+                f"Skipping resource {resource_name} " "in project cleanup"
+            )
+            return True
+
+        return False
 
 
 # TODO(stephenfin): Remove this and all users. Use of this generally indicates

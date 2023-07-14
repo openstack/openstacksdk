@@ -728,6 +728,7 @@ class TestProxyCleanup(base.TestCase):
         self.res_no_updated.created_at = '2020-01-02T03:04:05'
 
         self.sot = proxy.Proxy(self.session)
+        self.sot.service_type = "block-storage"
 
         self.delete_mock = mock.Mock()
 
@@ -867,3 +868,12 @@ class TestProxyCleanup(base.TestCase):
             )
         )
         self.assertEqual(self.res, q.get_nowait())
+
+    def test_should_skip_resource_cleanup(self):
+        excluded = ["block_storage.backup"]
+        self.assertTrue(
+            self.sot.should_skip_resource_cleanup("backup", excluded)
+        )
+        self.assertFalse(
+            self.sot.should_skip_resource_cleanup("volume", excluded)
+        )

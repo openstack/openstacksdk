@@ -1130,7 +1130,13 @@ class Proxy(proxy.Proxy):
         identified_resources=None,
         filters=None,
         resource_evaluation_fn=None,
+        skip_resources=None,
     ):
+        if self.should_skip_resource_cleanup(
+            "container", skip_resources
+        ) or self.should_skip_resource_cleanup("object", skip_resources):
+            return
+
         is_bulk_delete_supported = False
         bulk_delete_max_per_request = None
         try:
