@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add fake resource generator to ease unit testing in packages that depend on
+    openstacksdk.
