@@ -91,6 +91,12 @@ class TestFlavor(base.TestCase):
         )
         self.assertEqual(BASIC_EXAMPLE['rxtx_factor'], sot.rxtx_factor)
 
+    def test_make_basic_swap(self):
+        sot = flavor.Flavor(id=IDENTIFIER, swap="")
+        self.assertEqual(0, sot.swap)
+        sot1 = flavor.Flavor(id=IDENTIFIER, swap=0)
+        self.assertEqual(0, sot1.swap)
+
     def test_make_defaults(self):
         sot = flavor.Flavor(**DEFAULTS_EXAMPLE)
         self.assertEqual(DEFAULTS_EXAMPLE['original_name'], sot.name)

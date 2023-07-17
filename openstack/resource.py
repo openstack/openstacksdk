@@ -83,7 +83,14 @@ def _convert_type(value, data_type, list_type=None):
         # and the AbsoluteLimits type for an example.
         if isinstance(value, dict):
             return data_type(**value)
-        return data_type(value)
+        try:
+            return data_type(value)
+        except ValueError:
+            # If we can not convert data to the expected type return empty
+            # instance of the expected type.
+            # This is necessary to handle issues like with flavor.swap where
+            # empty string means "0".
+            return data_type()
 
 
 class _BaseComponent:

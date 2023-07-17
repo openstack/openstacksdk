@@ -26,6 +26,7 @@ from openstack.identity.v3 import project as _project
 from openstack.identity.v3 import user as _user
 from openstack.image.v2 import image as _image
 from openstack.network.v2 import port as _port
+from openstack.test import fakes as _fakes
 from openstack.tests import fakes
 from openstack.tests.unit import base
 from openstack.tests.unit.cloud import test_port
@@ -539,6 +540,7 @@ class TestMemoryCache(base.TestCase):
         mock_uri = '{endpoint}/flavors/detail?is_public=None'.format(
             endpoint=fakes.COMPUTE_ENDPOINT
         )
+        flavors = list(_fakes.generate_fake_resources(_flavor.Flavor, count=2))
 
         uris_to_mock = [
             dict(
@@ -555,7 +557,7 @@ class TestMemoryCache(base.TestCase):
                 validate=dict(
                     headers={'OpenStack-API-Version': 'compute 2.53'}
                 ),
-                json={'flavors': fakes.FAKE_FLAVOR_LIST},
+                json={'flavors': flavors},
             ),
         ]
         self.use_compute_discovery()
@@ -568,7 +570,7 @@ class TestMemoryCache(base.TestCase):
 
         self.cloud.list_flavors.invalidate(self.cloud)
         self.assertResourceListEqual(
-            self.cloud.list_flavors(), fakes.FAKE_FLAVOR_LIST, _flavor.Flavor
+            self.cloud.list_flavors(), flavors, _flavor.Flavor
         )
 
         self.assert_calls()

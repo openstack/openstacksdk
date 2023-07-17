@@ -57,7 +57,7 @@ class Flavor(resource.Resource):
     #: The number of virtual CPUs this flavor offers. *Type: int*
     vcpus = resource.Body('vcpus', type=int, default=0)
     #: Size of the swap partitions.
-    swap = resource.Body('swap', default=0)
+    swap = resource.Body('swap', type=int, default=0)
     #: Size of the ephemeral data disk attached to this server. *Type: int*
     ephemeral = resource.Body('OS-FLV-EXT-DATA:ephemeral', type=int, default=0)
     #: ``True`` if this flavor is disabled, ``False`` if not. *Type: bool*
