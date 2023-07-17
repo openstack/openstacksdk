@@ -1212,7 +1212,7 @@ class Proxy(proxy.Proxy):
         """
         server = self._get_resource(_server.Server, server)
         security_group = self._get_resource(_sg.SecurityGroup, security_group)
-        server.add_security_group(self, security_group.name)
+        server.add_security_group(self, security_group.id)
 
     def remove_security_group_from_server(self, server, security_group):
         """Remove a security group from a server
@@ -1227,7 +1227,7 @@ class Proxy(proxy.Proxy):
         """
         server = self._get_resource(_server.Server, server)
         security_group = self._get_resource(_sg.SecurityGroup, security_group)
-        server.remove_security_group(self, security_group.name)
+        server.remove_security_group(self, security_group.id)
 
     # ========== Server IPs ==========
 
