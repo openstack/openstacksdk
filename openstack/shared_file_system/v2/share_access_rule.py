@@ -30,6 +30,8 @@ class ShareAccessRule(resource.Resource):
 
     _query_mapping = resource.QueryParameters("share_id")
 
+    _max_microversion = '2.45'
+
     #: Properties
     #: The access credential of the entity granted share access.
     access_key = resource.Body("access_key", type=str)
