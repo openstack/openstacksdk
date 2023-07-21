@@ -1430,6 +1430,23 @@ class Proxy(proxy.Proxy):
         lb = self._get_resource(_amphora.Amphora, amphora)
         lb.failover(self)
 
+    def amphora_statistics(
+        self, amphora: str | _amphora.Amphora
+    ) -> Generator[_amphora.AmphoraStats, None, None]:
+        """Retrieve statistics for each listener on an amphora.
+
+        :param amphora: The ID of an amphora or an
+            :class:`~openstack.load_balancer.v2.amphora.Amphora` instance.
+
+        :returns: A generator of
+            :class:`~openstack.load_balancer.v2.amphora.AmphoraStats`
+            instances, one per listener.
+        """
+        amphora_id = resource.Resource._get_id(amphora)
+        return self._list(
+            _amphora.AmphoraStats, amphora_id=amphora_id, paginated=False
+        )
+
     # ====== Availability Zone Profiles ======
 
     def create_availability_zone_profile(

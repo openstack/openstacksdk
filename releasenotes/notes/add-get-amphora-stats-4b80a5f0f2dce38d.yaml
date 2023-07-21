@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added ``amphora_statistics`` to the load balancer proxy to retrieve
+    per-listener statistics for an Octavia amphora.
