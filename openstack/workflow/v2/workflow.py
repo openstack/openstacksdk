@@ -20,6 +20,7 @@ class Workflow(resource.Resource):
 
     # capabilities
     allow_create = True
+    allow_commit = True
     allow_list = True
     allow_fetch = True
     allow_delete = True
@@ -47,7 +48,7 @@ class Workflow(resource.Resource):
     #: The time at which the workflow was created
     updated_at = resource.Body("updated_at")
 
-    def create(self, session, prepend_key=True, base_path=None):
+    def _request_kwargs(self, prepend_key=True, base_path=None):
         request = self._prepare_request(
             requires_id=False, prepend_key=prepend_key, base_path=base_path
         )
@@ -61,9 +62,23 @@ class Workflow(resource.Resource):
         uri = request.url + scope
 
         request.headers.update(headers)
-        response = session.post(
-            uri, json=None, headers=request.headers, **kwargs
-        )
+        return dict(url=uri, json=None, headers=request.headers, **kwargs)
 
+    def create(self, session, prepend_key=True, base_path=None):
+        kwargs = self._request_kwargs(
+            prepend_key=prepend_key, base_path=base_path
+        )
+        response = session.post(**kwargs)
         self._translate_response(response, has_body=False)
         return self
+
+    def update(self, session, prepend_key=True, base_path=None):
+        kwargs = self._request_kwargs(
+            prepend_key=prepend_key, base_path=base_path
+        )
+        response = session.put(**kwargs)
+        self._translate_response(response, has_body=False)
+        return self
+
+    def commit(self, *args, **kwargs):
+        return self.update(*args, **kwargs)

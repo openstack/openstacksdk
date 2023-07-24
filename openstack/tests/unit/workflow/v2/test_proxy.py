@@ -37,6 +37,9 @@ class TestWorkflowProxy(test_proxy_base.TestProxyBase):
     def test_workflow_create(self):
         self.verify_create(self.proxy.create_workflow, workflow.Workflow)
 
+    def test_workflow_update(self):
+        self.verify_update(self.proxy.update_workflow, workflow.Workflow)
+
     def test_execution_create(self):
         self.verify_create(self.proxy.create_execution, execution.Execution)
 

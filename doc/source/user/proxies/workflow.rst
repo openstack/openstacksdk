@@ -15,8 +15,8 @@ Workflow Operations
 
 .. autoclass:: openstack.workflow.v2._proxy.Proxy
   :noindex:
-  :members: create_workflow, delete_workflow, get_workflow,
-            find_workflow, workflows
+  :members: create_workflow, update_workflow, delete_workflow,
+            get_workflow, find_workflow, workflows
 
 Execution Operations
 ^^^^^^^^^^^^^^^^^^^^
