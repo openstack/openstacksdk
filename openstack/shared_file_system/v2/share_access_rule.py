@@ -61,7 +61,7 @@ class ShareAccessRule(resource.Resource):
         if microversion is None:
             microversion = self._get_microversion(session, action=action)
 
-        session.post(
+        return session.post(
             url, json=body, headers=headers, microversion=microversion
         )
 
@@ -74,10 +74,12 @@ class ShareAccessRule(resource.Resource):
         )
 
     def delete(self, session, share_id, ignore_missing=True):
-        body = {'deny_access': {'access_id': self.id}}
-        url = utils.urljoin('/shares', share_id, 'action')
+        body = {"deny_access": {"access_id": self.id}}
+        url = utils.urljoin("/shares", share_id, "action")
+        response = self._action(session, body, url)
         try:
             response = self._action(session, body, url)
+            self._translate_response(response)
         except exceptions.ResourceNotFound:
             if not ignore_missing:
                 raise
