@@ -150,3 +150,16 @@ service.
   :noindex:
   :members: share_groups, get_share_group, delete_share_group,
             update_share_group, create_share_group, find_share_group
+
+
+Shared File System Share Group Snapshots
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Interact with Share Group Snapshots by the Shared File Systems
+service.
+
+.. autoclass:: openstack.shared_file_system.v2._proxy.Proxy
+  :noindex:
+  :members: share_group_snapshots, get_share_group_snapshot, create_share_group_snapshot,
+            reset_share_group_snapshot_status, update_share_group_snapshot,
+            delete_share_group_snapshot
