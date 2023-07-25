@@ -32,10 +32,12 @@ converted into this Resource class' appropriate components and types
 and then returned to the caller.
 """
 
+import abc
 import collections
 import inspect
 import itertools
 import operator
+import typing as ty
 import urllib.parse
 import warnings
 
@@ -93,11 +95,11 @@ def _convert_type(value, data_type, list_type=None):
             return data_type()
 
 
-class _BaseComponent:
+class _BaseComponent(abc.ABC):
     # The name this component is being tracked as in the Resource
-    key = None
+    key: str
     # The class to be used for mappings
-    _map_cls = dict
+    _map_cls: ty.Type[ty.Mapping] = dict
 
     #: Marks the property as deprecated.
     deprecated = False
@@ -269,6 +271,8 @@ class Computed(_BaseComponent):
 
 class _ComponentManager(collections.abc.MutableMapping):
     """Storage of a component type"""
+
+    attributes: ty.Dict[str, ty.Any]
 
     def __init__(self, attributes=None, synchronized=False):
         self.attributes = dict() if attributes is None else attributes.copy()
@@ -452,14 +456,15 @@ class Resource(dict):
     # will work properly.
 
     #: Singular form of key for resource.
-    resource_key = None
+    resource_key: ty.Optional[str] = None
     #: Plural form of key for resource.
-    resources_key = None
+    resources_key: ty.Optional[str] = None
     #: Key used for pagination links
     pagination_key = None
 
     #: The ID of this resource.
     id = Body("id")
+
     #: The name of this resource.
     name = Body("name")
     #: The OpenStack location of this resource.
@@ -469,7 +474,7 @@ class Resource(dict):
     _query_mapping = QueryParameters()
 
     #: The base part of the URI for this resource.
-    base_path = ""
+    base_path: str = ""
 
     #: Allow create operation for this resource.
     allow_create = False
@@ -508,22 +513,22 @@ class Resource(dict):
     create_returns_body = None
 
     #: Maximum microversion to use for getting/creating/updating the Resource
-    _max_microversion = None
+    _max_microversion: ty.Optional[str] = None
     #: API microversion (string or None) this Resource was loaded with
     microversion = None
 
     _connection = None
-    _body = None
-    _header = None
-    _uri = None
-    _computed = None
-    _original_body = None
+    _body: _ComponentManager
+    _header: _ComponentManager
+    _uri: _ComponentManager
+    _computed: _ComponentManager
+    _original_body: ty.Dict[str, ty.Any] = {}
     _store_unknown_attrs_as_properties = False
     _allow_unknown_attrs_in_body = False
-    _unknown_attrs_in_body = None
+    _unknown_attrs_in_body: ty.Dict[str, ty.Any] = {}
 
     # Placeholder for aliases as dict of {__alias__:__original}
-    _attr_aliases = {}
+    _attr_aliases: ty.Dict[str, str] = {}
 
     def __init__(self, _synchronized=False, connection=None, **attrs):
         """The base resource
@@ -1072,12 +1077,13 @@ class Resource(dict):
         :return: A dictionary of key/value pairs where keys are named
             as they exist as attributes of this class.
         """
+        mapping: ty.Union[utils.Munch, ty.Dict]
         if _to_munch:
             mapping = utils.Munch()
         else:
             mapping = {}
 
-        components = []
+        components: ty.List[ty.Type[_BaseComponent]] = []
         if body:
             components.append(Body)
         if headers:
@@ -1088,9 +1094,6 @@ class Resource(dict):
             raise ValueError(
                 "At least one of `body`, `headers` or `computed` must be True"
             )
-
-        # isinstance stricly requires this to be a tuple
-        components = tuple(components)
 
         if body and self._allow_unknown_attrs_in_body:
             for key in self._unknown_attrs_in_body:
@@ -1105,7 +1108,8 @@ class Resource(dict):
         # but is slightly different in that we're looking at an instance
         # and we're mapping names on this class to their actual stored
         # values.
-        for attr, component in self._attributes_iterator(components):
+        # NOTE: isinstance stricly requires components to be a tuple
+        for attr, component in self._attributes_iterator(tuple(components)):
             if original_names:
                 key = component.name
             else:
@@ -1167,6 +1171,7 @@ class Resource(dict):
         *,
         resource_request_key=None,
     ):
+        body: ty.Union[ty.Dict[str, ty.Any], ty.List[ty.Any]]
         if patch:
             if not self._store_unknown_attrs_as_properties:
                 # Default case
@@ -1592,7 +1597,7 @@ class Resource(dict):
                 "Invalid create method: %s" % cls.create_method
             )
 
-        body = []
+        _body: ty.List[ty.Any] = []
         resources = []
         for attrs in data:
             # NOTE(gryf): we need to create resource objects, since
@@ -1605,9 +1610,12 @@ class Resource(dict):
             request = resource._prepare_request(
                 requires_id=requires_id, base_path=base_path
             )
-            body.append(request.body)
+            _body.append(request.body)
+
+        body: ty.Union[ty.Dict[str, ty.Any], ty.List[ty.Any]] = _body
 
         if prepend_key:
+            assert cls.resources_key
             body = {cls.resources_key: body}
 
         response = method(

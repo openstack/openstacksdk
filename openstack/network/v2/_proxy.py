@@ -9,10 +9,8 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from typing import Generic
-from typing import Optional
-from typing import Type
-from typing import TypeVar
+
+import typing as ty
 
 from openstack import exceptions
 from openstack.network.v2 import address_group as _address_group
@@ -93,11 +91,10 @@ from openstack.network.v2 import (
 )
 from openstack.network.v2 import vpn_service as _vpn_service
 from openstack import proxy
+from openstack import resource
 
-T = TypeVar('T')
 
-
-class Proxy(proxy.Proxy, Generic[T]):
+class Proxy(proxy.Proxy):
     _resource_registry = {
         "address_group": _address_group.AddressGroup,
         "address_scope": _address_scope.AddressScope,
@@ -179,24 +176,24 @@ class Proxy(proxy.Proxy, Generic[T]):
     @proxy._check_resource(strict=False)
     def _update(
         self,
-        resource_type: Type[T],
+        resource_type: ty.Type[resource.Resource],
         value,
         base_path=None,
         if_revision=None,
         **attrs,
-    ) -> T:
+    ) -> resource.Resource:
         res = self._get_resource(resource_type, value, **attrs)
         return res.commit(self, base_path=base_path, if_revision=if_revision)
 
     @proxy._check_resource(strict=False)
     def _delete(
         self,
-        resource_type: Type[T],
+        resource_type: ty.Type[resource.Resource],
         value,
         ignore_missing=True,
         if_revision=None,
         **attrs,
-    ) -> Optional[T]:
+    ) -> ty.Optional[resource.Resource]:
         res = self._get_resource(resource_type, value, **attrs)
 
         try:

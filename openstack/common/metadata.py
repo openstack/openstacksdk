@@ -9,12 +9,17 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
 
 
 class MetadataMixin:
+    id: resource.Body
+    base_path: str
+    _body: resource._ComponentManager
+
     #: *Type: list of tag strings*
     metadata = resource.Body('metadata', type=dict)
 
