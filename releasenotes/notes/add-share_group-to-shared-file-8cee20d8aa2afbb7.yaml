@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added support to create, update, list, get, and delete share
+    groups on the shared file system service.

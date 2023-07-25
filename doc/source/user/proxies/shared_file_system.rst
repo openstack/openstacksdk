@@ -138,3 +138,15 @@ Shared File Systems service.
   :noindex:
   :members: access_rules, get_access_rule, create_access_rule,
             delete_access_rule
+
+
+Shared File System Share Groups
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Interact with Share groups supported by the Shared File Systems
+service.
+
+.. autoclass:: openstack.shared_file_system.v2._proxy.Proxy
+  :noindex:
+  :members: share_groups, get_share_group, delete_share_group,
+            update_share_group, create_share_group, find_share_group
