@@ -205,10 +205,6 @@ class TestComponent(base.TestCase):
             calls = []
 
             @classmethod
-            def serialize(cls, arg):
-                FakeFormatter.calls.append(arg)
-
-            @classmethod
             def deserialize(cls, arg):
                 FakeFormatter.calls.append(arg)
 
