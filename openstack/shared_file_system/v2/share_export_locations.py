@@ -28,7 +28,6 @@ class ShareExportLocation(resource.Resource):
     allow_head = False
 
     _max_microversion = '2.47'
-    _min_microversion = '2.9'
 
     #: Properties
     # The share ID, part of the URI for export locations
