@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Added support to manipulate resource locks from the shared file system
+    service.
+  - |
+    Added support to restrict the visibility and deletion of the shared file
+    system share access rules.

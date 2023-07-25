@@ -133,7 +133,9 @@ Shared File System Share Access Rules
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Create, View, and Delete access rules for shares from the
-Shared File Systems service.
+Shared File Systems service. Access rules can also have their deletion
+and visibility restricted during creation. A lock reason can also be
+specified. The deletion restriction can be removed during the access removal.
 
 .. autoclass:: openstack.shared_file_system.v2._proxy.Proxy
   :noindex:
@@ -177,3 +179,16 @@ Shared File Systems service.
   :members: get_share_metadata, get_share_metadata_item,
             create_share_metadata, update_share_metadata,
             delete_share_metadata
+
+
+Shared File System Resource Locks
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Create, list, update and delete locks for resources. When a resource is
+locked, it means that it can be deleted only by services, admins or
+the user that created the lock.
+
+.. autoclass:: openstack.shared_file_system.v2._proxy.Proxy
+  :noindex:
+  :members: resource_locks, get_resource_lock, update_resource_lock,
+            delete_resource_lock, create_resource_lock
