@@ -66,7 +66,6 @@ repos:
             | openstack/key_manager/.*
             | openstack/load_balancer/.*
             | openstack/message/.*
-            | openstack/network/.*
             | openstack/object_store/.*
             | openstack/orchestration/.*
             | openstack/placement/.*
