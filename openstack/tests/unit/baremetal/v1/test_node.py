@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import base64
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -333,6 +334,20 @@ class TestNodeSetProvisionState(base.TestCase):
         self.session.put.assert_called_once_with(
             'nodes/%s/states/provision' % self.node.id,
             json={'target': 'active', 'configdrive': 'abcd'},
+            headers=mock.ANY,
+            microversion=None,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
+
+    def test_deploy_with_configdrive_as_bytestring(self):
+        config_drive = base64.b64encode(b'foo')
+        result = self.node.set_provision_state(
+            self.session, 'active', config_drive=config_drive
+        )
+        self.assertIs(result, self.node)
+        self.session.put.assert_called_once_with(
+            'nodes/%s/states/provision' % self.node.id,
+            json={'target': 'active', 'configdrive': config_drive.decode()},
             headers=mock.ANY,
             microversion=None,
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
