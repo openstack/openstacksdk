@@ -769,15 +769,17 @@ class Proxy(proxy.Proxy):
         try:
             # caps = self.get_object_capabilities()
             caps = self.get_info()
-        except exceptions.SDKException as e:
-            if e.response.status_code in (404, 412):
-                server_max_file_size = DEFAULT_MAX_FILE_SIZE
-                self._connection.log.info(
-                    "Swift capabilities not supported. "
-                    "Using default max file size."
-                )
-            else:
-                raise
+        except (
+            exceptions.NotFoundException,
+            exceptions.PreconditionFailedException,
+        ):
+            server_max_file_size = DEFAULT_MAX_FILE_SIZE
+            self._connection.log.info(
+                "Swift capabilities not supported. "
+                "Using default max file size."
+            )
+        except exceptions.SDKException:
+            raise
         else:
             server_max_file_size = caps.swift.get('max_file_size', 0)
             min_segment_size = caps.slo.get('min_segment_size', 0)
@@ -935,8 +937,7 @@ class Proxy(proxy.Proxy):
             max_upload_count,
             expires,
         )
-        data = data.encode('utf8')
-        sig = hmac.new(temp_url_key, data, sha1).hexdigest()
+        sig = hmac.new(temp_url_key, data.encode(), sha1).hexdigest()
 
         return (expires, sig)
 
@@ -992,18 +993,17 @@ class Proxy(proxy.Proxy):
                     try:
                         t = time.strptime(seconds, f)
                     except ValueError:
-                        t = None
+                        continue
+
+                    if f == EXPIRES_ISO8601_FORMAT:
+                        timestamp = timegm(t)
                     else:
-                        if f == EXPIRES_ISO8601_FORMAT:
-                            timestamp = timegm(t)
-                        else:
-                            # Use local time if UTC designator is missing.
-                            timestamp = int(time.mktime(t))
+                        # Use local time if UTC designator is missing.
+                        timestamp = int(time.mktime(t))
 
-                        absolute = True
-                        break
-
-                if t is None:
+                    absolute = True
+                    break
+                else:
                     raise ValueError()
             else:
                 if not timestamp.is_integer():
@@ -1046,6 +1046,7 @@ class Proxy(proxy.Proxy):
                 method.upper(),
             )
 
+        expiration: float | int
         if not absolute:
             expiration = _get_expiration(timestamp)
         else:
@@ -1074,12 +1075,16 @@ class Proxy(proxy.Proxy):
         ).hexdigest()
 
         if iso8601:
-            expiration = time.strftime(
+            exp = time.strftime(
                 EXPIRES_ISO8601_FORMAT, time.gmtime(expiration)
             )
+        else:
+            exp = str(expiration)
 
         temp_url = u'{path}?temp_url_sig={sig}&temp_url_expires={exp}'.format(
-            path=path_for_body, sig=sig, exp=expiration
+            path=path_for_body,
+            sig=sig,
+            exp=exp,
         )
 
         if ip_range:
@@ -1143,7 +1148,7 @@ class Proxy(proxy.Proxy):
             return
 
         is_bulk_delete_supported = False
-        bulk_delete_max_per_request = None
+        bulk_delete_max_per_request = 1
         try:
             caps = self.get_info()
         except exceptions.SDKException:

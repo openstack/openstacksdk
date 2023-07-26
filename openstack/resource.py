@@ -460,7 +460,7 @@ class Resource(dict):
     #: Plural form of key for resource.
     resources_key: ty.Optional[str] = None
     #: Key used for pagination links
-    pagination_key = None
+    pagination_key: ty.Optional[str] = None
 
     #: The ID of this resource.
     id = Body("id")
