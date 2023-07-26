@@ -42,6 +42,16 @@ approach, this is where you'll want to begin.
    Orchestration <guides/orchestration>
    Shared File System <guides/shared_file_system>
 
+Testing
+-------
+
+The SDK provides a number of utilities to help you test your applications.
+
+.. toctree::
+   :maxdepth: 1
+
+   testing/index
+
 API Documentation
 -----------------
 
