@@ -2248,16 +2248,63 @@ class Resource(dict):
 
         return the_result
 
+    @ty.overload
     @classmethod
     def find(
         cls,
         session,
-        name_or_id,
-        ignore_missing=True,
-        list_base_path=None,
+        name_or_id: str,
+        ignore_missing: ty.Literal[True] = True,
+        list_base_path: ty.Optional[str] = None,
         *,
-        microversion=None,
-        all_projects=None,
+        microversion: ty.Optional[str] = None,
+        all_projects: ty.Optional[bool] = None,
+        **params,
+    ) -> ty.Optional['Resource']:
+        ...
+
+    @ty.overload
+    @classmethod
+    def find(
+        cls,
+        session,
+        name_or_id: str,
+        ignore_missing: ty.Literal[False],
+        list_base_path: ty.Optional[str] = None,
+        *,
+        microversion: ty.Optional[str] = None,
+        all_projects: ty.Optional[bool] = None,
+        **params,
+    ) -> 'Resource':
+        ...
+
+    # excuse the duplication here: it's mypy's fault
+    # https://github.com/python/mypy/issues/14764
+    @ty.overload
+    @classmethod
+    def find(
+        cls,
+        session,
+        name_or_id: str,
+        ignore_missing: bool,
+        list_base_path: ty.Optional[str] = None,
+        *,
+        microversion: ty.Optional[str] = None,
+        all_projects: ty.Optional[bool] = None,
+        **params,
+    ):
+        ...
+
+    @classmethod
+    def find(
+        cls,
+        session,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        list_base_path: ty.Optional[str] = None,
+        *,
+        microversion: ty.Optional[str] = None,
+        all_projects: ty.Optional[bool] = None,
         **params,
     ):
         """Find a resource by its name or id.
