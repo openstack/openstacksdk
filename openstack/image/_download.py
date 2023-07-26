@@ -9,9 +9,11 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 import io
 
 from openstack import exceptions
+from openstack import resource
 from openstack import utils
 
 
@@ -25,8 +27,29 @@ def _verify_checksum(md5, checksum):
 
 
 class DownloadMixin:
+    id: resource.Body
+    base_path: str
+
+    def fetch(
+        self,
+        session,
+        requires_id=True,
+        base_path=None,
+        error_message=None,
+        skip_cache=False,
+        *,
+        resource_response_key=None,
+        microversion=None,
+        **params,
+    ):
+        ...
+
     def download(
-        self, session, stream=False, output=None, chunk_size=1024 * 1024
+        self,
+        session,
+        stream=False,
+        output=None,
+        chunk_size=1024 * 1024,
     ):
         """Download the data contained in an image"""
         # TODO(briancurtin): This method should probably offload the get

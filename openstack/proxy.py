@@ -74,7 +74,7 @@ def normalize_metric_name(name):
 class Proxy(adapter.Adapter):
     """Represents a service."""
 
-    retriable_status_codes = None
+    retriable_status_codes: ty.Optional[ty.List[int]] = None
     """HTTP status codes that should be retried by default.
 
     The number of retries is defined by the configuration in parameters called

@@ -64,7 +64,6 @@ repos:
             | openstack/dns/.*
             | openstack/fixture/.*
             | openstack/identity/.*
-            | openstack/image/.*
             | openstack/instance_ha/.*
             | openstack/key_manager/.*
             | openstack/load_balancer/.*

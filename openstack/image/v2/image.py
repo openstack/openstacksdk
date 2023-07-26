@@ -9,6 +9,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
+import typing as ty
+
 from openstack.common import tag
 from openstack import exceptions
 from openstack.image import _download
@@ -335,7 +338,7 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
             stores = stores or []
 
         url = utils.urljoin(self.base_path, self.id, 'import')
-        data = {'method': {'name': method}}
+        data: ty.Dict[str, ty.Any] = {'method': {'name': method}}
 
         if uri:
             if method != 'web-download':
@@ -356,9 +359,8 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
             data['all_stores'] = all_stores
         if all_stores_must_succeed is not None:
             data['all_stores_must_succeed'] = all_stores_must_succeed
-        for s in stores:
-            data.setdefault('stores', [])
-            data['stores'].append(s.id)
+        if stores:
+            data['stores'] = [s.id for s in stores]
 
         headers = {}
         # Backward compat

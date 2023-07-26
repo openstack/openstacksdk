@@ -9,7 +9,6 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding
@@ -17,6 +16,7 @@ from cryptography.hazmat.primitives.asymmetric import utils
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import serialization
 
+from openstack import exceptions
 from openstack.image.iterable_chunked_file import IterableChunkedFile
 
 HASH_METHODS = {
@@ -56,6 +56,9 @@ class ImageSigner:
             )
 
     def generate_signature(self, file_obj):
+        if not self.private_key:
+            raise exceptions.SDKException("private_key not set")
+
         file_obj.seek(0)
         chunked_file = IterableChunkedFile(file_obj)
         for chunk in chunked_file:

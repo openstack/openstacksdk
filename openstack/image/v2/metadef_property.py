@@ -54,8 +54,10 @@ class MetadefProperty(resource.Resource):
     min_length = resource.Body('minLength', type=int, minimum=0, default=0)
     #: Maximum allowed string length.
     max_length = resource.Body('maxLength', type=int, minimum=0)
+    # FIXME(stephenfin): This is causing conflicts due to the 'dict.items'
+    # method. Perhaps we need to rename it?
     #: Schema for the items in an array.
-    items = resource.Body('items', type=dict)
+    items = resource.Body('items', type=dict)  # type: ignore
     #: Indicates whether all values in the array must be distinct.
     require_unique_items = resource.Body(
         'uniqueItems', type=bool, default=False
