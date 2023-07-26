@@ -152,8 +152,8 @@ class TestVolumeBackups(base.TestCase):
                         'public',
                         append=['backups', backup_id, 'action'],
                     ),
-                    json={'os-force_delete': {}},
-                    validate=dict(json={u'os-force_delete': {}}),
+                    json={'os-force_delete': None},
+                    validate=dict(json={'os-force_delete': None}),
                 ),
                 dict(
                     method='GET',

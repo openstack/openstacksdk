@@ -76,7 +76,7 @@ class Snapshot(resource.Resource, metadata.MetadataMixin):
 
     def force_delete(self, session):
         """Force snapshot deletion."""
-        body = {'os-force_delete': {}}
+        body = {'os-force_delete': None}
         self._action(session, body)
 
     def reset(self, session, status):

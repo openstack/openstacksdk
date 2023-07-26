@@ -144,7 +144,7 @@ class Volume(resource.Resource, metadata.MetadataMixin):
 
     def unmanage(self, session):
         """Unmanage volume"""
-        body = {'os-unmanage': {}}
+        body = {'os-unmanage': None}
 
         self._action(session, body)
 
@@ -184,7 +184,7 @@ class Volume(resource.Resource, metadata.MetadataMixin):
 
     def force_delete(self, session):
         """Force volume deletion"""
-        body = {'os-force_delete': {}}
+        body = {'os-force_delete': None}
 
         self._action(session, body)
 

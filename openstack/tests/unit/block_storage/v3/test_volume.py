@@ -314,7 +314,7 @@ class TestVolumeActions(TestVolume):
         self.assertIsNone(sot.unmanage(self.sess))
 
         url = 'volumes/%s/action' % FAKE_ID
-        body = {'os-unmanage': {}}
+        body = {'os-unmanage': None}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
         )
@@ -434,7 +434,7 @@ class TestVolumeActions(TestVolume):
         self.assertIsNone(sot.force_delete(self.sess))
 
         url = 'volumes/%s/action' % FAKE_ID
-        body = {'os-force_delete': {}}
+        body = {'os-force_delete': None}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
         )
@@ -504,7 +504,7 @@ class TestVolumeActions(TestVolume):
         self.assertIsNone(sot.reserve(self.sess))
 
         url = 'volumes/%s/action' % FAKE_ID
-        body = {'os-reserve': {}}
+        body = {'os-reserve': None}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
         )
@@ -515,7 +515,7 @@ class TestVolumeActions(TestVolume):
         self.assertIsNone(sot.unreserve(self.sess))
 
         url = 'volumes/%s/action' % FAKE_ID
-        body = {'os-unreserve': {}}
+        body = {'os-unreserve': None}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
         )
@@ -526,7 +526,7 @@ class TestVolumeActions(TestVolume):
         self.assertIsNone(sot.begin_detaching(self.sess))
 
         url = 'volumes/%s/action' % FAKE_ID
-        body = {'os-begin_detaching': {}}
+        body = {'os-begin_detaching': None}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
         )
@@ -537,7 +537,7 @@ class TestVolumeActions(TestVolume):
         self.assertIsNone(sot.abort_detaching(self.sess))
 
         url = 'volumes/%s/action' % FAKE_ID
-        body = {'os-roll_detaching': {}}
+        body = {'os-roll_detaching': None}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
         )

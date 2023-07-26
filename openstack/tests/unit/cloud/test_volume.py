@@ -535,7 +535,7 @@ class TestVolume(base.TestCase):
                         'public',
                         append=['volumes', volume.id, 'action'],
                     ),
-                    validate=dict(json={'os-force_delete': {}}),
+                    validate=dict(json={'os-force_delete': None}),
                 ),
                 dict(
                     method='GET',

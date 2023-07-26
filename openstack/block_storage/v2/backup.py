@@ -9,6 +9,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
+import typing as ty
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -173,7 +176,7 @@ class Backup(resource.Resource):
         :return: Updated backup instance
         """
         url = utils.urljoin(self.base_path, self.id, "restore")
-        body = {'restore': {}}
+        body: ty.Dict[str, ty.Dict] = {'restore': {}}
         if volume_id:
             body['restore']['volume_id'] = volume_id
         if name:
@@ -188,7 +191,7 @@ class Backup(resource.Resource):
 
     def force_delete(self, session):
         """Force backup deletion"""
-        body = {'os-force_delete': {}}
+        body = {'os-force_delete': None}
         self._action(session, body)
 
     def reset(self, session, status):

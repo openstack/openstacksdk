@@ -181,7 +181,7 @@ class Volume(resource.Resource, metadata.MetadataMixin):
 
     def unmanage(self, session):
         """Unmanage volume"""
-        body = {'os-unmanage': {}}
+        body = {'os-unmanage': None}
 
         self._action(session, body)
 
@@ -229,7 +229,7 @@ class Volume(resource.Resource, metadata.MetadataMixin):
 
     def force_delete(self, session):
         """Force volume deletion"""
-        body = {'os-force_delete': {}}
+        body = {'os-force_delete': None}
 
         self._action(session, body)
 
@@ -264,25 +264,25 @@ class Volume(resource.Resource, metadata.MetadataMixin):
 
     def reserve(self, session):
         """Reserve volume"""
-        body = {'os-reserve': {}}
+        body = {'os-reserve': None}
 
         self._action(session, body)
 
     def unreserve(self, session):
         """Unreserve volume"""
-        body = {'os-unreserve': {}}
+        body = {'os-unreserve': None}
 
         self._action(session, body)
 
     def begin_detaching(self, session):
         """Update volume status to 'detaching'"""
-        body = {'os-begin_detaching': {}}
+        body = {'os-begin_detaching': None}
 
         self._action(session, body)
 
     def abort_detaching(self, session):
         """Roll back volume status to 'in-use'"""
-        body = {'os-roll_detaching': {}}
+        body = {'os-roll_detaching': None}
 
         self._action(session, body)
 

@@ -185,7 +185,7 @@ class TestBackup(base.TestCase):
         self.assertIsNone(sot.force_delete(self.sess))
 
         url = 'backups/%s/action' % FAKE_ID
-        body = {'os-force_delete': {}}
+        body = {'os-force_delete': None}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
         )

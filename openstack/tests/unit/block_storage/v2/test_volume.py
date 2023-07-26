@@ -237,7 +237,7 @@ class TestVolumeActions(TestVolume):
         self.assertIsNone(sot.unmanage(self.sess))
 
         url = 'volumes/%s/action' % FAKE_ID
-        body = {'os-unmanage': {}}
+        body = {'os-unmanage': None}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
         )
@@ -330,7 +330,7 @@ class TestVolumeActions(TestVolume):
         self.assertIsNone(sot.force_delete(self.sess))
 
         url = 'volumes/%s/action' % FAKE_ID
-        body = {'os-force_delete': {}}
+        body = {'os-force_delete': None}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
         )
