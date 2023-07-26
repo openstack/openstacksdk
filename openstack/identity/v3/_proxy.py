@@ -1201,7 +1201,7 @@ class Proxy(proxy.Proxy):
                     user_id=user.id,
                 )
         else:
-            system = self._get_resource(_project.System, system)
+            system = self._get_resource(_system.System, system)
             if group:
                 group = self._get_resource(_group.Group, group)
                 return self._list(

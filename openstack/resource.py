@@ -504,7 +504,7 @@ class Resource(dict):
     #: Do calls for this resource require an id
     requires_id = True
     #: Whether create requires an ID (determined from method if None).
-    create_requires_id = None
+    create_requires_id: ty.Optional[bool] = None
     #: Whether create should exclude ID in the body of the request.
     create_exclude_id_from_body = False
     #: Do responses for this resource have bodies
