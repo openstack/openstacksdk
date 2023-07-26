@@ -22,6 +22,12 @@ from openstack.identity.v3 import policy
 from openstack.identity.v3 import project
 from openstack.identity.v3 import region
 from openstack.identity.v3 import role
+from openstack.identity.v3 import role_domain_group_assignment
+from openstack.identity.v3 import role_domain_user_assignment
+from openstack.identity.v3 import role_project_group_assignment
+from openstack.identity.v3 import role_project_user_assignment
+from openstack.identity.v3 import role_system_group_assignment
+from openstack.identity.v3 import role_system_user_assignment
 from openstack.identity.v3 import service
 from openstack.identity.v3 import trust
 from openstack.identity.v3 import user
@@ -411,6 +417,72 @@ class TestIdentityProxyRole(TestIdentityProxyBase):
 
 
 class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
+    def test_role_assignments_filter__domain_user(self):
+        self.verify_list(
+            self.proxy.role_assignments_filter,
+            role_domain_user_assignment.RoleDomainUserAssignment,
+            method_kwargs={'domain': 'domain', 'user': 'user'},
+            expected_kwargs={
+                'domain_id': 'domain',
+                'user_id': 'user',
+            },
+        )
+
+    def test_role_assignments_filter__domain_group(self):
+        self.verify_list(
+            self.proxy.role_assignments_filter,
+            role_domain_group_assignment.RoleDomainGroupAssignment,
+            method_kwargs={'domain': 'domain', 'group': 'group'},
+            expected_kwargs={
+                'domain_id': 'domain',
+                'group_id': 'group',
+            },
+        )
+
+    def test_role_assignments_filter__project_user(self):
+        self.verify_list(
+            self.proxy.role_assignments_filter,
+            role_project_user_assignment.RoleProjectUserAssignment,
+            method_kwargs={'project': 'project', 'user': 'user'},
+            expected_kwargs={
+                'project_id': 'project',
+                'user_id': 'user',
+            },
+        )
+
+    def test_role_assignments_filter__project_group(self):
+        self.verify_list(
+            self.proxy.role_assignments_filter,
+            role_project_group_assignment.RoleProjectGroupAssignment,
+            method_kwargs={'project': 'project', 'group': 'group'},
+            expected_kwargs={
+                'project_id': 'project',
+                'group_id': 'group',
+            },
+        )
+
+    def test_role_assignments_filter__system_user(self):
+        self.verify_list(
+            self.proxy.role_assignments_filter,
+            role_system_user_assignment.RoleSystemUserAssignment,
+            method_kwargs={'system': 'system', 'user': 'user'},
+            expected_kwargs={
+                'system_id': 'system',
+                'user_id': 'user',
+            },
+        )
+
+    def test_role_assignments_filter__system_group(self):
+        self.verify_list(
+            self.proxy.role_assignments_filter,
+            role_system_group_assignment.RoleSystemGroupAssignment,
+            method_kwargs={'system': 'system', 'group': 'group'},
+            expected_kwargs={
+                'system_id': 'system',
+                'group_id': 'group',
+            },
+        )
+
     def test_assign_domain_role_to_user(self):
         self._verify(
             "openstack.identity.v3.domain.Domain.assign_role_to_user",
