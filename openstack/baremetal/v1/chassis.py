@@ -14,7 +14,7 @@ from openstack.baremetal.v1 import _common
 from openstack import resource
 
 
-class Chassis(_common.ListMixin, resource.Resource):
+class Chassis(_common.Resource):
     resources_key = 'chassis'
     base_path = '/chassis'
 

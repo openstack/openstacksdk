@@ -97,12 +97,12 @@ class TestPack(testtools.TestCase):
         )
 
     def test_genisoimage_fails(self, mock_popen):
-        mock_popen.return_value.communicate.return_value = "", "BOOM"
+        mock_popen.return_value.communicate.return_value = b"", b"BOOM"
         mock_popen.return_value.returncode = 1
         self.assertRaisesRegex(RuntimeError, "BOOM", configdrive.pack, "/fake")
 
     def test_success(self, mock_popen):
-        mock_popen.return_value.communicate.return_value = "", ""
+        mock_popen.return_value.communicate.return_value = b"", b""
         mock_popen.return_value.returncode = 0
         result = configdrive.pack("/fake")
         # Make sure the result is string on all python versions

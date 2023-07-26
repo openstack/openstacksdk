@@ -20,6 +20,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+import typing as ty
 
 
 @contextlib.contextmanager
@@ -100,7 +101,7 @@ def build(
         return pack(path)
 
 
-def pack(path):
+def pack(path: str) -> str:
     """Pack a directory with files into a Bare Metal service configdrive.
 
     Creates an ISO image with the files and label "config-2".
@@ -112,6 +113,7 @@ def pack(path):
         # NOTE(toabctl): Luckily, genisoimage, mkisofs and xorrisofs understand
         # the same parameters which are currently used.
         cmds = ['genisoimage', 'mkisofs', 'xorrisofs']
+        error: ty.Optional[Exception]
         for c in cmds:
             try:
                 p = subprocess.Popen(
@@ -153,7 +155,7 @@ def pack(path):
             raise RuntimeError(
                 'Error generating the configdrive.'
                 'Stdout: "%(stdout)s". Stderr: "%(stderr)s"'
-                % {'stdout': stdout, 'stderr': stderr}
+                % {'stdout': stdout.decode(), 'stderr': stderr.decode()}
             )
 
         tmpfile.seek(0)
@@ -163,11 +165,8 @@ def pack(path):
                 shutil.copyfileobj(tmpfile, gz_file)
 
             tmpzipfile.seek(0)
-            cd = base64.b64encode(tmpzipfile.read())
-
-    # NOTE(dtantsur): Ironic expects configdrive to be a string, but base64
-    # returns bytes on Python 3.
-    if not isinstance(cd, str):
-        cd = cd.decode('utf-8')
+            # NOTE(dtantsur): Ironic expects configdrive to be a string, but
+            # base64 returns bytes on Python 3.
+            cd = base64.b64encode(tmpzipfile.read()).decode()
 
     return cd

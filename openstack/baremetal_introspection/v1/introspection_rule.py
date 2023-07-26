@@ -14,7 +14,7 @@ from openstack.baremetal.v1 import _common
 from openstack import resource
 
 
-class IntrospectionRule(_common.ListMixin, resource.Resource):
+class IntrospectionRule(_common.Resource):
     resources_key = 'rules'
     base_path = '/rules'
 

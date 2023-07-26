@@ -70,7 +70,7 @@ class WaitResult(
     __slots__ = ()
 
 
-class Node(_common.ListMixin, resource.Resource):
+class Node(_common.Resource):
     resources_key = 'nodes'
     base_path = '/nodes'
 
@@ -711,11 +711,9 @@ class Node(_common.ListMixin, resource.Resource):
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'management', 'inject_nmi')
 
-        body = {}
-
         response = session.put(
             request.url,
-            json=body,
+            json={},
             headers=request.headers,
             microversion=version,
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
@@ -813,7 +811,7 @@ class Node(_common.ListMixin, resource.Resource):
         body = {'id': vif_id}
         retriable_status_codes = _common.RETRIABLE_STATUS_CODES
         if not retry_on_conflict:
-            retriable_status_codes = set(retriable_status_codes) - {409}
+            retriable_status_codes = list(set(retriable_status_codes) - {409})
         response = session.post(
             request.url,
             json=body,

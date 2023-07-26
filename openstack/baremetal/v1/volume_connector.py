@@ -14,7 +14,7 @@ from openstack.baremetal.v1 import _common
 from openstack import resource
 
 
-class VolumeConnector(_common.ListMixin, resource.Resource):
+class VolumeConnector(_common.Resource):
     resources_key = 'connectors'
     base_path = '/volume/connectors'
 

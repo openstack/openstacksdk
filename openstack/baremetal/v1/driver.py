@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import typing as ty
+
 from openstack.baremetal.v1 import _common
 from openstack import exceptions
 from openstack import resource
@@ -153,7 +155,7 @@ class Driver(resource.Resource):
         return response.json()
 
     def call_vendor_passthru(
-        self, session, verb: str, method: str, body: dict = None
+        self, session, verb: str, method: str, body: ty.Optional[dict] = None
     ):
         """Call a vendor specific passthru method
 
