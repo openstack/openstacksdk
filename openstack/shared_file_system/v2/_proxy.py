@@ -816,10 +816,11 @@ class Proxy(proxy.Proxy):
         :param access_id: The id of the access rule to get
         :param share_id: The ID of the share
 
-        :rtype: ``None``
+        :rtype: ``requests.models.Response`` HTTP response from internal
+            requests client
         """
         res = self._get_resource(_share_access_rule.ShareAccessRule, access_id)
-        res.delete(self, share_id, ignore_missing=ignore_missing)
+        return res.delete(self, share_id, ignore_missing=ignore_missing)
 
     def share_group_snapshots(self, details=True, **query):
         """Lists all share group snapshots.
