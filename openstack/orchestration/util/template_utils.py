@@ -14,6 +14,7 @@
 
 import collections.abc
 import json
+import typing as ty
 from urllib import parse
 from urllib import request
 
@@ -221,8 +222,8 @@ def process_multiple_environments_and_files(
     :return: tuple of files dict and a dict of the consolidated environment
     :rtype:  tuple
     """
-    merged_files = {}
-    merged_env = {}
+    merged_files: ty.Dict[str, str] = {}
+    merged_env: ty.Dict[str, ty.Dict] = {}
 
     # If we're keeping a list of environment files separately, include the
     # contents of the files in the files dict
@@ -275,8 +276,8 @@ def process_environment_and_files(
     :return: tuple of files dict and the loaded environment as a dict
     :rtype:  (dict, dict)
     """
-    files = {}
-    env = {}
+    files: ty.Dict[str, str] = {}
+    env: ty.Dict[str, ty.Dict] = {}
 
     is_object = env_path_is_object and env_path_is_object(env_path)
 

@@ -29,9 +29,9 @@ class StackFiles(resource.Resource):
     # Backwards compat
     stack_name = name
     #: ID of the stack where the template is referenced.
-    id = resource.URI('stack_id')
+    id = resource.URI('stack_id')  # type: ignore
     # Backwards compat
-    stack_id = id
+    stack_id = id  # type: ignore
 
     def fetch(self, session, base_path=None):
         # The stack files response contains a map of filenames and file
