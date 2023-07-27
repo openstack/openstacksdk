@@ -16,14 +16,6 @@ from openstack.image.v2._proxy import Proxy
 from openstack import utils
 
 
-def _no_pending_images(images):
-    """If there are any images not in a steady state, don't cache"""
-    for image in images:
-        if image.status not in ('active', 'deleted', 'killed'):
-            return False
-    return True
-
-
 class ImageCloudMixin:
     image: Proxy
 
@@ -34,7 +26,6 @@ class ImageCloudMixin:
         images = self.list_images()
         return _utils._filter_list(images, name_or_id, filters)
 
-    @_utils.cache_on_arguments(should_cache_fn=_no_pending_images)
     def list_images(self, filter_deleted=True, show_all=False):
         """Get available images.
 
@@ -170,7 +161,6 @@ class ImageCloudMixin:
         for count in utils.iterate_timeout(
             timeout, "Timeout waiting for image to snapshot"
         ):
-            self.list_images.invalidate(self)
             image = self.get_image(image_id)
             if not image:
                 continue
@@ -203,7 +193,6 @@ class ImageCloudMixin:
         if not image:
             return False
         self.image.delete_image(image)
-        self.list_images.invalidate(self)
 
         # Task API means an image was uploaded to swift
         # TODO(gtema) does it make sense to move this into proxy?
@@ -221,7 +210,6 @@ class ImageCloudMixin:
             for count in utils.iterate_timeout(
                 timeout, "Timeout waiting for the image to be deleted."
             ):
-                self._get_cache(None).invalidate()
                 if self.get_image(image.id) is None:
                     break
         return True
@@ -321,9 +309,9 @@ class ImageCloudMixin:
                 **kwargs,
             )
 
-        self._get_cache(None).invalidate()
         if not wait:
             return image
+
         try:
             for count in utils.iterate_timeout(
                 timeout, "Timeout waiting for the image to finish."

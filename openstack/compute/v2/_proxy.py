@@ -962,7 +962,6 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         image_id = server.create_image(self, name, metadata)
 
-        self._connection.list_images.invalidate(self)
         image = self._connection.get_image(image_id)
 
         if not wait:

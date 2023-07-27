@@ -19,7 +19,6 @@ from openstack.network.v2._proxy import Proxy
 class NetworkCloudMixin:
     network: Proxy
 
-    @_utils.cache_on_arguments()
     def _neutron_extensions(self):
         extensions = set()
         for extension in self.network.extensions():

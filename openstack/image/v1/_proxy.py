@@ -240,8 +240,6 @@ class Proxy(proxy.Proxy):
         else:
             image = self._create(_image.Image, name=name, **kwargs)
 
-        self._connection._get_cache(None).invalidate()
-
         return image
 
     def upload_image(self, **attrs):
@@ -441,7 +439,6 @@ class Proxy(proxy.Proxy):
         if not img_props:
             return False
         self.put('/images/{id}'.format(id=image.id), headers=img_props)
-        self._connection.list_images.invalidate(self._connection)
         return True
 
     def update_image_properties(

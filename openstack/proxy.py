@@ -208,6 +208,7 @@ class Proxy(adapter.Adapter):
             self._report_stats(None, url, method, e)
             raise
 
+    # TODO(stephenfin): service_type is unused and should be dropped
     @functools.lru_cache(maxsize=256)
     def _extract_name(self, url, service_type=None, project_id=None):
         """Produce a key name to use in logging/metrics from the URL path.

@@ -101,32 +101,6 @@ class _OpenStackCloudMixin:
         else:
             self.cache_enabled = False
 
-            # TODO(gtema): delete it with the standalone cloud layer caching
-
-            def _fake_invalidate(unused):
-                pass
-
-            class _FakeCache:
-                def invalidate(self):
-                    pass
-
-            # Don't cache list_servers if we're not caching things.
-            # Replace this with a more specific cache configuration
-            # soon.
-            self._cache = _FakeCache()
-            # Undecorate cache decorated methods. Otherwise the call stacks
-            # wind up being stupidly long and hard to debug
-            for method in _utils._decorated_methods:
-                meth_obj = getattr(self, method, None)
-                if not meth_obj:
-                    continue
-                if hasattr(meth_obj, 'invalidate') and hasattr(
-                    meth_obj, 'func'
-                ):
-                    new_func = functools.partial(meth_obj.func, self)
-                    new_func.invalidate = _fake_invalidate
-                    setattr(self, method, new_func)
-
         # Uncoditionally create cache even with a "null" backend
         self._cache = self._make_cache(
             cache_class, cache_expiration_time, cache_arguments
@@ -322,12 +296,6 @@ class _OpenStackCloudMixin:
             return ans
 
         return generate_key
-
-    def _get_cache(self, resource_name):
-        if resource_name and resource_name in self._resource_caches:
-            return self._resource_caches[resource_name]
-        else:
-            return self._cache
 
     def pprint(self, resource):
         """Wrapper around pprint that groks munch objects"""

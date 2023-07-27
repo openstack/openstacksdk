@@ -16,15 +16,6 @@ from openstack.orchestration.util import event_utils
 from openstack.orchestration.v1._proxy import Proxy
 
 
-def _no_pending_stacks(stacks):
-    """If there are any stacks not in a steady state, don't cache"""
-    for stack in stacks:
-        status = stack['stack_status']
-        if '_COMPLETE' not in status and '_FAILED' not in status:
-            return False
-    return True
-
-
 class OrchestrationCloudMixin:
     orchestration: Proxy
 
@@ -226,7 +217,6 @@ class OrchestrationCloudMixin:
         stacks = self.list_stacks()
         return _utils._filter_list(stacks, name_or_id, filters)
 
-    @_utils.cache_on_arguments(should_cache_fn=_no_pending_stacks)
     def list_stacks(self, **query):
         """List all stacks.
 

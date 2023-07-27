@@ -61,7 +61,6 @@ class IdentityCloudMixin:
         ret.update(self._get_project_id_param_dict(project))
         return ret
 
-    @_utils.cache_on_arguments()
     def list_projects(self, domain_id=None, name_or_id=None, filters=None):
         """List projects.
 
@@ -186,7 +185,6 @@ class IdentityCloudMixin:
         if enabled is not None:
             kwargs.update({'enabled': enabled})
         project = self.identity.update_project(project, **kwargs)
-        self.list_projects.invalidate(self)
         return project
 
     def create_project(
@@ -242,7 +240,6 @@ class IdentityCloudMixin:
             return False
 
     @_utils.valid_kwargs('domain_id', 'name')
-    @_utils.cache_on_arguments()
     def list_users(self, **kwargs):
         """List users.
 
@@ -340,7 +337,6 @@ class IdentityCloudMixin:
         'default_project',
     )
     def update_user(self, name_or_id, **kwargs):
-        self.list_users.invalidate(self)
         user_kwargs = {}
         if 'domain_id' in kwargs and kwargs['domain_id']:
             user_kwargs['domain_id'] = kwargs['domain_id']
@@ -355,7 +351,6 @@ class IdentityCloudMixin:
             del kwargs['domain_id']
         user = self.identity.update_user(user, **kwargs)
 
-        self.list_users.invalidate(self)
         return user
 
     def create_user(
@@ -378,13 +373,10 @@ class IdentityCloudMixin:
 
         user = self.identity.create_user(**params)
 
-        self.list_users.invalidate(self)
         return user
 
     @_utils.valid_kwargs('domain_id')
     def delete_user(self, name_or_id, **kwargs):
-        # TODO(mordred) Why are we invalidating at the TOP?
-        self.list_users.invalidate(self)
         try:
             user = self.get_user(name_or_id, **kwargs)
             if not user:
@@ -394,7 +386,6 @@ class IdentityCloudMixin:
                 return False
 
             self.identity.delete_user(user)
-            self.list_users.invalidate(self)
             return True
 
         except exceptions.SDKException:
@@ -891,7 +882,6 @@ class IdentityCloudMixin:
             return self.identity.get_domain(domain_id)
 
     @_utils.valid_kwargs('domain_id')
-    @_utils.cache_on_arguments()
     def list_groups(self, **kwargs):
         """List Keystone groups.
 
@@ -969,7 +959,6 @@ class IdentityCloudMixin:
 
         group = self.identity.create_group(**group_ref)
 
-        self.list_groups.invalidate(self)
         return group
 
     def update_group(
@@ -988,7 +977,6 @@ class IdentityCloudMixin:
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
-        self.list_groups.invalidate(self)
         group = self.identity.find_group(name_or_id, **kwargs)
         if group is None:
             raise exc.OpenStackCloudException(
@@ -1003,7 +991,6 @@ class IdentityCloudMixin:
 
         group = self.identity.update_group(group, **group_ref)
 
-        self.list_groups.invalidate(self)
         return group
 
     def delete_group(self, name_or_id):
@@ -1022,7 +1009,6 @@ class IdentityCloudMixin:
 
             self.identity.delete_group(group)
 
-            self.list_groups.invalidate(self)
             return True
 
         except exceptions.SDKException:

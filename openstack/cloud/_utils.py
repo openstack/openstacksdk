@@ -14,7 +14,6 @@
 
 import contextlib
 import fnmatch
-import functools
 import inspect
 import re
 import uuid
@@ -25,9 +24,6 @@ import netifaces
 
 from openstack import _log
 from openstack.cloud import exc
-
-
-_decorated_methods = []
 
 
 def _dictify_resource(resource):
@@ -228,45 +224,6 @@ def valid_kwargs(*valid_args):
         return func(*args, **kwargs)
 
     return func_wrapper
-
-
-def _func_wrap(f):
-    # NOTE(morgan): This extra wrapper is intended to eliminate ever
-    # passing a bound method to dogpile.cache's cache_on_arguments. In
-    # 0.7.0 and later it is impossible to pass bound methods to the
-    # decorator. This was introduced when utilizing the decorate module in
-    # lieu of a direct wrap implementation.
-    @functools.wraps(f)
-    def inner(*args, **kwargs):
-        return f(*args, **kwargs)
-
-    return inner
-
-
-def cache_on_arguments(*cache_on_args, **cache_on_kwargs):
-    _cache_name = cache_on_kwargs.pop('resource', None)
-
-    def _inner_cache_on_arguments(func):
-        def _cache_decorator(obj, *args, **kwargs):
-            the_method = obj._get_cache(_cache_name).cache_on_arguments(
-                *cache_on_args, **cache_on_kwargs
-            )(_func_wrap(func.__get__(obj, type(obj))))
-            return the_method(*args, **kwargs)
-
-        def invalidate(obj, *args, **kwargs):
-            return (
-                obj._get_cache(_cache_name)
-                .cache_on_arguments()(func)
-                .invalidate(*args, **kwargs)
-            )
-
-        _cache_decorator.invalidate = invalidate
-        _cache_decorator.func = func
-        _decorated_methods.append(func.__name__)
-
-        return _cache_decorator
-
-    return _inner_cache_on_arguments
 
 
 @contextlib.contextmanager

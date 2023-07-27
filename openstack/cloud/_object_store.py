@@ -171,7 +171,6 @@ class ObjectStoreCloudMixin:
             "Could not determine container access for ACL: %s." % acl
         )
 
-    @_utils.cache_on_arguments()
     def get_object_capabilities(self):
         """Get infomation about the object-storage service
 

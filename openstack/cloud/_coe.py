@@ -15,7 +15,6 @@ from openstack.cloud import exc
 
 
 class CoeCloudMixin:
-    @_utils.cache_on_arguments()
     def list_coe_clusters(self):
         """List COE (Container Orchestration Engine) cluster.
 
@@ -90,7 +89,6 @@ class CoeCloudMixin:
             **kwargs,
         )
 
-        self.list_coe_clusters.invalidate(self)
         return cluster
 
     def delete_coe_cluster(self, name_or_id):
@@ -114,7 +112,6 @@ class CoeCloudMixin:
             return False
 
         self.container_infrastructure_management.delete_cluster(cluster)
-        self.list_coe_clusters.invalidate(self)
         return True
 
     def update_coe_cluster(self, name_or_id, **kwargs):
@@ -127,7 +124,6 @@ class CoeCloudMixin:
 
         :raises: OpenStackCloudException on operation error.
         """
-        self.list_coe_clusters.invalidate(self)
         cluster = self.get_coe_cluster(name_or_id)
         if not cluster:
             raise exc.OpenStackCloudException(
@@ -169,7 +165,6 @@ class CoeCloudMixin:
             cluster_uuid=cluster_id, csr=csr
         )
 
-    @_utils.cache_on_arguments()
     def list_cluster_templates(self, detail=False):
         """List cluster templates.
 
