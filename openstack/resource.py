@@ -468,7 +468,7 @@ class Resource(dict):
     #: The name of this resource.
     name: ty.Union[Body, URI] = Body("name")
     #: The OpenStack location of this resource.
-    location: ty.Union[Computed, Body] = Computed('location')
+    location: ty.Union[Computed, Body, Header] = Computed('location')
 
     #: Mapping of accepted query parameter names.
     _query_mapping = QueryParameters()

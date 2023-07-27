@@ -89,7 +89,7 @@ class Instance(resource.Resource):
 
         :returns: ``None``
         """
-        body = {'restart': {}}
+        body = {'restart': None}
         url = utils.urljoin(self.base_path, self.id, 'action')
         session.post(url, json=body)
 

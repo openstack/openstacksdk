@@ -9,6 +9,8 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
+import typing as ty
 import urllib.parse
 
 from openstack import exceptions
@@ -73,7 +75,7 @@ class Resource(resource.Resource):
     @classmethod
     def _get_next_link(cls, uri, response, data, marker, limit, total_yielded):
         next_link = None
-        params = {}
+        params: ty.Dict[str, ty.Union[ty.List[str], str]] = {}
         if isinstance(data, dict):
             links = data.get('links')
             if links:

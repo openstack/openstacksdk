@@ -39,7 +39,7 @@ class TestResourceProviderInventory(base.TestCase):
         self.assertTrue(sot.allow_list)
         self.assertFalse(sot.allow_patch)
 
-        self.assertDictEqual({}, sot._query_mapping)
+        self.assertDictEqual({}, sot._query_mapping._mapping)
 
     def test_make_it(self):
         sot = resource_provider_inventory.ResourceProviderInventory(**FAKE)
