@@ -30,8 +30,11 @@ for different ways to create a :class:`~openstack.connection.Connection`.
   might exist inside of an OpenStack service operational context.
 * Using an existing :class:`~openstack.config.cloud_region.CloudRegion`.
 
+Creating the Connection
+-----------------------
+
 Using config settings
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 For users who want to create a :class:`~openstack.connection.Connection` making
 use of named clouds in ``clouds.yaml`` files, ``OS_`` environment variables
@@ -57,8 +60,8 @@ then subsequently consumed by the constructor:
     options = argparse.ArgumentParser(description='Awesome OpenStack App')
     conn = openstack.connect(options=options)
 
-Using Only Keyword Arguments
-----------------------------
+Using only keyword arguments
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If the application wants to avoid loading any settings from ``clouds.yaml`` or
 environment variables, use the :class:`~openstack.connection.Connection`
@@ -79,14 +82,16 @@ settings from files or the environment.
 
     conn = connection.Connection(
         region_name='example-region',
-        auth=dict(
-            auth_url='https://auth.example.com',
-            username='amazing-user',
-            password='super-secret-password',
-            project_id='33aa1afc-03fe-43b8-8201-4e0d3b4b8ab5',
-            user_domain_id='054abd68-9ad9-418b-96d3-3437bb376703'),
+        auth={
+            'auth_url': 'https://auth.example.com',
+            'username': 'amazing-user',
+            'password': 'super-secret-password',
+            'project_id': '33aa1afc-03fe-43b8-8201-4e0d3b4b8ab5',
+            'user_domain_id': '054abd68-9ad9-418b-96d3-3437bb376703'
+        },
         compute_api_version='2',
-        identity_interface='internal')
+        identity_interface='internal',
+    )
 
 Per-service settings as needed by `keystoneauth1.adapter.Adapter` such as
 ``api_version``, ``service_name``, and ``interface`` can be set, as seen
@@ -96,7 +101,7 @@ service. ``region_name`` is a setting for the entire
 service.
 
 From existing authenticated Session
------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For applications that already have an authenticated Session, simply passing
 it to the :class:`~openstack.connection.Connection` constructor is all that
@@ -110,10 +115,11 @@ is needed:
         session=session,
         region_name='example-region',
         compute_api_version='2',
-        identity_interface='internal')
+        identity_interface='internal',
+    )
 
 From oslo.conf CONF object
---------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For applications that have an oslo.config ``CONF`` object that has been
 populated with ``keystoneauth1.loading.register_adapter_conf_options`` in
@@ -127,14 +133,29 @@ construct a Connection with the ``CONF`` object and an authenticated Session.
 
 .. code-block:: python
 
+    from keystoneauth1 import loading as ks_loading
+    from oslo_config import cfg
     from openstack import connection
+
+    CONF = cfg.CONF
+
+    group = cfg.OptGroup('neutron')
+    ks_loading.register_session_conf_options(CONF, group)
+    ks_loading.register_auth_conf_options(CONF, group)
+    ks_loading.register_adapter_conf_options(CONF, group)
+
+    CONF()
+
+    auth = ks_loading.load_auth_from_conf_options(CONF, 'neutron')
+    sess = ks_loading.load_session_from_conf_options(CONF, 'neutron', auth=auth)
 
     conn = connection.Connection(
         session=session,
-        oslo_conf=CONF)
+        oslo_conf=CONF,
+    )
 
 From existing CloudRegion
--------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you already have an :class:`~openstack.config.cloud_region.CloudRegion`
 you can pass it in instead:
@@ -145,7 +166,9 @@ you can pass it in instead:
     import openstack.config
 
     config = openstack.config.get_cloud_region(
-        cloud='example', region_name='earth')
+        cloud='example',
+        region_name='earth',
+    )
     conn = connection.Connection(config=config)
 
 Using the Connection
