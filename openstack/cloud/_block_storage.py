@@ -10,10 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# import types so that we can reference ListType in sphinx param declarations.
-# We can't just use list, because sphinx gets confused by
-# openstack.resource.Resource.list and openstack.resource2.Resource.list
-import types  # noqa
 import warnings
 
 from openstack.block_storage.v3._proxy import Proxy
