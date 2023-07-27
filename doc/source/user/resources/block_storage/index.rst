@@ -15,4 +15,5 @@ Block Storage Resources
    v3/snapshot
    v3/type
    v3/volume
+   v3/service
    v3/block_storage_summary

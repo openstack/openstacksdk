@@ -91,6 +91,14 @@ Group Type Operations
             update_group_type_group_specs_property,
             delete_group_type_group_specs_property
 
+Service Operations
+^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v3._proxy.Proxy
+   :noindex:
+   :members: find_service, services, enable_service, disable_service,
+             thaw_service, freeze_service, failover_service
+
 Type Operations
 ^^^^^^^^^^^^^^^
 
@@ -140,4 +148,3 @@ BlockStorageSummary Operations
 .. autoclass:: openstack.block_storage.v3._proxy.Proxy
   :noindex:
   :members: summary
-
