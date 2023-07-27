@@ -17,7 +17,6 @@ from openstack.block_storage.v3 import quota_set as _qs
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack import exceptions
-from openstack import proxy
 from openstack import warnings as os_warnings
 
 
@@ -279,7 +278,6 @@ class BlockStorageCloudMixin:
                     volumes.append(volume)
         return volumes
 
-    # TODO(stephenfin): Convert to use proxy
     def get_volume_limits(self, name_or_id=None):
         """Get volume limits for the current project
 
@@ -288,23 +286,12 @@ class BlockStorageCloudMixin:
         :returns: The volume ``Limit`` object if found, else None.
         """
         params = {}
-        project_id = None
-        error_msg = "Failed to get limits"
         if name_or_id:
-            proj = self.get_project(name_or_id)
-            if not proj:
+            project = self.get_project(name_or_id)
+            if not project:
                 raise exc.OpenStackCloudException("project does not exist")
-            project_id = proj.id
-            params['tenant_id'] = project_id
-            error_msg = "{msg} for the project: {project} ".format(
-                msg=error_msg, project=name_or_id
-            )
-
-        data = proxy._json_response(
-            self.block_storage.get('/limits', params=params)
-        )
-        limits = self._get_and_munchify('limits', data)
-        return limits
+            params['project'] = project
+        return self.block_storage.get_limits(**params)
 
     def get_volume_id(self, name_or_id):
         """Get ID of a volume.
