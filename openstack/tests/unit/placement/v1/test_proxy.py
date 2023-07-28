@@ -90,6 +90,23 @@ class TestPlacementResourceProvider(TestPlacementProxy):
             resource_provider.ResourceProvider,
         )
 
+    def test_resource_provider_set_aggregates(self):
+        self._verify(
+            'openstack.placement.v1.resource_provider.ResourceProvider.set_aggregates',
+            self.proxy.set_resource_provider_aggregates,
+            method_args=['value', 'a', 'b'],
+            expected_args=[self.proxy],
+            expected_kwargs={'aggregates': ('a', 'b')},
+        )
+
+    def test_resource_provider_get_aggregates(self):
+        self._verify(
+            'openstack.placement.v1.resource_provider.ResourceProvider.fetch_aggregates',
+            self.proxy.get_resource_provider_aggregates,
+            method_args=['value'],
+            expected_args=[self.proxy],
+        )
+
 
 class TestPlacementResourceProviderInventory(TestPlacementProxy):
     def test_resource_provider_inventory_create(self):

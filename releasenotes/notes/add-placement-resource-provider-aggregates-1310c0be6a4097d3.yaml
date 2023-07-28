@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Add support for aggregates to the ``ResourceProvider`` Placement resource.

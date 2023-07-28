@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import uuid
+
 from openstack.placement.v1 import resource_provider as _resource_provider
 from openstack.tests.functional import base
 
@@ -93,3 +95,25 @@ class TestResourceProvider(base.BaseFunctionalTest):
             new_resource_provider_name,
             resource_provider.name,
         )
+
+    def test_resource_provider_aggregates(self):
+        aggregates = [uuid.uuid4().hex, uuid.uuid4().hex]
+
+        # update the resource provider aggregates
+
+        resource_provider = (
+            self.operator_cloud.placement.set_resource_provider_aggregates(
+                self.resource_provider,
+                *aggregates,
+            )
+        )
+        self.assertCountEqual(aggregates, resource_provider.aggregates)
+
+        # retrieve details of resource provider aggregates
+
+        resource_provider = (
+            self.operator_cloud.placement.get_resource_provider_aggregates(
+                self.resource_provider,
+            )
+        )
+        self.assertCountEqual(aggregates, resource_provider.aggregates)
