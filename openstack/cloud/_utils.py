@@ -152,23 +152,8 @@ def _filter_list(data, name_or_id, filters):
 
     filtered = []
     for e in data:
-        filtered.append(e)
-        for key in filters.keys():
-            if key not in e:
-                log.warning(
-                    "Invalid filter: %s is not an attribute of %s.%s",
-                    key,
-                    e.__class__.__module__,
-                    e.__class__.__qualname__,
-                )
-                raise AttributeError(key)
-            if isinstance(filters[key], dict):
-                if not _dict_filter(filters[key], e[key]):
-                    filtered.pop()
-                    break
-            elif e[key] != filters[key]:
-                filtered.pop()
-                break
+        if _dict_filter(filters, e):
+            filtered.append(e)
     return filtered
 
 
