@@ -12,7 +12,11 @@
 
 from openstack.placement.v1 import resource_class as _resource_class
 from openstack.placement.v1 import resource_provider as _resource_provider
+from openstack.placement.v1 import (
+    resource_provider_inventory as _resource_provider_inventory,
+)
 from openstack import proxy
+from openstack import resource
 
 
 class Proxy(proxy.Proxy):
@@ -204,3 +208,160 @@ class Proxy(proxy.Proxy):
         :returns: A generator of resource provider instances.
         """
         return self._list(_resource_provider.ResourceProvider, **query)
+
+    # resource provider inventories
+
+    def create_resource_provider_inventory(
+        self,
+        resource_provider,
+        resource_class,
+        *,
+        total,
+        **attrs,
+    ):
+        """Create a new resource provider inventory from attributes
+
+        :param resource_provider: Either the ID of a resource provider or a
+            :class:`~openstack.placement.v1.resource_provider.ResourceProvider`
+            instance.
+        :param total: The actual amount of the resource that the provider can
+            accommodate.
+        :param attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.placement.v1.resource_provider_inventory.ResourceProviderInventory`,
+            comprised of the properties on the ResourceProviderInventory class.
+
+        :returns: The results of resource provider inventory creation
+        :rtype: :class:`~openstack.placement.v1.resource_provider_inventory.ResourceProviderInventory`
+        """  # noqa: E501
+        resource_provider_id = resource.Resource._get_id(resource_provider)
+        resource_class_name = resource.Resource._get_id(resource_class)
+        return self._create(
+            _resource_provider_inventory.ResourceProviderInventory,
+            resource_provider_id=resource_provider_id,
+            resource_class=resource_class_name,
+            total=total,
+            **attrs,
+        )
+
+    def delete_resource_provider_inventory(
+        self,
+        resource_provider_inventory,
+        resource_provider=None,
+        ignore_missing=True,
+    ):
+        """Delete a resource provider inventory
+
+        :param resource_provider_inventory: The value can be either the ID of a
+            resource provider or an
+            :class:`~openstack.placement.v1.resource_provider_inventory.ResourceProviderInventory`,
+            instance.
+        :param resource_provider: Either the ID of a resource provider or a
+            :class:`~openstack.placement.v1.resource_provider.ResourceProvider`
+            instance. This value must be specified when
+            ``resource_provider_inventory`` is an ID.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the resource provider inventory does not exist. When set to
+            ``True``, no exception will be set when attempting to delete a
+            nonexistent resource provider inventory.
+
+        :returns: ``None``
+        """
+        resource_provider_id = self._get_uri_attribute(
+            resource_provider_inventory,
+            resource_provider,
+            'resource_provider_id',
+        )
+        self._delete(
+            _resource_provider_inventory.ResourceProviderInventory,
+            resource_provider_inventory,
+            resource_provider_id=resource_provider_id,
+            ignore_missing=ignore_missing,
+        )
+
+    def update_resource_provider_inventory(
+        self,
+        resource_provider_inventory,
+        resource_provider=None,
+        *,
+        resource_provider_generation=None,
+        **attrs,
+    ):
+        """Update a resource provider's inventory
+
+        :param resource_provider_inventory: The value can be either the ID of a resource
+            provider inventory or an
+            :class:`~openstack.placement.v1.resource_provider_inventory.ResourceProviderInventory`,
+            instance.
+        :param resource_provider: Either the ID of a resource provider or a
+            :class:`~openstack.placement.v1.resource_provider.ResourceProvider`
+            instance. This value must be specified when
+            ``resource_provider_inventory`` is an ID.
+        :attrs kwargs: The attributes to update on the resource provider inventory
+            represented by ``resource_provider_inventory``.
+
+        :returns: The updated resource provider inventory
+        :rtype: :class:`~openstack.placement.v1.resource_provider_inventory.ResourceProviderInventory`
+        """  # noqa: E501
+        resource_provider_id = self._get_uri_attribute(
+            resource_provider_inventory,
+            resource_provider,
+            'resource_provider_id',
+        )
+        return self._update(
+            _resource_provider_inventory.ResourceProviderInventory,
+            resource_provider_inventory,
+            resource_provider_id=resource_provider_id,
+            resource_provider_generation=resource_provider_generation,
+            **attrs,
+        )
+
+    def get_resource_provider_inventory(
+        self,
+        resource_provider_inventory,
+        resource_provider=None,
+    ):
+        """Get a single resource_provider_inventory
+
+        :param resource_provider_inventory: The value can be either the ID of a
+            resource provider inventory or an
+            :class:`~openstack.placement.v1.resource_provider_inventory.ResourceProviderInventory`,
+            instance.
+        :param resource_provider: Either the ID of a resource provider or a
+            :class:`~openstack.placement.v1.resource_provider.ResourceProvider`
+            instance. This value must be specified when
+            ``resource_provider_inventory`` is an ID.
+
+        :returns: An instance of
+            :class:`~openstack.placement.v1.resource_provider_inventory.ResourceProviderInventory`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            resource provider inventory matching the criteria could be found.
+        """
+        resource_provider_id = self._get_uri_attribute(
+            resource_provider_inventory,
+            resource_provider,
+            'resource_provider_id',
+        )
+        return self._get(
+            _resource_provider_inventory.ResourceProviderInventory,
+            resource_provider_inventory,
+            resource_provider_id=resource_provider_id,
+        )
+
+    def resource_provider_inventories(self, resource_provider, **query):
+        """Retrieve a generator of resource provider inventories
+
+        :param resource_provider: Either the ID of a resource provider or a
+            :class:`~openstack.placement.v1.resource_provider.ResourceProvider`
+            instance.
+        :param query: Optional query parameters to be sent to limit
+            the resources being returned.
+
+        :returns: A generator of resource provider inventory instances.
+        """
+        resource_provider_id = resource.Resource._get_id(resource_provider)
+        return self._list(
+            _resource_provider_inventory.ResourceProviderInventory,
+            resource_provider_id=resource_provider_id,
+            **query,
+        )

@@ -357,7 +357,7 @@ class QueryParameters:
             client-side parameter name or server side name.
         :param base_path: Formatted python string of the base url path for
             the resource.
-        : param allow_unknown_params: Exclude query params not known by the
+        :param allow_unknown_params: Exclude query params not known by the
             resource.
 
         :returns: Filtered collection of the supported QueryParameters
@@ -2025,17 +2025,19 @@ class Resource(dict):
             raise exceptions.MethodNotSupported(cls, 'list')
 
         session = cls._get_session(session)
+
         if microversion is None:
             microversion = cls._get_microversion(session, action='list')
 
         if base_path is None:
             base_path = cls.base_path
+
         api_filters = cls._query_mapping._validate(
             params,
             base_path=base_path,
             allow_unknown_params=True,
         )
-        client_filters = dict()
+        client_filters = {}
         # Gather query parameters which are not supported by the server
         for k, v in params.items():
             if (
