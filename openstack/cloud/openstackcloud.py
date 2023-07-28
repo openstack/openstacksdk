@@ -342,21 +342,6 @@ class _OpenStackCloudMixin:
         else:
             return self._cache
 
-    # TODO(shade) This should be replaced with using openstack Connection
-    #             object.
-    def _get_raw_client(
-        self, service_type, api_version=None, endpoint_override=None
-    ):
-        return proxy.Proxy(
-            session=self.session,
-            service_type=self.config.get_service_type(service_type),
-            service_name=self.config.get_service_name(service_type),
-            interface=self.config.get_interface(service_type),
-            endpoint_override=self.config.get_endpoint(service_type)
-            or endpoint_override,
-            region_name=self.config.get_region_name(service_type),
-        )
-
     def pprint(self, resource):
         """Wrapper around pprint that groks munch objects"""
         # import late since this is a utility function
