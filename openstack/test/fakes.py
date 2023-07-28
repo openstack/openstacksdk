@@ -23,8 +23,12 @@ valid attributes and methods for both :class:`~openstack.resource.Resource` and
 import inspect
 import random
 from typing import (
+    Any,
+    Dict,
+    Generator,
     Optional,
     Type,
+    TypeVar,
 )
 from unittest import mock
 import uuid
@@ -35,8 +39,17 @@ from openstack import resource
 from openstack import service_description
 
 
-def generate_fake_resource(resource_type, **attrs):
+Resource = TypeVar('Resource', bound=resource.Resource)
+
+
+def generate_fake_resource(
+    resource_type: Type[Resource],
+    **attrs: Dict[str, Any],
+) -> Resource:
     """Generate a fake resource
+
+    :param type resource_type: Object class
+    :param dict attrs: Optional attributes to be set on resource
 
     Example usage:
 
@@ -132,8 +145,16 @@ def generate_fake_resource(resource_type, **attrs):
     return fake
 
 
-def generate_fake_resources(resource_type, count=1, attrs=None):
+def generate_fake_resources(
+    resource_type: Type[Resource],
+    count: int = 1,
+    attrs: Optional[Dict[str, Any]] = None,
+) -> Generator[Resource, None, None]:
     """Generate a given number of fake resource entities
+
+    :param type resource_type: Object class
+    :param int count: Number of objects to return
+    :param dict attrs: Attribute values to set into each instance
 
     Example usage:
 
