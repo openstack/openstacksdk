@@ -14,6 +14,7 @@ import copy
 import queue
 from unittest import mock
 
+from keystoneauth1 import session
 from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
 from openstack import exceptions
@@ -622,7 +623,7 @@ class TestProxyCache(base.TestCase):
             cloud_config_fixture='clouds_cache.yaml'
         )
 
-        self.session = mock.Mock()
+        self.session = mock.Mock(spec=session.Session)
         self.session._sdk_connection = self.cloud
         self.session.get_project_id = mock.Mock(return_value='fake_prj')
 
@@ -651,10 +652,11 @@ class TestProxyCache(base.TestCase):
             connect_retries=mock.ANY,
             raise_exc=mock.ANY,
             global_request_id=mock.ANY,
-            endpoint_filter=mock.ANY,
-            headers=mock.ANY,
             microversion=mock.ANY,
             params=mock.ANY,
+            endpoint_filter=mock.ANY,
+            headers=mock.ANY,
+            rate_semaphore=mock.ANY,
         )
         self.assertIn(self._get_key(1), self.cloud._api_cache_keys)
 
