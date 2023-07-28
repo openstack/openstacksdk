@@ -860,12 +860,13 @@ class Proxy(proxy.Proxy):
         :param group_snapshot_id: The ID of the group snapshot to get
         :returns: List of the share group snapshot members, which are
             share snapshots.
-        :rtype: :dict: Attributes of the share snapshots.
+        :rtype: dict containing attributes of the share snapshot members.
         """
         res = self._get(
-            _share_group_snapshot.ShareGroupSnapshot, group_snapshot_id
+            _share_group_snapshot.ShareGroupSnapshot,
+            group_snapshot_id,
         )
-        response = res.members(self)
+        response = res.get_members(self)
         return response
 
     def get_share_group_snapshot(self, group_snapshot_id):

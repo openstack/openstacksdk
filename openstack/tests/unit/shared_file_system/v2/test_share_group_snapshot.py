@@ -96,9 +96,11 @@ class TestShareGroupSnapshotActions(TestShareGroupSnapshot):
 
     def test_get_members(self):
         sot = share_group_snapshot.ShareGroupSnapshot(**EXAMPLE)
-        sot.members(self.sess)
+        sot.get_members(self.sess)
         url = f'share-group-snapshots/{IDENTIFIER}/members'
         headers = {'Accept': ''}
         self.sess.get.assert_called_with(
-            url, headers=headers, microversion=self.sess.default_microversion
+            url,
+            headers=headers,
+            microversion=self.sess.default_microversion,
         )

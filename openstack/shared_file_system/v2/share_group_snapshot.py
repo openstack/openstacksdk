@@ -76,7 +76,7 @@ class ShareGroupSnapshot(resource.Resource):
         body = {"reset_status": {"status": status}}
         self._action(session, body)
 
-    def members(self, session, microversion=None):
+    def get_members(self, session, microversion=None):
         url = utils.urljoin(self.base_path, self.id, 'members')
         microversion = microversion or self._get_microversion(
             session, action='list'
