@@ -285,9 +285,9 @@ class FloatingIPCloudMixin:
             floating_network_id = self._get_floating_network_id()
 
         filters = {
-            'port': None,
-            'network': floating_network_id,
-            'location': {'project': {'id': project_id}},
+            'port_id': None,
+            'floating_network_id': floating_network_id,
+            'project_id': project_id,
         }
 
         floating_ips = self._list_floating_ips()
