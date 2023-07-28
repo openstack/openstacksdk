@@ -10,10 +10,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+"""
+The :mod:`~openstack.test.fakes` module exists to help application developers
+using the OpenStack SDK to unit test their applications. It provides a number
+of helper utilities to generate fake :class:`~openstack.resource.Resource` and
+:class:`~openstack.proxy.Proxy` instances. These fakes do not require an
+established connection and allow you to validate that your application using
+valid attributes and methods for both :class:`~openstack.resource.Resource` and
+:class:`~openstack.proxy.Proxy` instances.
+"""
+
 import inspect
-from random import choice
-from random import randint
-from random import random
+import random
 import uuid
 
 from openstack import format as _format
@@ -21,13 +29,23 @@ from openstack import resource
 
 
 def generate_fake_resource(resource_type, **attrs):
-    """Generate fake resource
+    """Generate a fake resource
+
+    Example usage:
+
+    .. code-block:: python
+
+        >>> from openstack.compute.v2 import server
+        >>> from openstack.test import fakes
+        >>> fakes.generate_fake_resource(server.Server)
+        openstack.compute.v2.server.Server(...)
 
     :param type resource_type: Object class
     :param dict attrs: Optional attributes to be set on resource
-
-    :return: Instance of `resource_type` class populated with fake
-        values of expected types.
+    :return: Instance of ``resource_type`` class populated with fake
+        values of expected types
+    :raises NotImplementedError: If a resource attribute specifies a ``type``
+        or ``list_type`` that cannot be automatically generated
     """
     base_attrs = dict()
     for name, value in inspect.getmembers(
@@ -78,15 +96,15 @@ def generate_fake_resource(resource_type, **attrs):
                 base_attrs[name] = uuid.uuid4().hex
             elif issubclass(target_type, int):
                 # int
-                base_attrs[name] = randint(1, 100)
+                base_attrs[name] = random.randint(1, 100)
             elif issubclass(target_type, float):
                 # float
-                base_attrs[name] = random()
+                base_attrs[name] = random.random()
             elif issubclass(target_type, bool) or issubclass(
                 target_type, _format.BoolStr
             ):
                 # bool
-                base_attrs[name] = choice([True, False])
+                base_attrs[name] = random.choice([True, False])
             elif issubclass(target_type, dict):
                 # some dict - without further details leave it empty
                 base_attrs[name] = dict()
@@ -97,6 +115,7 @@ def generate_fake_resource(resource_type, **attrs):
                     name,
                 )
                 raise NotImplementedError(msg)
+
         if isinstance(value, resource.URI):
             # For URI we just generate something
             base_attrs[name] = uuid.uuid4().hex
@@ -107,13 +126,21 @@ def generate_fake_resource(resource_type, **attrs):
 
 
 def generate_fake_resources(resource_type, count=1, attrs=None):
-    """Generate given number of fake resource entities
+    """Generate a given number of fake resource entities
+
+    Example usage:
+
+    .. code-block:: python
+
+        >>> from openstack.compute.v2 import server
+        >>> from openstack.test import fakes
+        >>> fakes.generate_fake_resources(server.Server, count=3)
+        <generator object generate_fake_resources at 0x7f075dc65040>
 
     :param type resource_type: Object class
     :param int count: Number of objects to return
     :param dict attrs: Attribute values to set into each instance
-
-    :return: Array of `resource_type` class instances populated with fake
+    :return: Generator of ``resource_type`` class instances populated with fake
         values of expected types.
     """
     if not attrs:
