@@ -80,6 +80,7 @@ def _filter_list(data, name_or_id, filters):
         OR
 
         A string containing a jmespath expression for further filtering.
+        Invalid filters will be ignored.
     """
     # The logger is openstack.cloud.fmmatch to allow a user/operator to
     # configure logging not to communicate about fnmatch misses
@@ -131,6 +132,17 @@ def _filter_list(data, name_or_id, filters):
         if not d:
             return False
         for key in f.keys():
+            if key not in d:
+                log.warning(
+                    "Invalid filter: %s is not an attribute of %s.%s",
+                    key,
+                    e.__class__.__module__,
+                    e.__class__.__qualname__,
+                )
+                # we intentionally skip this since the user was trying to
+                # filter on _something_, but we don't know what that
+                # _something_ was
+                raise AttributeError(key)
             if isinstance(f[key], dict):
                 if not _dict_filter(f[key], d.get(key, None)):
                     return False
@@ -142,11 +154,19 @@ def _filter_list(data, name_or_id, filters):
     for e in data:
         filtered.append(e)
         for key in filters.keys():
+            if key not in e:
+                log.warning(
+                    "Invalid filter: %s is not an attribute of %s.%s",
+                    key,
+                    e.__class__.__module__,
+                    e.__class__.__qualname__,
+                )
+                raise AttributeError(key)
             if isinstance(filters[key], dict):
-                if not _dict_filter(filters[key], e.get(key, None)):
+                if not _dict_filter(filters[key], e[key]):
                     filtered.pop()
                     break
-            elif e.get(key, None) != filters[key]:
+            elif e[key] != filters[key]:
                 filtered.pop()
                 break
     return filtered
