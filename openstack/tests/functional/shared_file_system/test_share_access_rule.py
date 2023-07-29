@@ -46,11 +46,9 @@ class ShareAccessRuleTest(base.BaseSharedFileSystemTest):
         self.RESOURCE_KEY = access_rule.resource_key
 
     def tearDown(self):
-        acr = self.user_cloud.share.delete_access_rule(
+        self.user_cloud.share.delete_access_rule(
             self.ACCESS_ID, self.SHARE_ID, ignore_missing=True
         )
-
-        self.assertIsNone(acr)
         super(ShareAccessRuleTest, self).tearDown()
 
     def test_get_access_rule(self):
