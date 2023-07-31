@@ -40,3 +40,10 @@ Resource Provider Inventories
              delete_resource_provider_inventory,
              get_resource_provider_inventory,
              resource_provider_inventories
+
+Traits
+^^^^^^
+
+.. autoclass:: openstack.placement.v1._proxy.Proxy
+   :noindex:
+   :members: create_trait, delete_trait, get_trait, traits

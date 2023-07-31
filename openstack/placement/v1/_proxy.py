@@ -15,6 +15,7 @@ from openstack.placement.v1 import resource_provider as _resource_provider
 from openstack.placement.v1 import (
     resource_provider_inventory as _resource_provider_inventory,
 )
+from openstack.placement.v1 import trait as _trait
 from openstack import proxy
 from openstack import resource
 
@@ -409,3 +410,53 @@ class Proxy(proxy.Proxy):
             resource_provider_id=resource_provider_id,
             **query,
         )
+
+    # ========== Traits ==========
+
+    def create_trait(self, name):
+        """Create a new trait
+
+        :param name: The name of the new trait
+
+        :returns: The results of trait creation
+        :rtype: :class:`~openstack.placement.v1.trait.Trait`
+        """
+        return self._create(_trait.Trait, name=name)
+
+    def delete_trait(self, trait, ignore_missing=True):
+        """Delete a trait
+
+        :param trait: The value can be either the ID of a trait or an
+            :class:`~openstack.placement.v1.trait.Trait`, instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the resource provider inventory does not exist. When set to
+            ``True``, no exception will be set when attempting to delete a
+            nonexistent resource provider inventory.
+
+        :returns: ``None``
+        """
+        self._delete(_trait.Trait, trait, ignore_missing=ignore_missing)
+
+    def get_trait(self, trait):
+        """Get a single trait
+
+        :param trait: The value can be either the ID of a trait or an
+            :class:`~openstack.placement.v1.trait.Trait`, instance.
+
+        :returns: An instance of
+            :class:`~openstack.placement.v1.resource_provider_inventory.ResourceProviderInventory`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            trait matching the criteria could be found.
+        """
+        return self._get(_trait.Trait, trait)
+
+    def traits(self, **query):
+        """Retrieve a generator of traits
+
+        :param query: Optional query parameters to be sent to limit
+            the resources being returned.
+
+        :returns: A generator of trait objects
+        """
+        return self._list(_trait.Trait, **query)
