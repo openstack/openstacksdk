@@ -174,7 +174,9 @@ service.
 .. autoclass:: openstack.shared_file_system.v2._proxy.Proxy
   :noindex:
   :members: share_snapshots, get_share_snapshot, delete_share_snapshot,
-            update_share_snapshot, create_share_snapshot
+            update_share_snapshot, create_share_snapshot,
+            fetch_share_snapshot_metadata, fetch_share_snapshot_metadata_item,
+            set_share_snapshot_metadata, delete_share_snapshot_metadata
 
 
 Share Snapshot Instance Operations
