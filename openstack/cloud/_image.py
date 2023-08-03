@@ -35,21 +35,6 @@ class ImageCloudMixin:
     def __init__(self):
         self.image_api_use_tasks = self.config.config['image_api_use_tasks']
 
-    @property
-    def _raw_image_client(self):
-        if 'raw-image' not in self._raw_clients:
-            image_client = self._get_raw_client('image')
-            self._raw_clients['raw-image'] = image_client
-        return self._raw_clients['raw-image']
-
-    @property
-    def _image_client(self):
-        if 'image' not in self._raw_clients:
-            self._raw_clients['image'] = self._get_versioned_client(
-                'image', min_version=1, max_version='2.latest'
-            )
-        return self._raw_clients['image']
-
     def search_images(self, name_or_id=None, filters=None):
         images = self.list_images()
         return _utils._filter_list(images, name_or_id, filters)

@@ -38,6 +38,7 @@ OBJECT_CONTAINER_ACLS = {
 class ObjectStoreCloudMixin:
     object_store: Proxy
 
+    # TODO(stephenfin): Remove final user of this
     @property
     def _object_store_client(self):
         if 'object-store' not in self._raw_clients:

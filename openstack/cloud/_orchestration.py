@@ -33,6 +33,7 @@ def _no_pending_stacks(stacks):
 class OrchestrationCloudMixin:
     orchestration: Proxy
 
+    # TODO(stephenfin): Remove final user of this
     @property
     def _orchestration_client(self):
         if 'orchestration' not in self._raw_clients:

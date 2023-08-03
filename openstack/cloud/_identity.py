@@ -20,14 +20,6 @@ from openstack import utils
 class IdentityCloudMixin:
     identity: Proxy
 
-    @property
-    def _identity_client(self):
-        if 'identity' not in self._raw_clients:
-            self._raw_clients['identity'] = self._get_versioned_client(
-                'identity', min_version=2, max_version='3.latest'
-            )
-        return self._raw_clients['identity']
-
     def _get_project_id_param_dict(self, name_or_id):
         if name_or_id:
             project = self.get_project(name_or_id)

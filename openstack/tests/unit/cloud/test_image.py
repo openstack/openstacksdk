@@ -66,26 +66,6 @@ class TestImage(BaseTestImage):
         super(TestImage, self).setUp()
         self.use_glance()
 
-    def test_config_v1(self):
-        self.cloud.config.config['image_api_version'] = '1'
-        # We override the scheme of the endpoint with the scheme of the service
-        # because glance has a bug where it doesn't return https properly.
-        self.assertEqual(
-            'https://image.example.com/v1/',
-            self.cloud._image_client.get_endpoint(),
-        )
-        self.assertEqual('1', self.cloud_config.get_api_version('image'))
-
-    def test_config_v2(self):
-        self.cloud.config.config['image_api_version'] = '2'
-        # We override the scheme of the endpoint with the scheme of the service
-        # because glance has a bug where it doesn't return https properly.
-        self.assertEqual(
-            'https://image.example.com/v2/',
-            self.cloud._image_client.get_endpoint(),
-        )
-        self.assertEqual('2', self.cloud_config.get_api_version('image'))
-
     def test_download_image_no_output(self):
         self.assertRaises(
             exc.OpenStackCloudException,
@@ -1924,66 +1904,6 @@ class TestImageSuburl(BaseTestImage):
         self.assert_calls()
 
 
-class TestImageV1Only(base.TestCase):
-    def setUp(self):
-        super(TestImageV1Only, self).setUp()
-        self.use_glance(image_version_json='image-version-v1.json')
-
-    def test_config_v1(self):
-        self.cloud.config.config['image_api_version'] = '1'
-        # We override the scheme of the endpoint with the scheme of the service
-        # because glance has a bug where it doesn't return https properly.
-        self.assertEqual(
-            'https://image.example.com/v1/',
-            self.cloud._image_client.get_endpoint(),
-        )
-        self.assertEqual(
-            self.cloud._image_client.get_api_major_version()[0], 1
-        )
-
-    def test_config_v2(self):
-        self.cloud.config.config['image_api_version'] = '2'
-        # We override the scheme of the endpoint with the scheme of the service
-        # because glance has a bug where it doesn't return https properly.
-        self.assertEqual(
-            'https://image.example.com/v1/',
-            self.cloud._image_client.get_endpoint(),
-        )
-        self.assertNotEqual(
-            self.cloud._image_client.get_api_major_version()[0], 2
-        )
-
-
-class TestImageV2Only(base.TestCase):
-    def setUp(self):
-        super(TestImageV2Only, self).setUp()
-        self.use_glance(image_version_json='image-version-v2.json')
-
-    def test_config_v1(self):
-        self.cloud.config.config['image_api_version'] = '1'
-        # We override the scheme of the endpoint with the scheme of the service
-        # because glance has a bug where it doesn't return https properly.
-        self.assertEqual(
-            'https://image.example.com/v2/',
-            self.cloud._image_client.get_endpoint(),
-        )
-        self.assertEqual(
-            self.cloud._image_client.get_api_major_version()[0], 2
-        )
-
-    def test_config_v2(self):
-        self.cloud.config.config['image_api_version'] = '2'
-        # We override the scheme of the endpoint with the scheme of the service
-        # because glance has a bug where it doesn't return https properly.
-        self.assertEqual(
-            'https://image.example.com/v2/',
-            self.cloud._image_client.get_endpoint(),
-        )
-        self.assertEqual(
-            self.cloud._image_client.get_api_major_version()[0], 2
-        )
-
-
 class TestImageVolume(BaseTestImage):
     def setUp(self):
         super(TestImageVolume, self).setUp()
@@ -2086,33 +2006,4 @@ class TestImageVolume(BaseTestImage):
             allow_duplicates=True,
         )
 
-        self.assert_calls()
-
-
-class TestImageBrokenDiscovery(base.TestCase):
-    def setUp(self):
-        super(TestImageBrokenDiscovery, self).setUp()
-        self.use_glance(image_version_json='image-version-broken.json')
-
-    def test_url_fix(self):
-        # image-version-broken.json has both http urls and localhost as the
-        # host. This is testing that what is discovered is https, because
-        # that's what's in the catalog, and image.example.com for the same
-        # reason.
-        self.register_uris(
-            [
-                dict(
-                    method='GET',
-                    uri=self.get_mock_url(
-                        'image', append=['images'], base_url_append='v2'
-                    ),
-                    json={'images': []},
-                )
-            ]
-        )
-        self.assertEqual([], self.cloud.list_images())
-        self.assertEqual(
-            self.cloud._image_client.get_endpoint(),
-            'https://image.example.com/v2/',
-        )
         self.assert_calls()
