@@ -39,7 +39,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         "extension": _extension.Extension,
         "group": _group.Group,
         "group_snapshot": _group_snapshot.GroupSnapshot,
-        "group_type": _group_type,
+        "group_type": _group_type.GroupType,
         "limits": _limits.Limit,
         "quota_set": _quota_set.QuotaSet,
         "resource_filter": _resource_filter.ResourceFilter,
