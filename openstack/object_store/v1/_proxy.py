@@ -1169,18 +1169,20 @@ class Proxy(proxy.Proxy):
                     resource_evaluation_fn=resource_evaluation_fn,
                 )
                 if need_delete:
-                    if not is_bulk_delete_supported and not dry_run:
-                        self.delete_object(obj, cont)
-                    else:
+                    if dry_run:
+                        continue
+                    elif is_bulk_delete_supported:
                         elements.append(f"{cont.name}/{obj.name}")
                         if len(elements) >= bulk_delete_max_per_request:
-                            self._bulk_delete(elements, dry_run=dry_run)
+                            self._bulk_delete(elements)
                             elements.clear()
+                    else:
+                        self.delete_object(obj, cont)
                 else:
                     objects_remaining = True
 
             if len(elements) > 0:
-                self._bulk_delete(elements, dry_run=dry_run)
+                self._bulk_delete(elements)
                 elements.clear()
 
             # Eventually delete container itself
@@ -1195,14 +1197,13 @@ class Proxy(proxy.Proxy):
                     resource_evaluation_fn=resource_evaluation_fn,
                 )
 
-    def _bulk_delete(self, elements, dry_run=False):
+    def _bulk_delete(self, elements):
         data = "\n".join([parse.quote(x) for x in elements])
-        if not dry_run:
-            self.delete(
-                "?bulk-delete",
-                data=data,
-                headers={
-                    'Content-Type': 'text/plain',
-                    'Accept': 'application/json',
-                },
-            )
+        self.delete(
+            "?bulk-delete",
+            data=data,
+            headers={
+                'Content-Type': 'text/plain',
+                'Accept': 'application/json',
+            },
+        )
