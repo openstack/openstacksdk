@@ -755,7 +755,7 @@ class TestImage(BaseTestImage):
 
     def test_create_image_task(self):
         self.cloud.image_api_use_tasks = True
-        endpoint = self.cloud._object_store_client.get_endpoint()
+        endpoint = self.cloud.object_store.get_endpoint()
 
         task_id = str(uuid.uuid4())
         args = dict(
@@ -1034,7 +1034,7 @@ class TestImage(BaseTestImage):
 
     def test_delete_image_task(self):
         self.cloud.image_api_use_tasks = True
-        endpoint = self.cloud._object_store_client.get_endpoint()
+        endpoint = self.cloud.object_store.get_endpoint()
 
         object_path = self.fake_image_dict['owner_specified.openstack.object']
 
@@ -1096,7 +1096,7 @@ class TestImage(BaseTestImage):
     def test_delete_autocreated_image_objects(self):
         self.use_keystone_v3()
         self.cloud.image_api_use_tasks = True
-        endpoint = self.cloud._object_store_client.get_endpoint()
+        endpoint = self.cloud.object_store.get_endpoint()
         other_image = self.getUniqueString('no-delete')
 
         self.register_uris(
