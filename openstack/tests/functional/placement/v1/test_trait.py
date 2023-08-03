@@ -20,6 +20,12 @@ class TestTrait(base.BaseFunctionalTest):
     def setUp(self):
         super().setUp()
 
+        self.skipTest(
+            "This test intermittently fails on DevStack deployments. "
+            "See https://bugs.launchpad.net/placement/+bug/2029520 for more "
+            "information."
+        )
+
         if not self.operator_cloud.has_service('placement'):
             self.skipTest('placement service not supported by cloud')
 
