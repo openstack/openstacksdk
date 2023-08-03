@@ -1937,7 +1937,9 @@ class TestImageV1Only(base.TestCase):
             'https://image.example.com/v1/',
             self.cloud._image_client.get_endpoint(),
         )
-        self.assertTrue(self.cloud._is_client_version('image', 1))
+        self.assertEqual(
+            self.cloud._image_client.get_api_major_version()[0], 1
+        )
 
     def test_config_v2(self):
         self.cloud.config.config['image_api_version'] = '2'
@@ -1947,7 +1949,9 @@ class TestImageV1Only(base.TestCase):
             'https://image.example.com/v1/',
             self.cloud._image_client.get_endpoint(),
         )
-        self.assertFalse(self.cloud._is_client_version('image', 2))
+        self.assertNotEqual(
+            self.cloud._image_client.get_api_major_version()[0], 2
+        )
 
 
 class TestImageV2Only(base.TestCase):
@@ -1963,7 +1967,9 @@ class TestImageV2Only(base.TestCase):
             'https://image.example.com/v2/',
             self.cloud._image_client.get_endpoint(),
         )
-        self.assertTrue(self.cloud._is_client_version('image', 2))
+        self.assertEqual(
+            self.cloud._image_client.get_api_major_version()[0], 2
+        )
 
     def test_config_v2(self):
         self.cloud.config.config['image_api_version'] = '2'
@@ -1973,7 +1979,9 @@ class TestImageV2Only(base.TestCase):
             'https://image.example.com/v2/',
             self.cloud._image_client.get_endpoint(),
         )
-        self.assertTrue(self.cloud._is_client_version('image', 2))
+        self.assertEqual(
+            self.cloud._image_client.get_api_major_version()[0], 2
+        )
 
 
 class TestImageVolume(BaseTestImage):

@@ -465,13 +465,6 @@ class _OpenStackCloudMixin:
             region_name=self.config.get_region_name(service_type),
         )
 
-    def _is_client_version(self, client, version):
-        client_name = '_{client}_client'.format(
-            client=client.replace('-', '_')
-        )
-        client = getattr(self, client_name)
-        return client._version_matches(version)
-
     @property
     def _application_catalog_client(self):
         if 'application-catalog' not in self._raw_clients:
