@@ -10,10 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from unittest import mock
+
+from keystoneauth1 import adapter
+
 from openstack.shared_file_system.v2 import share_snapshot
 from openstack.tests.unit import base
 
-
+IDENTIFIER = '6d221c1d-0200-461e-8d20-24b4776b9ddb'
 EXAMPLE = {
     "status": "creating",
     "share_id": "406ea93b-32e9-4907-a117-148b3945749f",
@@ -30,6 +34,17 @@ EXAMPLE = {
 
 
 class TestShareSnapshot(base.TestCase):
+    def setUp(self):
+        super().setUp()
+        self.resp = mock.Mock()
+        self.resp.body = None
+        self.resp.status_code = 202
+        self.resp.json = mock.Mock(return_value=self.resp.body)
+        self.sess = mock.Mock(spec=adapter.Adapter)
+        self.sess.default_microversion = '3.0'
+        self.sess.post = mock.Mock(return_value=self.resp)
+        self.sess._get_connection = mock.Mock(return_value=self.cloud)
+
     def test_basic(self):
         snapshot_resource = share_snapshot.ShareSnapshot()
         self.assertEqual('snapshots', snapshot_resource.resources_key)
@@ -58,3 +73,40 @@ class TestShareSnapshot(base.TestCase):
         self.assertEqual(EXAMPLE['share_size'], snapshot_resource.share_size)
         self.assertEqual(EXAMPLE['project_id'], snapshot_resource.project_id)
         self.assertEqual(EXAMPLE['size'], snapshot_resource.size)
+
+    def test_reset_status(self):
+        sot = share_snapshot.ShareSnapshot(**EXAMPLE)
+        microversion = sot._get_microversion(self.sess)
+
+        fetch_resp = mock.Mock()
+        fetch_resp.body = EXAMPLE
+        fetch_resp.body.update({'status': 'error'})
+
+        fetch_resp.status_code = 200
+        fetch_resp.headers = {'content-type': 'application/json'}
+        fetch_resp.json = mock.Mock(return_value=fetch_resp.body)
+        self.sess.get = mock.Mock(return_value=fetch_resp)
+
+        self.assertIsNone(sot.reset_status(self.sess, 'error'))
+
+        url = f'snapshots/{IDENTIFIER}/action'
+        body = {"reset_status": {"status": "error"}}
+        headers = {'Accept': ''}
+
+        self.sess.post.assert_called_with(
+            url, json=body, headers=headers, microversion=microversion
+        )
+
+    def test_force_delete(self):
+        sot = share_snapshot.ShareSnapshot(**EXAMPLE)
+        microversion = sot._get_microversion(self.sess)
+
+        self.assertIsNone(sot.force_delete(self.sess))
+
+        url = f'snapshots/{IDENTIFIER}/action'
+        body = {'force_delete': None}
+        headers = {'Accept': ''}
+
+        self.sess.post.assert_called_with(
+            url, json=body, headers=headers, microversion=microversion
+        )

@@ -270,6 +270,20 @@ class TestShareActions(TestShares):
             url, json=body, headers=headers, microversion=microversion
         )
 
+    def test_force_delete_share(self):
+        sot = share.Share(**EXAMPLE)
+        microversion = sot._get_microversion(self.sess)
+
+        self.assertIsNone(sot.force_delete(self.sess))
+
+        url = f'shares/{IDENTIFIER}/action'
+        body = {'force_delete': None}
+        headers = {'Accept': ''}
+
+        self.sess.post.assert_called_with(
+            url, json=body, headers=headers, microversion=microversion
+        )
+
     def test_restore_share(self):
         sot = share.Share(**EXAMPLE)
         microversion = sot._get_microversion(self.sess)
@@ -278,6 +292,27 @@ class TestShareActions(TestShares):
 
         url = f'shares/{IDENTIFIER}/action'
         body = {'restore': None}
+        headers = {'Accept': ''}
+
+        self.sess.post.assert_called_with(
+            url, json=body, headers=headers, microversion=microversion
+        )
+
+    def test_reset_status_share(self):
+        sot = share.Share(**EXAMPLE)
+        microversion = sot._get_microversion(self.sess)
+
+        fetch_resp = mock.Mock()
+        fetch_resp.body = EXAMPLE
+        fetch_resp.body.update({'status': 'error'})
+        fetch_resp.status_code = 200
+        fetch_resp.headers = {'content-type': 'application/json'}
+        fetch_resp.json = mock.Mock(return_value=fetch_resp.body)
+
+        self.assertIsNone(sot.reset_status(self.sess, 'error'))
+
+        url = f'shares/{IDENTIFIER}/action'
+        body = {"reset_status": {"status": "error"}}
         headers = {'Accept': ''}
 
         self.sess.post.assert_called_with(

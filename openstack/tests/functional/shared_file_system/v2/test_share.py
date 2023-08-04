@@ -29,8 +29,6 @@ class ShareTest(base.BaseSharedFileSystemTest):
         )
         self.SHARE_ID = my_share.id
         self.SHARE_SIZE = my_share.size
-        my_share_snapshot = self.create_share_snapshot(share_id=self.SHARE_ID)
-        self.SHARE_SNAPSHOT_ID = my_share_snapshot.id
 
     def test_get(self):
         sot = self.user_cloud.share.get_share(self.SHARE_ID)
@@ -57,6 +55,9 @@ class ShareTest(base.BaseSharedFileSystemTest):
         self.assertEqual('updated share', get_updated_share.description)
 
     def test_revert_share_to_snapshot(self):
+        my_share_snapshot = self.create_share_snapshot(share_id=self.SHARE_ID)
+        self.SHARE_SNAPSHOT_ID = my_share_snapshot.id
+
         self.user_cloud.share.revert_share_to_snapshot(
             self.SHARE_ID, self.SHARE_SNAPSHOT_ID
         )
@@ -160,6 +161,11 @@ class ShareTest(base.BaseSharedFileSystemTest):
             wait=self._wait_for_timeout,
         )
         self.assertEqual(larger_size, get_resized_share.size)
+
+    def test_force_delete(self):
+        sot = self.user_cloud.share.get_share(self.SHARE_ID)
+        self.operator_cloud.share.delete_share(self.SHARE_ID, force=True)
+        self.operator_cloud.share.wait_for_delete(sot)
 
 
 class ManageUnmanageShareTest(base.BaseSharedFileSystemTest):

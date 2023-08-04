@@ -10,8 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
+from keystoneauth1 import adapter
+import requests
+
 from openstack.common import metadata
+from openstack import exceptions
 from openstack import resource
+from openstack import utils
 
 
 class ShareSnapshot(resource.Resource, metadata.MetadataMixin):
@@ -54,3 +61,39 @@ class ShareSnapshot(resource.Resource, metadata.MetadataMixin):
     status = resource.Body("status", type=str)
     #: ID of the user that the snapshot was created by.
     user_id = resource.Body("user_id", type=str)
+
+    def _action(
+        self,
+        session: adapter.Adapter,
+        body: dict[str, Any],
+        microversion: str | None = None,
+    ) -> requests.Response:
+        url = utils.urljoin(self.base_path, self.id, 'action')
+        headers = {'Accept': ''}
+
+        if microversion is None:
+            microversion = self._get_microversion(session)
+
+        response = session.post(
+            url, json=body, headers=headers, microversion=microversion
+        )
+
+        exceptions.raise_from_response(response)
+        return response
+
+    def reset_status(self, session: adapter.Adapter, status: str) -> None:
+        """Reset the snapshot to the given status.
+
+        :param status: The status of the share to reset to.
+        :returns: ``None``
+        """
+        body = {'reset_status': {'status': status}}
+        self._action(session, body)
+
+    def force_delete(self, session: adapter.Adapter) -> None:
+        """Force delete the snapshot.
+
+        :returns: ``None``
+        """
+        body = {'force_delete': None}
+        self._action(session, body)

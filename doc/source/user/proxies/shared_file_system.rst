@@ -71,7 +71,8 @@ service.
   :noindex:
   :members: shares, get_share, delete_share, update_share, create_share,
             revert_share_to_snapshot, resize_share, find_share, manage_share,
-            unmanage_share, soft_delete_share, restore_share
+            unmanage_share, soft_delete_share, restore_share,
+            reset_share_status
 
 
 Share Access Rule Operations
@@ -192,7 +193,8 @@ service.
   :members: share_snapshots, get_share_snapshot, delete_share_snapshot,
             update_share_snapshot, create_share_snapshot,
             fetch_share_snapshot_metadata, fetch_share_snapshot_metadata_item,
-            set_share_snapshot_metadata, delete_share_snapshot_metadata
+            set_share_snapshot_metadata, delete_share_snapshot_metadata,
+            reset_share_snapshot_status
 
 
 Share Snapshot Instance Operations

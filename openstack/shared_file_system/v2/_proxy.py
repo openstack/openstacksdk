@@ -487,7 +487,11 @@ class Proxy(proxy.Proxy):
         return self._get(_share.Share, share)
 
     def delete_share(
-        self, share: str | _share.Share, ignore_missing: bool = True
+        self,
+        share: str | _share.Share,
+        ignore_missing: bool = True,
+        *,
+        force: bool = False,
     ) -> None:
         """Deletes a single share
 
@@ -497,9 +501,21 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the share does not exist. When set to ``True``, no exception
             will be set when attempting to delete a nonexistent share.
+        :param force: When set to ``True``, the share deletion will be
+            forced immediately.
 
         :returns: ``None``
         """
+        if force:
+            res = self._get_resource(_share.Share, share)
+            try:
+                res.force_delete(self)
+            except exceptions.ResourceNotFound:
+                if ignore_missing:
+                    return None
+                raise
+            return
+
         self._delete(_share.Share, share, ignore_missing=ignore_missing)
 
     @renamed_param('share_id', 'share')
@@ -641,6 +657,20 @@ class Proxy(proxy.Proxy):
         """
         res = self._get(_share.Share, share)
         res.restore(self)
+
+    def reset_share_status(
+        self, share: str | _share.Share, status: str
+    ) -> None:
+        """Resets a share to the specified status
+
+        :param share: The ID of the share or the share object to reset
+        :param status: The status of the share to reset to. Possible values
+            include: available, error, and invalid.
+
+        :returns: None
+        """
+        share = self._get_resource(_share.Share, share)
+        share.reset_status(self, status)
 
     def fetch_share_metadata(self, share: str | _share.Share) -> _share.Share:
         """Lists all metadata for a share.
@@ -1662,6 +1692,8 @@ class Proxy(proxy.Proxy):
         self,
         snapshot: str | _share_snapshot.ShareSnapshot,
         ignore_missing: bool = True,
+        *,
+        force: bool = False,
     ) -> None:
         """Deletes a single share snapshot
 
@@ -1674,14 +1706,38 @@ class Proxy(proxy.Proxy):
             when the share snapshot does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent share
             snapshot.
+        :param force: When set to ``True``, the share snapshot deletion will be
+            forced immediately.
 
         :returns: ``None``
         """
+        if force:
+            res = self._get_resource(_share_snapshot.ShareSnapshot, snapshot)
+            try:
+                res.force_delete(self)
+            except exceptions.ResourceNotFound:
+                if ignore_missing:
+                    return None
+                raise
+            return
+
         self._delete(
             _share_snapshot.ShareSnapshot,
             snapshot,
             ignore_missing=ignore_missing,
         )
+
+    def reset_share_snapshot_status(
+        self, snapshot: str | _share_snapshot.ShareSnapshot, status: str
+    ) -> None:
+        """Reset status of share snapshot
+
+        :param snapshot: The ID of the snapshot or the snapshot object to reset
+        :param status: The status of the snapshot to reset to.
+        :return: None
+        """
+        snapshot = self._get_resource(_share_snapshot.ShareSnapshot, snapshot)
+        snapshot.reset_status(self, status)
 
     def fetch_share_snapshot_metadata(
         self,
