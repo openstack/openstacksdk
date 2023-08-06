@@ -298,5 +298,20 @@ class Volume(resource.Resource, metadata.MetadataMixin):
 
         self._action(session, body)
 
+    def _prepare_request_body(self, patch, prepend_key):
+        body = self._body.dirty
+        # Scheduler hints is external to the standard volume request
+        # so pass it separately and not under the volume JSON object.
+        scheduler_hints = None
+        if 'OS-SCH-HNT:scheduler_hints' in body.keys():
+            scheduler_hints = body.pop('OS-SCH-HNT:scheduler_hints')
+        if prepend_key and self.resource_key is not None:
+            body = {self.resource_key: body}
+        # If scheduler hints was passed in the request but the value is
+        # None, it doesn't make a difference to include it.
+        if scheduler_hints:
+            body['OS-SCH-HNT:scheduler_hints'] = scheduler_hints
+        return body
+
 
 VolumeDetail = Volume

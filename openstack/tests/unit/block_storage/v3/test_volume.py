@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -561,4 +562,39 @@ class TestVolumeActions(TestVolume):
         body = {'os-terminate_connection': {'connector': {'a': 'b'}}}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
+        )
+
+    def test__prepare_request_body(self):
+        sot = volume.Volume(**VOLUME)
+        body = sot._prepare_request_body(patch=False, prepend_key=True)
+        original_body = copy.deepcopy(sot._body.dirty)
+        # Verify that scheduler hints aren't modified after preparing request
+        # but also not part of 'volume' JSON object
+        self.assertEqual(
+            original_body['OS-SCH-HNT:scheduler_hints'],
+            body['OS-SCH-HNT:scheduler_hints'],
+        )
+        # Pop scheduler hints to verify other parameters in body
+        original_body.pop('OS-SCH-HNT:scheduler_hints')
+        # Verify that other request parameters are same but in 'volume' JSON
+        self.assertEqual(original_body, body['volume'])
+
+    def test_create_scheduler_hints(self):
+        sot = volume.Volume(**VOLUME)
+        sot._translate_response = mock.Mock()
+        sot.create(self.sess)
+
+        url = '/volumes'
+        volume_body = copy.deepcopy(VOLUME)
+        scheduler_hints = volume_body.pop('OS-SCH-HNT:scheduler_hints')
+        body = {
+            "volume": volume_body,
+            'OS-SCH-HNT:scheduler_hints': scheduler_hints,
+        }
+        self.sess.post.assert_called_with(
+            url,
+            json=body,
+            microversion='3.0',
+            headers={},
+            params={},
         )
