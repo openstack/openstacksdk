@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Added support to list, get, create,
+    update, and delete share metadata
+    from shared file system service.

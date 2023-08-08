@@ -134,3 +134,49 @@ Deletes a share group snapshot.
 
 .. literalinclude:: ../examples/shared_file_system/share_group_snapshots.py
    :pyobject: delete_share_group_snapshot
+
+
+List Share Metadata
+--------------------
+
+Lists all metadata for a given share.
+
+.. literalinclude:: ../examples/shared_file_system/share_metadata.py
+   :pyobject: list_share_metadata
+
+
+Get Share Metadata Item
+-----------------------
+
+Retrieves a specific metadata item from a shares metadata by its key.
+
+.. literalinclude:: ../examples/shared_file_system/share_metadata.py
+   :pyobject: get_share_metadata_item
+
+
+Create Share Metadata
+----------------------
+
+Creates share metadata.
+
+.. literalinclude:: ../examples/shared_file_system/share_metadata.py
+   :pyobject: create_share_metadata
+
+
+Update Share Metadata
+----------------------
+
+Updates metadata of a given share.
+
+.. literalinclude:: ../examples/shared_file_system/share_metadata.py
+   :pyobject: update_share_metadata
+
+
+Delete Share Metadata
+----------------------
+
+Deletes a specific metadata item from a shares metadata by its key. Can
+specify multiple keys to be deleted.
+
+.. literalinclude:: ../examples/shared_file_system/share_metadata.py
+   :pyobject: delete_share_metadata

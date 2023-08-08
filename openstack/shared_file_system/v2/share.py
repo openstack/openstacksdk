@@ -10,12 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.common import metadata
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
 
 
-class Share(resource.Resource):
+class Share(resource.Resource, metadata.MetadataMixin):
     resource_key = "share"
     resources_key = "shares"
     base_path = "/shares"

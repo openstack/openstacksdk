@@ -9,7 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+from openstack import exceptions
 from openstack import proxy
 from openstack import resource
 from openstack.shared_file_system.v2 import (
@@ -820,7 +820,7 @@ class Proxy(proxy.Proxy):
             requests client
         """
         res = self._get_resource(_share_access_rule.ShareAccessRule, access_id)
-        return res.delete(self, share_id, ignore_missing=ignore_missing)
+        res.delete(self, share_id, ignore_missing=ignore_missing)
 
     def share_group_snapshots(self, details=True, **query):
         """Lists all share group snapshots.
@@ -941,3 +941,91 @@ class Proxy(proxy.Proxy):
             group_snapshot_id,
             ignore_missing=ignore_missing,
         )
+
+    # ========= Share Metadata ==========
+    def get_share_metadata(self, share_id):
+        """Lists all metadata for a share.
+
+        :param share_id: The ID of the share
+
+        :returns: A :class:`~openstack.shared_file_system.v2.share.Share`
+            with the share's metadata.
+        :rtype:
+            :class:`~openstack.shared_file_system.v2.share.Share`
+        """
+        share = self._get_resource(_share.Share, share_id)
+        return share.fetch_metadata(self)
+
+    def get_share_metadata_item(self, share_id, key):
+        """Retrieves a specific metadata item from a share by its key.
+
+        :param share_id: The ID of the share
+        :param key: The key of the share metadata
+
+        :returns: A :class:`~openstack.shared_file_system.v2.share.Share`
+            with the share's metadata.
+        :rtype:
+            :class:`~openstack.shared_file_system.v2.share.Share`
+        """
+        share = self._get_resource(_share.Share, share_id)
+        return share.get_metadata_item(self, key)
+
+    def create_share_metadata(self, share_id, **metadata):
+        """Creates share metadata as key-value pairs.
+
+        :param share_id: The ID of the share
+        :param metadata: The metadata to be created
+
+        :returns: A :class:`~openstack.shared_file_system.v2.share.Share`
+            with the share's metadata.
+        :rtype:
+            :class:`~openstack.shared_file_system.v2.share.Share`
+        """
+        share = self._get_resource(_share.Share, share_id)
+        return share.set_metadata(self, metadata=metadata)
+
+    def update_share_metadata(self, share_id, metadata, replace=False):
+        """Updates metadata of given share.
+
+        :param share_id: The ID of the share
+        :param metadata: The metadata to be created
+        :param replace: Boolean for whether the preexisting metadata
+            should be replaced
+
+        :returns: A :class:`~openstack.shared_file_system.v2.share.Share`
+            with the share's updated metadata.
+        :rtype:
+            :class:`~openstack.shared_file_system.v2.share.Share`
+        """
+        share = self._get_resource(_share.Share, share_id)
+        return share.set_metadata(self, metadata=metadata, replace=replace)
+
+    def delete_share_metadata(self, share_id, keys, ignore_missing=True):
+        """Deletes a single metadata item on a share, idetified by its key.
+
+        :param share_id: The ID of the share
+        :param keys: The list of share metadata keys to be deleted
+        :param ignore_missing: Boolean indicating if missing keys should be ignored.
+
+        :returns: None
+        :rtype: None
+        """
+        share = self._get_resource(_share.Share, share_id)
+        keys_failed_to_delete = []
+        for key in keys:
+            try:
+                share.delete_metadata_item(self, key)
+            except exceptions.NotFoundException:
+                if not ignore_missing:
+                    self._connection.log.info("Key %s not found.", key)
+                    keys_failed_to_delete.append(key)
+            except exceptions.ForbiddenException:
+                self._connection.log.info("Key %s cannot be deleted.", key)
+                keys_failed_to_delete.append(key)
+            except exceptions.SDKException:
+                self._connection.log.info("Failed to delete key %s.", key)
+                keys_failed_to_delete.append(key)
+        if keys_failed_to_delete:
+            raise exceptions.SDKException(
+                "Some keys failed to be deleted %s" % keys_failed_to_delete
+            )
