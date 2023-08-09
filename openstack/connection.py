@@ -577,6 +577,7 @@ class Connection(
         self.config.set_auth_cache()
         if self.__pool_executor:
             self.__pool_executor.shutdown()
+        atexit.unregister(self.close)
 
     def set_global_request_id(self, global_request_id):
         self._global_request_id = global_request_id
