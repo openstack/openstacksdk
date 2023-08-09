@@ -42,6 +42,8 @@ class Pool(resource.Resource, tag.TagMixin):
         'tls_ciphers',
         'tls_versions',
         'alpn_protocols',
+        'ca_tls_container_ref',
+        'crl_container_ref',
         is_admin_state_up='admin_state_up',
         **tag.TagMixin._tag_query_parameters
     )
@@ -89,3 +91,7 @@ class Pool(resource.Resource, tag.TagMixin):
     updated_at = resource.Body('updated_at')
     #: Use TLS for connections to backend member servers *Type: bool*
     tls_enabled = resource.Body('tls_enabled', type=bool)
+    #: Stores the ca certificate used by backend servers
+    ca_tls_container_ref = resource.Body('ca_tls_container_ref')
+    #: Stores the revocation list file
+    crl_container_ref = resource.Body('crl_container_ref')
