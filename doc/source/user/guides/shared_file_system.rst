@@ -180,3 +180,21 @@ specify multiple keys to be deleted.
 
 .. literalinclude:: ../examples/shared_file_system/share_metadata.py
    :pyobject: delete_share_metadata
+
+
+Manage Share
+------------
+
+Manage a share with Manila.
+
+.. literalinclude:: ../examples/shared_file_system/shares.py
+   :pyobject: manage_share
+
+
+Unmanage Share
+--------------
+
+Unmanage a share from Manila.
+
+.. literalinclude:: ../examples/shared_file_system/shares.py
+   :pyobject: unmanage_share
