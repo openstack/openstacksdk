@@ -246,13 +246,13 @@ def raise_from_response(response, error_message=None):
         except Exception:
             details = response.text
     elif response.content and 'text/html' in content_type:
-        # Split the lines, strip whitespace and inline HTML from the response.
-        details = [
-            re.sub(r'<.+?>', '', i.strip()) for i in response.text.splitlines()
-        ]
-        details = list(set([msg for msg in details if msg]))
+        messages = []
+        for line in response.text.splitlines():
+            message = re.sub(r'<.+?>', '', line.strip())
+            if message not in messages:
+                messages.append(message)
         # Return joined string separated by colons.
-        details = ': '.join(details)
+        details = ': '.join(messages)
 
     if not details:
         details = response.reason if response.reason else response.text
