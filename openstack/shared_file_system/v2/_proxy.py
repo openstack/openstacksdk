@@ -586,7 +586,6 @@ class Proxy(proxy.Proxy):
 
         :returns: The share that was managed.
         """
-
         share = _share.Share()
         return share.manage(
             self, protocol, export_path, service_host, **params
@@ -1738,6 +1737,49 @@ class Proxy(proxy.Proxy):
         """
         snapshot = self._get_resource(_share_snapshot.ShareSnapshot, snapshot)
         snapshot.reset_status(self, status)
+
+    def manage_share_snapshot(
+        self,
+        share: str | _share.Share,
+        provider_location: str,
+        **params: Any,
+    ) -> _share_snapshot.ShareSnapshot:
+        """Manage a share snapshot.
+
+        :param share: The ID of the share that has snapshot which
+            should be managed.
+        :param provider_location: Provider location of the snapshot on the
+            backend.
+        :param params: Optional parameters to be sent. Available
+            parameters include:
+
+            * name: The user defined name of the resource.
+            * display_name: The user defined name of the resource. This field
+              sets the name parameter.
+            * description: The user defined description of the resource.
+            * display_description: The user defined description of the
+              resource. This field sets the description parameter.
+            * driver_options: A set of one or more key and value pairs, as a
+              dictionary of strings, that describe driver options.
+
+        :returns: The share snapshot that was managed.
+        """
+        share_id = resource.Resource._get_id(share)
+        share_snapshot = _share_snapshot.ShareSnapshot()
+        return share_snapshot.manage(
+            self, share_id, provider_location, **params
+        )
+
+    def unmanage_share_snapshot(
+        self, snapshot: str | _share_snapshot.ShareSnapshot
+    ) -> None:
+        """Unmanage the share snapshot with the given snapshot ID.
+
+        :param snapshot: The ID of the share snapshot to unmanage.
+        :returns: ``None``
+        """
+        res = self._get_resource(_share_snapshot.ShareSnapshot, snapshot)
+        res.unmanage(self)
 
     def fetch_share_snapshot_metadata(
         self,

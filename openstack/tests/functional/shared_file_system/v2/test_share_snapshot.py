@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import openstack
+from openstack import exceptions
 from openstack.tests.functional.shared_file_system.v2 import base
 
 
@@ -56,7 +56,7 @@ class ShareSnapshotTest(base.BaseSharedFileSystemTest):
             snpt = self.operator_cloud.shared_file_system.get_share_snapshot(
                 self.SNAPSHOT_ID
             )
-        except openstack.exceptions.ResourceNotFound:
+        except exceptions.ResourceNotFound:
             pass
         else:
             sot = self.operator_cloud.shared_file_system.delete_share_snapshot(

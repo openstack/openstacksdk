@@ -406,6 +406,22 @@ class TestShareSnapshot(TestSharedFileSystemProxy):
             expected_args=[self.proxy, 'available'],
         )
 
+    def test_manage_share_snapshot(self):
+        self._verify(
+            "openstack.shared_file_system.v2.share_snapshot.ShareSnapshot.manage",
+            self.proxy.manage_share_snapshot,
+            method_args=['share_id', 'provider_location'],
+            expected_args=[self.proxy, 'share_id', 'provider_location'],
+        )
+
+    def test_unmanage_share_snapshot(self):
+        self._verify(
+            "openstack.shared_file_system.v2.share_snapshot.ShareSnapshot.unmanage",
+            self.proxy.unmanage_share_snapshot,
+            method_args=['id'],
+            expected_args=[self.proxy],
+        )
+
 
 class TestShareSnapshotMetadata(TestSharedFileSystemProxy):
     def test_get_share_snapshot_metadata(self):

@@ -207,11 +207,11 @@ class Share(resource.Resource, metadata.MetadataMixin):
         """Manage a share.
 
         :param session: A session object used for sending request.
-        :param str protocol: The shared file systems protocol of this share.
-        :param str export_path: The export path formatted according to the
+        :param protocol: The shared file systems protocol of this share.
+        :param export_path: The export path formatted according to the
             protocol.
-        :param str service_host: The manage-share service host.
-        :param kwargs params: Optional parameters to be sent. Available
+        :param service_host: The manage-share service host.
+        :param params: Optional parameters to be sent. Available
             parameters include:
 
             * name: The user defined name of the resource.
@@ -225,8 +225,6 @@ class Share(resource.Resource, metadata.MetadataMixin):
 
         :returns: The share that was managed.
         """
-
-        path = 'manage'
         attrs = {
             'share': {
                 'protocol': protocol,
@@ -237,9 +235,8 @@ class Share(resource.Resource, metadata.MetadataMixin):
 
         attrs['share'].update(params)
 
-        url = utils.urljoin(self.base_path, path)
+        url = utils.urljoin(self.base_path, 'manage')
         resp = session.post(url, json=attrs)
-
         self._translate_response(resp)
         return self
 

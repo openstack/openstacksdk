@@ -110,3 +110,43 @@ class TestShareSnapshot(base.TestCase):
         self.sess.post.assert_called_with(
             url, json=body, headers=headers, microversion=microversion
         )
+
+    def test_manage_share_snapshot(self):
+        sot = share_snapshot.ShareSnapshot()
+
+        self.resp.headers = {}
+        self.resp.json = mock.Mock(
+            return_value={"snapshot": {"name": "test_snapshot", "size": 1}}
+        )
+
+        share_id = "406ea93b-32e9-4907-a117-148b3945749f"
+        provider_location = "/var/lib/manila/shares/snapshot-id"
+        params = {"name": "test_snapshot"}
+        res = sot.manage(self.sess, share_id, provider_location, **params)
+
+        self.assertEqual(res.name, "test_snapshot")
+        self.assertEqual(res.size, 1)
+
+        json_dict = {
+            "snapshot": {
+                "share_id": share_id,
+                "provider_location": provider_location,
+                "name": "test_snapshot",
+            }
+        }
+        self.sess.post.assert_called_once_with(
+            "snapshots/manage", json=json_dict
+        )
+
+    def test_unmanage_share_snapshot(self):
+        sot = share_snapshot.ShareSnapshot(**EXAMPLE)
+        microversion = sot._get_microversion(self.sess)
+
+        self.assertIsNone(sot.unmanage(self.sess))
+
+        url = f'snapshots/{IDENTIFIER}/action'
+        body = {'unmanage': None}
+
+        self.sess.post.assert_called_with(
+            url, json=body, headers={'Accept': ''}, microversion=microversion
+        )
