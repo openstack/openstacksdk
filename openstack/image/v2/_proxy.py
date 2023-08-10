@@ -19,6 +19,7 @@ from openstack.image.v2 import cache as _cache
 from openstack.image.v2 import image as _image
 from openstack.image.v2 import member as _member
 from openstack.image.v2 import metadef_namespace as _metadef_namespace
+from openstack.image.v2 import metadef_object as _metadef_object
 from openstack.image.v2 import metadef_resource_type as _metadef_resource_type
 from openstack.image.v2 import metadef_schema as _metadef_schema
 from openstack.image.v2 import schema as _schema
@@ -1205,6 +1206,117 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
+    # ====== METADEF OBJECT ======
+    def create_metadef_object(self, namespace, **attrs):
+        """Create a new object from namespace
+
+        :param namespace: The value can be either the name of a metadef
+            namespace or a
+            :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
+            instance.
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.image.v2.metadef_object.MetadefObject`,
+            comprised of the properties on the Metadef object class.
+
+        :returns: A metadef namespace
+        :rtype: :class:`~openstack.image.v2.metadef_object.MetadefObject`
+        """
+        namespace_name = resource.Resource._get_id(namespace)
+        return self._create(
+            _metadef_object.MetadefObject,
+            namespace_name=namespace_name,
+            **attrs,
+        )
+
+    def get_metadef_object(self, metadef_object, namespace):
+        """Get a single metadef object
+
+        :param metadef_object: The value can be the ID of a metadef_object
+            or a
+            :class:`~openstack.image.v2.metadef_object.MetadefObject`
+            instance.
+        :param namespace: The value can be either the name of a metadef
+            namespace or a
+            :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
+            instance.
+        :returns: One :class:`~openstack.image.v2.metadef_object.MetadefObject`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            resource can be found.
+        """
+        object_name = resource.Resource._get_id(metadef_object)
+        namespace_name = resource.Resource._get_id(namespace)
+        return self._get(
+            _metadef_object.MetadefObject,
+            namespace_name=namespace_name,
+            name=object_name,
+        )
+
+    def metadef_objects(self, namespace):
+        """Get metadef object list of the namespace
+
+        :param namespace: The value can be either the name of a metadef
+            namespace or a
+            :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
+            instance.
+
+        :returns: One :class:`~openstack.image.v2.metadef_object.MetadefObject`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            resource can be found.
+        """
+        namespace_name = resource.Resource._get_id(namespace)
+        return self._list(
+            _metadef_object.MetadefObject,
+            namespace_name=namespace_name,
+        )
+
+    def update_metadef_object(self, metadef_object, namespace, **attrs):
+        """Update a single metadef object
+
+        :param metadef_object: The value can be the ID of a metadef_object or a
+            :class:`~openstack.image.v2.metadef_object.MetadefObject` instance.
+        :param namespace: The value can be either the name of a metadef
+            namespace or a
+            :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
+            instance.
+        :param dict attrs: Keyword arguments which will be used to update
+            a :class:`~openstack.image.v2.metadef_object.MetadefObject`
+
+        :returns: One :class:`~openstack.image.v2.metadef_object.MetadefObject`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            resource can be found.
+        """
+        namespace_name = resource.Resource._get_id(namespace)
+        return self._update(
+            _metadef_object.MetadefObject,
+            metadef_object,
+            namespace_name=namespace_name,
+            **attrs,
+        )
+
+    def delete_metadef_object(self, metadef_object, namespace, **attrs):
+        """Removes a single metadef object
+
+        :param metadef_object: The value can be the ID of a metadef_object or a
+            :class:`~openstack.image.v2.metadef_object.MetadefObject` instance.
+        :param namespace: The value can be either the name of a metadef
+            namespace or a
+            :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
+            instance.
+        :param dict attrs: Keyword arguments which will be used to update
+            a :class:`~openstack.image.v2.metadef_object.MetadefObject`
+
+        :returns: ``None``
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            resource can be found.
+        """
+        namespace_name = resource.Resource._get_id(namespace)
+        return self._delete(
+            _metadef_object.MetadefObject,
+            metadef_object,
+            namespace_name=namespace_name,
+            **attrs,
+        )
+
     # ====== METADEF RESOURCE TYPES ======
     def metadef_resource_types(self, **query):
         """Return a generator of metadef resource types
@@ -1213,7 +1325,7 @@ class Proxy(proxy.Proxy):
         :rtype:
             :class:`~openstack.image.v2.metadef_resource_type.MetadefResourceType`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                when no resource can be found.
+            when no resource can be found.
         """
         return self._list(_metadef_resource_type.MetadefResourceType, **query)
 

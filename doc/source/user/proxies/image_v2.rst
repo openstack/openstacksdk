@@ -67,6 +67,14 @@ Metadef Namespace Operations
             get_metadef_namespace, metadef_namespaces, update_metadef_namespace
 
 
+Metadef Object Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.image.v2._proxy.Proxy
+  :noindex:
+  :members: create_metadef_object, delete_metadef_object,
+            get_metadef_object, metadef_objects, update_metadef_object
+
 Metadef Resource Type Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
