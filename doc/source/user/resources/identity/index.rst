@@ -17,3 +17,11 @@ Identity v3 Resources
    :glob:
 
    v3/*
+
+Other Resources
+---------------
+
+.. toctree::
+   :maxdepth: 1
+
+   version
