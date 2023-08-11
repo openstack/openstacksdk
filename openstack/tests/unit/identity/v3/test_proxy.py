@@ -15,6 +15,7 @@ import uuid
 from openstack.identity.v3 import _proxy
 from openstack.identity.v3 import credential
 from openstack.identity.v3 import domain
+from openstack.identity.v3 import domain_config
 from openstack.identity.v3 import endpoint
 from openstack.identity.v3 import group
 from openstack.identity.v3 import policy
@@ -83,6 +84,75 @@ class TestIdentityProxyDomain(TestIdentityProxyBase):
 
     def test_domain_update(self):
         self.verify_update(self.proxy.update_domain, domain.Domain)
+
+
+class TestIdentityProxyDomainConfig(TestIdentityProxyBase):
+    def test_domain_config_create_attrs(self):
+        self.verify_create(
+            self.proxy.create_domain_config,
+            domain_config.DomainConfig,
+            method_args=['domain_id'],
+            method_kwargs={},
+            expected_args=[],
+            expected_kwargs={
+                'domain_id': 'domain_id',
+            },
+        )
+
+    def test_domain_config_delete(self):
+        self.verify_delete(
+            self.proxy.delete_domain_config,
+            domain_config.DomainConfig,
+            ignore_missing=False,
+            method_args=['domain_id'],
+            method_kwargs={},
+            expected_args=[],
+            expected_kwargs={
+                'domain_id': 'domain_id',
+            },
+        )
+
+    def test_domain_config_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_domain_config,
+            domain_config.DomainConfig,
+            ignore_missing=True,
+            method_args=['domain_id'],
+            method_kwargs={},
+            expected_args=[],
+            expected_kwargs={
+                'domain_id': 'domain_id',
+            },
+        )
+
+    # no find_domain_config
+
+    def test_domain_config_get(self):
+        self.verify_get(
+            self.proxy.get_domain_config,
+            domain_config.DomainConfig,
+            method_args=['domain_id'],
+            method_kwargs={},
+            expected_args=[],
+            expected_kwargs={
+                'domain_id': 'domain_id',
+                'requires_id': False,
+            },
+        )
+
+    # no domain_configs
+
+    def test_domain_config_update(self):
+        self.verify_update(
+            self.proxy.update_domain_config,
+            domain_config.DomainConfig,
+            method_args=['domain_id'],
+            method_kwargs={},
+            expected_args=[],
+            expected_kwargs={
+                'domain_id': 'domain_id',
+            },
+        )
 
 
 class TestIdentityProxyEndpoint(TestIdentityProxyBase):

@@ -28,6 +28,14 @@ Domain Operations
   :members: create_domain, update_domain, delete_domain, get_domain,
             find_domain, domains
 
+Domain Config Operations
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.identity.v3._proxy.Proxy
+  :noindex:
+  :members: create_domain_config, delete_domain_config, get_domain_config,
+            update_domain_config
+
 Endpoint Operations
 ^^^^^^^^^^^^^^^^^^^
 
