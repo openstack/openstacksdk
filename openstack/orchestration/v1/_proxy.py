@@ -24,6 +24,9 @@ from openstack import proxy
 from openstack import resource
 
 
+# TODO(rladntjr4): Some of these methods support lookup by ID, while
+#                  others support lookup by ID or name. We should choose one and use
+#                  it consistently.
 class Proxy(proxy.Proxy):
     _resource_registry = {
         "resource": _resource.Resource,
@@ -221,6 +224,21 @@ class Proxy(proxy.Proxy):
         """
         res = self._get_resource(_stack.Stack, stack)
         return res.abandon(self)
+
+    def export_stack(self, stack):
+        """Get the stack data in JSON format
+
+        :param stack: The value can be the ID or a name or
+            an instance of :class:`~openstack.orchestration.v1.stack.Stack`
+        :returns: A dictionary containing the stack data.
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        if isinstance(stack, _stack.Stack):
+            obj = stack
+        else:
+            obj = self._find(_stack.Stack, stack, ignore_missing=False)
+        return obj.export(self)
 
     def get_stack_template(self, stack):
         """Get template used by a stack

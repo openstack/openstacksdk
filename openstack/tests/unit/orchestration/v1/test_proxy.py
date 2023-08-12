@@ -121,6 +121,35 @@ class TestOrchestrationStack(TestOrchestrationProxy):
             expected_args=[self.proxy],
         )
 
+    @mock.patch.object(stack.Stack, 'find')
+    def test_export_stack_with_identity(self, mock_find):
+        stack_id = '1234'
+        stack_name = 'test_stack'
+        stk = stack.Stack(id=stack_id, name=stack_name)
+        mock_find.return_value = stk
+
+        self._verify(
+            'openstack.orchestration.v1.stack.Stack.export',
+            self.proxy.export_stack,
+            method_args=['IDENTITY'],
+            expected_args=[self.proxy],
+        )
+        mock_find.assert_called_once_with(
+            mock.ANY, 'IDENTITY', ignore_missing=False
+        )
+
+    def test_export_stack_with_object(self):
+        stack_id = '1234'
+        stack_name = 'test_stack'
+        stk = stack.Stack(id=stack_id, name=stack_name)
+
+        self._verify(
+            'openstack.orchestration.v1.stack.Stack.export',
+            self.proxy.export_stack,
+            method_args=[stk],
+            expected_args=[self.proxy],
+        )
+
     def test_delete_stack(self):
         self.verify_delete(self.proxy.delete_stack, stack.Stack, False)
 

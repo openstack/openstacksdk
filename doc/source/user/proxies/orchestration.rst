@@ -20,7 +20,8 @@ Stack Operations
   :noindex:
   :members: create_stack, check_stack, update_stack, delete_stack, find_stack,
             get_stack, get_stack_environment, get_stack_files,
-            get_stack_template, stacks, validate_template, resources
+            get_stack_template, stacks, validate_template, resources,
+            export_stack
 
 Software Configuration Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

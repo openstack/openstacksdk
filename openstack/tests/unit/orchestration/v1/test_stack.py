@@ -272,6 +272,23 @@ class TestStack(base.TestCase):
             'stacks/%s/%s/abandon' % (FAKE_NAME, FAKE_ID),
         )
 
+    def test_export(self):
+        sess = mock.Mock()
+        sess.default_microversion = None
+
+        mock_response = mock.Mock()
+        mock_response.status_code = 200
+        mock_response.headers = {}
+        mock_response.json.return_value = {}
+        sess.get = mock.Mock(return_value=mock_response)
+        sot = stack.Stack(**FAKE)
+
+        sot.export(sess)
+
+        sess.get.assert_called_with(
+            'stacks/%s/%s/export' % (FAKE_NAME, FAKE_ID),
+        )
+
     def test_update(self):
         sess = mock.Mock()
         sess.default_microversion = None
