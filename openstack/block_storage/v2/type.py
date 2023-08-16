@@ -35,6 +35,11 @@ class Type(resource.Resource):
     is_public = resource.Body('os-volume-type-access:is_public', type=bool)
 
     def get_private_access(self, session):
+        """List projects with private access to the volume type.
+
+        :param session: The session to use for making this request.
+        :returns: The volume type access response.
+        """
         url = utils.urljoin(self.base_path, self.id, "os-volume-type-access")
         resp = session.get(url)
 
@@ -43,6 +48,11 @@ class Type(resource.Resource):
         return resp.json().get("volume_type_access", [])
 
     def add_private_access(self, session, project_id):
+        """Add project access from the volume type.
+
+        :param session: The session to use for making this request.
+        :param project_id: The project to add access for.
+        """
         url = utils.urljoin(self.base_path, self.id, "action")
         body = {"addProjectAccess": {"project": project_id}}
 
@@ -51,6 +61,11 @@ class Type(resource.Resource):
         exceptions.raise_from_response(resp)
 
     def remove_private_access(self, session, project_id):
+        """Remove project access from the volume type.
+
+        :param session: The session to use for making this request.
+        :param project_id: The project to remove access for.
+        """
         url = utils.urljoin(self.base_path, self.id, "action")
         body = {"removeProjectAccess": {"project": project_id}}
 
