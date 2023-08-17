@@ -1,19 +1,20 @@
 Block Storage Resources
 =======================
 
+Block Storage v2 Resources
+--------------------------
+
 .. toctree::
    :maxdepth: 1
+   :glob:
 
-   v2/backup
-   v2/quota_set
-   v2/snapshot
-   v2/type
-   v2/volume
+   v2/*
 
-   v3/backup
-   v3/quota_set
-   v3/snapshot
-   v3/type
-   v3/volume
-   v3/service
-   v3/block_storage_summary
+Block Storage v3 Resources
+--------------------------
+
+.. toctree::
+   :maxdepth: 1
+   :glob:
+
+   v3/*
