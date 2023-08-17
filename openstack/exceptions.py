@@ -57,6 +57,8 @@ class InvalidRequest(SDKException):
 
 
 class HttpException(SDKException, _rex.HTTPError):
+    """The base exception for all HTTP error responses."""
+
     def __init__(
         self,
         message='Error',
@@ -119,25 +121,17 @@ class HttpException(SDKException, _rex.HTTPError):
 class BadRequestException(HttpException):
     """HTTP 400 Bad Request."""
 
-    pass
-
 
 class ForbiddenException(HttpException):
     """HTTP 403 Forbidden Request."""
-
-    pass
 
 
 class ConflictException(HttpException):
     """HTTP 409 Conflict."""
 
-    pass
-
 
 class PreconditionFailedException(HttpException):
     """HTTP 412 Precondition Failed."""
-
-    pass
 
 
 class MethodNotSupported(SDKException):
@@ -161,13 +155,9 @@ class MethodNotSupported(SDKException):
 class DuplicateResource(SDKException):
     """More than one resource exists with that name."""
 
-    pass
-
 
 class ResourceNotFound(HttpException):
-    """No resource exists with that name or id."""
-
-    pass
+    """No resource exists with that name or ID."""
 
 
 NotFoundException = ResourceNotFound
@@ -176,19 +166,13 @@ NotFoundException = ResourceNotFound
 class ResourceTimeout(SDKException):
     """Timeout waiting for resource."""
 
-    pass
-
 
 class ResourceFailure(SDKException):
     """General resource failure."""
 
-    pass
-
 
 class InvalidResourceQuery(SDKException):
     """Invalid query params for resource."""
-
-    pass
 
 
 def _extract_message(obj):

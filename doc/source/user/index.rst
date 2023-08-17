@@ -171,6 +171,19 @@ can be customized.
    resource
    service_description
    utils
+
+Errors and warnings
+~~~~~~~~~~~~~~~~~~~
+
+The SDK attempts to provide detailed errors and warnings for things like failed
+requests, deprecated APIs, and invalid configurations. Application developers
+are responsible for handling these errors and can opt into warnings to ensure
+their applications stay up-to-date.
+
+.. toctree::
+   :maxdepth: 1
+
+   exceptions
    warnings
 
 Presentations
