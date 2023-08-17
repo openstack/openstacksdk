@@ -36,6 +36,8 @@ class Store(resource.Resource):
     description = resource.Body('description')
     #: default
     is_default = resource.Body('default', type=bool)
+    #: properties
+    properties = resource.Body('properties', type=dict)
 
     def delete_image(self, session, image, *, ignore_missing=False):
         """Delete image from store
