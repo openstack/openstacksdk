@@ -20,7 +20,7 @@ from openstack.tests.unit import base
 class TestUsage(base.TestCase):
     def test_get_usage(self):
         project = self.mock_for_keystone_projects(
-            project_count=1, list_get=True
+            project_count=1, id_get=True
         )[0]
         start = end = datetime.datetime.now()
 

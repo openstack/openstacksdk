@@ -649,8 +649,7 @@ class NetworkCloudMixin:
         :raises: :class:`~openstack.exceptions.SDKException` if the resource to
             set the quota does not exist.
         """
-
-        proj = self.get_project(name_or_id)
+        proj = self.identity.find_project(name_or_id)
         if not proj:
             raise exceptions.SDKException(
                 f"Project {name_or_id} was requested by was not found "
@@ -669,7 +668,12 @@ class NetworkCloudMixin:
         :raises: :class:`~openstack.exceptions.SDKException` if it's not a
             valid project
         """
-        proj = self.identity.find_project(name_or_id, ignore_missing=False)
+        proj = self.identity.find_project(name_or_id)
+        if not proj:
+            raise exc.OpenStackCloudException(
+                f"Project {name_or_id} was requested by was not found "
+                f"on the cloud"
+            )
         return self.network.get_quota(proj.id, details)
 
     def get_network_extensions(self):
@@ -688,7 +692,7 @@ class NetworkCloudMixin:
         :raises: :class:`~openstack.exceptions.SDKException` if it's not a
             valid project or the network client call failed
         """
-        proj = self.get_project(name_or_id)
+        proj = self.identity.find_project(name_or_id)
         if not proj:
             raise exceptions.SDKException(
                 f"Project {name_or_id} was requested by was not found "

@@ -297,13 +297,14 @@ class FloatingIPCloudMixin:
 
     def _find_floating_network_by_router(self):
         """Find the network providing floating ips by looking at routers."""
-        for router in self.list_routers():
+        for router in self.network.routers():
             if router['admin_state_up']:
                 network_id = router.get('external_gateway_info', {}).get(
                     'network_id'
                 )
                 if network_id:
-                    return network_id
+                    self._floating_network_by_router = network_id
+        return self._floating_network_by_router
 
     def available_floating_ip(self, network=None, server=None):
         """Get a floating IP from a network or a pool.
@@ -679,7 +680,7 @@ class FloatingIPCloudMixin:
             # old to check whether it belongs to us now, thus refresh
             # the server data and try again. There are some clouds, which
             # explicitely forbids FIP assign call if it is already assigned.
-            server = self.get_server_by_id(server['id'])
+            server = self.compute.get_server(server['id'])
             ext_ip = meta.get_server_ip(
                 server, ext_tag='floating', public=True
             )
@@ -718,7 +719,7 @@ class FloatingIPCloudMixin:
                 "Timeout waiting for the floating IP to be attached.",
                 wait=min(5, timeout),
             ):
-                server = self.get_server_by_id(server_id)
+                server = self.compute.get_server(server_id)
                 ext_ip = meta.get_server_ip(
                     server, ext_tag='floating', public=True
                 )
@@ -879,7 +880,7 @@ class FloatingIPCloudMixin:
                 timeout=timeout,
             )
             timeout = timeout - (time.time() - start_time)
-            server = self.get_server(server.id)
+            server = self.compute.get_server(server.id)
 
         # We run attach as a second call rather than in the create call
         # because there are code flows where we will not have an attached
@@ -1154,8 +1155,7 @@ class FloatingIPCloudMixin:
         :param fixed_address: Fixed ip address of the port
         :param nat_destination: Name or ID of the network of the port.
         """
-        port_filter = {'device_id': server['id']}
-        ports = self.search_ports(filters=port_filter)
+        ports = list(self.network.ports(device_id=server['id']))
         if not ports:
             return (None, None)
 
@@ -1163,7 +1163,7 @@ class FloatingIPCloudMixin:
         if not fixed_address:
             if len(ports) > 1:
                 if nat_destination:
-                    nat_network = self.get_network(nat_destination)
+                    nat_network = self.network.find_network(nat_destination)
                     if not nat_network:
                         raise exceptions.SDKException(
                             'NAT Destination {nat_destination} was configured'

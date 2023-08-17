@@ -144,7 +144,7 @@ class BlockStorageCloudMixin:
             wait = True
 
         if image:
-            image_obj = self.get_image(image)
+            image_obj = self.image.find_image(image)
             if not image_obj:
                 raise exceptions.SDKException(
                     f"Image {image} was requested as the basis for a new "
@@ -273,7 +273,7 @@ class BlockStorageCloudMixin:
         """
         params = {}
         if name_or_id:
-            project = self.get_project(name_or_id)
+            project = self.identity.find_project(name_or_id)
             if not project:
                 raise exceptions.SDKException("project does not exist")
             params['project'] = project

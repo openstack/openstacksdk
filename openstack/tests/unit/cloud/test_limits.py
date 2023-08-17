@@ -58,7 +58,7 @@ class TestLimits(base.TestCase):
 
     def test_other_get_compute_limits(self):
         project = self.mock_for_keystone_projects(
-            project_count=1, list_get=True
+            project_count=1, id_get=True
         )[0]
         self.register_uris(
             [

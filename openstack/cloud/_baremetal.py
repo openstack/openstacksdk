@@ -427,7 +427,7 @@ class BaremetalCloudMixin:
         :return: Nothing.
         """
         machine = self.get_machine(name_or_id)
-        port = self.get_port(port_name_or_id)
+        port = self.network.find_port(port_name_or_id)
         self.baremetal.attach_vif_to_node(machine, port['id'])
 
     def detach_port_from_machine(self, name_or_id, port_name_or_id):
@@ -439,7 +439,7 @@ class BaremetalCloudMixin:
         :return: Nothing.
         """
         machine = self.get_machine(name_or_id)
-        port = self.get_port(port_name_or_id)
+        port = self.network.find_port(port_name_or_id)
         self.baremetal.detach_vif_from_node(machine, port['id'])
 
     def list_ports_attached_to_machine(self, name_or_id):
@@ -451,7 +451,7 @@ class BaremetalCloudMixin:
         """
         machine = self.get_machine(name_or_id)
         vif_ids = self.baremetal.list_node_vifs(machine)
-        return [self.get_port(vif) for vif in vif_ids]
+        return [self.network.find_port(vif) for vif in vif_ids]
 
     def validate_machine(self, name_or_id, for_deploy=True):
         """Validate parameters of the machine.
