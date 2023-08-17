@@ -886,7 +886,7 @@ class Node(_common.ListMixin, resource.Resource):
         return [vif['id'] for vif in response.json()['vifs']]
 
     def validate(self, session, required=('boot', 'deploy', 'power')):
-        """Validate required information on a node.
+        """Validate required information on the node.
 
         :param session: The session to use for making this request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
@@ -970,6 +970,11 @@ class Node(_common.ListMixin, resource.Resource):
         exceptions.raise_from_response(response, error_message=msg)
 
     def get_boot_device(self, session):
+        """Get node boot device.
+
+        :param session: The session to use for making this request.
+        :returns: The HTTP response.
+        """
         session = self._get_session(session)
         version = self._get_microversion(session, action='fetch')
         request = self._prepare_request(requires_id=True)
@@ -996,6 +1001,7 @@ class Node(_common.ListMixin, resource.Resource):
         :param boot_device: Boot device to assign to the node.
         :param persistent: If the boot device change is maintained after node
             reboot
+        :returns: ``None``
         """
         session = self._get_session(session)
         version = self._get_microversion(session, action='commit')
@@ -1016,6 +1022,11 @@ class Node(_common.ListMixin, resource.Resource):
         exceptions.raise_from_response(response, error_message=msg)
 
     def get_supported_boot_devices(self, session):
+        """Get supported boot devices for the node.
+
+        :param session: The session to use for making this request.
+        :returns: The HTTP response.
+        """
         session = self._get_session(session)
         version = self._get_microversion(session, action='fetch')
         request = self._prepare_request(requires_id=True)
@@ -1048,6 +1059,7 @@ class Node(_common.ListMixin, resource.Resource):
 
         :param session: The session to use for making this request.
         :param target: Boot mode to set for node, one of either 'uefi'/'bios'.
+        :returns: ``None``
         :raises: ValueError if ``target`` is not one of 'uefi or 'bios'.
         """
         session = self._get_session(session)
@@ -1083,6 +1095,7 @@ class Node(_common.ListMixin, resource.Resource):
         :param session: The session to use for making this request.
         :param bool target: Boolean indicating secure boot state to set.
             True/False corresponding to 'on'/'off' respectively.
+        :returns: ``None``
         :raises: ValueError if ``target`` is not boolean.
         """
         session = self._get_session(session)
@@ -1112,10 +1125,11 @@ class Node(_common.ListMixin, resource.Resource):
         exceptions.raise_from_response(response, error_message=msg)
 
     def add_trait(self, session, trait):
-        """Add a trait to a node.
+        """Add a trait to the node.
 
         :param session: The session to use for making this request.
         :param trait: The trait to add to the node.
+        :returns: ``None``
         """
         session = self._get_session(session)
         version = utils.pick_microversion(session, '1.37')
@@ -1137,7 +1151,7 @@ class Node(_common.ListMixin, resource.Resource):
         self.traits = list(set(self.traits or ()) | {trait})
 
     def remove_trait(self, session, trait, ignore_missing=True):
-        """Remove a trait from a node.
+        """Remove a trait from the node.
 
         :param session: The session to use for making this request.
         :param trait: The trait to remove from the node.
@@ -1179,13 +1193,14 @@ class Node(_common.ListMixin, resource.Resource):
         return True
 
     def set_traits(self, session, traits):
-        """Set traits for a node.
+        """Set traits for the node.
 
         Removes any existing traits and adds the traits passed in to this
         method.
 
         :param session: The session to use for making this request.
         :param traits: list of traits to add to the node.
+        :returns: ``None``
         """
         session = self._get_session(session)
         version = utils.pick_microversion(session, '1.37')
@@ -1243,7 +1258,7 @@ class Node(_common.ListMixin, resource.Resource):
         return response
 
     def list_vendor_passthru(self, session):
-        """List vendor passthru methods.
+        """List vendor passthru methods for the node.
 
         :param session: The session to use for making this request.
         :returns: The HTTP response.
@@ -1268,6 +1283,11 @@ class Node(_common.ListMixin, resource.Resource):
         return response.json()
 
     def get_console(self, session):
+        """Get the node console.
+
+        :param session: The session to use for making this request.
+        :returns: The HTTP response.
+        """
         session = self._get_session(session)
         version = self._get_microversion(session, action='fetch')
         request = self._prepare_request(requires_id=True)
@@ -1288,6 +1308,12 @@ class Node(_common.ListMixin, resource.Resource):
         return response.json()
 
     def set_console_mode(self, session, enabled):
+        """Set the node console mode.
+
+        :param session: The session to use for making this request.
+        :param enabled: Whether the console should be enabled or not.
+        :return: ``None``
+        """
         session = self._get_session(session)
         version = self._get_microversion(session, action='commit')
         request = self._prepare_request(requires_id=True)
@@ -1312,7 +1338,15 @@ class Node(_common.ListMixin, resource.Resource):
         )
         exceptions.raise_from_response(response, error_message=msg)
 
+    # TODO(stephenfin): Drop 'node_id' and use 'self.id' instead or convert to
+    # a classmethod
     def get_node_inventory(self, session, node_id):
+        """Get a node's inventory.
+
+        :param session: The session to use for making this request.
+        :param node_id: The ID of the node.
+        :returns: The HTTP response.
+        """
         session = self._get_session(session)
         version = self._get_microversion(session, action='fetch')
         request = self._prepare_request(requires_id=True)
