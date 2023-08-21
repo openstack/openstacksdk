@@ -147,10 +147,8 @@ class BlockStorageCloudMixin:
             image_obj = self.get_image(image)
             if not image_obj:
                 raise exceptions.SDKException(
-                    "Image {image} was requested as the basis for a new"
-                    " volume, but was not found on the cloud".format(
-                        image=image
-                    )
+                    f"Image {image} was requested as the basis for a new "
+                    f"volume but was not found on the cloud"
                 )
             kwargs['imageRef'] = image_obj['id']
         kwargs = self._get_volume_kwargs(kwargs)

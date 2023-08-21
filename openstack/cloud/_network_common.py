@@ -146,12 +146,12 @@ class NetworkCommonCloudMixin:
             if self._nat_source in (network['name'], network['id']):
                 if nat_source:
                     raise exceptions.SDKException(
-                        'Multiple networks were found matching'
-                        ' {nat_net} which is the network configured'
-                        ' to be the NAT source. Please check your'
-                        ' cloud resources. It is probably a good idea'
-                        ' to configure this network by ID rather than'
-                        ' by name.'.format(nat_net=self._nat_source)
+                        'Multiple networks were found matching '
+                        '{nat_net} which is the network configured '
+                        'to be the NAT source. Please check your '
+                        'cloud resources. It is probably a good idea '
+                        'to configure this network by ID rather than '
+                        'by name.'.format(nat_net=self._nat_source)
                     )
                 external_ipv4_floating_networks.append(network)
                 nat_source = network
@@ -164,12 +164,12 @@ class NetworkCommonCloudMixin:
             if self._nat_destination in (network['name'], network['id']):
                 if nat_destination:
                     raise exceptions.SDKException(
-                        'Multiple networks were found matching'
-                        ' {nat_net} which is the network configured'
-                        ' to be the NAT destination. Please check your'
-                        ' cloud resources. It is probably a good idea'
-                        ' to configure this network by ID rather than'
-                        ' by name.'.format(nat_net=self._nat_destination)
+                        'Multiple networks were found matching '
+                        '{nat_net} which is the network configured '
+                        'to be the NAT destination. Please check your '
+                        'cloud resources. It is probably a good idea '
+                        'to configure this network by ID rather than '
+                        'by name.'.format(nat_net=self._nat_destination)
                     )
                 nat_destination = network
             elif self._nat_destination is None:
@@ -199,13 +199,13 @@ class NetworkCommonCloudMixin:
             if self._default_network in (network['name'], network['id']):
                 if default_network:
                     raise exceptions.SDKException(
-                        'Multiple networks were found matching'
-                        ' {default_net} which is the network'
-                        ' configured to be the default interface'
-                        ' network. Please check your cloud resources.'
-                        ' It is probably a good idea'
-                        ' to configure this network by ID rather than'
-                        ' by name.'.format(default_net=self._default_network)
+                        'Multiple networks were found matching '
+                        '{default_net} which is the network '
+                        'configured to be the default interface '
+                        'network. Please check your cloud resources. '
+                        'It is probably a good idea '
+                        'to configure this network by ID rather than '
+                        'by name.'.format(default_net=self._default_network)
                     )
                 default_network = network
 
@@ -213,8 +213,8 @@ class NetworkCommonCloudMixin:
         for net_name in self._external_ipv4_names:
             if net_name not in [net['name'] for net in external_ipv4_networks]:
                 raise exceptions.SDKException(
-                    "Networks: {network} was provided for external IPv4"
-                    " access and those networks could not be found".format(
+                    "Networks: {network} was provided for external IPv4 "
+                    "access and those networks could not be found".format(
                         network=net_name
                     )
                 )
@@ -222,8 +222,8 @@ class NetworkCommonCloudMixin:
         for net_name in self._internal_ipv4_names:
             if net_name not in [net['name'] for net in internal_ipv4_networks]:
                 raise exceptions.SDKException(
-                    "Networks: {network} was provided for internal IPv4"
-                    " access and those networks could not be found".format(
+                    "Networks: {network} was provided for internal IPv4 "
+                    "access and those networks could not be found".format(
                         network=net_name
                     )
                 )
@@ -231,8 +231,8 @@ class NetworkCommonCloudMixin:
         for net_name in self._external_ipv6_names:
             if net_name not in [net['name'] for net in external_ipv6_networks]:
                 raise exceptions.SDKException(
-                    "Networks: {network} was provided for external IPv6"
-                    " access and those networks could not be found".format(
+                    "Networks: {network} was provided for external IPv6 "
+                    "access and those networks could not be found".format(
                         network=net_name
                     )
                 )
@@ -240,31 +240,31 @@ class NetworkCommonCloudMixin:
         for net_name in self._internal_ipv6_names:
             if net_name not in [net['name'] for net in internal_ipv6_networks]:
                 raise exceptions.SDKException(
-                    "Networks: {network} was provided for internal IPv6"
-                    " access and those networks could not be found".format(
+                    "Networks: {network} was provided for internal IPv6 "
+                    "access and those networks could not be found".format(
                         network=net_name
                     )
                 )
 
         if self._nat_destination and not nat_destination:
             raise exceptions.SDKException(
-                'Network {network} was configured to be the'
-                ' destination for inbound NAT but it could not be'
-                ' found'.format(network=self._nat_destination)
+                'Network {network} was configured to be the '
+                'destination for inbound NAT but it could not be '
+                'found'.format(network=self._nat_destination)
             )
 
         if self._nat_source and not nat_source:
             raise exceptions.SDKException(
-                'Network {network} was configured to be the'
-                ' source for inbound NAT but it could not be'
-                ' found'.format(network=self._nat_source)
+                'Network {network} was configured to be the '
+                'source for inbound NAT but it could not be '
+                'found'.format(network=self._nat_source)
             )
 
         if self._default_network and not default_network:
             raise exceptions.SDKException(
-                'Network {network} was configured to be the'
-                ' default network interface but it could not be'
-                ' found'.format(network=self._default_network)
+                'Network {network} was configured to be the '
+                'default network interface but it could not be '
+                'found'.format(network=self._default_network)
             )
 
         self._external_ipv4_networks = external_ipv4_networks

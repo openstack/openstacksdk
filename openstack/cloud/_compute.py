@@ -389,13 +389,14 @@ class ComputeCloudMixin:
             valid project
         """
         params = {}
-        project_id = None
         if name_or_id:
-            proj = self.get_project(name_or_id)
-            if not proj:
-                raise exceptions.SDKException("project does not exist")
-            project_id = proj.id
-            params['tenant_id'] = project_id
+            project = self.get_project(name_or_id)
+            if not project:
+                raise exceptions.SDKException(
+                    f"Project {name_or_id} was requested but was not found "
+                    f"on the cloud"
+                )
+            params['tenant_id'] = project.id
         return self.compute.get_limits(**params).absolute
 
     def get_keypair(self, name_or_id, filters=None):
@@ -1031,12 +1032,8 @@ class ComputeCloudMixin:
             volume = self.get_volume(boot_volume)
             if not volume:
                 raise exceptions.SDKException(
-                    'Volume {boot_volume} is not a valid volume'
-                    ' in {cloud}:{region}'.format(
-                        boot_volume=boot_volume,
-                        cloud=self.name,
-                        region=self._compute_region,
-                    )
+                    f"Volume {volume} was requested but was not found "
+                    f"on the cloud"
                 )
             block_mapping = {
                 'boot_index': '0',
@@ -1052,15 +1049,11 @@ class ComputeCloudMixin:
                 image_obj = image
             else:
                 image_obj = self.get_image(image)
-            if not image_obj:
-                raise exceptions.SDKException(
-                    'Image {image} is not a valid image in'
-                    ' {cloud}:{region}'.format(
-                        image=image,
-                        cloud=self.name,
-                        region=self._compute_region,
+                if not image_obj:
+                    raise exceptions.SDKException(
+                        f"Image {image} was requested but was not found "
+                        f"on the cloud"
                     )
-                )
 
             block_mapping = {
                 'boot_index': '0',
@@ -1076,23 +1069,19 @@ class ComputeCloudMixin:
             # If we're attaching volumes on boot but booting from an image,
             # we need to specify that in the BDM.
             block_mapping = {
-                u'boot_index': 0,
-                u'delete_on_termination': True,
-                u'destination_type': u'local',
-                u'source_type': u'image',
-                u'uuid': kwargs['imageRef'],
+                'boot_index': 0,
+                'delete_on_termination': True,
+                'destination_type': 'local',
+                'source_type': 'image',
+                'uuid': kwargs['imageRef'],
             }
             kwargs['block_device_mapping_v2'].append(block_mapping)
         for volume in volumes:
             volume_obj = self.get_volume(volume)
             if not volume_obj:
                 raise exceptions.SDKException(
-                    'Volume {volume} is not a valid volume'
-                    ' in {cloud}:{region}'.format(
-                        volume=volume,
-                        cloud=self.name,
-                        region=self._compute_region,
-                    )
+                    f"Volume {volume} was requested but was not found "
+                    f"on the cloud"
                 )
             block_mapping = {
                 'boot_index': '-1',
@@ -1824,7 +1813,8 @@ class ComputeCloudMixin:
         proj = self.get_project(name_or_id)
         if not proj:
             raise exceptions.SDKException(
-                "project does not exist: {name}".format(name=proj.id)
+                f"Project {name_or_id} was requested but was not found "
+                f"on the cloud"
             )
 
         return self.compute.get_usage(proj, start, end)

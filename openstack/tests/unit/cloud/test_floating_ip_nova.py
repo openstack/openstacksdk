@@ -110,7 +110,8 @@ class TestFloatingIP(base.TestCase):
     def test_list_floating_ips_with_filters(self):
         self.assertRaisesRegex(
             ValueError,
-            "Nova-network don't support server-side",
+            "nova-network doesn't support server-side floating IPs filtering. "
+            "Use the 'search_floating_ips' method instead",
             self.cloud.list_floating_ips,
             filters={'Foo': 42},
         )

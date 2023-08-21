@@ -144,8 +144,8 @@ class FloatingIPCloudMixin:
         else:
             if filters:
                 raise ValueError(
-                    "Nova-network don't support server-side floating ips "
-                    "filtering. Use the search_floating_ips method instead"
+                    "nova-network doesn't support server-side floating IPs "
+                    "filtering. Use the 'search_floating_ips' method instead"
                 )
 
         floating_ips = self._nova_list_floating_ips()
@@ -159,7 +159,7 @@ class FloatingIPCloudMixin:
         neutron. `get_external_ipv4_floating_networks` is what you should
         almost certainly be using.
 
-        :returns: A list of floating IP pools
+        :returns: A list of floating IP pool objects
         """
         if not self._has_nova_extension('os-floating-ip-pools'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -407,11 +407,11 @@ class FloatingIPCloudMixin:
 
         if port:
             raise exceptions.SDKException(
-                "This cloud uses nova-network which does not support"
-                " arbitrary floating-ip/port mappings. Please nudge"
-                " your cloud provider to upgrade the networking stack"
-                " to neutron, or alternately provide the server,"
-                " fixed_address and nat_destination arguments as appropriate"
+                "This cloud uses nova-network which does not support "
+                "arbitrary floating-ip/port mappings. Please nudge "
+                "your cloud provider to upgrade the networking stack "
+                "to neutron, or alternately provide the server, "
+                "fixed_address and nat_destination arguments as appropriate"
             )
         # Else, we are using Nova network
         f_ips = self._normalize_floating_ips(
@@ -482,8 +482,8 @@ class FloatingIPCloudMixin:
                             break
                 except exceptions.ResourceTimeout:
                     self.log.error(
-                        "Timed out on floating ip %(fip)s becoming active."
-                        " Deleting",
+                        "Timed out on floating ip %(fip)s becoming active. "
+                        "Deleting",
                         {'fip': fip_id},
                     )
                     try:
@@ -499,8 +499,8 @@ class FloatingIPCloudMixin:
             if fip['port_id'] != port:
                 if server:
                     raise exceptions.SDKException(
-                        "Attempted to create FIP on port {port} for server"
-                        " {server} but FIP has port {port_id}".format(
+                        "Attempted to create FIP on port {port} for server "
+                        "{server} but FIP has port {port_id}".format(
                             port=port,
                             port_id=fip['port_id'],
                             server=server['id'],
@@ -508,8 +508,8 @@ class FloatingIPCloudMixin:
                     )
                 else:
                     raise exceptions.SDKException(
-                        "Attempted to create FIP on port {port}"
-                        " but something went wrong".format(port=port)
+                        "Attempted to create FIP on port {port} "
+                        "but something went wrong".format(port=port)
                     )
         return fip
 
@@ -542,9 +542,9 @@ class FloatingIPCloudMixin:
 
         :param floating_ip_id: a floating IP address ID.
         :param retry: number of times to retry. Optional, defaults to 1,
-                      which is in addition to the initial delete call.
-                      A value of 0 will also cause no checking of results to
-                      occur.
+            which is in addition to the initial delete call.
+            A value of 0 will also cause no checking of results to
+            occur.
 
         :returns: True if the IP address has been deleted, False if the IP
             address was not found.
@@ -566,10 +566,10 @@ class FloatingIPCloudMixin:
                 return True
 
         raise exceptions.SDKException(
-            "Attempted to delete Floating IP {ip} with ID {id} a total of"
-            " {retry} times. Although the cloud did not indicate any errors"
-            " the floating ip is still in existence. Aborting further"
-            " operations.".format(
+            "Attempted to delete Floating IP {ip} with ID {id} a total of "
+            "{retry} times. Although the cloud did not indicate any errors "
+            "the floating IP is still in existence. Aborting further "
+            "operations.".format(
                 id=floating_ip_id,
                 ip=f_ip['floating_ip_address'],
                 retry=retry + 1,
@@ -623,9 +623,8 @@ class FloatingIPCloudMixin:
         IPs by passing in a server to the create_floating_ip call.
 
         :param retry: number of times to retry. Optional, defaults to 1,
-                      which is in addition to the initial delete call.
-                      A value of 0 will also cause no checking of results to
-                      occur.
+            which is in addition to the initial delete call.
+            A value of 0 will also cause no checking of results to occur.
 
         :returns: Number of Floating IPs deleted, False if none
         :raises: :class:`~openstack.exceptions.SDKException` on operation
@@ -657,15 +656,15 @@ class FloatingIPCloudMixin:
         :param server: Server dict
         :param floating_ip: Floating IP dict to attach
         :param fixed_address: (optional) fixed address to which attach the
-                              floating IP to.
+            floating IP to.
         :param wait: (optional) Wait for the address to appear as assigned
-                     to the server. Defaults to False.
+            to the server. Defaults to False.
         :param timeout: (optional) Seconds to wait, defaults to 60.
-                        See the ``wait`` parameter.
+            See the ``wait`` parameter.
         :param skip_attach: (optional) Skip the actual attach and just do
-                            the wait. Defaults to False.
+            the wait. Defaults to False.
         :param nat_destination: The fixed network the server's port for the
-                                FIP to attach to will come from.
+            FIP to attach to will come from.
 
         :returns: The server ``openstack.compute.v2.server.Server``
         :raises: :class:`~openstack.exceptions.SDKException` on operation
@@ -859,11 +858,11 @@ class FloatingIPCloudMixin:
         :param fixed_address: a fixed address
         :param reuse: Try to reuse existing ips. Defaults to True.
         :param wait: (optional) Wait for the address to appear as assigned
-                     to the server. Defaults to False.
+            to the server. Defaults to False.
         :param timeout: (optional) Seconds to wait, defaults to 60.
-                        See the ``wait`` parameter.
+            See the ``wait`` parameter.
         :param nat_destination: (optional) the name of the network of the
-                                port to associate with the floating ip.
+            port to associate with the floating ip.
 
         :returns: the updated server ``openstack.compute.v2.server.Server``
         """
@@ -910,14 +909,13 @@ class FloatingIPCloudMixin:
         :param server: a server object
         :param ips: list of floating IP addresses or a single address
         :param wait: (optional) Wait for the address to appear as assigned
-                     to the server. Defaults to False.
+            to the server. Defaults to False.
         :param timeout: (optional) Seconds to wait, defaults to 60.
-                        See the ``wait`` parameter.
+            See the ``wait`` parameter.
         :param fixed_address: (optional) Fixed address of the server to
-                                         attach the IP to
+            attach the IP to
         :param nat_destination: (optional) Name or ID of the network that
-                                          the fixed IP to attach the
-                                          floating IP should be on
+            the fixed IP to attach the floating IP should be on
 
         :returns: The updated server ``openstack.compute.v2.server.Server``
         :raises: :class:`~openstack.exceptions.SDKException` on operation
@@ -953,15 +951,14 @@ class FloatingIPCloudMixin:
 
         :param server: a server dictionary.
         :param reuse: Whether or not to attempt to reuse IPs, defaults
-                      to True.
+            to True.
         :param wait: (optional) Wait for the address to appear as assigned
-                     to the server. Defaults to False.
+            to the server. Defaults to False.
         :param timeout: (optional) Seconds to wait, defaults to 60.
-                        See the ``wait`` parameter.
+            See the ``wait`` parameter.
         :param reuse: Try to reuse existing ips. Defaults to True.
 
         :returns: Floating IP address attached to server.
-
         """
         server = self._add_auto_ip(
             server, wait=wait, timeout=timeout, reuse=reuse
@@ -1004,10 +1001,10 @@ class FloatingIPCloudMixin:
                 # It failed. Delete so as not to leak an unmanaged
                 # resource
                 self.log.error(
-                    "Timeout waiting for floating IP to become"
-                    " active. Floating IP %(ip)s:%(id)s was created for"
-                    " server %(server)s but is being deleted due to"
-                    " activation failure.",
+                    "Timeout waiting for floating IP to become "
+                    "active. Floating IP %(ip)s:%(id)s was created for "
+                    "server %(server)s but is being deleted due to "
+                    "activation failure.",
                     {
                         'ip': f_ip['floating_ip_address'],
                         'id': f_ip['id'],
@@ -1265,7 +1262,7 @@ class FloatingIPCloudMixin:
         Neutron.
         This function extract attributes that are common to Nova and Neutron
         floating IP resource.
-        If the whole structure is needed inside shade, shade provides private
+        If the whole structure is needed inside openstacksdk there are private
         methods that returns "original" objects (e.g.
         _neutron_allocate_floating_ip)
 
