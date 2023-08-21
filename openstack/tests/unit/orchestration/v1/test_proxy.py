@@ -150,6 +150,22 @@ class TestOrchestrationStack(TestOrchestrationProxy):
             expected_args=[self.proxy],
         )
 
+    def test_suspend_stack(self):
+        self._verify(
+            'openstack.orchestration.v1.stack.Stack.suspend',
+            self.proxy.suspend_stack,
+            method_args=['stack'],
+            expected_args=[self.proxy],
+        )
+
+    def test_resume_stack(self):
+        self._verify(
+            'openstack.orchestration.v1.stack.Stack.resume',
+            self.proxy.resume_stack,
+            method_args=['stack'],
+            expected_args=[self.proxy],
+        )
+
     def test_delete_stack(self):
         self.verify_delete(self.proxy.delete_stack, stack.Stack, False)
 

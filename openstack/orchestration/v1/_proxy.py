@@ -240,6 +240,26 @@ class Proxy(proxy.Proxy):
             obj = self._find(_stack.Stack, stack, ignore_missing=False)
         return obj.export(self)
 
+    def suspend_stack(self, stack):
+        """Suspend a stack status
+
+        :param stack: The value can be either the ID of a stack or an instance
+            of :class:`~openstack.orchestration.v1.stack.Stack`.
+        :returns: ``None``
+        """
+        res = self._get_resource(_stack.Stack, stack)
+        res.suspend(self)
+
+    def resume_stack(self, stack):
+        """Resume a stack status
+
+        :param stack: The value can be either the ID of a stack or an instance
+            of :class:`~openstack.orchestration.v1.stack.Stack`.
+        :returns: ``None``
+        """
+        res = self._get_resource(_stack.Stack, stack)
+        res.resume(self)
+
     def get_stack_template(self, stack):
         """Get template used by a stack
 

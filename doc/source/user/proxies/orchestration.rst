@@ -18,7 +18,7 @@ Stack Operations
 
 .. autoclass:: openstack.orchestration.v1._proxy.Proxy
   :noindex:
-  :members: create_stack, check_stack, update_stack, delete_stack, find_stack,
+  :members: create_stack, check_stack, update_stack, delete_stack, find_stack, suspend_stack, resume_stack,
             get_stack, get_stack_environment, get_stack_files,
             get_stack_template, stacks, validate_template, resources,
             export_stack

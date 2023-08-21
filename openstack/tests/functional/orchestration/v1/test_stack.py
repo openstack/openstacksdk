@@ -80,3 +80,26 @@ class TestStack(base.BaseFunctionalTest):
     def test_list(self):
         names = [o.name for o in self.conn.orchestration.stacks()]
         self.assertIn(self.NAME, names)
+
+    def test_suspend_resume(self):
+        # given
+        suspend_status = "SUSPEND_COMPLETE"
+        resume_status = "RESUME_COMPLETE"
+
+        # when
+        self.conn.orchestration.suspend_stack(self.stack)
+        sot = self.conn.orchestration.wait_for_status(
+            self.stack, suspend_status, wait=self._wait_for_timeout
+        )
+
+        # then
+        self.assertEqual(suspend_status, sot.status)
+
+        # when
+        self.conn.orchestration.resume_stack(self.stack)
+        sot = self.conn.orchestration.wait_for_status(
+            self.stack, resume_status, wait=self._wait_for_timeout
+        )
+
+        # then
+        self.assertEqual(resume_status, sot.status)

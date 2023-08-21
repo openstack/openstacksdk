@@ -192,6 +192,24 @@ class Stack(resource.Resource):
         exceptions.raise_from_response(resp)
         return resp.json()
 
+    def suspend(self, session):
+        """Suspend a stack
+
+        :param session: The session to use for making this request
+        :returns: None
+        """
+        body = {"suspend": None}
+        self._action(session, body)
+
+    def resume(self, session):
+        """Resume a stack
+
+        :param session: The session to use for making this request
+        :returns: None
+        """
+        body = {"resume": None}
+        self._action(session, body)
+
     def fetch(
         self,
         session,

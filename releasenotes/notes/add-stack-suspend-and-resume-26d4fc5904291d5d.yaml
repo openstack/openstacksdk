@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Adds ``suspend_stack`` and ``resume_stack`` to support stack non-lifecycle operations.

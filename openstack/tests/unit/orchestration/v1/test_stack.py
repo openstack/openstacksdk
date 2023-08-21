@@ -340,3 +340,39 @@ class TestStack(base.TestCase):
             FAKE_UPDATE_PREVIEW_RESPONSE['unchanged'], ret.unchanged
         )
         self.assertEqual(FAKE_UPDATE_PREVIEW_RESPONSE['updated'], ret.updated)
+
+    def test_suspend(self):
+        sess = mock.Mock()
+
+        mock_response = mock.Mock()
+        mock_response.status_code = 200
+        mock_response.headers = {}
+        mock_response.json.return_value = {}
+        sess.post = mock.Mock(return_value=mock_response)
+        url = "stacks/%s/actions" % FAKE_ID
+        body = {"suspend": None}
+        sot = stack.Stack(**FAKE)
+
+        res = sot.suspend(sess)
+
+        self.assertIsNone(res)
+        sess.post.assert_called_with(url, json=body, microversion=None)
+
+    def test_resume(self):
+        sess = mock.Mock()
+
+        mock_response = mock.Mock()
+        mock_response.status_code = 200
+        mock_response.headers = {}
+        mock_response.json.return_value = {}
+        sess.post = mock.Mock(return_value=mock_response)
+        url = "stacks/%s/actions" % FAKE_ID
+
+        body = {"resume": None}
+
+        sot = stack.Stack(**FAKE)
+
+        res = sot.resume(sess)
+
+        self.assertIsNone(res)
+        sess.post.assert_called_with(url, json=body, microversion=None)
