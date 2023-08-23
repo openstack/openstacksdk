@@ -34,6 +34,7 @@ EXAMPLE = {
     'dns_name': '12',
     'extra_dhcp_opts': [{'13': 13}],
     'fixed_ips': [{'14': '14'}],
+    'hardware_offload_type': None,
     'id': IDENTIFIER,
     'ip_allocation': 'immediate',
     'mac_address': '16',
