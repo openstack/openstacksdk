@@ -40,6 +40,9 @@ EXAMPLE = {
     'updated_at': '2017-07-17T12:16:57.233772',
     'operating_status': 'ONLINE',
     'provisioning_status': 'ACTIVE',
+    'hsts_include_subdomains': True,
+    'hsts_max_age': 30_000_000,
+    'hsts_preload': False,
     'timeout_client_data': 50000,
     'timeout_member_connect': 5000,
     'timeout_member_data': 50000,
@@ -102,6 +105,9 @@ class TestListener(base.TestCase):
         )
         self.assertEqual(EXAMPLE['created_at'], test_listener.created_at)
         self.assertEqual(EXAMPLE['updated_at'], test_listener.updated_at)
+        self.assertTrue(test_listener.is_hsts_include_subdomains)
+        self.assertEqual(EXAMPLE['hsts_max_age'], test_listener.hsts_max_age)
+        self.assertFalse(test_listener.is_hsts_preload)
         self.assertEqual(
             EXAMPLE['provisioning_status'], test_listener.provisioning_status
         )
@@ -143,6 +149,9 @@ class TestListener(base.TestCase):
                 'operating_status': 'operating_status',
                 'provisioning_status': 'provisioning_status',
                 'is_admin_state_up': 'admin_state_up',
+                'is_hsts_include_subdomains': 'hsts_include_subdomains',
+                'hsts_max_age': 'hsts_max_age',
+                'is_hsts_preload': 'hsts_preload',
                 'allowed_cidrs': 'allowed_cidrs',
                 'connection_limit': 'connection_limit',
                 'default_pool_id': 'default_pool_id',

@@ -49,6 +49,9 @@ class Listener(resource.Resource, tag.TagMixin):
         'tls_ciphers',
         'tls_versions',
         'alpn_protocols',
+        'hsts_max_age',
+        is_hsts_include_subdomains='hsts_include_subdomains',
+        is_hsts_preload='hsts_preload',
         is_admin_state_up='admin_state_up',
         **tag.TagMixin._tag_query_parameters
     )
@@ -71,6 +74,16 @@ class Listener(resource.Resource, tag.TagMixin):
     default_tls_container_ref = resource.Body('default_tls_container_ref')
     #: Description for the listener.
     description = resource.Body('description')
+    #: Defines whether the `include_subdomains` directive is used for HSTS or
+    #: not
+    is_hsts_include_subdomains = resource.Body(
+        'hsts_include_subdomains', type=bool
+    )
+    #: Enables HTTP Strict Transport Security (HSTS) and sets the `max_age`
+    #: directive to given value
+    hsts_max_age = resource.Body('hsts_max_age', type=int)
+    #: Defines whether the `hsts_preload` directive is used for HSTS or not
+    is_hsts_preload = resource.Body('hsts_preload', type=bool)
     #: Dictionary of additional headers insertion into HTTP header.
     insert_headers = resource.Body('insert_headers', type=dict)
     #: The administrative state of the listener, which is up

@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added new fields to loadbalancer create/update listener API in order to
+    support new HTTP Strict Transport Security support.
