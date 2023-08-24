@@ -329,3 +329,20 @@ BGPVPN operations
             bgpvpn_port_associations, create_bgpvpn_router_association,
             delete_bgpvpn_router_association, get_bgpvpn_router_association,
             update_bgpvpn_router_association, bgpvpn_router_associations
+
+SFC operations
+^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.network.v2._proxy.Proxy
+  :noindex:
+  :members: create_sfc_flow_classifier, delete_sfc_flow_classifier,
+            find_sfc_flow_classifier, get_sfc_flow_classifier,
+            update_sfc_flow_classifier, create_sfc_port_chain,
+            delete_sfc_port_chain, find_sfc_port_chain, get_sfc_port_chain,
+            update_sfc_port_chain, create_sfc_port_pair, delete_sfc_port_pair,
+            find_sfc_port_pair, get_sfc_port_pair, update_sfc_port_pair,
+            create_sfc_port_pair_group, delete_sfc_port_pair_group,
+            find_sfc_port_pair_group, get_sfc_port_pair_group,
+            update_sfc_port_pair_group, create_sfc_service_graph,
+            delete_sfc_service_graph, find_sfc_service_graph,
+            get_sfc_service_graph, update_sfc_service_graph
