@@ -471,9 +471,6 @@ class Resource(dict):
     #: The base part of the URI for this resource.
     base_path = ""
 
-    #: The service associated with this resource to find the service URL.
-    service = None
-
     #: Allow create operation for this resource.
     allow_create = False
     #: Allow get operation for this resource.
@@ -1339,9 +1336,6 @@ class Resource(dict):
         # Resource class that is calling session.$something to be complete.
         if isinstance(session, adapter.Adapter):
             return session
-        if hasattr(session, '_sdk_connection'):
-            service_type = cls.service['service_type']
-            return getattr(session._sdk_connection, service_type)
         raise ValueError(
             "The session argument to Resource methods requires either an"
             " instance of an openstack.proxy.Proxy object or at the very least"

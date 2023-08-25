@@ -113,7 +113,6 @@ class TestRateLimit(base.TestCase):
         self.assertIsNone(sot.resource_key)
         self.assertIsNone(sot.resources_key)
         self.assertEqual("", sot.base_path)
-        self.assertIsNone(sot.service)
         self.assertFalse(sot.allow_create)
         self.assertFalse(sot.allow_fetch)
         self.assertFalse(sot.allow_commit)
