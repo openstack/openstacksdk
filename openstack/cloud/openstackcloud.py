@@ -9,14 +9,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import copy
 import functools
 import queue
-
-# import types so that we can reference ListType in sphinx param declarations.
-# We can't just use list, because sphinx gets confused by
-# openstack.resource.Resource.list and openstack.resource2.Resource.list
-import types  # noqa
 import warnings
 
 import dogpile.cache

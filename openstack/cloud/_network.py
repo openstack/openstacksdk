@@ -10,12 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# import types so that we can reference ListType in sphinx param declarations.
-# We can't just use list, because sphinx gets confused by
-# openstack.resource.Resource.list and openstack.resource2.Resource.list
 import threading
 import time
-import types  # noqa
 
 from openstack.cloud import _utils
 from openstack.cloud import exc
