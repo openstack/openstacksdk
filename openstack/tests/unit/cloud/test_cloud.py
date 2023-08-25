@@ -33,7 +33,7 @@ RANGE_DATA = [
 ]
 
 
-class TestShade(base.TestCase):
+class TestCloud(base.TestCase):
     def setUp(self):
         # This set of tests are not testing neutron, they're testing
         # rebuilding servers, but we do several network calls in service
@@ -43,7 +43,7 @@ class TestShade(base.TestCase):
         # and then turn it back on in the few tests that specifically do.
         # Maybe we should reorg these into two classes - one with neutron
         # mocked out - and one with it not mocked out
-        super(TestShade, self).setUp()
+        super().setUp()
         self.has_neutron = False
 
         def fake_has_service(*args, **kwargs):
