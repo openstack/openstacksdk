@@ -206,11 +206,18 @@ class TestStack(base.TestCase):
         sess = mock.Mock()
         sot = stack.Stack(**FAKE)
         sot._action = mock.Mock()
+        sot._action.side_effect = [
+            test_resource.FakeResponse(None, 200, None),
+            exceptions.BadRequestException(message='oops'),
+            exceptions.NotFoundException(message='oops'),
+        ]
         body = {'check': ''}
 
         sot.check(sess)
-
         sot._action.assert_called_with(sess, body)
+
+        self.assertRaises(exceptions.BadRequestException, sot.check, sess)
+        self.assertRaises(exceptions.NotFoundException, sot.check, sess)
 
     def test_fetch(self):
         sess = mock.Mock()
