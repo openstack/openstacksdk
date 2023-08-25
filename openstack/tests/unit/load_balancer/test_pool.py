@@ -40,6 +40,14 @@ EXAMPLE = {
     'tls_ciphers': 'ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256',
     'tls_versions': ['TLSv1.1', 'TLSv1.2'],
     'alpn_protocols': ['h2', 'http/1.1', 'http/1.0'],
+    'ca_tls_container_ref': (
+        'http://198.51.100.10:9311/v1/containers/'
+        'a570068c-d295-4780-91d4-3046a325db52'
+    ),
+    'crl_container_ref': (
+        'http://198.51.100.10:9311/v1/containers/'
+        'a570068c-d295-4780-91d4-3046a325db53'
+    ),
 }
 
 
@@ -88,6 +96,12 @@ class TestPool(base.TestCase):
         self.assertEqual(EXAMPLE['tls_ciphers'], test_pool.tls_ciphers)
         self.assertEqual(EXAMPLE['tls_versions'], test_pool.tls_versions)
         self.assertEqual(EXAMPLE['alpn_protocols'], test_pool.alpn_protocols)
+        self.assertEqual(
+            EXAMPLE['ca_tls_container_ref'], test_pool.ca_tls_container_ref
+        )
+        self.assertEqual(
+            EXAMPLE['crl_container_ref'], test_pool.crl_container_ref
+        )
 
         self.assertDictEqual(
             {
@@ -114,6 +128,8 @@ class TestPool(base.TestCase):
                 'tls_ciphers': 'tls_ciphers',
                 'tls_versions': 'tls_versions',
                 'alpn_protocols': 'alpn_protocols',
+                'ca_tls_container_ref': 'ca_tls_container_ref',
+                'crl_container_ref': 'crl_container_ref',
             },
             test_pool._query_mapping._mapping,
         )

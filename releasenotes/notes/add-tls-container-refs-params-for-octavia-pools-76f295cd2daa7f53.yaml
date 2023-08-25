@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add both ``ca_tls_container_ref`` and ``crl_container_ref``
+    parameters for Octavia pools, which can be used to store the ca
+    certificate used by backend servers and the revocation list file.
