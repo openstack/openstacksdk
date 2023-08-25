@@ -31,24 +31,6 @@ from openstack.cloud import exc
 _decorated_methods = []
 
 
-def _make_unicode(input):
-    """Turn an input into unicode unconditionally
-
-    :param input: A unicode, string or other object
-    """
-    try:
-        if isinstance(input, unicode):
-            return input
-        if isinstance(input, str):
-            return input.decode('utf-8')
-        else:
-            # int, for example
-            return unicode(input)
-    except NameError:
-        # python3!
-        return str(input)
-
-
 def _dictify_resource(resource):
     if isinstance(resource, list):
         return [_dictify_resource(r) for r in resource]
@@ -88,7 +70,7 @@ def _filter_list(data, name_or_id, filters):
     log = _log.setup_logging('openstack.fnmatch')
     if name_or_id:
         # name_or_id might already be unicode
-        name_or_id = _make_unicode(name_or_id)
+        name_or_id = str(name_or_id)
         identifier_matches = []
         bad_pattern = False
         try:
@@ -100,8 +82,8 @@ def _filter_list(data, name_or_id, filters):
             # search
             fn_reg = None
         for e in data:
-            e_id = _make_unicode(e.get('id', None))
-            e_name = _make_unicode(e.get('name', None))
+            e_id = str(e.get('id', None))
+            e_name = str(e.get('name', None))
 
             if (e_id and e_id == name_or_id) or (
                 e_name and e_name == name_or_id
