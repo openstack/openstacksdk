@@ -22,6 +22,7 @@ from openstack.block_storage.v3 import group_type
 from openstack.block_storage.v3 import limits
 from openstack.block_storage.v3 import quota_set
 from openstack.block_storage.v3 import resource_filter
+from openstack.block_storage.v3 import service
 from openstack.block_storage.v3 import snapshot
 from openstack.block_storage.v3 import stats
 from openstack.block_storage.v3 import type
@@ -313,6 +314,53 @@ class TestGroupType(TestVolumeProxy):
             self.proxy.delete_group_type_group_specs_property,
             method_args=["value", "prop"],
             expected_args=[self.proxy, "prop"],
+        )
+
+
+class TestService(TestVolumeProxy):
+    def test_services(self):
+        self.verify_list(self.proxy.services, service.Service)
+
+    def test_enable_service(self):
+        self._verify(
+            'openstack.block_storage.v3.service.Service.enable',
+            self.proxy.enable_service,
+            method_args=["value"],
+            expected_args=[self.proxy],
+        )
+
+    def test_disable_service(self):
+        self._verify(
+            'openstack.block_storage.v3.service.Service.disable',
+            self.proxy.disable_service,
+            method_args=["value"],
+            expected_kwargs={"reason": None},
+            expected_args=[self.proxy],
+        )
+
+    def test_thaw_service(self):
+        self._verify(
+            'openstack.block_storage.v3.service.Service.thaw',
+            self.proxy.thaw_service,
+            method_args=["value"],
+            expected_args=[self.proxy],
+        )
+
+    def test_freeze_service(self):
+        self._verify(
+            'openstack.block_storage.v3.service.Service.freeze',
+            self.proxy.freeze_service,
+            method_args=["value"],
+            expected_args=[self.proxy],
+        )
+
+    def test_failover_service(self):
+        self._verify(
+            'openstack.block_storage.v3.service.Service.failover',
+            self.proxy.failover_service,
+            method_args=["value"],
+            expected_args=[self.proxy],
+            expected_kwargs={"backend_id": None, "cluster": None},
         )
 
 

@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import typing as ty
+
 from openstack.block_storage import _base_proxy
 from openstack.block_storage.v3 import availability_zone
 from openstack.block_storage.v3 import backup as _backup
@@ -22,6 +24,7 @@ from openstack.block_storage.v3 import group_type as _group_type
 from openstack.block_storage.v3 import limits as _limits
 from openstack.block_storage.v3 import quota_set as _quota_set
 from openstack.block_storage.v3 import resource_filter as _resource_filter
+from openstack.block_storage.v3 import service as _service
 from openstack.block_storage.v3 import snapshot as _snapshot
 from openstack.block_storage.v3 import stats as _stats
 from openstack.block_storage.v3 import type as _type
@@ -1580,6 +1583,150 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         if not query:
             query = {}
         return res.commit(self, **query)
+
+    # ====== SERVICES ======
+    @ty.overload
+    def find_service(
+        self,
+        name_or_id: str,
+        ignore_missing: ty.Literal[True] = True,
+        **query,
+    ) -> ty.Optional[_service.Service]:
+        ...
+
+    @ty.overload
+    def find_service(
+        self,
+        name_or_id: str,
+        ignore_missing: ty.Literal[False] = True,
+        **query,
+    ) -> _service.Service:
+        ...
+
+    def find_service(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query,
+    ) -> ty.Optional[_service.Service]:
+        """Find a single service
+
+        :param name_or_id: The name or ID of a service
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the resource does not exist.
+            When set to ``True``, None will be returned when attempting to find
+            a nonexistent resource.
+        :param dict query: Additional attributes like 'host'
+
+        :returns: One: class:`~openstack.block_storage.v3.service.Service` or None
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
+        """
+        return self._find(
+            _service.Service,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
+
+    def services(
+        self,
+        **query: ty.Any,
+    ) -> ty.Generator[_service.Service, None, None]:
+        """Return a generator of service
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the resources being returned.
+        :returns: A generator of Service objects
+        :rtype: class: `~openstack.block_storage.v3.service.Service`
+        """
+        return self._list(_service.Service, **query)
+
+    def enable_service(
+        self,
+        service: ty.Union[str, _service.Service],
+    ) -> _service.Service:
+        """Enable a service
+
+        :param service: Either the ID of a service or a
+            :class:`~openstack.block_storage.v3.service.Service` instance.
+
+        :returns: Updated service instance
+        :rtype: class: `~openstack.block_storage.v3.service.Service`
+        """
+        service = self._get_resource(_service.Service, service)
+        return service.enable(self)
+
+    def disable_service(
+        self,
+        service: ty.Union[str, _service.Service],
+        *,
+        reason: ty.Optional[str] = None,
+    ) -> _service.Service:
+        """Disable a service
+
+        :param service: Either the ID of a service or a
+            :class:`~openstack.block_storage.v3.service.Service` instance
+        :param str reason: The reason to disable a service
+
+        :returns: Updated service instance
+        :rtype: class: `~openstack.block_storage.v3.service.Service`
+        """
+        service = self._get_resource(_service.Service, service)
+        return service.disable(self, reason=reason)
+
+    def thaw_service(
+        self,
+        service: ty.Union[str, _service.Service],
+    ) -> _service.Service:
+        """Thaw a service
+
+        :param service: Either the ID of a service or a
+            :class:`~openstack.block_storage.v3.service.Service` instance
+
+        :returns: Updated service instance
+        :rtype: class: `~openstack.block_storage.v3.service.Service`
+        """
+        service = self._get_resource(_service.Service, service)
+        return service.thaw(self)
+
+    def freeze_service(
+        self,
+        service: ty.Union[str, _service.Service],
+    ) -> _service.Service:
+        """Freeze a service
+
+        :param service: Either the ID of a service or a
+            :class:`~openstack.block_storage.v3.service.Service` instance
+
+        :returns: Updated service instance
+        :rtype: class: `~openstack.block_storage.v3.service.Service`
+        """
+        service = self._get_resource(_service.Service, service)
+        return service.freeze(self)
+
+    def failover_service(
+        self,
+        service: ty.Union[str, _service.Service],
+        *,
+        cluster: ty.Optional[str] = None,
+        backend_id: ty.Optional[str] = None,
+    ) -> _service.Service:
+        """Failover a service
+
+        Only applies to replicating cinder-volume services.
+
+        :param service: Either the ID of a service or a
+            :class:`~openstack.block_storage.v3.service.Service` instance
+
+        :returns: Updated service instance
+        :rtype: class: `~openstack.block_storage.v3.service.Service`
+        """
+        service = self._get_resource(_service.Service, service)
+        return service.failover(self, cluster=cluster, backend_id=backend_id)
 
     # ====== RESOURCE FILTERS ======
     def resource_filters(self, **query):
