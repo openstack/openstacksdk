@@ -12,6 +12,7 @@
 
 from openstack.block_storage import _base_proxy
 from openstack.block_storage.v2 import backup as _backup
+from openstack.block_storage.v2 import extension as _extension
 from openstack.block_storage.v2 import quota_set as _quota_set
 from openstack.block_storage.v2 import snapshot as _snapshot
 from openstack.block_storage.v2 import stats as _stats
@@ -476,7 +477,6 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         volume.complete_migration(self, new_volume, error)
 
     # ====== BACKEND POOLS ======
-
     def backend_pools(self, **query):
         """Returns a generator of cinder Back-end storage pools
 
@@ -609,73 +609,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         backup = self._get_resource(_backup.Backup, backup)
         backup.reset(self, status)
 
-    def wait_for_status(
-        self,
-        res,
-        status='available',
-        failures=None,
-        interval=2,
-        wait=120,
-        callback=None,
-    ):
-        """Wait for a resource to be in a particular status.
-
-        :param res: The resource to wait on to reach the specified status.
-            The resource must have a ``status`` attribute.
-        :type resource: A :class:`~openstack.resource.Resource` object.
-        :param status: Desired status.
-        :param failures: Statuses that would be interpreted as failures.
-        :type failures: :py:class:`list`
-        :param interval: Number of seconds to wait before to consecutive
-            checks. Default to 2.
-        :param wait: Maximum number of seconds to wait before the change.
-            Default to 120.
-        :param callback: A callback function. This will be called with a single
-            value, progress.
-
-        :returns: The resource is returned on success.
-        :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
-            to the desired status failed to occur in specified seconds.
-        :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource
-            has transited to one of the failure statuses.
-        :raises: :class:`~AttributeError` if the resource does not have a
-            ``status`` attribute.
-        """
-        failures = ['error'] if failures is None else failures
-        return resource.wait_for_status(
-            self,
-            res,
-            status,
-            failures,
-            interval,
-            wait,
-            callback=callback,
-        )
-
-    def wait_for_delete(self, res, interval=2, wait=120, callback=None):
-        """Wait for a resource to be deleted.
-
-        :param res: The resource to wait on to be deleted.
-        :type resource: A :class:`~openstack.resource.Resource` object.
-        :param interval: Number of seconds to wait before to consecutive
-            checks. Default to 2.
-        :param wait: Maximum number of seconds to wait before the change.
-            Default to 120.
-        :param callback: A callback function. This will be called with a single
-            value, progress.
-
-        :returns: The resource is returned on success.
-        :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
-            to delete failed to occur in the specified seconds.
-        """
-        return resource.wait_for_delete(
-            self,
-            res,
-            interval,
-            wait,
-            callback=callback,
-        )
-
+    # ====== QUOTA SETS ======
     def get_quota_set(self, project, usage=False, **query):
         """Show QuotaSet information for the project
 
@@ -749,6 +683,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             query = {}
         return res.commit(self, **query)
 
+    # ====== VOLUME METADATA ======
     def get_volume_metadata(self, volume):
         """Return a dictionary of metadata for a volume
 
@@ -795,6 +730,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         else:
             volume.delete_metadata(self)
 
+    # ====== SNAPSHOT METADATA ======
     def get_snapshot_metadata(self, snapshot):
         """Return a dictionary of metadata for a snapshot
 
@@ -842,3 +778,80 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
                 snapshot.delete_metadata_item(self, key)
         else:
             snapshot.delete_metadata(self)
+
+    # ====== EXTENSIONS ======
+    def extensions(self):
+        """Return a generator of extensions
+
+        :returns: A generator of extension
+        :rtype: :class:`~openstack.block_storage.v3.extension.Extension`
+        """
+        return self._list(_extension.Extension)
+
+    # ====== UTILS ======
+    def wait_for_status(
+        self,
+        res,
+        status='available',
+        failures=None,
+        interval=2,
+        wait=120,
+        callback=None,
+    ):
+        """Wait for a resource to be in a particular status.
+
+        :param res: The resource to wait on to reach the specified status.
+            The resource must have a ``status`` attribute.
+        :type resource: A :class:`~openstack.resource.Resource` object.
+        :param status: Desired status.
+        :param failures: Statuses that would be interpreted as failures.
+        :type failures: :py:class:`list`
+        :param interval: Number of seconds to wait before to consecutive
+            checks. Default to 2.
+        :param wait: Maximum number of seconds to wait before the change.
+            Default to 120.
+        :param callback: A callback function. This will be called with a single
+            value, progress.
+
+        :returns: The resource is returned on success.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
+            to the desired status failed to occur in specified seconds.
+        :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource
+            has transited to one of the failure statuses.
+        :raises: :class:`~AttributeError` if the resource does not have a
+            ``status`` attribute.
+        """
+        failures = ['error'] if failures is None else failures
+        return resource.wait_for_status(
+            self,
+            res,
+            status,
+            failures,
+            interval,
+            wait,
+            callback=callback,
+        )
+
+    def wait_for_delete(self, res, interval=2, wait=120, callback=None):
+        """Wait for a resource to be deleted.
+
+        :param res: The resource to wait on to be deleted.
+        :type resource: A :class:`~openstack.resource.Resource` object.
+        :param interval: Number of seconds to wait before to consecutive
+            checks. Default to 2.
+        :param wait: Maximum number of seconds to wait before the change.
+            Default to 120.
+        :param callback: A callback function. This will be called with a single
+            value, progress.
+
+        :returns: The resource is returned on success.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
+            to delete failed to occur in the specified seconds.
+        """
+        return resource.wait_for_delete(
+            self,
+            res,
+            interval,
+            wait,
+            callback=callback,
+        )
