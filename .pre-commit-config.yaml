@@ -37,3 +37,46 @@ repos:
         entry: flake8
         files: '^.*\.py$'
         exclude: '^(doc|releasenotes|tools)/.*$'
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.4.1
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - types-decorator
+          - types-PyYAML
+          - types-requests
+          - types-simplejson
+        # keep this in-sync with '[mypy] exclude' in 'setup.cfg'
+        exclude: |
+          (?x)(
+            openstack/tests/ansible/.*
+            | openstack/tests/functional/.*
+            | openstack/tests/unit/.*
+            | openstack/tests/fixtures.py
+            | openstack/accelerator/.*
+            | openstack/baremetal/.*
+            | openstack/baremetal_introspection/.*
+            | openstack/block_storage/.*
+            | openstack/cloud/.*
+            | openstack/clustering/.*
+            | openstack/compute/.*
+            | openstack/container_infrastructure_management/.*
+            | openstack/database/.*
+            | openstack/dns/.*
+            | openstack/fixture/.*
+            | openstack/identity/.*
+            | openstack/image/.*
+            | openstack/instance_ha/.*
+            | openstack/key_manager/.*
+            | openstack/load_balancer/.*
+            | openstack/message/.*
+            | openstack/network/.*
+            | openstack/object_store/.*
+            | openstack/orchestration/.*
+            | openstack/placement/.*
+            | openstack/shared_file_system/.*
+            | openstack/workflow/.*
+            | doc/.*
+            | examples/.*
+            | releasenotes/.*
+          )
