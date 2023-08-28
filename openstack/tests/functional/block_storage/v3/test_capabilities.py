@@ -10,16 +10,20 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import proxy
 from openstack.tests.functional.block_storage.v3 import base
 
 
 class TestCapabilities(base.BaseBlockStorageTest):
+    # getting capabilities can be slow
+    TIMEOUT_SCALING_FACTOR = 1.5
+
     def test_get(self):
-        response = proxy._json_response(
-            self.conn.block_storage.get('/os-hosts')
-        )
-        host = response['hosts'][0]['host_name']
+        services = list(self.operator_cloud.block_storage.services())
+        host = [
+            service
+            for service in services
+            if service.binary == 'cinder-volume'
+        ][0].host
 
         sot = self.conn.block_storage.get_capabilities(host)
         self.assertIn('description', sot)
