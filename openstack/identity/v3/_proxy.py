@@ -16,6 +16,7 @@ from openstack.identity.v3 import (
 )
 from openstack.identity.v3 import credential as _credential
 from openstack.identity.v3 import domain as _domain
+from openstack.identity.v3 import domain_config as _domain_config
 from openstack.identity.v3 import endpoint as _endpoint
 from openstack.identity.v3 import federation_protocol as _federation_protocol
 from openstack.identity.v3 import group as _group
@@ -51,6 +52,7 @@ from openstack.identity.v3 import system as _system
 from openstack.identity.v3 import trust as _trust
 from openstack.identity.v3 import user as _user
 from openstack import proxy
+from openstack import resource
 from openstack import utils
 
 
@@ -82,6 +84,8 @@ class Proxy(proxy.Proxy):
         "trust": _trust.Trust,
         "user": _user.User,
     }
+
+    # ========== Credentials ==========
 
     def create_credential(self, **attrs):
         """Create a new credential from attributes
@@ -165,6 +169,8 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_credential.Credential, credential, **attrs)
 
+    # ========== Domains ==========
+
     def create_domain(self, **attrs):
         """Create a new domain from attributes
 
@@ -243,6 +249,85 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.identity.v3.domain.Domain`
         """
         return self._update(_domain.Domain, domain, **attrs)
+
+    # ========== Domain configs ==========
+
+    def create_domain_config(self, domain, **attrs):
+        """Create a new config for a domain from attributes.
+
+        :param domain: The value can be the ID of a domain or
+            a :class:`~openstack.identity.v3.domain.Domain` instance.
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.identity.v3.domain_config.DomainConfig`
+            comprised of the properties on the DomainConfig class.
+
+        :returns: The results of domain config creation
+        :rtype: :class:`~openstack.identity.v3.domain_config.DomainConfig`
+        """
+        domain_id = resource.Resource._get_id(domain)
+        return self._create(
+            _domain_config.DomainConfig,
+            domain_id=domain_id,
+            **attrs,
+        )
+
+    def delete_domain_config(self, domain, ignore_missing=True):
+        """Delete a config for a domain
+
+        :param domain: The value can be the ID of a domain or a
+            a :class:`~openstack.identity.v3.domain.Domain` instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the identity provider does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent config for a domain.
+
+        :returns: ``None``
+        """
+        domain_id = resource.Resource._get_id(domain)
+        self._delete(
+            _domain_config.DomainConfig,
+            domain_id=domain_id,
+            ignore_missing=ignore_missing,
+        )
+
+    def get_domain_config(self, domain):
+        """Get a single config for a domain
+
+        :param domain_id: The value can be the ID of a domain or a
+            :class:`~openstack.identity.v3.domain.Domain` instance.
+
+        :returns: One
+            :class:`~openstack.identity.v3.domain_config.DomainConfig`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+             resource can be found.
+        """
+        domain_id = resource.Resource._get_id(domain)
+        return self._get(
+            _domain_config.DomainConfig,
+            domain_id=domain_id,
+            requires_id=False,
+        )
+
+    def update_domain_config(self, domain, **attrs):
+        """Update a config for a domain
+
+        :param domain_id: The value can be the ID of a domain or a
+            :class:`~openstack.identity.v3.domain.Domain` instance.
+        :attrs kwargs: The attributes to update on the config for a domain
+            represented by ``domain_id``.
+
+        :returns: The updated config for a domain
+        :rtype: :class:`~openstack.identity.v3.domain_config.DomainConfig`
+        """
+        domain_id = resource.Resource._get_id(domain)
+        return self._update(
+            _domain_config.DomainConfig,
+            domain_id=domain_id,
+            **attrs,
+        )
+
+    # ========== Endpoints ==========
 
     def create_endpoint(self, **attrs):
         """Create a new endpoint from attributes
@@ -325,6 +410,8 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.identity.v3.endpoint.Endpoint`
         """
         return self._update(_endpoint.Endpoint, endpoint, **attrs)
+
+    # ========== Groups ==========
 
     def create_group(self, **attrs):
         """Create a new group from attributes
@@ -462,6 +549,8 @@ class Proxy(proxy.Proxy):
         users = self._list(_user.User, base_path=base_path, **attrs)
         return users
 
+    # ========== Policies ==========
+
     def create_policy(self, **attrs):
         """Create a new policy from attributes
 
@@ -540,6 +629,8 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.identity.v3.policy.Policy`
         """
         return self._update(_policy.Policy, policy, **attrs)
+
+    # ========== Project ==========
 
     def create_project(self, **attrs):
         """Create a new project from attributes
@@ -638,6 +729,8 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_project.Project, project, **attrs)
 
+    # ========== Services ==========
+
     def create_service(self, **attrs):
         """Create a new service from attributes
 
@@ -716,6 +809,8 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.identity.v3.service.Service`
         """
         return self._update(_service.Service, service, **attrs)
+
+    # ========== Users ==========
 
     def create_user(self, **attrs):
         """Create a new user from attributes
@@ -799,6 +894,8 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_user.User, user, **attrs)
 
+    # ========== Trusts ==========
+
     def create_trust(self, **attrs):
         """Create a new trust from attributes
 
@@ -864,6 +961,8 @@ class Proxy(proxy.Proxy):
         """
         # TODO(briancurtin): This is paginated but requires base list changes.
         return self._list(_trust.Trust, **query)
+
+    # ========== Regions ==========
 
     def create_region(self, **attrs):
         """Create a new region from attributes
@@ -943,6 +1042,8 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.identity.v3.region.Region`
         """
         return self._update(_region.Region, region, **attrs)
+
+    # ========== Roles ==========
 
     def create_role(self, **attrs):
         """Create a new role from attributes
@@ -1024,6 +1125,8 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.identity.v3.role.Role`
         """
         return self._update(_role.Role, role, **attrs)
+
+    # ========== Role assignments ==========
 
     def role_assignments_filter(
         self, domain=None, project=None, system=None, group=None, user=None
@@ -1127,6 +1230,8 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_role_assignment.RoleAssignment, **query)
 
+    # ========== Registered limits ==========
+
     def registered_limits(self, **query):
         """Retrieve a generator of registered_limits
 
@@ -1204,6 +1309,8 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
+    # ========== Limits ==========
+
     def limits(self, **query):
         """Retrieve a generator of limits
 
@@ -1266,6 +1373,8 @@ class Proxy(proxy.Proxy):
         :returns: ``None``
         """
         self._delete(limit.Limit, limit, ignore_missing=ignore_missing)
+
+    # ========== Roles ==========
 
     def assign_domain_role_to_user(self, domain, user, role):
         """Assign role to user on a domain
@@ -1555,6 +1664,8 @@ class Proxy(proxy.Proxy):
         system = self._get_resource(_system.System, system)
         return system.validate_group_has_role(self, group, role)
 
+    # ========== Application credentials ==========
+
     def application_credentials(self, user, **query):
         """Retrieve a generator of application credentials
 
@@ -1680,6 +1791,8 @@ class Proxy(proxy.Proxy):
             user_id=user.id,
             ignore_missing=ignore_missing,
         )
+
+    # ========== Federation protocols ==========
 
     def create_federation_protocol(self, idp_id, **attrs):
         """Create a new federation protocol from attributes
@@ -1834,6 +1947,8 @@ class Proxy(proxy.Proxy):
             idp_id = idp_id.id
         return self._update(cls, protocol, idp_id=idp_id, **attrs)
 
+    # ========== Mappings ==========
+
     def create_mapping(self, **attrs):
         """Create a new mapping from attributes
 
@@ -1913,6 +2028,8 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.identity.v3.mapping.Mapping`
         """
         return self._update(_mapping.Mapping, mapping, **attrs)
+
+    # ========== Identity providers ==========
 
     def create_identity_provider(self, **attrs):
         """Create a new identity provider from attributes

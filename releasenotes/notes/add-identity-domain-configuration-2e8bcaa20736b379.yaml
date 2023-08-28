@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add support for creating, updating and deleting domain configurations for
+    the identity service.
