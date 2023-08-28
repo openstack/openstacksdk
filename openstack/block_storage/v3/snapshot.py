@@ -23,7 +23,17 @@ class Snapshot(resource.Resource, metadata.MetadataMixin):
     base_path = "/snapshots"
 
     _query_mapping = resource.QueryParameters(
-        'name', 'status', 'volume_id', 'project_id', all_projects='all_tenants'
+        "name",
+        "status",
+        "volume_id",
+        "project_id",
+        "limit",
+        "marker",
+        "offset",
+        "sort_dir",
+        "sort_key",
+        "sort",
+        all_projects="all_tenants",
     )
 
     # capabilities

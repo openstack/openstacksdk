@@ -36,7 +36,9 @@ class TestResourceFilter(base.TestCase):
         self.assertTrue(resource.allow_list)
 
         self.assertDictEqual(
-            {"resource": "resource", "limit": "limit", "marker": "marker"},
+            {
+                "resource": "resource",
+            },
             resource._query_mapping._mapping,
         )
 

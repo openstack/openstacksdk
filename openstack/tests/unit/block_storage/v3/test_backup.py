@@ -71,15 +71,17 @@ class TestBackup(base.TestCase):
 
         self.assertDictEqual(
             {
-                "all_tenants": "all_tenants",
                 "limit": "limit",
                 "marker": "marker",
-                "name": "name",
+                "offset": "offset",
                 "project_id": "project_id",
-                "sort_dir": "sort_dir",
-                "sort_key": "sort_key",
+                "name": "name",
                 "status": "status",
                 "volume_id": "volume_id",
+                "sort_dir": "sort_dir",
+                "sort_key": "sort_key",
+                "sort": "sort",
+                "all_projects": "all_tenants",
             },
             sot._query_mapping._mapping,
         )
