@@ -60,7 +60,13 @@ add_module_names = True
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'native'
 
-autodoc_member_order = "bysource"
+autodoc_member_order = 'bysource'
+
+# Include both the class and __init__ docstrings when describing the class
+autoclass_content = 'both'
+
+# Don't document type hints as they're too noisy
+autodoc_typehints = 'none'
 
 # Locations to exclude when looking for source files.
 exclude_patterns = []
@@ -70,8 +76,7 @@ exclude_patterns = []
 # Don't let openstackdocstheme insert TOCs automatically.
 theme_include_auto_toc = False
 
-# Output file base name for HTML help builder.
-htmlhelp_basename = 'openstacksdkdoc'
+# -- Options for LaTeX output ---------------------------------------------
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass
@@ -91,6 +96,3 @@ latex_elements = {'maxlistdepth': 10}
 
 # Disable usage of xindy https://bugzilla.redhat.com/show_bug.cgi?id=1643664
 latex_use_xindy = False
-
-# Include both the class and __init__ docstrings when describing the class
-autoclass_content = "both"

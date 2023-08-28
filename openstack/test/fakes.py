@@ -67,7 +67,7 @@ def generate_fake_resource(
     :raises NotImplementedError: If a resource attribute specifies a ``type``
         or ``list_type`` that cannot be automatically generated
     """
-    base_attrs = dict()
+    base_attrs: Dict[str, Any] = {}
     for name, value in inspect.getmembers(
         resource_type,
         predicate=lambda x: isinstance(x, (resource.Body, resource.URI)),
@@ -182,7 +182,7 @@ def generate_fake_resources(
 # (better) type annotations
 def generate_fake_proxy(
     service: Type[service_description.ServiceDescription],
-    api_version: Optional[int] = None,
+    api_version: Optional[str] = None,
 ) -> proxy.Proxy:
     """Generate a fake proxy for the given service type
 
@@ -246,10 +246,10 @@ def generate_fake_proxy(
             )
         else:
             api_version = list(supported_versions)[0]
-    elif str(api_version) not in supported_versions:
+    elif api_version not in supported_versions:
         raise ValueError(
             f"API version {api_version} is not supported by openstacksdk. "
             f"Supported API versions are: {', '.join(supported_versions)}"
         )
 
-    return mock.create_autospec(supported_versions[str(api_version)])
+    return mock.create_autospec(supported_versions[api_version])

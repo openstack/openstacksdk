@@ -9,12 +9,21 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
 
 
 class TagMixin:
+    id: resource.Body
+    base_path: str
+    _body: resource._ComponentManager
+
+    @classmethod
+    def _get_session(cls, session):
+        ...
+
     _tag_query_parameters = {
         'tags': 'tags',
         'any_tags': 'tags-any',

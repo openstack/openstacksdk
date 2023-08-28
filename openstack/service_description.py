@@ -11,6 +11,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import typing as ty
 import warnings
 
 import os_service_types
@@ -44,11 +45,11 @@ class _ServiceDisabledProxyShim:
 
 class ServiceDescription:
     #: Dictionary of supported versions and proxy classes for that version
-    supported_versions = None
+    supported_versions: ty.Dict[str, ty.Type[proxy_mod.Proxy]] = {}
     #: main service_type to use to find this service in the catalog
-    service_type = None
+    service_type: str
     #: list of aliases this service might be registered as
-    aliases = []
+    aliases: ty.List[str] = []
 
     def __init__(self, service_type, supported_versions=None, aliases=None):
         """Class describing how to interact with a REST service.

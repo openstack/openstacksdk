@@ -9,6 +9,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
+import typing as ty
+
 from openstack import exceptions
 from openstack import resource
 
@@ -88,7 +91,7 @@ class QuotaSet(resource.Resource):
                 body.pop("self", None)
 
                 # Process body_attrs to strip usage and reservation out
-                normalized_attrs = dict(
+                normalized_attrs: ty.Dict[str, ty.Any] = dict(
                     reservation={},
                     usage={},
                 )

@@ -14,6 +14,7 @@
 
 import copy
 import os.path
+import typing as ty
 import urllib
 import warnings
 
@@ -195,7 +196,7 @@ def from_conf(conf, session=None, service_types=None, **kwargs):
                     ),
                 )
                 continue
-        opt_dict = {}
+        opt_dict: ty.Dict[str, str] = {}
         # Populate opt_dict with (appropriately processed) Adapter conf opts
         try:
             ks_load_adap.process_conf_options(conf[project_name], opt_dict)

@@ -209,7 +209,7 @@ try:
     import importlib.metadata as importlib_metadata
 except ImportError:
     # For everyone else
-    import importlib_metadata
+    import importlib_metadata  # type: ignore
 import keystoneauth1.exceptions
 import requestsexceptions
 

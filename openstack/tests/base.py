@@ -13,11 +13,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from io import StringIO
+import io
 import logging
 import os
 import pprint
 import sys
+import typing as ty
 
 import fixtures
 from oslotest import base
@@ -59,8 +60,10 @@ class TestCase(base.BaseTestCase):
 
         self.warnings = self.useFixture(os_fixtures.WarningsFixture())
 
+        self._log_stream: ty.TextIO
+
         if os.environ.get('OS_LOG_CAPTURE') in _TRUE_VALUES:
-            self._log_stream = StringIO()
+            self._log_stream = io.StringIO()
             if os.environ.get('OS_ALWAYS_LOG') in _TRUE_VALUES:
                 self.addCleanup(self.printLogs)
             else:

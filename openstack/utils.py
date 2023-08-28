@@ -16,6 +16,7 @@ import queue
 import string
 import threading
 import time
+import typing as ty
 
 import keystoneauth1
 from keystoneauth1 import adapter as ks_adapter
@@ -417,7 +418,7 @@ class TinyDAG:
     def _start_traverse(self):
         """Initialize graph traversing"""
         self._run_in_degree = self._get_in_degree()
-        self._queue = queue.Queue()
+        self._queue: queue.Queue[str] = queue.Queue()
         self._done = set()
         self._it_cnt = len(self._graph)
 
@@ -427,8 +428,7 @@ class TinyDAG:
 
     def _get_in_degree(self):
         """Calculate the in_degree (count incoming) for nodes"""
-        _in_degree = dict()
-        _in_degree = {u: 0 for u in self._graph.keys()}
+        _in_degree: ty.Dict[str, int] = {u: 0 for u in self._graph.keys()}
         for u in self._graph:
             for v in self._graph[u]:
                 _in_degree[v] += 1
@@ -568,7 +568,7 @@ class Munch(dict):
 def munchify(x, factory=Munch):
     """Recursively transforms a dictionary into a Munch via copy."""
     # Munchify x, using `seen` to track object cycles
-    seen = dict()
+    seen: ty.Dict[int, ty.Any] = dict()
 
     def munchify_cycles(obj):
         try:
@@ -608,7 +608,7 @@ def unmunchify(x):
     """Recursively converts a Munch into a dictionary."""
 
     # Munchify x, using `seen` to track object cycles
-    seen = dict()
+    seen: ty.Dict[int, ty.Any] = dict()
 
     def unmunchify_cycles(obj):
         try:

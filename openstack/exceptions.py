@@ -18,6 +18,7 @@ Exception definitions.
 
 import json
 import re
+import typing as ty
 
 from requests import exceptions as _rex
 
@@ -214,6 +215,7 @@ def raise_from_response(response, error_message=None):
     if response.status_code < 400:
         return
 
+    cls: ty.Type[SDKException]
     if response.status_code == 400:
         cls = BadRequestException
     elif response.status_code == 403:
@@ -251,6 +253,7 @@ def raise_from_response(response, error_message=None):
             message = re.sub(r'<.+?>', '', line.strip())
             if message not in messages:
                 messages.append(message)
+
         # Return joined string separated by colons.
         details = ': '.join(messages)
 

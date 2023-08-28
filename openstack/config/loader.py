@@ -21,6 +21,7 @@ import json
 import os
 import re
 import sys
+import typing as ty
 import warnings
 
 import appdirs
@@ -129,7 +130,7 @@ def _fix_argv(argv):
                 argv[index] = "=".join(split_args)
             # Save both for later so we can throw an error about dupes
             processed[new].add(orig)
-    overlap = []
+    overlap: ty.List[str] = []
     for new, old in processed.items():
         if len(old) > 1:
             overlap.extend(old)
@@ -297,8 +298,8 @@ class OpenStackConfig:
         self._cache_expiration_time = 0
         self._cache_path = CACHE_PATH
         self._cache_class = 'dogpile.cache.null'
-        self._cache_arguments = {}
-        self._cache_expirations = {}
+        self._cache_arguments: ty.Dict[str, ty.Any] = {}
+        self._cache_expirations: ty.Dict[str, int] = {}
         self._influxdb_config = {}
         if 'cache' in self.cloud_config:
             cache_settings = _util.normalize_keys(self.cloud_config['cache'])
@@ -514,8 +515,8 @@ class OpenStackConfig:
             return self._expand_regions(regions)
         else:
             # crappit. we don't have a region defined.
-            new_cloud = dict()
-            our_cloud = self.cloud_config['clouds'].get(cloud, dict())
+            new_cloud: ty.Dict[str, ty.Any] = {}
+            our_cloud = self.cloud_config['clouds'].get(cloud, {})
             self._expand_vendor_profile(cloud, new_cloud, our_cloud)
             if 'regions' in new_cloud and new_cloud['regions']:
                 return self._expand_regions(new_cloud['regions'])
