@@ -15,10 +15,12 @@
 import io
 import operator
 import tempfile
+from unittest import mock
 import uuid
 
 from openstack.cloud import exc
 from openstack.cloud import meta
+from openstack import connection
 from openstack import exceptions
 from openstack.image.v1 import image as image_v1
 from openstack.image.v2 import image
@@ -163,6 +165,20 @@ class TestImage(BaseTestImage):
         output_file.seek(0)
         self.assertEqual(output_file.read(), self.output)
         self.assert_calls()
+
+    @mock.patch.object(connection.Connection, 'search_images')
+    def test_get_images(self, mock_search):
+        image1 = dict(id='123', name='mickey')
+        mock_search.return_value = [image1]
+        r = self.cloud.get_image('mickey')
+        self.assertIsNotNone(r)
+        self.assertDictEqual(image1, r)
+
+    @mock.patch.object(connection.Connection, 'search_images')
+    def test_get_image_not_found(self, mock_search):
+        mock_search.return_value = []
+        r = self.cloud.get_image('doesNotExist')
+        self.assertIsNone(r)
 
     def test_get_image_name(self, cloud=None):
         cloud = cloud or self.cloud

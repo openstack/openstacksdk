@@ -11,16 +11,132 @@
 # limitations under the License.
 
 import copy
+from unittest import mock
 
 import testtools
 
 import openstack
 import openstack.cloud
+from openstack import exceptions
 from openstack.network.v2 import network as _network
 from openstack.tests.unit import base
 
 
-class TestNetwork(base.TestCase):
+class TestNeutronExtensions(base.TestCase):
+    def test__neutron_extensions(self):
+        body = [
+            {
+                "updated": "2014-06-1T10:00:00-00:00",
+                "name": "Distributed Virtual Router",
+                "links": [],
+                "alias": "dvr",
+                "description": "Enables configuration of Distributed Virtual Routers.",  # noqa: E501
+            },
+            {
+                "updated": "2013-07-23T10:00:00-00:00",
+                "name": "Allowed Address Pairs",
+                "links": [],
+                "alias": "allowed-address-pairs",
+                "description": "Provides allowed address pairs",
+            },
+        ]
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json=dict(extensions=body),
+                )
+            ]
+        )
+        extensions = self.cloud._neutron_extensions()
+        self.assertEqual(set(['dvr', 'allowed-address-pairs']), extensions)
+
+        self.assert_calls()
+
+    def test__neutron_extensions_fails(self):
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    status_code=404,
+                )
+            ]
+        )
+        with testtools.ExpectedException(exceptions.ResourceNotFound):
+            self.cloud._neutron_extensions()
+
+        self.assert_calls()
+
+    def test__has_neutron_extension(self):
+        body = [
+            {
+                "updated": "2014-06-1T10:00:00-00:00",
+                "name": "Distributed Virtual Router",
+                "links": [],
+                "alias": "dvr",
+                "description": "Enables configuration of Distributed Virtual Routers.",  # noqa: E501
+            },
+            {
+                "updated": "2013-07-23T10:00:00-00:00",
+                "name": "Allowed Address Pairs",
+                "links": [],
+                "alias": "allowed-address-pairs",
+                "description": "Provides allowed address pairs",
+            },
+        ]
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json=dict(extensions=body),
+                )
+            ]
+        )
+        self.assertTrue(self.cloud._has_neutron_extension('dvr'))
+        self.assert_calls()
+
+    def test__has_neutron_extension_missing(self):
+        body = [
+            {
+                "updated": "2014-06-1T10:00:00-00:00",
+                "name": "Distributed Virtual Router",
+                "links": [],
+                "alias": "dvr",
+                "description": "Enables configuration of Distributed Virtual Routers.",  # noqa: E501
+            },
+            {
+                "updated": "2013-07-23T10:00:00-00:00",
+                "name": "Allowed Address Pairs",
+                "links": [],
+                "alias": "allowed-address-pairs",
+                "description": "Provides allowed address pairs",
+            },
+        ]
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'network', 'public', append=['v2.0', 'extensions']
+                    ),
+                    json=dict(extensions=body),
+                )
+            ]
+        )
+        self.assertFalse(self.cloud._has_neutron_extension('invalid'))
+        self.assert_calls()
+
+
+class TestNetworks(base.TestCase):
     mock_new_network_rep = {
         'provider:physical_network': None,
         'ipv6_address_scope': None,
@@ -107,6 +223,12 @@ class TestNetwork(base.TestCase):
             ]
         )
         self.cloud.list_networks(filters={'name': 'test'})
+        self.assert_calls()
+
+    def test_list_networks_neutron_not_found(self):
+        self.use_nothing()
+        self.cloud.has_service = mock.Mock(return_value=False)
+        self.assertEqual([], self.cloud.list_networks())
         self.assert_calls()
 
     def test_create_network(self):
