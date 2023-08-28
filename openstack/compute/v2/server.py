@@ -314,13 +314,22 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         exceptions.raise_from_response(response)
         return response
 
-    def change_password(self, session, new_password):
-        """Change the administrator password to the given password."""
-        body = {'changePassword': {'adminPass': new_password}}
+    def change_password(self, session, password):
+        """Change the administrator password to the given password.
+
+        :param session: The session to use for making this request.
+        :param password: The new password.
+        :returns: None
+        """
+        body = {'changePassword': {'adminPass': password}}
         self._action(session, body)
 
     def get_password(self, session):
-        """Get the encrypted administrator password."""
+        """Get the encrypted administrator password.
+
+        :param session: The session to use for making this request.
+        :returns: The encrypted administrator password.
+        """
         url = utils.urljoin(Server.base_path, self.id, 'os-server-password')
 
         response = session.get(url)
@@ -330,12 +339,21 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         return data.get('password')
 
     def reboot(self, session, reboot_type):
-        """Reboot server where reboot_type might be 'SOFT' or 'HARD'."""
+        """Reboot server where reboot_type might be 'SOFT' or 'HARD'.
+
+        :param session: The session to use for making this request.
+        :param reboot_type: The type of reboot. One of: ``SOFT``, ``HARD``.
+        :returns: None
+        """
         body = {'reboot': {'type': reboot_type}}
         self._action(session, body)
 
     def force_delete(self, session):
-        """Force delete a server."""
+        """Force delete the server.
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
         body = {'forceDelete': None}
         self._action(session, body)
 
@@ -352,7 +370,25 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         user_data=None,
         key_name=None,
     ):
-        """Rebuild the server with the given arguments."""
+        """Rebuild the server with the given arguments.
+
+        :param session: The session to use for making this request.
+        :param image: The image to rebuild to. Either an ID or a
+            :class:`~openstack.image.v1.image.Image` instance.
+        :param name: A name to set on the rebuilt server. (Optional)
+        :param admin_password: An admin password to set on the rebuilt server.
+            (Optional)
+        :param preserve_ephemeral: Whether to preserve the ephemeral drive
+            during the rebuild. (Optional)
+        :param access_ipv4: An IPv4 address that will be used to access the
+            rebuilt server. (Optional)
+        :param access_ipv6: An IPv6 address that will be used to access the
+            rebuilt server. (Optional)
+        :param metadata: Metadata to set on the updated server. (Optional)
+        :param user_data: User data to set on the updated server. (Optional)
+        :param key_name: A key name to set on the updated server. (Optional)
+        :returns: The updated server.
+        """
         action = {'imageRef': resource.Resource._get_id(image)}
         if preserve_ephemeral is not None:
             action['preserve_ephemeral'] = preserve_ephemeral
@@ -377,22 +413,41 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         return self
 
     def resize(self, session, flavor):
-        """Resize server to flavor reference."""
+        """Resize server to flavor reference.
+
+        :param session: The session to use for making this request.
+        :param flavor: The server to resize to.
+        :returns: None
+        """
         body = {'resize': {'flavorRef': flavor}}
         self._action(session, body)
 
     def confirm_resize(self, session):
-        """Confirm the resize of the server."""
+        """Confirm the resize of the server.
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
         body = {'confirmResize': None}
         self._action(session, body)
 
     def revert_resize(self, session):
-        """Revert the resize of the server."""
+        """Revert the resize of the server.
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
         body = {'revertResize': None}
         self._action(session, body)
 
     def create_image(self, session, name, metadata=None):
-        """Create image from server."""
+        """Create image from server.
+
+        :param session: The session to use for making this request.
+        :param name: The name to use for the created image.
+        :param metadata: Metadata to set on the created image. (Optional)
+        :returns: None
+        """
         action = {'name': name}
         if metadata is not None:
             action['metadata'] = metadata
@@ -432,36 +487,100 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         return image_id
 
     def add_security_group(self, session, security_group_name):
+        """Add a security group to the server.
+
+        :param session: The session to use for making this request.
+        :param security_group_name: The security group to add to the server.
+        :returns: None
+        """
         body = {"addSecurityGroup": {"name": security_group_name}}
         self._action(session, body)
 
     def remove_security_group(self, session, security_group_name):
+        """Remove a security group from the server.
+
+        :param session: The session to use for making this request.
+        :param security_group_name: The security group to remove from the
+            server.
+        :returns: None
+        """
         body = {"removeSecurityGroup": {"name": security_group_name}}
         self._action(session, body)
 
     def reset_state(self, session, state):
+        """Reset server state.
+
+        This is admin-only by default.
+
+        :param session: The session to use for making this request.
+        :param state: The state to set on the server.
+        :returns: None
+        """
         body = {"os-resetState": {"state": state}}
         self._action(session, body)
 
     def add_fixed_ip(self, session, network_id):
+        """Add a fixed IP to the server.
+
+        This is effectively an alias for adding a network.
+
+        :param session: The session to use for making this request.
+        :param network_id: The network to connect the server to.
+        :returns: None
+        """
         body = {"addFixedIp": {"networkId": network_id}}
         self._action(session, body)
 
     def remove_fixed_ip(self, session, address):
+        """Remove a fixed IP from the server.
+
+        This is effectively an alias from removing a port from the server.
+
+        :param session: The session to use for making this request.
+        :param network_id: The address to remove from the server.
+        :returns: None
+        """
         body = {"removeFixedIp": {"address": address}}
         self._action(session, body)
 
     def add_floating_ip(self, session, address, fixed_address=None):
+        """Add a floating IP to the server.
+
+        :param session: The session to use for making this request.
+        :param address: The floating IP address to associate with the server.
+        :param fixed_address: A fixed IP address with which to associated the
+            floating IP. (Optional)
+        :returns: None
+        """
         body = {"addFloatingIp": {"address": address}}
         if fixed_address is not None:
             body['addFloatingIp']['fixed_address'] = fixed_address
         self._action(session, body)
 
     def remove_floating_ip(self, session, address):
+        """Remove a floating IP from the server.
+
+        :param session: The session to use for making this request.
+        :param address: The floating IP address to disassociate from the
+            server.
+        :returns: None
+        """
         body = {"removeFloatingIp": {"address": address}}
         self._action(session, body)
 
     def backup(self, session, name, backup_type, rotation):
+        """Create a backup of the server.
+
+        :param session: The session to use for making this request.
+        :param name: The name to use for the backup image.
+        :param backup_type: The type of backup. The value and meaning of this
+            atribute is user-defined and can be used to separate backups of
+            different types. For example, this could be used to distinguish
+            between ``daily`` and ``weekly`` backups.
+        :param rotation: The number of backups to retain. All images older than
+            the rotation'th image will be deleted.
+        :returns: None
+        """
         body = {
             "createBackup": {
                 "name": name,
@@ -472,22 +591,48 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         self._action(session, body)
 
     def pause(self, session):
+        """Pause the server.
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
         body = {"pause": None}
         self._action(session, body)
 
     def unpause(self, session):
+        """Unpause the server.
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
         body = {"unpause": None}
         self._action(session, body)
 
     def suspend(self, session):
+        """Suspend the server.
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
         body = {"suspend": None}
         self._action(session, body)
 
     def resume(self, session):
+        """Resume the server.
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
         body = {"resume": None}
         self._action(session, body)
 
     def lock(self, session, locked_reason=None):
+        """Lock the server.
+
+        :param session: The session to use for making this request.
+        :param locked_reason: The reason for locking the server.
+        :returns: None
+        """
         body = {"lock": None}
         if locked_reason is not None:
             body["lock"] = {
@@ -496,10 +641,26 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         self._action(session, body)
 
     def unlock(self, session):
+        """Unlock the server.
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
         body = {"unlock": None}
         self._action(session, body)
 
     def rescue(self, session, admin_pass=None, image_ref=None):
+        """Rescue the server.
+
+        This is admin-only by default.
+
+        :param session: The session to use for making this request.
+        :param admin_pass: A new admin password to set on the rescued server.
+            (Optional)
+        :param image_ref: The image to use when rescuing the server. If not
+            provided, the server will use the existing image. (Optional)
+        :returns: None
+        """
         body = {"rescue": {}}
         if admin_pass is not None:
             body["rescue"]["adminPass"] = admin_pass
@@ -508,10 +669,26 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         self._action(session, body)
 
     def unrescue(self, session):
+        """Unrescue the server.
+
+        This is admin-only by default.
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
         body = {"unrescue": None}
         self._action(session, body)
 
     def evacuate(self, session, host=None, admin_pass=None, force=None):
+        """Evacuate the server.
+
+        :param session: The session to use for making this request.
+        :param host: The host to evacuate the instance to. (Optional)
+        :param admin_pass: The admin password to set on the evacuated instance.
+            (Optional)
+        :param force: Whether to force evacuation.
+        :returns: None
+        """
         body = {"evacuate": {}}
         if host is not None:
             body["evacuate"]["host"] = host
@@ -522,29 +699,57 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         self._action(session, body)
 
     def start(self, session):
+        """Start the server.
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
         body = {"os-start": None}
         self._action(session, body)
 
     def stop(self, session):
+        """Stop the server.
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
         body = {"os-stop": None}
         self._action(session, body)
 
     def restore(self, session):
+        """Restore the server.
+
+        This is only supported if the server is soft-deleted. This is
+        cloud-specific.
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
         body = {"restore": None}
         self._action(session, body)
 
     def shelve(self, session):
+        """Shelve the server.
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
         body = {"shelve": None}
         self._action(session, body)
 
     def shelve_offload(self, session):
+        """Shelve-offload the server.
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
         body = {"shelveOffload": None}
         self._action(session, body)
 
     def unshelve(self, session, availability_zone=_sentinel, host=None):
-        """
-        Unshelve -- Unshelve the server.
+        """Unshelve the server.
 
+        :param session: The session to use for making this request.
         :param availability_zone: If specified the instance will be unshelved
             to the availability_zone.
             If None is passed the instance defined availability_zone is unpin
@@ -564,14 +769,31 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         self._action(session, body)
 
     def migrate(self, session):
+        """Migrate the server.
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
         body = {"migrate": None}
         self._action(session, body)
 
     def trigger_crash_dump(self, session):
+        """Trigger a crash dump for the server.
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
         body = {"trigger_crash_dump": None}
         self._action(session, body)
 
     def get_console_output(self, session, length=None):
+        """Get console output for the server.
+
+        :param session: The session to use for making this request.
+        :param length: The max length of the console output to return.
+            (Optional)
+        :returns: None
+        """
         body = {"os-getConsoleOutput": {}}
         if length is not None:
             body["os-getConsoleOutput"]["length"] = length
@@ -579,6 +801,14 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         return resp.json()
 
     def get_console_url(self, session, console_type):
+        """Get the console URL for the server.
+
+        :param session: The session to use for making this request.
+        :param console_type: The type of console to return. This is
+            cloud-specific. One of: ``novnc``, ``xvpvnc``, ``spice-html5``,
+            ``rdp-html5``, ``serial``.
+        :returns: None
+        """
         action = CONSOLE_TYPE_ACTION_MAPPING.get(console_type)
         if not action:
             raise ValueError("Unsupported console type %s" % console_type)
@@ -594,6 +824,17 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         block_migration,
         disk_over_commit=False,
     ):
+        """Live migrate the server.
+
+        :param session: The session to use for making this request.
+        :param host: The host to live migrate the server to. (Optional)
+        :param force: Whether to force the migration. (Optional)
+        :param block_migration: Whether to do block migration. One of:
+            ``True``, ``False``, ``'auto'``. (Optional)
+        :param disk_over_commit: Whether to allow disk over-commit on the
+            destination host. (Optional)
+        :returns: None
+        """
         if utils.supports_microversion(session, '2.30'):
             return self._live_migrate_30(
                 session,
@@ -693,6 +934,11 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         )
 
     def fetch_topology(self, session):
+        """Fetch the topology information for the server.
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
         utils.require_microversion(session, 2.78)
 
         url = utils.urljoin(Server.base_path, self.id, 'topology')
@@ -707,10 +953,10 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             pass
 
     def fetch_security_groups(self, session):
-        """Fetch security groups of a server.
+        """Fetch security groups of the server.
 
+        :param session: The session to use for making this request.
         :returns: Updated Server instance.
-
         """
         url = utils.urljoin(Server.base_path, self.id, 'os-security-groups')
 

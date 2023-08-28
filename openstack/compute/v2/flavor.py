@@ -120,12 +120,22 @@ class Flavor(resource.Resource):
         return response
 
     def add_tenant_access(self, session, tenant):
-        """Adds flavor access to a tenant and flavor."""
+        """Adds flavor access to a tenant and flavor.
+
+        :param session: The session to use for making this request.
+        :param tenant:
+        :returns: None
+        """
         body = {'addTenantAccess': {'tenant': tenant}}
         self._action(session, body)
 
     def remove_tenant_access(self, session, tenant):
-        """Removes flavor access to a tenant and flavor."""
+        """Removes flavor access to a tenant and flavor.
+
+        :param session: The session to use for making this request.
+        :param tenant:
+        :returns: None
+        """
         body = {'removeTenantAccess': {'tenant': tenant}}
         self._action(session, body)
 
@@ -133,9 +143,10 @@ class Flavor(resource.Resource):
         """Lists tenants who have access to a private flavor
 
         By default, only administrators can manage private flavor access. A
-        private flavor has is_public set to false while a public flavor has
-        is_public set to true.
+        private flavor has ``is_public`` set to false while a public flavor has
+        ``is_public`` set to true.
 
+        :param session: The session to use for making this request.
         :return: List of dicts with flavor_id and tenant_id attributes
         """
         url = utils.urljoin(Flavor.base_path, self.id, 'os-flavor-access')
@@ -144,10 +155,13 @@ class Flavor(resource.Resource):
         return response.json().get('flavor_access', [])
 
     def fetch_extra_specs(self, session):
-        """Fetch extra_specs of the flavor
+        """Fetch extra specs of the flavor
 
-        Starting with 2.61 extra_specs are returned with the flavor details,
+        Starting with 2.61 extra specs are returned with the flavor details,
         before that a separate call is required.
+
+        :param session: The session to use for making this request.
+        :returns: The updated flavor.
         """
         url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs')
         microversion = self._get_microversion(session, action='fetch')
@@ -158,7 +172,12 @@ class Flavor(resource.Resource):
         return self
 
     def create_extra_specs(self, session, specs):
-        """Creates extra specs for a flavor"""
+        """Creates extra specs for a flavor.
+
+        :param session: The session to use for making this request.
+        :param specs:
+        :returns: The updated flavor.
+        """
         url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs')
         microversion = self._get_microversion(session, action='create')
         response = session.post(
@@ -170,7 +189,12 @@ class Flavor(resource.Resource):
         return self
 
     def get_extra_specs_property(self, session, prop):
-        """Get individual extra_spec property"""
+        """Get an individual extra spec property.
+
+        :param session: The session to use for making this request.
+        :param prop: The property to fetch.
+        :returns: The value of the property if it exists, else ``None``.
+        """
         url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs', prop)
         microversion = self._get_microversion(session, action='fetch')
         response = session.get(url, microversion=microversion)
@@ -179,7 +203,13 @@ class Flavor(resource.Resource):
         return val
 
     def update_extra_specs_property(self, session, prop, val):
-        """Update An Extra Spec For A Flavor"""
+        """Update an extra spec for a flavor.
+
+        :param session: The session to use for making this request.
+        :param prop: The property to update.
+        :param val: The value to update with.
+        :returns: The updated value of the property.
+        """
         url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs', prop)
         microversion = self._get_microversion(session, action='commit')
         response = session.put(
@@ -190,11 +220,17 @@ class Flavor(resource.Resource):
         return val
 
     def delete_extra_specs_property(self, session, prop):
-        """Delete An Extra Spec For A Flavor"""
+        """Delete an extra spec for a flavor.
+
+        :param session: The session to use for making this request.
+        :param prop: The property to delete.
+        :returns: None
+        """
         url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs', prop)
         microversion = self._get_microversion(session, action='delete')
         response = session.delete(url, microversion=microversion)
         exceptions.raise_from_response(response)
 
 
+# TODO(stephenfin): Deprecate this for removal in 2.0
 FlavorDetail = Flavor
