@@ -19,7 +19,10 @@ class ResourceFilter(resource.Resource):
     resources_key = "resource_filters"
     base_path = "/resource_filters"
 
-    _query_mapping = resource.QueryParameters('resource')
+    _query_mapping = resource.QueryParameters(
+        'resource',
+        include_pagination_defaults=False,
+    )
 
     # Capabilities
     allow_list = True

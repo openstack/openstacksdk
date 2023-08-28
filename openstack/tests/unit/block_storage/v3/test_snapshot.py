@@ -51,11 +51,15 @@ class TestSnapshot(base.TestCase):
             {
                 "name": "name",
                 "status": "status",
-                "all_projects": "all_tenants",
-                "project_id": "project_id",
                 "volume_id": "volume_id",
+                "project_id": "project_id",
                 "limit": "limit",
+                "offset": "offset",
                 "marker": "marker",
+                "sort_dir": "sort_dir",
+                "sort_key": "sort_key",
+                "sort": "sort",
+                "all_projects": "all_tenants",
             },
             sot._query_mapping._mapping,
         )

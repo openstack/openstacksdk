@@ -27,6 +27,16 @@ class Group(resource.Resource):
     allow_commit = True
     allow_list = True
 
+    _query_mapping = resource.QueryParameters(
+        "limit",
+        "marker",
+        "offset",
+        "sort_dir",
+        "sort_key",
+        "sort",
+        all_projects="all_tenants",
+    )
+
     availability_zone = resource.Body("availability_zone")
     created_at = resource.Body("created_at")
     description = resource.Body("description")

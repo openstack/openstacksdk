@@ -27,6 +27,16 @@ class GroupSnapshot(resource.Resource):
     allow_commit = False
     allow_list = True
 
+    _query_mapping = resource.QueryParameters(
+        "limit",
+        "marker",
+        "offset",
+        "sort_dir",
+        "sort_key",
+        "sort",
+        all_projects="all_tenants",
+    )
+
     #: Properties
     #: The date and time when the resource was created.
     created_at = resource.Body("created_at")

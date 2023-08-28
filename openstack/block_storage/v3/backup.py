@@ -25,15 +25,17 @@ class Backup(resource.Resource):
     # search (name~, status~, volume_id~). But this is not documented
     # officially and seem to require microversion be set
     _query_mapping = resource.QueryParameters(
-        'all_tenants',
-        'limit',
-        'marker',
-        'project_id',
-        'name',
-        'status',
-        'volume_id',
-        'sort_key',
-        'sort_dir',
+        "limit",
+        "marker",
+        "offset",
+        "project_id",
+        "name",
+        "status",
+        "volume_id",
+        "sort_key",
+        "sort_dir",
+        "sort",
+        all_projects="all_tenants",
     )
 
     # capabilities

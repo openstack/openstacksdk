@@ -27,7 +27,16 @@ class Type(resource.Resource):
     allow_list = True
     allow_commit = True
 
-    _query_mapping = resource.QueryParameters("is_public")
+    _query_mapping = resource.QueryParameters(
+        "is_public",
+        "limit",
+        "marker",
+        "offset",
+        "sort_dir",
+        "sort_key",
+        "sort",
+        all_projects="all_tenants",
+    )
 
     # Properties
     #: Description of the type.
