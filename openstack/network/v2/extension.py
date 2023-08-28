@@ -32,7 +32,7 @@ class Extension(resource.Resource):
     #: Text describing what the extension does.
     description = resource.Body('description')
     #: Links pertaining to this extension.
-    links = resource.Body('links')
+    links = resource.Body('links', type=list, list_type=dict)
     #: The name of this extension.
     name = resource.Body('name')
     #: Timestamp when the extension was last updated.

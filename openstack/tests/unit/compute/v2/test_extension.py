@@ -18,7 +18,7 @@ IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
     'alias': '1',
     'description': '2',
-    'links': '3',
+    'links': [],
     'name': '4',
     'namespace': '5',
     'updated': '2015-03-09T12:14:57.233772',
