@@ -27,10 +27,3 @@ class TestBoolStrFormatter(base.TestCase):
         self.assertRaises(ValueError, format.BoolStr.deserialize, None)
         self.assertRaises(ValueError, format.BoolStr.deserialize, '')
         self.assertRaises(ValueError, format.BoolStr.deserialize, 'INVALID')
-
-    def test_serialize(self):
-        self.assertEqual('true', format.BoolStr.serialize(True))
-        self.assertEqual('false', format.BoolStr.serialize(False))
-        self.assertRaises(ValueError, format.BoolStr.serialize, None)
-        self.assertRaises(ValueError, format.BoolStr.serialize, '')
-        self.assertRaises(ValueError, format.BoolStr.serialize, 'True')

@@ -28,11 +28,3 @@ class HREFToUUID(format.Formatter):
 
         # The UUID will be the last portion of the URI.
         return parts.path.split("/")[-1]
-
-    @classmethod
-    def serialize(cls, value):
-        # NOTE(briancurtin): If we had access to the session to get
-        # the endpoint we could do something smart here like take an ID
-        # and give back an HREF, but this will just have to be something
-        # that works different because Barbican does what it does...
-        return value
