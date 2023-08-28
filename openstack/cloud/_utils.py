@@ -17,7 +17,6 @@ import fnmatch
 import functools
 import inspect
 import re
-import time
 import uuid
 
 from decorator import decorator
@@ -359,58 +358,6 @@ def safe_dict_max(key, data):
             if (max_value is None) or (val > max_value):
                 max_value = val
     return max_value
-
-
-def _call_client_and_retry(
-    client, url, retry_on=None, call_retries=3, retry_wait=2, **kwargs
-):
-    """Method to provide retry operations.
-
-    Some APIs utilize HTTP errors on certain operations to indicate that
-    the resource is presently locked, and as such this mechanism provides
-    the ability to retry upon known error codes.
-
-    :param object client: The client method, such as:
-        ``self.baremetal_client.post``
-    :param string url: The URL to perform the operation upon.
-    :param integer retry_on: A list of error codes that can be retried on.
-        The method also supports a single integer to be
-        defined.
-    :param integer call_retries: The number of times to retry the call upon
-        the error code defined by the 'retry_on' parameter. Default: 3
-    :param integer retry_wait: The time in seconds to wait between retry
-        attempts. Default: 2
-
-    :returns: The object returned by the client call.
-    """
-
-    # NOTE(TheJulia): This method, as of this note, does not have direct
-    # unit tests, although is fairly well tested by the tests checking
-    # retry logic in test_baremetal_node.py.
-    log = _log.setup_logging('shade.http')
-
-    if isinstance(retry_on, int):
-        retry_on = [retry_on]
-
-    count = 0
-    while count < call_retries:
-        count += 1
-        try:
-            ret_val = client(url, **kwargs)
-        except exc.OpenStackCloudHTTPError as e:
-            if retry_on is not None and e.response.status_code in retry_on:
-                log.debug(
-                    'Received retryable error %(err)s, waiting '
-                    '%(wait)s seconds to retry',
-                    {'err': e.response.status_code, 'wait': retry_wait},
-                )
-                time.sleep(retry_wait)
-                continue
-            else:
-                raise
-        # Break out of the loop, since the loop should only continue
-        # when we encounter a known connection error.
-        return ret_val
 
 
 def parse_range(value):
