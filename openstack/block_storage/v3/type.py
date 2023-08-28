@@ -71,14 +71,15 @@ class Type(resource.Resource):
         return response.json() if not delete else None
 
     def set_extra_specs(self, session, **extra_specs):
-        """Update extra_specs
+        """Update extra specs.
 
         This call will replace only the extra_specs with the same keys
         given here.  Other keys will not be modified.
 
-        :param session: The session to use for this request.
-        :param kwargs extra_specs: key/value extra_specs pairs to be update on
-                                   this volume type. All keys and values
+        :param session: The session to use for making this request.
+        :param kwargs extra_specs: Key/value extra_specs pairs to be update on
+            this volume type. All keys and values.
+        :returns: The updated extra specs.
         """
         if not extra_specs:
             return dict()
@@ -87,19 +88,25 @@ class Type(resource.Resource):
         return result["extra_specs"]
 
     def delete_extra_specs(self, session, keys):
-        """Delete extra_specs
+        """Delete extra specs.
 
-        Note: This method will do a HTTP DELETE request for every key in keys.
+        .. note::
+
+            This method will do a HTTP DELETE request for every key in keys.
 
         :param session: The session to use for this request.
         :param list keys: The keys to delete.
-
-        :rtype: ``None``
+        :returns: ``None``
         """
         for key in keys:
             self._extra_specs(session.delete, key=key, delete=True)
 
     def get_private_access(self, session):
+        """List projects with private access to the volume type.
+
+        :param session: The session to use for making this request.
+        :returns: The volume type access response.
+        """
         url = utils.urljoin(self.base_path, self.id, "os-volume-type-access")
         resp = session.get(url)
 
@@ -108,6 +115,11 @@ class Type(resource.Resource):
         return resp.json().get("volume_type_access", [])
 
     def add_private_access(self, session, project_id):
+        """Add project access from the volume type.
+
+        :param session: The session to use for making this request.
+        :param project_id: The project to add access for.
+        """
         url = utils.urljoin(self.base_path, self.id, "action")
         body = {"addProjectAccess": {"project": project_id}}
 
@@ -116,6 +128,11 @@ class Type(resource.Resource):
         exceptions.raise_from_response(resp)
 
     def remove_private_access(self, session, project_id):
+        """Remove project access from the volume type.
+
+        :param session: The session to use for making this request.
+        :param project_id: The project to remove access for.
+        """
         url = utils.urljoin(self.base_path, self.id, "action")
         body = {"removeProjectAccess": {"project": project_id}}
 
