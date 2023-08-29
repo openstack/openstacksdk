@@ -27,6 +27,7 @@ class Info(resource.Resource):
     )
 
     # Properties
+    bulk_delete = resource.Body("bulk_delete", type=dict)
     swift = resource.Body("swift", type=dict)
     slo = resource.Body("slo", type=dict)
     staticweb = resource.Body("staticweb", type=dict)
