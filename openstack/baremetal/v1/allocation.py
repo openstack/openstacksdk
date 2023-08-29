@@ -16,7 +16,7 @@ from openstack import resource
 from openstack import utils
 
 
-class Allocation(_common.Resource):
+class Allocation(resource.Resource):
     resources_key = 'allocations'
     base_path = '/allocations'
 

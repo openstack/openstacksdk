@@ -14,7 +14,7 @@ from openstack.baremetal.v1 import _common
 from openstack import resource
 
 
-class Conductor(_common.Resource):
+class Conductor(resource.Resource):
     resources_key = 'conductors'
     base_path = '/conductors'
 

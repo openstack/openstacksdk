@@ -15,6 +15,7 @@ from unittest import mock
 from openstack.baremetal.v1 import _proxy
 from openstack.baremetal.v1 import allocation
 from openstack.baremetal.v1 import chassis
+from openstack.baremetal.v1 import deploy_templates
 from openstack.baremetal.v1 import driver
 from openstack.baremetal.v1 import node
 from openstack.baremetal.v1 import port
@@ -60,7 +61,11 @@ class TestChassis(TestBaremetalProxy):
         self.verify_create(self.proxy.create_chassis, chassis.Chassis)
 
     def test_find_chassis(self):
-        self.verify_find(self.proxy.find_chassis, chassis.Chassis)
+        self.verify_find(
+            self.proxy.find_chassis,
+            chassis.Chassis,
+            expected_kwargs={'details': True},
+        )
 
     def test_get_chassis(self):
         self.verify_get(
@@ -110,7 +115,11 @@ class TestNode(TestBaremetalProxy):
         self.verify_create(self.proxy.create_node, node.Node)
 
     def test_find_node(self):
-        self.verify_find(self.proxy.find_node, node.Node)
+        self.verify_find(
+            self.proxy.find_node,
+            node.Node,
+            expected_kwargs={'details': True},
+        )
 
     def test_get_node(self):
         self.verify_get(
@@ -162,7 +171,11 @@ class TestPort(TestBaremetalProxy):
         self.verify_create(self.proxy.create_port, port.Port)
 
     def test_find_port(self):
-        self.verify_find(self.proxy.find_port, port.Port)
+        self.verify_find(
+            self.proxy.find_port,
+            port.Port,
+            expected_kwargs={'details': True},
+        )
 
     def test_get_port(self):
         self.verify_get(
@@ -236,7 +249,9 @@ class TestVolumeConnector(TestBaremetalProxy):
 
     def test_find_volume_connector(self):
         self.verify_find(
-            self.proxy.find_volume_connector, volume_connector.VolumeConnector
+            self.proxy.find_volume_connector,
+            volume_connector.VolumeConnector,
+            expected_kwargs={'details': True},
         )
 
     def test_get_volume_connector(self):
@@ -282,7 +297,9 @@ class TestVolumeTarget(TestBaremetalProxy):
 
     def test_find_volume_target(self):
         self.verify_find(
-            self.proxy.find_volume_target, volume_target.VolumeTarget
+            self.proxy.find_volume_target,
+            volume_target.VolumeTarget,
+            expected_kwargs={'details': True},
         )
 
     def test_get_volume_target(self):
@@ -301,6 +318,55 @@ class TestVolumeTarget(TestBaremetalProxy):
     def test_delete_volume_target_ignore(self):
         self.verify_delete(
             self.proxy.delete_volume_target, volume_target.VolumeTarget, True
+        )
+
+
+class TestDeployTemplate(TestBaremetalProxy):
+    @mock.patch.object(deploy_templates.DeployTemplate, 'list')
+    def test_deploy_templates_detailed(self, mock_list):
+        result = self.proxy.deploy_templates(details=True, query=1)
+        self.assertIs(result, mock_list.return_value)
+        mock_list.assert_called_once_with(self.proxy, detail=True, query=1)
+
+    @mock.patch.object(deploy_templates.DeployTemplate, 'list')
+    def test_deploy_templates_not_detailed(self, mock_list):
+        result = self.proxy.deploy_templates(query=1)
+        self.assertIs(result, mock_list.return_value)
+        mock_list.assert_called_once_with(self.proxy, query=1)
+
+    def test_create_deploy_template(self):
+        self.verify_create(
+            self.proxy.create_deploy_template,
+            deploy_templates.DeployTemplate,
+        )
+
+    def test_find_deploy_template(self):
+        self.verify_find(
+            self.proxy.find_deploy_template,
+            deploy_templates.DeployTemplate,
+            expected_kwargs={'details': True},
+        )
+
+    def test_get_deploy_template(self):
+        self.verify_get(
+            self.proxy.get_deploy_template,
+            deploy_templates.DeployTemplate,
+            mock_method=_MOCK_METHOD,
+            expected_kwargs={'fields': None},
+        )
+
+    def test_delete_deploy_template(self):
+        self.verify_delete(
+            self.proxy.delete_deploy_template,
+            deploy_templates.DeployTemplate,
+            False,
+        )
+
+    def test_delete_deploy_template_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_deploy_template,
+            deploy_templates.DeployTemplate,
+            True,
         )
 
 

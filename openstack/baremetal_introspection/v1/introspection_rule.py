@@ -10,11 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.baremetal.v1 import _common
 from openstack import resource
 
 
-class IntrospectionRule(_common.Resource):
+class IntrospectionRule(resource.Resource):
     resources_key = 'rules'
     base_path = '/rules'
 

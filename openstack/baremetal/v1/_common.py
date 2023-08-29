@@ -101,10 +101,40 @@ for provisioning"""
 
 
 class Resource(resource.Resource):
+    """A subclass for resources that use the path to request a detailed view.
+
+    Two patterns exist for fetching the detailed view when listing resources.
+
+    - As part of the path. For example:
+
+        GET /v1/ports/detail
+
+    - As a query parameter. For example:
+
+        GET /v1/conductors?detail=True
+
+    This handles resources that use the former pattern, namely:
+
+    - chassis
+    - nodes
+    - ports
+    - portgroups
+    """
+
     base_path: str
 
     @classmethod
-    def list(cls, session, details=False, **params):
+    def list(
+        cls,
+        session,
+        paginated=True,
+        base_path=None,
+        allow_unknown_params=False,
+        *,
+        microversion=None,
+        details=False,
+        **params,
+    ):
         """This method is a generator which yields resource objects.
 
         This resource object list generator handles pagination and takes query
@@ -112,22 +142,102 @@ class Resource(resource.Resource):
 
         :param session: The session to use for making this request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
-        :param bool details: Whether to return detailed node records
+        :param bool paginated: ``True`` if a GET to this resource returns
+            a paginated series of responses, or ``False`` if a GET returns only
+            one page of data. **When paginated is False only one page of data
+            will be returned regardless of the API's support of pagination.**
+        :param str base_path: Base part of the URI for listing resources, if
+            different from :data:`~openstack.resource.Resource.base_path`.
+        :param bool allow_unknown_params: ``True`` to accept, but discard
+            unknown query parameters. This allows getting list of 'filters' and
+            passing everything known to the server. ``False`` will result in
+            validation exception when unknown query parameters are passed.
+        :param str microversion: API version to override the negotiated one.
+        :param bool details: Whether to return detailed resource records.
         :param dict params: These keyword arguments are passed through the
-            :meth:`~openstack.resource.QueryParameter._transpose` method
-            to find if any of them match expected query parameters to be
-            sent in the *params* argument to
-            :meth:`~keystoneauth1.adapter.Adapter.get`.
+            :meth:`~openstack.resource.QueryParamter._transpose` method
+            to find if any of them match expected query parameters to be sent
+            in the *params* argument to
+            :meth:`~keystoneauth1.adapter.Adapter.get`. They are additionally
+            checked against the :data:`~openstack.resource.Resource.base_path`
+            format string to see if any path fragments need to be filled in by
+            the contents of this argument.
+            Parameters supported as filters by the server side are passed in
+            the API call, remaining parameters are applied as filters to the
+            retrieved results.
 
-        :return: A generator of :class:`openstack.resource.Resource` objects.
+        :return: A generator of :class:`Resource` objects.
+        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
+            :data:`Resource.allow_list` is not set to ``True``.
         :raises: :exc:`~openstack.exceptions.InvalidResourceQuery` if query
-                 contains invalid params.
+            contains invalid params.
         """
-        base_path = cls.base_path
-        if details:
-            base_path += '/detail'
+        if not base_path:
+            base_path = cls.base_path
+            if details:
+                base_path += '/detail'
+
         return super().list(
-            session, paginated=True, base_path=base_path, **params
+            session,
+            paginated=paginated,
+            base_path=base_path,
+            allow_unknown_params=allow_unknown_params,
+            microversion=microversion,
+            **params,
+        )
+
+    @classmethod
+    def find(
+        cls,
+        session,
+        name_or_id,
+        ignore_missing=True,
+        list_base_path=None,
+        *,
+        microversion=None,
+        all_projects=None,
+        details=False,
+        **params,
+    ):
+        """Find a resource by its name or id.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param name_or_id: This resource's identifier, if needed by
+            the request. The default is ``None``.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the resource does not exist.  When set to ``True``, None will be
+            returned when attempting to find a nonexistent resource.
+        :param str list_base_path: base_path to be used when need listing
+            resources.
+        :param str microversion: API version to override the negotiated one.
+        :param bool details: Whether to return detailed resource records.
+        :param dict params: Any additional parameters to be passed into
+            underlying methods, such as to
+            :meth:`~openstack.resource.Resource.existing` in order to pass on
+            URI parameters.
+
+        :return: The :class:`Resource` object matching the given name or id
+            or None if nothing matches.
+        :raises: :class:`openstack.exceptions.DuplicateResource` if more
+            than one resource is found for this request.
+        :raises: :class:`openstack.exceptions.ResourceNotFound` if nothing
+            is found and ignore_missing is ``False``.
+        """
+        if not list_base_path:
+            list_base_path = cls.base_path
+            if details:
+                list_base_path += '/detail'
+
+        return super().find(
+            session,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            list_base_path=list_base_path,
+            microversion=microversion,
+            all_projects=all_projects,
+            **params,
         )
 
 
