@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    [`bug 2010898 <https://storyboard.openstack.org/#!/story/2010898>`_]
+    Fix Swift endpoint url handling to determine info/caps url
