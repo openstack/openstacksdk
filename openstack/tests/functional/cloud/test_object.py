@@ -14,7 +14,7 @@
 test_object
 ----------------------------------
 
-Functional tests for `shade` object methods.
+Functional tests for object methods.
 """
 
 import random

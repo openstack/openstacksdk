@@ -14,7 +14,7 @@
 test_groups
 ----------------------------------
 
-Functional tests for `shade` keystone group resource.
+Functional tests for keystone group resource.
 """
 
 import openstack.cloud

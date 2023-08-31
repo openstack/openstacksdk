@@ -14,7 +14,7 @@
 test_limits
 ----------------------------------
 
-Functional tests for `shade` limits method
+Functional tests for limits method
 """
 from openstack.compute.v2 import limits as _limits
 from openstack.tests.functional import base

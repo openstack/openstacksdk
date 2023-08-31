@@ -16,7 +16,7 @@
 test_port
 ----------------------------------
 
-Functional tests for `shade` port resource.
+Functional tests for port resource.
 """
 
 import random

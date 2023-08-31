@@ -14,7 +14,7 @@
 test_quotas
 ----------------------------------
 
-Functional tests for `shade` quotas methods.
+Functional tests for quotas methods.
 """
 
 from openstack.tests.functional import base

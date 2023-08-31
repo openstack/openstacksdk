@@ -16,7 +16,7 @@
 test_inventory
 ----------------------------------
 
-Functional tests for `shade` inventory methods.
+Functional tests for inventory methods.
 """
 
 from openstack.cloud import inventory

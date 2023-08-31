@@ -14,7 +14,7 @@
 test_stack
 ----------------------------------
 
-Functional tests for `shade` stack methods.
+Functional tests for stack methods.
 """
 
 import tempfile

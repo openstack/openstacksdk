@@ -14,7 +14,7 @@
 test_compute
 ----------------------------------
 
-Functional tests for `shade` image methods.
+Functional tests for image methods.
 """
 
 import filecmp

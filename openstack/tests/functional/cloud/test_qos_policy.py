@@ -15,7 +15,7 @@
 test_qos_policy
 ----------------------------------
 
-Functional tests for `shade`QoS policies methods.
+Functional tests for QoS policies methods.
 """
 
 from openstack.cloud.exc import OpenStackCloudException

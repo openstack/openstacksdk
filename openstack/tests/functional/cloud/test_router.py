@@ -14,7 +14,7 @@
 test_router
 ----------------------------------
 
-Functional tests for `shade` router methods.
+Functional tests for router methods.
 """
 
 import ipaddress

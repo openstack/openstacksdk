@@ -16,7 +16,7 @@
 test_volume
 ----------------------------------
 
-Functional tests for `shade` block storage methods.
+Functional tests for block storage methods.
 """
 import testtools
 

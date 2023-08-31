@@ -14,7 +14,7 @@
 test_server_group
 ----------------------------------
 
-Functional tests for `shade` server_group resource.
+Functional tests for server_group resource.
 """
 
 from openstack.tests.functional import base
