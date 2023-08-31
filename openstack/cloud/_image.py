@@ -11,7 +11,7 @@
 # limitations under the License.
 
 from openstack.cloud import _utils
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack.image.v2._proxy import Proxy
 from openstack import utils
 
@@ -104,30 +104,32 @@ class ImageCloudMixin:
             this or output_path must be specified
         :param int chunk_size: size in bytes to read from the wire and buffer
             at one time. Defaults to 1024 * 1024 = 1 MiB
+
         :returns: When output_path and output_file are not given - the bytes
             comprising the given Image when stream is False, otherwise a
             :class:`requests.Response` instance. When output_path or
             output_file are given - an image
             :class:`~openstack.image.v2.image.Image` instance.
-        :raises: OpenStackCloudException in the event download_image is called
-            without exactly one of either output_path or output_file
-        :raises: OpenStackCloudResourceNotFound if no images are found matching
-            the name or ID provided
+        :raises: :class:`~openstack.exceptions.SDKException` in the event
+            download_image is called without exactly one of either output_path
+            or output_file
+        :raises: :class:`~openstack.exceptions.BadRequestException` if no
+            images are found matching the name or ID provided
         """
         if output_path is None and output_file is None:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 'No output specified, an output path or file object'
                 ' is necessary to write the image data to'
             )
         elif output_path is not None and output_file is not None:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 'Both an output path and file object were provided,'
                 ' however only one can be used at once'
             )
 
         image = self.image.find_image(name_or_id)
         if not image:
-            raise exc.OpenStackCloudResourceNotFound(
+            raise exceptions.NotFoundException(
                 "No images with name or ID %s were found" % name_or_id, None
             )
 
@@ -167,7 +169,7 @@ class ImageCloudMixin:
             if image['status'] == 'active':
                 return image
             elif image['status'] == 'error':
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     'Image {image} hit error state'.format(image=image_id)
                 )
 
@@ -186,8 +188,8 @@ class ImageCloudMixin:
         :param delete_objects: If True, also deletes uploaded swift objects.
 
         :returns: True if delete succeeded, False otherwise.
-
-        :raises: OpenStackCloudException if there are problems deleting.
+        :raises: :class:`~openstack.exceptions.SDKException` if there are
+            problems deleting.
         """
         image = self.get_image(name_or_id)
         if not image:
@@ -279,7 +281,8 @@ class ImageCloudMixin:
         If a value is in meta and kwargs, meta wins.
 
         :returns: An image :class:`openstack.image.v2.image.Image` object.
-        :raises: OpenStackCloudException if there are problems uploading
+        :raises: :class:`~openstack.exceptions.SDKException` if there are
+            problems uploading
         """
         if volume:
             image = self.block_storage.create_image(
@@ -319,7 +322,7 @@ class ImageCloudMixin:
                 image_obj = self.get_image(image.id)
                 if image_obj and image_obj.status not in ('queued', 'saving'):
                     return image_obj
-        except exc.OpenStackCloudTimeout:
+        except exceptions.ResourceTimeout:
             self.log.debug(
                 "Timeout waiting for image to become ready. Deleting."
             )

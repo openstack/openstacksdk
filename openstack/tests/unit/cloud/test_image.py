@@ -18,7 +18,6 @@ import tempfile
 from unittest import mock
 import uuid
 
-from openstack.cloud import exc
 from openstack.cloud import meta
 from openstack import connection
 from openstack import exceptions
@@ -70,7 +69,7 @@ class TestImage(BaseTestImage):
 
     def test_download_image_no_output(self):
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.download_image,
             self.image_name,
         )
@@ -78,7 +77,7 @@ class TestImage(BaseTestImage):
     def test_download_image_two_outputs(self):
         fake_fd = io.BytesIO()
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.download_image,
             self.image_name,
             output_path='fake_path',
@@ -110,7 +109,7 @@ class TestImage(BaseTestImage):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudResourceNotFound,
+            exceptions.NotFoundException,
             self.cloud.download_image,
             self.image_name,
             output_path='fake_path',
@@ -1354,7 +1353,7 @@ class TestImage(BaseTestImage):
         )
 
         self.assertRaises(
-            exc.OpenStackCloudHTTPError,
+            exceptions.HttpException,
             self._call_create_image,
             self.image_name,
         )
@@ -1470,7 +1469,7 @@ class TestImage(BaseTestImage):
         )
 
         self.assertRaises(
-            exc.OpenStackCloudHTTPError,
+            exceptions.HttpException,
             self._call_create_image,
             self.image_name,
         )
@@ -1556,7 +1555,7 @@ class TestImage(BaseTestImage):
         self.cloud.image_api_use_tasks = False
 
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self._call_create_image,
             self.image_name,
             allow_duplicates=True,

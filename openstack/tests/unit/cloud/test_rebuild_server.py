@@ -21,7 +21,7 @@ Tests for the `rebuild_server` command.
 
 import uuid
 
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -65,7 +65,7 @@ class TestRebuildServer(base.TestCase):
         )
 
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.rebuild_server,
             self.fake_server['id'],
             "a",
@@ -102,7 +102,7 @@ class TestRebuildServer(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.rebuild_server,
             self.fake_server['id'],
             "a",
@@ -139,7 +139,7 @@ class TestRebuildServer(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudTimeout,
+            exceptions.ResourceTimeout,
             self.cloud.rebuild_server,
             self.fake_server['id'],
             "a",

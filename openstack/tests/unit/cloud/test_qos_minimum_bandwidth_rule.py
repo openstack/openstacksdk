@@ -15,7 +15,7 @@
 
 import copy
 
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack.network.v2 import qos_minimum_bandwidth_rule
 from openstack.tests.unit import base
 
@@ -148,7 +148,7 @@ class TestQosMinimumBandwidthRule(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudResourceNotFound,
+            exceptions.NotFoundException,
             self.cloud.get_qos_minimum_bandwidth_rule,
             self.policy_name,
             self.rule_id,
@@ -168,7 +168,7 @@ class TestQosMinimumBandwidthRule(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.get_qos_minimum_bandwidth_rule,
             self.policy_name,
             self.rule_id,
@@ -240,7 +240,7 @@ class TestQosMinimumBandwidthRule(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.create_qos_minimum_bandwidth_rule,
             self.policy_name,
             min_kbps=100,
@@ -328,7 +328,7 @@ class TestQosMinimumBandwidthRule(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.update_qos_minimum_bandwidth_rule,
             self.policy_id,
             self.rule_id,
@@ -403,7 +403,7 @@ class TestQosMinimumBandwidthRule(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.delete_qos_minimum_bandwidth_rule,
             self.policy_name,
             self.rule_id,

@@ -19,7 +19,7 @@ test_floating_ip_pool
 Test floating IP pool resource (managed by nova)
 """
 
-from openstack.cloud.exc import OpenStackCloudException
+from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -96,7 +96,8 @@ class TestFloatingIPPool(base.TestCase):
         )
 
         self.assertRaises(
-            OpenStackCloudException, self.cloud.list_floating_ip_pools
+            exceptions.SDKException,
+            self.cloud.list_floating_ip_pools,
         )
 
         self.assert_calls()

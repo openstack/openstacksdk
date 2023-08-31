@@ -17,8 +17,6 @@ from unittest import mock
 
 import testtools
 
-import openstack.cloud
-from openstack.cloud import exc
 import openstack.cloud.openstackcloud as oc_oc
 from openstack import exceptions
 from openstack.object_store.v1 import _proxy
@@ -198,7 +196,7 @@ class TestObject(BaseTestObject):
             ]
         )
         self.assertRaises(
-            openstack.cloud.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.delete_container,
             self.container,
         )
@@ -231,7 +229,7 @@ class TestObject(BaseTestObject):
             [dict(method='POST', uri=self.container_endpoint, status_code=409)]
         )
         self.assertRaises(
-            openstack.cloud.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.update_container,
             self.container,
             dict(foo='bar'),
@@ -284,7 +282,7 @@ class TestObject(BaseTestObject):
 
     def test_set_container_access_invalid(self):
         self.assertRaises(
-            openstack.cloud.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.set_container_access,
             self.container,
             'invalid',
@@ -319,7 +317,7 @@ class TestObject(BaseTestObject):
         )
 
         with testtools.ExpectedException(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             "Could not determine container access for ACL: invalid",
         ):
             self.cloud.get_container_access(self.container)
@@ -329,7 +327,7 @@ class TestObject(BaseTestObject):
             [dict(method='HEAD', uri=self.container_endpoint, status_code=404)]
         )
         with testtools.ExpectedException(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             "Container not found: %s" % self.container,
         ):
             self.cloud.get_container_access(self.container)
@@ -368,9 +366,7 @@ class TestObject(BaseTestObject):
             ]
         )
 
-        self.assertRaises(
-            exc.OpenStackCloudException, self.cloud.list_containers
-        )
+        self.assertRaises(exceptions.SDKException, self.cloud.list_containers)
         self.assert_calls()
 
     @mock.patch.object(_proxy, '_get_expiration', return_value=13345)
@@ -660,7 +656,7 @@ class TestObject(BaseTestObject):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.list_objects,
             self.container,
         )
@@ -798,7 +794,7 @@ class TestObject(BaseTestObject):
         )
 
         self.assertRaises(
-            openstack.cloud.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.get_object,
             self.container,
             self.object,
@@ -1511,7 +1507,7 @@ class TestObjectUploads(BaseTestObject):
         self.cloud.image_api_use_tasks = True
 
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.create_object,
             container=self.container,
             name=self.object,
@@ -1594,7 +1590,7 @@ class TestObjectUploads(BaseTestObject):
         )
 
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.create_object,
             container=self.container,
             name=self.object,

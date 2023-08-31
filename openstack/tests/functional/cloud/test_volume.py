@@ -20,7 +20,7 @@ Functional tests for block storage methods.
 from fixtures import TimeoutException
 from testtools import content
 
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack.tests.functional import base
 from openstack import utils
 
@@ -123,7 +123,7 @@ class TestVolume(base.BaseFunctionalTest):
                             break
                     if not found:
                         break
-            except (exc.OpenStackCloudTimeout, TimeoutException):
+            except (exceptions.ResourceTimeout, TimeoutException):
                 # NOTE(slaweq): ups, some volumes are still not removed
                 # so we should try to force delete it once again and move
                 # forward

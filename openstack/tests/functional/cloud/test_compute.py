@@ -21,7 +21,7 @@ import datetime
 
 from fixtures import TimeoutException
 
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack.tests.functional import base
 from openstack import utils
 
@@ -52,7 +52,7 @@ class TestCompute(base.BaseFunctionalTest):
             for volume in volumes:
                 if volume.status != 'deleting':
                     self.user_cloud.delete_volume(volume.id, wait=True)
-        except (exc.OpenStackCloudTimeout, TimeoutException):
+        except (exceptions.ResourceTimeout, TimeoutException):
             # Ups, some timeout occured during process of deletion server
             # or volumes, so now we will try to call delete each of them
             # once again and we will try to live with it
@@ -197,7 +197,7 @@ class TestCompute(base.BaseFunctionalTest):
     def test_list_all_servers_bad_permissions(self):
         # Normal users are not allowed to pass all_projects=True
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.user_cloud.list_servers,
             all_projects=True,
         )
@@ -252,7 +252,7 @@ class TestCompute(base.BaseFunctionalTest):
 
     def test_get_server_console_bad_server(self):
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.user_cloud.get_server_console,
             server=self.server_name,
         )
@@ -525,7 +525,7 @@ class TestCompute(base.BaseFunctionalTest):
         self.assertEqual(set(updated_server.metadata.items()), set([]))
 
         self.assertRaises(
-            exc.OpenStackCloudURINotFound,
+            exceptions.NotFoundException,
             self.user_cloud.delete_server_metadata,
             self.server_name,
             ['key1'],

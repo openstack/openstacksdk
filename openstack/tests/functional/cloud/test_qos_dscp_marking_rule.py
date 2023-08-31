@@ -18,7 +18,7 @@ test_qos_dscp_marking_rule
 Functional tests for QoS DSCP marking rule methods.
 """
 
-from openstack.cloud.exc import OpenStackCloudException
+from openstack import exceptions
 from openstack.tests.functional import base
 
 
@@ -41,7 +41,7 @@ class TestQosDscpMarkingRule(base.BaseFunctionalTest):
         try:
             self.operator_cloud.delete_qos_policy(self.policy['id'])
         except Exception as e:
-            raise OpenStackCloudException(e)
+            raise exceptions.SDKException(e)
 
     def test_qos_dscp_marking_rule_lifecycle(self):
         dscp_mark = 16

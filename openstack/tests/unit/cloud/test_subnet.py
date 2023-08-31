@@ -17,7 +17,7 @@ import copy
 
 import testtools
 
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack.network.v2 import subnet as _subnet
 from openstack.tests.unit import base
 
@@ -253,7 +253,7 @@ class TestSubnet(base.TestCase):
             ]
         )
         with testtools.ExpectedException(
-            exc.OpenStackCloudException, "ip_version must be an integer"
+            exceptions.SDKException, "ip_version must be an integer"
         ):
             self.cloud.create_subnet(
                 self.network_name, self.subnet_cidr, ip_version='4x'
@@ -407,7 +407,7 @@ class TestSubnet(base.TestCase):
         )
         gateway = '192.168.200.3'
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.create_subnet,
             'kooky',
             self.subnet_cidr,
@@ -441,7 +441,7 @@ class TestSubnet(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.create_subnet,
             'duck',
             self.subnet_cidr,
@@ -475,7 +475,7 @@ class TestSubnet(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.create_subnet,
             self.network_name,
             self.subnet_cidr,
@@ -731,7 +731,7 @@ class TestSubnet(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.delete_subnet,
             self.subnet_name,
         )
@@ -859,7 +859,7 @@ class TestSubnet(base.TestCase):
 
     def test_update_subnet_conflict_gw_ops(self):
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.update_subnet,
             self.subnet_id,
             gateway_ip="192.168.199.3",

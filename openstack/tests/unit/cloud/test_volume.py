@@ -14,9 +14,9 @@
 import testtools
 
 from openstack.block_storage.v3 import volume
-import openstack.cloud
 from openstack.cloud import meta
 from openstack.compute.v2 import volume_attachment
+from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -105,7 +105,7 @@ class TestVolume(base.TestCase):
             ]
         )
         with testtools.ExpectedException(
-            openstack.cloud.OpenStackCloudURINotFound
+            exceptions.NotFoundException,
         ):
             self.cloud.attach_volume(server, volume, wait=False)
         self.assert_calls()
@@ -225,7 +225,7 @@ class TestVolume(base.TestCase):
             ]
         )
 
-        with testtools.ExpectedException(openstack.exceptions.ResourceFailure):
+        with testtools.ExpectedException(exceptions.ResourceFailure):
             self.cloud.attach_volume(server, volume)
         self.assert_calls()
 
@@ -234,7 +234,7 @@ class TestVolume(base.TestCase):
         volume = dict(id='volume001', status='error', attachments=[])
 
         with testtools.ExpectedException(
-            openstack.cloud.OpenStackCloudException,
+            exceptions.SDKException,
             "Volume %s is not available. Status is '%s'"
             % (volume['id'], volume['status']),
         ):
@@ -250,7 +250,7 @@ class TestVolume(base.TestCase):
         )
 
         with testtools.ExpectedException(
-            openstack.cloud.OpenStackCloudException,
+            exceptions.SDKException,
             "Volume %s already attached to server %s on device %s"
             % (volume['id'], server['id'], device_id),
         ):
@@ -324,7 +324,7 @@ class TestVolume(base.TestCase):
             ]
         )
         with testtools.ExpectedException(
-            openstack.cloud.OpenStackCloudURINotFound
+            exceptions.NotFoundException,
         ):
             self.cloud.detach_volume(server, volume, wait=False)
         self.assert_calls()
@@ -433,7 +433,7 @@ class TestVolume(base.TestCase):
                 ),
             ]
         )
-        with testtools.ExpectedException(openstack.exceptions.ResourceFailure):
+        with testtools.ExpectedException(exceptions.ResourceFailure):
             self.cloud.detach_volume(server, volume)
         self.assert_calls()
 

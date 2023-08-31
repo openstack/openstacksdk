@@ -74,7 +74,7 @@ class OpenStackInventory:
                     detailed=expand, all_projects=all_projects
                 ):
                     hostvars.append(server)
-            except exceptions.OpenStackCloudException:
+            except exceptions.SDKException:
                 # Don't fail on one particular cloud as others may work
                 if fail_on_cloud_config:
                     raise

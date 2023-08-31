@@ -23,7 +23,7 @@ import jmespath
 import netifaces
 
 from openstack import _log
-from openstack.cloud import exc
+from openstack import exceptions
 
 
 def _dictify_resource(resource):
@@ -177,7 +177,7 @@ def _get_entity(cloud, resource, name_or_id, filters, **kwargs):
         entities = search(name_or_id, filters, **kwargs)
         if entities:
             if len(entities) > 1:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Multiple matches found for %s" % name_or_id
                 )
             return entities[0]
@@ -231,24 +231,24 @@ def openstacksdk_exceptions(error_message=None):
     """Context manager for dealing with openstack exceptions.
 
     :param string error_message: String to use for the exception message
-        content on non-OpenStackCloudExceptions.
+        content on non-SDKException exception.
 
-        Useful for avoiding wrapping OpenStackCloudException exceptions
+        Useful for avoiding wrapping SDKException exceptions
         within themselves. Code called from within the context may throw such
         exceptions without having to catch and reraise them.
 
-        Non-OpenStackCloudException exceptions thrown within the context will
+        Non-SDKException exceptions thrown within the context will
         be wrapped and the exception message will be appended to the given
         error message.
     """
     try:
         yield
-    except exc.OpenStackCloudException:
+    except exceptions.SDKException:
         raise
     except Exception as e:
         if error_message is None:
             error_message = str(e)
-        raise exc.OpenStackCloudException(error_message)
+        raise exceptions.SDKException(error_message)
 
 
 def safe_dict_min(key, data):
@@ -273,7 +273,7 @@ def safe_dict_min(key, data):
             try:
                 val = int(d[key])
             except ValueError:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Search for minimum value failed. "
                     "Value for {key} is not an integer: {value}".format(
                         key=key, value=d[key]
@@ -306,7 +306,7 @@ def safe_dict_max(key, data):
             try:
                 val = int(d[key])
             except ValueError:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Search for maximum value failed. "
                     "Value for {key} is not an integer: {value}".format(
                         key=key, value=d[key]
@@ -360,7 +360,8 @@ def range_filter(data, key, range_exp):
     :param string range_exp: The expression describing the range of values.
 
     :returns: A list subset of the original data set.
-    :raises: OpenStackCloudException on invalid range expressions.
+    :raises: :class:`~openstack.exceptions.SDKException` on invalid range
+        expressions.
     """
     filtered = []
     range_exp = str(range_exp).upper()
@@ -388,7 +389,7 @@ def range_filter(data, key, range_exp):
 
     # If parsing the range fails, it must be a bad value.
     if val_range is None:
-        raise exc.OpenStackCloudException(
+        raise exceptions.SDKException(
             "Invalid range value: {value}".format(value=range_exp)
         )
 

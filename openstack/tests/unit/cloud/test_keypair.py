@@ -13,7 +13,7 @@
 
 import fixtures
 
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -83,7 +83,7 @@ class TestKeypair(base.TestCase):
         )
 
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.create_keypair,
             self.keyname,
             self.key['public_key'],
@@ -195,7 +195,5 @@ class TestKeypair(base.TestCase):
                 ),
             ]
         )
-        self.assertRaises(
-            exc.OpenStackCloudException, self.cloud.list_keypairs
-        )
+        self.assertRaises(exceptions.SDKException, self.cloud.list_keypairs)
         self.assert_calls()

@@ -35,10 +35,11 @@ class NetworkCloudMixin:
         :param name_or_id: Name or ID of the desired network.
         :param filters: A dict containing additional filters to use. e.g.
             {'router:external': True}
+
         :returns: A list of network ``Network`` objects matching the search
             criteria.
-        :raises: ``OpenStackCloudException`` if something goes wrong during the
-            OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         query = {}
         if name_or_id:
@@ -54,10 +55,11 @@ class NetworkCloudMixin:
         :param name_or_id: Name or ID of the desired router.
         :param filters: A dict containing additional filters to use. e.g.
             {'admin_state_up': True}
+
         :returns: A list of network ``Router`` objects matching the search
             criteria.
-        :raises: ``OpenStackCloudException`` if something goes wrong during the
-            OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         query = {}
         if name_or_id:
@@ -73,10 +75,11 @@ class NetworkCloudMixin:
         :param name_or_id: Name or ID of the desired subnet.
         :param filters: A dict containing additional filters to use. e.g.
             {'enable_dhcp': True}
+
         :returns: A list of network ``Subnet`` objects matching the search
             criteria.
-        :raises: ``OpenStackCloudException`` if something goes wrong during the
-            OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         query = {}
         if name_or_id:
@@ -92,10 +95,11 @@ class NetworkCloudMixin:
         :param name_or_id: Name or ID of the desired port.
         :param filters: A dict containing additional filters to use. e.g.
             {'device_id': '2711c67a-b4a7-43dd-ace7-6187b791c3f0'}
+
         :returns: A list of network ``Port`` objects matching the search
             criteria.
-        :raises: ``OpenStackCloudException`` if something goes wrong during the
-            OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         # If the filter is a string, do not push the filter down to neutron;
         # get all the ports and filter locally.
@@ -208,10 +212,11 @@ class NetworkCloudMixin:
         :param name_or_id: Name or ID of the desired policy.
         :param filters: a dict containing additional filters to use. e.g.
             {'shared': True}
+
         :returns: A list of network ``QosPolicy`` objects matching the search
             criteria.
-        :raises: ``OpenStackCloudException`` if something goes wrong during the
-            OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -467,7 +472,8 @@ class NetworkCloudMixin:
         :param string dns_domain: Specify the DNS domain associated with
             this network.
         :returns: The created network ``Network`` object.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         network = {
             'name': name,
@@ -482,7 +488,7 @@ class NetworkCloudMixin:
 
         if availability_zone_hints is not None:
             if not isinstance(availability_zone_hints, list):
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Parameter 'availability_zone_hints' must be a list"
                 )
             if not self._has_neutron_extension('network_availability_zone'):
@@ -494,7 +500,7 @@ class NetworkCloudMixin:
 
         if provider:
             if not isinstance(provider, dict):
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Parameter 'provider' must be a dict"
                 )
             # Only pass what we know
@@ -515,18 +521,18 @@ class NetworkCloudMixin:
 
         if port_security_enabled is not None:
             if not isinstance(port_security_enabled, bool):
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Parameter 'port_security_enabled' must be a bool"
                 )
             network['port_security_enabled'] = port_security_enabled
 
         if mtu_size:
             if not isinstance(mtu_size, int):
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Parameter 'mtu_size' must be an integer."
                 )
             if not mtu_size >= 68:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Parameter 'mtu_size' must be greater than 67."
                 )
 
@@ -568,13 +574,15 @@ class NetworkCloudMixin:
         :param bool port_security_enabled: Enable or disable port security.
         :param string dns_domain: Specify the DNS domain associated with
             this network.
+
         :returns: The updated network ``Network`` object.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         provider = kwargs.pop('provider', None)
         if provider:
             if not isinstance(provider, dict):
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Parameter 'provider' must be a dict"
                 )
             for key in ('physical_network', 'network_type', 'segmentation_id'):
@@ -586,26 +594,24 @@ class NetworkCloudMixin:
 
         if 'port_security_enabled' in kwargs:
             if not isinstance(kwargs['port_security_enabled'], bool):
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Parameter 'port_security_enabled' must be a bool"
                 )
 
         if 'mtu_size' in kwargs:
             if not isinstance(kwargs['mtu_size'], int):
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Parameter 'mtu_size' must be an integer."
                 )
             if kwargs['mtu_size'] < 68:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Parameter 'mtu_size' must be greater than 67."
                 )
             kwargs['mtu'] = kwargs.pop('mtu_size')
 
         network = self.get_network(name_or_id)
         if not network:
-            raise exc.OpenStackCloudException(
-                "Network %s not found." % name_or_id
-            )
+            raise exceptions.SDKException("Network %s not found." % name_or_id)
 
         network = self.network.update_network(network, **kwargs)
 
@@ -619,8 +625,8 @@ class NetworkCloudMixin:
         :param name_or_id: Name or ID of the network being deleted.
 
         :returns: True if delete succeeded, False otherwise.
-
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         network = self.get_network(name_or_id)
         if not network:
@@ -640,13 +646,13 @@ class NetworkCloudMixin:
         :param name_or_id: project name or id
         :param kwargs: key/value pairs of quota name and quota value
 
-        :raises: OpenStackCloudException if the resource to set the
-            quota does not exist.
+        :raises: :class:`~openstack.exceptions.SDKException` if the resource to
+            set the quota does not exist.
         """
 
         proj = self.get_project(name_or_id)
         if not proj:
-            raise exc.OpenStackCloudException("project does not exist")
+            raise exceptions.SDKException("project does not exist")
 
         self.network.update_quota(proj.id, **kwargs)
 
@@ -656,8 +662,10 @@ class NetworkCloudMixin:
         :param name_or_id: project name or id
         :param details: if set to True it will return details about usage
             of quotas by given project
-        :raises: OpenStackCloudException if it's not a valid project
+
         :returns: A network ``Quota`` object if found, else None.
+        :raises: :class:`~openstack.exceptions.SDKException` if it's not a
+            valid project
         """
         proj = self.identity.find_project(name_or_id, ignore_missing=False)
         return self.network.get_quota(proj.id, details)
@@ -673,14 +681,14 @@ class NetworkCloudMixin:
         """Delete network quotas for a project
 
         :param name_or_id: project name or id
-        :raises: OpenStackCloudException if it's not a valid project or the
-            network client call failed
 
         :returns: dict with the quotas
+        :raises: :class:`~openstack.exceptions.SDKException` if it's not a
+            valid project or the network client call failed
         """
         proj = self.get_project(name_or_id)
         if not proj:
-            raise exc.OpenStackCloudException("project does not exist")
+            raise exceptions.SDKException("project does not exist")
         self.network.delete_quota(proj.id)
 
     @_utils.valid_kwargs(
@@ -1348,8 +1356,10 @@ class NetworkCloudMixin:
         :param bool default: Set the QoS policy as default for project.
         :param string project_id: Specify the project ID this QoS policy
             will be created on (admin-only).
+
         :returns: The created network ``QosPolicy`` object.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -1380,8 +1390,10 @@ class NetworkCloudMixin:
         :param bool shared: If True, the QoS policy will be set as shared.
         :param bool default: If True, the QoS policy will be set as default for
             project.
+
         :returns: The updated network ``QosPolicyRule`` object.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -1404,7 +1416,7 @@ class NetworkCloudMixin:
 
         curr_policy = self.network.find_qos_policy(name_or_id)
         if not curr_policy:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "QoS policy %s not found." % name_or_id
             )
 
@@ -1416,8 +1428,8 @@ class NetworkCloudMixin:
         :param name_or_id: Name or ID of the policy being deleted.
 
         :returns: True if delete succeeded, False otherwise.
-
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -1446,10 +1458,11 @@ class NetworkCloudMixin:
         :param string rule_id: ID of searched rule.
         :param filters: a dict containing additional filters to use. e.g.
             {'max_kbps': 1000}
+
         :returns: A list of network ``QoSBandwidthLimitRule`` objects matching
             the search criteria.
-        :raises: ``OpenStackCloudException`` if something goes wrong during the
-            OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         rules = self.list_qos_bandwidth_limit_rules(policy_name_or_id, filters)
         return _utils._filter_list(rules, rule_id, filters)
@@ -1461,8 +1474,8 @@ class NetworkCloudMixin:
             from rules should be listed.
         :param filters: (optional) A dict of filter conditions to push down
         :returns: A list of network ``QoSBandwidthLimitRule`` objects.
-        :raises: ``OpenStackCloudResourceNotFound`` if QoS policy will not be
-            found.
+        :raises: ``:class:`~openstack.exceptions.BadRequestException``` if QoS
+            policy will not be found.
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -1471,7 +1484,7 @@ class NetworkCloudMixin:
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
-            raise exc.OpenStackCloudResourceNotFound(
+            raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id
                 )
@@ -1503,7 +1516,7 @@ class NetworkCloudMixin:
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
-            raise exc.OpenStackCloudResourceNotFound(
+            raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id
                 )
@@ -1527,8 +1540,10 @@ class NetworkCloudMixin:
         :param int max_burst_kbps: Maximum burst value (in kilobits).
         :param string direction: Ingress or egress.
             The direction in which the traffic will be limited.
+
         :returns: The created network ``QoSBandwidthLimitRule`` object.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -1537,7 +1552,7 @@ class NetworkCloudMixin:
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
-            raise exc.OpenStackCloudResourceNotFound(
+            raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id
                 )
@@ -1569,8 +1584,10 @@ class NetworkCloudMixin:
         :param int max_burst_kbps: Maximum burst value (in kilobits).
         :param string direction: Ingress or egress.
             The direction in which the traffic will be limited.
+
         :returns: The updated network ``QoSBandwidthLimitRule`` object.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -1581,7 +1598,7 @@ class NetworkCloudMixin:
             policy_name_or_id, ignore_missing=True
         )
         if not policy:
-            raise exc.OpenStackCloudResourceNotFound(
+            raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id
                 )
@@ -1603,7 +1620,7 @@ class NetworkCloudMixin:
             qos_rule=rule_id, qos_policy=policy
         )
         if not curr_rule:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "QoS bandwidth_limit_rule {rule_id} not found in policy "
                 "{policy_id}".format(rule_id=rule_id, policy_id=policy['id'])
             )
@@ -1619,7 +1636,8 @@ class NetworkCloudMixin:
             rule is associated.
         :param string rule_id: ID of rule to update.
 
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -1628,7 +1646,7 @@ class NetworkCloudMixin:
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
-            raise exc.OpenStackCloudResourceNotFound(
+            raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id
                 )
@@ -1663,10 +1681,11 @@ class NetworkCloudMixin:
         :param string rule_id: ID of searched rule.
         :param filters: a dict containing additional filters to use. e.g.
             {'dscp_mark': 32}
+
         :returns: A list of network ``QoSDSCPMarkingRule`` objects matching the
             search criteria.
-        :raises: ``OpenStackCloudException`` if something goes wrong during the
-            OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         rules = self.list_qos_dscp_marking_rules(policy_name_or_id, filters)
         return _utils._filter_list(rules, rule_id, filters)
@@ -1678,8 +1697,8 @@ class NetworkCloudMixin:
             from rules should be listed.
         :param filters: (optional) A dict of filter conditions to push down
         :returns: A list of network ``QoSDSCPMarkingRule`` objects.
-        :raises: ``OpenStackCloudResourceNotFound`` if QoS policy will not be
-            found.
+        :raises: ``:class:`~openstack.exceptions.BadRequestException``` if QoS
+            policy will not be found.
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -1690,7 +1709,7 @@ class NetworkCloudMixin:
             policy_name_or_id, ignore_missing=True
         )
         if not policy:
-            raise exc.OpenStackCloudResourceNotFound(
+            raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id
                 )
@@ -1717,7 +1736,7 @@ class NetworkCloudMixin:
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
-            raise exc.OpenStackCloudResourceNotFound(
+            raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id
                 )
@@ -1735,8 +1754,10 @@ class NetworkCloudMixin:
         :param string policy_name_or_id: Name or ID of the QoS policy to which
             rule should be associated.
         :param int dscp_mark: DSCP mark value
+
         :returns: The created network ``QoSDSCPMarkingRule`` object.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -1745,7 +1766,7 @@ class NetworkCloudMixin:
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
-            raise exc.OpenStackCloudResourceNotFound(
+            raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id
                 )
@@ -1765,8 +1786,10 @@ class NetworkCloudMixin:
             rule is associated.
         :param string rule_id: ID of rule to update.
         :param int dscp_mark: DSCP mark value
+
         :returns: The updated network ``QoSDSCPMarkingRule`` object.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -1775,7 +1798,7 @@ class NetworkCloudMixin:
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
-            raise exc.OpenStackCloudResourceNotFound(
+            raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id
                 )
@@ -1787,7 +1810,7 @@ class NetworkCloudMixin:
 
         curr_rule = self.network.get_qos_dscp_marking_rule(rule_id, policy)
         if not curr_rule:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "QoS dscp_marking_rule {rule_id} not found in policy "
                 "{policy_id}".format(rule_id=rule_id, policy_id=policy['id'])
             )
@@ -1803,7 +1826,8 @@ class NetworkCloudMixin:
             rule is associated.
         :param string rule_id: ID of rule to update.
 
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -1812,7 +1836,7 @@ class NetworkCloudMixin:
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
-            raise exc.OpenStackCloudResourceNotFound(
+            raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id
                 )
@@ -1847,10 +1871,11 @@ class NetworkCloudMixin:
         :param string rule_id: ID of searched rule.
         :param filters: a dict containing additional filters to use. e.g.
             {'min_kbps': 1000}
+
         :returns: A list of network ``QoSMinimumBandwidthRule`` objects
             matching the search criteria.
-        :raises: ``OpenStackCloudException`` if something goes wrong during the
-            OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         rules = self.list_qos_minimum_bandwidth_rules(
             policy_name_or_id, filters
@@ -1866,8 +1891,8 @@ class NetworkCloudMixin:
             from rules should be listed.
         :param filters: (optional) A dict of filter conditions to push down
         :returns: A list of network ``QoSMinimumBandwidthRule`` objects.
-        :raises: ``OpenStackCloudResourceNotFound`` if QoS policy will not be
-            found.
+        :raises: ``:class:`~openstack.exceptions.BadRequestException``` if QoS
+            policy will not be found.
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -1876,7 +1901,7 @@ class NetworkCloudMixin:
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
-            raise exc.OpenStackCloudResourceNotFound(
+            raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id
                 )
@@ -1906,7 +1931,7 @@ class NetworkCloudMixin:
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
-            raise exc.OpenStackCloudResourceNotFound(
+            raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id
                 )
@@ -1928,8 +1953,10 @@ class NetworkCloudMixin:
         :param int min_kbps: Minimum bandwidth value (in kilobits per second).
         :param string direction: Ingress or egress.
             The direction in which the traffic will be available.
+
         :returns: The created network ``QoSMinimumBandwidthRule`` object.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -1938,7 +1965,7 @@ class NetworkCloudMixin:
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
-            raise exc.OpenStackCloudResourceNotFound(
+            raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id
                 )
@@ -1960,8 +1987,10 @@ class NetworkCloudMixin:
         :param int min_kbps: Minimum bandwidth value (in kilobits per second).
         :param string direction: Ingress or egress.
             The direction in which the traffic will be available.
+
         :returns: The updated network ``QoSMinimumBandwidthRule`` object.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -1970,7 +1999,7 @@ class NetworkCloudMixin:
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
-            raise exc.OpenStackCloudResourceNotFound(
+            raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id
                 )
@@ -1984,7 +2013,7 @@ class NetworkCloudMixin:
             rule_id, policy
         )
         if not curr_rule:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "QoS minimum_bandwidth_rule {rule_id} not found in policy "
                 "{policy_id}".format(rule_id=rule_id, policy_id=policy['id'])
             )
@@ -2000,7 +2029,8 @@ class NetworkCloudMixin:
             rule is associated.
         :param string rule_id: ID of rule to delete.
 
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -2009,7 +2039,7 @@ class NetworkCloudMixin:
 
         policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
-            raise exc.OpenStackCloudResourceNotFound(
+            raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id
                 )
@@ -2039,8 +2069,10 @@ class NetworkCloudMixin:
         :param dict router: The dict object of the router being changed
         :param string subnet_id: The ID of the subnet to use for the interface
         :param string port_id: The ID of the port to use for the interface
+
         :returns: The raw response body from the request.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         return self.network.add_interface_to_router(
             router=router, subnet_id=subnet_id, port_id=port_id
@@ -2060,8 +2092,8 @@ class NetworkCloudMixin:
         :param string port_id: The ID of the port to use for the interface
 
         :returns: None on success
-
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         if not subnet_id and not port_id:
             raise ValueError(
@@ -2141,10 +2173,12 @@ class NetworkCloudMixin:
               ]
 
         :param string project_id: Project ID for the router.
-        :param types.ListType availability_zone_hints:
-            A list of availability zone hints.
+        :param types.ListType availability_zone_hints: A list of availability
+            zone hints.
+
         :returns: The created network ``Router`` object.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         router = {'admin_state_up': admin_state_up}
         if project_id is not None:
@@ -2158,7 +2192,7 @@ class NetworkCloudMixin:
             router['external_gateway_info'] = ext_gw_info
         if availability_zone_hints is not None:
             if not isinstance(availability_zone_hints, list):
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Parameter 'availability_zone_hints' must be a list"
                 )
             if not self._has_neutron_extension('router_availability_zone'):
@@ -2213,7 +2247,8 @@ class NetworkCloudMixin:
               ]
 
         :returns: The updated network ``Router`` object.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         router = {}
         if name:
@@ -2240,9 +2275,7 @@ class NetworkCloudMixin:
 
         curr_router = self.get_router(name_or_id)
         if not curr_router:
-            raise exc.OpenStackCloudException(
-                "Router %s not found." % name_or_id
-            )
+            raise exceptions.SDKException("Router %s not found." % name_or_id)
 
         return self.network.update_router(curr_router, **router)
 
@@ -2256,8 +2289,8 @@ class NetworkCloudMixin:
         :param name_or_id: Name or ID of the router being deleted.
 
         :returns: True if delete succeeded, False otherwise.
-
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         router = self.network.find_router(name_or_id, ignore_missing=True)
         if not router:
@@ -2352,8 +2385,10 @@ class NetworkCloudMixin:
             ``use_default_subnetpool`` and ``subnetpool_name_or_id`` may be
             specified at the same time.
         :param kwargs: Key value pairs to be passed to the Neutron API.
+
         :returns: The created network ``Subnet`` object.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
 
         if tenant_id is not None:
@@ -2363,28 +2398,28 @@ class NetworkCloudMixin:
 
         network = self.get_network(network_name_or_id, filters)
         if not network:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "Network %s not found." % network_name_or_id
             )
 
         if disable_gateway_ip and gateway_ip:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 'arg:disable_gateway_ip is not allowed with arg:gateway_ip'
             )
 
         uses_subnetpool = use_default_subnetpool or subnetpool_name_or_id
         if not cidr and not uses_subnetpool:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 'arg:cidr is required when a subnetpool is not used'
             )
 
         if cidr and uses_subnetpool:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 'arg:cidr and subnetpool may not be used at the same time'
             )
 
         if use_default_subnetpool and subnetpool_name_or_id:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 'arg:use_default_subnetpool and arg:subnetpool_id may not be '
                 'used at the same time'
             )
@@ -2393,7 +2428,7 @@ class NetworkCloudMixin:
         if subnetpool_name_or_id:
             subnetpool = self.get_subnetpool(subnetpool_name_or_id)
             if not subnetpool:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Subnetpool %s not found." % subnetpool_name_or_id
                 )
 
@@ -2402,9 +2437,7 @@ class NetworkCloudMixin:
             try:
                 ip_version = int(ip_version)
             except ValueError:
-                raise exc.OpenStackCloudException(
-                    'ip_version must be an integer'
-                )
+                raise exceptions.SDKException('ip_version must be an integer')
 
         # The body of the neutron message for the subnet we wish to create.
         # This includes attributes that are required or have defaults.
@@ -2457,8 +2490,8 @@ class NetworkCloudMixin:
         :param name_or_id: Name or ID of the subnet being deleted.
 
         :returns: True if delete succeeded, False otherwise.
-
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         subnet = self.network.find_subnet(name_or_id, ignore_missing=True)
         if not subnet:
@@ -2522,7 +2555,8 @@ class NetworkCloudMixin:
               ]
 
         :returns: The updated network ``Subnet`` object.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         subnet = {}
         if subnet_name:
@@ -2545,15 +2579,13 @@ class NetworkCloudMixin:
             return
 
         if disable_gateway_ip and gateway_ip:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 'arg:disable_gateway_ip is not allowed with arg:gateway_ip'
             )
 
         curr_subnet = self.get_subnet(name_or_id)
         if not curr_subnet:
-            raise exc.OpenStackCloudException(
-                "Subnet %s not found." % name_or_id
-            )
+            raise exceptions.SDKException("Subnet %s not found." % name_or_id)
 
         return self.network.update_subnet(curr_subnet, **subnet)
 
@@ -2647,8 +2679,10 @@ class NetworkCloudMixin:
             be propagated. (Optional)
         :param mac_learning_enabled: If mac learning should be enabled on the
             port. (Optional)
+
         :returns: The created network ``Port`` object.
-        :raises: ``OpenStackCloudException`` on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         kwargs['network_id'] = network_id
 
@@ -2721,12 +2755,14 @@ class NetworkCloudMixin:
         :param port_security_enabled: The security port state created on
             the network. (Optional)
         :param qos_policy_id: The ID of the QoS policy to apply for port.
+
         :returns: The updated network ``Port`` object.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         port = self.get_port(name_or_id=name_or_id)
         if port is None:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "failed to find port '{port}'".format(port=name_or_id)
             )
 
@@ -2738,8 +2774,8 @@ class NetworkCloudMixin:
         :param name_or_id: ID or name of the port to delete.
 
         :returns: True if delete succeeded, False otherwise.
-
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         port = self.network.find_port(name_or_id)
 

@@ -16,7 +16,6 @@ import urllib.parse
 import keystoneauth1.exceptions
 
 from openstack.cloud import _utils
-from openstack.cloud import exc
 from openstack import exceptions
 from openstack.object_store.v1._proxy import Proxy
 
@@ -42,7 +41,8 @@ class ObjectStoreCloudMixin:
         :param prefix: Only objects with this prefix will be returned.
             (optional)
         :returns: A list of object store ``Container`` objects.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         return list(self.object_store.containers(prefix=prefix))
 
@@ -57,8 +57,8 @@ class ObjectStoreCloudMixin:
 
         :returns: A list of object store ``Container`` objects matching the
             search criteria.
-        :raises: ``OpenStackCloudException``: If something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException`: If something goes
+            wrong during the OpenStack API call.
         """
         containers = self.list_containers()
         return _utils._filter_list(containers, name, filters)
@@ -112,7 +112,7 @@ class ObjectStoreCloudMixin:
         except exceptions.NotFoundException:
             return False
         except exceptions.ConflictException:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 'Attempt to delete container {container} failed. The'
                 ' container is not empty. Please delete the objects'
                 ' inside it before deleting the container'.format(
@@ -140,7 +140,7 @@ class ObjectStoreCloudMixin:
         :param refresh: Flag to trigger refresh of the container properties
         """
         if access not in OBJECT_CONTAINER_ACLS:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "Invalid container access specified: %s.  Must be one of %s"
                 % (access, list(OBJECT_CONTAINER_ACLS.keys()))
             )
@@ -153,13 +153,12 @@ class ObjectStoreCloudMixin:
 
         :param str name: Name of the container.
         :returns: The contol list for the container.
-        :raises: :class:`~openstack.exceptions.OpenStackCloudException` if the
-            container was not found or container access could not be
-            determined.
+        :raises: :class:`~openstack.exceptions.SDKException` if the container
+            was not found or container access could not be determined.
         """
         container = self.get_container(name, skip_cache=True)
         if not container:
-            raise exc.OpenStackCloudException("Container not found: %s" % name)
+            raise exceptions.SDKException("Container not found: %s" % name)
         acl = container.read_ACL or ''
         for key, value in OBJECT_CONTAINER_ACLS.items():
             # Convert to string for the comparison because swiftclient
@@ -167,7 +166,7 @@ class ObjectStoreCloudMixin:
             # on bytes doesn't work like you'd think
             if str(acl) == str(value):
                 return key
-        raise exc.OpenStackCloudException(
+        raise exceptions.SDKException(
             "Could not determine container access for ACL: %s." % acl
         )
 
@@ -281,8 +280,10 @@ class ObjectStoreCloudMixin:
             uploads of identical data. (optional, defaults to True)
         :param metadata: This dict will get changed into headers that set
             metadata of the object
+
         :returns: The created object store ``Object`` object.
-        :raises: ``OpenStackCloudException`` on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         return self.object_store.create_object(
             container,
@@ -306,8 +307,10 @@ class ObjectStoreCloudMixin:
             metadata of the object
         :param headers: These will be passed through to the object update
             API as HTTP Headers.
+
         :returns: None
-        :raises: ``OpenStackCloudException`` on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         meta = metadata.copy() or {}
         meta.update(**headers)
@@ -320,8 +323,10 @@ class ObjectStoreCloudMixin:
         :param full_listing: Ignored. Present for backwards compat
         :param prefix: Only objects with this prefix will be returned.
             (optional)
+
         :returns: A list of object store ``Object`` objects.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         return list(
             self.object_store.objects(container=container, prefix=prefix)
@@ -338,8 +343,8 @@ class ObjectStoreCloudMixin:
 
         :returns: A list of object store ``Object`` objects matching the
             search criteria.
-        :raises: ``OpenStackCloudException``: If something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException`: If something goes
+            wrong during the OpenStack API call.
         """
         objects = self.list_objects(container)
         return _utils._filter_list(objects, name, filters)
@@ -351,8 +356,10 @@ class ObjectStoreCloudMixin:
         :param string name: Name of the object to delete.
         :param dict meta: Metadata for the object in question. (optional, will
             be fetched if not provided)
+
         :returns: True if delete succeeded, False if the object was not found.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         try:
             self.object_store.delete_object(
@@ -404,8 +411,10 @@ class ObjectStoreCloudMixin:
         :param string query_string: Query args for uri. (delimiter, prefix,
             etc.)
         :param bool stream: Whether to stream the response or not.
+
         :returns: A `requests.Response`
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         endpoint = self._get_object_endpoint(container, obj, query_string)
         return self.object_store.get(endpoint, stream=stream)
@@ -437,9 +446,11 @@ class ObjectStoreCloudMixin:
             etc.)
         :param int resp_chunk_size: Chunk size of data to read. Only used if
             the results are
+
         :returns: An iterator over the content or None if the object is not
             found.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         try:
             for ret in self.object_store.stream_object(
@@ -471,9 +482,11 @@ class ObjectStoreCloudMixin:
             contents. If this option is given, body in the return tuple will be
             None. outfile can either be a file path given as a string, or a
             File like object.
+
         :returns: Tuple (headers, body) of the object, or None if the object
             is not found (404).
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         try:
             obj = self.object_store.get_object(

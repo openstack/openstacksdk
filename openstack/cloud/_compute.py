@@ -99,8 +99,9 @@ class ComputeCloudMixin:
         :param string include: If given, will return a flavor whose name
             contains this string as a substring.
         :param get_extra:
+
         :returns: A compute ``Flavor`` object.
-        :raises: :class:`~openstack.exceptions.OpenStackCloudException` if no
+        :raises: :class:`~openstack.exceptions.SDKException` if no
             matching flavour could be found.
         """
         flavors = self.list_flavors(get_extra=get_extra)
@@ -109,7 +110,7 @@ class ComputeCloudMixin:
                 not include or include in flavor['name']
             ):
                 return flavor
-        raise exc.OpenStackCloudException(
+        raise exceptions.SDKException(
             "Could not find a flavor with {ram} and '{include}'".format(
                 ram=ram, include=include
             )
@@ -175,10 +176,11 @@ class ComputeCloudMixin:
 
         :param name_or_id: Name or unique ID of the server group(s).
         :param filters: A dict containing additional filters to use.
+
         :returns: A list of compute ``ServerGroup`` objects matching the search
             criteria.
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         server_groups = self.list_server_groups()
         return _utils._filter_list(server_groups, name_or_id, filters)
@@ -283,7 +285,8 @@ class ComputeCloudMixin:
 
         :returns: False if server or security groups are undefined, True
             otherwise.
-        :raises: ``OpenStackCloudException``, on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         server, security_groups = self._get_server_security_groups(
             server, security_groups
@@ -306,7 +309,8 @@ class ComputeCloudMixin:
 
         :returns: False if server or security groups are undefined, True
             otherwise.
-        :raises: ``OpenStackCloudException``, on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         server, security_groups = self._get_server_security_groups(
             server, security_groups
@@ -378,16 +382,18 @@ class ComputeCloudMixin:
 
         :param name_or_id: (optional) project name or ID to get limits for
             if different from the current project
-        :raises: OpenStackCloudException if it's not a valid project
+
         :returns: A compute
             :class:`~openstack.compute.v2.limits.Limits.AbsoluteLimits` object.
+        :raises: :class:`~openstack.exceptions.SDKException` if it's not a
+            valid project
         """
         params = {}
         project_id = None
         if name_or_id:
             proj = self.get_project(name_or_id)
             if not proj:
-                raise exc.OpenStackCloudException("project does not exist")
+                raise exceptions.SDKException("project does not exist")
             project_id = proj.id
             params['tenant_id'] = project_id
         return self.compute.get_limits(**params).absolute
@@ -468,21 +474,21 @@ class ComputeCloudMixin:
 
         :returns: A string containing the text of the console log or an
             empty string if the cloud does not support console logs.
-        :raises: OpenStackCloudException if an invalid server argument is given
-            or if something else unforseen happens
+        :raises: :class:`~openstack.exceptions.SDKException` if an invalid
+            server argument is given or if something else unforseen happens
         """
 
         if not isinstance(server, dict):
             server = self.get_server(server, bare=True)
 
         if not server:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "Console log requested for invalid server"
             )
 
         try:
             return self._get_server_console_output(server['id'], length)
-        except exc.OpenStackCloudBadRequest:
+        except exceptions.BadRequestException:
             return ""
 
     def _get_server_console_output(self, server_id, length=None):
@@ -582,8 +588,10 @@ class ComputeCloudMixin:
 
         :param name: Name of the keypair being created.
         :param public_key: Public key for the new keypair.
+
         :returns: The created compute ``Keypair`` object.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         keypair = {
             'name': name,
@@ -598,8 +606,8 @@ class ComputeCloudMixin:
         :param name: Name of the keypair to delete.
 
         :returns: True if delete succeeded, False otherwise.
-
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         try:
             self.compute.delete_keypair(name, ignore_missing=False)
@@ -630,13 +638,15 @@ class ComputeCloudMixin:
         :param wait: If true, waits for image to be created.
         :param timeout: Seconds to wait for image creation. None is forever.
         :param metadata: Metadata to give newly-created image entity
+
         :returns: The created image ``Image`` object.
-        :raises: OpenStackCloudException if there are problems uploading
+        :raises: :class:`~openstack.exceptions.SDKException` if there are
+            problems uploading
         """
         if not isinstance(server, dict):
             server_obj = self.get_server(server, bare=True)
             if not server_obj:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Server {server} could not be found and therefore"
                     " could not be snapshotted.".format(server=server)
                 )
@@ -800,8 +810,10 @@ class ComputeCloudMixin:
         :param group: ServerGroup dict, name or id to boot the server in.
             If a group is provided in both scheduler_hints and in the group
             param, the group param will win. (Optional, defaults to None)
+
         :returns: The created compute ``Server`` object.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         # TODO(shade) Image is optional but flavor is not - yet flavor comes
         # after image in the argument list. Doh.
@@ -840,7 +852,7 @@ class ComputeCloudMixin:
         if group:
             group_obj = self.get_server_group(group)
             if not group_obj:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Server Group {group} was requested but was not found"
                     " on the cloud".format(group=group)
                 )
@@ -856,7 +868,7 @@ class ComputeCloudMixin:
                 # Be nice and help the user out
                 kwargs['nics'] = [kwargs['nics']]
             else:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     'nics parameter to create_server takes a list of dicts.'
                     ' Got: {nics}'.format(nics=kwargs['nics'])
                 )
@@ -871,7 +883,7 @@ class ComputeCloudMixin:
                 else:
                     network_obj = self.get_network(name_or_id=net_name)
                 if not network_obj:
-                    raise exc.OpenStackCloudException(
+                    raise exceptions.SDKException(
                         'Network {network} is not a valid network in'
                         ' {cloud}:{region}'.format(
                             network=network,
@@ -899,7 +911,7 @@ class ComputeCloudMixin:
                 net_name = nic.pop('net-name')
                 nic_net = self.get_network(net_name)
                 if not nic_net:
-                    raise exc.OpenStackCloudException(
+                    raise exceptions.SDKException(
                         "Requested network {net} could not be found.".format(
                             net=net_name
                         )
@@ -908,7 +920,7 @@ class ComputeCloudMixin:
             for ip_key in ('v4-fixed-ip', 'v6-fixed-ip', 'fixed_ip'):
                 fixed_ip = nic.pop(ip_key, None)
                 if fixed_ip and net.get('fixed_ip'):
-                    raise exc.OpenStackCloudException(
+                    raise exceptions.SDKException(
                         "Only one of v4-fixed-ip, v6-fixed-ip or fixed_ip"
                         " may be given"
                     )
@@ -923,7 +935,7 @@ class ComputeCloudMixin:
                 utils.require_microversion(self.compute, '2.42')
                 net['tag'] = nic.pop('tag')
             if nic:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Additional unsupported keys given for server network"
                     " creation: {keys}".format(keys=nic.keys())
                 )
@@ -1018,7 +1030,7 @@ class ComputeCloudMixin:
         if boot_volume:
             volume = self.get_volume(boot_volume)
             if not volume:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     'Volume {boot_volume} is not a valid volume'
                     ' in {cloud}:{region}'.format(
                         boot_volume=boot_volume,
@@ -1041,7 +1053,7 @@ class ComputeCloudMixin:
             else:
                 image_obj = self.get_image(image)
             if not image_obj:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     'Image {image} is not a valid image in'
                     ' {cloud}:{region}'.format(
                         image=image,
@@ -1074,7 +1086,7 @@ class ComputeCloudMixin:
         for volume in volumes:
             volume_obj = self.get_volume(volume)
             if not volume_obj:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     'Volume {volume} is not a valid volume'
                     ' in {cloud}:{region}'.format(
                         volume=volume,
@@ -1126,7 +1138,7 @@ class ComputeCloudMixin:
             # and pass it down into the IP stack.
             remaining_timeout = timeout - int(time.time() - start_time)
             if remaining_timeout <= 0:
-                raise exc.OpenStackCloudTimeout(timeout_message)
+                raise exceptions.ResourceTimeout(timeout_message)
 
             server = self.get_active_server(
                 server=server,
@@ -1159,7 +1171,7 @@ class ComputeCloudMixin:
                 and server['fault'] is not None
                 and 'message' in server['fault']
             ):
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Error in creating the server."
                     " Compute service reports fault: {reason}".format(
                         reason=server['fault']['message']
@@ -1167,7 +1179,7 @@ class ComputeCloudMixin:
                     extra_data=dict(server=server),
                 )
 
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "Error in creating the server"
                 " (no further information available)",
                 extra_data=dict(server=server),
@@ -1195,13 +1207,13 @@ class ComputeCloudMixin:
             try:
                 self._delete_server(server=server, wait=wait, timeout=timeout)
             except Exception as e:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     'Server reached ACTIVE state without being'
                     ' allocated an IP address AND then could not'
                     ' be deleted: {0}'.format(e),
                     extra_data=dict(server=server),
                 )
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 'Server reached ACTIVE state without being'
                 ' allocated an IP address.',
                 extra_data=dict(server=server),
@@ -1253,12 +1265,14 @@ class ComputeCloudMixin:
         :param dict metadata: A dictionary with the key=value pairs
             to set in the server instance. It only updates the key=value pairs
             provided. Existing ones will remain untouched.
+
         :returns: None
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         server = self.get_server(name_or_id, bare=True)
         if not server:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 'Invalid Server {server}'.format(server=name_or_id)
             )
 
@@ -1271,12 +1285,14 @@ class ComputeCloudMixin:
             to update.
         :param metadata_keys: A list with the keys to be deleted
             from the server instance.
+
         :returns: None
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         server = self.get_server(name_or_id, bare=True)
         if not server:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 'Invalid Server {server}'.format(server=name_or_id)
             )
 
@@ -1301,9 +1317,11 @@ class ComputeCloudMixin:
             associated with the instance.
         :param int delete_ip_retry: Number of times to retry deleting
             any floating ips, should the first try be unsuccessful.
+
         :returns: True if delete succeeded, False otherwise if the
             server does not exist.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         # If delete_ips is True, we need the server to not be bare.
         server = self.compute.find_server(name_or_id, ignore_missing=True)
@@ -1332,7 +1350,7 @@ class ComputeCloudMixin:
                 ip = self.get_floating_ip(
                     id=None, filters={'floating_ip_address': fip['addr']}
                 )
-            except exc.OpenStackCloudURINotFound:
+            except exceptions.NotFoundException:
                 # We're deleting. If it doesn't exist - awesome
                 # NOTE(mordred) If the cloud is a nova FIP cloud but
                 #               floating_ip_source is set to neutron, this
@@ -1342,7 +1360,7 @@ class ComputeCloudMixin:
                 continue
             deleted = self.delete_floating_ip(ip['id'], retry=delete_ip_retry)
             if not deleted:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Tried to delete floating ip {floating_ip}"
                     " associated with server {id} but there was"
                     " an error deleting it. Not deleting server.".format(
@@ -1396,8 +1414,10 @@ class ComputeCloudMixin:
             detailed = False.
         :param name: New name for the server
         :param description: New description for the server
+
         :returns: The updated compute ``Server`` object.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         server = self.compute.find_server(name_or_id, ignore_missing=False)
 
@@ -1410,8 +1430,10 @@ class ComputeCloudMixin:
 
         :param name: Name of the server group being created
         :param policies: List of policies for the server group.
+
         :returns: The created compute ``ServerGroup`` object.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         sg_attrs = {'name': name}
         if policies:
@@ -1424,8 +1446,10 @@ class ComputeCloudMixin:
         """Delete a server group.
 
         :param name_or_id: Name or ID of the server group to delete
+
         :returns: True if delete succeeded, False otherwise
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         server_group = self.get_server_group(name_or_id)
         if not server_group:
@@ -1462,8 +1486,10 @@ class ComputeCloudMixin:
         :param swap: Swap space in MB
         :param rxtx_factor: RX/TX factor
         :param is_public: Make flavor accessible to the public
+
         :returns: The created compute ``Flavor`` object.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         attrs = {
             'disk': disk,
@@ -1486,8 +1512,10 @@ class ComputeCloudMixin:
         """Delete a flavor
 
         :param name_or_id: ID or name of the flavor to delete.
+
         :returns: True if delete succeeded, False otherwise.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         try:
             flavor = self.compute.find_flavor(name_or_id)
@@ -1497,7 +1525,7 @@ class ComputeCloudMixin:
             self.compute.delete_flavor(flavor)
             return True
         except exceptions.SDKException:
-            raise exceptions.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "Unable to delete flavor {name}".format(name=name_or_id)
             )
 
@@ -1507,8 +1535,10 @@ class ComputeCloudMixin:
         :param string flavor_id: ID of the flavor to update.
         :param dict extra_specs: Dictionary of key-value pairs.
 
-        :raises: OpenStackCloudException on operation error.
-        :raises: OpenStackCloudResourceNotFound if flavor ID is not found.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
+        :raises: :class:`~openstack.exceptions.BadRequestException` if flavor
+            ID is not found.
         """
         self.compute.create_flavor_extra_specs(flavor_id, extra_specs)
 
@@ -1518,8 +1548,10 @@ class ComputeCloudMixin:
         :param string flavor_id: ID of the flavor to update.
         :param keys: List of spec keys to delete.
 
-        :raises: OpenStackCloudException on operation error.
-        :raises: OpenStackCloudResourceNotFound if flavor ID is not found.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
+        :raises: :class:`~openstack.exceptions.BadRequestException` if flavor
+            ID is not found.
         """
         for key in keys:
             self.compute.delete_flavor_extra_specs_property(flavor_id, key)
@@ -1530,7 +1562,8 @@ class ComputeCloudMixin:
         :param string flavor_id: ID of the private flavor.
         :param string project_id: ID of the project/tenant.
 
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         self.compute.flavor_add_tenant_access(flavor_id, project_id)
 
@@ -1540,7 +1573,8 @@ class ComputeCloudMixin:
         :param string flavor_id: ID of the private flavor.
         :param string project_id: ID of the project/tenant.
 
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         self.compute.flavor_remove_tenant_access(flavor_id, project_id)
 
@@ -1548,8 +1582,10 @@ class ComputeCloudMixin:
         """List access from a private flavor for a project/tenant.
 
         :param string flavor_id: ID of the private flavor.
+
         :returns: List of dicts with flavor_id and tenant_id attributes.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         return self.compute.get_flavor_access(flavor_id)
 
@@ -1569,10 +1605,11 @@ class ComputeCloudMixin:
 
         :param name: aggregate name or id.
         :param filters: a dict containing additional filters to use.
+
         :returns: A list of compute ``Aggregate`` objects matching the search
             criteria.
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         aggregates = self.list_aggregates()
         return _utils._filter_list(aggregates, name_or_id, filters)
@@ -1612,8 +1649,10 @@ class ComputeCloudMixin:
 
         :param name: Name of the host aggregate being created
         :param availability_zone: Availability zone to assign hosts
+
         :returns: The created compute ``Aggregate`` object.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         return self.compute.create_aggregate(
             name=name, availability_zone=availability_zone
@@ -1626,8 +1665,10 @@ class ComputeCloudMixin:
         :param name_or_id: Name or ID of the aggregate being updated.
         :param name: New aggregate name
         :param availability_zone: Availability zone to assign to hosts
+
         :returns: The updated compute ``Aggregate`` object.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         aggregate = self.get_aggregate(name_or_id)
         return self.compute.update_aggregate(aggregate, **kwargs)
@@ -1636,8 +1677,10 @@ class ComputeCloudMixin:
         """Delete a host aggregate.
 
         :param name_or_id: Name or ID of the host aggregate to delete.
+
         :returns: True if delete succeeded, False otherwise.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         if isinstance(name_or_id, (str, bytes)) and not name_or_id.isdigit():
             aggregate = self.get_aggregate(name_or_id)
@@ -1662,12 +1705,12 @@ class ComputeCloudMixin:
             {'key': None} to remove a key)
 
         :returns: a dict representing the new host aggregate.
-
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         aggregate = self.get_aggregate(name_or_id)
         if not aggregate:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "Host aggregate %s not found." % name_or_id
             )
 
@@ -1679,11 +1722,12 @@ class ComputeCloudMixin:
         :param name_or_id: Name or ID of the host aggregate.
         :param host_name: Host to add.
 
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         aggregate = self.get_aggregate(name_or_id)
         if not aggregate:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "Host aggregate %s not found." % name_or_id
             )
 
@@ -1695,11 +1739,12 @@ class ComputeCloudMixin:
         :param name_or_id: Name or ID of the host aggregate.
         :param host_name: Host to remove.
 
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         aggregate = self.get_aggregate(name_or_id)
         if not aggregate:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "Host aggregate %s not found." % name_or_id
             )
 
@@ -1711,8 +1756,8 @@ class ComputeCloudMixin:
         :param name_or_id: project name or id
         :param kwargs: key/value pairs of quota name and quota value
 
-        :raises: OpenStackCloudException if the resource to set the
-            quota does not exist.
+        :raises: :class:`~openstack.exceptions.SDKException` if the resource to
+            set the quota does not exist.
         """
         proj = self.identity.find_project(name_or_id, ignore_missing=False)
         kwargs['force'] = True
@@ -1724,8 +1769,10 @@ class ComputeCloudMixin:
         """Get quota for a project
 
         :param name_or_id: project name or id
+
         :returns: A compute ``QuotaSet`` object if found, else None.
-        :raises: OpenStackCloudException if it's not a valid project
+        :raises: :class:`~openstack.exceptions.SDKException` if it's not a
+            valid project
         """
         proj = self.identity.find_project(name_or_id, ignore_missing=False)
         return self.compute.get_quota_set(proj)
@@ -1734,9 +1781,9 @@ class ComputeCloudMixin:
         """Delete quota for a project
 
         :param name_or_id: project name or id
-        :raises: OpenStackCloudException if it's not a valid project or the
-            nova client call failed
-        :returns: None
+
+        :raises: :class:`~openstack.exceptions.SDKException` if it's not a
+            valid project or the nova client call failed
         """
         proj = self.identity.find_project(name_or_id, ignore_missing=False)
         self.compute.revert_quota_set(proj)
@@ -1750,9 +1797,10 @@ class ComputeCloudMixin:
             was started)
         :param end: :class:`datetime.datetime` or string. End date in UTC.
             Defaults to now
-        :raises: OpenStackCloudException if it's not a valid project
 
         :returns: A :class:`~openstack.compute.v2.usage.Usage` object
+        :raises: :class:`~openstack.exceptions.SDKException` if it's not a
+            valid project
         """
 
         def parse_date(date):
@@ -1762,7 +1810,7 @@ class ComputeCloudMixin:
                 # Yes. This is an exception mask. However,iso8601 is an
                 # implementation detail - and the error message is actually
                 # less informative.
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Date given, {date}, is invalid. Please pass in a date"
                     " string in ISO 8601 format -"
                     " YYYY-MM-DDTHH:MM:SS".format(date=date)
@@ -1775,7 +1823,7 @@ class ComputeCloudMixin:
 
         proj = self.get_project(name_or_id)
         if not proj:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "project does not exist: {name}".format(name=proj.id)
             )
 

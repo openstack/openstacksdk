@@ -14,7 +14,7 @@
 
 import uuid
 
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -66,7 +66,7 @@ class TestImageSnapshot(base.TestCase):
         )
 
         self.assertRaises(
-            exc.OpenStackCloudTimeout,
+            exceptions.ResourceTimeout,
             self.cloud.create_image_snapshot,
             snapshot_name,
             dict(id=self.server_id),

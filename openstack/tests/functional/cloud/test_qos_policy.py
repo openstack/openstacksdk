@@ -18,7 +18,7 @@ test_qos_policy
 Functional tests for QoS policies methods.
 """
 
-from openstack.cloud.exc import OpenStackCloudException
+from openstack import exceptions
 from openstack.tests.functional import base
 
 
@@ -45,7 +45,7 @@ class TestQosPolicy(base.BaseFunctionalTest):
                     continue
 
         if exception_list:
-            raise OpenStackCloudException('\n'.join(exception_list))
+            raise exceptions.SDKException('\n'.join(exception_list))
 
     def test_create_qos_policy_basic(self):
         policy = self.operator_cloud.create_qos_policy(name=self.policy_name)

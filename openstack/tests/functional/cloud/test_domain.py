@@ -17,7 +17,7 @@ test_domain
 Functional tests for keystone domain resource.
 """
 
-import openstack.cloud
+from openstack import exceptions
 from openstack.tests.functional import base
 
 
@@ -45,9 +45,7 @@ class TestDomain(base.BaseFunctionalTest):
         if exception_list:
             # Raise an error: we must make users aware that something went
             # wrong
-            raise openstack.cloud.OpenStackCloudException(
-                '\n'.join(exception_list)
-            )
+            raise exceptions.SDKException('\n'.join(exception_list))
 
     def test_search_domains(self):
         domain_name = self.domain_prefix + '_search'

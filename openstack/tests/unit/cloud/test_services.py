@@ -21,7 +21,7 @@ Tests Keystone services commands.
 
 from testtools import matchers
 
-from openstack.cloud.exc import OpenStackCloudException
+from openstack import exceptions
 from openstack.tests.unit import base
 
 
@@ -203,7 +203,7 @@ class CloudServices(base.TestCase):
         # Multiple matches
         # test we are getting an Exception
         self.assertRaises(
-            OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.get_service,
             name_or_id=None,
             filters={'type': 'type2'},

@@ -14,7 +14,7 @@ import tempfile
 
 import testtools
 
-import openstack.cloud
+from openstack import exceptions
 from openstack.orchestration.v1 import stack
 from openstack.tests import fakes
 from openstack.tests.unit import base
@@ -95,9 +95,7 @@ class TestStack(base.TestCase):
                 )
             ]
         )
-        with testtools.ExpectedException(
-            openstack.cloud.OpenStackCloudURINotFound
-        ):
+        with testtools.ExpectedException(exceptions.NotFoundException):
             self.cloud.list_stacks()
         self.assert_calls()
 
@@ -160,9 +158,7 @@ class TestStack(base.TestCase):
                 )
             ]
         )
-        with testtools.ExpectedException(
-            openstack.cloud.OpenStackCloudURINotFound
-        ):
+        with testtools.ExpectedException(exceptions.NotFoundException):
             self.cloud.search_stacks()
 
     def test_delete_stack(self):
@@ -264,9 +260,7 @@ class TestStack(base.TestCase):
                 ),
             ]
         )
-        with testtools.ExpectedException(
-            openstack.cloud.OpenStackCloudBadRequest
-        ):
+        with testtools.ExpectedException(exceptions.BadRequestException):
             self.cloud.delete_stack(self.stack_id)
         self.assert_calls()
 
@@ -550,9 +544,7 @@ class TestStack(base.TestCase):
             ]
         )
 
-        with testtools.ExpectedException(
-            openstack.cloud.OpenStackCloudException
-        ):
+        with testtools.ExpectedException(exceptions.SDKException):
             self.cloud.delete_stack(self.stack_id, wait=True)
 
         self.assert_calls()

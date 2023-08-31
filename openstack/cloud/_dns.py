@@ -11,7 +11,6 @@
 # limitations under the License.
 
 from openstack.cloud import _utils
-from openstack.cloud import exc
 from openstack.dns.v2._proxy import Proxy
 from openstack import exceptions
 from openstack import resource
@@ -74,8 +73,8 @@ class DnsCloudMixin:
             if zone_type is secondary)
 
         :returns: a dict representing the created zone.
-
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
 
         # We capitalize in case the user passes time in lowercase, as
@@ -83,7 +82,7 @@ class DnsCloudMixin:
         if zone_type is not None:
             zone_type = zone_type.upper()
             if zone_type not in ('PRIMARY', 'SECONDARY'):
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Invalid type %s, valid choices are PRIMARY or SECONDARY"
                     % zone_type
                 )
@@ -105,7 +104,7 @@ class DnsCloudMixin:
         try:
             return self.dns.create_zone(**zone)
         except exceptions.SDKException:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "Unable to create zone {name}".format(name=name)
             )
 
@@ -122,14 +121,12 @@ class DnsCloudMixin:
             if zone_type is secondary)
 
         :returns: a dict representing the updated zone.
-
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         zone = self.get_zone(name_or_id)
         if not zone:
-            raise exc.OpenStackCloudException(
-                "Zone %s not found." % name_or_id
-            )
+            raise exceptions.SDKException("Zone %s not found." % name_or_id)
 
         return self.dns.update_zone(zone['id'], **kwargs)
 
@@ -139,8 +136,8 @@ class DnsCloudMixin:
         :param name_or_id: Name or ID of the zone being deleted.
 
         :returns: True if delete succeeded, False otherwise.
-
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
 
         zone = self.dns.find_zone(name_or_id)
@@ -166,7 +163,7 @@ class DnsCloudMixin:
         else:
             zone_obj = self.get_zone(zone)
         if zone_obj is None:
-            raise exc.OpenStackCloudException("Zone %s not found." % zone)
+            raise exceptions.SDKException("Zone %s not found." % zone)
         return list(self.dns.recordsets(zone_obj))
 
     def get_recordset(self, zone, name_or_id):
@@ -185,7 +182,7 @@ class DnsCloudMixin:
         else:
             zone_obj = self.get_zone(zone)
         if not zone_obj:
-            raise exc.OpenStackCloudException("Zone %s not found." % zone)
+            raise exceptions.SDKException("Zone %s not found." % zone)
         try:
             return self.dns.find_recordset(
                 zone=zone_obj, name_or_id=name_or_id, ignore_missing=False
@@ -211,16 +208,15 @@ class DnsCloudMixin:
         :param ttl: TTL value of the recordset
 
         :returns: a dict representing the created recordset.
-
-        :raises: OpenStackCloudException on operation error.
-
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         if isinstance(zone, resource.Resource):
             zone_obj = zone
         else:
             zone_obj = self.get_zone(zone)
         if not zone_obj:
-            raise exc.OpenStackCloudException("Zone %s not found." % zone)
+            raise exceptions.SDKException("Zone %s not found." % zone)
 
         # We capitalize the type in case the user sends in lowercase
         recordset_type = recordset_type.upper()
@@ -247,13 +243,13 @@ class DnsCloudMixin:
         :param ttl: TTL (Time to live) value in seconds of the recordset
 
         :returns: a dict representing the updated recordset.
-
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
 
         rs = self.get_recordset(zone, name_or_id)
         if not rs:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "Recordset %s not found." % name_or_id
             )
 
@@ -269,8 +265,8 @@ class DnsCloudMixin:
         :param name_or_id: Name or ID of the recordset being deleted.
 
         :returns: True if delete succeeded, False otherwise.
-
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
 
         recordset = self.get_recordset(zone, name_or_id)

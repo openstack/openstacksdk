@@ -19,7 +19,7 @@ Tests for baremetal port related operations
 
 from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -71,7 +71,7 @@ class TestBaremetalPort(base.IronicTestCase):
                 )
             ]
         )
-        self.assertRaises(exc.OpenStackCloudException, self.cloud.list_nics)
+        self.assertRaises(exceptions.SDKException, self.cloud.list_nics)
         self.assert_calls()
 
     def test_list_nics_for_machine(self):
@@ -121,7 +121,7 @@ class TestBaremetalPort(base.IronicTestCase):
         )
 
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.list_nics_for_machine,
             self.fake_baremetal_node['uuid'],
         )

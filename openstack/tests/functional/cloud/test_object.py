@@ -23,7 +23,7 @@ import tempfile
 
 from testtools import content
 
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack.tests.functional import base
 
 
@@ -97,7 +97,7 @@ class TestObject(base.BaseFunctionalTest):
                 self.assertIsNotNone(
                     self.user_cloud.get_object(container_name, name)
                 )
-            except exc.OpenStackCloudException as e:
+            except exceptions.SDKException as e:
                 self.addDetail(
                     'failed_response',
                     content.text_content(str(e.response.headers)),
@@ -186,7 +186,7 @@ class TestObject(base.BaseFunctionalTest):
                     )
                     downloaded_content = open(fake_file.name, 'rb').read()
                     self.assertEqual(fake_content, downloaded_content)
-            except exc.OpenStackCloudException as e:
+            except exceptions.SDKException as e:
                 self.addDetail(
                     'failed_response',
                     content.text_content(str(e.response.headers)),

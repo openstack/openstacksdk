@@ -24,7 +24,6 @@ import requestsexceptions
 from openstack import _log
 from openstack.cloud import _object_store
 from openstack.cloud import _utils
-from openstack.cloud import exc
 from openstack.cloud import meta
 import openstack.config
 from openstack.config import cloud_region as cloud_region_mod
@@ -445,7 +444,8 @@ class _OpenStackCloudMixin:
                 {"vcpus": "<=5", "ram": "<=2048", "disk": "1"}
 
         :returns: A list subset of the original data set.
-        :raises: OpenStackCloudException on invalid range expressions.
+        :raises: :class:`~openstack.exceptions.SDKException` on invalid range
+            expressions.
         """
         filtered = []
 
@@ -491,10 +491,10 @@ class _OpenStackCloudMixin:
                 "Endpoint not found in %s cloud: %s", self.name, str(e)
             )
             endpoint = None
-        except exc.OpenStackCloudException:
+        except exceptions.SDKException:
             raise
         except Exception as e:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "Error getting {service} endpoint on {cloud}:{region}:"
                 " {error}".format(
                     service=service_key,
@@ -525,7 +525,7 @@ class _OpenStackCloudMixin:
                 kwargs['min_version'] = version
                 kwargs['max_version'] = version
             endpoint = self.get_session_endpoint(service_key, **kwargs)
-        except exc.OpenStackCloudException:
+        except exceptions.SDKException:
             return False
         if endpoint:
             return True

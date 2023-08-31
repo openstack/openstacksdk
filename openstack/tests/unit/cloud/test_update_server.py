@@ -19,7 +19,7 @@ Tests for the `update_server` command.
 
 import uuid
 
-from openstack.cloud.exc import OpenStackCloudException
+from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -74,7 +74,7 @@ class TestUpdateServer(base.TestCase):
             ]
         )
         self.assertRaises(
-            OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.update_server,
             self.server_name,
             name=self.updated_server_name,

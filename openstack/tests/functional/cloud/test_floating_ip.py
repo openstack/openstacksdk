@@ -24,8 +24,8 @@ import sys
 
 from testtools import content
 
-from openstack.cloud.exc import OpenStackCloudException
 from openstack.cloud import meta
+from openstack import exceptions
 from openstack import proxy
 from openstack.tests.functional import base
 from openstack import utils
@@ -116,7 +116,7 @@ class TestFloatingIP(base.BaseFunctionalTest):
         if exception_list:
             # Raise an error: we must make users aware that something went
             # wrong
-            raise OpenStackCloudException('\n'.join(exception_list))
+            raise exceptions.SDKException('\n'.join(exception_list))
 
     def _cleanup_ips(self, server):
         exception_list = list()
@@ -137,7 +137,7 @@ class TestFloatingIP(base.BaseFunctionalTest):
         if exception_list:
             # Raise an error: we must make users aware that something went
             # wrong
-            raise OpenStackCloudException('\n'.join(exception_list))
+            raise exceptions.SDKException('\n'.join(exception_list))
 
     def _setup_networks(self):
         if self.user_cloud.has_service('network'):

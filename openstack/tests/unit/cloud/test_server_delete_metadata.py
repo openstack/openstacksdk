@@ -19,7 +19,7 @@ Tests for the `delete_server_metadata` command.
 
 import uuid
 
-from openstack.cloud.exc import OpenStackCloudURINotFound
+from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -65,7 +65,7 @@ class TestServerDeleteMetadata(base.TestCase):
         )
 
         self.assertRaises(
-            OpenStackCloudURINotFound,
+            exceptions.NotFoundException,
             self.cloud.delete_server_metadata,
             self.server_name,
             ['key'],

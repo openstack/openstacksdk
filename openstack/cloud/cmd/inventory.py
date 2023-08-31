@@ -21,6 +21,7 @@ import yaml
 
 import openstack.cloud
 import openstack.cloud.inventory
+from openstack import exceptions
 
 
 def output_format_dict(data, use_yaml):
@@ -76,7 +77,7 @@ def main():
         elif args.host:
             output = inventory.get_host(args.host)
         print(output_format_dict(output, args.yaml))
-    except openstack.cloud.OpenStackCloudException as e:
+    except exceptions.SDKException as e:
         sys.stderr.write(e.message + '\n')
         sys.exit(1)
     sys.exit(0)

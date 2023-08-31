@@ -19,7 +19,7 @@ test_flavor
 Functional tests for flavor resource.
 """
 
-from openstack.cloud.exc import OpenStackCloudException
+from openstack import exceptions
 from openstack.tests.functional import base
 
 
@@ -47,7 +47,7 @@ class TestFlavor(base.BaseFunctionalTest):
         if exception_list:
             # Raise an error: we must make users aware that something went
             # wrong
-            raise OpenStackCloudException('\n'.join(exception_list))
+            raise exceptions.SDKException('\n'.join(exception_list))
 
     def test_create_flavor(self):
         if not self.operator_cloud:

@@ -19,7 +19,7 @@ test_port
 Test port resource (managed by neutron)
 """
 
-from openstack.cloud.exc import OpenStackCloudException
+from openstack import exceptions
 from openstack.network.v2 import port as _port
 from openstack.tests.unit import base
 
@@ -203,7 +203,7 @@ class TestPort(base.TestCase):
             ]
         )
         self.assertRaises(
-            OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.create_port,
             network_id='test-net-id',
             name='test-port-name',
@@ -312,7 +312,7 @@ class TestPort(base.TestCase):
             ]
         )
         self.assertRaises(
-            OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.update_port,
             name_or_id='d80b1a3b-4fc1-49f3-952e-1e2ab7081d8b',
             name='test-port-name-updated',
@@ -368,7 +368,7 @@ class TestPort(base.TestCase):
                 )
             ]
         )
-        self.assertRaises(OpenStackCloudException, self.cloud.list_ports)
+        self.assertRaises(exceptions.SDKException, self.cloud.list_ports)
 
     def test_search_ports_by_id(self):
         port_id = 'f71a6703-d6de-4be1-a91a-a570ede1d159'
@@ -514,7 +514,7 @@ class TestPort(base.TestCase):
             ]
         )
         self.assertRaises(
-            OpenStackCloudException, self.cloud.delete_port, port_name
+            exceptions.SDKException, self.cloud.delete_port, port_name
         )
         self.assert_calls()
 

@@ -11,7 +11,6 @@
 # limitations under the License.
 
 from openstack.cloud import _utils
-from openstack.cloud import exc
 from openstack import exceptions
 from openstack.identity.v3._proxy import Proxy
 from openstack import utils
@@ -41,7 +40,7 @@ class IdentityCloudMixin:
         # mention api versions
         if utils.supports_version(self.identity, '3'):
             if not domain_id:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "User or project creation requires an explicit domain_id "
                     "argument."
                 )
@@ -87,8 +86,8 @@ class IdentityCloudMixin:
                 "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A list of identity ``Project`` objects.
-        :raises: ``OpenStackCloudException`` if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         if not filters:
             filters = {}
@@ -154,9 +153,10 @@ class IdentityCloudMixin:
 
                 "[?last_name==`Smith`] | [?other.gender]==`Female`]"
         :param domain_id: Domain ID to scope the retrieved project.
+
         :returns: An identity ``Project`` object.
-        :raises: ``OpenStackCloudException`` if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         return _utils._get_entity(
             self, 'project', name_or_id, filters, domain_id=domain_id
@@ -218,9 +218,10 @@ class IdentityCloudMixin:
 
         :param name_or_id: Name or unique ID of the project.
         :param domain_id: Domain ID to scope the retrieved project.
+
         :returns: True if delete succeeded, False if the project was not found.
-        :raises: ``OpenStackCloudException`` if something goes wrong during
-            the OpenStack API call
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call
         """
         try:
             project = self.identity.find_project(
@@ -245,9 +246,10 @@ class IdentityCloudMixin:
 
         :param name:
         :param domain_id: Domain ID to scope the retrieved users.
+
         :returns: A list of identity ``User`` objects.
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         return list(self.identity.users(**kwargs))
 
@@ -273,9 +275,10 @@ class IdentityCloudMixin:
             Example::
 
                 "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+
         :returns: A list of identity ``User`` objects
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         kwargs = {}
         # NOTE(jdwidari) if name_or_id isn't UUID like then make use of server-
@@ -312,9 +315,10 @@ class IdentityCloudMixin:
             Example::
 
                 "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+
         :returns: an identity ``User`` object
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         return _utils._get_entity(self, 'user', name_or_id, filters, **kwargs)
 
@@ -397,13 +401,13 @@ class IdentityCloudMixin:
     def _get_user_and_group(self, user_name_or_id, group_name_or_id):
         user = self.get_user(user_name_or_id)
         if not user:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 'User {user} not found'.format(user=user_name_or_id)
             )
 
         group = self.get_group(group_name_or_id)
         if not group:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 'Group {user} not found'.format(user=group_name_or_id)
             )
 
@@ -414,8 +418,9 @@ class IdentityCloudMixin:
 
         :param name_or_id: Name or unique ID of the user.
         :param group_name_or_id: Group name or ID
-        :raises: ``OpenStackCloudException`` if something goes wrong during
-            the OpenStack API call
+
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call
         """
         user, group = self._get_user_and_group(name_or_id, group_name_or_id)
 
@@ -426,9 +431,10 @@ class IdentityCloudMixin:
 
         :param name_or_id: Name or unique ID of the user.
         :param group_name_or_id: Group name or ID
+
         :returns: True if user is in the group, False otherwise
-        :raises: ``OpenStackCloudException`` if something goes wrong during
-            the OpenStack API call
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call
         """
         user, group = self._get_user_and_group(name_or_id, group_name_or_id)
 
@@ -439,8 +445,9 @@ class IdentityCloudMixin:
 
         :param name_or_id: Name or unique ID of the user.
         :param group_name_or_id: Group name or ID
-        :raises: ``OpenStackCloudException`` if something goes wrong during
-            the OpenStack API call
+
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call
         """
         user, group = self._get_user_and_group(name_or_id, group_name_or_id)
 
@@ -455,9 +462,10 @@ class IdentityCloudMixin:
         :param service_type: Service type. (type or service_type required.)
         :param description: Service description (optional).
         :param enabled: Whether the service is enabled (v3 only)
+
         :returns: an identity ``Service`` object
-        :raises: ``OpenStackCloudException`` if something goes wrong during the
-            OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         type_ = kwargs.pop('type', None)
         service_type = kwargs.pop('service_type', None)
@@ -489,8 +497,8 @@ class IdentityCloudMixin:
         """List all Keystone services.
 
         :returns: A list of identity ``Service`` object
-        :raises: ``OpenStackCloudException`` if something goes wrong during the
-            OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         return list(self.identity.services())
 
@@ -515,9 +523,10 @@ class IdentityCloudMixin:
             Example::
 
                 "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+
         :returns: a list of identity ``Service`` objects
-        :raises: ``OpenStackCloudException`` if something goes wrong during the
-            OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         services = self.list_services()
         return _utils._filter_list(services, name_or_id, filters)
@@ -527,9 +536,11 @@ class IdentityCloudMixin:
         """Get exactly one Keystone service.
 
         :param name_or_id: Name or unique ID of the service.
+
         :returns: an identity ``Service`` object
-        :raises: ``OpenStackCloudException`` if something goes wrong during the
-            OpenStack API call or if multiple matches are found.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call or if multiple matches are
+            found.
         """
         return _utils._get_entity(self, 'service', name_or_id, filters)
 
@@ -537,9 +548,10 @@ class IdentityCloudMixin:
         """Delete a Keystone service.
 
         :param name_or_id: Name or unique ID of the service.
+
         :returns: True if delete succeeded, False otherwise.
-        :raises: ``OpenStackCloudException`` if something goes wrong during
-            the OpenStack API call
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call
         """
         service = self.get_service(name_or_id=name_or_id)
         if service is None:
@@ -575,23 +587,25 @@ class IdentityCloudMixin:
         :param admin_url: Endpoint admin URL.
         :param region: Endpoint region.
         :param enabled: Whether the endpoint is enabled
+
         :returns: A list of identity ``Endpoint`` objects
-        :raises: OpenStackCloudException if the service cannot be found or if
-            something goes wrong during the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if the service
+            cannot be found or if something goes wrong during the OpenStack API
+            call.
         """
         public_url = kwargs.pop('public_url', None)
         internal_url = kwargs.pop('internal_url', None)
         admin_url = kwargs.pop('admin_url', None)
 
         if (url or interface) and (public_url or internal_url or admin_url):
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "create_endpoint takes either url and interface OR "
                 "public_url, internal_url, admin_url"
             )
 
         service = self.get_service(name_or_id=service_name_or_id)
         if service is None:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "service {service} not found".format(
                     service=service_name_or_id
                 )
@@ -652,8 +666,8 @@ class IdentityCloudMixin:
         """List Keystone endpoints.
 
         :returns: A list of identity ``Endpoint`` objects
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         return list(self.identity.endpoints())
 
@@ -678,9 +692,10 @@ class IdentityCloudMixin:
             Example::
 
                 "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+
         :returns: A list of identity ``Endpoint`` objects
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         # NOTE(SamYaple): With keystone v3 we can filter directly via the
         # the keystone api, but since the return of all the endpoints even in
@@ -702,9 +717,10 @@ class IdentityCloudMixin:
         """Delete a Keystone endpoint.
 
         :param id: ID of the endpoint to delete.
+
         :returns: True if delete succeeded, False otherwise.
-        :raises: ``OpenStackCloudException`` if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         endpoint = self.get_endpoint(id=id)
         if endpoint is None:
@@ -725,7 +741,8 @@ class IdentityCloudMixin:
         :param description: A description of the domain.
         :param enabled: Is the domain enabled or not (default True).
         :returns: The created identity ``Endpoint`` object.
-        :raise OpenStackCloudException: if the domain cannot be created.
+        :raises: :class:`~openstack.exceptions.SDKException` if the domain
+            cannot be created.
         """
         domain_ref = {'name': name, 'enabled': enabled}
         if description is not None:
@@ -750,16 +767,17 @@ class IdentityCloudMixin:
         :param enabled:
         :param name_or_id: Name or unique ID of the domain.
         :returns: The updated identity ``Domain`` object.
-        :raise OpenStackCloudException: if the domain cannot be updated
+        :raises: :class:`~openstack.exceptions.SDKException` if the domain
+            cannot be updated
         """
         if domain_id is None:
             if name_or_id is None:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "You must pass either domain_id or name_or_id value"
                 )
             dom = self.get_domain(None, name_or_id)
             if dom is None:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Domain {0} not found for updating".format(name_or_id)
                 )
             domain_id = dom['id']
@@ -777,14 +795,15 @@ class IdentityCloudMixin:
 
         :param domain_id: ID of the domain to delete.
         :param name_or_id: Name or unique ID of the domain.
+
         :returns: True if delete succeeded, False otherwise.
-        :raises: ``OpenStackCloudException`` if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         try:
             if domain_id is None:
                 if name_or_id is None:
-                    raise exc.OpenStackCloudException(
+                    raise exceptions.SDKException(
                         "You must pass either domain_id or name_or_id value"
                     )
                 dom = self.get_domain(name_or_id=name_or_id)
@@ -808,8 +827,8 @@ class IdentityCloudMixin:
         """List Keystone domains.
 
         :returns: A list of identity ``Domain`` objects.
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         return list(self.identity.domains(**filters))
 
@@ -835,9 +854,10 @@ class IdentityCloudMixin:
             Example::
 
                 "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+
         :returns: a list of identity ``Domain`` objects
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         if filters is None:
             filters = {}
@@ -872,9 +892,10 @@ class IdentityCloudMixin:
             Example::
 
                 "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+
         :returns: an identity ``Domain`` object
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         if domain_id is None:
             return self.identity.find_domain(name_or_id)
@@ -886,9 +907,10 @@ class IdentityCloudMixin:
         """List Keystone groups.
 
         :param domain_id: Domain ID.
+
         :returns: A list of identity ``Group`` objects
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         return list(self.identity.groups(**kwargs))
 
@@ -915,9 +937,10 @@ class IdentityCloudMixin:
 
                 "[?last_name==`Smith`] | [?other.gender]==`Female`]"
         :param domain_id: domain id.
+
         :returns: A list of identity ``Group`` objects
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         groups = self.list_groups(**kwargs)
         return _utils._filter_list(groups, name_or_id, filters)
@@ -929,9 +952,10 @@ class IdentityCloudMixin:
         """Get exactly one Keystone group.
 
         :param name_or_id: Name or unique ID of the group(s).
+
         :returns: An identity ``Group`` object
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         return _utils._get_entity(self, 'group', name_or_id, filters, **kwargs)
 
@@ -941,9 +965,10 @@ class IdentityCloudMixin:
         :param string name: Group name.
         :param string description: Group description.
         :param string domain: Domain name or ID for the group.
+
         :returns: An identity ``Group`` object
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         group_ref = {'name': name}
         if description:
@@ -951,7 +976,7 @@ class IdentityCloudMixin:
         if domain:
             dom = self.get_domain(domain)
             if not dom:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Creating group {group} failed: Invalid domain "
                     "{domain}".format(group=name, domain=domain)
                 )
@@ -973,13 +998,14 @@ class IdentityCloudMixin:
         :param name_or_id: Name or unique ID of the group.
         :param name: New group name.
         :param description: New group description.
+
         :returns: The updated identity ``Group`` object.
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         group = self.identity.find_group(name_or_id, **kwargs)
         if group is None:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "Group {0} not found for updating".format(name_or_id)
             )
 
@@ -997,9 +1023,10 @@ class IdentityCloudMixin:
         """Delete a group
 
         :param name_or_id: Name or unique ID of the group.
+
         :returns: True if delete succeeded, False otherwise.
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         try:
             group = self.identity.find_group(name_or_id)
@@ -1021,8 +1048,8 @@ class IdentityCloudMixin:
         """List Keystone roles.
 
         :returns: A list of identity ``Role`` objects
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         return list(self.identity.roles(**kwargs))
 
@@ -1047,9 +1074,10 @@ class IdentityCloudMixin:
             Example::
 
                 "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+
         :returns: a list of identity ``Role`` objects
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         roles = self.list_roles()
         return _utils._filter_list(roles, name_or_id, filters)
@@ -1061,9 +1089,10 @@ class IdentityCloudMixin:
         """Get a Keystone role.
 
         :param name_or_id: Name or unique ID of the role.
+
         :returns: An identity ``Role`` object if found, else None.
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         return _utils._get_entity(self, 'role', name_or_id, filters, **kwargs)
 
@@ -1120,8 +1149,8 @@ class IdentityCloudMixin:
         :returns: A list of indentity
             :class:`openstack.identity.v3.role_assignment.RoleAssignment`
             objects
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         # NOTE(samueldmq): although 'include_names' is a valid query parameter
         # in the keystone v3 list role assignments API, it would have NO effect
@@ -1162,7 +1191,8 @@ class IdentityCloudMixin:
         :param string name: The name of the role.
         :param domain_id: domain id (v3)
         :returns: an identity ``Role`` object
-        :raise OpenStackCloudException: if the role cannot be created
+        :raises: :class:`~openstack.exceptions.SDKException` if the role cannot
+            be created
         """
         kwargs['name'] = name
         return self.identity.create_role(**kwargs)
@@ -1175,7 +1205,8 @@ class IdentityCloudMixin:
         :param string name: The new role name
         :param domain_id: domain id
         :returns: an identity ``Role`` object
-        :raise OpenStackCloudException: if the role cannot be created
+        :raises: :class:`~openstack.exceptions.SDKException` if the role cannot
+            be created
         """
         role = self.get_role(name_or_id, **kwargs)
         if role is None:
@@ -1190,9 +1221,10 @@ class IdentityCloudMixin:
 
         :param name_or_id: Name or unique ID of the role.
         :param domain_id: domain id (v3)
+
         :returns: True if delete succeeded, False otherwise.
-        :raises: ``OpenStackCloudException`` if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         role = self.get_role(name_or_id, **kwargs)
         if role is None:
@@ -1229,9 +1261,7 @@ class IdentityCloudMixin:
 
         data['role'] = self.identity.find_role(name_or_id=role)
         if not data['role']:
-            raise exc.OpenStackCloudException(
-                'Role {0} not found.'.format(role)
-            )
+            raise exceptions.SDKException('Role {0} not found.'.format(role))
 
         if user:
             # use cloud.get_user to save us from bad searching by name
@@ -1242,15 +1272,15 @@ class IdentityCloudMixin:
             )
 
         if data.get('user') and data.get('group'):
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 'Specify either a group or a user, not both'
             )
         if data.get('user') is None and data.get('group') is None:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 'Must specify either a user or a group'
             )
         if project is None and domain is None and system is None:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 'Must specify either a domain, project or system'
             )
 
@@ -1293,8 +1323,8 @@ class IdentityCloudMixin:
         NOTE: precedence is given first to project, then domain, then system
 
         :returns: True if the role is assigned, otherwise False
-
-        :raise OpenStackCloudException: if the role cannot be granted
+        :raises: :class:`~openstack.exceptions.SDKException` if the role cannot
+            be granted
         """
         data = self._get_grant_revoke_params(
             name_or_id,
@@ -1401,8 +1431,8 @@ class IdentityCloudMixin:
         NOTE: precedence is given first to project, then domain, then system
 
         :returns: True if the role is revoke, otherwise False
-
-        :raise OpenStackCloudException: if the role cannot be removed
+        :raises: :class:`~openstack.exceptions.SDKException` if the role cannot
+            be removed
         """
         data = self._get_grant_revoke_params(
             name_or_id,

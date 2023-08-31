@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack.tests.unit import base
 
 
@@ -43,7 +43,7 @@ class TestDomainParams(base.TestCase):
         project_data = self._get_project_data(v3=True)
 
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud._get_identity_params,
             domain_id=None,
             project=project_data.project_name,

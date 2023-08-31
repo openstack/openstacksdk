@@ -17,7 +17,7 @@ test_users
 Functional tests for user methods.
 """
 
-from openstack.cloud.exc import OpenStackCloudException
+from openstack import exceptions
 from openstack.tests.functional import base
 
 
@@ -41,7 +41,7 @@ class TestUsers(base.KeystoneBaseFunctionalTest):
                     continue
 
         if exception_list:
-            raise OpenStackCloudException('\n'.join(exception_list))
+            raise exceptions.SDKException('\n'.join(exception_list))
 
     def _create_user(self, **kwargs):
         domain_id = None
