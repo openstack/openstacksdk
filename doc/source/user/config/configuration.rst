@@ -207,48 +207,110 @@ boolean is also recognised (with the opposite semantics to `verify`;
 i.e. `True` ignores certificate failures).  This should be considered
 deprecated for `verify`.
 
+
 Cache Settings
 --------------
 
-Accessing a cloud is often expensive, so it's quite common to want to do some
-client-side caching of those operations. To facilitate that, `openstacksdk`
-understands passing through cache settings to dogpile.cache, with the following
-behaviors:
+.. versionchanged:: 1.0.0
 
-* Listing no config settings means you get a null cache.
-* `cache.expiration_time` and nothing else gets you memory cache.
-* Otherwise, `cache.class` and `cache.arguments` are passed in
+   Previously, caching was managed exclusively in the cloud layer. Starting in
+   openstacksdk 1.0.0, caching is moved to the proxy layer. As the cloud layer
+   depends on the proxy layer in 1.0.0, this means both layers can benefit from
+   the cache.
 
-Different cloud behaviors are also differently expensive to deal with. If you
-want to get really crazy and tweak stuff, you can specify different expiration
-times on a per-resource basis by passing values, in seconds to an expiration
-mapping keyed on the singular name of the resource. A value of `-1` indicates
-that the resource should never expire. Not specifying a value (same as
-specifying `0`) indicates that no caching for this resource should be done.
-`openstacksdk` only caches `GET` request responses for the queries which have
-non-zero expiration time defined. Caching key contains url and request
-parameters, therefore no collisions are expected.
+Authenticating and accessing resources on a cloud is often expensive. It is
+therefore quite common that applications will wish to do some client-side
+caching of both credentials and cloud resources. To facilitate this,
+*openstacksdk* supports caching credentials and resources using the system
+keyring and *dogpile.cache*, respectively.
 
-The expiration time key is constructed (joined with `.`) in the same way as the
-metrics are emmited:
+.. tip::
 
-* service type
-* meaningful resource url segments (i.e. `/servers` results in `servers`,
-  `/servers/ID` results in `server`, `/servers/ID/metadata/KEY` results in
-  `server.metadata`
+   It is important to emphasise that *openstacksdk* does not actually cache
+   anything itself. Rather, it collects and presents the cache information
+   so that your various applications that are connecting to OpenStack can share
+   a cache should you desire. It is important that your cache backend is
+   correctly configured according to the needs of your application.
 
-Non `GET` requests cause cache invalidation based on the caching key prefix so
-that i.e. `PUT` request to `/images/ID` will invalidate all images cache (list
-and all individual entries). Moreover it is possible to explicitly pass
-`_sdk_skip_cache` parameter to the `proxy._get` function to bypass cache and
-invalidate what is already there. This is happening automatically in the
-`wait_for_status` methods where it is expected that resource is going to change
-some of the attributes over the time. Forcing complete cache invalidation can
-be achieved calling `conn._cache.invalidate`.
+Caching in enabled or disabled globally, rather than on a cloud-by-cloud basis.
+This is done by setting configuring the``cache`` top-level key. Caching of
+authentication tokens can be configured using the following settings:
 
-`openstacksdk` does not actually cache anything itself, but it collects and
-presents the cache information so that your various applications that are
-connecting to OpenStack can share a cache should you desire.
+``cache.auth``
+  A boolean indicating whether tokens should be cached in the keyring.
+  When enabled, this allows the consequent connections to the same cloud to
+  skip fetching new token. When the token expires or is invalidated,
+  `openstacksdk` will automatically establish a new connection.
+  Defaults to ``false``.
+
+For example, to configure caching of authentication tokens.
+
+.. code-block:: yaml
+
+  cache:
+    auth: true
+
+Caching of resources can be configured using the following settings:
+
+``cache.expiration_time``
+    The expiration time in seconds for a cache entry.
+    This should be an integer.
+    Defaults to ``0``.
+
+``cache.class``
+  The cache backend to use, which can include any backend supported by
+  *dogpile.cache* natively as well as backend provided by third-part packages.
+  This should be a string.
+  Defaults to ``dogpile.cache.memory``.
+
+``cache.arguments``
+  A mapping of arbitrary arguments to pass into the cache backend. These are
+  backend specific. Keys should correspond to a configuration option for the
+  configured cache backend.
+  Defaults to ``{}``.
+
+``cache.expirations``
+  A mapping of resource types to expiration times. The keys should be specified
+  in the same way as the metrics are emitted, by joining meaningful resource
+  URL segments with ``.``. For example, both ``/servers`` and ``/servers/ID``
+  should be specified as ``servers``, while ``/servers/ID/metadata/KEY`` should
+  be specified as `server.metadata`. Values should be an expiration time in
+  seconds. A value of ``-1`` indicates that the cache should never expire,
+  while a value of ``0`` disables caching for the resource.
+  Defaults to ``{}``
+
+For example, to configure caching with the ``dogpile.cache.memory`` backend
+with a 1 hour expiration.
+
+.. code-block:: yaml
+
+   cache:
+     expiration_time: 3600
+
+To configure caching with the ``dogpile.cache.memory`` backend with a 1 hour
+expiration but only for requests to the OpenStack Compute service's
+``/servers`` API:
+
+.. code-block:: yaml
+
+   cache:
+     expirations:
+       servers: 3600
+
+To configure caching with the ``dogpile.cache.pylibmc`` backend with a 1 hour
+expiration time and a memcached server running on your localhost.
+
+.. code-block:: yaml
+
+   cache:
+     expiration_time: 3600
+     arguments:
+       url:
+       - 127.0.0.1
+
+To configure caching with the ``dogpile.cache.pylibmc`` backend with a 1 hour
+expiration time, a memcached server running on your localhost, and multiple
+per-resource cache expiration times.
 
 .. code-block:: yaml
 
@@ -264,34 +326,28 @@ connecting to OpenStack can share a cache should you desire.
       compute.servers: 5
       compute.flavors: -1
       image.images: 5
-  clouds:
-    mtvexx:
-      profile: vexxhost
-      auth:
-        username: mordred@inaugust.com
-        password: XXXXXXXXX
-        project_name: mordred@inaugust.com
-      region_name: ca-ymq-1
-      dns_api_version: 1
 
-`openstacksdk` can also cache authorization state (token) in the keyring.
-That allow the consequent connections to the same cloud to skip fetching new
-token. When the token gets expired or gets invalid `openstacksdk` will
-establish new connection.
+Finally, if the ``cache`` key is undefined, a null cache is enabled meaning
+caching is effectively disabled.
 
+.. note::
 
-.. code-block:: yaml
-
-  cache:
-    auth: true
-
+   Non ``GET`` requests cause cache invalidation based on the caching key
+   prefix. This means that, for example, a ``PUT`` request to ``/images/ID``
+   will invalidate all images cache (list and all individual entries). Moreover
+   it is possible to explicitly pass the ``skip_cache`` parameter to the
+   ``proxy._get`` function to bypass cache and invalidate what is already
+   there. This is happening automatically in the ``wait_for_status`` methods
+   where it is expected that resource will change some of the attributes over
+   the time. Forcing complete cache invalidation can be achieved calling
+   ``conn._cache.invalidate``
 
 MFA Support
 -----------
 
 MFA support requires a specially prepared configuration file. In this case a
-combination of 2 different authorization plugins is used with their individual
-requirements to the specified parameteres.
+combination of two different authorization plugins is used with their
+individual requirements to the specified parameters.
 
 .. code-block:: yaml
 
