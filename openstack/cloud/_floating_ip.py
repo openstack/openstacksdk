@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import ipaddress
-import threading
 import time
 import warnings
 
@@ -37,10 +36,6 @@ class FloatingIPCloudMixin:
                 self._floating_ip_source = None
             else:
                 self._floating_ip_source = self._floating_ip_source.lower()
-
-        self._floating_network_by_router = None
-        self._floating_network_by_router_run = False
-        self._floating_network_by_router_lock = threading.Lock()
 
     def search_floating_ip_pools(self, name=None, filters=None):
         pools = self.list_floating_ip_pools()
@@ -303,25 +298,13 @@ class FloatingIPCloudMixin:
 
     def _find_floating_network_by_router(self):
         """Find the network providing floating ips by looking at routers."""
-
-        if self._floating_network_by_router_lock.acquire(
-            not self._floating_network_by_router_run
-        ):
-            if self._floating_network_by_router_run:
-                self._floating_network_by_router_lock.release()
-                return self._floating_network_by_router
-            try:
-                for router in self.list_routers():
-                    if router['admin_state_up']:
-                        network_id = router.get(
-                            'external_gateway_info', {}
-                        ).get('network_id')
-                        if network_id:
-                            self._floating_network_by_router = network_id
-            finally:
-                self._floating_network_by_router_run = True
-                self._floating_network_by_router_lock.release()
-        return self._floating_network_by_router
+        for router in self.list_routers():
+            if router['admin_state_up']:
+                network_id = router.get('external_gateway_info', {}).get(
+                    'network_id'
+                )
+                if network_id:
+                    return network_id
 
     def available_floating_ip(self, network=None, server=None):
         """Get a floating IP from a network or a pool.
