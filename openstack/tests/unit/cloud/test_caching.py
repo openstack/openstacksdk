@@ -10,9 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import concurrent
-import time
-
 import testtools
 from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
@@ -177,30 +174,6 @@ class TestMemoryCache(base.TestCase):
             second_response['projects'], self.cloud.list_projects()
         ):
             self._compare_projects(a, b)
-
-        self.assert_calls()
-
-    def test_list_servers_no_herd(self):
-        self.cloud._SERVER_AGE = 2
-        fake_server = fakes.make_fake_server('1234', 'name')
-        self.register_uris(
-            [
-                self.get_nova_discovery_mock_dict(),
-                dict(
-                    method='GET',
-                    uri=self.get_mock_url(
-                        'compute', 'public', append=['servers', 'detail']
-                    ),
-                    json={'servers': [fake_server]},
-                ),
-            ]
-        )
-        with concurrent.futures.ThreadPoolExecutor(16) as pool:
-            for i in range(16):
-                pool.submit(lambda: self.cloud.list_servers(bare=True))
-                # It's possible to race-condition 16 threads all in the
-                # single initial lock without a tiny sleep
-                time.sleep(0.001)
 
         self.assert_calls()
 

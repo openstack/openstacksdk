@@ -813,7 +813,6 @@ class TestCreateServer(base.TestCase):
             ]
         )
         mock_add_ips_to_server.return_value = fake_server
-        self.cloud._SERVER_AGE = 0
 
         self.assertRaises(
             exc.OpenStackCloudException,
