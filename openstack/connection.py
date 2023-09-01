@@ -150,7 +150,7 @@ construct a Connection with the ``CONF`` object and an authenticated Session.
     sess = ks_loading.load_session_from_conf_options(CONF, 'neutron', auth=auth)
 
     conn = connection.Connection(
-        session=session,
+        session=sess,
         oslo_conf=CONF,
     )
 
