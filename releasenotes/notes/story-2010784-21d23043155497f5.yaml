@@ -1,0 +1,33 @@
+---
+upgrade:
+  - |
+    Many cloud administrators use universal cloud-wide credentials. This is
+    supported in keystone via 'inherited' roles that can be applied cloud-
+    or domain-wide.
+
+    In previous releases, these credentials could not be usefully defined
+    within ```clouds.yaml``` because ```clouds.yaml``` supports only
+    specifying a single domain and project for auth purposes. This project
+    or domain could not be overridden on the commandline.
+fixes:
+  - |
+    When some config settings are specified multiple times, the order of
+    precendence has been changed to prefer command-line or env settings over
+    those found in ```clouds.yaml```. The same reordering has been done when
+    a setting is specified multiple times within ```clouds.yaml```; now a
+    higher-level setting will take precedence over that specified within
+    the auth section.
+
+    Affected settings are:
+
+    - ``domain_id``
+    - ``domain_name``
+    - ``user_domain_id``
+    - ``user_domain_name``
+    - ``project_domain_id``
+    - ``project_domain_name``
+    - ``auth-token``
+    - ``project_id``
+    - ``tenant_id``
+    - ``project_name``
+    - ``tenant_name``

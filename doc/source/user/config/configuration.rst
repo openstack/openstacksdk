@@ -450,3 +450,50 @@ region.
           - name: inap-17037-WAN1654
             routes_externally: true
           - name: inap-17037-LAN6745
+
+
+Setting Precedence
+------------------
+
+Some settings are redundant, e.g. ``project-name`` and ``project-id`` both
+specify the project. In a conflict between redundant settings, the
+``_name`` ``clouds.yaml`` option (or equivalent ``-name`` CLI option and ``_NAME`` environment variable) will be used.
+
+Some environment variables or commandline flags can override the settings from
+clouds.yaml. These are:
+
+- ``--domain-id`` (``OS_DOMAIN_ID``)
+- ``--domain-name`` (``OS_DOMAIN_NAME``)
+- ``--user-domain-id`` (``OS_USER_DOMAIN_ID``)
+- ``--user-domain-name`` (``OS_USER_DOMAIN_NAME``)
+- ``--project-domain-id`` (``OS_PROJECT_DOMAIN_ID``)
+- ``--project-domain-name`` (``OS_PROJECT_DOMAIN_NAME``)
+- ``--auth-token`` (``OS_AUTH_TOKEN``)
+- ``--project-id`` (``OS_PROJECT_ID``)
+- ``--project-name`` (``OS_PROJECT_NAME``)
+- ``--tenant-id`` (``OS_TENANT_ID``) (deprecated for ``--project-id``)
+- ``--tenant-name`` (``OS_TENANT_NAME``) (deprecated for ``--project-name``)
+
+Similarly, if one of the above settings is specified in ``clouds.yaml`` as
+part of the ``auth`` section as well as the main section, the ``auth`` settings
+will be overridden. For example in this config section, note that project is
+specified multiple times:
+
+.. code-block:: yaml
+
+  clouds:
+    mtvexx:
+      profile: https://vexxhost.com
+      auth:
+        username: mordred@inaugust.com
+        password: XXXXXXXXX
+        project_name: mylessfavoriteproject
+        project_id: 0bedab75-898c-4521-a038-0b4b71c41bed
+      region_name: ca-ymq-1
+      project_name: myfavoriteproject
+      project_id: 2acf9403-25e8-479e-a3c6-d67540c424a4
+
+In the above example, the ``project_id`` configuration values will be ignored
+in favor of the ``project_name`` configuration values, and the higher-level
+project will be chosen over the auth-specified project. So the actual project
+used will be ```myfavoriteproject```.

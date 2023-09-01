@@ -777,12 +777,15 @@ class OpenStackConfig:
         for target_key, possible_values in mappings.items():
             target = None
             for key in possible_values:
-                if key in cloud:
-                    target = str(cloud[key])
-                    del cloud[key]
+                # Prefer values from the 'auth' section
+                # as they may contain cli or environment overrides.
+                # See story 2010784 for context.
                 if key in cloud['auth']:
                     target = str(cloud['auth'][key])
                     del cloud['auth'][key]
+                if key in cloud:
+                    target = str(cloud[key])
+                    del cloud[key]
             if target:
                 cloud['auth'][target_key] = target
         return cloud
