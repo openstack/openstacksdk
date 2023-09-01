@@ -10,9 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import threading
-import time
-
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack import exceptions
@@ -21,11 +18,6 @@ from openstack.network.v2._proxy import Proxy
 
 class NetworkCloudMixin:
     network: Proxy
-
-    def __init__(self):
-        self._ports = None
-        self._ports_time = 0
-        self._ports_lock = threading.Lock()
 
     @_utils.cache_on_arguments()
     def _neutron_extensions(self):
@@ -106,10 +98,10 @@ class NetworkCloudMixin:
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
-        # If port caching is enabled, do not push the filter down to
-        # neutron; get all the ports (potentially from the cache) and
-        # filter locally.
-        if self._PORT_AGE or isinstance(filters, str):
+        # If the filter is a string, do not push the filter down to neutron;
+        # get all the ports and filter locally.
+        # TODO(stephenfin): '_filter_list' can handle a dict - pass it down
+        if isinstance(filters, str):
             pushdown_filters = None
         else:
             pushdown_filters = filters
@@ -167,39 +159,14 @@ class NetworkCloudMixin:
         :param filters: (optional) A dict of filter conditions to push down
         :returns: A list of network ``Port`` objects.
         """
-        # If pushdown filters are specified and we do not have batched caching
-        # enabled, bypass local caching and push down the filters.
-        if filters and self._PORT_AGE == 0:
-            return self._list_ports(filters)
-
-        if (time.time() - self._ports_time) >= self._PORT_AGE:
-            # Since we're using cached data anyway, we don't need to
-            # have more than one thread actually submit the list
-            # ports task.  Let the first one submit it while holding
-            # a lock, and the non-blocking acquire method will cause
-            # subsequent threads to just skip this and use the old
-            # data until it succeeds.
-            # Initially when we never got data, block to retrieve some data.
-            first_run = self._ports is None
-            if self._ports_lock.acquire(first_run):
-                try:
-                    if not (first_run and self._ports is not None):
-                        self._ports = self._list_ports({})
-                        self._ports_time = time.time()
-                finally:
-                    self._ports_lock.release()
-        # Wrap the return with filter_list so that if filters were passed
-        # but we were batching/caching and thus always fetching the whole
-        # list from the cloud, we still return a filtered list.
-        return _utils._filter_list(self._ports, None, filters or {})
-
-    def _list_ports(self, filters):
         # If the cloud is running nova-network, just return an empty list.
         if not self.has_service('network'):
             return []
 
+        # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
+
         return list(self.network.ports(**filters))
 
     # TODO(stephenfin): Deprecate 'filters'; users should use 'list' for this
