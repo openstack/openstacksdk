@@ -1573,12 +1573,14 @@ class ComputeCloudMixin:
         """
         return self.compute.get_flavor_access(flavor_id)
 
-    def list_hypervisors(self, filters={}):
+    def list_hypervisors(self, filters=None):
         """List all hypervisors
 
         :param filters:
         :returns: A list of compute ``Hypervisor`` objects.
         """
+        if not filters:
+            filters = {}
 
         return list(self.compute.hypervisors(details=True, **filters))
 
@@ -1595,11 +1597,14 @@ class ComputeCloudMixin:
         aggregates = self.list_aggregates()
         return _utils._filter_list(aggregates, name_or_id, filters)
 
-    def list_aggregates(self, filters={}):
+    def list_aggregates(self, filters=None):
         """List all available host aggregates.
 
         :returns: A list of compute ``Aggregate`` objects.
         """
+        if not filters:
+            filters = {}
+
         return self.compute.aggregates(**filters)
 
     def get_aggregate(self, name_or_id, filters=None):
