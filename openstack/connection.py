@@ -154,6 +154,77 @@ construct a Connection with the ``CONF`` object and an authenticated Session.
         oslo_conf=CONF,
     )
 
+This can then be used with an appropriate configuration file.
+
+.. code-block:: ini
+
+    [neutron]
+    region_name = RegionOne
+    auth_strategy = keystone
+    project_domain_name = Default
+    project_name = service
+    user_domain_name = Default
+    password = password
+    username = neutron
+    auth_url = http://10.0.110.85/identity
+    auth_type = password
+    service_metadata_proxy = True
+    default_floating_pool = public
+
+You may also wish to configure a service user. As discussed in the `Keystone
+documentation`__, service users are users with specific roles that identify the
+user as a service. The use of service users can avoid issues caused by the
+expiration of the original user's token during long running operations, as a
+fresh token issued for the service user will always accompany the user's token,
+which may have expired.
+
+.. code-block:: python
+
+    from keystoneauth1 import loading as ks_loading
+    from keystoneauth1 import service_token
+    from oslo_config import cfg
+    import openstack
+    from openstack import connection
+
+    CONF = cfg.CONF
+
+    neutron_group = cfg.OptGroup('neutron')
+    ks_loading.register_session_conf_options(CONF, neutron_group)
+    ks_loading.register_auth_conf_options(CONF, neutron_group)
+    ks_loading.register_adapter_conf_options(CONF, neutron_group)
+
+    service_group = cfg.OptGroup('service_user')
+    ks_loading.register_session_conf_options(CONF, service_group)
+    ks_loading.register_auth_conf_options(CONF, service_group)
+
+    CONF()
+    user_auth = ks_loading.load_auth_from_conf_options(CONF, 'neutron')
+    service_auth = ks_loading.load_auth_from_conf_options(CONF, 'service_user')
+    auth = service_token.ServiceTokenAuthWrapper(user_auth, service_auth)
+
+    sess = ks_loading.load_session_from_conf_options(CONF, 'neutron', auth=auth)
+
+    conn = connection.Connection(
+        session=sess,
+        oslo_conf=CONF,
+    )
+
+This will necessitate an additional section in the configuration file used.
+
+.. code-block:: ini
+
+    [service_user]
+    auth_strategy = keystone
+    project_domain_name = Default
+    project_name = service
+    user_domain_name = Default
+    password = password
+    username = nova
+    auth_url = http://10.0.110.85/identity
+    auth_type = password
+
+.. __: https://docs.openstack.org/keystone/latest/admin/manage-services.html
+
 From existing CloudRegion
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
