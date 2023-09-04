@@ -32,6 +32,9 @@ from openstack.network.v2 import (
 from openstack.network.v2 import (
     bgpvpn_router_association as _bgpvpn_router_association,
 )
+from openstack.network.v2 import (
+    default_security_group_rule as _default_security_group_rule,
+)
 from openstack.network.v2 import extension
 from openstack.network.v2 import firewall_group as _firewall_group
 from openstack.network.v2 import firewall_policy as _firewall_policy
@@ -119,6 +122,9 @@ class Proxy(proxy.Proxy):
         ),
         "bgpvpn_router_association": (
             _bgpvpn_router_association.BgpVpnRouterAssociation
+        ),
+        "default_security_group_rule": (
+            _default_security_group_rule.DefaultSecurityGroupRule
         ),
         "extension": extension.Extension,
         "firewall_group": _firewall_group.FirewallGroup,
@@ -4840,6 +4846,114 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`
         """
         return self._list(_security_group_rule.SecurityGroupRule, **query)
+
+    def create_default_security_group_rule(self, **attrs):
+        """Create a new default security group rule from attributes
+
+        :param attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.network.v2.default_security_group_rule.
+            DefaultSecurityGroupRule`,
+            comprised of the properties on the DefaultSecurityGroupRule class.
+
+        :returns: The results of default security group rule creation
+        :rtype:
+            :class:`~openstack.network.v2.default_security_group_rule.
+            DefaultSecurityGroupRule`
+        """
+        return self._create(
+            _default_security_group_rule.DefaultSecurityGroupRule, **attrs
+        )
+
+    def delete_default_security_group_rule(
+        self,
+        default_security_group_rule,
+        ignore_missing=True,
+    ):
+        """Delete a default security group rule
+
+        :param default_security_group_rule:
+            The value can be either the ID of a default security group rule
+            or a
+            :class:`~openstack.network.v2.default_security_group_rule.
+            DefaultSecurityGroupRule` instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the defaul security group rule does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent default security group rule.
+
+        :returns: ``None``
+        """
+        self._delete(
+            _default_security_group_rule.DefaultSecurityGroupRule,
+            default_security_group_rule,
+            ignore_missing=ignore_missing,
+        )
+
+    def find_default_security_group_rule(
+        self, name_or_id, ignore_missing=True, **query
+    ):
+        """Find a single default security group rule
+
+        :param str name_or_id: The ID of a default security group rule.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :param dict query: Any additional parameters to be passed into
+            underlying methods. such as query filters.
+        :returns: One
+            :class:`~openstack.network.v2.default_security_group_rule.
+            DefaultSecurityGroupRule` or None
+        """
+        return self._find(
+            _default_security_group_rule.DefaultSecurityGroupRule,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
+
+    def get_default_security_group_rule(self, default_security_group_rule):
+        """Get a single default security group rule
+
+        :param default_security_group_rule:
+            The value can be the ID of a default security group rule or a
+            :class:`~openstack.network.v2.default_security_group_rule.
+            DefaultSecurityGroupRule` instance.
+
+        :returns:
+            :class:`~openstack.network.v2.default_security_group_rule.
+            DefaultSecurityGroupRule`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(
+            _default_security_group_rule.DefaultSecurityGroupRule,
+            default_security_group_rule,
+        )
+
+    def default_security_group_rules(self, **query):
+        """Return a generator of default security group rules
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the resources being returned. Available parameters include:
+
+            * ``description``: The default security group rule description
+            * ``direction``: Default security group rule direction
+            * ``ether_type``: Must be IPv4 or IPv6, and addresses represented
+              in CIDR must match the ingress or egress rule.
+            * ``protocol``: Default security group rule protocol
+            * ``remote_group_id``: ID of a remote security group
+
+        :returns: A generator of default security group rule objects
+        :rtype:
+            :class:`~openstack.network.v2.default_security_group_rule.
+            DefaultSecurityGroupRule`
+        """
+        return self._list(
+            _default_security_group_rule.DefaultSecurityGroupRule, **query
+        )
 
     def create_segment(self, **attrs):
         """Create a new segment from attributes

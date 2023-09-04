@@ -71,6 +71,15 @@ Auto Allocated Topology Operations
   :members: delete_auto_allocated_topology, get_auto_allocated_topology,
             validate_auto_allocated_topology
 
+Default Security Group Rules Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.network.v2._proxy.Proxy
+  :noindex:
+  :members: create_default_security_group_rule,
+            find_default_security_group_rule, get_default_security_group_rule,
+            delete_default_security_group_rule, default_security_group_rules
+
 Security Group Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
