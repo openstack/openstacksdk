@@ -123,7 +123,7 @@ def _filter_list(data, name_or_id, filters):
                 # we intentionally skip this since the user was trying to
                 # filter on _something_, but we don't know what that
                 # _something_ was
-                raise AttributeError(key)
+                return False
             if isinstance(f[key], dict):
                 if not _dict_filter(f[key], d.get(key, None)):
                     return False
