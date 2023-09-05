@@ -179,6 +179,19 @@ class Stack(resource.Resource):
         resp = session.delete(url)
         return resp.json()
 
+    def export(self, session):
+        """Export a stack data
+
+        :param session: The session to use for making this request.
+        :return: A dictionary containing the stack data.
+        """
+        url = utils.urljoin(
+            self.base_path, self.name, self._get_id(self), 'export'
+        )
+        resp = session.get(url)
+        exceptions.raise_from_response(resp)
+        return resp.json()
+
     def fetch(
         self,
         session,
