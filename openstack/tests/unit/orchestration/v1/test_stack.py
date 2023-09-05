@@ -181,7 +181,7 @@ class TestStack(base.TestCase):
     @mock.patch.object(resource.Resource, 'create')
     def test_create(self, mock_create):
         sess = mock.Mock()
-        sot = stack.Stack(FAKE)
+        sot = stack.Stack()
 
         res = sot.create(sess)
 
@@ -193,7 +193,7 @@ class TestStack(base.TestCase):
     @mock.patch.object(resource.Resource, 'commit')
     def test_commit(self, mock_commit):
         sess = mock.Mock()
-        sot = stack.Stack(FAKE)
+        sot = stack.Stack()
 
         res = sot.commit(sess)
 
