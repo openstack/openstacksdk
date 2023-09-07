@@ -357,6 +357,59 @@ class TestOrchestrationResource(TestOrchestrationProxy):
         )
         self.assertEqual('No stack found for test_stack', str(ex))
 
+    @mock.patch.object(resource.Resource, 'signal')
+    def test_signal_resource_with_stack_object(self, mock_signal):
+        stack_id = '1234'
+        stack_name = 'test_stack'
+        stk = stack.Stack(id=stack_id, name=stack_name)
+        resource_name = 'id'
+        data: dict[str, object] = {'test': '1234'}
+
+        self.proxy.signal_resource(stk, resource_name, data=data)
+
+        mock_signal.assert_called_once_with(
+            self.proxy, stk, resource_name, data
+        )
+
+    @mock.patch.object(proxy.Proxy, '_get')
+    @mock.patch.object(resource.Resource, 'signal')
+    def test_signal_resource_with_stack_id(self, mock_signal, mock_get):
+        stack_id = '1234'
+        stack_name = 'test_stack'
+        stk = stack.Stack(id=stack_id, name=stack_name)
+        mock_get.return_value = stk
+        resource_name = 'id'
+        data: dict[str, object] = {'test': '1234'}
+
+        self.proxy.signal_resource(stack_id, resource=resource_name, data=data)
+
+        mock_get.assert_called_once_with(
+            stack.Stack, stack_id, ignore_missing=False
+        )
+        mock_signal.assert_called_once_with(
+            self.proxy, stk, resource_name, data
+        )
+
+    @mock.patch.object(resource.Resource, 'signal')
+    def test_signal_resource_without_data(self, mock_signal):
+        stk = stack.Stack(id='1234', name='test_stack')
+
+        self.proxy.signal_resource(stk, 'resource_name')
+
+        mock_signal.assert_called_once_with(
+            self.proxy, stk, 'resource_name', None
+        )
+
+    @mock.patch.object(resource.Resource, 'signal')
+    def test_signal_resource_with_empty_data(self, mock_signal):
+        stk = stack.Stack(id='1234', name='test_stack')
+
+        self.proxy.signal_resource(stk, 'resource_name', data={})
+
+        mock_signal.assert_called_once_with(
+            self.proxy, stk, 'resource_name', {}
+        )
+
 
 class TestOrchestrationSoftwareConfig(TestOrchestrationProxy):
     def test_create_software_config(self):

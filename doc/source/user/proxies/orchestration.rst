@@ -27,7 +27,7 @@ Stack Resource Operations
 
 .. autoclass:: openstack.orchestration.v1._proxy.Proxy
   :noindex:
-  :members: resources
+  :members: resources, signal_resource
 
 Stack Action Operations
 ^^^^^^^^^^^^^^^^^^^^^^^

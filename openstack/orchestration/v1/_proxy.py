@@ -396,6 +396,37 @@ class Proxy(proxy.Proxy):
             _resource.Resource, stack_name=obj.name, stack_id=obj.id, **query
         )
 
+    def signal_resource(
+        self,
+        stack: str | _stack.Stack,
+        resource: str | _resource.Resource,
+        *,
+        data: dict[str, object] | None = None,
+    ) -> None:
+        """Signal a resource with optional data.
+
+        :param stack: Can be either the ID of a stack or an instance of
+            :class:`~openstack.orchestration.v1.stack.Stack`.
+        :param resource: The logical name of a resource in the stack or an
+            instance of
+            :class:`~openstack.orchestration.v1.resource.Resource`.
+            This is not the physical ID of the underlying service resource.
+        :param data: A dictionary of JSON-serializable data to send to the
+            signal handler.
+
+        :returns: None
+        """
+        if isinstance(stack, _stack.Stack):
+            obj = stack
+        else:
+            obj = self._get(_stack.Stack, stack, ignore_missing=False)
+
+        if isinstance(resource, _resource.Resource):
+            rsc = resource
+        else:
+            rsc = _resource.Resource.new(name=resource)
+        rsc.signal(self, obj, rsc.name, data)
+
     # ====== Software Configs ======
 
     def create_software_config(self, **attrs: Any) -> _sc.SoftwareConfig:
