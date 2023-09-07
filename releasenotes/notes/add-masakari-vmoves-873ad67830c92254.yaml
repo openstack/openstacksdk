@@ -1,0 +1,4 @@
+---
+features:
+  - Add support for the new ``VMove`` resource for the instance
+    HA service (Masakari).
