@@ -14,7 +14,7 @@
 test_identity
 ----------------------------------
 
-Functional tests for `shade` identity methods.
+Functional tests for identity methods.
 """
 
 import random

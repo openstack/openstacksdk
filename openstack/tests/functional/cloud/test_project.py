@@ -16,7 +16,7 @@
 test_project
 ----------------------------------
 
-Functional tests for `shade` project resource.
+Functional tests for project resource.
 """
 import pprint
 

@@ -14,7 +14,7 @@
 test_domain
 ----------------------------------
 
-Functional tests for `shade` keystone domain resource.
+Functional tests for keystone domain resource.
 """
 
 import openstack.cloud

@@ -14,7 +14,7 @@
 test_compute
 ----------------------------------
 
-Functional tests for `shade` compute methods.
+Functional tests for compute methods.
 """
 
 import datetime

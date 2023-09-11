@@ -15,7 +15,7 @@
 test_qos_dscp_marking_rule
 ----------------------------------
 
-Functional tests for `shade`QoS DSCP marking rule methods.
+Functional tests for QoS DSCP marking rule methods.
 """
 
 from openstack.cloud.exc import OpenStackCloudException

@@ -14,7 +14,7 @@
 test_zone
 ----------------------------------
 
-Functional tests for `shade` zone methods.
+Functional tests for zone methods.
 """
 
 from testtools import content

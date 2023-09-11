@@ -14,7 +14,7 @@
 test_network
 ----------------------------------
 
-Functional tests for `shade` network methods.
+Functional tests for network methods.
 """
 
 from openstack.cloud.exc import OpenStackCloudException

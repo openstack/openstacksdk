@@ -16,7 +16,7 @@
 test_services
 ----------------------------------
 
-Functional tests for `shade` service resource.
+Functional tests for service resource.
 """
 
 import random

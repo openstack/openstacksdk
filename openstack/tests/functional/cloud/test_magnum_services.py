@@ -14,7 +14,7 @@
 test_magnum_services
 --------------------
 
-Functional tests for `shade` services method.
+Functional tests for services method.
 """
 
 from openstack.tests.functional import base

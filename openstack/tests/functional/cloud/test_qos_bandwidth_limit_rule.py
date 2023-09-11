@@ -15,7 +15,7 @@
 test_qos_bandwidth_limit_rule
 ----------------------------------
 
-Functional tests for `shade`QoS bandwidth limit methods.
+Functional tests for QoS bandwidth limit methods.
 """
 
 from openstack.cloud.exc import OpenStackCloudException

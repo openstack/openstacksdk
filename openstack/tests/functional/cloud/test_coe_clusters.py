@@ -14,7 +14,7 @@
 test_coe_clusters
 ----------------------------------
 
-Functional tests for `shade` COE clusters methods.
+Functional tests for COE clusters methods.
 """
 
 from openstack.tests.functional import base

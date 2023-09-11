@@ -16,7 +16,7 @@
 test_endpoint
 ----------------------------------
 
-Functional tests for `shade` endpoint resource.
+Functional tests for endpoint resource.
 """
 
 import random

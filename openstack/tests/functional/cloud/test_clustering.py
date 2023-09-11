@@ -14,7 +14,7 @@
 test_clustering
 ----------------------------------
 
-Functional tests for `shade` clustering methods.
+Functional tests for clustering methods.
 """
 
 import time

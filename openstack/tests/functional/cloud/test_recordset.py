@@ -14,7 +14,7 @@
 test_recordset
 ----------------------------------
 
-Functional tests for `shade` recordset methods.
+Functional tests for recordset methods.
 """
 import random
 import string

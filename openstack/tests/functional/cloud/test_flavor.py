@@ -16,7 +16,7 @@
 test_flavor
 ----------------------------------
 
-Functional tests for `shade` flavor resource.
+Functional tests for flavor resource.
 """
 
 from openstack.cloud.exc import OpenStackCloudException

@@ -14,7 +14,7 @@
 test_aggregate
 ----------------------------------
 
-Functional tests for `shade` aggregate resource.
+Functional tests for aggregate resource.
 """
 
 from openstack.tests.functional import base

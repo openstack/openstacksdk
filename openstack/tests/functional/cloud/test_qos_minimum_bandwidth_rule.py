@@ -15,7 +15,7 @@
 test_qos_minumum_bandwidth_rule
 ----------------------------------
 
-Functional tests for `shade`QoS minimum bandwidth methods.
+Functional tests for QoS minimum bandwidth methods.
 """
 
 from openstack.cloud.exc import OpenStackCloudException
