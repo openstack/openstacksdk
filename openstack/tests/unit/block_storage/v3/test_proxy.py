@@ -785,6 +785,24 @@ class TestSnapshot(TestVolumeProxy):
             expected_args=[self.proxy, "key"],
         )
 
+    def test_manage_snapshot(self):
+        kwargs = {
+            "volume_id": "fake_id",
+            "remote_source": "fake_volume",
+            "snapshot_name": "fake_snap",
+            "description": "test_snap",
+            "property": {"k": "v"},
+        }
+        self._verify(
+            "openstack.block_storage.v3.snapshot.Snapshot.manage",
+            self.proxy.manage_snapshot,
+            method_kwargs=kwargs,
+            method_result=snapshot.Snapshot(id="fake_id"),
+            expected_args=[self.proxy],
+            expected_kwargs=kwargs,
+            expected_result=snapshot.Snapshot(id="fake_id"),
+        )
+
 
 class TestType(TestVolumeProxy):
     def test_type_get(self):

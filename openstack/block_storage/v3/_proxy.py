@@ -253,6 +253,30 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
         snapshot.set_status(self, status, progress)
 
+    def manage_snapshot(self, **attrs):
+        """Creates a snapshot by using existing storage rather than
+        allocating new storage.
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.block_storage.v3.snapshot.Snapshot`,
+            comprised of the properties on the Snapshot class.
+
+        :returns: The results of snapshot creation
+        :rtype: :class:`~openstack.block_storage.v3.snapshot.Snapshot`
+        """
+        return _snapshot.Snapshot.manage(self, **attrs)
+
+    def unmanage_snapshot(self, snapshot):
+        """Unmanage a snapshot from block storage provisioning.
+
+        :param snapshot: Either the ID of a snapshot or a
+            :class:`~openstack.block_storage.v3.snapshot.Snapshot`.
+
+        :returns: None
+        """
+        snapshot_obj = self._get_resource(_snapshot.Snapshot, snapshot)
+        snapshot_obj.unmanage(self)
+
     # ====== TYPES ======
     def get_type(self, type):
         """Get a single type
