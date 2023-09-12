@@ -44,10 +44,18 @@ class Snapshot(resource.Resource, metadata.MetadataMixin):
     allow_list = True
 
     # Properties
+    #: Whether this resource consumes quota or not. Resources that not
+    #: counted for quota usage are usually temporary internal resources
+    #: created to perform an operation.
+    #: This is included from microversion 3.65
+    consumes_quota = resource.Body("consumes_quota")
     #: The timestamp of this snapshot creation.
     created_at = resource.Body("created_at")
     #: Description of snapshot. Default is None.
     description = resource.Body("description")
+    #: The ID of the group snapshot.
+    #: This is included from microversion 3.14
+    group_snapshot_id = resource.Body("group_snapshot_id")
     #: Indicate whether to create snapshot, even if the volume is attached.
     #: Default is ``False``. *Type: bool*
     is_forced = resource.Body("force", type=format.BoolStr)
@@ -62,10 +70,13 @@ class Snapshot(resource.Resource, metadata.MetadataMixin):
     status = resource.Body("status")
     #: The date and time when the resource was updated.
     updated_at = resource.Body("updated_at")
+    #: The UUID of the user.
+    #: This is included from microversion 3.41
+    user_id = resource.Body("user_id")
     #: The ID of the volume this snapshot was taken of.
     volume_id = resource.Body("volume_id")
 
-    _max_microversion = '3.8'
+    _max_microversion = '3.65'
 
     def _action(self, session, body, microversion=None):
         """Preform backup actions given the message body."""
