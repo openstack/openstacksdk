@@ -24,11 +24,6 @@ from openstack import proxy
 from openstack import utils
 from openstack import warnings as os_warnings
 
-_CONFIG_DOC_URL = (
-    "https://docs.openstack.org/openstacksdk/latest/"
-    "user/config/configuration.html"
-)
-
 
 class FloatingIPCloudMixin:
     network: Proxy
@@ -42,10 +37,6 @@ class FloatingIPCloudMixin:
                 self._floating_ip_source = None
             else:
                 self._floating_ip_source = self._floating_ip_source.lower()
-
-        self._floating_ips = None
-        self._floating_ips_time = 0
-        self._floating_ips_lock = threading.Lock()
 
         self._floating_network_by_router = None
         self._floating_network_by_router_run = False
@@ -110,39 +101,45 @@ class FloatingIPCloudMixin:
         """
         return _utils._get_entity(self, 'floating_ip', id, filters)
 
-    def _list_floating_ips(self, filters=None):
+    def list_floating_ips(self, filters=None):
+        """List all available floating IPs.
+
+        :param filters: (optional) dict of filter conditions to push down
+        :returns: A list of floating IP
+            ``openstack.network.v2.floating_ip.FloatingIP``.
+        """
+        if not filters:
+            filters = {}
+
         if self._use_neutron_floating():
             try:
                 return self._neutron_list_floating_ips(filters)
             except exc.OpenStackCloudURINotFound as e:
                 # Nova-network don't support server-side floating ips
-                # filtering, so it's safer to return and empty list than
+                # filtering, so it's safer to return an empty list than
                 # to fallback to Nova which may return more results that
                 # expected.
                 if filters:
                     self.log.error(
-                        "Neutron returned NotFound for floating IPs, which"
-                        " means this cloud doesn't have neutron floating ips."
-                        " shade can't fallback to trying Nova since nova"
-                        " doesn't support server-side filtering when listing"
-                        " floating ips and filters were given. If you do not"
-                        " think shade should be attempting to list floating"
-                        " ips on neutron, it is possible to control the"
-                        " behavior by setting floating_ip_source to 'nova' or"
-                        " None for cloud: %(cloud)s. If you are not already"
-                        " using clouds.yaml to configure settings for your"
-                        " cloud(s), and you want to configure this setting,"
-                        " you will need a clouds.yaml file. For more"
-                        " information, please see %(doc_url)s",
+                        "Neutron returned NotFound for floating IPs, which "
+                        "means this cloud doesn't have neutron floating ips. "
+                        "openstacksdk can't fallback to trying Nova since "
+                        "nova doesn't support server-side filtering when "
+                        "listing floating ips and filters were given. "
+                        "If you do not think openstacksdk should be "
+                        "attempting to list floating IPs on neutron, it is "
+                        "possible to control the behavior by setting "
+                        "floating_ip_source to 'nova' or None for cloud "
+                        "%(cloud)r in 'clouds.yaml'.",
                         {
                             'cloud': self.name,
-                            'doc_url': _CONFIG_DOC_URL,
                         },
                     )
                     # We can't fallback to nova because we push-down filters.
                     # We got a 404 which means neutron doesn't exist. If the
                     # user
                     return []
+
                 self.log.debug(
                     "Something went wrong talking to neutron API: "
                     "'%(msg)s'. Trying with Nova.",
@@ -153,7 +150,7 @@ class FloatingIPCloudMixin:
             if filters:
                 raise ValueError(
                     "Nova-network don't support server-side floating ips "
-                    "filtering. Use the search_floatting_ips method instead"
+                    "filtering. Use the search_floating_ips method instead"
                 )
 
         floating_ips = self._nova_list_floating_ips()
@@ -167,9 +164,7 @@ class FloatingIPCloudMixin:
         neutron. `get_external_ipv4_floating_networks` is what you should
         almost certainly be using.
 
-        :returns: A list of floating IP pool
-            ``openstack.network.v2.floating_ip.FloatingIP``.
-
+        :returns: A list of floating IP pools
         """
         if not self._has_nova_extension('os-floating-ip-pools'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -182,40 +177,6 @@ class FloatingIPCloudMixin:
         )
         pools = self._get_and_munchify('floating_ip_pools', data)
         return [{'name': p['name']} for p in pools]
-
-    def list_floating_ips(self, filters=None):
-        """List all available floating IPs.
-
-        :param filters: (optional) dict of filter conditions to push down
-        :returns: A list of floating IP
-            ``openstack.network.v2.floating_ip.FloatingIP``.
-
-        """
-        # If pushdown filters are specified and we do not have batched caching
-        # enabled, bypass local caching and push down the filters.
-        if filters and self._FLOAT_AGE == 0:
-            return self._list_floating_ips(filters)
-
-        if (time.time() - self._floating_ips_time) >= self._FLOAT_AGE:
-            # Since we're using cached data anyway, we don't need to
-            # have more than one thread actually submit the list
-            # floating ips task.  Let the first one submit it while holding
-            # a lock, and the non-blocking acquire method will cause
-            # subsequent threads to just skip this and use the old
-            # data until it succeeds.
-            # Initially when we never got data, block to retrieve some data.
-            first_run = self._floating_ips is None
-            if self._floating_ips_lock.acquire(first_run):
-                try:
-                    if not (first_run and self._floating_ips is not None):
-                        self._floating_ips = self._list_floating_ips()
-                        self._floating_ips_time = time.time()
-                finally:
-                    self._floating_ips_lock.release()
-        # Wrap the return with filter_list so that if filters were passed
-        # but we were batching/caching and thus always fetching the whole
-        # list from the cloud, we still return a filtered list.
-        return _utils._filter_list(self._floating_ips, None, filters)
 
     def get_floating_ip_by_id(self, id):
         """Get a floating ip by ID
@@ -250,7 +211,6 @@ class FloatingIPCloudMixin:
         :param server: (server) Server the Floating IP is for
 
         :returns: a list of floating IP addresses.
-
         :raises: ``OpenStackCloudResourceNotFound``, if an external network
             that meets the specified criteria cannot be found.
         """
@@ -286,7 +246,7 @@ class FloatingIPCloudMixin:
             'project_id': project_id,
         }
 
-        floating_ips = self._list_floating_ips()
+        floating_ips = self.list_floating_ips()
         available_ips = _utils._filter_list(
             floating_ips, name_or_id=None, filters=filters
         )
@@ -533,7 +493,7 @@ class FloatingIPCloudMixin:
                     for count in utils.iterate_timeout(
                         timeout,
                         "Timeout waiting for the floating IP to be ACTIVE",
-                        wait=self._FLOAT_AGE,
+                        wait=min(5, timeout),
                     ):
                         fip = self.get_floating_ip(fip_id)
                         if fip and fip['status'] == 'ACTIVE':
@@ -614,10 +574,6 @@ class FloatingIPCloudMixin:
 
             if (retry == 0) or not result:
                 return result
-
-            # Wait for the cached floating ip list to be regenerated
-            if self._FLOAT_AGE:
-                time.sleep(self._FLOAT_AGE)
 
             # neutron sometimes returns success when deleting a floating
             # ip. That's awesome. SO - verify that the delete actually
