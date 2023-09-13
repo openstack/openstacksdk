@@ -32,7 +32,6 @@ from openstack import exceptions
 from openstack import proxy
 from openstack import utils
 
-DEFAULT_SERVER_AGE = 5
 DEFAULT_OBJECT_SEGMENT_SIZE = _object_store.DEFAULT_OBJECT_SEGMENT_SIZE
 # This halves the current default for Swift
 DEFAULT_MAX_FILE_SIZE = _object_store.DEFAULT_MAX_FILE_SIZE
@@ -114,7 +113,6 @@ class _OpenStackCloudMixin:
             # Don't cache list_servers if we're not caching things.
             # Replace this with a more specific cache configuration
             # soon.
-            self._SERVER_AGE = 0
             self._cache = _FakeCache()
             # Undecorate cache decorated methods. Otherwise the call stacks
             # wind up being stupidly long and hard to debug
@@ -136,9 +134,6 @@ class _OpenStackCloudMixin:
         expirations = self.config.get_cache_expirations()
         for expire_key in expirations.keys():
             self._cache_expirations[expire_key] = expirations[expire_key]
-
-        # TODO(gtema): delete in next change
-        self._SERVER_AGE = 0
 
         self._api_cache_keys = set()
         self._container_cache = dict()

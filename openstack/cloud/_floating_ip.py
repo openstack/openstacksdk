@@ -735,7 +735,7 @@ class FloatingIPCloudMixin:
             for _ in utils.iterate_timeout(
                 timeout,
                 "Timeout waiting for the floating IP to be attached.",
-                wait=self._SERVER_AGE,
+                wait=min(5, timeout),
             ):
                 server = self.get_server_by_id(server_id)
                 ext_ip = meta.get_server_ip(
@@ -898,9 +898,6 @@ class FloatingIPCloudMixin:
                 timeout=timeout,
             )
             timeout = timeout - (time.time() - start_time)
-            # Wait for cache invalidation time so that we don't try
-            # to attach the FIP a second time below
-            time.sleep(self._SERVER_AGE)
             server = self.get_server(server.id)
 
         # We run attach as a second call rather than in the create call

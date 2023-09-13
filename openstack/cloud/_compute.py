@@ -13,7 +13,6 @@
 import base64
 import functools
 import operator
-import threading
 import time
 
 import iso8601
@@ -72,11 +71,6 @@ def _pop_or_get(resource, key, default, strict):
 
 class ComputeCloudMixin:
     compute: Proxy
-
-    def __init__(self):
-        self._servers = None
-        self._servers_time = 0
-        self._servers_lock = threading.Lock()
 
     @property
     def _compute_region(self):
@@ -364,49 +358,14 @@ class ComputeCloudMixin:
         :param filters: Additional query parameters passed to the API server.
         :returns: A list of compute ``Server`` objects.
         """
-        # If pushdown filters are specified and we do not have batched caching
-        # enabled, bypass local caching and push down the filters.
-        if filters and self._SERVER_AGE == 0:
-            return self._list_servers(
-                detailed=detailed,
-                all_projects=all_projects,
-                bare=bare,
-                filters=filters,
-            )
+        if not filters:
+            filters = {}
 
-        if (time.time() - self._servers_time) >= self._SERVER_AGE:
-            # Since we're using cached data anyway, we don't need to
-            # have more than one thread actually submit the list
-            # servers task.  Let the first one submit it while holding
-            # a lock, and the non-blocking acquire method will cause
-            # subsequent threads to just skip this and use the old
-            # data until it succeeds.
-            # Initially when we never got data, block to retrieve some data.
-            first_run = self._servers is None
-            if self._servers_lock.acquire(first_run):
-                try:
-                    if not (first_run and self._servers is not None):
-                        self._servers = self._list_servers(
-                            detailed=detailed,
-                            all_projects=all_projects,
-                            bare=bare,
-                        )
-                        self._servers_time = time.time()
-                finally:
-                    self._servers_lock.release()
-        # Wrap the return with filter_list so that if filters were passed
-        # but we were batching/caching and thus always fetching the whole
-        # list from the cloud, we still return a filtered list.
-        return _utils._filter_list(self._servers, None, filters)
-
-    def _list_servers(
-        self, detailed=False, all_projects=False, bare=False, filters=None
-    ):
-        filters = filters or {}
         return [
             self._expand_server(server, detailed, bare)
             for server in self.compute.servers(
-                all_projects=all_projects, **filters
+                all_projects=all_projects,
+                **filters,
             )
         ]
 
@@ -1014,14 +973,6 @@ class ComputeCloudMixin:
         # to add unit tests for this too.
         admin_pass = server.admin_password or kwargs.get('admin_pass')
         if not wait:
-            # This is a direct get call to skip the list_servers
-            # cache which has absolutely no chance of containing the
-            # new server.
-            # Only do this if we're not going to wait for the server
-            # to complete booting, because the only reason we do it
-            # is to get a server record that is the return value from
-            # get/list rather than the return value of create. If we're
-            # going to do the wait loop below, this is a waste of a call
             server = self.compute.get_server(server.id)
             if server.status == 'ERROR':
                 raise exc.OpenStackCloudCreateException(
@@ -1159,24 +1110,16 @@ class ComputeCloudMixin:
         """
         Wait for a server to reach ACTIVE status.
         """
-        # server = self.compute.wait_for_server(
-        #     server=server, interval=self._SERVER_AGE or 2, wait=timeout
-        # )
         server_id = server['id']
         timeout_message = "Timeout waiting for the server to come up."
         start_time = time.time()
 
-        # There is no point in iterating faster than the list_servers cache
         for count in utils.iterate_timeout(
             timeout,
             timeout_message,
-            # if _SERVER_AGE is 0 we still want to wait a bit
-            # to be friendly with the server.
-            wait=self._SERVER_AGE or 2,
+            wait=min(5, timeout),
         ):
             try:
-                # Use the get_server call so that the list_servers
-                # cache can be leveraged
                 server = self.get_server(server_id)
             except Exception:
                 continue
@@ -1458,9 +1401,6 @@ class ComputeCloudMixin:
         if reset_volume_cache:
             self.list_volumes.invalidate(self)
 
-        # Reset the list servers cache time so that the next list server
-        # call gets a new list
-        self._servers_time = self._servers_time - self._SERVER_AGE
         return True
 
     @_utils.valid_kwargs('name', 'description')
