@@ -91,13 +91,14 @@ class Node(_common.ListMixin, resource.Resource):
         'fault',
         'provision_state',
         'resource_class',
+        'shard',
         fields={'type': _common.fields_type},
         instance_id='instance_uuid',
         is_maintenance='maintenance',
     )
 
-    # Ability to get node inventory, introduced in 1.81 (Antelope).
-    _max_microversion = '1.81'
+    # Ability to query nodes by shard, introduced in 1.82 (Antelope).
+    _max_microversion = '1.82'
 
     # Properties
     #: The UUID of the allocation associated with this node. Added in API
