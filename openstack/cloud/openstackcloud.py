@@ -34,7 +34,6 @@ from openstack import proxy
 from openstack import utils
 
 DEFAULT_SERVER_AGE = 5
-DEFAULT_PORT_AGE = 5
 DEFAULT_FLOAT_AGE = 5
 _CONFIG_DOC_URL = _floating_ip._CONFIG_DOC_URL
 DEFAULT_OBJECT_SEGMENT_SIZE = _object_store.DEFAULT_OBJECT_SEGMENT_SIZE
@@ -119,7 +118,6 @@ class _OpenStackCloudMixin:
             # Replace this with a more specific cache configuration
             # soon.
             self._SERVER_AGE = 0
-            self._PORT_AGE = 0
             self._FLOAT_AGE = 0
             self._cache = _FakeCache()
             # Undecorate cache decorated methods. Otherwise the call stacks
@@ -145,7 +143,6 @@ class _OpenStackCloudMixin:
 
         # TODO(gtema): delete in next change
         self._SERVER_AGE = 0
-        self._PORT_AGE = 0
         self._FLOAT_AGE = 0
 
         self._api_cache_keys = set()

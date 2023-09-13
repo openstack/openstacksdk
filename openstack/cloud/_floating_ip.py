@@ -1222,26 +1222,11 @@ class FloatingIPCloudMixin:
         :param fixed_address: Fixed ip address of the port
         :param nat_destination: Name or ID of the network of the port.
         """
-        # If we are caching port lists, we may not find the port for
-        # our server if the list is old.  Try for at least 2 cache
-        # periods if that is the case.
-        if self._PORT_AGE:
-            timeout = self._PORT_AGE * 2
-        else:
-            timeout = None
-        for count in utils.iterate_timeout(
-            timeout,
-            "Timeout waiting for port to show up in list",
-            wait=self._PORT_AGE,
-        ):
-            try:
-                port_filter = {'device_id': server['id']}
-                ports = self.search_ports(filters=port_filter)
-                break
-            except exc.OpenStackCloudTimeout:
-                ports = None
+        port_filter = {'device_id': server['id']}
+        ports = self.search_ports(filters=port_filter)
         if not ports:
             return (None, None)
+
         port = None
         if not fixed_address:
             if len(ports) > 1:
