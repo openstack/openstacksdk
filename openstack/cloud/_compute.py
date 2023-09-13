@@ -115,7 +115,6 @@ class ComputeCloudMixin:
             )
         )
 
-    @_utils.cache_on_arguments()
     def _nova_extensions(self):
         extensions = set([e.alias for e in self.compute.extensions()])
         return extensions
@@ -194,7 +193,6 @@ class ComputeCloudMixin:
             filters = {}
         return list(self.compute.keypairs(**filters))
 
-    @_utils.cache_on_arguments()
     def list_availability_zone_names(self, unavailable=False):
         """List names of availability zones.
 
@@ -216,7 +214,6 @@ class ComputeCloudMixin:
             )
             return []
 
-    @_utils.cache_on_arguments()
     def list_flavors(self, get_extra=False):
         """List all available flavors.
 
@@ -1093,8 +1090,6 @@ class ComputeCloudMixin:
                 'source_type': 'volume',
             }
             kwargs['block_device_mapping_v2'].append(block_mapping)
-        if boot_volume or boot_from_volume or volumes:
-            self.list_volumes.invalidate(self)
         return kwargs
 
     def wait_for_server(
@@ -1379,27 +1374,12 @@ class ComputeCloudMixin:
         if not wait:
             return True
 
-        # If the server has volume attachments, or if it has booted
-        # from volume, deleting it will change volume state so we will
-        # need to invalidate the cache. Avoid the extra API call if
-        # caching is not enabled.
-        reset_volume_cache = False
-        if (
-            self.cache_enabled
-            and self.has_service('volume')
-            and self.get_volumes(server)
-        ):
-            reset_volume_cache = True
-
         if not isinstance(server, _server.Server):
             # We might come here with Munch object (at the moment).
             # If this is the case - convert it into real server to be able to
             # use wait_for_delete
             server = _server.Server(id=server['id'])
         self.compute.wait_for_delete(server, wait=timeout)
-
-        if reset_volume_cache:
-            self.list_volumes.invalidate(self)
 
         return True
 

@@ -20,19 +20,10 @@ from openstack import exceptions
 from openstack import warnings as os_warnings
 
 
-def _no_pending_volumes(volumes):
-    """If there are any volumes not in a steady state, don't cache"""
-    for volume in volumes:
-        if volume['status'] not in ('available', 'error', 'in-use'):
-            return False
-    return True
-
-
 class BlockStorageCloudMixin:
     block_storage: Proxy
 
     # TODO(stephenfin): Remove 'cache' in a future major version
-    @_utils.cache_on_arguments(should_cache_fn=_no_pending_volumes)
     def list_volumes(self, cache=True):
         """List all available volumes.
 
@@ -47,7 +38,6 @@ class BlockStorageCloudMixin:
         return list(self.block_storage.volumes())
 
     # TODO(stephenfin): Remove 'get_extra' in a future major version
-    @_utils.cache_on_arguments()
     def list_volume_types(self, get_extra=None):
         """List all available volume types.
 
@@ -166,8 +156,6 @@ class BlockStorageCloudMixin:
 
         volume = self.block_storage.create_volume(**kwargs)
 
-        self.list_volumes.invalidate(self)
-
         if volume['status'] == 'error':
             raise exc.OpenStackCloudException("Error in creating volume")
 
@@ -194,8 +182,6 @@ class BlockStorageCloudMixin:
             )
 
         volume = self.block_storage.update_volume(volume, **kwargs)
-
-        self.list_volumes.invalidate(self)
 
         return volume
 
@@ -240,8 +226,6 @@ class BlockStorageCloudMixin:
         :raises: OpenStackCloudTimeout if wait time exceeded.
         :raises: OpenStackCloudException on operation error.
         """
-
-        self.list_volumes.invalidate(self)
         volume = self.block_storage.find_volume(name_or_id)
 
         if not volume:
@@ -257,7 +241,6 @@ class BlockStorageCloudMixin:
             self.log.exception("error in deleting volume")
             raise
 
-        self.list_volumes.invalidate(self)
         if wait:
             self.block_storage.wait_for_delete(volume, wait=timeout)
 

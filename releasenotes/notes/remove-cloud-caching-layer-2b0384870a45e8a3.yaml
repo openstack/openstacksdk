@@ -1,0 +1,7 @@
+---
+upgrade:
+  - |
+    The cloud-layer caching functionality has been removed in favour of the
+    proxy-layer caching functionality first introduced in openstacksdk 1.0.0.
+    This migration to proxy-layer caching was designed to be transparent to
+    end-users and there should be no user-facing impact from this removal.

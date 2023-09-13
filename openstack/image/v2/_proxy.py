@@ -341,8 +341,6 @@ class Proxy(proxy.Proxy):
             image_kwargs['name'] = name
             image = self._create(_image.Image, **image_kwargs)
 
-        self._connection._get_cache(None).invalidate()
-
         return image
 
     def import_image(
@@ -734,7 +732,6 @@ class Proxy(proxy.Proxy):
         }
 
         glance_task = self.create_task(**task_args)
-        self._connection.list_images.invalidate(self)
         if wait:
             start = time.time()
 
@@ -771,7 +768,6 @@ class Proxy(proxy.Proxy):
                 # Clean up after ourselves. The object we created is not
                 # needed after the import is done.
                 self._connection.delete_object(container, name)
-                self._connection.list_images.invalidate(self)
             return image
         else:
             return glance_task
@@ -963,8 +959,6 @@ class Proxy(proxy.Proxy):
             return False
 
         self.update_image(image, **img_props)
-
-        self._connection.list_images.invalidate(self._connection)
 
         return True
 
