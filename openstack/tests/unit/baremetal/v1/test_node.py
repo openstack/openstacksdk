@@ -46,6 +46,7 @@ FAKE = {
     "name": "test_node",
     "network_interface": "flat",
     "owner": "4b7ed919-e4a6-4017-a081-43205c5b0b73",
+    "parent_node": None,
     "portgroups": [
         {
             "href": "http://127.0.0.1:6385/v1/nodes/<NODE_ID>/portgroups",
@@ -136,6 +137,7 @@ class TestNode(base.TestCase):
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['network_interface'], sot.network_interface)
         self.assertEqual(FAKE['owner'], sot.owner)
+        self.assertEqual(FAKE['parent_node'], sot.parent_node)
         self.assertEqual(FAKE['ports'], sot.ports)
         self.assertEqual(FAKE['portgroups'], sot.port_groups)
         self.assertEqual(FAKE['power_state'], sot.power_state)

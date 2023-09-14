@@ -89,6 +89,8 @@ class Node(_common.ListMixin, resource.Resource):
         'conductor_group',
         'driver',
         'fault',
+        'include_children',
+        'parent_node',
         'provision_state',
         'resource_class',
         'shard',
@@ -97,8 +99,8 @@ class Node(_common.ListMixin, resource.Resource):
         is_maintenance='maintenance',
     )
 
-    # Ability to query nodes by shard, introduced in 1.82 (Antelope).
-    _max_microversion = '1.82'
+    # Ability to query for parent_node, and view the field.
+    _max_microversion = '1.83'
 
     # Properties
     #: The UUID of the allocation associated with this node. Added in API
@@ -170,6 +172,9 @@ class Node(_common.ListMixin, resource.Resource):
     #: Human readable identifier for the node. May be undefined. Certain words
     #: are reserved. Added in API microversion 1.5
     name = resource.Body("name")
+    #: The node which serves as the parent_node for this node.
+    #: Added in API version 1.83
+    parent_node = resource.Body("parent_node")
     #: Links to the collection of ports on this node.
     ports = resource.Body("ports", type=list)
     #: Links to the collection of portgroups on this node. Available since
