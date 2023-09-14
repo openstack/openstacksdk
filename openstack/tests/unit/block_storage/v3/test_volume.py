@@ -31,6 +31,7 @@ IMAGE_METADATA = {
     u'size': '13167616',
 }
 
+FAKE_HOST = "fake_host@fake_backend#fake_pool"
 VOLUME = {
     "status": "creating",
     "name": "my_volume",
@@ -597,4 +598,66 @@ class TestVolumeActions(TestVolume):
             microversion='3.0',
             headers={},
             params={},
+        )
+
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=True,
+    )
+    def test_manage(self, mock_mv):
+        resp = mock.Mock()
+        resp.body = {'volume': copy.deepcopy(VOLUME)}
+        resp.json = mock.Mock(return_value=resp.body)
+        resp.headers = {}
+        resp.status_code = 202
+        self.sess.post = mock.Mock(return_value=resp)
+        sot = volume.Volume.manage(self.sess, host=FAKE_HOST, ref=FAKE_ID)
+        self.assertIsNotNone(sot)
+        url = '/manageable_volumes'
+        body = {
+            'volume': {
+                'host': FAKE_HOST,
+                'ref': FAKE_ID,
+                'name': None,
+                'description': None,
+                'volume_type': None,
+                'availability_zone': None,
+                'metadata': None,
+                'bootable': False,
+            }
+        }
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion
+        )
+
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=False,
+    )
+    def test_manage_pre_38(self, mock_mv):
+        resp = mock.Mock()
+        resp.body = {'volume': copy.deepcopy(VOLUME)}
+        resp.json = mock.Mock(return_value=resp.body)
+        resp.headers = {}
+        resp.status_code = 202
+        self.sess.post = mock.Mock(return_value=resp)
+        sot = volume.Volume.manage(self.sess, host=FAKE_HOST, ref=FAKE_ID)
+        self.assertIsNotNone(sot)
+        url = '/os-volume-manage'
+        body = {
+            'volume': {
+                'host': FAKE_HOST,
+                'ref': FAKE_ID,
+                'name': None,
+                'description': None,
+                'volume_type': None,
+                'availability_zone': None,
+                'metadata': None,
+                'bootable': False,
+            }
+        }
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion
         )

@@ -806,6 +806,18 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.detach(self, attachment, force, connector)
 
+    def manage_volume(self, **attrs):
+        """Creates a volume by using existing storage rather than
+            allocating new storage.
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.block_storage.v3.volume.Volume`,
+            comprised of the properties on the Volume class.
+        :returns: The results of volume creation
+        :rtype: :class:`~openstack.block_storage.v3.volume.Volume`
+        """
+        return _volume.Volume.manage(self, **attrs)
+
     def unmanage_volume(self, volume):
         """Removes a volume from Block Storage management without removing the
             back-end storage object that is associated with it.
@@ -813,7 +825,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :param volume: The value can be either the ID of a volume or a
             :class:`~openstack.block_storage.v3.volume.Volume` instance.
 
-        :returns: None"""
+        :returns: None
+        """
         volume = self._get_resource(_volume.Volume, volume)
         volume.unmanage(self)
 
