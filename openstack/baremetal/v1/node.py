@@ -115,7 +115,7 @@ class Node(_common.ListMixin, resource.Resource):
     chassis_id = resource.Body("chassis_uuid")
     #: The current clean step.
     clean_step = resource.Body("clean_step")
-    #: Hostname of the conductor currently handling this ndoe. Added in API
+    #: Hostname of the conductor currently handling this node. Added in API
     # microversion 1.49.
     conductor = resource.Body("conductor")
     #: Conductor group this node is managed by. Added in API microversion 1.46.
@@ -124,6 +124,8 @@ class Node(_common.ListMixin, resource.Resource):
     created_at = resource.Body("created_at")
     #: The current deploy step. Added in API microversion 1.44.
     deploy_step = resource.Body("deploy_step")
+    #: The description of the node. Added in API microversion 1.51.
+    description = resource.Body("description")
     #: The name of the driver.
     driver = resource.Body("driver")
     #: All the metadata required by the driver to manage this node. List of
@@ -164,6 +166,9 @@ class Node(_common.ListMixin, resource.Resource):
     #: Any error from the most recent transaction that started but failed to
     #: finish.
     last_error = resource.Body("last_error")
+    #: Field indicating if the node is leased to a specific project.
+    #: Added in API version 1.65
+    lessee = resource.Body("lessee")
     #: A list of relative links, including self and bookmark links.
     links = resource.Body("links", type=list)
     #: user settable description of the reason why the node was placed into

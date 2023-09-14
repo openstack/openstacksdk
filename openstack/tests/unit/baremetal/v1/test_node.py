@@ -23,11 +23,14 @@ from openstack import utils
 
 # NOTE: Sample data from api-ref doc
 FAKE = {
+    "automated_clean": False,
     "boot_mode": "uefi",
     "chassis_uuid": "1",  # NOTE: missed in api-ref sample
     "clean_step": {},
+    "conductor_group": None,
     "console_enabled": False,
     "created_at": "2016-08-18T22:28:48.643434+00:00",
+    "description": "A node.",
     "driver": "agent_ipmitool",
     "driver_info": {"ipmi_password": "******", "ipmi_username": "ADMIN"},
     "driver_internal_info": {},
@@ -38,6 +41,7 @@ FAKE = {
     "instance_info": {},
     "instance_uuid": None,
     "last_error": None,
+    "lessee": None,
     "links": [
         {"href": "http://127.0.0.1:6385/v1/nodes/<NODE_ID>", "rel": "self"},
         {"href": "http://127.0.0.1:6385/nodes/<NODE_ID>", "rel": "bookmark"},
@@ -118,11 +122,15 @@ class TestNode(base.TestCase):
 
         self.assertEqual(FAKE['uuid'], sot.id)
         self.assertEqual(FAKE['name'], sot.name)
-
+        self.assertEqual(
+            FAKE['automated_clean'], sot.is_automated_clean_enabled
+        )
         self.assertEqual(FAKE['boot_mode'], sot.boot_mode)
         self.assertEqual(FAKE['chassis_uuid'], sot.chassis_id)
         self.assertEqual(FAKE['clean_step'], sot.clean_step)
+        self.assertEqual(FAKE['conductor_group'], sot.conductor_group)
         self.assertEqual(FAKE['created_at'], sot.created_at)
+        self.assertEqual(FAKE['description'], sot.description)
         self.assertEqual(FAKE['driver'], sot.driver)
         self.assertEqual(FAKE['driver_info'], sot.driver_info)
         self.assertEqual(
@@ -135,6 +143,7 @@ class TestNode(base.TestCase):
         self.assertEqual(FAKE['console_enabled'], sot.is_console_enabled)
         self.assertEqual(FAKE['maintenance'], sot.is_maintenance)
         self.assertEqual(FAKE['last_error'], sot.last_error)
+        self.assertEqual(FAKE['lessee'], sot.lessee)
         self.assertEqual(FAKE['links'], sot.links)
         self.assertEqual(FAKE['maintenance_reason'], sot.maintenance_reason)
         self.assertEqual(FAKE['name'], sot.name)
