@@ -383,6 +383,18 @@ class TestNodeSetProvisionState(base.TestCase):
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 
+    def test_set_provision_state_unhold(self):
+        result = self.node.set_provision_state(self.session, 'unhold')
+
+        self.assertIs(result, self.node)
+        self.session.put.assert_called_once_with(
+            'nodes/%s/states/provision' % self.node.id,
+            json={'target': 'unhold'},
+            headers=mock.ANY,
+            microversion='1.85',
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
+
 
 @mock.patch.object(node.Node, '_translate_response', mock.Mock())
 @mock.patch.object(node.Node, '_get_session', lambda self, x: x)

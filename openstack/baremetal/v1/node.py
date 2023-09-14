@@ -100,7 +100,7 @@ class Node(_common.ListMixin, resource.Resource):
     )
 
     # Ability to query for parent_node, and view the field.
-    _max_microversion = '1.83'
+    _max_microversion = '1.85'
 
     # Properties
     #: The UUID of the allocation associated with this node. Added in API
