@@ -32,6 +32,7 @@ PROVISIONING_VERSIONS = {
     'rescue': 38,
     'unrescue': 38,
     'unhold': 85,
+    'service': 87,
 }
 """API microversions introducing provisioning verbs."""
 
