@@ -99,8 +99,8 @@ class Node(_common.ListMixin, resource.Resource):
         is_maintenance='maintenance',
     )
 
-    # Ability to query for parent_node, and view the field.
-    _max_microversion = '1.85'
+    # Ability to have a firmware_interface on a node.
+    _max_microversion = '1.86'
 
     # Properties
     #: The UUID of the allocation associated with this node. Added in API
@@ -234,6 +234,9 @@ class Node(_common.ListMixin, resource.Resource):
     #: Deploy interface to use when deploying the node.
     #: Introduced in API microversion 1.31.
     deploy_interface = resource.Body("deploy_interface")
+    #: Firmware interface to be used when managing the node.
+    #: Introduced in API microversion 1.86
+    firmware_interface = resource.Body("firmware_interface")
     #: Inspect interface to use when inspecting the node.
     #: Introduced in API microversion 1.31.
     inspect_interface = resource.Body("inspect_interface")
