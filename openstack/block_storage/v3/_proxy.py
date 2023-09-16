@@ -13,6 +13,7 @@
 import typing as ty
 
 from openstack.block_storage import _base_proxy
+from openstack.block_storage.v3 import attachment as _attachment
 from openstack.block_storage.v3 import availability_zone
 from openstack.block_storage.v3 import backup as _backup
 from openstack.block_storage.v3 import block_storage_summary as _summary
@@ -37,6 +38,7 @@ from openstack import resource
 class Proxy(_base_proxy.BaseBlockStorageProxy):
     _resource_registry = {
         "availability_zone": availability_zone.AvailabilityZone,
+        "attachment": _attachment.Attachment,
         "backup": _backup.Backup,
         "capabilities": _capabilities.Capabilities,
         "extension": _extension.Extension,
@@ -958,6 +960,113 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         volume = self._get_resource(_volume.Volume, volume)
         volume.terminate_attachment(self, connector)
+
+    # ====== ATTACHMENTS ======
+
+    def create_attachment(self, volume, **attrs):
+        """Create a new attachment
+
+        This is an internal API and should only be called by services
+        consuming volume attachments like nova, glance, ironic etc.
+
+        :param volume: The value can be either the ID of a volume or a
+            :class:`~openstack.block_storage.v3.volume.Volume` instance.
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.block_storage.v3.attachment.Attachment`
+            comprised of the properties on the Attachment class like
+            connector, instance_id, mode etc.
+        :returns: The results of attachment creation
+        :rtype: :class:`~openstack.block_storage.v3.attachment.Attachment`
+        """
+        volume_id = resource.Resource._get_id(volume)
+        return self._create(
+            _attachment.Attachment, volume_id=volume_id, **attrs
+        )
+
+    def get_attachment(self, attachment):
+        """Get a single volume
+
+        This is an internal API and should only be called by services
+        consuming volume attachments like nova, glance, ironic etc.
+
+        :param attachment: The value can be the ID of an attachment or a
+            :class:`~attachment.Attachment` instance.
+
+        :returns: One :class:`~attachment.Attachment`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_attachment.Attachment, attachment)
+
+    def attachments(self, **query):
+        """Returns a generator of attachments.
+
+        This is an internal API and should only be called by services
+        consuming volume attachments like nova, glance, ironic etc.
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the resources being returned.
+
+        :returns: A generator of attachment objects.
+        """
+        return self._list(_attachment.Attachment, **query)
+
+    def delete_attachment(self, attachment, ignore_missing=True):
+        """Delete an attachment
+
+        This is an internal API and should only be called by services
+        consuming volume attachments like nova, glance, ironic etc.
+
+        :param type: The value can be either the ID of a attachment or a
+            :class:`~openstack.block_storage.v3.attachment.Attachment`
+            instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the attachment does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent attachment.
+
+        :returns: ``None``
+        """
+        self._delete(
+            _attachment.Attachment,
+            attachment,
+            ignore_missing=ignore_missing,
+        )
+
+    def update_attachment(self, attachment, **attrs):
+        """Update an attachment
+
+        This is an internal API and should only be called by services
+        consuming volume attachments like nova, glance, ironic etc.
+
+        :param attachment: The value can be the ID of an attachment or a
+            :class:`~openstack.block_storage.v3.attachment.Attachment`
+            instance.
+        :param dict attrs: Keyword arguments which will be used to update
+            a :class:`~openstack.block_storage.v3.attachment.Attachment`
+            comprised of the properties on the Attachment class
+
+        :returns: The updated attachment
+        :rtype: :class:`~openstack.volume.v3.attachment.Attachment`
+        """
+        return self._update(_attachment.Attachment, attachment, **attrs)
+
+    def complete_attachment(self, attachment):
+        """Complete an attachment
+
+        This is an internal API and should only be called by services
+        consuming volume attachments like nova, glance, ironic etc.
+
+        :param attachment: The value can be the ID of an attachment or a
+            :class:`~openstack.block_storage.v3.attachment.Attachment`
+            instance.
+
+        :returns: ``None``
+        :rtype: :class:`~openstack.volume.v3.attachment.Attachment`
+        """
+        attachment_obj = self._get_resource(_attachment.Attachment, attachment)
+        return attachment_obj.complete(self)
 
     # ====== BACKEND POOLS ======
     def backend_pools(self, **query):
