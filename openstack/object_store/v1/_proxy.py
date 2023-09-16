@@ -1148,11 +1148,12 @@ class Proxy(proxy.Proxy):
         except exceptions.SDKException:
             pass
         else:
-            bulk_delete = caps.swift.get("bulk_delete", {})
-            is_bulk_delete_supported = bulk_delete is not None
-            bulk_delete_max_per_request = bulk_delete.get(
-                "max_deletes_per_request", 100
-            )
+            bulk_delete = caps.get("bulk_delete")
+            if bulk_delete is not None:
+                is_bulk_delete_supported = True
+                bulk_delete_max_per_request = bulk_delete.get(
+                    "max_deletes_per_request", 10000
+                )
 
         elements = []
         for cont in self.containers():
