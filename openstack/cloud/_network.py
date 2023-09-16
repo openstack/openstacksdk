@@ -423,6 +423,17 @@ class NetworkCloudMixin:
         """
         return self.network.get_port(id)
 
+    def get_subnetpool(self, name_or_id):
+        """Get a subnetpool by name or ID.
+
+        :param name_or_id: Name or ID of the subnetpool.
+
+        :returns: A network ``Subnetpool`` object if found, else None.
+        """
+        return self.network.find_subnet_pool(
+            name_or_id=name_or_id, ignore_missing=True
+        )
+
     def create_network(
         self,
         name,
@@ -2274,13 +2285,16 @@ class NetworkCloudMixin:
         ipv6_address_mode=None,
         prefixlen=None,
         use_default_subnetpool=False,
+        subnetpool_name_or_id=None,
         **kwargs,
     ):
         """Create a subnet on a specified network.
 
         :param string network_name_or_id: The unique name or ID of the attached
             network. If a non-unique name is supplied, an exception is raised.
-        :param string cidr: The CIDR.
+        :param string cidr: The CIDR.  Only one of ``cidr``,
+            ``use_default_subnetpool`` and ``subnetpool_name_or_id`` may be
+            specified at the same time.
         :param int ip_version: The IP version, which is 4 or 6.
         :param bool enable_dhcp: Set to ``True`` if DHCP is enabled and
             ``False`` if disabled. Default is ``False``.
@@ -2328,10 +2342,15 @@ class NetworkCloudMixin:
         :param string ipv6_address_mode: IPv6 address mode. Valid values are:
             'dhcpv6-stateful', 'dhcpv6-stateless', or 'slaac'.
         :param string prefixlen: The prefix length to use for subnet allocation
-            from a subnet pool.
+            from a subnetpool.
         :param bool use_default_subnetpool: Use the default subnetpool for
-            ``ip_version`` to obtain a CIDR. It is required to pass ``None`` to
-            the ``cidr`` argument when enabling this option.
+            ``ip_version`` to obtain a CIDR. Only one of ``cidr``,
+            ``use_default_subnetpool`` and ``subnetpool_name_or_id`` may be
+            specified at the same time.
+        :param string subnetpool_name_or_id: The unique name or id of the
+            subnetpool to obtain a CIDR from. Only one of ``cidr``,
+            ``use_default_subnetpool`` and ``subnetpool_name_or_id`` may be
+            specified at the same time.
         :param kwargs: Key value pairs to be passed to the Neutron API.
         :returns: The created network ``Subnet`` object.
         :raises: OpenStackCloudException on operation error.
@@ -2353,16 +2372,30 @@ class NetworkCloudMixin:
                 'arg:disable_gateway_ip is not allowed with arg:gateway_ip'
             )
 
-        if not cidr and not use_default_subnetpool:
+        uses_subnetpool = use_default_subnetpool or subnetpool_name_or_id
+        if not cidr and not uses_subnetpool:
             raise exc.OpenStackCloudException(
                 'arg:cidr is required when a subnetpool is not used'
             )
 
-        if cidr and use_default_subnetpool:
+        if cidr and uses_subnetpool:
             raise exc.OpenStackCloudException(
-                'arg:cidr must be set to None when use_default_subnetpool == '
-                'True'
+                'arg:cidr and subnetpool may not be used at the same time'
             )
+
+        if use_default_subnetpool and subnetpool_name_or_id:
+            raise exc.OpenStackCloudException(
+                'arg:use_default_subnetpool and arg:subnetpool_id may not be '
+                'used at the same time'
+            )
+
+        subnetpool = None
+        if subnetpool_name_or_id:
+            subnetpool = self.get_subnetpool(subnetpool_name_or_id)
+            if not subnetpool:
+                raise exc.OpenStackCloudException(
+                    "Subnetpool %s not found." % subnetpool_name_or_id
+                )
 
         # Be friendly on ip_version and allow strings
         if isinstance(ip_version, str):
@@ -2409,6 +2442,8 @@ class NetworkCloudMixin:
             subnet['prefixlen'] = prefixlen
         if use_default_subnetpool:
             subnet['use_default_subnetpool'] = True
+        if subnetpool:
+            subnet['subnetpool_id'] = subnetpool["id"]
 
         return self.network.create_subnet(**subnet)
 
