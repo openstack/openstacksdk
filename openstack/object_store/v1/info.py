@@ -11,10 +11,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import re
 import urllib
 
 from openstack import exceptions
 from openstack import resource
+from openstack import utils
 
 
 class Info(resource.Resource):
@@ -32,6 +34,24 @@ class Info(resource.Resource):
     slo = resource.Body("slo", type=dict)
     staticweb = resource.Body("staticweb", type=dict)
     tempurl = resource.Body("tempurl", type=dict)
+
+    # The endpoint in the catalog has version and project-id in it
+    # To get capabilities, we have to disassemble and reassemble the URL
+    # to append 'info'
+    # This logic is taken from swiftclient
+    def _get_info_url(self, url):
+        URI_PATTERN_VERSION = re.compile(r'\/v\d+\.?\d*(\/.*)?')
+        scheme, netloc, path, params, query, fragment = urllib.parse.urlparse(
+            url
+        )
+        if URI_PATTERN_VERSION.search(path):
+            path = URI_PATTERN_VERSION.sub('/info', path)
+        else:
+            path = utils.urljoin(path, 'info')
+
+        return urllib.parse.urlunparse(
+            (scheme, netloc, path, params, query, fragment)
+        )
 
     def fetch(
         self,
@@ -61,18 +81,11 @@ class Info(resource.Resource):
         if not self.allow_fetch:
             raise exceptions.MethodNotSupported(self, "fetch")
 
-        # The endpoint in the catalog has version and project-id in it
-        # To get capabilities, we have to disassemble and reassemble the URL
-        # This logic is taken from swiftclient
-
         session = self._get_session(session)
-        endpoint = urllib.parse.urlparse(session.get_endpoint())
-        url = "{scheme}://{netloc}/info".format(
-            scheme=endpoint.scheme, netloc=endpoint.netloc
-        )
+        info_url = self._get_info_url(session.get_endpoint())
 
         microversion = self._get_microversion(session, action='fetch')
-        response = session.get(url, microversion=microversion)
+        response = session.get(info_url, microversion=microversion)
         kwargs = {}
         if error_message:
             kwargs['error_message'] = error_message
