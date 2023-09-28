@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add ``hardware_offload_type`` attribute to ``port`` resource. Users
+    can set this attribute to a valid value defined in
+    ``neutron_lib.constants.VALID_HWOL_TYPES``, set "None" or leave it
+    undefined.

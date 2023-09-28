@@ -112,6 +112,9 @@ class Port(_base.NetworkResource, tag.TagMixin):
     extra_dhcp_opts = resource.Body('extra_dhcp_opts', type=list)
     #: IP addresses for the port. Includes the IP address and subnet ID.
     fixed_ips = resource.Body('fixed_ips', type=list)
+    #: The type of hardware offload this port will request when attached to the
+    # network backend.
+    hardware_offload_type = resource.Body('hardware_offload_type')
     #: Read-only. The ip_allocation indicates when ports use deferred,
     # immediate or no IP allocation.
     ip_allocation = resource.Body('ip_allocation')
