@@ -1039,9 +1039,8 @@ class Proxy(proxy.Proxy):
         """Add a tag to an image
 
         :param image: The value can be the ID of a image or a
-            :class:`~openstack.image.v2.image.Image` instance
-            that the member will be created for.
-        :param str tag: The tag to be added
+            :class:`~openstack.image.v2.image.Image` instance.
+        :param tag: The tag to be added.
 
         :returns: None
         """
@@ -1049,12 +1048,11 @@ class Proxy(proxy.Proxy):
         image.add_tag(self, tag)
 
     def remove_tag(self, image, tag):
-        """Remove a tag to an image
+        """Remove a tag from an image
 
         :param image: The value can be the ID of a image or a
-            :class:`~openstack.image.v2.image.Image` instance
-            that the member will be created for.
-        :param str tag: The tag to be removed
+            :class:`~openstack.image.v2.image.Image` instance.
+        :param tag: The tag to be removed.
 
         :returns: None
         """
@@ -1274,6 +1272,50 @@ class Proxy(proxy.Proxy):
             metadef_namespace,
             **attrs,
         )
+
+    def add_tag_to_metadef_namespace(self, namespace, tag):
+        """Add a tag to a metadef namespace
+
+        :param metadef_namespace: Either the name of a metadef namespace or an
+            :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
+            instance.
+        :param str tag: The tag to be added.
+
+        :returns: None
+        """
+        namespace = self._get_resource(
+            _metadef_namespace.MetadefNamespace, namespace
+        )
+        namespace.add_tag(self, tag)
+
+    def remove_tag_from_metadef_namespace(self, namespace, tag):
+        """Remove a tag from a metadef namespace
+
+        :param metadef_namespace: Either the name of a metadef namespace or an
+            :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
+            instance.
+        :param str tag: The tag to be removed.
+
+        :returns: None
+        """
+        namespace = self._get_resource(
+            _metadef_namespace.MetadefNamespace, namespace
+        )
+        namespace.remove_tag(self, tag)
+
+    def remove_tags_from_metadef_namespace(self, namespace):
+        """Remove all tags from a metadef namespace
+
+        :param metadef_namespace: Either the name of a metadef namespace or an
+            :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
+            instance.
+
+        :returns: None
+        """
+        namespace = self._get_resource(
+            _metadef_namespace.MetadefNamespace, namespace
+        )
+        namespace.remove_all_tags(self)
 
     # ====== METADEF OBJECT ======
     def create_metadef_object(self, namespace, **attrs):

@@ -18,6 +18,7 @@ from keystoneauth1 import adapter
 from openstack import exceptions
 from openstack.image.v2 import metadef_namespace
 from openstack.tests.unit import base
+from openstack.tests.unit.test_resource import FakeResponse
 
 
 EXAMPLE = {
@@ -97,3 +98,55 @@ class TestMetadefNamespace(base.TestCase):
         session.delete.assert_called_with(
             'metadefs/namespaces/OS::Cinder::Volumetype/objects'
         )
+
+
+class TestMetadefNamespaceTags(base.TestCase):
+    # The tests in this class are very similar to those provided by
+    # TestTagMixin. The main differences are:
+    # - test_add_tag uses a ``PUT`` call instead of a ``POST`` call
+    # - test_set_tag uses a ``PUT`` call instead of a ``POST`` call
+    # - test_set_tag uses an optional ``X-OpenStack-Append`` header
+    def setUp(self):
+        super().setUp()
+        self.base_path = 'metadefs/namespaces'
+        self.response = FakeResponse({})
+
+        self.session = mock.Mock(spec=adapter.Adapter)
+        self.session.post = mock.Mock(return_value=self.response)
+
+    def test_add_tag(self):
+        res = metadef_namespace.MetadefNamespace(**EXAMPLE)
+        sess = self.session
+
+        # Set some initial value to check add
+        res.tags = ['blue', 'green']
+
+        result = res.add_tag(sess, 'lila')
+        # Check tags attribute is updated
+        self.assertEqual(['blue', 'green', 'lila'], res.tags)
+        # Check the passed resource is returned
+        self.assertEqual(res, result)
+        url = self.base_path + '/' + res.id + '/tags/lila'
+        sess.post.assert_called_once_with(url)
+
+    def test_set_tags(self):
+        res = metadef_namespace.MetadefNamespace(**EXAMPLE)
+        sess = self.session
+
+        # Set some initial value to check rewrite
+        res.tags = ['blue_old', 'green_old']
+
+        result = res.set_tags(sess, ['blue', 'green'])
+        # Check tags attribute is updated
+        self.assertEqual(['blue', 'green'], res.tags)
+        # Check the passed resource is returned
+        self.assertEqual(res, result)
+        url = self.base_path + '/' + res.id + '/tags'
+        headers = {'X-OpenStack-Append': 'False'}
+        jsonargs = {
+            'tags': [
+                {'name': 'blue'},
+                {'name': 'green'},
+            ]
+        }
+        sess.post.assert_called_once_with(url, headers=headers, json=jsonargs)

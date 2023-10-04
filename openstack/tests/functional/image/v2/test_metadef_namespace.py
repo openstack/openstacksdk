@@ -90,3 +90,48 @@ class TestMetadefNamespace(base.BaseImageTest):
             metadef_namespace_description,
             metadef_namespace.description,
         )
+
+    def test_tags(self):
+        # add tag
+        metadef_namespace = self.operator_cloud.image.get_metadef_namespace(
+            self.metadef_namespace.namespace
+        )
+        metadef_namespace.add_tag(self.operator_cloud.image, 't1')
+        metadef_namespace.add_tag(self.operator_cloud.image, 't2')
+
+        # list tags
+        metadef_namespace.fetch_tags(self.operator_cloud.image)
+        md_tags = [tag['name'] for tag in metadef_namespace.tags]
+        self.assertIn('t1', md_tags)
+        self.assertIn('t2', md_tags)
+
+        # remove tag
+        metadef_namespace.remove_tag(self.operator_cloud.image, 't1')
+        metadef_namespace = self.operator_cloud.image.get_metadef_namespace(
+            self.metadef_namespace.namespace
+        )
+        md_tags = [tag['name'] for tag in metadef_namespace.tags]
+        self.assertIn('t2', md_tags)
+        self.assertNotIn('t1', md_tags)
+
+        # add tags without append
+        metadef_namespace.set_tags(self.operator_cloud.image, ["t1", "t2"])
+        metadef_namespace.fetch_tags(self.operator_cloud.image)
+        md_tags = [tag['name'] for tag in metadef_namespace.tags]
+        self.assertIn('t1', md_tags)
+        self.assertIn('t2', md_tags)
+
+        # add tags with append
+        metadef_namespace.set_tags(
+            self.operator_cloud.image, ["t3", "t4"], append=True
+        )
+        metadef_namespace.fetch_tags(self.operator_cloud.image)
+        md_tags = [tag['name'] for tag in metadef_namespace.tags]
+        self.assertIn('t1', md_tags)
+        self.assertIn('t2', md_tags)
+        self.assertIn('t3', md_tags)
+        self.assertIn('t4', md_tags)
+
+        # remove all tags
+        metadef_namespace.remove_all_tags(self.operator_cloud.image)
+        self.assertEqual([], metadef_namespace.tags)
