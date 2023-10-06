@@ -12,6 +12,7 @@
 
 from openstack.block_storage import _base_proxy
 from openstack.block_storage.v2 import backup as _backup
+from openstack.block_storage.v2 import capabilities as _capabilities
 from openstack.block_storage.v2 import extension as _extension
 from openstack.block_storage.v2 import quota_set as _quota_set
 from openstack.block_storage.v2 import snapshot as _snapshot
@@ -601,13 +602,26 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """Reset status of the backup
 
         :param backup: The value can be either the ID of a backup or a
-            :class:`~openstack.block_storage.v3.backup.Backup` instance.
+            :class:`~openstack.block_storage.v2.backup.Backup` instance.
         :param str status: New backup status
 
         :returns: None
         """
         backup = self._get_resource(_backup.Backup, backup)
         backup.reset(self, status)
+
+    # ====== CAPABILITIES ======
+    def get_capabilities(self, host):
+        """Get a backend's capabilites
+
+        :param host: Specified backend to obtain volume stats and properties.
+
+        :returns: One :class:
+            `~openstack.block_storage.v2.capabilites.Capabilities` instance.
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            resource can be found.
+        """
+        return self._get(_capabilities.Capabilities, host)
 
     # ====== QUOTA SETS ======
     def get_quota_set(self, project, usage=False, **query):
@@ -784,7 +798,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """Return a generator of extensions
 
         :returns: A generator of extension
-        :rtype: :class:`~openstack.block_storage.v3.extension.Extension`
+        :rtype: :class:`~openstack.block_storage.v2.extension.Extension`
         """
         return self._list(_extension.Extension)
 

@@ -26,6 +26,13 @@ Backup Operations
   :noindex:
   :members: create_backup, delete_backup, get_backup, backups, restore_backup
 
+Capabilities Operations
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v2._proxy.Proxy
+  :noindex:
+  :members: get_capabilities
+
 Type Operations
 ^^^^^^^^^^^^^^^
 
