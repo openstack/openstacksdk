@@ -96,9 +96,9 @@ def generate_fake_resource(
                 item_type = value.list_type
                 if issubclass(item_type, resource.Resource):
                     # item is of Resource type
-                    base_attrs[name] = generate_fake_resource(item_type)
+                    base_attrs[name] = [generate_fake_resource(item_type)]
                 elif issubclass(item_type, dict):
-                    base_attrs[name] = dict()
+                    base_attrs[name] = [{}]
                 elif issubclass(item_type, str):
                     base_attrs[name] = [uuid.uuid4().hex]
                 else:

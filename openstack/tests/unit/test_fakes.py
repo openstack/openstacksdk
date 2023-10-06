@@ -27,7 +27,7 @@ class TestGetFake(base.TestCase):
         self.assertIsInstance(res[0], resource.Resource)
 
     def test_generate_fake_resource_types(self):
-        class Fake(resource.Resource):
+        class Foo(resource.Resource):
             a = resource.Body("a", type=str)
             b = resource.Body("b", type=int)
             c = resource.Body("c", type=bool)
@@ -35,13 +35,35 @@ class TestGetFake(base.TestCase):
             e = resource.Body("e", type=dict)
             f = resource.URI("path")
 
-        res = fakes.generate_fake_resource(Fake)
-        self.assertIsInstance(res.a, str)
-        self.assertIsInstance(res.b, int)
-        self.assertIsInstance(res.c, bool)
-        self.assertIsInstance(res.d, bool)
-        self.assertIsInstance(res.e, dict)
-        self.assertIsInstance(res.f, str)
+        class Bar(resource.Resource):
+            a = resource.Body("a", type=list, list_type=str)
+            b = resource.Body("b", type=list, list_type=dict)
+            c = resource.Body("c", type=list, list_type=Foo)
+
+        foo = fakes.generate_fake_resource(Foo)
+        self.assertIsInstance(foo.a, str)
+        self.assertIsInstance(foo.b, int)
+        self.assertIsInstance(foo.c, bool)
+        self.assertIsInstance(foo.d, bool)
+        self.assertIsInstance(foo.e, dict)
+        self.assertIsInstance(foo.f, str)
+
+        bar = fakes.generate_fake_resource(Bar)
+        self.assertIsInstance(bar.a, list)
+        self.assertEqual(1, len(bar.a))
+        self.assertIsInstance(bar.a[0], str)
+        self.assertIsInstance(bar.b, list)
+        self.assertEqual(1, len(bar.b))
+        self.assertIsInstance(bar.b[0], dict)
+        self.assertIsInstance(bar.c, list)
+        self.assertEqual(1, len(bar.c))
+        self.assertIsInstance(bar.c[0], Foo)
+        self.assertIsInstance(bar.c[0].a, str)
+        self.assertIsInstance(bar.c[0].b, int)
+        self.assertIsInstance(bar.c[0].c, bool)
+        self.assertIsInstance(bar.c[0].d, bool)
+        self.assertIsInstance(bar.c[0].e, dict)
+        self.assertIsInstance(bar.c[0].f, str)
 
     def test_generate_fake_resource_attrs(self):
         class Fake(resource.Resource):
