@@ -93,6 +93,19 @@ class TestNode(TestBaremetalProxy):
         self.assertIs(result, mock_list.return_value)
         mock_list.assert_called_once_with(self.proxy, details=False, query=1)
 
+    @mock.patch.object(node.Node, 'list')
+    def test_nodes_sharded(self, mock_list):
+        kwargs = {"shard": 'meow', "query": 1}
+        result = self.proxy.nodes(fields=("uuid", "instance_uuid"), **kwargs)
+        self.assertIs(result, mock_list.return_value)
+        mock_list.assert_called_once_with(
+            self.proxy,
+            details=False,
+            fields=('uuid', 'instance_uuid'),
+            shard='meow',
+            query=1,
+        )
+
     def test_create_node(self):
         self.verify_create(self.proxy.create_node, node.Node)
 

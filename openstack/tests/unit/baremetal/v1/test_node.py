@@ -93,6 +93,10 @@ FAKE = {
 }
 
 
+def _fake_assert(self, session, action, expected, error_message=None):
+    return expected
+
+
 class TestNode(base.TestCase):
     def test_basic(self):
         sot = node.Node()
@@ -153,6 +157,34 @@ class TestNode(base.TestCase):
         attrs = dict(FAKE, provision_state=None)
         sot = node.Node(**attrs)
         self.assertEqual('available', sot.provision_state)
+
+    @mock.patch.object(node.Node, '_assert_microversion_for', _fake_assert)
+    @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
+    def test_list(self):
+        self.node = node.Node()
+        self.session = mock.Mock(
+            spec=adapter.Adapter, default_microversion=None
+        )
+        # Set a default, so we don't try and figure out the microversions
+        # with additional requests.
+        self.session.default_microversion = float(self.node._max_microversion)
+        self.session.get.return_value.json.return_value = {'nodes': []}
+
+        result = list(
+            self.node.list(
+                self.session,
+                details=False,
+                shard='meow',
+                allow_unknown_params=True,
+            )
+        )
+        self.assertEqual(0, len(result))
+        self.session.get.assert_called_once_with(
+            '/nodes',
+            headers={'Accept': 'application/json'},
+            params={'shard': 'meow'},
+            microversion=float(self.node._max_microversion),
+        )
 
 
 @mock.patch('time.sleep', lambda _t: None)
@@ -243,10 +275,6 @@ class TestNodeWaitForProvisionState(base.TestCase):
             timeout=0.001,
             abort_on_failed_state=False,
         )
-
-
-def _fake_assert(self, session, action, expected, error_message=None):
-    return expected
 
 
 @mock.patch.object(node.Node, '_assert_microversion_for', _fake_assert)

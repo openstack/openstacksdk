@@ -272,6 +272,7 @@ class Proxy(proxy.Proxy):
               ``provision_state``.
             * ``resource_class``: Only return those with the specified
               ``resource_class``.
+            * ``shard``: Only return nodes matching the supplied shard key.
             * ``sort_dir``: Sorts the response by the requested sort direction.
               A valid value is ``asc`` (ascending) or ``desc``
               (descending). Default is ``asc``. You can specify multiple
