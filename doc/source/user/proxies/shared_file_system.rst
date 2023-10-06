@@ -55,7 +55,7 @@ service.
   :noindex:
   :members: shares, get_share, delete_share, update_share, create_share,
             revert_share_to_snapshot, resize_share, find_share, manage_share,
-            unmanage_share
+            unmanage_share, soft_delete_share, restore_share
 
 
 Share Access Rule Operations

@@ -255,3 +255,31 @@ class TestShareActions(TestShares):
         self.sess.post.assert_called_with(
             url, json=body, headers={'Accept': ''}, microversion=microversion
         )
+
+    def test_soft_delete_share(self):
+        sot = share.Share(**EXAMPLE)
+        microversion = sot._get_microversion(self.sess)
+
+        self.assertIsNone(sot.soft_delete(self.sess))
+
+        url = f'shares/{IDENTIFIER}/action'
+        body = {'soft_delete': None}
+        headers = {'Accept': ''}
+
+        self.sess.post.assert_called_with(
+            url, json=body, headers=headers, microversion=microversion
+        )
+
+    def test_restore_share(self):
+        sot = share.Share(**EXAMPLE)
+        microversion = sot._get_microversion(self.sess)
+
+        self.assertIsNone(sot.restore(self.sess))
+
+        url = f'shares/{IDENTIFIER}/action'
+        body = {'restore': None}
+        headers = {'Accept': ''}
+
+        self.sess.post.assert_called_with(
+            url, json=body, headers=headers, microversion=microversion
+        )

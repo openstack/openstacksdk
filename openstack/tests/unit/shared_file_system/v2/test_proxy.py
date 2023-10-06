@@ -80,7 +80,7 @@ class TestSharedFileSystemShare(TestSharedFileSystemProxy):
         self.proxy._get = mock.Mock(return_value=mock_share)
 
         self._verify(
-            "openstack.shared_file_system.v2.share." + "Share.extend_share",
+            "openstack.shared_file_system.v2.share.Share.extend_share",
             self.proxy.resize_share,
             method_args=['fakeId', 20],
             expected_args=[self.proxy, 20, False],
@@ -91,10 +91,32 @@ class TestSharedFileSystemShare(TestSharedFileSystemProxy):
         self.proxy._get = mock.Mock(return_value=mock_share)
 
         self._verify(
-            "openstack.shared_file_system.v2.share." + "Share.shrink_share",
+            "openstack.shared_file_system.v2.share.Share.shrink_share",
             self.proxy.resize_share,
             method_args=['fakeId', 20],
             expected_args=[self.proxy, 20],
+        )
+
+    def test_share_soft_delete(self):
+        mock_share = share.Share(size=10, id='fakeId')
+        self.proxy._get = mock.Mock(return_value=mock_share)
+
+        self._verify(
+            "openstack.shared_file_system.v2.share.Share.soft_delete",
+            self.proxy.soft_delete_share,
+            method_args=['fakeId'],
+            expected_args=[self.proxy],
+        )
+
+    def test_share_restore(self):
+        mock_share = share.Share(size=10, id='fakeId')
+        self.proxy._get = mock.Mock(return_value=mock_share)
+
+        self._verify(
+            "openstack.shared_file_system.v2.share.Share.restore",
+            self.proxy.restore_share,
+            method_args=['fakeId'],
+            expected_args=[self.proxy],
         )
 
     def test_share_instances(self):
@@ -109,8 +131,7 @@ class TestSharedFileSystemShare(TestSharedFileSystemProxy):
 
     def test_share_instance_reset(self):
         self._verify(
-            "openstack.shared_file_system.v2.share_instance."
-            + "ShareInstance.reset_status",
+            "openstack.shared_file_system.v2.share_instance.ShareInstance.reset_status",
             self.proxy.reset_share_instance_status,
             method_args=['id', 'available'],
             expected_args=[self.proxy, 'available'],
@@ -118,8 +139,7 @@ class TestSharedFileSystemShare(TestSharedFileSystemProxy):
 
     def test_share_instance_delete(self):
         self._verify(
-            "openstack.shared_file_system.v2.share_instance."
-            + "ShareInstance.force_delete",
+            "openstack.shared_file_system.v2.share_instance.ShareInstance.force_delete",
             self.proxy.delete_share_instance,
             method_args=['id'],
             expected_args=[self.proxy],

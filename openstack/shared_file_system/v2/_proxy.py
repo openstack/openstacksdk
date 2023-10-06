@@ -572,6 +572,26 @@ class Proxy(proxy.Proxy):
         elif new_size < res.size and no_shrink is not True:
             res.shrink_share(self, new_size)
 
+    def soft_delete_share(self, share: str | _share.Share) -> None:
+        """Soft delete a share.
+
+        :param share: The value can be either the ID of a share or a
+            :class:`~openstack.shared_file_system.v2.share.Share` instance.
+        :returns: ``None``
+        """
+        res = self._get(_share.Share, share)
+        res.soft_delete(self)
+
+    def restore_share(self, share: str | _share.Share) -> None:
+        """Restore the share with the given share ID.
+
+        :param share: The value can be either the ID of a share or a
+            :class:`~openstack.shared_file_system.v2.share.Share` instance.
+        :returns: ``None``
+        """
+        res = self._get(_share.Share, share)
+        res.restore(self)
+
     def fetch_share_metadata(self, share: str | _share.Share) -> _share.Share:
         """Lists all metadata for a share.
 

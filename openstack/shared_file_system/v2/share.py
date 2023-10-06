@@ -158,12 +158,11 @@ class Share(resource.Resource, metadata.MetadataMixin):
     ) -> None:
         """Extend the share size.
 
-        :param float new_size: The new size of the share
-            in GiB.
-        :param bool force: Whether or not to use force, bypassing
-            the scheduler. Requires admin privileges. Defaults to False.
+        :param session: A session object used for sending request.
+        :param new_size: The new size of the share in GiB.
+        :param force: Whether or not to use force, bypassing the scheduler.
+            Requires admin privileges. Defaults to False.
         :returns: The result of the action.
-        :rtype: ``None``
         """
 
         extend_body = {"new_size": new_size}
@@ -177,8 +176,8 @@ class Share(resource.Resource, metadata.MetadataMixin):
     def shrink_share(self, session: adapter.Adapter, new_size: float) -> None:
         """Shrink the share size.
 
-        :param float new_size: The new size of the share
-            in GiB.
+        :param session: A session object used for sending request.
+        :param new_size: The new size of the share in GiB.
         :returns: ``None``
         """
 
@@ -190,7 +189,8 @@ class Share(resource.Resource, metadata.MetadataMixin):
     ) -> None:
         """Revert the share to the given snapshot.
 
-        :param str snapshot_id: The id of the snapshot to revert to.
+        :param session: A session object used for sending request.
+        :param snapshot_id: The id of the snapshot to revert to.
         :returns: ``None``
         """
         body = {"revert": {"snapshot_id": snapshot_id}}
@@ -249,7 +249,23 @@ class Share(resource.Resource, metadata.MetadataMixin):
         :param session: A session object used for sending request.
         :returns: ``None``
         """
-
         body = {'unmanage': None}
+        self._action(session, body)
 
+    def soft_delete(self, session: adapter.Adapter) -> None:
+        """Soft delete a share.
+
+        :param session: A session object used for sending request.
+        :returns: ``None``
+        """
+        body = {'soft_delete': None}
+        self._action(session, body)
+
+    def restore(self, session: adapter.Adapter) -> None:
+        """Restore a share.
+
+        :param session: A session object used for sending request.
+        :returns: ``None``
+        """
+        body = {'restore': None}
         self._action(session, body)
