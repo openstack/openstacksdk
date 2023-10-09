@@ -201,15 +201,10 @@ Additional information about the services can be found in the
 """
 import atexit
 import concurrent.futures
+import importlib.metadata as importlib_metadata
 import warnings
 import weakref
 
-try:
-    # For python 3.8 and later
-    import importlib.metadata as importlib_metadata
-except ImportError:
-    # For everyone else
-    import importlib_metadata  # type: ignore
 import keystoneauth1.exceptions
 import requestsexceptions
 
