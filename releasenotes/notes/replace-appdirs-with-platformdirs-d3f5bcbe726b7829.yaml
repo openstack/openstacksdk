@@ -1,0 +1,8 @@
+---
+upgrade:
+  - |
+    The ``appdirs`` dependency is replaced by a requirement for
+    ``platformdirs`` 3.0.0 or later. Users on macOS may need to move
+    configuration files to ``*/Library/Application Support``. See its release
+    notes for further details:
+    https://platformdirs.readthedocs.io/en/latest/changelog.html#platformdirs-3-0-0-2023-02-06
