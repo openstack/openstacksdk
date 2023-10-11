@@ -1219,6 +1219,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             params['project_id'] = resource.Resource._get_id(project)
         return self._get(_limits.Limit, requires_id=False, **params)
 
+    # ====== CAPABILITIES ======
     def get_capabilities(self, host):
         """Get a backend's capabilites
 
