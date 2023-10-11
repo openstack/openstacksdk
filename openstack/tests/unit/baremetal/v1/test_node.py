@@ -32,6 +32,7 @@ FAKE = {
     "driver_info": {"ipmi_password": "******", "ipmi_username": "ADMIN"},
     "driver_internal_info": {},
     "extra": {},
+    "firmware_interface": None,
     "inspection_finished_at": None,
     "inspection_started_at": None,
     "instance_info": {},
@@ -127,6 +128,7 @@ class TestNode(base.TestCase):
             FAKE['driver_internal_info'], sot.driver_internal_info
         )
         self.assertEqual(FAKE['extra'], sot.extra)
+        self.assertEqual(FAKE['firmware_interface'], sot.firmware_interface)
         self.assertEqual(FAKE['instance_info'], sot.instance_info)
         self.assertEqual(FAKE['instance_uuid'], sot.instance_id)
         self.assertEqual(FAKE['console_enabled'], sot.is_console_enabled)
