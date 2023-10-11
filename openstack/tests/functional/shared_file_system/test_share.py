@@ -143,9 +143,10 @@ class ShareTest(base.BaseSharedFileSystemTest):
         self.assertEqual(self.SHARE_SIZE, get_resized_share.size)
 
     def test_resize_share_with_force(self):
+        """Test that extend with force works as expected."""
         # Resize to 3 GiB
         larger_size = 3
-        self.user_cloud.share.resize_share(
+        self.operator_cloud.share.resize_share(
             self.SHARE_ID, larger_size, force=True
         )
 

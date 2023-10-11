@@ -22,8 +22,8 @@ class BaseSharedFileSystemTest(base.BaseFunctionalTest):
         self.require_service(
             'shared-file-system', min_microversion=self.min_microversion
         )
-        self._set_operator_cloud(shared_file_system_api_version='2.63')
-        self._set_user_cloud(shared_file_system_api_version='2.63')
+        self._set_operator_cloud(shared_file_system_api_version='2.78')
+        self._set_user_cloud(shared_file_system_api_version='2.78')
 
     def create_share(self, **kwargs):
         share = self.user_cloud.share.create_share(**kwargs)
