@@ -14,6 +14,7 @@ import uuid
 
 from openstack import exceptions
 from openstack.tests.functional import base
+from openstack import utils
 
 
 class TestZoneShare(base.BaseFunctionalTest):
@@ -28,6 +29,12 @@ class TestZoneShare(base.BaseFunctionalTest):
         # getUniqueString is not guaranteed to return unique string between
         # different tests of the same class.
         self.ZONE_NAME = 'example-{0}.org.'.format(uuid.uuid4().hex)
+
+        # Make sure the API under test has shared zones support
+        if not utils.supports_version(self.conn.dns, '2.1'):
+            self.skipTest(
+                'Designate API version does not support shared zones.'
+            )
 
         self.zone = self.operator_cloud.dns.create_zone(
             name=self.ZONE_NAME,

@@ -14,6 +14,7 @@ import random
 from openstack import connection
 from openstack import exceptions
 from openstack.tests.functional import base
+from openstack import utils
 
 
 class TestZone(base.BaseFunctionalTest):
@@ -72,6 +73,12 @@ class TestZone(base.BaseFunctionalTest):
         )
 
     def test_delete_zone_with_shares(self):
+        # Make sure the API under test has shared zones support
+        if not utils.supports_version(self.conn.dns, '2.1'):
+            self.skipTest(
+                'Designate API version does not support shared zones.'
+            )
+
         zone_name = 'example-{0}.org.'.format(random.randint(1, 10000))
         zone = self.conn.dns.create_zone(
             name=zone_name,
