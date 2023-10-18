@@ -75,6 +75,7 @@ FAKE = {
     "raid_config": {},
     "reservation": None,
     "resource_class": None,
+    "service_step": {},
     "secure_boot": True,
     "shard": "TestShard",
     "states": [
@@ -148,6 +149,7 @@ class TestNode(base.TestCase):
         self.assertEqual(FAKE['raid_config'], sot.raid_config)
         self.assertEqual(FAKE['reservation'], sot.reservation)
         self.assertEqual(FAKE['resource_class'], sot.resource_class)
+        self.assertEqual(FAKE['service_step'], sot.service_step)
         self.assertEqual(FAKE['secure_boot'], sot.is_secure_boot)
         self.assertEqual(FAKE['states'], sot.states)
         self.assertEqual(
@@ -394,6 +396,21 @@ class TestNodeSetProvisionState(base.TestCase):
             json={'target': 'unhold'},
             headers=mock.ANY,
             microversion='1.85',
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
+
+    def test_set_provision_state_service(self):
+        service_steps = [{'interface': 'deploy', 'step': 'hold'}]
+        result = self.node.set_provision_state(
+            self.session, 'service', service_steps=service_steps
+        )
+
+        self.assertIs(result, self.node)
+        self.session.put.assert_called_once_with(
+            'nodes/%s/states/provision' % self.node.id,
+            json={'target': 'service', 'service_steps': service_steps},
+            headers=mock.ANY,
+            microversion='1.87',
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 

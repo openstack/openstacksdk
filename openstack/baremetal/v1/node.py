@@ -100,7 +100,7 @@ class Node(_common.ListMixin, resource.Resource):
     )
 
     # Ability to have a firmware_interface on a node.
-    _max_microversion = '1.86'
+    _max_microversion = '1.87'
 
     # Properties
     #: The UUID of the allocation associated with this node. Added in API
@@ -201,6 +201,9 @@ class Node(_common.ListMixin, resource.Resource):
     #: A string to be used by external schedulers to identify this node as a
     #: unit of a specific type of resource. Added in API microversion 1.21.
     resource_class = resource.Body("resource_class")
+    #: A string represents the current service step being executed upon.
+    #: Added in API microversion 1.87.
+    service_step = resource.Body("service_step")
     #: A string indicating the shard this node belongs to. Added in API
     #: microversion 1,82.
     shard = resource.Body("shard")
@@ -399,6 +402,7 @@ class Node(_common.ListMixin, resource.Resource):
         wait=False,
         timeout=None,
         deploy_steps=None,
+        service_steps=None,
     ):
         """Run an action modifying this node's provision state.
 
@@ -421,6 +425,8 @@ class Node(_common.ListMixin, resource.Resource):
             reached. If ``None``, wait without timeout.
         :param deploy_steps: Deploy steps to execute, only valid for ``active``
             and ``rebuild`` target.
+        :param service_steps: Service steps to execute, only valid for
+            ``service`` target.
 
         :return: This :class:`Node` instance.
         :raises: ValueError if ``config_drive``, ``clean_steps``,
@@ -473,6 +479,14 @@ class Node(_common.ListMixin, resource.Resource):
                     '"deploy" and "rebuild" target'
                 )
             body['deploy_steps'] = deploy_steps
+
+        if service_steps is not None:
+            if target != 'service':
+                raise ValueError(
+                    'Service steps can only be provided with '
+                    '"service" target'
+                )
+            body['service_steps'] = service_steps
 
         if rescue_password is not None:
             if target != 'rescue':
