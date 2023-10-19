@@ -34,12 +34,14 @@ class Allocation(_common.ListMixin, resource.Resource):
         'node',
         'resource_class',
         'state',
+        'owner',
         fields={'type': _common.fields_type},
     )
 
     # Allocation update is available since 1.57
     # Backfilling allocations is available since 1.58
-    _max_microversion = '1.58'
+    # owner attribute is available since 1.60
+    _max_microversion = '1.60'
 
     #: The candidate nodes for this allocation.
     candidate_nodes = resource.Body('candidate_nodes', type=list)
@@ -60,6 +62,8 @@ class Allocation(_common.ListMixin, resource.Resource):
     node = resource.Body('node')
     #: UUID of the node this allocation belongs to.
     node_id = resource.Body('node_uuid')
+    #: The tenant who owns the object
+    owner = resource.Body('owner')
     #: The requested resource class.
     resource_class = resource.Body('resource_class')
     #: The state of the allocation.
