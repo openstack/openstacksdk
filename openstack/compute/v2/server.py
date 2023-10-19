@@ -165,7 +165,6 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     #: routable ipv6 addresses, and to private_ipv4 if the Connection was
     #: created with private=True. Otherwise it will be set to public_ipv4.
     interface_ip = resource.Computed('interface_ip', default='')
-
     # The locked status of the server
     is_locked = resource.Body('locked', type=bool)
     #: The UUID of the kernel image when using an AMI. Will be null if not.
@@ -179,6 +178,8 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     launch_index = resource.Body('OS-EXT-SRV-ATTR:launch_index', type=int)
     #: The timestamp when the server was launched.
     launched_at = resource.Body('OS-SRV-USG:launched_at')
+    #: The reason the server was locked, if any.
+    locked_reason = resource.Body('locked_reason')
     #: The maximum number of servers to create.
     max_count = resource.Body('max_count')
     #: The minimum number of servers to create.
