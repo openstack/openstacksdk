@@ -32,12 +32,16 @@ class Port(_common.ListMixin, resource.Resource):
         'address',
         'node',
         'portgroup',
+        'shard',
         fields={'type': _common.fields_type},
         node_id='node_uuid',
     )
 
     # The physical_network field introduced in 1.34
-    _max_microversion = '1.34'
+    # The is_smartnic field added in 1.53
+    # Query filter by shard added in 1.82
+    # The name field added in 1.88
+    _max_microversion = '1.88'
 
     #: The physical hardware address of the network port, typically the
     #: hardware MAC address.
@@ -53,6 +57,8 @@ class Port(_common.ListMixin, resource.Resource):
     internal_info = resource.Body('internal_info')
     #: Whether PXE is enabled on the port. Added in API microversion 1.19.
     is_pxe_enabled = resource.Body('pxe_enabled', type=bool)
+    #: Whether the port is a Smart NIC port. Added in API microversion 1.53.
+    is_smartnic = resource.Body('is_smartnic', type=bool)
     #: A list of relative links, including the self and bookmark links.
     links = resource.Body('links', type=list)
     #: The port bindig profile. If specified, must contain ``switch_id`` and
@@ -60,6 +66,8 @@ class Port(_common.ListMixin, resource.Resource):
     #: to be used to store vendor specific information. Added in API
     #: microversion 1.19.
     local_link_connection = resource.Body('local_link_connection')
+    #: The name of the port
+    name = resource.Body('name')
     #: The UUID of node this port belongs to
     node_id = resource.Body('node_uuid')
     #: The name of physical network this port is attached to.

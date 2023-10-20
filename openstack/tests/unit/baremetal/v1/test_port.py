@@ -19,6 +19,7 @@ FAKE = {
     "created_at": "2016-08-18T22:28:49.946416+00:00",
     "extra": {},
     "internal_info": {},
+    "is_smartnic": True,
     "links": [
         {"href": "http://127.0.0.1:6385/v1/ports/<PORT_ID>", "rel": "self"},
         {"href": "http://127.0.0.1:6385/ports/<PORT_ID>", "rel": "bookmark"},
@@ -28,6 +29,7 @@ FAKE = {
         "switch_id": "0a:1b:2c:3d:4e:5f",
         "switch_info": "switch1",
     },
+    "name": "port_name",
     "node_uuid": "6d85703a-565d-469a-96ce-30b6de53079d",
     "portgroup_uuid": "e43c722c-248e-4c6e-8ce8-0d8ff129387a",
     "pxe_enabled": True,
@@ -56,10 +58,12 @@ class TestPort(base.TestCase):
         self.assertEqual(FAKE['created_at'], sot.created_at)
         self.assertEqual(FAKE['extra'], sot.extra)
         self.assertEqual(FAKE['internal_info'], sot.internal_info)
+        self.assertEqual(FAKE['is_smartnic'], sot.is_smartnic)
         self.assertEqual(FAKE['links'], sot.links)
         self.assertEqual(
             FAKE['local_link_connection'], sot.local_link_connection
         )
+        self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['node_uuid'], sot.node_id)
         self.assertEqual(FAKE['portgroup_uuid'], sot.port_group_id)
         self.assertEqual(FAKE['pxe_enabled'], sot.is_pxe_enabled)
