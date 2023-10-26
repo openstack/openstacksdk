@@ -6887,10 +6887,11 @@ class Proxy(proxy.Proxy):
                         resource_evaluation_fn=resource_evaluation_fn,
                     )
 
-        if (
-            not self.should_skip_resource_cleanup("network", skip_resources)
-            and not self.should_skip_resource_cleanup("port", skip_resources)
-            and not self.should_skip_resource_cleanup("subnet", skip_resources)
+        if not (
+            self.should_skip_resource_cleanup("network", skip_resources)
+            or self.should_skip_resource_cleanup("router", skip_resources)
+            or self.should_skip_resource_cleanup("port", skip_resources)
+            or self.should_skip_resource_cleanup("subnet", skip_resources)
         ):
             # Networks are crazy, try to delete router+net+subnet
             # if there are no "other" ports allocated on the net
@@ -6942,7 +6943,22 @@ class Proxy(proxy.Proxy):
                 for port in router_if:
                     if client_status_queue:
                         client_status_queue.put(port)
+
+                    router = self.get_router(port.device_id)
                     if not dry_run:
+                        # Router interfaces cannot be deleted when the router has
+                        # static routes, so remove those first
+                        if len(router.routes) > 0:
+                            try:
+                                self.remove_extra_routes_from_router(
+                                    router,
+                                    {"router": {"routes": router.routes}},
+                                )
+                            except exceptions.SDKException:
+                                self.log.error(
+                                    f"Cannot delete routes {router.routes} from router {router}"
+                                )
+
                         try:
                             self.remove_interface_from_router(
                                 router=port.device_id, port_id=port.id
@@ -6952,7 +6968,7 @@ class Proxy(proxy.Proxy):
                     # router disconnected, drop it
                     self._service_cleanup_del_res(
                         self.delete_router,
-                        self.get_router(port.device_id),
+                        router,
                         dry_run=dry_run,
                         client_status_queue=client_status_queue,
                         identified_resources=identified_resources,
@@ -7001,9 +7017,9 @@ class Proxy(proxy.Proxy):
                 )
         else:
             self.log.debug(
-                "Skipping cleanup of networks, ports and subnets "
-                "as those resources require none of them to be "
-                "excluded, but at least one should be kept"
+                "Skipping cleanup of networks, routers, ports and subnets "
+                "as those resources require all of them to be cleaned up"
+                "together, but at least one should be kept"
             )
 
         if not self.should_skip_resource_cleanup("router", skip_resources):
