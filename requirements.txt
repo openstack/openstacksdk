@@ -1,20 +1,14 @@
-# The order of packages is significant, because pip processes them in the order
-# of appearance. Changing the order has an impact on the overall integration
-# process, which may cause wedges in the gate later.
-pbr!=2.1.0,>=2.0.0 # Apache-2.0
-PyYAML>=3.13 # MIT
-platformdirs>=3 # MIT License
-requestsexceptions>=1.2.0 # Apache-2.0
-jsonpatch!=1.20,>=1.16 # BSD
-os-service-types>=1.7.0 # Apache-2.0
-keystoneauth1>=3.18.0 # Apache-2.0
-
-decorator>=4.4.1 # BSD
-jmespath>=0.9.0 # MIT
-iso8601>=0.1.11 # MIT
-netifaces>=0.10.4 # MIT
-
-dogpile.cache>=0.6.5 # BSD
 cryptography>=2.7 # BSD/Apache-2.0
-
+decorator>=4.4.1 # BSD
+dogpile.cache>=0.6.5 # BSD
 importlib_metadata>=1.7.0;python_version<'3.8' # Apache-2.0
+iso8601>=0.1.11 # MIT
+jmespath>=0.9.0 # MIT
+jsonpatch!=1.20,>=1.16 # BSD
+keystoneauth1>=3.18.0 # Apache-2.0
+netifaces>=0.10.4 # MIT
+os-service-types>=1.7.0 # Apache-2.0
+pbr!=2.1.0,>=2.0.0 # Apache-2.0
+platformdirs>=3 # MIT License
+PyYAML>=3.13 # MIT
+requestsexceptions>=1.2.0 # Apache-2.0
