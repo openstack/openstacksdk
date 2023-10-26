@@ -30,7 +30,8 @@ class Driver(resource.Resource):
     _query_mapping = resource.QueryParameters(details='detail')
 
     # The BIOS interface fields introduced in 1.40 (Rocky).
-    _max_microversion = '1.40'
+    # The firmware interface fields introduced in 1.86.
+    _max_microversion = '1.86'
 
     #: A list of active hosts that support this driver.
     hosts = resource.Body('hosts', type=list)
@@ -56,6 +57,9 @@ class Driver(resource.Resource):
     #: Default deploy interface implementation.
     #: Introduced in API microversion 1.30.
     default_deploy_interface = resource.Body("default_deploy_interface")
+    #: Default firmware interface implementation.
+    #: Introduced in API microversion 1.86.
+    default_firmware_interface = resource.Body("default_firmware_interface")
     #: Default inspect interface implementation.
     #: Introduced in API microversion 1.30.
     default_inspect_interface = resource.Body("default_inspect_interface")
@@ -95,6 +99,9 @@ class Driver(resource.Resource):
     #: Enabled deploy interface implementations.
     #: Introduced in API microversion 1.30.
     enabled_deploy_interfaces = resource.Body("enabled_deploy_interfaces")
+    #: Enabled firmware interface implementations.
+    #: Introduced in API microversion 1.86.
+    enabled_firmware_interfaces = resource.Body("enabled_firmware_interfaces")
     #: Enabled inspect interface implementations.
     #: Introduced in API microversion 1.30.
     enabled_inspect_interfaces = resource.Body("enabled_inspect_interfaces")
