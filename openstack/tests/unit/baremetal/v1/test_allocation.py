@@ -35,6 +35,7 @@ FAKE = {
     ],
     "name": "test_allocation",
     "node_uuid": "6d85703a-565d-469a-96ce-30b6de53079d",
+    "owner": "demo",
     "resource_class": "baremetal",
     "state": "active",
     "traits": [],
@@ -64,6 +65,7 @@ class TestAllocation(base.TestCase):
         self.assertEqual(FAKE['links'], sot.links)
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['node_uuid'], sot.node_id)
+        self.assertEqual(FAKE['owner'], sot.owner)
         self.assertEqual(FAKE['resource_class'], sot.resource_class)
         self.assertEqual(FAKE['state'], sot.state)
         self.assertEqual(FAKE['traits'], sot.traits)
