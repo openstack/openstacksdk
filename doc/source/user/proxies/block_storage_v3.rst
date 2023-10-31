@@ -156,3 +156,10 @@ Attachments
   :noindex:
   :members: create_attachment, get_attachment, attachments,
             delete_attachment, update_attachment, complete_attachment
+
+Transfer Operations
+^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v3._proxy.Proxy
+  :noindex:
+  :members: create_transfer, delete_transfer, find_transfer

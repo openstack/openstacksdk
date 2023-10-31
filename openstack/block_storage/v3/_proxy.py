@@ -28,6 +28,7 @@ from openstack.block_storage.v3 import resource_filter as _resource_filter
 from openstack.block_storage.v3 import service as _service
 from openstack.block_storage.v3 import snapshot as _snapshot
 from openstack.block_storage.v3 import stats as _stats
+from openstack.block_storage.v3 import transfer as _transfer
 from openstack.block_storage.v3 import type as _type
 from openstack.block_storage.v3 import volume as _volume
 from openstack import exceptions
@@ -51,6 +52,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         "snapshot": _snapshot.Snapshot,
         "stats_pools": _stats.Pools,
         "summary": _summary.BlockStorageSummary,
+        "transfer": _transfer.Transfer,
         "type": _type.Type,
         "volume": _volume.Volume,
     }
@@ -1860,6 +1862,60 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :rtype: :class:`~openstack.block_storage.v3.extension.Extension`
         """
         return self._list(_extension.Extension)
+
+    # ===== TRANFERS =====
+
+    def create_transfer(self, **attrs):
+        """Create a new Transfer record
+
+        :param volume_id: The value is ID of the volume.
+        :param name: The value is name of the transfer
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.block_storage.v3.transfer.Transfer`
+            comprised of the properties on the Transfer class.
+        :returns: The results of Transfer creation
+        :rtype: :class:`~openstack.block_storage.v3.transfer.Transfer`
+        """
+        return self._create(_transfer.Transfer, **attrs)
+
+    def delete_transfer(self, transfer, ignore_missing=True):
+        """Delete a volume transfer
+
+        :param transfer: The value can be either the ID of a transfer or a
+            :class:`~openstack.block_storage.v3.transfer.Transfer`` instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the transfer does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent transfer.
+
+        :returns: ``None``
+        """
+        self._delete(
+            _transfer.Transfer,
+            transfer,
+            ignore_missing=ignore_missing,
+        )
+
+    def find_transfer(self, name_or_id, ignore_missing=True):
+        """Find a single transfer
+
+        :param name_or_id: The name or ID a transfer
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the volume transfer does not exist.
+
+        :returns: One :class:`~openstack.block_storage.v3.transfer.Transfer`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
+        """
+        return self._find(
+            _transfer.Transfer,
+            name_or_id,
+            ignore_missing=ignore_missing,
+        )
 
     # ====== UTILS ======
     def wait_for_status(
