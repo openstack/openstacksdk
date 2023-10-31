@@ -14,6 +14,7 @@ from openstack.block_storage import _base_proxy
 from openstack.block_storage.v2 import backup as _backup
 from openstack.block_storage.v2 import capabilities as _capabilities
 from openstack.block_storage.v2 import extension as _extension
+from openstack.block_storage.v2 import limits as _limits
 from openstack.block_storage.v2 import quota_set as _quota_set
 from openstack.block_storage.v2 import snapshot as _snapshot
 from openstack.block_storage.v2 import stats as _stats
@@ -609,6 +610,23 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         backup = self._get_resource(_backup.Backup, backup)
         backup.reset(self, status)
+
+    # ====== LIMITS ======
+    def get_limits(self, project=None):
+        """Retrieves limits
+
+        :param project: A project to get limits for. The value can be either
+            the ID of a project or an
+            :class:`~openstack.identity.v2.project.Project` instance.
+        :returns: A Limit object, including both
+            :class:`~openstack.block_storage.v2.limits.AbsoluteLimit` and
+            :class:`~openstack.block_storage.v2.limits.RateLimit`
+        :rtype: :class:`~openstack.block_storage.v2.limits.Limit`
+        """
+        params = {}
+        if project:
+            params['project_id'] = resource.Resource._get_id(project)
+        return self._get(_limits.Limit, requires_id=False, **params)
 
     # ====== CAPABILITIES ======
     def get_capabilities(self, host):

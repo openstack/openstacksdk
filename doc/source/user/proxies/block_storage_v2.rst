@@ -33,6 +33,13 @@ Capabilities Operations
   :noindex:
   :members: get_capabilities
 
+Limits Operations
+^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v2._proxy.Proxy
+  :noindex:
+  :members: get_limits
+
 Type Operations
 ^^^^^^^^^^^^^^^
 

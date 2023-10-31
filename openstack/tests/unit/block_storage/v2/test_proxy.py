@@ -14,6 +14,7 @@ from unittest import mock
 from openstack.block_storage.v2 import _proxy
 from openstack.block_storage.v2 import backup
 from openstack.block_storage.v2 import capabilities
+from openstack.block_storage.v2 import limits
 from openstack.block_storage.v2 import quota_set
 from openstack.block_storage.v2 import snapshot
 from openstack.block_storage.v2 import stats
@@ -287,6 +288,16 @@ class TestBackup(TestVolumeProxy):
             self.proxy.reset_backup,
             method_args=["value", "new_status"],
             expected_args=[self.proxy, "new_status"],
+        )
+
+
+class TestLimit(TestVolumeProxy):
+    def test_limits_get(self):
+        self.verify_get(
+            self.proxy.get_limits,
+            limits.Limit,
+            method_args=[],
+            expected_kwargs={'requires_id': False},
         )
 
 
