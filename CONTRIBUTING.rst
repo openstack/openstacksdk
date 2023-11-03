@@ -33,10 +33,10 @@ Project Documentation
     https://docs.openstack.org/openstacksdk/latest/
 
 Bug tracker
-    https://storyboard.openstack.org/#!/project/openstack/openstacksdk
+    https://bugs.launchpad.net/openstacksdk
 
 Mailing list (prefix subjects with ``[sdk]`` for faster responses)
-    http://lists.openstack.org/cgi-bin/mailman/listinfo/openstack-discuss
+    https://lists.openstack.org/mailman3/lists/openstack-discuss.lists.openstack.org/
 
 Code Hosting
     https://opendev.org/openstack/openstacksdk

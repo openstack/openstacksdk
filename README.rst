@@ -305,9 +305,9 @@ OpenStack service can be found in the `Project Navigator`__.
 Links
 -----
 
-* `Issue Tracker <https://storyboard.openstack.org/#!/project/openstack/openstacksdk>`_
+* `Issue Tracker <https://bugs.launchpad.net/openstacksdk>`_
 * `Code Review <https://review.opendev.org/#/q/status:open+project:openstack/openstacksdk,n,z>`_
 * `Documentation <https://docs.openstack.org/openstacksdk/latest/>`_
 * `PyPI <https://pypi.org/project/openstacksdk/>`_
-* `Mailing list <http://lists.openstack.org/cgi-bin/mailman/listinfo/openstack-discuss>`_
+* `Mailing list <https://lists.openstack.org/mailman3/lists/openstack-discuss.lists.openstack.org/>`_
 * `Release Notes <https://docs.openstack.org/releasenotes/openstacksdk>`_
