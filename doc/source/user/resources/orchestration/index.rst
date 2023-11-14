@@ -6,3 +6,4 @@ Orchestration Resources
 
    v1/stack
    v1/resource
+   v1/stack_event

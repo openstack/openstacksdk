@@ -23,6 +23,13 @@ Stack Operations
             get_stack_template, stacks, validate_template, resources,
             export_stack
 
+Stack Event Operations
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.orchestration.v1._proxy.Proxy
+  :noindex:
+  :members: stack_events
+
 Software Configuration Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
