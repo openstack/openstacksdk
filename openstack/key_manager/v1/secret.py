@@ -10,9 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import _log
+from openstack import exceptions
 from openstack.key_manager.v1 import _format
 from openstack import resource
 from openstack import utils
+
+LOG = _log.setup_logging(__name__)
 
 
 class Secret(resource.Resource):
@@ -91,13 +95,24 @@ class Secret(resource.Resource):
         base_path=None,
         error_message=None,
         skip_cache=False,
+        microversion=None,
     ):
+        if microversion is None:
+            microversion = self._get_microversion(session, action='fetch')
+
         request = self._prepare_request(
             requires_id=requires_id, base_path=base_path
         )
 
-        response = session.get(request.url).json()
-
+        response = session.get(
+            request.url,
+            microversion=microversion,
+        )
+        # .json()
+        msg = "Failed to fetch secret " "{msg}".format(msg=response.json())
+        LOG.debug("Fetch Secret %s", response.json())
+        exceptions.raise_from_response(response, error_message=msg)
+        response = response.json()
         content_type = None
         if self.payload_content_type is not None:
             content_type = self.payload_content_type
