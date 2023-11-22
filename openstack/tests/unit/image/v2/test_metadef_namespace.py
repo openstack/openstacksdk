@@ -87,3 +87,13 @@ class TestMetadefNamespace(base.TestCase):
         session.delete.assert_called_with(
             'metadefs/namespaces/OS::Cinder::Volumetype/properties'
         )
+
+    @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
+    def test_delete_all_objects(self):
+        sot = metadef_namespace.MetadefNamespace(**EXAMPLE)
+        session = mock.Mock(spec=adapter.Adapter)
+        sot._translate_response = mock.Mock()
+        sot.delete_all_objects(session)
+        session.delete.assert_called_with(
+            'metadefs/namespaces/OS::Cinder::Volumetype/objects'
+        )

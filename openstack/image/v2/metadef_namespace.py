@@ -86,5 +86,15 @@ class MetadefNamespace(resource.Resource):
         :param session: The session to use for making this request
         :returns: The server response
         """
+
         url = utils.urljoin(self.base_path, self.id, 'properties')
+        return self._delete_all(session, url)
+
+    def delete_all_objects(self, session):
+        """Delete all objects in a namespace.
+
+        :param session: The session to use for making this request
+        :returns: The server response
+        """
+        url = utils.urljoin(self.base_path, self.id, 'objects')
         return self._delete_all(session, url)

@@ -616,6 +616,20 @@ class TestMetadefObject(TestImageProxy):
             expected_kwargs={"namespace_name": "test_namespace_name"},
         )
 
+    @mock.patch.object(proxy_base.Proxy, '_get_resource')
+    def test_delete_all_metadef_objects(self, mock_get_resource):
+        fake_object = _metadef_namespace.MetadefNamespace()
+        mock_get_resource.return_value = fake_object
+        self._verify(
+            "openstack.image.v2.metadef_namespace.MetadefNamespace.delete_all_objects",
+            self.proxy.delete_all_metadef_objects,
+            method_args=['test_namespace'],
+            expected_args=[self.proxy],
+        )
+        mock_get_resource.assert_called_once_with(
+            _metadef_namespace.MetadefNamespace, 'test_namespace'
+        )
+
 
 class TestMetadefResourceType(TestImageProxy):
     def test_metadef_resource_types(self):
