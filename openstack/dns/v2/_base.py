@@ -73,6 +73,26 @@ class Resource(resource.Resource):
         )
 
     @classmethod
+    def list(
+        cls,
+        session,
+        project_id=None,
+        all_projects=None,
+        **params,
+    ):
+        headers: ty.Union[ty.Dict[str, str] | None] = (
+            {} if project_id or all_projects else None
+        )
+
+        if headers is not None:
+            if project_id:
+                headers["x-auth-sudo-project-id"] = str(project_id)
+            if all_projects:
+                headers["x-auth-all-projects"] = str(all_projects)
+
+        return super().list(session=session, headers=headers, **params)
+
+    @classmethod
     def _get_next_link(cls, uri, response, data, marker, limit, total_yielded):
         next_link = None
         params: ty.Dict[str, ty.Union[ty.List[str], str]] = {}

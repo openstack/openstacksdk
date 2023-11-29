@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add functionality to list DNS resources for a certain project only,
+    or for all projects, using the new `project_id` and `all_projects`
+    parameters.

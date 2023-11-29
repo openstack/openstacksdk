@@ -18,6 +18,7 @@ from unittest import mock
 from keystoneauth1 import adapter
 import requests
 
+from openstack import dns
 from openstack import exceptions
 from openstack import format
 from openstack import resource
@@ -2649,6 +2650,38 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(
             self.session.get.call_args_list[0][0][0],
             Test.base_path % {"something": uri_param},
+        )
+
+    def test_list_with_injected_headers(self):
+        mock_empty = mock.Mock()
+        mock_empty.status_code = 200
+        mock_empty.json.return_value = {"resources": []}
+
+        self.session.get.side_effect = [mock_empty]
+
+        _ = list(
+            self.test_class.list(self.session, headers={'X-Test': 'value'})
+        )
+
+        expected = {'Accept': 'application/json', 'X-Test': 'value'}
+        self.assertEqual(
+            expected, self.session.get.call_args.kwargs['headers']
+        )
+
+    @mock.patch.object(resource.Resource, 'list')
+    def test_list_dns_with_headers(self, mock_resource_list):
+        dns.v2._base.Resource.list(
+            self.session,
+            project_id='1234',
+            all_projects=True,
+        )
+
+        expected = {
+            'x-auth-sudo-project-id': '1234',
+            'x-auth-all-projects': 'True',
+        }
+        self.assertEqual(
+            expected, mock_resource_list.call_args.kwargs['headers']
         )
 
     def test_allow_invalid_list_params(self):
