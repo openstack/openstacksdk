@@ -10,7 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import exceptions
 from openstack import resource
+from openstack import utils
 
 
 class MetadefNamespace(resource.Resource):
@@ -71,3 +73,18 @@ class MetadefNamespace(resource.Resource):
             has_body=True,
             retry_on_conflict=None,
         )
+
+    def _delete_all(self, session, url):
+        response = session.delete(url)
+        exceptions.raise_from_response(response)
+        self._translate_response(response, has_body=False)
+        return self
+
+    def delete_all_properties(self, session):
+        """Delete all properties in a namespace.
+
+        :param session: The session to use for making this request
+        :returns: The server response
+        """
+        url = utils.urljoin(self.base_path, self.id, 'properties')
+        return self._delete_all(session, url)
