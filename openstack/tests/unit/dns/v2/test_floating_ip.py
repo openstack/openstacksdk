@@ -30,7 +30,7 @@ EXAMPLE = {
 class TestFloatingIP(base.TestCase):
     def test_basic(self):
         sot = fip.FloatingIP()
-        self.assertEqual('', sot.resource_key)
+        self.assertEqual(None, sot.resource_key)
         self.assertEqual('floatingips', sot.resources_key)
         self.assertEqual('/reverse/floatingips', sot.base_path)
         self.assertTrue(sot.allow_list)
