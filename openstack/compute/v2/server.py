@@ -76,6 +76,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         "vm_state",
         "sort_key",
         "sort_dir",
+        "pinned_availability_zone",
         access_ipv4="access_ip_v4",
         access_ipv6="access_ip_v6",
         has_config_drive="config_drive",
@@ -91,7 +92,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         **tag.TagMixin._tag_query_parameters,
     )
 
-    _max_microversion = '2.91'
+    _max_microversion = '2.96'
 
     #: A list of dictionaries holding links relevant to this server.
     links = resource.Body('links')
@@ -192,6 +193,10 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     #: networks parameter, the server attaches to the only network
     #: created for the current tenant.
     networks = resource.Body('networks')
+    #: The availability zone requested during server creation OR pinned
+    #: availability zone, which is configured using default_schedule_zone
+    #: config option.
+    pinned_availability_zone = resource.Body('pinned_availability_zone')
     #: The power state of this server.
     power_state = resource.Body('OS-EXT-STS:power_state')
     #: While the server is building, this value represents the percentage
