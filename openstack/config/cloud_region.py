@@ -15,7 +15,7 @@
 import copy
 import os.path
 import typing as ty
-import urllib
+from urllib import parse
 import warnings
 
 try:
@@ -344,7 +344,7 @@ class CloudRegion:
     def name(self):
         if self._name is None:
             try:
-                self._name = urllib.parse.urlparse(
+                self._name = parse.urlparse(
                     self.get_session().auth.auth_url
                 ).hostname
             except Exception:
@@ -598,7 +598,7 @@ class CloudRegion:
                 interface=interface,
                 region_name=region_name,
             )
-        except keystoneauth1.exceptions.catalog.EndpointNotFound:
+        except (keystoneauth1.exceptions.catalog.EndpointNotFound, ValueError):
             return None
 
     def get_connect_retries(self, service_type):
@@ -813,7 +813,7 @@ class CloudRegion:
         if not endpoint.rstrip().rsplit('/')[-1] == 'v2.0':
             if not endpoint.endswith('/'):
                 endpoint += '/'
-            endpoint = urllib.parse.urljoin(endpoint, 'v2.0')
+            endpoint = parse.urljoin(endpoint, 'v2.0')
         return endpoint
 
     def get_session_client(

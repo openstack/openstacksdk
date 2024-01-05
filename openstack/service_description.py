@@ -248,12 +248,36 @@ class ServiceDescription:
 
         # Make an adapter to let discovery take over
         version_kwargs = {}
+        supported_versions = sorted([int(f) for f in self.supported_versions])
         if version_string:
             version_kwargs['version'] = version_string
+            if getattr(
+                self.supported_versions[str(supported_versions[0])],
+                'skip_discovery',
+                False,
+            ):
+                # Requested service does not support version discovery
+                # In this case it is more efficient to set the
+                # endpoint_override to the current catalog endpoint value,
+                # otherwise next request will try to perform discovery.
+
+                temp_adapter = config.get_session_client(self.service_type)
+                ep_override = temp_adapter.get_endpoint(skip_discovery=True)
+
+                ep_key = '{service_type}_endpoint_override'.format(
+                    service_type=self.service_type.replace('-', '_')
+                )
+                config.config[ep_key] = ep_override
+
+                return config.get_session_client(
+                    self.service_type,
+                    allow_version_hack=True,
+                    constructor=self.supported_versions[
+                        str(supported_versions[0])
+                    ],
+                    version=version_string,
+                )
         else:
-            supported_versions = sorted(
-                [int(f) for f in self.supported_versions]
-            )
             version_kwargs['min_version'] = str(supported_versions[0])
             version_kwargs['max_version'] = '{version}.latest'.format(
                 version=str(supported_versions[-1])
