@@ -239,7 +239,7 @@ class CloudRegion:
 
     :param str region_name:
         The default region name for all services in this CloudRegion. If
-        both ``region_name`` and ``config['region_name'] are specified, the
+        both ``region_name`` and ``config['region_name']`` are specified, the
         kwarg takes precedence. May be overridden for a given ${service}
         via a ${service}_region_name key in the ``config`` dict.
     :param dict config:
