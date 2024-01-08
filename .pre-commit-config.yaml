@@ -59,7 +59,6 @@ repos:
             | openstack/block_storage/.*
             | openstack/cloud/.*
             | openstack/clustering/.*
-            | openstack/compute/.*
             | openstack/container_infrastructure_management/.*
             | openstack/database/.*
             | openstack/dns/.*

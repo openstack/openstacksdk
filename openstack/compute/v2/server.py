@@ -9,6 +9,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
+import typing as ty
+
 from openstack.common import metadata
 from openstack.common import tag
 from openstack.compute.v2 import flavor
@@ -474,14 +477,13 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             microversion = '2.45'
         response = self._action(session, body, microversion)
 
-        body = None
         try:
-            # There might be body, might be not
-            body = response.json()
+            # There might be a body, there might not be
+            response_body = response.json()
         except Exception:
-            pass
-        if body and 'image_id' in body:
-            image_id = body['image_id']
+            response_body = None
+        if response_body and 'image_id' in response_body:
+            image_id = response_body['image_id']
         else:
             image_id = response.headers['Location'].rsplit('/', 1)[1]
 
@@ -634,7 +636,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         :param locked_reason: The reason for locking the server.
         :returns: None
         """
-        body = {"lock": None}
+        body: ty.Dict[str, ty.Any] = {"lock": None}
         if locked_reason is not None:
             body["lock"] = {
                 "locked_reason": locked_reason,
@@ -662,7 +664,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             provided, the server will use the existing image. (Optional)
         :returns: None
         """
-        body = {"rescue": {}}
+        body: ty.Dict[str, ty.Any] = {"rescue": {}}
         if admin_pass is not None:
             body["rescue"]["adminPass"] = admin_pass
         if image_ref is not None:
@@ -690,7 +692,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         :param force: Whether to force evacuation.
         :returns: None
         """
-        body = {"evacuate": {}}
+        body: ty.Dict[str, ty.Any] = {"evacuate": {}}
         if host is not None:
             body["evacuate"]["host"] = host
         if admin_pass is not None:
@@ -795,7 +797,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             (Optional)
         :returns: None
         """
-        body = {"os-getConsoleOutput": {}}
+        body: ty.Dict[str, ty.Any] = {"os-getConsoleOutput": {}}
         if length is not None:
             body["os-getConsoleOutput"]["length"] = length
         resp = self._action(session, body)
@@ -907,7 +909,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         disk_over_commit,
     ):
         microversion = None
-        body = {
+        body: ty.Dict[str, ty.Any] = {
             'host': None,
         }
         if block_migration == 'auto':
