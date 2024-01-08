@@ -210,9 +210,9 @@ class TestClusterTemplates(base.TestCase):
         # for matching the old error message text. Investigate plumbing
         # an error message in to the adapter call so that we can give a
         # more informative error. Also, the test was originally catching
-        # OpenStackCloudException - but for some reason testtools will not
+        # SDKException - but for some reason testtools will not
         # match the more specific HTTPError, even though it's a subclass
-        # of OpenStackCloudException.
+        # of SDKException.
         with testtools.ExpectedException(exceptions.ForbiddenException):
             self.cloud.create_cluster_template('fake-cluster-template')
         self.assert_calls()

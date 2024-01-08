@@ -15,7 +15,7 @@
 
 import copy
 
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack.network.v2 import qos_dscp_marking_rule
 from openstack.tests.unit import base
 
@@ -147,7 +147,7 @@ class TestQosDscpMarkingRule(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudResourceNotFound,
+            exceptions.NotFoundException,
             self.cloud.get_qos_dscp_marking_rule,
             self.policy_name,
             self.rule_id,
@@ -167,7 +167,7 @@ class TestQosDscpMarkingRule(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.get_qos_dscp_marking_rule,
             self.policy_name,
             self.rule_id,
@@ -239,7 +239,7 @@ class TestQosDscpMarkingRule(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.create_qos_dscp_marking_rule,
             self.policy_name,
             dscp_mark=16,
@@ -328,7 +328,7 @@ class TestQosDscpMarkingRule(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.update_qos_dscp_marking_rule,
             self.policy_id,
             self.rule_id,
@@ -403,7 +403,7 @@ class TestQosDscpMarkingRule(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.delete_qos_dscp_marking_rule,
             self.policy_name,
             self.rule_id,

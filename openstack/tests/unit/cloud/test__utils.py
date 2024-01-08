@@ -18,7 +18,7 @@ from uuid import uuid4
 import testtools
 
 from openstack.cloud import _utils
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack.tests.unit import base
 
 RANGE_DATA = [
@@ -200,7 +200,7 @@ class TestUtils(base.TestCase):
         """Test non-integer key value raises OSCE"""
         data = [{'f1': 3}, {'f1': "aaa"}, {'f1': 1}]
         with testtools.ExpectedException(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             "Search for minimum value failed. "
             "Value for f1 is not an integer: aaa",
         ):
@@ -240,7 +240,7 @@ class TestUtils(base.TestCase):
         """Test non-integer key value raises OSCE"""
         data = [{'f1': 3}, {'f1': "aaa"}, {'f1': 1}]
         with testtools.ExpectedException(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             "Search for maximum value failed. "
             "Value for f1 is not an integer: aaa",
         ):
@@ -308,13 +308,13 @@ class TestUtils(base.TestCase):
 
     def test_range_filter_invalid_int(self):
         with testtools.ExpectedException(
-            exc.OpenStackCloudException, "Invalid range value: <1A0"
+            exceptions.SDKException, "Invalid range value: <1A0"
         ):
             _utils.range_filter(RANGE_DATA, "key1", "<1A0")
 
     def test_range_filter_invalid_op(self):
         with testtools.ExpectedException(
-            exc.OpenStackCloudException, "Invalid range value: <>100"
+            exceptions.SDKException, "Invalid range value: <>100"
         ):
             _utils.range_filter(RANGE_DATA, "key1", "<>100")
 

@@ -16,7 +16,7 @@ import ipaddress
 import socket
 
 from openstack import _log
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack import utils
 
 
@@ -452,7 +452,7 @@ def _get_supplemental_addresses(cloud, server):
                         server['addresses'][fixed_net].append(
                             _make_address_dict(fip, port)
                         )
-    except exc.OpenStackCloudException:
+    except exceptions.SDKException:
         # If something goes wrong with a cloud call, that's cool - this is
         # an attempt to provide additional data and should not block forward
         # progress
@@ -498,7 +498,7 @@ def add_server_interfaces(cloud, server):
 def expand_server_security_groups(cloud, server):
     try:
         groups = cloud.list_server_security_groups(server)
-    except exc.OpenStackCloudException:
+    except exceptions.SDKException:
         groups = []
     server['security_groups'] = groups or []
 
@@ -550,7 +550,7 @@ def get_hostvars_from_server(cloud, server, mounts=None):
                 # Make things easier to consume elsewhere
                 volume['device'] = volume['attachments'][0]['device']
                 volumes.append(volume)
-        except exc.OpenStackCloudException:
+        except exceptions.SDKException:
             pass
     server_vars['volumes'] = volumes
     if mounts:

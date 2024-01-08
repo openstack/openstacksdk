@@ -20,7 +20,7 @@ Functional tests for identity methods.
 import random
 import string
 
-from openstack.cloud.exc import OpenStackCloudException
+from openstack import exceptions
 from openstack.tests.functional import base
 
 
@@ -53,7 +53,7 @@ class TestIdentity(base.KeystoneBaseFunctionalTest):
         if exception_list:
             # Raise an error: we must make users aware that something went
             # wrong
-            raise OpenStackCloudException('\n'.join(exception_list))
+            raise exceptions.SDKException('\n'.join(exception_list))
 
     def _cleanup_users(self):
         exception_list = list()
@@ -66,7 +66,7 @@ class TestIdentity(base.KeystoneBaseFunctionalTest):
                     continue
 
         if exception_list:
-            raise OpenStackCloudException('\n'.join(exception_list))
+            raise exceptions.SDKException('\n'.join(exception_list))
 
     def _cleanup_roles(self):
         exception_list = list()
@@ -79,7 +79,7 @@ class TestIdentity(base.KeystoneBaseFunctionalTest):
                     continue
 
         if exception_list:
-            raise OpenStackCloudException('\n'.join(exception_list))
+            raise exceptions.SDKException('\n'.join(exception_list))
 
     def _create_user(self, **kwargs):
         domain_id = None

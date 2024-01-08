@@ -15,8 +15,7 @@ import uuid
 import testtools
 from testtools import matchers
 
-import openstack.cloud
-import openstack.cloud._utils
+from openstack import exceptions
 from openstack.tests.unit import base
 
 
@@ -129,7 +128,7 @@ class TestProject(base.TestCase):
         # shade will raise an attribute error instead of the proper
         # project not found exception.
         with testtools.ExpectedException(
-            openstack.cloud.OpenStackCloudException,
+            exceptions.SDKException,
             "Project %s not found." % project_data.project_id,
         ):
             self.cloud.update_project(project_data.project_id)

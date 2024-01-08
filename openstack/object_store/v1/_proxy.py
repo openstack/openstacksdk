@@ -394,7 +394,8 @@ class Proxy(proxy.Proxy):
         :param metadata: This dict will get changed into headers that set
             metadata of the object
 
-        :raises: ``OpenStackCloudException`` on operation error.
+        :raises: ``:class:`~openstack.exceptions.SDKException``` on operation
+            error.
         """
         if data is not None and filename:
             raise ValueError(

@@ -15,7 +15,7 @@
 
 import copy
 
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack.network.v2 import qos_policy as _policy
 from openstack.tests.unit import base
 
@@ -110,7 +110,7 @@ class TestQosPolicy(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.get_qos_policy,
             self.policy_name,
         )
@@ -154,7 +154,7 @@ class TestQosPolicy(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.create_qos_policy,
             name=self.policy_name,
         )
@@ -256,7 +256,7 @@ class TestQosPolicy(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.delete_qos_policy,
             self.policy_name,
         )
@@ -330,7 +330,7 @@ class TestQosPolicy(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.delete_qos_policy,
             self.policy_name,
         )
@@ -420,7 +420,7 @@ class TestQosPolicy(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.update_qos_policy,
             self.policy_id,
             name="goofy",

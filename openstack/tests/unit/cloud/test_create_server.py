@@ -21,10 +21,10 @@ import base64
 from unittest import mock
 import uuid
 
-from openstack.cloud import exc
 from openstack.cloud import meta
 from openstack.compute.v2 import server
 from openstack import connection
+from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -81,7 +81,7 @@ class TestCreateServer(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.create_server,
             'server-name',
             {'id': 'image-id'},
@@ -135,7 +135,7 @@ class TestCreateServer(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.create_server,
             'server-name',
             {'id': 'image-id'},
@@ -196,7 +196,7 @@ class TestCreateServer(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.create_server,
             'server-name',
             dict(id='image-id'),
@@ -251,7 +251,7 @@ class TestCreateServer(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudTimeout,
+            exceptions.ResourceTimeout,
             self.cloud.create_server,
             'server-name',
             dict(id='image-id'),
@@ -815,7 +815,7 @@ class TestCreateServer(base.TestCase):
         mock_add_ips_to_server.return_value = fake_server
 
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.create_server,
             'server-name',
             {'id': 'image-id'},
@@ -1179,7 +1179,7 @@ class TestCreateServer(base.TestCase):
         self.use_nothing()
         fixed_ip = '10.0.0.1'
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.create_server,
             'server-name',
             dict(id='image-id'),

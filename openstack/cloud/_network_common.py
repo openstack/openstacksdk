@@ -12,7 +12,7 @@
 
 import threading
 
-from openstack.cloud import exc
+from openstack import exceptions
 
 
 class NetworkCommonCloudMixin:
@@ -81,7 +81,7 @@ class NetworkCommonCloudMixin:
             # though, that's fine, clearly the neutron introspection is
             # not going to work.
             all_networks = self.list_networks()
-        except exc.OpenStackCloudException:
+        except exceptions.SDKException:
             self._network_list_stamp = True
             return
 
@@ -145,7 +145,7 @@ class NetworkCommonCloudMixin:
             # External Floating IPv4 networks
             if self._nat_source in (network['name'], network['id']):
                 if nat_source:
-                    raise exc.OpenStackCloudException(
+                    raise exceptions.SDKException(
                         'Multiple networks were found matching'
                         ' {nat_net} which is the network configured'
                         ' to be the NAT source. Please check your'
@@ -163,7 +163,7 @@ class NetworkCommonCloudMixin:
             # NAT Destination
             if self._nat_destination in (network['name'], network['id']):
                 if nat_destination:
-                    raise exc.OpenStackCloudException(
+                    raise exceptions.SDKException(
                         'Multiple networks were found matching'
                         ' {nat_net} which is the network configured'
                         ' to be the NAT destination. Please check your'
@@ -180,7 +180,7 @@ class NetworkCommonCloudMixin:
                 if all_subnets is None:
                     try:
                         all_subnets = self.list_subnets()
-                    except exc.OpenStackCloudException:
+                    except exceptions.SDKException:
                         # Thanks Rackspace broken neutron
                         all_subnets = []
 
@@ -198,7 +198,7 @@ class NetworkCommonCloudMixin:
             # Default network
             if self._default_network in (network['name'], network['id']):
                 if default_network:
-                    raise exc.OpenStackCloudException(
+                    raise exceptions.SDKException(
                         'Multiple networks were found matching'
                         ' {default_net} which is the network'
                         ' configured to be the default interface'
@@ -212,7 +212,7 @@ class NetworkCommonCloudMixin:
         # Validate config vs. reality
         for net_name in self._external_ipv4_names:
             if net_name not in [net['name'] for net in external_ipv4_networks]:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Networks: {network} was provided for external IPv4"
                     " access and those networks could not be found".format(
                         network=net_name
@@ -221,7 +221,7 @@ class NetworkCommonCloudMixin:
 
         for net_name in self._internal_ipv4_names:
             if net_name not in [net['name'] for net in internal_ipv4_networks]:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Networks: {network} was provided for internal IPv4"
                     " access and those networks could not be found".format(
                         network=net_name
@@ -230,7 +230,7 @@ class NetworkCommonCloudMixin:
 
         for net_name in self._external_ipv6_names:
             if net_name not in [net['name'] for net in external_ipv6_networks]:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Networks: {network} was provided for external IPv6"
                     " access and those networks could not be found".format(
                         network=net_name
@@ -239,7 +239,7 @@ class NetworkCommonCloudMixin:
 
         for net_name in self._internal_ipv6_names:
             if net_name not in [net['name'] for net in internal_ipv6_networks]:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Networks: {network} was provided for internal IPv6"
                     " access and those networks could not be found".format(
                         network=net_name
@@ -247,21 +247,21 @@ class NetworkCommonCloudMixin:
                 )
 
         if self._nat_destination and not nat_destination:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 'Network {network} was configured to be the'
                 ' destination for inbound NAT but it could not be'
                 ' found'.format(network=self._nat_destination)
             )
 
         if self._nat_source and not nat_source:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 'Network {network} was configured to be the'
                 ' source for inbound NAT but it could not be'
                 ' found'.format(network=self._nat_source)
             )
 
         if self._default_network and not default_network:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 'Network {network} was configured to be the'
                 ' default network interface but it could not be'
                 ' found'.format(network=self._default_network)

@@ -22,7 +22,7 @@ Tests Floating IP resource methods for Neutron
 import copy
 import datetime
 
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
 from openstack import utils
@@ -341,7 +341,7 @@ class TestFloatingIP(base.TestCase):
 
         # Fails because we requested a port and the returned FIP has no port
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.create_floating_ip,
             network='my-network',
             port='ce705c24-c1ef-408a-bda3-7bbd946164ab',
@@ -492,7 +492,7 @@ class TestFloatingIP(base.TestCase):
         )
 
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud._neutron_available_floating_ips,
             network='INVALID',
         )
@@ -993,7 +993,7 @@ class TestFloatingIP(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.delete_floating_ip,
             floating_ip_id=fip_id,
             retry=2,
@@ -1313,7 +1313,7 @@ class TestFloatingIP(base.TestCase):
         )
 
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud._neutron_create_floating_ip,
             server=dict(id='some-server'),
         )

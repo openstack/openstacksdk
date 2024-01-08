@@ -17,7 +17,7 @@ import warnings
 import jsonpatch
 
 from openstack.baremetal.v1._proxy import Proxy
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack import warnings as os_warnings
 
 
@@ -86,7 +86,7 @@ class BaremetalCloudMixin:
         """
         try:
             return self.baremetal.find_node(name_or_id, ignore_missing=False)
-        except exc.OpenStackCloudResourceNotFound:
+        except exceptions.NotFoundException:
             return None
 
     def get_machine_by_mac(self, mac):
@@ -130,7 +130,7 @@ class BaremetalCloudMixin:
         # we need to move the machine back to manageable first.
         if node.provision_state == 'available':
             if node.instance_id:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Refusing to inspect available machine %(node)s "
                     "which is associated with an instance "
                     "(instance_uuid %(inst)s)"
@@ -146,7 +146,7 @@ class BaremetalCloudMixin:
             )
 
         if node.provision_state not in ('manageable', 'inspect failed'):
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "Machine %(node)s must be in 'manageable', 'inspect failed' "
                 "or 'available' provision state to start inspection, the "
                 "current state is %(state)s"
@@ -215,29 +215,24 @@ class BaremetalCloudMixin:
                 ]
 
             Alternatively, you can provide an array of MAC addresses.
-
         :param wait: Boolean value, defaulting to false, to wait for the node
             to reach the available state where the node can be provisioned. It
             must be noted, when set to false, the method will still wait for
             locks to clear before sending the next required command.
-
         :param timeout: Integer value, defautling to 3600 seconds, for the wait
             state to reach completion.
-
         :param lock_timeout: Integer value, defaulting to 600 seconds, for
             locks to clear.
-
         :param provision_state: The expected provision state, one of "enroll"
             "manageable" or "available". Using "available" results in automated
             cleaning.
-
         :param kwargs: Key value pairs to be passed to the Ironic API,
             including uuid, name, chassis_uuid, driver_info, properties.
 
-        :raises: OpenStackCloudException on operation error.
-
-        :rtype: :class:`~openstack.baremetal.v1.node.Node`.
         :returns: Current state of the node.
+        :rtype: :class:`~openstack.baremetal.v1.node.Node`.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         if provision_state not in ('enroll', 'manageable', 'available'):
             raise ValueError(
@@ -301,14 +296,13 @@ class BaremetalCloudMixin:
         :param nics: An array of strings that consist of MAC addresses
             to be removed.
         :param string uuid: The UUID of the node to be deleted.
-
         :param wait: DEPRECATED, do not use.
-
         :param timeout: Integer value, representing seconds with a default
             value of 600, which controls the maximum amount of time to block
             until a lock is released on machine.
 
-        :raises: OpenStackCloudException on operation failure.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            failure.
         """
         if wait is not None:
             warnings.warn(
@@ -319,7 +313,7 @@ class BaremetalCloudMixin:
         machine = self.get_machine(uuid)
         invalid_states = ['active', 'cleaning', 'clean wait', 'clean failed']
         if machine['provision_state'] in invalid_states:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "Error unregistering node '%s' due to current provision "
                 "state '%s'" % (uuid, machine['provision_state'])
             )
@@ -330,8 +324,8 @@ class BaremetalCloudMixin:
         # failure, and resubitted the request in python-ironicclient.
         try:
             self.baremetal.wait_for_node_reservation(machine, timeout)
-        except exc.OpenStackCloudException as e:
-            raise exc.OpenStackCloudException(
+        except exceptions.SDKException as e:
+            raise exceptions.SDKException(
                 "Error unregistering node '%s': Exception occured while"
                 " waiting to be able to proceed: %s" % (machine['uuid'], e)
             )
@@ -375,10 +369,10 @@ class BaremetalCloudMixin:
                     'value': 'administrator'
                 })
 
-        :raises: OpenStackCloudException on operation error.
-
         :returns: Current state of the node.
         :rtype: :class:`~openstack.baremetal.v1.node.Node`.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         return self.baremetal.patch_node(name_or_id, patch)
 
@@ -391,16 +385,16 @@ class BaremetalCloudMixin:
         :param string name_or_id: A machine name or UUID to be updated.
         :param attrs: Attributes to updated on the machine.
 
-        :raises: OpenStackCloudException on operation error.
-
         :returns: Dictionary containing a machine sub-dictonary consisting
             of the updated data returned from the API update operation, and a
             list named changes which contains all of the API paths that
             received updates.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         machine = self.get_machine(name_or_id)
         if not machine:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "Machine update failed to find Machine: %s. " % name_or_id
             )
 
@@ -411,7 +405,7 @@ class BaremetalCloudMixin:
                 machine._to_munch(), new_config
             )
         except Exception as e:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "Machine update failed - Error generating JSON patch object "
                 "for submission to the API. Machine: %s Error: %s"
                 % (name_or_id, e)
@@ -504,10 +498,10 @@ class BaremetalCloudMixin:
             representing the amount of time to wait for the desire end state to
             be reached.
 
-        :raises: OpenStackCloudException on operation error.
-
         :returns: Current state of the machine upon exit of the method.
         :rtype: :class:`~openstack.baremetal.v1.node.Node`.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         node = self.baremetal.set_node_provision_state(
             name_or_id,
@@ -534,9 +528,9 @@ class BaremetalCloudMixin:
             the baremetal API to allow for notation as to why the node is in
             maintenance state.
 
-        :raises: OpenStackCloudException on operation error.
-
         :returns: None
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         if state:
             self.baremetal.set_node_maintenance(name_or_id, reason)
@@ -554,9 +548,9 @@ class BaremetalCloudMixin:
         :param string name_or_id: The Name or UUID value representing the
             baremetal node.
 
-        :raises: OpenStackCloudException on operation error.
-
         :returns: None
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         self.baremetal.unset_node_maintenance(name_or_id)
 
@@ -568,9 +562,9 @@ class BaremetalCloudMixin:
         :params string name_or_id: A string representing the baremetal
             node to have power turned to an "on" state.
 
-        :raises: OpenStackCloudException on operation error.
-
         :returns: None
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         self.baremetal.set_node_power_state(name_or_id, 'power on')
 
@@ -582,9 +576,9 @@ class BaremetalCloudMixin:
         :params string name_or_id: A string representing the baremetal
             node to have power turned to an "off" state.
 
-        :raises: OpenStackCloudException on operation error.
-
-        :returns:
+        :returns: None
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         self.baremetal.set_node_power_state(name_or_id, 'power off')
 
@@ -598,9 +592,9 @@ class BaremetalCloudMixin:
         :params string name_or_id: A string representing the baremetal
             node to have power turned to an "off" state.
 
-        :raises: OpenStackCloudException on operation error.
-
         :returns: None
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         self.baremetal.set_node_power_state(name_or_id, 'rebooting')
 
@@ -637,7 +631,8 @@ class BaremetalCloudMixin:
 
         DEPRECATED, use ``wait_for_node_reservation`` on the `baremetal` proxy.
 
-        :raises: OpenStackCloudException upon client failure.
+        :raises: :class:`~openstack.exceptions.SDKException` upon client
+            failure.
         :returns: None
         """
         warnings.warn(

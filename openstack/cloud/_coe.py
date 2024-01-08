@@ -11,7 +11,7 @@
 # limitations under the License.
 
 from openstack.cloud import _utils
-from openstack.cloud import exc
+from openstack import exceptions
 
 
 class CoeCloudMixin:
@@ -20,8 +20,8 @@ class CoeCloudMixin:
 
         :returns: A list of container infrastructure management ``Cluster``
             objects.
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         return list(self.container_infrastructure_management.clusters())
 
@@ -35,8 +35,8 @@ class CoeCloudMixin:
 
         :returns: A list of container infrastructure management ``Cluster``
             objects.
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         coe_clusters = self.list_coe_clusters()
         return _utils._filter_list(coe_clusters, name_or_id, filters)
@@ -77,11 +77,10 @@ class CoeCloudMixin:
         :param string cluster_template_id: ID of the cluster template to use.
         :param dict kwargs: Any other arguments to pass in.
 
-        :returns: a dict containing the cluster description
         :returns: The created container infrastructure management ``Cluster``
             object.
-        :raises: ``OpenStackCloudException`` if something goes wrong during
-            the OpenStack API call
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call
         """
         cluster = self.container_infrastructure_management.create_cluster(
             name=name,
@@ -95,10 +94,11 @@ class CoeCloudMixin:
         """Delete a COE cluster.
 
         :param name_or_id: Name or unique ID of the cluster.
+
         :returns: True if the delete succeeded, False if the
             cluster was not found.
-
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
 
         cluster = self.get_coe_cluster(name_or_id)
@@ -122,11 +122,12 @@ class CoeCloudMixin:
 
         :returns: The updated cluster ``Cluster`` object.
 
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         cluster = self.get_coe_cluster(name_or_id)
         if not cluster:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "COE cluster %s not found." % name_or_id
             )
 
@@ -158,8 +159,8 @@ class CoeCloudMixin:
             certificate that client will use to communicate with the cluster.
 
         :returns: a dict representing the signed certs.
-
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         return self.container_infrastructure_management.create_cluster_certificate(  # noqa: E501
             cluster_uuid=cluster_id, csr=csr
@@ -172,9 +173,8 @@ class CoeCloudMixin:
             ClusterTemplates are always returned with full details.
 
         :returns: a list of dicts containing the cluster template details.
-
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         return list(
             self.container_infrastructure_management.cluster_templates()
@@ -191,9 +191,8 @@ class CoeCloudMixin:
             detailed output.
 
         :returns: a list of dict containing the cluster templates
-
-        :raises: ``OpenStackCloudException``: if something goes wrong during
-            the OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException`: if something goes
+            wrong during the OpenStack API call.
         """
         cluster_templates = self.list_cluster_templates(detail=detail)
         return _utils._filter_list(cluster_templates, name_or_id, filters)
@@ -240,9 +239,8 @@ class CoeCloudMixin:
             Other arguments will be passed in kwargs.
 
         :returns: a dict containing the cluster template description
-
-        :raises: ``OpenStackCloudException`` if something goes wrong during
-            the OpenStack API call
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call
         """
         cluster_template = (
             self.container_infrastructure_management.create_cluster_template(
@@ -260,10 +258,11 @@ class CoeCloudMixin:
         """Delete a cluster template.
 
         :param name_or_id: Name or unique ID of the cluster template.
+
         :returns: True if the delete succeeded, False if the
             cluster template was not found.
-
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
 
         cluster_template = self.get_cluster_template(name_or_id)
@@ -287,12 +286,12 @@ class CoeCloudMixin:
         :param name_or_id: Name or ID of the cluster template being updated.
 
         :returns: an update cluster template.
-
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         cluster_template = self.get_cluster_template(name_or_id)
         if not cluster_template:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "Cluster template %s not found." % name_or_id
             )
 
@@ -306,8 +305,9 @@ class CoeCloudMixin:
 
     def list_magnum_services(self):
         """List all Magnum services.
-        :returns: a list of dicts containing the service details.
 
-        :raises: OpenStackCloudException on operation error.
+        :returns: a list of dicts containing the service details.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         return list(self.container_infrastructure_management.services())

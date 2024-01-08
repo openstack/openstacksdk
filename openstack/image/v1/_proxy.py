@@ -13,8 +13,7 @@
 import os
 import warnings
 
-from openstack.cloud import exc
-from openstack import exceptions
+from openstack import exceptions as exc
 from openstack.image.v1 import image as _image
 from openstack import proxy
 from openstack import utils
@@ -128,7 +127,7 @@ class Proxy(proxy.Proxy):
             or 'all_stores' in kwargs
             or 'all_stores_must_succeed' in kwargs
         ):
-            raise exceptions.InvalidRequest(
+            raise exc.InvalidRequest(
                 "Glance v1 does not support stores or image import"
             )
 
@@ -151,7 +150,7 @@ class Proxy(proxy.Proxy):
             container_format = 'bare'
 
         if data and filename:
-            raise exceptions.SDKException(
+            raise exc.SDKException(
                 'Passing filename and data simultaneously is not supported'
             )
 
@@ -163,7 +162,7 @@ class Proxy(proxy.Proxy):
             )
 
         if validate_checksum and data and not isinstance(data, bytes):
-            raise exceptions.SDKException(
+            raise exc.SDKException(
                 'Validating checksum is not possible when data is not a '
                 'direct binary object'
             )
@@ -301,11 +300,11 @@ class Proxy(proxy.Proxy):
                     data=image_data,
                 ),
             )
-        except exc.OpenStackCloudHTTPError:
+        except exc.HttpException:
             self.log.debug("Deleting failed upload of image %s", name)
             try:
                 self.delete('/images/{id}'.format(id=image.id))
-            except exc.OpenStackCloudHTTPError:
+            except exc.HttpException:
                 # We're just trying to clean up - if it doesn't work - shrug
                 self.log.warning(
                     "Failed deleting image after we failed uploading it.",

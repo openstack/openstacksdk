@@ -21,7 +21,6 @@ import uuid
 
 from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
-from openstack.cloud import exc
 from openstack import exceptions
 from openstack.network.v2 import port as _port
 from openstack.tests import fakes
@@ -319,7 +318,7 @@ class TestBaremetalNode(base.IronicTestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.inspect_machine,
             self.fake_baremetal_node['uuid'],
             wait=True,
@@ -344,7 +343,7 @@ class TestBaremetalNode(base.IronicTestCase):
             ]
         )
         self.assertRaisesRegex(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             'associated with an instance',
             self.cloud.inspect_machine,
             self.fake_baremetal_node['uuid'],
@@ -744,7 +743,7 @@ class TestBaremetalNode(base.IronicTestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.inspect_machine,
             self.fake_baremetal_node['uuid'],
             wait=True,
@@ -985,7 +984,7 @@ class TestBaremetalNode(base.IronicTestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.set_machine_power_reboot,
             self.fake_baremetal_node['uuid'],
         )
@@ -1195,7 +1194,7 @@ class TestBaremetalNode(base.IronicTestCase):
         )
 
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.node_set_provision_state,
             self.fake_baremetal_node['uuid'],
             'active',
@@ -1267,7 +1266,7 @@ class TestBaremetalNode(base.IronicTestCase):
         )
 
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.node_set_provision_state,
             self.fake_baremetal_node['uuid'],
             'active',
@@ -1378,7 +1377,7 @@ class TestBaremetalNode(base.IronicTestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.wait_for_baremetal_node_lock,
             self.fake_baremetal_node,
             timeout=0.001,
@@ -1742,7 +1741,7 @@ class TestBaremetalNode(base.IronicTestCase):
         )
 
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.register_machine,
             nics,
             **node_to_post
@@ -1807,7 +1806,7 @@ class TestBaremetalNode(base.IronicTestCase):
         # state to the API is essentially a busy state that we
         # want to block on until it has cleared.
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.register_machine,
             nics,
             timeout=0.001,
@@ -1897,7 +1896,7 @@ class TestBaremetalNode(base.IronicTestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.register_machine,
             nics,
             wait=True,
@@ -1946,7 +1945,7 @@ class TestBaremetalNode(base.IronicTestCase):
             ]
         )
         self.assertRaisesRegex(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             'no ports for you',
             self.cloud.register_machine,
             nics,
@@ -2012,7 +2011,7 @@ class TestBaremetalNode(base.IronicTestCase):
             ]
         )
         self.assertRaisesRegex(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             'no ports for you',
             self.cloud.register_machine,
             nics,
@@ -2101,7 +2100,7 @@ class TestBaremetalNode(base.IronicTestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.unregister_machine,
             nics,
             self.fake_baremetal_node['uuid'],
@@ -2211,7 +2210,7 @@ class TestBaremetalNode(base.IronicTestCase):
 
         for state in invalid_states:
             self.assertRaises(
-                exc.OpenStackCloudException,
+                exceptions.SDKException,
                 self.cloud.unregister_machine,
                 nics,
                 self.fake_baremetal_node['uuid'],

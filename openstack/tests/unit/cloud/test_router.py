@@ -17,7 +17,7 @@ import copy
 
 import testtools
 
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack.network.v2 import port as _port
 from openstack.network.v2 import router as _router
 from openstack.tests.unit import base
@@ -315,7 +315,7 @@ class TestRouter(base.TestCase):
     def test_create_router_wrong_availability_zone_hints_type(self):
         azh_opts = "invalid"
         with testtools.ExpectedException(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             "Parameter 'availability_zone_hints' must be a list",
         ):
             self.cloud.create_router(
@@ -522,7 +522,7 @@ class TestRouter(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException, self.cloud.delete_router, 'mickey'
+            exceptions.SDKException, self.cloud.delete_router, 'mickey'
         )
         self.assert_calls()
 

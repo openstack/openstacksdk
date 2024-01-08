@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack.network.v2 import quota as _quota
 from openstack.tests.unit import base
 
@@ -100,7 +100,7 @@ class TestQuotas(base.TestCase):
         )
 
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.set_compute_quotas,
             project.project_id,
         )

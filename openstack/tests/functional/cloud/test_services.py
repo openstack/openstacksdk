@@ -22,8 +22,8 @@ Functional tests for service resource.
 import random
 import string
 
-from openstack.cloud.exc import OpenStackCloudException
-from openstack.cloud.exc import OpenStackCloudUnavailableFeature
+from openstack.cloud import exc
+from openstack import exceptions
 from openstack.tests.functional import base
 
 
@@ -57,7 +57,7 @@ class TestServices(base.KeystoneBaseFunctionalTest):
         if exception_list:
             # Raise an error: we must make users aware that something went
             # wrong
-            raise OpenStackCloudException('\n'.join(exception_list))
+            raise exceptions.SDKException('\n'.join(exception_list))
 
     def test_create_service(self):
         service = self.operator_cloud.create_service(
@@ -72,7 +72,7 @@ class TestServices(base.KeystoneBaseFunctionalTest):
         if ver.startswith('2'):
             # NOTE(SamYaple): Update service only works with v3 api
             self.assertRaises(
-                OpenStackCloudUnavailableFeature,
+                exc.OpenStackCloudUnavailableFeature,
                 self.operator_cloud.update_service,
                 'service_id',
                 name='new name',

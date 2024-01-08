@@ -22,8 +22,8 @@ Functional tests for endpoint resource.
 import random
 import string
 
-from openstack.cloud.exc import OpenStackCloudException
 from openstack.cloud.exc import OpenStackCloudUnavailableFeature
+from openstack import exceptions
 from openstack.tests.functional import base
 
 
@@ -65,7 +65,7 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
         if exception_list:
             # Raise an error: we must make users aware that something went
             # wrong
-            raise OpenStackCloudException('\n'.join(exception_list))
+            raise exceptions.SDKException('\n'.join(exception_list))
 
     def _cleanup_services(self):
         exception_list = list()
@@ -82,7 +82,7 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
         if exception_list:
             # Raise an error: we must make users aware that something went
             # wrong
-            raise OpenStackCloudException('\n'.join(exception_list))
+            raise exceptions.SDKException('\n'.join(exception_list))
 
     def test_create_endpoint(self):
         service_name = self.new_item_name + '_create'

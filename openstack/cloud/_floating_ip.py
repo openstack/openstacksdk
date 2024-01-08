@@ -67,7 +67,7 @@ class FloatingIPCloudMixin:
     def _nova_list_floating_ips(self):
         try:
             data = proxy._json_response(self.compute.get('/os-floating-ips'))
-        except exc.OpenStackCloudURINotFound:
+        except exceptions.NotFoundException:
             return []
         return self._get_and_munchify('floating_ips', data)
 
@@ -109,7 +109,7 @@ class FloatingIPCloudMixin:
         if self._use_neutron_floating():
             try:
                 return self._neutron_list_floating_ips(filters)
-            except exc.OpenStackCloudURINotFound as e:
+            except exceptions.NotFoundException as e:
                 # Nova-network don't support server-side floating ips
                 # filtering, so it's safer to return an empty list than
                 # to fallback to Nova which may return more results that
@@ -206,8 +206,8 @@ class FloatingIPCloudMixin:
         :param server: (server) Server the Floating IP is for
 
         :returns: a list of floating IP addresses.
-        :raises: ``OpenStackCloudResourceNotFound``, if an external network
-            that meets the specified criteria cannot be found.
+        :raises: :class:`~openstack.exceptions.BadRequestException` if an
+            external network that meets the specified criteria cannot be found.
         """
         if project_id is None:
             # Make sure we are only listing floatingIPs allocated the current
@@ -229,7 +229,7 @@ class FloatingIPCloudMixin:
                     break
 
             if floating_network_id is None:
-                raise exc.OpenStackCloudResourceNotFound(
+                raise exceptions.NotFoundException(
                     "unable to find external network {net}".format(net=network)
                 )
         else:
@@ -265,9 +265,8 @@ class FloatingIPCloudMixin:
         :param pool: Nova floating IP pool name.
 
         :returns: a list of floating IP addresses.
-
-        :raises: ``OpenStackCloudResourceNotFound``, if a floating IP pool
-            is not specified and cannot be found.
+        :raises: :class:`~openstack.exceptions.BadRequestException` if a
+            floating IP pool is not specified and cannot be found.
         """
 
         with _utils.openstacksdk_exceptions(
@@ -276,7 +275,7 @@ class FloatingIPCloudMixin:
             if pool is None:
                 pools = self.list_floating_ip_pools()
                 if not pools:
-                    raise exc.OpenStackCloudResourceNotFound(
+                    raise exceptions.NotFoundException(
                         "unable to find a floating ip pool"
                     )
                 pool = pools[0]['name']
@@ -323,7 +322,7 @@ class FloatingIPCloudMixin:
                     network=network, server=server
                 )
                 return f_ips[0]
-            except exc.OpenStackCloudURINotFound as e:
+            except exceptions.NotFoundException as e:
                 self.log.debug(
                     "Something went wrong talking to neutron API: "
                     "'%(msg)s'. Trying with Nova.",
@@ -346,7 +345,7 @@ class FloatingIPCloudMixin:
             if floating_network:
                 floating_network_id = floating_network
             else:
-                raise exc.OpenStackCloudResourceNotFound(
+                raise exceptions.NotFoundException(
                     "unable to find an external network"
                 )
         return floating_network_id
@@ -384,8 +383,8 @@ class FloatingIPCloudMixin:
                         provided.
 
         :returns: a floating IP address
-
-        :raises: ``OpenStackCloudException``, on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         if self._use_neutron_floating():
             try:
@@ -398,7 +397,7 @@ class FloatingIPCloudMixin:
                     wait=wait,
                     timeout=timeout,
                 )
-            except exc.OpenStackCloudURINotFound as e:
+            except exceptions.NotFoundException as e:
                 self.log.debug(
                     "Something went wrong talking to neutron API: "
                     "'%(msg)s'. Trying with Nova.",
@@ -407,7 +406,7 @@ class FloatingIPCloudMixin:
                 # Fall-through, trying with Nova
 
         if port:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "This cloud uses nova-network which does not support"
                 " arbitrary floating-ip/port mappings. Please nudge"
                 " your cloud provider to upgrade the networking stack"
@@ -440,7 +439,7 @@ class FloatingIPCloudMixin:
                 try:
                     network = self.network.find_network(network_name_or_id)
                 except exceptions.ResourceNotFound:
-                    raise exc.OpenStackCloudResourceNotFound(
+                    raise exceptions.NotFoundException(
                         "unable to find network for floating ips with ID "
                         "{0}".format(network_name_or_id)
                     )
@@ -481,7 +480,7 @@ class FloatingIPCloudMixin:
                         fip = self.get_floating_ip(fip_id)
                         if fip and fip['status'] == 'ACTIVE':
                             break
-                except exc.OpenStackCloudTimeout:
+                except exceptions.ResourceTimeout:
                     self.log.error(
                         "Timed out on floating ip %(fip)s becoming active."
                         " Deleting",
@@ -499,7 +498,7 @@ class FloatingIPCloudMixin:
                     raise
             if fip['port_id'] != port:
                 if server:
-                    raise exc.OpenStackCloudException(
+                    raise exceptions.SDKException(
                         "Attempted to create FIP on port {port} for server"
                         " {server} but FIP has port {port_id}".format(
                             port=port,
@@ -508,7 +507,7 @@ class FloatingIPCloudMixin:
                         )
                     )
                 else:
-                    raise exc.OpenStackCloudException(
+                    raise exceptions.SDKException(
                         "Attempted to create FIP on port {port}"
                         " but something went wrong".format(port=port)
                     )
@@ -521,7 +520,7 @@ class FloatingIPCloudMixin:
             if pool is None:
                 pools = self.list_floating_ip_pools()
                 if not pools:
-                    raise exc.OpenStackCloudResourceNotFound(
+                    raise exceptions.NotFoundException(
                         "unable to find a floating ip pool"
                     )
                 pool = pools[0]['name']
@@ -548,9 +547,9 @@ class FloatingIPCloudMixin:
                       occur.
 
         :returns: True if the IP address has been deleted, False if the IP
-                  address was not found.
-
-        :raises: ``OpenStackCloudException``, on operation error.
+            address was not found.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         for count in range(0, max(0, retry) + 1):
             result = self._delete_floating_ip(floating_ip_id)
@@ -566,7 +565,7 @@ class FloatingIPCloudMixin:
             if not f_ip or f_ip['status'] == 'DOWN':
                 return True
 
-        raise exc.OpenStackCloudException(
+        raise exceptions.SDKException(
             "Attempted to delete Floating IP {ip} with ID {id} a total of"
             " {retry} times. Although the cloud did not indicate any errors"
             " the floating ip is still in existence. Aborting further"
@@ -581,7 +580,7 @@ class FloatingIPCloudMixin:
         if self._use_neutron_floating():
             try:
                 return self._neutron_delete_floating_ip(floating_ip_id)
-            except exc.OpenStackCloudURINotFound as e:
+            except exceptions.NotFoundException as e:
                 self.log.debug(
                     "Something went wrong talking to neutron API: "
                     "'%(msg)s'. Trying with Nova.",
@@ -606,7 +605,7 @@ class FloatingIPCloudMixin:
                     fip_id=floating_ip_id
                 ),
             )
-        except exc.OpenStackCloudURINotFound:
+        except exceptions.NotFoundException:
             return False
         return True
 
@@ -629,8 +628,8 @@ class FloatingIPCloudMixin:
                       occur.
 
         :returns: Number of Floating IPs deleted, False if none
-
-        :raises: ``OpenStackCloudException``, on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         processed = []
         if self._use_neutron_floating():
@@ -669,8 +668,8 @@ class FloatingIPCloudMixin:
                                 FIP to attach to will come from.
 
         :returns: The server ``openstack.compute.v2.server.Server``
-
-        :raises: OpenStackCloudException, on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         # Short circuit if we're asking to attach an IP that's already
         # attached
@@ -697,7 +696,7 @@ class FloatingIPCloudMixin:
                         fixed_address=fixed_address,
                         nat_destination=nat_destination,
                     )
-                except exc.OpenStackCloudURINotFound as e:
+                except exceptions.NotFoundException as e:
                     self.log.debug(
                         "Something went wrong talking to neutron API: "
                         "'%(msg)s'. Trying with Nova.",
@@ -738,7 +737,7 @@ class FloatingIPCloudMixin:
             nat_destination=nat_destination,
         )
         if not port:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "unable to find a port for server {0}".format(server['id'])
             )
 
@@ -753,7 +752,7 @@ class FloatingIPCloudMixin:
     ):
         f_ip = self.get_floating_ip(id=floating_ip_id)
         if f_ip is None:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "unable to find floating IP {0}".format(floating_ip_id)
             )
         error_message = "Error attaching IP {ip} to instance {id}".format(
@@ -777,16 +776,16 @@ class FloatingIPCloudMixin:
         :param floating_ip_id: Id of the floating IP to detach.
 
         :returns: True if the IP has been detached, or False if the IP wasn't
-                  attached to any server.
-
-        :raises: ``OpenStackCloudException``, on operation error.
+            attached to any server.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         if self._use_neutron_floating():
             try:
                 return self._neutron_detach_ip_from_server(
                     server_id=server_id, floating_ip_id=floating_ip_id
                 )
-            except exc.OpenStackCloudURINotFound as e:
+            except exceptions.NotFoundException as e:
                 self.log.debug(
                     "Something went wrong talking to neutron API: "
                     "'%(msg)s'. Trying with Nova.",
@@ -820,7 +819,7 @@ class FloatingIPCloudMixin:
     def _nova_detach_ip_from_server(self, server_id, floating_ip_id):
         f_ip = self.get_floating_ip(id=floating_ip_id)
         if f_ip is None:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "unable to find floating IP {0}".format(floating_ip_id)
             )
         error_message = "Error detaching IP {ip} from instance {id}".format(
@@ -921,8 +920,8 @@ class FloatingIPCloudMixin:
                                           floating IP should be on
 
         :returns: The updated server ``openstack.compute.v2.server.Server``
-
-        :raises: ``OpenStackCloudException``, on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
 
         if type(ips) != list:
@@ -999,7 +998,7 @@ class FloatingIPCloudMixin:
                 timeout=timeout,
                 skip_attach=skip_attach,
             )
-        except exc.OpenStackCloudTimeout:
+        except exceptions.ResourceTimeout:
             if self._use_neutron_floating() and created:
                 # We are here because we created an IP on the port
                 # It failed. Delete so as not to leak an unmanaged
@@ -1131,7 +1130,7 @@ class FloatingIPCloudMixin:
         # No floating ip network - no FIPs
         try:
             self._get_floating_network_id()
-        except exc.OpenStackCloudException:
+        except exceptions.SDKException:
             return False
 
         (port_obj, fixed_ip_address) = self._nat_destination_port(
@@ -1169,7 +1168,7 @@ class FloatingIPCloudMixin:
                 if nat_destination:
                     nat_network = self.get_network(nat_destination)
                     if not nat_network:
-                        raise exc.OpenStackCloudException(
+                        raise exceptions.SDKException(
                             'NAT Destination {nat_destination} was configured'
                             ' but not found on the cloud. Please check your'
                             ' config and your cloud and try again.'.format(
@@ -1180,7 +1179,7 @@ class FloatingIPCloudMixin:
                     nat_network = self.get_nat_destination()
 
                 if not nat_network:
-                    raise exc.OpenStackCloudException(
+                    raise exceptions.SDKException(
                         'Multiple ports were found for server {server}'
                         ' but none of the networks are a valid NAT'
                         ' destination, so it is impossible to add a'
@@ -1198,7 +1197,7 @@ class FloatingIPCloudMixin:
                     if maybe_port['network_id'] == nat_network['id']:
                         maybe_ports.append(maybe_port)
                 if not maybe_ports:
-                    raise exc.OpenStackCloudException(
+                    raise exceptions.SDKException(
                         'No port on server {server} was found matching'
                         ' your NAT destination network {dest}. Please '
                         ' check your config'.format(
@@ -1224,7 +1223,7 @@ class FloatingIPCloudMixin:
                     if ip.version == 4:
                         fixed_address = address['ip_address']
                         return port, fixed_address
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "unable to find a free fixed IPv4 address for server "
                 "{0}".format(server['id'])
             )

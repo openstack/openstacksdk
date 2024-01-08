@@ -20,7 +20,7 @@ Functional tests for block storage methods.
 """
 import testtools
 
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack.tests.functional import base
 
 
@@ -94,7 +94,7 @@ class TestVolumeType(base.BaseFunctionalTest):
 
     def test_add_volume_type_access_missing_volume(self):
         with testtools.ExpectedException(
-            exc.OpenStackCloudException, "VolumeType not found.*"
+            exceptions.SDKException, "VolumeType not found.*"
         ):
             self.operator_cloud.add_volume_type_access(
                 'MISSING_VOLUME_TYPE', self.operator_cloud.current_project_id
@@ -102,7 +102,7 @@ class TestVolumeType(base.BaseFunctionalTest):
 
     def test_remove_volume_type_access_missing_volume(self):
         with testtools.ExpectedException(
-            exc.OpenStackCloudException, "VolumeType not found.*"
+            exceptions.SDKException, "VolumeType not found.*"
         ):
             self.operator_cloud.remove_volume_type_access(
                 'MISSING_VOLUME_TYPE', self.operator_cloud.current_project_id
@@ -110,7 +110,7 @@ class TestVolumeType(base.BaseFunctionalTest):
 
     def test_add_volume_type_access_bad_project(self):
         with testtools.ExpectedException(
-            exc.OpenStackCloudBadRequest, "Unable to authorize.*"
+            exceptions.BadRequestException, "Unable to authorize.*"
         ):
             self.operator_cloud.add_volume_type_access(
                 'test-volume-type', 'BAD_PROJECT_ID'
@@ -118,7 +118,7 @@ class TestVolumeType(base.BaseFunctionalTest):
 
     def test_remove_volume_type_access_missing_project(self):
         with testtools.ExpectedException(
-            exc.OpenStackCloudURINotFound, "Unable to revoke.*"
+            exceptions.NotFoundException, "Unable to revoke.*"
         ):
             self.operator_cloud.remove_volume_type_access(
                 'test-volume-type', '00000000000000000000000000000000'

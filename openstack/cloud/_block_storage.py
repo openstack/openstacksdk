@@ -15,7 +15,6 @@ import warnings
 from openstack.block_storage.v3._proxy import Proxy
 from openstack.block_storage.v3 import quota_set as _qs
 from openstack.cloud import _utils
-from openstack.cloud import exc
 from openstack import exceptions
 from openstack import warnings as os_warnings
 
@@ -134,9 +133,12 @@ class BlockStorageCloudMixin:
         :param bootable: (optional) Make this volume bootable. If set, wait
             will also be set to true.
         :param kwargs: Keyword arguments as expected for cinder client.
+
         :returns: The created volume ``Volume`` object.
-        :raises: OpenStackCloudTimeout if wait time exceeded.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if wait time
+            exceeded.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         if bootable is not None:
             wait = True
@@ -144,7 +146,7 @@ class BlockStorageCloudMixin:
         if image:
             image_obj = self.get_image(image)
             if not image_obj:
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Image {image} was requested as the basis for a new"
                     " volume, but was not found on the cloud".format(
                         image=image
@@ -157,7 +159,7 @@ class BlockStorageCloudMixin:
         volume = self.block_storage.create_volume(**kwargs)
 
         if volume['status'] == 'error':
-            raise exc.OpenStackCloudException("Error in creating volume")
+            raise exceptions.SDKException("Error in creating volume")
 
         if wait:
             self.block_storage.wait_for_status(volume, wait=timeout)
@@ -177,9 +179,7 @@ class BlockStorageCloudMixin:
 
         volume = self.get_volume(name_or_id)
         if not volume:
-            raise exc.OpenStackCloudException(
-                "Volume %s not found." % name_or_id
-            )
+            raise exceptions.SDKException("Volume %s not found." % name_or_id)
 
         volume = self.block_storage.update_volume(volume, **kwargs)
 
@@ -192,15 +192,17 @@ class BlockStorageCloudMixin:
         :param bool bootable: Whether the volume should be bootable.
             (Defaults to True)
 
-        :raises: OpenStackCloudTimeout if wait time exceeded.
-        :raises: OpenStackCloudException on operation error.
         :returns: None
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if wait time
+            exceeded.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
 
         volume = self.get_volume(name_or_id)
 
         if not volume:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "Volume {name_or_id} does not exist".format(
                     name_or_id=name_or_id
                 )
@@ -222,9 +224,12 @@ class BlockStorageCloudMixin:
         :param timeout: Seconds to wait for volume deletion. None is forever.
         :param force: Force delete volume even if the volume is in deleting
             or error_deleting state.
+
         :returns: True if deletion was successful, else False.
-        :raises: OpenStackCloudTimeout if wait time exceeded.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if wait time
+            exceeded.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         volume = self.block_storage.find_volume(name_or_id)
 
@@ -272,7 +277,7 @@ class BlockStorageCloudMixin:
         if name_or_id:
             project = self.get_project(name_or_id)
             if not project:
-                raise exc.OpenStackCloudException("project does not exist")
+                raise exceptions.SDKException("project does not exist")
             params['project'] = project
         return self.block_storage.get_limits(**params)
 
@@ -317,9 +322,12 @@ class BlockStorageCloudMixin:
         :param volume: The volume dict to detach.
         :param wait: If true, waits for volume to be detached.
         :param timeout: Seconds to wait for volume detachment. None is forever.
+
         :returns: None
-        :raises: OpenStackCloudTimeout if wait time exceeded.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if wait time
+            exceeded.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         self.compute.delete_volume_attachment(
             server=server['id'],
@@ -354,19 +362,22 @@ class BlockStorageCloudMixin:
         :param device: The device name where the volume will attach.
         :param wait: If true, waits for volume to be attached.
         :param timeout: Seconds to wait for volume attachment. None is forever.
+
         :returns: a volume attachment object.
-        :raises: OpenStackCloudTimeout if wait time exceeded.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if wait time
+            exceeded.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         dev = self.get_volume_attach_device(volume, server['id'])
         if dev:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "Volume %s already attached to server %s on device %s"
                 % (volume['id'], server['id'], dev)
             )
 
         if volume['status'] != 'available':
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "Volume %s is not available. Status is '%s'"
                 % (volume['id'], volume['status'])
             )
@@ -422,9 +433,12 @@ class BlockStorageCloudMixin:
         :param wait: If true, waits for volume snapshot to be created.
         :param timeout: Seconds to wait for volume snapshot creation. None is
             forever.
+
         :returns: The created volume ``Snapshot`` object.
-        :raises: OpenStackCloudTimeout if wait time exceeded.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if wait time
+            exceeded.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         kwargs = self._get_volume_kwargs(kwargs)
         payload = {'volume_id': volume_id, 'force': force}
@@ -500,9 +514,12 @@ class BlockStorageCloudMixin:
             forever.
         :param incremental: If set to true, the backup will be incremental.
         :param snapshot_id: The UUID of the source snapshot to back up.
+
         :returns: The created volume ``Backup`` object.
-        :raises: OpenStackCloudTimeout if wait time exceeded.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if wait time
+            exceeded.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         payload = {
             'name': name,
@@ -596,12 +613,14 @@ class BlockStorageCloudMixin:
         :param force: Allow delete in state other than error or available.
         :param wait: If true, waits for volume backup to be deleted.
         :param timeout: Seconds to wait for volume backup deletion. None is
-                        forever.
-        :returns: True if deletion was successful, else False.
-        :raises: OpenStackCloudTimeout if wait time exceeded.
-        :raises: OpenStackCloudException on operation error.
-        """
+            forever.
 
+        :returns: True if deletion was successful, else False.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if wait time
+            exceeded.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
+        """
         volume_backup = self.get_volume_backup(name_or_id)
 
         if not volume_backup:
@@ -627,9 +646,12 @@ class BlockStorageCloudMixin:
         :param wait: If true, waits for volume snapshot to be deleted.
         :param timeout: Seconds to wait for volume snapshot deletion. None is
             forever.
+
         :returns: True if deletion was successful, else False.
-        :raises: OpenStackCloudTimeout if wait time exceeded.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if wait time
+            exceeded.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         volumesnapshot = self.get_volume_snapshot(name_or_id)
 
@@ -764,11 +786,12 @@ class BlockStorageCloudMixin:
 
         :param name_or_id: Name or unique ID of the volume type.
         :returns: A volume ``Type`` object if found, else None.
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         volume_type = self.get_volume_type(name_or_id)
         if not volume_type:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "VolumeType not found: %s" % name_or_id
             )
 
@@ -781,12 +804,14 @@ class BlockStorageCloudMixin:
 
         :param name_or_id: ID or name of a volume_type
         :param project_id: A project id
+
         :returns: None
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         volume_type = self.get_volume_type(name_or_id)
         if not volume_type:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "VolumeType not found: %s" % name_or_id
             )
 
@@ -797,12 +822,14 @@ class BlockStorageCloudMixin:
 
         :param name_or_id: ID or name of a volume_type
         :param project_id: A project id
+
         :returns: None
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         volume_type = self.get_volume_type(name_or_id)
         if not volume_type:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "VolumeType not found: %s" % name_or_id
             )
         self.block_storage.remove_type_access(volume_type, project_id)
@@ -812,9 +839,10 @@ class BlockStorageCloudMixin:
 
         :param name_or_id: project name or id
         :param kwargs: key/value pairs of quota name and quota value
+
         :returns: None
-        :raises: OpenStackCloudException if the resource to set the
-            quota does not exist.
+        :raises: :class:`~openstack.exceptions.SDKException` if the resource to
+            set the quota does not exist.
         """
 
         proj = self.identity.find_project(name_or_id, ignore_missing=False)
@@ -827,8 +855,10 @@ class BlockStorageCloudMixin:
         """Get volume quotas for a project
 
         :param name_or_id: project name or id
+
         :returns: A volume ``QuotaSet`` object with the quotas
-        :raises: OpenStackCloudException if it's not a valid project
+        :raises: :class:`~openstack.exceptions.SDKException` if it's not a
+            valid project
         """
         proj = self.identity.find_project(name_or_id, ignore_missing=False)
 
@@ -838,9 +868,10 @@ class BlockStorageCloudMixin:
         """Delete volume quotas for a project
 
         :param name_or_id: project name or id
+
         :returns: The deleted volume ``QuotaSet`` object.
-        :raises: OpenStackCloudException if it's not a valid project or the
-            call failed
+        :raises: :class:`~openstack.exceptions.SDKException` if it's not a
+            valid project or the call failed
         """
         proj = self.identity.find_project(name_or_id, ignore_missing=False)
 

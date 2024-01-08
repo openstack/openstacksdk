@@ -18,8 +18,8 @@ Tests for the `create_volume_snapshot` command.
 """
 
 from openstack.block_storage.v3 import snapshot
-from openstack.cloud import exc
 from openstack.cloud import meta
+from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -125,7 +125,7 @@ class TestCreateVolumeSnapshot(base.TestCase):
         )
 
         self.assertRaises(
-            exc.OpenStackCloudTimeout,
+            exceptions.ResourceTimeout,
             self.cloud.create_volume_snapshot,
             volume_id=volume_id,
             wait=True,
@@ -181,7 +181,7 @@ class TestCreateVolumeSnapshot(base.TestCase):
         )
 
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.create_volume_snapshot,
             volume_id=volume_id,
             wait=True,

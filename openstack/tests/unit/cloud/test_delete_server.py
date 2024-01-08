@@ -18,7 +18,7 @@ Tests for the `delete_server` command.
 """
 import uuid
 
-from openstack.cloud import exc as shade_exc
+from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -204,7 +204,7 @@ class TestDeleteServer(base.TestCase):
         )
 
         self.assertRaises(
-            shade_exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.delete_server,
             'speedy',
             wait=False,

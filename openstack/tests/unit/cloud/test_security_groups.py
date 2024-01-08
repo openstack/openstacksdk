@@ -14,6 +14,7 @@
 import copy
 
 import openstack.cloud
+from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -786,7 +787,7 @@ class TestSecurityGroups(base.TestCase):
             ]
         )
         self.assertRaises(
-            openstack.cloud.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.create_security_group_rule,
             secgroup_name_or_id='nova-sec-group',
             direction='egress',

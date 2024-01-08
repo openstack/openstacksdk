@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack.network.v2 import qos_rule_type
 from openstack.tests.unit import base
 
@@ -117,7 +117,7 @@ class TestQosRuleType(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException, self.cloud.list_qos_rule_types
+            exceptions.SDKException, self.cloud.list_qos_rule_types
         )
         self.assert_calls()
 
@@ -184,7 +184,7 @@ class TestQosRuleType(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.get_qos_rule_type_details,
             self.rule_type_name,
         )
@@ -210,7 +210,7 @@ class TestQosRuleType(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.get_qos_rule_type_details,
             self.rule_type_name,
         )

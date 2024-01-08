@@ -32,9 +32,6 @@ class SDKException(Exception):
         super(SDKException, self).__init__(self.message)
 
 
-OpenStackCloudException = SDKException
-
-
 class EndpointNotFound(SDKException):
     """A mismatch occurred between what the client and server expect."""
 
@@ -274,3 +271,7 @@ class ServiceDisabledException(ConfigException):
 
 class ServiceDiscoveryException(SDKException):
     """The service cannot be discovered."""
+
+
+# Backwards compatibility
+OpenStackCloudException = SDKException

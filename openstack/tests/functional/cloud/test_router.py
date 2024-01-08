@@ -19,7 +19,7 @@ Functional tests for router methods.
 
 import ipaddress
 
-from openstack.cloud.exc import OpenStackCloudException
+from openstack import exceptions
 from openstack.tests.functional import base
 
 
@@ -64,7 +64,7 @@ class TestRouter(base.BaseFunctionalTest):
                     continue
 
         if exception_list:
-            raise OpenStackCloudException('\n'.join(exception_list))
+            raise exceptions.SDKException('\n'.join(exception_list))
 
     def _cleanup_networks(self):
         exception_list = list()
@@ -77,7 +77,7 @@ class TestRouter(base.BaseFunctionalTest):
                     continue
 
         if exception_list:
-            raise OpenStackCloudException('\n'.join(exception_list))
+            raise exceptions.SDKException('\n'.join(exception_list))
 
     def _cleanup_subnets(self):
         exception_list = list()
@@ -90,7 +90,7 @@ class TestRouter(base.BaseFunctionalTest):
                     continue
 
         if exception_list:
-            raise OpenStackCloudException('\n'.join(exception_list))
+            raise exceptions.SDKException('\n'.join(exception_list))
 
     def test_create_router_basic(self):
         net1_name = self.network_prefix + '_net1'

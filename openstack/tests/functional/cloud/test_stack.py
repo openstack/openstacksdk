@@ -19,7 +19,7 @@ Functional tests for stack methods.
 
 import tempfile
 
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.functional import base
 
@@ -88,7 +88,7 @@ class TestStack(base.BaseFunctionalTest):
         test_template.close()
         stack_name = self.getUniqueString('validate_template')
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.user_cloud.create_stack,
             name=stack_name,
             template_file=test_template.name,

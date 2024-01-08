@@ -17,7 +17,7 @@ test_network
 Functional tests for network methods.
 """
 
-from openstack.cloud.exc import OpenStackCloudException
+from openstack import exceptions
 from openstack.tests.functional import base
 
 
@@ -43,7 +43,7 @@ class TestNetwork(base.BaseFunctionalTest):
                     continue
 
         if exception_list:
-            raise OpenStackCloudException('\n'.join(exception_list))
+            raise exceptions.SDKException('\n'.join(exception_list))
 
     def test_create_network_basic(self):
         net1 = self.operator_cloud.create_network(name=self.network_name)

@@ -11,7 +11,7 @@
 # limitations under the License.
 
 from openstack.cloud import _utils
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack.orchestration.util import event_utils
 from openstack.orchestration.v1._proxy import Proxy
 
@@ -67,9 +67,8 @@ class OrchestrationCloudMixin:
         specified.
 
         :returns: a dict containing the stack description
-
-        :raises: ``OpenStackCloudException`` if something goes wrong during
-            the OpenStack API call
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call
         """
         params = dict(
             tags=tags,
@@ -124,9 +123,8 @@ class OrchestrationCloudMixin:
         specified.
 
         :returns: a dict containing the stack description
-
-        :raises: ``OpenStackCloudException`` if something goes wrong during
-            the OpenStack API calls
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API calls
         """
         params = dict(
             tags=tags,
@@ -166,9 +164,8 @@ class OrchestrationCloudMixin:
         :param boolean wait: Whether to wait for the delete to finish
 
         :returns: True if delete succeeded, False if the stack was not found.
-
-        :raises: ``OpenStackCloudException`` if something goes wrong during
-            the OpenStack API call
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call
         """
         stack = self.get_stack(name_or_id, resolve_outputs=False)
         if stack is None:
@@ -189,11 +186,11 @@ class OrchestrationCloudMixin:
                 event_utils.poll_for_events(
                     self, stack_name=name_or_id, action='DELETE', marker=marker
                 )
-            except exc.OpenStackCloudHTTPError:
+            except exceptions.HttpException:
                 pass
             stack = self.get_stack(name_or_id, resolve_outputs=False)
             if stack and stack['stack_status'] == 'DELETE_FAILED':
-                raise exc.OpenStackCloudException(
+                raise exceptions.SDKException(
                     "Failed to delete stack {id}: {reason}".format(
                         id=name_or_id, reason=stack['stack_status_reason']
                     )
@@ -210,9 +207,8 @@ class OrchestrationCloudMixin:
 
         :returns: a list of ``openstack.orchestration.v1.stack.Stack``
             containing the stack description.
-
-        :raises: ``OpenStackCloudException`` if something goes wrong during the
-            OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         stacks = self.list_stacks()
         return _utils._filter_list(stacks, name_or_id, filters)
@@ -221,11 +217,11 @@ class OrchestrationCloudMixin:
         """List all stacks.
 
         :param dict query: Query parameters to limit stacks.
+
         :returns: a list of :class:`openstack.orchestration.v1.stack.Stack`
             objects containing the stack description.
-
-        :raises: ``OpenStackCloudException`` if something goes wrong during the
-            OpenStack API call.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
         """
         return list(self.orchestration.stacks(**query))
 
@@ -240,9 +236,9 @@ class OrchestrationCloudMixin:
 
         :returns: a :class:`openstack.orchestration.v1.stack.Stack`
             containing the stack description
-
-        :raises: ``OpenStackCloudException`` if something goes wrong during the
-            OpenStack API call or if multiple matches are found.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call or if multiple matches are
+            found.
         """
 
         def _search_one_stack(name_or_id=None, filters=None):
@@ -256,7 +252,7 @@ class OrchestrationCloudMixin:
                 )
                 if stack.status == 'DELETE_COMPLETE':
                     return []
-            except exc.OpenStackCloudURINotFound:
+            except exceptions.NotFoundException:
                 return []
             return _utils._filter_list([stack], name_or_id, filters)
 

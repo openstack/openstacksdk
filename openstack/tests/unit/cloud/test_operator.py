@@ -15,8 +15,8 @@ import uuid
 
 import testtools
 
-from openstack.cloud import exc
 from openstack.config import cloud_region
+from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -90,7 +90,7 @@ class TestOperatorCloud(base.TestCase):
         self.cloud.name = 'testcloud'
         self.cloud.config.config['region_name'] = 'testregion'
         with testtools.ExpectedException(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             "Error getting image endpoint on testcloud:testregion:"
             " No service",
         ):

@@ -22,7 +22,7 @@ Functional tests for port resource.
 import random
 import string
 
-from openstack.cloud.exc import OpenStackCloudException
+from openstack import exceptions
 from openstack.tests.functional import base
 
 
@@ -59,7 +59,7 @@ class TestPort(base.BaseFunctionalTest):
         if exception_list:
             # Raise an error: we must make users aware that something went
             # wrong
-            raise OpenStackCloudException('\n'.join(exception_list))
+            raise exceptions.SDKException('\n'.join(exception_list))
 
     def test_create_port(self):
         port_name = self.new_port_name + '_create'

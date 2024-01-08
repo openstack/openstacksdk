@@ -128,7 +128,8 @@ class SecurityGroupCloudMixin:
         :returns: A ``openstack.network.v2.security_group.SecurityGroup``
             representing the new security group.
 
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         :raises: OpenStackCloudUnavailableFeature if security groups are
             not supported on this cloud.
         """
@@ -165,7 +166,8 @@ class SecurityGroupCloudMixin:
 
         :returns: True if delete succeeded, False otherwise.
 
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         :raises: OpenStackCloudUnavailableFeature if security groups are
             not supported on this cloud.
         """
@@ -208,8 +210,8 @@ class SecurityGroupCloudMixin:
 
         :returns: A ``openstack.network.v2.security_group.SecurityGroup``
             describing the updated security group.
-
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         # Security groups not supported
         if not self._has_secgroups():
@@ -220,7 +222,7 @@ class SecurityGroupCloudMixin:
         group = self.get_security_group(name_or_id)
 
         if group is None:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "Security group %s not found." % name_or_id
             )
 
@@ -298,10 +300,11 @@ class SecurityGroupCloudMixin:
             on (admin-only).
         :param string description:
             Description of the rule, max 255 characters.
+
         :returns: A ``openstack.network.v2.security_group.SecurityGroup``
             representing the new security group rule.
-
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         """
         # Security groups not supported
         if not self._has_secgroups():
@@ -311,7 +314,7 @@ class SecurityGroupCloudMixin:
 
         secgroup = self.get_security_group(secgroup_name_or_id)
         if not secgroup:
-            raise exc.OpenStackCloudException(
+            raise exceptions.SDKException(
                 "Security group %s not found." % secgroup_name_or_id
             )
 
@@ -341,15 +344,13 @@ class SecurityGroupCloudMixin:
         else:
             # NOTE: Neutron accepts None for protocol. Nova does not.
             if protocol is None:
-                raise exc.OpenStackCloudException('Protocol must be specified')
+                raise exceptions.SDKException('Protocol must be specified')
 
             if direction == 'egress':
                 self.log.debug(
                     'Rule creation failed: Nova does not support egress rules'
                 )
-                raise exc.OpenStackCloudException(
-                    'No support for egress rules'
-                )
+                raise exceptions.SDKException('No support for egress rules')
 
             # NOTE: Neutron accepts None for ports, but Nova requires -1
             # as the equivalent value for ICMP.
@@ -399,7 +400,8 @@ class SecurityGroupCloudMixin:
 
         :returns: True if delete succeeded, False otherwise.
 
-        :raises: OpenStackCloudException on operation error.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
         :raises: OpenStackCloudUnavailableFeature if security groups are
             not supported on this cloud.
         """
@@ -422,7 +424,7 @@ class SecurityGroupCloudMixin:
                         '/os-security-group-rules/{id}'.format(id=rule_id)
                     )
                 )
-            except exc.OpenStackCloudResourceNotFound:
+            except exceptions.NotFoundException:
                 return False
 
             return True

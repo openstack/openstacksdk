@@ -15,7 +15,6 @@
 from openstack import exceptions
 
 OpenStackCloudException = exceptions.SDKException
-OpenStackCloudTimeout = exceptions.ResourceTimeout
 
 
 class OpenStackCloudCreateException(OpenStackCloudException):
@@ -39,6 +38,7 @@ class OpenStackCloudUnavailableFeature(OpenStackCloudException):
 
 
 # Backwards compat
+OpenStackCloudTimeout = exceptions.ResourceTimeout
 OpenStackCloudHTTPError = exceptions.HttpException
 OpenStackCloudBadRequest = exceptions.BadRequestException
 OpenStackCloudURINotFound = exceptions.NotFoundException

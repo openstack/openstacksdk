@@ -19,7 +19,7 @@ Tests for the `set_server_metadata` command.
 
 import uuid
 
-from openstack.cloud.exc import OpenStackCloudBadRequest
+from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -59,7 +59,7 @@ class TestServerSetMetadata(base.TestCase):
         )
 
         self.assertRaises(
-            OpenStackCloudBadRequest,
+            exceptions.BadRequestException,
             self.cloud.set_server_metadata,
             self.server_name,
             {'meta': 'data'},

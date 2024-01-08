@@ -20,7 +20,7 @@ Functional tests for project resource.
 """
 import pprint
 
-from openstack.cloud.exc import OpenStackCloudException
+from openstack import exceptions
 from openstack.tests.functional import base
 
 
@@ -43,7 +43,7 @@ class TestProject(base.KeystoneBaseFunctionalTest):
                     exception_list.append(str(e))
                     continue
         if exception_list:
-            raise OpenStackCloudException('\n'.join(exception_list))
+            raise exceptions.SDKException('\n'.join(exception_list))
 
     def test_create_project(self):
         project_name = self.new_project_name + '_create'

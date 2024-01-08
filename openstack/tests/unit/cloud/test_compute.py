@@ -12,7 +12,6 @@
 
 import uuid
 
-from openstack.cloud import exc
 from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
@@ -495,6 +494,6 @@ class TestServers(base.TestCase):
             ]
         )
 
-        self.assertRaises(exc.OpenStackCloudException, self.cloud.list_servers)
+        self.assertRaises(exceptions.SDKException, self.cloud.list_servers)
 
         self.assert_calls()

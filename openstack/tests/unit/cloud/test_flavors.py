@@ -10,8 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
-import openstack.cloud
+from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -136,7 +135,7 @@ class TestFlavors(base.TestCase):
         )
 
         self.assertRaises(
-            openstack.cloud.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.delete_flavor,
             'vanilla',
         )
@@ -278,7 +277,7 @@ class TestFlavors(base.TestCase):
             ]
         )
         self.assertRaises(
-            openstack.cloud.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.get_flavor_by_ram,
             ram=100,
         )

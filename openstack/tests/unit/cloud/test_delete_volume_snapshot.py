@@ -17,8 +17,8 @@ test_delete_volume_snapshot
 Tests for the `delete_volume_snapshot` command.
 """
 
-from openstack.cloud import exc
 from openstack.cloud import meta
+from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -66,7 +66,7 @@ class TestDeleteVolumeSnapshot(base.TestCase):
     def test_delete_volume_snapshot_with_error(self):
         """
         Test that a exception while deleting a volume snapshot will cause an
-        OpenStackCloudException.
+        SDKException.
         """
         fake_snapshot = fakes.FakeVolumeSnapshot(
             '1234', 'available', 'foo', 'derpysnapshot'
@@ -94,7 +94,7 @@ class TestDeleteVolumeSnapshot(base.TestCase):
         )
 
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.delete_volume_snapshot,
             name_or_id='1234',
         )
@@ -138,7 +138,7 @@ class TestDeleteVolumeSnapshot(base.TestCase):
         )
 
         self.assertRaises(
-            exc.OpenStackCloudTimeout,
+            exceptions.ResourceTimeout,
             self.cloud.delete_volume_snapshot,
             name_or_id='1234',
             wait=True,

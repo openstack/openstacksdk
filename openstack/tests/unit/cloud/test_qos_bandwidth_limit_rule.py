@@ -15,7 +15,7 @@
 
 import copy
 
-from openstack.cloud import exc
+from openstack import exceptions
 from openstack.network.v2 import qos_bandwidth_limit_rule
 from openstack.tests.unit import base
 
@@ -164,7 +164,7 @@ class TestQosBandwidthLimitRule(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudResourceNotFound,
+            exceptions.NotFoundException,
             self.cloud.get_qos_bandwidth_limit_rule,
             self.policy_name,
             self.rule_id,
@@ -184,7 +184,7 @@ class TestQosBandwidthLimitRule(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.get_qos_bandwidth_limit_rule,
             self.policy_name,
             self.rule_id,
@@ -256,7 +256,7 @@ class TestQosBandwidthLimitRule(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.create_qos_bandwidth_limit_rule,
             self.policy_name,
             max_kbps=100,
@@ -403,7 +403,7 @@ class TestQosBandwidthLimitRule(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.update_qos_bandwidth_limit_rule,
             self.policy_id,
             self.rule_id,
@@ -558,7 +558,7 @@ class TestQosBandwidthLimitRule(base.TestCase):
             ]
         )
         self.assertRaises(
-            exc.OpenStackCloudException,
+            exceptions.SDKException,
             self.cloud.delete_qos_bandwidth_limit_rule,
             self.policy_name,
             self.rule_id,
