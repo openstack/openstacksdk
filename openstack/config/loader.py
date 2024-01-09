@@ -628,7 +628,7 @@ class OpenStackConfig:
             else:
                 # Can't find the requested vendor config, go about business
                 warnings.warn(
-                    f"Couldn't find the vendor profile {profile_name} for"
+                    f"Couldn't find the vendor profile {profile_name} for "
                     f"the cloud {name}",
                     os_warnings.ConfigurationWarning,
                 )
