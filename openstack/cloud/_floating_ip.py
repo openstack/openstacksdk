@@ -924,7 +924,7 @@ class FloatingIPCloudMixin:
             error.
         """
 
-        if type(ips) != list:
+        if type(ips) is list:
             ips = [ips]
 
         for ip in ips:
