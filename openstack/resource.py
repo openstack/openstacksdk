@@ -373,7 +373,7 @@ class QueryParameters:
 
         :returns: Filtered collection of the supported QueryParameters
         """
-        expected_params = list(self._mapping.keys())
+        expected_params = list(self._mapping)
         expected_params.extend(
             value.get('name', key) if isinstance(value, dict) else value
             for key, value in self._mapping.items()
@@ -382,7 +382,7 @@ class QueryParameters:
         if base_path:
             expected_params += utils.get_string_format_keys(base_path)
 
-        invalid_keys = set(query.keys()) - set(expected_params)
+        invalid_keys = set(query) - set(expected_params)
         if not invalid_keys:
             return query
         else:
@@ -393,9 +393,7 @@ class QueryParameters:
                     extra_data=invalid_keys,
                 )
             else:
-                known_keys = set(query.keys()).intersection(
-                    set(expected_params)
-                )
+                known_keys = set(query).intersection(set(expected_params))
                 return {k: query[k] for k in known_keys}
 
     def _transpose(self, query, resource_type):
