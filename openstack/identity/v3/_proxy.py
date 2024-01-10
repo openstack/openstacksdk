@@ -1169,52 +1169,52 @@ class Proxy(proxy.Proxy):
             )
 
         if domain:
-            domain = self._get_resource(_domain.Domain, domain)
+            domain_id = resource.Resource._get_id(domain)
             if group:
-                group = self._get_resource(_group.Group, group)
+                group_id = resource.Resource._get_id(group)
                 return self._list(
                     _role_domain_group_assignment.RoleDomainGroupAssignment,
-                    domain_id=domain.id,
-                    group_id=group.id,
+                    domain_id=domain_id,
+                    group_id=group_id,
                 )
             else:
-                user = self._get_resource(_user.User, user)
+                user_id = resource.Resource._get_id(user)
                 return self._list(
                     _role_domain_user_assignment.RoleDomainUserAssignment,
-                    domain_id=domain.id,
-                    user_id=user.id,
+                    domain_id=domain_id,
+                    user_id=user_id,
                 )
         elif project:
-            project = self._get_resource(_project.Project, project)
+            project_id = resource.Resource._get_id(project)
             if group:
-                group = self._get_resource(_group.Group, group)
+                group_id = resource.Resource._get_id(group)
                 return self._list(
                     _role_project_group_assignment.RoleProjectGroupAssignment,
-                    project_id=project.id,
-                    group_id=group.id,
+                    project_id=project_id,
+                    group_id=group_id,
                 )
             else:
-                user = self._get_resource(_user.User, user)
+                user_id = resource.Resource._get_id(user)
                 return self._list(
                     _role_project_user_assignment.RoleProjectUserAssignment,
-                    project_id=project.id,
-                    user_id=user.id,
+                    project_id=project_id,
+                    user_id=user_id,
                 )
         else:
-            system = self._get_resource(_system.System, system)
+            system_id = resource.Resource._get_id(system)
             if group:
-                group = self._get_resource(_group.Group, group)
+                group_id = resource.Resource._get_id(group)
                 return self._list(
                     _role_system_group_assignment.RoleSystemGroupAssignment,
-                    system_id=system.id,
-                    group_id=group.id,
+                    system_id=system_id,
+                    group_id=group_id,
                 )
             else:
-                user = self._get_resource(_user.User, user)
+                user_id = resource.Resource._get_id(user)
                 return self._list(
                     _role_system_user_assignment.RoleSystemUserAssignment,
-                    system_id=system.id,
-                    user_id=user.id,
+                    system_id=system_id,
+                    user_id=user_id,
                 )
 
     def role_assignments(self, **query):
