@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import typing as ty
-
 from openstack.common import tag
 from openstack.network.v2 import _base
 from openstack import resource
@@ -59,9 +57,7 @@ class Port(_base.NetworkResource, tag.TagMixin):
     # Properties
     #: Allowed address pairs list. Dictionary key ``ip_address`` is required
     #: and key ``mac_address`` is optional.
-    allowed_address_pairs: ty.List[dict] = resource.Body(
-        'allowed_address_pairs', type=list
-    )
+    allowed_address_pairs = resource.Body('allowed_address_pairs', type=list)
     #: The ID of the host where the port is allocated. In some cases,
     #: different implementations can run on different hosts.
     binding_host_id = resource.Body('binding:host_id')
