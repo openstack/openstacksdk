@@ -11,6 +11,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import typing as ty
+
 from openstack import exceptions
 from openstack import resource
 
@@ -20,11 +22,11 @@ class BaseResource(resource.Resource):
     create_method = 'PUT'
 
     #: Metadata stored for this resource. *Type: dict*
-    metadata = dict()
+    metadata: ty.Dict[str, ty.Any] = {}
 
-    _custom_metadata_prefix = None
-    _system_metadata = dict()
-    _last_headers = dict()
+    _custom_metadata_prefix: str
+    _system_metadata: ty.Dict[str, ty.Any] = {}
+    _last_headers: ty.Dict[str, ty.Any] = {}
 
     def __init__(self, metadata=None, **attrs):
         """Process and save metadata known at creation stage"""
