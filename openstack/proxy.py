@@ -477,11 +477,43 @@ class Proxy(adapter.Adapter):
             value = resource.Resource._get_id(parent)
         return value
 
+    @ty.overload
     def _find(
         self,
         resource_type: ty.Type[ResourceType],
-        name_or_id,
-        ignore_missing=True,
+        name_or_id: str,
+        ignore_missing: ty.Literal[True] = True,
+        **attrs,
+    ) -> ty.Optional[ResourceType]:
+        ...
+
+    @ty.overload
+    def _find(
+        self,
+        resource_type: ty.Type[ResourceType],
+        name_or_id: str,
+        ignore_missing: ty.Literal[False],
+        **attrs,
+    ) -> ResourceType:
+        ...
+
+    # excuse the duplication here: it's mypy's fault
+    # https://github.com/python/mypy/issues/14764
+    @ty.overload
+    def _find(
+        self,
+        resource_type: ty.Type[ResourceType],
+        name_or_id: str,
+        ignore_missing: bool,
+        **attrs,
+    ) -> ty.Optional[ResourceType]:
+        ...
+
+    def _find(
+        self,
+        resource_type: ty.Type[ResourceType],
+        name_or_id: str,
+        ignore_missing: bool = True,
         **attrs,
     ) -> ty.Optional[ResourceType]:
         """Find a resource

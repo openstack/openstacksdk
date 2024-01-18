@@ -55,7 +55,6 @@ repos:
             | openstack/tests/fixtures.py
             | openstack/accelerator/.*
             | openstack/cloud/.*
-            | openstack/clustering/.*
             | openstack/container_infrastructure_management/.*
             | openstack/database/.*
             | openstack/dns/.*
