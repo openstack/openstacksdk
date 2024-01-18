@@ -464,7 +464,7 @@ class Resource(dict):
     id = Body("id")
 
     #: The name of this resource.
-    name = Body("name")
+    name: ty.Union[Body, URI] = Body("name")
     #: The OpenStack location of this resource.
     location: ty.Union[Computed, Body] = Computed('location')
 

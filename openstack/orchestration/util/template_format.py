@@ -17,7 +17,7 @@ import yaml
 if hasattr(yaml, 'CSafeLoader'):
     yaml_loader = yaml.CSafeLoader
 else:
-    yaml_loader = yaml.SafeLoader
+    yaml_loader = yaml.SafeLoader  # type: ignore
 
 
 class HeatYamlLoader(yaml_loader):
