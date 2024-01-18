@@ -456,7 +456,7 @@ class Proxy(proxy.Proxy):
         :return: The node boot device
         """
         res = self._get_resource(_node.Node, node)
-        return res.get_boot_device()
+        return res.get_boot_device(self)
 
     def set_node_boot_device(self, node, boot_device, persistent=False):
         """Set node boot device
@@ -479,7 +479,7 @@ class Proxy(proxy.Proxy):
         :return: The node boot device
         """
         res = self._get_resource(_node.Node, node)
-        return res.get_supported_boot_devices()
+        return res.get_supported_boot_devices(self)
 
     def set_node_boot_mode(self, node, target):
         """Make a request to change node's boot mode

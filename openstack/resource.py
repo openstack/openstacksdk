@@ -508,7 +508,7 @@ class Resource(dict):
     #: Do responses for this resource have bodies
     has_body = True
     #: Does create returns a body (if False requires ID), defaults to has_body
-    create_returns_body = None
+    create_returns_body: ty.Optional[bool] = None
 
     #: Maximum microversion to use for getting/creating/updating the Resource
     _max_microversion: ty.Optional[str] = None

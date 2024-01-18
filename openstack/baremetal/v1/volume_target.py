@@ -14,7 +14,7 @@ from openstack.baremetal.v1 import _common
 from openstack import resource
 
 
-class VolumeTarget(_common.ListMixin, resource.Resource):
+class VolumeTarget(_common.Resource):
     resources_key = 'targets'
     base_path = '/volume/targets'
 

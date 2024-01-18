@@ -14,7 +14,7 @@ from openstack.baremetal.v1 import _common
 from openstack import resource
 
 
-class DeployTemplate(_common.ListMixin, resource.Resource):
+class DeployTemplate(_common.Resource):
     resources_key = 'deploy_templates'
     base_path = '/deploy_templates'
 

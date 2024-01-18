@@ -14,7 +14,7 @@ from openstack.baremetal.v1 import _common
 from openstack import resource
 
 
-class PortGroup(_common.ListMixin, resource.Resource):
+class PortGroup(_common.Resource):
     resources_key = 'portgroups'
     base_path = '/portgroups'
 

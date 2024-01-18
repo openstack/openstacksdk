@@ -89,7 +89,9 @@ CHANGE_BOOT_MODE_VERSION = '1.76'
 """API version in which boot_mode and secure_boot states can be changed"""
 
 
-class ListMixin:
+class Resource(resource.Resource):
+    base_path: str
+
     @classmethod
     def list(cls, session, details=False, **params):
         """This method is a generator which yields resource objects.
@@ -113,7 +115,7 @@ class ListMixin:
         base_path = cls.base_path
         if details:
             base_path += '/detail'
-        return super(ListMixin, cls).list(
+        return super().list(
             session, paginated=True, base_path=base_path, **params
         )
 

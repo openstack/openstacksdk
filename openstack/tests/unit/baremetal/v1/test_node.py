@@ -571,7 +571,7 @@ class TestNodeVif(base.TestCase):
             json={'id': self.vif_id},
             headers=mock.ANY,
             microversion='1.28',
-            retriable_status_codes={503},
+            retriable_status_codes=[503],
         )
 
     def test_detach_vif_existing(self):
