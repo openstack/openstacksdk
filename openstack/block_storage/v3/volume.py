@@ -81,6 +81,8 @@ class Volume(resource.Resource, metadata.MetadataMixin):
     replication_driver_data = resource.Body(
         "os-volume-replication:driver_data"
     )
+    #: The provider ID for the volume.
+    provider_id = resource.Body("provider_id")
     #: Status of replication on this volume.
     replication_status = resource.Body("replication_status")
     #: Scheduler hints for the volume
