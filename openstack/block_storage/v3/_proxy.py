@@ -469,7 +469,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             volume_type = self._get_resource(_type.Type, volume_type)
             encryption = self._get(
                 _type.TypeEncryption,
-                volume_type=volume_type.id,
+                volume_type_id=volume_type.id,
                 requires_id=False,
             )
 
@@ -502,7 +502,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             volume_type = self._get_resource(_type.Type, volume_type)
             encryption = self._get(
                 _type.TypeEncryption,
-                volume_type=volume_type.id,
+                volume_type_id=volume_type.id,
                 requires_id=False,
             )
 
