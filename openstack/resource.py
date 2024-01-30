@@ -355,7 +355,7 @@ class QueryParameters:
             parameters, ``limit`` and ``marker``. These are the most common
             query parameters used for listing resources in OpenStack APIs.
         """
-        self._mapping = {}
+        self._mapping: ty.Dict[str, ty.Union[str, ty.Dict]] = {}
         if include_pagination_defaults:
             self._mapping.update({"limit": "limit", "marker": "marker"})
         self._mapping.update({name: name for name in names})

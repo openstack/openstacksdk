@@ -991,7 +991,7 @@ class OpenStackConfig:
         os_args = dict()
         new_args = dict()
         for key, val in iter(args.items()):
-            if type(args[key]) == dict:
+            if type(args[key]) is dict:
                 # dive into the auth dict
                 new_args[key] = self._fix_args(args[key])
                 continue
