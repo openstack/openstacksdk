@@ -14,9 +14,14 @@
 
 import logging
 import sys
+import typing as ty
 
 
-def setup_logging(name, handlers=None, level=None):
+def setup_logging(
+    name: str,
+    handlers: ty.Optional[ty.List[logging.Handler]] = None,
+    level: ty.Optional[int] = None,
+) -> logging.Logger:
     """Set up logging for a named logger.
 
     Gets and initializes a named logger, ensuring it at least has a
@@ -34,8 +39,7 @@ def setup_logging(name, handlers=None, level=None):
     handlers = handlers or []
     log = logging.getLogger(name)
     if len(log.handlers) == 0 and not handlers:
-        h = logging.NullHandler()
-        log.addHandler(h)
+        log.addHandler(logging.NullHandler())
     for h in handlers:
         log.addHandler(h)
     if level:
@@ -44,14 +48,14 @@ def setup_logging(name, handlers=None, level=None):
 
 
 def enable_logging(
-    debug=False,
-    http_debug=False,
-    path=None,
-    stream=None,
-    format_stream=False,
-    format_template='%(asctime)s %(levelname)s: %(name)s %(message)s',
-    handlers=None,
-):
+    debug: bool = False,
+    http_debug: bool = False,
+    path: ty.Optional[str] = None,
+    stream: ty.Optional[ty.TextIO] = None,
+    format_stream: bool = False,
+    format_template: str = '%(asctime)s %(levelname)s: %(name)s %(message)s',
+    handlers: ty.Optional[ty.List[logging.Handler]] = None,
+) -> None:
     """Enable logging output.
 
     Helper function to enable logging. This function is available for
