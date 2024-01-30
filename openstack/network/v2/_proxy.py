@@ -4099,6 +4099,42 @@ class Proxy(proxy.Proxy):
         router = self._get_resource(_router.Router, router)
         return router.remove_gateway(self, **body)
 
+    def add_external_gateways(self, router, body):
+        """Add router external gateways
+
+        :param router: Either the router ID or an instance of
+            :class:`~openstack.network.v2.router.Router`
+        :param body: Body containing the external_gateways parameter.
+        :returns: Router with added gateways
+        :rtype: :class:`~openstack.network.v2.router.Router`
+        """
+        router = self._get_resource(_router.Router, router)
+        return router.add_external_gateways(self, body)
+
+    def update_external_gateways(self, router, body):
+        """Update router external gateways
+
+        :param router: Either the router ID or an instance of
+            :class:`~openstack.network.v2.router.Router`
+        :param body: Body containing the external_gateways parameter.
+        :returns: Router with updated gateways
+        :rtype: :class:`~openstack.network.v2.router.Router`
+        """
+        router = self._get_resource(_router.Router, router)
+        return router.update_external_gateways(self, body)
+
+    def remove_external_gateways(self, router, body):
+        """Remove router external gateways
+
+        :param router: Either the router ID or an instance of
+            :class:`~openstack.network.v2.router.Router`
+        :param body: Body containing the external_gateways parameter.
+        :returns: Router without the removed gateways
+        :rtype: :class:`~openstack.network.v2.router.Router`
+        """
+        router = self._get_resource(_router.Router, router)
+        return router.remove_external_gateways(self, body)
+
     def routers_hosting_l3_agents(self, router, **query):
         """Return a generator of L3 agent hosting a router
 

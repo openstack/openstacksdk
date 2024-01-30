@@ -1511,6 +1511,48 @@ class TestNetworkRouter(TestNetworkProxy):
         )
         mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
 
+    @mock.patch.object(proxy_base.Proxy, '_get_resource')
+    @mock.patch.object(router.Router, 'add_external_gateways')
+    def test_add_external_gateways(self, mock_add, mock_get):
+        x_router = router.Router.new(id="ROUTER_ID")
+        mock_get.return_value = x_router
+
+        self._verify(
+            "openstack.network.v2.router.Router.add_external_gateways",
+            self.proxy.add_external_gateways,
+            method_args=["FAKE_ROUTER", "bar"],
+            expected_args=[self.proxy, "bar"],
+        )
+        mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
+
+    @mock.patch.object(proxy_base.Proxy, '_get_resource')
+    @mock.patch.object(router.Router, 'update_external_gateways')
+    def test_update_external_gateways(self, mock_remove, mock_get):
+        x_router = router.Router.new(id="ROUTER_ID")
+        mock_get.return_value = x_router
+
+        self._verify(
+            "openstack.network.v2.router.Router.update_external_gateways",
+            self.proxy.update_external_gateways,
+            method_args=["FAKE_ROUTER", "bar"],
+            expected_args=[self.proxy, "bar"],
+        )
+        mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
+
+    @mock.patch.object(proxy_base.Proxy, '_get_resource')
+    @mock.patch.object(router.Router, 'remove_external_gateways')
+    def test_remove_external_gateways(self, mock_remove, mock_get):
+        x_router = router.Router.new(id="ROUTER_ID")
+        mock_get.return_value = x_router
+
+        self._verify(
+            "openstack.network.v2.router.Router.remove_external_gateways",
+            self.proxy.remove_external_gateways,
+            method_args=["FAKE_ROUTER", "bar"],
+            expected_args=[self.proxy, "bar"],
+        )
+        mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
+
     def test_router_hosting_l3_agents_list(self):
         self.verify_list(
             self.proxy.routers_hosting_l3_agents,
