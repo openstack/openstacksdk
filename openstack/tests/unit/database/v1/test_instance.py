@@ -97,7 +97,7 @@ class TestInstance(base.TestCase):
         self.assertIsNone(sot.restart(sess))
 
         url = "instances/%s/action" % IDENTIFIER
-        body = {'restart': {}}
+        body = {'restart': None}
         sess.post.assert_called_with(url, json=body)
 
     def test_action_resize(self):

@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import typing as ty
 import uuid
 
 from openstack import resource
@@ -52,6 +53,10 @@ class Message(resource.Resource):
     #: The ID to identify the project accessing Zaqar API. Must be specified
     #: in case keystone auth is not enabled in Zaqar service.
     project_id = resource.Header("X-PROJECT-ID")
+
+    # FIXME(stephenfin): This is actually a query arg but we need it for
+    # deletions and resource.delete doesn't respect these currently
+    claim_id: ty.Optional[str] = None
 
     def post(self, session, messages):
         request = self._prepare_request(requires_id=False, prepend_key=True)

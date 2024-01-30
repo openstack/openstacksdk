@@ -29,17 +29,16 @@ class ZoneShare(_base.Resource):
     _query_mapping = resource.QueryParameters('target_project_id')
 
     # Properties
+    #: The ID of the zone being shared.
+    zone_id = resource.URI('zone_id')
     #: Timestamp when the share was created.
     created_at = resource.Body('created_at')
     #: Timestamp when the member was last updated.
     updated_at = resource.Body('updated_at')
+    # FIXME(stephenfin): This conflicts since there is a zone ID in the URI
     #: The zone ID of the zone being shared.
-    zone_id = resource.Body('zone_id')
+    # zone_id = resource.Body('zone_id')
     #: The project ID that owns the share.
     project_id = resource.Body('project_id')
     #: The target project ID that the zone is shared with.
     target_project_id = resource.Body('target_project_id')
-
-    # URI Properties
-    #: The ID of the zone being shared.
-    zone_id = resource.URI('zone_id')

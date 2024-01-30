@@ -19,7 +19,9 @@ class ResourceProviderInventory(resource.Resource):
     resources_key = None
     base_path = '/resource_providers/%(resource_provider_id)s/inventories'
 
-    _query_mapping = {}
+    _query_mapping = resource.QueryParameters(
+        include_pagination_defaults=False
+    )
 
     # Capabilities
 

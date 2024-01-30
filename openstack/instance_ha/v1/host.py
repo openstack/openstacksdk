@@ -32,8 +32,6 @@ class Host(resource.Resource):
     allow_commit = True
     allow_delete = True
 
-    #: A ID of representing this host
-    id = resource.URI("id")
     #: A Uuid of representing this host
     uuid = resource.Body("uuid")
     #: A failover segment ID of this host(in URI)
