@@ -546,7 +546,14 @@ class TestVolumeActions(TestVolume):
     def test_init_attachment(self):
         sot = volume.Volume(**VOLUME)
 
-        self.assertIsNone(sot.init_attachment(self.sess, {'a': 'b'}))
+        self.resp = mock.Mock()
+        self.resp.body = {'connection_info': {'c': 'd'}}
+        self.resp.status_code = 200
+        self.resp.json = mock.Mock(return_value=self.resp.body)
+        self.sess.post = mock.Mock(return_value=self.resp)
+        self.assertEqual(
+            {'c': 'd'}, sot.init_attachment(self.sess, {'a': 'b'})
+        )
 
         url = 'volumes/%s/action' % FAKE_ID
         body = {'os-initialize_connection': {'connector': {'a': 'b'}}}

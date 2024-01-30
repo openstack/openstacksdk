@@ -330,7 +330,8 @@ class Volume(resource.Resource, metadata.MetadataMixin):
         """Initialize volume attachment"""
         body = {'os-initialize_connection': {'connector': connector}}
 
-        self._action(session, body)
+        resp = self._action(session, body).json()
+        return resp['connection_info']
 
     def terminate_attachment(self, session, connector):
         """Terminate volume attachment"""

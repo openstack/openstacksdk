@@ -961,9 +961,9 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             :class:`~openstack.block_storage.v3.volume.Volume` instance.
         :param dict connector: The connector object.
 
-        :returns: None"""
+        :returns: Dictionary containing the modified connector object"""
         volume = self._get_resource(_volume.Volume, volume)
-        volume.init_attachment(self, connector)
+        return volume.init_attachment(self, connector)
 
     def terminate_volume_attachment(self, volume, connector):
         """Update volume status to 'in-use'.

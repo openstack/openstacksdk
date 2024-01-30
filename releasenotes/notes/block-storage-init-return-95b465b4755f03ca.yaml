@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Methods ``openstack.block_storage.v3.volume.Volume.init_attachment`` and
+    ``block_storage.init_volume_attachment`` now return the results of the POST
+    request instead of None. This replicates the behaviour of cinderclient; the
+    returned data is used by nova and ironic for managing volume attachments.
