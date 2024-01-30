@@ -26,6 +26,7 @@ Volume Operations
             upload_volume_to_image, reserve_volume, unreserve_volume,
             begin_volume_detaching, abort_volume_detaching,
             init_volume_attachment, terminate_volume_attachment,
+            manage_volume,
 
 Backend Pools Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^
