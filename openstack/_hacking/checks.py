@@ -54,6 +54,7 @@ def assert_no_deprecated_exceptions(logical_line, filename):
         return
 
     for exception in (
+        'OpenStackCloudCreateException',
         'OpenStackCloudTimeout',
         'OpenStackCloudHTTPError',
         'OpenStackCloudBadRequest',

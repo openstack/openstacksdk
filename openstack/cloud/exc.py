@@ -17,6 +17,15 @@ from openstack import exceptions
 OpenStackCloudException = exceptions.SDKException
 
 
+class OpenStackCloudUnavailableExtension(OpenStackCloudException):
+    pass
+
+
+class OpenStackCloudUnavailableFeature(OpenStackCloudException):
+    pass
+
+
+# Backwards compat. These are deprecated and should not be used in new code.
 class OpenStackCloudCreateException(OpenStackCloudException):
     def __init__(self, resource, resource_id, extra_data=None, **kwargs):
         super(OpenStackCloudCreateException, self).__init__(
@@ -29,15 +38,6 @@ class OpenStackCloudCreateException(OpenStackCloudException):
         self.resource_id = resource_id
 
 
-class OpenStackCloudUnavailableExtension(OpenStackCloudException):
-    pass
-
-
-class OpenStackCloudUnavailableFeature(OpenStackCloudException):
-    pass
-
-
-# Backwards compat. These are deprecated and should not be used in new code.
 OpenStackCloudTimeout = exceptions.ResourceTimeout
 OpenStackCloudHTTPError = exceptions.HttpException
 OpenStackCloudBadRequest = exceptions.BadRequestException
