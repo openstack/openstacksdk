@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import os
 import re
 
 from hacking import core
@@ -26,7 +27,7 @@ Guidelines for writing new hacking checks
  - Keep the test method code in the source file ordered based
    on the O3xx value.
  - List the new rule in the top level HACKING.rst file
- - Add test cases for each new rule to nova/tests/unit/test_hacking.py
+ - Add test cases for each new rule to openstack/tests/unit/test_hacking.py
 
 """
 
@@ -41,3 +42,23 @@ def assert_no_setupclass(logical_line):
     """
     if SETUPCLASS_RE.match(logical_line):
         yield (0, "O300: setUpClass not allowed")
+
+
+@core.flake8ext
+def assert_no_deprecated_exceptions(logical_line, filename):
+    """Check for use of deprecated cloud-layer exceptions
+
+    0310
+    """
+    if filename.endswith(os.path.join('openstack', 'cloud', 'exc.py')):
+        return
+
+    for exception in (
+        'OpenStackCloudTimeout',
+        'OpenStackCloudHTTPError',
+        'OpenStackCloudBadRequest',
+        'OpenStackCloudURINotFound',
+        'OpenStackCloudResourceNotFound',
+    ):
+        if re.search(fr'\b{exception}\b', logical_line):
+            yield (0, 'O310: Use of deprecated Exception class')

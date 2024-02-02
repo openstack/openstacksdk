@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import _hacking
+from openstack._hacking import checks
 from openstack.tests.unit import base
 
 
@@ -52,18 +52,43 @@ class HackingTestCase(base.TestCase):
 
     def test_assert_no_setupclass(self):
         self.assertEqual(
-            len(list(_hacking.assert_no_setupclass("def setUpClass(cls)"))), 1
+            len(list(checks.assert_no_setupclass("def setUpClass(cls)"))), 1
         )
 
         self.assertEqual(
-            len(list(_hacking.assert_no_setupclass("# setUpClass is evil"))), 0
+            len(list(checks.assert_no_setupclass("# setUpClass is evil"))), 0
         )
 
         self.assertEqual(
             len(
                 list(
-                    _hacking.assert_no_setupclass(
+                    checks.assert_no_setupclass(
                         "def setUpClassyDrinkingLocation(cls)"
+                    )
+                )
+            ),
+            0,
+        )
+
+    def test_assert_no_deprecated_exceptions(self):
+        self.assertEqual(
+            len(
+                list(
+                    checks.assert_no_deprecated_exceptions(
+                        "raise exc.OpenStackCloudTimeout",
+                        "openstack/cloud/compute.py",
+                    )
+                )
+            ),
+            1,
+        )
+
+        self.assertEqual(
+            len(
+                list(
+                    checks.assert_no_deprecated_exceptions(
+                        "raise exc.OpenStackCloudTimeout",
+                        "openstack/cloud/exc.py",
                     )
                 )
             ),
