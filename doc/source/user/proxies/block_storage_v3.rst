@@ -119,7 +119,7 @@ Snapshot Operations
   :members: create_snapshot, delete_snapshot, update_snapshot, get_snapshot,
             find_snapshot, snapshots, get_snapshot_metadata,
             set_snapshot_metadata, delete_snapshot_metadata, reset_snapshot,
-            set_snapshot_status
+            set_snapshot_status, manage_snapshot, unmanage_snapshot
 
 Stats Operations
 ^^^^^^^^^^^^^^^^

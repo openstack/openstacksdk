@@ -9,6 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import copy
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -18,6 +19,7 @@ from openstack.tests.unit import base
 
 
 FAKE_ID = "ffa9bc5e-1172-4021-acaf-cdcd78a9584d"
+FAKE_VOLUME_ID = "5aa119a8-d25b-45a7-8d1b-88e127885635"
 
 SNAPSHOT = {
     "status": "creating",
@@ -25,7 +27,7 @@ SNAPSHOT = {
     "created_at": "2015-03-09T12:14:57.233772",
     "updated_at": None,
     "metadata": {},
-    "volume_id": "5aa119a8-d25b-45a7-8d1b-88e127885635",
+    "volume_id": FAKE_VOLUME_ID,
     "size": 1,
     "id": FAKE_ID,
     "name": "snap-001",
@@ -127,6 +129,85 @@ class TestSnapshotActions(base.TestCase):
 
         url = 'snapshots/%s/action' % FAKE_ID
         body = {'os-update_snapshot_status': {'status': 'new_status'}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion
+        )
+
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=True,
+    )
+    def test_manage(self, mock_mv):
+        resp = mock.Mock()
+        resp.body = {'snapshot': copy.deepcopy(SNAPSHOT)}
+        resp.json = mock.Mock(return_value=resp.body)
+        resp.headers = {}
+        resp.status_code = 202
+
+        self.sess.post = mock.Mock(return_value=resp)
+
+        sot = snapshot.Snapshot.manage(
+            self.sess, volume_id=FAKE_VOLUME_ID, ref=FAKE_ID
+        )
+
+        self.assertIsNotNone(sot)
+
+        url = '/manageable_snapshots'
+        body = {
+            'snapshot': {
+                'volume_id': FAKE_VOLUME_ID,
+                'ref': FAKE_ID,
+                'name': None,
+                'description': None,
+                'metadata': None,
+            }
+        }
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion
+        )
+
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=False,
+    )
+    def test_manage_pre_38(self, mock_mv):
+        resp = mock.Mock()
+        resp.body = {'snapshot': copy.deepcopy(SNAPSHOT)}
+        resp.json = mock.Mock(return_value=resp.body)
+        resp.headers = {}
+        resp.status_code = 202
+
+        self.sess.post = mock.Mock(return_value=resp)
+
+        sot = snapshot.Snapshot.manage(
+            self.sess, volume_id=FAKE_VOLUME_ID, ref=FAKE_ID
+        )
+
+        self.assertIsNotNone(sot)
+
+        url = '/os-snapshot-manage'
+        body = {
+            'snapshot': {
+                'volume_id': FAKE_VOLUME_ID,
+                'ref': FAKE_ID,
+                'name': None,
+                'description': None,
+                'metadata': None,
+            }
+        }
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion
+        )
+
+    def test_unmanage(self):
+        sot = snapshot.Snapshot(**SNAPSHOT)
+
+        self.assertIsNone(sot.unmanage(self.sess))
+
+        url = 'snapshots/%s/action' % FAKE_ID
+        body = {'os-unmanage': None}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
         )
