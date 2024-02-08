@@ -1372,7 +1372,7 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        self._delete(limit.Limit, limit, ignore_missing=ignore_missing)
+        self._delete(_limit.Limit, limit, ignore_missing=ignore_missing)
 
     # ========== Roles ==========
 
