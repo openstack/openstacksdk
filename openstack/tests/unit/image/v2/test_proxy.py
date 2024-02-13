@@ -600,11 +600,19 @@ class TestMetadefObject(TestImageProxy):
         )
 
     def test_update_metadef_object(self):
-        self.verify_update(
+        self._verify(
+            "openstack.proxy.Proxy._update",
             self.proxy.update_metadef_object,
-            _metadef_object.MetadefObject,
-            method_kwargs={"namespace": "test_namespace_name"},
-            expected_kwargs={"namespace_name": "test_namespace_name"},
+            method_args=["test_metadef_object", "test_namespace_name"],
+            method_kwargs={"name": "new_object"},
+            expected_args=[
+                _metadef_object.MetadefObject,
+                'test_metadef_object',
+            ],
+            expected_kwargs={
+                "name": "new_object",
+                "namespace_name": "test_namespace_name",
+            },
         )
 
     def test_delete_metadef_object(self):
