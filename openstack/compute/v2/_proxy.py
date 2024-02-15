@@ -330,9 +330,8 @@ class Proxy(proxy.Proxy):
     def get_aggregate(self, aggregate):
         """Get a single host aggregate
 
-        :param image: The value can be the ID of an aggregate or a
-            :class:`~openstack.compute.v2.aggregate.Aggregate`
-            instance.
+        :param aggregate: The value can be the ID of an aggregate or a
+            :class:`~openstack.compute.v2.aggregate.Aggregate` instance.
 
         :returns: One :class:`~openstack.compute.v2.aggregate.Aggregate`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
