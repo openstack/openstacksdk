@@ -17,6 +17,7 @@ from openstack.tests.unit import base
 
 EXAMPLE = {
     'id': 4,
+    'server_id': '4cfba335-03d8-49b2-8c52-e69043d1e8fe',
     'server_uuid': '4cfba335-03d8-49b2-8c52-e69043d1e8fe',
     'user_id': '8dbaa0f0-ab95-4ffe-8cb4-9c89d2ac9d24',
     'project_id': '5f705771-3aa9-4f4c-8660-0d9522ffdbea',
@@ -51,7 +52,7 @@ class TestServerMigration(base.TestCase):
         sot = server_migration.ServerMigration()
         self.assertEqual('migration', sot.resource_key)
         self.assertEqual('migrations', sot.resources_key)
-        self.assertEqual('/servers/%(server_uuid)s/migrations', sot.base_path)
+        self.assertEqual('/servers/%(server_id)s/migrations', sot.base_path)
         self.assertFalse(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_list)
@@ -105,7 +106,7 @@ class TestServerMigration(base.TestCase):
         self.assertIsNone(sot.force_complete(self.sess))
 
         url = 'servers/%s/migrations/%s/action' % (
-            EXAMPLE['server_uuid'],
+            EXAMPLE['server_id'],
             EXAMPLE['id'],
         )
         body = {'force_complete': None}
