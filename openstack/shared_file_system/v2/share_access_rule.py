@@ -16,7 +16,7 @@ from openstack import utils
 
 
 class ShareAccessRule(resource.Resource):
-    resource_key = "share_access_rule"
+    resource_key = "access"
     resources_key = "access_list"
     base_path = "/share-access-rules"
 
@@ -30,7 +30,8 @@ class ShareAccessRule(resource.Resource):
 
     _query_mapping = resource.QueryParameters("share_id")
 
-    _max_microversion = '2.45'
+    # Restricted access rules became available in 2.82
+    _max_microversion = '2.82'
 
     #: Properties
     #: The access credential of the entity granted share access.
@@ -56,6 +57,12 @@ class ShareAccessRule(resource.Resource):
     #: The date and time stamp when the resource was last updated within
     #: the service’s database.
     updated_at = resource.Body("updated_at", type=str)
+    #: Whether the visibility of some sensitive fields is restricted or not
+    lock_visibility = resource.Body("lock_visibility", type=bool)
+    #: Whether the deletion of the access rule should be restricted or not
+    lock_deletion = resource.Body("lock_deletion", type=bool)
+    #: Reason for placing the loc
+    lock_reason = resource.Body("lock_reason", type=bool)
 
     def _action(self, session, body, url, action='patch', microversion=None):
         headers = {'Accept': ''}
@@ -75,8 +82,12 @@ class ShareAccessRule(resource.Resource):
             **kwargs
         )
 
-    def delete(self, session, share_id, ignore_missing=True):
+    def delete(
+        self, session, share_id, ignore_missing=True, *, unrestrict=False
+    ):
         body = {"deny_access": {"access_id": self.id}}
+        if unrestrict:
+            body['deny_access']['unrestrict'] = True
         url = utils.urljoin("/shares", share_id, "action")
         response = self._action(session, body, url)
         try:

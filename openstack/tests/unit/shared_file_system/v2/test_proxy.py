@@ -14,6 +14,7 @@ from unittest import mock
 
 from openstack.shared_file_system.v2 import _proxy
 from openstack.shared_file_system.v2 import limit
+from openstack.shared_file_system.v2 import resource_locks
 from openstack.shared_file_system.v2 import share
 from openstack.shared_file_system.v2 import share_access_rule
 from openstack.shared_file_system.v2 import share_group
@@ -130,7 +131,7 @@ class TestSharedFileSystemShare(TestSharedFileSystemProxy):
         self.proxy.wait_for_status(mock_resource, 'ACTIVE')
 
         mock_wait.assert_called_once_with(
-            self.proxy, mock_resource, 'ACTIVE', [], 2, 120
+            self.proxy, mock_resource, 'ACTIVE', [], 2, 120, attribute='status'
         )
 
 
@@ -473,8 +474,49 @@ class TestAccessRuleProxy(test_proxy_base.TestProxyBase):
             "openstack.shared_file_system.v2.share_access_rule."
             + "ShareAccessRule.delete",
             self.proxy.delete_access_rule,
-            method_args=['access_id', 'share_id', 'ignore_missing'],
+            method_args=[
+                'access_id',
+                'share_id',
+                'ignore_missing',
+            ],
             expected_args=[self.proxy, 'share_id'],
+            expected_kwargs={'unrestrict': False},
+        )
+
+
+class TestResourceLocksProxy(test_proxy_base.TestProxyBase):
+    def setUp(self):
+        super(TestResourceLocksProxy, self).setUp()
+        self.proxy = _proxy.Proxy(self.session)
+
+    def test_list_resource_locks(self):
+        self.verify_list(
+            self.proxy.resource_locks, resource_locks.ResourceLock
+        )
+
+    def test_resource_lock_get(self):
+        self.verify_get(
+            self.proxy.get_resource_lock, resource_locks.ResourceLock
+        )
+
+    def test_resource_lock_delete(self):
+        self.verify_delete(
+            self.proxy.delete_resource_lock, resource_locks.ResourceLock, False
+        )
+
+    def test_resource_lock_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_resource_lock, resource_locks.ResourceLock, True
+        )
+
+    def test_resource_lock_create(self):
+        self.verify_create(
+            self.proxy.create_resource_lock, resource_locks.ResourceLock
+        )
+
+    def test_resource_lock_update(self):
+        self.verify_update(
+            self.proxy.update_resource_lock, resource_locks.ResourceLock
         )
 
 

@@ -632,6 +632,13 @@ class Proxy(adapter.Adapter):
         :returns: The result of the ``create``
         :rtype: :class:`~openstack.resource.Resource`
         """
+        # Check for attributes whose names conflict with the parameters
+        # specified in the method.
+        conflicting_attrs = attrs.get('__conflicting_attrs', {})
+        if conflicting_attrs:
+            for k, v in conflicting_attrs.items():
+                attrs[k] = v
+            attrs.pop('__conflicting_attrs')
         conn = self._get_connection()
         res = resource_type.new(connection=conn, **attrs)
         return res.create(self, base_path=base_path)

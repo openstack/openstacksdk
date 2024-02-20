@@ -22,8 +22,8 @@ class BaseSharedFileSystemTest(base.BaseFunctionalTest):
         self.require_service(
             'shared-file-system', min_microversion=self.min_microversion
         )
-        self._set_operator_cloud(shared_file_system_api_version='2.78')
-        self._set_user_cloud(shared_file_system_api_version='2.78')
+        self._set_operator_cloud(shared_file_system_api_version='2.82')
+        self._set_user_cloud(shared_file_system_api_version='2.82')
 
     def create_share(self, **kwargs):
         share = self.user_cloud.share.create_share(**kwargs)
@@ -75,3 +75,13 @@ class BaseSharedFileSystemTest(base.BaseFunctionalTest):
         )
         self.assertIsNotNone(share_group.id)
         return share_group
+
+    def create_resource_lock(self, **kwargs):
+        resource_lock = self.user_cloud.share.create_resource_lock(**kwargs)
+        self.addCleanup(
+            self.user_cloud.share.delete_resource_lock,
+            resource_lock.id,
+            ignore_missing=True,
+        )
+        self.assertIsNotNone(resource_lock.id)
+        return resource_lock
