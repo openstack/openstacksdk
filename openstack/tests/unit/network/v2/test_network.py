@@ -119,6 +119,8 @@ class TestNetwork(base.TestCase):
                 'any_tags': 'tags-any',
                 'not_tags': 'not-tags',
                 'not_any_tags': 'not-tags-any',
+                'sort_dir': 'sort_dir',
+                'sort_key': 'sort_key',
             },
             sot._query_mapping._mapping,
         )

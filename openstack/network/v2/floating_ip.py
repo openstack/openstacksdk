@@ -40,6 +40,8 @@ class FloatingIP(_base.NetworkResource, tag.TagMixin):
         'subnet_id',
         'project_id',
         'tenant_id',
+        'sort_key',
+        'sort_dir',
         tenant_id='project_id',
         **tag.TagMixin._tag_query_parameters
     )

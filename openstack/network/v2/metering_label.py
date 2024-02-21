@@ -31,6 +31,8 @@ class MeteringLabel(resource.Resource):
         'description',
         'name',
         'project_id',
+        'sort_key',
+        'sort_dir',
         is_shared='shared',
     )
 

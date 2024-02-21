@@ -32,6 +32,8 @@ class Flavor(resource.Resource):
         'description',
         'name',
         'service_type',
+        'sort_key',
+        'sort_dir',
         is_enabled='enabled',
     )
 

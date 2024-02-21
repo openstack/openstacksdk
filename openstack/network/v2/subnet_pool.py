@@ -34,6 +34,8 @@ class SubnetPool(resource.Resource, tag.TagMixin):
         'is_default',
         'name',
         'project_id',
+        'sort_key',
+        'sort_dir',
         is_shared='shared',
         **tag.TagMixin._tag_query_parameters
     )

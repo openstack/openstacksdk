@@ -46,6 +46,8 @@ class TestLocalIP(base.TestCase):
                 'host': 'host',
                 'limit': 'limit',
                 'marker': 'marker',
+                'sort_dir': 'sort_dir',
+                'sort_key': 'sort_key',
             },
             sot._query_mapping._mapping,
         )

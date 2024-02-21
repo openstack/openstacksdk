@@ -41,6 +41,8 @@ class NetworkSegmentRange(resource.Resource):
         'maximum',
         'used',
         'available',
+        'sort_key',
+        'sort_dir',
     )
 
     # Properties

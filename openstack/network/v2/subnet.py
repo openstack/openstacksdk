@@ -39,6 +39,8 @@ class Subnet(_base.NetworkResource, tag.TagMixin):
         'segment_id',
         'dns_publish_fixed_ip',
         'project_id',
+        'sort_key',
+        'sort_dir',
         is_dhcp_enabled='enable_dhcp',
         subnet_pool_id='subnetpool_id',
         use_default_subnet_pool='use_default_subnetpool',

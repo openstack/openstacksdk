@@ -47,6 +47,8 @@ class TestFloatingIP(base.TestCase):
                 'limit': 'limit',
                 'marker': 'marker',
                 'protocol': 'protocol',
+                'sort_dir': 'sort_dir',
+                'sort_key': 'sort_key',
             },
             sot._query_mapping._mapping,
         )

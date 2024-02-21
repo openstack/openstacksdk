@@ -34,6 +34,8 @@ class Segment(resource.Resource):
         'network_type',
         'physical_network',
         'segmentation_id',
+        'sort_key',
+        'sort_dir',
     )
 
     # Properties

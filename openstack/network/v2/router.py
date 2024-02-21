@@ -35,6 +35,8 @@ class Router(_base.NetworkResource, tag.TagMixin):
         'name',
         'status',
         'project_id',
+        'sort_key',
+        'sort_dir',
         is_admin_state_up='admin_state_up',
         is_distributed='distributed',
         is_ha='ha',

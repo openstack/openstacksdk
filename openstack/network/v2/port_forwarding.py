@@ -33,6 +33,8 @@ class PortForwarding(resource.Resource):
         'internal_port_id',
         'external_port',
         'protocol',
+        'sort_key',
+        'sort_dir',
     )
 
     # Properties
