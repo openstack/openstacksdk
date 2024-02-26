@@ -16,6 +16,7 @@ from openstack.shared_file_system.v2 import (
     availability_zone as _availability_zone,
 )
 from openstack.shared_file_system.v2 import limit as _limit
+from openstack.shared_file_system.v2 import quota_class_set as _quota_class_set
 from openstack.shared_file_system.v2 import resource_locks as _resource_locks
 from openstack.shared_file_system.v2 import share as _share
 from openstack.shared_file_system.v2 import share_group as _share_group
@@ -58,6 +59,7 @@ class Proxy(proxy.Proxy):
         "share_group": _share_group.ShareGroup,
         "share_group_snapshot": _share_group_snapshot.ShareGroupSnapshot,
         "resource_locks": _resource_locks.ResourceLock,
+        "quota_class_set": _quota_class_set.QuotaClassSet,
     }
 
     def availability_zones(self):
@@ -1198,3 +1200,26 @@ class Proxy(proxy.Proxy):
             }
             attrs.pop('resource_type')
         return self._create(_resource_locks.ResourceLock, **attrs)
+
+    def get_quota_class_set(self, quota_class_name):
+        """Get quota class set.
+
+        :param quota_class_name: The name of the quota class
+        :returns: A :class:`~openstack.shared_file_system.v2
+            .quota_class_set.QuotaClassSet`
+        """
+        return self._get(_quota_class_set.QuotaClassSet, quota_class_name)
+
+    def update_quota_class_set(self, quota_class_name, **attrs):
+        """Update quota class set.
+
+        :param quota_class_name: The name of the quota class
+        :param attrs: The attributes to update on the quota class set
+        :returns: the updated quota class set
+        :rtype: :class:`~openstack.shared_file_system.v2
+            .quota_class_set.QuotaClassSet`
+        """
+
+        return self._update(
+            _quota_class_set.QuotaClassSet, quota_class_name, **attrs
+        )
