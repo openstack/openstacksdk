@@ -754,6 +754,7 @@ class TestImage(BaseTestImage):
             is_public=False,
             validate_checksum=True,
             use_import=True,
+            import_method='glance-direct',
         )
 
         self.assert_calls()
