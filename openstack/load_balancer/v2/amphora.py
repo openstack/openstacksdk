@@ -47,7 +47,7 @@ class Amphora(resource.Resource):
         'created_at',
         'updated_at',
         'image_id',
-        'image_id',
+        'compute_flavor',
     )
 
     # Properties

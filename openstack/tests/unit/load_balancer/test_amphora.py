@@ -97,6 +97,7 @@ class TestAmphora(base.TestCase):
                 'marker': 'marker',
                 'id': 'id',
                 'loadbalancer_id': 'loadbalancer_id',
+                'compute_flavor': 'compute_flavor',
                 'compute_id': 'compute_id',
                 'lb_network_ip': 'lb_network_ip',
                 'vrrp_ip': 'vrrp_ip',
