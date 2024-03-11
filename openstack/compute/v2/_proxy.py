@@ -2835,7 +2835,7 @@ class Proxy(proxy.Proxy):
         """Get usage for a single project.
 
         :param project: ID or instance of
-            :class:`~openstack.identity.project.Project` of the project for
+            :class:`~openstack.identity.v3.project.Project` of the project for
             which the usage should be retrieved.
         :param start: Usage range start date.
         :param end: Usage range end date.
@@ -3010,7 +3010,7 @@ class Proxy(proxy.Proxy):
         """Show QuotaSet information for the project.
 
         :param project: ID or instance of
-            :class:`~openstack.identity.project.Project` of the project for
+            :class:`~openstack.identity.v3.project.Project` of the project for
             which the quota should be retrieved
         :param usage: When set to ``True`` quota usage and reservations
             would be filled.
@@ -3035,7 +3035,7 @@ class Proxy(proxy.Proxy):
         """Show QuotaSet defaults for the project.
 
         :param project: ID or instance of
-            :class:`~openstack.identity.project.Project` of the project for
+            :class:`~openstack.identity.v3.project.Project` of the project for
             which the quota should be retrieved
 
         :returns: One :class:`~openstack.compute.v2.quota_set.QuotaSet`
@@ -3060,7 +3060,7 @@ class Proxy(proxy.Proxy):
         """Reset Quota for the project/user.
 
         :param project: ID or instance of
-            :class:`~openstack.identity.project.Project` of the project for
+            :class:`~openstack.identity.v3.project.Project` of the project for
             which the quota should be reset.
         :param query: Additional parameters to be used.
 
@@ -3085,8 +3085,8 @@ class Proxy(proxy.Proxy):
         """Update a QuotaSet.
 
         :param project: ID or instance of
-            :class:`~openstack.identity.project.Project` of the project for
-            which the quota should be reset.
+            :class:`~openstack.identity.v3.project.Project` of the project for
+            which the quota should be updated.
         :param user_id: Optional ID of the user to set quotas as.
         :param attrs: The attributes to update on the QuotaSet represented
             by ``quota_set``.

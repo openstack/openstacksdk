@@ -22,6 +22,7 @@ import warnings
 
 from openstack._utils import renamed_param
 from openstack import exceptions
+from openstack.identity.v3 import project as _project
 from openstack import proxy
 from openstack import resource
 from openstack.shared_file_system.v2 import (
@@ -29,6 +30,7 @@ from openstack.shared_file_system.v2 import (
 )
 from openstack.shared_file_system.v2 import limit as _limit
 from openstack.shared_file_system.v2 import quota_class_set as _quota_class_set
+from openstack.shared_file_system.v2 import quota_set as _quota_set
 from openstack.shared_file_system.v2 import resource_locks as _resource_locks
 from openstack.shared_file_system.v2 import service as _service
 from openstack.shared_file_system.v2 import share as _share
@@ -68,11 +70,12 @@ class Proxy(proxy.Proxy):
         "availability_zone": _availability_zone.AvailabilityZone,
         "limit": _limit.Limit,
         "quota_class_set": _quota_class_set.QuotaClassSet,
+        "quota_set": _quota_set.QuotaSet,
         "resource_locks": _resource_locks.ResourceLock,
         "service": _service.Service,
         "share": _share.Share,
         "share_access_rule": _share_access_rule.ShareAccessRule,
-        "share_export_locations": _share_export_locations.ShareExportLocation,
+        "share_export_location": _share_export_locations.ShareExportLocation,
         "share_group": _share_group.ShareGroup,
         "share_group_snapshot": _share_group_snapshot.ShareGroupSnapshot,
         "share_instance": _share_instance.ShareInstance,
@@ -268,10 +271,57 @@ class Proxy(proxy.Proxy):
         :param attrs: The attributes to update on the quota class set
         :returns: the updated quota class set
         """
-
         return self._update(
             _quota_class_set.QuotaClassSet, quota_class_set, **attrs
         )
+
+    # ========= Quota Sets ==========
+
+    def get_quota_set(
+        self, project: str | _project.Project, **query: Any
+    ) -> _quota_set.QuotaSet:
+        """Retrieves a specific metadata item for the Quota Set.
+
+        :returns: A
+            :class:`~openstack.shared_file_system.v2.quota_sets.QuotaSets`
+        """
+        project_id = resource.Resource._get_id(project)
+        res = self._get_resource(
+            _quota_set.QuotaSet, None, project_id=project_id
+        )
+        return res.fetch(self)
+
+    def update_quota_set(
+        self, project: str | _project.Project, **attrs: Any
+    ) -> _quota_set.QuotaSet:
+        """Updates details of a quota set.
+
+        :param project: ID or instance of
+            :class:`~openstack.identity.v3.project.Project` of the project for
+            which the quota should be updated.
+        :param attrs: The attributes to update on the quota set.
+
+        :returns: The updated quota set
+        """
+        project_id = resource.Resource._get_id(project)
+        return self._update(
+            _quota_set.QuotaSet, None, project_id=project_id, **attrs
+        )
+
+    def revert_quota_set(
+        self,
+        project: str | _project.Project,
+    ) -> None:
+        """Reset quota set for a project
+
+        :param project: ID or instance of
+            :class:`~openstack.identity.v3.project.Project` of the project for
+            which the quota should be reset.
+
+        :returns: ``None``
+        """
+        project_id = resource.Resource._get_id(project)
+        self._delete(_quota_set.QuotaSet, None, project_id=project_id)
 
     # ========= Services ==========
 

@@ -35,6 +35,22 @@ service.
   :members: limits
 
 
+Quota Class Set Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.shared_file_system.v2._proxy.Proxy
+  :noindex:
+  :members: get_quota_class_set, update_quota_class_set
+
+
+Quota Set Operations
+^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.shared_file_system.v2._proxy.Proxy
+  :noindex:
+  :members: get_quota_set, revert_quota_set, update_quota_set
+
+
 Service Operations
 ^^^^^^^^^^^^^^^^^^
 
