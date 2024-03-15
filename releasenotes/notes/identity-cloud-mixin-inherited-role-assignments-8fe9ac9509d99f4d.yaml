@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    Add support for ``inherited_to`` filter for listing identity role
+    assignments in the cloud layer. This allows filtering by whether role
+    grants are inheritable to sub-projects.
+deprecations:
+  - |
+    Deprecate ``os-inherit-extension-inherited-to`` in favor of
+    ``inherited_to`` filter for listing identity role_assignments in the cloud
+    layer.

@@ -1225,7 +1225,7 @@ class Proxy(proxy.Proxy):
         :param kwargs query: Optional query parameters to be sent to limit
             the resources being returned. The options
             are: group_id, role_id, scope_domain_id,
-            scope_project_id, user_id, include_names,
+            scope_project_id, inherited_to, user_id, include_names,
             include_subtree.
         :return:
             :class:`~openstack.identity.v3.role_assignment.RoleAssignment`
