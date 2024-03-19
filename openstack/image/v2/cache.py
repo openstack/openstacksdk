@@ -62,8 +62,12 @@ class Cache(resource.Resource):
         :returns: The server response
         """
         headers = {}
-        if target != "both":
+        if target in ('cache', 'queue'):
             headers = {'x-image-cache-clear-target': target}
+        elif target != "both":
+            raise exceptions.InvalidRequest(
+                'Target must be "cache", "queue" or "both".'
+            )
         response = session.delete(self.base_path, headers=headers)
         exceptions.raise_from_response(response)
         return response
