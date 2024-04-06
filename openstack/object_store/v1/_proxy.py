@@ -17,6 +17,7 @@ import hmac
 import json
 import os
 import time
+import typing as ty
 from urllib import parse
 
 from openstack import _log
@@ -1046,7 +1047,7 @@ class Proxy(proxy.Proxy):
                 method.upper(),
             )
 
-        expiration: float | int
+        expiration: ty.Union[float, int]
         if not absolute:
             expiration = _get_expiration(timestamp)
         else:
