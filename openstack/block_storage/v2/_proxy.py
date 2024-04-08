@@ -361,7 +361,9 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         :param volume: The value can be either the ID of a volume or a
             :class:`~openstack.block_storage.v2.volume.Volume` instance.
-        :param str new_type: The new volume type that volume is changed with.
+        :param new_type: The new volume type that volume is changed with.
+            The value can be either the ID of the volume type or a
+            :class:`~openstack.block_storage.v2.type.Type` instance.
         :param str migration_policy: Specify if the volume should be migrated
             when it is re-typed. Possible values are on-demand or never.
             Default: never.
@@ -369,7 +371,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :returns: None
         """
         volume = self._get_resource(_volume.Volume, volume)
-        volume.retype(self, new_type, migration_policy)
+        type_id = resource.Resource._get_id(new_type)
+        volume.retype(self, type_id, migration_policy)
 
     def set_volume_bootable_status(self, volume, bootable):
         """Set bootable status of the volume.
