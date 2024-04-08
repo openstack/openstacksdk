@@ -771,7 +771,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         volume.set_bootable_status(self, bootable)
 
     def reset_volume_status(
-        self, volume, status, attach_status, migration_status
+        self, volume, status=None, attach_status=None, migration_status=None
     ):
         """Reset volume statuses.
 

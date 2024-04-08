@@ -9,6 +9,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
+import typing as ty
+
 from openstack.common import metadata
 from openstack import format
 from openstack import resource
@@ -114,15 +117,17 @@ class Volume(resource.Resource, metadata.MetadataMixin):
         body = {'os-set_bootable': {'bootable': bootable}}
         self._action(session, body)
 
-    def reset_status(self, session, status, attach_status, migration_status):
+    def reset_status(
+        self, session, status=None, attach_status=None, migration_status=None
+    ):
         """Reset volume statuses (admin operation)"""
-        body = {
-            'os-reset_status': {
-                'status': status,
-                'attach_status': attach_status,
-                'migration_status': migration_status,
-            }
-        }
+        body: ty.Dict[str, ty.Dict[str, str]] = {'os-reset_status': {}}
+        if status:
+            body['os-reset_status']['status'] = status
+        if attach_status:
+            body['os-reset_status']['attach_status'] = attach_status
+        if migration_status:
+            body['os-reset_status']['migration_status'] = migration_status
         self._action(session, body)
 
     def attach(self, session, mountpoint, instance):
