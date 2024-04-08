@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -177,6 +178,52 @@ class TestVolumeActions(TestVolume):
 
         url = 'volumes/%s/action' % FAKE_ID
         body = {'os-set_bootable': {'bootable': False}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion
+        )
+
+    def test_set_image_metadata(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.set_image_metadata(self.sess, {'foo': 'bar'}))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body = {'os-set_image_metadata': {'foo': 'bar'}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion
+        )
+
+    def test_delete_image_metadata(self):
+        _volume = copy.deepcopy(VOLUME)
+        _volume['metadata'] = {
+            'foo': 'bar',
+            'baz': 'wow',
+        }
+        sot = volume.Volume(**_volume)
+
+        self.assertIsNone(sot.delete_image_metadata(self.sess))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body_a = {'os-unset_image_metadata': 'foo'}
+        body_b = {'os-unset_image_metadata': 'baz'}
+        self.sess.post.assert_has_calls(
+            [
+                mock.call(
+                    url, json=body_a, microversion=sot._max_microversion
+                ),
+                mock.call(
+                    url, json=body_b, microversion=sot._max_microversion
+                ),
+            ]
+        )
+
+    def test_delete_image_metadata_item(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.delete_image_metadata_item(self.sess, 'foo'))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body = {'os-unset_image_metadata': 'foo'}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
         )

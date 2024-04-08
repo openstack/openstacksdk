@@ -117,6 +117,22 @@ class Volume(resource.Resource, metadata.MetadataMixin):
         body = {'os-set_bootable': {'bootable': bootable}}
         self._action(session, body)
 
+    def set_image_metadata(self, session, metadata):
+        """Sets image metadata key-value pairs on the volume"""
+        body = {'os-set_image_metadata': metadata}
+        self._action(session, body)
+
+    def delete_image_metadata(self, session):
+        """Remove all image metadata from the volume"""
+        for key in self.metadata:
+            body = {'os-unset_image_metadata': key}
+            self._action(session, body)
+
+    def delete_image_metadata_item(self, session, key):
+        """Remove a single image metadata from the volume"""
+        body = {'os-unset_image_metadata': key}
+        self._action(session, body)
+
     def reset_status(
         self, session, status=None, attach_status=None, migration_status=None
     ):
