@@ -1883,3 +1883,32 @@ class Proxy(proxy.Proxy):
             to delete failed to occur in the specified seconds.
         """
         return resource.wait_for_delete(self, res, interval, wait)
+
+    def _get_cleanup_dependencies(self):
+        return {'image': {'before': ['identity']}}
+
+    def _service_cleanup(
+        self,
+        dry_run=True,
+        client_status_queue=None,
+        identified_resources=None,
+        filters=None,
+        resource_evaluation_fn=None,
+        skip_resources=None,
+    ):
+        if self.should_skip_resource_cleanup("image", skip_resources):
+            return
+
+        project_id = self.get_project_id()
+
+        # Note that images cannot be deleted when they are still being used
+        for obj in self.images(owner=project_id):
+            self._service_cleanup_del_res(
+                self.delete_image,
+                obj,
+                dry_run=dry_run,
+                client_status_queue=client_status_queue,
+                identified_resources=identified_resources,
+                filters=filters,
+                resource_evaluation_fn=resource_evaluation_fn,
+            )

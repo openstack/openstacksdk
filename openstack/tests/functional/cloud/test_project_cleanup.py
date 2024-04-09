@@ -256,3 +256,154 @@ class TestProjectCleanup(base.BaseFunctionalTest):
         while not status_queue.empty():
             objects.append(status_queue.get())
         self.assertIsNone(self.conn.get_container('test_container'))
+
+    def test_cleanup_vpnaas(self):
+        if not list(self.conn.network.service_providers(service_type="VPN")):
+            self.skipTest("VPNaaS plugin is requred, but not available")
+
+        status_queue = queue.Queue()
+
+        # Find available external networks and use one
+        external_network = None
+        for network in self.conn.network.networks():
+            if network.is_router_external:
+                external_network = network
+                break
+        if not external_network:
+            self.skipTest("External network is required, but not available")
+
+        # Create left network resources
+        network_left = self.conn.network.create_network(name="network_left")
+        subnet_left = self.conn.network.create_subnet(
+            name="subnet_left",
+            network_id=network_left.id,
+            cidr="192.168.1.0/24",
+            ip_version=4,
+        )
+        router_left = self.conn.network.create_router(name="router_left")
+        self.conn.network.add_interface_to_router(
+            router=router_left.id, subnet_id=subnet_left.id
+        )
+        router_left = self.conn.network.update_router(
+            router_left,
+            external_gateway_info={"network_id": external_network.id},
+        )
+
+        # Create right network resources
+        network_right = self.conn.network.create_network(name="network_right")
+        subnet_right = self.conn.network.create_subnet(
+            name="subnet_right",
+            network_id=network_right.id,
+            cidr="192.168.2.0/24",
+            ip_version=4,
+        )
+        router_right = self.conn.network.create_router(name="router_right")
+        self.conn.network.add_interface_to_router(
+            router=router_right.id, subnet_id=subnet_right.id
+        )
+        router_right = self.conn.network.update_router(
+            router_right,
+            external_gateway_info={"network_id": external_network.id},
+        )
+
+        # Create VPNaaS resources
+        ike_policy = self.conn.network.create_vpn_ike_policy(name="ike_policy")
+        ipsec_policy = self.conn.network.create_vpn_ipsec_policy(
+            name="ipsec_policy"
+        )
+
+        vpn_service = self.conn.network.create_vpn_service(
+            name="vpn_service", router_id=router_left.id
+        )
+
+        ep_group_local = self.conn.network.create_vpn_endpoint_group(
+            name="endpoint_group_local",
+            type="subnet",
+            endpoints=[subnet_left.id],
+        )
+        ep_group_peer = self.conn.network.create_vpn_endpoint_group(
+            name="endpoint_group_peer",
+            type="cidr",
+            endpoints=[subnet_right.cidr],
+        )
+
+        router_right_ip = router_right.external_gateway_info[
+            'external_fixed_ips'
+        ][0]['ip_address']
+        ipsec_site_conn = self.conn.network.create_vpn_ipsec_site_connection(
+            name="ipsec_site_connection",
+            vpnservice_id=vpn_service.id,
+            ikepolicy_id=ike_policy.id,
+            ipsecpolicy_id=ipsec_policy.id,
+            local_ep_group_id=ep_group_local.id,
+            peer_ep_group_id=ep_group_peer.id,
+            psk="test",
+            peer_address=router_right_ip,
+            peer_id=router_right_ip,
+        )
+
+        # First round - check no resources are old enough
+        self.conn.project_cleanup(
+            dry_run=True,
+            wait_timeout=120,
+            status_queue=status_queue,
+            filters={'created_at': '2000-01-01'},
+        )
+        self.assertTrue(status_queue.empty())
+
+        # Second round - resource evaluation function return false, ensure
+        # nothing identified
+        self.conn.project_cleanup(
+            dry_run=True,
+            wait_timeout=120,
+            status_queue=status_queue,
+            filters={'created_at': '2200-01-01'},
+            resource_evaluation_fn=lambda x, y, z: False,
+        )
+        self.assertTrue(status_queue.empty())
+
+        # Third round - filters set too low
+        self.conn.project_cleanup(
+            dry_run=True,
+            wait_timeout=120,
+            status_queue=status_queue,
+            filters={'created_at': '2200-01-01'},
+        )
+        objects = []
+        while not status_queue.empty():
+            objects.append(status_queue.get())
+
+        # VPN resources do not have a created_at property
+        # Check for the network instead
+        resource_ids = list(obj.id for obj in objects)
+        self.assertIn(network_left.id, resource_ids)
+
+        # Fourth round - dry run with no filters, ensure everything identified
+        self.conn.project_cleanup(
+            dry_run=True, wait_timeout=120, status_queue=status_queue
+        )
+        objects = []
+        while not status_queue.empty():
+            objects.append(status_queue.get())
+
+        resource_ids = list(obj.id for obj in objects)
+        self.assertIn(ipsec_site_conn.id, resource_ids)
+
+        # Ensure vpn resources still exist
+        site_conn_check = self.conn.network.get_vpn_ipsec_site_connection(
+            ipsec_site_conn.id
+        )
+        self.assertEqual(site_conn_check.name, ipsec_site_conn.name)
+
+        # Last round - do a real cleanup
+        self.conn.project_cleanup(
+            dry_run=False, wait_timeout=600, status_queue=status_queue
+        )
+        # Ensure no VPN resources remain
+        self.assertEqual(0, len(list(self.conn.network.vpn_ike_policies())))
+        self.assertEqual(0, len(list(self.conn.network.vpn_ipsec_policies())))
+        self.assertEqual(0, len(list(self.conn.network.vpn_services())))
+        self.assertEqual(0, len(list(self.conn.network.vpn_endpoint_groups())))
+        self.assertEqual(
+            0, len(list(self.conn.network.vpn_ipsec_site_connections()))
+        )

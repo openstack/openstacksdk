@@ -2537,7 +2537,9 @@ class Proxy(proxy.Proxy):
 
     def _get_cleanup_dependencies(self):
         return {
-            'compute': {'before': ['block_storage', 'network', 'identity']}
+            'compute': {
+                'before': ['block_storage', 'network', 'identity', 'image']
+            }
         }
 
     def _service_cleanup(
@@ -2575,3 +2577,18 @@ class Proxy(proxy.Proxy):
         # might be still holding ports on the subnet
         for server in servers:
             self.wait_for_delete(server)
+
+        for obj in self.server_groups():
+            # Do not delete server groups that still have members
+            if obj.member_ids:
+                continue
+
+            self._service_cleanup_del_res(
+                self.delete_server_group,
+                obj,
+                dry_run=dry_run,
+                client_status_queue=client_status_queue,
+                identified_resources=identified_resources,
+                filters=filters,
+                resource_evaluation_fn=resource_evaluation_fn,
+            )
