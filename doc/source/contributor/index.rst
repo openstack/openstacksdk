@@ -46,7 +46,7 @@ The `openstack-discuss`__ mailing list fields questions of all types on
 OpenStack. Using the ``[sdk]`` filter to begin your email subject will ensure
 that the message gets to SDK developers.
 
-.. __: mailto:openstack-discuss@openstack.org?subject=[sdk]%20Question%20about%20openstacksdk
+.. __: mailto:openstack-discuss@lists.openstack.org?subject=[sdk]%20Question%20about%20openstacksdk
 
 Coding Standards
 ----------------
