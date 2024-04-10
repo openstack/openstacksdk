@@ -166,6 +166,7 @@ class TestServer(base.TestCase):
                 "progress": "progress",
                 "project_id": "project_id",
                 "ramdisk_id": "ramdisk_id",
+                "pinned_availability_zone": "pinned_availability_zone",
                 "reservation_id": "reservation_id",
                 "root_device_name": "root_device_name",
                 "sort_dir": "sort_dir",
