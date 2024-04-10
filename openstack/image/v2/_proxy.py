@@ -1525,6 +1525,23 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
+    def delete_all_metadef_properties(self, metadef_namespace):
+        """Delete all metadata definitions property inside a specific namespace.
+
+        :param metadef_namespace: The value can be either the name of a metadef
+            namespace or a
+            :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
+            instance.
+
+        :returns: ``None``
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            resource can be found.
+        """
+        namespace = self._get_resource(
+            _metadef_namespace.MetadefNamespace, metadef_namespace
+        )
+        return namespace.delete_all_properties(self)
+
     # ====== SCHEMAS ======
     def get_images_schema(self):
         """Get images schema
