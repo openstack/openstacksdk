@@ -47,3 +47,5 @@ class ApplicationCredential(resource.Resource):
     unrestricted = resource.Body('unrestricted', type=bool)
     #: ID of project. *Type: string*
     project_id = resource.Body('project_id')
+    #: access rules for application credential. *Type: list*
+    access_rules = resource.Body('access_rules')

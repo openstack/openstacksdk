@@ -19,6 +19,9 @@ EXAMPLE = {
     "name": 'monitoring',
     "secret": 'rEaqvJka48mpv',
     "roles": [{"name": "Reader"}],
+    "access_rules": [
+        {"path": "/v2.0/metrics", "service": "monitoring", "method": "GET"},
+    ],
     "expires_at": '2018-02-27T18:30:59Z',
     "description": "Application credential for monitoring",
     "unrestricted": "False",
@@ -51,3 +54,4 @@ class TestApplicationCredential(base.TestCase):
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['roles'], sot.roles)
         self.assertEqual(EXAMPLE['links'], sot.links)
+        self.assertEqual(EXAMPLE['access_rules'], sot.access_rules)
