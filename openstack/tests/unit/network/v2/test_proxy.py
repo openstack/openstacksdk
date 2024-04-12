@@ -47,6 +47,7 @@ from openstack.network.v2 import network_segment_range
 from openstack.network.v2 import pool
 from openstack.network.v2 import pool_member
 from openstack.network.v2 import port
+from openstack.network.v2 import port_binding
 from openstack.network.v2 import port_forwarding
 from openstack.network.v2 import qos_bandwidth_limit_rule
 from openstack.network.v2 import qos_dscp_marking_rule
@@ -83,6 +84,7 @@ FIP_ID = 'fip-id-' + uuid.uuid4().hex
 CT_HELPER_ID = 'ct-helper-id-' + uuid.uuid4().hex
 LOCAL_IP_ID = 'lip-id-' + uuid.uuid4().hex
 BGPVPN_ID = 'bgpvpn-id-' + uuid.uuid4().hex
+PORT_ID = 'port-id-' + uuid.uuid4().hex
 
 
 class TestNetworkProxy(test_proxy_base.TestProxyBase):
@@ -2666,3 +2668,49 @@ class TestNetworkTapMirror(TestNetworkProxy):
 
     def test_update_tap_mirror(self):
         self.verify_update(self.proxy.update_tap_mirror, tap_mirror.TapMirror)
+
+
+class TestNetworkPortBinding(TestNetworkProxy):
+    @mock.patch.object(proxy_base.Proxy, '_get')
+    def test_create_port_binding(self, mock_get):
+        res_port = port.Port.new(id=PORT_ID)
+        mock_get.return_value = res_port
+
+        self.verify_create(
+            self.proxy.create_port_binding,
+            port_binding.PortBinding,
+            method_kwargs={'port': PORT_ID},
+            expected_kwargs={'port_id': PORT_ID},
+        )
+
+    @mock.patch('openstack.network.v2._proxy.Proxy.activate_port_binding')
+    def test_activate_port_binding(self, activate_binding):
+        data = mock.sentinel
+        self.proxy.activate_port_binding(port_binding.PortBinding, data)
+        activate_binding.assert_called_once_with(
+            port_binding.PortBinding, data
+        )
+
+    @mock.patch.object(proxy_base.Proxy, '_get')
+    def test_port_bindings(self, mock_get):
+        res_port = port.Port.new(id=PORT_ID)
+        mock_get.return_value = res_port
+
+        self.verify_list(
+            self.proxy.port_bindings,
+            port_binding.PortBinding,
+            method_kwargs={'port': PORT_ID},
+            expected_kwargs={'port_id': PORT_ID},
+        )
+
+    @mock.patch('openstack.network.v2._proxy.Proxy.delete_port_binding')
+    @mock.patch.object(proxy_base.Proxy, '_get')
+    def test_delete_port_binding(self, mock_get, delete_port_binding):
+        res_port = port.Port.new(id=PORT_ID)
+        mock_get.return_value = res_port
+        data = mock.sentinel
+
+        self.proxy.delete_port_binding(port_binding.PortBinding, data)
+        delete_port_binding.assert_called_once_with(
+            port_binding.PortBinding, data
+        )

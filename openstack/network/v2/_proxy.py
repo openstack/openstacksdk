@@ -58,6 +58,7 @@ from openstack.network.v2 import (
 from openstack.network.v2 import pool as _pool
 from openstack.network.v2 import pool_member as _pool_member
 from openstack.network.v2 import port as _port
+from openstack.network.v2 import port_binding as _port_binding
 from openstack.network.v2 import port_forwarding as _port_forwarding
 from openstack.network.v2 import (
     qos_bandwidth_limit_rule as _qos_bandwidth_limit_rule,
@@ -3009,6 +3010,91 @@ class Proxy(proxy.Proxy):
                 if fixed_ip['subnet_id'] == subnet_id:
                     result.append(puerta)
         return result
+
+    def create_port_binding(self, port, **attrs):
+        """Create a port binding
+
+        :param port: The value can be the ID of a port or a
+            :class:`~openstack.network.v2.port.Port` instance.
+        :param attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.network.v2.port.Port`,
+            comprised of the properties on the Port class.
+
+        :returns: The results of port binding creation
+        :rtype: :class:`~openstack.network.v2.port_binding.PortBinding`
+        """
+        port_id = self._get(_port.Port, port).id
+        return self._create(
+            _port_binding.PortBinding,
+            port_id=port_id,
+            **attrs,
+        )
+
+    def activate_port_binding(
+        self,
+        port,
+        **attrs,
+    ):
+        """Activate a port binding
+
+        :param port: The value can be the ID of a port or a
+            :class:`~openstack.network.v2.port.Port` instance.
+        :param attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.network.v2.port.Port`,
+            comprised of the properties on the Port class.
+
+        :returns: The results of port binding creation
+        :rtype: :class:`~openstack.network.v2.port_binding.PortBinding`
+        """
+        port_id = self._get(_port.Port, port).id
+        host = attrs['host']
+        bindings_on_host = self.port_bindings(port=port_id, host=host)
+        # There can be only 1 binding on a host at a time
+        for binding in bindings_on_host:
+            return binding.activate_port_binding(self, **attrs)
+
+    def port_bindings(self, port, **query):
+        """Get a single port binding
+
+        :param port: The value can be the ID of a port or a
+            :class:`~openstack.network.v2.port.Port` instance.
+        :param kwargs query: Optional query parameters to be sent to limit
+            the resources being returned. Available parameters include:
+
+            * ``host``: The host on which the port is bound.
+            * ``vif_type``: The mechanism used for the port like bridge or ovs.
+            * ``vnic_type``: The type of the vnic, like normal or baremetal.
+            * ``status``: The port status. Value is ``ACTIVE`` or ``DOWN``.
+
+        :returns: A generator of PortBinding objects
+        :rtype: :class:`~openstack.network.v2.port_binding.PortBinding`
+        """
+        port_id = self._get(_port.Port, port).id
+        return self._list(
+            _port_binding.PortBinding,
+            port_id=port_id,
+            **query,
+        )
+
+    def delete_port_binding(self, port, host):
+        """Delete a Port Binding
+
+        :param port: The value can be either the ID of a port or a
+            :class:`~openstack.network.v2.port.Port` instance.
+        :param host: The host on which the port is bound.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the port does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent port.
+
+        :returns: ``None``
+        """
+        port_id = self._get(_port.Port, port).id
+        bindings_on_host = self.port_bindings(port=port_id, host=host)
+        # There can be only 1 binding on a host at a time
+        for binding in bindings_on_host:
+            return binding.delete_port_binding(self, host=host)
 
     def create_qos_bandwidth_limit_rule(self, qos_policy, **attrs):
         """Create a new bandwidth limit rule
