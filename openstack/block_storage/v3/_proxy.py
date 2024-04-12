@@ -23,6 +23,10 @@ from openstack.block_storage.v3 import availability_zone
 from openstack.block_storage.v3 import backup as _backup
 from openstack.block_storage.v3 import block_storage_summary as _summary
 from openstack.block_storage.v3 import capabilities as _capabilities
+from openstack.block_storage.v3 import consistency_group as _consistency_group
+from openstack.block_storage.v3 import (
+    consistency_group_snapshot as _consistency_group_snapshot,
+)
 from openstack.block_storage.v3 import default_type as _default_type
 from openstack.block_storage.v3 import extension as _extension
 from openstack.block_storage.v3 import group as _group
@@ -2109,6 +2113,293 @@ class Proxy(proxy.Proxy):
             secondary_backend_id=secondary_backend_id,
         )
 
+    # ====== CONSISTENCY GROUPS ======
+
+    def get_consistency_group(
+        self, consistency_group: str | _consistency_group.ConsistencyGroup
+    ) -> _consistency_group.ConsistencyGroup:
+        """Get a consistency group
+
+        :param group_snapshot: The value can be the ID of a consistency group
+            or a
+            :class:`~openstack.block_storage.v3.consistency_group.ConsistencyGroup`
+            instance.
+
+        :returns: A ConsistencyGroup instance.
+        """
+        return self._get(
+            _consistency_group.ConsistencyGroup, consistency_group
+        )
+
+    def find_consistency_group(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+    ) -> _consistency_group.ConsistencyGroup | None:
+        """Find a single consistency group
+
+        :param name_or_id: The name or ID of a group.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the consistency group does not exist.
+        :param details: When set to ``False``, no additional details will
+            be returned. The default, ``True``, will cause additional details
+            to be returned.
+
+        :returns: One
+            :class:`~openstack.block_storage.v3.consistency_group.ConsistencyGroup`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
+        """
+        list_base_path = '/consistencygroups/detail' if details else None
+        return self._find(
+            _consistency_group.ConsistencyGroup,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            list_base_path=list_base_path,
+        )
+
+    def consistency_groups(
+        self, *, details: bool = True, **query: Any
+    ) -> Generator[_consistency_group.ConsistencyGroup, None, None]:
+        """Retrieve a generator of consistency groups
+
+        :param details: When set to ``False``, no additional details will
+            be returned. The default, ``True``, will cause additional details
+            to be returned.
+        :param query: Optional query parameters to be sent to limit the
+            resources being returned:
+
+            * all_tenants: Shows details for all project.
+            * sort: Comma-separated list of sort keys and optional sort
+              directions.
+            * limit: Returns a number of items up to the limit value.
+            * offset: Used in conjunction with limit to return a slice of
+              items. Specifies where to start in the list.
+            * marker: The ID of the last-seen item.
+
+        :returns: A generator of consistency group objects.
+        """
+        base_path = '/consistencygroups/detail' if details else None
+        return self._list(
+            _consistency_group.ConsistencyGroup, base_path=base_path, **query
+        )
+
+    def create_consistency_group(
+        self, **attrs: Any
+    ) -> _consistency_group.ConsistencyGroup:
+        """Create a new consistency group from attributes
+
+        :param attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.block_storage.v3.consistency_group.ConsistencyGroup`
+            comprised of the properties on the Consistency Group class.
+
+        :returns: The results of consistency group creation.
+        """
+        return self._create(_consistency_group.ConsistencyGroup, **attrs)
+
+    def create_consistency_group_from_source(
+        self,
+        *,
+        consistency_group_snapshot: (
+            str | _consistency_group_snapshot.ConsistencyGroupSnapshot | None
+        ) = None,
+        consistency_group: (
+            str | _consistency_group.ConsistencyGroup | None
+        ) = None,
+        name: str | None = None,
+        description: str | None = None,
+    ) -> _consistency_group.ConsistencyGroup:
+        """Creates a new consistency group from source
+
+        :param attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.block_storage.v3.consistency_group.ConsistencyGroup`
+            comprised of the properties on the Consistency Group class.
+
+        :returns: The results of consistency group creation.
+        """
+        cg_id = None
+        if consistency_group:
+            cg_id = resource.Resource._get_id(consistency_group)
+
+        cg_snap_id = None
+        if consistency_group_snapshot:
+            cg_snap_id = resource.Resource._get_id(consistency_group_snapshot)
+
+        return _consistency_group.ConsistencyGroup.create_from_source(
+            self,
+            consistency_group_id=cg_id,
+            consistency_group_snapshot_id=cg_snap_id,
+            name=name,
+            description=description,
+        )
+
+    def delete_consistency_group(
+        self,
+        consistency_group: _consistency_group.ConsistencyGroup,
+        force: bool = False,
+    ) -> None:
+        """Delete a consistency group
+
+        :param consistency_group: The
+            :class:`~openstack.block_storage.v3.consistency_group.ConsistencyGroup`
+            to delete.
+        :param force: When set to ``True``, volumes in consistency
+            group will also be deleted.
+
+        :returns: ``None``.
+        """
+        res = self._get_resource(
+            _consistency_group.ConsistencyGroup, consistency_group
+        )
+        res.delete(self, params={'force': force})
+
+    def update_consistency_group(
+        self,
+        consistency_group: _consistency_group.ConsistencyGroup,
+        **attrs: Any,
+    ) -> _consistency_group.ConsistencyGroup:
+        """Update a consistency group
+
+        :param consistency_group: The value can be the ID of a group or a
+            :class:`~openstack.block_storage.v3.consistency_group.ConsistencyGroup`
+            instance.
+        :param attrs: The attributes to update on the consistency group.
+
+        :returns: The updated consistency group
+        """
+        return self._update(
+            _consistency_group.ConsistencyGroup, consistency_group, **attrs
+        )
+
+    # ====== CONSISTENCY GROUP SNAPSHOTS ======
+
+    def get_consistency_group_snapshot(
+        self,
+        consistency_group_snapshot: (
+            str | _consistency_group_snapshot.ConsistencyGroupSnapshot
+        ),
+    ) -> _consistency_group_snapshot.ConsistencyGroupSnapshot:
+        """Get a consistency group snapshot.
+
+        :param consistency_group_snapshot: The value can be either the ID of a
+            consistency group snapshot or a
+            :class:`~openstack.block_storage.v3.consistency_group_snapshot.ConsistencyGroupSnapshot`
+            instance.
+
+        :returns: One
+            :class:`~openstack.block_storage.v3.consistency_group_snapshot.ConsistencyGroupSnapshot`
+        """
+        return self._get(
+            _consistency_group_snapshot.ConsistencyGroupSnapshot,
+            consistency_group_snapshot,
+        )
+
+    def find_consistency_group_snapshot(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+    ) -> _consistency_group_snapshot.ConsistencyGroupSnapshot | None:
+        """Find a single consistency group snapshot.
+
+        :param name_or_id: The name or ID of a consistency group snapshot.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the consistency group snapshot does not exist.
+        :param details: When set to ``False``, no additional details will
+            be returned. The default, ``True``, will cause additional details
+            to be returned.
+
+        :returns: One
+            :class:`~openstack.block_storage.v3.consistency_group_snapshot.ConsistencyGroupSnapshot`
+            or None.
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
+        """
+        list_base_path = '/cgsnapshots/detail' if details else None
+        return self._find(
+            _consistency_group_snapshot.ConsistencyGroupSnapshot,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            list_base_path=list_base_path,
+        )
+
+    def consistency_group_snapshots(
+        self, *, details: bool = True, **query: Any
+    ) -> Generator[
+        _consistency_group_snapshot.ConsistencyGroupSnapshot, None, None
+    ]:
+        """Retrieve a generator of consistency group snapshots.
+
+        :param details: When set to ``False``, no additional details will
+            be returned. The default, ``True``, will cause additional details
+            to be returned.
+        :param query: Optional query parameters to be sent to limit the
+            resources being returned:
+
+            * limit: Returns a number of items up to the limit value.
+            * offset: Used in conjunction with limit to return a slice of
+              items. Specifies where to start in the list.
+            * marker: The ID of the last-seen item.
+
+        :returns: A generator of consistency group snapshot objects.
+        """
+        base_path = '/cgsnapshots/detail' if details else None
+        return self._list(
+            _consistency_group_snapshot.ConsistencyGroupSnapshot,
+            base_path=base_path,
+            **query,
+        )
+
+    def create_consistency_group_snapshot(
+        self, **attrs: Any
+    ) -> _consistency_group_snapshot.ConsistencyGroupSnapshot:
+        """Create a new consistency group snapshot.
+
+        :param attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.block_storage.v3.consistency_group_snapshot.ConsistencyGroupSnapshot`,
+            comprised of the properties on the ConsistencyGroupSnapshot class.
+            The ``consistencygroup_id`` attribute is required.
+
+        :returns: The result of consistency group snapshot creation.
+        """
+        return self._create(
+            _consistency_group_snapshot.ConsistencyGroupSnapshot, **attrs
+        )
+
+    def delete_consistency_group_snapshot(
+        self,
+        consistency_group_snapshot: (
+            str | _consistency_group_snapshot.ConsistencyGroupSnapshot
+        ),
+        ignore_missing: bool = True,
+    ) -> None:
+        """Delete a consistency group snapshot.
+
+        :param consistency_group_snapshot: The value can be either the ID of a
+            consistency group snapshot or a
+            :class:`~openstack.block_storage.v3.consistency_group_snapshot.ConsistencyGroupSnapshot`
+            instance.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the consistency group snapshot does not exist.
+
+        :returns: ``None``
+        """
+        self._delete(
+            _consistency_group_snapshot.ConsistencyGroupSnapshot,
+            consistency_group_snapshot,
+            ignore_missing=ignore_missing,
+        )
+
     # ====== AVAILABILITY ZONES ======
     def availability_zones(
         self,
@@ -2577,7 +2868,7 @@ class Proxy(proxy.Proxy):
 
         :param qos_spec: The value can be either the ID of a QoS spec or a
             :class:`~openstack.block_storage.v2.qos_spec.QoSSpec` instance.
-        :param dict attrs: The attributes to update on the QoS spec
+        :param attrs: The attributes to update on the QoS spec
 
         :returns: The updated QoS spec
         """

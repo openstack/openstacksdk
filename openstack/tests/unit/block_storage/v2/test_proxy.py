@@ -16,6 +16,8 @@ import warnings
 from openstack.block_storage.v2 import _proxy
 from openstack.block_storage.v2 import backup
 from openstack.block_storage.v2 import capabilities
+from openstack.block_storage.v2 import consistency_group
+from openstack.block_storage.v2 import consistency_group_snapshot
 from openstack.block_storage.v2 import limits
 from openstack.block_storage.v2 import qos_spec
 from openstack.block_storage.v2 import quota_class_set
@@ -885,4 +887,122 @@ class TestService(TestVolumeProxy):
             method_args=["value"],
             expected_args=[self.proxy],
             expected_kwargs={"backend_id": None},
+        )
+
+
+class TestConsistencyGroup(TestVolumeProxy):
+    def test_consistency_group_get(self):
+        self.verify_get(
+            self.proxy.get_consistency_group,
+            consistency_group.ConsistencyGroup,
+        )
+
+    def test_consistency_group_find(self):
+        self.verify_find(
+            self.proxy.find_consistency_group,
+            consistency_group.ConsistencyGroup,
+            method_kwargs={'details': True},
+            expected_kwargs={
+                'list_base_path': '/consistencygroups/detail',
+            },
+        )
+
+    def test_consistency_groups_detailed(self):
+        self.verify_list(
+            self.proxy.consistency_groups,
+            consistency_group.ConsistencyGroup,
+            method_kwargs={"details": True},
+            expected_kwargs={"base_path": "/consistencygroups/detail"},
+        )
+
+    def test_consistency_groups_not_detailed(self):
+        self.verify_list(
+            self.proxy.consistency_groups,
+            consistency_group.ConsistencyGroup,
+            method_kwargs={"details": False},
+            expected_kwargs={"base_path": None},
+        )
+
+    def test_consistency_group_create(self):
+        self.verify_create(
+            self.proxy.create_consistency_group,
+            consistency_group.ConsistencyGroup,
+        )
+
+    def test_consistency_group_create_from_source(self):
+        self._verify(
+            "openstack.block_storage.v2.consistency_group"
+            ".ConsistencyGroup.create_from_source",
+            self.proxy.create_consistency_group_from_source,
+            method_args=[],
+            expected_args=[self.proxy],
+            expected_kwargs={
+                'consistency_group_id': None,
+                'consistency_group_snapshot_id': None,
+                'name': None,
+                'description': None,
+            },
+        )
+
+    def test_consistency_group_delete(self):
+        self._verify(
+            "openstack.block_storage.v2.consistency_group"
+            ".ConsistencyGroup.delete",
+            self.proxy.delete_consistency_group,
+            method_args=["value"],
+            expected_args=[self.proxy],
+            expected_kwargs={"params": {"force": False}},
+        )
+
+    def test_consistency_group_update(self):
+        self.verify_update(
+            self.proxy.update_consistency_group,
+            consistency_group.ConsistencyGroup,
+        )
+
+
+class TestConsistencyGroupSnapshot(TestVolumeProxy):
+    def test_consistency_group_snapshot_get(self):
+        self.verify_get(
+            self.proxy.get_consistency_group_snapshot,
+            consistency_group_snapshot.ConsistencyGroupSnapshot,
+        )
+
+    def test_consistency_group_snapshot_find(self):
+        self.verify_find(
+            self.proxy.find_consistency_group_snapshot,
+            consistency_group_snapshot.ConsistencyGroupSnapshot,
+            method_kwargs={'details': True},
+            expected_kwargs={
+                'list_base_path': '/cgsnapshots/detail',
+            },
+        )
+
+    def test_consistency_group_snapshots_detailed(self):
+        self.verify_list(
+            self.proxy.consistency_group_snapshots,
+            consistency_group_snapshot.ConsistencyGroupSnapshot,
+            method_kwargs={"details": True},
+            expected_kwargs={"base_path": "/cgsnapshots/detail"},
+        )
+
+    def test_consistency_group_snapshots_not_detailed(self):
+        self.verify_list(
+            self.proxy.consistency_group_snapshots,
+            consistency_group_snapshot.ConsistencyGroupSnapshot,
+            method_kwargs={"details": False},
+            expected_kwargs={"base_path": None},
+        )
+
+    def test_consistency_group_snapshot_create(self):
+        self.verify_create(
+            self.proxy.create_consistency_group_snapshot,
+            consistency_group_snapshot.ConsistencyGroupSnapshot,
+        )
+
+    def test_consistency_group_snapshot_delete(self):
+        self.verify_delete(
+            self.proxy.delete_consistency_group_snapshot,
+            consistency_group_snapshot.ConsistencyGroupSnapshot,
+            True,
         )

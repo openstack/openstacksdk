@@ -27,6 +27,25 @@ Capabilities Operations
   :noindex:
   :members: get_capabilities
 
+Consistency Group Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v2._proxy.Proxy
+  :noindex:
+  :members: create_consistency_group, create_consistency_group_from_source,
+            delete_consistency_group, update_consistency_group,
+            get_consistency_group, find_consistency_group, consistency_groups
+
+Consistency Group Snapshot Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v2._proxy.Proxy
+  :noindex:
+  :members: create_consistency_group_snapshot,
+            delete_consistency_group_snapshot,
+            get_consistency_group_snapshot,
+            find_consistency_group_snapshot, consistency_group_snapshots
+
 Limits Operations
 ^^^^^^^^^^^^^^^^^
 
