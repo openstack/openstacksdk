@@ -198,6 +198,21 @@ class TestVolumeActions(TestVolume):
             url, json=body, microversion=sot._max_microversion
         )
 
+    def test_reset_status__single_option(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.reset_status(self.sess, status='1'))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body = {
+            'os-reset_status': {
+                'status': '1',
+            }
+        }
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion
+        )
+
     def test_attach_instance(self):
         sot = volume.Volume(**VOLUME)
 
