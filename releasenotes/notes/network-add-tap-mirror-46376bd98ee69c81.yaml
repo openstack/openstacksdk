@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``Tap Mirror`` and introduce the support for creating, reading,
+    updating and deleting ``tap_mirrors``.
