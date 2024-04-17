@@ -770,6 +770,36 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.set_bootable_status(self, bootable)
 
+    def set_volume_image_metadata(self, volume, **metadata):
+        """Update image metadata for a volume
+
+        :param volume: Either the ID of a volume or a
+            :class:`~openstack.block_storage.v3.volume.Volume`.
+        :param kwargs metadata: Key/value pairs to be updated in the volume's
+            image metadata. No other metadata is modified by this call.
+
+        :returns: None
+        """
+        volume = self._get_resource(_volume.Volume, volume)
+        return volume.set_image_metadata(self, metadata=metadata)
+
+    def delete_volume_image_metadata(self, volume, keys=None):
+        """Delete metadata for a volume
+
+        :param volume: Either the ID of a volume or a
+            :class:`~openstack.block_storage.v3.volume.Volume`.
+        :param list keys: The keys to delete. If left empty complete
+            metadata will be removed.
+
+        :returns: None
+        """
+        volume = self._get_resource(_volume.Volume, volume)
+        if keys is not None:
+            for key in keys:
+                volume.delete_image_metadata_item(self, key)
+        else:
+            volume.delete_image_metadata(self)
+
     def reset_volume_status(
         self, volume, status=None, attach_status=None, migration_status=None
     ):

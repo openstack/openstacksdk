@@ -410,6 +410,32 @@ class TestVolumeActions(TestVolumeProxy):
             expected_args=[self.proxy, '1', '2', '3'],
         )
 
+    def test_set_volume_image_metadata(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.set_image_metadata",
+            self.proxy.set_volume_image_metadata,
+            method_args=["value"],
+            method_kwargs={'foo': 'bar'},
+            expected_args=[self.proxy],
+            expected_kwargs={'metadata': {'foo': 'bar'}},
+        )
+
+    def test_delete_volume_image_metadata(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.delete_image_metadata",
+            self.proxy.delete_volume_image_metadata,
+            method_args=["value"],
+            expected_args=[self.proxy],
+        )
+
+    def test_delete_volume_image_metadata__with_keys(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.delete_image_metadata_item",
+            self.proxy.delete_volume_image_metadata,
+            method_args=["value", ['foo']],
+            expected_args=[self.proxy, 'foo'],
+        )
+
     def test_volume_revert_to_snapshot(self):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.revert_to_snapshot",

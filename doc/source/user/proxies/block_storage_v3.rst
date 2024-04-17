@@ -21,6 +21,7 @@ Volume Operations
             find_volume, volumes, get_volume_metadata, set_volume_metadata,
             delete_volume_metadata, extend_volume, set_volume_readonly,
             retype_volume, set_volume_bootable_status, reset_volume_status,
+            set_volume_image_metadata, delete_volume_image_metadata,
             revert_volume_to_snapshot, attach_volume, detach_volume,
             unmanage_volume, migrate_volume, complete_volume_migration,
             upload_volume_to_image, reserve_volume, unreserve_volume,
