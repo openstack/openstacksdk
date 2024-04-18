@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    ``openstack.network.v2.bgpvpn.BgpVpn`` can now be filtered by its
+    associations to `networks`, `routers` and `ports. Additionally,
+    filtering for the attributes `name`, `project_id`, `local_pref`, `vni`
+    and `type` is now done on server-side.
