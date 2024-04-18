@@ -1282,6 +1282,7 @@ class Proxy(proxy.Proxy):
             resource can be found.
         """
         namespace_name = resource.Resource._get_id(namespace)
+        metadef_object = resource.Resource._get_id(metadef_object)
         return self._update(
             _metadef_object.MetadefObject,
             metadef_object,
