@@ -982,3 +982,12 @@ class TestCache(TestImageProxy):
             expected_args=[self.proxy, 'both'],
         )
         mock_get_resource.assert_called_once_with(_cache.Cache, None)
+
+        mock_get_resource.reset_mock()
+        self._verify(
+            "openstack.image.v2.cache.Cache.clear",
+            self.proxy.clear_cache,
+            method_args=[],
+            expected_args=[self.proxy, 'both'],
+        )
+        mock_get_resource.assert_called_once_with(_cache.Cache, None)

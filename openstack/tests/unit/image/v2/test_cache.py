@@ -69,5 +69,22 @@ class TestCache(base.TestCase):
         session = mock.Mock()
         session.delete = mock.Mock()
 
+        sot.clear(session)
+        session.delete.assert_called_with('/cache', headers={})
+
         sot.clear(session, 'both')
         session.delete.assert_called_with('/cache', headers={})
+
+        sot.clear(session, 'cache')
+        session.delete.assert_called_with(
+            '/cache', headers={'x-image-cache-clear-target': 'cache'}
+        )
+
+        sot.clear(session, 'queue')
+        session.delete.assert_called_with(
+            '/cache', headers={'x-image-cache-clear-target': 'queue'}
+        )
+
+        self.assertRaises(
+            exceptions.InvalidRequest, sot.clear, session, 'invalid'
+        )
