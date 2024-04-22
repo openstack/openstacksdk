@@ -56,6 +56,22 @@ betacloud-1    Karlsruhe, Germany
 * Public IPv4 is provided via NAT with Neutron Floating IP
 * Volume API Version is 3
 
+Binero
+------
+
+https://auth.binero.cloud:5000/v3
+
+============== ==================
+Region Name    Location
+============== ==================
+europe-se-1    Stockholm, SE
+============== ==================
+
+* Identity API Version is 3
+* Volume API Version is 3
+* Public IPv4 is directly routable via DHCP from Neutron
+* Public IPv4 is provided via NAT with Neutron Floating IP
+
 Catalyst
 --------
 
