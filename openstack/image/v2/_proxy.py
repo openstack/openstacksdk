@@ -1314,6 +1314,22 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
+    def delete_all_metadef_objects(self, namespace):
+        """Delete all objects
+
+        :param namespace: The value can be either the name of a metadef
+            namespace or a
+            :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
+            instance.
+        :returns: ``None``
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            resource can be found.
+        """
+        namespace = self._get_resource(
+            _metadef_namespace.MetadefNamespace, namespace
+        )
+        return namespace.delete_all_objects(self)
+
     # ====== METADEF RESOURCE TYPES ======
     def metadef_resource_types(self, **query):
         """Return a generator of metadef resource types
