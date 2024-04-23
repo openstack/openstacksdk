@@ -19,7 +19,7 @@ from openstack import utils
 
 class TestZoneShare(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestZoneShare, self).setUp()
+        super().setUp()
         self.require_service('dns')
         if not self.user_cloud:
             self.skipTest("The demo cloud is required for this test")
@@ -28,7 +28,7 @@ class TestZoneShare(base.BaseFunctionalTest):
         # chose a new zone name for a test
         # getUniqueString is not guaranteed to return unique string between
         # different tests of the same class.
-        self.ZONE_NAME = 'example-{0}.org.'.format(uuid.uuid4().hex)
+        self.ZONE_NAME = f'example-{uuid.uuid4().hex}.org.'
 
         # Make sure the API under test has shared zones support
         if not utils.supports_version(self.conn.dns, '2.1'):

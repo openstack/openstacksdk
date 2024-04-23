@@ -26,7 +26,7 @@ from openstack.tests.unit import test_proxy_base
 @mock.patch.object(introspection.Introspection, 'create', autospec=True)
 class TestStartIntrospection(base.TestCase):
     def setUp(self):
-        super(TestStartIntrospection, self).setUp()
+        super().setUp()
         self.session = mock.Mock(spec=adapter.Adapter)
         self.proxy = _proxy.Proxy(self.session)
 
@@ -53,7 +53,7 @@ class TestStartIntrospection(base.TestCase):
 
 class TestBaremetalIntrospectionProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestBaremetalIntrospectionProxy, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
     def test_get_introspection(self):
@@ -66,7 +66,7 @@ class TestBaremetalIntrospectionProxy(test_proxy_base.TestProxyBase):
 @mock.patch.object(introspection.Introspection, 'fetch', autospec=True)
 class TestWaitForIntrospection(base.TestCase):
     def setUp(self):
-        super(TestWaitForIntrospection, self).setUp()
+        super().setUp()
         self.session = mock.Mock(spec=adapter.Adapter)
         self.proxy = _proxy.Proxy(self.session)
         self.fake = {'state': 'waiting', 'error': None, 'finished': False}
@@ -136,7 +136,7 @@ class TestWaitForIntrospection(base.TestCase):
 @mock.patch.object(_proxy.Proxy, 'request', autospec=True)
 class TestAbortIntrospection(base.TestCase):
     def setUp(self):
-        super(TestAbortIntrospection, self).setUp()
+        super().setUp()
         self.session = mock.Mock(spec=adapter.Adapter)
         self.proxy = _proxy.Proxy(self.session)
         self.fake = {'id': '1234', 'finished': False}
@@ -158,7 +158,7 @@ class TestAbortIntrospection(base.TestCase):
 @mock.patch.object(_proxy.Proxy, 'request', autospec=True)
 class TestGetData(base.TestCase):
     def setUp(self):
-        super(TestGetData, self).setUp()
+        super().setUp()
         self.session = mock.Mock(spec=adapter.Adapter)
         self.proxy = _proxy.Proxy(self.session)
         self.fake = {'id': '1234', 'finished': False}

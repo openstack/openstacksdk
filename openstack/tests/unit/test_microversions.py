@@ -17,7 +17,7 @@ from openstack.tests.unit import base
 
 class TestMicroversions(base.TestCase):
     def setUp(self):
-        super(TestMicroversions, self).setUp()
+        super().setUp()
         self.use_compute_discovery()
 
     def test_get_bad_inferred_max_microversion(self):

@@ -35,7 +35,7 @@ EXAMPLE = {
 
 class TestAggregate(base.TestCase):
     def setUp(self):
-        super(TestAggregate, self).setUp()
+        super().setUp()
         self.resp = mock.Mock()
         self.resp.body = EXAMPLE.copy()
         self.resp.json = mock.Mock(return_value=self.resp.body)

@@ -27,7 +27,7 @@ from openstack.tests.unit import base
 
 class CloudServices(base.TestCase):
     def setUp(self, cloud_config_fixture='clouds.yaml'):
-        super(CloudServices, self).setUp(cloud_config_fixture)
+        super().setUp(cloud_config_fixture)
 
     def get_mock_url(
         self,
@@ -37,7 +37,7 @@ class CloudServices(base.TestCase):
         append=None,
         base_url_append='v3',
     ):
-        return super(CloudServices, self).get_mock_url(
+        return super().get_mock_url(
             service_type, interface, resource, append, base_url_append
         )
 

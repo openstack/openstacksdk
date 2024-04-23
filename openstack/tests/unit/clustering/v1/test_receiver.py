@@ -38,7 +38,7 @@ FAKE = {
 
 class TestReceiver(base.TestCase):
     def setUp(self):
-        super(TestReceiver, self).setUp()
+        super().setUp()
 
     def test_basic(self):
         sot = receiver.Receiver()

@@ -28,7 +28,7 @@ from openstack.tests.functional import base
 
 class TestPort(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestPort, self).setUp()
+        super().setUp()
         # Skip Neutron tests if neutron is not present
         if not self.user_cloud.has_service('network'):
             self.skipTest('Network service not supported by cloud')
@@ -118,13 +118,13 @@ class TestPort(base.BaseFunctionalTest):
         updated_port = self.user_cloud.get_port(name_or_id=port['id'])
         self.assertEqual(port.get('name'), new_port_name)
         port.pop('revision_number', None)
-        port.pop(u'revision_number', None)
+        port.pop('revision_number', None)
         port.pop('updated_at', None)
-        port.pop(u'updated_at', None)
+        port.pop('updated_at', None)
         updated_port.pop('revision_number', None)
-        updated_port.pop(u'revision_number', None)
+        updated_port.pop('revision_number', None)
         updated_port.pop('updated_at', None)
-        updated_port.pop(u'updated_at', None)
+        updated_port.pop('updated_at', None)
 
         self.assertEqual(port, updated_port)
 

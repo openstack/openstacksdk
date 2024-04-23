@@ -25,7 +25,7 @@ from openstack.tests.unit import base
 
 class TestDeleteVolumeSnapshot(base.TestCase):
     def setUp(self):
-        super(TestDeleteVolumeSnapshot, self).setUp()
+        super().setUp()
         self.use_cinder()
 
     def test_delete_volume_snapshot(self):

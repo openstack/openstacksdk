@@ -43,7 +43,7 @@ class BaseBlockStorageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
                 )
             volume_id = volume_obj['id']
         data = self.post(
-            '/volumes/{id}/action'.format(id=volume_id),
+            f'/volumes/{volume_id}/action',
             json={
                 'os-volume_upload_image': {
                     'force': allow_duplicates,

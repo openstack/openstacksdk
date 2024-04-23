@@ -79,7 +79,7 @@ class TestPopulateDirectory(testtools.TestCase):
         self._check({'foo': 42}, b'I am user data')
 
     def test_with_user_data_as_string(self):
-        self._check({'foo': 42}, u'I am user data')
+        self._check({'foo': 42}, 'I am user data')
 
     def test_with_network_data(self):
         self._check({'foo': 42}, network_data={'networks': {}})

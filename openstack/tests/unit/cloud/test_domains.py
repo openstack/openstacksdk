@@ -31,7 +31,7 @@ class TestDomains(base.TestCase):
         base_url_append='v3',
         qs_elements=None,
     ):
-        return super(TestDomains, self).get_mock_url(
+        return super().get_mock_url(
             service_type=service_type,
             resource=resource,
             append=append,

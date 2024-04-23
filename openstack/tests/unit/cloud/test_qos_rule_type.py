@@ -54,12 +54,12 @@ class TestQosRuleType(base.TestCase):
                     {
                         'parameter_values': {'start': 0, 'end': 2147483647},
                         'parameter_type': 'range',
-                        'parameter_name': u'max_kbps',
+                        'parameter_name': 'max_kbps',
                     },
                     {
                         'parameter_values': ['ingress', 'egress'],
                         'parameter_type': 'choices',
-                        'parameter_name': u'direction',
+                        'parameter_name': 'direction',
                     },
                     {
                         'parameter_values': {'start': 0, 'end': 2147483647},

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -20,7 +18,7 @@ from openstack.tests.unit import base
 
 class TestVolumeAccess(base.TestCase):
     def setUp(self):
-        super(TestVolumeAccess, self).setUp()
+        super().setUp()
         self.use_cinder()
 
     def test_list_volume_types(self):

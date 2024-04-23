@@ -18,7 +18,7 @@ class TestVpnIkePolicy(base.BaseFunctionalTest):
     ID = None
 
     def setUp(self):
-        super(TestVpnIkePolicy, self).setUp()
+        super().setUp()
         if not self.user_cloud._has_neutron_extension("vpnaas"):
             self.skipTest("vpnaas service not supported by cloud")
         self.IKEPOLICY_NAME = self.getUniqueString("ikepolicy")
@@ -35,7 +35,7 @@ class TestVpnIkePolicy(base.BaseFunctionalTest):
             self.ID, ignore_missing=True
         )
         self.assertIsNone(ikepolicy)
-        super(TestVpnIkePolicy, self).tearDown()
+        super().tearDown()
 
     def test_list(self):
         policies = [f.name for f in self.user_cloud.network.vpn_ike_policies()]

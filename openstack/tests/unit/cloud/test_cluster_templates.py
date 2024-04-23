@@ -62,7 +62,7 @@ class TestClusterTemplates(base.TestCase):
         append=None,
         resource=None,
     ):
-        return super(TestClusterTemplates, self).get_mock_url(
+        return super().get_mock_url(
             service_type=service_type,
             resource=resource,
             append=append,

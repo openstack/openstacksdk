@@ -25,7 +25,7 @@ class TestSecurityGroupRule(base.BaseFunctionalTest):
     RULE_ID = None
 
     def setUp(self):
-        super(TestSecurityGroupRule, self).setUp()
+        super().setUp()
         self.NAME = self.getUniqueString()
         sot = self.user_cloud.network.create_security_group(name=self.NAME)
         assert isinstance(sot, security_group.SecurityGroup)
@@ -52,7 +52,7 @@ class TestSecurityGroupRule(base.BaseFunctionalTest):
             self.ID, ignore_missing=False
         )
         self.assertIsNone(sot)
-        super(TestSecurityGroupRule, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         sot = self.user_cloud.network.find_security_group_rule(self.RULE_ID)

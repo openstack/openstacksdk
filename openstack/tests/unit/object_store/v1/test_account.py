@@ -30,7 +30,7 @@ ACCOUNT_EXAMPLE = {
 
 class TestAccount(base.TestCase):
     def setUp(self):
-        super(TestAccount, self).setUp()
+        super().setUp()
         self.endpoint = self.cloud.object_store.get_endpoint() + '/'
 
     def test_basic(self):

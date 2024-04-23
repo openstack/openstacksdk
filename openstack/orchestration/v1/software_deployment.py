@@ -52,13 +52,9 @@ class SoftwareDeployment(resource.Resource):
     def create(self, session, base_path=None):
         # This overrides the default behavior of resource creation because
         # heat doesn't accept resource_key in its request.
-        return super(SoftwareDeployment, self).create(
-            session, prepend_key=False, base_path=base_path
-        )
+        return super().create(session, prepend_key=False, base_path=base_path)
 
     def commit(self, session, base_path=None):
         # This overrides the default behavior of resource creation because
         # heat doesn't accept resource_key in its request.
-        return super(SoftwareDeployment, self).commit(
-            session, prepend_key=False, base_path=base_path
-        )
+        return super().commit(session, prepend_key=False, base_path=base_path)

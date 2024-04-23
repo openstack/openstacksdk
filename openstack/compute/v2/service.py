@@ -84,12 +84,12 @@ class Service(resource.Resource):
         if ignore_missing:
             return None
         raise exceptions.ResourceNotFound(
-            "No %s found for %s" % (cls.__name__, name_or_id)
+            f"No {cls.__name__} found for {name_or_id}"
         )
 
     def commit(self, session, prepend_key=False, **kwargs):
         # we need to set prepend_key to false
-        return super(Service, self).commit(
+        return super().commit(
             session,
             prepend_key=prepend_key,
             **kwargs,

@@ -23,7 +23,7 @@ from openstack.tests.functional import base
 
 class TestNetwork(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestNetwork, self).setUp()
+        super().setUp()
         if not self.operator_cloud:
             self.skipTest("Operator cloud is required for this test")
 

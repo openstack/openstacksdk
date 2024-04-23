@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2010-2011 OpenStack Foundation
 # Copyright (c) 2013 Hewlett-Packard Development Company, L.P.
 #
@@ -242,7 +240,7 @@ class TestCase(base.TestCase):
     """Test case base class for all unit tests."""
 
     def setUp(self):
-        super(TestCase, self).setUp()
+        super().setUp()
 
         conf = copy.deepcopy(USER_CONF)
         tdir = self.useFixture(fixtures.TempDir())

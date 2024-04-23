@@ -97,7 +97,7 @@ class BaseResource(resource.Resource):
         # This must happen before invoking parent _translate_response, cause it
         # pops known headers.
         self._last_headers = response.headers.copy()
-        super(BaseResource, self)._translate_response(
+        super()._translate_response(
             response, has_body=has_body, error_message=error_message
         )
         self._set_metadata(response.headers)

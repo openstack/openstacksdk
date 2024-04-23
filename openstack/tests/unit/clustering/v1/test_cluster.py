@@ -66,7 +66,7 @@ FAKE_CREATE_RESP = {
 
 class TestCluster(base.TestCase):
     def setUp(self):
-        super(TestCluster, self).setUp()
+        super().setUp()
 
     def test_basic(self):
         sot = cluster.Cluster()

@@ -44,7 +44,7 @@ class BaseFunctionalTest(base.TestCase):
     _wait_for_timeout_key = ''
 
     def setUp(self):
-        super(BaseFunctionalTest, self).setUp()
+        super().setUp()
         self.conn = connection.Connection(config=TEST_CLOUD_REGION)
         _disable_keep_alive(self.conn)
 
@@ -249,7 +249,7 @@ class BaseFunctionalTest(base.TestCase):
 
 class KeystoneBaseFunctionalTest(BaseFunctionalTest):
     def setUp(self):
-        super(KeystoneBaseFunctionalTest, self).setUp()
+        super().setUp()
 
         use_keystone_v2 = os.environ.get('OPENSTACKSDK_USE_KEYSTONE_V2', False)
         if use_keystone_v2:

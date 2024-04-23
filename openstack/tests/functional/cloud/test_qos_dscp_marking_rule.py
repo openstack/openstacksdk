@@ -24,7 +24,7 @@ from openstack.tests.functional import base
 
 class TestQosDscpMarkingRule(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestQosDscpMarkingRule, self).setUp()
+        super().setUp()
         if not self.operator_cloud:
             self.skipTest("Operator cloud is required for this test")
         if not self.operator_cloud.has_service('network'):

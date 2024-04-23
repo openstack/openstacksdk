@@ -29,21 +29,21 @@ class SDKException(Exception):
     def __init__(self, message=None, extra_data=None):
         self.message = self.__class__.__name__ if message is None else message
         self.extra_data = extra_data
-        super(SDKException, self).__init__(self.message)
+        super().__init__(self.message)
 
 
 class EndpointNotFound(SDKException):
     """A mismatch occurred between what the client and server expect."""
 
     def __init__(self, message=None):
-        super(EndpointNotFound, self).__init__(message)
+        super().__init__(message)
 
 
 class InvalidResponse(SDKException):
     """The response from the server is not valid for this request."""
 
     def __init__(self, response):
-        super(InvalidResponse, self).__init__()
+        super().__init__()
         self.response = response
 
 
@@ -51,7 +51,7 @@ class InvalidRequest(SDKException):
     """The request to the server is not valid."""
 
     def __init__(self, message=None):
-        super(InvalidRequest, self).__init__(message)
+        super().__init__(message)
 
 
 class HttpException(SDKException, _rex.HTTPError):
@@ -111,7 +111,7 @@ class HttpException(SDKException, _rex.HTTPError):
             remote_error += str(self.details)
 
         return "{message}: {remote_error}".format(
-            message=super(HttpException, self).__str__(),
+            message=super().__str__(),
             remote_error=remote_error,
         )
 
@@ -142,12 +142,12 @@ class MethodNotSupported(SDKException):
         except AttributeError:
             name = resource.__class__.__name__
 
-        message = 'The %s method is not supported for %s.%s' % (
+        message = 'The {} method is not supported for {}.{}'.format(
             method,
             resource.__module__,
             name,
         )
-        super(MethodNotSupported, self).__init__(message=message)
+        super().__init__(message=message)
 
 
 class DuplicateResource(SDKException):

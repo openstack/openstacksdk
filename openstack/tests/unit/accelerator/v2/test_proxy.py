@@ -19,7 +19,7 @@ from openstack.tests.unit import test_proxy_base as test_proxy_base
 
 class TestAcceleratorProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestAcceleratorProxy, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
 

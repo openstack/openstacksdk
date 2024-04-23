@@ -385,7 +385,7 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
         base_path=None,
         **kwargs,
     ):
-        request = super(Image, self)._prepare_request(
+        request = super()._prepare_request(
             requires_id=requires_id,
             prepend_key=prepend_key,
             patch=patch,
@@ -403,7 +403,7 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
     @classmethod
     def find(cls, session, name_or_id, ignore_missing=True, **params):
         # Do a regular search first (ignoring missing)
-        result = super(Image, cls).find(session, name_or_id, True, **params)
+        result = super().find(session, name_or_id, True, **params)
 
         if result:
             return result
@@ -419,5 +419,5 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
         if ignore_missing:
             return None
         raise exceptions.ResourceNotFound(
-            "No %s found for %s" % (cls.__name__, name_or_id)
+            f"No {cls.__name__} found for {name_or_id}"
         )

@@ -41,7 +41,7 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
     kwargs_to_path_args = False
 
     def setUp(self):
-        super(TestObjectStoreProxy, self).setUp()
+        super().setUp()
         self.proxy = self.cloud.object_store
         self.container = self.getUniqueString()
         self.endpoint = self.cloud.object_store.get_endpoint() + '/'
@@ -271,7 +271,7 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
         segment_content = b''
         for index, (name, segment) in enumerate(segments.items()):
             self.assertEqual(
-                'test_container/test_image/{index:0>6}'.format(index=index),
+                f'test_container/test_image/{index:0>6}',
                 name,
             )
             segment_content += segment.read()
@@ -280,7 +280,7 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
 
 class TestDownloadObject(base_test_object.BaseTestObject):
     def setUp(self):
-        super(TestDownloadObject, self).setUp()
+        super().setUp()
         self.the_data = b'test body'
         self.register_uris(
             [
@@ -602,7 +602,7 @@ class TestTempURL(TestObjectStoreProxy):
             )
         else:
             expected_url = self.expected_url.replace(
-                u'1400003600', u'2146636800'
+                '1400003600', '2146636800'
             )
         url = self.proxy.generate_temp_url(
             self.url,
@@ -654,38 +654,38 @@ class TestTempURL(TestObjectStoreProxy):
 
 
 class TestTempURLUnicodePathAndKey(TestTempURL):
-    url = u'/v1/\u00e4/c/\u00f3'
-    key = u'k\u00e9y'
+    url = '/v1/\u00e4/c/\u00f3'
+    key = 'k\u00e9y'
     expected_url = (
-        u'%s?temp_url_sig=temp_url_signature' u'&temp_url_expires=1400003600'
+        '%s?temp_url_sig=temp_url_signature' '&temp_url_expires=1400003600'
     ) % url
-    expected_body = u'\n'.join(
+    expected_body = '\n'.join(
         [
-            u'GET',
-            u'1400003600',
+            'GET',
+            '1400003600',
             url,
         ]
     ).encode('utf-8')
 
 
 class TestTempURLUnicodePathBytesKey(TestTempURL):
-    url = u'/v1/\u00e4/c/\u00f3'
-    key = u'k\u00e9y'.encode('utf-8')
+    url = '/v1/\u00e4/c/\u00f3'
+    key = 'k\u00e9y'.encode()
     expected_url = (
-        u'%s?temp_url_sig=temp_url_signature' u'&temp_url_expires=1400003600'
+        '%s?temp_url_sig=temp_url_signature' '&temp_url_expires=1400003600'
     ) % url
     expected_body = '\n'.join(
         [
-            u'GET',
-            u'1400003600',
+            'GET',
+            '1400003600',
             url,
         ]
     ).encode('utf-8')
 
 
 class TestTempURLBytesPathUnicodeKey(TestTempURL):
-    url = u'/v1/\u00e4/c/\u00f3'.encode('utf-8')
-    key = u'k\u00e9y'
+    url = '/v1/\u00e4/c/\u00f3'.encode()
+    key = 'k\u00e9y'
     expected_url = url + (
         b'?temp_url_sig=temp_url_signature' b'&temp_url_expires=1400003600'
     )
@@ -699,8 +699,8 @@ class TestTempURLBytesPathUnicodeKey(TestTempURL):
 
 
 class TestTempURLBytesPathAndKey(TestTempURL):
-    url = u'/v1/\u00e4/c/\u00f3'.encode('utf-8')
-    key = u'k\u00e9y'.encode('utf-8')
+    url = '/v1/\u00e4/c/\u00f3'.encode()
+    key = 'k\u00e9y'.encode()
     expected_url = url + (
         b'?temp_url_sig=temp_url_signature' b'&temp_url_expires=1400003600'
     )
@@ -714,7 +714,7 @@ class TestTempURLBytesPathAndKey(TestTempURL):
 
 
 class TestTempURLBytesPathAndNonUtf8Key(TestTempURL):
-    url = u'/v1/\u00e4/c/\u00f3'.encode('utf-8')
+    url = '/v1/\u00e4/c/\u00f3'.encode()
     key = b'k\xffy'
     expected_url = url + (
         b'?temp_url_sig=temp_url_signature' b'&temp_url_expires=1400003600'

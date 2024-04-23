@@ -17,7 +17,7 @@ from openstack.tests.unit import base
 
 class TestFlavors(base.TestCase):
     def setUp(self):
-        super(TestFlavors, self).setUp()
+        super().setUp()
         # self.use_compute_discovery()
 
     def test_create_flavor(self):

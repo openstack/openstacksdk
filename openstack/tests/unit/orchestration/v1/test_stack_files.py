@@ -44,10 +44,10 @@ class TestStackFiles(base.TestCase):
         sot = sf.StackFiles(**FAKE)
 
         req = mock.MagicMock()
-        req.url = '/stacks/%(stack_name)s/%(stack_id)s/files' % {
-            'stack_name': FAKE['stack_name'],
-            'stack_id': FAKE['stack_id'],
-        }
+        req.url = '/stacks/{stack_name}/{stack_id}/files'.format(
+            stack_name=FAKE['stack_name'],
+            stack_id=FAKE['stack_id'],
+        )
         mock_prepare_request.return_value = req
 
         files = sot.fetch(sess)

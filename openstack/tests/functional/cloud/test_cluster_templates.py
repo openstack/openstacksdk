@@ -27,7 +27,7 @@ from openstack.tests.functional import base
 
 class TestClusterTemplate(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestClusterTemplate, self).setUp()
+        super().setUp()
         if not self.user_cloud.has_service(
             'container-infrastructure-management'
         ):

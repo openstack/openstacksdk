@@ -29,7 +29,7 @@ class TestCompute(base.BaseFunctionalTest):
     """
 
     def setUp(self):
-        super(TestCompute, self).setUp()
+        super().setUp()
         self.conn = connect.create_connection_from_config()
 
     def test_compute(self):

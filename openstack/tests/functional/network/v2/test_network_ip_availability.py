@@ -25,7 +25,7 @@ class TestNetworkIPAvailability(base.BaseFunctionalTest):
     PORT_ID = None
 
     def setUp(self):
-        super(TestNetworkIPAvailability, self).setUp()
+        super().setUp()
         if not self.operator_cloud:
             self.skipTest("Operator cloud required for this test")
         if not self.operator_cloud._has_neutron_extension(
@@ -67,7 +67,7 @@ class TestNetworkIPAvailability(base.BaseFunctionalTest):
         self.assertIsNone(sot)
         sot = self.operator_cloud.network.delete_network(self.NET_ID)
         self.assertIsNone(sot)
-        super(TestNetworkIPAvailability, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         sot = self.operator_cloud.network.find_network_ip_availability(

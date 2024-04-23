@@ -28,7 +28,7 @@ class TestStack(base.BaseFunctionalTest):
     _wait_for_timeout_key = 'OPENSTACKSDK_FUNC_TEST_TIMEOUT_ORCHESTRATION'
 
     def setUp(self):
-        super(TestStack, self).setUp()
+        super().setUp()
         self.require_service('orchestration')
 
         if self.conn.compute.find_keypair(self.NAME) is None:
@@ -75,7 +75,7 @@ class TestStack(base.BaseFunctionalTest):
         except exceptions.ResourceNotFound:
             pass
         test_network.delete_network(self.conn, self.network, self.subnet)
-        super(TestStack, self).tearDown()
+        super().tearDown()
 
     def test_list(self):
         names = [o.name for o in self.conn.orchestration.stacks()]

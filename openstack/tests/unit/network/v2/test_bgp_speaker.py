@@ -181,5 +181,5 @@ class TestBgpSpeaker(base.TestCase):
         sess.delete = mock.Mock(return_value=response)
         self.assertIsNone(sot.remove_bgp_speaker_from_dragent(sess, agent_id))
 
-        url = 'agents/%s/bgp-drinstances/%s' % (agent_id, IDENTIFIER)
+        url = f'agents/{agent_id}/bgp-drinstances/{IDENTIFIER}'
         sess.delete.assert_called_with(url)

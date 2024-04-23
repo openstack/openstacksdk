@@ -31,7 +31,7 @@ POOLS = {
 
 class TestBackendPools(base.TestCase):
     def setUp(self):
-        super(TestBackendPools, self).setUp()
+        super().setUp()
 
     def test_basic(self):
         sot = stats.Pools(POOLS)

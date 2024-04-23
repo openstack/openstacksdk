@@ -32,10 +32,10 @@ IMPORT_METHODS = 'glance-direct,web-download'
 
 class BaseTestImage(base.TestCase):
     def setUp(self):
-        super(BaseTestImage, self).setUp()
+        super().setUp()
         self.image_id = str(uuid.uuid4())
         self.image_name = self.getUniqueString('image')
-        self.object_name = 'images/{name}'.format(name=self.image_name)
+        self.object_name = f'images/{self.image_name}'
         self.imagefile = tempfile.NamedTemporaryFile(delete=False)
         data = b'\2\0'
         self.imagefile.write(data)
@@ -64,7 +64,7 @@ class BaseTestImage(base.TestCase):
 
 class TestImage(BaseTestImage):
     def setUp(self):
-        super(TestImage, self).setUp()
+        super().setUp()
         self.use_glance()
 
     def test_download_image_no_output(self):
@@ -428,7 +428,7 @@ class TestImage(BaseTestImage):
                         'image',
                         append=['images'],
                         base_url_append='v2',
-                        qs_elements=['marker={marker}'.format(marker=marker)],
+                        qs_elements=[f'marker={marker}'],
                     ),
                     json=self.fake_search_return,
                 ),
@@ -1217,7 +1217,7 @@ class TestImage(BaseTestImage):
             timeout=1,
             is_public=False,
             validate_checksum=True,
-            **kwargs
+            **kwargs,
         )
 
     def test_create_image_put_v1(self):
@@ -1385,7 +1385,7 @@ class TestImage(BaseTestImage):
                 'owner_specified.openstack.object': 'images/{name}'.format(
                     name=self.image_name
                 )
-            }
+            },
         )
 
         self.assert_calls()
@@ -1854,7 +1854,7 @@ class TestImage(BaseTestImage):
 
 class TestImageSuburl(BaseTestImage):
     def setUp(self):
-        super(TestImageSuburl, self).setUp()
+        super().setUp()
         self.os_fixture.use_suburl()
         self.os_fixture.build_tokens()
         self.use_keystone_v3()
@@ -1903,7 +1903,7 @@ class TestImageSuburl(BaseTestImage):
                         'image',
                         append=['images'],
                         base_url_append='v2',
-                        qs_elements=['marker={marker}'.format(marker=marker)],
+                        qs_elements=[f'marker={marker}'],
                     ),
                     json=self.fake_search_return,
                 ),
@@ -1921,7 +1921,7 @@ class TestImageSuburl(BaseTestImage):
 
 class TestImageVolume(BaseTestImage):
     def setUp(self):
-        super(TestImageVolume, self).setUp()
+        super().setUp()
         self.volume_id = str(uuid.uuid4())
 
     def test_create_image_volume(self):

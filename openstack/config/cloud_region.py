@@ -76,7 +76,7 @@ def _make_key(key, service_type):
 
 def _disable_service(config, service_type, reason=None):
     service_type = service_type.lower().replace('-', '_')
-    key = 'has_{service_type}'.format(service_type=service_type)
+    key = f'has_{service_type}'
     config[key] = False
     if reason:
         d_key = _make_key('disabled_reason', service_type)
@@ -1217,7 +1217,7 @@ class CloudRegion:
 
     def has_service(self, service_type):
         service_type = service_type.lower().replace('-', '_')
-        key = 'has_{service_type}'.format(service_type=service_type)
+        key = f'has_{service_type}'
         return self.config.get(
             key, self._service_type_manager.is_official(service_type)
         )
@@ -1227,7 +1227,7 @@ class CloudRegion:
 
     def enable_service(self, service_type):
         service_type = service_type.lower().replace('-', '_')
-        key = 'has_{service_type}'.format(service_type=service_type)
+        key = f'has_{service_type}'
         self.config[key] = True
 
     def get_disabled_reason(self, service_type):

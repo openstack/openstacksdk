@@ -18,7 +18,7 @@ from openstack.tests.functional.block_storage.v2 import base
 
 class TestSnapshot(base.BaseBlockStorageTest):
     def setUp(self):
-        super(TestSnapshot, self).setUp()
+        super().setUp()
 
         self.SNAPSHOT_NAME = self.getUniqueString()
         self.SNAPSHOT_ID = None
@@ -65,7 +65,7 @@ class TestSnapshot(base.BaseBlockStorageTest):
             self.VOLUME_ID, ignore_missing=False
         )
         self.assertIsNone(sot)
-        super(TestSnapshot, self).tearDown()
+        super().tearDown()
 
     def test_get(self):
         sot = self.user_cloud.block_storage.get_snapshot(self.SNAPSHOT_ID)

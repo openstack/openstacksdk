@@ -20,7 +20,7 @@ class FakeTransport(mock.Mock):
     RESPONSE = mock.Mock('200 OK')
 
     def __init__(self):
-        super(FakeTransport, self).__init__()
+        super().__init__()
         self.request = mock.Mock()
         self.request.return_value = self.RESPONSE
 
@@ -30,7 +30,7 @@ class FakeAuthenticator(mock.Mock):
     ENDPOINT = 'http://www.example.com/endpoint'
 
     def __init__(self):
-        super(FakeAuthenticator, self).__init__()
+        super().__init__()
         self.get_token = mock.Mock()
         self.get_token.return_value = self.TOKEN
         self.get_endpoint = mock.Mock()

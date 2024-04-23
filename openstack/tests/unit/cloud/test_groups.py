@@ -16,9 +16,7 @@ from openstack.tests.unit import base
 
 class TestGroups(base.TestCase):
     def setUp(self, cloud_config_fixture='clouds.yaml'):
-        super(TestGroups, self).setUp(
-            cloud_config_fixture=cloud_config_fixture
-        )
+        super().setUp(cloud_config_fixture=cloud_config_fixture)
         self.addCleanup(self.assert_calls)
 
     def get_mock_url(
@@ -29,7 +27,7 @@ class TestGroups(base.TestCase):
         append=None,
         base_url_append='v3',
     ):
-        return super(TestGroups, self).get_mock_url(
+        return super().get_mock_url(
             service_type='identity',
             interface=interface,
             resource=resource,

@@ -53,7 +53,7 @@ class ZoneTestWrapper:
 
 class TestZone(base.TestCase):
     def setUp(self):
-        super(TestZone, self).setUp()
+        super().setUp()
         self.use_designate()
 
     def test_create_zone(self):

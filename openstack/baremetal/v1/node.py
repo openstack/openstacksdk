@@ -275,7 +275,7 @@ class Node(_common.Resource):
             # API version 1.1 uses None instead of "available". Make it
             # consistent.
             attrs['provision_state'] = 'available'
-        return super(Node, self)._consume_body_attrs(attrs)
+        return super()._consume_body_attrs(attrs)
 
     def create(self, session, *args, **kwargs):
         """Create a remote resource based on this instance.
@@ -346,9 +346,7 @@ class Node(_common.Resource):
         # Ironic cannot set provision_state itself, so marking it as unchanged
         self._clean_body_attrs({'provision_state'})
 
-        super(Node, self).create(
-            session, *args, microversion=microversion, **kwargs
-        )
+        super().create(session, *args, microversion=microversion, **kwargs)
 
         if (
             expected_provision_state == 'manageable'
@@ -395,7 +393,7 @@ class Node(_common.Resource):
                 # the new status.
                 return self.fetch(session)
 
-        return super(Node, self).commit(session, *args, **kwargs)
+        return super().commit(session, *args, **kwargs)
 
     def set_provision_state(
         self,
@@ -724,7 +722,7 @@ class Node(_common.Resource):
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 
-        msg = "Failed to inject NMI to node {node}".format(node=self.id)
+        msg = f"Failed to inject NMI to node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
     def set_power_state(self, session, target, wait=False, timeout=None):
@@ -934,13 +932,13 @@ class Node(_common.Resource):
             request.url, headers=request.headers, microversion=version
         )
 
-        msg = "Failed to validate node {node}".format(node=self.id)
+        msg = f"Failed to validate node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
         result = response.json()
 
         if required:
             failed = [
-                '%s (%s)' % (key, value.get('reason', 'no reason'))
+                '{} ({})'.format(key, value.get('reason', 'no reason'))
                 for key, value in result.items()
                 if key in required and not value.get('result')
             ]
@@ -1044,7 +1042,7 @@ class Node(_common.Resource):
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 
-        msg = "Failed to set boot device for node {node}".format(node=self.id)
+        msg = f"Failed to set boot device for node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
     def get_supported_boot_devices(self, session):
@@ -1109,7 +1107,7 @@ class Node(_common.Resource):
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 
-        msg = "Failed to change boot mode for node {node}".format(node=self.id)
+        msg = f"Failed to change boot mode for node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
     def set_secure_boot(self, session, target):
@@ -1243,7 +1241,7 @@ class Node(_common.Resource):
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 
-        msg = "Failed to set traits for node {node}".format(node=self.id)
+        msg = f"Failed to set traits for node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
         self.traits = traits
@@ -1261,7 +1259,7 @@ class Node(_common.Resource):
         version = self._get_microversion(session, action='commit')
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(
-            request.url, 'vendor_passthru?method={}'.format(method)
+            request.url, f'vendor_passthru?method={method}'
         )
 
         call = getattr(session, verb.lower())
@@ -1439,7 +1437,7 @@ class Node(_common.Resource):
             )
 
         else:
-            return super(Node, self).patch(
+            return super().patch(
                 session, patch=patch, retry_on_conflict=retry_on_conflict
             )
 

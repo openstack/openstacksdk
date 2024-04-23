@@ -19,7 +19,7 @@ FAKE_NAME = 'test_stack'
 FAKE = {
     'event_time': '2015-03-09T12:15:57.233772',
     'id': FAKE_ID,
-    'links': [{'href': 'stacks/%s/%s' % (FAKE_NAME, FAKE_ID), 'rel': 'self'}],
+    'links': [{'href': f'stacks/{FAKE_NAME}/{FAKE_ID}', 'rel': 'self'}],
     'logical_resource_id': 'my_test_group',
     'physical_resource_id': 'my_test_group',
     'resource_name': 'my_test_resource',

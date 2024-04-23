@@ -32,7 +32,7 @@ class TestCompute(base.BaseFunctionalTest):
         # but on a bad day, test_attach_detach_volume can take more time.
         self.TIMEOUT_SCALING_FACTOR = 1.5
 
-        super(TestCompute, self).setUp()
+        super().setUp()
         self.server_name = self.getUniqueString()
 
     def _cleanup_servers_and_volumes(self, server_name):
@@ -522,7 +522,7 @@ class TestCompute(base.BaseFunctionalTest):
 
         self.user_cloud.delete_server_metadata(self.server_name, ['key1'])
         updated_server = self.user_cloud.get_server(self.server_name)
-        self.assertEqual(set(updated_server.metadata.items()), set([]))
+        self.assertEqual(set(updated_server.metadata.items()), set())
 
         self.assertRaises(
             exceptions.NotFoundException,

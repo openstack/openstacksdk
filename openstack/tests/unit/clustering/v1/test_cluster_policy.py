@@ -27,7 +27,7 @@ FAKE = {
 
 class TestClusterPolicy(base.TestCase):
     def setUp(self):
-        super(TestClusterPolicy, self).setUp()
+        super().setUp()
 
     def test_basic(self):
         sot = cluster_policy.ClusterPolicy()

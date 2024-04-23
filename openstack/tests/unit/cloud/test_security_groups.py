@@ -55,7 +55,7 @@ nova_grp_dict = fakes.make_fake_nova_security_group(
 
 class TestSecurityGroups(base.TestCase):
     def setUp(self):
-        super(TestSecurityGroups, self).setUp()
+        super().setUp()
         self.has_neutron = True
 
         def fake_has_service(*args, **kwargs):

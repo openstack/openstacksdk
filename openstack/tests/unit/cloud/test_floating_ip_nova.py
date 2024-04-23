@@ -67,19 +67,19 @@ class TestFloatingIP(base.TestCase):
             self.assertIsInstance(e, elem_type)
 
     def setUp(self):
-        super(TestFloatingIP, self).setUp()
+        super().setUp()
 
         self.fake_server = fakes.make_fake_server(
             'server-id',
             '',
             'ACTIVE',
             addresses={
-                u'test_pnztt_net': [
+                'test_pnztt_net': [
                     {
-                        u'OS-EXT-IPS:type': u'fixed',
-                        u'addr': '192.0.2.129',
-                        u'version': 4,
-                        u'OS-EXT-IPS-MAC:mac_addr': u'fa:16:3e:ae:7d:42',
+                        'OS-EXT-IPS:type': 'fixed',
+                        'addr': '192.0.2.129',
+                        'version': 4,
+                        'OS-EXT-IPS-MAC:mac_addr': 'fa:16:3e:ae:7d:42',
                     }
                 ]
             },

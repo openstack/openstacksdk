@@ -23,7 +23,7 @@ from openstack.tests.unit import test_proxy_base
 
 class TestDnsProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestDnsProxy, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
 

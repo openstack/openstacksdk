@@ -52,7 +52,7 @@ class AcceleratorRequest(resource.Resource):
         # and its value is an ordinary JSON patch. spec:
         # https://specs.openstack.org/openstack/cyborg-specs/specs/train/implemented/cyborg-api
 
-        converted = super(AcceleratorRequest, self)._convert_patch(patch)
+        converted = super()._convert_patch(patch)
         converted = {self.id: converted}
         return converted
 
@@ -102,11 +102,9 @@ class AcceleratorRequest(resource.Resource):
         if isinstance(self, AcceleratorRequest):
             if self.resources_key in attrs:
                 attrs = attrs[self.resources_key][0]
-        return super(AcceleratorRequest, self)._consume_attrs(mapping, attrs)
+        return super()._consume_attrs(mapping, attrs)
 
     def create(self, session, base_path=None):
         # This overrides the default behavior of resource creation because
         # cyborg doesn't accept resource_key in its request.
-        return super(AcceleratorRequest, self).create(
-            session, prepend_key=False, base_path=base_path
-        )
+        return super().create(session, prepend_key=False, base_path=base_path)

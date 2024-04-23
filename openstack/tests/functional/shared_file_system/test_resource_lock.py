@@ -16,7 +16,7 @@ from openstack.tests.functional.shared_file_system import base
 
 class ResourceLocksTest(base.BaseSharedFileSystemTest):
     def setUp(self):
-        super(ResourceLocksTest, self).setUp()
+        super().setUp()
 
         self.SHARE_NAME = self.getUniqueString()
         share = self.user_cloud.shared_file_system.create_share(

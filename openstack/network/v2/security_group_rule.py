@@ -96,9 +96,7 @@ class SecurityGroupRule(_base.NetworkResource, tag.TagMixin):
     updated_at = resource.Body('updated_at')
 
     def _prepare_request(self, *args, **kwargs):
-        _request = super(SecurityGroupRule, self)._prepare_request(
-            *args, **kwargs
-        )
+        _request = super()._prepare_request(*args, **kwargs)
         # Old versions of Neutron do not handle being passed a
         # remote_address_group_id and raise and error.  Remove it from
         # the body if it is blank.

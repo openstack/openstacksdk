@@ -24,7 +24,7 @@ class TestL3ConntrackHelper(base.BaseFunctionalTest):
     ROT_ID = None
 
     def setUp(self):
-        super(TestL3ConntrackHelper, self).setUp()
+        super().setUp()
 
         if not self.user_cloud.network.find_extension("l3-conntrack-helper"):
             self.skipTest("L3 conntrack helper extension disabled")
@@ -52,7 +52,7 @@ class TestL3ConntrackHelper(base.BaseFunctionalTest):
             self.ROT_ID, ignore_missing=False
         )
         self.assertIsNone(sot)
-        super(TestL3ConntrackHelper, self).tearDown()
+        super().tearDown()
 
     def test_get(self):
         sot = self.user_cloud.network.get_conntrack_helper(

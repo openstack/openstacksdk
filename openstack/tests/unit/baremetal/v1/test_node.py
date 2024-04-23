@@ -206,7 +206,7 @@ class TestNode(base.TestCase):
 @mock.patch.object(node.Node, 'fetch', autospec=True)
 class TestNodeWaitForProvisionState(base.TestCase):
     def setUp(self):
-        super(TestNodeWaitForProvisionState, self).setUp()
+        super().setUp()
         self.node = node.Node(**FAKE)
         self.session = mock.Mock()
 
@@ -297,7 +297,7 @@ class TestNodeWaitForProvisionState(base.TestCase):
 @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
 class TestNodeSetProvisionState(base.TestCase):
     def setUp(self):
-        super(TestNodeSetProvisionState, self).setUp()
+        super().setUp()
         self.node = node.Node(**FAKE)
         self.session = mock.Mock(
             spec=adapter.Adapter, default_microversion=None
@@ -429,7 +429,7 @@ class TestNodeSetProvisionState(base.TestCase):
 @mock.patch.object(node.Node, 'set_provision_state', autospec=True)
 class TestNodeCreate(base.TestCase):
     def setUp(self):
-        super(TestNodeCreate, self).setUp()
+        super().setUp()
         self.new_state = None
         self.session = mock.Mock(spec=adapter.Adapter)
         self.session.default_microversion = '1.1'
@@ -541,7 +541,7 @@ class TestNodeCreate(base.TestCase):
 @mock.patch.object(node.Node, '_get_session', lambda self, x: x)
 class TestNodeVif(base.TestCase):
     def setUp(self):
-        super(TestNodeVif, self).setUp()
+        super().setUp()
         self.session = mock.Mock(spec=adapter.Adapter)
         self.session.default_microversion = '1.28'
         self.session.log = mock.Mock()
@@ -577,7 +577,7 @@ class TestNodeVif(base.TestCase):
     def test_detach_vif_existing(self):
         self.assertTrue(self.node.detach_vif(self.session, self.vif_id))
         self.session.delete.assert_called_once_with(
-            'nodes/%s/vifs/%s' % (self.node.id, self.vif_id),
+            f'nodes/{self.node.id}/vifs/{self.vif_id}',
             headers=mock.ANY,
             microversion='1.28',
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
@@ -587,7 +587,7 @@ class TestNodeVif(base.TestCase):
         self.session.delete.return_value.status_code = 400
         self.assertFalse(self.node.detach_vif(self.session, self.vif_id))
         self.session.delete.assert_called_once_with(
-            'nodes/%s/vifs/%s' % (self.node.id, self.vif_id),
+            f'nodes/{self.node.id}/vifs/{self.vif_id}',
             headers=mock.ANY,
             microversion='1.28',
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
@@ -631,7 +631,7 @@ class TestNodeVif(base.TestCase):
 @mock.patch.object(node.Node, '_get_session', lambda self, x: x)
 class TestNodeValidate(base.TestCase):
     def setUp(self):
-        super(TestNodeValidate, self).setUp()
+        super().setUp()
         self.session = mock.Mock(spec=adapter.Adapter)
         self.session.default_microversion = '1.28'
         self.node = node.Node(**FAKE)
@@ -690,7 +690,7 @@ class TestNodeValidate(base.TestCase):
 @mock.patch.object(node.Node, 'fetch', autospec=True)
 class TestNodeWaitForReservation(base.TestCase):
     def setUp(self):
-        super(TestNodeWaitForReservation, self).setUp()
+        super().setUp()
         self.session = mock.Mock(spec=adapter.Adapter)
         self.session.default_microversion = '1.6'
         self.session.log = mock.Mock()
@@ -760,7 +760,7 @@ class TestNodeInjectNMI(base.TestCase):
 @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
 class TestNodeSetPowerState(base.TestCase):
     def setUp(self):
-        super(TestNodeSetPowerState, self).setUp()
+        super().setUp()
         self.node = node.Node(**FAKE)
         self.session = mock.Mock(
             spec=adapter.Adapter, default_microversion=None
@@ -792,7 +792,7 @@ class TestNodeSetPowerState(base.TestCase):
 @mock.patch.object(node.Node, '_get_session', lambda self, x: x)
 class TestNodeMaintenance(base.TestCase):
     def setUp(self):
-        super(TestNodeMaintenance, self).setUp()
+        super().setUp()
         self.node = node.Node.existing(**FAKE)
         self.session = mock.Mock(
             spec=adapter.Adapter,
@@ -962,7 +962,7 @@ class TestNodeBootDevice(base.TestCase):
 @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
 class TestNodeSetBootMode(base.TestCase):
     def setUp(self):
-        super(TestNodeSetBootMode, self).setUp()
+        super().setUp()
         self.node = node.Node(**FAKE)
         self.session = mock.Mock(
             spec=adapter.Adapter, default_microversion='1.1'
@@ -989,7 +989,7 @@ class TestNodeSetBootMode(base.TestCase):
 @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
 class TestNodeSetSecureBoot(base.TestCase):
     def setUp(self):
-        super(TestNodeSetSecureBoot, self).setUp()
+        super().setUp()
         self.node = node.Node(**FAKE)
         self.session = mock.Mock(
             spec=adapter.Adapter, default_microversion='1.1'
@@ -1016,7 +1016,7 @@ class TestNodeSetSecureBoot(base.TestCase):
 @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
 class TestNodeTraits(base.TestCase):
     def setUp(self):
-        super(TestNodeTraits, self).setUp()
+        super().setUp()
         self.node = node.Node(**FAKE)
         self.session = mock.Mock(
             spec=adapter.Adapter, default_microversion='1.37'
@@ -1026,7 +1026,7 @@ class TestNodeTraits(base.TestCase):
     def test_node_add_trait(self):
         self.node.add_trait(self.session, 'CUSTOM_FAKE')
         self.session.put.assert_called_once_with(
-            'nodes/%s/traits/%s' % (self.node.id, 'CUSTOM_FAKE'),
+            'nodes/{}/traits/{}'.format(self.node.id, 'CUSTOM_FAKE'),
             json=None,
             headers=mock.ANY,
             microversion='1.37',
@@ -1036,7 +1036,7 @@ class TestNodeTraits(base.TestCase):
     def test_remove_trait(self):
         self.assertTrue(self.node.remove_trait(self.session, 'CUSTOM_FAKE'))
         self.session.delete.assert_called_once_with(
-            'nodes/%s/traits/%s' % (self.node.id, 'CUSTOM_FAKE'),
+            'nodes/{}/traits/{}'.format(self.node.id, 'CUSTOM_FAKE'),
             headers=mock.ANY,
             microversion='1.37',
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
@@ -1048,7 +1048,7 @@ class TestNodeTraits(base.TestCase):
             self.node.remove_trait(self.session, 'CUSTOM_MISSING')
         )
         self.session.delete.assert_called_once_with(
-            'nodes/%s/traits/%s' % (self.node.id, 'CUSTOM_MISSING'),
+            'nodes/{}/traits/{}'.format(self.node.id, 'CUSTOM_MISSING'),
             headers=mock.ANY,
             microversion='1.37',
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
@@ -1070,7 +1070,7 @@ class TestNodeTraits(base.TestCase):
 @mock.patch.object(resource.Resource, 'patch', autospec=True)
 class TestNodePatch(base.TestCase):
     def setUp(self):
-        super(TestNodePatch, self).setUp()
+        super().setUp()
         self.node = node.Node(**FAKE)
         self.session = mock.Mock(
             spec=adapter.Adapter, default_microversion=None
@@ -1113,7 +1113,7 @@ class TestNodePatch(base.TestCase):
 @mock.patch.object(node.Node, 'fetch', autospec=True)
 class TestNodeWaitForPowerState(base.TestCase):
     def setUp(self):
-        super(TestNodeWaitForPowerState, self).setUp()
+        super().setUp()
         self.node = node.Node(**FAKE)
         self.session = mock.Mock()
 
@@ -1143,9 +1143,9 @@ class TestNodeWaitForPowerState(base.TestCase):
 @mock.patch.object(utils, 'pick_microversion', lambda session, v: v)
 @mock.patch.object(node.Node, 'fetch', lambda self, session: self)
 @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
-class TestNodePassthru(object):
+class TestNodePassthru:
     def setUp(self):
-        super(TestNodePassthru, self).setUp()
+        super().setUp()
         self.node = node.Node(**FAKE)
         self.session = node.Mock(
             spec=adapter.Adapter, default_microversion='1.37'

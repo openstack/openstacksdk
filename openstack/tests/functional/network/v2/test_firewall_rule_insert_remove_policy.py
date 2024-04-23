@@ -29,7 +29,7 @@ class TestFirewallPolicyRuleAssociations(base.BaseFunctionalTest):
     RULE2_ID = None
 
     def setUp(self):
-        super(TestFirewallPolicyRuleAssociations, self).setUp()
+        super().setUp()
         if not self.user_cloud._has_neutron_extension("fwaas_v2"):
             self.skipTest("fwaas_v2 service not supported by cloud")
         rul1 = self.user_cloud.network.create_firewall_rule(
@@ -64,7 +64,7 @@ class TestFirewallPolicyRuleAssociations(base.BaseFunctionalTest):
             self.RULE2_ID, ignore_missing=False
         )
         self.assertIs(None, sot)
-        super(TestFirewallPolicyRuleAssociations, self).tearDown()
+        super().tearDown()
 
     def test_insert_rule_into_policy(self):
         policy = self.user_cloud.network.insert_rule_into_policy(

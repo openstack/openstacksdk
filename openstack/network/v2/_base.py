@@ -28,7 +28,7 @@ class NetworkResource(resource.Resource):
         if_revision=None,
         **kwargs
     ):
-        req = super(NetworkResource, self)._prepare_request(
+        req = super()._prepare_request(
             requires_id=requires_id,
             prepend_key=prepend_key,
             patch=patch,

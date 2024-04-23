@@ -29,7 +29,7 @@ FAKE = {
 
 class TestExecution(base.TestCase):
     def setUp(self):
-        super(TestExecution, self).setUp()
+        super().setUp()
 
     def test_basic(self):
         sot = execution.Execution()

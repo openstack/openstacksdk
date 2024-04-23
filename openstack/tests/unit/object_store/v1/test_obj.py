@@ -28,7 +28,7 @@ from openstack.tests.unit.cloud import test_object as base_test_object
 
 class TestObject(base_test_object.BaseTestObject):
     def setUp(self):
-        super(TestObject, self).setUp()
+        super().setUp()
         self.the_data = b'test body'
         self.the_data_length = len(self.the_data)
         # TODO(mordred) Make the_data be from getUniqueString and then

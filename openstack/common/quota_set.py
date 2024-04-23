@@ -57,7 +57,7 @@ class QuotaSet(resource.Resource):
         error_message=None,
         **params
     ):
-        return super(QuotaSet, self).fetch(
+        return super().fetch(
             session,
             requires_id=False,
             base_path=base_path,

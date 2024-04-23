@@ -17,7 +17,7 @@ from openstack.tests.functional.shared_file_system import base
 
 class ShareTest(base.BaseSharedFileSystemTest):
     def setUp(self):
-        super(ShareTest, self).setUp()
+        super().setUp()
 
         self.SHARE_NAME = self.getUniqueString()
         my_share = self.create_share(
@@ -164,7 +164,7 @@ class ShareTest(base.BaseSharedFileSystemTest):
 
 class ManageUnmanageShareTest(base.BaseSharedFileSystemTest):
     def setUp(self):
-        super(ManageUnmanageShareTest, self).setUp()
+        super().setUp()
 
         self.NEW_SHARE = self.create_share(
             share_proto="NFS",

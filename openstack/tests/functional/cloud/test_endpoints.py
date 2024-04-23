@@ -38,7 +38,7 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
     ]
 
     def setUp(self):
-        super(TestEndpoints, self).setUp()
+        super().setUp()
         if not self.operator_cloud:
             self.skipTest("Operator cloud is required for this test")
 

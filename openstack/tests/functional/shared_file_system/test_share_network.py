@@ -16,7 +16,7 @@ from openstack.tests.functional.shared_file_system import base
 
 class ShareNetworkTest(base.BaseSharedFileSystemTest):
     def setUp(self):
-        super(ShareNetworkTest, self).setUp()
+        super().setUp()
 
         self.NETWORK_NAME = self.getUniqueString()
         net = self.user_cloud.network.create_network(name=self.NETWORK_NAME)
@@ -50,7 +50,7 @@ class ShareNetworkTest(base.BaseSharedFileSystemTest):
         )
         self.assertIsNone(sot)
         self.user_cloud.network.delete_network(self.NETWORK_ID)
-        super(ShareNetworkTest, self).tearDown()
+        super().tearDown()
 
     def test_get(self):
         sot = self.user_cloud.shared_file_system.get_share_network(

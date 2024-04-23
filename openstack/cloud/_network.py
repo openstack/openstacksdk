@@ -2772,7 +2772,7 @@ class NetworkCloudMixin:
         port = self.get_port(name_or_id=name_or_id)
         if port is None:
             raise exceptions.SDKException(
-                "failed to find port '{port}'".format(port=name_or_id)
+                f"failed to find port '{name_or_id}'"
             )
 
         return self.network.update_port(port, **kwargs)
@@ -2813,7 +2813,7 @@ class NetworkCloudMixin:
             port = self.get_port(name_or_id, filters)
             if not port:
                 raise exceptions.ResourceNotFound(
-                    'Port {id} not found'.format(id=name_or_id)
+                    f'Port {name_or_id} not found'
                 )
             ids_list.append(port['id'])
         return ids_list

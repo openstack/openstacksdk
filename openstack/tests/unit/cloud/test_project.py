@@ -36,7 +36,7 @@ class TestProject(base.TestCase):
             resource = 'tenants'
         if base_url_append is None and v3:
             base_url_append = 'v3'
-        return super(TestProject, self).get_mock_url(
+        return super().get_mock_url(
             service_type=service_type,
             interface=interface,
             resource=resource,

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -28,7 +26,7 @@ from openstack.tests.unit import base
 
 class TestRebuildServer(base.TestCase):
     def setUp(self):
-        super(TestRebuildServer, self).setUp()
+        super().setUp()
         self.server_id = str(uuid.uuid4())
         self.server_name = self.getUniqueString('name')
         self.fake_server = fakes.make_fake_server(

@@ -21,7 +21,7 @@ class TestAddressScope(base.BaseFunctionalTest):
     IP_VERSION = 4
 
     def setUp(self):
-        super(TestAddressScope, self).setUp()
+        super().setUp()
         self.ADDRESS_SCOPE_NAME = self.getUniqueString()
         self.ADDRESS_SCOPE_NAME_UPDATED = self.getUniqueString()
         address_scope = self.user_cloud.network.create_address_scope(
@@ -38,7 +38,7 @@ class TestAddressScope(base.BaseFunctionalTest):
             self.ADDRESS_SCOPE_ID
         )
         self.assertIsNone(sot)
-        super(TestAddressScope, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         sot = self.user_cloud.network.find_address_scope(

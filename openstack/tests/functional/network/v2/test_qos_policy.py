@@ -23,7 +23,7 @@ class TestQoSPolicy(base.BaseFunctionalTest):
     QOS_POLICY_DESCRIPTION = "QoS policy description"
 
     def setUp(self):
-        super(TestQoSPolicy, self).setUp()
+        super().setUp()
 
         if not self.operator_cloud:
             self.skipTest("Operator cloud is required for this test")
@@ -47,7 +47,7 @@ class TestQoSPolicy(base.BaseFunctionalTest):
     def tearDown(self):
         sot = self.operator_cloud.network.delete_qos_policy(self.QOS_POLICY_ID)
         self.assertIsNone(sot)
-        super(TestQoSPolicy, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         sot = self.operator_cloud.network.find_qos_policy(self.QOS_POLICY_NAME)

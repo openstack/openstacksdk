@@ -71,7 +71,7 @@ EXAMPLE = {
 
 class TestHypervisor(base.TestCase):
     def setUp(self):
-        super(TestHypervisor, self).setUp()
+        super().setUp()
         self.sess = mock.Mock(spec=adapter.Adapter)
         self.sess.default_microversion = 1
         self.sess._get_connection = mock.Mock(return_value=self.cloud)
@@ -147,7 +147,7 @@ class TestHypervisor(base.TestCase):
 
         hyp = sot.get_uptime(self.sess)
         self.sess.get.assert_called_with(
-            'os-hypervisors/{id}/uptime'.format(id=sot.id),
+            f'os-hypervisors/{sot.id}/uptime',
             microversion=self.sess.default_microversion,
         )
         self.assertEqual(rsp['hypervisor']['uptime'], hyp.uptime)

@@ -44,7 +44,7 @@ class TestIdentityRoles(base.TestCase):
         base_url_append='v3',
         qs_elements=None,
     ):
-        return super(TestIdentityRoles, self).get_mock_url(
+        return super().get_mock_url(
             service_type,
             interface,
             resource,
@@ -75,7 +75,7 @@ class TestIdentityRoles(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        qs_elements=['name={0}'.format(role_data.role_name)]
+                        qs_elements=[f'name={role_data.role_name}']
                     ),
                     status_code=200,
                     json={'roles': [role_data.json_response['role']]},

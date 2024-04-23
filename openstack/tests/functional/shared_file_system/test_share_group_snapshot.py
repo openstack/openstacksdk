@@ -21,7 +21,7 @@ class ShareGroupSnapshotTest(base.BaseSharedFileSystemTest):
     min_microversion = '2.55'
 
     def setUp(self):
-        super(ShareGroupSnapshotTest, self).setUp()
+        super().setUp()
 
         self.SHARE_GROUP_NAME = self.getUniqueString()
         share_grp = self.user_cloud.shared_file_system.create_share_group(
@@ -68,7 +68,7 @@ class ShareGroupSnapshotTest(base.BaseSharedFileSystemTest):
         self.user_cloud.shared_file_system.delete_share_group(
             self.SHARE_GROUP_ID, ignore_missing=False
         )
-        super(ShareGroupSnapshotTest, self).tearDown()
+        super().tearDown()
 
     def test_get(self):
         sot = self.user_cloud.shared_file_system.get_share_group_snapshot(

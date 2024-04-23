@@ -96,9 +96,7 @@ class TestCase(base.BaseTestCase):
             first = first.toDict()
         if isinstance(second, utils.Munch):
             second = second.toDict()
-        return super(TestCase, self).assertEqual(
-            first, second, *args, **kwargs
-        )
+        return super().assertEqual(first, second, *args, **kwargs)
 
     def printLogs(self, *args):
         self._log_stream.seek(0)
@@ -135,7 +133,9 @@ class TestCase(base.BaseTestCase):
                 missing_keys.append(key)
         if missing_keys:
             self.fail(
-                "Keys %s are in %s but not in %s" % (missing_keys, part, whole)
+                "Keys {} are in {} but not in {}".format(
+                    missing_keys, part, whole
+                )
             )
         wrong_values = [
             (key, part[key], whole[key])

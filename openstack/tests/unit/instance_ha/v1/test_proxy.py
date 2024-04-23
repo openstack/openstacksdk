@@ -27,7 +27,7 @@ VMOVE_ID = "16a7c91f-8342-49a7-c731-3a632293f845"
 
 class TestInstanceHaProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestInstanceHaProxy, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
 

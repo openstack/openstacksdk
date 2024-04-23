@@ -16,7 +16,7 @@ from openstack.tests.functional.shared_file_system import base
 
 class ShareGroupTest(base.BaseSharedFileSystemTest):
     def setUp(self):
-        super(ShareGroupTest, self).setUp()
+        super().setUp()
 
         self.SHARE_GROUP_NAME = self.getUniqueString()
         share_grp = self.user_cloud.shared_file_system.create_share_group(

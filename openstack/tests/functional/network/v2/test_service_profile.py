@@ -21,7 +21,7 @@ class TestServiceProfile(base.BaseFunctionalTest):
     ID = None
 
     def setUp(self):
-        super(TestServiceProfile, self).setUp()
+        super().setUp()
         if not self.user_cloud._has_neutron_extension("flavors"):
             self.skipTest("Neutron flavor extension is required for this test")
 
@@ -50,7 +50,7 @@ class TestServiceProfile(base.BaseFunctionalTest):
                 )
             )
             self.assertIsNone(service_profiles)
-        super(TestServiceProfile, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         self.user_cloud.network.find_service_profile(

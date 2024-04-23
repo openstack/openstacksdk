@@ -21,7 +21,7 @@ class TestAgentNetworks(base.BaseFunctionalTest):
     AGENT_ID = None
 
     def setUp(self):
-        super(TestAgentNetworks, self).setUp()
+        super().setUp()
         if not self.user_cloud._has_neutron_extension("agent"):
             self.skipTest("Neutron agent extension is required for this test")
 

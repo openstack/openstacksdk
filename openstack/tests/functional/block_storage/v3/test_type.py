@@ -17,7 +17,7 @@ from openstack.tests.functional.block_storage.v3 import base
 
 class TestType(base.BaseBlockStorageTest):
     def setUp(self):
-        super(TestType, self).setUp()
+        super().setUp()
 
         self.TYPE_NAME = self.getUniqueString()
         self.TYPE_ID = None
@@ -36,7 +36,7 @@ class TestType(base.BaseBlockStorageTest):
             self.TYPE_ID, ignore_missing=False
         )
         self.assertIsNone(sot)
-        super(TestType, self).tearDown()
+        super().tearDown()
 
     def test_get(self):
         sot = self.operator_cloud.block_storage.get_type(self.TYPE_ID)

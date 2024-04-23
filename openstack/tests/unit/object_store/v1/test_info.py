@@ -16,7 +16,7 @@ from openstack.tests.unit import base
 
 class TestInfo(base.TestCase):
     def setUp(self):
-        super(TestInfo, self).setUp()
+        super().setUp()
 
     def test_get_info_url(self):
         sot = info.Info()

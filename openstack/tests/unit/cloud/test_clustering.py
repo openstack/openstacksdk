@@ -64,7 +64,7 @@ class TestClustering(base.TestCase):
         )
 
     def setUp(self):
-        super(TestClustering, self).setUp()
+        super().setUp()
         self.use_senlin()
 
 

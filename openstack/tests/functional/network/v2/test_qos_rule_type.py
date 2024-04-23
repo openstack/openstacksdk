@@ -18,7 +18,7 @@ class TestQoSRuleType(base.BaseFunctionalTest):
     QOS_RULE_TYPE = "bandwidth_limit"
 
     def setUp(self):
-        super(TestQoSRuleType, self).setUp()
+        super().setUp()
         if not self.operator_cloud:
             self.skipTest("Operator cloud is required for this test")
 

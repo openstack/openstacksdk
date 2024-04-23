@@ -51,7 +51,7 @@ class Type(resource.Resource):
         for k, v in extra_specs.items():
             if not isinstance(v, str):
                 raise ValueError(
-                    "The value for %s (%s) must be a text string" % (k, v)
+                    f"The value for {k} ({v}) must be a text string"
                 )
 
         if key is not None:

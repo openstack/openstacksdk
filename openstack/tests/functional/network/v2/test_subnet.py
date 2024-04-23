@@ -26,7 +26,7 @@ class TestSubnet(base.BaseFunctionalTest):
     SUB_ID = None
 
     def setUp(self):
-        super(TestSubnet, self).setUp()
+        super().setUp()
         self.NET_NAME = self.getUniqueString()
         self.SUB_NAME = self.getUniqueString()
         self.UPDATE_NAME = self.getUniqueString()
@@ -54,7 +54,7 @@ class TestSubnet(base.BaseFunctionalTest):
             self.NET_ID, ignore_missing=False
         )
         self.assertIsNone(sot)
-        super(TestSubnet, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         sot = self.user_cloud.network.find_subnet(self.SUB_NAME)

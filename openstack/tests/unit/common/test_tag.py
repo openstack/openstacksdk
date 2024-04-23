@@ -22,7 +22,7 @@ from openstack.tests.unit.test_resource import FakeResponse
 
 class TestTagMixin(base.TestCase):
     def setUp(self):
-        super(TestTagMixin, self).setUp()
+        super().setUp()
 
         self.service_name = "service"
         self.base_path = "base_path"

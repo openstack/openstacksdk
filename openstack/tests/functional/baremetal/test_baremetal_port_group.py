@@ -19,7 +19,7 @@ class TestBareMetalPortGroup(base.BaseBaremetalTest):
     min_microversion = '1.23'
 
     def setUp(self):
-        super(TestBareMetalPortGroup, self).setUp()
+        super().setUp()
         self.node = self.create_node()
 
     def test_port_group_create_get_delete(self):

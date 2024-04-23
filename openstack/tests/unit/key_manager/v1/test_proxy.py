@@ -19,7 +19,7 @@ from openstack.tests.unit import test_proxy_base
 
 class TestKeyManagerProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestKeyManagerProxy, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
 

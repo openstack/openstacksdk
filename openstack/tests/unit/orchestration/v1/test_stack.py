@@ -31,7 +31,7 @@ FAKE = {
     'files': {'file1': 'content'},
     'files_container': 'dummy_container',
     'id': FAKE_ID,
-    'links': [{'href': 'stacks/%s/%s' % (FAKE_NAME, FAKE_ID), 'rel': 'self'}],
+    'links': [{'href': f'stacks/{FAKE_NAME}/{FAKE_ID}', 'rel': 'self'}],
     'notification_topics': '7',
     'outputs': '8',
     'parameters': {'OS::stack_id': '9'},
@@ -47,9 +47,7 @@ FAKE = {
 FAKE_CREATE_RESPONSE = {
     'stack': {
         'id': FAKE_ID,
-        'links': [
-            {'href': 'stacks/%s/%s' % (FAKE_NAME, FAKE_ID), 'rel': 'self'}
-        ],
+        'links': [{'href': f'stacks/{FAKE_NAME}/{FAKE_ID}', 'rel': 'self'}],
     }
 }
 FAKE_UPDATE_PREVIEW_RESPONSE = {
@@ -240,13 +238,13 @@ class TestStack(base.TestCase):
 
         self.assertEqual(sot, sot.fetch(sess))
         sess.get.assert_called_with(
-            'stacks/{id}'.format(id=sot.id),
+            f'stacks/{sot.id}',
             microversion=None,
             skip_cache=False,
         )
         sot.fetch(sess, resolve_outputs=False)
         sess.get.assert_called_with(
-            'stacks/{id}?resolve_outputs=False'.format(id=sot.id),
+            f'stacks/{sot.id}?resolve_outputs=False',
             microversion=None,
             skip_cache=False,
         )
@@ -269,7 +267,7 @@ class TestStack(base.TestCase):
         sot.abandon(sess)
 
         sess.delete.assert_called_with(
-            'stacks/%s/%s/abandon' % (FAKE_NAME, FAKE_ID),
+            f'stacks/{FAKE_NAME}/{FAKE_ID}/abandon',
         )
 
     def test_export(self):
@@ -286,7 +284,7 @@ class TestStack(base.TestCase):
         sot.export(sess)
 
         sess.get.assert_called_with(
-            'stacks/%s/%s/export' % (FAKE_NAME, FAKE_ID),
+            f'stacks/{FAKE_NAME}/{FAKE_ID}/export',
         )
 
     def test_update(self):
@@ -304,7 +302,7 @@ class TestStack(base.TestCase):
         sot.update(sess)
 
         sess.put.assert_called_with(
-            '/stacks/%s/%s' % (FAKE_NAME, FAKE_ID),
+            f'/stacks/{FAKE_NAME}/{FAKE_ID}',
             headers={},
             microversion=None,
             json=body,
@@ -325,7 +323,7 @@ class TestStack(base.TestCase):
         ret = sot.update(sess, preview=True)
 
         sess.put.assert_called_with(
-            'stacks/%s/%s/preview' % (FAKE_NAME, FAKE_ID),
+            f'stacks/{FAKE_NAME}/{FAKE_ID}/preview',
             headers={},
             microversion=None,
             json=body,

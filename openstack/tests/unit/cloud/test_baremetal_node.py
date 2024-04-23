@@ -29,7 +29,7 @@ from openstack.tests.unit import base
 
 class TestBaremetalNode(base.IronicTestCase):
     def setUp(self):
-        super(TestBaremetalNode, self).setUp()
+        super().setUp()
         self.fake_baremetal_node = fakes.make_fake_machine(
             self.name, self.uuid
         )
@@ -2367,7 +2367,7 @@ class TestUpdateMachinePatch(base.IronicTestCase):
     # variables that need to be tested.
 
     def setUp(self):
-        super(TestUpdateMachinePatch, self).setUp()
+        super().setUp()
         self.fake_baremetal_node = fakes.make_fake_machine(
             self.name, self.uuid
         )

@@ -180,14 +180,14 @@ class FloatingIPCloudMixin:
         :returns: A floating ip
             `:class:`~openstack.network.v2.floating_ip.FloatingIP`.
         """
-        error_message = "Error getting floating ip with ID {id}".format(id=id)
+        error_message = f"Error getting floating ip with ID {id}"
 
         if self._use_neutron_floating():
             fip = self.network.get_ip(id)
             return fip
         else:
             data = proxy._json_response(
-                self.compute.get('/os-floating-ips/{id}'.format(id=id)),
+                self.compute.get(f'/os-floating-ips/{id}'),
                 error_message=error_message,
             )
             return self._normalize_floating_ip(
@@ -230,7 +230,7 @@ class FloatingIPCloudMixin:
 
             if floating_network_id is None:
                 raise exceptions.NotFoundException(
-                    "unable to find external network {net}".format(net=network)
+                    f"unable to find external network {network}"
                 )
         else:
             floating_network_id = self._get_floating_network_id()
@@ -270,7 +270,7 @@ class FloatingIPCloudMixin:
         """
 
         with _utils.openstacksdk_exceptions(
-            "Unable to create floating IP in pool {pool}".format(pool=pool)
+            f"Unable to create floating IP in pool {pool}"
         ):
             if pool is None:
                 pools = self.list_floating_ip_pools()
@@ -442,7 +442,7 @@ class FloatingIPCloudMixin:
                 except exceptions.ResourceNotFound:
                     raise exceptions.NotFoundException(
                         "unable to find network for floating ips with ID "
-                        "{0}".format(network_name_or_id)
+                        "{}".format(network_name_or_id)
                     )
                 network_id = network['id']
             else:
@@ -516,7 +516,7 @@ class FloatingIPCloudMixin:
 
     def _nova_create_floating_ip(self, pool=None):
         with _utils.openstacksdk_exceptions(
-            "Unable to create floating IP in pool {pool}".format(pool=pool)
+            f"Unable to create floating IP in pool {pool}"
         ):
             if pool is None:
                 pools = self.list_floating_ip_pools()
@@ -599,9 +599,7 @@ class FloatingIPCloudMixin:
     def _nova_delete_floating_ip(self, floating_ip_id):
         try:
             proxy._json_response(
-                self.compute.delete(
-                    '/os-floating-ips/{id}'.format(id=floating_ip_id)
-                ),
+                self.compute.delete(f'/os-floating-ips/{floating_ip_id}'),
                 error_message='Unable to delete floating IP {fip_id}'.format(
                     fip_id=floating_ip_id
                 ),
@@ -738,7 +736,7 @@ class FloatingIPCloudMixin:
         )
         if not port:
             raise exceptions.SDKException(
-                "unable to find a port for server {0}".format(server['id'])
+                "unable to find a port for server {}".format(server['id'])
             )
 
         floating_ip_args = {'port_id': port['id']}
@@ -753,7 +751,7 @@ class FloatingIPCloudMixin:
         f_ip = self.get_floating_ip(id=floating_ip_id)
         if f_ip is None:
             raise exceptions.SDKException(
-                "unable to find floating IP {0}".format(floating_ip_id)
+                f"unable to find floating IP {floating_ip_id}"
             )
         error_message = "Error attaching IP {ip} to instance {id}".format(
             ip=floating_ip_id, id=server_id
@@ -763,7 +761,7 @@ class FloatingIPCloudMixin:
             body['fixed_address'] = fixed_address
         return proxy._json_response(
             self.compute.post(
-                '/servers/{server_id}/action'.format(server_id=server_id),
+                f'/servers/{server_id}/action',
                 json=dict(addFloatingIp=body),
             ),
             error_message=error_message,
@@ -806,11 +804,9 @@ class FloatingIPCloudMixin:
             self.network.update_ip(floating_ip_id, port_id=None)
         except exceptions.SDKException:
             raise exceptions.SDKException(
-                (
-                    "Error detaching IP {ip} from "
-                    "server {server_id}".format(
-                        ip=floating_ip_id, server_id=server_id
-                    )
+                "Error detaching IP {ip} from "
+                "server {server_id}".format(
+                    ip=floating_ip_id, server_id=server_id
                 )
             )
 
@@ -820,14 +816,14 @@ class FloatingIPCloudMixin:
         f_ip = self.get_floating_ip(id=floating_ip_id)
         if f_ip is None:
             raise exceptions.SDKException(
-                "unable to find floating IP {0}".format(floating_ip_id)
+                f"unable to find floating IP {floating_ip_id}"
             )
         error_message = "Error detaching IP {ip} from instance {id}".format(
             ip=floating_ip_id, id=server_id
         )
         return proxy._json_response(
             self.compute.post(
-                '/servers/{server_id}/action'.format(server_id=server_id),
+                f'/servers/{server_id}/action',
                 json=dict(
                     removeFloatingIp=dict(address=f_ip['floating_ip_address'])
                 ),
@@ -1222,7 +1218,7 @@ class FloatingIPCloudMixin:
                         return port, fixed_address
             raise exceptions.SDKException(
                 "unable to find a free fixed IPv4 address for server "
-                "{0}".format(server['id'])
+                "{}".format(server['id'])
             )
         # unfortunately a port can have more than one fixed IP:
         # we can't use the search_ports filtering for fixed_address as

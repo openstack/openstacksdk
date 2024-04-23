@@ -19,7 +19,7 @@ from openstack import utils
 
 class TestZone(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestZone, self).setUp()
+        super().setUp()
         self.require_service('dns')
 
         self.conn = connection.from_config(cloud_name=base.TEST_CLOUD_NAME)
@@ -28,7 +28,7 @@ class TestZone(base.BaseFunctionalTest):
         # chose a new zone name for a test
         # getUniqueString is not guaranteed to return unique string between
         # different tests of the same class.
-        self.ZONE_NAME = 'example-{0}.org.'.format(random.randint(1, 10000))
+        self.ZONE_NAME = f'example-{random.randint(1, 10000)}.org.'
 
         self.zone = self.conn.dns.create_zone(
             name=self.ZONE_NAME,
@@ -64,7 +64,7 @@ class TestZone(base.BaseFunctionalTest):
         self.assertIsNotNone(
             self.conn.dns.create_recordset(
                 zone=zone,
-                name='www.{zone}'.format(zone=zone.name),
+                name=f'www.{zone.name}',
                 type='A',
                 description='Example zone rec',
                 ttl=3600,
@@ -79,7 +79,7 @@ class TestZone(base.BaseFunctionalTest):
                 'Designate API version does not support shared zones.'
             )
 
-        zone_name = 'example-{0}.org.'.format(random.randint(1, 10000))
+        zone_name = f'example-{random.randint(1, 10000)}.org.'
         zone = self.conn.dns.create_zone(
             name=zone_name,
             email='joe@example.org',

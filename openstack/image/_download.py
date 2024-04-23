@@ -22,7 +22,7 @@ def _verify_checksum(md5, checksum):
         digest = md5.hexdigest()
         if digest != checksum:
             raise exceptions.InvalidResponse(
-                "checksum mismatch: %s != %s" % (checksum, digest)
+                f"checksum mismatch: {checksum} != {digest}"
             )
 
 

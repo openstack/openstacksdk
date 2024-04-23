@@ -23,7 +23,7 @@ class TestLocalIPAssociation(base.BaseFunctionalTest):
     FIXED_IP = None
 
     def setUp(self):
-        super(TestLocalIPAssociation, self).setUp()
+        super().setUp()
 
         if not self.user_cloud.network.find_extension("local_ip"):
             self.skipTest("Local IP extension disabled")
@@ -52,7 +52,7 @@ class TestLocalIPAssociation(base.BaseFunctionalTest):
             self.LOCAL_IP_ID, self.FIXED_PORT_ID
         )
         self.assertIsNone(sot)
-        super(TestLocalIPAssociation, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         sot = self.user_cloud.network.find_local_ip_association(

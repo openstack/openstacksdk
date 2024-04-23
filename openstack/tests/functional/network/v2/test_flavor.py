@@ -23,7 +23,7 @@ class TestFlavor(base.BaseFunctionalTest):
     METAINFO = "FlAVOR_PROFILE_METAINFO"
 
     def setUp(self):
-        super(TestFlavor, self).setUp()
+        super().setUp()
         if not self.user_cloud._has_neutron_extension("flavors"):
             self.skipTest("Neutron flavor extension is required for this test")
 
@@ -56,7 +56,7 @@ class TestFlavor(base.BaseFunctionalTest):
                 self.ID, ignore_missing=True
             )
             self.assertIsNone(service_profiles)
-        super(TestFlavor, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         if self.ID:

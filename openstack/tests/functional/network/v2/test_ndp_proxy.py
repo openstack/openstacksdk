@@ -30,7 +30,7 @@ class TestNDPProxy(base.BaseFunctionalTest):
     INTERNAL_PORT_ID = None
 
     def setUp(self):
-        super(TestNDPProxy, self).setUp()
+        super().setUp()
 
         if not self.user_cloud.network.find_extension("l3-ndp-proxy"):
             self.skipTest("L3 ndp proxy extension disabled")
@@ -112,7 +112,7 @@ class TestNDPProxy(base.BaseFunctionalTest):
             self.INT_NET_ID, ignore_missing=False
         )
         self.assertIsNone(sot)
-        super(TestNDPProxy, self).tearDown()
+        super().tearDown()
 
     def _create_network(self, name, **args):
         self.name = name

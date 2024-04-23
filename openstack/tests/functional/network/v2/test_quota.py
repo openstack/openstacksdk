@@ -15,7 +15,7 @@ from openstack.tests.functional import base
 
 class TestQuota(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestQuota, self).setUp()
+        super().setUp()
 
         if not self.operator_cloud:
             self.skipTest("Operator cloud required for this test")

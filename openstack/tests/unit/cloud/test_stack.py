@@ -22,7 +22,7 @@ from openstack.tests.unit import base
 
 class TestStack(base.TestCase):
     def setUp(self):
-        super(TestStack, self).setUp()
+        super().setUp()
         self.stack_id = self.getUniqueString('id')
         self.stack_name = self.getUniqueString('name')
         self.stack_tag = self.getUniqueString('tag')

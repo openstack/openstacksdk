@@ -17,7 +17,7 @@ from openstack.tests.functional.network.v2 import test_network
 
 class TestServerAdmin(ft_base.BaseComputeTest):
     def setUp(self):
-        super(TestServerAdmin, self).setUp()
+        super().setUp()
         self._set_operator_cloud(interface='admin')
         self.NAME = 'needstobeshortandlowercase'
         self.USERDATA = 'SSdtIGFjdHVhbGx5IGEgZ29hdC4='
@@ -50,7 +50,7 @@ class TestServerAdmin(ft_base.BaseComputeTest):
             self.server, wait=self._wait_for_timeout
         )
         self.assertIsNone(sot)
-        super(TestServerAdmin, self).tearDown()
+        super().tearDown()
 
     def test_get(self):
         sot = self.conn.compute.get_server(self.server.id)
@@ -66,7 +66,7 @@ class TestServerAdmin(ft_base.BaseComputeTest):
 
 class TestServer(ft_base.BaseComputeTest):
     def setUp(self):
-        super(TestServer, self).setUp()
+        super().setUp()
         self.NAME = self.getUniqueString()
         self.server = None
         self.network = None
@@ -97,7 +97,7 @@ class TestServer(ft_base.BaseComputeTest):
             self.server, wait=self._wait_for_timeout
         )
         test_network.delete_network(self.conn, self.network, self.subnet)
-        super(TestServer, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         sot = self.conn.compute.find_server(self.NAME)

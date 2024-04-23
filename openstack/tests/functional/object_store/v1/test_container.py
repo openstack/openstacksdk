@@ -16,7 +16,7 @@ from openstack.tests.functional import base
 
 class TestContainer(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestContainer, self).setUp()
+        super().setUp()
         self.require_service('object-store')
 
         self.NAME = self.getUniqueString()

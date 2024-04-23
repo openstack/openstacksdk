@@ -71,7 +71,7 @@ class Introspection(resource.Resource):
             microversion=version,
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
-        msg = "Failed to abort introspection for node {id}".format(id=self.id)
+        msg = f"Failed to abort introspection for node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
     def get_data(self, session, processed=True):

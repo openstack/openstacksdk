@@ -15,7 +15,7 @@ from openstack.tests.functional import base
 
 class TestHypervisor(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestHypervisor, self).setUp()
+        super().setUp()
 
     def test_list_hypervisors(self):
         rslt = list(self.conn.compute.hypervisors())

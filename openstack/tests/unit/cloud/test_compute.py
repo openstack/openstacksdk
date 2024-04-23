@@ -49,7 +49,7 @@ class TestNovaExtensions(base.TestCase):
             ]
         )
         extensions = self.cloud._nova_extensions()
-        self.assertEqual(set(['NMN', 'OS-DCF']), extensions)
+        self.assertEqual({'NMN', 'OS-DCF'}, extensions)
 
         self.assert_calls()
 

@@ -25,7 +25,7 @@ class TestSegment(base.BaseFunctionalTest):
     SEGMENT_EXTENSION = None
 
     def setUp(self):
-        super(TestSegment, self).setUp()
+        super().setUp()
         self.NETWORK_NAME = self.getUniqueString()
 
         if not self.operator_cloud:
@@ -60,7 +60,7 @@ class TestSegment(base.BaseFunctionalTest):
             self.NETWORK_ID, ignore_missing=False
         )
         self.assertIsNone(sot)
-        super(TestSegment, self).tearDown()
+        super().tearDown()
 
     def test_create_delete(self):
         sot = self.operator_cloud.network.create_segment(

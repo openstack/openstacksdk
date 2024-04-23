@@ -17,7 +17,7 @@ from openstack.tests.functional import base
 
 class TestKeypair(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestKeypair, self).setUp()
+        super().setUp()
 
         # Keypairs can't have .'s in the name. Because why?
         self.NAME = self.getUniqueString().split('.')[-1]
@@ -30,7 +30,7 @@ class TestKeypair(base.BaseFunctionalTest):
     def tearDown(self):
         sot = self.conn.compute.delete_keypair(self._keypair)
         self.assertIsNone(sot)
-        super(TestKeypair, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         sot = self.conn.compute.find_keypair(self.NAME)
@@ -50,7 +50,7 @@ class TestKeypair(base.BaseFunctionalTest):
 
 class TestKeypairAdmin(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestKeypairAdmin, self).setUp()
+        super().setUp()
         self._set_operator_cloud(interface='admin')
 
         self.NAME = self.getUniqueString().split('.')[-1]
@@ -67,7 +67,7 @@ class TestKeypairAdmin(base.BaseFunctionalTest):
     def tearDown(self):
         sot = self.conn.compute.delete_keypair(self._keypair)
         self.assertIsNone(sot)
-        super(TestKeypairAdmin, self).tearDown()
+        super().tearDown()
 
     def test_get(self):
         sot = self.conn.compute.get_keypair(self.NAME)

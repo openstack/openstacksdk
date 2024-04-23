@@ -60,7 +60,7 @@ class Keypair(resource.Resource):
         # it **SOMETIMES** keypair picks up id and not name. This is a hammer.
         if 'id' in attrs:
             attrs.setdefault('name', attrs.pop('id'))
-        return super(Keypair, self)._consume_attrs(mapping, attrs)
+        return super()._consume_attrs(mapping, attrs)
 
     @classmethod
     def existing(cls, connection=None, **kwargs):

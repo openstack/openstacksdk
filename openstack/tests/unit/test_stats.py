@@ -81,7 +81,7 @@ class TestStats(base.TestCase):
         self.add_info_on_exception('statsd_content', self.statsd.stats)
         # Set up the above things before the super setup so that we have the
         # environment variables set when the Connection is created.
-        super(TestStats, self).setUp()
+        super().setUp()
 
         self._registry = prometheus_client.CollectorRegistry()
         self.cloud.config._collector_registry = self._registry
@@ -358,7 +358,7 @@ class TestStats(base.TestCase):
 
 class TestNoStats(base.TestCase):
     def setUp(self):
-        super(TestNoStats, self).setUp()
+        super().setUp()
         self.statsd = StatsdFixture()
         self.useFixture(self.statsd)
 

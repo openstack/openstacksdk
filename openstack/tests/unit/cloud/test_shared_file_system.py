@@ -26,7 +26,7 @@ MANILA_AZ_DICT = {
 
 class TestSharedFileSystem(base.TestCase):
     def setUp(self):
-        super(TestSharedFileSystem, self).setUp()
+        super().setUp()
         self.use_manila()
 
     def test_list_availability_zones(self):

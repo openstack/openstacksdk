@@ -105,7 +105,7 @@ class TestServerMigration(base.TestCase):
 
         self.assertIsNone(sot.force_complete(self.sess))
 
-        url = 'servers/%s/migrations/%s/action' % (
+        url = 'servers/{}/migrations/{}/action'.format(
             EXAMPLE['server_id'],
             EXAMPLE['id'],
         )

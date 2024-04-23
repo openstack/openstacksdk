@@ -25,7 +25,7 @@ class TestQoSDSCPMarkingRule(base.BaseFunctionalTest):
     RULE_DSCP_MARK_NEW = 40
 
     def setUp(self):
-        super(TestQoSDSCPMarkingRule, self).setUp()
+        super().setUp()
 
         if not self.operator_cloud:
             self.skipTest("Operator cloud is required for this test")
@@ -57,7 +57,7 @@ class TestQoSDSCPMarkingRule(base.BaseFunctionalTest):
         qos_policy = self.conn.network.delete_qos_policy(self.QOS_POLICY_ID)
         self.assertIsNone(rule)
         self.assertIsNone(qos_policy)
-        super(TestQoSDSCPMarkingRule, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         sot = self.conn.network.find_qos_dscp_marking_rule(

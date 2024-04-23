@@ -21,7 +21,7 @@ class TestLocalIP(base.BaseFunctionalTest):
     LOCAL_IP_ID = None
 
     def setUp(self):
-        super(TestLocalIP, self).setUp()
+        super().setUp()
 
         if not self.user_cloud.network.find_extension("local_ip"):
             self.skipTest("Local IP extension disabled")
@@ -42,7 +42,7 @@ class TestLocalIP(base.BaseFunctionalTest):
     def tearDown(self):
         sot = self.user_cloud.network.delete_local_ip(self.LOCAL_IP_ID)
         self.assertIsNone(sot)
-        super(TestLocalIP, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         sot = self.user_cloud.network.find_local_ip(self.LOCAL_IP_NAME)

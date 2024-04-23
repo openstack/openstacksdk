@@ -26,7 +26,7 @@ from openstack.tests.functional import base
 
 class TestRecordset(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestRecordset, self).setUp()
+        super().setUp()
         if not self.user_cloud.has_service('dns'):
             self.skipTest('dns service not supported by cloud')
 

@@ -24,7 +24,7 @@ FAKE = {
 
 class TestClusterAttr(base.TestCase):
     def setUp(self):
-        super(TestClusterAttr, self).setUp()
+        super().setUp()
 
     def test_basic(self):
         sot = ca.ClusterAttr()

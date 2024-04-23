@@ -64,7 +64,7 @@ class _OpenStackCloudMixin:
     _SHADE_OBJECT_AUTOCREATE_KEY = 'x-object-meta-x-shade-autocreated'
 
     def __init__(self):
-        super(_OpenStackCloudMixin, self).__init__()
+        super().__init__()
 
         self.log = _log.setup_logging('openstack')
 
@@ -172,10 +172,10 @@ class _OpenStackCloudMixin:
                 name_key = 'username'
             else:
                 name_key = 'project_name'
-            id_key = '{prefix}_id'.format(prefix=prefix)
+            id_key = f'{prefix}_id'
             pop_keys(params, kwargs, name_key, id_key)
-            id_key = '{prefix}_domain_id'.format(prefix=prefix)
-            name_key = '{prefix}_domain_name'.format(prefix=prefix)
+            id_key = f'{prefix}_domain_id'
+            name_key = f'{prefix}_domain_name'
             pop_keys(params, kwargs, name_key, id_key)
 
         for key, value in kwargs.items():
@@ -282,14 +282,14 @@ class _OpenStackCloudMixin:
         if namespace is None:
             name_key = self.name
         else:
-            name_key = '%s:%s' % (self.name, namespace)
+            name_key = f'{self.name}:{namespace}'
 
         def generate_key(*args, **kwargs):
             # TODO(frickler): make handling arg keys actually work
             arg_key = ''
             kw_keys = sorted(kwargs.keys())
             kwargs_key = ','.join(
-                ['%s:%s' % (k, kwargs[k]) for k in kw_keys if k != 'cache']
+                [f'{k}:{kwargs[k]}' for k in kw_keys if k != 'cache']
             )
             ans = "_".join([str(name_key), fname, arg_key, kwargs_key])
             return ans

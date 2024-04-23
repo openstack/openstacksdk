@@ -103,7 +103,7 @@ class Flavor(resource.Resource):
             # is_public is ternary - None means give all flavors.
             # Force it to string to avoid requests skipping it.
             params['is_public'] = 'None'
-        return super(Flavor, cls).list(
+        return super().list(
             session, paginated=paginated, base_path=base_path, **params
         )
 

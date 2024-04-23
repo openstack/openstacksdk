@@ -17,7 +17,7 @@ from openstack.tests.functional.block_storage.v2 import base
 
 class TestStats(base.BaseBlockStorageTest):
     def setUp(self):
-        super(TestStats, self).setUp()
+        super().setUp()
 
         sot = self.operator_cloud.block_storage.backend_pools()
         for pool in sot:

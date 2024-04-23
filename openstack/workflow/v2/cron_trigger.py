@@ -72,6 +72,4 @@ class CronTrigger(resource.Resource):
     updated_at = resource.Body("updated_at")
 
     def create(self, session, base_path=None):
-        return super(CronTrigger, self).create(
-            session, prepend_key=False, base_path=base_path
-        )
+        return super().create(session, prepend_key=False, base_path=base_path)

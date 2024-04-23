@@ -19,7 +19,7 @@ from openstack.tests.unit import base
 
 class TestServerGroup(base.TestCase):
     def setUp(self):
-        super(TestServerGroup, self).setUp()
+        super().setUp()
         self.group_id = uuid.uuid4().hex
         self.group_name = self.getUniqueString('server-group')
         self.policies = ['affinity']

@@ -411,15 +411,13 @@ class OpenStackConfig:
             ret[newkey] = os.environ[k]
         # If the only environ keys are selectors or behavior modification,
         # don't return anything
-        selectors = set(
-            [
-                'OS_CLOUD',
-                'OS_REGION_NAME',
-                'OS_CLIENT_CONFIG_FILE',
-                'OS_CLIENT_SECURE_FILE',
-                'OS_CLOUD_NAME',
-            ]
-        )
+        selectors = {
+            'OS_CLOUD',
+            'OS_REGION_NAME',
+            'OS_CLIENT_CONFIG_FILE',
+            'OS_CLIENT_SECURE_FILE',
+            'OS_CLOUD_NAME',
+        }
         if set(environkeys) - selectors:
             return ret
         return None
@@ -456,12 +454,12 @@ class OpenStackConfig:
         for path in filelist:
             if os.path.exists(path):
                 try:
-                    with open(path, 'r') as f:
+                    with open(path) as f:
                         if path.endswith('json'):
                             return path, json.load(f)
                         else:
                             return path, yaml.safe_load(f)
-                except IOError as e:
+                except OSError as e:
                     if e.errno == errno.EACCES:
                         # Can't access file so let's continue to the next
                         # file
@@ -560,9 +558,7 @@ class OpenStackConfig:
 
         # Only validate cloud name if one was given
         if name and name not in self.cloud_config['clouds']:
-            raise exceptions.ConfigException(
-                "Cloud {name} was not found.".format(name=name)
-            )
+            raise exceptions.ConfigException(f"Cloud {name} was not found.")
 
         our_cloud = self.cloud_config['clouds'].get(name, dict())
         if profile:
@@ -1440,7 +1436,7 @@ class OpenStackConfig:
         try:
             with open(config_file) as fh:
                 cur_config = yaml.safe_load(fh)
-        except IOError as e:
+        except OSError as e:
             # Not no such file
             if e.errno != 2:
                 raise

@@ -29,7 +29,7 @@ from openstack.tests.functional import base
 
 class TestObject(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestObject, self).setUp()
+        super().setUp()
         if not self.user_cloud.has_service('object-store'):
             self.skipTest('Object service not supported by cloud')
 

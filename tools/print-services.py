@@ -41,9 +41,7 @@ def make_names():
 
         if desc_class.__module__ != 'openstack.service_description':
             base_mod, dm = desc_class.__module__.rsplit('.', 1)
-            imports.append(
-                'from {base_mod} import {dm}'.format(base_mod=base_mod, dm=dm)
-            )
+            imports.append(f'from {base_mod} import {dm}')
         else:
             dm = 'service_description'
 
@@ -62,9 +60,7 @@ def make_names():
         for alias_name in _get_aliases(st):
             if alias_name[-1].isdigit():
                 continue
-            services.append(
-                '{alias_name} = {st}'.format(alias_name=alias_name, st=st)
-            )
+            services.append(f'{alias_name} = {st}')
         services.append('')
     print("# Generated file, to change, run tools/print-services.py")
     for imp in sorted(imports):
@@ -73,7 +69,7 @@ def make_names():
     print("class ServicesMixin:\n")
     for service in services:
         if service:
-            print("    {service}".format(service=service))
+            print(f"    {service}")
         else:
             print()
 

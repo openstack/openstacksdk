@@ -29,7 +29,7 @@ class TestQoSBandwidthLimitRule(base.BaseFunctionalTest):
     RULE_DIRECTION_NEW = "ingress"
 
     def setUp(self):
-        super(TestQoSBandwidthLimitRule, self).setUp()
+        super().setUp()
 
         if not self.operator_cloud:
             self.skipTest("Operator cloud required for this test")
@@ -71,7 +71,7 @@ class TestQoSBandwidthLimitRule(base.BaseFunctionalTest):
         )
         self.assertIsNone(rule)
         self.assertIsNone(qos_policy)
-        super(TestQoSBandwidthLimitRule, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         sot = self.operator_cloud.network.find_qos_bandwidth_limit_rule(

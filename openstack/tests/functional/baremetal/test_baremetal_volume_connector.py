@@ -19,7 +19,7 @@ class TestBareMetalVolumeconnector(base.BaseBaremetalTest):
     min_microversion = '1.32'
 
     def setUp(self):
-        super(TestBareMetalVolumeconnector, self).setUp()
+        super().setUp()
         self.node = self.create_node(provision_state='enroll')
 
     def test_volume_connector_create_get_delete(self):

@@ -20,7 +20,7 @@ class ShareInstanceTest(base.BaseSharedFileSystemTest):
     min_microversion = '2.7'
 
     def setUp(self):
-        super(ShareInstanceTest, self).setUp()
+        super().setUp()
 
         self.SHARE_NAME = self.getUniqueString()
         my_share = self.create_share(

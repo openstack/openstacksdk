@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -30,7 +28,7 @@ from openstack import utils
 
 class Test_enable_logging(base.TestCase):
     def setUp(self):
-        super(Test_enable_logging, self).setUp()
+        super().setUp()
         self.openstack_logger = mock.Mock()
         self.openstack_logger.handlers = []
         self.ksa_logger_root = mock.Mock()
@@ -124,19 +122,19 @@ class Test_urljoin(base.TestCase):
 
     def test_unicode_strings(self):
         root = "http://www.example.com"
-        leaves = u"ascii", u"extra_chars-™"
+        leaves = "ascii", "extra_chars-™"
 
         try:
             result = utils.urljoin(root, *leaves)
         except Exception:
             self.fail("urljoin failed on unicode strings")
 
-        self.assertEqual(result, u"http://www.example.com/ascii/extra_chars-™")
+        self.assertEqual(result, "http://www.example.com/ascii/extra_chars-™")
 
 
 class TestSupportsMicroversion(base.TestCase):
     def setUp(self):
-        super(TestSupportsMicroversion, self).setUp()
+        super().setUp()
         self.adapter = mock.Mock(spec=['get_endpoint_data'])
         self.endpoint_data = mock.Mock(
             spec=['min_microversion', 'max_microversion'],
@@ -193,7 +191,7 @@ class TestSupportsMicroversion(base.TestCase):
 
 class TestMaximumSupportedMicroversion(base.TestCase):
     def setUp(self):
-        super(TestMaximumSupportedMicroversion, self).setUp()
+        super().setUp()
         self.adapter = mock.Mock(spec=['get_endpoint_data'])
         self.endpoint_data = mock.Mock(
             spec=['min_microversion', 'max_microversion'],
@@ -308,8 +306,8 @@ def test_walker_fn(graph, node, lst):
 
 class Test_md5(base.TestCase):
     def setUp(self):
-        super(Test_md5, self).setUp()
-        self.md5_test_data = "Openstack forever".encode('utf-8')
+        super().setUp()
+        self.md5_test_data = b"Openstack forever"
         try:
             self.md5_digest = hashlib.md5(  # nosec
                 self.md5_test_data
@@ -363,18 +361,18 @@ class Test_md5(base.TestCase):
 
     def test_string_data_raises_type_error(self):
         if not self.fips_enabled:
-            self.assertRaises(TypeError, hashlib.md5, u'foo')
-            self.assertRaises(TypeError, utils.md5, u'foo')
+            self.assertRaises(TypeError, hashlib.md5, 'foo')
+            self.assertRaises(TypeError, utils.md5, 'foo')
             self.assertRaises(
-                TypeError, utils.md5, u'foo', usedforsecurity=True
+                TypeError, utils.md5, 'foo', usedforsecurity=True
             )
         else:
-            self.assertRaises(ValueError, hashlib.md5, u'foo')
-            self.assertRaises(ValueError, utils.md5, u'foo')
+            self.assertRaises(ValueError, hashlib.md5, 'foo')
+            self.assertRaises(ValueError, utils.md5, 'foo')
             self.assertRaises(
-                ValueError, utils.md5, u'foo', usedforsecurity=True
+                ValueError, utils.md5, 'foo', usedforsecurity=True
             )
-        self.assertRaises(TypeError, utils.md5, u'foo', usedforsecurity=False)
+        self.assertRaises(TypeError, utils.md5, 'foo', usedforsecurity=False)
 
     def test_none_data_raises_type_error(self):
         if not self.fips_enabled:

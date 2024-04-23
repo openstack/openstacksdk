@@ -19,7 +19,7 @@ class TestAutoAllocatedTopology(base.BaseFunctionalTest):
     PROJECT_ID = None
 
     def setUp(self):
-        super(TestAutoAllocatedTopology, self).setUp()
+        super().setUp()
         if not self.operator_cloud:
             self.skipTest("Operator cloud is required for this test")
         if not self.operator_cloud._has_neutron_extension(
@@ -38,7 +38,7 @@ class TestAutoAllocatedTopology(base.BaseFunctionalTest):
             self.PROJECT_ID
         )
         self.assertIsNone(res)
-        super(TestAutoAllocatedTopology, self).tearDown()
+        super().tearDown()
 
     def test_dry_run_option_pass(self):
         # Dry run will only pass if there is a public network

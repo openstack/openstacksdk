@@ -27,9 +27,9 @@ from openstack.orchestration.util import template_format
 from openstack import utils
 
 PROJECT_ID = '1c36b64c840a42cd9e9b931a369337f0'
-FLAVOR_ID = u'0c1d9008-f546-4608-9e8f-f8bdaec8dddd'
-CHOCOLATE_FLAVOR_ID = u'0c1d9008-f546-4608-9e8f-f8bdaec8ddde'
-STRAWBERRY_FLAVOR_ID = u'0c1d9008-f546-4608-9e8f-f8bdaec8dddf'
+FLAVOR_ID = '0c1d9008-f546-4608-9e8f-f8bdaec8dddd'
+CHOCOLATE_FLAVOR_ID = '0c1d9008-f546-4608-9e8f-f8bdaec8ddde'
+STRAWBERRY_FLAVOR_ID = '0c1d9008-f546-4608-9e8f-f8bdaec8dddf'
 COMPUTE_ENDPOINT = 'https://compute.example.com/v2.1'
 ORCHESTRATION_ENDPOINT = 'https://orchestration.example.com/v1/{p}'.format(
     p=PROJECT_ID
@@ -48,30 +48,30 @@ FAKE_PUBLIC_KEY = (
 
 def make_fake_flavor(flavor_id, name, ram=100, disk=1600, vcpus=24):
     return {
-        u'OS-FLV-DISABLED:disabled': False,
-        u'OS-FLV-EXT-DATA:ephemeral': 0,
-        u'disk': disk,
-        u'id': flavor_id,
-        u'links': [
+        'OS-FLV-DISABLED:disabled': False,
+        'OS-FLV-EXT-DATA:ephemeral': 0,
+        'disk': disk,
+        'id': flavor_id,
+        'links': [
             {
-                u'href': u'{endpoint}/flavors/{id}'.format(
+                'href': '{endpoint}/flavors/{id}'.format(
                     endpoint=COMPUTE_ENDPOINT, id=flavor_id
                 ),
-                u'rel': u'self',
+                'rel': 'self',
             },
             {
-                u'href': u'{endpoint}/flavors/{id}'.format(
+                'href': '{endpoint}/flavors/{id}'.format(
                     endpoint=COMPUTE_ENDPOINT, id=flavor_id
                 ),
-                u'rel': u'bookmark',
+                'rel': 'bookmark',
             },
         ],
-        u'name': name,
-        u'os-flavor-access:is_public': True,
-        u'ram': ram,
-        u'rxtx_factor': 1.0,
-        u'swap': 0,
-        u'vcpus': vcpus,
+        'name': name,
+        'os-flavor-access:is_public': True,
+        'ram': ram,
+        'rxtx_factor': 1.0,
+        'swap': 0,
+        'vcpus': vcpus,
     }
 
 
@@ -251,9 +251,9 @@ def make_fake_image(
     md5=NO_MD5,
     sha256=NO_SHA256,
     status='active',
-    image_name=u'fake_image',
+    image_name='fake_image',
     data=None,
-    checksum=u'ee36e35a297980dee1b514de9803ec6d',
+    checksum='ee36e35a297980dee1b514de9803ec6d',
 ):
     if data:
         md5 = utils.md5(usedforsecurity=False)
@@ -265,34 +265,34 @@ def make_fake_image(
         md5 = md5.hexdigest()
         sha256 = sha256.hexdigest()
     return {
-        u'image_state': u'available',
-        u'container_format': u'bare',
-        u'min_ram': 0,
-        u'ramdisk_id': 'fake_ramdisk_id',
-        u'updated_at': u'2016-02-10T05:05:02Z',
-        u'file': '/v2/images/' + image_id + '/file',
-        u'size': 3402170368,
-        u'image_type': u'snapshot',
-        u'disk_format': u'qcow2',
-        u'id': image_id,
-        u'schema': u'/v2/schemas/image',
-        u'status': status,
-        u'tags': [],
-        u'visibility': u'private',
-        u'locations': [
-            {u'url': u'http://127.0.0.1/images/' + image_id, u'metadata': {}}
+        'image_state': 'available',
+        'container_format': 'bare',
+        'min_ram': 0,
+        'ramdisk_id': 'fake_ramdisk_id',
+        'updated_at': '2016-02-10T05:05:02Z',
+        'file': '/v2/images/' + image_id + '/file',
+        'size': 3402170368,
+        'image_type': 'snapshot',
+        'disk_format': 'qcow2',
+        'id': image_id,
+        'schema': '/v2/schemas/image',
+        'status': status,
+        'tags': [],
+        'visibility': 'private',
+        'locations': [
+            {'url': 'http://127.0.0.1/images/' + image_id, 'metadata': {}}
         ],
-        u'min_disk': 40,
-        u'virtual_size': None,
-        u'name': image_name,
-        u'checksum': md5 or checksum,
-        u'created_at': u'2016-02-10T05:03:11Z',
-        u'owner_specified.openstack.md5': md5 or NO_MD5,
-        u'owner_specified.openstack.sha256': sha256 or NO_SHA256,
-        u'owner_specified.openstack.object': 'images/{name}'.format(
+        'min_disk': 40,
+        'virtual_size': None,
+        'name': image_name,
+        'checksum': md5 or checksum,
+        'created_at': '2016-02-10T05:03:11Z',
+        'owner_specified.openstack.md5': md5 or NO_MD5,
+        'owner_specified.openstack.sha256': sha256 or NO_SHA256,
+        'owner_specified.openstack.object': 'images/{name}'.format(
             name=image_name
         ),
-        u'protected': False,
+        'protected': False,
     }
 
 

@@ -106,8 +106,8 @@ class TestFloatingIP(base.TestCase):
                 'private': [{'addr': "10.223.160.141", 'version': 4}],
                 'public': [
                     {
-                        u'OS-EXT-IPS-MAC:mac_addr': u'fa:16:3e:ae:7d:42',
-                        u'OS-EXT-IPS:type': u'fixed',
+                        'OS-EXT-IPS-MAC:mac_addr': 'fa:16:3e:ae:7d:42',
+                        'OS-EXT-IPS:type': 'fixed',
                         'addr': "2001:4800:7819:103:be76:4eff:fe05:8525",
                         'version': 6,
                     }

@@ -26,7 +26,7 @@ class TestSearch(base.TestCase):
         foo = resource.Body("foo")
 
     def setUp(self):
-        super(TestSearch, self).setUp()
+        super().setUp()
 
         self.session = proxy.Proxy(self.cloud)
         self.session._sdk_connection = self.cloud

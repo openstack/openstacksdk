@@ -74,7 +74,7 @@ validate_template = '''heat_template_version: asdf-no-such-version '''
 
 class TestStack(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestStack, self).setUp()
+        super().setUp()
         if not self.user_cloud.has_service('orchestration'):
             self.skipTest('Orchestration service not supported by cloud')
 

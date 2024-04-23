@@ -68,9 +68,7 @@ class TestLimits(base.TestCase):
                         'compute',
                         'public',
                         append=['limits'],
-                        qs_elements=[
-                            'tenant_id={id}'.format(id=project.project_id)
-                        ],
+                        qs_elements=[f'tenant_id={project.project_id}'],
                     ),
                     json={
                         "limits": {

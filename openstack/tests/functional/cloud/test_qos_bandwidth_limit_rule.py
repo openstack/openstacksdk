@@ -24,7 +24,7 @@ from openstack.tests.functional import base
 
 class TestQosBandwidthLimitRule(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestQosBandwidthLimitRule, self).setUp()
+        super().setUp()
         if not self.operator_cloud:
             self.skipTest("Operator cloud is required for this test")
         if not self.operator_cloud.has_service('network'):

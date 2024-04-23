@@ -46,7 +46,7 @@ FAKE = {
 
 class TestAction(base.TestCase):
     def setUp(self):
-        super(TestAction, self).setUp()
+        super().setUp()
 
     def test_basic(self):
         sot = action.Action()
