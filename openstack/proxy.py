@@ -484,8 +484,7 @@ class Proxy(adapter.Adapter):
         name_or_id: str,
         ignore_missing: ty.Literal[True] = True,
         **attrs,
-    ) -> ty.Optional[ResourceType]:
-        ...
+    ) -> ty.Optional[ResourceType]: ...
 
     @ty.overload
     def _find(
@@ -494,8 +493,7 @@ class Proxy(adapter.Adapter):
         name_or_id: str,
         ignore_missing: ty.Literal[False],
         **attrs,
-    ) -> ResourceType:
-        ...
+    ) -> ResourceType: ...
 
     # excuse the duplication here: it's mypy's fault
     # https://github.com/python/mypy/issues/14764
@@ -506,8 +504,7 @@ class Proxy(adapter.Adapter):
         name_or_id: str,
         ignore_missing: bool,
         **attrs,
-    ) -> ty.Optional[ResourceType]:
-        ...
+    ) -> ty.Optional[ResourceType]: ...
 
     def _find(
         self,

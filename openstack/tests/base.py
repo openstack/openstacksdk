@@ -31,7 +31,6 @@ _TRUE_VALUES = ('true', '1', 'yes')
 
 
 class TestCase(base.BaseTestCase):
-
     """Test case base class for all tests."""
 
     # A way to adjust slow test classes

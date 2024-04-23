@@ -323,12 +323,12 @@ class SecurityGroupCloudMixin:
             # as the equivalent value.
             rule_def = {
                 'security_group_id': secgroup['id'],
-                'port_range_min': None
-                if port_range_min == -1
-                else port_range_min,
-                'port_range_max': None
-                if port_range_max == -1
-                else port_range_max,
+                'port_range_min': (
+                    None if port_range_min == -1 else port_range_min
+                ),
+                'port_range_max': (
+                    None if port_range_max == -1 else port_range_max
+                ),
                 'protocol': protocol,
                 'remote_ip_prefix': remote_ip_prefix,
                 'remote_group_id': remote_group_id,

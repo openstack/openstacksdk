@@ -558,9 +558,9 @@ class Connection(
             self.config._influxdb_config
             and 'additional_metric_tags' in self.config.config
         ):
-            self.config._influxdb_config[
-                'additional_metric_tags'
-            ] = self.config.config['additional_metric_tags']
+            self.config._influxdb_config['additional_metric_tags'] = (
+                self.config.config['additional_metric_tags']
+            )
 
         # Register cleanup steps
         atexit.register(self.close)
