@@ -333,8 +333,8 @@ class Proxy(proxy.Proxy):
                 validate_checksum=validate_checksum,
                 use_import=use_import,
                 stores=stores,
-                all_stores=stores,
-                all_stores_must_succeed=stores,
+                all_stores=all_stores,
+                all_stores_must_succeed=all_stores_must_succeed,
                 **image_kwargs,
             )
         else:
