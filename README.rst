@@ -20,6 +20,8 @@ https://docs.openstack.org/openstacksdk/latest/contributor/history.html
 Getting started
 ---------------
 
+.. rubric:: Authentication and connection management
+
 openstacksdk aims to talk to any OpenStack cloud. To do this, it requires a
 configuration file. openstacksdk favours ``clouds.yaml`` files, but can also
 use environment variables. The ``clouds.yaml`` file should be provided by your
@@ -38,29 +40,43 @@ cloud provider or deployment tooling. An example:
 
 openstacksdk will look for ``clouds.yaml`` files in the following locations:
 
+* If set, the path indicated by the ``OS_CLIENT_CONFIG_FILE`` environment
+  variable
 * ``.`` (the current directory)
 * ``$HOME/.config/openstack``
 * ``/etc/openstack``
 
-openstacksdk consists of three layers. Most users will make use of the *proxy*
-layer. Using the above ``clouds.yaml``, consider listing servers:
+You can create a connection using the ``openstack.connect`` function. The cloud
+name can be either passed directly to this function or specified using the
+``OS_CLOUD`` environment variable. If you don't have a ``clouds.yaml`` file and
+instead use environment variables for configuration then you can use the
+special ``envvars`` cloud name to load configuration from the environment. For
+example:
 
 .. code-block:: python
 
     import openstack
 
-    # Initialize and turn on debug logging
-    openstack.enable_logging(debug=True)
+    # Initialize connection from a clouds.yaml by passing a cloud name
+    conn_from_cloud_name = openstack.connect(cloud='mordred')
 
-    # Initialize connection
-    conn = openstack.connect(cloud='mordred')
+    # Initialize connection from a clouds.yaml using the OS_CLOUD envvar
+    conn_from_os_cloud = openstack.connect()
 
-    # List the servers
-    for server in conn.compute.servers():
-        print(server.to_dict())
+    # Initialize connection from environment variables
+    conn_from_env_vars = openstack.connect(cloud='envvars')
 
-openstacksdk also contains a higher-level *cloud* layer based on logical
-operations:
+.. note::
+
+    How this is all achieved is described in more detail `below
+    <openstack.config>`__.
+
+.. rubric:: The cloud layer
+
+openstacksdk consists of four layers which all build on top of each other. The
+highest level layer is the *cloud* layer. Cloud layer methods are available via
+the top level ``Connection`` object returned by ``openstack.connect``. For
+example:
 
 .. code-block:: python
 
@@ -76,8 +92,10 @@ operations:
     for server in conn.list_servers():
         print(server.to_dict())
 
-The benefit of this layer is mostly seen in more complicated operations that
-take multiple steps and where the steps vary across providers. For example:
+The cloud layer is based on logical operations that can potentially touch
+multiple services. The benefit of this layer is mostly seen in more complicated
+operations that take multiple steps and where the steps vary across providers.
+For example:
 
 .. code-block:: python
 
@@ -101,9 +119,38 @@ take multiple steps and where the steps vary across providers. For example:
     conn.create_server(
         'my-server', image=image, flavor=flavor, wait=True, auto_ip=True)
 
-Finally, there is the low-level *resource* layer. This provides support for the
-basic CRUD operations supported by REST APIs and is the base building block for
-the other layers. You typically will not need to use this directly:
+.. rubric:: The proxy layer
+
+The next layer is the *proxy* layer. Most users will make use of this layer.
+The proxy layer is service-specific, so methods will be available under
+service-specific connection attributes of the ``Connection`` object such as
+``compute``, ``block_storage``, ``image`` etc. For example:
+
+.. code-block:: python
+
+    import openstack
+
+    # Initialize and turn on debug logging
+    openstack.enable_logging(debug=True)
+
+    # Initialize connection
+    conn = openstack.connect(cloud='mordred')
+
+    # List the servers
+    for server in conn.compute.servers():
+        print(server.to_dict())
+
+.. note::
+
+    A list of supported services is given `below <supported-services>`__.
+
+.. rubric:: The resource layer
+
+Below this there is the *resource* layer. This provides support for the basic
+CRUD operations supported by REST APIs and is the base building block for the
+other layers. You typically will not need to use this directly but it can be
+helpful for operations where you already have a ``Resource`` object to hand.
+For example:
 
 .. code-block:: python
 
@@ -120,6 +167,34 @@ the other layers. You typically will not need to use this directly:
     # List the servers
     for server in openstack.compute.v2.server.Server.list(session=conn.compute):
         print(server.to_dict())
+
+.. rubric:: The raw HTTP layer
+
+Finally, there is the *raw HTTP* layer. This exposes raw HTTP semantics and
+is effectively a wrapper around the `requests`__ API with added smarts to
+handle stuff like authentication and version management. As such, you can use
+the ``requests`` API methods you know and love, like ``get``, ``post`` and
+``put``, and expect to receive a ``requests.Response`` object in response
+(unlike the other layers, which mostly all return objects that subclass
+``openstack.resource.Resource``). Like the *resource* layer, you will typically
+not need to use this directly but it can be helpful to interact with APIs that
+have not or will not be supported by openstacksdk. For example:
+
+.. code-block:: python
+
+    import openstack
+
+    # Initialize and turn on debug logging
+    openstack.enable_logging(debug=True)
+
+    # Initialize connection
+    conn = openstack.connect(cloud='mordred')
+
+    # List servers
+    for server in openstack.compute.get('/servers').json():
+        print(server)
+
+.. __: https://requests.readthedocs.io/en/latest/
 
 .. _openstack.config:
 
@@ -145,13 +220,13 @@ environment by running ``openstack.config.loader``. For example:
 
 More information at https://docs.openstack.org/openstacksdk/latest/user/config/configuration.html
 
+.. _supported-services:
+
 Supported services
 ------------------
 
 The following services are currently supported. A full list of all available
 OpenStack service can be found in the `Project Navigator`__.
-
-.. __: https://www.openstack.org/software/project-navigator/openstack-components#openstack-services
 
 .. note::
 
@@ -301,6 +376,8 @@ OpenStack service can be found in the `Project Navigator`__.
      - Instances high availability service
      - ✔
      - ✔ (``openstack.instance_ha``)
+
+.. __: https://www.openstack.org/software/project-navigator/openstack-components#openstack-services
 
 Links
 -----
