@@ -21,7 +21,6 @@ import base64
 from unittest import mock
 import uuid
 
-from openstack.cloud import meta
 from openstack.compute.v2 import server
 from openstack import connection
 from openstack import exceptions
@@ -721,7 +720,7 @@ class TestCreateServer(base.TestCase):
             networks='auto',
             imageRef='image-id',
             flavorRef='flavor-id',
-            **fake_server
+            **fake_server,
         )
         mock_wait.assert_called_once_with(
             srv,
@@ -1201,7 +1200,7 @@ class TestCreateServer(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='https://image.example.com/v2/images',
+                    uri=f'https://image.example.com/v2/images/{image_id}',
                     json=fake_image_search_return,
                 ),
                 self.get_nova_discovery_mock_dict(),
@@ -1320,14 +1319,7 @@ class TestCreateServer(base.TestCase):
     def test_create_boot_attach_volume(self):
         build_server = fakes.make_fake_server('1234', '', 'BUILD')
         active_server = fakes.make_fake_server('1234', '', 'BUILD')
-
-        vol = {
-            'id': 'volume001',
-            'status': 'available',
-            'name': '',
-            'attachments': [],
-        }
-        volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
+        volume_id = '20e82d93-14fa-475b-bfcc-f5e6246dd194'
 
         self.register_uris(
             [
@@ -1339,6 +1331,24 @@ class TestCreateServer(base.TestCase):
                     json={'networks': []},
                 ),
                 self.get_nova_discovery_mock_dict(),
+                self.get_cinder_discovery_mock_dict(),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'volumev3', 'public', append=['volumes', volume_id]
+                    ),
+                    json={
+                        'volume': {
+                            'id': volume_id,
+                            'status': 'available',
+                            'size': 1,
+                            'availability_zone': 'cinder',
+                            'name': '',
+                            'description': None,
+                            'volume_type': 'lvmdriver-1',
+                        }
+                    },
+                ),
                 dict(
                     method='POST',
                     uri=self.get_mock_url(
@@ -1365,7 +1375,7 @@ class TestCreateServer(base.TestCase):
                                         'delete_on_termination': False,
                                         'destination_type': 'volume',
                                         'source_type': 'volume',
-                                        'uuid': 'volume001',
+                                        'uuid': volume_id,
                                     },
                                 ],
                                 'name': 'server-name',
@@ -1389,7 +1399,7 @@ class TestCreateServer(base.TestCase):
             image=dict(id='image-id'),
             flavor=dict(id='flavor-id'),
             boot_from_volume=False,
-            volumes=[volume],
+            volumes=[volume_id],
             wait=False,
         )
 
@@ -1552,7 +1562,9 @@ class TestCreateServer(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'compute', 'public', append=['os-server-groups']
+                        'compute',
+                        'public',
+                        append=['os-server-groups', group_id],
                     ),
                     json={'server_groups': [fake_group]},
                 ),
@@ -1598,7 +1610,7 @@ class TestCreateServer(base.TestCase):
             image=dict(id='image-id'),
             flavor=dict(id='flavor-id'),
             scheduler_hints=dict(scheduler_hints),
-            group=group_name,
+            group=group_id,
             wait=False,
         )
 
@@ -1610,11 +1622,11 @@ class TestCreateServer(base.TestCase):
         param
         """
         group_id_scheduler_hints = uuid.uuid4().hex
-        group_id_param = uuid.uuid4().hex
+        group_id = uuid.uuid4().hex
         group_name = self.getUniqueString('server-group')
         policies = ['affinity']
         fake_group = fakes.make_fake_server_group(
-            group_id_param, group_name, policies
+            group_id, group_name, policies
         )
 
         # The scheduler hints we pass in that are expected to be ignored in
@@ -1625,7 +1637,7 @@ class TestCreateServer(base.TestCase):
 
         # The scheduler hints we expect to be in POST request
         group_scheduler_hints = {
-            'group': group_id_param,
+            'group': group_id,
         }
 
         fake_server = fakes.make_fake_server('1234', '', 'BUILD')
@@ -1637,7 +1649,9 @@ class TestCreateServer(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'compute', 'public', append=['os-server-groups']
+                        'compute',
+                        'public',
+                        append=['os-server-groups', group_id],
                     ),
                     json={'server_groups': [fake_group]},
                 ),
@@ -1683,7 +1697,7 @@ class TestCreateServer(base.TestCase):
             image=dict(id='image-id'),
             flavor=dict(id='flavor-id'),
             scheduler_hints=dict(scheduler_hints),
-            group=group_name,
+            group=group_id,
             wait=False,
         )
 

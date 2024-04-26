@@ -80,7 +80,10 @@ class NetworkCommonCloudMixin:
             # this search_networks can just totally fail. If it does
             # though, that's fine, clearly the neutron introspection is
             # not going to work.
-            all_networks = self.list_networks()
+            if self.has_service('network'):
+                all_networks = list(self.network.networks())
+            else:
+                all_networks = []
         except exceptions.SDKException:
             self._network_list_stamp = True
             return
@@ -179,7 +182,10 @@ class NetworkCommonCloudMixin:
                 # it out.
                 if all_subnets is None:
                     try:
-                        all_subnets = self.list_subnets()
+                        if self.has_service('network'):
+                            all_subnets = list(self.network.subnets())
+                        else:
+                            all_subnets = []
                     except exceptions.SDKException:
                         # Thanks Rackspace broken neutron
                         all_subnets = []

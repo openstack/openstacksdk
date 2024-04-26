@@ -390,7 +390,7 @@ class ComputeCloudMixin:
         """
         params = {}
         if name_or_id:
-            project = self.get_project(name_or_id)
+            project = self.identity.find_project(name_or_id)
             if not project:
                 raise exceptions.SDKException(
                     f"Project {name_or_id} was requested but was not found "
@@ -852,7 +852,7 @@ class ComputeCloudMixin:
                 kwargs[desired] = value
 
         if group:
-            group_obj = self.get_server_group(group)
+            group_obj = self.compute.find_server_group(group)
             if not group_obj:
                 raise exceptions.SDKException(
                     "Server Group {group} was requested but was not found"
@@ -883,7 +883,7 @@ class ComputeCloudMixin:
                 if isinstance(net_name, dict) and 'id' in net_name:
                     network_obj = net_name
                 else:
-                    network_obj = self.get_network(name_or_id=net_name)
+                    network_obj = self.network.find_network(net_name)
                 if not network_obj:
                     raise exceptions.SDKException(
                         'Network {network} is not a valid network in'
@@ -911,7 +911,7 @@ class ComputeCloudMixin:
                 nic.pop('net-name', None)
             elif 'net-name' in nic:
                 net_name = nic.pop('net-name')
-                nic_net = self.get_network(net_name)
+                nic_net = self.network.find_network(net_name)
                 if not nic_net:
                     raise exceptions.SDKException(
                         "Requested network {net} could not be found.".format(
@@ -951,10 +951,21 @@ class ComputeCloudMixin:
                 kwargs['networks'] = 'auto'
 
         if image:
+            # TODO(stephenfin): Drop support for dicts: we should only accept
+            # strings or Image objects
             if isinstance(image, dict):
                 kwargs['imageRef'] = image['id']
             else:
-                kwargs['imageRef'] = self.get_image(image).id
+                image_obj = self.image.find_image(image)
+                if not image_obj:
+                    raise exc.OpenStackCloudException(
+                        f"Image {image} was requested but was not found "
+                        f"on the cloud"
+                    )
+                kwargs['imageRef'] = image_obj.id
+
+        # TODO(stephenfin): Drop support for dicts: we should only accept
+        # strings or Image objects
         if isinstance(flavor, dict):
             kwargs['flavorRef'] = flavor['id']
         else:
@@ -1046,7 +1057,7 @@ class ComputeCloudMixin:
         # If we have boot_from_volume but no root volume, then we're
         # booting an image from volume
         if boot_volume:
-            volume = self.get_volume(boot_volume)
+            volume = self.block_storage.find_volume(boot_volume)
             if not volume:
                 raise exceptions.SDKException(
                     f"Volume {volume} was requested but was not found "
@@ -1062,10 +1073,12 @@ class ComputeCloudMixin:
             kwargs['block_device_mapping_v2'].append(block_mapping)
             kwargs['imageRef'] = ''
         elif boot_from_volume:
+            # TODO(stephenfin): Drop support for dicts: we should only accept
+            # strings or Image objects
             if isinstance(image, dict):
                 image_obj = image
             else:
-                image_obj = self.get_image(image)
+                image_obj = self.image.find_image(image)
                 if not image_obj:
                     raise exceptions.SDKException(
                         f"Image {image} was requested but was not found "
@@ -1094,7 +1107,7 @@ class ComputeCloudMixin:
             }
             kwargs['block_device_mapping_v2'].append(block_mapping)
         for volume in volumes:
-            volume_obj = self.get_volume(volume)
+            volume_obj = self.block_storage.find_volume(volume)
             if not volume_obj:
                 raise exceptions.SDKException(
                     f"Volume {volume} was requested but was not found "
@@ -1827,7 +1840,7 @@ class ComputeCloudMixin:
         if isinstance(end, str):
             end = parse_date(end)
 
-        proj = self.get_project(name_or_id)
+        proj = self.identity.find_project(name_or_id)
         if not proj:
             raise exceptions.SDKException(
                 f"Project {name_or_id} was requested but was not found "

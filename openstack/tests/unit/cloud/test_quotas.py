@@ -258,7 +258,7 @@ class TestQuotas(base.TestCase):
 
     def test_neutron_update_quotas(self):
         project = self.mock_for_keystone_projects(
-            project_count=1, list_get=True
+            project_count=1, id_get=True
         )[0]
         self.register_uris(
             [
@@ -362,7 +362,7 @@ class TestQuotas(base.TestCase):
 
     def test_neutron_delete_quotas(self):
         project = self.mock_for_keystone_projects(
-            project_count=1, list_get=True
+            project_count=1, id_get=True
         )[0]
         self.register_uris(
             [

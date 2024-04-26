@@ -500,6 +500,7 @@ class TestFloatingIP(base.TestCase):
         self.assert_calls()
 
     def test_auto_ip_pool_no_reuse(self):
+        server_id = 'f80e3ad0-e13e-41d4-8e9c-be79bccdb8f7'
         # payloads taken from citycloud
         self.register_uris(
             [
@@ -540,8 +541,7 @@ class TestFloatingIP(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri='https://network.example.com/v2.0/ports'
-                    '?device_id=f80e3ad0-e13e-41d4-8e9c-be79bccdb8f7',
+                    uri=f'https://network.example.com/v2.0/ports?device_id={server_id}',
                     json={
                         "ports": [
                             {
@@ -569,7 +569,7 @@ class TestFloatingIP(base.TestCase):
                                 "security_groups": [
                                     "9fb5ba44-5c46-4357-8e60-8b55526cab54"
                                 ],
-                                "device_id": "f80e3ad0-e13e-41d4-8e9c-be79bccdb8f7",  # noqa: E501
+                                "device_id": server_id,  # noqa: E501
                             }
                         ]
                     },
@@ -605,141 +605,54 @@ class TestFloatingIP(base.TestCase):
                 self.get_nova_discovery_mock_dict(),
                 dict(
                     method='GET',
-                    uri='{endpoint}/servers/detail'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'https://compute.example.com/v2.1/servers/{server_id}',
                     json={
-                        "servers": [
-                            {
-                                "status": "ACTIVE",
-                                "updated": "2017-02-06T20:59:49Z",
-                                "addresses": {
-                                    "private": [
-                                        {
-                                            "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:e8:7f:03",  # noqa: E501
-                                            "version": 4,
-                                            "addr": "10.4.0.16",
-                                            "OS-EXT-IPS:type": "fixed",
-                                        },
-                                        {
-                                            "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:e8:7f:03",  # noqa: E501
-                                            "version": 4,
-                                            "addr": "89.40.216.153",
-                                            "OS-EXT-IPS:type": "floating",
-                                        },
-                                    ]
-                                },
-                                "key_name": None,
-                                "image": {
-                                    "id": "95e4c449-8abf-486e-97d9-dc3f82417d2d"  # noqa: E501
-                                },
-                                "OS-EXT-STS:task_state": None,
-                                "OS-EXT-STS:vm_state": "active",
-                                "OS-SRV-USG:launched_at": "2017-02-06T20:59:48.000000",  # noqa: E501
-                                "flavor": {
-                                    "id": "2186bd79-a05e-4953-9dde-ddefb63c88d4"  # noqa: E501
-                                },
-                                "id": "f80e3ad0-e13e-41d4-8e9c-be79bccdb8f7",
-                                "security_groups": [{"name": "default"}],
-                                "OS-SRV-USG:terminated_at": None,
-                                "OS-EXT-AZ:availability_zone": "nova",
-                                "user_id": "c17534835f8f42bf98fc367e0bf35e09",
-                                "name": "testmt",
-                                "created": "2017-02-06T20:59:44Z",
-                                "tenant_id": "65222a4d09ea4c68934fa1028c77f394",  # noqa: E501
-                                "OS-DCF:diskConfig": "MANUAL",
-                                "os-extended-volumes:volumes_attached": [],
-                                "accessIPv4": "",
-                                "accessIPv6": "",
-                                "progress": 0,
-                                "OS-EXT-STS:power_state": 1,
-                                "config_drive": "",
-                                "metadata": {},
-                            }
-                        ]
-                    },
-                ),
-                dict(
-                    method='GET',
-                    uri='https://network.example.com/v2.0/networks',
-                    json={
-                        "networks": [
-                            {
-                                "status": "ACTIVE",
-                                "subnets": [
-                                    "df3e17fa-a4b2-47ae-9015-bc93eb076ba2",
-                                    "6b0c3dc9-b0b8-4d87-976a-7f2ebf13e7ec",
-                                    "fc541f48-fc7f-48c0-a063-18de6ee7bdd7",
-                                ],
-                                "availability_zone_hints": [],
-                                "availability_zones": ["nova"],
-                                "name": "ext-net",
-                                "admin_state_up": True,
-                                "tenant_id": "a564613210ee43708b8a7fc6274ebd63",  # noqa: E501
-                                "tags": [],
-                                "ipv6_address_scope": "9f03124f-89af-483a-b6fd-10f08079db4d",  # noqa: E501
-                                "mtu": 0,
-                                "is_default": False,
-                                "router:external": True,
-                                "ipv4_address_scope": None,
-                                "shared": False,
-                                "id": "0232c17f-2096-49bc-b205-d3dcd9a30ebf",
-                                "description": None,
+                        "server": {
+                            "status": "ACTIVE",
+                            "updated": "2017-02-06T20:59:49Z",
+                            "addresses": {
+                                "private": [
+                                    {
+                                        "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:e8:7f:03",  # noqa: E501
+                                        "version": 4,
+                                        "addr": "10.4.0.16",
+                                        "OS-EXT-IPS:type": "fixed",
+                                    },
+                                    {
+                                        "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:e8:7f:03",  # noqa: E501
+                                        "version": 4,
+                                        "addr": "89.40.216.153",
+                                        "OS-EXT-IPS:type": "floating",
+                                    },
+                                ]
                             },
-                            {
-                                "status": "ACTIVE",
-                                "subnets": [
-                                    "f0ad1df5-53ee-473f-b86b-3604ea5591e9"
-                                ],
-                                "availability_zone_hints": [],
-                                "availability_zones": ["nova"],
-                                "name": "private",
-                                "admin_state_up": True,
-                                "tenant_id": "65222a4d09ea4c68934fa1028c77f394",  # noqa: E501
-                                "created_at": "2016-10-22T13:46:26",
-                                "tags": [],
-                                "updated_at": "2016-10-22T13:46:26",
-                                "ipv6_address_scope": None,
-                                "router:external": False,
-                                "ipv4_address_scope": None,
-                                "shared": False,
-                                "mtu": 1450,
-                                "id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",
-                                "description": "",
+                            "key_name": None,
+                            "image": {
+                                "id": "95e4c449-8abf-486e-97d9-dc3f82417d2d"  # noqa: E501
                             },
-                        ]
-                    },
-                ),
-                dict(
-                    method='GET',
-                    uri='https://network.example.com/v2.0/subnets',
-                    json={
-                        "subnets": [
-                            {
-                                "description": "",
-                                "enable_dhcp": True,
-                                "network_id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",  # noqa: E501
-                                "tenant_id": "65222a4d09ea4c68934fa1028c77f394",  # noqa: E501
-                                "created_at": "2016-10-22T13:46:26",
-                                "dns_nameservers": [
-                                    "89.36.90.101",
-                                    "89.36.90.102",
-                                ],
-                                "updated_at": "2016-10-22T13:46:26",
-                                "gateway_ip": "10.4.0.1",
-                                "ipv6_ra_mode": None,
-                                "allocation_pools": [
-                                    {"start": "10.4.0.2", "end": "10.4.0.200"}
-                                ],
-                                "host_routes": [],
-                                "ip_version": 4,
-                                "ipv6_address_mode": None,
-                                "cidr": "10.4.0.0/24",
-                                "id": "f0ad1df5-53ee-473f-b86b-3604ea5591e9",
-                                "subnetpool_id": None,
-                                "name": "private-subnet-ipv4",
-                            }
-                        ]
+                            "OS-EXT-STS:task_state": None,
+                            "OS-EXT-STS:vm_state": "active",
+                            "OS-SRV-USG:launched_at": "2017-02-06T20:59:48.000000",  # noqa: E501
+                            "flavor": {
+                                "id": "2186bd79-a05e-4953-9dde-ddefb63c88d4"  # noqa: E501
+                            },
+                            "id": server_id,
+                            "security_groups": [{"name": "default"}],
+                            "OS-SRV-USG:terminated_at": None,
+                            "OS-EXT-AZ:availability_zone": "nova",
+                            "user_id": "c17534835f8f42bf98fc367e0bf35e09",
+                            "name": "testmt",
+                            "created": "2017-02-06T20:59:44Z",
+                            "tenant_id": "65222a4d09ea4c68934fa1028c77f394",  # noqa: E501
+                            "OS-DCF:diskConfig": "MANUAL",
+                            "os-extended-volumes:volumes_attached": [],
+                            "accessIPv4": "",
+                            "accessIPv6": "",
+                            "progress": 0,
+                            "OS-EXT-STS:power_state": 1,
+                            "config_drive": "",
+                            "metadata": {},
+                        }
                     },
                 ),
             ]
@@ -747,7 +660,7 @@ class TestFloatingIP(base.TestCase):
 
         self.cloud.add_ips_to_server(
             utils.Munch(
-                id='f80e3ad0-e13e-41d4-8e9c-be79bccdb8f7',
+                id=server_id,
                 addresses={
                     "private": [
                         {

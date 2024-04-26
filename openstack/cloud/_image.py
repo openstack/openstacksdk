@@ -202,11 +202,14 @@ class ImageCloudMixin:
             self.image._IMAGE_OBJECT_KEY in image.properties
             or self.image._SHADE_IMAGE_OBJECT_KEY in image.properties
         ):
-            (container, objname) = image.properties.get(
+            container, objname = image.properties.get(
                 self.image._IMAGE_OBJECT_KEY,
                 image.properties.get(self.image._SHADE_IMAGE_OBJECT_KEY),
             ).split('/', 1)
-            self.delete_object(container=container, name=objname)
+            self.object_store.delete_object(
+                objname,
+                container=container,
+            )
 
         if wait:
             for count in utils.iterate_timeout(
