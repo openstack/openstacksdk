@@ -67,7 +67,29 @@ Project Operations
 .. autoclass:: openstack.identity.v3._proxy.Proxy
   :noindex:
   :members: create_project, update_project, delete_project, get_project,
-            find_project, projects
+            find_project, projects, user_projects
+
+Service Operations
+^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.identity.v3._proxy.Proxy
+  :noindex:
+  :members: create_service, update_service, delete_service, get_service,
+            find_service, services
+
+User Operations
+^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.identity.v3._proxy.Proxy
+  :noindex:
+  :members: create_user, update_user, delete_user, get_user, find_user, users,
+
+Trust Operations
+^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.identity.v3._proxy.Proxy
+  :noindex:
+  :members: create_trust, delete_trust, get_trust, find_trust, trusts
 
 Region Operations
 ^^^^^^^^^^^^^^^^^
@@ -100,25 +122,59 @@ Role Assignment Operations
             validate_user_has_system_role, assign_system_role_to_group,
             unassign_system_role_from_group, validate_group_has_system_role
 
-Service Operations
-^^^^^^^^^^^^^^^^^^
+Registered Limit Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.identity.v3._proxy.Proxy
   :noindex:
-  :members: create_service, update_service, delete_service, get_service,
-            find_service, services
+  :members: registered_limits, get_registered_limit, create_registered_limit,
+            update_registered_limit, delete_registered_limit
 
-Trust Operations
+Limit Operations
 ^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.identity.v3._proxy.Proxy
   :noindex:
-  :members: create_trust, delete_trust, get_trust, find_trust, trusts
+  :members: limits, get_limit, create_limit, update_limit, delete_limit
 
-User Operations
-^^^^^^^^^^^^^^^
+Application Credential Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.identity.v3._proxy.Proxy
   :noindex:
-  :members: create_user, update_user, delete_user, get_user, find_user, users,
-            user_projects
+  :members: application_credentials, get_application_credential,
+            create_application_credential, find_application_credential,
+            delete_application_credential
+
+Federation Protocol Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.identity.v3._proxy.Proxy
+  :noindex:
+  :members: create_federation_protocol, delete_federation_protocol,
+            find_federation_protocol, get_federation_protocol,
+            federation_protocols, update_federation_protocol
+
+Mapping Operations
+^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.identity.v3._proxy.Proxy
+  :noindex:
+  :members: create_mapping, delete_mapping, find_mapping, get_mapping,
+            mappings, update_mapping
+
+Identity Provider Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.identity.v3._proxy.Proxy
+  :noindex:
+  :members: create_identity_provider, delete_identity_provider,
+            find_identity_provider, get_identity_provider, identity_providers,
+            update_identity_provider
+
+Access Rule Operations
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.identity.v3._proxy.Proxy
+  :noindex:
+  :members: access_rules, access_rules, delete_access_rule
