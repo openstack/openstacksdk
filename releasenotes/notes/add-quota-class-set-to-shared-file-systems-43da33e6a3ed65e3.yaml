@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Added get and update to Quota Class Set to file system as a service.

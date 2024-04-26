@@ -18,3 +18,4 @@ Shared File System service resources
    v2/share_access_rule
    v2/share_group_snapshot
    v2/resource_locks
+   v2/quota_class_set
