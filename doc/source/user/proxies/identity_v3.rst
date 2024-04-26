@@ -178,3 +178,12 @@ Access Rule Operations
 .. autoclass:: openstack.identity.v3._proxy.Proxy
   :noindex:
   :members: access_rules, access_rules, delete_access_rule
+
+Service Provider Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.identity.v3._proxy.Proxy
+  :noindex:
+  :members: create_service_provider, delete_service_provider,
+            find_service_provider, get_service_provider, service_providers,
+            update_service_provider

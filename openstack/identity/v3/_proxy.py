@@ -49,6 +49,7 @@ from openstack.identity.v3 import (
     role_system_user_assignment as _role_system_user_assignment,
 )
 from openstack.identity.v3 import service as _service
+from openstack.identity.v3 import service_provider as _service_provider
 from openstack.identity.v3 import system as _system
 from openstack.identity.v3 import trust as _trust
 from openstack.identity.v3 import user as _user
@@ -316,7 +317,7 @@ class Proxy(proxy.Proxy):
 
         :param domain_id: The value can be the ID of a domain or a
             :class:`~openstack.identity.v3.domain.Domain` instance.
-        :attrs kwargs: The attributes to update on the config for a domain
+        :param attrs: The attributes to update on the config for a domain
             represented by ``domain_id``.
 
         :returns: The updated config for a domain
@@ -2177,4 +2178,103 @@ class Proxy(proxy.Proxy):
             access_rule,
             user_id=user.id,
             ignore_missing=ignore_missing,
+        )
+
+    # ========== Service providers ==========
+
+    def create_service_provider(self, **attrs):
+        """Create a new service provider from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.identity.v3.service_provider.ServiceProvider`,
+            comprised of the properties on the ServiceProvider class.
+
+        :returns: The results of service provider creation
+        :rtype:
+            :class:`~openstack.identity.v3.service_provider.ServiceProvider`
+        """
+        return self._create(_service_provider.ServiceProvider, **attrs)
+
+    def delete_service_provider(self, service_provider, ignore_missing=True):
+        """Delete a service provider
+
+        :param service_provider: The ID of a service provider or a
+            :class:`~openstack.identity.v3.service_provider.ServiceProvider`
+            instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the service provider does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent service provider.
+
+        :returns: ``None``
+        """
+        self._delete(
+            _service_provider.ServiceProvider,
+            service_provider,
+            ignore_missing=ignore_missing,
+        )
+
+    def find_service_provider(self, name_or_id, ignore_missing=True):
+        """Find a single service provider
+
+        :param name_or_id: The name or ID of a service provider
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the resource does not exist. When set to ``True``, None will be
+            returned when attempting to find a nonexistent resource.
+
+        :returns: The details of an service provider or None.
+        :rtype:
+            :class:`~openstack.identity.v3.service_provider.ServiceProvider`
+        """
+        return self._find(
+            _service_provider.ServiceProvider,
+            name_or_id,
+            ignore_missing=ignore_missing,
+        )
+
+    def get_service_provider(self, service_provider):
+        """Get a single service provider
+
+        :param service_provider: The value can be the ID of a service provider
+            or a
+            :class:`~openstack.identity.v3.server_provider.ServiceProvider`
+            instance.
+
+        :returns: The details of an service provider.
+        :rtype:
+            :class:`~openstack.identity.v3.service_provider.ServiceProvider`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_service_provider.ServiceProvider, service_provider)
+
+    def service_providers(self, **query):
+        """Retrieve a generator of service providers
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the resources being returned.
+
+        :returns: A generator of service provider instances.
+        :rtype:
+            :class:`~openstack.identity.v3.service_provider.ServiceProvider`
+        """
+        return self._list(_service_provider.ServiceProvider, **query)
+
+    def update_service_provider(self, service_provider, **attrs):
+        """Update a service provider
+
+        :param service_provider: Either the ID of an service provider or a
+            :class:`~openstack.identity.v3.service_provider.ServiceProvider`
+            instance.
+        :param attrs: The attributes to update on the service provider
+            represented by ``service_provider``.
+
+        :returns: The updated service provider.
+        :rtype:
+            :class:`~openstack.identity.v3.service_provider.ServiceProvider`
+        """
+        return self._update(
+            _service_provider.ServiceProvider, service_provider, **attrs
         )
