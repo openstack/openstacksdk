@@ -37,7 +37,7 @@ class OpenStackCloudUnavailableFeature(OpenStackCloudException):
     pass
 
 
-# Backwards compat
+# Backwards compat. These are deprecated and should not be used in new code.
 OpenStackCloudTimeout = exceptions.ResourceTimeout
 OpenStackCloudHTTPError = exceptions.HttpException
 OpenStackCloudBadRequest = exceptions.BadRequestException
