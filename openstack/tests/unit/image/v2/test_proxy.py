@@ -278,6 +278,79 @@ class TestImage(TestImageProxy):
         args, kwargs = self.proxy._create.call_args
         self.assertEqual(kwargs["is_protected"], True)
 
+    def test_image_create_with_stores(self):
+        self.proxy.find_image = mock.Mock()
+        self.proxy._upload_image = mock.Mock()
+
+        self.proxy.create_image(
+            name='fake',
+            data=b'fake',
+            container='bare',
+            disk_format='raw',
+            use_import=True,
+            stores=['cinder', 'swift'],
+        )
+
+        self.proxy.find_image.assert_called_with('fake')
+
+        self.proxy._upload_image.assert_called_with(
+            'fake',
+            container_format='bare',
+            disk_format='raw',
+            filename=None,
+            data=b'fake',
+            meta={},
+            properties={
+                self.proxy._IMAGE_MD5_KEY: '',
+                self.proxy._IMAGE_SHA256_KEY: '',  # noqa: E501
+                self.proxy._IMAGE_OBJECT_KEY: 'bare/fake',
+            },
+            timeout=3600,
+            validate_checksum=False,
+            use_import=True,
+            stores=['cinder', 'swift'],
+            all_stores=None,
+            all_stores_must_succeed=None,
+            wait=False,
+        )
+
+    def test_image_create_with_all_stores(self):
+        self.proxy.find_image = mock.Mock()
+        self.proxy._upload_image = mock.Mock()
+
+        self.proxy.create_image(
+            name='fake',
+            data=b'fake',
+            container='bare',
+            disk_format='raw',
+            use_import=True,
+            all_stores=True,
+            all_stores_must_succeed=True,
+        )
+
+        self.proxy.find_image.assert_called_with('fake')
+
+        self.proxy._upload_image.assert_called_with(
+            'fake',
+            container_format='bare',
+            disk_format='raw',
+            filename=None,
+            data=b'fake',
+            meta={},
+            properties={
+                self.proxy._IMAGE_MD5_KEY: '',
+                self.proxy._IMAGE_SHA256_KEY: '',  # noqa: E501
+                self.proxy._IMAGE_OBJECT_KEY: 'bare/fake',
+            },
+            timeout=3600,
+            validate_checksum=False,
+            use_import=True,
+            stores=None,
+            all_stores=True,
+            all_stores_must_succeed=True,
+            wait=False,
+        )
+
     def test_image_upload_no_args(self):
         # container_format and disk_format are required args
         self.assertRaises(exceptions.InvalidRequest, self.proxy.upload_image)
