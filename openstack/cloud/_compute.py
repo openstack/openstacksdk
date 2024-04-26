@@ -984,10 +984,26 @@ class ComputeCloudMixin:
         admin_pass = server.admin_password or kwargs.get('admin_pass')
         if not wait:
             server = self.compute.get_server(server.id)
-            if server.status == 'ERROR':
-                raise exc.OpenStackCloudCreateException(
-                    resource='server', resource_id=server.id
+            if server['status'] == 'ERROR':
+                if (
+                    'fault' in server
+                    and server['fault'] is not None
+                    and 'message' in server['fault']
+                ):
+                    raise exceptions.SDKException(
+                        "Error in creating the server. "
+                        "Compute service reports fault: {reason}".format(
+                            reason=server['fault']['message']
+                        ),
+                        extra_data=dict(server=server),
+                    )
+
+                raise exceptions.SDKException(
+                    "Error in creating the server "
+                    "(no further information available)",
+                    extra_data=dict(server=server),
                 )
+
             server = meta.add_server_interfaces(self, server)
 
         else:
@@ -1173,16 +1189,16 @@ class ComputeCloudMixin:
                 and 'message' in server['fault']
             ):
                 raise exceptions.SDKException(
-                    "Error in creating the server."
-                    " Compute service reports fault: {reason}".format(
+                    "Error in creating the server. "
+                    "Compute service reports fault: {reason}".format(
                         reason=server['fault']['message']
                     ),
                     extra_data=dict(server=server),
                 )
 
             raise exceptions.SDKException(
-                "Error in creating the server"
-                " (no further information available)",
+                "Error in creating the server "
+                "(no further information available)",
                 extra_data=dict(server=server),
             )
 
