@@ -652,8 +652,10 @@ class NetworkCloudMixin:
 
         proj = self.get_project(name_or_id)
         if not proj:
-            raise exceptions.SDKException("project does not exist")
-
+            raise exceptions.SDKException(
+                f"Project {name_or_id} was requested by was not found "
+                f"on the cloud"
+            )
         self.network.update_quota(proj.id, **kwargs)
 
     def get_network_quotas(self, name_or_id, details=False):
@@ -688,7 +690,10 @@ class NetworkCloudMixin:
         """
         proj = self.get_project(name_or_id)
         if not proj:
-            raise exceptions.SDKException("project does not exist")
+            raise exceptions.SDKException(
+                f"Project {name_or_id} was requested by was not found "
+                f"on the cloud"
+            )
         self.network.delete_quota(proj.id)
 
     @_utils.valid_kwargs(

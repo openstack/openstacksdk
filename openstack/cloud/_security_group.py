@@ -54,15 +54,14 @@ class SecurityGroupCloudMixin:
             # pass filters dict to the list to filter as much as possible on
             # the server side
             return list(self.network.security_groups(**filters))
-
         # Handle nova security groups
         else:
             data = proxy._json_response(
                 self.compute.get('/os-security-groups', params=filters)
             )
-        return self._normalize_secgroups(
-            self._get_and_munchify('security_groups', data)
-        )
+            return self._normalize_secgroups(
+                self._get_and_munchify('security_groups', data)
+            )
 
     def get_security_group(self, name_or_id, filters=None):
         """Get a security group by name or ID.
@@ -109,9 +108,9 @@ class SecurityGroupCloudMixin:
                 self.compute.get(f'/os-security-groups/{id}'),
                 error_message=error_message,
             )
-        return self._normalize_secgroup(
-            self._get_and_munchify('security_group', data)
-        )
+            return self._normalize_secgroup(
+                self._get_and_munchify('security_group', data)
+            )
 
     def create_security_group(
         self, name, description, project_id=None, stateful=None
@@ -155,9 +154,9 @@ class SecurityGroupCloudMixin:
                     json={'security_group': security_group_json},
                 )
             )
-        return self._normalize_secgroup(
-            self._get_and_munchify('security_group', data)
-        )
+            return self._normalize_secgroup(
+                self._get_and_munchify('security_group', data)
+            )
 
     def delete_security_group(self, name_or_id):
         """Delete a security group
@@ -237,9 +236,9 @@ class SecurityGroupCloudMixin:
                     json={'security_group': kwargs},
                 )
             )
-        return self._normalize_secgroup(
-            self._get_and_munchify('security_group', data)
-        )
+            return self._normalize_secgroup(
+                self._get_and_munchify('security_group', data)
+            )
 
     def create_security_group_rule(
         self,
@@ -389,9 +388,9 @@ class SecurityGroupCloudMixin:
                     '/os-security-group-rules', json=security_group_rule_dict
                 )
             )
-        return self._normalize_secgroup_rule(
-            self._get_and_munchify('security_group_rule', data)
-        )
+            return self._normalize_secgroup_rule(
+                self._get_and_munchify('security_group_rule', data)
+            )
 
     def delete_security_group_rule(self, rule_id):
         """Delete a security group rule
