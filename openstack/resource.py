@@ -2258,8 +2258,7 @@ class Resource(dict):
         microversion: ty.Optional[str] = None,
         all_projects: ty.Optional[bool] = None,
         **params,
-    ) -> ty.Optional['Resource']:
-        ...
+    ) -> ty.Optional['Resource']: ...
 
     @ty.overload
     @classmethod
@@ -2273,8 +2272,7 @@ class Resource(dict):
         microversion: ty.Optional[str] = None,
         all_projects: ty.Optional[bool] = None,
         **params,
-    ) -> 'Resource':
-        ...
+    ) -> 'Resource': ...
 
     # excuse the duplication here: it's mypy's fault
     # https://github.com/python/mypy/issues/14764
@@ -2290,8 +2288,7 @@ class Resource(dict):
         microversion: ty.Optional[str] = None,
         all_projects: ty.Optional[bool] = None,
         **params,
-    ):
-        ...
+    ): ...
 
     @classmethod
     def find(

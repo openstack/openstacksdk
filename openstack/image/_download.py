@@ -41,8 +41,7 @@ class DownloadMixin:
         resource_response_key=None,
         microversion=None,
         **params,
-    ):
-        ...
+    ): ...
 
     def download(
         self,

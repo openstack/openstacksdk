@@ -21,8 +21,7 @@ class TagMixin:
     _body: resource._ComponentManager
 
     @classmethod
-    def _get_session(cls, session):
-        ...
+    def _get_session(cls, session): ...
 
     _tag_query_parameters = {
         'tags': 'tags',

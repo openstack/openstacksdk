@@ -199,9 +199,11 @@ class TestRoleAssignment(base.TestCase):
                     uri=self.get_mock_url(resource='users'),
                     status_code=200,
                     json={
-                        'users': [user_data.json_response['user']]
-                        if is_found
-                        else []
+                        'users': (
+                            [user_data.json_response['user']]
+                            if is_found
+                            else []
+                        )
                     },
                 )
             )
@@ -215,9 +217,11 @@ class TestRoleAssignment(base.TestCase):
                     ),
                     status_code=200,
                     json={
-                        'users': [user_data.json_response['user']]
-                        if is_found
-                        else []
+                        'users': (
+                            [user_data.json_response['user']]
+                            if is_found
+                            else []
+                        )
                     },
                 )
             )
