@@ -1,0 +1,13 @@
+{
+  "name": "binero",
+  "profile": {
+    "auth": {
+      "auth_url": "https://auth.binero.cloud:5000/v3"
+    },
+    "identity_api_version": "3",
+    "block_storage_api_version": "3",
+    "regions": [
+      "europe-se-1"
+    ]
+  }
+}
