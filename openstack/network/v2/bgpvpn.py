@@ -27,6 +27,19 @@ class BgpVpn(resource.Resource):
     allow_delete = True
     allow_list = True
 
+    _query_mapping = resource.QueryParameters(
+        'name',
+        'project_id',
+        'local_pref',
+        'vni',
+        'type',
+        'networks',
+        'routers',
+        'ports',
+        # NOTE(seba): (route|import|export) targets only support exact matches
+        # and have therefore been left out
+    )
+
     # Properties
     #: The Id of the BGPVPN
     id = resource.Body('id')

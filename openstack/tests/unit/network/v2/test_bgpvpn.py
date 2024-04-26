@@ -62,6 +62,14 @@ class TestBgpVpn(base.TestCase):
             {
                 'limit': 'limit',
                 'marker': 'marker',
+                'local_pref': 'local_pref',
+                'name': 'name',
+                'networks': 'networks',
+                'routers': 'routers',
+                'ports': 'ports',
+                'project_id': 'project_id',
+                'type': 'type',
+                'vni': 'vni',
             },
             sot._query_mapping._mapping,
         )
