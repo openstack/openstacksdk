@@ -26,7 +26,7 @@ class TestRouterInterface(base.BaseFunctionalTest):
     ROT = None
 
     def setUp(self):
-        super(TestRouterInterface, self).setUp()
+        super().setUp()
         self.ROUTER_NAME = self.getUniqueString()
         self.NET_NAME = self.getUniqueString()
         self.SUB_NAME = self.getUniqueString()
@@ -62,7 +62,7 @@ class TestRouterInterface(base.BaseFunctionalTest):
             self.NET_ID, ignore_missing=False
         )
         self.assertIsNone(sot)
-        super(TestRouterInterface, self).tearDown()
+        super().tearDown()
 
     def test_router_add_remove_interface(self):
         iface = self.ROT.add_interface(

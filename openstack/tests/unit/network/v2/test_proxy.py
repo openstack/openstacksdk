@@ -87,7 +87,7 @@ BGPVPN_ID = 'bgpvpn-id-' + uuid.uuid4().hex
 
 class TestNetworkProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestNetworkProxy, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
     def verify_update(

@@ -88,7 +88,7 @@ class TestCase(base.TestCase):
     def setUp(self, cloud_config_fixture='clouds.yaml'):
         """Run before each test method to initialize test environment."""
 
-        super(TestCase, self).setUp()
+        super().setUp()
 
         # Sleeps are for real testing, but unit tests shouldn't need them
         realsleep = time.sleep
@@ -204,7 +204,7 @@ class TestCase(base.TestCase):
             to_join.extend([urllib.parse.quote(i) for i in append])
         if qs_elements is not None:
             qs = '?%s' % '&'.join(qs_elements)
-        return '%(uri)s%(qs)s' % {'uri': '/'.join(to_join), 'qs': qs}
+        return '{uri}{qs}'.format(uri='/'.join(to_join), qs=qs)
 
     def mock_for_keystone_projects(
         self,
@@ -481,7 +481,7 @@ class TestCase(base.TestCase):
                 dict(
                     method='GET',
                     uri='https://identity.example.com/',
-                    text=open(self.discovery_json, 'r').read(),
+                    text=open(self.discovery_json).read(),
                 ),
                 dict(
                     method='POST',
@@ -532,7 +532,7 @@ class TestCase(base.TestCase):
         )
 
     def get_keystone_discovery(self):
-        with open(self.discovery_json, 'r') as discovery_file:
+        with open(self.discovery_json) as discovery_file:
             return dict(
                 method='GET',
                 uri='https://identity.example.com/',
@@ -591,7 +591,7 @@ class TestCase(base.TestCase):
         return dict(
             method='GET',
             uri=block_storage_discovery_url,
-            text=open(discovery_fixture, 'r').read(),
+            text=open(discovery_fixture).read(),
         )
 
     def get_glance_discovery_mock_dict(
@@ -606,7 +606,7 @@ class TestCase(base.TestCase):
             method='GET',
             uri=image_discovery_url,
             status_code=300,
-            text=open(discovery_fixture, 'r').read(),
+            text=open(discovery_fixture).read(),
         )
 
     def get_nova_discovery_mock_dict(
@@ -620,7 +620,7 @@ class TestCase(base.TestCase):
         return dict(
             method='GET',
             uri=compute_discovery_url,
-            text=open(discovery_fixture, 'r').read(),
+            text=open(discovery_fixture).read(),
         )
 
     def get_placement_discovery_mock_dict(
@@ -632,7 +632,7 @@ class TestCase(base.TestCase):
         return dict(
             method='GET',
             uri="https://placement.example.com/",
-            text=open(discovery_fixture, 'r').read(),
+            text=open(discovery_fixture).read(),
         )
 
     def get_designate_discovery_mock_dict(self):
@@ -640,7 +640,7 @@ class TestCase(base.TestCase):
         return dict(
             method='GET',
             uri="https://dns.example.com/",
-            text=open(discovery_fixture, 'r').read(),
+            text=open(discovery_fixture).read(),
         )
 
     def get_ironic_discovery_mock_dict(self):
@@ -650,7 +650,7 @@ class TestCase(base.TestCase):
         return dict(
             method='GET',
             uri="https://baremetal.example.com/",
-            text=open(discovery_fixture, 'r').read(),
+            text=open(discovery_fixture).read(),
         )
 
     def get_senlin_discovery_mock_dict(self):
@@ -660,7 +660,7 @@ class TestCase(base.TestCase):
         return dict(
             method='GET',
             uri="https://clustering.example.com/",
-            text=open(discovery_fixture, 'r').read(),
+            text=open(discovery_fixture).read(),
         )
 
     def use_compute_discovery(
@@ -683,7 +683,7 @@ class TestCase(base.TestCase):
         return dict(
             method='GET',
             uri="https://accelerator.example.com/",
-            text=open(discovery_fixture, 'r').read(),
+            text=open(discovery_fixture).read(),
         )
 
     def get_manila_discovery_mock_dict(self):
@@ -693,7 +693,7 @@ class TestCase(base.TestCase):
         return dict(
             method='GET',
             uri="https://shared-file-system.example.com/",
-            text=open(discovery_fixture, 'r').read(),
+            text=open(discovery_fixture).read(),
         )
 
     def use_glance(
@@ -815,7 +815,7 @@ class TestCase(base.TestCase):
                 method=method, uri=uri, params=kw_params
             )
             validate = to_mock.pop('validate', {})
-            valid_keys = set(['json', 'headers', 'params', 'data'])
+            valid_keys = {'json', 'headers', 'params', 'data'}
             invalid_keys = set(validate.keys()) - valid_keys
             if invalid_keys:
                 raise TypeError(
@@ -827,7 +827,7 @@ class TestCase(base.TestCase):
                 to_mock.pop('headers', {})
             )
             if 'content-type' not in headers:
-                headers[u'content-type'] = 'application/json'
+                headers['content-type'] = 'application/json'
 
             if 'exc' not in to_mock:
                 to_mock['headers'] = headers
@@ -855,7 +855,7 @@ class TestCase(base.TestCase):
                 mock_method,
                 mock_uri,
                 params['response_list'],
-                **params['kw_params']
+                **params['kw_params'],
             )
 
     def assert_no_calls(self):
@@ -910,7 +910,7 @@ class TestCase(base.TestCase):
                 self.assertEqual(
                     call['json'],
                     history.json(),
-                    'json content mismatch in call {index}'.format(index=x),
+                    f'json content mismatch in call {x}',
                 )
             # headers in a call isn't exhaustive - it's checking to make sure
             # a specific header or headers are there, not that they are the
@@ -920,7 +920,7 @@ class TestCase(base.TestCase):
                     self.assertEqual(
                         value,
                         history.headers[key],
-                        'header mismatch in call {index}'.format(index=x),
+                        f'header mismatch in call {x}',
                     )
         if do_count:
             self.assertEqual(
@@ -964,7 +964,7 @@ class TestCase(base.TestCase):
 
 class IronicTestCase(TestCase):
     def setUp(self):
-        super(IronicTestCase, self).setUp()
+        super().setUp()
         self.use_ironic()
         self.uuid = str(uuid.uuid4())
         self.name = self.getUniqueString('name')
@@ -973,4 +973,4 @@ class IronicTestCase(TestCase):
         kwargs.setdefault('service_type', 'baremetal')
         kwargs.setdefault('interface', 'public')
         kwargs.setdefault('base_url_append', 'v1')
-        return super(IronicTestCase, self).get_mock_url(**kwargs)
+        return super().get_mock_url(**kwargs)

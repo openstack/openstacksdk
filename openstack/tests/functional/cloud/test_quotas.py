@@ -44,7 +44,7 @@ class TestComputeQuotas(base.BaseFunctionalTest):
 
 class TestVolumeQuotas(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestVolumeQuotas, self).setUp()
+        super().setUp()
         if not self.user_cloud.has_service('volume'):
             self.skipTest('volume service not supported by cloud')
 

@@ -15,13 +15,13 @@ from openstack.tests.functional import base
 
 class TestAccount(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestAccount, self).setUp()
+        super().setUp()
         self.require_service('object-store')
 
     def tearDown(self):
         account = self.conn.object_store.get_account_metadata()
         self.conn.object_store.delete_account_metadata(account.metadata.keys())
-        super(TestAccount, self).tearDown()
+        super().tearDown()
 
     def test_system_metadata(self):
         account = self.conn.object_store.get_account_metadata()

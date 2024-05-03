@@ -652,7 +652,7 @@ class Proxy(proxy.Proxy):
                     # While Object Storage usually expects the name to be
                     # urlencoded in most requests, the SLO manifest requires
                     # plain object names instead.
-                    path='/{name}'.format(name=parse.unquote(name)),
+                    path=f'/{parse.unquote(name)}',
                     size_bytes=segment.length,
                 )
             )
@@ -808,7 +808,7 @@ class Proxy(proxy.Proxy):
                 continue
             name = self._object_name_from_url(result.url)
             for entry in manifest:
-                if entry['path'] == '/{name}'.format(name=parse.unquote(name)):
+                if entry['path'] == f'/{parse.unquote(name)}':
                     entry['etag'] = result.headers['Etag']
 
     def get_info(self):
@@ -931,7 +931,7 @@ class Proxy(proxy.Proxy):
         endpoint = parse.urlparse(self.get_endpoint())
         path = '/'.join([endpoint.path, res.name, object_prefix])
 
-        data = '%s\n%s\n%s\n%s\n%s' % (
+        data = '{}\n{}\n{}\n{}\n{}'.format(
             path,
             redirect_url,
             max_file_size,
@@ -1067,7 +1067,7 @@ class Proxy(proxy.Proxy):
                     raise ValueError('ip_range must be representable as UTF-8')
             hmac_parts.insert(0, "ip=%s" % ip_range)
 
-        hmac_body = u'\n'.join(hmac_parts)
+        hmac_body = '\n'.join(hmac_parts)
 
         temp_url_key = self._check_temp_url_key(temp_url_key=temp_url_key)
 
@@ -1082,17 +1082,17 @@ class Proxy(proxy.Proxy):
         else:
             exp = str(expiration)
 
-        temp_url = u'{path}?temp_url_sig={sig}&temp_url_expires={exp}'.format(
+        temp_url = '{path}?temp_url_sig={sig}&temp_url_expires={exp}'.format(
             path=path_for_body,
             sig=sig,
             exp=exp,
         )
 
         if ip_range:
-            temp_url += u'&temp_url_ip_range={}'.format(ip_range)
+            temp_url += f'&temp_url_ip_range={ip_range}'
 
         if prefix:
-            temp_url += u'&temp_url_prefix={}'.format(parts[4])
+            temp_url += f'&temp_url_prefix={parts[4]}'
         # Have return type match path from caller
         if isinstance(path, bytes):
             return temp_url.encode('utf-8')

@@ -112,7 +112,7 @@ EXAMPLE = {
 
 class TestServer(base.TestCase):
     def setUp(self):
-        super(TestServer, self).setUp()
+        super().setUp()
         self.resp = mock.Mock()
         self.resp.body = None
         self.resp.json = mock.Mock(return_value=self.resp.body)

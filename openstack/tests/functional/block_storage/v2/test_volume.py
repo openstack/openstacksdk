@@ -16,7 +16,7 @@ from openstack.tests.functional.block_storage.v2 import base
 
 class TestVolume(base.BaseBlockStorageTest):
     def setUp(self):
-        super(TestVolume, self).setUp()
+        super().setUp()
 
         if not self.user_cloud.has_service('block-storage'):
             self.skipTest('block-storage service not supported by cloud')
@@ -43,7 +43,7 @@ class TestVolume(base.BaseBlockStorageTest):
             self.VOLUME_ID, ignore_missing=False
         )
         self.assertIsNone(sot)
-        super(TestVolume, self).tearDown()
+        super().tearDown()
 
     def test_get(self):
         sot = self.user_cloud.block_storage.get_volume(self.VOLUME_ID)

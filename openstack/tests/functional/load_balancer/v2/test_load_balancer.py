@@ -64,7 +64,7 @@ class TestLoadBalancer(base.BaseFunctionalTest):
     #              use setUpClass, but that's a whole other pile of bad, so
     #              we may need to engineer something pleasing here.
     def setUp(self):
-        super(TestLoadBalancer, self).setUp()
+        super().setUp()
         self.require_service('load-balancer')
 
         self.HM_NAME = self.getUniqueString()
@@ -290,7 +290,7 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         self.conn.load_balancer.delete_load_balancer(
             self.LB_ID, ignore_missing=False
         )
-        super(TestLoadBalancer, self).tearDown()
+        super().tearDown()
 
         self.conn.load_balancer.delete_flavor(
             self.FLAVOR_ID, ignore_missing=False

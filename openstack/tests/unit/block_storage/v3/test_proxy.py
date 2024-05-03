@@ -33,7 +33,7 @@ from openstack.tests.unit import test_proxy_base
 
 class TestVolumeProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestVolumeProxy, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
 

@@ -80,9 +80,9 @@ class TestSubscription(base.TestCase):
         sot._translate_response = mock.Mock()
         res = sot.create(sess)
 
-        url = "/queues/%(queue)s/subscriptions" % {
-            "queue": FAKE.pop("queue_name")
-        }
+        url = "/queues/{queue}/subscriptions".format(
+            queue=FAKE.pop("queue_name")
+        )
         headers = {
             "Client-ID": "NEW_CLIENT_ID",
             "X-PROJECT-ID": "NEW_PROJECT_ID",
@@ -101,9 +101,9 @@ class TestSubscription(base.TestCase):
         sot._translate_response = mock.Mock()
         res = sot.create(sess)
 
-        url = "/queues/%(queue)s/subscriptions" % {
-            "queue": FAKE.pop("queue_name")
-        }
+        url = "/queues/{queue}/subscriptions".format(
+            queue=FAKE.pop("queue_name")
+        )
         headers = {
             "Client-ID": FAKE.pop("client_id"),
             "X-PROJECT-ID": FAKE.pop("project_id"),
@@ -123,10 +123,10 @@ class TestSubscription(base.TestCase):
         sot._translate_response = mock.Mock()
         res = sot.fetch(sess)
 
-        url = "queues/%(queue)s/subscriptions/%(subscription)s" % {
-            "queue": FAKE1["queue_name"],
-            "subscription": FAKE1["id"],
-        }
+        url = "queues/{queue}/subscriptions/{subscription}".format(
+            queue=FAKE1["queue_name"],
+            subscription=FAKE1["id"],
+        )
         headers = {
             "Client-ID": "NEW_CLIENT_ID",
             "X-PROJECT-ID": "NEW_PROJECT_ID",
@@ -145,10 +145,10 @@ class TestSubscription(base.TestCase):
         sot._translate_response = mock.Mock()
         res = sot.fetch(sess)
 
-        url = "queues/%(queue)s/subscriptions/%(subscription)s" % {
-            "queue": FAKE2["queue_name"],
-            "subscription": FAKE2["id"],
-        }
+        url = "queues/{queue}/subscriptions/{subscription}".format(
+            queue=FAKE2["queue_name"],
+            subscription=FAKE2["id"],
+        )
         headers = {
             "Client-ID": "OLD_CLIENT_ID",
             "X-PROJECT-ID": "OLD_PROJECT_ID",
@@ -169,10 +169,10 @@ class TestSubscription(base.TestCase):
         sot._translate_response = mock.Mock()
         sot.delete(sess)
 
-        url = "queues/%(queue)s/subscriptions/%(subscription)s" % {
-            "queue": FAKE1["queue_name"],
-            "subscription": FAKE1["id"],
-        }
+        url = "queues/{queue}/subscriptions/{subscription}".format(
+            queue=FAKE1["queue_name"],
+            subscription=FAKE1["id"],
+        )
         headers = {
             "Client-ID": "NEW_CLIENT_ID",
             "X-PROJECT-ID": "NEW_PROJECT_ID",
@@ -190,10 +190,10 @@ class TestSubscription(base.TestCase):
         sot._translate_response = mock.Mock()
         sot.delete(sess)
 
-        url = "queues/%(queue)s/subscriptions/%(subscription)s" % {
-            "queue": FAKE2["queue_name"],
-            "subscription": FAKE2["id"],
-        }
+        url = "queues/{queue}/subscriptions/{subscription}".format(
+            queue=FAKE2["queue_name"],
+            subscription=FAKE2["id"],
+        )
         headers = {
             "Client-ID": "OLD_CLIENT_ID",
             "X-PROJECT-ID": "OLD_PROJECT_ID",

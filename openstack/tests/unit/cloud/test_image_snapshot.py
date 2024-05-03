@@ -21,7 +21,7 @@ from openstack.tests.unit import base
 
 class TestImageSnapshot(base.TestCase):
     def setUp(self):
-        super(TestImageSnapshot, self).setUp()
+        super().setUp()
         self.server_id = str(uuid.uuid4())
         self.image_id = str(uuid.uuid4())
         self.server_name = self.getUniqueString('name')

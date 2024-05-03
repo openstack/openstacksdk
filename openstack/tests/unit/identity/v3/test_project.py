@@ -36,7 +36,7 @@ EXAMPLE = {
 
 class TestProject(base.TestCase):
     def setUp(self):
-        super(TestProject, self).setUp()
+        super().setUp()
         self.sess = mock.Mock(spec=adapter.Adapter)
         self.sess.default_microversion = 1
         self.sess._get_connection = mock.Mock(return_value=self.cloud)

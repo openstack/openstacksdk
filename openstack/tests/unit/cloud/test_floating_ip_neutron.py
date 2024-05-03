@@ -131,7 +131,7 @@ class TestFloatingIP(base.TestCase):
             self.assertIsInstance(e, elem_type)
 
     def setUp(self):
-        super(TestFloatingIP, self).setUp()
+        super().setUp()
 
         self.fake_server = fakes.make_fake_server(
             'server-id',
@@ -741,7 +741,7 @@ class TestFloatingIP(base.TestCase):
                     uri=self.get_mock_url(
                         'network',
                         'public',
-                        append=['v2.0', 'floatingips/{0}'.format(fip_id)],
+                        append=['v2.0', f'floatingips/{fip_id}'],
                     ),
                     json={},
                 ),
@@ -757,7 +757,7 @@ class TestFloatingIP(base.TestCase):
                     uri=self.get_mock_url(
                         'network',
                         'public',
-                        append=['v2.0', 'floatingips/{0}'.format(fip_id)],
+                        append=['v2.0', f'floatingips/{fip_id}'],
                     ),
                     json={},
                 ),
@@ -773,7 +773,7 @@ class TestFloatingIP(base.TestCase):
                     uri=self.get_mock_url(
                         'network',
                         'public',
-                        append=['v2.0', 'floatingips/{0}'.format(fip_id)],
+                        append=['v2.0', f'floatingips/{fip_id}'],
                     ),
                     json={},
                 ),
@@ -811,7 +811,7 @@ class TestFloatingIP(base.TestCase):
                     uri=self.get_mock_url(
                         'network',
                         'public',
-                        append=['v2.0', 'floatingips/{0}'.format(fip_id)],
+                        append=['v2.0', f'floatingips/{fip_id}'],
                     ),
                     json={},
                 ),
@@ -827,7 +827,7 @@ class TestFloatingIP(base.TestCase):
                     uri=self.get_mock_url(
                         'network',
                         'public',
-                        append=['v2.0', 'floatingips/{0}'.format(fip_id)],
+                        append=['v2.0', f'floatingips/{fip_id}'],
                     ),
                     json={},
                 ),
@@ -860,7 +860,7 @@ class TestFloatingIP(base.TestCase):
                     uri=self.get_mock_url(
                         'network',
                         'public',
-                        append=['v2.0', 'floatingips/{0}'.format(fip_id)],
+                        append=['v2.0', f'floatingips/{fip_id}'],
                     ),
                     json={},
                 ),
@@ -876,7 +876,7 @@ class TestFloatingIP(base.TestCase):
                     uri=self.get_mock_url(
                         'network',
                         'public',
-                        append=['v2.0', 'floatingips/{0}'.format(fip_id)],
+                        append=['v2.0', f'floatingips/{fip_id}'],
                     ),
                     json={},
                 ),
@@ -892,7 +892,7 @@ class TestFloatingIP(base.TestCase):
                     uri=self.get_mock_url(
                         'network',
                         'public',
-                        append=['v2.0', 'floatingips/{0}'.format(fip_id)],
+                        append=['v2.0', f'floatingips/{fip_id}'],
                     ),
                     json={},
                 ),
@@ -945,7 +945,7 @@ class TestFloatingIP(base.TestCase):
                         'network',
                         'public',
                         append=['v2.0', 'ports'],
-                        qs_elements=["device_id={0}".format(device_id)],
+                        qs_elements=[f"device_id={device_id}"],
                     ),
                     json={'ports': self.mock_search_ports_rep},
                 ),
@@ -954,7 +954,7 @@ class TestFloatingIP(base.TestCase):
                     uri=self.get_mock_url(
                         'network',
                         'public',
-                        append=['v2.0', 'floatingips/{0}'.format(fip['id'])],
+                        append=['v2.0', 'floatingips/{}'.format(fip['id'])],
                     ),
                     json={
                         'floatingip': self.mock_floating_ip_list_rep[
@@ -999,7 +999,7 @@ class TestFloatingIP(base.TestCase):
                     uri=self.get_mock_url(
                         'network',
                         'public',
-                        append=['v2.0', 'floatingips/{0}'.format(fip['id'])],
+                        append=['v2.0', 'floatingips/{}'.format(fip['id'])],
                     ),
                     json={'floatingip': fip},
                     validate=dict(json={'floatingip': {'port_id': None}}),
@@ -1060,7 +1060,7 @@ class TestFloatingIP(base.TestCase):
                         'public',
                         append=['v2.0', 'ports'],
                         qs_elements=[
-                            "device_id={0}".format(self.fake_server['id'])
+                            "device_id={}".format(self.fake_server['id'])
                         ],
                     ),
                     json={'ports': self.mock_search_ports_rep},
@@ -1070,7 +1070,7 @@ class TestFloatingIP(base.TestCase):
                     uri=self.get_mock_url(
                         'network',
                         'public',
-                        append=['v2.0', 'floatingips/{0}'.format(fip['id'])],
+                        append=['v2.0', 'floatingips/{}'.format(fip['id'])],
                     ),
                     json={'floatingip': fip},
                     validate=dict(
@@ -1141,7 +1141,7 @@ class TestFloatingIP(base.TestCase):
                         'public',
                         append=[
                             'v2.0',
-                            'floatingips/{0}'.format(floating_ips[0]['id']),
+                            'floatingips/{}'.format(floating_ips[0]['id']),
                         ],
                     ),
                     json={},
@@ -1161,7 +1161,7 @@ class TestFloatingIP(base.TestCase):
                         'public',
                         append=[
                             'v2.0',
-                            'floatingips/{0}'.format(floating_ips[1]['id']),
+                            'floatingips/{}'.format(floating_ips[1]['id']),
                         ],
                     ),
                     json={},

@@ -42,7 +42,7 @@ FAKE = {
 
 class TestProfile(base.TestCase):
     def setUp(self):
-        super(TestProfile, self).setUp()
+        super().setUp()
 
     def test_basic(self):
         sot = profile.Profile()
@@ -72,7 +72,7 @@ class TestProfile(base.TestCase):
 
 class TestProfileValidate(base.TestCase):
     def setUp(self):
-        super(TestProfileValidate, self).setUp()
+        super().setUp()
 
     def test_basic(self):
         sot = profile.ProfileValidate()

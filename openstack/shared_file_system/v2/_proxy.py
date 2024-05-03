@@ -596,7 +596,7 @@ class Proxy(proxy.Proxy):
         return self._create(
             _share_network_subnet.ShareNetworkSubnet,
             **attrs,
-            share_network_id=share_network_id
+            share_network_id=share_network_id,
         )
 
     def delete_share_network_subnet(
@@ -656,7 +656,7 @@ class Proxy(proxy.Proxy):
         return self._list(
             _share_snapshot_instance.ShareSnapshotInstance,
             base_path=base_path,
-            **query
+            **query,
         )
 
     def get_share_snapshot_instance(self, snapshot_instance_id):
@@ -859,7 +859,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.shared_file_system.v2.
             share_access_rules.ShareAccessRules`
         """
-        base_path = "/shares/%s/action" % (share_id,)
+        base_path = f"/shares/{share_id}/action"
         return self._create(
             _share_access_rule.ShareAccessRule, base_path=base_path, **attrs
         )
@@ -913,7 +913,7 @@ class Proxy(proxy.Proxy):
         return self._list(
             _share_group_snapshot.ShareGroupSnapshot,
             base_path=base_path,
-            **query
+            **query,
         )
 
     def share_group_snapshot_members(self, group_snapshot_id):
@@ -958,7 +958,7 @@ class Proxy(proxy.Proxy):
         return self._create(
             _share_group_snapshot.ShareGroupSnapshot,
             share_group_id=share_group_id,
-            **attrs
+            **attrs,
         )
 
     def reset_share_group_snapshot_status(self, group_snapshot_id, status):
@@ -987,7 +987,7 @@ class Proxy(proxy.Proxy):
         return self._update(
             _share_group_snapshot.ShareGroupSnapshot,
             group_snapshot_id,
-            **attrs
+            **attrs,
         )
 
     def delete_share_group_snapshot(

@@ -24,7 +24,7 @@ class TestIdentity(base.BaseFunctionalTest):
     """
 
     def setUp(self):
-        super(TestIdentity, self).setUp()
+        super().setUp()
         self.conn = connect.create_connection_from_config()
 
     def test_identity(self):

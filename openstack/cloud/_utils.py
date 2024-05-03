@@ -389,9 +389,7 @@ def range_filter(data, key, range_exp):
 
     # If parsing the range fails, it must be a bad value.
     if val_range is None:
-        raise exceptions.SDKException(
-            "Invalid range value: {value}".format(value=range_exp)
-        )
+        raise exceptions.SDKException(f"Invalid range value: {range_exp}")
 
     op = val_range[0]
     if op:

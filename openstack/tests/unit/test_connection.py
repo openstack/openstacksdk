@@ -105,7 +105,7 @@ public-clouds:
 
 class _TestConnectionBase(base.TestCase):
     def setUp(self):
-        super(_TestConnectionBase, self).setUp()
+        super().setUp()
         # Create a temporary directory where our test config will live
         # and insert it into the search path via OS_CLIENT_CONFIG_FILE.
         config_dir = self.useFixture(fixtures.TempDir()).path
@@ -384,7 +384,7 @@ class TestNewService(base.TestCase):
         svc.add_endpoint(
             interface='public',
             region='RegionOne',
-            url='https://fake.example.com/v1/{0}'.format(fakes.PROJECT_ID),
+            url=f'https://fake.example.com/v1/{fakes.PROJECT_ID}',
         )
         self.use_keystone_v3()
         conn = self.cloud
@@ -427,7 +427,7 @@ class TestNewService(base.TestCase):
         svc.add_endpoint(
             interface='public',
             region='RegionOne',
-            url='https://fake.example.com/v2/{0}'.format(fakes.PROJECT_ID),
+            url=f'https://fake.example.com/v2/{fakes.PROJECT_ID}',
         )
         self.use_keystone_v3()
         conn = self.cloud
@@ -467,7 +467,7 @@ class TestNewService(base.TestCase):
         svc.add_endpoint(
             interface='public',
             region='RegionOne',
-            url='https://fake.example.com/v2/{0}'.format(fakes.PROJECT_ID),
+            url=f'https://fake.example.com/v2/{fakes.PROJECT_ID}',
         )
         self.use_keystone_v3()
         conn = self.cloud
@@ -509,7 +509,7 @@ def vendor_hook(conn):
 
 class TestVendorProfile(base.TestCase):
     def setUp(self):
-        super(TestVendorProfile, self).setUp()
+        super().setUp()
         # Create a temporary directory where our test config will live
         # and insert it into the search path via OS_CLIENT_CONFIG_FILE.
         config_dir = self.useFixture(fixtures.TempDir()).path

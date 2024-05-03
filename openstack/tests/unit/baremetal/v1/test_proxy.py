@@ -31,7 +31,7 @@ _MOCK_METHOD = 'openstack.baremetal.v1._proxy.Proxy._get_with_fields'
 
 class TestBaremetalProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestBaremetalProxy, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
 
@@ -349,7 +349,7 @@ class TestMisc(TestBaremetalProxy):
 @mock.patch.object(_proxy.Proxy, 'get_node', autospec=True)
 class TestWaitForNodesProvisionState(base.TestCase):
     def setUp(self):
-        super(TestWaitForNodesProvisionState, self).setUp()
+        super().setUp()
         self.session = mock.Mock()
         self.proxy = _proxy.Proxy(self.session)
 

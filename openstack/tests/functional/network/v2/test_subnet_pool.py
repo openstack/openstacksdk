@@ -26,7 +26,7 @@ class TestSubnetPool(base.BaseFunctionalTest):
     PREFIXES = ["10.100.0.0/24", "10.101.0.0/24"]
 
     def setUp(self):
-        super(TestSubnetPool, self).setUp()
+        super().setUp()
         self.SUBNET_POOL_NAME = self.getUniqueString()
         self.SUBNET_POOL_NAME_UPDATED = self.getUniqueString()
         subnet_pool = self.user_cloud.network.create_subnet_pool(
@@ -45,7 +45,7 @@ class TestSubnetPool(base.BaseFunctionalTest):
     def tearDown(self):
         sot = self.user_cloud.network.delete_subnet_pool(self.SUBNET_POOL_ID)
         self.assertIsNone(sot)
-        super(TestSubnetPool, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         sot = self.user_cloud.network.find_subnet_pool(self.SUBNET_POOL_NAME)

@@ -31,7 +31,7 @@ from openstack.tests.unit import test_proxy_base
 
 class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestOrchestrationProxy, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
 

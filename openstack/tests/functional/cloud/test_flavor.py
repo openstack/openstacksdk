@@ -25,7 +25,7 @@ from openstack.tests.functional import base
 
 class TestFlavor(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestFlavor, self).setUp()
+        super().setUp()
 
         # Generate a random name for flavors in this test
         self.new_item_name = self.getUniqueString('flavor')

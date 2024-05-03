@@ -25,7 +25,7 @@ class TestPort(base.BaseFunctionalTest):
     PORT_ID = None
 
     def setUp(self):
-        super(TestPort, self).setUp()
+        super().setUp()
         self.NET_NAME = self.getUniqueString()
         self.SUB_NAME = self.getUniqueString()
         self.PORT_NAME = self.getUniqueString()
@@ -63,7 +63,7 @@ class TestPort(base.BaseFunctionalTest):
             self.NET_ID, ignore_missing=False
         )
         self.assertIsNone(sot)
-        super(TestPort, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         sot = self.user_cloud.network.find_port(self.PORT_NAME)

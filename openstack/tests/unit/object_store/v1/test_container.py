@@ -18,7 +18,7 @@ from openstack.tests.unit import base
 
 class TestContainer(base.TestCase):
     def setUp(self):
-        super(TestContainer, self).setUp()
+        super().setUp()
         self.container = self.getUniqueString()
         self.endpoint = self.cloud.object_store.get_endpoint() + '/'
         self.container_endpoint = '{endpoint}{container}'.format(

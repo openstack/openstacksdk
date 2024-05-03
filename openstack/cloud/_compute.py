@@ -117,7 +117,7 @@ class ComputeCloudMixin:
         )
 
     def _nova_extensions(self):
-        extensions = set([e.alias for e in self.compute.extensions()])
+        extensions = {e.alias for e in self.compute.extensions()}
         return extensions
 
     def _has_nova_extension(self, extension_name):
@@ -1229,7 +1229,7 @@ class ComputeCloudMixin:
                 raise exceptions.SDKException(
                     'Server reached ACTIVE state without being'
                     ' allocated an IP address AND then could not'
-                    ' be deleted: {0}'.format(e),
+                    ' be deleted: {}'.format(e),
                     extra_data=dict(server=server),
                 )
             raise exceptions.SDKException(
@@ -1291,9 +1291,7 @@ class ComputeCloudMixin:
         """
         server = self.get_server(name_or_id, bare=True)
         if not server:
-            raise exceptions.SDKException(
-                'Invalid Server {server}'.format(server=name_or_id)
-            )
+            raise exceptions.SDKException(f'Invalid Server {name_or_id}')
 
         self.compute.set_server_metadata(server=server.id, **metadata)
 
@@ -1311,9 +1309,7 @@ class ComputeCloudMixin:
         """
         server = self.get_server(name_or_id, bare=True)
         if not server:
-            raise exceptions.SDKException(
-                'Invalid Server {server}'.format(server=name_or_id)
-            )
+            raise exceptions.SDKException(f'Invalid Server {name_or_id}')
 
         self.compute.delete_server_metadata(
             server=server.id, keys=metadata_keys
@@ -1545,7 +1541,7 @@ class ComputeCloudMixin:
             return True
         except exceptions.SDKException:
             raise exceptions.SDKException(
-                "Unable to delete flavor {name}".format(name=name_or_id)
+                f"Unable to delete flavor {name_or_id}"
             )
 
     def set_flavor_specs(self, flavor_id, extra_specs):

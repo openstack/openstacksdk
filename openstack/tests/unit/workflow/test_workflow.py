@@ -23,7 +23,7 @@ FAKE = {
 
 class TestWorkflow(base.TestCase):
     def setUp(self):
-        super(TestWorkflow, self).setUp()
+        super().setUp()
 
     def test_basic(self):
         sot = workflow.Workflow()

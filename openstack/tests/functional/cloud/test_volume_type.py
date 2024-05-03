@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -31,7 +29,7 @@ class TestVolumeType(base.BaseFunctionalTest):
         self.assertEqual(allowed, project_id in allowed_projects)
 
     def setUp(self):
-        super(TestVolumeType, self).setUp()
+        super().setUp()
         if not self.operator_cloud:
             self.skipTest("Operator cloud is required for this test")
         if not self.user_cloud.has_service('volume'):
@@ -48,10 +46,8 @@ class TestVolumeType(base.BaseFunctionalTest):
     def tearDown(self):
         ret = self.operator_cloud.get_volume_type('test-volume-type')
         if ret.get('id'):
-            self.operator_cloud.block_storage.delete(
-                '/types/{volume_type_id}'.format(volume_type_id=ret.id)
-            )
-        super(TestVolumeType, self).tearDown()
+            self.operator_cloud.block_storage.delete(f'/types/{ret.id}')
+        super().tearDown()
 
     def test_list_volume_types(self):
         volume_types = self.operator_cloud.list_volume_types()

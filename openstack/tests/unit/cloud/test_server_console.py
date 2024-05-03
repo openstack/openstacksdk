@@ -18,7 +18,7 @@ from openstack.tests.unit import base
 
 class TestServerConsole(base.TestCase):
     def setUp(self):
-        super(TestServerConsole, self).setUp()
+        super().setUp()
 
         self.server_id = str(uuid.uuid4())
         self.server_name = self.getUniqueString('name')

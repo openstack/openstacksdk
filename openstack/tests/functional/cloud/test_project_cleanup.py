@@ -25,7 +25,7 @@ class TestProjectCleanup(base.BaseFunctionalTest):
     _wait_for_timeout_key = 'OPENSTACKSDK_FUNC_TEST_TIMEOUT_CLEANUP'
 
     def setUp(self):
-        super(TestProjectCleanup, self).setUp()
+        super().setUp()
         if not self.user_cloud_alt:
             self.skipTest("Alternate demo cloud is required for this test")
 

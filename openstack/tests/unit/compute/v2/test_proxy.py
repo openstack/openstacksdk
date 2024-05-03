@@ -44,7 +44,7 @@ from openstack import warnings as os_warnings
 
 class TestComputeProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestComputeProxy, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
 

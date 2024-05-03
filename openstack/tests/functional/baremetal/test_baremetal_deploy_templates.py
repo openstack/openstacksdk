@@ -18,7 +18,7 @@ class TestBareMetalDeployTemplate(base.BaseBaremetalTest):
     min_microversion = '1.55'
 
     def setUp(self):
-        super(TestBareMetalDeployTemplate, self).setUp()
+        super().setUp()
 
     def test_baremetal_deploy_create_get_delete(self):
         steps = [

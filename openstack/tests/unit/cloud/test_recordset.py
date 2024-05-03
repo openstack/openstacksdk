@@ -35,7 +35,7 @@ class RecordsetTestWrapper(test_zone.ZoneTestWrapper):
 
 class TestRecordset(base.TestCase):
     def setUp(self):
-        super(TestRecordset, self).setUp()
+        super().setUp()
         self.use_designate()
 
     def test_create_recordset_zoneid(self):

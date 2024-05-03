@@ -453,10 +453,9 @@ class ObjectStoreCloudMixin:
             error.
         """
         try:
-            for ret in self.object_store.stream_object(
+            yield from self.object_store.stream_object(
                 obj, container, chunk_size=resp_chunk_size
-            ):
-                yield ret
+            )
         except exceptions.ResourceNotFound:
             return
 

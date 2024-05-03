@@ -17,7 +17,7 @@ from openstack.tests.functional.baremetal import base
 
 class TestBareMetalPort(base.BaseBaremetalTest):
     def setUp(self):
-        super(TestBareMetalPort, self).setUp()
+        super().setUp()
         self.node = self.create_node()
 
     def test_port_create_get_delete(self):

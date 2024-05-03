@@ -144,7 +144,7 @@ class TestLoadBalancer(base.TestCase):
         sot._translate_response = mock.Mock()
         sot.delete(sess)
 
-        url = 'lbaas/loadbalancers/%(lb)s' % {'lb': EXAMPLE['id']}
+        url = 'lbaas/loadbalancers/{lb}'.format(lb=EXAMPLE['id'])
         params = {}
         sess.delete.assert_called_with(url, params=params)
         sot._translate_response.assert_called_once_with(
@@ -163,7 +163,7 @@ class TestLoadBalancer(base.TestCase):
         sot._translate_response = mock.Mock()
         sot.delete(sess)
 
-        url = 'lbaas/loadbalancers/%(lb)s' % {'lb': EXAMPLE['id']}
+        url = 'lbaas/loadbalancers/{lb}'.format(lb=EXAMPLE['id'])
         params = {'cascade': True}
         sess.delete.assert_called_with(url, params=params)
         sot._translate_response.assert_called_once_with(

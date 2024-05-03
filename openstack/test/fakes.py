@@ -103,7 +103,7 @@ def generate_fake_resource(
                     base_attrs[name] = [uuid.uuid4().hex]
                 else:
                     # Everything else
-                    msg = "Fake value for %s.%s can not be generated" % (
+                    msg = "Fake value for {}.{} can not be generated".format(
                         resource_type.__name__,
                         name,
                     )
@@ -130,7 +130,7 @@ def generate_fake_resource(
                 base_attrs[name] = dict()
             else:
                 # Everything else
-                msg = "Fake value for %s.%s can not be generated" % (
+                msg = "Fake value for {}.{} can not be generated".format(
                     resource_type.__name__,
                     name,
                 )

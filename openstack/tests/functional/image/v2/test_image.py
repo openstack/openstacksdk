@@ -30,7 +30,7 @@ class TestImage(base.BaseImageTest):
             properties={
                 'description': 'This is not an image',
             },
-            data=open('CONTRIBUTING.rst', 'r'),
+            data=open('CONTRIBUTING.rst'),
         )
         self.assertIsInstance(self.image, _image.Image)
         self.assertEqual(TEST_IMAGE_NAME, self.image.name)

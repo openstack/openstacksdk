@@ -15,7 +15,7 @@ from openstack.tests.functional.shared_file_system import base
 
 class ShareAccessRuleTest(base.BaseSharedFileSystemTest):
     def setUp(self):
-        super(ShareAccessRuleTest, self).setUp()
+        super().setUp()
 
         self.SHARE_NAME = self.getUniqueString()
         mys = self.create_share(
@@ -49,7 +49,7 @@ class ShareAccessRuleTest(base.BaseSharedFileSystemTest):
         self.user_cloud.share.delete_access_rule(
             self.ACCESS_ID, self.SHARE_ID, ignore_missing=True
         )
-        super(ShareAccessRuleTest, self).tearDown()
+        super().tearDown()
 
     def test_get_access_rule(self):
         sot = self.user_cloud.shared_file_system.get_access_rule(

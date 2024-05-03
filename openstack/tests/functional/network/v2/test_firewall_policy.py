@@ -22,7 +22,7 @@ class TestFirewallPolicy(base.BaseFunctionalTest):
     ID = None
 
     def setUp(self):
-        super(TestFirewallPolicy, self).setUp()
+        super().setUp()
         if not self.user_cloud._has_neutron_extension("fwaas_v2"):
             self.skipTest("fwaas_v2 service not supported by cloud")
         self.NAME = self.getUniqueString()
@@ -36,7 +36,7 @@ class TestFirewallPolicy(base.BaseFunctionalTest):
             self.ID, ignore_missing=False
         )
         self.assertIs(None, sot)
-        super(TestFirewallPolicy, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         sot = self.user_cloud.network.find_firewall_policy(self.NAME)

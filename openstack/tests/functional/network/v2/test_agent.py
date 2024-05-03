@@ -28,7 +28,7 @@ class TestAgent(base.BaseFunctionalTest):
         return True
 
     def setUp(self):
-        super(TestAgent, self).setUp()
+        super().setUp()
         if not self.user_cloud._has_neutron_extension("agent"):
             self.skipTest("Neutron agent extension is required for this test")
 

@@ -46,7 +46,7 @@ def get_defaults(json_path=_json_path):
             cert=None,
             key=None,
         )
-        with open(json_path, 'r') as json_file:
+        with open(json_path) as json_file:
             updates = json.load(json_file)
             if updates is not None:
                 tmp_defaults.update(updates)

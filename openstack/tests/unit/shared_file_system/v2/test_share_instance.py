@@ -84,7 +84,7 @@ class TestShareInstances(base.TestCase):
 
 class TestShareInstanceActions(TestShareInstances):
     def setUp(self):
-        super(TestShareInstanceActions, self).setUp()
+        super().setUp()
         self.resp = mock.Mock()
         self.resp.body = None
         self.resp.status_code = 200

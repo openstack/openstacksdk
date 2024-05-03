@@ -306,9 +306,7 @@ class _ComponentManager(collections.abc.MutableMapping):
     @property
     def dirty(self):
         """Return a dict of modified attributes"""
-        return dict(
-            (key, self.attributes.get(key, None)) for key in self._dirty
-        )
+        return {key: self.attributes.get(key, None) for key in self._dirty}
 
     def clean(self, only=None):
         """Signal that the resource no longer has modified attributes.
@@ -610,7 +608,7 @@ class Resource(dict):
 
     def __repr__(self):
         pairs = [
-            "%s=%s" % (k, v if v is not None else 'None')
+            "{}={}".format(k, v if v is not None else 'None')
             for k, v in dict(
                 itertools.chain(
                     self._body.attributes.items(),
@@ -622,7 +620,9 @@ class Resource(dict):
         ]
         args = ", ".join(pairs)
 
-        return "%s.%s(%s)" % (self.__module__, self.__class__.__name__, args)
+        return "{}.{}({})".format(
+            self.__module__, self.__class__.__name__, args
+        )
 
     def __eq__(self, comparand):
         """Return True if another resource has the same contents"""
@@ -1406,7 +1406,7 @@ class Resource(dict):
         def _raise(message):
             if error_message:
                 error_message.rstrip('.')
-                message = '%s. %s' % (error_message, message)
+                message = f'{error_message}. {message}'
 
             raise exceptions.NotSupported(message)
 
@@ -1868,7 +1868,7 @@ class Resource(dict):
                 server_field = component.name
 
             if len(parts) > 1:
-                new_path = '/%s/%s' % (server_field, parts[1])
+                new_path = f'/{server_field}/{parts[1]}'
             else:
                 new_path = '/%s' % server_field
             converted.append(dict(item, path=new_path))
@@ -2172,7 +2172,7 @@ class Resource(dict):
 
             if not pagination_key and cls.resources_key:
                 # Nova has a {key}_links dict in the main body
-                pagination_key = '{key}_links'.format(key=cls.resources_key)
+                pagination_key = f'{cls.resources_key}_links'
 
             if pagination_key:
                 links = data.get(pagination_key, {})
@@ -2371,7 +2371,7 @@ class Resource(dict):
             return None
 
         raise exceptions.ResourceNotFound(
-            "No %s found for %s" % (cls.__name__, name_or_id)
+            f"No {cls.__name__} found for {name_or_id}"
         )
 
 
@@ -2427,7 +2427,7 @@ def wait_for_status(
         failures = ['ERROR']
 
     failures = [f.lower() for f in failures]
-    name = "{res}:{id}".format(res=resource.__class__.__name__, id=resource.id)
+    name = f"{resource.__class__.__name__}:{resource.id}"
     msg = "Timeout waiting for {name} to transition to {status}".format(
         name=name, status=status
     )

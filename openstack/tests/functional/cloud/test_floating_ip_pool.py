@@ -33,7 +33,7 @@ from openstack.tests.functional import base
 
 class TestFloatingIPPool(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestFloatingIPPool, self).setUp()
+        super().setUp()
 
         if not self.user_cloud._has_nova_extension('os-floating-ip-pools'):
             # Skipping this test is floating-ip-pool extension is not

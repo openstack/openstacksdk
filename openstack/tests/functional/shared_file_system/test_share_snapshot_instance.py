@@ -15,7 +15,7 @@ from openstack.tests.functional.shared_file_system import base
 
 class ShareSnapshotInstanceTest(base.BaseSharedFileSystemTest):
     def setUp(self):
-        super(ShareSnapshotInstanceTest, self).setUp()
+        super().setUp()
 
         self.SHARE_NAME = self.getUniqueString()
         my_share = self.create_share(

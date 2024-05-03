@@ -25,7 +25,7 @@ QUEUE_NAME = 'test_queue'
 
 class TestMessageProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestMessageProxy, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
 

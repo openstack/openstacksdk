@@ -39,7 +39,7 @@ class TestNetwork(base.BaseFunctionalTest):
     ID = None
 
     def setUp(self):
-        super(TestNetwork, self).setUp()
+        super().setUp()
         self.NAME = self.getUniqueString()
         sot = self.user_cloud.network.create_network(name=self.NAME)
         assert isinstance(sot, network.Network)
@@ -51,7 +51,7 @@ class TestNetwork(base.BaseFunctionalTest):
             self.ID, ignore_missing=False
         )
         self.assertIsNone(sot)
-        super(TestNetwork, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         sot = self.user_cloud.network.find_network(self.NAME)

@@ -21,7 +21,7 @@ from openstack.tests.unit import base
 
 class TestMissingVersion(base.TestCase):
     def setUp(self):
-        super(TestMissingVersion, self).setUp()
+        super().setUp()
         self.os_fixture.clear_tokens()
         svc = self.os_fixture.v3_token.add_service('image')
         svc.add_endpoint(

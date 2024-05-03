@@ -108,7 +108,7 @@ def wait_for_delete(client, client_args, check_interval=1, timeout=60):
 
 class TestClustering(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestClustering, self).setUp()
+        super().setUp()
         self.skipTest('clustering service not supported by cloud')
 
     def test_create_profile(self):

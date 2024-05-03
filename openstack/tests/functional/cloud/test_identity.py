@@ -26,7 +26,7 @@ from openstack.tests.functional import base
 
 class TestIdentity(base.KeystoneBaseFunctionalTest):
     def setUp(self):
-        super(TestIdentity, self).setUp()
+        super().setUp()
         if not self.operator_cloud:
             self.skipTest("Operator cloud is required for this test")
         self.role_prefix = 'test_role' + ''.join(

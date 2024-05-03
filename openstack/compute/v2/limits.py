@@ -113,7 +113,7 @@ class Limits(resource.Resource):
         """
         # TODO(mordred) We shouldn't have to subclass just to declare
         # requires_id = False.
-        return super(Limits, self).fetch(
+        return super().fetch(
             session=session,
             requires_id=requires_id,
             error_message=error_message,

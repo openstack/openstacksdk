@@ -42,7 +42,7 @@ FAKE = {
 
 class TestPolicy(base.TestCase):
     def setUp(self):
-        super(TestPolicy, self).setUp()
+        super().setUp()
 
     def test_basic(self):
         sot = policy.Policy()
@@ -70,7 +70,7 @@ class TestPolicy(base.TestCase):
 
 class TestPolicyValidate(base.TestCase):
     def setUp(self):
-        super(TestPolicyValidate, self).setUp()
+        super().setUp()
 
     def test_basic(self):
         sot = policy.PolicyValidate()

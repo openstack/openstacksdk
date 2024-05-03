@@ -20,7 +20,7 @@ class TestAddressGroup(base.BaseFunctionalTest):
     ADDRESSES = ["10.0.0.1/32", "2001:db8::/32"]
 
     def setUp(self):
-        super(TestAddressGroup, self).setUp()
+        super().setUp()
 
         # Skip the tests if address group extension is not enabled.
         if not self.user_cloud.network.find_extension("address-group"):
@@ -48,7 +48,7 @@ class TestAddressGroup(base.BaseFunctionalTest):
             self.ADDRESS_GROUP_ID
         )
         self.assertIsNone(sot)
-        super(TestAddressGroup, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         sot = self.user_cloud.network.find_address_group(

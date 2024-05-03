@@ -295,7 +295,7 @@ class Proxy(proxy.Proxy):
             image = self._connection._get_and_munchify(
                 'image',
                 self.put(
-                    '/images/{id}'.format(id=image.id),
+                    f'/images/{image.id}',
                     headers=headers,
                     data=image_data,
                 ),
@@ -303,7 +303,7 @@ class Proxy(proxy.Proxy):
         except exc.HttpException:
             self.log.debug("Deleting failed upload of image %s", name)
             try:
-                self.delete('/images/{id}'.format(id=image.id))
+                self.delete(f'/images/{image.id}')
             except exc.HttpException:
                 # We're just trying to clean up - if it doesn't work - shrug
                 self.log.warning(
@@ -434,10 +434,10 @@ class Proxy(proxy.Proxy):
         img_props = {}
         for k, v in iter(properties.items()):
             if image.properties.get(k, None) != v:
-                img_props['x-image-meta-{key}'.format(key=k)] = v
+                img_props[f'x-image-meta-{k}'] = v
         if not img_props:
             return False
-        self.put('/images/{id}'.format(id=image.id), headers=img_props)
+        self.put(f'/images/{image.id}', headers=img_props)
         return True
 
     def update_image_properties(
@@ -469,7 +469,7 @@ class Proxy(proxy.Proxy):
         for k, v in iter(kwargs.items()):
             if v and k in ['ramdisk', 'kernel']:
                 v = self._connection.get_image_id(v)
-                k = '{0}_id'.format(k)
+                k = f'{k}_id'
             img_props[k] = v
 
         return self._update_image_properties(image, meta, img_props)

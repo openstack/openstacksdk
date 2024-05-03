@@ -24,7 +24,7 @@ IDENTIFIER = 'IDENTIFIER'
 
 class TestMetadata(base.TestCase):
     def setUp(self):
-        super(TestMetadata, self).setUp()
+        super().setUp()
 
         self.service_name = "service"
         self.base_path = "base_path"

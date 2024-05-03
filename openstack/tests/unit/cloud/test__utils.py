@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -86,13 +84,13 @@ class TestUtils(base.TestCase):
     def test__filter_list_unicode(self):
         el1 = dict(
             id=100,
-            name=u'中文',
+            name='中文',
             last='duck',
             other=dict(category='duck', financial=dict(status='poor')),
         )
         el2 = dict(
             id=200,
-            name=u'中文',
+            name='中文',
             last='trump',
             other=dict(category='human', financial=dict(status='rich')),
         )
@@ -104,7 +102,7 @@ class TestUtils(base.TestCase):
         )
         data = [el1, el2, el3]
         ret = _utils._filter_list(
-            data, u'中文', {'other': {'financial': {'status': 'rich'}}}
+            data, '中文', {'other': {'financial': {'status': 'rich'}}}
         )
         self.assertEqual([el2], ret)
 

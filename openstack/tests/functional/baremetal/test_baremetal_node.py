@@ -405,7 +405,7 @@ class TestBareMetalVif(base.BaseBaremetalTest):
     min_microversion = '1.28'
 
     def setUp(self):
-        super(TestBareMetalVif, self).setUp()
+        super().setUp()
         self.node = self.create_node(network_interface='noop')
         self.vif_id = "200712fc-fdfb-47da-89a6-2d19f76c7618"
 
@@ -445,7 +445,7 @@ class TestTraits(base.BaseBaremetalTest):
     min_microversion = '1.37'
 
     def setUp(self):
-        super(TestTraits, self).setUp()
+        super().setUp()
         self.node = self.create_node()
 
     def test_add_remove_node_trait(self):

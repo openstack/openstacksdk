@@ -28,7 +28,7 @@ class TestOpenStackCloudOperatorNoAuth(base.TestCase):
         Uses base.TestCase instead of IronicTestCase because
         we need to do completely different things with discovery.
         """
-        super(TestOpenStackCloudOperatorNoAuth, self).setUp()
+        super().setUp()
         # By clearing the URI registry, we remove all calls to a keystone
         # catalog or getting a token
         self._uri_registry.clear()
@@ -129,7 +129,7 @@ class TestOpenStackCloudOperatorNoAuthUnversioned(base.TestCase):
         Uses base.TestCase instead of IronicTestCase because
         we need to do completely different things with discovery.
         """
-        super(TestOpenStackCloudOperatorNoAuthUnversioned, self).setUp()
+        super().setUp()
         # By clearing the URI registry, we remove all calls to a keystone
         # catalog or getting a token
         self._uri_registry.clear()

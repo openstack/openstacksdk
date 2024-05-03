@@ -112,7 +112,7 @@ class Proxy(adapter.Adapter):
         self._influxdb_client = influxdb_client
         self._influxdb_config = influxdb_config
         if self.service_type:
-            log_name = 'openstack.{0}'.format(self.service_type)
+            log_name = f'openstack.{self.service_type}'
         else:
             log_name = 'openstack'
         self.log = _log.setup_logging(log_name)
@@ -333,7 +333,9 @@ class Proxy(adapter.Adapter):
             with self._statsd_client.pipeline() as pipe:
                 if response is not None:
                     duration = int(response.elapsed.total_seconds() * 1000)
-                    metric_name = '%s.%s' % (key, str(response.status_code))
+                    metric_name = '{}.{}'.format(
+                        key, str(response.status_code)
+                    )
                     pipe.timing(metric_name, duration)
                     pipe.incr(metric_name)
                     if duration > 1000:
@@ -396,7 +398,7 @@ class Proxy(adapter.Adapter):
             tags['status_code'] = str(response.status_code)
             # Note(gtema): emit also status_code as a value (counter)
             fields[str(response.status_code)] = 1
-            fields['%s.%s' % (method, response.status_code)] = 1
+            fields[f'{method}.{response.status_code}'] = 1
             # Note(gtema): status_code field itself is also very helpful on the
             # graphs to show what was the code, instead of counting its
             # occurences
@@ -411,7 +413,7 @@ class Proxy(adapter.Adapter):
             else 'openstack_api'
         )
         # Note(gtema) append service name into the measurement name
-        measurement = '%s.%s' % (measurement, self.service_type)
+        measurement = f'{measurement}.{self.service_type}'
         data = [dict(measurement=measurement, tags=tags, fields=fields)]
         try:
             self._influxdb_client.write_points(data)

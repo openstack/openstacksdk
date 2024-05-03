@@ -16,7 +16,7 @@ from openstack.tests.functional import base
 
 class TestApplicationCredentials(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestApplicationCredentials, self).setUp()
+        super().setUp()
         self.user_id = self.operator_cloud.current_user_id
 
     def _create_application_credentials(self):

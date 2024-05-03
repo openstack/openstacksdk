@@ -19,7 +19,7 @@ class TestRouter(base.BaseFunctionalTest):
     ID = None
 
     def setUp(self):
-        super(TestRouter, self).setUp()
+        super().setUp()
         self.NAME = self.getUniqueString()
         self.UPDATE_NAME = self.getUniqueString()
         sot = self.user_cloud.network.create_router(name=self.NAME)
@@ -32,7 +32,7 @@ class TestRouter(base.BaseFunctionalTest):
             self.ID, ignore_missing=False
         )
         self.assertIsNone(sot)
-        super(TestRouter, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         sot = self.user_cloud.network.find_router(self.NAME)

@@ -15,7 +15,7 @@ from openstack.tests.functional.shared_file_system import base
 
 class ShareSnapshotTest(base.BaseSharedFileSystemTest):
     def setUp(self):
-        super(ShareSnapshotTest, self).setUp()
+        super().setUp()
 
         self.SHARE_NAME = self.getUniqueString()
         self.SNAPSHOT_NAME = self.getUniqueString()
@@ -65,7 +65,7 @@ class ShareSnapshotTest(base.BaseSharedFileSystemTest):
             self.SHARE_ID, ignore_missing=False
         )
         self.assertIsNone(sot)
-        super(ShareSnapshotTest, self).tearDown()
+        super().tearDown()
 
     def test_get(self):
         sot = self.operator_cloud.shared_file_system.get_share_snapshot(

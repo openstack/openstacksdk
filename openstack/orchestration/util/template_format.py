@@ -30,13 +30,13 @@ def _construct_yaml_str(self, node):
     return self.construct_scalar(node)
 
 
-HeatYamlLoader.add_constructor(u'tag:yaml.org,2002:str', _construct_yaml_str)
+HeatYamlLoader.add_constructor('tag:yaml.org,2002:str', _construct_yaml_str)
 # Unquoted dates like 2013-05-23 in yaml files get loaded as objects of type
 # datetime.data which causes problems in API layer when being processed by
 # openstack.common.jsonutils. Therefore, make unicode string out of timestamps
 # until jsonutils can handle dates.
 HeatYamlLoader.add_constructor(
-    u'tag:yaml.org,2002:timestamp', _construct_yaml_str
+    'tag:yaml.org,2002:timestamp', _construct_yaml_str
 )
 
 

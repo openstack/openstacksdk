@@ -24,7 +24,7 @@ class TestRBACPolicy(base.BaseFunctionalTest):
     ID = None
 
     def setUp(self):
-        super(TestRBACPolicy, self).setUp()
+        super().setUp()
         if not self.user_cloud._has_neutron_extension("rbac-policies"):
             self.skipTest(
                 "Neutron rbac-policies extension is required for this test"
@@ -68,7 +68,7 @@ class TestRBACPolicy(base.BaseFunctionalTest):
             self.NET_ID, ignore_missing=False
         )
         self.assertIsNone(sot)
-        super(TestRBACPolicy, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         if self.operator_cloud:

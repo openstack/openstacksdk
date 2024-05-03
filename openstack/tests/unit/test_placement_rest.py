@@ -21,7 +21,7 @@ from openstack.tests.unit import base
 @ddt.ddt
 class TestPlacementRest(base.TestCase):
     def setUp(self):
-        super(TestPlacementRest, self).setUp()
+        super().setUp()
         self.use_placement()
 
     def _register_uris(self, status_code=None):
@@ -78,7 +78,7 @@ class TestPlacementRest(base.TestCase):
 class TestBadPlacementRest(base.TestCase):
     def setUp(self):
         self.skipTest('Need to re-add support for broken placement versions')
-        super(TestBadPlacementRest, self).setUp()
+        super().setUp()
         # The bad-placement.json is for older placement that was
         # missing the status field from its discovery doc. This
         # lets us show that we can talk to such a placement.

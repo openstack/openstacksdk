@@ -58,7 +58,7 @@ class TestLoader(base.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             tested_files = []
             for key, value in FILES.items():
-                fn = os.path.join(tmpdir, 'file.{ext}'.format(ext=key))
+                fn = os.path.join(tmpdir, f'file.{key}')
                 with open(fn, 'w+') as fp:
                     fp.write(value)
                 tested_files.append(fn)
@@ -77,7 +77,7 @@ class TestLoader(base.TestCase):
             for key, value in FILES.items():
                 if key == 'json':
                     continue
-                fn = os.path.join(tmpdir, 'file.{ext}'.format(ext=key))
+                fn = os.path.join(tmpdir, f'file.{key}')
                 with open(fn, 'w+') as fp:
                     fp.write(value)
                 tested_files.append(fn)

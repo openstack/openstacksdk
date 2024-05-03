@@ -19,7 +19,7 @@ from openstack.workflow.v2 import workflow
 
 class TestWorkflowProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestWorkflowProxy, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
     def test_workflows(self):

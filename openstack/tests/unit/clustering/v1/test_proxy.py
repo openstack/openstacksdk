@@ -32,7 +32,7 @@ from openstack.tests.unit import test_proxy_base
 
 class TestClusterProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestClusterProxy, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
     def test_build_info_get(self):

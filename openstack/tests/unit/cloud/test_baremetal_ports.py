@@ -26,7 +26,7 @@ from openstack.tests.unit import base
 
 class TestBaremetalPort(base.IronicTestCase):
     def setUp(self):
-        super(TestBaremetalPort, self).setUp()
+        super().setUp()
         self.fake_baremetal_node = fakes.make_fake_machine(
             self.name, self.uuid
         )

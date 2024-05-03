@@ -17,7 +17,7 @@ from openstack.tests.unit import test_proxy_base as test_proxy_base
 
 class TestImageProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestImageProxy, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
     def test_image_upload_attrs(self):

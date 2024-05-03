@@ -265,7 +265,7 @@ def find_best_address(addresses, public=False, cloud_public=True):
                             connect_socket.settimeout(1)
                             connect_socket.connect(sa)
                             return address
-                    except socket.error:
+                    except OSError:
                         # Sometimes a "no route to address" type error
                         # will fail fast, but can often come alive
                         # when retried.
@@ -370,7 +370,7 @@ def get_groups_from_server(cloud, server, server_vars):
     groups.append(region)
 
     # And one by cloud_region
-    groups.append("%s_%s" % (cloud_name, region))
+    groups.append(f"{cloud_name}_{region}")
 
     # Check if group metadata key in servers' metadata
     group = server['metadata'].get('group')
@@ -385,17 +385,17 @@ def get_groups_from_server(cloud, server, server_vars):
 
     for key in ('flavor', 'image'):
         if 'name' in server_vars[key]:
-            groups.append('%s-%s' % (key, server_vars[key]['name']))
+            groups.append('{}-{}'.format(key, server_vars[key]['name']))
 
     for key, value in iter(server['metadata'].items()):
-        groups.append('meta-%s_%s' % (key, value))
+        groups.append(f'meta-{key}_{value}')
 
     az = server_vars.get('az', None)
     if az:
         # Make groups for az, region_az and cloud_region_az
         groups.append(az)
-        groups.append('%s_%s' % (region, az))
-        groups.append('%s_%s_%s' % (cloud.name, region, az))
+        groups.append(f'{region}_{az}')
+        groups.append(f'{cloud.name}_{region}_{az}')
     return groups
 
 

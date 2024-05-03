@@ -29,7 +29,7 @@ class TestNetworkSegmentRange(base.BaseFunctionalTest):
     MAXIMUM = 200
 
     def setUp(self):
-        super(TestNetworkSegmentRange, self).setUp()
+        super().setUp()
         if not self.operator_cloud:
             self.skipTest("Operator cloud required for this test")
 
@@ -69,7 +69,7 @@ class TestNetworkSegmentRange(base.BaseFunctionalTest):
         self.assertEqual(self.MAXIMUM, test_seg_range.maximum)
 
     def tearDown(self):
-        super(TestNetworkSegmentRange, self).tearDown()
+        super().tearDown()
 
     def test_create_delete(self):
         del_test_seg_range = (

@@ -35,7 +35,7 @@ FAKE = {
 
 class TestEvent(base.TestCase):
     def setUp(self):
-        super(TestEvent, self).setUp()
+        super().setUp()
 
     def test_basic(self):
         sot = event.Event()

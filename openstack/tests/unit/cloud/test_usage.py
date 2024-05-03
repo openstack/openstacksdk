@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -34,8 +32,8 @@ class TestUsage(base.TestCase):
                         'public',
                         append=['os-simple-tenant-usage', project.project_id],
                         qs_elements=[
-                            'start={now}'.format(now=start.isoformat()),
-                            'end={now}'.format(now=end.isoformat()),
+                            f'start={start.isoformat()}',
+                            f'end={end.isoformat()}',
                         ],
                     ),
                     json={

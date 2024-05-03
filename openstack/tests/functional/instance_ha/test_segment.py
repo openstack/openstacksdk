@@ -18,7 +18,7 @@ from openstack.tests.functional import base
 
 class TestSegment(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestSegment, self).setUp()
+        super().setUp()
         self.require_service('instance-ha')
         self.NAME = self.getUniqueString()
 

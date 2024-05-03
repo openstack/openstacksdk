@@ -36,7 +36,7 @@ class Stack(resource.Resource):
         'owner_id',
         'username',
         project_id='tenant_id',
-        **tag.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters,
     )
 
     # Properties
@@ -115,14 +115,12 @@ class Stack(resource.Resource):
     def create(self, session, base_path=None):
         # This overrides the default behavior of resource creation because
         # heat doesn't accept resource_key in its request.
-        return super(Stack, self).create(
-            session, prepend_key=False, base_path=base_path
-        )
+        return super().create(session, prepend_key=False, base_path=base_path)
 
     def commit(self, session, base_path=None):
         # This overrides the default behavior of resource creation because
         # heat doesn't accept resource_key in its request.
-        return super(Stack, self).commit(
+        return super().commit(
             session, prepend_key=False, has_body=False, base_path=None
         )
 
@@ -131,16 +129,16 @@ class Stack(resource.Resource):
         # we need to use other endpoint for update preview.
         base_path = None
         if self.name and self.id:
-            base_path = '/stacks/%(stack_name)s/%(stack_id)s' % {
-                'stack_name': self.name,
-                'stack_id': self.id,
-            }
+            base_path = '/stacks/{stack_name}/{stack_id}'.format(
+                stack_name=self.name,
+                stack_id=self.id,
+            )
         elif self.name or self.id:
             # We have only one of name/id. Do not try to build a stacks/NAME/ID
             # path
-            base_path = '/stacks/%(stack_identity)s' % {
-                'stack_identity': self.name or self.id
-            }
+            base_path = '/stacks/{stack_identity}'.format(
+                stack_identity=self.name or self.id
+            )
         request = self._prepare_request(
             prepend_key=False, requires_id=False, base_path=base_path
         )
@@ -290,7 +288,7 @@ class Stack(resource.Resource):
         if ignore_missing:
             return None
         raise exceptions.ResourceNotFound(
-            "No %s found for %s" % (cls.__name__, name_or_id)
+            f"No {cls.__name__} found for {name_or_id}"
         )
 
 

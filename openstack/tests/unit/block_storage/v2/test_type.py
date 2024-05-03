@@ -24,7 +24,7 @@ TYPE = {"extra_specs": {"capabilities": "gpu"}, "id": FAKE_ID, "name": "SSD"}
 
 class TestType(base.TestCase):
     def setUp(self):
-        super(TestType, self).setUp()
+        super().setUp()
         self.extra_specs_result = {"extra_specs": {"go": "cubs", "boo": "sox"}}
         self.resp = mock.Mock()
         self.resp.body = None

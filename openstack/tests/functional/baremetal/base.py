@@ -18,7 +18,7 @@ class BaseBaremetalTest(base.BaseFunctionalTest):
     node_id = None
 
     def setUp(self):
-        super(BaseBaremetalTest, self).setUp()
+        super().setUp()
         self.require_service(
             'baremetal', min_microversion=self.min_microversion
         )

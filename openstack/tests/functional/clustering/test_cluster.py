@@ -21,7 +21,7 @@ class TestCluster(base.BaseFunctionalTest):
     _wait_for_timeout_key = 'OPENSTACKSDK_FUNC_TEST_TIMEOUT_CLUSTER'
 
     def setUp(self):
-        super(TestCluster, self).setUp()
+        super().setUp()
         self.require_service('clustering')
 
         self.cidr = '10.99.99.0/16'
@@ -74,7 +74,7 @@ class TestCluster(base.BaseFunctionalTest):
 
         self.conn.clustering.delete_profile(self.profile)
 
-        super(TestCluster, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         sot = self.conn.clustering.find_cluster(self.cluster.id)

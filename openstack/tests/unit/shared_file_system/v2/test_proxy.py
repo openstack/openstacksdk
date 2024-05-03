@@ -31,7 +31,7 @@ from openstack.tests.unit import test_proxy_base
 
 class TestSharedFileSystemProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestSharedFileSystemProxy, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
 
@@ -215,7 +215,7 @@ class TestSharedFileSystemShareMetadata(TestSharedFileSystemProxy):
 
 class TestUserMessageProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestUserMessageProxy, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
     def test_user_messages(self):
@@ -248,7 +248,7 @@ class TestUserMessageProxy(test_proxy_base.TestProxyBase):
 
 class TestShareSnapshotResource(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestShareSnapshotResource, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
     def test_share_snapshots(self):
@@ -313,7 +313,7 @@ class TestShareSnapshotResource(test_proxy_base.TestProxyBase):
 
 class TestShareSnapshotInstanceResource(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestShareSnapshotInstanceResource, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
     def test_share_snapshot_instances(self):
@@ -347,7 +347,7 @@ class TestShareSnapshotInstanceResource(test_proxy_base.TestProxyBase):
 
 class TestShareNetworkResource(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestShareNetworkResource, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
     def test_share_networks(self):
@@ -397,7 +397,7 @@ class TestShareNetworkResource(test_proxy_base.TestProxyBase):
 
 class TestShareNetworkSubnetResource(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestShareNetworkSubnetResource, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
     def test_share_network_subnets(self):
@@ -444,7 +444,7 @@ class TestShareNetworkSubnetResource(test_proxy_base.TestProxyBase):
 
 class TestAccessRuleProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestAccessRuleProxy, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
     def test_access_ruless(self):
@@ -486,7 +486,7 @@ class TestAccessRuleProxy(test_proxy_base.TestProxyBase):
 
 class TestResourceLocksProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestResourceLocksProxy, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
     def test_list_resource_locks(self):
@@ -522,7 +522,7 @@ class TestResourceLocksProxy(test_proxy_base.TestProxyBase):
 
 class TestShareGroupResource(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestShareGroupResource, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
     def test_share_groups(self):

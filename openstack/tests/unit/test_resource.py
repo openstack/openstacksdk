@@ -1417,7 +1417,7 @@ class TestResource(base.TestCase):
 
         request_body = sot._prepare_request(requires_id=False, patch=True).body
         self.assertDictEqual(
-            {u'path': u'/dummy', u'value': u'new_value', u'op': u'replace'},
+            {'path': '/dummy', 'value': 'new_value', 'op': 'replace'},
             request_body[0],
         )
 
@@ -1522,7 +1522,7 @@ class TestResource(base.TestCase):
 
 class TestResourceActions(base.TestCase):
     def setUp(self):
-        super(TestResourceActions, self).setUp()
+        super().setUp()
 
         self.service_name = "service"
         self.base_path = "base_path"
@@ -1598,7 +1598,7 @@ class TestResourceActions(base.TestCase):
             base_path=base_path,
             resource_request_key=resource_request_key,
             resource_response_key=resource_response_key,
-            **kwargs
+            **kwargs,
         )
 
         id_is_dirty = 'id' in sot._body._dirty
@@ -1611,7 +1611,7 @@ class TestResourceActions(base.TestCase):
             requires_id=requires_id,
             prepend_key=prepend_key,
             base_path=base_path,
-            **prepare_kwargs
+            **prepare_kwargs,
         )
         if requires_id:
             self.session.put.assert_called_once_with(
@@ -1974,7 +1974,7 @@ class TestResourceActions(base.TestCase):
             prepend_key=prepend_key,
             has_body=has_body,
             base_path=base_path,
-            **commit_args
+            **commit_args,
         )
 
         self.sot._prepare_request.assert_called_once_with(
@@ -1987,7 +1987,7 @@ class TestResourceActions(base.TestCase):
                 json=self.request.body,
                 headers=self.request.headers,
                 microversion=microversion,
-                **(expected_args or {})
+                **(expected_args or {}),
             )
         elif commit_method == 'POST':
             self.session.post.assert_called_once_with(
@@ -1995,7 +1995,7 @@ class TestResourceActions(base.TestCase):
                 json=self.request.body,
                 headers=self.request.headers,
                 microversion=microversion,
-                **(expected_args or {})
+                **(expected_args or {}),
             )
         elif commit_method == 'PUT':
             self.session.put.assert_called_once_with(
@@ -2003,7 +2003,7 @@ class TestResourceActions(base.TestCase):
                 json=self.request.body,
                 headers=self.request.headers,
                 microversion=microversion,
-                **(expected_args or {})
+                **(expected_args or {}),
             )
 
         self.assertEqual(self.sot.microversion, microversion)
@@ -2679,7 +2679,7 @@ class TestResourceActions(base.TestCase):
             )
         )
         self.session.get.assert_called_once_with(
-            "/{something}/blah".format(something=uri_param),
+            f"/{uri_param}/blah",
             headers={'Accept': 'application/json'},
             microversion=None,
             params={qp_name: qp},
@@ -2720,7 +2720,7 @@ class TestResourceActions(base.TestCase):
             )
         )
         self.session.get.assert_called_once_with(
-            "/{something}/blah".format(something=uri_param),
+            f"/{uri_param}/blah",
             headers={'Accept': 'application/json'},
             microversion=None,
             params={'a': '1'},
@@ -2756,7 +2756,7 @@ class TestResourceActions(base.TestCase):
                 self.session,
                 paginated=True,
                 something=uri_param,
-                **{qp_name: qp}
+                **{qp_name: qp},
             )
         )
 
@@ -2803,7 +2803,7 @@ class TestResourceActions(base.TestCase):
                 paginated=True,
                 query_param=qp2,
                 something=uri_param,
-                **{qp_name: qp}
+                **{qp_name: qp},
             )
         )
 
@@ -3155,7 +3155,7 @@ class TestResourceActions(base.TestCase):
                 self.session,
                 [{'name': 'resource1'}, {'name': 'resource2'}],
                 base_path=base_path,
-                **params
+                **params,
             )
         )
 
@@ -3289,7 +3289,7 @@ class TestResourceFind(base.TestCase):
         _query_mapping = resource.QueryParameters('name')
 
     def setUp(self):
-        super(TestResourceFind, self).setUp()
+        super().setUp()
         self.no_results = self.NoResults
         self.one_result = self.OneResult
         self.one_result_with_qparams = self.OneResultWithQueryParams

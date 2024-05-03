@@ -598,9 +598,7 @@ class Proxy(proxy.Proxy):
             self.log.debug("Image creation failed", exc_info=True)
             raise
         except Exception as e:
-            raise exceptions.SDKException(
-                "Image creation failed: {message}".format(message=str(e))
-            )
+            raise exceptions.SDKException(f"Image creation failed: {str(e)}")
 
     def _make_v2_image_params(self, meta, properties):
         ret: ty.Dict = {}
@@ -949,7 +947,7 @@ class Proxy(proxy.Proxy):
         for k, v in iter(kwargs.items()):
             if v and k in ['ramdisk', 'kernel']:
                 v = self._connection.get_image_id(v)
-                k = '{0}_id'.format(k)
+                k = f'{k}_id'
             properties[k] = v
 
         img_props = image.properties.copy()
@@ -1840,7 +1838,7 @@ class Proxy(proxy.Proxy):
         if task.status.lower() == status.lower():
             return task
 
-        name = "{res}:{id}".format(res=task.__class__.__name__, id=task.id)
+        name = f"{task.__class__.__name__}:{task.id}"
         msg = "Timeout waiting for {name} to transition to {status}".format(
             name=name, status=status
         )

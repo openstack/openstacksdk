@@ -30,7 +30,7 @@ TYPE = {
 
 class TestType(base.TestCase):
     def setUp(self):
-        super(TestType, self).setUp()
+        super().setUp()
         self.extra_specs_result = {"extra_specs": {"go": "cubs", "boo": "sox"}}
         self.resp = mock.Mock()
         self.resp.body = None

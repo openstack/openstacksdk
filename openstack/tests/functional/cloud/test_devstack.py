@@ -39,8 +39,5 @@ class TestDevstack(base.BaseFunctionalTest):
     ]
 
     def test_has_service(self):
-        if (
-            os.environ.get('OPENSTACKSDK_HAS_{env}'.format(env=self.env), '0')
-            == '1'
-        ):
+        if os.environ.get(f'OPENSTACKSDK_HAS_{self.env}', '0') == '1':
             self.assertTrue(self.user_cloud.has_service(self.service))

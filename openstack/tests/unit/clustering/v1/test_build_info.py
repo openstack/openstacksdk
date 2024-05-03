@@ -26,7 +26,7 @@ FAKE = {
 
 class TestBuildInfo(base.TestCase):
     def setUp(self):
-        super(TestBuildInfo, self).setUp()
+        super().setUp()
 
     def test_basic(self):
         sot = build_info.BuildInfo()

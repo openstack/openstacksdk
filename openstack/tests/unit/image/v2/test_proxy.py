@@ -47,7 +47,7 @@ class FakeResponse:
 
 class TestImageProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestImageProxy, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
         self.proxy._connection = self.cloud
 

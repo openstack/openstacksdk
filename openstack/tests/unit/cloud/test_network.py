@@ -50,7 +50,7 @@ class TestNeutronExtensions(base.TestCase):
             ]
         )
         extensions = self.cloud._neutron_extensions()
-        self.assertEqual(set(['dvr', 'allowed-address-pairs']), extensions)
+        self.assertEqual({'dvr', 'allowed-address-pairs'}, extensions)
 
         self.assert_calls()
 

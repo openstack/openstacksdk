@@ -77,7 +77,7 @@ class TestAllocation(base.TestCase):
 @mock.patch.object(allocation.Allocation, 'fetch', autospec=True)
 class TestWaitForAllocation(base.TestCase):
     def setUp(self):
-        super(TestWaitForAllocation, self).setUp()
+        super().setUp()
         self.session = mock.Mock(spec=adapter.Adapter)
         self.session.default_microversion = '1.52'
         self.session.log = mock.Mock()

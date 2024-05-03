@@ -27,7 +27,7 @@ class TestQoSMinimumBandwidthRule(base.BaseFunctionalTest):
     RULE_DIRECTION = "egress"
 
     def setUp(self):
-        super(TestQoSMinimumBandwidthRule, self).setUp()
+        super().setUp()
 
         if not self.operator_cloud:
             self.skipTest("Operator cloud is required for this test")
@@ -69,7 +69,7 @@ class TestQoSMinimumBandwidthRule(base.BaseFunctionalTest):
         )
         self.assertIsNone(rule)
         self.assertIsNone(qos_policy)
-        super(TestQoSMinimumBandwidthRule, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         sot = self.operator_cloud.network.find_qos_minimum_bandwidth_rule(

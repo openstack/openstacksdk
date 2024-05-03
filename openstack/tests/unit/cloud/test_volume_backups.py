@@ -15,7 +15,7 @@ from openstack.tests.unit import base
 
 class TestVolumeBackups(base.TestCase):
     def setUp(self):
-        super(TestVolumeBackups, self).setUp()
+        super().setUp()
         self.use_cinder()
 
     def _compare_backups(self, exp, real):

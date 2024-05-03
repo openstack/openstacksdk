@@ -29,7 +29,7 @@ EXAMPLE = {
 
 class TestService(base.TestCase):
     def setUp(self):
-        super(TestService, self).setUp()
+        super().setUp()
         self.resp = mock.Mock()
         self.resp.body = {'service': {}}
         self.resp.json = mock.Mock(return_value=self.resp.body)

@@ -17,7 +17,7 @@ class TestVolume(base.BaseFunctionalTest):
     TIMEOUT_SCALING_FACTOR = 1.5
 
     def setUp(self):
-        super(TestVolume, self).setUp()
+        super().setUp()
         self.skipTest('Volume functional tests temporarily disabled')
         if not self.user_cloud.has_service('volume'):
             self.skipTest('volume service not supported by cloud')

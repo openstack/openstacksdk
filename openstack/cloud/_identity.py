@@ -384,31 +384,25 @@ class IdentityCloudMixin:
         try:
             user = self.get_user(name_or_id, **kwargs)
             if not user:
-                self.log.debug(
-                    "User {0} not found for deleting".format(name_or_id)
-                )
+                self.log.debug(f"User {name_or_id} not found for deleting")
                 return False
 
             self.identity.delete_user(user)
             return True
 
         except exceptions.SDKException:
-            self.log.exception(
-                "Error in deleting user {user}".format(user=name_or_id)
-            )
+            self.log.exception(f"Error in deleting user {name_or_id}")
             return False
 
     def _get_user_and_group(self, user_name_or_id, group_name_or_id):
         user = self.get_user(user_name_or_id)
         if not user:
-            raise exceptions.SDKException(
-                'User {user} not found'.format(user=user_name_or_id)
-            )
+            raise exceptions.SDKException(f'User {user_name_or_id} not found')
 
         group = self.get_group(group_name_or_id)
         if not group:
             raise exceptions.SDKException(
-                'Group {user} not found'.format(user=group_name_or_id)
+                f'Group {group_name_or_id} not found'
             )
 
         return (user, group)
@@ -731,7 +725,7 @@ class IdentityCloudMixin:
             self.identity.delete_endpoint(id)
             return True
         except exceptions.SDKException:
-            self.log.exception("Failed to delete endpoint {id}".format(id=id))
+            self.log.exception(f"Failed to delete endpoint {id}")
             return False
 
     def create_domain(self, name, description=None, enabled=True):
@@ -778,7 +772,7 @@ class IdentityCloudMixin:
             dom = self.get_domain(None, name_or_id)
             if dom is None:
                 raise exceptions.SDKException(
-                    "Domain {0} not found for updating".format(name_or_id)
+                    f"Domain {name_or_id} not found for updating"
                 )
             domain_id = dom['id']
 
@@ -1006,7 +1000,7 @@ class IdentityCloudMixin:
         group = self.identity.find_group(name_or_id, **kwargs)
         if group is None:
             raise exceptions.SDKException(
-                "Group {0} not found for updating".format(name_or_id)
+                f"Group {name_or_id} not found for updating"
             )
 
         group_ref = {}
@@ -1039,9 +1033,7 @@ class IdentityCloudMixin:
             return True
 
         except exceptions.SDKException:
-            self.log.exception(
-                "Unable to delete group {name}".format(name=name_or_id)
-            )
+            self.log.exception(f"Unable to delete group {name_or_id}")
             return False
 
     def list_roles(self, **kwargs):
@@ -1235,9 +1227,7 @@ class IdentityCloudMixin:
             self.identity.delete_role(role)
             return True
         except exceptions.SDKExceptions:
-            self.log.exception(
-                "Unable to delete role {name}".format(name=name_or_id)
-            )
+            self.log.exception(f"Unable to delete role {name_or_id}")
             raise
 
     def _get_grant_revoke_params(
@@ -1261,7 +1251,7 @@ class IdentityCloudMixin:
 
         data['role'] = self.identity.find_role(name_or_id=role)
         if not data['role']:
-            raise exceptions.SDKException('Role {0} not found.'.format(role))
+            raise exceptions.SDKException(f'Role {role} not found.')
 
         if user:
             # use cloud.get_user to save us from bad searching by name

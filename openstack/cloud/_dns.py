@@ -104,9 +104,7 @@ class DnsCloudMixin:
         try:
             return self.dns.create_zone(**zone)
         except exceptions.SDKException:
-            raise exceptions.SDKException(
-                "Unable to create zone {name}".format(name=name)
-            )
+            raise exceptions.SDKException(f"Unable to create zone {name}")
 
     @_utils.valid_kwargs('email', 'description', 'ttl', 'masters')
     def update_zone(self, name_or_id, **kwargs):

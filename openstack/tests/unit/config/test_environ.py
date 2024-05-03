@@ -22,7 +22,7 @@ from openstack.tests.unit.config import base
 
 class TestEnviron(base.TestCase):
     def setUp(self):
-        super(TestEnviron, self).setUp()
+        super().setUp()
         self.useFixture(
             fixtures.EnvironmentVariable('OS_AUTH_URL', 'https://example.com')
         )

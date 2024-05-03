@@ -19,7 +19,7 @@ class TestDVRRouter(base.BaseFunctionalTest):
     ID = None
 
     def setUp(self):
-        super(TestDVRRouter, self).setUp()
+        super().setUp()
         if not self.operator_cloud:
             # Current policies forbid regular user use it
             self.skipTest("Operator cloud is required for this test")
@@ -41,7 +41,7 @@ class TestDVRRouter(base.BaseFunctionalTest):
             self.ID, ignore_missing=False
         )
         self.assertIsNone(sot)
-        super(TestDVRRouter, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         sot = self.operator_cloud.network.find_router(self.NAME)

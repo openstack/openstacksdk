@@ -419,9 +419,7 @@ class SecurityGroupCloudMixin:
         else:
             try:
                 exceptions.raise_from_response(
-                    self.compute.delete(
-                        '/os-security-group-rules/{id}'.format(id=rule_id)
-                    )
+                    self.compute.delete(f'/os-security-group-rules/{rule_id}')
                 )
             except exceptions.NotFoundException:
                 return False

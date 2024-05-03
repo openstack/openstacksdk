@@ -32,7 +32,7 @@ def hypervisors():
 
 class TestHost(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestHost, self).setUp()
+        super().setUp()
         self.require_service('instance-ha')
         self.NAME = self.getUniqueString()
 

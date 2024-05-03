@@ -22,12 +22,12 @@ FAKE_ID = "6685584b-1eac-4da6-b5c3-555430cf68ff"
 IMAGE_METADATA = {
     'container_format': 'bare',
     'min_ram': '64',
-    'disk_format': u'qcow2',
+    'disk_format': 'qcow2',
     'image_name': 'TestVM',
     'image_id': '625d4f2c-cf67-4af3-afb6-c7220f766947',
     'checksum': '64d7c1cd2b6f60c92c14662941cb7913',
     'min_disk': '0',
-    u'size': '13167616',
+    'size': '13167616',
 }
 
 VOLUME = {
@@ -139,7 +139,7 @@ class TestVolume(base.TestCase):
 
 class TestVolumeActions(TestVolume):
     def setUp(self):
-        super(TestVolumeActions, self).setUp()
+        super().setUp()
         self.resp = mock.Mock()
         self.resp.body = None
         self.resp.status_code = 200

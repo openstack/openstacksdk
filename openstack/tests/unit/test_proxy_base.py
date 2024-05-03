@@ -17,7 +17,7 @@ from openstack.tests.unit import base
 
 class TestProxyBase(base.TestCase):
     def setUp(self):
-        super(TestProxyBase, self).setUp()
+        super().setUp()
         self.session = mock.Mock()
 
     def _verify(

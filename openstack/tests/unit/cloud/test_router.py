@@ -32,17 +32,17 @@ class TestRouter(base.TestCase):
         'admin_state_up': True,
         'availability_zone_hints': [],
         'availability_zones': [],
-        'description': u'',
+        'description': '',
         'distributed': False,
         'external_gateway_info': None,
         'flavor_id': None,
         'ha': False,
         'id': router_id,
         'name': router_name,
-        'project_id': u'861808a93da0484ea1767967c4df8a23',
+        'project_id': '861808a93da0484ea1767967c4df8a23',
         'routes': [{"destination": "179.24.1.0/24", "nexthop": "172.24.3.99"}],
-        'status': u'ACTIVE',
-        'tenant_id': u'861808a93da0484ea1767967c4df8a23',
+        'status': 'ACTIVE',
+        'tenant_id': '861808a93da0484ea1767967c4df8a23',
     }
 
     mock_router_interface_rep = {

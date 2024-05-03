@@ -18,7 +18,7 @@ from openstack.tests.functional.baremetal import base
 
 class Base(base.BaseBaremetalTest):
     def setUp(self):
-        super(Base, self).setUp()
+        super().setUp()
         # NOTE(dtantsur): generate a unique resource class to prevent parallel
         # tests from clashing.
         self.resource_class = 'baremetal-%d' % random.randrange(1024)

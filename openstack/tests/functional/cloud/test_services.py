@@ -31,7 +31,7 @@ class TestServices(base.KeystoneBaseFunctionalTest):
     service_attributes = ['id', 'name', 'type', 'description']
 
     def setUp(self):
-        super(TestServices, self).setUp()
+        super().setUp()
         if not self.operator_cloud:
             self.skipTest("Operator cloud is required for this test")
 

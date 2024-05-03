@@ -16,8 +16,8 @@ from openstack.tests.unit import base
 
 FAKE = {
     "id": 1,
-    "uuid": u"a95e10ae-b3e3-4eab-a513-1afae6f17c51",
-    "name": u'afaas_example_1',
+    "uuid": "a95e10ae-b3e3-4eab-a513-1afae6f17c51",
+    "name": 'afaas_example_1',
     "groups": [
         {
             "resources:ACCELERATOR_FPGA": "1",

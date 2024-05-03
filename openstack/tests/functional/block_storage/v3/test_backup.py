@@ -17,7 +17,7 @@ from openstack.tests.functional.block_storage.v3 import base
 
 class TestBackup(base.BaseBlockStorageTest):
     def setUp(self):
-        super(TestBackup, self).setUp()
+        super().setUp()
 
         if not self.user_cloud.has_service('object-store'):
             self.skipTest('Object service is requred, but not available')
@@ -62,7 +62,7 @@ class TestBackup(base.BaseBlockStorageTest):
             self.VOLUME_ID, ignore_missing=False
         )
         self.assertIsNone(sot)
-        super(TestBackup, self).tearDown()
+        super().tearDown()
 
     def test_get(self):
         sot = self.user_cloud.block_storage.get_backup(self.BACKUP_ID)

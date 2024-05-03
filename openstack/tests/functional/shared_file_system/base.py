@@ -18,7 +18,7 @@ class BaseSharedFileSystemTest(base.BaseFunctionalTest):
     min_microversion = None
 
     def setUp(self):
-        super(BaseSharedFileSystemTest, self).setUp()
+        super().setUp()
         self.require_service(
             'shared-file-system', min_microversion=self.min_microversion
         )

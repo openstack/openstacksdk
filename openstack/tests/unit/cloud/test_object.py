@@ -28,7 +28,7 @@ from openstack import utils
 
 class BaseTestObject(base.TestCase):
     def setUp(self):
-        super(BaseTestObject, self).setUp()
+        super().setUp()
 
         self.container = self.getUniqueString()
         self.object = self.getUniqueString()
@@ -333,8 +333,8 @@ class TestObject(BaseTestObject):
             self.cloud.get_container_access(self.container)
 
     def test_list_containers(self):
-        endpoint = '{endpoint}/'.format(endpoint=self.endpoint)
-        containers = [{u'count': 0, u'bytes': 0, u'name': self.container}]
+        endpoint = f'{self.endpoint}/'
+        containers = [{'count': 0, 'bytes': 0, 'name': self.container}]
 
         self.register_uris(
             [
@@ -354,7 +354,7 @@ class TestObject(BaseTestObject):
             self._compare_containers(a, b)
 
     def test_list_containers_exception(self):
-        endpoint = '{endpoint}/'.format(endpoint=self.endpoint)
+        endpoint = f'{self.endpoint}/'
         self.register_uris(
             [
                 dict(
@@ -598,11 +598,11 @@ class TestObject(BaseTestObject):
 
         objects = [
             {
-                u'bytes': 20304400896,
-                u'last_modified': u'2016-12-15T13:34:13.650090',
-                u'hash': u'daaf9ed2106d09bba96cf193d866445e',
-                u'name': self.object,
-                u'content_type': u'application/octet-stream',
+                'bytes': 20304400896,
+                'last_modified': '2016-12-15T13:34:13.650090',
+                'hash': 'daaf9ed2106d09bba96cf193d866445e',
+                'name': self.object,
+                'content_type': 'application/octet-stream',
             }
         ]
 
@@ -623,11 +623,11 @@ class TestObject(BaseTestObject):
 
         objects = [
             {
-                u'bytes': 20304400896,
-                u'last_modified': u'2016-12-15T13:34:13.650090',
-                u'hash': u'daaf9ed2106d09bba96cf193d866445e',
-                u'name': self.object,
-                u'content_type': u'application/octet-stream',
+                'bytes': 20304400896,
+                'last_modified': '2016-12-15T13:34:13.650090',
+                'hash': 'daaf9ed2106d09bba96cf193d866445e',
+                'name': self.object,
+                'content_type': 'application/octet-stream',
             }
         ]
 
@@ -879,7 +879,7 @@ class TestObject(BaseTestObject):
 
 class TestObjectUploads(BaseTestObject):
     def setUp(self):
-        super(TestObjectUploads, self).setUp()
+        super().setUp()
 
         self.content = self.getUniqueString().encode('latin-1')
         self.object_file = tempfile.NamedTemporaryFile(delete=False)
@@ -1106,7 +1106,7 @@ class TestObjectUploads(BaseTestObject):
                         index=index,
                     ),
                     status_code=201,
-                    headers=dict(Etag='etag{index}'.format(index=index)),
+                    headers=dict(Etag=f'etag{index}'),
                 )
                 for index, offset in enumerate(
                     range(0, len(self.content), max_file_size)
@@ -1228,7 +1228,7 @@ class TestObjectUploads(BaseTestObject):
                         index=index,
                     ),
                     status_code=201,
-                    headers=dict(Etag='etag{index}'.format(index=index)),
+                    headers=dict(Etag=f'etag{index}'),
                 )
                 for index, offset in enumerate(
                     range(0, len(self.content), max_file_size)
@@ -1387,7 +1387,7 @@ class TestObjectUploads(BaseTestObject):
                         index=index,
                     ),
                     status_code=201,
-                    headers=dict(Etag='etag{index}'.format(index=index)),
+                    headers=dict(Etag=f'etag{index}'),
                 )
                 for index, offset in enumerate(
                     range(0, len(self.content), max_file_size)

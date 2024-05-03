@@ -25,7 +25,7 @@ class TestIdentityUsers(base.TestCase):
         base_url_append='v3',
         qs_elements=None,
     ):
-        return super(TestIdentityUsers, self).get_mock_url(
+        return super().get_mock_url(
             service_type,
             interface,
             resource,

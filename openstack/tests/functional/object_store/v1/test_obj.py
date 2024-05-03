@@ -17,7 +17,7 @@ class TestObject(base.BaseFunctionalTest):
     DATA = b'abc'
 
     def setUp(self):
-        super(TestObject, self).setUp()
+        super().setUp()
         self.require_service('object-store')
 
         self.FOLDER = self.getUniqueString()

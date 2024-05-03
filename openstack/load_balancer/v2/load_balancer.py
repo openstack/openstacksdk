@@ -146,6 +146,4 @@ class LoadBalancerFailover(resource.Resource):
     # The default _update code path also has no
     # way to pass has_body into this function, so overriding the method here.
     def commit(self, session, base_path=None):
-        return super(LoadBalancerFailover, self).commit(
-            session, base_path=base_path, has_body=False
-        )
+        return super().commit(session, base_path=base_path, has_body=False)

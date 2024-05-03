@@ -76,7 +76,7 @@ class TestClaim(base.TestCase):
         sot = claim.Claim(**FAKE1)
         res = sot.create(sess)
 
-        url = "/queues/%(queue)s/claims" % {"queue": FAKE.pop("queue_name")}
+        url = "/queues/{queue}/claims".format(queue=FAKE.pop("queue_name"))
         headers = {
             "Client-ID": "NEW_CLIENT_ID",
             "X-PROJECT-ID": "NEW_PROJECT_ID",
@@ -99,7 +99,7 @@ class TestClaim(base.TestCase):
         sot._translate_response = mock.Mock()
         res = sot.create(sess)
 
-        url = "/queues/%(queue)s/claims" % {"queue": FAKE.pop("queue_name")}
+        url = "/queues/{queue}/claims".format(queue=FAKE.pop("queue_name"))
         headers = {
             "Client-ID": "NEW_CLIENT_ID",
             "X-PROJECT-ID": "NEW_PROJECT_ID",
@@ -120,7 +120,7 @@ class TestClaim(base.TestCase):
         sot._translate_response = mock.Mock()
         res = sot.create(sess)
 
-        url = "/queues/%(queue)s/claims" % {"queue": FAKE.pop("queue_name")}
+        url = "/queues/{queue}/claims".format(queue=FAKE.pop("queue_name"))
         headers = {
             "Client-ID": FAKE.pop("client_id"),
             "X-PROJECT-ID": FAKE.pop("project_id"),
@@ -140,10 +140,10 @@ class TestClaim(base.TestCase):
         sot._translate_response = mock.Mock()
         res = sot.fetch(sess)
 
-        url = "queues/%(queue)s/claims/%(claim)s" % {
-            "queue": FAKE1["queue_name"],
-            "claim": FAKE1["id"],
-        }
+        url = "queues/{queue}/claims/{claim}".format(
+            queue=FAKE1["queue_name"],
+            claim=FAKE1["id"],
+        )
         headers = {
             "Client-ID": "NEW_CLIENT_ID",
             "X-PROJECT-ID": "NEW_PROJECT_ID",
@@ -162,10 +162,10 @@ class TestClaim(base.TestCase):
         sot._translate_response = mock.Mock()
         res = sot.fetch(sess)
 
-        url = "queues/%(queue)s/claims/%(claim)s" % {
-            "queue": FAKE2["queue_name"],
-            "claim": FAKE2["id"],
-        }
+        url = "queues/{queue}/claims/{claim}".format(
+            queue=FAKE2["queue_name"],
+            claim=FAKE2["id"],
+        )
         headers = {
             "Client-ID": "OLD_CLIENT_ID",
             "X-PROJECT-ID": "OLD_PROJECT_ID",
@@ -186,10 +186,10 @@ class TestClaim(base.TestCase):
         sot = claim.Claim(**FAKE1)
         res = sot.commit(sess)
 
-        url = "queues/%(queue)s/claims/%(claim)s" % {
-            "queue": FAKE.pop("queue_name"),
-            "claim": FAKE["id"],
-        }
+        url = "queues/{queue}/claims/{claim}".format(
+            queue=FAKE.pop("queue_name"),
+            claim=FAKE["id"],
+        )
         headers = {
             "Client-ID": "NEW_CLIENT_ID",
             "X-PROJECT-ID": "NEW_PROJECT_ID",
@@ -207,10 +207,10 @@ class TestClaim(base.TestCase):
         sot = claim.Claim(**FAKE2)
         res = sot.commit(sess)
 
-        url = "queues/%(queue)s/claims/%(claim)s" % {
-            "queue": FAKE.pop("queue_name"),
-            "claim": FAKE["id"],
-        }
+        url = "queues/{queue}/claims/{claim}".format(
+            queue=FAKE.pop("queue_name"),
+            claim=FAKE["id"],
+        )
         headers = {
             "Client-ID": FAKE.pop("client_id"),
             "X-PROJECT-ID": FAKE.pop("project_id"),
@@ -230,10 +230,10 @@ class TestClaim(base.TestCase):
         sot._translate_response = mock.Mock()
         sot.delete(sess)
 
-        url = "queues/%(queue)s/claims/%(claim)s" % {
-            "queue": FAKE1["queue_name"],
-            "claim": FAKE1["id"],
-        }
+        url = "queues/{queue}/claims/{claim}".format(
+            queue=FAKE1["queue_name"],
+            claim=FAKE1["id"],
+        )
         headers = {
             "Client-ID": "NEW_CLIENT_ID",
             "X-PROJECT-ID": "NEW_PROJECT_ID",
@@ -251,10 +251,10 @@ class TestClaim(base.TestCase):
         sot._translate_response = mock.Mock()
         sot.delete(sess)
 
-        url = "queues/%(queue)s/claims/%(claim)s" % {
-            "queue": FAKE2["queue_name"],
-            "claim": FAKE2["id"],
-        }
+        url = "queues/{queue}/claims/{claim}".format(
+            queue=FAKE2["queue_name"],
+            claim=FAKE2["id"],
+        )
         headers = {
             "Client-ID": "OLD_CLIENT_ID",
             "X-PROJECT-ID": "OLD_PROJECT_ID",

@@ -16,7 +16,7 @@ from openstack.tests.unit import base
 
 class TestAggregate(base.TestCase):
     def setUp(self):
-        super(TestAggregate, self).setUp()
+        super().setUp()
         self.aggregate_name = self.getUniqueString('aggregate')
         self.fake_aggregate = fakes.make_fake_aggregate(1, self.aggregate_name)
         self.use_compute_discovery()

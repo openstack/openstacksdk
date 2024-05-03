@@ -15,7 +15,7 @@ from openstack.tests.functional import base
 
 class TestService(base.BaseFunctionalTest):
     def setUp(self):
-        super(TestService, self).setUp()
+        super().setUp()
         self._set_operator_cloud(interface='admin')
 
     def test_list(self):

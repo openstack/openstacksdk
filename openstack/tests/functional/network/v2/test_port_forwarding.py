@@ -39,7 +39,7 @@ class TestPortForwarding(base.BaseFunctionalTest):
     DESCRIPTION = "description"
 
     def setUp(self):
-        super(TestPortForwarding, self).setUp()
+        super().setUp()
 
         if not self.user_cloud._has_neutron_extension("external-net"):
             self.skipTest(
@@ -147,7 +147,7 @@ class TestPortForwarding(base.BaseFunctionalTest):
             self.INT_NET_ID, ignore_missing=False
         )
         self.assertIsNone(sot)
-        super(TestPortForwarding, self).tearDown()
+        super().tearDown()
 
     def _create_network(self, name, **args):
         self.name = name

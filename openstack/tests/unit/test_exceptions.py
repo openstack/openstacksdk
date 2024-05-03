@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -32,7 +30,7 @@ class Test_Exception(base.TestCase):
 
 class Test_HttpException(base.TestCase):
     def setUp(self):
-        super(Test_HttpException, self).setUp()
+        super().setUp()
         self.message = "mayday"
 
     def _do_raise(self, *args, **kwargs):
@@ -72,7 +70,7 @@ class Test_HttpException(base.TestCase):
 
 class TestRaiseFromResponse(base.TestCase):
     def setUp(self):
-        super(TestRaiseFromResponse, self).setUp()
+        super().setUp()
         self.message = "Where is my kitty?"
 
     def _do_raise(self, *args, **kwargs):

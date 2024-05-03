@@ -27,7 +27,7 @@ class TestNetwork(base.BaseFunctionalTest):
     """
 
     def setUp(self):
-        super(TestNetwork, self).setUp()
+        super().setUp()
         self.conn = connect.create_connection_from_config()
 
     def test_network(self):

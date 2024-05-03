@@ -19,7 +19,7 @@ class TestBareMetalVolumetarget(base.BaseBaremetalTest):
     min_microversion = '1.32'
 
     def setUp(self):
-        super(TestBareMetalVolumetarget, self).setUp()
+        super().setUp()
         self.node = self.create_node(provision_state='enroll')
 
     def test_volume_target_create_get_delete(self):

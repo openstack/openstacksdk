@@ -26,7 +26,7 @@ from openstack.tests.unit import base
 
 class TestCreateVolumeSnapshot(base.TestCase):
     def setUp(self):
-        super(TestCreateVolumeSnapshot, self).setUp()
+        super().setUp()
         self.use_cinder()
 
     def _compare_snapshots(self, exp, real):

@@ -39,7 +39,7 @@ USER_ID = 'user-id-' + uuid.uuid4().hex
 
 class TestIdentityProxyBase(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestIdentityProxyBase, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
 

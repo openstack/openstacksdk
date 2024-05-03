@@ -87,7 +87,7 @@ class TestMessage(base.TestCase):
         sot = message.Message(**FAKE1)
         res = sot.post(sess, messages)
 
-        url = '/queues/%(queue)s/messages' % {'queue': FAKE1['queue_name']}
+        url = '/queues/{queue}/messages'.format(queue=FAKE1['queue_name'])
         headers = {
             'Client-ID': 'NEW_CLIENT_ID',
             'X-PROJECT-ID': 'NEW_PROJECT_ID',
@@ -116,7 +116,7 @@ class TestMessage(base.TestCase):
         sot = message.Message(**FAKE2)
         res = sot.post(sess, messages)
 
-        url = '/queues/%(queue)s/messages' % {'queue': FAKE2['queue_name']}
+        url = '/queues/{queue}/messages'.format(queue=FAKE2['queue_name'])
         headers = {
             'Client-ID': 'OLD_CLIENT_ID',
             'X-PROJECT-ID': 'OLD_PROJECT_ID',
@@ -139,10 +139,10 @@ class TestMessage(base.TestCase):
         sot._translate_response = mock.Mock()
         res = sot.fetch(sess)
 
-        url = 'queues/%(queue)s/messages/%(message)s' % {
-            'queue': FAKE1['queue_name'],
-            'message': FAKE1['id'],
-        }
+        url = 'queues/{queue}/messages/{message}'.format(
+            queue=FAKE1['queue_name'],
+            message=FAKE1['id'],
+        )
         headers = {
             'Client-ID': 'NEW_CLIENT_ID',
             'X-PROJECT-ID': 'NEW_PROJECT_ID',
@@ -161,10 +161,10 @@ class TestMessage(base.TestCase):
         sot._translate_response = mock.Mock()
         res = sot.fetch(sess)
 
-        url = 'queues/%(queue)s/messages/%(message)s' % {
-            'queue': FAKE2['queue_name'],
-            'message': FAKE2['id'],
-        }
+        url = 'queues/{queue}/messages/{message}'.format(
+            queue=FAKE2['queue_name'],
+            message=FAKE2['id'],
+        )
         sot = message.Message(**FAKE2)
         sot._translate_response = mock.Mock()
         res = sot.fetch(sess)
@@ -189,10 +189,10 @@ class TestMessage(base.TestCase):
         sot._translate_response = mock.Mock()
         sot.delete(sess)
 
-        url = 'queues/%(queue)s/messages/%(message)s' % {
-            'queue': FAKE1['queue_name'],
-            'message': FAKE1['id'],
-        }
+        url = 'queues/{queue}/messages/{message}'.format(
+            queue=FAKE1['queue_name'],
+            message=FAKE1['id'],
+        )
         headers = {
             'Client-ID': 'NEW_CLIENT_ID',
             'X-PROJECT-ID': 'NEW_PROJECT_ID',
@@ -214,11 +214,11 @@ class TestMessage(base.TestCase):
         sot._translate_response = mock.Mock()
         sot.delete(sess)
 
-        url = 'queues/%(queue)s/messages/%(message)s?claim_id=%(cid)s' % {
-            'queue': FAKE1['queue_name'],
-            'message': FAKE1['id'],
-            'cid': 'CLAIM_ID',
-        }
+        url = 'queues/{queue}/messages/{message}?claim_id={cid}'.format(
+            queue=FAKE1['queue_name'],
+            message=FAKE1['id'],
+            cid='CLAIM_ID',
+        )
         headers = {
             'Client-ID': 'NEW_CLIENT_ID',
             'X-PROJECT-ID': 'NEW_PROJECT_ID',
@@ -237,10 +237,10 @@ class TestMessage(base.TestCase):
         sot._translate_response = mock.Mock()
         sot.delete(sess)
 
-        url = 'queues/%(queue)s/messages/%(message)s' % {
-            'queue': FAKE2['queue_name'],
-            'message': FAKE2['id'],
-        }
+        url = 'queues/{queue}/messages/{message}'.format(
+            queue=FAKE2['queue_name'],
+            message=FAKE2['id'],
+        )
         headers = {
             'Client-ID': 'OLD_CLIENT_ID',
             'X-PROJECT-ID': 'OLD_PROJECT_ID',

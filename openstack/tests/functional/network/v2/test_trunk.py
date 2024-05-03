@@ -21,7 +21,7 @@ class TestTrunk(base.BaseFunctionalTest):
     TIMEOUT_SCALING_FACTOR = 2.0
 
     def setUp(self):
-        super(TestTrunk, self).setUp()
+        super().setUp()
 
         # Skip the tests if trunk extension is not enabled.
         if not self.user_cloud.network.find_extension("trunk"):
@@ -51,7 +51,7 @@ class TestTrunk(base.BaseFunctionalTest):
         self.user_cloud.network.delete_network(
             self.NET_ID, ignore_missing=False
         )
-        super(TestTrunk, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         sot = self.user_cloud.network.find_trunk(self.TRUNK_NAME)

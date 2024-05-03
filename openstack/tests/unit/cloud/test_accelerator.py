@@ -82,7 +82,7 @@ NEW_ARQ_DICT = copy.copy(ARQ_DICT)
 
 class TestAccelerator(base.TestCase):
     def setUp(self):
-        super(TestAccelerator, self).setUp()
+        super().setUp()
         self.use_cyborg()
 
     def test_list_deployables(self):

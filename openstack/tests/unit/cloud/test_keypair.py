@@ -20,7 +20,7 @@ from openstack.tests.unit import base
 
 class TestKeypair(base.TestCase):
     def setUp(self):
-        super(TestKeypair, self).setUp()
+        super().setUp()
         self.keyname = self.getUniqueString('key')
         self.key = fakes.make_fake_keypair(self.keyname)
         self.useFixture(

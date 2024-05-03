@@ -58,7 +58,7 @@ class Proxy(proxy.Proxy):
             # (/stacks/name/id/everything_else), so if on third position we
             # have not a known part - discard it, not to brake further logic
             del url_parts[2]
-        return super(Proxy, self)._extract_name_consume_url_parts(url_parts)
+        return super()._extract_name_consume_url_parts(url_parts)
 
     def read_env_and_templates(
         self,

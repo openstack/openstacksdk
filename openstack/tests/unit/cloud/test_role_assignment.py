@@ -48,7 +48,7 @@ class TestRoleAssignment(base.TestCase):
         ]
 
     def setUp(self, cloud_config_fixture='clouds.yaml'):
-        super(TestRoleAssignment, self).setUp(cloud_config_fixture)
+        super().setUp(cloud_config_fixture)
         self.role_data = self._get_role_data()
         self.domain_data = self._get_domain_data()
         self.user_data = self._get_user_data(
@@ -120,7 +120,7 @@ class TestRoleAssignment(base.TestCase):
         base_url_append='v3',
         qs_elements=None,
     ):
-        return super(TestRoleAssignment, self).get_mock_url(
+        return super().get_mock_url(
             service_type,
             interface,
             resource,
@@ -1744,7 +1744,7 @@ class TestRoleAssignment(base.TestCase):
 
         with testtools.ExpectedException(
             exceptions.SDKException,
-            'Role {0} not found'.format(self.role_data.role_name),
+            f'Role {self.role_data.role_name} not found',
         ):
             self.cloud.grant_role(
                 self.role_data.role_name,
@@ -1784,7 +1784,7 @@ class TestRoleAssignment(base.TestCase):
 
         with testtools.ExpectedException(
             exceptions.SDKException,
-            'Role {0} not found'.format(self.role_data.role_name),
+            f'Role {self.role_data.role_name} not found',
         ):
             self.cloud.revoke_role(
                 self.role_data.role_name,

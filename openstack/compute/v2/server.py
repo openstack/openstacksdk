@@ -268,7 +268,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         base_path=None,
         **kwargs,
     ):
-        request = super(Server, self)._prepare_request(
+        request = super()._prepare_request(
             requires_id=requires_id,
             prepend_key=prepend_key,
             base_path=base_path,

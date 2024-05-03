@@ -31,7 +31,7 @@ class TestSubnetFromSubnetPool(base.BaseFunctionalTest):
     SUB_POOL_ID = None
 
     def setUp(self):
-        super(TestSubnetFromSubnetPool, self).setUp()
+        super().setUp()
         self.NET_NAME = self.getUniqueString()
         self.SUB_NAME = self.getUniqueString()
         self.SUB_POOL_NAME = self.getUniqueString()
@@ -70,7 +70,7 @@ class TestSubnetFromSubnetPool(base.BaseFunctionalTest):
         self.assertIsNone(sot)
         sot = self.user_cloud.network.delete_subnet_pool(self.SUB_POOL_ID)
         self.assertIsNone(sot)
-        super(TestSubnetFromSubnetPool, self).tearDown()
+        super().tearDown()
 
     def test_get(self):
         sot = self.user_cloud.network.get_subnet(self.SUB_ID)

@@ -24,7 +24,7 @@ EXAMPLE = {'protocol': 'rdp', 'type': 'rdp', 'url': 'fake'}
 
 class TestServerRemoteConsole(base.TestCase):
     def setUp(self):
-        super(TestServerRemoteConsole, self).setUp()
+        super().setUp()
         self.sess = mock.Mock(spec=adapter.Adapter)
         self.sess.default_microversion = '2.9'
         self.resp = mock.Mock()

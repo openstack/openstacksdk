@@ -719,7 +719,7 @@ class TestExcludedFormattedConfigValue(base.TestCase):
     # (e.g. 'foo{bar}') which raises a KeyError.
 
     def setUp(self):
-        super(TestExcludedFormattedConfigValue, self).setUp()
+        super().setUp()
 
         self.args = dict(
             auth_url='http://example.com/v2',
@@ -772,7 +772,7 @@ class TestExcludedFormattedConfigValue(base.TestCase):
 
 class TestConfigArgparse(base.TestCase):
     def setUp(self):
-        super(TestConfigArgparse, self).setUp()
+        super().setUp()
 
         self.args = dict(
             auth_url='http://example.com/v2',
@@ -1360,7 +1360,7 @@ class TestConfigArgparse(base.TestCase):
 
 class TestConfigPrompt(base.TestCase):
     def setUp(self):
-        super(TestConfigPrompt, self).setUp()
+        super().setUp()
 
         self.args = dict(
             auth_url='http://example.com/v2',
@@ -1391,7 +1391,7 @@ class TestConfigPrompt(base.TestCase):
 
 class TestConfigDefault(base.TestCase):
     def setUp(self):
-        super(TestConfigDefault, self).setUp()
+        super().setUp()
 
         # Reset defaults after each test so that other tests are
         # not affected by any changes.

@@ -170,7 +170,7 @@ class ImageCloudMixin:
                 return image
             elif image['status'] == 'error':
                 raise exceptions.SDKException(
-                    'Image {image} hit error state'.format(image=image_id)
+                    f'Image {image_id} hit error state'
                 )
 
     def delete_image(

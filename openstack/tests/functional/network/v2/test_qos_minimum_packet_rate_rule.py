@@ -28,7 +28,7 @@ class TestQoSMinimumPacketRateRule(base.BaseFunctionalTest):
     RULE_DIRECTION_NEW = "ingress"
 
     def setUp(self):
-        super(TestQoSMinimumPacketRateRule, self).setUp()
+        super().setUp()
 
         if not self.operator_cloud:
             self.skipTest("Operator cloud is required for this test")
@@ -68,7 +68,7 @@ class TestQoSMinimumPacketRateRule(base.BaseFunctionalTest):
         )
         self.assertIsNone(rule)
         self.assertIsNone(qos_policy)
-        super(TestQoSMinimumPacketRateRule, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         sot = self.operator_cloud.network.find_qos_minimum_packet_rate_rule(

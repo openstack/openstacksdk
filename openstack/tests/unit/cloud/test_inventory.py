@@ -20,7 +20,7 @@ from openstack.tests.unit import base
 
 class TestInventory(base.TestCase):
     def setUp(self):
-        super(TestInventory, self).setUp()
+        super().setUp()
 
     @mock.patch("openstack.config.loader.OpenStackConfig")
     @mock.patch("openstack.connection.Connection")

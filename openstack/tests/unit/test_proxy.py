@@ -60,7 +60,7 @@ class HeadableResource(resource.Resource):
 
 class TestProxyPrivate(base.TestCase):
     def setUp(self):
-        super(TestProxyPrivate, self).setUp()
+        super().setUp()
 
         def method(self, expected_type, value):
             return value
@@ -204,7 +204,7 @@ class TestProxyPrivate(base.TestCase):
 
 class TestProxyDelete(base.TestCase):
     def setUp(self):
-        super(TestProxyDelete, self).setUp()
+        super().setUp()
 
         self.session = mock.Mock()
         self.session._sdk_connection = self.cloud
@@ -274,7 +274,7 @@ class TestProxyDelete(base.TestCase):
 
 class TestProxyUpdate(base.TestCase):
     def setUp(self):
-        super(TestProxyUpdate, self).setUp()
+        super().setUp()
 
         self.session = mock.Mock()
 
@@ -317,7 +317,7 @@ class TestProxyUpdate(base.TestCase):
 
 class TestProxyCreate(base.TestCase):
     def setUp(self):
-        super(TestProxyCreate, self).setUp()
+        super().setUp()
 
         self.session = mock.Mock()
         self.session._sdk_connection = self.cloud
@@ -357,7 +357,7 @@ class TestProxyCreate(base.TestCase):
 
 class TestProxyBulkCreate(base.TestCase):
     def setUp(self):
-        super(TestProxyBulkCreate, self).setUp()
+        super().setUp()
 
         class Res(resource.Resource):
             pass
@@ -391,7 +391,7 @@ class TestProxyBulkCreate(base.TestCase):
 
 class TestProxyGet(base.TestCase):
     def setUp(self):
-        super(TestProxyGet, self).setUp()
+        super().setUp()
 
         self.session = mock.Mock()
         self.session._sdk_connection = self.cloud
@@ -482,7 +482,7 @@ class TestProxyGet(base.TestCase):
 
 class TestProxyList(base.TestCase):
     def setUp(self):
-        super(TestProxyList, self).setUp()
+        super().setUp()
 
         self.session = mock.Mock()
 
@@ -545,7 +545,7 @@ class TestProxyList(base.TestCase):
 
 class TestProxyHead(base.TestCase):
     def setUp(self):
-        super(TestProxyHead, self).setUp()
+        super().setUp()
 
         self.session = mock.Mock()
         self.session._sdk_connection = self.cloud
@@ -619,9 +619,7 @@ class TestProxyCache(base.TestCase):
         foo = resource.Body('foo')
 
     def setUp(self):
-        super(TestProxyCache, self).setUp(
-            cloud_config_fixture='clouds_cache.yaml'
-        )
+        super().setUp(cloud_config_fixture='clouds_cache.yaml')
 
         self.session = mock.Mock(spec=session.Session)
         self.session._sdk_connection = self.cloud
@@ -714,7 +712,7 @@ class TestProxyCache(base.TestCase):
 
 class TestProxyCleanup(base.TestCase):
     def setUp(self):
-        super(TestProxyCleanup, self).setUp()
+        super().setUp()
 
         self.session = mock.Mock()
         self.session._sdk_connection = self.cloud

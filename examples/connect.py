@@ -60,7 +60,7 @@ SSH_DIR = _get_resource_value(
 )
 PRIVATE_KEYPAIR_FILE = _get_resource_value(
     'private_keypair_file',
-    '{ssh_dir}/id_rsa.{key}'.format(ssh_dir=SSH_DIR, key=KEYPAIR_NAME),
+    f'{SSH_DIR}/id_rsa.{KEYPAIR_NAME}',
 )
 
 EXAMPLE_IMAGE_NAME = 'openstacksdk-example-public-image'

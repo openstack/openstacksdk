@@ -173,7 +173,7 @@ class Driver(resource.Resource):
         :returns: response of method call.
         """
         if verb.upper() not in ['GET', 'PUT', 'POST', 'DELETE']:
-            raise ValueError('Invalid verb: {}'.format(verb))
+            raise ValueError(f'Invalid verb: {verb}')
 
         session = self._get_session(session)
         request = self._prepare_request()

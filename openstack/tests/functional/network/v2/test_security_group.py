@@ -19,7 +19,7 @@ class TestSecurityGroup(base.BaseFunctionalTest):
     ID = None
 
     def setUp(self):
-        super(TestSecurityGroup, self).setUp()
+        super().setUp()
         self.NAME = self.getUniqueString()
         sot = self.user_cloud.network.create_security_group(name=self.NAME)
         assert isinstance(sot, security_group.SecurityGroup)
@@ -31,7 +31,7 @@ class TestSecurityGroup(base.BaseFunctionalTest):
             self.ID, ignore_missing=False
         )
         self.assertIsNone(sot)
-        super(TestSecurityGroup, self).tearDown()
+        super().tearDown()
 
     def test_find(self):
         sot = self.user_cloud.network.find_security_group(self.NAME)

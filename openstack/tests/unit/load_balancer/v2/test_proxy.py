@@ -41,7 +41,7 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
     AMPHORA_ID = uuid.uuid4()
 
     def setUp(self):
-        super(TestLoadBalancerProxy, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
     def test_load_balancers(self):

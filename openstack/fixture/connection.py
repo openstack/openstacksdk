@@ -46,7 +46,7 @@ class ConnectionFixture(fixtures.Fixture):
     }
 
     def __init__(self, suburl=False, project_id=None, *args, **kwargs):
-        super(ConnectionFixture, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._endpoint_templates = _ENDPOINT_TEMPLATES
         if suburl:
             self.use_suburl()
