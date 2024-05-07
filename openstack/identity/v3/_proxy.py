@@ -1232,152 +1232,6 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_role_assignment.RoleAssignment, **query)
 
-    # ========== Registered limits ==========
-
-    def registered_limits(self, **query):
-        """Retrieve a generator of registered_limits
-
-        :param kwargs query: Optional query parameters to be sent to limit
-            the registered_limits being returned.
-
-        :returns: A generator of registered_limits instances.
-        :rtype: :class:
-            `~openstack.identity.v3.registered_limit.RegisteredLimit`
-        """
-        return self._list(_registered_limit.RegisteredLimit, **query)
-
-    def get_registered_limit(self, registered_limit):
-        """Get a single registered_limit
-
-        :param registered_limit: The value can be the ID of a registered_limit
-            or a :class:
-            `~openstack.identity.v3.registered_limit.RegisteredLimit` instance.
-
-        :returns: One :class:
-            `~openstack.identity.v3.registered_limit.RegisteredLimit`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
-            when no resource can be found.
-        """
-        return self._get(_registered_limit.RegisteredLimit, registered_limit)
-
-    def create_registered_limit(self, **attrs):
-        """Create a new registered_limit from attributes
-
-        :param dict attrs: Keyword arguments which will be used to create a
-            :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`,
-            comprised of the properties on the RegisteredLimit class.
-
-        :returns: The results of registered_limit creation.
-        :rtype: :class:
-            `~openstack.identity.v3.registered_limit.RegisteredLimit`
-        """
-        return self._create(_registered_limit.RegisteredLimit, **attrs)
-
-    def update_registered_limit(self, registered_limit, **attrs):
-        """Update a registered_limit
-
-        :param registered_limit: Either the ID of a registered_limit. or a
-            :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
-            instance.
-        :param dict kwargs: The attributes to update on the registered_limit
-            represented by ``value``.
-
-        :returns: The updated registered_limit.
-        :rtype: :class:
-            `~openstack.identity.v3.registered_limit.RegisteredLimit`
-        """
-        return self._update(
-            _registered_limit.RegisteredLimit, registered_limit, **attrs
-        )
-
-    def delete_registered_limit(self, registered_limit, ignore_missing=True):
-        """Delete a registered_limit
-
-        :param registered_limit: The value can be either the ID of a
-            registered_limit or a
-            :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
-            instance.
-        :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
-            the registered_limit does not exist. When set to ``True``, no
-            exception will be thrown when attempting to delete a nonexistent
-            registered_limit.
-
-        :returns: ``None``
-        """
-        self._delete(
-            _registered_limit.RegisteredLimit,
-            registered_limit,
-            ignore_missing=ignore_missing,
-        )
-
-    # ========== Limits ==========
-
-    def limits(self, **query):
-        """Retrieve a generator of limits
-
-        :param kwargs query: Optional query parameters to be sent to limit
-            the limits being returned.
-
-        :returns: A generator of limits instances.
-        :rtype: :class:`~openstack.identity.v3.limit.Limit`
-        """
-        return self._list(_limit.Limit, **query)
-
-    def get_limit(self, limit):
-        """Get a single limit
-
-        :param limit: The value can be the ID of a limit
-            or a :class:`~openstack.identity.v3.limit.Limit` instance.
-
-        :returns: One :class:
-            `~openstack.identity.v3.limit.Limit`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
-            resource can be found.
-        """
-        return self._get(_limit.Limit, limit)
-
-    def create_limit(self, **attrs):
-        """Create a new limit from attributes
-
-        :param dict attrs: Keyword arguments which will be used to create
-            a :class:`~openstack.identity.v3.limit.Limit`, comprised of the
-            properties on the Limit class.
-
-        :returns: The results of limit creation.
-        :rtype: :class:`~openstack.identity.v3.limit.Limit`
-        """
-        return self._create(_limit.Limit, **attrs)
-
-    def update_limit(self, limit, **attrs):
-        """Update a limit
-
-        :param limit: Either the ID of a limit. or a
-            :class:`~openstack.identity.v3.limit.Limit` instance.
-        :param dict kwargs: The attributes to update on the limit represented
-            by ``value``.
-
-        :returns: The updated limit.
-        :rtype: :class:`~openstack.identity.v3.limit.Limit`
-        """
-        return self._update(_limit.Limit, limit, **attrs)
-
-    def delete_limit(self, limit, ignore_missing=True):
-        """Delete a limit
-
-        :param limit: The value can be either the ID of a limit or a
-            :class:`~openstack.identity.v3.limit.Limit` instance.
-        :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
-            the limit does not exist. When set to ``True``, no exception will
-            be thrown when attempting to delete a nonexistent limit.
-
-        :returns: ``None``
-        """
-        self._delete(_limit.Limit, limit, ignore_missing=ignore_missing)
-
-    # ========== Roles ==========
-
     def assign_domain_role_to_user(self, domain, user, role):
         """Assign role to user on a domain
 
@@ -1666,6 +1520,147 @@ class Proxy(proxy.Proxy):
         system = self._get_resource(_system.System, system)
         return system.validate_group_has_role(self, group, role)
 
+    # ========== Registered limits ==========
+
+    def registered_limits(self, **query):
+        """Retrieve a generator of registered_limits
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the registered_limits being returned.
+
+        :returns: A generator of registered_limits instances.
+        :rtype: :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
+        """
+        return self._list(_registered_limit.RegisteredLimit, **query)
+
+    def get_registered_limit(self, registered_limit):
+        """Get a single registered_limit
+
+        :param registered_limit: The value can be the ID of a registered_limit
+            or a
+            :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
+            instance.
+
+        :returns: One :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_registered_limit.RegisteredLimit, registered_limit)
+
+    def create_registered_limit(self, **attrs):
+        """Create a new registered_limit from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`,
+            comprised of the properties on the RegisteredLimit class.
+
+        :returns: The results of registered_limit creation.
+        :rtype: :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
+        """
+        return self._create(_registered_limit.RegisteredLimit, **attrs)
+
+    def update_registered_limit(self, registered_limit, **attrs):
+        """Update a registered_limit
+
+        :param registered_limit: Either the ID of a registered_limit. or a
+            :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
+            instance.
+        :param dict kwargs: The attributes to update on the registered_limit
+            represented by ``value``.
+
+        :returns: The updated registered_limit.
+        :rtype:
+            :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
+        """
+        return self._update(
+            _registered_limit.RegisteredLimit, registered_limit, **attrs
+        )
+
+    def delete_registered_limit(self, registered_limit, ignore_missing=True):
+        """Delete a registered_limit
+
+        :param registered_limit: The value can be either the ID of a
+            registered_limit or a
+            :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
+            instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the registered_limit does not exist. When set to ``True``, no
+            exception will be thrown when attempting to delete a nonexistent
+            registered_limit.
+
+        :returns: ``None``
+        """
+        self._delete(
+            _registered_limit.RegisteredLimit,
+            registered_limit,
+            ignore_missing=ignore_missing,
+        )
+
+    # ========== Limits ==========
+
+    def limits(self, **query):
+        """Retrieve a generator of limits
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the limits being returned.
+
+        :returns: A generator of limits instances.
+        :rtype: :class:`~openstack.identity.v3.limit.Limit`
+        """
+        return self._list(_limit.Limit, **query)
+
+    def get_limit(self, limit):
+        """Get a single limit
+
+        :param limit: The value can be the ID of a limit
+            or a :class:`~openstack.identity.v3.limit.Limit` instance.
+
+        :returns: One :class:`~openstack.identity.v3.limit.Limit`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            resource can be found.
+        """
+        return self._get(_limit.Limit, limit)
+
+    def create_limit(self, **attrs):
+        """Create a new limit from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.identity.v3.limit.Limit`, comprised of the
+            properties on the Limit class.
+
+        :returns: The results of limit creation.
+        :rtype: :class:`~openstack.identity.v3.limit.Limit`
+        """
+        return self._create(_limit.Limit, **attrs)
+
+    def update_limit(self, limit, **attrs):
+        """Update a limit
+
+        :param limit: Either the ID of a limit. or a
+            :class:`~openstack.identity.v3.limit.Limit` instance.
+        :param dict kwargs: The attributes to update on the limit represented
+            by ``value``.
+
+        :returns: The updated limit.
+        :rtype: :class:`~openstack.identity.v3.limit.Limit`
+        """
+        return self._update(_limit.Limit, limit, **attrs)
+
+    def delete_limit(self, limit, ignore_missing=True):
+        """Delete a limit
+
+        :param limit: The value can be either the ID of a limit or a
+            :class:`~openstack.identity.v3.limit.Limit` instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the limit does not exist. When set to ``True``, no exception will
+            be thrown when attempting to delete a nonexistent limit.
+
+        :returns: ``None``
+        """
+        self._delete(_limit.Limit, limit, ignore_missing=ignore_missing)
+
     # ========== Application credentials ==========
 
     def application_credentials(self, user, **query):
@@ -1695,9 +1690,9 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.user.User` instance.
 
         :param application_credential: The value can be the ID of a
-            application credential or a :class:
-            `~openstack.identity.v3.application_credential.
-            ApplicationCredential` instance.
+            application credential or a
+            :class:`~openstack.identity.v3.application_credential.ApplicationCredential`
+            instance.
 
         :returns: One
             :class:`~openstack.identity.v3.application_credential.ApplicationCredential`
@@ -2136,8 +2131,8 @@ class Proxy(proxy.Proxy):
     def access_rules(self, user, **query):
         """Retrieve a generator of access rules
 
-        :param user: Either the ID of a user or a :class:`~.user.User`
-            instance.
+        :param user: Either the ID of a user or a
+            :class:`~openstack.identity.v3.user.User` instance.
         :param kwargs query: Optional query parameters to be sent to
             limit the resources being returned.
 
@@ -2150,8 +2145,8 @@ class Proxy(proxy.Proxy):
     def get_access_rule(self, user, access_rule):
         """Get a single access rule
 
-        :param user: Either the ID of a user or a :class:`~.user.User`
-            instance.
+        :param user: Either the ID of a user or a
+            :class:`~openstack.identity.v3.user.User` instance.
         :param access rule: The value can be the ID of an access rule or a
             :class:`~.access_rule.AccessRule` instance.
 
@@ -2165,8 +2160,8 @@ class Proxy(proxy.Proxy):
     def delete_access_rule(self, user, access_rule, ignore_missing=True):
         """Delete an access rule
 
-        :param user: Either the ID of a user or a :class:`~.user.User`
-            instance.
+        :param user: Either the ID of a user or a
+            :class:`~openstack.identity.v3.user.User` instance.
         :param access rule: The value can be either the ID of an
             access rule or a :class:`~.access_rule.AccessRule` instance.
         :param bool ignore_missing: When set to ``False``
