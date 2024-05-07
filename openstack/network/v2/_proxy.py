@@ -6923,6 +6923,79 @@ class Proxy(proxy.Proxy):
     ):
         project_id = self.get_project_id()
 
+        # check if the VPN service plugin is configured
+        vpn_plugin = list(self.service_providers(service_type="VPN"))
+        if vpn_plugin:
+            if not self.should_skip_resource_cleanup(
+                "vpn_ipsec_site_connection", skip_resources
+            ):
+                for obj in self.vpn_ipsec_site_connections():
+                    self._service_cleanup_del_res(
+                        self.delete_vpn_ipsec_site_connection,
+                        obj,
+                        dry_run=dry_run,
+                        client_status_queue=client_status_queue,
+                        identified_resources=identified_resources,
+                        filters=filters,
+                        resource_evaluation_fn=resource_evaluation_fn,
+                    )
+
+            if not self.should_skip_resource_cleanup(
+                "vpn_service", skip_resources
+            ):
+                for obj in self.vpn_services():
+                    self._service_cleanup_del_res(
+                        self.delete_vpn_service,
+                        obj,
+                        dry_run=dry_run,
+                        client_status_queue=client_status_queue,
+                        identified_resources=identified_resources,
+                        filters=filters,
+                        resource_evaluation_fn=resource_evaluation_fn,
+                    )
+
+            if not self.should_skip_resource_cleanup(
+                "vpn_endpoint_group", skip_resources
+            ):
+                for obj in self.vpn_endpoint_groups():
+                    self._service_cleanup_del_res(
+                        self.delete_vpn_endpoint_group,
+                        obj,
+                        dry_run=dry_run,
+                        client_status_queue=client_status_queue,
+                        identified_resources=identified_resources,
+                        filters=filters,
+                        resource_evaluation_fn=resource_evaluation_fn,
+                    )
+
+            if not self.should_skip_resource_cleanup(
+                "vpn_ike_policy", skip_resources
+            ):
+                for obj in self.vpn_ike_policies():
+                    self._service_cleanup_del_res(
+                        self.delete_vpn_ike_policy,
+                        obj,
+                        dry_run=dry_run,
+                        client_status_queue=client_status_queue,
+                        identified_resources=identified_resources,
+                        filters=filters,
+                        resource_evaluation_fn=resource_evaluation_fn,
+                    )
+
+            if not self.should_skip_resource_cleanup(
+                "vpn_ipsec_policy", skip_resources
+            ):
+                for obj in self.vpn_ipsec_policies():
+                    self._service_cleanup_del_res(
+                        self.delete_vpn_ipsec_policy,
+                        obj,
+                        dry_run=dry_run,
+                        client_status_queue=client_status_queue,
+                        identified_resources=identified_resources,
+                        filters=filters,
+                        resource_evaluation_fn=resource_evaluation_fn,
+                    )
+
         if not self.should_skip_resource_cleanup(
             "floating_ip", skip_resources
         ):
