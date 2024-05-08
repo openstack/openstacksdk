@@ -146,7 +146,7 @@ class TestRateLimits(base.TestCase):
 
 class TestLimit(base.TestCase):
     def test_basic(self):
-        limit_resource = limits.Limit()
+        limit_resource = limits.Limits()
         self.assertEqual('limits', limit_resource.resource_key)
         self.assertEqual('/limits', limit_resource.base_path)
         self.assertTrue(limit_resource.allow_fetch)
@@ -201,6 +201,6 @@ class TestLimit(base.TestCase):
         self._test_rate_limit(expected[0]['limit'], actual[0].limits)
 
     def test_make_limit(self):
-        limit_resource = limits.Limit(**LIMIT)
+        limit_resource = limits.Limits(**LIMIT)
         self._test_rate_limits(LIMIT['rate'], limit_resource.rate)
         self._test_absolute_limit(LIMIT['absolute'], limit_resource.absolute)

@@ -14,7 +14,7 @@ from openstack import resource
 
 
 class AbsoluteLimit(resource.Resource):
-    #: Properties
+    # Properties
     #: The maximum total amount of backups, in gibibytes (GiB).
     max_total_backup_gigabytes = resource.Body(
         "maxTotalBackupGigabytes", type=int
@@ -44,7 +44,7 @@ class AbsoluteLimit(resource.Resource):
 
 
 class RateLimit(resource.Resource):
-    #: Properties
+    # Properties
     #: Rate limits next availabe time.
     next_available = resource.Body("next-available")
     #: Integer for rate limits remaining.
@@ -58,7 +58,7 @@ class RateLimit(resource.Resource):
 
 
 class RateLimits(resource.Resource):
-    #: Properties
+    # Properties
     #: A list of the specific limits that apply to the ``regex`` and ``uri``.
     limits = resource.Body("limit", type=list, list_type=RateLimit)
     #: A regex representing which routes this rate limit applies to.
@@ -67,16 +67,20 @@ class RateLimits(resource.Resource):
     uri = resource.Body("uri")
 
 
-class Limit(resource.Resource):
+class Limits(resource.Resource):
     resource_key = "limits"
     base_path = "/limits"
 
     # capabilities
     allow_fetch = True
 
-    #: Properties
+    # Properties
     #: An absolute limits object.
     absolute = resource.Body("absolute", type=AbsoluteLimit)
     #: Rate-limit volume copy bandwidth, used to mitigate
     #: slow down of data access from the instances.
     rate = resource.Body("rate", type=list, list_type=RateLimits)
+
+
+# Legacy alias
+Limit = Limits

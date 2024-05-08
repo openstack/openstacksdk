@@ -47,7 +47,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         "group": _group.Group,
         "group_snapshot": _group_snapshot.GroupSnapshot,
         "group_type": _group_type.GroupType,
-        "limits": _limits.Limit,
+        "limits": _limits.Limits,
         "quota_set": _quota_set.QuotaSet,
         "resource_filter": _resource_filter.ResourceFilter,
         "snapshot": _snapshot.Snapshot,
@@ -1282,15 +1282,15 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :param project: A project to get limits for. The value can be either
             the ID of a project or an
             :class:`~openstack.identity.v3.project.Project` instance.
-        :returns: A Limit object, including both
+        :returns: A Limits object, including both
             :class:`~openstack.block_storage.v3.limits.AbsoluteLimit` and
             :class:`~openstack.block_storage.v3.limits.RateLimit`
-        :rtype: :class:`~openstack.block_storage.v3.limits.Limit`
+        :rtype: :class:`~openstack.block_storage.v3.limits.Limits`
         """
         params = {}
         if project:
             params['project_id'] = resource.Resource._get_id(project)
-        return self._get(_limits.Limit, requires_id=False, **params)
+        return self._get(_limits.Limits, requires_id=False, **params)
 
     # ====== CAPABILITIES ======
     def get_capabilities(self, host):

@@ -269,7 +269,7 @@ class BlockStorageCloudMixin:
 
         :param name_or_id: (optional) Project name or ID to get limits for
             if different from the current project
-        :returns: The volume ``Limit`` object if found, else None.
+        :returns: The volume ``Limits`` object if found, else None.
         """
         params = {}
         if name_or_id:

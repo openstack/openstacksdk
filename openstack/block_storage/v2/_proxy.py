@@ -651,15 +651,15 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :param project: A project to get limits for. The value can be either
             the ID of a project or an
             :class:`~openstack.identity.v2.project.Project` instance.
-        :returns: A Limit object, including both
+        :returns: A Limits object, including both
             :class:`~openstack.block_storage.v2.limits.AbsoluteLimit` and
             :class:`~openstack.block_storage.v2.limits.RateLimit`
-        :rtype: :class:`~openstack.block_storage.v2.limits.Limit`
+        :rtype: :class:`~openstack.block_storage.v2.limits.Limits`
         """
         params = {}
         if project:
             params['project_id'] = resource.Resource._get_id(project)
-        return self._get(_limits.Limit, requires_id=False, **params)
+        return self._get(_limits.Limits, requires_id=False, **params)
 
     # ====== CAPABILITIES ======
     def get_capabilities(self, host):

@@ -107,9 +107,9 @@ class TestAbsoluteLimits(base.TestCase):
         )
 
 
-class TestRateLimit(base.TestCase):
+class TestRateLimits(base.TestCase):
     def test_basic(self):
-        sot = limits.RateLimit()
+        sot = limits.RateLimits()
         self.assertIsNone(sot.resource_key)
         self.assertIsNone(sot.resources_key)
         self.assertEqual("", sot.base_path)
@@ -120,10 +120,10 @@ class TestRateLimit(base.TestCase):
         self.assertFalse(sot.allow_list)
 
     def test_make_it(self):
-        sot = limits.RateLimit(**RATE_LIMIT)
+        sot = limits.RateLimits(**RATE_LIMIT)
         self.assertEqual(RATE_LIMIT["regex"], sot.regex)
         self.assertEqual(RATE_LIMIT["uri"], sot.uri)
-        self.assertEqual(RATE_LIMIT["limit"], sot.limits)
+        self.assertIsInstance(sot.limits[0], limits.RateLimit)
 
 
 class TestLimits(base.TestCase):
@@ -137,7 +137,13 @@ class TestLimits(base.TestCase):
         self.assertFalse(sot.allow_delete)
         self.assertFalse(sot.allow_list)
         self.assertDictEqual(
-            {'limit': 'limit', 'marker': 'marker', 'tenant_id': 'tenant_id'},
+            {
+                'limit': 'limit',
+                'marker': 'marker',
+                'tenant_id': 'tenant_id',
+                'project_id': 'tenant_id',
+                'reserved': 'reserved',
+            },
             sot._query_mapping._mapping,
         )
 
@@ -211,7 +217,7 @@ class TestLimits(base.TestCase):
 
         self.assertEqual(RATE_LIMIT["uri"], sot.rate[0].uri)
         self.assertEqual(RATE_LIMIT["regex"], sot.rate[0].regex)
-        self.assertEqual(RATE_LIMIT["limit"], sot.rate[0].limits)
+        self.assertIsInstance(sot.rate[0].limits[0], limits.RateLimit)
 
         dsot = sot.to_dict()
 

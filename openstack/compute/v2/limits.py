@@ -16,6 +16,7 @@ from openstack import resource
 class AbsoluteLimits(resource.Resource):
     _max_microversion = '2.57'
 
+    # Properties
     #: The number of key-value pairs that can be set as image metadata.
     image_meta = resource.Body("maxImageMeta", aka="max_image_meta")
     #: The maximum number of personality contents that can be supplied.
@@ -73,10 +74,23 @@ class AbsoluteLimits(resource.Resource):
 
 
 class RateLimit(resource.Resource):
-    # TODO(mordred) Make a resource type for the contents of limit and add
-    # it to list_type here.
+    # Properties
+    #: Rate limits next availabe time.
+    next_available = resource.Body("next-available")
+    #: Integer for rate limits remaining.
+    remaining = resource.Body("remaining", type=int)
+    #: Unit of measurement for the value parameter.
+    unit = resource.Body("unit")
+    #: Integer number of requests which can be made.
+    value = resource.Body("value", type=int)
+    #: An HTTP verb (POST, PUT, etc.).
+    verb = resource.Body("verb")
+
+
+class RateLimits(resource.Resource):
+    # Properties
     #: A list of the specific limits that apply to the ``regex`` and ``uri``.
-    limits = resource.Body("limit", type=list)
+    limits = resource.Body("limit", type=list, list_type=RateLimit)
     #: A regex representing which routes this rate limit applies to.
     regex = resource.Body("regex")
     #: A URI representing which routes this rate limit applies to.
@@ -89,10 +103,19 @@ class Limits(resource.Resource):
 
     allow_fetch = True
 
-    _query_mapping = resource.QueryParameters('tenant_id')
+    _query_mapping = resource.QueryParameters(
+        'tenant_id',
+        'reserved',
+        project_id='tenant_id',
+    )
 
+    # Properties
+    #: An absolute limits object.
     absolute = resource.Body("absolute", type=AbsoluteLimits)
-    rate = resource.Body("rate", type=list, list_type=RateLimit)
+    #: Rate-limit compute resources. This is only populated when using the
+    #: legacy v2 API which was removed in Nova 14.0.0 (Newton). In v2.1 it will
+    #: always be an empty list.
+    rate = resource.Body("rate", type=list, list_type=RateLimits)
 
     def fetch(
         self,

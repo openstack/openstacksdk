@@ -12,12 +12,12 @@ The ``AbsoluteLimit`` class inherits from
 .. autoclass:: openstack.block_storage.v3.limits.AbsoluteLimit
    :members:
 
-The Limit Class
----------------
+The Limits Class
+----------------
 
-The ``Limit`` class inherits from :class:`~openstack.resource.Resource`.
+The ``Limits`` class inherits from :class:`~openstack.resource.Resource`.
 
-.. autoclass:: openstack.block_storage.v3.limits.Limit
+.. autoclass:: openstack.block_storage.v3.limits.Limits
    :members:
 
 The RateLimit Class

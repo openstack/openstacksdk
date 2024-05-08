@@ -67,7 +67,7 @@ class RateLimits(resource.Resource):
     uri = resource.Body("uri")
 
 
-class Limit(resource.Resource):
+class Limits(resource.Resource):
     resource_key = "limits"
     base_path = "/limits"
 
@@ -80,3 +80,7 @@ class Limit(resource.Resource):
     #: Rate-limit volume copy bandwidth, used to mitigate
     #: slow down of data access from the instances.
     rate = resource.Body("rate", type=list, list_type=RateLimits)
+
+
+# legacy alias
+Limit = Limits

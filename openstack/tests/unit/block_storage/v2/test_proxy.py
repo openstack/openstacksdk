@@ -321,7 +321,7 @@ class TestLimit(TestVolumeProxy):
     def test_limits_get(self):
         self.verify_get(
             self.proxy.get_limits,
-            limits.Limit,
+            limits.Limits,
             method_args=[],
             expected_kwargs={'requires_id': False},
         )
