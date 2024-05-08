@@ -1447,9 +1447,15 @@ class TestCompute(TestComputeProxy):
         self._verify(
             'openstack.compute.v2.server.Server.live_migrate',
             self.proxy.live_migrate_server,
-            method_args=["value", "host1", False],
-            expected_args=[self.proxy, "host1"],
-            expected_kwargs={'force': False, 'block_migration': None},
+            method_args=["value"],
+            method_kwargs={'host': 'host1', 'force': False},
+            expected_args=[self.proxy],
+            expected_kwargs={
+                'host': 'host1',
+                'force': False,
+                'block_migration': None,
+                'disk_over_commit': None,
+            },
         )
 
     def test_abort_server_migration(self):
