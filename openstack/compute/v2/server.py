@@ -156,6 +156,8 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     #: A fault object. Only available when the server status
     #: is ERROR or DELETED and a fault occurred.
     fault = resource.Body('fault')
+    #: The host to boot the server on.
+    host = resource.Body('host')
     #: The host status.
     host_status = resource.Body('host_status')
     #: The hostname set on the instance when it is booted.
@@ -202,6 +204,10 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     #: networks parameter, the server attaches to the only network
     #: created for the current tenant.
     networks = resource.Body('networks')
+    #: Personality files. This should be a list of dicts with each dict
+    #: containing a file name ('name') and a base64-encoded file contents
+    #: ('contents')
+    personality = resource.Body('personality', type=list)
     #: The availability zone requested during server creation OR pinned
     #: availability zone, which is configured using default_schedule_zone
     #: config option.
