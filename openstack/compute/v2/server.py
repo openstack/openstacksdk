@@ -730,7 +730,14 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"unrescue": None}
         self._action(session, body)
 
-    def evacuate(self, session, host=None, admin_pass=None, force=None):
+    def evacuate(
+        self,
+        session,
+        host=None,
+        admin_pass=None,
+        force=None,
+        on_shared_storage=None,
+    ):
         """Evacuate the server.
 
         :param session: The session to use for making this request.
@@ -738,6 +745,8 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         :param admin_pass: The admin password to set on the evacuated instance.
             (Optional)
         :param force: Whether to force evacuation.
+        :param on_shared_storage: Whether the host is using shared storage.
+            (Optional) (Only supported before microversion 2.14)
         :returns: None
         """
         body: ty.Dict[str, ty.Any] = {"evacuate": {}}
@@ -747,6 +756,8 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             body["evacuate"]["adminPass"] = admin_pass
         if force is not None:
             body["evacuate"]["force"] = force
+        if on_shared_storage is not None:
+            body["evacuate"]["onSharedStorage"] = on_shared_storage
         self._action(session, body)
 
     def start(self, session):

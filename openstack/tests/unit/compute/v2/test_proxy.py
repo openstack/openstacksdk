@@ -1205,7 +1205,12 @@ class TestCompute(TestComputeProxy):
             self.proxy.evacuate_server,
             method_args=["value"],
             expected_args=[self.proxy],
-            expected_kwargs={"host": None, "admin_pass": None, "force": None},
+            expected_kwargs={
+                "host": None,
+                "admin_pass": None,
+                "force": None,
+                "on_shared_storage": None,
+            },
         )
 
     def test_server_evacuate_with_options(self):
@@ -1213,11 +1218,13 @@ class TestCompute(TestComputeProxy):
             "openstack.compute.v2.server.Server.evacuate",
             self.proxy.evacuate_server,
             method_args=["value", 'HOST2', 'NEW_PASS', True],
+            method_kwargs={'on_shared_storage': False},
             expected_args=[self.proxy],
             expected_kwargs={
                 "host": "HOST2",
                 "admin_pass": 'NEW_PASS',
                 "force": True,
+                "on_shared_storage": False,
             },
         )
 

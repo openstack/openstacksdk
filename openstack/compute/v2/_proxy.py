@@ -1083,7 +1083,15 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.unrescue(self)
 
-    def evacuate_server(self, server, host=None, admin_pass=None, force=None):
+    def evacuate_server(
+        self,
+        server,
+        host=None,
+        admin_pass=None,
+        force=None,
+        *,
+        on_shared_storage=None,
+    ):
         """Evacuates a server from a failed host to a new host.
 
         :param server: Either the ID of a server or a
@@ -1095,10 +1103,18 @@ class Proxy(proxy.Proxy):
         :param force: Force an evacuation by not verifying the provided
             destination host by the scheduler. (New in API version
             2.29).
+        :param on_shared_storage: Whether the host is using shared storage.
+            (Optional) (Only supported before API version 2.14)
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.evacuate(self, host=host, admin_pass=admin_pass, force=force)
+        server.evacuate(
+            self,
+            host=host,
+            admin_pass=admin_pass,
+            force=force,
+            on_shared_storage=on_shared_storage,
+        )
 
     def start_server(self, server):
         """Starts a stopped server and changes its state to ``ACTIVE``.

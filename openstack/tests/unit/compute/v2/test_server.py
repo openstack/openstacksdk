@@ -980,7 +980,11 @@ class TestServer(base.TestCase):
         sot = server.Server(**EXAMPLE)
 
         res = sot.evacuate(
-            self.sess, host='HOST2', admin_pass='NEW_PASS', force=True
+            self.sess,
+            host='HOST2',
+            admin_pass='NEW_PASS',
+            force=True,
+            on_shared_storage=False,
         )
 
         self.assertIsNone(res)
@@ -990,6 +994,7 @@ class TestServer(base.TestCase):
                 'host': 'HOST2',
                 'adminPass': 'NEW_PASS',
                 'force': True,
+                'onSharedStorage': False,
             }
         }
         headers = {'Accept': ''}
