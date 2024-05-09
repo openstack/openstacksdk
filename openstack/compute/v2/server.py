@@ -22,6 +22,15 @@ from openstack import resource
 from openstack import utils
 
 
+# Workaround Python's lack of an undefined sentinel
+# https://python-patterns.guide/python/sentinel-object/
+class Unset:
+    def __bool__(self) -> ty.Literal[False]:
+        return False
+
+
+UNSET: Unset = Unset()
+
 CONSOLE_TYPE_ACTION_MAPPING = {
     'novnc': 'os-getVNCConsole',
     'xvpvnc': 'os-getVNCConsole',
@@ -388,14 +397,17 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         self,
         session,
         image,
-        name=None,
-        admin_password=None,
-        preserve_ephemeral=None,
-        access_ipv4=None,
-        access_ipv6=None,
-        metadata=None,
-        user_data=None,
-        key_name=None,
+        name=UNSET,
+        admin_password=UNSET,
+        preserve_ephemeral=UNSET,
+        access_ipv4=UNSET,
+        access_ipv6=UNSET,
+        metadata=UNSET,
+        user_data=UNSET,
+        key_name=UNSET,
+        description=UNSET,
+        trusted_image_certificates=UNSET,
+        hostname=UNSET,
     ):
         """Rebuild the server with the given arguments.
 
@@ -414,25 +426,38 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         :param metadata: Metadata to set on the updated server. (Optional)
         :param user_data: User data to set on the updated server. (Optional)
         :param key_name: A key name to set on the updated server. (Optional)
+        :param description: The description to set on the updated server.
+            (Optional) (Requires API microversion 2.19)
+        :param trusted_image_certificates: The trusted image certificates to
+            set on the updated server. (Optional) (Requires API microversion
+            2.78)
+        :param hostname: The hostname to set on the updated server. (Optional)
+            (Requires API microversion 2.90)
         :returns: The updated server.
         """
         action = {'imageRef': resource.Resource._get_id(image)}
-        if preserve_ephemeral is not None:
+        if preserve_ephemeral is not UNSET:
             action['preserve_ephemeral'] = preserve_ephemeral
-        if name is not None:
+        if name is not UNSET:
             action['name'] = name
-        if admin_password is not None:
+        if admin_password is not UNSET:
             action['adminPass'] = admin_password
-        if access_ipv4 is not None:
+        if access_ipv4 is not UNSET:
             action['accessIPv4'] = access_ipv4
-        if access_ipv6 is not None:
+        if access_ipv6 is not UNSET:
             action['accessIPv6'] = access_ipv6
-        if metadata is not None:
+        if metadata is not UNSET:
             action['metadata'] = metadata
-        if user_data is not None:
+        if user_data is not UNSET:
             action['user_data'] = user_data
-        if key_name is not None:
+        if key_name is not UNSET:
             action['key_name'] = key_name
+        if description is not UNSET:
+            action['description'] = description
+        if trusted_image_certificates is not UNSET:
+            action['trusted_image_certificates'] = trusted_image_certificates
+        if hostname is not UNSET:
+            action['hostname'] = hostname
 
         body = {'rebuild': action}
         response = self._action(session, body)

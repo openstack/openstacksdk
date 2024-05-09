@@ -383,14 +383,18 @@ class TestServer(base.TestCase):
 
         result = sot.rebuild(
             self.sess,
+            '123',
             name='noo',
             admin_password='seekr3t',
-            image='http://image/1',
+            preserve_ephemeral=False,
             access_ipv4="12.34.56.78",
             access_ipv6="fe80::100",
             metadata={"meta var": "meta val"},
             user_data="ZWNobyAiaGVsbG8gd29ybGQi",
-            preserve_ephemeral=False,
+            key_name='my-ecdsa-key',
+            description='an updated description',
+            trusted_image_certificates=['foo'],
+            hostname='new-hostname',
         )
 
         self.assertIsInstance(result, server.Server)
@@ -399,13 +403,17 @@ class TestServer(base.TestCase):
         body = {
             "rebuild": {
                 "name": "noo",
-                "imageRef": "http://image/1",
+                "imageRef": "123",
                 "adminPass": "seekr3t",
                 "accessIPv4": "12.34.56.78",
                 "accessIPv6": "fe80::100",
                 "metadata": {"meta var": "meta val"},
                 "user_data": "ZWNobyAiaGVsbG8gd29ybGQi",
                 "preserve_ephemeral": False,
+                "key_name": 'my-ecdsa-key',
+                "description": 'an updated description',
+                "trusted_image_certificates": ['foo'],
+                "hostname": "new-hostname",
             }
         }
         headers = {'Accept': ''}
@@ -423,9 +431,9 @@ class TestServer(base.TestCase):
 
         result = sot.rebuild(
             self.sess,
+            '123',
             name='nootoo',
             admin_password='seekr3two',
-            image='http://image/2',
         )
 
         self.assertIsInstance(result, server.Server)
@@ -434,8 +442,46 @@ class TestServer(base.TestCase):
         body = {
             "rebuild": {
                 "name": "nootoo",
-                "imageRef": "http://image/2",
+                "imageRef": "123",
                 "adminPass": "seekr3two",
+            }
+        }
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url,
+            json=body,
+            headers=headers,
+            microversion=self.sess.default_microversion,
+        )
+
+    def test_rebuild_none_values(self):
+        sot = server.Server(**EXAMPLE)
+        # Let the translate pass through, that portion is tested elsewhere
+        sot._translate_response = lambda arg: arg
+
+        result = sot.rebuild(
+            self.sess,
+            '123',
+            admin_password=None,
+            access_ipv4=None,
+            access_ipv6=None,
+            metadata=None,
+            user_data=None,
+            description=None,
+        )
+
+        self.assertIsInstance(result, server.Server)
+
+        url = 'servers/IDENTIFIER/action'
+        body = {
+            "rebuild": {
+                "imageRef": "123",
+                "adminPass": None,
+                "accessIPv4": None,
+                "accessIPv6": None,
+                "metadata": None,
+                "user_data": None,
+                "description": None,
             }
         }
         headers = {'Accept': ''}
