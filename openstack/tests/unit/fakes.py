@@ -13,7 +13,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import json
 from unittest import mock
+
+import requests
 
 
 class FakeTransport(mock.Mock):
@@ -35,3 +38,19 @@ class FakeAuthenticator(mock.Mock):
         self.get_token.return_value = self.TOKEN
         self.get_endpoint = mock.Mock()
         self.get_endpoint.return_value = self.ENDPOINT
+
+
+class FakeResponse(requests.Response):
+    def __init__(
+        self, headers=None, status_code=200, data=None, encoding=None
+    ):
+        super().__init__()
+
+        headers = headers or {}
+
+        self.status_code = status_code
+
+        self.headers.update(headers)
+        self._content = json.dumps(data)
+        if not isinstance(self._content, bytes):
+            self._content = self._content.encode()

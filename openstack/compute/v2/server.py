@@ -323,7 +323,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         exceptions.raise_from_response(response)
         return response
 
-    def change_password(self, session, password):
+    def change_password(self, session, password, *, microversion=None):
         """Change the administrator password to the given password.
 
         :param session: The session to use for making this request.
@@ -331,21 +331,39 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         :returns: None
         """
         body = {'changePassword': {'adminPass': password}}
-        self._action(session, body)
+        self._action(session, body, microversion=microversion)
 
-    def get_password(self, session):
+    def get_password(self, session, *, microversion=None):
         """Get the encrypted administrator password.
 
         :param session: The session to use for making this request.
         :returns: The encrypted administrator password.
         """
         url = utils.urljoin(Server.base_path, self.id, 'os-server-password')
+        if microversion is None:
+            microversion = self._get_microversion(session, action='commit')
 
-        response = session.get(url)
+        response = session.get(url, microversion=microversion)
         exceptions.raise_from_response(response)
 
         data = response.json()
         return data.get('password')
+
+    def clear_password(self, session, *, microversion=None):
+        """Clear the administrator password.
+
+        This removes the password from the database. It does not actually
+        change the server password.
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
+        url = utils.urljoin(Server.base_path, self.id, 'os-server-password')
+        if microversion is None:
+            microversion = self._get_microversion(session, action='commit')
+
+        response = session.delete(url, microversion=microversion)
+        exceptions.raise_from_response(response)
 
     def reboot(self, session, reboot_type):
         """Reboot server where reboot_type might be 'SOFT' or 'HARD'.

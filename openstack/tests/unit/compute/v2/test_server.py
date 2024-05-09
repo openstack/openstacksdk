@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import http
 from unittest import mock
 
 from openstack.compute.v2 import flavor
 from openstack.compute.v2 import server
 from openstack.image.v2 import image
 from openstack.tests.unit import base
+from openstack.tests.unit import fakes
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
@@ -315,6 +317,33 @@ class TestServer(base.TestCase):
             json=body,
             headers=headers,
             microversion=self.sess.default_microversion,
+        )
+
+    def test_get_password(self):
+        sot = server.Server(**EXAMPLE)
+        self.sess.get.return_value = fakes.FakeResponse(
+            data={'password': 'foo'}
+        )
+
+        result = sot.get_password(self.sess)
+        self.assertEqual('foo', result)
+
+        url = 'servers/IDENTIFIER/os-server-password'
+        self.sess.get.assert_called_with(
+            url, microversion=self.sess.default_microversion
+        )
+
+    def test_clear_password(self):
+        sot = server.Server(**EXAMPLE)
+        self.sess.delete.return_value = fakes.FakeResponse(
+            status_code=http.HTTPStatus.NO_CONTENT,
+        )
+
+        self.assertIsNone(sot.clear_password(self.sess))
+
+        url = 'servers/IDENTIFIER/os-server-password'
+        self.sess.delete.assert_called_with(
+            url, microversion=self.sess.default_microversion
         )
 
     def test_reboot(self):

@@ -851,6 +851,17 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         return server.get_password(self)
 
+    def clear_server_password(self, server):
+        """Clear the administrator password
+
+        :param server: Either the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server` instance.
+
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.clear_password(self)
+
     def reset_server_state(self, server, state):
         """Reset the state of server
 

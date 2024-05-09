@@ -961,6 +961,30 @@ class TestCompute(TestComputeProxy):
     def test_server_update(self):
         self.verify_update(self.proxy.update_server, server.Server)
 
+    def test_server_change_password(self):
+        self._verify(
+            "openstack.compute.v2.server.Server.change_password",
+            self.proxy.change_server_password,
+            method_args=["value", "password"],
+            expected_args=[self.proxy, "password"],
+        )
+
+    def test_server_get_password(self):
+        self._verify(
+            "openstack.compute.v2.server.Server.get_password",
+            self.proxy.get_server_password,
+            method_args=["value"],
+            expected_args=[self.proxy],
+        )
+
+    def test_server_clear_password(self):
+        self._verify(
+            "openstack.compute.v2.server.Server.clear_password",
+            self.proxy.clear_server_password,
+            method_args=["value"],
+            expected_args=[self.proxy],
+        )
+
     def test_server_wait_for(self):
         value = server.Server(id='1234')
         self.verify_wait_for_status(
