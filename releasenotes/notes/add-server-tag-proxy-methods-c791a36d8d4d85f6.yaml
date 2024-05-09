@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    The following new compute proxy methods have been added:
+
+    - ``add_tag_to_server``
+    - ``remove_tag_from_server``
+    - ``remove_tags_from_server``

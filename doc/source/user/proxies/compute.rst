@@ -121,6 +121,13 @@ Server Interface Operations
   :members: create_server_interface, delete_server_interface,
             get_server_interface, server_interfaces,
 
+Server Tag Operations
+^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.compute.v2._proxy.Proxy
+  :noindex:
+  :members: add_tag_to_server, remove_tag_from_server, remove_tags_from_server
+
 Availability Zone Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

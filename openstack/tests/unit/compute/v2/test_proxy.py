@@ -1277,6 +1277,30 @@ class TestCompute(TestComputeProxy):
             expected_args=[self.proxy],
         )
 
+    def test_server_add_tag(self):
+        self._verify(
+            "openstack.compute.v2.server.Server.add_tag",
+            self.proxy.add_tag_to_server,
+            method_args=["value", "tag"],
+            expected_args=[self.proxy, "tag"],
+        )
+
+    def test_server_remove_tag(self):
+        self._verify(
+            "openstack.compute.v2.server.Server.remove_tag",
+            self.proxy.remove_tag_from_server,
+            method_args=["value", "tag"],
+            expected_args=[self.proxy, "tag"],
+        )
+
+    def test_server_remove_tags(self):
+        self._verify(
+            "openstack.compute.v2.server.Server.remove_all_tags",
+            self.proxy.remove_tags_from_server,
+            method_args=["value"],
+            expected_args=[self.proxy],
+        )
+
     def test_get_server_output(self):
         self._verify(
             "openstack.compute.v2.server.Server.get_console_output",

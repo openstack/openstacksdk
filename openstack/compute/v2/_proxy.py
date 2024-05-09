@@ -1195,6 +1195,39 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.trigger_crash_dump(self)
 
+    def add_tag_to_server(self, server, tag):
+        """Add a tag to a server.
+
+        :param server: Either the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server` instance.
+        :param tag: The tag to add.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.add_tag(self, tag)
+
+    def remove_tag_from_server(self, server, tag):
+        """Remove a tag from a server.
+
+        :param server: Either the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server` instance.
+        :param tag: The tag to remove.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.remove_tag(self, tag)
+
+    def remove_tags_from_server(self, server):
+        """Remove all tags from a server.
+
+        :param server: Either the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server` instance.
+        :param tag: The tag to remove.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.remove_all_tags(self)
+
     # ========== Server security groups ==========
 
     def fetch_server_security_groups(self, server):
