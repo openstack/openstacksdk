@@ -10,10 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import warnings
+
 from openstack.cloud import _utils
 from openstack import exceptions
 from openstack.identity.v3._proxy import Proxy
 from openstack import utils
+from openstack import warnings as os_warnings
 
 
 class IdentityCloudMixin:
@@ -1111,7 +1114,15 @@ class IdentityCloudMixin:
                     # proxy
                     filters['scope.' + k + '.id'] = filters[k]
                 del filters[k]
-        if 'os_inherit_extension_inherited_to' in filters:
+        if 'inherited_to' in filters:
+            filters['scope.OS-INHERIT:inherited_to'] = filters['inherited_to']
+            del filters['inherited_to']
+        elif 'os_inherit_extension_inherited_to' in filters:
+            warnings.warn(
+                "os_inherit_extension_inherited_to is deprecated. Use "
+                "inherited_to instead.",
+                os_warnings.OpenStackDeprecationWarning,
+            )
             filters['scope.OS-INHERIT:inherited_to'] = filters[
                 'os_inherit_extension_inherited_to'
             ]
@@ -1130,15 +1141,17 @@ class IdentityCloudMixin:
             * 'domain' (string) - Domain ID to be used as query filter.
             * 'system' (string) - System name to be used as query filter.
             * 'role' (string) - Role ID to be used as query filter.
-            * 'os_inherit_extension_inherited_to' (string) - Return inherited
-              role assignments for either 'projects' or 'domains'
+            * 'inherited_to' (string) - Return inherited
+              role assignments for either 'projects' or 'domains'.
+            * 'os_inherit_extension_inherited_to' (string) - Deprecated; use
+              'inherited_to' instead.
             * 'effective' (boolean) - Return effective role assignments.
             * 'include_subtree' (boolean) - Include subtree
 
               'user' and 'group' are mutually exclusive, as are 'domain' and
               'project'.
 
-        :returns: A list of indentity
+        :returns: A list of identity
             :class:`openstack.identity.v3.role_assignment.RoleAssignment`
             objects
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
@@ -1173,6 +1186,16 @@ class IdentityCloudMixin:
         if 'system' in filters:
             system_scope = filters.pop('system')
             filters['scope.system'] = system_scope
+
+        if 'os_inherit_extension_inherited_to' in filters:
+            warnings.warn(
+                "os_inherit_extension_inherited_to is deprecated. Use "
+                "inherited_to instead.",
+                os_warnings.OpenStackDeprecationWarning,
+            )
+            filters['inherited_to'] = filters.pop(
+                'os_inherit_extension_inherited_to'
+            )
 
         return list(self.identity.role_assignments(**filters))
 

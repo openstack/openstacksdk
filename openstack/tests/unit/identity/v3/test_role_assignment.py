@@ -32,6 +32,24 @@ class TestRoleAssignment(base.TestCase):
         self.assertEqual('/role_assignments', sot.base_path)
         self.assertTrue(sot.allow_list)
 
+        self.assertDictEqual(
+            {
+                'group_id': 'group.id',
+                'role_id': 'role.id',
+                'scope_domain_id': 'scope.domain.id',
+                'scope_project_id': 'scope.project.id',
+                'scope_system': 'scope.system',
+                'user_id': 'user.id',
+                'effective': 'effective',
+                'inherited_to': 'scope.OS-INHERIT:inherited_to',
+                'include_names': 'include_names',
+                'include_subtree': 'include_subtree',
+                'limit': 'limit',
+                'marker': 'marker',
+            },
+            sot._query_mapping._mapping,
+        )
+
     def test_make_it(self):
         sot = role_assignment.RoleAssignment(**EXAMPLE)
         self.assertEqual(EXAMPLE['id'], sot.id)

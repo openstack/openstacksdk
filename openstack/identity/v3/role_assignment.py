@@ -36,6 +36,7 @@ class RoleAssignment(resource.Resource):
         scope_project_id='scope.project.id',
         scope_domain_id='scope.domain.id',
         scope_system='scope.system',
+        inherited_to='scope.OS-INHERIT:inherited_to',
     )
 
     # Properties
@@ -43,7 +44,7 @@ class RoleAssignment(resource.Resource):
     links = resource.Body('links')
     #: The role (dictionary contains only id) *Type: dict*
     role = resource.Body('role', type=dict)
-    #: The scope (either domain or group dictionary contains id) *Type: dict*
+    #: The scope (either domain or project; dictionary contains only id) *Type: dict*
     scope = resource.Body('scope', type=dict)
     #: The user (dictionary contains only id) *Type: dict*
     user = resource.Body('user', type=dict)
