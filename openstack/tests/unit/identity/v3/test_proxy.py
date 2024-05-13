@@ -30,6 +30,7 @@ from openstack.identity.v3 import role_project_user_assignment
 from openstack.identity.v3 import role_system_group_assignment
 from openstack.identity.v3 import role_system_user_assignment
 from openstack.identity.v3 import service
+from openstack.identity.v3 import service_provider
 from openstack.identity.v3 import trust
 from openstack.identity.v3 import user
 from openstack.tests.unit import test_proxy_base
@@ -752,4 +753,49 @@ class TestAccessRule(TestIdentityProxyBase):
             access_rule.AccessRule,
             method_kwargs={'user': USER_ID},
             expected_kwargs={'user_id': USER_ID},
+        )
+
+
+class TestServiceProvider(TestIdentityProxyBase):
+    def test_service_provider_create(self):
+        self.verify_create(
+            self.proxy.create_service_provider,
+            service_provider.ServiceProvider,
+        )
+
+    def test_service_provider_delete(self):
+        self.verify_delete(
+            self.proxy.delete_service_provider,
+            service_provider.ServiceProvider,
+            False,
+        )
+
+    def test_service_provider_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_service_provider,
+            service_provider.ServiceProvider,
+            True,
+        )
+
+    def test_service_provider_find(self):
+        self.verify_find(
+            self.proxy.find_service_provider, service_provider.ServiceProvider
+        )
+
+    def test_service_provider_get(self):
+        self.verify_get(
+            self.proxy.get_service_provider,
+            service_provider.ServiceProvider,
+        )
+
+    def test_service_providers(self):
+        self.verify_list(
+            self.proxy.service_providers,
+            service_provider.ServiceProvider,
+        )
+
+    def test_service_provider_update(self):
+        self.verify_update(
+            self.proxy.update_service_provider,
+            service_provider.ServiceProvider,
         )
