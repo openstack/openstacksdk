@@ -157,6 +157,13 @@ Extension Operations
   :noindex:
   :members: find_extension, extensions
 
+QuotaClassSet Operations
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.compute.v2._proxy.Proxy
+  :noindex:
+  :members: get_quota_class_set, update_quota_class_set
+
 QuotaSet Operations
 ^^^^^^^^^^^^^^^^^^^
 

@@ -129,6 +129,13 @@ Stats Operations
   :noindex:
   :members: backend_pools
 
+QuotaClassSet Operations
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v3._proxy.Proxy
+  :noindex:
+  :members: get_quota_class_set, update_quota_class_set
+
 QuotaSet Operations
 ^^^^^^^^^^^^^^^^^^^
 
@@ -136,13 +143,6 @@ QuotaSet Operations
   :noindex:
   :members: get_quota_set, get_quota_set_defaults,
             revert_quota_set, update_quota_set
-
-Helpers
-^^^^^^^
-
-.. autoclass:: openstack.block_storage.v3._proxy.Proxy
-  :noindex:
-  :members: wait_for_status, wait_for_delete
 
 BlockStorageSummary Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -166,3 +166,10 @@ Transfer Operations
   :noindex:
   :members: create_transfer, delete_transfer, find_transfer,
             get_transfer, transfers, accept_transfer
+
+Helpers
+^^^^^^^
+
+.. autoclass:: openstack.block_storage.v3._proxy.Proxy
+  :noindex:
+  :members: wait_for_status, wait_for_delete
