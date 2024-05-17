@@ -215,25 +215,6 @@
         OPENSTACKSDK_HAS_MAGNUM: 1
 
 - job:
-    name: openstacksdk-functional-devstack-senlin
-    parent: openstacksdk-functional-devstack
-    description: |
-      Run openstacksdk functional tests against a master devstack with senlin
-    required-projects:
-      - openstack/senlin
-    vars:
-      devstack_plugins:
-        senlin: https://opendev.org/openstack/senlin
-      devstack_services:
-        s-account: false
-        s-container: false
-        s-object: false
-        s-proxy: false
-      tox_environment:
-        OPENSTACKSDK_HAS_SWIFT: 0
-        OPENSTACKSDK_HAS_SENLIN: 1
-
-- job:
     name: openstacksdk-functional-devstack-ironic
     parent: openstacksdk-functional-devstack-minimum
     description: |
@@ -379,7 +360,6 @@
       - openstack-python3-xena-jobs
       - openstacksdk-functional-tips
       - openstacksdk-tox-tips
-      - os-client-config-tox-tips
       - osc-tox-unit-tips
       - publish-openstack-docs-pti
       - release-notes-jobs-python3
@@ -390,7 +370,6 @@
         # - dib-nodepool-functional-openstack-centos-8-stream-src
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-networking
-        - openstacksdk-functional-devstack-senlin
         - openstacksdk-functional-devstack-magnum:
             voting: false
         - openstacksdk-functional-devstack-masakari:
@@ -415,4 +394,3 @@
         # - dib-nodepool-functional-openstack-centos-8-stream-src
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-networking
-        - openstacksdk-functional-devstack-senlin
