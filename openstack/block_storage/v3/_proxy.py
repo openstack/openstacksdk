@@ -19,6 +19,7 @@ from openstack.block_storage.v3 import availability_zone
 from openstack.block_storage.v3 import backup as _backup
 from openstack.block_storage.v3 import block_storage_summary as _summary
 from openstack.block_storage.v3 import capabilities as _capabilities
+from openstack.block_storage.v3 import default_type as _default_type
 from openstack.block_storage.v3 import extension as _extension
 from openstack.block_storage.v3 import group as _group
 from openstack.block_storage.v3 import group_snapshot as _group_snapshot
@@ -534,6 +535,83 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             )
 
         return self._update(_type.TypeEncryption, encryption, **attrs)
+
+    # ====== DEFAULT TYPES ======
+
+    def default_types(self):
+        """Lists default types.
+
+        :returns: List of default types associated to projects.
+        """
+        # This is required since previously default types did not accept
+        # URL with project ID
+        if not utils.supports_microversion(self, '3.67'):
+            raise exceptions.SDKException(
+                'List default types require at least microversion 3.67'
+            )
+
+        return self._list(_default_type.DefaultType)
+
+    def show_default_type(self, project):
+        """Show default type for a project.
+
+        :param project: The value can be either the ID of a project or a
+            :class:`~openstack.identity.v3.project.Project` instance.
+
+        :returns: Default type associated to the project.
+        """
+        # This is required since previously default types did not accept
+        # URL with project ID
+        if not utils.supports_microversion(self, '3.67'):
+            raise exceptions.SDKException(
+                'Show default type require at least microversion 3.67'
+            )
+
+        project_id = resource.Resource._get_id(project)
+        return self._get(_default_type.DefaultType, project_id)
+
+    def set_default_type(self, project, type):
+        """Set default type for a project.
+
+        :param project: The value can be either the ID of a project or a
+             :class:`~openstack.identity.v3.project.Project` instance.
+        :param type: The value can be either the ID of a type or a
+             :class:`~openstack.block_storage.v3.type.Type` instance.
+
+        :returns: Dictionary of project ID and it's associated default type.
+        """
+        # This is required since previously default types did not accept
+        # URL with project ID
+        if not utils.supports_microversion(self, '3.67'):
+            raise exceptions.SDKException(
+                'Set default type require at least microversion 3.67'
+            )
+
+        type_id = resource.Resource._get_id(type)
+        project_id = resource.Resource._get_id(project)
+        return self._create(
+            _default_type.DefaultType,
+            id=project_id,
+            volume_type_id=type_id,
+        )
+
+    def unset_default_type(self, project):
+        """Unset default type for a project.
+
+        :param project: The value can be either the ID of a project or a
+            :class:`~openstack.identity.v3.project.Project` instance.
+
+        :returns: ``None``
+        """
+        # This is required since previously default types did not accept
+        # URL with project ID
+        if not utils.supports_microversion(self, '3.67'):
+            raise exceptions.SDKException(
+                'Unset default type require at least microversion 3.67'
+            )
+
+        project_id = resource.Resource._get_id(project)
+        self._delete(_default_type.DefaultType, project_id)
 
     # ====== VOLUMES ======
     def get_volume(self, volume):
