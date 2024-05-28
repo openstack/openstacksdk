@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack import exceptions
+from openstack.network.v2 import agent as _agent
 from openstack import resource
 from openstack import utils
 
@@ -136,14 +137,16 @@ class BgpSpeaker(resource.Resource):
         :type session: :class:`~keystoneauth1.adapter.Adapter`
         :returns: The response as a list of dragents hosting a specific
                   BGP Speaker.
-
+        :rtype: :class:`~openstack.network.v2.agent.Agent`
         :raises: :class:`~openstack.exceptions.SDKException` on error.
         """
         url = utils.urljoin(self.base_path, self.id, 'bgp-dragents')
         resp = session.get(url)
         exceptions.raise_from_response(resp)
         self._body.attributes.update(resp.json())
-        return resp.json()
+        agent_ids = [ag['id'] for ag in resp.json()['agents']]
+        agents = _agent.Agent.list(session=session)
+        return [ag for ag in agents if ag.id in agent_ids]
 
     def add_bgp_speaker_to_dragent(self, session, bgp_agent_id):
         """Add BGP Speaker to a Dynamic Routing Agent
