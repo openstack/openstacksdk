@@ -561,7 +561,7 @@ class Proxy(proxy.Proxy):
 
     # ======== Zone Shares ========
     def zone_shares(self, zone, **query):
-        """Retrieve a generator of zone sharess
+        """Retrieve a generator of zone shares
 
         :param zone: The zone ID or a
             :class:`~openstack.dns.v2.zone.Zone` instance

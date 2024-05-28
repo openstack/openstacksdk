@@ -1990,6 +1990,7 @@ class Resource(dict):
         allow_unknown_params=False,
         *,
         microversion=None,
+        headers=None,
         **params,
     ):
         """This method is a generator which yields resource objects.
@@ -2010,6 +2011,8 @@ class Resource(dict):
             passing everything known to the server. ``False`` will result in
             validation exception when unknown query parameters are passed.
         :param str microversion: API version to override the negotiated one.
+        :param dict headers: Additional headers to inject into the HTTP
+            request.
         :param dict params: These keyword arguments are passed through the
             :meth:`~openstack.resource.QueryParamter._transpose` method
             to find if any of them match expected query parameters to be sent
@@ -2079,6 +2082,10 @@ class Resource(dict):
                     return False
             return True
 
+        headers_final = {"Accept": "application/json"}
+        if headers:
+            headers_final = {**headers_final, **headers}
+
         # Track the total number of resources yielded so we can paginate
         # swift objects
         total_yielded = 0
@@ -2086,7 +2093,7 @@ class Resource(dict):
             # Copy query_params due to weird mock unittest interactions
             response = session.get(
                 uri,
-                headers={"Accept": "application/json"},
+                headers=headers_final,
                 params=query_params.copy(),
                 microversion=microversion,
             )

@@ -879,7 +879,7 @@ class Proxy(adapter.Adapter):
 
         if resource_name in skip_resources:
             self.log.debug(
-                f"Skipping resource {resource_name} " "in project cleanup"
+                f"Skipping resource {resource_name} in project cleanup"
             )
             return True
 
