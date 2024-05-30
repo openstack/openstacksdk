@@ -80,7 +80,7 @@ class Resource(resource.Resource):
         all_projects=None,
         **params,
     ):
-        headers: ty.Union[ty.Dict[str, str] | None] = (
+        headers: ty.Union[ty.Union[ty.Dict[str, str], None]] = (
             {} if project_id or all_projects else None
         )
 
