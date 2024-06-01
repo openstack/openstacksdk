@@ -836,13 +836,22 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {'unshelve': data or None}
         self._action(session, body)
 
-    def migrate(self, session):
+    def migrate(self, session, *, host=None):
         """Migrate the server.
 
         :param session: The session to use for making this request.
+        :param host: The host to migrate the server to. (Optional)
         :returns: None
         """
-        body = {"migrate": None}
+        if host and not utils.supports_microversion(session, '2.56'):
+            raise ValueError(
+                "The 'host' option is only supported on microversion 2.56 or "
+                "greater."
+            )
+
+        body: ty.Dict[str, ty.Any] = {"migrate": None}
+        if host:
+            body["migrate"] = {"host": host}
         self._action(session, body)
 
     def trigger_crash_dump(self, session):
