@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    The ``migrate_server`` compute proxy API and the ``Server.migrate`` API now
+    accept a ``host`` parameter to migrate to a given host.
