@@ -137,3 +137,17 @@ class TestServerVolumeAttachment(ft_base.BaseComputeTest):
             status='available',
             wait=self._wait_for_timeout,
         )
+
+        # Wait for the attachment to be deleted.
+        # This is done to prevent a race between the BDM
+        # record being deleted and we trying to delete the server.
+        self.user_cloud.compute.wait_for_delete(
+            volume_attachment,
+            wait=self._wait_for_timeout,
+        )
+
+        # Verify the server doesn't have any volume attachment
+        volume_attachments = list(
+            self.user_cloud.compute.volume_attachments(self.server)
+        )
+        self.assertEqual(0, len(volume_attachments))

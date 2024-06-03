@@ -2503,8 +2503,10 @@ def wait_for_delete(session, resource, interval, wait, callback=None):
             resource = resource.fetch(session, skip_cache=True)
             if not resource:
                 return orig_resource
-            if resource.status.lower() == 'deleted':
-                return resource
+            # Some resources like VolumeAttachment don't have status field.
+            if hasattr(resource, 'status'):
+                if resource.status.lower() == 'deleted':
+                    return resource
         except exceptions.NotFoundException:
             return orig_resource
 
