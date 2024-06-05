@@ -465,6 +465,14 @@ class Node(_common.Resource):
                     'Config drive can only be provided with '
                     '"active" and "rebuild" targets'
                 )
+            if isinstance(config_drive, bytes):
+                try:
+                    config_drive = config_drive.decode('utf-8')
+                except UnicodeError:
+                    raise ValueError(
+                        'Config drive must be a dictionary or a base64 '
+                        'encoded string'
+                    )
             # Not a typo - ironic accepts "configdrive" (without underscore)
             body['configdrive'] = config_drive
 
