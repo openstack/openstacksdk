@@ -12,6 +12,7 @@
 
 from unittest import mock
 
+import fixtures
 from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
 from openstack import exceptions
@@ -23,6 +24,7 @@ from openstack.orchestration.v1 import stack
 from openstack.orchestration.v1 import stack_environment
 from openstack.orchestration.v1 import stack_event
 from openstack.orchestration.v1 import stack_files
+from openstack.orchestration.v1 import stack_snapshot
 from openstack.orchestration.v1 import stack_template
 from openstack.orchestration.v1 import template
 from openstack import proxy
@@ -559,3 +561,136 @@ class TestOrchestrationStackEvents(TestOrchestrationProxy):
                 'base_path': base_path,
             },
         )
+
+
+class TestOrchestrationStackSnapshot(TestOrchestrationProxy):
+    stack_as_object: bool
+    snapshot_as_object: bool
+    scenarios = [
+        ('ids', dict(stack_as_object=False, snapshot_as_object=False)),
+        ('stack_object', dict(stack_as_object=True, snapshot_as_object=False)),
+        (
+            'snapshot_object',
+            dict(stack_as_object=False, snapshot_as_object=True),
+        ),
+        ('objects', dict(stack_as_object=True, snapshot_as_object=True)),
+    ]
+
+    def setUp(self):
+        super().setUp()
+        self.stack = stack.Stack(id='stack-id', name='stack-name')
+        self.snapshot = stack_snapshot.StackSnapshot(id='snapshot-id')
+        self.stack_arg = self.stack if self.stack_as_object else self.stack.id
+        self.snapshot_arg = (
+            self.snapshot if self.snapshot_as_object else self.snapshot.id
+        )
+        self.find = self.useFixture(
+            # Stack resolution should not fetch anything for object arguments.
+            fixtures.MockPatchObject(
+                self.proxy, '_find', return_value=self.stack
+            )
+        ).mock
+
+    def assert_stack_lookup(self, ignore_missing=False):
+        if self.stack_as_object:
+            self.find.assert_not_called()
+        else:
+            self.find.assert_called_once_with(
+                stack.Stack, self.stack.id, ignore_missing=ignore_missing
+            )
+
+    def test_get_stack_snapshot(self):
+        self._verify(
+            'openstack.proxy.Proxy._get',
+            self.proxy.get_stack_snapshot,
+            method_args=[self.stack_arg, self.snapshot_arg],
+            expected_args=[stack_snapshot.StackSnapshot, self.snapshot_arg],
+            expected_kwargs={
+                'stack_name': self.stack.name,
+                'stack_id': self.stack.id,
+            },
+        )
+        self.assert_stack_lookup()
+
+    def test_stack_snapshots(self):
+        self._verify(
+            'openstack.proxy.Proxy._list',
+            self.proxy.stack_snapshots,
+            method_args=[self.stack_arg],
+            expected_args=[stack_snapshot.StackSnapshot],
+            expected_kwargs={
+                'stack_name': self.stack.name,
+                'stack_id': self.stack.id,
+            },
+        )
+        self.assert_stack_lookup()
+
+    def test_create_stack_snapshot(self):
+        self._verify(
+            'openstack.proxy.Proxy._create',
+            self.proxy.create_stack_snapshot,
+            method_args=[self.stack_arg, 'snapshot-name'],
+            expected_args=[stack_snapshot.StackSnapshot],
+            expected_kwargs={
+                'stack_name': self.stack.name,
+                'stack_id': self.stack.id,
+                'name': 'snapshot-name',
+            },
+        )
+        self.assert_stack_lookup()
+
+    def test_restore_stack_from_snapshot(self):
+        with mock.patch.object(
+            stack_snapshot.StackSnapshot, 'restore', autospec=True
+        ) as restore:
+            self.proxy.restore_stack_from_snapshot(
+                self.stack_arg, self.snapshot_arg
+            )
+        restored, session = restore.call_args.args
+        self.assertEqual(self.snapshot.id, restored.id)
+        self.assertEqual(self.stack.id, restored.stack_id)
+        self.assertEqual(self.stack.name, restored.stack_name)
+        self.assertIs(self.proxy, session)
+        if self.snapshot_as_object:
+            self.assertIs(self.snapshot, restored)
+        self.assert_stack_lookup()
+
+    def test_delete_stack_snapshot(self):
+        self._verify(
+            'openstack.proxy.Proxy._delete',
+            self.proxy.delete_stack_snapshot,
+            method_args=[self.stack_arg, self.snapshot_arg],
+            expected_args=[stack_snapshot.StackSnapshot, self.snapshot_arg],
+            expected_kwargs={
+                'ignore_missing': True,
+                'stack_name': self.stack.name,
+                'stack_id': self.stack.id,
+            },
+            expected_result=None,
+        )
+        self.assert_stack_lookup(ignore_missing=True)
+
+    def test_delete_stack_snapshot_not_ignored(self):
+        self._verify(
+            'openstack.proxy.Proxy._delete',
+            self.proxy.delete_stack_snapshot,
+            method_args=[self.stack_arg, self.snapshot_arg],
+            method_kwargs={'ignore_missing': False},
+            expected_args=[stack_snapshot.StackSnapshot, self.snapshot_arg],
+            expected_kwargs={
+                'ignore_missing': False,
+                'stack_name': self.stack.name,
+                'stack_id': self.stack.id,
+            },
+            expected_result=None,
+        )
+        self.assert_stack_lookup()
+
+    def test_delete_stack_snapshot_missing_stack(self):
+        self.find.return_value = None
+        with mock.patch.object(self.proxy, '_delete') as delete:
+            self.proxy.delete_stack_snapshot('missing', self.snapshot_arg)
+        self.find.assert_called_once_with(
+            stack.Stack, 'missing', ignore_missing=True
+        )
+        delete.assert_not_called()

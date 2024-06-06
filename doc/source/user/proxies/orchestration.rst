@@ -43,6 +43,14 @@ Stack Event Operations
   :noindex:
   :members: stack_events
 
+Stack Snapshot Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.orchestration.v1._proxy.Proxy
+  :noindex:
+  :members: stack_snapshots, get_stack_snapshot, create_stack_snapshot,
+            restore_stack_from_snapshot, delete_stack_snapshot
+
 Stack Template Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
