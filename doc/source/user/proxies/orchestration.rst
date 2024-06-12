@@ -18,10 +18,23 @@ Stack Operations
 
 .. autoclass:: openstack.orchestration.v1._proxy.Proxy
   :noindex:
-  :members: create_stack, check_stack, update_stack, delete_stack, find_stack, suspend_stack, resume_stack,
-            get_stack, get_stack_environment, get_stack_files,
-            get_stack_template, stacks, validate_template, resources,
-            export_stack
+  :members: create_stack, stacks,find_stack, update_stack, delete_stack,
+            get_stack, export_stack,
+            get_stack_template, get_stack_environment
+
+Stack Resource Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.orchestration.v1._proxy.Proxy
+  :noindex:
+  :members: resources
+
+Stack Action Operations
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.orchestration.v1._proxy.Proxy
+  :noindex:
+  :members: suspend_stack, resume_stack, check_stack
 
 Stack Event Operations
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -29,6 +42,13 @@ Stack Event Operations
 .. autoclass:: openstack.orchestration.v1._proxy.Proxy
   :noindex:
   :members: stack_events
+
+Stack Template Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.orchestration.v1._proxy.Proxy
+  :noindex:
+  :members: validate_template
 
 Software Configuration Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
