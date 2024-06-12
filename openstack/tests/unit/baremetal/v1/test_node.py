@@ -1293,3 +1293,48 @@ class TestNodeInventory(base.TestCase):
             microversion='1.81',
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
+
+
+@mock.patch.object(node.Node, 'fetch', lambda self, session: self)
+@mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
+class TestNodeFirmware(base.TestCase):
+    def setUp(self):
+        super().setUp()
+        self.node = node.Node(**FAKE)
+        self.session = mock.Mock(
+            spec=adapter.Adapter,
+            default_microversion='1.86',
+        )
+
+    def test_list_firmware(self):
+        node_firmware = {
+            "firmware": [
+                {
+                    "created_at": "2016-08-18T22:28:49.653974+00:00",
+                    "updated_at": "2016-08-18T22:28:49.653974+00:00",
+                    "component": "BMC",
+                    "initial_version": "v1.0.0",
+                    "current_version": "v1.2.0",
+                    "last_version_flashed": "v1.2.0",
+                },
+                {
+                    "created_at": "2016-08-18T22:28:49.653974+00:00",
+                    "updated_at": "2016-08-18T22:28:49.653974+00:00",
+                    "component": "BIOS",
+                    "initial_version": "v1.0.0",
+                    "current_version": "v1.1.5",
+                    "last_version_flashed": "v1.1.5",
+                },
+            ]
+        }
+        self.session.get.return_value.json.return_value = node_firmware
+
+        res = self.node.list_firmware(self.session)
+        self.assertEqual(node_firmware, res)
+
+        self.session.get.assert_called_once_with(
+            'nodes/%s/firmware' % self.node.id,
+            headers=mock.ANY,
+            microversion='1.86',
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )

@@ -1243,6 +1243,16 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.set_traits(self, traits)
 
+    def list_node_firmware(self, node):
+        """Lists firmware components for a node.
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :returns: A list of the node's firmware components.
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.list_firmware(self)
+
     def volume_connectors(self, details=False, **query):
         """Retrieve a generator of volume_connector.
 
