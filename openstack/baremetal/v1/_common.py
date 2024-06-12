@@ -70,6 +70,9 @@ STATE_VERSIONS = {
 VIF_VERSION = '1.28'
 """API version in which the VIF operations were introduced."""
 
+VIF_OPTIONAL_PARAMS_VERSION = '1.67'
+"""API version in which the VIF optional parameters were introduced."""
+
 INJECT_NMI_VERSION = '1.29'
 """API vresion in which support for injecting NMI was introduced."""
 

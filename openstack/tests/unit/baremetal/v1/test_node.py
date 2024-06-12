@@ -558,12 +558,14 @@ class TestNodeVif(base.TestCase):
     def setUp(self):
         super().setUp()
         self.session = mock.Mock(spec=adapter.Adapter)
-        self.session.default_microversion = '1.28'
+        self.session.default_microversion = '1.67'
         self.session.log = mock.Mock()
         self.node = node.Node(
             id='c29db401-b6a7-4530-af8e-20a720dee946', driver=FAKE['driver']
         )
         self.vif_id = '714bdf6d-2386-4b5e-bd0d-bc036f04b1ef'
+        self.vif_port_uuid = 'port-uuid'
+        self.vif_portgroup_uuid = 'portgroup-uuid'
 
     def test_attach_vif(self):
         self.assertIsNone(self.node.attach_vif(self.session, self.vif_id))
@@ -571,7 +573,7 @@ class TestNodeVif(base.TestCase):
             'nodes/%s/vifs' % self.node.id,
             json={'id': self.vif_id},
             headers=mock.ANY,
-            microversion='1.28',
+            microversion='1.67',
             retriable_status_codes=[409, 503],
         )
 
@@ -585,8 +587,51 @@ class TestNodeVif(base.TestCase):
             'nodes/%s/vifs' % self.node.id,
             json={'id': self.vif_id},
             headers=mock.ANY,
-            microversion='1.28',
+            microversion='1.67',
             retriable_status_codes=[503],
+        )
+
+    def test_attach_vif_with_port_uuid(self):
+        self.assertIsNone(
+            self.node.attach_vif(
+                self.session, self.vif_id, port_id=self.vif_port_uuid
+            )
+        )
+        self.session.post.assert_called_once_with(
+            'nodes/%s/vifs' % self.node.id,
+            json={'id': self.vif_id, 'port_uuid': self.vif_port_uuid},
+            headers=mock.ANY,
+            microversion='1.67',
+            retriable_status_codes=[409, 503],
+        )
+
+    def test_attach_vif_with_portgroup_uuid(self):
+        self.assertIsNone(
+            self.node.attach_vif(
+                self.session,
+                self.vif_id,
+                port_group_id=self.vif_portgroup_uuid,
+            )
+        )
+        self.session.post.assert_called_once_with(
+            'nodes/%s/vifs' % self.node.id,
+            json={
+                'id': self.vif_id,
+                'portgroup_uuid': self.vif_portgroup_uuid,
+            },
+            headers=mock.ANY,
+            microversion='1.67',
+            retriable_status_codes=[409, 503],
+        )
+
+    def test_attach_vif_with_port_uuid_and_portgroup_uuid(self):
+        self.assertRaises(
+            exceptions.InvalidRequest,
+            self.node.attach_vif,
+            self.session,
+            self.vif_id,
+            port_id=self.vif_port_uuid,
+            port_group_id=self.vif_portgroup_uuid,
         )
 
     def test_detach_vif_existing(self):
@@ -594,7 +639,7 @@ class TestNodeVif(base.TestCase):
         self.session.delete.assert_called_once_with(
             f'nodes/{self.node.id}/vifs/{self.vif_id}',
             headers=mock.ANY,
-            microversion='1.28',
+            microversion='1.67',
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 
@@ -604,7 +649,7 @@ class TestNodeVif(base.TestCase):
         self.session.delete.assert_called_once_with(
             f'nodes/{self.node.id}/vifs/{self.vif_id}',
             headers=mock.ANY,
-            microversion='1.28',
+            microversion='1.67',
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 
@@ -620,7 +665,7 @@ class TestNodeVif(base.TestCase):
         self.session.get.assert_called_once_with(
             'nodes/%s/vifs' % self.node.id,
             headers=mock.ANY,
-            microversion='1.28',
+            microversion='1.67',
         )
 
     def test_incompatible_microversion(self):
@@ -639,6 +684,23 @@ class TestNodeVif(base.TestCase):
         )
         self.assertRaises(
             exceptions.NotSupported, self.node.list_vifs, self.session
+        )
+
+    def test_incompatible_microversion_optional_params(self):
+        self.session.default_microversion = '1.28'
+        self.assertRaises(
+            exceptions.NotSupported,
+            self.node.attach_vif,
+            self.session,
+            self.vif_id,
+            port_id=self.vif_port_uuid,
+        )
+        self.assertRaises(
+            exceptions.NotSupported,
+            self.node.attach_vif,
+            self.session,
+            self.vif_id,
+            port_group_id=self.vif_portgroup_uuid,
         )
 
 
