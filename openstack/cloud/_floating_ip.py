@@ -16,15 +16,14 @@ import warnings
 
 from openstack.cloud import _utils
 from openstack.cloud import meta
+from openstack.cloud import openstackcloud
 from openstack import exceptions
-from openstack.network import network_service
 from openstack import proxy
 from openstack import utils
 from openstack import warnings as os_warnings
 
 
-class FloatingIPCloudMixin:
-    network: network_service.NetworkService
+class FloatingIPCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def __init__(self):
         self.private = self.config.config.get('private', False)

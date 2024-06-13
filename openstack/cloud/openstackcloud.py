@@ -23,7 +23,6 @@ import requestsexceptions
 
 from openstack import _log
 from openstack import _services_mixin
-from openstack.cloud import _object_store
 from openstack.cloud import _utils
 from openstack.cloud import meta
 import openstack.config
@@ -31,11 +30,6 @@ from openstack.config import cloud_region as cloud_region_mod
 from openstack import exceptions
 from openstack import proxy
 from openstack import utils
-
-DEFAULT_OBJECT_SEGMENT_SIZE = _object_store.DEFAULT_OBJECT_SEGMENT_SIZE
-# This halves the current default for Swift
-DEFAULT_MAX_FILE_SIZE = _object_store.DEFAULT_MAX_FILE_SIZE
-OBJECT_CONTAINER_ACLS = _object_store.OBJECT_CONTAINER_ACLS
 
 
 class _OpenStackCloudMixin(_services_mixin.ServicesMixin):

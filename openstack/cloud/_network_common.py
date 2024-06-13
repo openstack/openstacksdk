@@ -12,11 +12,12 @@
 
 import threading
 
+from openstack.cloud import openstackcloud
 from openstack import exceptions
 from openstack.network import network_service
 
 
-class NetworkCommonCloudMixin:
+class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
     """Shared networking functions used by FloatingIP, Network, Compute
     classes."""
 

@@ -16,13 +16,8 @@ import urllib.parse
 import keystoneauth1.exceptions
 
 from openstack.cloud import _utils
+from openstack.cloud import openstackcloud
 from openstack import exceptions
-from openstack.object_store import object_store_service
-
-DEFAULT_OBJECT_SEGMENT_SIZE = 1073741824  # 1GB
-# This halves the current default for Swift
-DEFAULT_MAX_FILE_SIZE = (5 * 1024 * 1024 * 1024 + 2) / 2
-
 
 OBJECT_CONTAINER_ACLS = {
     'public': '.r:*,.rlistings',
@@ -30,8 +25,7 @@ OBJECT_CONTAINER_ACLS = {
 }
 
 
-class ObjectStoreCloudMixin:
-    object_store: object_store_service.ObjectStoreService
+class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     # TODO(stephenfin): Remove 'full_listing' as it's a noop
     def list_containers(self, full_listing=True, prefix=None):

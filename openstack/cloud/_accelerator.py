@@ -10,11 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from openstack.accelerator import accelerator_service
+from openstack.cloud import openstackcloud
 
 
-class AcceleratorCloudMixin:
-    accelerator: accelerator_service.AcceleratorService
+class AcceleratorCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def list_deployables(self, filters=None):
         """List all available deployables.

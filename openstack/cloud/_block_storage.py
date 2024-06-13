@@ -12,14 +12,13 @@
 
 import warnings
 
-from openstack.block_storage import block_storage_service
 from openstack.cloud import _utils
+from openstack.cloud import openstackcloud
 from openstack import exceptions
 from openstack import warnings as os_warnings
 
 
-class BlockStorageCloudMixin:
-    block_storage: block_storage_service.BlockStorageService
+class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     # TODO(stephenfin): Remove 'cache' in a future major version
     def list_volumes(self, cache=True):

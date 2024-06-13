@@ -11,10 +11,12 @@
 # limitations under the License.
 
 from openstack.cloud import _utils
+from openstack.cloud import openstackcloud
 from openstack import exceptions
 
 
-class CoeCloudMixin:
+class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
+
     def list_coe_clusters(self):
         """List COE (Container Orchestration Engine) cluster.
 

@@ -11,13 +11,12 @@
 # limitations under the License.
 
 from openstack.cloud import _utils
+from openstack.cloud import openstackcloud
 from openstack import exceptions
-from openstack.orchestration import orchestration_service
 from openstack.orchestration.util import event_utils
 
 
-class OrchestrationCloudMixin:
-    orchestration: orchestration_service.OrchestrationService
+class OrchestrationCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def get_template_contents(
         self,
