@@ -847,7 +847,7 @@ class Node(_common.Resource):
         :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param string vif_id: Backend-specific VIF ID.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    :class:`~openstack.exceptions.NotFoundException` will be
                     raised when the VIF does not exist. Otherwise, ``False``
                     is returned.
         :return: ``True`` if the VIF was detached, otherwise ``False``.
@@ -1188,7 +1188,7 @@ class Node(_common.Resource):
         :param session: The session to use for making this request.
         :param trait: The trait to remove from the node.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the trait does not exist.
             Otherwise, ``False`` is returned.
         :returns bool: True on success removing the trait.

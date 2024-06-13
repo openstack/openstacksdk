@@ -93,7 +93,7 @@ class ShareAccessRule(resource.Resource):
         try:
             response = self._action(session, body, url)
             self._translate_response(response)
-        except exceptions.ResourceNotFound:
+        except exceptions.NotFoundException:
             if not ignore_missing:
                 raise
         return response

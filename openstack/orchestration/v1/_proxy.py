@@ -130,7 +130,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a stack.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -162,7 +162,7 @@ class Proxy(proxy.Proxy):
         :param resolve_outputs: Whether stack should contain outputs resolved.
 
         :returns: One :class:`~openstack.orchestration.v1.stack.Stack`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_stack.Stack, stack, resolve_outputs=resolve_outputs)
@@ -177,7 +177,7 @@ class Proxy(proxy.Proxy):
 
         :returns: The updated stack
         :rtype: :class:`~openstack.orchestration.v1.stack.Stack`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         res = self._get_resource(_stack.Stack, stack, **attrs)
@@ -190,7 +190,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.orchestration.v1.stack.Stack`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the stack does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent stack.
@@ -232,7 +232,7 @@ class Proxy(proxy.Proxy):
         :param stack: The value can be the ID or a name or
             an instance of :class:`~openstack.orchestration.v1.stack.Stack`
         :returns: A dictionary containing the stack data.
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         if isinstance(stack, _stack.Stack):
@@ -269,7 +269,7 @@ class Proxy(proxy.Proxy):
 
         :returns: One object of
             :class:`~openstack.orchestration.v1.stack_template.StackTemplate`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         if isinstance(stack, _stack.Stack):
@@ -292,7 +292,7 @@ class Proxy(proxy.Proxy):
 
         :returns: One object of
             :class:`~openstack.orchestration.v1.stack_environment.StackEnvironment`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         """
         if isinstance(stack, _stack.Stack):
@@ -315,7 +315,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A dictionary containing the names and contents of all files
             used by the stack.
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when the stack cannot be found.
         """
         if isinstance(stack, _stack.Stack):
@@ -339,7 +339,7 @@ class Proxy(proxy.Proxy):
             an exception is thrown.
         :rtype: A generator of
             :class:`~openstack.orchestration.v1.resource.Resource`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when the stack cannot be found.
         """
         # first try treat the value as a stack object or an ID
@@ -395,7 +395,7 @@ class Proxy(proxy.Proxy):
             config or an instance of
             :class:`~openstack.orchestration.v1.software_config.SoftwareConfig`
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the software config does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent software config.
@@ -450,7 +450,7 @@ class Proxy(proxy.Proxy):
             software deployment or an instance of
             :class:`~openstack.orchestration.v1.software_deployment.SoftwareDeployment`
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the software deployment does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent software deployment.

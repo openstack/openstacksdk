@@ -42,7 +42,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.key_manager.v1.container.Container`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the container does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent container.
@@ -58,7 +58,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a container.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -77,7 +77,7 @@ class Proxy(proxy.Proxy):
             instance.
 
         :returns: One :class:`~openstack.key_manager.v1.container.Container`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_container.Container, container)
@@ -125,7 +125,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.key_manager.v1.order.Order`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the order does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent order.
@@ -139,7 +139,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a order.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -157,7 +157,7 @@ class Proxy(proxy.Proxy):
             instance.
 
         :returns: One :class:`~openstack.key_manager.v1.order.Order`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_order.Order, order)
@@ -205,7 +205,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.key_manager.v1.secret.Secret`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the secret does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent secret.
@@ -219,7 +219,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a secret.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -238,7 +238,7 @@ class Proxy(proxy.Proxy):
             instance.
 
         :returns: One :class:`~openstack.key_manager.v1.secret.Secret`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_secret.Secret, secret)

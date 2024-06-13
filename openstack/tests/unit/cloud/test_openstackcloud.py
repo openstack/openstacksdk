@@ -64,7 +64,7 @@ class TestSearch(base.TestCase):
         )
 
     def test_search_resources_list(self):
-        self.session._get.side_effect = exceptions.ResourceNotFound
+        self.session._get.side_effect = exceptions.NotFoundException
         self.session._list.return_value = [self.FakeResource(foo="bar")]
 
         ret = self.cloud.search_resources("mock_session.fake", "fake_name")
@@ -79,7 +79,7 @@ class TestSearch(base.TestCase):
         )
 
     def test_search_resources_args(self):
-        self.session._get.side_effect = exceptions.ResourceNotFound
+        self.session._get.side_effect = exceptions.NotFoundException
         self.session._list.return_value = []
 
         self.cloud.search_resources(

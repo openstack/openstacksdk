@@ -123,7 +123,7 @@ class TestZoneShare(base.BaseFunctionalTest):
 
     def test_find_zone_share_ignore_missing_false(self):
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.operator_cloud.dns.find_zone_share,
             self.zone,
             'bogus_id',

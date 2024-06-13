@@ -157,7 +157,7 @@ class Proxy(proxy.Proxy):
         :param container: The value can be either the name of a container or a
             :class:`~openstack.object_store.v1.container.Container` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the container does not exist. When set to ``True``, no exception
             will be set when attempting to delete a nonexistent server.
 
@@ -174,7 +174,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.object_store.v1.container.Container` instance.
 
         :returns: One :class:`~openstack.object_store.v1.container.Container`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._head(_container.Container, container)
@@ -279,7 +279,7 @@ class Proxy(proxy.Proxy):
 
         :returns: Instance of the
             :class:`~openstack.object_store.v1.obj.Object` objects.
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         container_name = self._get_container_name(obj=obj, container=container)
@@ -323,7 +323,7 @@ class Proxy(proxy.Proxy):
         :param container: The value can be the name of a container or a
             :class:`~openstack.object_store.v1.container.Container` instance.
 
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         container_name = self._get_container_name(obj=obj, container=container)
@@ -340,7 +340,7 @@ class Proxy(proxy.Proxy):
         :param container: The value can be the name of a container or a
             :class:`~openstack.object_store.v1.container.Container` instance.
 
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :returns: An iterator that iterates over chunk_size bytes
         """
@@ -491,7 +491,7 @@ class Proxy(proxy.Proxy):
         :param container: The value can be the ID of a container or a
             :class:`~openstack.object_store.v1.container.Container` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the object does not exist.  When set to ``True``, no exception will
             be set when attempting to delete a nonexistent server.
 
@@ -515,7 +515,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.object_store.v1.container.Container` instance.
 
         :returns: One :class:`~openstack.object_store.v1.obj.Object`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         container_name = self._get_container_name(obj, container)

@@ -456,7 +456,7 @@ class ObjectStoreCloudMixin:
             yield from self.object_store.stream_object(
                 obj, container, chunk_size=resp_chunk_size
             )
-        except exceptions.ResourceNotFound:
+        except exceptions.NotFoundException:
             return
 
     def get_object(
@@ -498,7 +498,7 @@ class ObjectStoreCloudMixin:
             headers = {k.lower(): v for k, v in obj._last_headers.items()}
             return (headers, obj.data)
 
-        except exceptions.ResourceNotFound:
+        except exceptions.NotFoundException:
             return None
 
     def _wait_for_futures(self, futures, raise_on_error=True):

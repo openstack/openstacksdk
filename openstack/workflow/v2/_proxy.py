@@ -56,7 +56,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.workflow.v2.workflow.Workflow` instance.
 
         :returns: One :class:`~openstack.workflow.v2.workflow.Workflow`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             workflow matching the name could be found.
         """
         return self._get(_workflow.Workflow, *attrs)
@@ -86,7 +86,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.workflow.v2.workflow.Workflow`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will
+            :class:`~openstack.exceptions.NotFoundException` will
             be raised when the workflow does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent workflow.
@@ -102,7 +102,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of an workflow.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -134,7 +134,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.workflow.v2.execution.Execution` instance.
 
         :returns: One :class:`~openstack.workflow.v2.execution.Execution`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             execution matching the criteria could be found.
         """
         return self._get(_execution.Execution, *attrs)
@@ -164,7 +164,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.workflow.v2.execute.Execution`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the execution does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent execution.
@@ -180,7 +180,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of an execution.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -210,7 +210,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.workflow.v2.cron_trigger.CronTrigger` instance.
 
         :returns: One :class:`~openstack.workflow.v2.cron_trigger.CronTrigger`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             cron triggers matching the criteria could be found.
         """
         return self._get(_cron_trigger.CronTrigger, cron_trigger)
@@ -244,7 +244,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.workflow.v2.cron_trigger.CronTrigger`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the cron trigger does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent cron trigger.
@@ -268,7 +268,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a cron trigger.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the resource does not exist. When set to ``True``, None will be
             returned when attempting to find a nonexistent resource.
         :param bool all_projects: When set to ``True``, search for cron
@@ -279,7 +279,7 @@ class Proxy(proxy.Proxy):
 
         :returns: One :class:`~openstack.compute.v2.cron_trigger.CronTrigger`
             or None
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
             resources are found.

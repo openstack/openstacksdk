@@ -96,7 +96,7 @@ class Image(resource.Resource, _download.DownloadMixin):
         :param name_or_id: This resource's identifier, if needed by
                            the request. The default is ``None``.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    :class:`~openstack.exceptions.NotFoundException` will be
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
@@ -109,7 +109,7 @@ class Image(resource.Resource, _download.DownloadMixin):
                  or None if nothing matches.
         :raises: :class:`openstack.exceptions.DuplicateResource` if more
                  than one resource is found for this request.
-        :raises: :class:`openstack.exceptions.ResourceNotFound` if nothing
+        :raises: :class:`openstack.exceptions.NotFoundException` if nothing
                  is found and ignore_missing is ``False``.
         """
         session = cls._get_session(session)
@@ -134,6 +134,6 @@ class Image(resource.Resource, _download.DownloadMixin):
 
         if ignore_missing:
             return None
-        raise exceptions.ResourceNotFound(
+        raise exceptions.NotFoundException(
             f"No {cls.__name__} found for {name_or_id}"
         )

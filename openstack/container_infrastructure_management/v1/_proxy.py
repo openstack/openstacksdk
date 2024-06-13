@@ -51,7 +51,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.container_infrastructure_management.v1.cluster.Cluster`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the cluster does not exist. When set to ``True``, no exception will
             be set when attempting to delete a nonexistent cluster.
         :returns: ``None``
@@ -63,7 +63,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a cluster.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -86,7 +86,7 @@ class Proxy(proxy.Proxy):
 
         :returns: One
             :class:`~openstack.container_infrastructure_management.v1.cluster.Cluster`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_cluster.Cluster, cluster)
@@ -139,7 +139,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.container_infrastructure_management.v1.cluster_template.ClusterTemplate`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the cluster_template does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
             cluster_template.
@@ -156,7 +156,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a cluster_template.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -180,7 +180,7 @@ class Proxy(proxy.Proxy):
 
         :returns: One
             :class:`~openstack.container_infrastructure_management.v1.cluster_template.ClusterTemplate`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_cluster_template.ClusterTemplate, cluster_template)
@@ -237,7 +237,7 @@ class Proxy(proxy.Proxy):
 
         :returns: One
             :class:`~openstack.container_infrastructure_management.v1.cluster_certificate.ClusterCertificate`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_cluster_cert.ClusterCertificate, cluster_certificate)

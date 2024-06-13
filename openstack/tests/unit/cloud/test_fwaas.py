@@ -444,7 +444,7 @@ class TestFirewallPolicy(FirewallTestCase):
 
         with mock.patch.object(self.cloud.network, 'create_firewall_policy'):
             self.assertRaises(
-                exceptions.ResourceNotFound,
+                exceptions.NotFoundException,
                 self.cloud.create_firewall_policy,
                 **posted_policy
             )
@@ -947,7 +947,7 @@ class TestFirewallPolicy(FirewallTestCase):
 
         with mock.patch.object(self.cloud.network, 'find_firewall_rule'):
             self.assertRaises(
-                exceptions.ResourceNotFound,
+                exceptions.NotFoundException,
                 self.cloud.insert_rule_into_policy,
                 policy_name,
                 'bogus_rule',
@@ -979,7 +979,7 @@ class TestFirewallPolicy(FirewallTestCase):
             ]
         )
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.cloud.insert_rule_into_policy,
             self.firewall_policy_id,
             rule_name,
@@ -1088,7 +1088,7 @@ class TestFirewallPolicy(FirewallTestCase):
 
         with mock.patch.object(self.cloud.network, 'find_firewall_rule'):
             self.assertRaises(
-                exceptions.ResourceNotFound,
+                exceptions.NotFoundException,
                 self.cloud.remove_rule_from_policy,
                 self.firewall_policy_name,
                 TestFirewallRule.firewall_rule_name,

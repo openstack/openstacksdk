@@ -83,7 +83,7 @@ class Service(resource.Resource):
 
         if ignore_missing:
             return None
-        raise exceptions.ResourceNotFound(
+        raise exceptions.NotFoundException(
             f"No {cls.__name__} found for {name_or_id}"
         )
 

@@ -192,7 +192,7 @@ class ManageUnmanageShareTest(base.BaseSharedFileSystemTest):
 
         try:
             self.operator_cloud.share.get_share(self.SHARE_ID)
-        except exceptions.ResourceNotFound:
+        except exceptions.NotFoundException:
             pass
 
         managed_share = self.operator_cloud.share.manage_share(

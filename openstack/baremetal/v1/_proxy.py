@@ -118,7 +118,7 @@ class Proxy(proxy.Proxy):
 
         :param str name_or_id: The ID of a chassis.
         :param bool ignore_missing: When set to ``False``, an exception of
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the chassis does not exist.  When set to `True``, None will
             be returned when attempting to find a nonexistent chassis.
         :returns: One :class:`~openstack.baremetal.v1.chassis.Chassis` object
@@ -136,7 +136,7 @@ class Proxy(proxy.Proxy):
         :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.baremetal.v1.chassis.Chassis`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             chassis matching the name or ID could be found.
         """
         return self._get_with_fields(_chassis.Chassis, chassis, fields=fields)
@@ -172,7 +172,7 @@ class Proxy(proxy.Proxy):
         :param chassis: The value can be either the ID of a chassis or
             a :class:`~openstack.baremetal.v1.chassis.Chassis` instance.
         :param bool ignore_missing: When set to ``False``, an exception
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the chassis could not be found. When set to ``True``, no
             exception will be raised when attempting to delete a non-existent
             chassis.
@@ -206,7 +206,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.baremetal.v1.driver.Driver` instance.
 
         :returns: One :class:`~openstack.baremetal.v1.driver.Driver`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             driver matching the name could be found.
         """
         return self._get(_driver.Driver, driver)
@@ -218,7 +218,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.baremetal.v1.driver.Driver` instance.
 
         :returns: One :dict: of vendor methods with corresponding usages
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             driver matching the name could be found.
         """
         driver = self.get_driver(driver)
@@ -310,7 +310,7 @@ class Proxy(proxy.Proxy):
 
         :param str name_or_id: The name or ID of a node.
         :param bool ignore_missing: When set to ``False``, an exception of
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the node does not exist.  When set to `True``, None will
             be returned when attempting to find a nonexistent node.
         :returns: One :class:`~openstack.baremetal.v1.node.Node` object
@@ -328,7 +328,7 @@ class Proxy(proxy.Proxy):
         :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.baremetal.v1.node.Node`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             node matching the name or ID could be found.
         """
         return self._get_with_fields(_node.Node, node, fields=fields)
@@ -340,7 +340,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.baremetal.v1.node.Node` instance.
 
         :returns: The node inventory
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             inventory could be found.
         """
         res = self._get_resource(_node.Node, node)
@@ -702,7 +702,7 @@ class Proxy(proxy.Proxy):
         :param node: The value can be either the name or ID of a node or
             a :class:`~openstack.baremetal.v1.node.Node` instance.
         :param bool ignore_missing: When set to ``False``, an exception
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the node could not be found. When set to ``True``, no
             exception will be raised when attempting to delete a non-existent
             node.
@@ -773,7 +773,7 @@ class Proxy(proxy.Proxy):
 
         :param str name_or_id: The ID of a port.
         :param bool ignore_missing: When set to ``False``, an exception of
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the port does not exist.  When set to `True``, None will
             be returned when attempting to find a nonexistent port.
         :returns: One :class:`~openstack.baremetal.v1.port.Port` object
@@ -791,7 +791,7 @@ class Proxy(proxy.Proxy):
         :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.baremetal.v1.port.Port`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             port matching the name or ID could be found.
         """
         return self._get_with_fields(_port.Port, port, fields=fields)
@@ -827,7 +827,7 @@ class Proxy(proxy.Proxy):
         :param port: The value can be either the ID of a port or
             a :class:`~openstack.baremetal.v1.port.Port` instance.
         :param bool ignore_missing: When set to ``False``, an exception
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the port could not be found. When set to ``True``, no
             exception will be raised when attempting to delete a non-existent
             port.
@@ -892,7 +892,7 @@ class Proxy(proxy.Proxy):
 
         :param str name_or_id: The name or ID of a portgroup.
         :param bool ignore_missing: When set to ``False``, an exception of
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the port group does not exist.  When set to `True``, None will
             be returned when attempting to find a nonexistent port group.
         :returns: One :class:`~openstack.baremetal.v1.port_group.PortGroup`
@@ -910,7 +910,7 @@ class Proxy(proxy.Proxy):
         :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.baremetal.v1.port_group.PortGroup`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             port group matching the name or ID could be found.
         """
         return self._get_with_fields(
@@ -952,7 +952,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.baremetal.v1.port_group.PortGroup`
             instance.
         :param bool ignore_missing: When set to ``False``, an exception
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the port group could not be found. When set to ``True``, no
             exception will be raised when attempting to delete a non-existent
             port group.
@@ -997,7 +997,7 @@ class Proxy(proxy.Proxy):
             a :class:`~openstack.baremetal.v1.node.Node` instance.
         :param string vif_id: Backend-specific VIF ID.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the VIF does not exist. Otherwise, ``False``
             is returned.
         :return: ``True`` if the VIF was detached, otherwise ``False``.
@@ -1075,7 +1075,7 @@ class Proxy(proxy.Proxy):
         :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.baremetal.v1.allocation.Allocation`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             allocation matching the name or ID could be found.
         """
         return self._get_with_fields(
@@ -1115,7 +1115,7 @@ class Proxy(proxy.Proxy):
         :param allocation: The value can be the name or ID of an allocation or
             a :class:`~openstack.baremetal.v1.allocation.Allocation` instance.
         :param bool ignore_missing: When set to ``False``, an exception
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the allocation could not be found. When set to ``True``, no
             exception will be raised when attempting to delete a non-existent
             allocation.
@@ -1167,7 +1167,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.baremetal.v1.node.Node` instance.
         :param trait: trait to remove from the node.
         :param bool ignore_missing: When set to ``False``, an exception
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the trait could not be found. When set to ``True``, no
             exception will be raised when attempting to delete a non-existent
             trait.
@@ -1300,7 +1300,7 @@ class Proxy(proxy.Proxy):
         :param str vc_id: The ID of a volume connector.
 
         :param bool ignore_missing: When set to ``False``, an exception of
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the volume connector does not exist.  When set to `True``,
             None will be returned when attempting to find a nonexistent
             volume connector.
@@ -1325,7 +1325,7 @@ class Proxy(proxy.Proxy):
 
         :returns: One
             :class: `~openstack.baremetal.v1.volume_connector.VolumeConnector`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             volume_connector matching the name or ID could be found.`
         """
         return self._get_with_fields(
@@ -1375,7 +1375,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.baremetal.v1.volume_connector.VolumeConnector`
             instance.
         :param bool ignore_missing: When set to ``False``, an exception
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the volume_connector could not be found.
             When set to ``True``, no exception will be raised when
             attempting to delete a non-existent volume_connector.
@@ -1447,7 +1447,7 @@ class Proxy(proxy.Proxy):
         :param str vt_id: The ID of a volume target.
 
         :param bool ignore_missing: When set to ``False``, an exception of
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the volume connector does not exist.  When set to `True``,
             None will be returned when attempting to find a nonexistent
             volume target.
@@ -1470,7 +1470,7 @@ class Proxy(proxy.Proxy):
 
         :returns: One
             :class:`~openstack.baremetal.v1.volume_target.VolumeTarget`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             volume_target matching the name or ID could be found.`
         """
         return self._get_with_fields(
@@ -1517,7 +1517,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.baremetal.v1.volume_target.VolumeTarget`
             instance.
         :param bool ignore_missing: When set to ``False``, an exception
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the volume_target could not be found.
             When set to ``True``, no exception will be raised when
             attempting to delete a non-existent volume_target.
@@ -1585,7 +1585,7 @@ class Proxy(proxy.Proxy):
             instance.
 
         :param bool ignore_missing: When set to ``False``,
-            an exception:class:`~openstack.exceptions.ResourceNotFound`
+            an exception:class:`~openstack.exceptions.NotFoundException`
             will be raised when the deploy_template
             could not be found.
             When set to ``True``, no
@@ -1616,7 +1616,7 @@ class Proxy(proxy.Proxy):
 
         :returns: One
             :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no deployment template matching the name or
             ID could be found.
         """
@@ -1663,7 +1663,7 @@ class Proxy(proxy.Proxy):
 
         :returns: One :class:`~openstack.baremetal.v1.conductor.Conductor`
 
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             conductor matching the name could be found.
         """
         return self._get_with_fields(

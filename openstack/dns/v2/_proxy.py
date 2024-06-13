@@ -77,7 +77,7 @@ class Proxy(proxy.Proxy):
         :param zone: The value can be the ID of a zone
             or a :class:`~openstack.dns.v2.zone.Zone` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the zone does not exist.
             When set to ``True``, no exception will be set when attempting to
             delete a nonexistent zone.
@@ -111,7 +111,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a zone
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the zone does not exist.
             When set to ``True``, no exception will be set when attempting
             to delete a nonexistent zone.
@@ -221,7 +221,7 @@ class Proxy(proxy.Proxy):
         :param zone: The value can be the ID of a zone
             or a :class:`~openstack.dns.v2.zone.Zone` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the zone does not exist. When set to ``True``, no exception will
             be set when attempting to delete a nonexistent zone.
 
@@ -242,7 +242,7 @@ class Proxy(proxy.Proxy):
             or a :class:`~openstack.dns.v2.zone.Zone` instance.
         :param name_or_id: The name or ID of a zone
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the zone does not exist.
             When set to ``True``, no exception will be set when attempting
             to delete a nonexistent zone.
@@ -303,7 +303,7 @@ class Proxy(proxy.Proxy):
         :param zone_import: The value can be the ID of a zone import
             or a :class:`~openstack.dns.v2.zone_import.ZoneImport` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the zone does not exist.
             When set to ``True``, no exception will be set when attempting to
             delete a nonexistent zone.
@@ -380,7 +380,7 @@ class Proxy(proxy.Proxy):
         :param zone_export: The value can be the ID of a zone import
             or a :class:`~openstack.dns.v2.zone_export.ZoneExport` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the zone does not exist.
             When set to ``True``, no exception will be set when attempting to
             delete a nonexistent zone.
@@ -510,7 +510,7 @@ class Proxy(proxy.Proxy):
             or a :class:`~openstack.dns.v2.zone_transfer.ZoneTransferRequest`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the zone does not exist.
             When set to ``True``, no exception will be set when attempting to
             delete a nonexistent zone.
@@ -600,7 +600,7 @@ class Proxy(proxy.Proxy):
             or a :class:`~openstack.dns.v2.zone.Zone` instance.
         :param zone_share_id: The zone share ID
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the zone share does not exist.
             When set to ``True``,  None will be returned when attempting to
             find a nonexistent zone share.
@@ -641,7 +641,7 @@ class Proxy(proxy.Proxy):
             share or a :class:`~openstack.dns.v2.zone_share.ZoneShare` instance
             that the zone share belongs to.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the zone share does not exist.
             When set to ``True``, no exception will be set when attempting to
             delete a nonexistent zone share.

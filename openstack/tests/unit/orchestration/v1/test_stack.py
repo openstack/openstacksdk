@@ -230,7 +230,7 @@ class TestStack(base.TestCase):
             test_resource.FakeResponse(
                 {'stack': {'stack_status': 'CREATE_COMPLETE'}}, 200
             ),
-            exceptions.ResourceNotFound(message='oops'),
+            exceptions.NotFoundException(message='oops'),
             test_resource.FakeResponse(
                 {'stack': {'stack_status': 'DELETE_COMPLETE'}}, 200
             ),
@@ -248,9 +248,9 @@ class TestStack(base.TestCase):
             microversion=None,
             skip_cache=False,
         )
-        ex = self.assertRaises(exceptions.ResourceNotFound, sot.fetch, sess)
+        ex = self.assertRaises(exceptions.NotFoundException, sot.fetch, sess)
         self.assertEqual('oops', str(ex))
-        ex = self.assertRaises(exceptions.ResourceNotFound, sot.fetch, sess)
+        ex = self.assertRaises(exceptions.NotFoundException, sot.fetch, sess)
         self.assertEqual('No stack found for %s' % FAKE_ID, str(ex))
 
     def test_abandon(self):

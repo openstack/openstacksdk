@@ -75,14 +75,14 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of an extension.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
 
         :returns: One :class:`~openstack.compute.v2.extension.Extension` or
             None
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
             resources are found.
@@ -116,7 +116,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a flavor.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the resource does not exist.  When set to ``True``, None will be
             returned when attempting to find a nonexistent resource.
         :param bool get_extra_specs: When set to ``True`` and extra_specs not
@@ -126,7 +126,7 @@ class Proxy(proxy.Proxy):
             the flavors being returned.
 
         :returns: One :class:`~openstack.compute.v2.flavor.Flavor` or None
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
             resources are found.
@@ -159,7 +159,7 @@ class Proxy(proxy.Proxy):
         :param flavor: The value can be either the ID of a flavor or a
             :class:`~openstack.compute.v2.flavor.Flavor` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the flavor does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent flavor.
@@ -191,7 +191,7 @@ class Proxy(proxy.Proxy):
             extra_specs.
 
         :returns: One :class:`~openstack.compute.v2.flavor.Flavor`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         flavor = self._get(_flavor.Flavor, flavor)
@@ -334,7 +334,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.compute.v2.aggregate.Aggregate` instance.
 
         :returns: One :class:`~openstack.compute.v2.aggregate.Aggregate`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_aggregate.Aggregate, aggregate)
@@ -344,13 +344,13 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of an aggregate.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the resource does not exist.  When set to ``True``, None will be
             returned when attempting to find a nonexistent resource.
 
         :returns: One :class:`~openstack.compute.v2.aggregate.Aggregate`
             or None
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
             resources are found.
@@ -393,7 +393,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.compute.v2.aggregate.Aggregate`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the aggregate does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent aggregate.
@@ -473,7 +473,7 @@ class Proxy(proxy.Proxy):
         :param image: The value can be either the ID of an image or a
             :class:`~openstack.compute.v2.image.Image` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the image does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent image.
@@ -494,13 +494,13 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a image.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
 
         :returns: One :class:`~openstack.compute.v2.image.Image` or None
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
             resources are found.
@@ -523,7 +523,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.compute.v2.image.Image` instance.
 
         :returns: One :class:`~openstack.compute.v2.image.Image`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         warnings.warn(
@@ -633,7 +633,7 @@ class Proxy(proxy.Proxy):
         :param keypair: The value can be either the ID of a keypair or a
             :class:`~openstack.compute.v2.keypair.Keypair` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the keypair does not exist.  When set to ``True``, no exception
             will be set when attempting to delete a nonexistent keypair.
         :param str user_id: Optional user_id owning the keypair
@@ -656,7 +656,7 @@ class Proxy(proxy.Proxy):
         :param str user_id: Optional user_id owning the keypair
 
         :returns: One :class:`~openstack.compute.v2.keypair.Keypair`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         attrs = {'user_id': user_id} if user_id else {}
@@ -667,13 +667,13 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a keypair.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the resource does not exist.  When set to ``True``, None will be
             returned when attempting to find a nonexistent resource.
         :param str user_id: Optional user_id owning the keypair
 
         :returns: One :class:`~openstack.compute.v2.keypair.Keypair` or None
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
             resources are found.
@@ -729,7 +729,7 @@ class Proxy(proxy.Proxy):
         :param server: The value can be either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the server does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent server
@@ -756,7 +756,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a server.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the resource does not exist. When set to ``True``, None will be
             returned when attempting to find a nonexistent resource.
         :param bool details: When set to ``False``
@@ -767,7 +767,7 @@ class Proxy(proxy.Proxy):
             higher chance of duplicates. Admin-only by default.
 
         :returns: One :class:`~openstack.compute.v2.server.Server` or None
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
             resources are found.
@@ -791,7 +791,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.compute.v2.server.Server` instance.
 
         :returns: One :class:`~openstack.compute.v2.server.Server`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_server.Server, server)
@@ -1380,7 +1380,7 @@ class Proxy(proxy.Proxy):
             server or a :class:`~openstack.compute.v2.server.Server`
             instance that the interface belongs to.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the server interface does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent server interface.
@@ -1415,7 +1415,7 @@ class Proxy(proxy.Proxy):
 
         :returns: One
             :class:`~openstack.compute.v2.server_interface.ServerInterface`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         server_id = self._get_uri_attribute(
@@ -1561,7 +1561,7 @@ class Proxy(proxy.Proxy):
             or a :class:`~openstack.compute.v2.server_group.ServerGroup`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the server group does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent server group.
@@ -1585,7 +1585,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a server group.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the resource does not exist. When set to ``True``, None will be
             returned when attempting to find a nonexistent resource.
         :param bool all_projects: When set to ``True``, search for server
@@ -1594,7 +1594,7 @@ class Proxy(proxy.Proxy):
 
         :returns: One :class:`~openstack.compute.v2.server_group.ServerGroup`
             or None
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
             resources are found.
@@ -1618,7 +1618,7 @@ class Proxy(proxy.Proxy):
 
         :returns:
             A :class:`~openstack.compute.v2.server_group.ServerGroup` object.
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_server_group.ServerGroup, server_group)
@@ -1674,7 +1674,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a hypervisor
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the resource does not exist. When set to ``True``, None will be
             returned when attempting to find a nonexistent resource.
         :param bool details: When set to ``False``
@@ -1683,7 +1683,7 @@ class Proxy(proxy.Proxy):
 
         :returns: One: class:`~openstack.compute.v2.hypervisor.Hypervisor`
             or None
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
             resources are found.
@@ -1705,7 +1705,7 @@ class Proxy(proxy.Proxy):
 
         :returns:
             A :class:`~openstack.compute.v2.hypervisor.Hypervisor` object.
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_hypervisor.Hypervisor, hypervisor)
@@ -1719,7 +1719,7 @@ class Proxy(proxy.Proxy):
 
         :returns:
             A :class:`~openstack.compute.v2.hypervisor.Hypervisor` object.
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         hypervisor = self._get_resource(_hypervisor.Hypervisor, hypervisor)
@@ -1819,14 +1819,14 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or id of a service
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
         :param dict query: Additional attributes like 'host'
 
         :returns: One: class:`~openstack.compute.v2.service.Service` or None
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
             resources are found.
@@ -1845,7 +1845,7 @@ class Proxy(proxy.Proxy):
             The value can be either the ID of a service or a
             :class:`~openstack.compute.v2.service.Service` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the service does not exist.  When set to ``True``, no exception
             will be set when attempting to delete a nonexistent service.
 
@@ -2024,7 +2024,7 @@ class Proxy(proxy.Proxy):
         :param volume: The value can be the ID of a volume or a
             :class:`~openstack.block_storage.v3.volume.Volume` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the volume attachment does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
             volume attachment.
@@ -2058,7 +2058,7 @@ class Proxy(proxy.Proxy):
 
         :returns: One
             :class:`~openstack.compute.v2.volume_attachment.VolumeAttachment`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         server_id = resource.Resource._get_id(server)
@@ -2151,7 +2151,7 @@ class Proxy(proxy.Proxy):
             server or a :class:`~openstack.compute.v2.server.Server` instance
             that the migration belongs to.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the server migration does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
             server migration.
@@ -2215,14 +2215,14 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.compute.v2.server.Server` instance that the
             migration belongs to.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the server migration does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
             server migration.
 
         :returns: One
             :class:`~openstack.compute.v2.server_migration.ServerMigration`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         server_id = self._get_uri_attribute(
@@ -2279,7 +2279,7 @@ class Proxy(proxy.Proxy):
 
         :returns: One
             :class:`~openstack.compute.v2.server_diagnostics.ServerDiagnostics`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         server_id = self._get_resource(_server.Server, server).id
@@ -2416,7 +2416,7 @@ class Proxy(proxy.Proxy):
         :param dict query: Additional query parameters to use.
 
         :returns: One :class:`~openstack.compute.v2.quota_set.QuotaSet`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         project = self._get_resource(_project.Project, project)
@@ -2435,7 +2435,7 @@ class Proxy(proxy.Proxy):
             which the quota should be retrieved
 
         :returns: One :class:`~openstack.compute.v2.quota_set.QuotaSet`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         project = self._get_resource(_project.Project, project)
@@ -2496,13 +2496,13 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.compute.v2.server.Server` instance that the
             action is associated with.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the server action does not exist. When set to ``True``, no
             exception will be set when attempting to retrieve a non-existent
             server action.
 
         :returns: One :class:`~openstack.compute.v2.server_action.ServerAction`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         """
         server_id = self._get_uri_attribute(server_action, server, 'server_id')

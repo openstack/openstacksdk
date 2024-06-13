@@ -778,7 +778,7 @@ class NetworkCloudMixin:
             self.network.delete_firewall_rule(
                 firewall_rule, ignore_missing=False
             )
-        except exceptions.ResourceNotFound:
+        except exceptions.NotFoundException:
             self.log.debug(
                 'Firewall rule %s not found for deleting', name_or_id
             )
@@ -938,7 +938,7 @@ class NetworkCloudMixin:
         :param bool shared: Visibility to other projects.
             Defaults to False.
         :raises: BadRequestException if parameters are malformed
-        :raises: ResourceNotFound if a resource from firewall_list not found
+        :raises: NotFoundException if a resource from firewall_list not found
         :returns: The created network ``FirewallPolicy`` object.
         """
         if 'firewall_rules' in kwargs:
@@ -982,7 +982,7 @@ class NetworkCloudMixin:
             self.network.delete_firewall_policy(
                 firewall_policy, ignore_missing=False
             )
-        except exceptions.ResourceNotFound:
+        except exceptions.NotFoundException:
             self.log.debug(
                 'Firewall policy %s not found for deleting', name_or_id
             )
@@ -1078,7 +1078,7 @@ class NetworkCloudMixin:
         :returns: The updated network ``FirewallPolicy`` object.
         :raises: BadRequestException if parameters are malformed
         :raises: DuplicateResource on multiple matches
-        :raises: ResourceNotFound if resource is not found
+        :raises: NotFoundException if resource is not found
         """
         if not filters:
             filters = {}
@@ -1115,7 +1115,7 @@ class NetworkCloudMixin:
         :param insert_before: rule name or id that should succeed added rule
         :param dict filters: optional filters
         :raises: DuplicateResource on multiple matches
-        :raises: ResourceNotFound if firewall policy or any of the firewall
+        :raises: NotFoundException if firewall policy or any of the firewall
             rules (inserted, after, before) is not found.
         :return: updated firewall policy
         :rtype: FirewallPolicy
@@ -1166,7 +1166,7 @@ class NetworkCloudMixin:
         :param rule_name_or_id: firewall rule name or id
         :param dict filters: optional filters
         :raises: DuplicateResource on multiple matches
-        :raises: ResourceNotFound if firewall policy is not found
+        :raises: NotFoundException if firewall policy is not found
         :return: updated firewall policy
         :rtype: FirewallPolicy
         """
@@ -1228,7 +1228,7 @@ class NetworkCloudMixin:
         :param shared: Visibility to other projects. Defaults to False.
         :raises: BadRequestException if parameters are malformed
         :raises: DuplicateResource on multiple matches
-        :raises: ResourceNotFound if (ingress-, egress-) firewall policy or
+        :raises: NotFoundException if (ingress-, egress-) firewall policy or
             a port is not found.
         :returns: The created network ``FirewallGroup`` object.
         """
@@ -1257,7 +1257,7 @@ class NetworkCloudMixin:
             self.network.delete_firewall_group(
                 firewall_group, ignore_missing=False
             )
-        except exceptions.ResourceNotFound:
+        except exceptions.NotFoundException:
             self.log.debug(
                 'Firewall group %s not found for deleting', name_or_id
             )
@@ -1315,7 +1315,7 @@ class NetworkCloudMixin:
         :returns: The updated network ``FirewallGroup`` object.
         :raises: BadRequestException if parameters are malformed
         :raises: DuplicateResource on multiple matches
-        :raises: ResourceNotFound if firewall group, a firewall policy
+        :raises: NotFoundException if firewall group, a firewall policy
             (egress, ingress) or port is not found
         """
         if not filters:
@@ -1339,7 +1339,7 @@ class NetworkCloudMixin:
 
         :param dict firewall_group: firewall group dict
         :raises: DuplicateResource on multiple matches
-        :raises: ResourceNotFound if a firewall policy is not found
+        :raises: NotFoundException if a firewall policy is not found
         """
         for key in ('egress_firewall_policy', 'ingress_firewall_policy'):
             if key not in firewall_group:
@@ -1665,7 +1665,7 @@ class NetworkCloudMixin:
             self.network.delete_qos_bandwidth_limit_rule(
                 rule_id, policy, ignore_missing=False
             )
-        except exceptions.ResourceNotFound:
+        except exceptions.NotFoundException:
             self.log.debug(
                 "QoS bandwidth limit rule {rule_id} not found in policy "
                 "{policy_id}. Ignoring.".format(
@@ -1855,7 +1855,7 @@ class NetworkCloudMixin:
             self.network.delete_qos_dscp_marking_rule(
                 rule_id, policy, ignore_missing=False
             )
-        except exceptions.ResourceNotFound:
+        except exceptions.NotFoundException:
             self.log.debug(
                 "QoS DSCP marking rule {rule_id} not found in policy "
                 "{policy_id}. Ignoring.".format(
@@ -2058,7 +2058,7 @@ class NetworkCloudMixin:
             self.network.delete_qos_minimum_bandwidth_rule(
                 rule_id, policy, ignore_missing=False
             )
-        except exceptions.ResourceNotFound:
+        except exceptions.NotFoundException:
             self.log.debug(
                 "QoS minimum bandwidth rule {rule_id} not found in policy "
                 "{policy_id}. Ignoring.".format(
@@ -2804,7 +2804,7 @@ class NetworkCloudMixin:
         :param list[str] name_or_id_list: list of port names or ids
         :param dict filters: optional filters
         :raises: SDKException on multiple matches
-        :raises: ResourceNotFound if a port is not found
+        :raises: NotFoundException if a port is not found
         :return: list of port ids
         :rtype: list[str]
         """
@@ -2812,7 +2812,7 @@ class NetworkCloudMixin:
         for name_or_id in name_or_id_list:
             port = self.get_port(name_or_id, filters)
             if not port:
-                raise exceptions.ResourceNotFound(
+                raise exceptions.NotFoundException(
                     f'Port {name_or_id} not found'
                 )
             ids_list.append(port['id'])

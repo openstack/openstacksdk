@@ -50,7 +50,7 @@ class TestBareMetalNode(base.BaseBaremetalTest):
 
         self.conn.baremetal.delete_node(node, ignore_missing=False)
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.get_node,
             self.node_id,
         )
@@ -63,7 +63,7 @@ class TestBareMetalNode(base.BaseBaremetalTest):
 
         self.conn.baremetal.delete_node(node, ignore_missing=False)
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.get_node,
             self.node_id,
         )
@@ -223,22 +223,22 @@ class TestBareMetalNode(base.BaseBaremetalTest):
     def test_node_negative_non_existing(self):
         uuid = "5c9dcd04-2073-49bc-9618-99ae634d8971"
         self.assertRaises(
-            exceptions.ResourceNotFound, self.conn.baremetal.get_node, uuid
+            exceptions.NotFoundException, self.conn.baremetal.get_node, uuid
         )
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.find_node,
             uuid,
             ignore_missing=False,
         )
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.delete_node,
             uuid,
             ignore_missing=False,
         )
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.update_node,
             uuid,
             name='new-name',
@@ -422,18 +422,18 @@ class TestBareMetalVif(base.BaseBaremetalTest):
     def test_node_vif_negative(self):
         uuid = "5c9dcd04-2073-49bc-9618-99ae634d8971"
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.attach_vif_to_node,
             uuid,
             self.vif_id,
         )
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.list_node_vifs,
             uuid,
         )
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.detach_vif_from_node,
             uuid,
             self.vif_id,

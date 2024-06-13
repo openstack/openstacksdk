@@ -519,7 +519,7 @@ class Proxy(adapter.Adapter):
 
         :param name_or_id: The name or ID of a resource to find.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -550,7 +550,7 @@ class Proxy(adapter.Adapter):
             resource or a :class:`~openstack.resource.Resource`
             subclass.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent resource.
@@ -560,7 +560,7 @@ class Proxy(adapter.Adapter):
         :raises: ``ValueError`` if ``value`` is a
             :class:`~openstack.resource.Resource` that doesn't match
             the ``resource_type``.
-            :class:`~openstack.exceptions.ResourceNotFound` when
+            :class:`~openstack.exceptions.NotFoundException` when
             ignore_missing if ``False`` and a nonexistent resource
             is attempted to be deleted.
         """
@@ -568,7 +568,7 @@ class Proxy(adapter.Adapter):
 
         try:
             rv = res.delete(self)
-        except exceptions.ResourceNotFound:
+        except exceptions.NotFoundException:
             if ignore_missing:
                 return None
             raise

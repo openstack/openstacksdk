@@ -37,7 +37,7 @@ class TestBareMetalPortGroup(base.BaseBaremetalTest):
 
         self.conn.baremetal.delete_port_group(port_group, ignore_missing=False)
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.get_port_group,
             port_group.id,
         )
@@ -100,18 +100,18 @@ class TestBareMetalPortGroup(base.BaseBaremetalTest):
     def test_port_group_negative_non_existing(self):
         uuid = "5c9dcd04-2073-49bc-9618-99ae634d8971"
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.get_port_group,
             uuid,
         )
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.find_port_group,
             uuid,
             ignore_missing=False,
         )
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.delete_port_group,
             uuid,
             ignore_missing=False,

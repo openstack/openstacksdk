@@ -584,7 +584,7 @@ class _OpenStackCloudMixin:
                     resource_type, name_or_id, *get_args, **get_kwargs
                 )
                 return [resource_by_id]
-            except exceptions.ResourceNotFound:
+            except exceptions.NotFoundException:
                 pass
 
         if not filters:

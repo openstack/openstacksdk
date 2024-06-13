@@ -45,7 +45,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.message.v2.queue.Queue` instance.
 
         :returns: One :class:`~openstack.message.v2.queue.Queue`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             queue matching the name could be found.
         """
         return self._get(_queue.Queue, queue)
@@ -73,7 +73,7 @@ class Proxy(proxy.Proxy):
         :param value: The value can be either the name of a queue or a
             :class:`~openstack.message.v2.queue.Queue` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the queue does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent queue.
@@ -127,7 +127,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.message.v2.message.Message` instance.
 
         :returns: One :class:`~openstack.message.v2.message.Message`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             message matching the criteria could be found.
         """
         message = self._get_resource(
@@ -148,7 +148,7 @@ class Proxy(proxy.Proxy):
             the claim seizing the message. If None, the message has
             not been claimed.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the message does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent message.
@@ -206,7 +206,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.message.v2.subscription.Subscription` instance.
 
         :returns: One :class:`~openstack.message.v2.subscription.Subscription`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             subscription matching the criteria could be found.
         """
         subscription = self._get_resource(
@@ -223,7 +223,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.message.v2.subscription.Subscription`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the subscription does not exist.
             When set to ``True``, no exception will be thrown when
             attempting to delete a nonexistent subscription.
@@ -260,7 +260,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.message.v2.claim.Claim` instance.
 
         :returns: One :class:`~openstack.message.v2.claim.Claim`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             claim matching the criteria could be found.
         """
         return self._get(_claim.Claim, claim, queue_name=queue_name)
@@ -289,7 +289,7 @@ class Proxy(proxy.Proxy):
         :param claim: The value can be either the ID of a claim or a
             :class:`~openstack.message.v2.claim.Claim` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the claim does not exist.
             When set to ``True``, no exception will be thrown when
             attempting to delete a nonexistent claim.

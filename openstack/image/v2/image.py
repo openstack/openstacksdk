@@ -418,6 +418,6 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
 
         if ignore_missing:
             return None
-        raise exceptions.ResourceNotFound(
+        raise exceptions.NotFoundException(
             f"No {cls.__name__} found for {name_or_id}"
         )

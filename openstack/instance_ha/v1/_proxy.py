@@ -51,7 +51,7 @@ class Proxy(proxy.Proxy):
             instance.
         :returns: One
             :class:`~masakariclient.sdk.ha.v1.notification.Notification`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_notification.Notification, notification)
@@ -82,7 +82,7 @@ class Proxy(proxy.Proxy):
         :param segment: The value can be the ID of a segment or a
             :class:`~masakariclient.sdk.ha.v1.segment.Segment` instance.
         :returns: One :class:`~masakariclient.sdk.ha.v1.segment.Segment`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_segment.Segment, segment)
@@ -118,7 +118,7 @@ class Proxy(proxy.Proxy):
             The value can be either the ID of a segment or a
             :class:`~masakariclient.sdk.ha.v1.segment.Segment` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the segment does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent segment.
@@ -159,7 +159,7 @@ class Proxy(proxy.Proxy):
             `~masakariclient.sdk.ha.v1.host.Host` instance.
 
         :returns: One :class:`~masakariclient.sdk.ha.v1.host.Host`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.InvalidRequest`
             when segment_id is None.
@@ -179,7 +179,7 @@ class Proxy(proxy.Proxy):
         :param dict attrs: The attributes to update on the host represented.
 
         :returns: The updated host
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.InvalidRequest`
             when segment_id is None.
@@ -196,13 +196,13 @@ class Proxy(proxy.Proxy):
         :param host: The value can be the ID of a host or a :class:
             `~masakariclient.sdk.ha.v1.host.Host` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the host does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent host.
 
         :returns: ``None``
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.InvalidRequest`
             when segment_id is None.
@@ -246,7 +246,7 @@ class Proxy(proxy.Proxy):
             a :class: `~masakariclient.sdk.ha.v1.notification.Notification`
             instance.
         :returns: one 'VMove' resource class.
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.InvalidRequest`
             when notification_id is None.

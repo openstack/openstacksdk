@@ -90,7 +90,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.image.v2.image.Image`
             instance.
         :param bool ignore_missing: When set to ``False``,
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the metadef namespace does not exist.
         :returns: ``None``
         """
@@ -832,7 +832,7 @@ class Proxy(proxy.Proxy):
             image is associated with. If specified, the image will only be
             deleted from the specified store.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the image does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent image.
@@ -850,7 +850,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a image.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -869,7 +869,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.image.v2.image.Image` instance.
 
         :returns: One :class:`~openstack.image.v2.image.Image`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_image.Image, image)
@@ -1018,7 +1018,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.image.v2.image.Image` instance that the member
             is part of. This is required if ``member`` is an ID.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the member does not exist. When set to ``True``, no exception will
             be set when attempting to delete a nonexistent member.
 
@@ -1041,7 +1041,7 @@ class Proxy(proxy.Proxy):
             the value can be the ID of a image or a
             :class:`~openstack.image.v2.image.Image` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -1064,7 +1064,7 @@ class Proxy(proxy.Proxy):
             The value can be the ID of a image or a
             :class:`~openstack.image.v2.image.Image` instance.
         :returns: One :class:`~openstack.image.v2.member.Member`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         member_id = resource.Resource._get_id(member)
@@ -1136,7 +1136,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
             instance.
         :param bool ignore_missing: When set to ``False``,
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the metadef namespace does not exist.
         :returns: ``None``
         """
@@ -1159,7 +1159,7 @@ class Proxy(proxy.Proxy):
 
         :returns: One
             :class:`~~openstack.image.v2.metadef_namespace.MetadefNamespace`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         """
         return self._get(
@@ -1172,7 +1172,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator object of metadef namespaces
         :rtype: :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._list(_metadef_namespace.MetadefNamespace, **query)
@@ -1234,7 +1234,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
             instance.
         :returns: One :class:`~openstack.image.v2.metadef_object.MetadefObject`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         """
         object_name = resource.Resource._get_id(metadef_object)
@@ -1254,7 +1254,7 @@ class Proxy(proxy.Proxy):
             instance.
 
         :returns: One :class:`~openstack.image.v2.metadef_object.MetadefObject`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         """
         namespace_name = resource.Resource._get_id(namespace)
@@ -1276,7 +1276,7 @@ class Proxy(proxy.Proxy):
             a :class:`~openstack.image.v2.metadef_object.MetadefObject`
 
         :returns: One :class:`~openstack.image.v2.metadef_object.MetadefObject`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         """
         namespace_name = resource.Resource._get_id(namespace)
@@ -1301,7 +1301,7 @@ class Proxy(proxy.Proxy):
             a :class:`~openstack.image.v2.metadef_object.MetadefObject`
 
         :returns: ``None``
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         """
         namespace_name = resource.Resource._get_id(namespace)
@@ -1320,7 +1320,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
             instance.
         :returns: ``None``
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         """
         namespace = self._get_resource(
@@ -1335,7 +1335,7 @@ class Proxy(proxy.Proxy):
         :return: A generator object of metadef resource types
         :rtype:
             :class:`~openstack.image.v2.metadef_resource_type.MetadefResourceType`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._list(_metadef_resource_type.MetadefResourceType, **query)
@@ -1382,7 +1382,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
             instance
         :param bool ignore_missing: When set to ``False``,
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the metadef resource type association does not exist.
         :returns: ``None``
         """
@@ -1404,7 +1404,7 @@ class Proxy(proxy.Proxy):
         :return: A generator object of metadef resource type associations
         :rtype:
             :class:`~openstack.image.v2.metadef_resource_type.MetadefResourceTypeAssociation`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
                 when no resource can be found.
         """
         namespace_name = resource.Resource._get_id(metadef_namespace)
@@ -1477,7 +1477,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
             instance
         :param bool ignore_missing: When set to
-            ``False`` :class:`~openstack.exceptions.ResourceNotFound` will be
+            ``False`` :class:`~openstack.exceptions.NotFoundException` will be
             raised when the instance does not exist. When set to ``True``,
             no exception will be set when attempting to delete a nonexistent
             instance.
@@ -1529,7 +1529,7 @@ class Proxy(proxy.Proxy):
 
         :returns: One
             :class:`~~openstack.image.v2.metadef_property.MetadefProperty`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         """
         namespace_name = resource.Resource._get_id(metadef_namespace)
@@ -1549,7 +1549,7 @@ class Proxy(proxy.Proxy):
             instance.
 
         :returns: ``None``
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         """
         namespace = self._get_resource(
@@ -1562,7 +1562,7 @@ class Proxy(proxy.Proxy):
         """Get images schema
 
         :returns: One :class:`~openstack.image.v2.schema.Schema`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(
@@ -1575,7 +1575,7 @@ class Proxy(proxy.Proxy):
         """Get single image schema
 
         :returns: One :class:`~openstack.image.v2.schema.Schema`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(
@@ -1588,7 +1588,7 @@ class Proxy(proxy.Proxy):
         """Get image members schema
 
         :returns: One :class:`~openstack.image.v2.schema.Schema`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(
@@ -1601,7 +1601,7 @@ class Proxy(proxy.Proxy):
         """Get image member schema
 
         :returns: One :class:`~openstack.image.v2.schema.Schema`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(
@@ -1614,7 +1614,7 @@ class Proxy(proxy.Proxy):
         """Get image tasks schema
 
         :returns: One :class:`~openstack.image.v2.schema.Schema`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(
@@ -1627,7 +1627,7 @@ class Proxy(proxy.Proxy):
         """Get image task schema
 
         :returns: One :class:`~openstack.image.v2.schema.Schema`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(
@@ -1640,7 +1640,7 @@ class Proxy(proxy.Proxy):
         """Get metadata definition namespace schema
 
         :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(
@@ -1653,7 +1653,7 @@ class Proxy(proxy.Proxy):
         """Get metadata definition namespaces schema
 
         :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(
@@ -1666,7 +1666,7 @@ class Proxy(proxy.Proxy):
         """Get metadata definition resource type association schema
 
         :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(
@@ -1679,7 +1679,7 @@ class Proxy(proxy.Proxy):
         """Get metadata definition resource type associations schema
 
         :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(
@@ -1692,7 +1692,7 @@ class Proxy(proxy.Proxy):
         """Get metadata definition object schema
 
         :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(
@@ -1705,7 +1705,7 @@ class Proxy(proxy.Proxy):
         """Get metadata definition objects schema
 
         :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(
@@ -1718,7 +1718,7 @@ class Proxy(proxy.Proxy):
         """Get metadata definition property schema
 
         :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(
@@ -1731,7 +1731,7 @@ class Proxy(proxy.Proxy):
         """Get metadata definition properties schema
 
         :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(
@@ -1744,7 +1744,7 @@ class Proxy(proxy.Proxy):
         """Get metadata definition tag schema
 
         :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(
@@ -1757,7 +1757,7 @@ class Proxy(proxy.Proxy):
         """Get metadata definition tags schema
 
         :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(
@@ -1785,7 +1785,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.image.v2.task.Task` instance.
 
         :returns: One :class:`~openstack.image.v2.task.Task`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_task.Task, task)
@@ -1895,7 +1895,7 @@ class Proxy(proxy.Proxy):
         """Get a info about image constraints
 
         :returns: One :class:`~openstack.image.v2.service_info.Import`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_si.Import, requires_id=False)

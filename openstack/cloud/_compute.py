@@ -325,7 +325,7 @@ class ComputeCloudMixin:
             try:
                 self.compute.remove_security_group_from_server(server, sg)
 
-            except exceptions.ResourceNotFound:
+            except exceptions.NotFoundException:
                 # NOTE(jamielennox): Is this ok? If we remove something that
                 # isn't present should we just conclude job done or is that an
                 # error? Nova returns ok if you try to add a group twice.
@@ -561,7 +561,7 @@ class ComputeCloudMixin:
         try:
             server = self.compute.get_server(id)
             return meta.add_server_interfaces(self, server)
-        except exceptions.ResourceNotFound:
+        except exceptions.NotFoundException:
             return None
 
     def get_server_group(self, name_or_id=None, filters=None):
@@ -612,7 +612,7 @@ class ComputeCloudMixin:
         """
         try:
             self.compute.delete_keypair(name, ignore_missing=False)
-        except exceptions.ResourceNotFound:
+        except exceptions.NotFoundException:
             self.log.debug("Keypair %s not found for deleting", name)
             return False
         return True
@@ -1399,7 +1399,7 @@ class ComputeCloudMixin:
 
         try:
             self.compute.delete_server(server)
-        except exceptions.ResourceNotFound:
+        except exceptions.NotFoundException:
             return False
         except Exception:
             raise
@@ -1708,7 +1708,7 @@ class ComputeCloudMixin:
         try:
             self.compute.delete_aggregate(name_or_id, ignore_missing=False)
             return True
-        except exceptions.ResourceNotFound:
+        except exceptions.NotFoundException:
             self.log.debug("Aggregate %s not found for deleting", name_or_id)
             return False
 
