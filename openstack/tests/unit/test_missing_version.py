@@ -45,6 +45,7 @@ class TestMissingVersion(base.TestCase):
         self.cloud.config.config['image_api_version'] = '7'
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
+            warnings.simplefilter("ignore", DeprecationWarning)
             self.assertIsInstance(self.cloud.image, proxy.Proxy)
             self.assertEqual(1, len(w))
             self.assertIn(

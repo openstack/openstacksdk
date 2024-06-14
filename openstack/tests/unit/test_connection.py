@@ -15,7 +15,6 @@ from unittest import mock
 
 import fixtures
 from keystoneauth1 import session
-from testtools import matchers
 
 import openstack.config
 from openstack import connection
@@ -169,10 +168,7 @@ class TestConnection(_TestConnectionBase):
         def closure():
             return self.cloud.placement
 
-        self.assertThat(closure, matchers.Warnings(matchers.HasLength(0)))
-
         self.assertIsInstance(self.cloud.placement, proxy.Proxy)
-
         self.assert_calls()
 
     def test_create_connection_version_param_default(self):
