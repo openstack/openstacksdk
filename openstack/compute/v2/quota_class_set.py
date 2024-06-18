@@ -10,14 +10,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.common import quota_set
 from openstack import resource
 
 
-class QuotaSet(quota_set.QuotaSet):
-    # We generally only want compute QS support max_microversion. Otherwise be
-    # explicit and list all the attributes
+class QuotaClassSet(resource.Resource):
+    resource_key = 'quota_class_set'
+    base_path = '/os-quota-class-sets'
+
     _max_microversion = '2.56'
+
+    # capabilities
+    allow_fetch = True
+    allow_commit = True
 
     #: Properties
     #: The number of allowed server cores for each tenant.
@@ -27,9 +31,6 @@ class QuotaSet(quota_set.QuotaSet):
     fixed_ips = resource.Body('fixed_ips', type=int)
     #: The number of allowed floating IP addresses for each tenant.
     floating_ips = resource.Body('floating_ips', type=int)
-    #: You can force the update even if the quota has already been used and
-    #: the reserved quota exceeds the new quota.
-    force = resource.Body('force', type=bool)
     #: The number of allowed bytes of content for each injected file.
     injected_file_content_bytes = resource.Body(
         'injected_file_content_bytes', type=int

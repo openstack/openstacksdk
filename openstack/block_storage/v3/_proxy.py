@@ -23,6 +23,7 @@ from openstack.block_storage.v3 import group as _group
 from openstack.block_storage.v3 import group_snapshot as _group_snapshot
 from openstack.block_storage.v3 import group_type as _group_type
 from openstack.block_storage.v3 import limits as _limits
+from openstack.block_storage.v3 import quota_class_set as _quota_class_set
 from openstack.block_storage.v3 import quota_set as _quota_set
 from openstack.block_storage.v3 import resource_filter as _resource_filter
 from openstack.block_storage.v3 import service as _service
@@ -1701,7 +1702,44 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         group_type = self._get_resource(_group_type.GroupType, group_type)
         return group_type.delete_group_specs_property(self, prop)
 
+    # ====== QUOTA CLASS SETS ======
+
+    def get_quota_class_set(self, quota_class_set='default'):
+        """Get a single quota class set
+
+        Only one quota class is permitted, ``default``.
+
+        :param quota_class_set: The value can be the ID of a quota class set
+            (only ``default`` is supported) or a
+            :class:`~openstack.block_storage.v3.quota_class_set.QuotaClassSet`
+            instance.
+
+        :returns: One
+            :class:`~openstack.block_storage.v3.quota_class_set.QuotaClassSet`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_quota_class_set.QuotaClassSet, quota_class_set)
+
+    def update_quota_class_set(self, quota_class_set, **attrs):
+        """Update a QuotaClassSet.
+
+        Only one quota class is permitted, ``default``.
+
+        :param quota_class_set: Either the ID of a quota class set (only
+            ``default`` is supported) or a
+        :param attrs: The attributes to update on the QuotaClassSet represented
+            by ``quota_class_set``.
+
+        :returns: The updated QuotaSet
+        :rtype: :class:`~openstack.block_storage.v3.quota_set.QuotaSet`
+        """
+        return self._update(
+            _quota_class_set.QuotaClassSet, quota_class_set, **attrs
+        )
+
     # ====== QUOTA SETS ======
+
     def get_quota_set(self, project, usage=False, **query):
         """Show QuotaSet information for the project
 

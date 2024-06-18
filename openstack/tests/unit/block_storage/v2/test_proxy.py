@@ -15,6 +15,7 @@ from openstack.block_storage.v2 import _proxy
 from openstack.block_storage.v2 import backup
 from openstack.block_storage.v2 import capabilities
 from openstack.block_storage.v2 import limits
+from openstack.block_storage.v2 import quota_class_set
 from openstack.block_storage.v2 import quota_set
 from openstack.block_storage.v2 import snapshot
 from openstack.block_storage.v2 import stats
@@ -457,8 +458,22 @@ class TestType(TestVolumeProxy):
         )
 
 
-class TestQuota(TestVolumeProxy):
-    def test_get(self):
+class TestQuotaClassSet(TestVolumeProxy):
+    def test_quota_class_set_get(self):
+        self.verify_get(
+            self.proxy.get_quota_class_set, quota_class_set.QuotaClassSet
+        )
+
+    def test_quota_class_set_update(self):
+        self.verify_update(
+            self.proxy.update_quota_class_set,
+            quota_class_set.QuotaClassSet,
+            False,
+        )
+
+
+class TestQuotaSet(TestVolumeProxy):
+    def test_quota_set_get(self):
         self._verify(
             'openstack.resource.Resource.fetch',
             self.proxy.get_quota_set,
@@ -473,7 +488,7 @@ class TestQuota(TestVolumeProxy):
             expected_result=quota_set.QuotaSet(),
         )
 
-    def test_get_query(self):
+    def test_quota_set_get_query(self):
         self._verify(
             'openstack.resource.Resource.fetch',
             self.proxy.get_quota_set,
@@ -488,7 +503,7 @@ class TestQuota(TestVolumeProxy):
             },
         )
 
-    def test_get_defaults(self):
+    def test_quota_set_get_defaults(self):
         self._verify(
             'openstack.resource.Resource.fetch',
             self.proxy.get_quota_set_defaults,
@@ -501,7 +516,7 @@ class TestQuota(TestVolumeProxy):
             },
         )
 
-    def test_reset(self):
+    def test_quota_set_reset(self):
         self._verify(
             'openstack.resource.Resource.delete',
             self.proxy.revert_quota_set,
@@ -512,7 +527,7 @@ class TestQuota(TestVolumeProxy):
         )
 
     @mock.patch('openstack.proxy.Proxy._get_resource', autospec=True)
-    def test_update(self, gr_mock):
+    def test_quota_set_update(self, gr_mock):
         gr_mock.return_value = resource.Resource()
         gr_mock.commit = mock.Mock()
         self._verify(

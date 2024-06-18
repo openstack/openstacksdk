@@ -22,6 +22,7 @@ from openstack.compute.v2 import image as _image
 from openstack.compute.v2 import keypair as _keypair
 from openstack.compute.v2 import limits
 from openstack.compute.v2 import migration as _migration
+from openstack.compute.v2 import quota_class_set as _quota_class_set
 from openstack.compute.v2 import quota_set as _quota_set
 from openstack.compute.v2 import server as _server
 from openstack.compute.v2 import server_action as _server_action
@@ -54,6 +55,7 @@ class Proxy(proxy.Proxy):
         "keypair": _keypair.Keypair,
         "limits": limits.Limits,
         "migration": _migration.Migration,
+        "quota_class_set": _quota_class_set.QuotaClassSet,
         "quota_set": _quota_set.QuotaSet,
         "server": _server.Server,
         "server_action": _server_action.ServerAction,
@@ -2402,6 +2404,44 @@ class Proxy(proxy.Proxy):
             return console.to_dict()
         else:
             return server.get_console_url(self, console_type)
+
+    # ========== Quota class sets ==========
+
+    def get_quota_class_set(self, quota_class_set='default'):
+        """Get a single quota class set
+
+        Only one quota class is permitted, ``default``.
+
+        :param quota_class_set: The value can be the ID of a quota class set
+            (only ``default`` is supported) or a
+            :class:`~openstack.compute.v2.quota_class_set.QuotaClassSet`
+            instance.
+
+        :returns: One
+            :class:`~openstack.compute.v2.quota_class_set.QuotaClassSet`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_quota_class_set.QuotaClassSet, quota_class_set)
+
+    def update_quota_class_set(self, quota_class_set, **attrs):
+        """Update a QuotaClassSet.
+
+        Only one quota class is permitted, ``default``.
+
+        :param quota_class_set: Either the ID of a quota class set (only
+            ``default`` is supported) or a
+            :class:`~openstack.compute.v2.quota_class_set.QuotaClassSet`
+            instance.
+        :param attrs: The attributes to update on the QuotaClassSet represented
+            by ``quota_class_set``.
+
+        :returns: The updated QuotaSet
+        :rtype: :class:`~openstack.compute.v2.quota_set.QuotaSet`
+        """
+        return self._update(
+            _quota_class_set.QuotaClassSet, quota_class_set, **attrs
+        )
 
     # ========== Quota sets ==========
 
