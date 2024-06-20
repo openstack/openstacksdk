@@ -40,7 +40,7 @@ _RAW_PROPERTIES = ('is_protected', 'protected', 'tags')
 
 def _get_name_and_filename(name, image_format):
     # See if name points to an existing file
-    if os.path.exists(name):
+    if os.path.exists(name) and os.path.isfile(name):
         # Neat. Easy enough
         return os.path.splitext(os.path.basename(name))[0], name
 
