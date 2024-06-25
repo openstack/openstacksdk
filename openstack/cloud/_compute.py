@@ -80,6 +80,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         """Get the name of a flavor.
 
         :param flavor_id: ID of the flavor.
+
         :returns: The name of the flavor if a match if found, else None.
         """
         flavor = self.get_flavor(flavor_id, get_extra=False)
@@ -97,7 +98,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         :param int ram: Minimum amount of RAM.
         :param string include: If given, will return a flavor whose name
             contains this string as a substring.
-        :param get_extra:
+        :param get_extra: Whether to fetch extra specs.
 
         :returns: A compute ``Flavor`` object.
         :raises: :class:`~openstack.exceptions.SDKException` if no
@@ -116,8 +117,18 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
     def search_keypairs(self, name_or_id=None, filters=None):
         """Search keypairs.
 
-        :param name_or_id:
-        :param filters:
+        :param name_or_id: Name or unique ID of the keypair(s).
+        :param filters: A dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
+
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
+
+            OR
+
+            A string containing a jmespath expression for further filtering.
+            Invalid filters will be ignored.
+
         :returns: A list of compute ``Keypair`` objects matching the search
             criteria.
         """
@@ -129,9 +140,10 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
     def search_flavors(self, name_or_id=None, filters=None, get_extra=True):
         """Search flavors.
 
-        :param name_or_id:
-        :param flavors:
-        :param get_extra:
+        :param name_or_id: Name or unique ID of the flavor(s).
+        :param filters:
+        :param get_extra: Whether to fetch extra specs.
+
         :returns: A list of compute ``Flavor`` objects matching the search
             criteria.
         """
@@ -148,11 +160,21 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
     ):
         """Search servers.
 
-        :param name_or_id:
-        :param filters:
+        :param name_or_id: Name or unique ID of the server(s).
+        :param filters: A dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
+
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
+
+            OR
+
+            A string containing a jmespath expression for further filtering.
+            Invalid filters will be ignored.
         :param detailed:
         :param all_projects:
         :param bare:
+
         :returns: A list of compute ``Server`` objects matching the search
             criteria.
         """
@@ -165,7 +187,16 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         """Search server groups.
 
         :param name_or_id: Name or unique ID of the server group(s).
-        :param filters: A dict containing additional filters to use.
+        :param filters: A dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
+
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
+
+            OR
+
+            A string containing a jmespath expression for further filtering.
+            Invalid filters will be ignored.
 
         :returns: A list of compute ``ServerGroup`` objects matching the search
             criteria.
@@ -273,6 +304,8 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         Add existing security groups to an existing server. If the security
         groups are already present on the server this will continue unaffected.
 
+        :param server: The server to remove security groups from.
+        :param security_groups: A list of security groups to remove.
         :returns: False if server or security groups are undefined, True
             otherwise.
         :raises: :class:`~openstack.exceptions.SDKException` on operation
@@ -297,6 +330,8 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         security groups are not present on the server this will continue
         unaffected.
 
+        :param server: The server to remove security groups from.
+        :param security_groups: A list of security groups to remove.
         :returns: False if server or security groups are undefined, True
             otherwise.
         :raises: :class:`~openstack.exceptions.SDKException` on operation
@@ -1612,6 +1647,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         :param string flavor_id: ID of the flavor to update.
         :param dict extra_specs: Dictionary of key-value pairs.
 
+        :returns: None
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         :raises: :class:`~openstack.exceptions.BadRequestException` if flavor
@@ -1625,6 +1661,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         :param string flavor_id: ID of the flavor to update.
         :param keys: List of spec keys to delete.
 
+        :returns: None
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         :raises: :class:`~openstack.exceptions.BadRequestException` if flavor
@@ -1639,6 +1676,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         :param string flavor_id: ID of the private flavor.
         :param string project_id: ID of the project/tenant.
 
+        :returns: None
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         """
@@ -1650,6 +1688,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         :param string flavor_id: ID of the private flavor.
         :param string project_id: ID of the project/tenant.
 
+        :returns: None
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         """
@@ -1669,7 +1708,8 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
     def list_hypervisors(self, filters=None):
         """List all hypervisors
 
-        :param filters:
+        :param filters: Additional query parameters passed to the API server.
+
         :returns: A list of compute ``Hypervisor`` objects.
         """
         if not filters:
@@ -1680,8 +1720,15 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
     def search_aggregates(self, name_or_id=None, filters=None):
         """Seach host aggregates.
 
-        :param name: aggregate name or id.
-        :param filters: a dict containing additional filters to use.
+        :param name: Aggregate name or id.
+        :param dict filters: A dictionary of meta data to use for further
+            filtering. Elements of this dictionary may, themselves, be
+            dictionaries. Example::
+
+                {
+                    'availability_zone': 'nova',
+                    'metadata': {'cpu_allocation_ratio': '1.0'},
+                }
 
         :returns: A list of compute ``Aggregate`` objects matching the search
             criteria.
