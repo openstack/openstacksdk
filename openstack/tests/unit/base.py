@@ -403,7 +403,7 @@ class TestCase(base.TestCase):
         self, type=None, name=None, description=None, enabled=True
     ):
         service_id = uuid.uuid4().hex
-        name = name or uuid.uuid4().hex
+        name = name or f'name-{uuid.uuid4().hex}'
         type = type or uuid.uuid4().hex
 
         response = {

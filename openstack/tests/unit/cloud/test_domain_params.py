@@ -15,17 +15,43 @@ from openstack.tests.unit import base
 
 
 class TestDomainParams(base.TestCase):
+    def get_mock_url(
+        self,
+        service_type='identity',
+        interface='public',
+        resource='projects',
+        append=None,
+        base_url_append='v3',
+        qs_elements=None,
+    ):
+        return super().get_mock_url(
+            service_type,
+            interface,
+            resource,
+            append,
+            base_url_append,
+            qs_elements,
+        )
+
     def test_identity_params_v3(self):
         project_data = self._get_project_data(v3=True)
         self.register_uris(
             [
+                # can't retrieve by name
                 dict(
                     method='GET',
-                    uri='https://identity.example.com/v3/projects',
+                    uri=self.get_mock_url(append=[project_data.project_name]),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        qs_elements=[f'name={project_data.project_name}']
+                    ),
                     json=dict(
                         projects=[project_data.json_response['project']]
                     ),
-                )
+                ),
             ]
         )
 

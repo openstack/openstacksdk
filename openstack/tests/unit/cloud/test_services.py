@@ -19,6 +19,8 @@ test_cloud_services
 Tests Keystone services commands.
 """
 
+import warnings
+
 from testtools import matchers
 
 from openstack import exceptions
@@ -36,9 +38,15 @@ class CloudServices(base.TestCase):
         resource='services',
         append=None,
         base_url_append='v3',
+        qs_elements=None,
     ):
         return super().get_mock_url(
-            service_type, interface, resource, append, base_url_append
+            service_type,
+            interface,
+            resource,
+            append,
+            base_url_append,
+            qs_elements,
         )
 
     def test_create_service_v3(self):
@@ -89,9 +97,9 @@ class CloudServices(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=self.get_mock_url(),
+                    uri=self.get_mock_url(append=[service_data.service_id]),
                     status_code=200,
-                    json={'services': [resp['service']]},
+                    json=service_data.json_request,
                 ),
                 dict(
                     method='PATCH',
@@ -148,18 +156,20 @@ class CloudServices(base.TestCase):
     def test_get_service(self):
         service_data = self._get_service_data()
         service2_data = self._get_service_data()
+
         self.register_uris(
             [
                 dict(
                     method='GET',
-                    uri=self.get_mock_url(),
+                    uri=self.get_mock_url(append=[service_data.service_id]),
                     status_code=200,
-                    json={
-                        'services': [
-                            service_data.json_response_v3['service'],
-                            service2_data.json_response_v3['service'],
-                        ]
-                    },
+                    json=service_data.json_response_v3,
+                ),
+                # you can't retrieve by name
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(append=[service_data.service_name]),
+                    status_code=404,
                 ),
                 dict(
                     method='GET',
@@ -172,18 +182,19 @@ class CloudServices(base.TestCase):
                         ]
                     },
                 ),
+                # you can't retrieve by name, especially if it doesn't exist
                 dict(
                     method='GET',
-                    uri=self.get_mock_url(),
-                    status_code=200,
-                    json={
-                        'services': [
-                            service_data.json_response_v3['service'],
-                            service2_data.json_response_v3['service'],
-                        ]
-                    },
+                    uri=self.get_mock_url(append=['INVALID SERVICE']),
+                    status_code=404,
                 ),
-                dict(method='GET', uri=self.get_mock_url(), status_code=400),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        qs_elements=['name=INVALID SERVICE']
+                    ),
+                    json={'services': []},
+                ),
             ]
         )
 
@@ -200,14 +211,35 @@ class CloudServices(base.TestCase):
         service = self.cloud.get_service(name_or_id='INVALID SERVICE')
         self.assertIs(None, service)
 
+    def test_get_service__multiple_matches(self):
+        service_a_data = self._get_service_data(type='type2')
+        service_b_data = self._get_service_data(type='type2')
+
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(),
+                    status_code=200,
+                    json={
+                        'services': [
+                            service_a_data.json_response_v3['service'],
+                            service_b_data.json_response_v3['service'],
+                        ]
+                    },
+                ),
+            ]
+        )
+
         # Multiple matches
         # test we are getting an Exception
-        self.assertRaises(
-            exceptions.SDKException,
-            self.cloud.get_service,
-            name_or_id=None,
-            filters={'type': 'type2'},
-        )
+        with warnings.catch_warnings(record=True):
+            self.assertRaises(
+                exceptions.SDKException,
+                self.cloud.get_service,
+                name_or_id=None,
+                filters={'type': 'type2'},
+            )
         self.assert_calls()
 
     def test_search_services(self):
@@ -304,9 +336,17 @@ class CloudServices(base.TestCase):
         service_data = self._get_service_data()
         self.register_uris(
             [
+                # you can't retrieve by name
                 dict(
                     method='GET',
-                    uri=self.get_mock_url(),
+                    uri=self.get_mock_url(append=[service_data.service_name]),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        qs_elements=[f'name={service_data.service_name}']
+                    ),
                     status_code=200,
                     json={
                         'services': [service_data.json_response_v3['service']]
@@ -319,11 +359,9 @@ class CloudServices(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri=self.get_mock_url(),
+                    uri=self.get_mock_url(append=[service_data.service_id]),
                     status_code=200,
-                    json={
-                        'services': [service_data.json_response_v3['service']]
-                    },
+                    json=service_data.json_response_v3,
                 ),
                 dict(
                     method='DELETE',
