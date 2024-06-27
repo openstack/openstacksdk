@@ -20,7 +20,9 @@ from openstack import utils
 
 class SecurityGroupCloudMixin(openstackcloud._OpenStackCloudMixin):
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
         self.secgroup_source = self.config.config['secgroup_source']
 
     def search_security_groups(self, name_or_id=None, filters=None):

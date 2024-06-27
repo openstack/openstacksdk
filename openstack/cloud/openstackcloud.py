@@ -10,10 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import atexit
+import concurrent.futures
 import copy
 import functools
 import queue
 import warnings
+import weakref
 
 import dogpile.cache
 import keystoneauth1.exceptions
@@ -26,7 +29,7 @@ from openstack import _services_mixin
 from openstack.cloud import _utils
 from openstack.cloud import meta
 import openstack.config
-from openstack.config import cloud_region as cloud_region_mod
+import openstack.config.cloud_region
 from openstack import exceptions
 from openstack import proxy
 from openstack import utils
@@ -55,8 +58,145 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
     _SHADE_OBJECT_SHA256_KEY = 'x-object-meta-x-shade-sha256'
     _SHADE_OBJECT_AUTOCREATE_KEY = 'x-object-meta-x-shade-autocreated'
 
-    def __init__(self):
+    def __init__(
+        self,
+        cloud=None,
+        config=None,
+        session=None,
+        app_name=None,
+        app_version=None,
+        extra_services=None,
+        strict=False,
+        use_direct_get=False,
+        task_manager=None,
+        rate_limit=None,
+        oslo_conf=None,
+        service_types=None,
+        global_request_id=None,
+        strict_proxies=False,
+        pool_executor=None,
+        **kwargs,
+    ):
+        """Create a connection to a cloud.
+
+        A connection needs information about how to connect, how to
+        authenticate and how to select the appropriate services to use.
+
+        The recommended way to provide this information is by referencing
+        a named cloud config from an existing `clouds.yaml` file. The cloud
+        name ``envvars`` may be used to consume a cloud configured via ``OS_``
+        environment variables.
+
+        A pre-existing :class:`~openstack.config.cloud_region.CloudRegion`
+        object can be passed in lieu of a cloud name, for cases where the user
+        already has a fully formed CloudRegion and just wants to use it.
+
+        Similarly, if for some reason the user already has a
+        :class:`~keystoneauth1.session.Session` and wants to use it, it may be
+        passed in.
+
+        :param str cloud: Name of the cloud from config to use.
+        :param config: CloudRegion object representing the config for the
+            region of the cloud in question.
+        :type config: :class:`~openstack.config.cloud_region.CloudRegion`
+        :param session: A session object compatible with
+            :class:`~keystoneauth1.session.Session`.
+        :type session: :class:`~keystoneauth1.session.Session`
+        :param str app_name: Name of the application to be added to User Agent.
+        :param str app_version: Version of the application to be added to
+            User Agent.
+        :param extra_services: List of
+            :class:`~openstack.service_description.ServiceDescription`
+            objects describing services that openstacksdk otherwise does not
+            know about.
+        :param bool use_direct_get:
+            For get methods, make specific REST calls for server-side
+            filtering instead of making list calls and filtering client-side.
+            Default false.
+        :param task_manager:
+            Ignored. Exists for backwards compat during transition. Rate limit
+            parameters should be passed directly to the `rate_limit` parameter.
+        :param rate_limit:
+            Client-side rate limit, expressed in calls per second. The
+            parameter can either be a single float, or it can be a dict with
+            keys as service-type and values as floats expressing the calls
+            per second for that service. Defaults to None, which means no
+            rate-limiting is performed.
+        :param oslo_conf: An oslo.config CONF object.
+        :type oslo_conf: :class:`~oslo_config.cfg.ConfigOpts`
+            An oslo.config ``CONF`` object that has been populated with
+            ``keystoneauth1.loading.register_adapter_conf_options`` in
+            groups named by the OpenStack service's project name.
+        :param service_types:
+            A list/set of service types this Connection should support. All
+            other service types will be disabled (will error if used).
+            **Currently only supported in conjunction with the ``oslo_conf``
+            kwarg.**
+        :param global_request_id: A Request-id to send with all interactions.
+        :param strict_proxies:
+            If True, check proxies on creation and raise
+            ServiceDiscoveryException if the service is unavailable.
+        :type strict_proxies: bool
+            Throw an ``openstack.exceptions.ServiceDiscoveryException`` if the
+            endpoint for a given service doesn't work. This is useful for
+            OpenStack services using sdk to talk to other OpenStack services
+            where it can be expected that the deployer config is correct and
+            errors should be reported immediately.
+            Default false.
+        :param pool_executor:
+        :type pool_executor: :class:`~futurist.Executor`
+            A futurist ``Executor`` object to be used for concurrent background
+            activities. Defaults to None in which case a ThreadPoolExecutor
+            will be created if needed.
+        :param kwargs: If a config is not provided, the rest of the parameters
+            provided are assumed to be arguments to be passed to the
+            CloudRegion constructor.
+        """
         super().__init__()
+
+        self.config = config
+        self._extra_services = {}
+        self._strict_proxies = strict_proxies
+        if extra_services:
+            for service in extra_services:
+                self._extra_services[service.service_type] = service
+
+        if not self.config:
+            if oslo_conf:
+                self.config = openstack.config.cloud_region.from_conf(
+                    oslo_conf,
+                    session=session,
+                    app_name=app_name,
+                    app_version=app_version,
+                    service_types=service_types,
+                )
+            elif session:
+                self.config = openstack.config.cloud_region.from_session(
+                    session=session,
+                    app_name=app_name,
+                    app_version=app_version,
+                    load_yaml_config=False,
+                    load_envvars=False,
+                    rate_limit=rate_limit,
+                    **kwargs,
+                )
+            else:
+                self.config = openstack.config.get_cloud_region(
+                    cloud=cloud,
+                    app_name=app_name,
+                    app_version=app_version,
+                    load_yaml_config=cloud is not None,
+                    load_envvars=cloud is not None,
+                    rate_limit=rate_limit,
+                    **kwargs,
+                )
+
+        self._session = None
+        self._proxies = {}
+        self.__pool_executor = pool_executor
+        self._global_request_id = global_request_id
+        self.use_direct_get = use_direct_get
+        self.strict_mode = strict
 
         self.log = _log.setup_logging('openstack')
 
@@ -104,13 +244,43 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
         self._container_cache = dict()
         self._file_hash_cache = dict()
 
-        # self.__pool_executor = None
-
-        self._raw_clients = {}
-
         self._local_ipv6 = (
             _utils.localhost_supports_ipv6() if not self.force_ipv4 else False
         )
+
+        # Register cleanup steps
+        atexit.register(self.close)
+
+    @property
+    def session(self):
+        if not self._session:
+            self._session = self.config.get_session()
+            # Hide a reference to the connection on the session to help with
+            # backwards compatibility for folks trying to just pass
+            # conn.session to a Resource method's session argument.
+            self.session._sdk_connection = weakref.proxy(self)
+        return self._session
+
+    @property
+    def _pool_executor(self):
+        if not self.__pool_executor:
+            self.__pool_executor = concurrent.futures.ThreadPoolExecutor(
+                max_workers=5
+            )
+        return self.__pool_executor
+
+    def close(self):
+        """Release any resources held open."""
+        self.config.set_auth_cache()
+        if self.__pool_executor:
+            self.__pool_executor.shutdown()
+        atexit.unregister(self.close)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
 
     def connect_as(self, **kwargs):
         """Make a new OpenStackCloud object with new auth context.
@@ -214,6 +384,9 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
             auth['project_name'] = project
         return self.connect_as(**auth)
 
+    def set_global_request_id(self, global_request_id):
+        self._global_request_id = global_request_id
+
     def global_request(self, global_request_id):
         """Make a new Connection object with a global request id set.
 
@@ -245,7 +418,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
         :param global_request_id: The `global_request_id` to send.
         """
         params = copy.deepcopy(self.config.config)
-        cloud_region = cloud_region_mod.from_session(
+        cloud_region = openstack.config.cloud_region.from_session(
             session=self.session,
             app_name=self.config._app_name,
             app_version=self.config._app_version,

@@ -270,11 +270,9 @@ try to find it and if that fails, you would create it::
 Additional information about the services can be found in the
 :ref:`service-proxies` documentation.
 """
-import atexit
-import concurrent.futures
+
 import importlib.metadata as importlib_metadata
 import warnings
-import weakref
 
 import keystoneauth1.exceptions
 import requestsexceptions
@@ -296,7 +294,6 @@ from openstack.cloud import _orchestration
 from openstack.cloud import _security_group
 from openstack.cloud import _shared_file_system
 from openstack import config as _config
-from openstack.config import cloud_region
 from openstack import exceptions
 from openstack import service_description
 
@@ -454,66 +451,24 @@ class Connection(
             provided are assumed to be arguments to be passed to the
             CloudRegion constructor.
         """
-        self.config = config
-        self._extra_services = {}
-        self._strict_proxies = strict_proxies
-        if extra_services:
-            for service in extra_services:
-                self._extra_services[service.service_type] = service
-
-        if not self.config:
-            if oslo_conf:
-                self.config = cloud_region.from_conf(
-                    oslo_conf,
-                    session=session,
-                    app_name=app_name,
-                    app_version=app_version,
-                    service_types=service_types,
-                )
-            elif session:
-                self.config = cloud_region.from_session(
-                    session=session,
-                    app_name=app_name,
-                    app_version=app_version,
-                    load_yaml_config=False,
-                    load_envvars=False,
-                    rate_limit=rate_limit,
-                    **kwargs
-                )
-            else:
-                self.config = _config.get_cloud_region(
-                    cloud=cloud,
-                    app_name=app_name,
-                    app_version=app_version,
-                    load_yaml_config=cloud is not None,
-                    load_envvars=cloud is not None,
-                    rate_limit=rate_limit,
-                    **kwargs
-                )
-
-        self._session = None
-        self._proxies = {}
-        self.__pool_executor = pool_executor
-        self._global_request_id = global_request_id
-        self.use_direct_get = use_direct_get
-        self.strict_mode = strict
-        # Call the _*CloudMixin constructors while we work on
-        # integrating things better.
-        _accelerator.AcceleratorCloudMixin.__init__(self)
-        _baremetal.BaremetalCloudMixin.__init__(self)
-        _block_storage.BlockStorageCloudMixin.__init__(self)
-        _coe.CoeCloudMixin.__init__(self)
-        _compute.ComputeCloudMixin.__init__(self)
-        _dns.DnsCloudMixin.__init__(self)
-        _floating_ip.FloatingIPCloudMixin.__init__(self)
-        _identity.IdentityCloudMixin.__init__(self)
-        _image.ImageCloudMixin.__init__(self)
-        _network_common.NetworkCommonCloudMixin.__init__(self)
-        _network.NetworkCloudMixin.__init__(self)
-        _object_store.ObjectStoreCloudMixin.__init__(self)
-        _orchestration.OrchestrationCloudMixin.__init__(self)
-        _security_group.SecurityGroupCloudMixin.__init__(self)
-        _shared_file_system.SharedFileSystemCloudMixin.__init__(self)
+        super().__init__(
+            cloud=cloud,
+            config=config,
+            session=session,
+            app_name=app_name,
+            app_version=app_version,
+            extra_services=extra_services,
+            strict=strict,
+            use_direct_get=use_direct_get,
+            task_manager=task_manager,
+            rate_limit=rate_limit,
+            oslo_conf=oslo_conf,
+            service_types=service_types,
+            global_request_id=global_request_id,
+            strict_proxies=strict_proxies,
+            pool_executor=pool_executor,
+            **kwargs
+        )
 
         # Allow vendors to provide hooks. They will normally only receive a
         # connection object and a responsible to register additional services
@@ -526,7 +481,7 @@ class Connection(
                 # NOTE(gtema): no class name in the hook, plain module:function
                 # Split string hook into module and function
                 try:
-                    (package_name, function) = vendor_hook.rsplit(':')
+                    package_name, function = vendor_hook.rsplit(':')
 
                     if package_name and function:
                         ep = importlib_metadata.EntryPoint(
@@ -556,19 +511,6 @@ class Connection(
             self.config._influxdb_config['additional_metric_tags'] = (
                 self.config.config['additional_metric_tags']
             )
-
-        # Register cleanup steps
-        atexit.register(self.close)
-
-    @property
-    def session(self):
-        if not self._session:
-            self._session = self.config.get_session()
-            # Hide a reference to the connection on the session to help with
-            # backwards compatibility for folks trying to just pass
-            # conn.session to a Resource method's session argument.
-            self.session._sdk_connection = weakref.proxy(self)
-        return self._session
 
     def add_service(self, service):
         """Add a service to the Connection.
@@ -624,27 +566,3 @@ class Connection(
             return self.session.get_token()
         except keystoneauth1.exceptions.ClientException as e:
             raise exceptions.SDKException(e)
-
-    @property
-    def _pool_executor(self):
-        if not self.__pool_executor:
-            self.__pool_executor = concurrent.futures.ThreadPoolExecutor(
-                max_workers=5
-            )
-        return self.__pool_executor
-
-    def close(self):
-        """Release any resources held open."""
-        self.config.set_auth_cache()
-        if self.__pool_executor:
-            self.__pool_executor.shutdown()
-        atexit.unregister(self.close)
-
-    def set_global_request_id(self, global_request_id):
-        self._global_request_id = global_request_id
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.close()
