@@ -462,9 +462,9 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :exc:`~openstack.exceptions.ValidationException`
         """
         if for_deploy:
-            ifaces = ('boot', 'deploy', 'management', 'power')
+            ifaces = ['boot', 'deploy', 'management', 'power']
         else:
-            ifaces = ('power',)
+            ifaces = ['power']
         self.baremetal.validate_node(name_or_id, required=ifaces)
 
     def validate_node(self, uuid):
