@@ -39,7 +39,7 @@ def parse(env_str):
     YAML format.
     """
     try:
-        env = yaml.load(env_str, Loader=template_format.yaml_loader)
+        env = yaml.load(env_str, Loader=template_format.yaml_loader)  # noqa: S506
     except yaml.YAMLError:
         # NOTE(prazumovsky): we need to return more informative error for
         # user, so use SafeLoader, which return error message with template

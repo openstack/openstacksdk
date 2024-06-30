@@ -1247,7 +1247,8 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         ):
             try:
                 server = self.get_server(server_id)
-            except Exception:
+            except Exception:  # noqa: S112
+                # if it hasn't appeared yet, that's okay
                 continue
             if not server:
                 continue

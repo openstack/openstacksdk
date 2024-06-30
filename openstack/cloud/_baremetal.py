@@ -266,7 +266,9 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
                 for uuid in created_nics:
                     try:
                         self.baremetal.delete_port(uuid)
-                    except Exception:
+                    except Exception:  # noqa: S110
+                        # the port might not have been actually created, so a
+                        # failure to delete isn't necessarily an issue
                         pass
                 raise
 

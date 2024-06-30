@@ -30,7 +30,7 @@ def download_image_stream(conn):
     # and in your own code, you are now responsible for checking
     # the integrity of the data. Create an MD5 has to be computed
     # after all of the data has been consumed.
-    md5 = hashlib.md5()
+    md5 = hashlib.md5(usedforsecurity=False)
 
     with open("myimage.qcow2", "wb") as local_image:
         response = conn.image.download_image(image, stream=True)

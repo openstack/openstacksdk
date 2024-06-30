@@ -59,7 +59,7 @@ def get_profile(profile_name):
         scheme=profile_url.scheme,
         netloc=profile_url.netloc,
     )
-    response = requests.get(well_known_url)
+    response = requests.get(well_known_url, timeout=10)
     if not response.ok:
         raise exceptions.ConfigException(
             f"{profile_name} is a remote profile that could not be fetched: "
