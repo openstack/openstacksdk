@@ -10,13 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from openstack.cloud import _network_common
 from openstack.cloud import _utils
 from openstack.cloud import exc
-from openstack.cloud import openstackcloud
 from openstack import exceptions
 
 
-class NetworkCloudMixin(openstackcloud._OpenStackCloudMixin):
+class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
     def _neutron_extensions(self):
         extensions = set()

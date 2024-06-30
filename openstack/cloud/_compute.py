@@ -17,10 +17,10 @@ import time
 
 import iso8601
 
+from openstack.cloud import _network_common
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack.cloud import meta
-from openstack.cloud import openstackcloud
 from openstack.compute.v2 import server as _server
 from openstack import exceptions
 from openstack import utils
@@ -68,7 +68,7 @@ def _pop_or_get(resource, key, default, strict):
         return resource.get(key, default)
 
 
-class ComputeCloudMixin(openstackcloud._OpenStackCloudMixin):
+class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
     @property
     def _compute_region(self):

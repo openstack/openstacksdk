@@ -1718,7 +1718,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         :returns: One
             :class:`~openstack.block_storage.v3.quota_class_set.QuotaClassSet`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_quota_class_set.QuotaClassSet, quota_class_set)
