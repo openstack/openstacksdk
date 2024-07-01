@@ -39,9 +39,8 @@ def find_nova_interfaces(
                     # ext_tag is specified, but this interface has no tag
                     # We could actually return right away as this means that
                     # this cloud doesn't support OS-EXT-IPS. Nevertheless,
-                    # it would be better to perform an explicit check. e.g.:
-                    #   cloud._has_nova_extension('OS-EXT-IPS')
-                    # But this needs cloud to be passed to this function.
+                    # it would be better to perform an explicit check
+                    # but this needs cloud to be passed to this function.
                     continue
                 elif interface_spec['OS-EXT-IPS:type'] != ext_tag:
                     # Type doesn't match, continue with next one
@@ -52,9 +51,8 @@ def find_nova_interfaces(
                     # mac_addr is specified, but this interface has no mac_addr
                     # We could actually return right away as this means that
                     # this cloud doesn't support OS-EXT-IPS-MAC. Nevertheless,
-                    # it would be better to perform an explicit check. e.g.:
-                    #   cloud._has_nova_extension('OS-EXT-IPS-MAC')
-                    # But this needs cloud to be passed to this function.
+                    # it would be better to perform an explicit check
+                    # but this needs cloud to be passed to this function.
                     continue
                 elif interface_spec['OS-EXT-IPS-MAC:mac_addr'] != mac_addr:
                     # MAC doesn't match, continue with next one
