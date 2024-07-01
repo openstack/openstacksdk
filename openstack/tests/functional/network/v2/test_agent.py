@@ -17,7 +17,7 @@ from openstack.tests.functional import base
 
 
 class TestAgent(base.BaseFunctionalTest):
-    AGENT = None
+    AGENT: agent.Agent
     DESC = "test description"
 
     def validate_uuid(self, s):

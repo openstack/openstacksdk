@@ -68,7 +68,6 @@ class TestServer(ft_base.BaseComputeTest):
     def setUp(self):
         super().setUp()
         self.NAME = self.getUniqueString()
-        self.server = None
         self.network = None
         self.subnet = None
         self.cidr = '10.99.99.0/16'

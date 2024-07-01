@@ -67,8 +67,9 @@ class TestPortForwarding(base.BaseFunctionalTest):
             # credentials available
             # WARNING: this external net is not dropped
             # Create External Network
-            args = {"router:external": True}
-            net = self._create_network(self.EXT_NET_NAME, **args)
+            net = self._create_network(
+                self.EXT_NET_NAME, **{"router:external": True}
+            )
             self.EXT_NET_ID = net.id
             sub = self._create_subnet(
                 self.EXT_SUB_NAME, self.EXT_NET_ID, self.EXT_CIDR
@@ -83,8 +84,10 @@ class TestPortForwarding(base.BaseFunctionalTest):
         )
         self.INT_SUB_ID = sub.id
         # Create Router
-        args = {"external_gateway_info": {"network_id": self.EXT_NET_ID}}
-        sot = self.user_cloud.network.create_router(name=self.ROT_NAME, **args)
+        sot = self.user_cloud.network.create_router(
+            name=self.ROT_NAME,
+            **{"external_gateway_info": {"network_id": self.EXT_NET_ID}}
+        )
         assert isinstance(sot, router.Router)
         self.assertEqual(self.ROT_NAME, sot.name)
         self.ROT_ID = sot.id

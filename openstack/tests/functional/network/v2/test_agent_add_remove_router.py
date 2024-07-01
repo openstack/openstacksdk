@@ -10,14 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
+from openstack.network.v2 import agent
 from openstack.network.v2 import router
 from openstack.tests.functional import base
 
 
 class TestAgentRouters(base.BaseFunctionalTest):
-    ROUTER = None
-    AGENT = None
+    ROUTER: router.Router
+    AGENT: agent.Agent
 
     def setUp(self):
         super().setUp()

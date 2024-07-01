@@ -52,8 +52,9 @@ class TestNDPProxy(base.BaseFunctionalTest):
             # credentials available
             # WARNING: this external net is not dropped
             # Create External Network
-            args = {"router:external": True}
-            net = self._create_network(self.EXT_NET_NAME, **args)
+            net = self._create_network(
+                self.EXT_NET_NAME, **{"router:external": True}
+            )
             self.EXT_NET_ID = net.id
             sub = self._create_subnet(
                 self.EXT_SUB_NAME, self.EXT_NET_ID, self.EXT_CIDR
@@ -61,11 +62,13 @@ class TestNDPProxy(base.BaseFunctionalTest):
             self.EXT_SUB_ID = sub.id
 
         # Create Router
-        args = {
-            "external_gateway_info": {"network_id": self.EXT_NET_ID},
-            "enable_ndp_proxy": True,
-        }
-        sot = self.user_cloud.network.create_router(name=self.ROT_NAME, **args)
+        sot = self.user_cloud.network.create_router(
+            name=self.ROT_NAME,
+            **{
+                "external_gateway_info": {"network_id": self.EXT_NET_ID},
+                "enable_ndp_proxy": True,
+            },
+        )
         assert isinstance(sot, router.Router)
         self.assertEqual(self.ROT_NAME, sot.name)
         self.ROT_ID = sot.id

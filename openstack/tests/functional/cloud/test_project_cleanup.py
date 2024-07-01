@@ -16,8 +16,11 @@ test_project_cleanup
 
 Functional tests for project cleanup methods.
 """
+
 import queue
 
+from openstack.network.v2 import network as _network
+from openstack import resource
 from openstack.tests.functional import base
 
 
@@ -52,7 +55,7 @@ class TestProjectCleanup(base.BaseFunctionalTest):
 
     def test_cleanup(self):
         self._create_network_resources()
-        status_queue = queue.Queue()
+        status_queue: queue.Queue[resource.Resource] = queue.Queue()
 
         # First round - check no resources are old enough
         self.conn.project_cleanup(
@@ -127,7 +130,7 @@ class TestProjectCleanup(base.BaseFunctionalTest):
         if not self.user_cloud.has_service('object-store'):
             self.skipTest('Object service is requred, but not available')
 
-        status_queue = queue.Queue()
+        status_queue: queue.Queue[resource.Resource] = queue.Queue()
 
         vol = self.conn.block_storage.create_volume(name='vol1', size='1')
         self.conn.block_storage.wait_for_status(vol)
@@ -211,7 +214,8 @@ class TestProjectCleanup(base.BaseFunctionalTest):
         if not self.user_cloud.has_service('object-store'):
             self.skipTest('Object service is requred, but not available')
 
-        status_queue = queue.Queue()
+        status_queue: queue.Queue[resource.Resource] = queue.Queue()
+
         self.conn.object_store.create_container('test_cleanup')
         for i in range(1, 10):
             self.conn.object_store.create_object(
@@ -261,15 +265,14 @@ class TestProjectCleanup(base.BaseFunctionalTest):
         if not list(self.conn.network.service_providers(service_type="VPN")):
             self.skipTest("VPNaaS plugin is requred, but not available")
 
-        status_queue = queue.Queue()
+        status_queue: queue.Queue[resource.Resource] = queue.Queue()
 
         # Find available external networks and use one
-        external_network = None
         for network in self.conn.network.networks():
             if network.is_router_external:
-                external_network = network
+                external_network: _network.Network = network
                 break
-        if not external_network:
+        else:
             self.skipTest("External network is required, but not available")
 
         # Create left network resources

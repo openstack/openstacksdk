@@ -148,10 +148,10 @@ class TestVolume(base.BaseFunctionalTest):
             volumes.append(v)
         self.addCleanup(self.cleanup, volumes)
         result = []
-        for i in self.user_cloud.list_volumes():
-            if i['name'] and i['name'].startswith(self.id()):
-                result.append(i['id'])
-        self.assertEqual(sorted([i['id'] for i in volumes]), sorted(result))
+        for v in self.user_cloud.list_volumes():
+            if v['name'] and v['name'].startswith(self.id()):
+                result.append(v['id'])
+        self.assertEqual(sorted([v['id'] for v in volumes]), sorted(result))
 
     def test_update_volume(self):
         name, desc = self.getUniqueString('name'), self.getUniqueString('desc')
