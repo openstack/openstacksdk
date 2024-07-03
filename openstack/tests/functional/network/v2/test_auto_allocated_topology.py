@@ -34,6 +34,9 @@ class TestAutoAllocatedTopology(base.BaseFunctionalTest):
         self.PROJECT_ID = project['id']
         self.test_cloud = self.operator_cloud.connect_as_project(project)
 
+        # Dry run will only pass if there is a public network
+        self._set_network_external()
+
     def tearDown(self):
         res = self.test_cloud.network.delete_auto_allocated_topology(
             self.PROJECT_ID
@@ -79,11 +82,8 @@ class TestAutoAllocatedTopology(base.BaseFunctionalTest):
         )
         self.operator_cloud.delete_project(self.PROJECT_ID)
 
-    def test_dry_run_option_pass(self):
-        # Dry run will only pass if there is a public network
-        networks = self.test_cloud.network.networks()
-        self._set_network_external(networks)
-
+    def test_auto_allocated_topology(self):
+        # First test validation with the 'dry-run' call
         # Dry run option will return "dry-run=pass" in the 'id' resource
         top = self.test_cloud.network.validate_auto_allocated_topology(
             self.PROJECT_ID
@@ -91,14 +91,14 @@ class TestAutoAllocatedTopology(base.BaseFunctionalTest):
         self.assertEqual(self.PROJECT_ID, top.project)
         self.assertEqual("dry-run=pass", top.id)
 
-    def test_show_no_project_option(self):
+        # test show auto_allocated_network without project id in the request
         top = self.test_cloud.network.get_auto_allocated_topology()
         project = self.test_cloud.session.get_project_id()
         network = self.test_cloud.network.get_network(top.id)
         self.assertEqual(top.project_id, project)
         self.assertEqual(top.id, network.id)
 
-    def test_show_project_option(self):
+        # test show auto_allocated_network with project id in the request
         top = self.test_cloud.network.get_auto_allocated_topology(
             self.PROJECT_ID
         )
@@ -107,7 +107,8 @@ class TestAutoAllocatedTopology(base.BaseFunctionalTest):
         self.assertEqual(top.id, network.id)
         self.assertEqual(network.name, "auto_allocated_network")
 
-    def _set_network_external(self, networks):
+    def _set_network_external(self):
+        networks = self.test_cloud.network.networks()
         for network in networks:
             if network.name == "public":
                 self.test_cloud.network.update_network(
