@@ -1276,7 +1276,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             error.
         """
 
-        if type(ips) is list:
+        if type(ips) is not list:
             ips = [ips]
 
         for ip in ips:
