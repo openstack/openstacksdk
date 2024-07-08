@@ -1,0 +1,6 @@
+---
+upgrade:
+  - |
+    Support for Python 3.7 and 3.8 has been dropped. Python 3.7 support was
+    untested and known to be broken for multiple releases, while Python 3.8
+    is going EOL in October 2024.
