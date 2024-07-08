@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import hashlib
 import io
 
 from openstack import exceptions
@@ -68,7 +69,7 @@ class DownloadMixin:
             details = self.fetch(session)
             checksum = details.checksum
 
-        md5 = utils.md5(usedforsecurity=False)
+        md5 = hashlib.md5(usedforsecurity=False)
         if output:
             try:
                 if isinstance(output, io.IOBase):
@@ -97,7 +98,7 @@ class DownloadMixin:
 
         if checksum is not None:
             _verify_checksum(
-                utils.md5(resp.content, usedforsecurity=False), checksum
+                hashlib.md5(resp.content, usedforsecurity=False), checksum
             )
         else:
             session.log.warning(

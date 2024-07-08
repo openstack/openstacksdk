@@ -285,11 +285,11 @@ def maximum_supported_microversion(adapter, client_maximum):
 
 
 def _hashes_up_to_date(md5, sha256, md5_key, sha256_key):
-    '''Compare md5 and sha256 hashes for being up to date
+    """Compare md5 and sha256 hashes for being up to date
 
     md5 and sha256 are the current values.
     md5_key and sha256_key are the previous values.
-    '''
+    """
     up_to_date = False
     if md5 and md5_key == md5:
         up_to_date = True
@@ -302,29 +302,8 @@ def _hashes_up_to_date(md5, sha256, md5_key, sha256_key):
     return up_to_date
 
 
-try:
-    _test_md5 = hashlib.md5(usedforsecurity=False)  # nosec
-
-    # Python distributions that support a hashlib.md5 with the usedforsecurity
-    # keyword can just use that md5 definition as-is
-    # See https://bugs.python.org/issue9216
-    #
-    # TODO(alee) Remove this wrapper when the minimum python version is bumped
-    # to 3.9 (which is the first upstream version to support this keyword)
-    # See https://docs.python.org/3.9/library/hashlib.html
-    md5 = hashlib.md5
-except TypeError:
-
-    def md5(string=b'', usedforsecurity=True):
-        """Return an md5 hashlib object without usedforsecurity parameter
-        For python distributions that do not yet support this keyword
-        parameter, we drop the parameter
-        """
-        return hashlib.md5(string)  # nosec
-
-
 def _calculate_data_hashes(data):
-    _md5 = md5(usedforsecurity=False)
+    _md5 = hashlib.md5(usedforsecurity=False)
     _sha256 = hashlib.sha256()
 
     if hasattr(data, 'read'):

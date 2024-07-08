@@ -24,7 +24,6 @@ import uuid
 
 from openstack.cloud import meta
 from openstack.orchestration.util import template_format
-from openstack import utils
 
 PROJECT_ID = '1c36b64c840a42cd9e9b931a369337f0'
 FLAVOR_ID = '0c1d9008-f546-4608-9e8f-f8bdaec8dddd'
@@ -256,7 +255,7 @@ def make_fake_image(
     checksum='ee36e35a297980dee1b514de9803ec6d',
 ):
     if data:
-        md5 = utils.md5(usedforsecurity=False)
+        md5 = hashlib.md5(usedforsecurity=False)
         sha256 = hashlib.sha256()
         with open(data, 'rb') as file_obj:
             for chunk in iter(lambda: file_obj.read(8192), b''):
