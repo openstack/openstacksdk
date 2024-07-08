@@ -489,3 +489,13 @@ class TestTraits(base.BaseBaremetalTest):
         self.assertEqual(['CUSTOM_FOOBAR'], self.node.traits)
         node = self.conn.baremetal.get_node(self.node)
         self.assertEqual(['CUSTOM_FOOBAR'], node.traits)
+
+
+class TestBareMetalNodeListFirmware(base.BaseBaremetalTest):
+    min_microversion = '1.86'
+
+    def test_list_firmware(self):
+        node = self.create_node(firmware_interface="no-firmware")
+        self.assertEqual("no-firmware", node.firmware_interface)
+        result = self.conn.baremetal.list_node_firmware(node)
+        self.assertEqual({'firmware': []}, result)

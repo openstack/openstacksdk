@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Adds support for querying a bare-metal node's firmware as per functionality
+    introduced in API 1.86.

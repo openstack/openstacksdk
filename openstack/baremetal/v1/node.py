@@ -1397,6 +1397,37 @@ class Node(_common.Resource):
         exceptions.raise_from_response(response, error_message=msg)
         return response.json()
 
+    def list_firmware(self, session):
+        """List firmware components associated with the node.
+
+        :param session: The session to use for making this request.
+        :returns: The HTTP response.
+        """
+        session = self._get_session(session)
+        version = self._assert_microversion_for(
+            session,
+            'fetch',
+            _common.FIRMWARE_VERSION,
+            error_message=("Cannot use node list firmware components API"),
+        )
+
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'firmware')
+
+        response = session.get(
+            request.url,
+            headers=request.headers,
+            microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
+
+        msg = "Failed to list firmware components for node {node}".format(
+            node=self.id
+        )
+        exceptions.raise_from_response(response, error_message=msg)
+
+        return response.json()
+
     def patch(
         self,
         session,

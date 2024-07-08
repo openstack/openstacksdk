@@ -88,6 +88,9 @@ DEPLOY_STEPS_VERSION = '1.69'
 CHANGE_BOOT_MODE_VERSION = '1.76'
 """API version in which boot_mode and secure_boot states can be changed"""
 
+FIRMWARE_VERSION = '1.86'
+"""API version in which firmware components of a node can be accessed"""
+
 
 class Resource(resource.Resource):
     base_path: str
