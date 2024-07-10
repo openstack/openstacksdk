@@ -2465,7 +2465,8 @@ class Proxy(proxy.Proxy):
             None,
             project_id=project.id,
         )
-        return res.fetch(self, usage=usage, **query)
+        base_path = '/os-quota-sets/%(project_id)s/detail' if usage else None
+        return res.fetch(self, base_path=base_path, **query)
 
     def get_quota_set_defaults(self, project):
         """Show QuotaSet defaults for the project
@@ -2484,7 +2485,9 @@ class Proxy(proxy.Proxy):
             None,
             project_id=project.id,
         )
-        return res.fetch(self, base_path='/os-quota-sets/defaults')
+        return res.fetch(
+            self, base_path='/os-quota-sets/%(project_id)s/defaults'
+        )
 
     def revert_quota_set(self, project, **query):
         """Reset Quota for the project/user.

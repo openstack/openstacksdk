@@ -1642,7 +1642,6 @@ class TestQuotaSet(TestComputeProxy):
             expected_kwargs={
                 'error_message': None,
                 'requires_id': False,
-                'usage': False,
             },
             method_result=quota_set.QuotaSet(),
             expected_result=quota_set.QuotaSet(),
@@ -1658,8 +1657,8 @@ class TestQuotaSet(TestComputeProxy):
             expected_kwargs={
                 'error_message': None,
                 'requires_id': False,
-                'usage': True,
                 'user_id': 'uid',
+                'base_path': '/os-quota-sets/%(project_id)s/detail',
             },
         )
 
@@ -1672,7 +1671,7 @@ class TestQuotaSet(TestComputeProxy):
             expected_kwargs={
                 'error_message': None,
                 'requires_id': False,
-                'base_path': '/os-quota-sets/defaults',
+                'base_path': '/os-quota-sets/%(project_id)s/defaults',
             },
         )
 

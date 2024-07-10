@@ -125,7 +125,6 @@ class TestQuotas(base.TestCase):
                         'compute',
                         'public',
                         append=['os-quota-sets', project.project_id],
-                        qs_elements=['usage=False'],
                     ),
                     json={'quota_set': fake_quota_set},
                 ),
