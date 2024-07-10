@@ -28,7 +28,8 @@ from openstack.block_storage.v3 import snapshot
 from openstack.block_storage.v3 import stats
 from openstack.block_storage.v3 import type
 from openstack.block_storage.v3 import volume
-from openstack import resource
+from openstack.identity.v3 import project
+from openstack import proxy as proxy_base
 from openstack.tests.unit import test_proxy_base
 
 
@@ -1017,19 +1018,17 @@ class TestQuotaSet(TestVolumeProxy):
             expected_kwargs={'user_id': 'uid'},
         )
 
-    @mock.patch('openstack.proxy.Proxy._get_resource', autospec=True)
-    def test_quota_set_update(self, gr_mock):
-        gr_mock.return_value = resource.Resource()
-        gr_mock.commit = mock.Mock()
+    @mock.patch.object(proxy_base.Proxy, '_get_resource')
+    def test_quota_set_update(self, mock_get):
+        fake_project = project.Project(id='prj')
+        mock_get.side_effect = [fake_project]
+
         self._verify(
-            'openstack.resource.Resource.commit',
+            'openstack.proxy.Proxy._update',
             self.proxy.update_quota_set,
-            method_args=['qs'],
-            method_kwargs={
-                'query': {'user_id': 'uid'},
-                'a': 'b',
-            },
-            expected_args=[self.proxy],
-            expected_kwargs={'user_id': 'uid'},
+            method_args=['prj'],
+            method_kwargs={'volumes': 123},
+            expected_args=[quota_set.QuotaSet, None],
+            expected_kwargs={'project_id': 'prj', 'volumes': 123},
         )
-        gr_mock.assert_called_with(self.proxy, quota_set.QuotaSet, 'qs', a='b')
+        mock_get.assert_called_once_with(project.Project, 'prj')

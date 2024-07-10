@@ -38,7 +38,8 @@ from openstack.compute.v2 import server_remote_console
 from openstack.compute.v2 import service
 from openstack.compute.v2 import usage
 from openstack.compute.v2 import volume_attachment
-from openstack import resource
+from openstack.identity.v3 import project
+from openstack import proxy as proxy_base
 from openstack.tests.unit import test_proxy_base
 from openstack import warnings as os_warnings
 
@@ -1685,22 +1686,26 @@ class TestQuotaSet(TestComputeProxy):
             expected_kwargs={'user_id': 'uid'},
         )
 
-    @mock.patch('openstack.proxy.Proxy._get_resource', autospec=True)
-    def test_quota_set_update(self, gr_mock):
-        gr_mock.return_value = resource.Resource()
-        gr_mock.commit = mock.Mock()
+    @mock.patch.object(proxy_base.Proxy, "_get_resource")
+    def test_quota_set_update(self, mock_get):
+        fake_project = project.Project(id='prj')
+        fake_quota_set = quota_set.QuotaSet(project_id='prj')
+        mock_get.side_effect = [fake_project, fake_quota_set]
+
         self._verify(
             'openstack.resource.Resource.commit',
             self.proxy.update_quota_set,
-            method_args=['qs'],
-            method_kwargs={
-                'query': {'user_id': 'uid'},
-                'a': 'b',
-            },
+            method_args=['prj'],
+            method_kwargs={'ram': 123},
             expected_args=[self.proxy],
-            expected_kwargs={'user_id': 'uid'},
+            expected_kwargs={},
         )
-        gr_mock.assert_called_with(self.proxy, quota_set.QuotaSet, 'qs', a='b')
+        mock_get.assert_has_calls(
+            [
+                mock.call(project.Project, 'prj'),
+                mock.call(quota_set.QuotaSet, None, project_id='prj', ram=123),
+            ]
+        )
 
 
 class TestServerAction(TestComputeProxy):

@@ -10,6 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+# API deprecation warnings
+#
+# These are for service-related deprecations, such as the removal of an API or
+# API field due to a microversion.
+
 
 class OpenStackDeprecationWarning(DeprecationWarning):
     """Base class for warnings about deprecated features in openstacksdk."""
@@ -29,6 +34,25 @@ class RemovedFieldWarning(OpenStackDeprecationWarning):
 
 class LegacyAPIWarning(OpenStackDeprecationWarning):
     """Indicates an API that is in 'legacy' status, a long term deprecation."""
+
+
+# Package deprecation warnings
+#
+# These are for SDK-specific deprecations, such as removed functions or
+# function parameters.
+
+
+class RemovedInSDK40Warning(DeprecationWarning):
+    """Indicates an argument that is deprecated for removal in SDK 4.0."""
+
+
+class RemovedInSDK50Warning(PendingDeprecationWarning):
+    """Indicates an argument that is deprecated for removal in SDK 5.0."""
+
+
+# General warnings
+#
+# These are usually related to misconfigurations.
 
 
 class OpenStackWarning(Warning):

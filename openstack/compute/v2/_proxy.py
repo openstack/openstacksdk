@@ -37,6 +37,7 @@ from openstack.compute.v2 import usage as _usage
 from openstack.compute.v2 import volume_attachment as _volume_attachment
 from openstack import exceptions
 from openstack.identity.v3 import project as _project
+from openstack.identity.v3 import user as _user
 from openstack.network.v2 import security_group as _sg
 from openstack import proxy
 from openstack import resource
@@ -2494,38 +2495,59 @@ class Proxy(proxy.Proxy):
 
         :param project: ID or instance of
             :class:`~openstack.identity.project.Project` of the project for
-            which the quota should be resetted.
+            which the quota should be reset.
         :param dict query: Additional parameters to be used.
 
         :returns: ``None``
         """
         project = self._get_resource(_project.Project, project)
         res = self._get_resource(
-            _quota_set.QuotaSet,
-            None,
-            project_id=project.id,
+            _quota_set.QuotaSet, None, project_id=project.id
         )
 
         if not query:
             query = {}
         return res.delete(self, **query)
 
-    def update_quota_set(self, quota_set, query=None, **attrs):
+    def update_quota_set(self, project, *, user=None, **attrs):
         """Update a QuotaSet.
 
-        :param quota_set: Either the ID of a quota_set or a
-            :class:`~openstack.compute.v2.quota_set.QuotaSet` instance.
-        :param dict query: Optional parameters to be used with update call.
+        :param project: ID or instance of
+            :class:`~openstack.identity.project.Project` of the project for
+            which the quota should be reset.
+        :param user_id: Optional ID of the user to set quotas as.
         :param attrs: The attributes to update on the QuotaSet represented
             by ``quota_set``.
 
         :returns: The updated QuotaSet
         :rtype: :class:`~openstack.compute.v2.quota_set.QuotaSet`
         """
-        res = self._get_resource(_quota_set.QuotaSet, quota_set, **attrs)
-        if not query:
-            query = {}
-        return res.commit(self, **query)
+        query = {}
+
+        if 'project_id' in attrs or isinstance(project, _quota_set.QuotaSet):
+            warnings.warn(
+                "The signature of 'update_quota_set' has changed and it "
+                "now expects a Project as the first argument, in line "
+                "with the other quota set methods.",
+                os_warnings.RemovedInSDK50Warning,
+            )
+            if isinstance(project, _quota_set.QuotaSet):
+                attrs['project_id'] = project.project_id
+
+            if 'query' in attrs:
+                query = attrs.pop('query')
+        else:
+            project = self._get_resource(_project.Project, project)
+            attrs['project_id'] = project.id
+
+            if user:
+                user = self._get_resource(_user.User, user)
+                query['user_id'] = user.id
+
+        # we don't use Proxy._update since that doesn't allow passing arbitrary
+        # query string parameters
+        quota_set = self._get_resource(_quota_set.QuotaSet, None, **attrs)
+        return quota_set.commit(self, **query)
 
     # ========== Server actions ==========
 

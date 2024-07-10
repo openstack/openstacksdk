@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import warnings
+
 from openstack.block_storage import _base_proxy
 from openstack.block_storage.v2 import backup as _backup
 from openstack.block_storage.v2 import capabilities as _capabilities
@@ -23,6 +25,7 @@ from openstack.block_storage.v2 import type as _type
 from openstack.block_storage.v2 import volume as _volume
 from openstack.identity.v3 import project as _project
 from openstack import resource
+from openstack import warnings as os_warnings
 
 
 class Proxy(_base_proxy.BaseBlockStorageProxy):
@@ -769,22 +772,37 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             query = {}
         return res.delete(self, **query)
 
-    def update_quota_set(self, quota_set, query=None, **attrs):
+    def update_quota_set(self, project, **attrs):
         """Update a QuotaSet.
 
-        :param quota_set: Either the ID of a quota_set or a
-            :class:`~openstack.block_storage.v2.quota_set.QuotaSet` instance.
-        :param dict query: Optional parameters to be used with update call.
+        :param project: ID or instance of
+            :class:`~openstack.identity.project.Project` of the project for
+            which the quota should be reset.
         :param attrs: The attributes to update on the QuotaSet represented
             by ``quota_set``.
 
         :returns: The updated QuotaSet
-        :rtype: :class:`~openstack.block_storage.v2.quota_set.QuotaSet`
+        :rtype: :class:`~openstack.block_storage.v3.quota_set.QuotaSet`
         """
-        res = self._get_resource(_quota_set.QuotaSet, quota_set, **attrs)
-        if not query:
-            query = {}
-        return res.commit(self, **query)
+        if 'project_id' in attrs or isinstance(project, _quota_set.QuotaSet):
+            warnings.warn(
+                "The signature of 'update_quota_set' has changed and it "
+                "now expects a Project as the first argument, in line "
+                "with the other quota set methods.",
+                os_warnings.RemovedInSDK50Warning,
+            )
+            if isinstance(project, _quota_set.QuotaSet):
+                attrs['project_id'] = project.project_id
+
+            # cinder doesn't support any query parameters so we simply pop
+            # these
+            if 'query' in attrs:
+                attrs.pop('params')
+        else:
+            project = self._get_resource(_project.Project, project)
+            attrs['project_id'] = project.id
+
+        return self._update(_quota_set.QuotaSet, None, **attrs)
 
     # ====== VOLUME METADATA ======
     def get_volume_metadata(self, volume):

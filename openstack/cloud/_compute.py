@@ -21,7 +21,6 @@ from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack.cloud import meta
 from openstack.compute.v2._proxy import Proxy
-from openstack.compute.v2 import quota_set as _qs
 from openstack.compute.v2 import server as _server
 from openstack import exceptions
 from openstack import utils
@@ -1774,11 +1773,9 @@ class ComputeCloudMixin:
         :raises: :class:`~openstack.exceptions.SDKException` if the resource to
             set the quota does not exist.
         """
-        proj = self.identity.find_project(name_or_id, ignore_missing=False)
+        project = self.identity.find_project(name_or_id, ignore_missing=False)
         kwargs['force'] = True
-        self.compute.update_quota_set(
-            _qs.QuotaSet(project_id=proj.id), **kwargs
-        )
+        self.compute.update_quota_set(project=project, **kwargs)
 
     def get_compute_quotas(self, name_or_id):
         """Get quota for a project

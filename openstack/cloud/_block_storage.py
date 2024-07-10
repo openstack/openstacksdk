@@ -13,7 +13,6 @@
 import warnings
 
 from openstack.block_storage.v3._proxy import Proxy
-from openstack.block_storage.v3 import quota_set as _qs
 from openstack.cloud import _utils
 from openstack import exceptions
 from openstack import warnings as os_warnings
@@ -842,12 +841,9 @@ class BlockStorageCloudMixin:
         :raises: :class:`~openstack.exceptions.SDKException` if the resource to
             set the quota does not exist.
         """
+        project = self.identity.find_project(name_or_id, ignore_missing=False)
 
-        proj = self.identity.find_project(name_or_id, ignore_missing=False)
-
-        self.block_storage.update_quota_set(
-            _qs.QuotaSet(project_id=proj.id), **kwargs
-        )
+        self.block_storage.update_quota_set(project=project, **kwargs)
 
     def get_volume_quotas(self, name_or_id):
         """Get volume quotas for a project
