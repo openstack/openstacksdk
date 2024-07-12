@@ -1291,7 +1291,11 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         params = {}
         if project:
             params['project_id'] = resource.Resource._get_id(project)
-        return self._get(_limits.Limits, requires_id=False, **params)
+
+        # we don't use Proxy._get since that doesn't allow passing arbitrary
+        # query string parameters
+        res = self._get_resource(_limits.Limits, None)
+        return res.fetch(self, requires_id=False, **params)
 
     # ====== CAPABILITIES ======
     def get_capabilities(self, host):

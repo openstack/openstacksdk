@@ -19,7 +19,6 @@ from openstack.block_storage.v3 import extension
 from openstack.block_storage.v3 import group
 from openstack.block_storage.v3 import group_snapshot
 from openstack.block_storage.v3 import group_type
-from openstack.block_storage.v3 import limits
 from openstack.block_storage.v3 import quota_class_set
 from openstack.block_storage.v3 import quota_set
 from openstack.block_storage.v3 import resource_filter
@@ -136,11 +135,13 @@ class TestPools(TestVolumeProxy):
 
 class TestLimit(TestVolumeProxy):
     def test_limits_get(self):
-        self.verify_get(
+        self._verify(
+            'openstack.resource.Resource.fetch',
             self.proxy.get_limits,
-            limits.Limits,
             method_args=[],
-            expected_kwargs={'requires_id': False},
+            method_kwargs={'project': 'foo'},
+            expected_args=[self.proxy],
+            expected_kwargs={'requires_id': False, 'project_id': 'foo'},
         )
 
 
