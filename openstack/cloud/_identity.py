@@ -300,12 +300,19 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         return _utils._get_entity(self, 'user', name_or_id, filters, **kwargs)
 
     # TODO(stephenfin): Remove normalize since it doesn't do anything
-    def get_user_by_id(self, user_id, normalize=True):
+    def get_user_by_id(self, user_id, normalize=None):
         """Get a user by ID.
 
         :param string user_id: user ID
         :returns: an identity ``User`` object
         """
+        if normalize is not None:
+            warnings.warn(
+                "The 'normalize' field is unnecessary and will be removed in "
+                "a future release.",
+                os_warnings.RemovedInSDK60Warning,
+            )
+
         return self.identity.get_user(user_id)
 
     @_utils.valid_kwargs(

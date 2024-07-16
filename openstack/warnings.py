@@ -42,11 +42,18 @@ class LegacyAPIWarning(OpenStackDeprecationWarning):
 # function parameters.
 
 
-class RemovedInSDK50Warning(PendingDeprecationWarning):
+class _RemovedInSDKWarning(PendingDeprecationWarning):
+    """Indicates an argument that is deprecated for removal.
+
+    This is a base class and should not be used directly.
+    """
+
+
+class RemovedInSDK50Warning(_RemovedInSDKWarning):
     """Indicates an argument that is deprecated for removal in SDK 5.0."""
 
 
-class RemovedInSDK60Warning(PendingDeprecationWarning):
+class RemovedInSDK60Warning(_RemovedInSDKWarning):
     """Indicates an argument that is deprecated for removal in SDK 6.0."""
 
 

@@ -47,7 +47,7 @@ class WarningsFixture(fixtures.Fixture):
         )
         warnings.filterwarnings(
             "ignore",
-            category=os_warnings.RemovedInSDK50Warning,
+            category=os_warnings._RemovedInSDKWarning,
         )
 
         # also ignore our own general warnings

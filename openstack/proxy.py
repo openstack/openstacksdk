@@ -14,6 +14,7 @@ import functools
 import typing as ty
 import urllib
 from urllib.parse import urlparse
+import warnings
 
 try:
     import simplejson
@@ -28,6 +29,7 @@ from keystoneauth1 import adapter
 from openstack import _log
 from openstack import exceptions
 from openstack import resource
+from openstack import warnings as os_warnings
 
 
 ResourceType = ty.TypeVar('ResourceType', bound=resource.Resource)
@@ -208,7 +210,6 @@ class Proxy(adapter.Adapter):
             self._report_stats(None, url, method, e)
             raise
 
-    # TODO(stephenfin): service_type is unused and should be dropped
     @functools.lru_cache(maxsize=256)
     def _extract_name(self, url, service_type=None, project_id=None):
         """Produce a key name to use in logging/metrics from the URL path.
@@ -225,6 +226,12 @@ class Proxy(adapter.Adapter):
           /servers/{id}/os-security-groups -> ['server', 'os-security-groups']
           /v2.0/networks.json -> ['networks']
         """
+        if service_type is not None:
+            warnings.warn(
+                "The 'service_type' parameter is unnecesary and will be "
+                "removed in a future release.",
+                os_warnings.RemovedInSDK60Warning,
+            )
 
         url_path = urllib.parse.urlparse(url).path.strip()
         # Remove / from the beginning to keep the list indexes of interesting

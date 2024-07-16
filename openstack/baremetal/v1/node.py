@@ -13,11 +13,13 @@
 import collections
 import enum
 import typing as ty
+import warnings
 
 from openstack.baremetal.v1 import _common
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
+from openstack import warnings as os_warnings
 
 
 class ValidationResult:
@@ -1399,15 +1401,19 @@ class Node(_common.Resource):
         )
         exceptions.raise_from_response(response, error_message=msg)
 
-    # TODO(stephenfin): Drop 'node_id' and use 'self.id' instead or convert to
-    # a classmethod
     def get_node_inventory(self, session, node_id):
         """Get a node's inventory.
 
         :param session: The session to use for making this request.
-        :param node_id: The ID of the node.
+        :param node_id: **DEPRECATED** The ID of the node.
         :returns: The HTTP response.
         """
+        if node_id is not None:
+            warnings.warn(
+                "The 'node_id' field is unnecessary and will be removed in "
+                "a future release.",
+                os_warnings.RemovedInSDK60Warning,
+            )
         session = self._get_session(session)
         version = self._get_microversion(session, action='fetch')
         request = self._prepare_request(requires_id=True)
@@ -1421,7 +1427,7 @@ class Node(_common.Resource):
         )
 
         msg = "Failed to get inventory for node {node}".format(
-            node=node_id,
+            node=self.id,
         )
         exceptions.raise_from_response(response, error_message=msg)
         return response.json()
