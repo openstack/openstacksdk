@@ -506,7 +506,7 @@ class Proxy(proxy.Proxy):
         """
         warnings.warn(
             "upload_image is deprecated. Use create_image instead.",
-            os_warnings.OpenStackDeprecationWarning,
+            os_warnings.RemovedInSDK50Warning,
         )
         # container_format and disk_format are required to be set
         # on the image by the time upload_image is called, but they're not

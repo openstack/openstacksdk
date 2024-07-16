@@ -527,7 +527,7 @@ class TestVolumeAttachment(TestComputeProxy):
 
             self.assertEqual(1, len(w))
             self.assertEqual(
-                os_warnings.OpenStackDeprecationWarning,
+                os_warnings.RemovedInSDK50Warning,
                 w[-1].category,
             )
             self.assertIn(

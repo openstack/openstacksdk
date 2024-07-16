@@ -429,7 +429,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         # understand, obviously.
         warnings.warn(
             "search_floating_ips is deprecated. Use search_resource instead.",
-            os_warnings.OpenStackDeprecationWarning,
+            os_warnings.RemovedInSDK50Warning,
         )
         if self._use_neutron_floating() and isinstance(filters, dict):
             return list(self.network.ips(**filters))

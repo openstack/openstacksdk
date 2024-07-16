@@ -1925,7 +1925,7 @@ class Proxy(proxy.Proxy):
             )
             warnings.warn(
                 deprecation_msg,
-                os_warnings.OpenStackDeprecationWarning,
+                os_warnings.RemovedInSDK50Warning,
             )
         else:
             volume_id = resource.Resource._get_id(volume)
@@ -2001,7 +2001,7 @@ class Proxy(proxy.Proxy):
         ):
             warnings.warn(
                 deprecation_msg,
-                os_warnings.OpenStackDeprecationWarning,
+                os_warnings.RemovedInSDK50Warning,
             )
             return volume, server
 
@@ -2012,7 +2012,7 @@ class Proxy(proxy.Proxy):
         else:
             warnings.warn(
                 deprecation_msg,
-                os_warnings.OpenStackDeprecationWarning,
+                os_warnings.RemovedInSDK50Warning,
             )
             return volume, server
 

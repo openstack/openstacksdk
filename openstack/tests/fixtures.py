@@ -45,6 +45,10 @@ class WarningsFixture(fixtures.Fixture):
             "ignore",
             category=os_warnings.OpenStackDeprecationWarning,
         )
+        warnings.filterwarnings(
+            "ignore",
+            category=os_warnings.RemovedInSDK50Warning,
+        )
 
         # also ignore our own general warnings
         warnings.filterwarnings(
