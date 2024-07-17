@@ -57,7 +57,7 @@ class BaseResource(resource.Resource):
                     header = key
                 else:
                     header = self._custom_metadata_prefix + key
-            headers[header] = metadata[key]
+            headers[header] = str(metadata[key])
         return headers
 
     def set_metadata(self, session, metadata, refresh=True):
