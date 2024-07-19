@@ -1249,7 +1249,7 @@ class IdentityCloudMixin:
         try:
             self.identity.delete_role(role)
             return True
-        except exceptions.SDKExceptions:
+        except exceptions.SDKException:
             self.log.exception(f"Unable to delete role {name_or_id}")
             raise
 
