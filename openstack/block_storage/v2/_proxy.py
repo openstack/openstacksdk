@@ -168,6 +168,26 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         return self._get(_type.Type, type)
 
+    def find_type(self, name_or_id, ignore_missing=True):
+        """Find a single volume type
+
+        :param snapshot: The name or ID a volume type
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the volume type does not exist.
+
+        :returns: One :class:`~openstack.block_storage.v2.type.Type`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
+        """
+        return self._find(
+            _type.Type,
+            name_or_id,
+            ignore_missing=ignore_missing,
+        )
+
     def types(self, **query):
         """Retrieve a generator of volume types
 
