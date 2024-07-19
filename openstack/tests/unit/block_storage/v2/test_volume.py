@@ -160,6 +160,28 @@ class TestVolumeActions(TestVolume):
             url, json=body, microversion=sot._max_microversion
         )
 
+    def test_set_volume_readonly(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.set_readonly(self.sess, True))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body = {'os-update_readonly_flag': {'readonly': True}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion
+        )
+
+    def test_set_volume_readonly_false(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.set_readonly(self.sess, False))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body = {'os-update_readonly_flag': {'readonly': False}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion
+        )
+
     def test_set_volume_bootable(self):
         sot = volume.Volume(**VOLUME)
 

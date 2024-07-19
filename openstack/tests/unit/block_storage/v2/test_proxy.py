@@ -138,6 +138,22 @@ class TestVolumeActions(TestVolumeProxy):
             expected_args=[self.proxy, "new-size"],
         )
 
+    def test_volume_set_readonly_no_argument(self):
+        self._verify(
+            "openstack.block_storage.v2.volume.Volume.set_readonly",
+            self.proxy.set_volume_readonly,
+            method_args=["value"],
+            expected_args=[self.proxy, True],
+        )
+
+    def test_volume_set_readonly_false(self):
+        self._verify(
+            "openstack.block_storage.v2.volume.Volume.set_readonly",
+            self.proxy.set_volume_readonly,
+            method_args=["value", False],
+            expected_args=[self.proxy, False],
+        )
+
     def test_volume_set_bootable(self):
         self._verify(
             "openstack.block_storage.v2.volume.Volume.set_bootable_status",
