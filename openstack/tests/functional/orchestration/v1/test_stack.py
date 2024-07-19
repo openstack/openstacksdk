@@ -72,7 +72,7 @@ class TestStack(base.BaseFunctionalTest):
             self.conn.orchestration.wait_for_status(
                 self.stack, 'DELETE_COMPLETE', wait=self._wait_for_timeout
             )
-        except exceptions.ResourceNotFound:
+        except exceptions.NotFoundException:
             pass
         test_network.delete_network(self.conn, self.network, self.subnet)
         super().tearDown()

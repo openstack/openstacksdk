@@ -89,7 +89,7 @@ class Proxy(proxy.Proxy):
             introspection (matching bare metal node name or ID) or
             an :class:`~.introspection.Introspection` instance.
         :returns: :class:`~.introspection.Introspection` instance.
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             introspection matching the name or ID could be found.
         """
         return self._get(_introspect.Introspection, introspection)
@@ -118,7 +118,7 @@ class Proxy(proxy.Proxy):
             introspection (matching bare metal node name or ID) or
             an :class:`~.introspection.Introspection` instance.
         :param bool ignore_missing: When set to ``False``, an exception
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the introspection could not be found. When set to ``True``, no
             exception will be raised when attempting to abort a non-existent
             introspection.
@@ -127,7 +127,7 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_introspect.Introspection, introspection)
         try:
             res.abort(self)
-        except exceptions.ResourceNotFound:
+        except exceptions.NotFoundException:
             if not ignore_missing:
                 raise
 
@@ -177,7 +177,7 @@ class Proxy(proxy.Proxy):
             introspection rule or a
             :class:`~.introspection_rule.IntrospectionRule` instance.
         :param bool ignore_missing: When set to ``False``, an
-            exception:class:`~openstack.exceptions.ResourceNotFound` will be
+            exception:class:`~openstack.exceptions.NotFoundException` will be
             raised when the introspection rule could not be found. When set to
             ``True``, no exception will be raised when attempting to delete a
             non-existent introspection rule.
@@ -198,7 +198,7 @@ class Proxy(proxy.Proxy):
             :class:`~.introspection_rule.IntrospectionRule` instance.
 
         :returns: :class:`~.introspection_rule.IntrospectionRule` instance.
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             introspection rule matching the name or ID could be found.
         """
         return self._get(

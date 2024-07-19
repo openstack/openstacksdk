@@ -235,7 +235,7 @@ class TestDomains(base.TestCase):
                 ),
             ]
         )
-        with testtools.ExpectedException(exceptions.ResourceNotFound):
+        with testtools.ExpectedException(exceptions.NotFoundException):
             self.cloud.delete_domain(domain_data.domain_id)
         self.assert_calls()
 

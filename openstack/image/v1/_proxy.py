@@ -322,7 +322,7 @@ class Proxy(proxy.Proxy):
         :param image: The value can be either the ID of an image or a
             :class:`~openstack.image.v1.image.Image` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the image does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent image.
@@ -336,7 +336,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a image.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -353,7 +353,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.image.v1.image.Image` instance.
 
         :returns: One :class:`~openstack.image.v1.image.Image`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_image.Image, image)

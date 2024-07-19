@@ -1680,7 +1680,7 @@ class Resource(dict):
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
             :data:`Resource.allow_fetch` is not set to ``True``.
-        :raises: :exc:`~openstack.exceptions.ResourceNotFound` if
+        :raises: :exc:`~openstack.exceptions.NotFoundException` if
             the resource was not found.
         """
         if not self.allow_fetch:
@@ -1721,7 +1721,7 @@ class Resource(dict):
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
             :data:`Resource.allow_head` is not set to ``True``.
-        :raises: :exc:`~openstack.exceptions.ResourceNotFound` if the resource
+        :raises: :exc:`~openstack.exceptions.NotFoundException` if the resource
             was not found.
         """
         if not self.allow_head:
@@ -1952,7 +1952,7 @@ class Resource(dict):
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
             :data:`Resource.allow_commit` is not set to ``True``.
-        :raises: :exc:`~openstack.exceptions.ResourceNotFound` if
+        :raises: :exc:`~openstack.exceptions.NotFoundException` if
             the resource was not found.
         """
 
@@ -2316,9 +2316,9 @@ class Resource(dict):
         :param name_or_id: This resource's identifier, if needed by
             the request. The default is ``None``.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
-            the resource does not exist.  When set to ``True``, None will be
-            returned when attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource does not exist.  When set to ``True``, None will
+            be returned when attempting to find a nonexistent resource.
         :param str list_base_path: base_path to be used when need listing
             resources.
         :param str microversion: API version to override the negotiated one.
@@ -2331,8 +2331,8 @@ class Resource(dict):
             or None if nothing matches.
         :raises: :class:`openstack.exceptions.DuplicateResource` if more
             than one resource is found for this request.
-        :raises: :class:`openstack.exceptions.ResourceNotFound` if nothing
-            is found and ignore_missing is ``False``.
+        :raises: :class:`openstack.exceptions.NotFoundException` if nothing is
+            found and ignore_missing is ``False``.
         """
         session = cls._get_session(session)
 
@@ -2377,7 +2377,7 @@ class Resource(dict):
         if ignore_missing:
             return None
 
-        raise exceptions.ResourceNotFound(
+        raise exceptions.NotFoundException(
             f"No {cls.__name__} found for {name_or_id}"
         )
 

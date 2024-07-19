@@ -439,7 +439,7 @@ class FloatingIPCloudMixin:
             if network_name_or_id:
                 try:
                     network = self.network.find_network(network_name_or_id)
-                except exceptions.ResourceNotFound:
+                except exceptions.NotFoundException:
                     raise exceptions.NotFoundException(
                         "unable to find network for floating ips with ID "
                         "{}".format(network_name_or_id)
@@ -592,7 +592,7 @@ class FloatingIPCloudMixin:
     def _neutron_delete_floating_ip(self, floating_ip_id):
         try:
             self.network.delete_ip(floating_ip_id, ignore_missing=False)
-        except exceptions.ResourceNotFound:
+        except exceptions.NotFoundException:
             return False
         return True
 

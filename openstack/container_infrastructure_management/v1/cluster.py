@@ -134,7 +134,7 @@ class Cluster(resource.Resource):
         :param nodes_to_remove: The server ID list will be removed if
             downsizing the cluster.
         :returns: The UUID of the resized cluster.
-        :raises: :exc:`~openstack.exceptions.ResourceNotFound` if
+        :raises: :exc:`~openstack.exceptions.NotFoundException` if
             the resource was not found.
         """
         url = utils.urljoin(Cluster.base_path, self.id, 'actions', 'resize')
@@ -154,7 +154,7 @@ class Cluster(resource.Resource):
         :param max_batch_size: The max batch size each time when doing upgrade.
             The default is 1
         :returns: The UUID of the updated cluster.
-        :raises: :exc:`~openstack.exceptions.ResourceNotFound` if
+        :raises: :exc:`~openstack.exceptions.NotFoundException` if
             the resource was not found.
         """
         url = utils.urljoin(Cluster.base_path, self.id, 'actions', 'upgrade')

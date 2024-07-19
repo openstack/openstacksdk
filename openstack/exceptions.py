@@ -120,6 +120,10 @@ class BadRequestException(HttpException):
     """HTTP 400 Bad Request."""
 
 
+class NotFoundException(HttpException):
+    """HTTP 404 Not Found."""
+
+
 class ForbiddenException(HttpException):
     """HTTP 403 Forbidden Request."""
 
@@ -152,13 +156,6 @@ class MethodNotSupported(SDKException):
 
 class DuplicateResource(SDKException):
     """More than one resource exists with that name."""
-
-
-class ResourceNotFound(HttpException):
-    """No resource exists with that name or ID."""
-
-
-NotFoundException = ResourceNotFound
 
 
 class ResourceTimeout(SDKException):
@@ -275,3 +272,4 @@ class ServiceDiscoveryException(SDKException):
 
 # Backwards compatibility
 OpenStackCloudException = SDKException
+ResourceNotFound = NotFoundException

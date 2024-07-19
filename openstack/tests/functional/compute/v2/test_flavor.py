@@ -48,7 +48,7 @@ class TestFlavor(base.BaseFunctionalTest):
 
     def test_find_flavors_no_match_ignore_false(self):
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.compute.find_flavor,
             "not a flavor",
             ignore_missing=False,

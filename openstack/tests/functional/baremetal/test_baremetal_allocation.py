@@ -64,7 +64,7 @@ class TestBareMetalAllocation(Base):
 
         self.conn.baremetal.delete_allocation(allocation, ignore_missing=False)
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.get_allocation,
             allocation.id,
         )
@@ -113,12 +113,12 @@ class TestBareMetalAllocation(Base):
     def test_allocation_negative_non_existing(self):
         uuid = "5c9dcd04-2073-49bc-9618-99ae634d8971"
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.get_allocation,
             uuid,
         )
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.delete_allocation,
             uuid,
             ignore_missing=False,
@@ -158,7 +158,7 @@ class TestBareMetalAllocationUpdate(Base):
 
         self.conn.baremetal.delete_allocation(allocation, ignore_missing=False)
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.get_allocation,
             allocation.id,
         )
@@ -203,7 +203,7 @@ class TestBareMetalAllocationUpdate(Base):
 
         self.conn.baremetal.delete_allocation(allocation, ignore_missing=False)
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.get_allocation,
             allocation.id,
         )

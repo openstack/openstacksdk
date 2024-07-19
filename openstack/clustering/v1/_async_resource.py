@@ -27,7 +27,7 @@ class AsyncResource(resource.Resource):
                  to populate the `Action` with status information.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
                  :data:`Resource.allow_commit` is not set to ``True``.
-        :raises: :exc:`~openstack.exceptions.ResourceNotFound` if
+        :raises: :exc:`~openstack.exceptions.NotFoundException` if
                  the resource was not found.
         """
         response = self._raw_delete(session)

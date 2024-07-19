@@ -3302,7 +3302,7 @@ class TestResourceFind(base.TestCase):
         def existing(cls, **kwargs):
             response = mock.Mock()
             response.status_code = 404
-            raise exceptions.ResourceNotFound('Not Found', response=response)
+            raise exceptions.NotFoundException('Not Found', response=response)
 
         @classmethod
         def list(cls, session, **params):
@@ -3343,7 +3343,7 @@ class TestResourceFind(base.TestCase):
 
     def test_no_match_raise(self):
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.no_results.find,
             self.cloud.compute,
             "name",
@@ -3736,7 +3736,7 @@ class TestWaitForDelete(TestWait):
         res.fetch.side_effect = [
             res,
             res,
-            exceptions.ResourceNotFound('Not Found', response),
+            exceptions.NotFoundException('Not Found', response),
         ]
 
         result = resource.wait_for_delete(self.cloud.compute, res, 1, 3)

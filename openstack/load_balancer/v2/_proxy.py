@@ -102,7 +102,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.load_balancer.v2.load_balancer.LoadBalancer`
             instance
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the load balancer does not exist.
             When set to ``True``, no exception will be set when attempting to
             delete a nonexistent load balancer.
@@ -122,7 +122,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a load balancer
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the load balancer does not exist.
             When set to ``True``, no exception will be set when attempting
             to delete a nonexistent load balancer.
@@ -216,7 +216,7 @@ class Proxy(proxy.Proxy):
         :param listener: The value can be either the ID of a listener or a
             :class:`~openstack.load_balancer.v2.listener.Listener` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the listner does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent listener.
@@ -232,7 +232,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a listener.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -252,7 +252,7 @@ class Proxy(proxy.Proxy):
             instance.
 
         :returns: One :class:`~openstack.load_balancer.v2.listener.Listener`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_listener.Listener, listener)
@@ -266,7 +266,7 @@ class Proxy(proxy.Proxy):
 
         :returns: One
             :class:`~openstack.load_balancer.v2.listener.ListenerStats`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         """
         return self._get(
@@ -335,7 +335,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.load_balancer.v2.pool.Pool`
             instance
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the pool does not exist.
             When set to ``True``, no exception will be set when attempting to
             delete a nonexistent pool.
@@ -349,7 +349,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a pool
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the pool does not exist.
             When set to ``True``, no exception will be set when attempting
             to delete a nonexistent pool.
@@ -400,7 +400,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.load_balancer.v2.pool.Pool` instance
             that the member belongs to.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the member does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent member.
@@ -423,7 +423,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.load_balancer.v2.pool.Pool` instance
             that the member belongs to.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -450,7 +450,7 @@ class Proxy(proxy.Proxy):
             that the member belongs to.
 
         :returns: One :class:`~openstack.load_balancer.v2.member.Member`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         poolobj = self._get_resource(_pool.Pool, pool)
@@ -496,7 +496,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a health monitor
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the health monitor does not exist.
             When set to ``True``, no exception will be set when attempting
             to find a nonexistent health monitor.
@@ -507,7 +507,7 @@ class Proxy(proxy.Proxy):
 
         :raises: :class:`openstack.exceptions.DuplicateResource` if more
             than one resource is found for this request.
-        :raises: :class:`openstack.exceptions.ResourceNotFound` if nothing
+        :raises: :class:`openstack.exceptions.NotFoundException` if nothing
             is found and ignore_missing is ``False``.
         """
         return self._find(
@@ -565,7 +565,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.load_balancer.v2.healthmonitor.HealthMonitor`
             instance
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the healthmonitor does not exist.
             When set to ``True``, no exception will be set when attempting to
             delete a nonexistent healthmonitor.
@@ -610,7 +610,7 @@ class Proxy(proxy.Proxy):
         :param l7_policy: The value can be either the ID of a l7policy or a
             :class:`~openstack.load_balancer.v2.l7_policy.L7Policy` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the l7policy does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent l7policy.
@@ -626,7 +626,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a l7policy.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -646,7 +646,7 @@ class Proxy(proxy.Proxy):
             instance.
 
         :returns: One :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_l7policy.L7Policy, l7_policy)
@@ -703,7 +703,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
             instance that the l7rule belongs to.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the l7rule does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent l7rule.
@@ -726,7 +726,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
             instance that the l7rule belongs to.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -753,7 +753,7 @@ class Proxy(proxy.Proxy):
             instance that the l7rule belongs to.
 
         :returns: One :class:`~openstack.load_balancer.v2.l7_rule.L7Rule`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
@@ -815,7 +815,7 @@ class Proxy(proxy.Proxy):
             ID for the quota.
 
         :returns: One :class:`~openstack.load_balancer.v2.quota.Quota`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_quota.Quota, quota)
@@ -850,7 +850,7 @@ class Proxy(proxy.Proxy):
             instance. The ID of a quota is the same as the
             project ID for the quota.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when quota does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent quota.
@@ -914,7 +914,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.load_balancer.v2.flavor_profile.FlavorProfile`
             instance
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the flavor profile does not exist.
             When set to ``True``, no exception will be set when attempting to
             delete a nonexistent flavor profile.
@@ -932,7 +932,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a flavor profile
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the flavor profile does not exist.
             When set to ``True``, no exception will be set when attempting
             to delete a nonexistent flavor profile.
@@ -998,7 +998,7 @@ class Proxy(proxy.Proxy):
         :param flavor: The flavorcan be either the ID or a
             :class:`~openstack.load_balancer.v2.flavor.Flavor` instance
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the flavor does not exist.
             When set to ``True``, no exception will be set when attempting to
             delete a nonexistent flavor.
@@ -1012,7 +1012,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a flavor
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the flavor does not exist.
             When set to ``True``, no exception will be set when attempting
             to delete a nonexistent flavor.
@@ -1059,7 +1059,7 @@ class Proxy(proxy.Proxy):
 
         :param amphora_id: The ID of a amphora
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the amphora does not exist.
             When set to ``True``, no exception will be set when attempting
             to find a nonexistent amphora.
@@ -1138,7 +1138,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.load_balancer.v2.availability_zone_profile.AvailabilityZoneProfile`
             instance
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the availability zone profile does not exist.
             When set to ``True``, no exception will be set when attempting to
             delete a nonexistent availability zone profile.
@@ -1156,7 +1156,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a availability zone profile
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the availability zone profile does not exist.
             When set to ``True``, no exception will be set when attempting
             to delete a nonexistent availability zone profile.
@@ -1232,7 +1232,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.load_balancer.v2.availability_zone.AvailabilityZone`
             instance
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the availability zone does not exist.
             When set to ``True``, no exception will be set when attempting to
             delete a nonexistent availability zone.
@@ -1250,7 +1250,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a availability zone
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the availability zone does not exist.
             When set to ``True``, no exception will be set when attempting
             to delete a nonexistent availability zone.

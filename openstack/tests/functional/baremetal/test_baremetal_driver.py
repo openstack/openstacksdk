@@ -27,7 +27,7 @@ class TestBareMetalDriver(base.BaseBaremetalTest):
 
     def test_driver_negative_non_existing(self):
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.get_driver,
             'not-a-driver',
         )

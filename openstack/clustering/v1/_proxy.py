@@ -68,7 +68,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A :class:`~openstack.clustering.v1.profile_type.ProfileType`
             object.
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             profile_type matching the name could be found.
         """
         return self._get(_profile_type.ProfileType, profile_type)
@@ -89,7 +89,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A :class:`~openstack.clustering.v1.policy_type.PolicyType`
             object.
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             policy_type matching the name could be found.
         """
         return self._get(_policy_type.PolicyType, policy_type)
@@ -112,7 +112,7 @@ class Proxy(proxy.Proxy):
         :param profile: The value can be either the name or ID of a profile or
             a :class:`~openstack.clustering.v1.profile.Profile` instance.
         :param bool ignore_missing: When set to ``False``, an exception
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the profile could not be found. When set to ``True``, no exception
             will be raised when attempting to delete a non-existent profile.
 
@@ -125,7 +125,7 @@ class Proxy(proxy.Proxy):
 
         :param str name_or_id: The name or ID of a profile.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -143,7 +143,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.clustering.v1.profile.Profile` instance.
 
         :returns: One :class:`~openstack.clustering.v1.profile.Profile`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             profile matching the criteria could be found.
         """
         return self._get(_profile.Profile, profile)
@@ -219,7 +219,7 @@ class Proxy(proxy.Proxy):
         :param cluster: The value can be either the name or ID of a cluster or
             a :class:`~openstack.cluster.v1.cluster.Cluster` instance.
         :param bool ignore_missing: When set to ``False``, an exception
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the cluster could not be found. When set to ``True``, no exception
             will be raised when attempting to delete a non-existent cluster.
         :param bool force_delete: When set to ``True``, the cluster deletion
@@ -241,7 +241,7 @@ class Proxy(proxy.Proxy):
 
         :param str name_or_id: The name or ID of a cluster.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -259,7 +259,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.clustering.v1.cluster.Cluster` instance.
 
         :returns: One :class:`~openstack.clustering.v1.cluster.Cluster`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             cluster matching the criteria could be found.
         """
         return self._get(_cluster.Cluster, cluster)
@@ -560,7 +560,7 @@ class Proxy(proxy.Proxy):
         :param node: The value can be either the name or ID of a node or a
             :class:`~openstack.cluster.v1.node.Node` instance.
         :param bool ignore_missing: When set to ``False``, an exception
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the node could not be found. When set to ``True``, no exception
             will be raised when attempting to delete a non-existent node.
         :param bool force_delete: When set to ``True``, the node deletion
@@ -582,7 +582,7 @@ class Proxy(proxy.Proxy):
 
         :param str name_or_id: The name or ID of a node.
         :param bool ignore_missing: When set to "False"
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the specified node does not exist.
             when set to "True", None will be returned when
             attempting to find a nonexistent policy
@@ -602,7 +602,7 @@ class Proxy(proxy.Proxy):
             server should return more details when retrieving the node data.
 
         :returns: One :class:`~openstack.clustering.v1.node.Node`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             node matching the name or ID could be found.
         """
         # NOTE: When retrieving node with details (using NodeDetail resource),
@@ -741,7 +741,7 @@ class Proxy(proxy.Proxy):
         :param policy: The value can be either the name or ID of a policy or a
             :class:`~openstack.clustering.v1.policy.Policy` instance.
         :param bool ignore_missing: When set to ``False``, an exception
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the policy could not be found. When set to ``True``, no exception
             will be raised when attempting to delete a non-existent policy.
 
@@ -754,7 +754,7 @@ class Proxy(proxy.Proxy):
 
         :param str name_or_id: The name or ID of a policy.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the specified policy does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent policy.
@@ -773,7 +773,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A policy object.
         :rtype: :class:`~openstack.clustering.v1.policy.Policy`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             policy matching the criteria could be found.
         """
         return self._get(_policy.Policy, policy)
@@ -856,7 +856,7 @@ class Proxy(proxy.Proxy):
 
         :returns: a cluster-policy binding object.
         :rtype: :class:`~openstack.clustering.v1.cluster_policy.CLusterPolicy`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             cluster-policy binding matching the criteria could be found.
         """
         return self._get(
@@ -893,7 +893,7 @@ class Proxy(proxy.Proxy):
         :param receiver: The value can be either the name or ID of a receiver
             or a :class:`~openstack.clustering.v1.receiver.Receiver` instance.
         :param bool ignore_missing: When set to ``False``, an exception
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the receiver could not be found. When set to ``True``, no exception
             will be raised when attempting to delete a non-existent receiver.
 
@@ -908,7 +908,7 @@ class Proxy(proxy.Proxy):
 
         :param str name_or_id: The name or ID of a receiver.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the specified receiver does not exist. When
             set to ``True``, None will be returned when attempting to
             find a nonexistent receiver.
@@ -927,7 +927,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A receiver object.
         :rtype: :class:`~openstack.clustering.v1.receiver.Receiver`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             receiver matching the criteria could be found.
         """
         return self._get(_receiver.Receiver, receiver)
@@ -960,7 +960,7 @@ class Proxy(proxy.Proxy):
 
         :returns: an action object.
         :rtype: :class:`~openstack.clustering.v1.action.Action`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             action matching the criteria could be found.
         """
         return self._get(_action.Action, action)
@@ -1011,7 +1011,7 @@ class Proxy(proxy.Proxy):
 
         :returns: an event object.
         :rtype: :class:`~openstack.clustering.v1.event.Event`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             event matching the criteria could be found.
         """
         return self._get(_event.Event, event)
@@ -1106,7 +1106,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A :class:`~openstack.clustering.v1.profile_type.ProfileType`
             object.
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             profile_type matching the name could be found.
         """
         obj = self._get_resource(_profile_type.ProfileType, profile_type)

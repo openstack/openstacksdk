@@ -75,7 +75,7 @@ class Info(resource.Resource):
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
                  :data:`Resource.allow_fetch` is not set to ``True``.
-        :raises: :exc:`~openstack.exceptions.ResourceNotFound` if
+        :raises: :exc:`~openstack.exceptions.NotFoundException` if
                  the resource was not found.
         """
         if not self.allow_fetch:

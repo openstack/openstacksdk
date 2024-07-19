@@ -45,7 +45,7 @@ class TestBareMetalVolumeconnector(base.BaseBaremetalTest):
             volume_connector, ignore_missing=False
         )
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.get_volume_connector,
             volume_connector.id,
         )
@@ -152,18 +152,18 @@ class TestBareMetalVolumeconnector(base.BaseBaremetalTest):
     def test_volume_connector_negative_non_existing(self):
         uuid = "5c9dcd04-2073-49bc-9618-99ae634d8971"
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.get_volume_connector,
             uuid,
         )
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.find_volume_connector,
             uuid,
             ignore_missing=False,
         )
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.delete_volume_connector,
             uuid,
             ignore_missing=False,

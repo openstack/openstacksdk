@@ -47,7 +47,7 @@ class Store(resource.Resource):
             :class:`~openstack.image.v2.image.Image` instance.
 
         :returns: The result of the ``delete`` if resource found, else None.
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when
+        :raises: :class:`~openstack.exceptions.NotFoundException` when
             ignore_missing if ``False`` and a nonexistent resource
             is attempted to be deleted.
         """
@@ -57,7 +57,7 @@ class Store(resource.Resource):
         try:
             response = session.delete(url)
             exceptions.raise_from_response(response)
-        except exceptions.ResourceNotFound:
+        except exceptions.NotFoundException:
             if ignore_missing:
                 return None
             raise

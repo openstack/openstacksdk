@@ -47,7 +47,7 @@ class TestBareMetalVolumetarget(base.BaseBaremetalTest):
             volume_target, ignore_missing=False
         )
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.get_volume_target,
             volume_target.id,
         )
@@ -166,18 +166,18 @@ class TestBareMetalVolumetarget(base.BaseBaremetalTest):
     def test_volume_target_negative_non_existing(self):
         uuid = "5c9dcd04-2073-49bc-9618-99ae634d8971"
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.get_volume_target,
             uuid,
         )
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.find_volume_target,
             uuid,
             ignore_missing=False,
         )
         self.assertRaises(
-            exceptions.ResourceNotFound,
+            exceptions.NotFoundException,
             self.conn.baremetal.delete_volume_target,
             uuid,
             ignore_missing=False,

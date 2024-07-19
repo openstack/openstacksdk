@@ -70,7 +70,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             instance.
 
         :returns: One :class:`~openstack.block_storage.v3.snapshot.Snapshot`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_snapshot.Snapshot, snapshot)
@@ -87,7 +87,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         :param snapshot: The name or ID a snapshot
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the snapshot does not exist. When set to ``True``, None will
             be returned when attempting to find a nonexistent resource.
         :param bool details: When set to ``False`` :class:
@@ -99,7 +99,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             a higher chance of duplicates. Admin-only by default.
 
         :returns: One :class:`~openstack.block_storage.v3.snapshot.Snapshot`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
             resources are found.
@@ -171,7 +171,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :param snapshot: The value can be either the ID of a snapshot or a
             :class:`~openstack.block_storage.v3.snapshot.Snapshot` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the snapshot does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent snapshot.
@@ -293,7 +293,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             :class:`~openstack.block_storage.v3.type.Type` instance.
 
         :returns: One :class:`~openstack.block_storage.v3.type.Type`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_type.Type, type)
@@ -303,11 +303,11 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         :param snapshot: The name or ID a volume type
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the volume type does not exist.
 
         :returns: One :class:`~openstack.block_storage.v3.type.Type`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
             resources are found.
@@ -343,7 +343,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :param type: The value can be either the ID of a type or a
             :class:`~openstack.block_storage.v3.type.Type` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the type does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent type.
@@ -438,7 +438,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             instance.
 
         :returns: One :class:`~openstack.block_storage.v3.type.TypeEncryption`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         volume_type = self._get_resource(_type.Type, volume_type_id)
@@ -484,7 +484,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             instance.  Required if encryption_id is None.
 
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the type does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent type.
@@ -543,7 +543,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             :class:`~openstack.block_storage.v3.volume.Volume` instance.
 
         :returns: One :class:`~openstack.block_storage.v3.volume.Volume`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_volume.Volume, volume)
@@ -560,7 +560,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         :param snapshot: The name or ID a volume
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the volume does not exist.
         :param bool details: When set to ``False`` no extended attributes
             will be returned. The default, ``True``, will cause objects with
@@ -570,7 +570,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             a higher chance of duplicates. Admin-only by default.
 
         :returns: One :class:`~openstack.block_storage.v3.volume.Volume`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
             resources are found.
@@ -627,7 +627,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :param volume: The value can be either the ID of a volume or a
             :class:`~openstack.block_storage.v3.volume.Volume` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the volume does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent volume.
@@ -1069,7 +1069,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             :class:`~attachment.Attachment` instance.
 
         :returns: One :class:`~attachment.Attachment`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_attachment.Attachment, attachment)
@@ -1097,7 +1097,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             :class:`~openstack.block_storage.v3.attachment.Attachment`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the attachment does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent attachment.
@@ -1199,14 +1199,14 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         :param snapshot: The name or ID a backup
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the backup does not exist.
         :param bool details: When set to ``False`` no additional details will
             be returned. The default, ``True``, will cause objects with
             additional attributes to be returned.
 
         :returns: One :class:`~openstack.block_storage.v3.backup.Backup`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
             resources are found.
@@ -1237,7 +1237,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :param backup: The value can be the ID of a backup or a
             :class:`~openstack.block_storage.v3.backup.Backup` instance
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the zone does not exist.
             When set to ``True``, no exception will be set when attempting to
             delete a nonexistent zone.
@@ -1303,7 +1303,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         :returns: One :class:
             `~openstack.block_storage.v3.capabilites.Capabilities` instance.
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         """
         return self._get(_capabilities.Capabilities, host)
@@ -1326,14 +1326,14 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         :param name_or_id: The name or ID of a group.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the group snapshot does not exist.
         :param bool details: When set to ``False``, no additional details will
             be returned. The default, ``True``, will cause additional details
             to be returned.
 
         :returns: One :class:`~openstack.block_storage.v3.group.Group`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
             resources are found.
@@ -1465,14 +1465,14 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         :param name_or_id: The name or ID of a group snapshot.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the group snapshot does not exist.
         :param bool details: When set to ``False``, no additional details will
             be returned. The default, ``True``, will cause additional details
             to be returned.
 
         :returns: One :class:`~openstack.block_storage.v3.group_snapshot`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
             resources are found.
@@ -1553,7 +1553,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         :returns: One :class:
             `~openstack.block_storage.v3.group_type.GroupType` instance.
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         """
         return self._get(_group_type.GroupType, group_type)
@@ -1563,12 +1563,12 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         :param name_or_id: The name or ID of a group type.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the group type does not exist.
 
         :returns: One
             :class:`~openstack.block_storage.v3.group_type.GroupType`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
             resources are found.
@@ -1620,7 +1620,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             or a :class:`~openstack.block_storage.v3.group_type.GroupType`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the zone does not exist.
             When set to ``True``, no exception will be set when attempting to
             delete a nonexistent zone.
@@ -1753,7 +1753,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :param dict query: Additional query parameters to use.
 
         :returns: One :class:`~openstack.block_storage.v3.quota_set.QuotaSet`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         project = self._get_resource(_project.Project, project)
@@ -1770,7 +1770,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             which the quota should be retrieved
 
         :returns: One :class:`~openstack.block_storage.v3.quota_set.QuotaSet`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         project = self._get_resource(_project.Project, project)
@@ -1865,14 +1865,14 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         :param name_or_id: The name or ID of a service
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the resource does not exist.
             When set to ``True``, None will be returned when attempting to find
             a nonexistent resource.
         :param dict query: Additional attributes like 'host'
 
         :returns: One: class:`~openstack.block_storage.v3.service.Service` or None
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
             resources are found.
@@ -1909,8 +1909,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :returns: Updated service instance
         :rtype: class: `~openstack.block_storage.v3.service.Service`
         """
-        service = self._get_resource(_service.Service, service)
-        return service.enable(self)
+        service_obj = self._get_resource(_service.Service, service)
+        return service_obj.enable(self)
 
     def disable_service(
         self,
@@ -1927,8 +1927,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :returns: Updated service instance
         :rtype: class: `~openstack.block_storage.v3.service.Service`
         """
-        service = self._get_resource(_service.Service, service)
-        return service.disable(self, reason=reason)
+        service_obj = self._get_resource(_service.Service, service)
+        return service_obj.disable(self, reason=reason)
 
     def thaw_service(
         self,
@@ -1942,8 +1942,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :returns: Updated service instance
         :rtype: class: `~openstack.block_storage.v3.service.Service`
         """
-        service = self._get_resource(_service.Service, service)
-        return service.thaw(self)
+        service_obj = self._get_resource(_service.Service, service)
+        return service_obj.thaw(self)
 
     def freeze_service(
         self,
@@ -1957,8 +1957,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :returns: Updated service instance
         :rtype: class: `~openstack.block_storage.v3.service.Service`
         """
-        service = self._get_resource(_service.Service, service)
-        return service.freeze(self)
+        service_obj = self._get_resource(_service.Service, service)
+        return service_obj.freeze(self)
 
     def failover_service(
         self,
@@ -1977,8 +1977,10 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :returns: Updated service instance
         :rtype: class: `~openstack.block_storage.v3.service.Service`
         """
-        service = self._get_resource(_service.Service, service)
-        return service.failover(self, cluster=cluster, backend_id=backend_id)
+        service_obj = self._get_resource(_service.Service, service)
+        return service_obj.failover(
+            self, cluster=cluster, backend_id=backend_id
+        )
 
     # ====== RESOURCE FILTERS ======
     def resource_filters(self, **query):
@@ -2018,7 +2020,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :param transfer: The value can be either the ID of a transfer or a
             :class:`~openstack.block_storage.v3.transfer.Transfer`` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the transfer does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent transfer.
@@ -2036,11 +2038,11 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         :param name_or_id: The name or ID a transfer
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the volume transfer does not exist.
 
         :returns: One :class:`~openstack.block_storage.v3.transfer.Transfer`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
             resources are found.
@@ -2059,7 +2061,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             instance.
 
         :returns: One :class:`~openstack.block_storage.v3.transfer.Transfer`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_transfer.Transfer, transfer)

@@ -66,7 +66,7 @@ class TestNovaExtensions(base.TestCase):
             ]
         )
         self.assertRaises(
-            exceptions.ResourceNotFound, self.cloud._nova_extensions
+            exceptions.NotFoundException, self.cloud._nova_extensions
         )
 
         self.assert_calls()

@@ -78,7 +78,7 @@ class TestTrunk(base.TestCase):
                 'segmentation_type': 'vlan',
             }
         ]
-        with testtools.ExpectedException(exceptions.ResourceNotFound, msg):
+        with testtools.ExpectedException(exceptions.NotFoundException, msg):
             sot.add_subports(sess, subports)
 
     def test_delete_subports_4xx(self):
@@ -100,5 +100,5 @@ class TestTrunk(base.TestCase):
                 'segmentation_type': 'vlan',
             }
         ]
-        with testtools.ExpectedException(exceptions.ResourceNotFound, msg):
+        with testtools.ExpectedException(exceptions.NotFoundException, msg):
             sot.delete_subports(sess, subports)

@@ -108,7 +108,7 @@ class Proxy(proxy.Proxy):
         :param credential: The value can be either the ID of a credential or a
             :class:`~openstack.identity.v3.credential.Credential` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the credential does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent credential.
@@ -124,7 +124,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a credential.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -142,7 +142,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.credential.Credential` instance.
 
         :returns: One :class:`~openstack.identity.v3.credential.Credential`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_credential.Credential, credential)
@@ -192,7 +192,7 @@ class Proxy(proxy.Proxy):
         :param domain: The value can be either the ID of a domain or a
             :class:`~openstack.identity.v3.domain.Domain` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the domain does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent domain.
@@ -206,7 +206,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a domain.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -223,7 +223,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.domain.Domain` instance.
 
         :returns: One :class:`~openstack.identity.v3.domain.Domain`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_domain.Domain, domain)
@@ -280,7 +280,7 @@ class Proxy(proxy.Proxy):
         :param domain: The value can be the ID of a domain or a
             a :class:`~openstack.identity.v3.domain.Domain` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the identity provider does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent config for a domain.
@@ -302,7 +302,7 @@ class Proxy(proxy.Proxy):
 
         :returns: One
             :class:`~openstack.identity.v3.domain_config.DomainConfig`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
              resource can be found.
         """
         domain_id = resource.Resource._get_id(domain)
@@ -350,7 +350,7 @@ class Proxy(proxy.Proxy):
         :param endpoint: The value can be either the ID of an endpoint or a
             :class:`~openstack.identity.v3.endpoint.Endpoint` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the endpoint does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent endpoint.
@@ -366,7 +366,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a endpoint.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -384,7 +384,7 @@ class Proxy(proxy.Proxy):
             instance.
 
         :returns: One :class:`~openstack.identity.v3.endpoint.Endpoint`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_endpoint.Endpoint, endpoint)
@@ -434,7 +434,7 @@ class Proxy(proxy.Proxy):
         :param group: The value can be either the ID of a group or a
             :class:`~openstack.identity.v3.group.Group` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the group does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent group.
@@ -448,7 +448,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a group.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -469,7 +469,7 @@ class Proxy(proxy.Proxy):
             instance.
 
         :returns: One :class:`~openstack.identity.v3.group.Group`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_group.Group, group)
@@ -572,7 +572,7 @@ class Proxy(proxy.Proxy):
         :param policy: The value can be either the ID of a policy or a
             :class:`~openstack.identity.v3.policy.Policy` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the policy does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent policy.
@@ -586,7 +586,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a policy.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -603,7 +603,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.policy.Policy` instance.
 
         :returns: One :class:`~openstack.identity.v3.policy.Policy`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_policy.Policy, policy)
@@ -653,7 +653,7 @@ class Proxy(proxy.Proxy):
         :param project: The value can be either the ID of a project or a
             :class:`~openstack.identity.v3.project.Project` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the project does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent project.
@@ -667,7 +667,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a project.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -687,7 +687,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.project.Project` instance.
 
         :returns: One :class:`~openstack.identity.v3.project.Project`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_project.Project, project)
@@ -752,7 +752,7 @@ class Proxy(proxy.Proxy):
         :param service: The value can be either the ID of a service or a
             :class:`~openstack.identity.v3.service.Service` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the service does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent service.
@@ -766,7 +766,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a service.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -783,7 +783,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.service.Service` instance.
 
         :returns: One :class:`~openstack.identity.v3.service.Service`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_service.Service, service)
@@ -833,7 +833,7 @@ class Proxy(proxy.Proxy):
         :param user: The value can be either the ID of a user or a
             :class:`~openstack.identity.v3.user.User` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the user does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent user.
@@ -847,7 +847,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a user.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -867,7 +867,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.user.User` instance.
 
         :returns: One :class:`~openstack.identity.v3.user.User`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_user.User, user)
@@ -917,7 +917,7 @@ class Proxy(proxy.Proxy):
         :param trust: The value can be either the ID of a trust or a
             :class:`~openstack.identity.v3.trust.Trust` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the credential does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent credential.
@@ -931,7 +931,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a trust.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -948,7 +948,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.trust.Trust` instance.
 
         :returns: One :class:`~openstack.identity.v3.trust.Trust`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_trust.Trust, trust)
@@ -985,7 +985,7 @@ class Proxy(proxy.Proxy):
         :param region: The value can be either the ID of a region or a
             :class:`~openstack.identity.v3.region.Region` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the region does not exist.
             When set to ``True``, no exception will be thrown when
             attempting to delete a nonexistent region.
@@ -999,7 +999,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a region.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the region does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent region.
@@ -1016,7 +1016,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.region.Region` instance.
 
         :returns: One :class:`~openstack.identity.v3.region.Region`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no matching region can be found.
         """
         return self._get(_region.Region, region)
@@ -1066,7 +1066,7 @@ class Proxy(proxy.Proxy):
         :param role: The value can be either the ID of a role or a
             :class:`~openstack.identity.v3.role.Role` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the role does not exist.
             When set to ``True``, no exception will be thrown when
             attempting to delete a nonexistent role.
@@ -1080,7 +1080,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a role.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the role does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent role.
@@ -1100,7 +1100,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.role.Role` instance.
 
         :returns: One :class:`~openstack.identity.v3.role.Role`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no matching role can be found.
         """
         return self._get(_role.Role, role)
@@ -1543,7 +1543,7 @@ class Proxy(proxy.Proxy):
             instance.
 
         :returns: One :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_registered_limit.RegisteredLimit, registered_limit)
@@ -1585,7 +1585,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the registered_limit does not exist. When set to ``True``, no
             exception will be thrown when attempting to delete a nonexistent
             registered_limit.
@@ -1618,7 +1618,7 @@ class Proxy(proxy.Proxy):
             or a :class:`~openstack.identity.v3.limit.Limit` instance.
 
         :returns: One :class:`~openstack.identity.v3.limit.Limit`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         """
         return self._get(_limit.Limit, limit)
@@ -1654,7 +1654,7 @@ class Proxy(proxy.Proxy):
         :param limit: The value can be either the ID of a limit or a
             :class:`~openstack.identity.v3.limit.Limit` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the limit does not exist. When set to ``True``, no exception will
             be thrown when attempting to delete a nonexistent limit.
 
@@ -1697,7 +1697,7 @@ class Proxy(proxy.Proxy):
 
         :returns: One
             :class:`~openstack.identity.v3.application_credential.ApplicationCredential`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         """
         user = self._get_resource(_user.User, user)
@@ -1745,7 +1745,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.user.User` instance.
         :param name_or_id: The name or ID of an application credential.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -1775,7 +1775,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.application_credential.ApplicationCredential`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the application credential does not exist. When set to
             ``True``, no exception will be thrown when attempting to delete
             a nonexistent application credential.
@@ -1831,7 +1831,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the federation protocol does not exist.  When set to
             ``True``, no exception will be set when attempting to delete a
             nonexistent federation protocol.
@@ -1856,7 +1856,7 @@ class Proxy(proxy.Proxy):
             representing the identity provider the protocol is attached to.
         :param protocol: The name or ID of a federation protocol.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            :class:`~openstack.exceptions.NotFoundException` will be raised
             when the resource does not exist.  When set to ``True``, None will
             be returned when attempting to find a nonexistent resource.
         :returns: One federation protocol or None
@@ -1888,7 +1888,7 @@ class Proxy(proxy.Proxy):
         :returns: One federation protocol
         :rtype:
             :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         cls = _federation_protocol.FederationProtocol
@@ -1966,7 +1966,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.mapping.Mapping`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the mapping does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent mapping.
@@ -1980,7 +1980,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a mapping.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -1998,7 +1998,7 @@ class Proxy(proxy.Proxy):
             instance.
 
         :returns: One :class:`~openstack.identity.v3.mapping.Mapping`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_mapping.Mapping, mapping)
@@ -2049,7 +2049,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the identity provider does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent identity provider.
@@ -2067,7 +2067,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of an identity provider
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -2091,7 +2091,7 @@ class Proxy(proxy.Proxy):
         :returns: The details of an identity provider.
         :rtype:
             :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(
@@ -2152,7 +2152,7 @@ class Proxy(proxy.Proxy):
             :class:`~.access_rule.AccessRule` instance.
 
         :returns: One :class:`~.access_rule.AccessRule`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         """
         user = self._get_resource(_user.User, user)
@@ -2166,7 +2166,7 @@ class Proxy(proxy.Proxy):
         :param access rule: The value can be either the ID of an
             access rule or a :class:`~.access_rule.AccessRule` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the access rule does not exist. When set to ``True``, no exception
             will be thrown when attempting to delete a nonexistent access rule.
 
@@ -2202,7 +2202,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.service_provider.ServiceProvider`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the service provider does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent service provider.
@@ -2220,7 +2220,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a service provider
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
             the resource does not exist. When set to ``True``, None will be
             returned when attempting to find a nonexistent resource.
 
@@ -2245,7 +2245,7 @@ class Proxy(proxy.Proxy):
         :returns: The details of an service provider.
         :rtype:
             :class:`~openstack.identity.v3.service_provider.ServiceProvider`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_service_provider.ServiceProvider, service_provider)

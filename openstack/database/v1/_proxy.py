@@ -52,7 +52,7 @@ class Proxy(proxy.Proxy):
             It can be either the ID of an instance
             or a :class:`~openstack.database.v1.instance.Instance`
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the database does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent database.
@@ -76,7 +76,7 @@ class Proxy(proxy.Proxy):
         :param instance: This can be either the ID of an instance
             or a :class:`~openstack.database.v1.instance.Instance`
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -117,7 +117,7 @@ class Proxy(proxy.Proxy):
             instance.
 
         :returns: One :class:`~openstack.database.v1.database.Database`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_database.Database, database)
@@ -127,7 +127,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a flavor.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -144,7 +144,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.database.v1.flavor.Flavor` instance.
 
         :returns: One :class:`~openstack.database.v1.flavor.Flavor`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_flavor.Flavor, flavor)
@@ -178,7 +178,7 @@ class Proxy(proxy.Proxy):
         :param instance: The value can be either the ID of an instance or a
             :class:`~openstack.database.v1.instance.Instance` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the instance does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent instance.
@@ -194,7 +194,7 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -212,7 +212,7 @@ class Proxy(proxy.Proxy):
             instance.
 
         :returns: One :class:`~openstack.database.v1.instance.Instance`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         return self._get(_instance.Instance, instance)
@@ -266,7 +266,7 @@ class Proxy(proxy.Proxy):
             It can be either the ID of an instance
             or a :class:`~openstack.database.v1.instance.Instance`
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the user does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent user.
@@ -288,7 +288,7 @@ class Proxy(proxy.Proxy):
         :param instance: This can be either the ID of an instance
             or a :class:`~openstack.database.v1.instance.Instance`
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
+            :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
@@ -327,7 +327,7 @@ class Proxy(proxy.Proxy):
             or a :class:`~openstack.database.v1.instance.Instance`
 
         :returns: One :class:`~openstack.database.v1.user.User`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         instance = self._get_resource(_instance.Instance, instance)

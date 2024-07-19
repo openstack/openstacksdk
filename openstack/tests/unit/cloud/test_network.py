@@ -66,7 +66,7 @@ class TestNeutronExtensions(base.TestCase):
                 )
             ]
         )
-        with testtools.ExpectedException(exceptions.ResourceNotFound):
+        with testtools.ExpectedException(exceptions.NotFoundException):
             self.cloud._neutron_extensions()
 
         self.assert_calls()

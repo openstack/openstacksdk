@@ -127,7 +127,7 @@ class TestService(base.TestCase):
             list_mock.return_value = data
 
             self.assertRaises(
-                exceptions.ResourceNotFound,
+                exceptions.NotFoundException,
                 service.Service.find,
                 self.sess,
                 'fake',

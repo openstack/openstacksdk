@@ -348,12 +348,12 @@ class TestOrchestrationResource(TestOrchestrationProxy):
     @mock.patch.object(resource.Resource, 'list')
     def test_resources_stack_not_found(self, mock_list, mock_find):
         stack_name = 'test_stack'
-        mock_find.side_effect = exceptions.ResourceNotFound(
+        mock_find.side_effect = exceptions.NotFoundException(
             'No stack found for test_stack'
         )
 
         ex = self.assertRaises(
-            exceptions.ResourceNotFound, self.proxy.resources, stack_name
+            exceptions.NotFoundException, self.proxy.resources, stack_name
         )
         self.assertEqual('No stack found for test_stack', str(ex))
 
