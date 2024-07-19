@@ -27,6 +27,7 @@ class Volume(resource.Resource, metadata.MetadataMixin):
     _query_mapping = resource.QueryParameters(
         'name',
         'status',
+        'user_id',
         'project_id',
         'created_at',
         'updated_at',
