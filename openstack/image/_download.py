@@ -14,7 +14,6 @@ import hashlib
 import io
 
 from openstack import exceptions
-from openstack import resource
 from openstack import utils
 
 
@@ -28,7 +27,7 @@ def _verify_checksum(md5, checksum):
 
 
 class DownloadMixin:
-    id: resource.Body
+    id: str
     base_path: str
 
     def fetch(

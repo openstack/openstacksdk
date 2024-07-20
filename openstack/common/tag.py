@@ -16,7 +16,7 @@ from openstack import utils
 
 
 class TagMixin:
-    id: resource.Body
+    id: str
     base_path: str
     _body: resource._ComponentManager
 

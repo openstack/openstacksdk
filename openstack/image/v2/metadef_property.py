@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack import exceptions
+from openstack import fields
 from openstack import resource
 
 
@@ -57,7 +58,7 @@ class MetadefProperty(resource.Resource):
     # FIXME(stephenfin): This is causing conflicts due to the 'dict.items'
     # method. Perhaps we need to rename it?
     #: Schema for the items in an array.
-    items = resource.Body('items', type=dict)  # type: ignore
+    items = resource.Body('items', type=dict)
     #: Indicates whether all values in the array must be distinct.
     require_unique_items = resource.Body(
         'uniqueItems', type=bool, default=False
@@ -114,7 +115,7 @@ class MetadefProperty(resource.Resource):
                 # Known attr
                 hasattr(cls, k)
                 # Is real attr property
-                and isinstance(getattr(cls, k), resource.Body)
+                and isinstance(getattr(cls, k), fields.Body)
                 # not included in the query_params
                 and k not in cls._query_mapping._mapping.keys()
             ):
@@ -125,7 +126,7 @@ class MetadefProperty(resource.Resource):
 
         for k, v in params.items():
             # We need to gather URI parts to set them on the resource later
-            if hasattr(cls, k) and isinstance(getattr(cls, k), resource.URI):
+            if hasattr(cls, k) and isinstance(getattr(cls, k), fields.URI):
                 uri_params[k] = v
 
         def _dict_filter(f, d):

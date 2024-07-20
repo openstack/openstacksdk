@@ -29,9 +29,9 @@ class StackFiles(resource.Resource):
     # Backwards compat
     stack_name = name
     #: ID of the stack where the template is referenced.
-    id = resource.URI('stack_id')  # type: ignore
+    id = resource.URI('stack_id')
     # Backwards compat
-    stack_id = id  # type: ignore
+    stack_id = id
 
     def fetch(
         self, session, requires_id=False, base_path=None, *args, **kwargs

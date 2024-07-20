@@ -16,8 +16,8 @@ The :class:`~openstack.resource.Resource` class is a base
 class that represent a remote resource. The attributes that
 comprise a request or response for this resource are specified
 as class members on the Resource subclass where their values
-are of a component type, including :class:`~openstack.resource.Body`,
-:class:`~openstack.resource.Header`, and :class:`~openstack.resource.URI`.
+are of a component type, including :class:`~openstack.fields.Body`,
+:class:`~openstack.fields.Header`, and :class:`~openstack.fields.URI`.
 
 For update management, :class:`~openstack.resource.Resource` employs
 a series of :class:`~openstack.resource._ComponentManager` instances
@@ -32,7 +32,6 @@ converted into this Resource class' appropriate components and types
 and then returned to the caller.
 """
 
-import abc
 import collections
 import inspect
 import itertools
@@ -45,230 +44,126 @@ import warnings
 import jsonpatch
 from keystoneauth1 import adapter
 from keystoneauth1 import discover
-from requests import structures
 
 from openstack import _log
 from openstack import exceptions
-from openstack import format
+from openstack import fields
 from openstack import utils
 from openstack import warnings as os_warnings
-
-_SEEN_FORMAT = '{name}_seen'
 
 LOG = _log.setup_logging(__name__)
 
 
-def _convert_type(value, data_type, list_type=None):
-    # This should allow handling list of dicts that have their own
-    # Component type directly. See openstack/compute/v2/limits.py
-    # and the RateLimit type for an example.
-    if not data_type:
-        return value
-    if issubclass(data_type, list):
-        if isinstance(value, (list, tuple, set)):
-            if not list_type:
-                return value
-            ret = []
-            for raw in value:
-                ret.append(_convert_type(raw, list_type))
-            return ret
-        elif list_type:
-            return [_convert_type(value, list_type)]
-        # "if-match" in Object is a good example of the need here
-        return [value]
-    elif isinstance(value, data_type):
-        return value
-    if not isinstance(value, data_type):
-        if issubclass(data_type, format.Formatter):
-            return data_type.deserialize(value)
-        # This should allow handling sub-dicts that have their own
-        # Component type directly. See openstack/compute/v2/limits.py
-        # and the AbsoluteLimits type for an example.
-        if isinstance(value, dict):
-            return data_type(**value)
-        try:
-            return data_type(value)
-        except ValueError:
-            # If we can not convert data to the expected type return empty
-            # instance of the expected type.
-            # This is necessary to handle issues like with flavor.swap where
-            # empty string means "0".
-            return data_type()
-
-
-class _BaseComponent(abc.ABC):
-    # The name this component is being tracked as in the Resource
-    key: str
-    # The class to be used for mappings
-    _map_cls: type[ty.Mapping] = dict
-
-    #: Marks the property as deprecated.
-    deprecated = False
-    #: Deprecation reason message used to warn users when deprecated == True
-    deprecation_reason = None
-
-    #: Control field used to manage the deprecation warning. We want to warn
-    #: only once when the attribute is retrieved in the code.
-    already_warned_deprecation = False
-
-    def __init__(
-        self,
+def Body(
+    name,
+    type=None,
+    default=None,
+    alias=None,
+    aka=None,
+    alternate_id=False,
+    list_type=None,
+    coerce_to_default=False,
+    deprecated=False,
+    deprecation_reason=None,
+    **kwargs,
+):
+    return fields.Body(
         name,
-        type=None,
-        default=None,
-        alias=None,
-        aka=None,
-        alternate_id=False,
-        list_type=None,
-        coerce_to_default=False,
-        deprecated=False,
-        deprecation_reason=None,
+        type=type,
+        default=default,
+        alias=alias,
+        aka=aka,
+        alternate_id=alternate_id,
+        list_type=list_type,
+        coerce_to_default=coerce_to_default,
+        deprecated=deprecated,
+        deprecation_reason=deprecation_reason,
         **kwargs,
-    ):
-        """A typed descriptor for a component that makes up a Resource
-
-        :param name: The name this component exists as on the server
-        :param type:
-            The type this component is expected to be by the server.
-            By default this is None, meaning any value you specify
-            will work. If you specify type=dict and then set a
-            component to a string, __set__ will fail, for example.
-        :param default: Typically None, but any other default can be set.
-        :param alias: If set, alternative attribute on object to return.
-        :param aka: If set, additional name attribute would be available under.
-        :param alternate_id:
-            When `True`, this property is known internally as a value that
-            can be sent with requests that require an ID but when `id` is
-            not a name the Resource has. This is a relatively uncommon case,
-            and this setting should only be used once per Resource.
-        :param list_type:
-            If type is `list`, list_type designates what the type of the
-            elements of the list should be.
-        :param coerce_to_default:
-            If the Component is None or not present, force the given default
-            to be used. If a default is not given but a type is given,
-            construct an empty version of the type in question.
-        :param deprecated:
-            Indicates if the option is deprecated. If it is, we display a
-            warning message to the user.
-        :param deprecation_reason:
-            Custom deprecation message.
-        """
-        self.name = name
-        self.type = type
-        if type is not None and coerce_to_default and not default:
-            self.default = type()
-        else:
-            self.default = default
-        self.alias = alias
-        self.aka = aka
-        self.alternate_id = alternate_id
-        self.list_type = list_type
-        self.coerce_to_default = coerce_to_default
-
-        self.deprecated = deprecated
-        self.deprecation_reason = deprecation_reason
-
-    def __get__(self, instance, owner):
-        if instance is None:
-            return self
-
-        attributes = getattr(instance, self.key)
-
-        try:
-            value = attributes[self.name]
-        except KeyError:
-            value = self.default
-            if self.alias:
-                # Resource attributes can be aliased to each other. If neither
-                # of them exist, then simply doing a
-                # getattr(instance, self.alias) here sends things into
-                # infinite recursion (this _get method is what gets called
-                # when getattr(instance) is called.
-                # To combat that, we set a flag on the instance saying that
-                # we have seen the current name, and we check before trying
-                # to resolve the alias if there is already a flag set for that
-                # alias name. We then remove the seen flag for ourselves after
-                # we exit the alias getattr to clean up after ourselves for
-                # the next time.
-                alias_flag = _SEEN_FORMAT.format(name=self.alias)
-                if not getattr(instance, alias_flag, False):
-                    seen_flag = _SEEN_FORMAT.format(name=self.name)
-                    # Prevent infinite recursion
-                    setattr(instance, seen_flag, True)
-                    value = getattr(instance, self.alias)
-                    delattr(instance, seen_flag)
-            self.warn_if_deprecated_property(value)
-            return value
-
-        # self.type() should not be called on None objects.
-        if value is None:
-            return None
-
-        # This warning are pretty intruisive. Every time attribute is accessed
-        # a warning is being thrown. In neutron clients we have way too many
-        # places that still refer to tenant_id even though they may also
-        # properly support project_id. For now we silence tenant_id warnings.
-        if self.name != "tenant_id":
-            self.warn_if_deprecated_property(value)
-        return _convert_type(value, self.type, self.list_type)
-
-    def warn_if_deprecated_property(self, value):
-        deprecated = object.__getattribute__(self, 'deprecated')
-        deprecation_reason = object.__getattribute__(
-            self,
-            'deprecation_reason',
-        )
-
-        if value and deprecated:
-            warnings.warn(
-                "The field {!r} has been deprecated. {}".format(
-                    self.name, deprecation_reason or "Avoid usage."
-                ),
-                os_warnings.RemovedFieldWarning,
-            )
-        return value
-
-    def __set__(self, instance, value):
-        if self.coerce_to_default and value is None:
-            value = self.default
-        if value != self.default:
-            value = _convert_type(value, self.type, self.list_type)
-
-        attributes = getattr(instance, self.key)
-        attributes[self.name] = value
-
-    def __delete__(self, instance):
-        try:
-            attributes = getattr(instance, self.key)
-            del attributes[self.name]
-        except KeyError:
-            pass
+    )
 
 
-class Body(_BaseComponent):
-    """Body attributes"""
+def Header(
+    name,
+    type=None,
+    default=None,
+    alias=None,
+    aka=None,
+    alternate_id=False,
+    list_type=None,
+    coerce_to_default=False,
+    deprecated=False,
+    deprecation_reason=None,
+    **kwargs,
+):
+    return fields.Header(
+        name,
+        type=type,
+        default=default,
+        alias=alias,
+        aka=aka,
+        alternate_id=alternate_id,
+        list_type=list_type,
+        coerce_to_default=coerce_to_default,
+        deprecated=deprecated,
+        deprecation_reason=deprecation_reason,
+        **kwargs,
+    )
 
-    key = "_body"
+
+def URI(
+    name,
+    type=None,
+    default=None,
+    alias=None,
+    aka=None,
+    alternate_id=False,
+    list_type=None,
+    coerce_to_default=False,
+    deprecated=False,
+    deprecation_reason=None,
+    **kwargs,
+):
+    return fields.URI(
+        name,
+        type=type,
+        default=default,
+        alias=alias,
+        aka=aka,
+        alternate_id=alternate_id,
+        list_type=list_type,
+        coerce_to_default=coerce_to_default,
+        deprecated=deprecated,
+        deprecation_reason=deprecation_reason,
+        **kwargs,
+    )
 
 
-class Header(_BaseComponent):
-    """Header attributes"""
-
-    key = "_header"
-    _map_cls = structures.CaseInsensitiveDict
-
-
-class URI(_BaseComponent):
-    """URI attributes"""
-
-    key = "_uri"
-
-
-class Computed(_BaseComponent):
-    """Computed attributes"""
-
-    key = "_computed"
+def Computed(
+    name,
+    type=None,
+    default=None,
+    alias=None,
+    aka=None,
+    alternate_id=False,
+    list_type=None,
+    coerce_to_default=False,
+    deprecated=False,
+    deprecation_reason=None,
+    **kwargs,
+):
+    return fields.Computed(
+        name,
+        type=type,
+        default=default,
+        alias=alias,
+        aka=aka,
+        alternate_id=alternate_id,
+        list_type=list_type,
+        coerce_to_default=coerce_to_default,
+        deprecated=deprecated,
+        deprecation_reason=deprecation_reason,
+        **kwargs,
+    )
 
 
 class _ComponentManager(collections.abc.MutableMapping):
@@ -465,9 +360,9 @@ class Resource(dict):
     id = Body("id")
 
     #: The name of this resource.
-    name: ty.Union[Body, URI] = Body("name")
+    name: str = Body("name")
     #: The OpenStack location of this resource.
-    location: ty.Union[Computed, Body, Header] = Computed('location')
+    location: dict[str, ty.Any] = Computed('location')
 
     #: Mapping of accepted query parameter names.
     _query_mapping = QueryParameters()
@@ -599,7 +494,9 @@ class Resource(dict):
         dict.update(self, self.to_dict())
 
     @classmethod
-    def _attributes_iterator(cls, components=tuple([Body, Header])):
+    def _attributes_iterator(
+        cls, components=tuple([fields.Body, fields.Header])
+    ):
         """Iterator over all Resource attributes"""
         # isinstance stricly requires this to be a tuple
         # Since we're looking at class definitions we need to include
@@ -678,14 +575,14 @@ class Resource(dict):
             # Not found? But we know an alias exists.
             name = self._attr_aliases[name]
             real_item = getattr(self.__class__, name, None)
-        if isinstance(real_item, _BaseComponent):
+        if isinstance(real_item, fields._BaseComponent):
             return getattr(self, name)
         if not real_item:
             # In order to maintain backwards compatibility where we were
             # returning Munch (and server side names) and Resource object with
             # normalized attributes we can offer dict access via server side
             # names.
-            for attr, component in self._attributes_iterator(tuple([Body])):
+            for attr, component in self._attributes_iterator((fields.Body,)):
                 if component.name == name:
                     warnings.warn(
                         f"Access to '{self.__class__}[{name}]' is deprecated. "
@@ -703,7 +600,7 @@ class Resource(dict):
 
     def __setitem__(self, name, value):
         real_item = getattr(self.__class__, name, None)
-        if isinstance(real_item, _BaseComponent):
+        if isinstance(real_item, fields._BaseComponent):
             self.__setattr__(name, value)
         else:
             if self._allow_unknown_attrs_in_body:
@@ -722,7 +619,12 @@ class Resource(dict):
         attributes = []
 
         if not components:
-            components = tuple([Body, Header, Computed, URI])
+            components = (
+                fields.Body,
+                fields.Header,
+                fields.Computed,
+                fields.URI,
+            )
 
         for attr, component in self._attributes_iterator(components):
             key = attr if not remote_names else component.name
@@ -841,13 +743,13 @@ class Resource(dict):
         return {}
 
     def _consume_body_attrs(self, attrs):
-        return self._consume_mapped_attrs(Body, attrs)
+        return self._consume_mapped_attrs(fields.Body, attrs)
 
     def _consume_header_attrs(self, attrs):
-        return self._consume_mapped_attrs(Header, attrs)
+        return self._consume_mapped_attrs(fields.Header, attrs)
 
     def _consume_uri_attrs(self, attrs):
-        return self._consume_mapped_attrs(URI, attrs)
+        return self._consume_mapped_attrs(fields.URI, attrs)
 
     def _update_from_body_attrs(self, attrs):
         body = self._consume_body_attrs(attrs)
@@ -925,22 +827,22 @@ class Resource(dict):
     @classmethod
     def _body_mapping(cls):
         """Return all Body members of this class"""
-        return cls._get_mapping(Body)
+        return cls._get_mapping(fields.Body)
 
     @classmethod
     def _header_mapping(cls):
         """Return all Header members of this class"""
-        return cls._get_mapping(Header)
+        return cls._get_mapping(fields.Header)
 
     @classmethod
     def _uri_mapping(cls):
         """Return all URI members of this class"""
-        return cls._get_mapping(URI)
+        return cls._get_mapping(fields.URI)
 
     @classmethod
     def _computed_mapping(cls):
-        """Return all URI members of this class"""
-        return cls._get_mapping(Computed)
+        """Return all Computed members of this class"""
+        return cls._get_mapping(fields.Computed)
 
     @classmethod
     def _alternate_id(cls):
@@ -953,7 +855,7 @@ class Resource(dict):
         consumed by _get_id and passed to getattr.
         """
         for value in cls.__dict__.values():
-            if isinstance(value, Body):
+            if isinstance(value, fields.Body):
                 if value.alternate_id:
                     return value.name
         return ""
@@ -1054,11 +956,11 @@ class Resource(dict):
     ):
         """Return a dictionary of this resource's contents
 
-        :param bool body: Include the :class:`~openstack.resource.Body`
+        :param bool body: Include the :class:`~openstack.fields.Body`
             attributes in the returned dictionary.
-        :param bool headers: Include the :class:`~openstack.resource.Header`
+        :param bool headers: Include the :class:`~openstack.fields.Header`
             attributes in the returned dictionary.
-        :param bool computed: Include the :class:`~openstack.resource.Computed`
+        :param bool computed: Include the :class:`~openstack.fields.Computed`
             attributes in the returned dictionary.
         :param bool ignore_none: When True, exclude key/value pairs where
             the value is None. This will exclude attributes that the server
@@ -1077,13 +979,13 @@ class Resource(dict):
         else:
             mapping = {}
 
-        components: list[type[_BaseComponent]] = []
+        components: list[type[fields._BaseComponent]] = []
         if body:
-            components.append(Body)
+            components.append(fields.Body)
         if headers:
-            components.append(Header)
+            components.append(fields.Header)
         if computed:
-            components.append(Computed)
+            components.append(fields.Computed)
         if not components:
             raise ValueError(
                 "At least one of `body`, `headers` or `computed` must be True"
@@ -2050,7 +1952,7 @@ class Resource(dict):
                 # Known attr
                 hasattr(cls, k)
                 # Is real attr property
-                and isinstance(getattr(cls, k), Body)
+                and isinstance(getattr(cls, k), fields.Body)
                 # not included in the query_params
                 and k not in cls._query_mapping._mapping.keys()
             ):
@@ -2063,7 +1965,7 @@ class Resource(dict):
 
         for k, v in params.items():
             # We need to gather URI parts to set them on the resource later
-            if hasattr(cls, k) and isinstance(getattr(cls, k), URI):
+            if hasattr(cls, k) and isinstance(getattr(cls, k), fields.URI):
                 uri_params[k] = v
 
         def _dict_filter(f, d):

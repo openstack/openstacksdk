@@ -31,6 +31,7 @@ from collections.abc import Generator
 from unittest import mock
 import uuid
 
+from openstack import fields
 from openstack import format as _format
 from openstack import proxy
 from openstack import resource
@@ -68,9 +69,9 @@ def generate_fake_resource(
     base_attrs: dict[str, Any] = {}
     for name, value in inspect.getmembers(
         resource_type,
-        predicate=lambda x: isinstance(x, (resource.Body, resource.URI)),
+        predicate=lambda x: isinstance(x, (fields.Body, fields.URI)),
     ):
-        if isinstance(value, resource.Body):
+        if isinstance(value, fields.Body):
             target_type = value.type
             if target_type is None:
                 if (
@@ -128,7 +129,7 @@ def generate_fake_resource(
                 msg = f"Fake value for {resource_type.__name__}.{name} can not be generated"
                 raise NotImplementedError(msg)
 
-        if isinstance(value, resource.URI):
+        if isinstance(value, fields.URI):
             # For URI we just generate something
             base_attrs[name] = uuid.uuid4().hex
 

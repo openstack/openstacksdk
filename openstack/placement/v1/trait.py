@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack import exceptions
+from openstack import fields
 from openstack import resource
 
 
@@ -76,7 +77,7 @@ class Trait(resource.Resource):
                 # Known attr
                 hasattr(cls, k)
                 # Is real attr property
-                and isinstance(getattr(cls, k), resource.Body)
+                and isinstance(getattr(cls, k), fields.Body)
                 # not included in the query_params
                 and k not in cls._query_mapping._mapping.keys()
             ):
@@ -87,7 +88,7 @@ class Trait(resource.Resource):
 
         for k, v in params.items():
             # We need to gather URI parts to set them on the resource later
-            if hasattr(cls, k) and isinstance(getattr(cls, k), resource.URI):
+            if hasattr(cls, k) and isinstance(getattr(cls, k), fields.URI):
                 uri_params[k] = v
 
         def _dict_filter(f, d):

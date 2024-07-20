@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import fields
 from openstack import resource
 
 
@@ -144,7 +145,7 @@ def fields_type(value, resource_type):
     resource_mapping = {
         key: value.name
         for key, value in resource_type.__dict__.items()
-        if isinstance(value, resource.Body)
+        if isinstance(value, fields.Body)
     }
 
     return comma_separated_list(resource_mapping.get(x, x) for x in value)

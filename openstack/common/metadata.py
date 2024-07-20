@@ -16,7 +16,7 @@ from openstack import utils
 
 
 class MetadataMixin:
-    id: resource.Body
+    id: str
     base_path: str
     _body: resource._ComponentManager
 
