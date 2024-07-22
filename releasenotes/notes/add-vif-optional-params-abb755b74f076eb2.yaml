@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Extend the ``attach_vif`` and ``attach_vif_to_node`` methods of the
+    baremetal proxy to to accept optional parameters for VIF port UUID and
+    VIF portgroup UUID.

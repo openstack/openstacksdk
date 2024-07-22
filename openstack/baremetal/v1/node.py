@@ -12,6 +12,7 @@
 
 import collections
 import enum
+import typing as ty
 
 from openstack.baremetal.v1 import _common
 from openstack import exceptions
@@ -790,7 +791,15 @@ class Node(_common.Resource):
         if wait:
             self.wait_for_power_state(session, expected, timeout=timeout)
 
-    def attach_vif(self, session, vif_id, retry_on_conflict=True):
+    def attach_vif(
+        self,
+        session,
+        vif_id: str,
+        retry_on_conflict: bool = True,
+        *,
+        port_id: ty.Optional[str] = None,
+        port_group_id: ty.Optional[str] = None,
+    ) -> None:
         """Attach a VIF to the node.
 
         The exact form of the VIF ID depends on the network interface used by
@@ -800,26 +809,46 @@ class Node(_common.Resource):
 
         :param session: The session to use for making this request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
-        :param string vif_id: Backend-specific VIF ID.
+        :param vif_id: Backend-specific VIF ID.
         :param retry_on_conflict: Whether to retry HTTP CONFLICT errors.
             This can happen when either the VIF is already used on a node or
             the node is locked. Since the latter happens more often, the
             default value is True.
-        :return: ``None``
+        :param port_id: The UUID of the port to attach the VIF to. Only one of
+            port_id or port_group_id can be provided.
+        :param port_group_id: The UUID of the portgroup to attach to. Only one
+            of port_group_id or port_id can be provided.
+        :return: None
         :raises: :exc:`~openstack.exceptions.NotSupported` if the server
             does not support the VIF API.
+        :raises: :exc:`~openstack.exceptions.InvalidRequest` if both port_id
+            and port_group_id are provided.
         """
+        if port_id and port_group_id:
+            msg = (
+                'Only one of vif_port_id and vif_portgroup_id can be provided'
+            )
+            raise exceptions.InvalidRequest(msg)
+
         session = self._get_session(session)
+        if port_id or port_group_id:
+            required_version = _common.VIF_OPTIONAL_PARAMS_VERSION
+        else:
+            required_version = _common.VIF_VERSION
         version = self._assert_microversion_for(
             session,
             'commit',
-            _common.VIF_VERSION,
+            required_version,
             error_message=("Cannot use VIF attachment API"),
         )
 
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'vifs')
         body = {'id': vif_id}
+        if port_id:
+            body['port_uuid'] = port_id
+        elif port_group_id:
+            body['portgroup_uuid'] = port_group_id
         retriable_status_codes = _common.RETRIABLE_STATUS_CODES
         if not retry_on_conflict:
             retriable_status_codes = list(set(retriable_status_codes) - {409})

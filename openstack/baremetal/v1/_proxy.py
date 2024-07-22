@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import typing as ty
+
 from openstack.baremetal.v1 import _common
 from openstack.baremetal.v1 import allocation as _allocation
 from openstack.baremetal.v1 import chassis as _chassis
@@ -64,7 +66,7 @@ class Proxy(proxy.Proxy):
             error_message="No {resource_type} found for {value}".format(
                 resource_type=resource_type.__name__, value=value
             ),
-            **kwargs
+            **kwargs,
         )
 
     def chassis(self, details=False, **query):
@@ -964,7 +966,15 @@ class Proxy(proxy.Proxy):
             _portgroup.PortGroup, port_group, ignore_missing=ignore_missing
         )
 
-    def attach_vif_to_node(self, node, vif_id, retry_on_conflict=True):
+    def attach_vif_to_node(
+        self,
+        node: ty.Union[_node.Node, str],
+        vif_id: str,
+        retry_on_conflict: bool = True,
+        *,
+        port_id: ty.Optional[str] = None,
+        port_group_id: ty.Optional[str] = None,
+    ) -> None:
         """Attach a VIF to the node.
 
         The exact form of the VIF ID depends on the network interface used by
@@ -974,17 +984,29 @@ class Proxy(proxy.Proxy):
 
         :param node: The value can be either the name or ID of a node or
             a :class:`~openstack.baremetal.v1.node.Node` instance.
-        :param string vif_id: Backend-specific VIF ID.
+        :param vif_id: Backend-specific VIF ID.
         :param retry_on_conflict: Whether to retry HTTP CONFLICT errors.
             This can happen when either the VIF is already used on a node or
             the node is locked. Since the latter happens more often, the
             default value is True.
-        :return: ``None``
+        :param port_id: The UUID of the port to attach the VIF to. Only one of
+            port_id or port_group_id can be provided.
+        :param port_group_id: The UUID of the portgroup to attach to. Only one
+            of port_group_id or port_id can be provided.
+        :return: None
         :raises: :exc:`~openstack.exceptions.NotSupported` if the server
             does not support the VIF API.
+        :raises: :exc:`~openstack.exceptions.InvalidRequest` if both port_id
+            and port_group_id are provided.
         """
         res = self._get_resource(_node.Node, node)
-        res.attach_vif(self, vif_id, retry_on_conflict=retry_on_conflict)
+        res.attach_vif(
+            self,
+            vif_id=vif_id,
+            retry_on_conflict=retry_on_conflict,
+            port_id=port_id,
+            port_group_id=port_group_id,
+        )
 
     def detach_vif_from_node(self, node, vif_id, ignore_missing=True):
         """Detach a VIF from the node.
