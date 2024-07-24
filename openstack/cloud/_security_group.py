@@ -13,13 +13,13 @@
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack import exceptions
-from openstack.network.v2._proxy import Proxy
+from openstack.network import network_service
 from openstack import proxy
 from openstack import utils
 
 
 class SecurityGroupCloudMixin:
-    network: Proxy
+    network: network_service.NetworkService
 
     def __init__(self):
         self.secgroup_source = self.config.config['secgroup_source']

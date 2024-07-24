@@ -11,13 +11,13 @@
 # limitations under the License.
 
 from openstack.cloud import _utils
-from openstack.dns.v2._proxy import Proxy
+from openstack.dns import dns_service
 from openstack import exceptions
 from openstack import resource
 
 
 class DnsCloudMixin:
-    dns: Proxy
+    dns: dns_service.DnsService
 
     def list_zones(self, filters=None):
         """List all available zones.

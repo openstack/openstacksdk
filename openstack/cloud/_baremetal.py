@@ -16,7 +16,7 @@ import warnings
 
 import jsonpatch
 
-from openstack.baremetal.v1._proxy import Proxy
+from openstack.baremetal import baremetal_service
 from openstack import exceptions
 from openstack import warnings as os_warnings
 
@@ -42,7 +42,7 @@ def _normalize_port_list(nics):
 
 
 class BaremetalCloudMixin:
-    baremetal: Proxy
+    baremetal: baremetal_service.BaremetalService
 
     def list_nics(self):
         """Return a list of all bare metal ports."""
