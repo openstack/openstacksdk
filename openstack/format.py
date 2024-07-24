@@ -10,17 +10,21 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import typing as ty
 
-class Formatter:
+_T = ty.TypeVar('_T')
+
+
+class Formatter(ty.Generic[_T]):
     @classmethod
-    def deserialize(cls, value):
+    def deserialize(cls, value: ty.Any) -> _T:
         """Return a formatted object representing the value"""
         raise NotImplementedError
 
 
-class BoolStr(Formatter):
+class BoolStr(Formatter[bool]):
     @classmethod
-    def deserialize(cls, value):
+    def deserialize(cls, value: ty.Any) -> bool:
         """Convert a boolean string to a boolean"""
         expr = str(value).lower()
         if "true" == expr:

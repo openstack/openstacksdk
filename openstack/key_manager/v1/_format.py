@@ -15,9 +15,9 @@ from urllib import parse
 from openstack import format
 
 
-class HREFToUUID(format.Formatter):
+class HREFToUUID(format.Formatter[str]):
     @classmethod
-    def deserialize(cls, value):
+    def deserialize(cls, value: str) -> str:
         """Convert a HREF to the UUID portion"""
         parts = parse.urlsplit(value)
 
