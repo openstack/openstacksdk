@@ -55,4 +55,4 @@ class WarningsFixture(fixtures.Fixture):
         self.addCleanup(self._reset_warning_filters)
 
     def _reset_warning_filters(self):
-        warnings.filters[:] = self._original_warning_filters
+        warnings.filters[:] = self._original_warning_filters  # type: ignore[index]
