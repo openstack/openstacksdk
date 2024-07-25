@@ -14,6 +14,7 @@ from collections.abc import Callable, Generator
 from typing import Any, ClassVar, Literal, overload
 import warnings
 
+from openstack.placement.v1 import allocation as _allocation
 from openstack.placement.v1 import resource_class as _resource_class
 from openstack.placement.v1 import resource_provider as _resource_provider
 from openstack.placement.v1 import (
@@ -33,6 +34,72 @@ class Proxy(proxy.Proxy):
         "resource_class": _resource_class.ResourceClass,
         "resource_provider": _resource_provider.ResourceProvider,
     }
+
+    # ====== Allocations ======
+
+    def get_allocation(
+        self,
+        consumer: str | _allocation.Allocation,
+    ) -> _allocation.Allocation:
+        """Get allocations for a consumer.
+
+        :param consumer: The UUID of the consumer, or an
+            :class:`~openstack.placement.v1.allocation.Allocation` instance.
+
+        :returns: An instance of
+            :class:`~openstack.placement.v1.allocation.Allocation` with all
+            allocations for the given consumer.
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
+            allocations for the consumer could be found.
+        """
+        return self._get(_allocation.Allocation, consumer)
+
+    def update_allocation(
+        self,
+        consumer: str | _allocation.Allocation,
+        **attrs: Any,
+    ) -> _allocation.Allocation:
+        """Set or update allocations for a consumer.
+
+        Creates or replaces all allocation records for the consumer identified
+        by ``consumer``. If allocations already exist for this consumer they
+        are replaced.
+
+        :param consumer: The UUID of the consumer, or an
+            :class:`~openstack.placement.v1.allocation.Allocation` instance.
+        :param attrs: Keyword arguments which will be used to update the
+            :class:`~openstack.placement.v1.allocation.Allocation`, comprised
+            of the properties on the Allocation class. At a minimum,
+            ``allocations``, ``project_id``, and ``user_id`` must be provided
+            when creating new allocations.
+
+        :returns: The updated
+            :class:`~openstack.placement.v1.allocation.Allocation`.
+        """
+        return self._update(_allocation.Allocation, consumer, **attrs)
+
+    def delete_allocation(
+        self,
+        consumer: str | _allocation.Allocation,
+        ignore_missing: bool = True,
+    ) -> None:
+        """Delete all allocations for a consumer.
+
+        :param consumer: The UUID of the consumer, or an
+            :class:`~openstack.placement.v1.allocation.Allocation` instance.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when no allocations exist for the consumer. When set to ``True``,
+            no exception will be raised when attempting to delete allocations
+            for a consumer that has none.
+
+        :returns: ``None``
+        """
+        self._delete(
+            _allocation.Allocation,
+            consumer,
+            ignore_missing=ignore_missing,
+        )
 
     # ====== Resource classes ======
 

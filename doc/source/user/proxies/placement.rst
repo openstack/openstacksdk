@@ -10,6 +10,13 @@ The placement high-level interface is available through the ``placement``
 member of a :class:`~openstack.connection.Connection` object.
 The ``placement`` member will only be added if the service is detected.
 
+Allocations
+^^^^^^^^^^^
+
+.. autoclass:: openstack.placement.v1._proxy.Proxy
+   :noindex:
+   :members: get_allocation, update_allocation, delete_allocation
+
 Resource Classes
 ^^^^^^^^^^^^^^^^
 
