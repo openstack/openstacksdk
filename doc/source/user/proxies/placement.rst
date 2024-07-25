@@ -39,6 +39,13 @@ Resource Providers
              set_resource_provider_aggregates,
              fetch_resource_provider_usages
 
+Resource Provider Allocations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.placement.v1._proxy.Proxy
+   :noindex:
+   :members: resource_provider_allocations
+
 Resource Provider Inventories
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
