@@ -303,8 +303,7 @@ class FloatingIPCloudMixin:
                     'network_id'
                 )
                 if network_id:
-                    self._floating_network_by_router = network_id
-        return self._floating_network_by_router
+                    return network_id
 
     def available_floating_ip(self, network=None, server=None):
         """Get a floating IP from a network or a pool.
