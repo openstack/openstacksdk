@@ -271,6 +271,7 @@ Additional information about the services can be found in the
 :ref:`service-proxies` documentation.
 """
 
+import copy
 import importlib.metadata as importlib_metadata
 import warnings
 
@@ -294,6 +295,7 @@ from openstack.cloud import _orchestration
 from openstack.cloud import _security_group
 from openstack.cloud import _shared_file_system
 from openstack import config as _config
+import openstack.config.cloud_region
 from openstack import exceptions
 from openstack import service_description
 
@@ -374,7 +376,7 @@ class Connection(
         global_request_id=None,
         strict_proxies=False,
         pool_executor=None,
-        **kwargs
+        **kwargs,
     ):
         """Create a connection to a cloud.
 
@@ -467,7 +469,7 @@ class Connection(
             global_request_id=global_request_id,
             strict_proxies=strict_proxies,
             pool_executor=pool_executor,
-            **kwargs
+            **kwargs,
         )
 
         # Allow vendors to provide hooks. They will normally only receive a
@@ -551,18 +553,148 @@ class Connection(
     def authorize(self):
         """Authorize this Connection
 
-        .. note:: This method is optional. When an application makes a call
-                  to any OpenStack service, this method allows you to request
-                  a token manually before attempting to do anything else.
+        .. note::
+
+            This method is optional. When an application makes a call to any
+            OpenStack service, this method allows you to request a token
+            manually before attempting to do anything else.
 
         :returns: A string token.
-
         :raises: :class:`~openstack.exceptions.HttpException` if the
-                 authorization fails due to reasons like the credentials
-                 provided are unable to be authorized or the `auth_type`
-                 argument is missing, etc.
+            authorization fails due to reasons like the credentials
+            provided are unable to be authorized or the `auth_type`
+            argument is missing, etc.
         """
         try:
             return self.session.get_token()
         except keystoneauth1.exceptions.ClientException as e:
             raise exceptions.SDKException(e)
+
+    def connect_as(self, **kwargs):
+        """Make a new Connection object with new auth context.
+
+        Take the existing settings from the current cloud and construct a new
+        Connection object with some of the auth settings overridden. This
+        is useful for getting an object to perform tasks with as another user,
+        or in the context of a different project.
+
+        .. code-block:: python
+
+            conn = openstack.connect(cloud='example')
+            # Work normally
+            servers = conn.list_servers()
+            conn2 = conn.connect_as(username='different-user', password='')
+            # Work as different-user
+            servers = conn2.list_servers()
+
+        :param kwargs: keyword arguments can contain anything that would
+            normally go in an auth dict. They will override the same settings
+            from the parent cloud as appropriate. Entries that do not want to
+            be overridden can be ommitted.
+        """
+
+        if self.config._openstack_config:
+            config = self.config._openstack_config
+        else:
+            # TODO(mordred) Replace this with from_session
+            config = openstack.config.OpenStackConfig(
+                app_name=self.config._app_name,
+                app_version=self.config._app_version,
+                load_yaml_config=False,
+            )
+        params = copy.deepcopy(self.config.config)
+        # Remove profile from current cloud so that overridding works
+        params.pop('profile', None)
+
+        # Utility function to help with the stripping below.
+        def pop_keys(params, auth, name_key, id_key):
+            if name_key in auth or id_key in auth:
+                params['auth'].pop(name_key, None)
+                params['auth'].pop(id_key, None)
+
+        # If there are user, project or domain settings in the incoming auth
+        # dict, strip out both id and name so that a user can say:
+        #     cloud.connect_as(project_name='foo')
+        # and have that work with clouds that have a project_id set in their
+        # config.
+        for prefix in ('user', 'project'):
+            if prefix == 'user':
+                name_key = 'username'
+            else:
+                name_key = 'project_name'
+            id_key = f'{prefix}_id'
+            pop_keys(params, kwargs, name_key, id_key)
+            id_key = f'{prefix}_domain_id'
+            name_key = f'{prefix}_domain_name'
+            pop_keys(params, kwargs, name_key, id_key)
+
+        for key, value in kwargs.items():
+            params['auth'][key] = value
+
+        cloud_region = config.get_one(**params)
+        # Attach the discovery cache from the old session so we won't
+        # double discover.
+        cloud_region._discovery_cache = self.session._discovery_cache
+        # Override the cloud name so that logging/location work right
+        cloud_region._name = self.name
+        cloud_region.config['profile'] = self.name
+        # Use self.__class__ so that we return whatever this if, like if it's
+        # a subclass in the case of shade wrapping sdk.
+        return self.__class__(config=cloud_region)
+
+    def connect_as_project(self, project):
+        """Make a new Connection object with a new project.
+
+        Take the existing settings from the current cloud and construct a new
+        Connection object with the project settings overridden. This
+        is useful for getting an object to perform tasks with as another user,
+        or in the context of a different project.
+
+        .. code-block:: python
+
+            cloud = openstack.connect(cloud='example')
+            # Work normally
+            servers = cloud.list_servers()
+            cloud2 = cloud.connect_as_project('different-project')
+            # Work in different-project
+            servers = cloud2.list_servers()
+
+        :param project: Either a project name or a project dict as returned by
+            ``list_projects``.
+        """
+        auth = {}
+        if isinstance(project, dict):
+            auth['project_id'] = project.get('id')
+            auth['project_name'] = project.get('name')
+            if project.get('domain_id'):
+                auth['project_domain_id'] = project['domain_id']
+        else:
+            auth['project_name'] = project
+        return self.connect_as(**auth)
+
+    def endpoint_for(self, service_type, interface=None, region_name=None):
+        """Return the endpoint for a given service.
+
+        Respects config values for Connection, including
+        ``*_endpoint_override``. For direct values from the catalog regardless
+        of overrides, see
+        :meth:`~openstack.config.cloud_region.CloudRegion.get_endpoint_from_catalog`
+
+        :param service_type: Service Type of the endpoint to search for.
+        :param interface: Interface of the endpoint to search for. Optional,
+            defaults to the configured value for interface for this Connection.
+        :param region_name: Region Name of the endpoint to search for.
+            Optional, defaults to the configured value for region_name for this
+            Connection.
+
+        :returns: The endpoint of the service, or None if not found.
+        """
+
+        endpoint_override = self.config.get_endpoint(service_type)
+        if endpoint_override:
+            return endpoint_override
+        return self.config.get_endpoint_from_catalog(
+            service_type=service_type,
+            interface=interface,
+            region_name=region_name,
+        )
