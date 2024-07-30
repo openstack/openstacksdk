@@ -115,13 +115,6 @@ class ComputeCloudMixin:
             )
         )
 
-    def _nova_extensions(self):
-        extensions = {e.alias for e in self.compute.extensions()}
-        return extensions
-
-    def _has_nova_extension(self, extension_name):
-        return extension_name in self._nova_extensions()
-
     def search_keypairs(self, name_or_id=None, filters=None):
         """Search keypairs.
 

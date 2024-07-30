@@ -15,7 +15,6 @@ import time
 import warnings
 
 from openstack.cloud import _utils
-from openstack.cloud import exc
 from openstack.cloud import meta
 from openstack import exceptions
 from openstack.network.v2._proxy import Proxy
@@ -161,11 +160,6 @@ class FloatingIPCloudMixin:
 
         :returns: A list of floating IP pool objects
         """
-        if not self._has_nova_extension('os-floating-ip-pools'):
-            raise exc.OpenStackCloudUnavailableExtension(
-                'Floating IP pools extension is not available on target cloud'
-            )
-
         data = proxy._json_response(
             self.compute.get('os-floating-ip-pools'),
             error_message="Error fetching floating IP pool list",
