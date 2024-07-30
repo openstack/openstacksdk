@@ -71,6 +71,12 @@ class Limits(resource.Resource):
     resource_key = "limits"
     base_path = "/limits"
 
+    _max_microversion = "3.39"
+
+    _query_mapping = resource.QueryParameters(
+        "project_id",
+    )
+
     # capabilities
     allow_fetch = True
 
