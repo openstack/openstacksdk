@@ -17,7 +17,7 @@
         - opendev-buildset-registry
         - nodepool-build-image-siblings:
             voting: false
-        - dib-nodepool-functional-openstack-centos-8-stream-src:
+        - dib-nodepool-functional-openstack-ubuntu-noble-src:
             voting: false
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-networking
@@ -37,10 +37,6 @@
     gate:
       jobs:
         - opendev-buildset-registry
-        - nodepool-build-image-siblings:
-            voting: false
-        - dib-nodepool-functional-openstack-centos-8-stream-src:
-            voting: false
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-networking-ext
