@@ -10,11 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from openstack.accelerator.v2._proxy import Proxy
+from openstack.accelerator import accelerator_service
 
 
 class AcceleratorCloudMixin:
-    accelerator: Proxy
+    accelerator: accelerator_service.AcceleratorService
 
     def list_deployables(self, filters=None):
         """List all available deployables.

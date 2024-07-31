@@ -12,12 +12,12 @@
 
 from openstack.cloud import _utils
 from openstack import exceptions
+from openstack.orchestration import orchestration_service
 from openstack.orchestration.util import event_utils
-from openstack.orchestration.v1._proxy import Proxy
 
 
 class OrchestrationCloudMixin:
-    orchestration: Proxy
+    orchestration: orchestration_service.OrchestrationService
 
     def get_template_contents(
         self,

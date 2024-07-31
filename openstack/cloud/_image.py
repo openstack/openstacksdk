@@ -12,12 +12,12 @@
 
 from openstack.cloud import _utils
 from openstack import exceptions
-from openstack.image.v2._proxy import Proxy
+from openstack.image import image_service
 from openstack import utils
 
 
 class ImageCloudMixin:
-    image: Proxy
+    image: image_service.ImageService
 
     def __init__(self):
         self.image_api_use_tasks = self.config.config['image_api_use_tasks']
