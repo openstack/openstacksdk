@@ -50,13 +50,7 @@ repos:
         # keep this in-sync with '[mypy] exclude' in 'setup.cfg'
         exclude: |
           (?x)(
-            openstack/tests/ansible/.*
-            | openstack/tests/functional/.*
-            | openstack/tests/unit/.*
-            | openstack/tests/fixtures.py
-            | openstack/cloud/.*
-            | openstack/fixture/.*
-            | doc/.*
+            doc/.*
             | examples/.*
             | releasenotes/.*
           )
