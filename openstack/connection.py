@@ -280,7 +280,6 @@ import keystoneauth1.exceptions
 import requestsexceptions
 
 from openstack import _log
-from openstack import _services_mixin
 from openstack.cloud import _accelerator
 from openstack.cloud import _baremetal
 from openstack.cloud import _block_storage
@@ -346,7 +345,6 @@ def from_config(cloud=None, config=None, options=None, **kwargs):
 
 
 class Connection(
-    _services_mixin.ServicesMixin,
     _cloud._OpenStackCloudMixin,
     _accelerator.AcceleratorCloudMixin,
     _baremetal.BaremetalCloudMixin,

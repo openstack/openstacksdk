@@ -22,6 +22,7 @@ import requests.models
 import requestsexceptions
 
 from openstack import _log
+from openstack import _services_mixin
 from openstack.cloud import _object_store
 from openstack.cloud import _utils
 from openstack.cloud import meta
@@ -37,7 +38,7 @@ DEFAULT_MAX_FILE_SIZE = _object_store.DEFAULT_MAX_FILE_SIZE
 OBJECT_CONTAINER_ACLS = _object_store.OBJECT_CONTAINER_ACLS
 
 
-class _OpenStackCloudMixin:
+class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
     """Represent a connection to an OpenStack Cloud.
 
     OpenStackCloud is the entry point for all cloud operations, regardless
@@ -46,9 +47,6 @@ class _OpenStackCloudMixin:
     REST API operation oriented. For instance, one will request a Floating IP
     and that Floating IP will be actualized either via neutron or via nova
     depending on how this particular cloud has decided to arrange itself.
-
-    :param bool strict: Only return documented attributes for each resource
-                        as per the Data Model contract. (Default False)
     """
 
     _OBJECT_MD5_KEY = 'x-sdk-md5'
@@ -130,17 +128,17 @@ class _OpenStackCloudMixin:
 
         .. code-block:: python
 
-          conn = openstack.connect(cloud='example')
-          # Work normally
-          servers = conn.list_servers()
-          conn2 = conn.connect_as(username='different-user', password='')
-          # Work as different-user
-          servers = conn2.list_servers()
+            conn = openstack.connect(cloud='example')
+            # Work normally
+            servers = conn.list_servers()
+            conn2 = conn.connect_as(username='different-user', password='')
+            # Work as different-user
+            servers = conn2.list_servers()
 
         :param kwargs: keyword arguments can contain anything that would
-                       normally go in an auth dict. They will override the same
-                       settings from the parent cloud as appropriate. Entries
-                       that do not want to be overridden can be ommitted.
+            normally go in an auth dict. They will override the same settings
+            from the parent cloud as appropriate. Entries that do not want to
+            be overridden can be ommitted.
         """
 
         if self.config._openstack_config:
@@ -202,15 +200,15 @@ class _OpenStackCloudMixin:
 
         .. code-block:: python
 
-          cloud = openstack.connect(cloud='example')
-          # Work normally
-          servers = cloud.list_servers()
-          cloud2 = cloud.connect_as_project('different-project')
-          # Work in different-project
-          servers = cloud2.list_servers()
+            cloud = openstack.connect(cloud='example')
+            # Work normally
+            servers = cloud.list_servers()
+            cloud2 = cloud.connect_as_project('different-project')
+            # Work in different-project
+            servers = cloud2.list_servers()
 
         :param project: Either a project name or a project dict as returned by
-                        `list_projects`.
+            ``list_projects``.
         """
         auth = {}
         if isinstance(project, dict):
@@ -230,25 +228,25 @@ class _OpenStackCloudMixin:
 
         .. code-block:: python
 
-          from oslo_context import context
-          cloud = openstack.connect(cloud='example')
-          # Work normally
-          servers = cloud.list_servers()
-          cloud2 = cloud.global_request(context.generate_request_id())
-          # cloud2 sends all requests with global_request_id set
-          servers = cloud2.list_servers()
+            from oslo_context import context
+            cloud = openstack.connect(cloud='example')
+            # Work normally
+            servers = cloud.list_servers()
+            cloud2 = cloud.global_request(context.generate_request_id())
+            # cloud2 sends all requests with global_request_id set
+            servers = cloud2.list_servers()
 
         Additionally, this can be used as a context manager:
 
         .. code-block:: python
 
-          from oslo_context import context
-          c = openstack.connect(cloud='example')
-          # Work normally
-          servers = c.list_servers()
-          with c.global_request(context.generate_request_id()) as c2:
-              # c2 sends all requests with global_request_id set
-              servers = c2.list_servers()
+            from oslo_context import context
+            c = openstack.connect(cloud='example')
+            # Work normally
+            servers = c.list_servers()
+            with c.global_request(context.generate_request_id()) as c2:
+                # c2 sends all requests with global_request_id set
+                servers = c2.list_servers()
 
         :param global_request_id: The `global_request_id` to send.
         """
@@ -329,12 +327,11 @@ class _OpenStackCloudMixin:
         :meth:`~openstack.config.cloud_region.CloudRegion.get_endpoint_from_catalog`
 
         :param service_type: Service Type of the endpoint to search for.
-        :param interface:
-            Interface of the endpoint to search for. Optional, defaults to
-            the configured value for interface for this Connection.
-        :param region_name:
-            Region Name of the endpoint to search for. Optional, defaults to
-            the configured value for region_name for this Connection.
+        :param interface: Interface of the endpoint to search for. Optional,
+            defaults to the configured value for interface for this Connection.
+        :param region_name: Region Name of the endpoint to search for.
+            Optional, defaults to the configured value for region_name for this
+            Connection.
 
         :returns: The endpoint of the service, or None if not found.
         """
