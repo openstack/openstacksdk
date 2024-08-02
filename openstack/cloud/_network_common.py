@@ -14,16 +14,15 @@ import threading
 
 from openstack.cloud import openstackcloud
 from openstack import exceptions
-from openstack.network import network_service
 
 
 class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
     """Shared networking functions used by FloatingIP, Network, Compute
     classes."""
 
-    network: network_service.NetworkService
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-    def __init__(self):
         self._external_ipv4_names = self.config.get_external_ipv4_networks()
         self._internal_ipv4_names = self.config.get_internal_ipv4_networks()
         self._external_ipv6_names = self.config.get_external_ipv6_networks()

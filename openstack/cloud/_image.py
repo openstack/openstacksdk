@@ -18,7 +18,9 @@ from openstack import utils
 
 class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
         self.image_api_use_tasks = self.config.config['image_api_use_tasks']
 
     def search_images(self, name_or_id=None, filters=None):

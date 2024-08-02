@@ -25,7 +25,9 @@ from openstack import warnings as os_warnings
 
 class FloatingIPCloudMixin(openstackcloud._OpenStackCloudMixin):
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
         self.private = self.config.config.get('private', False)
 
         self._floating_ip_source = self.config.config.get('floating_ip_source')
