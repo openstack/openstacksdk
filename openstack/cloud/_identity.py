@@ -13,14 +13,13 @@
 import warnings
 
 from openstack.cloud import _utils
+from openstack.cloud import openstackcloud
 from openstack import exceptions
-from openstack.identity import identity_service
 from openstack import utils
 from openstack import warnings as os_warnings
 
 
-class IdentityCloudMixin:
-    identity: identity_service.IdentityService
+class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def _get_project_id_param_dict(self, name_or_id):
         if name_or_id:

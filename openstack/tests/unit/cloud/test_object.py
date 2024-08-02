@@ -17,7 +17,7 @@ from unittest import mock
 
 import testtools
 
-import openstack.cloud.openstackcloud as oc_oc
+from openstack.cloud import _object_store
 from openstack import exceptions
 from openstack.object_store.v1 import _proxy
 from openstack.object_store.v1 import container
@@ -107,7 +107,7 @@ class TestObject(BaseTestObject):
                         'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
                         'Content-Length': '0',
                         'Content-Type': 'text/html; charset=UTF-8',
-                        'x-container-read': oc_oc.OBJECT_CONTAINER_ACLS[
+                        'x-container-read': _object_store.OBJECT_CONTAINER_ACLS[
                             'public'
                         ],
                     },
@@ -203,7 +203,9 @@ class TestObject(BaseTestObject):
         self.assert_calls()
 
     def test_update_container(self):
-        headers = {'x-container-read': oc_oc.OBJECT_CONTAINER_ACLS['public']}
+        headers = {
+            'x-container-read': _object_store.OBJECT_CONTAINER_ACLS['public']
+        }
         self.register_uris(
             [
                 dict(
@@ -245,7 +247,7 @@ class TestObject(BaseTestObject):
                     status_code=204,
                     validate=dict(
                         headers={
-                            'x-container-read': oc_oc.OBJECT_CONTAINER_ACLS[
+                            'x-container-read': _object_store.OBJECT_CONTAINER_ACLS[
                                 'public'
                             ]
                         }
@@ -267,7 +269,7 @@ class TestObject(BaseTestObject):
                     status_code=204,
                     validate=dict(
                         headers={
-                            'x-container-read': oc_oc.OBJECT_CONTAINER_ACLS[
+                            'x-container-read': _object_store.OBJECT_CONTAINER_ACLS[
                                 'private'
                             ]
                         }
@@ -296,7 +298,7 @@ class TestObject(BaseTestObject):
                     uri=self.container_endpoint,
                     headers={
                         'x-container-read': str(
-                            oc_oc.OBJECT_CONTAINER_ACLS['public']
+                            _object_store.OBJECT_CONTAINER_ACLS['public']
                         )
                     },
                 )

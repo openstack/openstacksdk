@@ -295,7 +295,6 @@ from openstack.cloud import _object_store
 from openstack.cloud import _orchestration
 from openstack.cloud import _security_group
 from openstack.cloud import _shared_file_system
-from openstack.cloud import openstackcloud as _cloud
 from openstack import config as _config
 from openstack.config import cloud_region
 from openstack import exceptions
@@ -345,7 +344,6 @@ def from_config(cloud=None, config=None, options=None, **kwargs):
 
 
 class Connection(
-    _cloud._OpenStackCloudMixin,
     _accelerator.AcceleratorCloudMixin,
     _baremetal.BaremetalCloudMixin,
     _block_storage.BlockStorageCloudMixin,
@@ -501,7 +499,6 @@ class Connection(
         self.strict_mode = strict
         # Call the _*CloudMixin constructors while we work on
         # integrating things better.
-        _cloud._OpenStackCloudMixin.__init__(self)
         _accelerator.AcceleratorCloudMixin.__init__(self)
         _baremetal.BaremetalCloudMixin.__init__(self)
         _block_storage.BlockStorageCloudMixin.__init__(self)

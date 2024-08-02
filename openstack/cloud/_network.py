@@ -12,12 +12,11 @@
 
 from openstack.cloud import _utils
 from openstack.cloud import exc
+from openstack.cloud import openstackcloud
 from openstack import exceptions
-from openstack.network import network_service
 
 
-class NetworkCloudMixin:
-    network: network_service.NetworkService
+class NetworkCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def _neutron_extensions(self):
         extensions = set()

@@ -11,13 +11,12 @@
 # limitations under the License.
 
 from openstack.cloud import _utils
+from openstack.cloud import openstackcloud
 from openstack import exceptions
-from openstack.image import image_service
 from openstack import utils
 
 
-class ImageCloudMixin:
-    image: image_service.ImageService
+class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def __init__(self):
         self.image_api_use_tasks = self.config.config['image_api_use_tasks']
