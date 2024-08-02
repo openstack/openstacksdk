@@ -115,7 +115,7 @@ class TestVolume(base.BaseFunctionalTest):
         self.assertEqual(2, len(backups))
 
         backups = self.user_cloud.list_volume_backups(
-            search_opts={"name": backup_name_1}
+            filters={"name": backup_name_1}
         )
         self.assertEqual(1, len(backups))
         self.assertEqual(backup_name_1, backups[0]['name'])

@@ -180,7 +180,7 @@ class TestFloatingIP(base.BaseFunctionalTest):
         else:
             # Find network names for nova-net
             data = proxy._json_response(
-                self.user_cloud._conn.compute.get('/os-tenant-networks')
+                self.user_cloud.compute.get('/os-tenant-networks')
             )
             nets = meta.get_and_munchify('networks', data)
             self.addDetail(

@@ -10,15 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
+from openstack.network.v2 import agent
 from openstack.network.v2 import network
 from openstack.tests.functional import base
 
 
 class TestAgentNetworks(base.BaseFunctionalTest):
-    NETWORK_ID = None
-    AGENT = None
-    AGENT_ID = None
+    NETWORK_ID: str
+    AGENT: agent.Agent
+    AGENT_ID: str
 
     def setUp(self):
         super().setUp()

@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import typing as ty
 
 from openstack.network.v2 import qos_policy as _qos_policy
 from openstack.tests.functional import base
@@ -19,7 +20,7 @@ class TestQoSPolicy(base.BaseFunctionalTest):
     QOS_POLICY_ID = None
     IS_SHARED = False
     IS_DEFAULT = False
-    RULES = []
+    RULES: ty.List[str] = []
     QOS_POLICY_DESCRIPTION = "QoS policy description"
 
     def setUp(self):

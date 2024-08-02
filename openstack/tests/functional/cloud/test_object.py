@@ -23,7 +23,6 @@ import tempfile
 
 from testtools import content
 
-from openstack import exceptions
 from openstack.tests.functional import base
 
 
@@ -93,18 +92,9 @@ class TestObject(base.BaseFunctionalTest):
                     'testk'
                 ],
             )
-            try:
-                self.assertIsNotNone(
-                    self.user_cloud.get_object(container_name, name)
-                )
-            except exceptions.SDKException as e:
-                self.addDetail(
-                    'failed_response',
-                    content.text_content(str(e.response.headers)),
-                )
-                self.addDetail(
-                    'failed_response', content.text_content(e.response.text)
-                )
+            self.assertIsNotNone(
+                self.user_cloud.get_object(container_name, name)
+            )
             self.assertEqual(
                 name, self.user_cloud.list_objects(container_name)[0]['name']
             )
@@ -134,7 +124,7 @@ class TestObject(base.BaseFunctionalTest):
             (64 * 1024, 5),  # 64MB, 5 segments
         )
         for size, nseg in sizes:
-            fake_content = ''
+            fake_content = b''
             segment_size = int(round(size / nseg))
             with tempfile.NamedTemporaryFile() as fake_file:
                 fake_content = ''.join(
@@ -179,22 +169,14 @@ class TestObject(base.BaseFunctionalTest):
                     'testk'
                 ],
             )
-            try:
-                with tempfile.NamedTemporaryFile() as fake_file:
-                    self.user_cloud.get_object(
-                        container_name, name, outfile=fake_file.name
-                    )
-                    downloaded_content = open(fake_file.name, 'rb').read()
-                    self.assertEqual(fake_content, downloaded_content)
-            except exceptions.SDKException as e:
-                self.addDetail(
-                    'failed_response',
-                    content.text_content(str(e.response.headers)),
+
+            with tempfile.NamedTemporaryFile() as fake_file:
+                self.user_cloud.get_object(
+                    container_name, name, outfile=fake_file.name
                 )
-                self.addDetail(
-                    'failed_response', content.text_content(e.response.text)
-                )
-                raise
+                downloaded_content = open(fake_file.name, 'rb').read()
+                self.assertEqual(fake_content, downloaded_content)
+
             self.assertEqual(
                 name, self.user_cloud.list_objects(container_name)[0]['name']
             )

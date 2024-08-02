@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import typing as ty
+
 from openstack.shared_file_system.v2 import share as _share
 from openstack.tests.functional.shared_file_system import base
 
@@ -80,7 +82,7 @@ class ShareMetadataTest(base.BaseSharedFileSystemTest):
 
         new_meta = {"newFoo": "newBar"}
         full_meta = {"foo": "bar", "newFoo": "newBar"}
-        empty_meta = {}
+        empty_meta: ty.Dict[str, str] = {}
 
         updated_share = (
             self.user_cloud.shared_file_system.update_share_metadata(

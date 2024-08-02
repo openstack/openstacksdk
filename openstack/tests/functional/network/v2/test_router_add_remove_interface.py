@@ -20,10 +20,10 @@ from openstack.tests.functional import base
 class TestRouterInterface(base.BaseFunctionalTest):
     CIDR = "10.100.0.0/16"
     IPV4 = 4
-    ROUTER_ID = None
-    NET_ID = None
-    SUB_ID = None
-    ROT = None
+    ROUTER_ID: str
+    NET_ID: str
+    SUB_ID: str
+    ROT: router.Router
 
     def setUp(self):
         super().setUp()

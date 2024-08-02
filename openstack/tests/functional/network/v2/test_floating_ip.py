@@ -23,13 +23,13 @@ class TestFloatingIP(base.BaseFunctionalTest):
     IPV4 = 4
     EXT_CIDR = "10.100.0.0/24"
     INT_CIDR = "10.101.0.0/24"
-    EXT_NET_ID = None
-    INT_NET_ID = None
-    EXT_SUB_ID = None
-    INT_SUB_ID = None
-    ROT_ID = None
-    PORT_ID = None
-    FIP = None
+    EXT_NET_ID: str
+    INT_NET_ID: str
+    EXT_SUB_ID: str
+    INT_SUB_ID: str
+    ROT_ID: str
+    PORT_ID: str
+    FIP: floating_ip.FloatingIP
     DNS_DOMAIN = "example.org."
     DNS_NAME = "fip1"
 
@@ -43,8 +43,6 @@ class TestFloatingIP(base.BaseFunctionalTest):
         self.ROT_NAME = self.getUniqueString()
         self.INT_NET_NAME = self.getUniqueString()
         self.INT_SUB_NAME = self.getUniqueString()
-        self.EXT_NET_ID = None
-        self.EXT_SUB_ID = None
         self.is_dns_supported = False
 
         # Find External Network
@@ -58,8 +56,9 @@ class TestFloatingIP(base.BaseFunctionalTest):
             # credentials available
             # WARNING: this external net is not dropped
             # Create External Network
-            args = {"router:external": True}
-            net = self._create_network(self.EXT_NET_NAME, **args)
+            net = self._create_network(
+                self.EXT_NET_NAME, **{"router:external": True}
+            )
             self.EXT_NET_ID = net.id
             sub = self._create_subnet(
                 self.EXT_SUB_NAME, self.EXT_NET_ID, self.EXT_CIDR
@@ -74,8 +73,10 @@ class TestFloatingIP(base.BaseFunctionalTest):
         )
         self.INT_SUB_ID = sub.id
         # Create Router
-        args = {"external_gateway_info": {"network_id": self.EXT_NET_ID}}
-        sot = self.user_cloud.network.create_router(name=self.ROT_NAME, **args)
+        sot = self.user_cloud.network.create_router(
+            name=self.ROT_NAME,
+            **{"external_gateway_info": {"network_id": self.EXT_NET_ID}}
+        )
         assert isinstance(sot, router.Router)
         self.assertEqual(self.ROT_NAME, sot.name)
         self.ROT_ID = sot.id

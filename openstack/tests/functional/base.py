@@ -41,6 +41,10 @@ def _disable_keep_alive(conn):
 
 
 class BaseFunctionalTest(base.TestCase):
+    user_cloud: connection.Connection
+    user_cloud_alt: connection.Connection
+    operator_cloud: connection.Connection
+
     _wait_for_timeout_key = ''
 
     def setUp(self):
@@ -49,21 +53,32 @@ class BaseFunctionalTest(base.TestCase):
         _disable_keep_alive(self.conn)
 
         self._demo_name = os.environ.get('OPENSTACKSDK_DEMO_CLOUD', 'devstack')
+        if not self._demo_name:
+            raise self.failureException(
+                "OPENSTACKSDK_OPERATOR_CLOUD must be set to a non-empty value"
+            )
+
         self._demo_name_alt = os.environ.get(
             'OPENSTACKSDK_DEMO_CLOUD_ALT',
             'devstack-alt',
         )
+        if not self._demo_name_alt:
+            raise self.failureException(
+                "OPENSTACKSDK_OPERATOR_CLOUD must be set to a non-empty value"
+            )
+
         self._op_name = os.environ.get(
             'OPENSTACKSDK_OPERATOR_CLOUD',
             'devstack-admin',
         )
+        if not self._op_name:
+            raise self.failureException(
+                "OPENSTACKSDK_OPERATOR_CLOUD must be set to a non-empty value"
+            )
 
         self.config = openstack.config.OpenStackConfig()
         self._set_user_cloud()
-        if self._op_name:
-            self._set_operator_cloud()
-        else:
-            self.operator_cloud = None
+        self._set_operator_cloud()
 
         self.identity_version = self.user_cloud.config.get_api_version(
             'identity'
@@ -86,16 +101,11 @@ class BaseFunctionalTest(base.TestCase):
         self.user_cloud = connection.Connection(config=user_config)
         _disable_keep_alive(self.user_cloud)
 
-        # This cloud is used by the project_cleanup test, so you can't rely on
-        # it
-        if self._demo_name_alt:
-            user_config_alt = self.config.get_one(
-                cloud=self._demo_name_alt, **kwargs
-            )
-            self.user_cloud_alt = connection.Connection(config=user_config_alt)
-            _disable_keep_alive(self.user_cloud_alt)
-        else:
-            self.user_cloud_alt = None
+        user_config_alt = self.config.get_one(
+            cloud=self._demo_name_alt, **kwargs
+        )
+        self.user_cloud_alt = connection.Connection(config=user_config_alt)
+        _disable_keep_alive(self.user_cloud_alt)
 
     def _set_operator_cloud(self, **kwargs):
         operator_config = self.config.get_one(cloud=self._op_name, **kwargs)
