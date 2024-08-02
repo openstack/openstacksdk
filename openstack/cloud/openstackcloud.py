@@ -531,8 +531,8 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
             raise
         except Exception as e:
             raise exceptions.SDKException(
-                "Error getting {service} endpoint on {cloud}:{region}:"
-                " {error}".format(
+                "Error getting {service} endpoint on {cloud}:{region}: "
+                "{error}".format(
                     service=service_key,
                     cloud=self.name,
                     region=self.config.get_region_name(service_key),

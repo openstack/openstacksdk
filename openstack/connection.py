@@ -285,14 +285,11 @@ from openstack.cloud import _block_storage
 from openstack.cloud import _coe
 from openstack.cloud import _compute
 from openstack.cloud import _dns
-from openstack.cloud import _floating_ip
 from openstack.cloud import _identity
 from openstack.cloud import _image
 from openstack.cloud import _network
-from openstack.cloud import _network_common
 from openstack.cloud import _object_store
 from openstack.cloud import _orchestration
-from openstack.cloud import _security_group
 from openstack.cloud import _shared_file_system
 from openstack import config as _config
 import openstack.config.cloud_region
@@ -349,14 +346,11 @@ class Connection(
     _compute.ComputeCloudMixin,
     _coe.CoeCloudMixin,
     _dns.DnsCloudMixin,
-    _floating_ip.FloatingIPCloudMixin,
     _identity.IdentityCloudMixin,
     _image.ImageCloudMixin,
     _network.NetworkCloudMixin,
-    _network_common.NetworkCommonCloudMixin,
     _object_store.ObjectStoreCloudMixin,
     _orchestration.OrchestrationCloudMixin,
-    _security_group.SecurityGroupCloudMixin,
     _shared_file_system.SharedFileSystemCloudMixin,
 ):
     def __init__(
@@ -423,32 +417,31 @@ class Connection(
             keys as service-type and values as floats expressing the calls
             per second for that service. Defaults to None, which means no
             rate-limiting is performed.
-        :param oslo_conf: An oslo.config CONF object.
-        :type oslo_conf: :class:`~oslo_config.cfg.ConfigOpts`
-            An oslo.config ``CONF`` object that has been populated with
+        :param oslo_conf: An oslo.config ``CONF`` object that has been
+            populated with
             ``keystoneauth1.loading.register_adapter_conf_options`` in
             groups named by the OpenStack service's project name.
+        :type oslo_conf: :class:`~oslo_config.cfg.ConfigOpts`
         :param service_types:
             A list/set of service types this Connection should support. All
             other service types will be disabled (will error if used).
             **Currently only supported in conjunction with the ``oslo_conf``
             kwarg.**
-        :param global_request_id: A Request-id to send with all interactions.
         :param strict_proxies:
-            If True, check proxies on creation and raise
-            ServiceDiscoveryException if the service is unavailable.
-        :type strict_proxies: bool
             Throw an ``openstack.exceptions.ServiceDiscoveryException`` if the
             endpoint for a given service doesn't work. This is useful for
             OpenStack services using sdk to talk to other OpenStack services
             where it can be expected that the deployer config is correct and
             errors should be reported immediately.
             Default false.
+        :type strict_proxies: bool
+        :param global_request_id: A Request-id to send with all interactions.
+        :type global_request_id: str
         :param pool_executor:
-        :type pool_executor: :class:`~futurist.Executor`
             A futurist ``Executor`` object to be used for concurrent background
             activities. Defaults to None in which case a ThreadPoolExecutor
             will be created if needed.
+        :type pool_executor: :class:`~futurist.Executor`
         :param kwargs: If a config is not provided, the rest of the parameters
             provided are assumed to be arguments to be passed to the
             CloudRegion constructor.
