@@ -744,6 +744,14 @@ class Proxy(adapter.Adapter):
             :class:`~openstack.resource.Resource` that doesn't match
             the ``resource_type``.
         """
+        # Check for attributes whose names conflict with the parameters
+        # specified in the method.
+        conflicting_attrs = attrs.get('__conflicting_attrs', {})
+        if conflicting_attrs:
+            for k, v in conflicting_attrs.items():
+                attrs[k] = v
+            attrs.pop('__conflicting_attrs')
+
         data = resource_type.list(
             self, paginated=paginated, base_path=base_path, **attrs
         )

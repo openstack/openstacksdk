@@ -1129,6 +1129,15 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.shared_file_system.v2.
             resource_locks.ResourceLock`
         """
+
+        if query.get('resource_type'):
+            # The _create method has a parameter named resource_type, which
+            # refers to the type of resource to be created, so we need to avoid
+            # a conflict of parameters we are sending to the method.
+            query['__conflicting_attrs'] = {
+                'resource_type': query.get('resource_type')
+            }
+            query.pop('resource_type')
         return self._list(_resource_locks.ResourceLock, **query)
 
     def get_resource_lock(self, resource_lock):
