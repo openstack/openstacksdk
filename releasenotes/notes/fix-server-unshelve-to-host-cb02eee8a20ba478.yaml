@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixed the issue that unshelving a server to a specific host was failed
+    due to unhandled host option.
