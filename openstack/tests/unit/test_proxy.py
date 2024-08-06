@@ -73,48 +73,6 @@ class TestProxyPrivate(base.TestCase):
         self.fake_proxy = proxy.Proxy(self.session)
         self.fake_proxy._connection = self.cloud
 
-    def _test_correct(self, value):
-        decorated = proxy._check_resource(strict=False)(self.sot.method)
-        rv = decorated(self.sot, resource.Resource, value)
-
-        self.assertEqual(value, rv)
-
-    def test__check_resource_correct_resource(self):
-        res = resource.Resource()
-        self._test_correct(res)
-
-    def test__check_resource_notstrict_id(self):
-        self._test_correct("abc123-id")
-
-    def test__check_resource_strict_id(self):
-        decorated = proxy._check_resource(strict=True)(self.sot.method)
-        self.assertRaisesRegex(
-            ValueError,
-            "A Resource must be passed",
-            decorated,
-            self.sot,
-            resource.Resource,
-            "this-is-not-a-resource",
-        )
-
-    def test__check_resource_incorrect_resource(self):
-        class OneType(resource.Resource):
-            pass
-
-        class AnotherType(resource.Resource):
-            pass
-
-        value = AnotherType()
-        decorated = proxy._check_resource(strict=False)(self.sot.method)
-        self.assertRaisesRegex(
-            ValueError,
-            "Expected OneType but received AnotherType",
-            decorated,
-            self.sot,
-            OneType,
-            value,
-        )
-
     def test__get_uri_attribute_no_parent(self):
         class Child(resource.Resource):
             something = resource.Body("something")

@@ -36,37 +36,6 @@ if ty.TYPE_CHECKING:
     from openstack import connection
 
 
-# The _check_resource decorator is used on Proxy methods to ensure that
-# the `actual` argument is in fact the type of the `expected` argument.
-# It does so under two cases:
-# 1. When strict=False, if and only if `actual` is a Resource instance,
-#    it is checked to see that it's an instance of the `expected` class.
-#    This allows `actual` to be other types, such as strings, when it makes
-#    sense to accept a raw id value.
-# 2. When strict=True, `actual` must be an instance of the `expected` class.
-def _check_resource(strict=False):
-    def wrap(method):
-        def check(self, expected, actual=None, *args, **kwargs):
-            if (
-                strict
-                and actual is not None
-                and not isinstance(actual, resource.Resource)
-            ):
-                raise ValueError(f"A {expected.__name__} must be passed")
-            elif isinstance(actual, resource.Resource) and not isinstance(
-                actual, expected
-            ):
-                raise ValueError(
-                    f"Expected {expected.__name__} but received {actual.__class__.__name__}"
-                )
-
-            return method(self, expected, actual, *args, **kwargs)
-
-        return check
-
-    return wrap
-
-
 def normalize_metric_name(name):
     name = name.replace('.', '_')
     name = name.replace(':', '_')
@@ -471,6 +440,11 @@ class Proxy(adapter.Adapter):
             res = resource_type.new(id=value, connection=conn, **attrs)
         else:
             # An existing resource instance
+            if not isinstance(value, resource_type):
+                raise ValueError(
+                    f'Expected {resource_type.__name__} but received '
+                    f'{value.__class__.__name__}'
+                )
             res = value
             res._update(**attrs)
 
@@ -529,6 +503,8 @@ class Proxy(adapter.Adapter):
     ) -> ty.Optional[resource.ResourceT]:
         """Find a resource
 
+        :param resource_type: The type of resource to find. This should be a
+            :class:`~openstack.resource.Resource` subclass.
         :param name_or_id: The name or ID of a resource to find.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
@@ -545,22 +521,22 @@ class Proxy(adapter.Adapter):
             self, name_or_id, ignore_missing=ignore_missing, **attrs
         )
 
-    @_check_resource(strict=False)
     def _delete(
         self,
         resource_type: type[resource.ResourceT],
-        value: ty.Union[str, resource.ResourceT],
+        value: ty.Union[str, resource.ResourceT, None],
         ignore_missing: bool = True,
         **attrs: ty.Any,
     ) -> ty.Optional[resource.ResourceT]:
         """Delete a resource
 
-        :param resource_type: The type of resource to delete. This should
-            be a :class:`~openstack.resource.Resource`
-            subclass with a ``from_id`` method.
-        :param value: The value to delete. Can be either the ID of a
-            resource or a :class:`~openstack.resource.Resource`
-            subclass.
+        :param resource_type: The type of resource to delete. This should be a
+            :class:`~openstack.resource.Resource` subclass.
+        :param value: The resource to delete. This can be the ID of a resource,
+            a :class:`~openstack.resource.Resource` subclass instance, or None
+            for resources that don't have their own identifier or have
+            identifiers with multiple parts. If None, you must pass these other
+            identifiers as kwargs.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
@@ -587,21 +563,22 @@ class Proxy(adapter.Adapter):
 
         return rv
 
-    @_check_resource(strict=False)
     def _update(
         self,
         resource_type: type[resource.ResourceT],
-        value: ty.Union[str, resource.ResourceT],
+        value: ty.Union[str, resource.ResourceT, None],
         base_path: ty.Optional[str] = None,
         **attrs: ty.Any,
     ) -> resource.ResourceT:
         """Update a resource
 
-        :param resource_type: The type of resource to update.
-        :type resource_type: :class:`~openstack.resource.Resource`
-        :param value: The resource to update. This must either be a
-            :class:`~openstack.resource.Resource` or an id
-            that corresponds to a resource.
+        :param resource_type: The type of resource to update. This should be a
+            :class:`~openstack.resource.Resource` subclass.
+        :param value: The resource to update. This can be the ID of a resource,
+            a :class:`~openstack.resource.Resource` subclass instance, or None
+            for resources that don't have their own identifier or have
+            identifiers with multiple parts. If None, you must pass these other
+            identifiers as kwargs.
         :param str base_path: Base part of the URI for updating resources, if
             different from
             :data:`~openstack.resource.Resource.base_path`.
@@ -626,13 +603,10 @@ class Proxy(adapter.Adapter):
     ) -> resource.ResourceT:
         """Create a resource from attributes
 
-        :param resource_type: The type of resource to create.
-        :type resource_type: :class:`~openstack.resource.Resource`
-        :param str base_path: Base part of the URI for creating resources, if
-            different from
-            :data:`~openstack.resource.Resource.base_path`.
-        :param path_args: A dict containing arguments for forming the request
-            URL, if needed.
+        :param resource_type: The type of resource to create. This should be a
+            :class:`~openstack.resource.Resource` subclass.
+        :param base_path: Base part of the URI for creating resources, if
+            different from :data:`~openstack.resource.Resource.base_path`.
         :param dict attrs: Attributes to be passed onto the
             :meth:`~openstack.resource.Resource.create`
             method to be created. These should correspond
@@ -662,9 +636,9 @@ class Proxy(adapter.Adapter):
     ) -> ty.Generator[resource.ResourceT, None, None]:
         """Create a resource from attributes
 
-        :param resource_type: The type of resource to create.
-        :type resource_type: :class:`~openstack.resource.Resource`
-        :param list data: List of attributes dicts to be passed onto the
+        :param resource_type: The type of resource to create. This should be a
+            :class:`~openstack.resource.Resource` subclass.
+        :param data: List of attributes dicts to be passed onto the
             :meth:`~openstack.resource.Resource.create`
             method to be created. These should correspond
             to either :class:`~openstack.resource.Body`
@@ -679,7 +653,6 @@ class Proxy(adapter.Adapter):
         """
         return resource_type.bulk_create(self, data, base_path=base_path)
 
-    @_check_resource(strict=False)
     def _get(
         self,
         resource_type: type[resource.ResourceT],
@@ -691,17 +664,20 @@ class Proxy(adapter.Adapter):
     ) -> resource.ResourceT:
         """Fetch a resource
 
-        :param resource_type: The type of resource to get.
-        :type resource_type: :class:`~openstack.resource.Resource`
-        :param value: The value to get. Can be either the ID of a
-            resource or a :class:`~openstack.resource.Resource`
-            subclass.
-        :param str base_path: Base part of the URI for fetching resources, if
+        :param resource_type: The type of resource to get. This should be a
+            :class:`~openstack.resource.Resource` subclass.
+        :param value: The resource to get. This can be the ID of a resource,
+            a :class:`~openstack.resource.Resource` subclass instance, or None
+            for resources that don't have their own identifier or have
+            identifiers with multiple parts. If None, you must pass these other
+            identifiers as kwargs.
+        :param requires_id: Whether the resource is identified by an ID or not.
+        :param base_path: Base part of the URI for fetching resources, if
             different from
             :data:`~openstack.resource.Resource.base_path`.
-        :param bool skip_cache: A boolean indicating whether optional API
+        :param skip_cache: A boolean indicating whether optional API
             cache should be skipped for this invocation.
-        :param dict attrs: Attributes to be passed onto the
+        :param attrs: Attributes to be passed onto the
             :meth:`~openstack.resource.Resource.get`
             method. These should correspond
             to either :class:`~openstack.resource.Body`
@@ -782,7 +758,7 @@ class Proxy(adapter.Adapter):
 
         :param resource_type: The type of resource to retrieve.
         :type resource_type: :class:`~openstack.resource.Resource`
-        :param value: The value of a specific resource to retreive headers
+        :param value: The value of a specific resource to retrieve headers
             for. Can be either the ID of a resource,
             a :class:`~openstack.resource.Resource` subclass,
             or ``None``.
