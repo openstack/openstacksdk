@@ -64,25 +64,21 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
         containers = self.list_containers()
         return _utils._filter_list(containers, name, filters)
 
+    # TODO(stephenfin): Remove 'skip_cache' as it no longer does anything
     def get_container(self, name, skip_cache=False):
         """Get metadata about a container.
 
         :param str name:
             Name of the container to get metadata for.
-        :param bool skip_cache:
-            Ignore the cache of container metadata for this container.
-            Defaults to ``False``.
+        :param bool skip_cache: Ignored. Present for backwards compatibility.
         :returns: An object store ``Container`` object if found, else None.
         """
-        if skip_cache or name not in self._container_cache:
-            try:
-                container = self.object_store.get_container_metadata(name)
-                self._container_cache[name] = container
-            except exceptions.HttpException as ex:
-                if ex.response.status_code == 404:
-                    return None
-                raise
-        return self._container_cache[name]
+        try:
+            return self.object_store.get_container_metadata(name)
+        except exceptions.HttpException as ex:
+            if ex.response.status_code == 404:
+                return None
+            raise
 
     def create_container(self, name, public=False):
         """Create an object-store container.
@@ -108,7 +104,6 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         try:
             self.object_store.delete_container(name, ignore_missing=False)
-            self._container_cache.pop(name, None)
             return True
         except exceptions.NotFoundException:
             return False

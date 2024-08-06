@@ -248,8 +248,6 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
             self._cache_expirations[expire_key] = expirations[expire_key]
 
         self._api_cache_keys = set()
-        self._container_cache = dict()
-        self._file_hash_cache = dict()
 
         self._local_ipv6 = (
             _utils.localhost_supports_ipv6() if not self.force_ipv4 else False
