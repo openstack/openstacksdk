@@ -438,6 +438,9 @@ class TestType(TestVolumeProxy):
     def test_type_get(self):
         self.verify_get(self.proxy.get_type, type.Type)
 
+    def test_type_find(self):
+        self.verify_find(self.proxy.find_type, type.Type)
+
     def test_types(self):
         self.verify_list(self.proxy.types, type.Type)
 
