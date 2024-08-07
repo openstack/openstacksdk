@@ -11,6 +11,8 @@
 # under the License.
 
 import io
+import os.path
+import tempfile
 from unittest import mock
 
 import requests
@@ -118,6 +120,62 @@ class TestImage(TestImageProxy):
                 'owner_specified.openstack.sha256': '',
             },
         )
+
+    def test_image_create_file_as_name(self):
+        # if we pass a filename as an image name, we should upload the file
+        # itself (and use the upload flow)
+        with tempfile.NamedTemporaryFile() as tmpfile:
+            name = os.path.basename(tmpfile.name)
+            self._verify(
+                'openstack.image.v2._proxy.Proxy._upload_image',
+                # 'openstack.image.v2.image.Image.create',
+                self.proxy.create_image,
+                method_kwargs={
+                    'name': tmpfile.name,
+                    'allow_duplicates': True,
+                },
+                expected_args=[
+                    name,
+                ],
+                expected_kwargs={
+                    'filename': tmpfile.name,
+                    'data': None,
+                    'meta': {},
+                    'wait': False,
+                    'timeout': 3600,
+                    'validate_checksum': False,
+                    'use_import': False,
+                    'stores': None,
+                    'all_stores': None,
+                    'all_stores_must_succeed': None,
+                    'disk_format': 'qcow2',
+                    'container_format': 'bare',
+                    'properties': {
+                        'owner_specified.openstack.md5': '',
+                        'owner_specified.openstack.object': f'images/{name}',
+                        'owner_specified.openstack.sha256': '',
+                    },
+                },
+            )
+
+        # but not if we use a directory...
+        with tempfile.TemporaryDirectory() as tmpdir:
+            self.verify_create(
+                self.proxy.create_image,
+                _image.Image,
+                method_kwargs={
+                    'name': tmpdir,
+                    'allow_duplicates': True,
+                },
+                expected_kwargs={
+                    'container_format': 'bare',
+                    'disk_format': 'qcow2',
+                    'name': tmpdir,
+                    'owner_specified.openstack.md5': '',
+                    'owner_specified.openstack.object': f'images/{tmpdir}',
+                    'owner_specified.openstack.sha256': '',
+                },
+            )
 
     def test_image_create_checksum_match(self):
         fake_image = _image.Image(
@@ -272,7 +330,7 @@ class TestImage(TestImageProxy):
             data="data",
             container_format="bare",
             disk_format="raw",
-            **properties
+            **properties,
         )
 
         args, kwargs = self.proxy._create.call_args
