@@ -117,6 +117,11 @@ class Volume(resource.Resource, metadata.MetadataMixin):
         body = {'os-set_bootable': {'bootable': bootable}}
         self._action(session, body)
 
+    def set_readonly(self, session, readonly):
+        """Set volume readonly flag"""
+        body = {'os-update_readonly_flag': {'readonly': readonly}}
+        self._action(session, body)
+
     def set_image_metadata(self, session, metadata):
         """Sets image metadata key-value pairs on the volume"""
         body = {'os-set_image_metadata': metadata}

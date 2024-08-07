@@ -360,6 +360,19 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.extend(self, size)
 
+    def set_volume_readonly(self, volume, readonly=True):
+        """Set a volume's read-only flag.
+
+        :param volume: The value can be either the ID of a volume or a
+            :class:`~openstack.block_storage.v2.volume.Volume` instance.
+        :param bool readonly: Whether the volume should be a read-only volume
+            or not.
+
+        :returns: None
+        """
+        volume = self._get_resource(_volume.Volume, volume)
+        volume.set_readonly(self, readonly)
+
     def retype_volume(self, volume, new_type, migration_policy="never"):
         """Retype the volume.
 
