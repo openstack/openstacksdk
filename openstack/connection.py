@@ -362,7 +362,7 @@ class Connection(
         app_version=None,
         extra_services=None,
         strict=False,
-        use_direct_get=False,
+        use_direct_get=None,
         task_manager=None,
         rate_limit=None,
         oslo_conf=None,
