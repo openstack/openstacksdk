@@ -46,7 +46,7 @@ def _get_name_and_filename(name, image_format):
 
     # Try appending the disk format
     name_with_ext = '.'.join((name, image_format))
-    if os.path.exists(name_with_ext):
+    if os.path.exists(name_with_ext) and os.path.isfile(name):
         return os.path.basename(name), name_with_ext
 
     return name, None

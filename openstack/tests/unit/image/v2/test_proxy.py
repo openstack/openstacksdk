@@ -128,7 +128,6 @@ class TestImage(TestImageProxy):
             name = os.path.basename(tmpfile.name)
             self._verify(
                 'openstack.image.v2._proxy.Proxy._upload_image',
-                # 'openstack.image.v2.image.Image.create',
                 self.proxy.create_image,
                 method_kwargs={
                     'name': tmpfile.name,
