@@ -1183,7 +1183,7 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.shelve_offload(self)
 
-    def unshelve_server(self, server):
+    def unshelve_server(self, server, *, host=None):
         """Unshelves or restores a shelved server.
 
         Policy defaults enable only users with administrative role or the
@@ -1192,10 +1192,12 @@ class Proxy(proxy.Proxy):
 
         :param server: Either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server` instance.
+        :param host: An optional parameter specifying the name the compute
+            host to unshelve to. (New in API version 2.91).
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.unshelve(self)
+        server.unshelve(self, host=host)
 
     def trigger_server_crash_dump(self, server):
         """Trigger a crash dump in a server.

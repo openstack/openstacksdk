@@ -1276,6 +1276,21 @@ class TestCompute(TestComputeProxy):
             self.proxy.unshelve_server,
             method_args=["value"],
             expected_args=[self.proxy],
+            expected_kwargs={
+                "host": None,
+            },
+        )
+
+    def test_server_unshelve_with_options(self):
+        self._verify(
+            "openstack.compute.v2.server.Server.unshelve",
+            self.proxy.unshelve_server,
+            method_args=["value"],
+            method_kwargs={"host": "HOST2"},
+            expected_args=[self.proxy],
+            expected_kwargs={
+                "host": "HOST2",
+            },
         )
 
     def test_server_trigger_dump(self):
