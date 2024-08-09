@@ -34,6 +34,7 @@ from openstack import exceptions
 from openstack import proxy
 from openstack import resource
 from openstack import utils
+from openstack import warnings as os_warnings
 
 
 class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
@@ -68,7 +69,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
         app_version=None,
         extra_services=None,
         strict=False,
-        use_direct_get=False,
+        use_direct_get=None,
         task_manager=None,
         rate_limit=None,
         oslo_conf=None,
@@ -155,6 +156,12 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
         """
         super().__init__()
 
+        if use_direct_get is not None:
+            warnings.warn(
+                "The 'use_direct_get' argument is deprecated for removal",
+                os_warnings.RemovedInSDK50Warning,
+            )
+
         self.config = config
         self._extra_services = {}
         self._strict_proxies = strict_proxies
@@ -196,7 +203,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
         self._proxies = {}
         self.__pool_executor = pool_executor
         self._global_request_id = global_request_id
-        self.use_direct_get = use_direct_get
+        self.use_direct_get = use_direct_get or False
         self.strict_mode = strict
 
         self.log = _log.setup_logging('openstack')
