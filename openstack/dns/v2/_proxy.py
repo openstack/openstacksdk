@@ -18,9 +18,11 @@ from openstack.dns.v2 import tsigkey as _tsigkey
 from openstack.dns.v2 import zone as _zone
 from openstack.dns.v2 import zone_export as _zone_export
 from openstack.dns.v2 import zone_import as _zone_import
+from openstack.dns.v2 import zone_nameserver as _zone_nameserver
 from openstack.dns.v2 import zone_share as _zone_share
 from openstack.dns.v2 import zone_transfer as _zone_transfer
 from openstack import proxy
+from openstack import resource
 
 
 class Proxy(proxy.Proxy):
@@ -33,6 +35,7 @@ class Proxy(proxy.Proxy):
         "tsigkey": _tsigkey.TSIGKey,
         "zone_export": _zone_export.ZoneExport,
         "zone_import": _zone_import.ZoneImport,
+        "zone_nameserver": _zone_nameserver.ZoneNameserver,
         "zone_share": _zone_share.ZoneShare,
         "zone_transfer_request": _zone_transfer.ZoneTransferRequest,
     }
@@ -150,6 +153,22 @@ class Proxy(proxy.Proxy):
         """
         zone = self._get_resource(_zone.Zone, zone)
         return zone.xfr(self)
+
+    # ======== Zone nameservers ========
+    def zone_nameservers(self, zone):
+        """Retrieve a generator of nameservers for a zone
+
+        :param zone: The value can be the ID of a zone or a
+            :class:`~openstack.dns.v2.zone.Zone` instance.
+        :return: A generator of
+            :class:`~openstack.dns.v2.zone_nameserver.ZoneNameserver`
+            instances.
+        """
+        zone_id = resource.Resource._get_id(zone)
+        return self._list(
+            _zone_nameserver.ZoneNameserver,
+            zone_id=zone_id,
+        )
 
     # ======== Recordsets ========
     def recordsets(self, zone=None, **query):

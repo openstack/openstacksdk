@@ -18,6 +18,7 @@ from openstack.dns.v2 import tsigkey
 from openstack.dns.v2 import zone
 from openstack.dns.v2 import zone_export
 from openstack.dns.v2 import zone_import
+from openstack.dns.v2 import zone_nameserver
 from openstack.dns.v2 import zone_share
 from openstack.dns.v2 import zone_transfer
 from openstack.tests.unit import test_proxy_base
@@ -72,6 +73,16 @@ class TestDnsZone(TestDnsProxy):
             self.proxy.xfr_zone,
             method_args=[{'zone': 'id'}],
             expected_args=[self.proxy],
+        )
+
+
+class TestDnsZoneNameserver(TestDnsProxy):
+    def test_get_zone_nameservers(self):
+        self.verify_list(
+            self.proxy.zone_nameservers,
+            zone_nameserver.ZoneNameserver,
+            method_kwargs={'zone': 'id'},
+            expected_kwargs={'zone_id': 'id'},
         )
 
 
