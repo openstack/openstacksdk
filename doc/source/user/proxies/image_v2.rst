@@ -22,6 +22,13 @@ Image Operations
             deactivate_image, reactivate_image, stage_image,
             add_tag, remove_tag
 
+Image Task Operations
+^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.image.v2._proxy.Proxy
+  :noindex:
+  :members: image_tasks
+
 Member Operations
 ^^^^^^^^^^^^^^^^^
 

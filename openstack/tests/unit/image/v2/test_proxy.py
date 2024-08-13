@@ -21,6 +21,7 @@ from openstack import exceptions
 from openstack.image.v2 import _proxy
 from openstack.image.v2 import cache as _cache
 from openstack.image.v2 import image as _image
+from openstack.image.v2 import image_tasks as _image_tasks
 from openstack.image.v2 import member as _member
 from openstack.image.v2 import metadef_namespace as _metadef_namespace
 from openstack.image.v2 import metadef_object as _metadef_object
@@ -603,6 +604,14 @@ class TestImage(TestImageProxy):
             self.proxy.reactivate_image,
             method_args=["image"],
             expected_args=[self.proxy],
+        )
+
+    def test_image_tasks(self):
+        self.verify_list(
+            self.proxy.image_tasks,
+            _image_tasks.ImageTasks,
+            method_kwargs={'image': 'image_1'},
+            expected_kwargs={'image_id': 'image_1'},
         )
 
 
