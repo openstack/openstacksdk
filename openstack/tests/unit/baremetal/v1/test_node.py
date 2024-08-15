@@ -83,6 +83,7 @@ FAKE = {
     "service_step": {},
     "secure_boot": True,
     "shard": "TestShard",
+    "runbook": None,
     "states": [
         {
             "href": "http://127.0.0.1:6385/v1/nodes/<NODE_ID>/states",
@@ -161,6 +162,7 @@ class TestNode(base.TestCase):
         self.assertEqual(FAKE['resource_class'], sot.resource_class)
         self.assertEqual(FAKE['service_step'], sot.service_step)
         self.assertEqual(FAKE['secure_boot'], sot.is_secure_boot)
+        self.assertEqual(FAKE['runbook'], sot.runbook)
         self.assertEqual(FAKE['states'], sot.states)
         self.assertEqual(
             FAKE['target_provision_state'], sot.target_provision_state
@@ -435,6 +437,36 @@ class TestNodeSetProvisionState(base.TestCase):
             json={'target': 'service', 'service_steps': service_steps},
             headers=mock.ANY,
             microversion='1.87',
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
+
+    def test_set_provision_state_clean_runbook(self):
+        runbook = 'CUSTOM_AWESOME'
+        result = self.node.set_provision_state(
+            self.session, 'clean', runbook=runbook
+        )
+
+        self.assertIs(result, self.node)
+        self.session.put.assert_called_once_with(
+            'nodes/%s/states/provision' % self.node.id,
+            json={'target': 'clean', 'runbook': runbook},
+            headers=mock.ANY,
+            microversion='1.92',
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
+
+    def test_set_provision_state_service_runbook(self):
+        runbook = 'CUSTOM_AWESOME'
+        result = self.node.set_provision_state(
+            self.session, 'service', runbook=runbook
+        )
+
+        self.assertIs(result, self.node)
+        self.session.put.assert_called_once_with(
+            'nodes/%s/states/provision' % self.node.id,
+            json={'target': 'service', 'runbook': runbook},
+            headers=mock.ANY,
+            microversion='1.92',
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 

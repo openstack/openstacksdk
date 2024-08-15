@@ -100,8 +100,8 @@ class Node(_common.Resource):
         is_maintenance='maintenance',
     )
 
-    # Ability to have a firmware_interface on a node.
-    _max_microversion = '1.87'
+    # Ability to run predefined sets of steps on a node using runbooks.
+    _max_microversion = '1.92'
 
     # Properties
     #: The UUID of the allocation associated with this node. Added in API
@@ -207,9 +207,13 @@ class Node(_common.Resource):
     #: A string to be used by external schedulers to identify this node as a
     #: unit of a specific type of resource. Added in API microversion 1.21.
     resource_class = resource.Body("resource_class")
-    #: A string represents the current service step being executed upon.
+    #: A string representing the current service step being executed upon.
     #: Added in API microversion 1.87.
     service_step = resource.Body("service_step")
+    #: A string representing the uuid or logical name of a runbook as an
+    #: alternative to providing ``clean_steps`` or ``service_steps``.
+    #: Added in API microversion 1.92.
+    runbook = resource.Body("runbook")
     #: A string indicating the shard this node belongs to. Added in API
     #: microversion 1,82.
     shard = resource.Body("shard")
@@ -407,6 +411,7 @@ class Node(_common.Resource):
         timeout=None,
         deploy_steps=None,
         service_steps=None,
+        runbook=None,
     ):
         """Run an action modifying this node's provision state.
 
@@ -431,6 +436,7 @@ class Node(_common.Resource):
             and ``rebuild`` target.
         :param service_steps: Service steps to execute, only valid for
             ``service`` target.
+        :param ``runbook``: UUID or logical name of a runbook.
 
         :return: This :class:`Node` instance.
         :raises: ValueError if ``config_drive``, ``clean_steps``,
@@ -460,6 +466,31 @@ class Node(_common.Resource):
         version = self._assert_microversion_for(session, 'commit', version)
 
         body = {'target': target}
+        if runbook:
+            version = self._assert_microversion_for(
+                session, 'commit', _common.RUNBOOKS_VERSION
+            )
+
+            if clean_steps is not None:
+                raise ValueError(
+                    'Please provide either clean steps or a '
+                    'runbook, but not both.'
+                )
+            if service_steps is not None:
+                raise ValueError(
+                    'Please provide either service steps or a '
+                    'runbook, but not both.'
+                )
+
+            if target != 'clean' and target != 'service':
+                msg = (
+                    'A runbook can only be provided when setting target '
+                    'provision state to any of "[clean, service]"'
+                )
+                raise ValueError(msg)
+
+            body['runbook'] = runbook
+
         if config_drive:
             if target not in ('active', 'rebuild'):
                 raise ValueError(

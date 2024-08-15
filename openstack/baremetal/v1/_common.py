@@ -94,6 +94,10 @@ CHANGE_BOOT_MODE_VERSION = '1.76'
 FIRMWARE_VERSION = '1.86'
 """API version in which firmware components of a node can be accessed"""
 
+RUNBOOKS_VERSION = '1.92'
+"""API version in which a runbook can be used in place of arbitrary steps
+for provisioning"""
+
 
 class Resource(resource.Resource):
     base_path: str
