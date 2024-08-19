@@ -210,15 +210,19 @@ class OpenStackConfig:
 
         # First, use a config file if it exists where expected
         self.config_filename, self.cloud_config = self._load_config_file()
-        _, secure_config = self._load_secure_file()
+        if self.config_filename:
+            self._validate_config_file(self.config_filename, self.cloud_config)
+
+        secure_config_filename, secure_config = self._load_secure_file()
         if secure_config:
+            self._validate_config_file(secure_config_filename, secure_config)
             self.cloud_config = _util.merge_clouds(
                 self.cloud_config, secure_config
             )
 
         if not self.cloud_config:
             self.cloud_config = {'clouds': {}}
-        if 'clouds' not in self.cloud_config:
+        elif 'clouds' not in self.cloud_config:
             self.cloud_config['clouds'] = {}
 
         # Save the other config
@@ -465,6 +469,25 @@ class OpenStackConfig:
                         # file
                         continue
         return (None, {})
+
+    def _validate_config_file(self, path: str, data: ty.Any) -> bool:
+        """Validate config file contains a clouds entry.
+
+        All config files should have a 'clouds' key at a minimum.
+        """
+        if not isinstance(data, dict):
+            raise exceptions.ConfigException(
+                'Configuration file {path} is empty or not a valid mapping'
+            )
+
+        if 'clouds' not in data:
+            # TODO(stephenfin): This should probably be an error at some point
+            self.log.warning(
+                "Configuration file %s does not contain a 'clouds' key", path
+            )
+            return False
+
+        return True
 
     def _expand_region_name(self, region_name):
         return {'name': region_name, 'values': {}}
