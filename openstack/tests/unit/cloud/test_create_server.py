@@ -709,7 +709,7 @@ class TestCreateServer(base.TestCase):
             dict(id='image-id'),
             dict(id='flavor-id'),
             wait=True,
-        ),
+        )
 
         # This is a pretty dirty hack to ensure we in principle use object with
         # expected properties

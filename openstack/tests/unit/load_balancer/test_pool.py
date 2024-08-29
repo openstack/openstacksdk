@@ -65,7 +65,7 @@ class TestPool(base.TestCase):
 
     def test_make_it(self):
         test_pool = pool.Pool(**EXAMPLE)
-        self.assertEqual(EXAMPLE['name'], test_pool.name),
+        self.assertEqual(EXAMPLE['name'], test_pool.name)
         self.assertEqual(EXAMPLE['description'], test_pool.description)
         self.assertEqual(
             EXAMPLE['admin_state_up'], test_pool.is_admin_state_up
