@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import exceptions
 from openstack import resource
 from openstack import utils
 
@@ -83,17 +82,18 @@ class ShareAccessRule(resource.Resource):
         )
 
     def delete(
-        self, session, share_id, ignore_missing=True, *, unrestrict=False
+        self,
+        session,
+        error_message=None,
+        *,
+        microversion=None,
+        unrestrict=False,
+        **kwargs,
     ):
-        body = {"deny_access": {"access_id": self.id}}
+        body = {'deny_access': {'access_id': self.id}}
         if unrestrict:
             body['deny_access']['unrestrict'] = True
-        url = utils.urljoin("/shares", share_id, "action")
+        url = utils.urljoin("/shares", self.share_id, "action")
         response = self._action(session, body, url)
-        try:
-            response = self._action(session, body, url)
-            self._translate_response(response)
-        except exceptions.NotFoundException:
-            if not ignore_missing:
-                raise
+        self._translate_response(response)
         return response

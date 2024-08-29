@@ -471,15 +471,13 @@ class TestAccessRuleProxy(test_proxy_base.TestProxyBase):
 
     def test_access_rules_delete(self):
         self._verify(
-            "openstack.shared_file_system.v2.share_access_rule."
-            + "ShareAccessRule.delete",
+            "openstack.shared_file_system.v2.share_access_rule.ShareAccessRule.delete",
             self.proxy.delete_access_rule,
             method_args=[
                 'access_id',
                 'share_id',
-                'ignore_missing',
             ],
-            expected_args=[self.proxy, 'share_id'],
+            expected_args=[self.proxy],
             expected_kwargs={'unrestrict': False},
         )
 

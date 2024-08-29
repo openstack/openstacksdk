@@ -876,13 +876,18 @@ class Proxy(proxy.Proxy):
         :rtype: ``requests.models.Response`` HTTP response from internal
             requests client
         """
-        res = self._get_resource(_share_access_rule.ShareAccessRule, access_id)
-        return res.delete(
-            self,
-            share_id,
-            ignore_missing=ignore_missing,
-            unrestrict=unrestrict,
+        res = self._get_resource(
+            _share_access_rule.ShareAccessRule, access_id, share_id=share_id
         )
+        try:
+            return res.delete(
+                self,
+                unrestrict=unrestrict,
+            )
+        except exceptions.NotFoundException:
+            if ignore_missing:
+                return None
+            raise
 
     def share_group_snapshots(self, details=True, **query):
         """Lists all share group snapshots.
