@@ -117,14 +117,18 @@ class Stack(resource.Resource):
         # heat doesn't accept resource_key in its request.
         return super().create(session, prepend_key=False, base_path=base_path)
 
-    def commit(self, session, base_path=None):
-        # This overrides the default behavior of resource creation because
-        # heat doesn't accept resource_key in its request.
-        return super().commit(
-            session, prepend_key=False, has_body=False, base_path=None
-        )
-
-    def update(self, session, preview=False):
+    def commit(
+        self,
+        session,
+        prepend_key=True,
+        has_body=True,
+        retry_on_conflict=None,
+        base_path=None,
+        *,
+        microversion=None,
+        preview=False,
+        **kwargs,
+    ):
         # This overrides the default behavior of resource update because
         # we need to use other endpoint for update preview.
         base_path = None

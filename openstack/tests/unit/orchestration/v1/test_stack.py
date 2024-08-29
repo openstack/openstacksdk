@@ -188,18 +188,6 @@ class TestStack(base.TestCase):
         )
         self.assertEqual(mock_create.return_value, res)
 
-    @mock.patch.object(resource.Resource, 'commit')
-    def test_commit(self, mock_commit):
-        sess = mock.Mock()
-        sot = stack.Stack()
-
-        res = sot.commit(sess)
-
-        mock_commit.assert_called_once_with(
-            sess, prepend_key=False, has_body=False, base_path=None
-        )
-        self.assertEqual(mock_commit.return_value, res)
-
     def test_check(self):
         sess = mock.Mock()
         sot = stack.Stack(**FAKE)
@@ -287,7 +275,7 @@ class TestStack(base.TestCase):
             f'stacks/{FAKE_NAME}/{FAKE_ID}/export',
         )
 
-    def test_update(self):
+    def test_commit(self):
         sess = mock.Mock()
         sess.default_microversion = None
 
@@ -299,7 +287,7 @@ class TestStack(base.TestCase):
         sot = stack.Stack(**FAKE)
         body = sot._body.dirty.copy()
 
-        sot.update(sess)
+        sot.commit(sess)
 
         sess.put.assert_called_with(
             f'/stacks/{FAKE_NAME}/{FAKE_ID}',
@@ -308,7 +296,7 @@ class TestStack(base.TestCase):
             json=body,
         )
 
-    def test_update_preview(self):
+    def test_commit_preview(self):
         sess = mock.Mock()
         sess.default_microversion = None
 
@@ -320,7 +308,7 @@ class TestStack(base.TestCase):
         sot = stack.Stack(**FAKE)
         body = sot._body.dirty.copy()
 
-        ret = sot.update(sess, preview=True)
+        ret = sot.commit(sess, preview=True)
 
         sess.put.assert_called_with(
             f'stacks/{FAKE_NAME}/{FAKE_ID}/preview',

@@ -96,7 +96,7 @@ class TestOrchestrationStack(TestOrchestrationProxy):
 
     def test_update_stack(self):
         self._verify(
-            'openstack.orchestration.v1.stack.Stack.update',
+            'openstack.orchestration.v1.stack.Stack.commit',
             self.proxy.update_stack,
             expected_result='result',
             method_args=['stack'],
@@ -106,7 +106,7 @@ class TestOrchestrationStack(TestOrchestrationProxy):
 
     def test_update_stack_preview(self):
         self._verify(
-            'openstack.orchestration.v1.stack.Stack.update',
+            'openstack.orchestration.v1.stack.Stack.commit',
             self.proxy.update_stack,
             expected_result='result',
             method_args=['stack'],

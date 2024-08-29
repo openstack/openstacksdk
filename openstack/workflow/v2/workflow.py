@@ -72,13 +72,20 @@ class Workflow(resource.Resource):
         self._translate_response(response, has_body=False)
         return self
 
-    def update(self, session, prepend_key=True, base_path=None):
+    def commit(
+        self,
+        session,
+        prepend_key=True,
+        has_body=True,
+        retry_on_conflict=None,
+        base_path=None,
+        *,
+        microversion=None,
+        **kwargs,
+    ):
         kwargs = self._request_kwargs(
             prepend_key=prepend_key, base_path=base_path
         )
         response = session.put(**kwargs)
         self._translate_response(response, has_body=False)
         return self
-
-    def commit(self, *args, **kwargs):
-        return self.update(*args, **kwargs)

@@ -167,7 +167,7 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_stack.Stack, stack, resolve_outputs=resolve_outputs)
 
-    def update_stack(self, stack, preview=False, **attrs):
+    def update_stack(self, stack, *, preview=False, **attrs):
         """Update a stack
 
         :param stack: The value can be the ID of a stack or a
@@ -181,7 +181,7 @@ class Proxy(proxy.Proxy):
             when no resource can be found.
         """
         res = self._get_resource(_stack.Stack, stack, **attrs)
-        return res.update(self, preview)
+        return res.commit(self, preview)
 
     def delete_stack(self, stack, ignore_missing=True):
         """Delete a stack
