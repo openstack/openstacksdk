@@ -1188,7 +1188,7 @@ class Proxy(proxy.Proxy):
         return self._update(
             _availability_zone_profile.AvailabilityZoneProfile,
             availability_zone_profile,
-            **attrs
+            **attrs,
         )
 
     def create_availability_zone(self, **attrs):

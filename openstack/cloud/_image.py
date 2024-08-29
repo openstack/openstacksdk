@@ -17,7 +17,6 @@ from openstack import utils
 
 
 class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -65,12 +64,7 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
             A string containing a jmespath expression for further filtering.

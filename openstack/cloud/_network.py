@@ -17,7 +17,6 @@ from openstack import exceptions
 
 
 class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
-
     def _neutron_extensions(self):
         extensions = set()
         for extension in self.network.extensions():
@@ -180,12 +179,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                    'last_name': 'Smith',
-                    'other': {
-                        'gender': 'Female'
-                    }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
             A string containing a jmespath expression for further filtering.
@@ -254,12 +248,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                    'last_name': 'Smith',
-                    'other': {
-                        'gender': 'Female'
-                    }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
             A string containing a jmespath expression for further filtering.
@@ -304,12 +293,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                    'last_name': 'Smith',
-                    'other': {
-                        'gender': 'Female'
-                    }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
             A string containing a jmespath expression for further filtering.
@@ -340,12 +324,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                    'last_name': 'Smith',
-                    'other': {
-                        'gender': 'Female'
-                    }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
             A string containing a jmespath expression for further filtering.
@@ -368,12 +347,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                    'last_name': 'Smith',
-                    'other': {
-                        'gender': 'Female'
-                    }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
         :returns: A network ``Subnet`` object if found, else None.
         """
@@ -400,12 +374,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                    'last_name': 'Smith',
-                    'other': {
-                        'gender': 'Female'
-                    }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
             A string containing a jmespath expression for further filtering.
@@ -459,7 +428,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         :param bool external: Whether this network is externally accessible.
         :param dict provider: A dict of network provider options. Example::
 
-            { 'network_type': 'vlan', 'segmentation_id': 'vlan1' }
+            {'network_type': 'vlan', 'segmentation_id': 'vlan1'}
 
         :param string project_id: Specify the project ID this network
             will be created on (admin-only).
@@ -566,7 +535,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         :param bool external: Whether this network is externally accessible.
         :param dict provider: A dict of network provider options. Example::
 
-            { 'network_type': 'vlan', 'segmentation_id': 'vlan1' }
+            {'network_type': 'vlan', 'segmentation_id': 'vlan1'}
 
         :param int mtu_size: New maximum transmission unit value to address
             fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.
@@ -753,12 +722,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                    'last_name': 'Smith',
-                    'other': {
-                        'gender': 'Female'
-                    }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
             A string containing a jmespath expression for further filtering.
@@ -794,12 +758,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                    'last_name': 'Smith',
-                    'other': {
-                        'gender': 'Female'
-                    }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
             A string containing a jmespath expression for further filtering.
@@ -822,12 +781,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                    'last_name': 'Smith',
-                    'other': {
-                        'gender': 'Female'
-                    }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
             A string containing a jmespath expression for further filtering.
@@ -865,12 +819,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                    'last_name': 'Smith',
-                    'other': {
-                        'gender': 'Female'
-                    }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
             A string containing a jmespath expression for further filtering.
@@ -957,12 +906,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                    'last_name': 'Smith',
-                    'other': {
-                        'gender': 'Female'
-                    }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
             A string containing a jmespath expression for further filtering.
@@ -998,12 +942,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                    'last_name': 'Smith',
-                    'other': {
-                        'gender': 'Female'
-                    }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
             A string containing a jmespath expression for further filtering.
@@ -1026,12 +965,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                    'last_name': 'Smith',
-                    'other': {
-                        'gender': 'Female'
-                    }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
             A string containing a jmespath expression for further filtering.
@@ -1061,12 +995,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                    'last_name': 'Smith',
-                    'other': {
-                        'gender': 'Female'
-                    }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
             A string containing a jmespath expression for further filtering.
@@ -2176,7 +2105,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
               [
                   {
                       "subnet_id": "8ca37218-28ff-41cb-9b10-039601ea7e6b",
-                      "ip_address": "192.168.10.2"
+                      "ip_address": "192.168.10.2",
                   }
               ]
 
@@ -2237,7 +2166,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
               [
                   {
                       "subnet_id": "8ca37218-28ff-41cb-9b10-039601ea7e6b",
-                      "ip_address": "192.168.10.2"
+                      "ip_address": "192.168.10.2",
                   }
               ]
 
@@ -2247,12 +2176,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
             Example::
 
-              [
-                  {
-                      "destination": "179.24.1.0/24",
-                      "nexthop": "172.24.3.99"
-                  }
-              ]
+              [{"destination": "179.24.1.0/24", "nexthop": "172.24.3.99"}]
 
         :returns: The updated network ``Router`` object.
         :raises: :class:`~openstack.exceptions.SDKException` on operation
@@ -2346,12 +2270,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         :param allocation_pools: A list of dictionaries of the start and end
             addresses for the allocation pools. For example::
 
-                [
-                    {
-                        "start": "192.168.199.2",
-                        "end": "192.168.199.254"
-                    }
-                ]
+                [{"start": "192.168.199.2", "end": "192.168.199.254"}]
 
         :param string gateway_ip: The gateway IP address. When you specify both
             allocation_pools and gateway_ip, you must ensure that the gateway
@@ -2362,20 +2281,14 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         :param dns_nameservers: A list of DNS name servers for the subnet. For
             example::
 
-              [ "8.8.8.7", "8.8.8.8" ]
+              ["8.8.8.7", "8.8.8.8"]
 
         :param host_routes: A list of host route dictionaries for the subnet.
             For example::
 
               [
-                  {
-                      "destination": "0.0.0.0/0",
-                      "nexthop": "123.456.78.9"
-                  },
-                  {
-                      "destination": "192.168.0.0/24",
-                      "nexthop": "192.168.0.1"
-                  }
+                  {"destination": "0.0.0.0/0", "nexthop": "123.456.78.9"},
+                  {"destination": "192.168.0.0/24", "nexthop": "192.168.0.1"},
               ]
 
         :param string ipv6_ra_mode: IPv6 Router Advertisement mode. Valid
@@ -2536,30 +2449,19 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         :param allocation_pools: A list of dictionaries of the start and end
             addresses for the allocation pools. For example::
 
-              [
-                  {
-                      "start": "192.168.199.2",
-                      "end": "192.168.199.254"
-                  }
-              ]
+              [{"start": "192.168.199.2", "end": "192.168.199.254"}]
 
         :param dns_nameservers: A list of DNS name servers for the subnet. For
             example::
 
-              [ "8.8.8.7", "8.8.8.8" ]
+              ["8.8.8.7", "8.8.8.8"]
 
         :param host_routes: A list of host route dictionaries for the subnet.
             For example::
 
               [
-                  {
-                      "destination": "0.0.0.0/0",
-                      "nexthop": "123.456.78.9"
-                  },
-                  {
-                      "destination": "192.168.0.0/24",
-                      "nexthop": "192.168.0.1"
-                  }
+                  {"destination": "0.0.0.0/0", "nexthop": "123.456.78.9"},
+                  {"destination": "192.168.0.0/24", "nexthop": "192.168.0.1"},
               ]
 
         :returns: The updated network ``Subnet`` object.
@@ -2636,8 +2538,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
               [
                   {
                       "ip_address": "10.29.29.13",
-                      "subnet_id": "a78484c4-c380-4b47-85aa-21c51a2d8cbd"
-                  }, ...
+                      "subnet_id": "a78484c4-c380-4b47-85aa-21c51a2d8cbd",
+                  },
+                  ...,
               ]
 
         :param subnet_id: If you specify only a subnet ID, OpenStack Networking
@@ -2651,22 +2554,12 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         :param allowed_address_pairs: Allowed address pairs list (Optional)
             For example::
 
-              [
-                  {
-                      "ip_address": "23.23.23.1",
-                      "mac_address": "fa:16:3e:c4:cd:3f"
-                  }, ...
-              ]
+              [{"ip_address": "23.23.23.1", "mac_address": "fa:16:3e:c4:cd:3f"}, ...]
 
         :param extra_dhcp_opts: Extra DHCP options. (Optional).
             For example::
 
-              [
-                  {
-                      "opt_name": "opt name1",
-                      "opt_value": "value1"
-                  }, ...
-              ]
+              [{"opt_name": "opt name1", "opt_value": "value1"}, ...]
 
         :param device_owner: The ID of the entity that uses this port.
             For example, a DHCP agent.  (Optional)
@@ -2731,30 +2624,21 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
               [
                   {
                       "ip_address": "10.29.29.13",
-                      "subnet_id": "a78484c4-c380-4b47-85aa-21c51a2d8cbd"
-                  }, ...
+                      "subnet_id": "a78484c4-c380-4b47-85aa-21c51a2d8cbd",
+                  },
+                  ...,
               ]
 
         :param security_groups: List of security group UUIDs. (Optional)
         :param allowed_address_pairs: Allowed address pairs list (Optional)
             For example::
 
-              [
-                  {
-                      "ip_address": "23.23.23.1",
-                      "mac_address": "fa:16:3e:c4:cd:3f"
-                  }, ...
-              ]
+              [{"ip_address": "23.23.23.1", "mac_address": "fa:16:3e:c4:cd:3f"}, ...]
 
         :param extra_dhcp_opts: Extra DHCP options. (Optional).
             For example::
 
-              [
-                  {
-                      "opt_name": "opt name1",
-                      "opt_value": "value1"
-                  }, ...
-              ]
+              [{"opt_name": "opt name1", "opt_value": "value1"}, ...]
 
         :param device_owner: The ID of the entity that uses this port.
             For example, a DHCP agent.  (Optional)

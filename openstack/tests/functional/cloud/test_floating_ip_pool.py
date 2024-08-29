@@ -32,7 +32,6 @@ from openstack.tests.functional import base
 
 
 class TestFloatingIPPool(base.BaseFunctionalTest):
-
     def test_list_floating_ip_pools(self):
         pools = self.user_cloud.list_floating_ip_pools()
         if not pools:

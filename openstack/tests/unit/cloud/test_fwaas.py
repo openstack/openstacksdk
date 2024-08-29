@@ -94,7 +94,7 @@ class TestFirewallRule(FirewallTestCase):
         self.assertRaises(
             exceptions.BadRequestException,
             self.cloud.create_firewall_rule,
-            **bad_rule
+            **bad_rule,
         )
         self.assert_calls()
 
@@ -146,7 +146,7 @@ class TestFirewallRule(FirewallTestCase):
                     uri=self._make_mock_url(
                         'firewall_rules',
                         name=self.firewall_rule_name,
-                        **filters
+                        **filters,
                     ),
                     json={'firewall_rules': [self.mock_firewall_rule]},
                 ),
@@ -446,7 +446,7 @@ class TestFirewallPolicy(FirewallTestCase):
             self.assertRaises(
                 exceptions.NotFoundException,
                 self.cloud.create_firewall_policy,
-                **posted_policy
+                **posted_policy,
             )
             self.cloud.network.create_firewall_policy.assert_not_called()
             self.assert_calls()

@@ -79,7 +79,7 @@ class ShareAccessRule(resource.Resource):
             session,
             resource_request_key='allow_access',
             resource_response_key='access',
-            **kwargs
+            **kwargs,
         )
 
     def delete(

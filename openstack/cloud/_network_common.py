@@ -458,12 +458,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             A dictionary of meta data to use for further filtering. Elements
             of this dictionary may, themselves, be dictionaries. Example::
 
-                {
-                    'last_name': 'Smith',
-                    'other': {
-                        'gender': 'Female'
-                    }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
             A string containing a jmespath expression for further filtering.
@@ -1177,8 +1172,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             self.network.update_ip(floating_ip_id, port_id=None)
         except exceptions.SDKException:
             raise exceptions.SDKException(
-                "Error detaching IP {ip} from "
-                "server {server_id}".format(
+                "Error detaching IP {ip} from server {server_id}".format(
                     ip=floating_ip_id, server_id=server_id
                 )
             )
@@ -1647,8 +1641,9 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                         "floating_ip_address": "198.51.100.10",
                         "network": "this-is-a-net-or-pool-id",
                         "attached": True,
-                        "status": "ACTIVE"
-                    }, ...
+                        "status": "ACTIVE",
+                    },
+                    ...,
                 ]
 
         """
@@ -1769,12 +1764,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             A dictionary of meta data to use for further filtering. Elements
             of this dictionary may, themselves, be dictionaries. Example::
 
-                {
-                    'last_name': 'Smith',
-                    'other': {
-                        'gender': 'Female'
-                    }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
             A string containing a jmespath expression for further filtering.

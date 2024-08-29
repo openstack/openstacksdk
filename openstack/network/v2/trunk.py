@@ -37,7 +37,7 @@ class Trunk(resource.Resource, tag.TagMixin):
         'sub_ports',
         'project_id',
         is_admin_state_up='admin_state_up',
-        **tag.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters,
     )
 
     # Properties

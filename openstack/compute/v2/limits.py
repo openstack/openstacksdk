@@ -124,7 +124,7 @@ class Limits(resource.Resource):
         error_message=None,
         base_path=None,
         skip_cache=False,
-        **params
+        **params,
     ):
         """Get the Limits resource.
 
@@ -142,5 +142,5 @@ class Limits(resource.Resource):
             error_message=error_message,
             base_path=base_path,
             skip_cache=skip_cache,
-            **params
+            **params,
         )

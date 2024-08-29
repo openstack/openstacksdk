@@ -35,7 +35,7 @@ class Project(resource.Resource, tag.TagMixin):
         'name',
         'parent_id',
         is_enabled='enabled',
-        **tag.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters,
     )
 
     # Properties

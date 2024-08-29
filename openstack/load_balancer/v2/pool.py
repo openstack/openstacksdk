@@ -45,7 +45,7 @@ class Pool(resource.Resource, tag.TagMixin):
         'ca_tls_container_ref',
         'crl_container_ref',
         is_admin_state_up='admin_state_up',
-        **tag.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters,
     )
 
     #: Properties

@@ -19,7 +19,6 @@ from openstack import warnings as os_warnings
 
 
 class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
-
     # TODO(stephenfin): Remove 'cache' in a future major version
     def list_volumes(self, cache=True):
         """List all available volumes.
@@ -59,12 +58,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
             further filtering. Elements of this dictionary may, themselves, be
             dictionaries. Example::
 
-                {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
 
@@ -94,12 +88,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
             further filtering. Elements of this dictionary may, themselves, be
             dictionaries. Example::
 
-                {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
 
@@ -467,12 +456,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
             further filtering. Elements of this dictionary may, themselves, be
             dictionaries. Example::
 
-                {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
 
@@ -542,12 +526,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
             further filtering. Elements of this dictionary may, themselves, be
             dictionaries. Example::
 
-                {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
 
@@ -570,7 +549,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
                 {
                     'name': 'my-volume-snapshot',
                     'volume_id': 'e126044c-7b4c-43be-a32a-c9cbbc9ddb56',
-                    'all_tenants': 1
+                    'all_tenants': 1,
                 }
 
         :returns: A list of volume ``Snapshot`` objects.
@@ -590,7 +569,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
                     'name': 'my-volume-backup',
                     'status': 'available',
                     'volume_id': 'e126044c-7b4c-43be-a32a-c9cbbc9ddb56',
-                    'all_tenants': 1
+                    'all_tenants': 1,
                 }
 
         :returns: A list of volume ``Backup`` objects.
@@ -671,12 +650,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
             further filtering. Elements of this dictionary may, themselves, be
             dictionaries. Example::
 
-                {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
 
@@ -698,12 +672,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
             further filtering. Elements of this dictionary may, themselves, be
             dictionaries. Example::
 
-                {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
 
@@ -725,12 +694,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
             further filtering. Elements of this dictionary may, themselves, be
             dictionaries. Example::
 
-                {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
 
@@ -758,12 +722,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
             further filtering. Elements of this dictionary may, themselves, be
             dictionaries. Example::
 
-                {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
 

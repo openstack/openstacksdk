@@ -86,7 +86,7 @@ class TestPortForwarding(base.BaseFunctionalTest):
         # Create Router
         sot = self.user_cloud.network.create_router(
             name=self.ROT_NAME,
-            **{"external_gateway_info": {"network_id": self.EXT_NET_ID}}
+            **{"external_gateway_info": {"network_id": self.EXT_NET_ID}},
         )
         assert isinstance(sot, router.Router)
         self.assertEqual(self.ROT_NAME, sot.name)

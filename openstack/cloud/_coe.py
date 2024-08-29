@@ -16,7 +16,6 @@ from openstack import exceptions
 
 
 class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
-
     def list_coe_clusters(self):
         """List COE (Container Orchestration Engine) cluster.
 
@@ -51,12 +50,7 @@ class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
             A dictionary of meta data to use for further filtering. Elements
             of this dictionary may, themselves, be dictionaries. Example::
 
-                {
-                    'last_name': 'Smith',
-                    'other': {
-                        'gender': 'Female'
-                    }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
             A string containing a jmespath expression for further filtering.
@@ -207,12 +201,7 @@ class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
             A dictionary of meta data to use for further filtering. Elements
             of this dictionary may, themselves, be dictionaries. Example::
 
-                {
-                    'last_name': 'Smith',
-                    'other': {
-                        'gender': 'Female'
-                    }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
             A string containing a jmespath expression for further filtering.

@@ -33,7 +33,7 @@ class OpenStackCloudCreateException(OpenStackCloudException):
                 resource=resource, resource_id=resource_id
             ),
             extra_data=extra_data,
-            **kwargs
+            **kwargs,
         )
         self.resource_id = resource_id
 

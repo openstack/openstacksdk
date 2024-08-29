@@ -1030,7 +1030,7 @@ class TestConfigArgparse(base.TestCase):
         cc = c.get_one(
             region_name='region2',
             argparse=None,
-            **base.USER_CONF['clouds']['_test_cloud_regions']
+            **base.USER_CONF['clouds']['_test_cloud_regions'],
         )
         # Not using assert_cloud_details because of cache settings which
         # are not present without the file

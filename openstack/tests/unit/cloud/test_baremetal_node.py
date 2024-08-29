@@ -1744,7 +1744,7 @@ class TestBaremetalNode(base.IronicTestCase):
             exceptions.SDKException,
             self.cloud.register_machine,
             nics,
-            **node_to_post
+            **node_to_post,
         )
         self.assert_calls()
 
@@ -1811,7 +1811,7 @@ class TestBaremetalNode(base.IronicTestCase):
             nics,
             timeout=0.001,
             lock_timeout=0.001,
-            **node_to_post
+            **node_to_post,
         )
         self.assert_calls()
 
@@ -1901,7 +1901,7 @@ class TestBaremetalNode(base.IronicTestCase):
             nics,
             wait=True,
             timeout=0.001,
-            **node_to_post
+            **node_to_post,
         )
         self.assert_calls()
 
@@ -1949,7 +1949,7 @@ class TestBaremetalNode(base.IronicTestCase):
             'no ports for you',
             self.cloud.register_machine,
             nics,
-            **node_to_post
+            **node_to_post,
         )
 
         self.assert_calls()
@@ -2015,7 +2015,7 @@ class TestBaremetalNode(base.IronicTestCase):
             'no ports for you',
             self.cloud.register_machine,
             nics,
-            **node_to_post
+            **node_to_post,
         )
 
         self.assert_calls()

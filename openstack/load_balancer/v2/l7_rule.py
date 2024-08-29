@@ -38,7 +38,7 @@ class L7Rule(resource.Resource, tag.TagMixin):
         'operating_status',
         is_admin_state_up='admin_state_up',
         l7_policy_id='l7policy_id',
-        **tag.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters,
     )
 
     #: Properties

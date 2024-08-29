@@ -14,7 +14,6 @@ from openstack.cloud import openstackcloud
 
 
 class SharedFileSystemCloudMixin(openstackcloud._OpenStackCloudMixin):
-
     def list_share_availability_zones(self):
         """List all availability zones for the Shared File Systems service.
 

@@ -37,7 +37,7 @@ class SecurityGroup(_base.NetworkResource, tag.TagMixin):
         'revision_number',
         'sort_dir',
         'sort_key',
-        **tag.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters,
     )
 
     # Properties

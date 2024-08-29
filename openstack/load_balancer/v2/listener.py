@@ -53,7 +53,7 @@ class Listener(resource.Resource, tag.TagMixin):
         is_hsts_include_subdomains='hsts_include_subdomains',
         is_hsts_preload='hsts_preload',
         is_admin_state_up='admin_state_up',
-        **tag.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters,
     )
 
     # Properties

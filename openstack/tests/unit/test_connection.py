@@ -87,9 +87,7 @@ VENDOR_CONFIG = """
     "vendor_hook": "openstack.tests.unit.test_connection:vendor_hook"
   }}
 }}
-""".format(
-    auth_url=CONFIG_AUTH_URL
-)
+""".format(auth_url=CONFIG_AUTH_URL)
 
 PUBLIC_CLOUDS_YAML = """
 public-clouds:
@@ -97,9 +95,7 @@ public-clouds:
     auth:
       auth_url: {auth_url}
     vendor_hook: openstack.tests.unit.test_connection:vendor_hook
-""".format(
-    auth_url=CONFIG_AUTH_URL
-)
+""".format(auth_url=CONFIG_AUTH_URL)
 
 
 class _TestConnectionBase(base.TestCase):

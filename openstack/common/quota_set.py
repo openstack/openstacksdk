@@ -55,14 +55,14 @@ class QuotaSet(resource.Resource):
         requires_id=False,
         base_path=None,
         error_message=None,
-        **params
+        **params,
     ):
         return super().fetch(
             session,
             requires_id=False,
             base_path=base_path,
             error_message=error_message,
-            **params
+            **params,
         )
 
     def _translate_response(self, response, has_body=None, error_message=None):

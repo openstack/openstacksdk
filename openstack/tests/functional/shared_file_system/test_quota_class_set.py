@@ -29,7 +29,7 @@ class QuotaClassSetTest(base.BaseSharedFileSystemTest):
                 project_id,
                 **{
                     "backups": initial_backups_value + 1,
-                }
+                },
             )
         )
         self.assertEqual(

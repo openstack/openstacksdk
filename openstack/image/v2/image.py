@@ -349,9 +349,9 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
 
         if remote_region and remote_image_id:
             if remote_service_interface:
-                data['method'][
-                    'glance_service_interface'
-                ] = remote_service_interface
+                data['method']['glance_service_interface'] = (
+                    remote_service_interface
+                )
                 data['method']['glance_region'] = remote_region
                 data['method']['glance_image_id'] = remote_image_id
 

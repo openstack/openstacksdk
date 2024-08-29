@@ -18,6 +18,7 @@ test_project
 
 Functional tests for project resource.
 """
+
 import pprint
 
 from openstack import exceptions

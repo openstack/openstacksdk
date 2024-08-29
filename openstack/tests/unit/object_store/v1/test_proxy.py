@@ -657,7 +657,7 @@ class TestTempURLUnicodePathAndKey(TestTempURL):
     url = '/v1/\u00e4/c/\u00f3'
     key = 'k\u00e9y'
     expected_url = (
-        '%s?temp_url_sig=temp_url_signature' '&temp_url_expires=1400003600'
+        '%s?temp_url_sig=temp_url_signature&temp_url_expires=1400003600'
     ) % url
     expected_body = '\n'.join(
         [
@@ -672,7 +672,7 @@ class TestTempURLUnicodePathBytesKey(TestTempURL):
     url = '/v1/\u00e4/c/\u00f3'
     key = 'k\u00e9y'.encode()
     expected_url = (
-        '%s?temp_url_sig=temp_url_signature' '&temp_url_expires=1400003600'
+        '%s?temp_url_sig=temp_url_signature&temp_url_expires=1400003600'
     ) % url
     expected_body = '\n'.join(
         [

@@ -218,8 +218,9 @@ def from_conf(conf, session=None, service_types=None, **kwargs):
                 )
             )
             _logger.warning(
-                "Disabling service '{service_type}': "
-                "{reason}".format(service_type=st, reason=reason)
+                "Disabling service '{service_type}': {reason}".format(
+                    service_type=st, reason=reason
+                )
             )
             _disable_service(config_dict, st, reason=reason)
             continue

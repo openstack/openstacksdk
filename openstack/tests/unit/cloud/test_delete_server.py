@@ -16,6 +16,7 @@ test_delete_server
 
 Tests for the `delete_server` command.
 """
+
 import uuid
 
 from openstack import exceptions

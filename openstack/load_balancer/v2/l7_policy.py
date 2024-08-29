@@ -38,7 +38,7 @@ class L7Policy(resource.Resource, tag.TagMixin):
         'redirect_prefix',
         'project_id',
         is_admin_state_up='admin_state_up',
-        **tag.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters,
     )
 
     #: Properties

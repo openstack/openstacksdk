@@ -302,6 +302,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
         .. code-block:: python
 
             from oslo_context import context
+
             cloud = openstack.connect(cloud='example')
             # Work normally
             servers = cloud.list_servers()
@@ -314,6 +315,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
         .. code-block:: python
 
             from oslo_context import context
+
             c = openstack.connect(cloud='example')
             # Work normally
             servers = c.list_servers()

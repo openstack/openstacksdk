@@ -44,7 +44,7 @@ class Subnet(_base.NetworkResource, tag.TagMixin):
         is_dhcp_enabled='enable_dhcp',
         subnet_pool_id='subnetpool_id',
         use_default_subnet_pool='use_default_subnetpool',
-        **tag.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters,
     )
 
     # Properties

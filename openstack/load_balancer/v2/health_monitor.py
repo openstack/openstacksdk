@@ -42,7 +42,7 @@ class HealthMonitor(resource.Resource, tag.TagMixin):
         'type',
         'url_path',
         is_admin_state_up='admin_state_up',
-        **tag.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters,
     )
 
     #: Properties

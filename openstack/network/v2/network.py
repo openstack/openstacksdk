@@ -43,7 +43,7 @@ class Network(_base.NetworkResource, tag.TagMixin):
         provider_network_type='provider:network_type',
         provider_physical_network='provider:physical_network',
         provider_segmentation_id='provider:segmentation_id',
-        **tag.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters,
     )
 
     # Properties

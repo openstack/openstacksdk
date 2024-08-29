@@ -17,7 +17,6 @@ from openstack import resource
 
 
 class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
-
     def list_zones(self, filters=None):
         """List all available zones.
 

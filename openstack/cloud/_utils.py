@@ -47,12 +47,7 @@ def _filter_list(data, name_or_id, filters):
     :param filters: A dictionary of meta data to use for further filtering.
         Elements of this dictionary may, themselves, be dictionaries. Example::
 
-            {
-                'last_name': 'Smith',
-                'other': {
-                    'gender': 'Female'
-                }
-            }
+            {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
         OR
 

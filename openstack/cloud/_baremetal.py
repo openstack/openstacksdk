@@ -42,7 +42,6 @@ def _normalize_port_list(nics):
 
 
 class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
-
     def list_nics(self):
         """Return a list of all bare metal ports."""
         return list(self.baremetal.ports(details=True))
@@ -187,7 +186,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         timeout=3600,
         lock_timeout=600,
         provision_state='available',
-        **kwargs
+        **kwargs,
     ):
         """Register Baremetal with Ironic
 
@@ -208,10 +207,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
 
             Example::
 
-                [
-                    {'address': 'aa:bb:cc:dd:ee:01'},
-                    {'address': 'aa:bb:cc:dd:ee:02'}
-                ]
+                [{'address': 'aa:bb:cc:dd:ee:01'}, {'address': 'aa:bb:cc:dd:ee:02'}]
 
             Alternatively, you can provide an array of MAC addresses.
         :param wait: Boolean value, defaulting to false, to wait for the node
@@ -352,21 +348,16 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
 
             Example patch construction::
 
-                patch=[]
-                patch.append({
-                    'op': 'remove',
-                    'path': '/instance_info'
-                })
-                patch.append({
-                    'op': 'replace',
-                    'path': '/name',
-                    'value': 'newname'
-                })
-                patch.append({
-                    'op': 'add',
-                    'path': '/driver_info/username',
-                    'value': 'administrator'
-                })
+                patch = []
+                patch.append({'op': 'remove', 'path': '/instance_info'})
+                patch.append({'op': 'replace', 'path': '/name', 'value': 'newname'})
+                patch.append(
+                    {
+                        'op': 'add',
+                        'path': '/driver_info/username',
+                        'value': 'administrator',
+                    }
+                )
 
         :returns: Current state of the node.
         :rtype: :class:`~openstack.baremetal.v1.node.Node`.

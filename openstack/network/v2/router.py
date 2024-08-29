@@ -40,7 +40,7 @@ class Router(_base.NetworkResource, tag.TagMixin):
         is_admin_state_up='admin_state_up',
         is_distributed='distributed',
         is_ha='ha',
-        **tag.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters,
     )
 
     # Properties

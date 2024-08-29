@@ -635,12 +635,12 @@ class Proxy(proxy.Proxy):
                 stack_id=obj.id,
                 resource_name=resource_name,
                 base_path=base_path,
-                **attr
+                **attr,
             )
 
         return self._list(
             _stack_event.StackEvent,
             stack_name=obj.name,
             stack_id=obj.id,
-            **attr
+            **attr,
         )

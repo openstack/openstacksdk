@@ -73,7 +73,7 @@ class Deployable(resource.Resource):
             json=request.body,
             headers=request.headers,
             microversion=microversion,
-            **kwargs
+            **kwargs,
         )
         self.microversion = microversion
         self._translate_response(response, has_body=has_body)

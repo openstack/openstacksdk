@@ -109,7 +109,7 @@ class TestMetadefProperty(base.BaseImageTest):
         metadef_property = self.conn.image.update_metadef_property(
             self.metadef_property,
             self.metadef_namespace.namespace,
-            **self.attrs
+            **self.attrs,
         )
         self.assertIsNotNone(metadef_property)
         self.assertIsInstance(

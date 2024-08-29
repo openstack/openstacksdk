@@ -61,5 +61,5 @@ def assert_no_deprecated_exceptions(logical_line, filename):
         'OpenStackCloudURINotFound',
         'OpenStackCloudResourceNotFound',
     ):
-        if re.search(fr'\b{exception}\b', logical_line):
+        if re.search(rf'\b{exception}\b', logical_line):
             yield (0, 'O310: Use of deprecated Exception class')

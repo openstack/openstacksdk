@@ -43,7 +43,7 @@ class SecurityGroupRule(_base.NetworkResource, tag.TagMixin):
         'sort_dir',
         'sort_key',
         ether_type='ethertype',
-        **tag.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters,
     )
 
     # Properties

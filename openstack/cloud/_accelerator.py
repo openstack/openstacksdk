@@ -14,7 +14,6 @@ from openstack.cloud import openstackcloud
 
 
 class AcceleratorCloudMixin(openstackcloud._OpenStackCloudMixin):
-
     def list_deployables(self, filters=None):
         """List all available deployables.
 

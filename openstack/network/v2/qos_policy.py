@@ -36,7 +36,7 @@ class QoSPolicy(resource.Resource, tag.TagMixin):
         'sort_key',
         'sort_dir',
         is_shared='shared',
-        **tag.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters,
     )
 
     # Properties

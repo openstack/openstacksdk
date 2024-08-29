@@ -20,7 +20,6 @@ from openstack import warnings as os_warnings
 
 
 class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
-
     def _get_project_id_param_dict(self, name_or_id):
         if name_or_id:
             project = self.get_project(name_or_id)
@@ -73,12 +72,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
 
@@ -114,12 +108,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
 
@@ -141,12 +130,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             further filtering. Elements of this dictionary may, themselves, be
             dictionaries. Example::
 
-                {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
 
@@ -264,12 +248,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
 
@@ -304,12 +283,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             further filtering. Elements of this dictionary may, themselves, be
             dictionaries. Example::
 
-                {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
 
@@ -506,12 +480,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
 
@@ -675,12 +644,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
 
@@ -837,12 +801,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
 
@@ -875,12 +834,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             further filtering. Elements of this dictionary may, themselves, be
             dictionaries. Example::
 
-                {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
 
@@ -919,12 +873,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
 
@@ -1055,12 +1004,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
 

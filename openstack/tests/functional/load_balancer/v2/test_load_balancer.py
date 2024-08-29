@@ -90,7 +90,7 @@ class TestLoadBalancer(base.BaseFunctionalTest):
                 'listener': 100,
                 'health_monitor': 100,
                 'member': 100,
-            }
+            },
         )
         assert isinstance(test_quota, quota.Quota)
         self.assertEqual(self.PROJECT_ID, test_quota.id)

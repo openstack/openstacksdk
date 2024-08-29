@@ -40,7 +40,7 @@ class Member(resource.Resource, tag.TagMixin):
         'monitor_port',
         'backup',
         is_admin_state_up='admin_state_up',
-        **tag.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters,
     )
 
     # Properties

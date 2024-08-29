@@ -69,7 +69,6 @@ def _pop_or_get(resource, key, default, strict):
 
 
 class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
-
     @property
     def _compute_region(self):
         # This is only used in exception messages. Can we get rid of it?
@@ -398,12 +397,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                'last_name': 'Smith',
-                'other': {
-                'gender': 'Female'
-                }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
             A string containing a jmespath expression for further filtering.
@@ -421,12 +415,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             Elements of this dictionary may, themselves, be dictionaries.
             Example::
 
-                {
-                    'last_name': 'Smith',
-                    'other': {
-                        'gender': 'Female'
-                    }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
             A string containing a jmespath expression for further filtering.
@@ -505,12 +494,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             A dictionary of meta data to use for further filtering. Elements
             of this dictionary may, themselves, be dictionaries. Example::
 
-                {
-                    'last_name': 'Smith',
-                    'other': {
-                        'gender': 'Female'
-                    }
-                }
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
             A string containing a jmespath expression for further filtering.
@@ -1640,9 +1624,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
                 {
                     'availability_zone': 'nova',
-                    'metadata': {
-                        'cpu_allocation_ratio': '1.0'
-                    }
+                    'metadata': {'cpu_allocation_ratio': '1.0'},
                 }
 
         :returns: An aggregate dict or None if no matching aggregate is

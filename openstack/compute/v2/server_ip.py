@@ -39,7 +39,7 @@ class ServerIP(resource.Resource):
         server_id=None,
         network_label=None,
         base_path=None,
-        **params
+        **params,
     ):
         if base_path is None:
             base_path = cls.base_path

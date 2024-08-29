@@ -30,7 +30,7 @@ class TestFromConf(base.TestCase):
             oslocfg,
             session=self.cloud.session,
             name='from_conf.example.com',
-            **from_conf_kwargs
+            **from_conf_kwargs,
         )
         self.assertEqual('from_conf.example.com', config.name)
 

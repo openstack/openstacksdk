@@ -17,7 +17,6 @@ from openstack.orchestration.util import event_utils
 
 
 class OrchestrationCloudMixin(openstackcloud._OpenStackCloudMixin):
-
     def get_template_contents(
         self,
         template_file=None,
@@ -44,7 +43,7 @@ class OrchestrationCloudMixin(openstackcloud._OpenStackCloudMixin):
         wait=False,
         timeout=3600,
         environment_files=None,
-        **parameters
+        **parameters,
     ):
         """Create a stack.
 
@@ -101,7 +100,7 @@ class OrchestrationCloudMixin(openstackcloud._OpenStackCloudMixin):
         wait=False,
         timeout=3600,
         environment_files=None,
-        **parameters
+        **parameters,
     ):
         """Update a stack.
 

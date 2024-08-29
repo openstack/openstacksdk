@@ -16,6 +16,7 @@ test_keypairs
 
 Functional tests for keypairs methods
 """
+
 from openstack.tests import fakes
 from openstack.tests.functional import base
 

@@ -98,7 +98,7 @@ class TestType(base.TestCase):
             exceptions.BadRequestException,
             sot.set_extra_specs,
             sess,
-            **set_specs
+            **set_specs,
         )
 
     def test_delete_extra_specs(self):

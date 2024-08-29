@@ -24,7 +24,7 @@ def get_cloud_region(
     app_version=None,
     load_yaml_config=True,
     load_envvars=True,
-    **kwargs
+    **kwargs,
 ):
     config = OpenStackConfig(
         load_yaml_config=load_yaml_config,

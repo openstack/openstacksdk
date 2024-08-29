@@ -26,7 +26,6 @@ OBJECT_CONTAINER_ACLS = {
 
 
 class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
-
     # TODO(stephenfin): Remove 'full_listing' as it's a noop
     def list_containers(self, full_listing=True, prefix=None):
         """List containers.
