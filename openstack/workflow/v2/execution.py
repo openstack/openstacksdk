@@ -58,7 +58,13 @@ class Execution(resource.Resource):
     #: The time at which the Execution was updated
     updated_at = resource.Body("updated_at")
 
-    def create(self, session, prepend_key=True, base_path=None):
+    def create(
+        self,
+        session,
+        prepend_key=True,
+        base_path=None,
+        **kwargs,
+    ):
         request = self._prepare_request(
             requires_id=False, prepend_key=prepend_key, base_path=base_path
         )

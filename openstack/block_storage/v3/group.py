@@ -60,7 +60,7 @@ class Group(resource.Resource):
         exceptions.raise_from_response(response)
         return response
 
-    def delete(self, session, *, delete_volumes=False):
+    def delete(self, session, *args, delete_volumes=False, **kwargs):
         """Delete a group."""
         body = {'delete': {'delete-volumes': delete_volumes}}
         self._action(session, body)

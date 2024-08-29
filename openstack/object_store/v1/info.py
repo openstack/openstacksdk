@@ -12,7 +12,7 @@
 # under the License.
 
 import re
-import urllib
+import urllib.parse
 
 from openstack import exceptions
 from openstack import resource
@@ -58,8 +58,9 @@ class Info(resource.Resource):
         session,
         requires_id=False,
         base_path=None,
-        skip_cache=False,
         error_message=None,
+        skip_cache=False,
+        **kwargs,
     ):
         """Get a remote resource based on this instance.
 

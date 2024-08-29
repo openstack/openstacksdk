@@ -35,7 +35,13 @@ class User(resource.Resource):
     password = resource.Body('password')
 
     def _prepare_request(
-        self, requires_id=True, prepend_key=True, base_path=None, **kwargs
+        self,
+        requires_id=True,
+        prepend_key=True,
+        patch=False,
+        base_path=None,
+        *args,
+        **kwargs,
     ):
         """Prepare a request for the database service's create call
 

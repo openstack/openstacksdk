@@ -51,7 +51,7 @@ class ZoneExport(_base.Resource):
     #: ID for the zone that was created by this export
     zone_id = resource.Body('zone_id')
 
-    def create(self, session, prepend_key=True, base_path=None):
+    def create(self, session, prepend_key=True, base_path=None, **kwargs):
         """Create a remote resource based on this instance.
 
         :param session: The session to use for making this request.

@@ -40,8 +40,8 @@ class BaseResource(resource.Resource):
                 else:
                     self.metadata[k] = v
 
-    def _prepare_request(self, **kwargs):
-        request = super()._prepare_request(**kwargs)
+    def _prepare_request(self, *args, **kwargs):
+        request = super()._prepare_request(*args, **kwargs)
         request.headers.update(self._calculate_headers(self.metadata))
         return request
 
@@ -91,7 +91,14 @@ class BaseResource(resource.Resource):
                 key = header[len(self._custom_metadata_prefix) :].lower()
                 self.metadata[key] = headers[header]
 
-    def _translate_response(self, response, has_body=None, error_message=None):
+    def _translate_response(
+        self,
+        response,
+        has_body=None,
+        error_message=None,
+        *,
+        resource_response_key=None,
+    ):
         # Save headers of the last operation for potential use (get_object of
         # cloud layer).
         # This must happen before invoking parent _translate_response, cause it

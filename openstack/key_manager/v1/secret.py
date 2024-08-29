@@ -91,6 +91,7 @@ class Secret(resource.Resource):
         base_path=None,
         error_message=None,
         skip_cache=False,
+        **kwargs,
     ):
         request = self._prepare_request(
             requires_id=requires_id, base_path=base_path

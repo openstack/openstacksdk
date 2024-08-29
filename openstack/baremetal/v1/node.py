@@ -1465,6 +1465,8 @@ class Node(_common.Resource):
         has_body=True,
         retry_on_conflict=None,
         base_path=None,
+        *,
+        microversion=None,
         reset_interfaces=None,
     ):
         if reset_interfaces is not None:

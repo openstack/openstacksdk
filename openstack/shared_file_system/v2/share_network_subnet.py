@@ -55,7 +55,13 @@ class ShareNetworkSubnet(resource.Resource):
     #: Date and time the share network subnet was last updated at.
     updated_at = resource.Body("updated_at", type=str)
 
-    def create(self, session, **kwargs):
+    def create(
+        self,
+        session,
+        *args,
+        resource_request_key='share-network-subnet',
+        **kwargs,
+    ):
         return super().create(
-            session, resource_request_key='share-network-subnet', **kwargs
+            session, resource_request_key=resource_request_key, *args, **kwargs
         )

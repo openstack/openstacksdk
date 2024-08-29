@@ -52,7 +52,7 @@ class TagMixin:
             self._body.attributes.update({'tags': json['tags']})
         return self
 
-    def set_tags(self, session, tags=[]):
+    def set_tags(self, session, tags):
         """Sets/Replaces all tags on the resource.
 
         :param session: The session to use for making this request.

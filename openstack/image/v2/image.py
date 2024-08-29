@@ -383,6 +383,7 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
         prepend_key=False,
         patch=False,
         base_path=None,
+        params=None,
         **kwargs,
     ):
         request = super()._prepare_request(
@@ -390,6 +391,8 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
             prepend_key=prepend_key,
             patch=patch,
             base_path=base_path,
+            params=params,
+            **kwargs,
         )
         if patch:
             headers = {

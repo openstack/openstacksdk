@@ -71,5 +71,11 @@ class CronTrigger(resource.Resource):
     #: The time at which the cron trigger was created
     updated_at = resource.Body("updated_at")
 
-    def create(self, session, base_path=None):
-        return super().create(session, prepend_key=False, base_path=base_path)
+    def create(
+        self,
+        session,
+        prepend_key=False,
+        *args,
+        **kwargs,
+    ):
+        return super().create(session, prepend_key, *args, **kwargs)

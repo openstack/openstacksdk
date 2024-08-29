@@ -55,17 +55,31 @@ class QuotaSet(resource.Resource):
         requires_id=False,
         base_path=None,
         error_message=None,
+        skip_cache=False,
+        *,
+        resource_response_key=None,
+        microversion=None,
         **params,
     ):
         return super().fetch(
             session,
-            requires_id=False,
-            base_path=base_path,
-            error_message=error_message,
+            requires_id,
+            base_path,
+            error_message,
+            skip_cache,
+            resource_response_key=resource_response_key,
+            microversion=microversion,
             **params,
         )
 
-    def _translate_response(self, response, has_body=None, error_message=None):
+    def _translate_response(
+        self,
+        response,
+        has_body=None,
+        error_message=None,
+        *,
+        resource_response_key=None,
+    ):
         """Given a KSA response, inflate this instance with its data
 
         DELETE operations don't return a body, so only try to work
@@ -127,7 +141,13 @@ class QuotaSet(resource.Resource):
         self._update_location()
         dict.update(self, self.to_dict())
 
-    def _prepare_request_body(self, patch, prepend_key):
+    def _prepare_request_body(
+        self,
+        patch,
+        prepend_key,
+        *,
+        resource_request_key=None,
+    ):
         body = self._body.dirty
         # Ensure we never try to send meta props reservation and usage
         body.pop('reservation', None)

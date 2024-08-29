@@ -45,7 +45,7 @@ class SoftwareConfig(resource.Resource):
     #: produces.
     outputs = resource.Body('outputs')
 
-    def create(self, session, base_path=None):
+    def create(self, session, prepend_key=False, *args, **kwargs):
         # This overrides the default behavior of resource creation because
         # heat doesn't accept resource_key in its request.
-        return super().create(session, prepend_key=False, base_path=base_path)
+        return super().create(session, prepend_key, *args, **kwargs)

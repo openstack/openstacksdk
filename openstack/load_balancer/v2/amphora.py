@@ -111,10 +111,12 @@ class AmphoraConfig(resource.Resource):
     #: The ID of the amphora.
     amphora_id = resource.URI('amphora_id')
 
-    # The default _update code path also has no
-    # way to pass has_body into this function, so overriding the method here.
-    def commit(self, session, base_path=None):
-        return super().commit(session, base_path=base_path, has_body=False)
+    # The default _update code path also has no way to pass has_body into this
+    # function, so overriding the method here.
+    def commit(
+        self, session, prepend_key=True, has_body=False, *args, **kwargs
+    ):
+        return super().commit(session, prepend_key, has_body, *args, *kwargs)
 
 
 class AmphoraFailover(resource.Resource):
@@ -134,7 +136,9 @@ class AmphoraFailover(resource.Resource):
     #: The ID of the amphora.
     amphora_id = resource.URI('amphora_id')
 
-    # The default _update code path also has no
-    # way to pass has_body into this function, so overriding the method here.
-    def commit(self, session, base_path=None):
-        return super().commit(session, base_path=base_path, has_body=False)
+    # The default _update code path also has no way to pass has_body into this
+    # function, so overriding the method here.
+    def commit(
+        self, session, prepend_key=True, has_body=False, *args, **kwargs
+    ):
+        return super().commit(session, prepend_key, has_body, *args, *kwargs)

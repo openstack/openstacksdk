@@ -55,13 +55,25 @@ class Claim(resource.Resource):
     #: authentication is not enabled in Zaqar service.
     project_id = resource.Header("X-PROJECT-ID")
 
-    def _translate_response(self, response, has_body=True):
-        super()._translate_response(response, has_body=has_body)
+    def _translate_response(
+        self,
+        response,
+        has_body=None,
+        error_message=None,
+        *,
+        resource_response_key=None,
+    ):
+        super()._translate_response(
+            response,
+            has_body,
+            error_message,
+            resource_response_key=resource_response_key,
+        )
         if has_body and self.location:
             # Extract claim ID from location
             self.id = self.location.split("claims/")[1]
 
-    def create(self, session, prepend_key=False, base_path=None):
+    def create(self, session, prepend_key=False, base_path=None, **kwargs):
         request = self._prepare_request(
             requires_id=False, prepend_key=prepend_key, base_path=base_path
         )
@@ -89,6 +101,7 @@ class Claim(resource.Resource):
         base_path=None,
         error_message=None,
         skip_cache=False,
+        **kwargs,
     ):
         request = self._prepare_request(
             requires_id=requires_id, base_path=base_path
@@ -107,7 +120,13 @@ class Claim(resource.Resource):
         return self
 
     def commit(
-        self, session, prepend_key=False, has_body=False, base_path=None
+        self,
+        session,
+        prepend_key=True,
+        has_body=True,
+        retry_on_conflict=None,
+        base_path=None,
+        **kwargs,
     ):
         request = self._prepare_request(
             prepend_key=prepend_key, base_path=base_path
@@ -122,7 +141,7 @@ class Claim(resource.Resource):
 
         return self
 
-    def delete(self, session):
+    def delete(self, session, *args, **kwargs):
         request = self._prepare_request()
         headers = {
             "Client-ID": self.client_id or str(uuid.uuid4()),

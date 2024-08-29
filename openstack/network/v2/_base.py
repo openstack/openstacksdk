@@ -25,6 +25,7 @@ class NetworkResource(resource.Resource):
         patch=False,
         base_path=None,
         params=None,
+        *,
         if_revision=None,
         **kwargs,
     ):

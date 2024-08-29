@@ -73,9 +73,10 @@ class ShareAccessRule(resource.Resource):
             url, json=body, headers=headers, microversion=microversion
         )
 
-    def create(self, session, **kwargs):
+    def create(self, session, *args, **kwargs):
         return super().create(
             session,
+            *args,
             resource_request_key='allow_access',
             resource_response_key='access',
             **kwargs,

@@ -54,7 +54,9 @@ class Cache(resource.Resource):
         exceptions.raise_from_response(response)
         return response
 
-    def clear(self, session, target='both'):
+    # FIXME(stephenfin): This needs to be renamed as it conflicts with
+    # dict.clear
+    def clear(self, session, target='both'):  # type: ignore[override]
         """Clears the cache.
         :param session: The session to use for making this request
         :param target: Specify which target you want to clear
