@@ -52,7 +52,7 @@ class Proxy(proxy.Proxy):
         if (
             url_parts[0] == 'stacks'
             and len(url_parts) > 2
-            and not url_parts[2] in ['preview', 'resources']
+            and url_parts[2] not in ['preview', 'resources']
         ):
             # orchestrate introduce having stack name and id part of the URL
             # (/stacks/name/id/everything_else), so if on third position we

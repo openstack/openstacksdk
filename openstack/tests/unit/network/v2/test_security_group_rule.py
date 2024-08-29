@@ -29,7 +29,6 @@ EXAMPLE = {
     'revision_number': 9,
     'security_group_id': '10',
     'project_id': '11',
-    'project_id': '11',
     'updated_at': '12',
     'remote_address_group_id': '13',
 }

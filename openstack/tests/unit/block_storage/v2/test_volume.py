@@ -55,7 +55,6 @@ VOLUME = {
     "os-volume-replication:extended_status": "really nah",
     "consistencygroup_id": "123asf-asdf123",
     "os-volume-replication:driver_data": "ahasadfasdfasdfasdfsdf",
-    "snapshot_id": "93c2e2aa-7744-4fd6-a31a-80c4726b08d7",
     "encrypted": "false",
     "OS-SCH-HNT:scheduler_hints": {
         "same_host": [

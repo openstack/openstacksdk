@@ -351,8 +351,6 @@ def make_fake_hypervisor(id, name):
                     "topology": {"cores": 1, "threads": 1, "sockets": 4},
                 },
                 "current_workload": 0,
-                "status": "enabled",
-                "state": "up",
                 "disk_available_least": 0,
                 "host_ip": "1.1.1.1",
                 "free_disk_gb": 1028,

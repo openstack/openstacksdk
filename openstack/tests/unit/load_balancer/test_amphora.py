@@ -115,7 +115,6 @@ class TestAmphora(base.TestCase):
                 'created_at': 'created_at',
                 'updated_at': 'updated_at',
                 'image_id': 'image_id',
-                'image_id': 'image_id',
             },
             test_amphora._query_mapping._mapping,
         )

@@ -57,7 +57,6 @@ EXAMPLE = {
     'revision_number': 3,
     'security_group_rules': RULES,
     'project_id': '4',
-    'project_id': '4',
     'updated_at': '2016-10-14T12:16:57.233772',
     'tags': ['5'],
 }

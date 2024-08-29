@@ -46,7 +46,6 @@ class TestShareNetwork(base.TestCase):
                 "created_before": "created_before",
                 "offset": "offset",
                 "security_service_id": "security_service_id",
-                "project_id": "project_id",
                 "all_projects": "all_tenants",
                 "name": "name",
                 "description": "description",
