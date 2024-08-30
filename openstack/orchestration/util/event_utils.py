@@ -106,11 +106,12 @@ def poll_for_events(
         if no_event_polls >= 2:
             # after 2 polls with no events, fall back to a stack get
             stack = cloud.get_stack(stack_name, resolve_outputs=False)
-            stack_status = stack['stack_status']
-            msg = msg_template % dict(name=stack_name, status=stack_status)
-            if stop_check(stack_status):
-                return stack_status, msg
-            # go back to event polling again
-            no_event_polls = 0
+            if stack:
+                stack_status = stack['stack_status']
+                msg = msg_template % dict(name=stack_name, status=stack_status)
+                if stop_check(stack_status):
+                    return stack_status, msg
+                # go back to event polling again
+                no_event_polls = 0
 
         time.sleep(poll_period)
