@@ -10,6 +10,7 @@ DNS Resources
    v2/zone_import
    v2/zone_share
    v2/floating_ip
+   v2/tld
    v2/recordset
    v2/limit
    v2/service_status

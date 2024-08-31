@@ -15,6 +15,7 @@ from openstack.dns.v2 import blacklist
 from openstack.dns.v2 import floating_ip
 from openstack.dns.v2 import recordset
 from openstack.dns.v2 import service_status
+from openstack.dns.v2 import tld
 from openstack.dns.v2 import tsigkey
 from openstack.dns.v2 import zone
 from openstack.dns.v2 import zone_export
@@ -393,3 +394,33 @@ class TestDnsBlacklist(TestDnsProxy):
 
     def test_blacklists(self):
         self.verify_list(self.proxy.blacklists, blacklist.Blacklist)
+
+
+class TestDnsTLD(TestDnsProxy):
+    def test_tld_create(self):
+        self.verify_create(
+            self.proxy.create_tld,
+            tld.TLD,
+            method_kwargs={"name": "id"},
+            expected_kwargs={"name": "id", "prepend_key": False},
+        )
+
+    def test_tld_delete(self):
+        self.verify_delete(
+            self.proxy.delete_tld,
+            tld.TLD,
+            True,
+            expected_kwargs={"ignore_missing": True},
+        )
+
+    def test_tld_find(self):
+        self.verify_find(self.proxy.find_tld, tld.TLD)
+
+    def test_tld_get(self):
+        self.verify_get(self.proxy.get_tld, tld.TLD)
+
+    def test_tlds(self):
+        self.verify_list(self.proxy.tlds, tld.TLD)
+
+    def test_tld_update(self):
+        self.verify_update(self.proxy.update_tld, tld.TLD)
