@@ -68,3 +68,10 @@ Zone Share Operations
   :noindex:
   :members: create_zone_share, delete_zone_share, get_zone_share,
             find_zone_share, zone_shares
+
+Service Status Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.dns.v2._proxy.Proxy
+  :noindex:
+  :members: service_statuses, get_service_status
