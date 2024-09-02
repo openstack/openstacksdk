@@ -161,5 +161,8 @@ class Port(_base.NetworkResource, tag.TagMixin):
     #: sub_ports is a list of dicts with keys:
     #: port_id, segmentation_type, segmentation_id, mac_address*
     trunk_details = resource.Body('trunk_details', type=dict)
+    #: Status of the trusted VIF setting, this value is added to the
+    #: binding:profile field and passed to services which needs, it, like Nova
+    trusted = resource.Body('trusted', type=bool)
     #: Timestamp when the port was last updated.
     updated_at = resource.Body('updated_at')

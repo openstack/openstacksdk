@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``trusted`` attribute to ``port`` resourse. Users can use this
+    attribute to set port to be trusted what will be then populated into
+    the ``binding:profile`` dictionary.

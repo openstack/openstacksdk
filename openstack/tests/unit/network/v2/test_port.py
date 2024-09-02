@@ -67,6 +67,7 @@ EXAMPLE = {
             }
         ],
     },
+    'trusted': True,
     'updated_at': '2016-07-09T12:14:57.233772',
 }
 
@@ -165,4 +166,5 @@ class TestPort(base.TestCase):
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['trunk_details'], sot.trunk_details)
+        self.assertEqual(EXAMPLE['trusted'], sot.trusted)
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
