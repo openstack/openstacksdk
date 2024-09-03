@@ -13,5 +13,6 @@ DNS Resources
    v2/tld
    v2/recordset
    v2/limit
+   v2/quota
    v2/service_status
    v2/blacklist

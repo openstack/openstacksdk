@@ -13,6 +13,7 @@
 from openstack.dns.v2 import _proxy
 from openstack.dns.v2 import blacklist
 from openstack.dns.v2 import floating_ip
+from openstack.dns.v2 import quota
 from openstack.dns.v2 import recordset
 from openstack.dns.v2 import service_status
 from openstack.dns.v2 import tld
@@ -424,3 +425,30 @@ class TestDnsTLD(TestDnsProxy):
 
     def test_tld_update(self):
         self.verify_update(self.proxy.update_tld, tld.TLD)
+
+
+class TestDnsQuota(TestDnsProxy):
+    def test_quotas(self):
+        self.verify_list(self.proxy.quotas, quota.Quota)
+
+    def test_quota_get(self):
+        self.verify_get(self.proxy.get_quota, quota.Quota)
+
+    def test_quota_update(self):
+        self.verify_update(self.proxy.update_quota, quota.Quota)
+
+    def test_quota_delete(self):
+        self.verify_delete(
+            self.proxy.delete_quota,
+            quota.Quota,
+            False,
+            expected_kwargs={'ignore_missing': False},
+        )
+
+    def test_quota_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_quota,
+            quota.Quota,
+            True,
+            expected_kwargs={'ignore_missing': True},
+        )

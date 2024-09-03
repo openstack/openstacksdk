@@ -15,6 +15,7 @@ import typing as ty
 from openstack.dns.v2 import blacklist as _blacklist
 from openstack.dns.v2 import floating_ip as _fip
 from openstack.dns.v2 import limit as _limit
+from openstack.dns.v2 import quota as _quota
 from openstack.dns.v2 import recordset as _rs
 from openstack.dns.v2 import service_status as _svc_status
 from openstack.dns.v2 import tld as _tld
@@ -34,6 +35,7 @@ class Proxy(proxy.Proxy):
         "blacklist": _blacklist.Blacklist,
         "floating_ip": _fip.FloatingIP,
         "limits": _limit.Limit,
+        "quota": _quota.Quota,
         "recordset": _rs.Recordset,
         "service_status": _svc_status.ServiceStatus,
         "zone": _zone.Zone,
@@ -698,6 +700,60 @@ class Proxy(proxy.Proxy):
             (:class:`~openstack.dns.v2.limit.Limit`) instances
         """
         return self._list(_limit.Limit, **query)
+
+    # ======== Quotas ========
+    def quotas(self, **query):
+        """Return a generator of quotas
+
+        :param dict query: Optional query parameters to be sent to limit the
+            resources being returned.
+
+        :returns: A generator of quota objects
+        :rtype: :class:`~openstack.dns.v2.quota.Quota`
+        """
+        return self._list(_quota.Quota, **query)
+
+    def get_quota(self, quota):
+        """Get a quota
+
+        :param quota: The value can be the ID of a quota or a
+            :class:`~openstack.dns.v2.quota.Quota` instance.
+            The ID of a quota is the same as the project ID for the quota.
+
+        :returns: One :class:`~openstack.dns.v2.quota.Quota`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+        """
+        return self._get(_quota.Quota, quota)
+
+    def update_quota(self, quota, **attrs):
+        """Update a quota
+
+        :param quota: Either the ID of a quota or a
+            :class:`~openstack.dns.v2.quota.Quota` instance. The ID of a quota
+            is the same as the project ID for the quota.
+        :param dict attrs: The attributes to update on the quota represented
+            by ``quota``.
+
+        :returns: The updated quota
+        :rtype: :class:`~openstack.dns.v2.quota.Quota`
+        """
+        return self._update(_quota.Quota, quota, **attrs)
+
+    def delete_quota(self, quota, ignore_missing=True):
+        """Delete a quota (i.e. reset to the default quota)
+
+        :param quota: The value can be the ID of a quota or a
+            :class:`~openstack.dns.v2.quota.Quota` instance.
+            The ID of a quota is the same as the project ID for the quota.
+        :param bool ignore_missing: When set to ``False``,
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the quota does not exist.
+            When set to ``True``, no exception will be set when attempting to
+            delete a nonexistent quota.
+
+        :returns: ``None``
+        """
+        return self._delete(_quota.Quota, quota, ignore_missing=ignore_missing)
 
     # ======== Service Statuses ========
     def service_statuses(self):
