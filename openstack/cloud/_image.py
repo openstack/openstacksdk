@@ -94,6 +94,7 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
         output_path=None,
         output_file=None,
         chunk_size=1024 * 1024,
+        stream=False,
     ):
         """Download an image by name or ID
 
@@ -105,6 +106,7 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
             this or output_path must be specified
         :param int chunk_size: size in bytes to read from the wire and buffer
             at one time. Defaults to 1024 * 1024 = 1 MiB
+        :param: bool stream: whether to stream the output in chunk_size.
 
         :returns: When output_path and output_file are not given - the bytes
             comprising the given Image when stream is False, otherwise a
@@ -135,7 +137,7 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
             )
 
         return self.image.download_image(
-            image, output=output_file or output_path, chunk_size=chunk_size
+            image, output=output_file or output_path, chunk_size=chunk_size, stream=stream
         )
 
     def get_image_exclude(self, name_or_id, exclude):
