@@ -11,30 +11,37 @@
 # under the License.
 
 """
-List resources from the DNS service.
+Delete resources from the DNS service.
 
 For a full guide see
 https://docs.openstack.org/openstacksdk/latest/user/guides/dns.html
 """
 
 
-def list_zones(conn):
-    print("List Zones:")
-
-    for zone in conn.dns.zones():
-        print(zone)
-
-
-def list_recordsets(conn, name_or_id):
-    print("List Recordsets for Zone")
+def delete_zone(conn, name_or_id):
+    print(f"Delete Zone: {name_or_id}")
 
     zone = conn.dns.find_zone(name_or_id)
 
     if zone:
-        zone_id = zone.id
-        recordsets = conn.dns.recordsets(zone_id)
-
-        for recordset in recordsets:
-            print(recordset)
+        conn.dns.delete_zone(zone.id)
     else:
-        print("Zone not found.")
+        return None
+
+
+def delete_recordset(conn, name_or_id, recordset_name):
+    print(f"Deleting Recordset: {recordset_name} in Zone: {name_or_id}")
+
+    zone = conn.dns.find_zone(name_or_id)
+
+    if zone:
+        try:
+            recordset = conn.dns.find_recordset(zone.id, recordset_name)
+            if recordset:
+                conn.dns.delete_recordset(recordset, zone.id)
+            else:
+                print("Recordset not found")
+        except Exception as e:
+            print(f"{e}")
+    else:
+        return None
