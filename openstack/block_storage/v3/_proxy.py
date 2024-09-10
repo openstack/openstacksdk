@@ -699,7 +699,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         else:
             volume.delete_metadata(self)
 
-    def summary(self, all_projects):
+    def summary(self, all_projects, **kwargs):
         """Get Volumes Summary
 
         This method returns the volumes summary in the deployment.
@@ -716,7 +716,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             self,
             requires_id=False,
             resource_response_key='volume-summary',
-            all_projects=all_projects,
+            all_tenants=all_projects,
+            **kwargs,
         )
 
     # ====== VOLUME ACTIONS ======
