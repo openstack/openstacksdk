@@ -213,7 +213,7 @@ class Object(_base.BaseResource):
     # The Object Store treats the metadata for its resources inconsistently so
     # Object.set_metadata must override the BaseResource.set_metadata to
     # account for it.
-    def set_metadata(self, session, metadata):
+    def set_metadata(self, session, metadata, refresh=True):
         # Filter out items with empty values so the create metadata behaviour
         # is the same as account and container
         filtered_metadata = {
@@ -321,7 +321,7 @@ class Object(_base.BaseResource):
         )
         return response.iter_content(chunk_size, decode_unicode=False)
 
-    def create(self, session, base_path=None, **params):
+    def create(self, session, prepend_key=True, base_path=None, **kwargs):
         request = self._prepare_request(base_path=base_path)
 
         response = session.put(
@@ -330,11 +330,11 @@ class Object(_base.BaseResource):
         self._translate_response(response, has_body=False)
         return self
 
-    def _raw_delete(self, session, microversion=None):
+    def _raw_delete(self, session, microversion=None, **kwargs):
         if not self.allow_delete:
-            raise exceptions.MethodNotSupported(self, "delete")
+            raise exceptions.MethodNotSupported(self, 'delete')
 
-        request = self._prepare_request()
+        request = self._prepare_request(**kwargs)
         session = self._get_session(session)
         if microversion is None:
             microversion = self._get_microversion(session, action='delete')
@@ -349,5 +349,7 @@ class Object(_base.BaseResource):
             headers['multipart-manifest'] = 'delete'
 
         return session.delete(
-            request.url, headers=headers, microversion=microversion
+            request.url,
+            headers=headers,
+            microversion=microversion,
         )

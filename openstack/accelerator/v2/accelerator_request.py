@@ -64,6 +64,8 @@ class AcceleratorRequest(resource.Resource):
         has_body=True,
         retry_on_conflict=None,
         base_path=None,
+        *,
+        microversion=None,
     ):
         # This overrides the default behavior of patch because
         # the PATCH method consumes a dict rather than a list. spec:
@@ -104,7 +106,7 @@ class AcceleratorRequest(resource.Resource):
                 attrs = attrs[self.resources_key][0]
         return super()._consume_attrs(mapping, attrs)
 
-    def create(self, session, base_path=None):
+    def create(self, session, prepend_key=False, *args, **kwargs):
         # This overrides the default behavior of resource creation because
         # cyborg doesn't accept resource_key in its request.
-        return super().create(session, prepend_key=False, base_path=base_path)
+        return super().create(session, prepend_key, *args, **kwargs)

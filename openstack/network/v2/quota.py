@@ -61,7 +61,13 @@ class Quota(resource.Resource):
     security_groups = resource.Body('security_group', type=int)
 
     def _prepare_request(
-        self, requires_id=True, prepend_key=False, base_path=None, **kwargs
+        self,
+        requires_id=True,
+        prepend_key=False,
+        patch=False,
+        base_path=None,
+        *args,
+        **kwargs,
     ):
         _request = super()._prepare_request(requires_id, prepend_key)
         if self.resource_key in _request.body:

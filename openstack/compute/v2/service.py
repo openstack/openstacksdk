@@ -87,13 +87,9 @@ class Service(resource.Resource):
             f"No {cls.__name__} found for {name_or_id}"
         )
 
-    def commit(self, session, prepend_key=False, **kwargs):
+    def commit(self, session, prepend_key=False, *args, **kwargs):
         # we need to set prepend_key to false
-        return super().commit(
-            session,
-            prepend_key=prepend_key,
-            **kwargs,
-        )
+        return super().commit(session, prepend_key, *args, **kwargs)
 
     def _action(self, session, action, body, microversion=None):
         if not microversion:

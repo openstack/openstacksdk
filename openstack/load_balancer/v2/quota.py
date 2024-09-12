@@ -42,7 +42,13 @@ class Quota(resource.Resource):
     project_id = resource.Body('project_id', alternate_id=True)
 
     def _prepare_request(
-        self, requires_id=True, base_path=None, prepend_key=False, **kwargs
+        self,
+        requires_id=True,
+        prepend_key=False,
+        patch=False,
+        base_path=None,
+        *args,
+        **kwargs,
     ):
         _request = super()._prepare_request(
             requires_id, prepend_key, base_path=base_path

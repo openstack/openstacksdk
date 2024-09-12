@@ -280,13 +280,18 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         self,
         requires_id=True,
         prepend_key=True,
+        patch=False,
         base_path=None,
+        params=None,
         **kwargs,
     ):
         request = super()._prepare_request(
             requires_id=requires_id,
             prepend_key=prepend_key,
+            patch=patch,
             base_path=base_path,
+            params=params,
+            **kwargs,
         )
 
         server_body = request.body[self.resource_key]

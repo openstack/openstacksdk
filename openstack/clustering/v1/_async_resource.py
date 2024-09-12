@@ -16,7 +16,7 @@ from openstack import resource
 
 
 class AsyncResource(resource.Resource):
-    def delete(self, session, error_message=None):
+    def delete(self, session, error_message=None, **kwargs):
         """Delete the remote resource based on this instance.
 
         :param session: The session to use for making this request.

@@ -123,7 +123,7 @@ class Container(_base.BaseResource):
             kwargs.setdefault('name', name)
         return cls(_synchronized=False, **kwargs)
 
-    def create(self, session, prepend_key=True, base_path=None):
+    def create(self, session, prepend_key=True, base_path=None, **kwargs):
         """Create a remote resource based on this instance.
 
         :param session: The session to use for making this request.

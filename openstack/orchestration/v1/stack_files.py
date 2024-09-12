@@ -33,7 +33,9 @@ class StackFiles(resource.Resource):
     # Backwards compat
     stack_id = id  # type: ignore
 
-    def fetch(self, session, base_path=None):
+    def fetch(
+        self, session, requires_id=False, base_path=None, *args, **kwargs
+    ):
         # The stack files response contains a map of filenames and file
         # contents.
         request = self._prepare_request(requires_id=False, base_path=base_path)

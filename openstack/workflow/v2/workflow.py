@@ -64,7 +64,13 @@ class Workflow(resource.Resource):
         request.headers.update(headers)
         return dict(url=uri, json=None, headers=request.headers, **kwargs)
 
-    def create(self, session, prepend_key=True, base_path=None):
+    def create(
+        self,
+        session,
+        prepend_key=True,
+        base_path=None,
+        **kwargs,
+    ):
         kwargs = self._request_kwargs(
             prepend_key=prepend_key, base_path=base_path
         )

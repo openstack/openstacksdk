@@ -58,7 +58,7 @@ class Subscription(resource.Resource):
     #: authentication is not enabled in Zaqar service.
     project_id = resource.Header("X-PROJECT-ID")
 
-    def create(self, session, prepend_key=True, base_path=None):
+    def create(self, session, prepend_key=False, base_path=None, **kwargs):
         request = self._prepare_request(
             requires_id=False, prepend_key=prepend_key, base_path=base_path
         )
@@ -125,6 +125,7 @@ class Subscription(resource.Resource):
         base_path=None,
         error_message=None,
         skip_cache=False,
+        **kwargs,
     ):
         request = self._prepare_request(
             requires_id=requires_id, base_path=base_path
@@ -142,7 +143,9 @@ class Subscription(resource.Resource):
 
         return self
 
-    def delete(self, session):
+    def delete(
+        self, session, error_message=None, *, microversion=None, **kwargs
+    ):
         request = self._prepare_request()
         headers = {
             "Client-ID": self.client_id or str(uuid.uuid4()),

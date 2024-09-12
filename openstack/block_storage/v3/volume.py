@@ -359,7 +359,9 @@ class Volume(resource.Resource, metadata.MetadataMixin):
 
         self._action(session, body)
 
-    def _prepare_request_body(self, patch, prepend_key):
+    def _prepare_request_body(
+        self, patch, prepend_key, *, resource_request_key=None
+    ):
         body = self._body.dirty
         # Scheduler hints is external to the standard volume request
         # so pass it separately and not under the volume JSON object.

@@ -83,7 +83,7 @@ class LoadBalancer(resource.Resource, tag.TagMixin):
     #: Additional VIPs
     additional_vips = resource.Body('additional_vips', type=list)
 
-    def delete(self, session, error_message=None):
+    def delete(self, session, error_message=None, **kwargs):
         request = self._prepare_request()
         params = {}
         if (
@@ -145,5 +145,7 @@ class LoadBalancerFailover(resource.Resource):
 
     # The default _update code path also has no
     # way to pass has_body into this function, so overriding the method here.
-    def commit(self, session, base_path=None):
-        return super().commit(session, base_path=base_path, has_body=False)
+    def commit(
+        self, session, prepend_key=True, has_body=False, *args, **kwargs
+    ):
+        return super().commit(session, prepend_key, has_body, *args, **kwargs)

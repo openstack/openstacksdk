@@ -45,7 +45,13 @@ class RegisteredLimit(resource.Resource):
     #: The default limit value. *Type: int*
     default_limit = resource.Body('default_limit')
 
-    def _prepare_request_body(self, patch, prepend_key):
+    def _prepare_request_body(
+        self,
+        patch,
+        prepend_key,
+        *,
+        resource_request_key=None,
+    ):
         body = self._body.dirty
         if prepend_key and self.resource_key is not None:
             if patch:

@@ -47,7 +47,13 @@ class Limit(resource.Resource):
     #: ID of project. *Type: string*
     project_id = resource.Body('project_id')
 
-    def _prepare_request_body(self, patch, prepend_key):
+    def _prepare_request_body(
+        self,
+        patch,
+        prepend_key,
+        *,
+        resource_request_key=None,
+    ):
         body = self._body.dirty
         if prepend_key and self.resource_key is not None:
             if patch:

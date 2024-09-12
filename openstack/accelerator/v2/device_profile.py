@@ -38,11 +38,19 @@ class DeviceProfile(resource.Resource):
 
     # TODO(s_shogo): This implementation only treat [ DeviceProfile ], and
     # cannot treat multiple DeviceProfiles in list.
-    def _prepare_request_body(self, patch, prepend_key):
-        body = super()._prepare_request_body(patch, prepend_key)
+    def _prepare_request_body(
+        self,
+        patch,
+        prepend_key,
+        *,
+        resource_request_key=None,
+    ):
+        body = super()._prepare_request_body(
+            patch, prepend_key, resource_request_key=resource_request_key
+        )
         return [body]
 
-    def create(self, session, base_path=None):
+    def create(self, session, prepend_key=False, *args, **kwargs):
         # This overrides the default behavior of resource creation because
         # cyborg doesn't accept resource_key in its request.
-        return super().create(session, prepend_key=False, base_path=base_path)
+        return super().create(session, prepend_key, *args, **kwargs)

@@ -1654,10 +1654,16 @@ class TestQuotaSet(TestComputeProxy):
             'openstack.resource.Resource.fetch',
             self.proxy.get_quota_set,
             method_args=['prj'],
-            expected_args=[self.proxy],
+            expected_args=[
+                self.proxy,
+                False,
+                None,
+                None,
+                False,
+            ],
             expected_kwargs={
-                'error_message': None,
-                'requires_id': False,
+                'microversion': None,
+                'resource_response_key': None,
             },
             method_result=quota_set.QuotaSet(),
             expected_result=quota_set.QuotaSet(),
@@ -1669,12 +1675,17 @@ class TestQuotaSet(TestComputeProxy):
             self.proxy.get_quota_set,
             method_args=['prj'],
             method_kwargs={'usage': True, 'user_id': 'uid'},
-            expected_args=[self.proxy],
+            expected_args=[
+                self.proxy,
+                False,
+                '/os-quota-sets/%(project_id)s/detail',
+                None,
+                False,
+            ],
             expected_kwargs={
-                'error_message': None,
-                'requires_id': False,
+                'microversion': None,
+                'resource_response_key': None,
                 'user_id': 'uid',
-                'base_path': '/os-quota-sets/%(project_id)s/detail',
             },
         )
 
@@ -1683,11 +1694,16 @@ class TestQuotaSet(TestComputeProxy):
             'openstack.resource.Resource.fetch',
             self.proxy.get_quota_set_defaults,
             method_args=['prj'],
-            expected_args=[self.proxy],
+            expected_args=[
+                self.proxy,
+                False,
+                '/os-quota-sets/%(project_id)s/defaults',
+                None,
+                False,
+            ],
             expected_kwargs={
-                'error_message': None,
-                'requires_id': False,
-                'base_path': '/os-quota-sets/%(project_id)s/defaults',
+                'microversion': None,
+                'resource_response_key': None,
             },
         )
 

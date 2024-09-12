@@ -12,6 +12,7 @@
 
 from calendar import timegm
 import collections
+import functools
 from hashlib import sha1
 import hmac
 import json
@@ -56,6 +57,7 @@ class Proxy(proxy.Proxy):
 
     log = _log.setup_logging('openstack')
 
+    @functools.lru_cache(maxsize=256)
     def _extract_name(self, url, service_type=None, project_id=None):
         url_path = parse.urlparse(url).path.strip()
         # Remove / from the beginning to keep the list indexes of interesting

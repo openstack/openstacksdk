@@ -121,8 +121,8 @@ class Limits(resource.Resource):
         self,
         session,
         requires_id=False,
-        error_message=None,
         base_path=None,
+        error_message=None,
         skip_cache=False,
         **params,
     ):
@@ -137,10 +137,10 @@ class Limits(resource.Resource):
         # TODO(mordred) We shouldn't have to subclass just to declare
         # requires_id = False.
         return super().fetch(
-            session=session,
-            requires_id=requires_id,
-            error_message=error_message,
-            base_path=base_path,
-            skip_cache=skip_cache,
+            session,
+            requires_id,
+            error_message,
+            base_path,
+            skip_cache,
             **params,
         )
