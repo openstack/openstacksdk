@@ -112,6 +112,13 @@ class Secret(resource.Resource):
                 headers={"Accept": content_type},
                 skip_cache=skip_cache,
             )
+            # NOTE(pas-ha): do not return payload.text here,
+            # as it will be decoded to whatever requests and chardet detected,
+            # and if they are wrong, there'd be no way of getting original
+            # bytes back and try to re-decode.
+            # At least this way, the encoding is always the same,
+            # so SDK user can always get original bytes back and fix things.
+            # Besides, this is exactly what python-barbicanclient does.
             if content_type == "text/plain":
                 response["payload"] = payload.content.decode("UTF-8")
             else:
