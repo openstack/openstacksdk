@@ -139,6 +139,21 @@ as a result of a chosen plugin need to go into the auth dict. For password
 auth, this includes `auth_url`, `username` and `password` as well as anything
 related to domains, projects and trusts.
 
+API Settings
+------------
+
+The following settings are passed to keystoneauth and are common to
+all services.
+
+``api_timeout``
+    A timeout for API requests. This should be a numerical value
+    indicating some amount (or fraction) of seconds or 0 for no
+    timeout. (optional, defaults to 0)
+
+``collect_timing``
+    Whether or not to collect per-method timing information for each
+    API call. (optional, defaults to False)
+
 Splitting Secrets
 -----------------
 
