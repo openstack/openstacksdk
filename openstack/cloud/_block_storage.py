@@ -131,13 +131,18 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
             wait = True
 
         if image:
-            image_obj = self.image.find_image(image)
-            if not image_obj:
-                raise exceptions.SDKException(
-                    f"Image {image} was requested as the basis for a new "
-                    f"volume but was not found on the cloud"
-                )
-            kwargs['imageRef'] = image_obj['id']
+            # TODO(stephenfin): Drop support for dicts: we should only accept
+            # strings or Image objects
+            if isinstance(image, dict):
+                kwargs['imageRef'] = image['id']
+            else:  # object
+                image_obj = self.image.find_image(image)
+                if not image_obj:
+                    raise exceptions.SDKException(
+                        f"Image {image} was requested as the basis for a new "
+                        f"volume but was not found on the cloud"
+                    )
+                kwargs['imageRef'] = image_obj['id']
         kwargs = self._get_volume_kwargs(kwargs)
         kwargs['size'] = size
 
