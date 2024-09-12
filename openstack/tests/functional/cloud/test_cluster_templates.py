@@ -58,12 +58,12 @@ class TestClusterTemplate(base.BaseFunctionalTest):
                 '-N',
                 '',
                 '-f',
-                '%s/id_rsa_sdk' % self.ssh_directory,
+                f'{self.ssh_directory}/id_rsa_sdk',
             ]
         )
 
         # add keypair to nova
-        with open('%s/id_rsa_sdk.pub' % self.ssh_directory) as f:
+        with open(f'{self.ssh_directory}/id_rsa_sdk.pub') as f:
             key_content = f.read()
             self.user_cloud.create_keypair('testkey', key_content)
 

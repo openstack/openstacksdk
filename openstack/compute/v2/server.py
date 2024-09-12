@@ -894,7 +894,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         """
         action = CONSOLE_TYPE_ACTION_MAPPING.get(console_type)
         if not action:
-            raise ValueError("Unsupported console type %s" % console_type)
+            raise ValueError(f"Unsupported console type {console_type}")
         body = {action: {'type': console_type}}
         resp = self._action(session, body)
         return resp.json().get('console')
@@ -967,12 +967,12 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             body['host'] = host
             if not force:
                 raise ValueError(
-                    "Live migration on this cloud implies 'force'"
-                    " if the 'host' option has been given and it is not"
-                    " possible to disable. It is recommended to not use 'host'"
-                    " at all on this cloud as it is inherently unsafe, but if"
-                    " it is unavoidable, please supply 'force=True' so that it"
-                    " is clear you understand the risks."
+                    "Live migration on this cloud implies 'force' "
+                    "if the 'host' option has been given and it is not "
+                    "possible to disable. It is recommended to not use 'host' "
+                    "at all on this cloud as it is inherently unsafe, but if "
+                    "it is unavoidable, please supply 'force=True' so that it "
+                    "is clear you understand the risks."
                 )
         self._action(
             session,
@@ -994,8 +994,8 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         }
         if block_migration == 'auto':
             raise ValueError(
-                "Live migration on this cloud does not support 'auto' as"
-                " a parameter to block_migration, but only True and False."
+                "Live migration on this cloud does not support 'auto' as "
+                "a parameter to block_migration, but only True and False."
             )
         body['block_migration'] = block_migration or False
         body['disk_over_commit'] = disk_over_commit or False
@@ -1003,12 +1003,12 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             body['host'] = host
             if not force:
                 raise ValueError(
-                    "Live migration on this cloud implies 'force'"
-                    " if the 'host' option has been given and it is not"
-                    " possible to disable. It is recommended to not use 'host'"
-                    " at all on this cloud as it is inherently unsafe, but if"
-                    " it is unavoidable, please supply 'force=True' so that it"
-                    " is clear you understand the risks."
+                    "Live migration on this cloud implies 'force' "
+                    "if the 'host' option has been given and it is not "
+                    "possible to disable. It is recommended to not use 'host' "
+                    "at all on this cloud as it is inherently unsafe, but if "
+                    "it is unavoidable, please supply 'force=True' so that it "
+                    "is clear you understand the risks."
                 )
         self._action(
             session,

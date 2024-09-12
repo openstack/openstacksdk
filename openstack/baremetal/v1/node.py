@@ -324,9 +324,8 @@ class Node(_common.Resource):
                 microversion = _common.STATE_VERSIONS[expected_provision_state]
             except KeyError:
                 raise ValueError(
-                    "Node's provision_state must be one of %s for creation, "
-                    "got %s"
-                    % (
+                    "Node's provision_state must be one of {} for creation, "
+                    "got {}".format(
                         ', '.join(_common.STATE_VERSIONS),
                         expected_provision_state,
                     )
@@ -334,7 +333,7 @@ class Node(_common.Resource):
             else:
                 error_message = (
                     "Cannot create a node with initial provision "
-                    "state %s" % expected_provision_state
+                    f"state {expected_provision_state}"
                 )
                 # Nodes cannot be created as available using new API versions
                 maximum = (
@@ -546,8 +545,8 @@ class Node(_common.Resource):
                 expected_state = _common.EXPECTED_STATES[target]
             except KeyError:
                 raise ValueError(
-                    'For target %s the expected state is not '
-                    'known, cannot wait for it' % target
+                    f'For target {target} the expected state is not '
+                    'known, cannot wait for it'
                 )
 
         request = self._prepare_request(requires_id=True)
@@ -561,8 +560,8 @@ class Node(_common.Resource):
         )
 
         msg = (
-            "Failed to set provision state for bare metal node {node} "
-            "to {target}".format(node=self.id, target=target)
+            f"Failed to set provision state for bare metal node {self.id} "
+            f"to {target}"
         )
         exceptions.raise_from_response(response, error_message=msg)
 
@@ -588,9 +587,8 @@ class Node(_common.Resource):
         """
         for count in utils.iterate_timeout(
             timeout,
-            "Timeout waiting for node %(node)s to reach "
-            "power state '%(state)s'"
-            % {'node': self.id, 'state': expected_state},
+            f"Timeout waiting for node {self.id} to reach "
+            f"power state '{expected_state}'",
         ):
             self.fetch(session)
             if self.power_state == expected_state:
@@ -629,9 +627,8 @@ class Node(_common.Resource):
         """
         for count in utils.iterate_timeout(
             timeout,
-            "Timeout waiting for node %(node)s to reach "
-            "target state '%(state)s'"
-            % {'node': self.id, 'state': expected_state},
+            f"Timeout waiting for node {self.id} to reach "
+            f"target state '{expected_state}'",
         ):
             self.fetch(session)
             if self._check_state_reached(
@@ -677,7 +674,7 @@ class Node(_common.Resource):
 
         for count in utils.iterate_timeout(
             timeout,
-            "Timeout waiting for the lock to be released on node %s" % self.id,
+            f"Timeout waiting for the lock to be released on node {self.id}",
         ):
             self.fetch(session)
             if self.reservation is None:
@@ -719,13 +716,8 @@ class Node(_common.Resource):
             or self.provision_state == 'error'
         ):
             raise exceptions.ResourceFailure(
-                "Node %(node)s reached failure state \"%(state)s\"; "
-                "the last error is %(error)s"
-                % {
-                    'node': self.id,
-                    'state': self.provision_state,
-                    'error': self.last_error,
-                }
+                f"Node {self.id} reached failure state \"{self.provision_state}\"; "
+                f"the last error is {self.last_error}"
             )
         # Special case: a failure state for "manage" transition can be
         # "enroll"
@@ -735,10 +727,9 @@ class Node(_common.Resource):
             and self.last_error
         ):
             raise exceptions.ResourceFailure(
-                "Node %(node)s could not reach state manageable: "
+                f"Node {self.id} could not reach state manageable: "
                 "failed to verify management credentials; "
-                "the last error is %(error)s"
-                % {'node': self.id, 'error': self.last_error}
+                f"the last error is {self.last_error}"
             )
 
     def inject_nmi(self, session):
@@ -789,8 +780,8 @@ class Node(_common.Resource):
                 expected = _common.EXPECTED_POWER_STATES[target]
             except KeyError:
                 raise ValueError(
-                    "Cannot use target power state %s with wait, "
-                    "the expected state is not known" % target
+                    f"Cannot use target power state {target} with wait, "
+                    "the expected state is not known"
                 )
 
         session = self._get_session(session)
@@ -816,8 +807,8 @@ class Node(_common.Resource):
         )
 
         msg = (
-            "Failed to set power state for bare metal node {node} "
-            "to {target}".format(node=self.id, target=target)
+            f"Failed to set power state for bare metal node {self.id} "
+            f"to {target}"
         )
         exceptions.raise_from_response(response, error_message=msg)
 
@@ -893,9 +884,7 @@ class Node(_common.Resource):
             retriable_status_codes=retriable_status_codes,
         )
 
-        msg = "Failed to attach VIF {vif} to bare metal node {node}".format(
-            node=self.id, vif=vif_id
-        )
+        msg = f"Failed to attach VIF {vif_id} to bare metal node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
     def detach_vif(self, session, vif_id, ignore_missing=True):
@@ -940,9 +929,7 @@ class Node(_common.Resource):
             )
             return False
 
-        msg = "Failed to detach VIF {vif} from bare metal node {node}".format(
-            node=self.id, vif=vif_id
-        )
+        msg = f"Failed to detach VIF {vif_id} from bare metal node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
         return True
 
@@ -973,9 +960,7 @@ class Node(_common.Resource):
             request.url, headers=request.headers, microversion=version
         )
 
-        msg = "Failed to list VIFs attached to bare metal node {node}".format(
-            node=self.id
-        )
+        msg = f"Failed to list VIFs attached to bare metal node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
         return [vif['id'] for vif in response.json()['vifs']]
 
@@ -1015,8 +1000,8 @@ class Node(_common.Resource):
 
             if failed:
                 raise exceptions.ValidationException(
-                    'Validation failed for required interfaces of node {node}:'
-                    ' {failures}'.format(
+                    'Validation failed for required interfaces of node '
+                    '{node}: {failures}'.format(
                         node=self.id, failures=', '.join(failed)
                     )
                 )
@@ -1058,9 +1043,7 @@ class Node(_common.Resource):
             headers=request.headers,
             microversion=version,
         )
-        msg = "Failed to change maintenance mode for node {node}".format(
-            node=self.id
-        )
+        msg = f"Failed to change maintenance mode for node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
     def get_boot_device(self, session):
@@ -1081,9 +1064,7 @@ class Node(_common.Resource):
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 
-        msg = "Failed to get boot device for node {node}".format(
-            node=self.id,
-        )
+        msg = f"Failed to get boot device for node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
         return response.json()
@@ -1138,9 +1119,7 @@ class Node(_common.Resource):
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 
-        msg = "Failed to get supported boot devices for node {node}".format(
-            node=self.id,
-        )
+        msg = f"Failed to get supported boot devices for node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
         return response.json()
@@ -1164,8 +1143,8 @@ class Node(_common.Resource):
         request.url = utils.urljoin(request.url, 'states', 'boot_mode')
         if target not in ('uefi', 'bios'):
             raise ValueError(
-                "Unrecognized boot mode %s."
-                "Boot mode should be one of 'uefi' or 'bios'." % target
+                f"Unrecognized boot mode {target}."
+                "Boot mode should be one of 'uefi' or 'bios'."
             )
         body = {'target': target}
 
@@ -1200,8 +1179,8 @@ class Node(_common.Resource):
         request.url = utils.urljoin(request.url, 'states', 'secure_boot')
         if not isinstance(target, bool):
             raise ValueError(
-                "Invalid target %s. It should be True or False "
-                "corresponding to secure boot state 'on' or 'off'" % target
+                f"Invalid target {target}. It should be True or False "
+                "corresponding to secure boot state 'on' or 'off'"
             )
         body = {'target': target}
 
@@ -1213,9 +1192,7 @@ class Node(_common.Resource):
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 
-        msg = "Failed to change secure boot state for {node}".format(
-            node=self.id
-        )
+        msg = f"Failed to change secure boot state for {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
     def add_trait(self, session, trait):
@@ -1237,9 +1214,7 @@ class Node(_common.Resource):
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 
-        msg = "Failed to add trait {trait} for node {node}".format(
-            trait=trait, node=self.id
-        )
+        msg = f"Failed to add trait {trait} for node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
         self.traits = list(set(self.traits or ()) | {trait})
@@ -1342,10 +1317,8 @@ class Node(_common.Resource):
         )
 
         msg = (
-            "Failed to call vendor_passthru for node {node}, verb {verb}"
-            " and method {method}".format(
-                node=self.id, verb=verb, method=method
-            )
+            f"Failed to call vendor_passthru for node {self.id}, verb {verb} "
+            f"and method {method}"
         )
         exceptions.raise_from_response(response, error_message=msg)
 
@@ -1369,9 +1342,7 @@ class Node(_common.Resource):
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 
-        msg = "Failed to list vendor_passthru methods for node {node}".format(
-            node=self.id
-        )
+        msg = f"Failed to list vendor_passthru methods for node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
         return response.json()
@@ -1394,9 +1365,7 @@ class Node(_common.Resource):
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 
-        msg = "Failed to get console for node {node}".format(
-            node=self.id,
-        )
+        msg = f"Failed to get console for node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
         return response.json()
@@ -1414,8 +1383,8 @@ class Node(_common.Resource):
         request.url = utils.urljoin(request.url, 'states', 'console')
         if not isinstance(enabled, bool):
             raise ValueError(
-                "Invalid enabled %s. It should be True or False "
-                "corresponding to console enabled or disabled" % enabled
+                f"Invalid enabled {enabled}. It should be True or False "
+                "corresponding to console enabled or disabled"
             )
         body = {'enabled': enabled}
 
@@ -1427,9 +1396,7 @@ class Node(_common.Resource):
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 
-        msg = "Failed to change console mode for {node}".format(
-            node=self.id,
-        )
+        msg = f"Failed to change console mode for {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
     def get_node_inventory(self, session, node_id):
@@ -1457,9 +1424,7 @@ class Node(_common.Resource):
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 
-        msg = "Failed to get inventory for node {node}".format(
-            node=self.id,
-        )
+        msg = f"Failed to get inventory for node {node_id}"
         exceptions.raise_from_response(response, error_message=msg)
         return response.json()
 
@@ -1487,9 +1452,7 @@ class Node(_common.Resource):
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 
-        msg = "Failed to list firmware components for node {node}".format(
-            node=self.id
-        )
+        msg = f"Failed to list firmware components for node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
         return response.json()

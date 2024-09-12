@@ -180,7 +180,7 @@ class TestAttachment(base.TestCase):
         sot.id = FAKE_ID
         sot.complete(self.sess)
         self.sess.post.assert_called_with(
-            '/attachments/%s/action' % FAKE_ID,
+            f'/attachments/{FAKE_ID}/action',
             json={
                 'os-complete': '92dc3671-d0ab-4370-8058-c88a71661ec5',
             },

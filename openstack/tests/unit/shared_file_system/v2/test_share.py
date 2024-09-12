@@ -224,7 +224,7 @@ class TestShareActions(TestShares):
 
         self.assertIsNone(sot.unmanage(self.sess))
 
-        url = 'shares/%s/action' % IDENTIFIER
+        url = f'shares/{IDENTIFIER}/action'
         body = {'unmanage': None}
 
         self.sess.post.assert_called_with(

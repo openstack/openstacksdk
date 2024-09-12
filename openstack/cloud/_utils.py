@@ -159,21 +159,21 @@ def _get_entity(cloud, resource, name_or_id, filters, **kwargs):
     # If a uuid is passed short-circuit it calling the
     # get_<resource_name>_by_id method
     if getattr(cloud, 'use_direct_get', False) and _is_uuid_like(name_or_id):
-        get_resource = getattr(cloud, 'get_%s_by_id' % resource, None)
+        get_resource = getattr(cloud, f'get_{resource}_by_id', None)
         if get_resource:
             return get_resource(name_or_id)
 
     search = (
         resource
         if callable(resource)
-        else getattr(cloud, 'search_%ss' % resource, None)
+        else getattr(cloud, f'search_{resource}s', None)
     )
     if search:
         entities = search(name_or_id, filters, **kwargs)
         if entities:
             if len(entities) > 1:
                 raise exceptions.SDKException(
-                    "Multiple matches found for %s" % name_or_id
+                    f"Multiple matches found for {name_or_id}"
                 )
             return entities[0]
     return None
@@ -213,8 +213,8 @@ def valid_kwargs(*valid_args):
         for k in kwargs:
             if k not in argspec.args[1:] and k not in valid_args:
                 raise TypeError(
-                    "{f}() got an unexpected keyword argument "
-                    "'{arg}'".format(f=inspect.stack()[1][3], arg=k)
+                    f"{inspect.stack()[1][3]}() got an unexpected keyword argument "
+                    f"'{k}'"
                 )
         return func(*args, **kwargs)
 
@@ -270,9 +270,7 @@ def safe_dict_min(key, data):
             except ValueError:
                 raise exceptions.SDKException(
                     "Search for minimum value failed. "
-                    "Value for {key} is not an integer: {value}".format(
-                        key=key, value=d[key]
-                    )
+                    f"Value for {key} is not an integer: {d[key]}"
                 )
             if (min_value is None) or (val < min_value):
                 min_value = val
@@ -303,9 +301,7 @@ def safe_dict_max(key, data):
             except ValueError:
                 raise exceptions.SDKException(
                     "Search for maximum value failed. "
-                    "Value for {key} is not an integer: {value}".format(
-                        key=key, value=d[key]
-                    )
+                    f"Value for {key} is not an integer: {d[key]}"
                 )
             if (max_value is None) or (val > max_value):
                 max_value = val
@@ -423,7 +419,7 @@ def generate_patches_from_kwargs(operation, **kwargs):
     """
     patches = []
     for k, v in kwargs.items():
-        patch = {'op': operation, 'value': v, 'path': '/%s' % k}
+        patch = {'op': operation, 'value': v, 'path': f'/{k}'}
         patches.append(patch)
     return sorted(patches)
 

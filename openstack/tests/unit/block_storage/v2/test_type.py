@@ -73,7 +73,7 @@ class TestType(base.TestCase):
         )
 
         self.sess.get.assert_called_with(
-            "types/%s/os-volume-type-access" % sot.id
+            f"types/{sot.id}/os-volume-type-access"
         )
 
     def test_add_private_access(self):
@@ -81,7 +81,7 @@ class TestType(base.TestCase):
 
         self.assertIsNone(sot.add_private_access(self.sess, "a"))
 
-        url = "types/%s/action" % sot.id
+        url = f"types/{sot.id}/action"
         body = {"addProjectAccess": {"project": "a"}}
         self.sess.post.assert_called_with(url, json=body)
 
@@ -90,6 +90,6 @@ class TestType(base.TestCase):
 
         self.assertIsNone(sot.remove_private_access(self.sess, "a"))
 
-        url = "types/%s/action" % sot.id
+        url = f"types/{sot.id}/action"
         body = {"removeProjectAccess": {"project": "a"}}
         self.sess.post.assert_called_with(url, json=body)

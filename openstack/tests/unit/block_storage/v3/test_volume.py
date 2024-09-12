@@ -159,7 +159,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.extend(self.sess, '20'))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {"os-extend": {"new_size": "20"}}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -170,7 +170,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.set_readonly(self.sess, True))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {'os-update_readonly_flag': {'readonly': True}}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -181,7 +181,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.set_readonly(self.sess, False))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {'os-update_readonly_flag': {'readonly': False}}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -192,7 +192,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.set_bootable_status(self.sess))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {'os-set_bootable': {'bootable': True}}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -203,7 +203,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.set_bootable_status(self.sess, False))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {'os-set_bootable': {'bootable': False}}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -214,7 +214,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.set_image_metadata(self.sess, {'foo': 'bar'}))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {'os-set_image_metadata': {'foo': 'bar'}}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -230,7 +230,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.delete_image_metadata(self.sess))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body_a = {'os-unset_image_metadata': 'foo'}
         body_b = {'os-unset_image_metadata': 'baz'}
         self.sess.post.assert_has_calls(
@@ -249,7 +249,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.delete_image_metadata_item(self.sess, 'foo'))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {'os-unset_image_metadata': 'foo'}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -260,7 +260,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.reset_status(self.sess, '1', '2', '3'))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {
             'os-reset_status': {
                 'status': '1',
@@ -277,7 +277,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.reset_status(self.sess, status='1'))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {
             'os-reset_status': {
                 'status': '1',
@@ -309,7 +309,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.revert_to_snapshot(self.sess, '1'))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {'revert': {'snapshot_id': '1'}}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -321,7 +321,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.attach(self.sess, '1', instance='2'))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {'os-attach': {'mountpoint': '1', 'instance_uuid': '2'}}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -332,7 +332,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.attach(self.sess, '1', host_name='2'))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {'os-attach': {'mountpoint': '1', 'host_name': '2'}}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -348,7 +348,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.detach(self.sess, '1'))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {'os-detach': {'attachment_id': '1'}}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -361,7 +361,7 @@ class TestVolumeActions(TestVolume):
             sot.detach(self.sess, '1', force=True, connector={'a': 'b'})
         )
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {
             'os-force_detach': {'attachment_id': '1', 'connector': {'a': 'b'}}
         }
@@ -374,7 +374,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.unmanage(self.sess))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {'os-unmanage': None}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -385,7 +385,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.retype(self.sess, '1'))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {'os-retype': {'new_type': '1'}}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -396,7 +396,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.retype(self.sess, '1', migration_policy='2'))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {'os-retype': {'new_type': '1', 'migration_policy': '2'}}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -407,7 +407,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.migrate(self.sess, host='1'))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {'os-migrate_volume': {'host': '1'}}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -422,7 +422,7 @@ class TestVolumeActions(TestVolume):
             )
         )
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {
             'os-migrate_volume': {
                 'host': '1',
@@ -448,7 +448,7 @@ class TestVolumeActions(TestVolume):
             )
         )
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {
             'os-migrate_volume': {
                 'cluster': '1',
@@ -466,7 +466,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.complete_migration(self.sess, new_volume_id='1'))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {
             'os-migrate_volume_completion': {'new_volume': '1', 'error': False}
         }
@@ -481,7 +481,7 @@ class TestVolumeActions(TestVolume):
             sot.complete_migration(self.sess, new_volume_id='1', error=True)
         )
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {
             'os-migrate_volume_completion': {'new_volume': '1', 'error': True}
         }
@@ -494,7 +494,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.force_delete(self.sess))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {'os-force_delete': None}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -511,7 +511,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertDictEqual({'a': 'b'}, sot.upload_to_image(self.sess, '1'))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {'os-volume_upload_image': {'image_name': '1', 'force': False}}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -543,7 +543,7 @@ class TestVolumeActions(TestVolume):
             ),
         )
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {
             'os-volume_upload_image': {
                 'image_name': '1',
@@ -564,7 +564,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.reserve(self.sess))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {'os-reserve': None}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -575,7 +575,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.unreserve(self.sess))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {'os-unreserve': None}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -586,7 +586,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.begin_detaching(self.sess))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {'os-begin_detaching': None}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -597,7 +597,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.abort_detaching(self.sess))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {'os-roll_detaching': None}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -615,7 +615,7 @@ class TestVolumeActions(TestVolume):
             {'c': 'd'}, sot.init_attachment(self.sess, {'a': 'b'})
         )
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {'os-initialize_connection': {'connector': {'a': 'b'}}}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -626,7 +626,7 @@ class TestVolumeActions(TestVolume):
 
         self.assertIsNone(sot.terminate_attachment(self.sess, {'a': 'b'}))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {'os-terminate_connection': {'connector': {'a': 'b'}}}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -734,6 +734,6 @@ class TestVolumeActions(TestVolume):
         self.sess.default_microversion = '3.50'
         self.assertIsNone(sot.extend(self.sess, '20'))
 
-        url = 'volumes/%s/action' % FAKE_ID
+        url = f'volumes/{FAKE_ID}/action'
         body = {"os-extend": {"new_size": "20"}}
         self.sess.post.assert_called_with(url, json=body, microversion="3.50")

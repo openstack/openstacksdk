@@ -47,9 +47,7 @@ def make_names():
 
         dc = desc_class.__name__
         services.append(
-            "{st} = {dm}.{dc}(service_type='{service_type}')".format(
-                st=st, dm=dm, dc=dc, service_type=service_type
-            ),
+            f"{st} = {dm}.{dc}(service_type='{service_type}')",
         )
 
         # Register the descriptor class with every known alias. Don't

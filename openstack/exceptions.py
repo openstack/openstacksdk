@@ -69,13 +69,9 @@ class HttpException(SDKException, _rex.HTTPError):
         # to be None once we're not mocking Session everywhere.
         if not message:
             if response is not None:
-                message = "{name}: {code}".format(
-                    name=self.__class__.__name__, code=response.status_code
-                )
+                message = f"{self.__class__.__name__}: {response.status_code}"
             else:
-                message = "{name}: Unknown error".format(
-                    name=self.__class__.__name__
-                )
+                message = f"{self.__class__.__name__}: Unknown error"
 
         # Call directly rather than via super to control parameters
         SDKException.__init__(self, message=message)
@@ -102,18 +98,13 @@ class HttpException(SDKException, _rex.HTTPError):
         if not self.url or self.message == 'Error':
             return self.message
         if self.url:
-            remote_error = "{source} Error for url: {url}".format(
-                source=self.source, url=self.url
-            )
+            remote_error = f"{self.source} Error for url: {self.url}"
             if self.details:
                 remote_error += ', '
         if self.details:
             remote_error += str(self.details)
 
-        return "{message}: {remote_error}".format(
-            message=super().__str__(),
-            remote_error=remote_error,
-        )
+        return f"{super().__str__()}: {remote_error}"
 
 
 class BadRequestException(HttpException):
@@ -146,11 +137,7 @@ class MethodNotSupported(SDKException):
         except AttributeError:
             name = resource.__class__.__name__
 
-        message = 'The {} method is not supported for {}.{}'.format(
-            method,
-            resource.__module__,
-            name,
-        )
+        message = f'The {method} method is not supported for {resource.__module__}.{name}'
         super().__init__(message=message)
 
 

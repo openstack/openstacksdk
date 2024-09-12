@@ -152,7 +152,7 @@ class TestBackup(base.TestCase):
 
         self.assertEqual(sot, sot.restore(self.sess, 'vol', 'name'))
 
-        url = 'backups/%s/restore' % FAKE_ID
+        url = f'backups/{FAKE_ID}/restore'
         body = {"restore": {"volume_id": "vol", "name": "name"}}
         self.sess.post.assert_called_with(url, json=body)
 
@@ -161,7 +161,7 @@ class TestBackup(base.TestCase):
 
         self.assertEqual(sot, sot.restore(self.sess, name='name'))
 
-        url = 'backups/%s/restore' % FAKE_ID
+        url = f'backups/{FAKE_ID}/restore'
         body = {"restore": {"name": "name"}}
         self.sess.post.assert_called_with(url, json=body)
 
@@ -170,7 +170,7 @@ class TestBackup(base.TestCase):
 
         self.assertEqual(sot, sot.restore(self.sess, volume_id='vol'))
 
-        url = 'backups/%s/restore' % FAKE_ID
+        url = f'backups/{FAKE_ID}/restore'
         body = {"restore": {"volume_id": "vol"}}
         self.sess.post.assert_called_with(url, json=body)
 
@@ -184,7 +184,7 @@ class TestBackup(base.TestCase):
 
         self.assertIsNone(sot.force_delete(self.sess))
 
-        url = 'backups/%s/action' % FAKE_ID
+        url = f'backups/{FAKE_ID}/action'
         body = {'os-force_delete': None}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -195,7 +195,7 @@ class TestBackup(base.TestCase):
 
         self.assertIsNone(sot.reset(self.sess, 'new_status'))
 
-        url = 'backups/%s/action' % FAKE_ID
+        url = f'backups/{FAKE_ID}/action'
         body = {'os-reset_status': {'status': 'new_status'}}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion

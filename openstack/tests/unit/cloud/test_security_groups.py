@@ -74,7 +74,7 @@ class TestSecurityGroups(base.TestCase):
                         'network',
                         'public',
                         append=['v2.0', 'security-groups'],
-                        qs_elements=["project_id=%s" % project_id],
+                        qs_elements=[f"project_id={project_id}"],
                     ),
                     json={'security_groups': [neutron_grp_dict]},
                 )
@@ -88,9 +88,7 @@ class TestSecurityGroups(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/os-security-groups?project_id=42'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/os-security-groups?project_id=42',
                     json={'security_groups': []},
                 ),
             ]
@@ -126,7 +124,7 @@ class TestSecurityGroups(base.TestCase):
                     uri=self.get_mock_url(
                         'network',
                         'public',
-                        append=['v2.0', 'security-groups', '%s' % sg_id],
+                        append=['v2.0', 'security-groups', f'{sg_id}'],
                     ),
                     status_code=200,
                     json={},
@@ -144,16 +142,12 @@ class TestSecurityGroups(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/os-security-groups'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/os-security-groups',
                     json={'security_groups': nova_return},
                 ),
                 dict(
                     method='DELETE',
-                    uri='{endpoint}/os-security-groups/2'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/os-security-groups/2',
                 ),
             ]
         )
@@ -184,9 +178,7 @@ class TestSecurityGroups(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/os-security-groups'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/os-security-groups',
                     json={'security_groups': nova_return},
                 ),
             ]
@@ -240,8 +232,8 @@ class TestSecurityGroups(base.TestCase):
         project_id = "861808a93da0484ea1767967c4df8a23"
         group_name = self.getUniqueString()
         group_desc = (
-            'security group from'
-            ' test_create_security_group_neutron_specific_tenant'
+            'security group from '
+            'test_create_security_group_neutron_specific_tenant'
         )
         new_group = fakes.make_fake_neutron_security_group(
             id='2',
@@ -331,9 +323,7 @@ class TestSecurityGroups(base.TestCase):
             [
                 dict(
                     method='POST',
-                    uri='{endpoint}/os-security-groups'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/os-security-groups',
                     json={'security_group': new_group},
                     validate=dict(
                         json={
@@ -385,7 +375,7 @@ class TestSecurityGroups(base.TestCase):
                     uri=self.get_mock_url(
                         'network',
                         'public',
-                        append=['v2.0', 'security-groups', '%s' % sg_id],
+                        append=['v2.0', 'security-groups', f'{sg_id}'],
                     ),
                     json={'security_group': update_return},
                     validate=dict(
@@ -418,16 +408,12 @@ class TestSecurityGroups(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/os-security-groups'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/os-security-groups',
                     json={'security_groups': nova_return},
                 ),
                 dict(
                     method='PUT',
-                    uri='{endpoint}/os-security-groups/2'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/os-security-groups/2',
                     json={'security_group': update_return},
                 ),
             ]
@@ -586,16 +572,12 @@ class TestSecurityGroups(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/os-security-groups'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/os-security-groups',
                     json={'security_groups': nova_return},
                 ),
                 dict(
                     method='POST',
-                    uri='{endpoint}/os-security-group-rules'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/os-security-group-rules',
                     json={'security_group_rule': new_rule},
                     validate=dict(
                         json={
@@ -642,16 +624,12 @@ class TestSecurityGroups(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/os-security-groups'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/os-security-groups',
                     json={'security_groups': nova_return},
                 ),
                 dict(
                     method='POST',
-                    uri='{endpoint}/os-security-group-rules'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/os-security-group-rules',
                     json={'security_group_rule': new_rule},
                     validate=dict(
                         json={
@@ -700,7 +678,7 @@ class TestSecurityGroups(base.TestCase):
                         append=[
                             'v2.0',
                             'security-group-rules',
-                            '%s' % rule_id,
+                            f'{rule_id}',
                         ],
                     ),
                     json={},
@@ -717,9 +695,7 @@ class TestSecurityGroups(base.TestCase):
             [
                 dict(
                     method='DELETE',
-                    uri='{endpoint}/os-security-group-rules/xyz'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/os-security-group-rules/xyz',
                 ),
             ]
         )
@@ -760,9 +736,7 @@ class TestSecurityGroups(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/os-security-groups'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/os-security-groups',
                     json={'security_groups': [nova_grp_dict]},
                 ),
             ]
@@ -779,9 +753,7 @@ class TestSecurityGroups(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/os-security-groups'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/os-security-groups',
                     json={'security_groups': [nova_grp_dict]},
                 ),
             ]
@@ -842,16 +814,15 @@ class TestSecurityGroups(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/os-security-groups'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT,
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/os-security-groups',
                     json={'security_groups': [nova_grp_dict]},
                 ),
                 self.get_nova_discovery_mock_dict(),
                 dict(
                     method='POST',
-                    uri='%s/servers/%s/action'
-                    % (fakes.COMPUTE_ENDPOINT, '1234'),
+                    uri='{}/servers/{}/action'.format(
+                        fakes.COMPUTE_ENDPOINT, '1234'
+                    ),
                     validate=dict(
                         json={'addSecurityGroup': {'name': 'nova-sec-group'}}
                     ),
@@ -894,8 +865,9 @@ class TestSecurityGroups(base.TestCase):
                 ),
                 dict(
                     method='POST',
-                    uri='%s/servers/%s/action'
-                    % (fakes.COMPUTE_ENDPOINT, '1234'),
+                    uri='{}/servers/{}/action'.format(
+                        fakes.COMPUTE_ENDPOINT, '1234'
+                    ),
                     validate=dict(
                         json={
                             'addSecurityGroup': {'name': 'neutron-sec-group'}
@@ -921,16 +893,15 @@ class TestSecurityGroups(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/os-security-groups'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/os-security-groups',
                     json={'security_groups': [nova_grp_dict]},
                 ),
                 self.get_nova_discovery_mock_dict(),
                 dict(
                     method='POST',
-                    uri='%s/servers/%s/action'
-                    % (fakes.COMPUTE_ENDPOINT, '1234'),
+                    uri='{}/servers/{}/action'.format(
+                        fakes.COMPUTE_ENDPOINT, '1234'
+                    ),
                     validate=dict(
                         json={
                             'removeSecurityGroup': {'name': 'nova-sec-group'}
@@ -974,8 +945,9 @@ class TestSecurityGroups(base.TestCase):
                 ),
                 dict(
                     method='POST',
-                    uri='%s/servers/%s/action'
-                    % (fakes.COMPUTE_ENDPOINT, '1234'),
+                    uri='{}/servers/{}/action'.format(
+                        fakes.COMPUTE_ENDPOINT, '1234'
+                    ),
                     validate=dict(json=validate),
                 ),
             ]
@@ -1000,16 +972,12 @@ class TestSecurityGroups(base.TestCase):
                 self.get_nova_discovery_mock_dict(),
                 dict(
                     method='GET',
-                    uri='{endpoint}/servers/detail'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/servers/detail',
                     json={'servers': [fake_server]},
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/os-security-groups'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/os-security-groups',
                     json={'security_groups': [nova_grp_dict]},
                 ),
             ]
@@ -1064,9 +1032,7 @@ class TestSecurityGroups(base.TestCase):
                 self.get_nova_discovery_mock_dict(),
                 dict(
                     method='GET',
-                    uri='{endpoint}/servers/detail'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/servers/detail',
                     json={'servers': [fake_server]},
                 ),
             ]

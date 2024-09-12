@@ -331,7 +331,7 @@ class TestUtils(base.TestCase):
         # if the use_direct_get flag is set to False(default).
         uuid = uuid4().hex
         resource = 'network'
-        func = 'search_%ss' % resource
+        func = f'search_{resource}s'
         filters = {}
         with mock.patch.object(self.cloud, func) as search:
             _utils._get_entity(self.cloud, resource, uuid, filters)
@@ -343,7 +343,7 @@ class TestUtils(base.TestCase):
         self.cloud.use_direct_get = True
         name = 'name_no_uuid'
         resource = 'network'
-        func = 'search_%ss' % resource
+        func = f'search_{resource}s'
         filters = {}
         with mock.patch.object(self.cloud, func) as search:
             _utils._get_entity(self.cloud, resource, name, filters)
@@ -363,7 +363,7 @@ class TestUtils(base.TestCase):
             'security_group',
         ]
         for r in resources:
-            f = 'get_%s_by_id' % r
+            f = f'get_{r}_by_id'
             with mock.patch.object(self.cloud, f) as get:
                 _utils._get_entity(self.cloud, r, uuid, {})
                 get.assert_called_once_with(uuid)
@@ -383,7 +383,7 @@ class TestUtils(base.TestCase):
         filters = {}
         name = 'name_no_uuid'
         for r in resources:
-            f = 'search_%ss' % r
+            f = f'search_{r}s'
             with mock.patch.object(self.cloud, f) as search:
                 _utils._get_entity(self.cloud, r, name, {})
                 search.assert_called_once_with(name, filters)
@@ -400,5 +400,5 @@ class TestUtils(base.TestCase):
             'security_group',
         ]
         for r in resources:
-            self.assertTrue(hasattr(self.cloud, 'get_%s_by_id' % r))
-            self.assertTrue(hasattr(self.cloud, 'search_%ss' % r))
+            self.assertTrue(hasattr(self.cloud, f'get_{r}_by_id'))
+            self.assertTrue(hasattr(self.cloud, f'search_{r}s'))

@@ -26,9 +26,7 @@ class TestFlavors(base.TestCase):
             [
                 dict(
                     method='POST',
-                    uri='{endpoint}/flavors'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/flavors',
                     json={'flavor': fakes.FAKE_FLAVOR},
                     validate=dict(
                         json={
@@ -64,16 +62,12 @@ class TestFlavors(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/flavors/vanilla'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/flavors/vanilla',
                     json=fakes.FAKE_FLAVOR,
                 ),
                 dict(
                     method='DELETE',
-                    uri='{endpoint}/flavors/{id}'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT, id=fakes.FLAVOR_ID
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/flavors/{fakes.FLAVOR_ID}',
                 ),
             ]
         )
@@ -87,16 +81,12 @@ class TestFlavors(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/flavors/invalid'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/flavors/invalid',
                     status_code=404,
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/flavors/detail?is_public=None'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/flavors/detail?is_public=None',
                     json={'flavors': fakes.FAKE_FLAVOR_LIST},
                 ),
             ]
@@ -112,23 +102,17 @@ class TestFlavors(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/flavors/vanilla'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/flavors/vanilla',
                     json=fakes.FAKE_FLAVOR,
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/flavors/detail?is_public=None'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/flavors/detail?is_public=None',
                     json={'flavors': fakes.FAKE_FLAVOR_LIST},
                 ),
                 dict(
                     method='DELETE',
-                    uri='{endpoint}/flavors/{id}'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT, id=fakes.FLAVOR_ID
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/flavors/{fakes.FLAVOR_ID}',
                     status_code=503,
                 ),
             ]
@@ -145,9 +129,7 @@ class TestFlavors(base.TestCase):
         uris_to_mock = [
             dict(
                 method='GET',
-                uri='{endpoint}/flavors/detail?is_public=None'.format(
-                    endpoint=fakes.COMPUTE_ENDPOINT
-                ),
+                uri=f'{fakes.COMPUTE_ENDPOINT}/flavors/detail?is_public=None',
                 json={'flavors': fakes.FAKE_FLAVOR_LIST},
             ),
         ]
@@ -173,9 +155,7 @@ class TestFlavors(base.TestCase):
         uris_to_mock = [
             dict(
                 method='GET',
-                uri='{endpoint}/flavors/detail?is_public=None'.format(
-                    endpoint=fakes.COMPUTE_ENDPOINT
-                ),
+                uri=f'{fakes.COMPUTE_ENDPOINT}/flavors/detail?is_public=None',
                 json={'flavors': fakes.FAKE_FLAVOR_LIST},
             ),
         ]
@@ -213,9 +193,7 @@ class TestFlavors(base.TestCase):
         uris_to_mock = [
             dict(
                 method='GET',
-                uri='{endpoint}/flavors/detail?is_public=None'.format(
-                    endpoint=fakes.COMPUTE_ENDPOINT
-                ),
+                uri=f'{fakes.COMPUTE_ENDPOINT}/flavors/detail?is_public=None',
                 json={'flavors': fakes.FAKE_FLAVOR_LIST},
             ),
         ]
@@ -241,9 +219,7 @@ class TestFlavors(base.TestCase):
         uris_to_mock = [
             dict(
                 method='GET',
-                uri='{endpoint}/flavors/detail?is_public=None'.format(
-                    endpoint=fakes.COMPUTE_ENDPOINT
-                ),
+                uri=f'{fakes.COMPUTE_ENDPOINT}/flavors/detail?is_public=None',
                 json={'flavors': fakes.FAKE_FLAVOR_LIST},
             ),
         ]
@@ -269,9 +245,7 @@ class TestFlavors(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/flavors/detail?is_public=None'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/flavors/detail?is_public=None',
                     json={'flavors': []},
                 )
             ]
@@ -284,8 +258,8 @@ class TestFlavors(base.TestCase):
 
     def test_get_flavor_string_and_int(self):
         self.use_compute_discovery()
-        flavor_resource_uri = '{endpoint}/flavors/1/os-extra_specs'.format(
-            endpoint=fakes.COMPUTE_ENDPOINT
+        flavor_resource_uri = (
+            f'{fakes.COMPUTE_ENDPOINT}/flavors/1/os-extra_specs'
         )
         flavor = fakes.make_fake_flavor('1', 'vanilla')
         flavor_json = {'extra_specs': {}}
@@ -294,9 +268,7 @@ class TestFlavors(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/flavors/1'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/flavors/1',
                     json=flavor,
                 ),
                 dict(method='GET', uri=flavor_resource_uri, json=flavor_json),
@@ -315,9 +287,7 @@ class TestFlavors(base.TestCase):
             [
                 dict(
                     method='POST',
-                    uri='{endpoint}/flavors/{id}/os-extra_specs'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT, id=1
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/flavors/{1}/os-extra_specs',
                     json=dict(extra_specs=extra_specs),
                 )
             ]
@@ -333,9 +303,7 @@ class TestFlavors(base.TestCase):
             [
                 dict(
                     method='DELETE',
-                    uri='{endpoint}/flavors/{id}/os-extra_specs/{key}'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT, id=1, key=key
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/flavors/{1}/os-extra_specs/{key}',
                 )
                 for key in keys
             ]
@@ -394,9 +362,7 @@ class TestFlavors(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/flavors/vanilla/os-flavor-access'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/flavors/vanilla/os-flavor-access',
                     json={
                         'flavor_access': [
                             {'flavor_id': 'vanilla', 'tenant_id': 'tenant_id'}
@@ -410,9 +376,7 @@ class TestFlavors(base.TestCase):
 
     def test_get_flavor_by_id(self):
         self.use_compute_discovery()
-        flavor_uri = '{endpoint}/flavors/1'.format(
-            endpoint=fakes.COMPUTE_ENDPOINT
-        )
+        flavor_uri = f'{fakes.COMPUTE_ENDPOINT}/flavors/1'
         flavor_json = {'flavor': fakes.make_fake_flavor('1', 'vanilla')}
 
         self.register_uris(
@@ -430,12 +394,8 @@ class TestFlavors(base.TestCase):
 
     def test_get_flavor_with_extra_specs(self):
         self.use_compute_discovery()
-        flavor_uri = '{endpoint}/flavors/1'.format(
-            endpoint=fakes.COMPUTE_ENDPOINT
-        )
-        flavor_extra_uri = '{endpoint}/flavors/1/os-extra_specs'.format(
-            endpoint=fakes.COMPUTE_ENDPOINT
-        )
+        flavor_uri = f'{fakes.COMPUTE_ENDPOINT}/flavors/1'
+        flavor_extra_uri = f'{fakes.COMPUTE_ENDPOINT}/flavors/1/os-extra_specs'
         flavor_json = {'flavor': fakes.make_fake_flavor('1', 'vanilla')}
         flavor_extra_json = {'extra_specs': {'name': 'test'}}
 

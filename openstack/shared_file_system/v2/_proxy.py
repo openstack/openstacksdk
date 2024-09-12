@@ -1094,7 +1094,7 @@ class Proxy(proxy.Proxy):
                 keys_failed_to_delete.append(key)
         if keys_failed_to_delete:
             raise exceptions.SDKException(
-                "Some keys failed to be deleted %s" % keys_failed_to_delete
+                f"Some keys failed to be deleted {keys_failed_to_delete}"
             )
 
     def resource_locks(self, **query):

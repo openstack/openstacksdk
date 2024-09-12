@@ -220,11 +220,7 @@ class BaseFunctionalTest(base.TestCase):
         :returns: True if the service exists, otherwise False.
         """
         if not self.conn.has_service(service_type):
-            self.skipTest(
-                'Service {service_type} not found in cloud'.format(
-                    service_type=service_type
-                )
-            )
+            self.skipTest(f'Service {service_type} not found in cloud')
 
         if not min_microversion:
             return
@@ -252,9 +248,9 @@ class BaseFunctionalTest(base.TestCase):
         # Globally unique names can only rely on some form of uuid
         # unix_t is also used to easier determine orphans when running real
         # functional tests on a real cloud
-        return (prefix if prefix else '') + "{time}-{uuid}".format(
-            time=int(time.time()), uuid=uuid.uuid4().hex
-        )
+        return (
+            prefix if prefix else ''
+        ) + f"{int(time.time())}-{uuid.uuid4().hex}"
 
     def create_temporary_project(self):
         """Create a new temporary project.

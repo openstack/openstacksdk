@@ -31,9 +31,7 @@ class TestFloatingIPPool(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/os-floating-ip-pools'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/os-floating-ip-pools',
                     json={"floating_ip_pools": [{"name": "public"}]},
                 ),
             ]

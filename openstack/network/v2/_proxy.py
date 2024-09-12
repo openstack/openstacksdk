@@ -5404,8 +5404,7 @@ class Proxy(proxy.Proxy):
             resource.tags
         except AttributeError:
             raise exceptions.InvalidRequest(
-                '%s resource does not support tag'
-                % resource.__class__.__name__
+                f'{resource.__class__.__name__} resource does not support tag'
             )
 
     def get_tags(self, resource):
@@ -7104,7 +7103,7 @@ class Proxy(proxy.Proxy):
                 for port in self.ports(
                     project_id=project_id, network_id=net.id
                 ):
-                    self.log.debug('Looking at port %s' % port)
+                    self.log.debug(f'Looking at port {port}')
                     if port.device_owner in [
                         'network:router_interface',
                         'network:router_interface_distributed',
@@ -7127,7 +7126,7 @@ class Proxy(proxy.Proxy):
                 if network_has_ports_allocated:
                     # If some ports are on net - we cannot delete it
                     continue
-                self.log.debug('Network %s should be deleted' % net)
+                self.log.debug(f'Network {net} should be deleted')
                 # __Check__ if we need to drop network according to filters
                 network_must_be_deleted = self._service_cleanup_del_res(
                     self.delete_network,
@@ -7167,7 +7166,7 @@ class Proxy(proxy.Proxy):
                                 router=port.device_id, port_id=port.id
                             )
                         except exceptions.SDKException:
-                            self.log.error('Cannot delete object %s' % obj)
+                            self.log.error(f'Cannot delete object {obj}')
                     # router disconnected, drop it
                     self._service_cleanup_del_res(
                         self.delete_router,

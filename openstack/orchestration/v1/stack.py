@@ -133,16 +133,11 @@ class Stack(resource.Resource):
         # we need to use other endpoint for update preview.
         base_path = None
         if self.name and self.id:
-            base_path = '/stacks/{stack_name}/{stack_id}'.format(
-                stack_name=self.name,
-                stack_id=self.id,
-            )
+            base_path = f'/stacks/{self.name}/{self.id}'
         elif self.name or self.id:
             # We have only one of name/id. Do not try to build a stacks/NAME/ID
             # path
-            base_path = '/stacks/{stack_identity}'.format(
-                stack_identity=self.name or self.id
-            )
+            base_path = f'/stacks/{self.name or self.id}'
         request = self._prepare_request(
             prepend_key=False, requires_id=False, base_path=base_path
         )
@@ -248,9 +243,7 @@ class Stack(resource.Resource):
         self._translate_response(response, **kwargs)
 
         if self and self.status in ['DELETE_COMPLETE', 'ADOPT_COMPLETE']:
-            raise exceptions.NotFoundException(
-                "No stack found for %s" % self.id
-            )
+            raise exceptions.NotFoundException(f"No stack found for {self.id}")
         return self
 
     @classmethod

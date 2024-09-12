@@ -93,14 +93,13 @@ class Allocation(_common.Resource):
             return self
 
         for count in utils.iterate_timeout(
-            timeout, "Timeout waiting for the allocation %s" % self.id
+            timeout, f"Timeout waiting for the allocation {self.id}"
         ):
             self.fetch(session)
 
             if self.state == 'error' and not ignore_error:
                 raise exceptions.ResourceFailure(
-                    "Allocation %(allocation)s failed: %(error)s"
-                    % {'allocation': self.id, 'error': self.last_error}
+                    f"Allocation {self.id} failed: {self.last_error}"
                 )
             elif self.state != 'allocating':
                 return self

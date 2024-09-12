@@ -245,7 +245,7 @@ def find_best_address(addresses, public=False, cloud_public=True):
         for address in addresses:
             try:
                 for count in utils.iterate_timeout(
-                    5, "Timeout waiting for %s" % address, wait=0.1
+                    5, f"Timeout waiting for {address}", wait=0.1
                 ):
                     # Return the first one that is reachable
                     try:
@@ -275,10 +275,10 @@ def find_best_address(addresses, public=False, cloud_public=True):
     if do_check:
         log = _log.setup_logging('openstack')
         log.debug(
-            "The cloud returned multiple addresses %s:, and we could not "
+            f"The cloud returned multiple addresses {addresses}:, and we could not "
             "connect to port 22 on either. That might be what you wanted, "
             "but we have no clue what's going on, so we picked the first one "
-            "%s" % (addresses, addresses[0])
+            f"{addresses[0]}"
         )
     return addresses[0]
 
@@ -379,7 +379,7 @@ def get_groups_from_server(cloud, server, server_vars):
         if extra_group:
             groups.append(extra_group)
 
-    groups.append('instance-%s' % server['id'])
+    groups.append('instance-{}'.format(server['id']))
 
     for key in ('flavor', 'image'):
         if 'name' in server_vars[key]:
@@ -439,11 +439,11 @@ def _get_supplemental_addresses(cloud, server):
                     if fixed_net is None:
                         log = _log.setup_logging('openstack')
                         log.debug(
-                            "The cloud returned floating ip %(fip)s attached"
-                            " to server %(server)s but the fixed ip associated"
-                            " with the floating ip in the neutron listing"
-                            " does not exist in the nova listing. Something"
-                            " is exceptionally broken.",
+                            "The cloud returned floating ip %(fip)s attached "
+                            "to server %(server)s but the fixed ip associated "
+                            "with the floating ip in the neutron listing "
+                            "does not exist in the nova listing. Something "
+                            "is exceptionally broken.",
                             dict(fip=fip['id'], server=server['id']),
                         )
                     else:

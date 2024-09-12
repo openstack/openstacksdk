@@ -75,7 +75,7 @@ class TestNode(base.TestCase):
         sess = mock.Mock()
         sess.post = mock.Mock(return_value=resp)
         self.assertEqual('', sot.check(sess))
-        url = 'nodes/%s/actions' % sot.id
+        url = f'nodes/{sot.id}/actions'
         body = {'check': {}}
         sess.post.assert_called_once_with(url, json=body)
 
@@ -87,7 +87,7 @@ class TestNode(base.TestCase):
         sess = mock.Mock()
         sess.post = mock.Mock(return_value=resp)
         self.assertEqual('', sot.recover(sess))
-        url = 'nodes/%s/actions' % sot.id
+        url = f'nodes/{sot.id}/actions'
         body = {'recover': {}}
         sess.post.assert_called_once_with(url, json=body)
 
@@ -99,7 +99,7 @@ class TestNode(base.TestCase):
         sess = mock.Mock()
         sess.post = mock.Mock(return_value=resp)
         self.assertEqual('', sot.op(sess, 'dance', style='tango'))
-        url = 'nodes/%s/ops' % sot.id
+        url = f'nodes/{sot.id}/ops'
         sess.post.assert_called_once_with(
             url, json={'dance': {'style': 'tango'}}
         )
@@ -150,7 +150,7 @@ class TestNode(base.TestCase):
 
         res = sot.force_delete(sess)
         self.assertEqual(fake_action_id, res.id)
-        url = 'nodes/%s' % sot.id
+        url = f'nodes/{sot.id}'
         body = {'force': True}
         sess.delete.assert_called_once_with(url, json=body)
 

@@ -112,7 +112,7 @@ class TestTransfer(base.TestCase):
 
         sot.accept(self.sess, auth_key=FAKE_AUTH_KEY)
         self.sess.post.assert_called_with(
-            'volume-transfers/%s/accept' % FAKE_TRANSFER,
+            f'volume-transfers/{FAKE_TRANSFER}/accept',
             json={
                 'accept': {
                     'auth_key': FAKE_AUTH_KEY,
@@ -134,7 +134,7 @@ class TestTransfer(base.TestCase):
 
         sot.accept(self.sess, auth_key=FAKE_AUTH_KEY)
         self.sess.post.assert_called_with(
-            'os-volume-transfer/%s/accept' % FAKE_TRANSFER,
+            f'os-volume-transfer/{FAKE_TRANSFER}/accept',
             json={
                 'accept': {
                     'auth_key': FAKE_AUTH_KEY,

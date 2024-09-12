@@ -63,9 +63,7 @@ class Proxy(proxy.Proxy):
             kwargs['fields'] = _common.fields_type(fields, resource_type)
         return res.fetch(
             self,
-            error_message="No {resource_type} found for {value}".format(
-                resource_type=resource_type.__name__, value=value
-            ),
+            error_message=f"No {resource_type.__name__} found for {value}",
             **kwargs,
         )
 
@@ -560,9 +558,8 @@ class Proxy(proxy.Proxy):
         try:
             for count in utils.iterate_timeout(
                 timeout,
-                "Timeout waiting for nodes %(nodes)s to reach "
-                "target state '%(state)s'"
-                % {'nodes': log_nodes, 'state': expected_state},
+                f"Timeout waiting for nodes {log_nodes} to reach "
+                f"target state '{expected_state}'",
             ):
                 nodes = [self.get_node(n) for n in remaining]
                 remaining = []

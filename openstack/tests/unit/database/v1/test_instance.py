@@ -67,7 +67,7 @@ class TestInstance(base.TestCase):
 
         self.assertEqual(response.body['user'], sot.enable_root_user(sess))
 
-        url = "instances/%s/root" % IDENTIFIER
+        url = f"instances/{IDENTIFIER}/root"
         sess.post.assert_called_with(
             url,
         )
@@ -82,7 +82,7 @@ class TestInstance(base.TestCase):
 
         self.assertTrue(sot.is_root_enabled(sess))
 
-        url = "instances/%s/root" % IDENTIFIER
+        url = f"instances/{IDENTIFIER}/root"
         sess.get.assert_called_with(
             url,
         )
@@ -96,7 +96,7 @@ class TestInstance(base.TestCase):
 
         self.assertIsNone(sot.restart(sess))
 
-        url = "instances/%s/action" % IDENTIFIER
+        url = f"instances/{IDENTIFIER}/action"
         body = {'restart': None}
         sess.post.assert_called_with(url, json=body)
 
@@ -110,7 +110,7 @@ class TestInstance(base.TestCase):
 
         self.assertIsNone(sot.resize(sess, flavor))
 
-        url = "instances/%s/action" % IDENTIFIER
+        url = f"instances/{IDENTIFIER}/action"
         body = {'resize': {'flavorRef': flavor}}
         sess.post.assert_called_with(url, json=body)
 
@@ -124,6 +124,6 @@ class TestInstance(base.TestCase):
 
         self.assertIsNone(sot.resize_volume(sess, size))
 
-        url = "instances/%s/action" % IDENTIFIER
+        url = f"instances/{IDENTIFIER}/action"
         body = {'resize': {'volume': size}}
         sess.post.assert_called_with(url, json=body)

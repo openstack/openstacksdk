@@ -203,7 +203,7 @@ class TestCase(base.TestCase):
         if append:
             to_join.extend([urllib.parse.quote(i) for i in append])
         if qs_elements is not None:
-            qs = '?%s' % '&'.join(qs_elements)
+            qs = '?{}'.format('&'.join(qs_elements))
         return '{uri}{qs}'.format(uri='/'.join(to_join), qs=qs)
 
     def mock_for_keystone_projects(
@@ -811,17 +811,13 @@ class TestCase(base.TestCase):
             # NOTE(notmorgan): make sure the delimiter is non-url-safe, in this
             # case "|" is used so that the split can be a bit easier on
             # maintainers of this code.
-            key = '{method}|{uri}|{params}'.format(
-                method=method, uri=uri, params=kw_params
-            )
+            key = f'{method}|{uri}|{kw_params}'
             validate = to_mock.pop('validate', {})
             valid_keys = {'json', 'headers', 'params', 'data'}
             invalid_keys = set(validate.keys()) - valid_keys
             if invalid_keys:
                 raise TypeError(
-                    "Invalid values passed to validate: {keys}".format(
-                        keys=invalid_keys
-                    )
+                    f"Invalid values passed to validate: {invalid_keys}"
                 )
             headers = structures.CaseInsensitiveDict(
                 to_mock.pop('headers', {})
@@ -841,11 +837,10 @@ class TestCase(base.TestCase):
                     'PROGRAMMING ERROR: key-word-params '
                     'should be part of the uri_key and cannot change, '
                     'it will affect the matcher in requests_mock. '
-                    '%(old)r != %(new)r'
-                    % {
-                        'old': self._uri_registry[key]['kw_params'],
-                        'new': kw_params,
-                    }
+                    '{old!r} != {new!r}'.format(
+                        old=self._uri_registry[key]['kw_params'],
+                        new=kw_params,
+                    )
                 )
             self._uri_registry[key]['response_list'].append(to_mock)
 
@@ -900,9 +895,7 @@ class TestCase(base.TestCase):
                         'call': '{method} {url}'.format(
                             method=call['method'], url=call['url']
                         ),
-                        'history': '{method} {url}'.format(
-                            method=history.method, url=history.url
-                        ),
+                        'history': f'{history.method} {history.url}',
                     }
                 ),
             )

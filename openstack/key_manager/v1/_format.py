@@ -24,7 +24,7 @@ class HREFToUUID(format.Formatter):
         # Only try to proceed if we have an actual URI.
         # Just check that we have a scheme, netloc, and path.
         if not all(parts[:3]):
-            raise ValueError("Unable to convert %s to an ID" % value)
+            raise ValueError(f"Unable to convert {value} to an ID")
 
         # The UUID will be the last portion of the URI.
         return parts.path.split("/")[-1]

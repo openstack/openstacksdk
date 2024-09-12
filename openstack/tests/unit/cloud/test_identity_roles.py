@@ -286,8 +286,8 @@ class TestIdentityRoles(base.TestCase):
                     uri=self.get_mock_url(
                         resource='role_assignments',
                         qs_elements=[
-                            'scope.domain.id=%s' % domain_data.domain_id,
-                            'user.id=%s' % user_data.user_id,
+                            f'scope.domain.id={domain_data.domain_id}',
+                            f'user.id={user_data.user_id}',
                             'effective=True',
                         ],
                     ),

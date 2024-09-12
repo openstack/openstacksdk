@@ -124,7 +124,7 @@ class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
         cluster = self.get_coe_cluster(name_or_id)
         if not cluster:
             raise exceptions.SDKException(
-                "COE cluster %s not found." % name_or_id
+                f"COE cluster {name_or_id} not found."
             )
 
         cluster = self.container_infrastructure_management.update_cluster(
@@ -283,7 +283,7 @@ class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
         cluster_template = self.get_cluster_template(name_or_id)
         if not cluster_template:
             raise exceptions.SDKException(
-                "Cluster template %s not found." % name_or_id
+                f"Cluster template {name_or_id} not found."
             )
 
         cluster_template = (

@@ -638,7 +638,7 @@ class TestProxyCache(base.TestCase):
         self.sot.service_type = 'srv'
 
     def _get_key(self, id):
-        return "srv.fake.fake/%s.{'microversion': None, 'params': {}}" % id
+        return f"srv.fake.fake/{id}.{{'microversion': None, 'params': {{}}}}"
 
     def test_get_not_in_cache(self):
         self.cloud._cache_expirations['srv.fake'] = 5

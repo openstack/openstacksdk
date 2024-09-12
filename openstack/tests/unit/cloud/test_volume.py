@@ -235,8 +235,9 @@ class TestVolume(base.TestCase):
 
         with testtools.ExpectedException(
             exceptions.SDKException,
-            "Volume %s is not available. Status is '%s'"
-            % (volume['id'], volume['status']),
+            "Volume {} is not available. Status is '{}'".format(
+                volume['id'], volume['status']
+            ),
         ):
             self.cloud.attach_volume(server, volume)
         self.assertEqual(0, len(self.adapter.request_history))
@@ -251,8 +252,9 @@ class TestVolume(base.TestCase):
 
         with testtools.ExpectedException(
             exceptions.SDKException,
-            "Volume %s already attached to server %s on device %s"
-            % (volume['id'], server['id'], device_id),
+            "Volume {} already attached to server {} on device {}".format(
+                volume['id'], server['id'], device_id
+            ),
         ):
             self.cloud.attach_volume(server, volume)
         self.assertEqual(0, len(self.adapter.request_history))

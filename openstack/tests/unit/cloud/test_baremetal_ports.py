@@ -83,7 +83,9 @@ class TestBaremetalPort(base.IronicTestCase):
                         resource='ports',
                         append=['detail'],
                         qs_elements=[
-                            'node_uuid=%s' % self.fake_baremetal_node['uuid']
+                            'node_uuid={}'.format(
+                                self.fake_baremetal_node['uuid']
+                            )
                         ],
                     ),
                     json={
@@ -112,7 +114,9 @@ class TestBaremetalPort(base.IronicTestCase):
                         resource='ports',
                         append=['detail'],
                         qs_elements=[
-                            'node_uuid=%s' % self.fake_baremetal_node['uuid']
+                            'node_uuid={}'.format(
+                                self.fake_baremetal_node['uuid']
+                            )
                         ],
                     ),
                     status_code=400,
@@ -136,7 +140,7 @@ class TestBaremetalPort(base.IronicTestCase):
                     uri=self.get_mock_url(
                         resource='ports',
                         append=['detail'],
-                        qs_elements=['address=%s' % mac],
+                        qs_elements=[f'address={mac}'],
                     ),
                     json={'ports': [self.fake_baremetal_port]},
                 ),
@@ -157,7 +161,7 @@ class TestBaremetalPort(base.IronicTestCase):
                     uri=self.get_mock_url(
                         resource='ports',
                         append=['detail'],
-                        qs_elements=['address=%s' % mac],
+                        qs_elements=[f'address={mac}'],
                     ),
                     json={'ports': []},
                 ),

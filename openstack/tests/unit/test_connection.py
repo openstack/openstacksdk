@@ -31,71 +31,65 @@ CONFIG_PASSWORD = "TopSecret"
 CONFIG_PROJECT = "TheGrandPrizeGame"
 CONFIG_CACERT = "TrustMe"
 
-CLOUD_CONFIG = """
+CLOUD_CONFIG = f"""
 clouds:
   sample-cloud:
     region_name: RegionOne
     auth:
-      auth_url: {auth_url}
-      username: {username}
-      password: {password}
-      project_name: {project}
+      auth_url: {CONFIG_AUTH_URL}
+      username: {CONFIG_USERNAME}
+      password: {CONFIG_PASSWORD}
+      project_name: {CONFIG_PROJECT}
   insecure-cloud:
     auth:
-      auth_url: {auth_url}
-      username: {username}
-      password: {password}
-      project_name: {project}
-    cacert: {cacert}
+      auth_url: {CONFIG_AUTH_URL}
+      username: {CONFIG_USERNAME}
+      password: {CONFIG_PASSWORD}
+      project_name: {CONFIG_PROJECT}
+    cacert: {CONFIG_CACERT}
     verify: False
   insecure-cloud-alternative-format:
     auth:
-      auth_url: {auth_url}
-      username: {username}
-      password: {password}
-      project_name: {project}
+      auth_url: {CONFIG_AUTH_URL}
+      username: {CONFIG_USERNAME}
+      password: {CONFIG_PASSWORD}
+      project_name: {CONFIG_PROJECT}
     insecure: True
   cacert-cloud:
     auth:
-      auth_url: {auth_url}
-      username: {username}
-      password: {password}
-      project_name: {project}
-    cacert: {cacert}
+      auth_url: {CONFIG_AUTH_URL}
+      username: {CONFIG_USERNAME}
+      password: {CONFIG_PASSWORD}
+      project_name: {CONFIG_PROJECT}
+    cacert: {CONFIG_CACERT}
   profiled-cloud:
     profile: dummy
     auth:
-      username: {username}
-      password: {password}
-      project_name: {project}
-    cacert: {cacert}
-""".format(
-    auth_url=CONFIG_AUTH_URL,
-    username=CONFIG_USERNAME,
-    password=CONFIG_PASSWORD,
-    project=CONFIG_PROJECT,
-    cacert=CONFIG_CACERT,
-)
+      username: {CONFIG_USERNAME}
+      password: {CONFIG_PASSWORD}
+      project_name: {CONFIG_PROJECT}
+    cacert: {CONFIG_CACERT}
+"""
 
-VENDOR_CONFIG = """
+VENDOR_CONFIG = f"""
 {{
   "name": "dummy",
   "profile": {{
     "auth": {{
-      "auth_url": "{auth_url}"
+      "auth_url": "{CONFIG_AUTH_URL}"
     }},
     "vendor_hook": "openstack.tests.unit.test_connection:vendor_hook"
   }}
 }}
-""".format(auth_url=CONFIG_AUTH_URL)
+"""
 
-PUBLIC_CLOUDS_YAML = """
+PUBLIC_CLOUDS_YAML = f"""
 public-clouds:
   dummy:
     auth:
-      auth_url: {auth_url}
+      auth_url: {CONFIG_AUTH_URL}
     vendor_hook: openstack.tests.unit.test_connection:vendor_hook
-""".format(auth_url=CONFIG_AUTH_URL)
+"""
 
 
 class _TestConnectionBase(base.TestCase):

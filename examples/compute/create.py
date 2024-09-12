@@ -46,7 +46,7 @@ def create_keypair(conn):
                 raise e
 
         with open(PRIVATE_KEYPAIR_FILE, 'w') as f:
-            f.write("%s" % keypair.private_key)
+            f.write(str(keypair.private_key))
 
         os.chmod(PRIVATE_KEYPAIR_FILE, 0o400)
 
@@ -71,8 +71,4 @@ def create_server(conn):
 
     server = conn.compute.wait_for_server(server)
 
-    print(
-        "ssh -i {key} root@{ip}".format(
-            key=PRIVATE_KEYPAIR_FILE, ip=server.access_ipv4
-        )
-    )
+    print(f"ssh -i {PRIVATE_KEYPAIR_FILE} root@{server.access_ipv4}")

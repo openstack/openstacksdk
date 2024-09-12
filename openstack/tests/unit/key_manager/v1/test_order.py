@@ -16,13 +16,13 @@ from openstack.tests.unit import base
 
 ID_VAL = "123"
 SECRET_ID = "5"
-IDENTIFIER = 'http://localhost/orders/%s' % ID_VAL
+IDENTIFIER = f'http://localhost/orders/{ID_VAL}'
 EXAMPLE = {
     'created': '1',
     'creator_id': '2',
     'meta': {'key': '3'},
     'order_ref': IDENTIFIER,
-    'secret_ref': 'http://localhost/secrets/%s' % SECRET_ID,
+    'secret_ref': f'http://localhost/secrets/{SECRET_ID}',
     'status': '6',
     'sub_status': '7',
     'sub_status_message': '8',

@@ -35,9 +35,9 @@ class TestRecordset(base.BaseFunctionalTest):
         '''Test DNS recordsets functionality'''
         sub = ''.join(random.choice(string.ascii_lowercase) for _ in range(6))
 
-        zone = '%s.example2.net.' % sub
+        zone = f'{sub}.example2.net.'
         email = 'test@example2.net'
-        name = 'www.%s' % zone
+        name = f'www.{zone}'
         type_ = 'a'
         description = 'Test recordset'
         ttl = 3600
@@ -96,9 +96,9 @@ class TestRecordset(base.BaseFunctionalTest):
         '''Test DNS recordsets functionality'''
         sub = ''.join(random.choice(string.ascii_lowercase) for _ in range(6))
 
-        zone = '%s.example2.net.' % sub
+        zone = f'{sub}.example2.net.'
         email = 'test@example2.net'
-        name = 'www.%s' % zone
+        name = f'www.{zone}'
         type_ = 'a'
         description = 'Test recordset'
         ttl = 3600

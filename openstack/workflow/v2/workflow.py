@@ -58,7 +58,7 @@ class Workflow(resource.Resource):
             "data": self.definition,
         }
 
-        scope = "?scope=%s" % self.scope
+        scope = f"?scope={self.scope}"
         uri = request.url + scope
 
         request.headers.update(headers)

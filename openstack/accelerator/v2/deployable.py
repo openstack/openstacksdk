@@ -64,7 +64,7 @@ class Deployable(resource.Resource):
             call = getattr(session, method.lower())
         except AttributeError:
             raise exceptions.ResourceFailure(
-                "Invalid commit method: %s" % method
+                f"Invalid commit method: {method}"
             )
 
         request.url = request.url + "/program"

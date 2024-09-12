@@ -53,5 +53,5 @@ class TestProfileType(base.TestCase):
         sess = mock.Mock()
         sess.get = mock.Mock(return_value=resp)
         self.assertEqual('', sot.type_ops(sess))
-        url = 'profile-types/%s/ops' % sot.id
+        url = f'profile-types/{sot.id}/ops'
         sess.get.assert_called_once_with(url)

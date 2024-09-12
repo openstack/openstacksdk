@@ -160,7 +160,7 @@ class TestStats(base.TestCase):
                     return True
             time.sleep(0.1)
 
-        raise Exception("Key %s not found in reported stats" % key)
+        raise Exception(f"Key {key} not found in reported stats")
 
     def assert_prometheus_stat(self, name, value, labels=None):
         sample_value = self._registry.get_sample_value(name, labels)

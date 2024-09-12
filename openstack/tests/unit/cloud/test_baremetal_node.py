@@ -88,7 +88,7 @@ class TestBaremetalNode(base.IronicTestCase):
                     uri=self.get_mock_url(
                         resource='ports',
                         append=['detail'],
-                        qs_elements=['address=%s' % mac_address],
+                        qs_elements=[f'address={mac_address}'],
                     ),
                     json={
                         'ports': [
@@ -2041,7 +2041,7 @@ class TestBaremetalNode(base.IronicTestCase):
                     method='GET',
                     uri=self.get_mock_url(
                         resource='ports',
-                        qs_elements=['address=%s' % mac_address],
+                        qs_elements=[f'address={mac_address}'],
                     ),
                     json={
                         'ports': [
@@ -2129,7 +2129,7 @@ class TestBaremetalNode(base.IronicTestCase):
                     method='GET',
                     uri=self.get_mock_url(
                         resource='ports',
-                        qs_elements=['address=%s' % mac_address],
+                        qs_elements=[f'address={mac_address}'],
                     ),
                     json={
                         'ports': [

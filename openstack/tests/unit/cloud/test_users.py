@@ -84,8 +84,8 @@ class TestUsers(base.TestCase):
         )
         with testtools.ExpectedException(
             exceptions.SDKException,
-            "User or project creation requires an explicit"
-            " domain_id argument.",
+            "User or project creation requires an explicit "
+            "domain_id argument.",
         ):
             self.cloud.create_user(
                 name=user_data.name,
@@ -105,7 +105,7 @@ class TestUsers(base.TestCase):
                     method='GET',
                     uri=self._get_keystone_mock_url(
                         resource='users',
-                        qs_elements=['name=%s' % user_data.name],
+                        qs_elements=[f'name={user_data.name}'],
                     ),
                     status_code=200,
                     json=self._get_user_list(user_data),

@@ -87,7 +87,7 @@ class TestGroupAction(base.TestCase):
 
         self.assertIsNone(sot.delete(self.sess))
 
-        url = 'groups/%s/action' % GROUP_ID
+        url = f'groups/{GROUP_ID}/action'
         body = {'delete': {'delete-volumes': False}}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
@@ -98,7 +98,7 @@ class TestGroupAction(base.TestCase):
 
         self.assertIsNone(sot.reset(self.sess, 'new_status'))
 
-        url = 'groups/%s/action' % GROUP_ID
+        url = f'groups/{GROUP_ID}/action'
         body = {'reset_status': {'status': 'new_status'}}
         self.sess.post.assert_called_with(
             url,

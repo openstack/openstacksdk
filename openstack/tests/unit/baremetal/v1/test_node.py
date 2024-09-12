@@ -310,7 +310,7 @@ class TestNodeSetProvisionState(base.TestCase):
         result = self.node.set_provision_state(self.session, 'active')
         self.assertIs(result, self.node)
         self.session.put.assert_called_once_with(
-            'nodes/%s/states/provision' % self.node.id,
+            f'nodes/{self.node.id}/states/provision',
             json={'target': 'active'},
             headers=mock.ANY,
             microversion=None,
@@ -321,7 +321,7 @@ class TestNodeSetProvisionState(base.TestCase):
         result = self.node.set_provision_state(self.session, 'manage')
         self.assertIs(result, self.node)
         self.session.put.assert_called_once_with(
-            'nodes/%s/states/provision' % self.node.id,
+            f'nodes/{self.node.id}/states/provision',
             json={'target': 'manage'},
             headers=mock.ANY,
             microversion='1.4',
@@ -334,7 +334,7 @@ class TestNodeSetProvisionState(base.TestCase):
         )
         self.assertIs(result, self.node)
         self.session.put.assert_called_once_with(
-            'nodes/%s/states/provision' % self.node.id,
+            f'nodes/{self.node.id}/states/provision',
             json={'target': 'active', 'configdrive': 'abcd'},
             headers=mock.ANY,
             microversion=None,
@@ -348,7 +348,7 @@ class TestNodeSetProvisionState(base.TestCase):
         )
         self.assertIs(result, self.node)
         self.session.put.assert_called_once_with(
-            'nodes/%s/states/provision' % self.node.id,
+            f'nodes/{self.node.id}/states/provision',
             json={'target': 'active', 'configdrive': config_drive.decode()},
             headers=mock.ANY,
             microversion=None,
@@ -361,7 +361,7 @@ class TestNodeSetProvisionState(base.TestCase):
         )
         self.assertIs(result, self.node)
         self.session.put.assert_called_once_with(
-            'nodes/%s/states/provision' % self.node.id,
+            f'nodes/{self.node.id}/states/provision',
             json={'target': 'rebuild', 'configdrive': 'abcd'},
             headers=mock.ANY,
             microversion='1.35',
@@ -376,7 +376,7 @@ class TestNodeSetProvisionState(base.TestCase):
             )
             self.assertIs(result, self.node)
             self.session.put.assert_called_once_with(
-                'nodes/%s/states/provision' % self.node.id,
+                f'nodes/{self.node.id}/states/provision',
                 json={'target': target, 'configdrive': {'user_data': 'abcd'}},
                 headers=mock.ANY,
                 microversion='1.56',
@@ -391,7 +391,7 @@ class TestNodeSetProvisionState(base.TestCase):
 
         self.assertIs(result, self.node)
         self.session.put.assert_called_once_with(
-            'nodes/%s/states/provision' % self.node.id,
+            f'nodes/{self.node.id}/states/provision',
             json={'target': 'active', 'deploy_steps': deploy_steps},
             headers=mock.ANY,
             microversion='1.69',
@@ -406,7 +406,7 @@ class TestNodeSetProvisionState(base.TestCase):
 
         self.assertIs(result, self.node)
         self.session.put.assert_called_once_with(
-            'nodes/%s/states/provision' % self.node.id,
+            f'nodes/{self.node.id}/states/provision',
             json={'target': 'rebuild', 'deploy_steps': deploy_steps},
             headers=mock.ANY,
             microversion='1.69',
@@ -418,7 +418,7 @@ class TestNodeSetProvisionState(base.TestCase):
 
         self.assertIs(result, self.node)
         self.session.put.assert_called_once_with(
-            'nodes/%s/states/provision' % self.node.id,
+            f'nodes/{self.node.id}/states/provision',
             json={'target': 'unhold'},
             headers=mock.ANY,
             microversion='1.85',
@@ -433,7 +433,7 @@ class TestNodeSetProvisionState(base.TestCase):
 
         self.assertIs(result, self.node)
         self.session.put.assert_called_once_with(
-            'nodes/%s/states/provision' % self.node.id,
+            f'nodes/{self.node.id}/states/provision',
             json={'target': 'service', 'service_steps': service_steps},
             headers=mock.ANY,
             microversion='1.87',
@@ -448,7 +448,7 @@ class TestNodeSetProvisionState(base.TestCase):
 
         self.assertIs(result, self.node)
         self.session.put.assert_called_once_with(
-            'nodes/%s/states/provision' % self.node.id,
+            f'nodes/{self.node.id}/states/provision',
             json={'target': 'clean', 'runbook': runbook},
             headers=mock.ANY,
             microversion='1.92',
@@ -463,7 +463,7 @@ class TestNodeSetProvisionState(base.TestCase):
 
         self.assertIs(result, self.node)
         self.session.put.assert_called_once_with(
-            'nodes/%s/states/provision' % self.node.id,
+            f'nodes/{self.node.id}/states/provision',
             json={'target': 'service', 'runbook': runbook},
             headers=mock.ANY,
             microversion='1.92',
@@ -602,7 +602,7 @@ class TestNodeVif(base.TestCase):
     def test_attach_vif(self):
         self.assertIsNone(self.node.attach_vif(self.session, self.vif_id))
         self.session.post.assert_called_once_with(
-            'nodes/%s/vifs' % self.node.id,
+            f'nodes/{self.node.id}/vifs',
             json={'id': self.vif_id},
             headers=mock.ANY,
             microversion='1.67',
@@ -616,7 +616,7 @@ class TestNodeVif(base.TestCase):
             )
         )
         self.session.post.assert_called_once_with(
-            'nodes/%s/vifs' % self.node.id,
+            f'nodes/{self.node.id}/vifs',
             json={'id': self.vif_id},
             headers=mock.ANY,
             microversion='1.67',
@@ -630,7 +630,7 @@ class TestNodeVif(base.TestCase):
             )
         )
         self.session.post.assert_called_once_with(
-            'nodes/%s/vifs' % self.node.id,
+            f'nodes/{self.node.id}/vifs',
             json={'id': self.vif_id, 'port_uuid': self.vif_port_uuid},
             headers=mock.ANY,
             microversion='1.67',
@@ -646,7 +646,7 @@ class TestNodeVif(base.TestCase):
             )
         )
         self.session.post.assert_called_once_with(
-            'nodes/%s/vifs' % self.node.id,
+            f'nodes/{self.node.id}/vifs',
             json={
                 'id': self.vif_id,
                 'portgroup_uuid': self.vif_portgroup_uuid,
@@ -695,7 +695,7 @@ class TestNodeVif(base.TestCase):
         res = self.node.list_vifs(self.session)
         self.assertEqual(['1234', '5678'], res)
         self.session.get.assert_called_once_with(
-            'nodes/%s/vifs' % self.node.id,
+            f'nodes/{self.node.id}/vifs',
             headers=mock.ANY,
             microversion='1.67',
         )
@@ -849,7 +849,7 @@ class TestNodeInjectNMI(base.TestCase):
     def test_inject_nmi(self):
         self.node.inject_nmi(self.session)
         self.session.put.assert_called_once_with(
-            'nodes/%s/management/inject_nmi' % FAKE['uuid'],
+            'nodes/{}/management/inject_nmi'.format(FAKE['uuid']),
             json={},
             headers=mock.ANY,
             microversion='1.29',
@@ -878,7 +878,7 @@ class TestNodeSetPowerState(base.TestCase):
     def test_power_on(self):
         self.node.set_power_state(self.session, 'power on')
         self.session.put.assert_called_once_with(
-            'nodes/%s/states/power' % FAKE['uuid'],
+            'nodes/{}/states/power'.format(FAKE['uuid']),
             json={'target': 'power on'},
             headers=mock.ANY,
             microversion=None,
@@ -888,7 +888,7 @@ class TestNodeSetPowerState(base.TestCase):
     def test_soft_power_on(self):
         self.node.set_power_state(self.session, 'soft power off')
         self.session.put.assert_called_once_with(
-            'nodes/%s/states/power' % FAKE['uuid'],
+            'nodes/{}/states/power'.format(FAKE['uuid']),
             json={'target': 'soft power off'},
             headers=mock.ANY,
             microversion='1.27',
@@ -912,7 +912,7 @@ class TestNodeMaintenance(base.TestCase):
     def test_set(self):
         self.node.set_maintenance(self.session)
         self.session.put.assert_called_once_with(
-            'nodes/%s/maintenance' % self.node.id,
+            f'nodes/{self.node.id}/maintenance',
             json={'reason': None},
             headers=mock.ANY,
             microversion=mock.ANY,
@@ -921,7 +921,7 @@ class TestNodeMaintenance(base.TestCase):
     def test_set_with_reason(self):
         self.node.set_maintenance(self.session, 'No work on Monday')
         self.session.put.assert_called_once_with(
-            'nodes/%s/maintenance' % self.node.id,
+            f'nodes/{self.node.id}/maintenance',
             json={'reason': 'No work on Monday'},
             headers=mock.ANY,
             microversion=mock.ANY,
@@ -930,7 +930,7 @@ class TestNodeMaintenance(base.TestCase):
     def test_unset(self):
         self.node.unset_maintenance(self.session)
         self.session.delete.assert_called_once_with(
-            'nodes/%s/maintenance' % self.node.id,
+            f'nodes/{self.node.id}/maintenance',
             json=None,
             headers=mock.ANY,
             microversion=mock.ANY,
@@ -940,7 +940,7 @@ class TestNodeMaintenance(base.TestCase):
         self.node.is_maintenance = True
         self.node.commit(self.session)
         self.session.put.assert_called_once_with(
-            'nodes/%s/maintenance' % self.node.id,
+            f'nodes/{self.node.id}/maintenance',
             json={'reason': None},
             headers=mock.ANY,
             microversion=mock.ANY,
@@ -953,7 +953,7 @@ class TestNodeMaintenance(base.TestCase):
         self.node.maintenance_reason = 'No work on Monday'
         self.node.commit(self.session)
         self.session.put.assert_called_once_with(
-            'nodes/%s/maintenance' % self.node.id,
+            f'nodes/{self.node.id}/maintenance',
             json={'reason': 'No work on Monday'},
             headers=mock.ANY,
             microversion=mock.ANY,
@@ -965,14 +965,14 @@ class TestNodeMaintenance(base.TestCase):
         self.node.name = 'lazy-3000'
         self.node.commit(self.session)
         self.session.put.assert_called_once_with(
-            'nodes/%s/maintenance' % self.node.id,
+            f'nodes/{self.node.id}/maintenance',
             json={'reason': None},
             headers=mock.ANY,
             microversion=mock.ANY,
         )
 
         self.session.patch.assert_called_once_with(
-            'nodes/%s' % self.node.id,
+            f'nodes/{self.node.id}',
             json=[{'path': '/name', 'op': 'replace', 'value': 'lazy-3000'}],
             headers=mock.ANY,
             microversion=mock.ANY,
@@ -984,14 +984,14 @@ class TestNodeMaintenance(base.TestCase):
         self.node.name = 'lazy-3000'
         self.node.commit(self.session)
         self.session.put.assert_called_once_with(
-            'nodes/%s/maintenance' % self.node.id,
+            f'nodes/{self.node.id}/maintenance',
             json={'reason': 'No work on Monday'},
             headers=mock.ANY,
             microversion=mock.ANY,
         )
 
         self.session.patch.assert_called_once_with(
-            'nodes/%s' % self.node.id,
+            f'nodes/{self.node.id}',
             json=[{'path': '/name', 'op': 'replace', 'value': 'lazy-3000'}],
             headers=mock.ANY,
             microversion=mock.ANY,
@@ -1009,7 +1009,7 @@ class TestNodeMaintenance(base.TestCase):
         self.node.commit(self.session)
 
         self.session.put.assert_called_once_with(
-            'nodes/%s/maintenance' % self.node.id,
+            f'nodes/{self.node.id}/maintenance',
             json={'reason': 'No work on Monday'},
             headers=mock.ANY,
             microversion=mock.ANY,
@@ -1020,7 +1020,7 @@ class TestNodeMaintenance(base.TestCase):
         self.assertIsNone(self.node.maintenance_reason)
 
         self.session.delete.assert_called_once_with(
-            'nodes/%s/maintenance' % self.node.id,
+            f'nodes/{self.node.id}/maintenance',
             json=None,
             headers=mock.ANY,
             microversion=mock.ANY,
@@ -1040,7 +1040,7 @@ class TestNodeBootDevice(base.TestCase):
     def test_get_boot_device(self):
         self.node.get_boot_device(self.session)
         self.session.get.assert_called_once_with(
-            'nodes/%s/management/boot_device' % self.node.id,
+            f'nodes/{self.node.id}/management/boot_device',
             headers=mock.ANY,
             microversion=mock.ANY,
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
@@ -1049,7 +1049,7 @@ class TestNodeBootDevice(base.TestCase):
     def test_set_boot_device(self):
         self.node.set_boot_device(self.session, 'pxe', persistent=False)
         self.session.put.assert_called_once_with(
-            'nodes/%s/management/boot_device' % self.node.id,
+            f'nodes/{self.node.id}/management/boot_device',
             json={'boot_device': 'pxe', 'persistent': False},
             headers=mock.ANY,
             microversion=mock.ANY,
@@ -1059,7 +1059,7 @@ class TestNodeBootDevice(base.TestCase):
     def test_get_supported_boot_devices(self):
         self.node.get_supported_boot_devices(self.session)
         self.session.get.assert_called_once_with(
-            'nodes/%s/management/boot_device/supported' % self.node.id,
+            f'nodes/{self.node.id}/management/boot_device/supported',
             headers=mock.ANY,
             microversion=mock.ANY,
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
@@ -1080,7 +1080,7 @@ class TestNodeSetBootMode(base.TestCase):
     def test_node_set_boot_mode(self):
         self.node.set_boot_mode(self.session, 'uefi')
         self.session.put.assert_called_once_with(
-            'nodes/%s/states/boot_mode' % self.node.id,
+            f'nodes/{self.node.id}/states/boot_mode',
             json={'target': 'uefi'},
             headers=mock.ANY,
             microversion=mock.ANY,
@@ -1107,7 +1107,7 @@ class TestNodeSetSecureBoot(base.TestCase):
     def test_node_set_secure_boot(self):
         self.node.set_secure_boot(self.session, True)
         self.session.put.assert_called_once_with(
-            'nodes/%s/states/secure_boot' % self.node.id,
+            f'nodes/{self.node.id}/states/secure_boot',
             json={'target': True},
             headers=mock.ANY,
             microversion=mock.ANY,
@@ -1167,7 +1167,7 @@ class TestNodeTraits(base.TestCase):
         traits = ['CUSTOM_FAKE', 'CUSTOM_REAL', 'CUSTOM_MISSING']
         self.node.set_traits(self.session, traits)
         self.session.put.assert_called_once_with(
-            'nodes/%s/traits' % self.node.id,
+            f'nodes/{self.node.id}/traits',
             json={'traits': ['CUSTOM_FAKE', 'CUSTOM_REAL', 'CUSTOM_MISSING']},
             headers=mock.ANY,
             microversion='1.37',
@@ -1264,7 +1264,7 @@ class TestNodePassthru:
     def test_get_passthru(self):
         self.node.call_vendor_passthru(self.session, "GET", "test_method")
         self.session.get.assert_called_once_with(
-            'nodes/%s/vendor_passthru?method=test_method' % self.node.id,
+            f'nodes/{self.node.id}/vendor_passthru?method=test_method',
             headers=mock.ANY,
             microversion='1.37',
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
@@ -1273,7 +1273,7 @@ class TestNodePassthru:
     def test_post_passthru(self):
         self.node.call_vendor_passthru(self.session, "POST", "test_method")
         self.session.post.assert_called_once_with(
-            'nodes/%s/vendor_passthru?method=test_method' % self.node.id,
+            f'nodes/{self.node.id}/vendor_passthru?method=test_method',
             headers=mock.ANY,
             microversion='1.37',
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
@@ -1282,7 +1282,7 @@ class TestNodePassthru:
     def test_put_passthru(self):
         self.node.call_vendor_passthru(self.session, "PUT", "test_method")
         self.session.put.assert_called_once_with(
-            'nodes/%s/vendor_passthru?method=test_method' % self.node.id,
+            f'nodes/{self.node.id}/vendor_passthru?method=test_method',
             headers=mock.ANY,
             microversion='1.37',
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
@@ -1291,7 +1291,7 @@ class TestNodePassthru:
     def test_delete_passthru(self):
         self.node.call_vendor_passthru(self.session, "DELETE", "test_method")
         self.session.delete.assert_called_once_with(
-            'nodes/%s/vendor_passthru?method=test_method' % self.node.id,
+            f'nodes/{self.node.id}/vendor_passthru?method=test_method',
             headers=mock.ANY,
             microversion='1.37',
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
@@ -1300,7 +1300,7 @@ class TestNodePassthru:
     def test_list_passthru(self):
         self.node.list_vendor_passthru(self.session)
         self.session.get.assert_called_once_with(
-            'nodes/%s/vendor_passthru/methods' % self.node.id,
+            f'nodes/{self.node.id}/vendor_passthru/methods',
             headers=mock.ANY,
             microversion='1.37',
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
@@ -1321,7 +1321,7 @@ class TestNodeConsole(base.TestCase):
     def test_get_console(self):
         self.node.get_console(self.session)
         self.session.get.assert_called_once_with(
-            'nodes/%s/states/console' % self.node.id,
+            f'nodes/{self.node.id}/states/console',
             headers=mock.ANY,
             microversion=mock.ANY,
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
@@ -1330,7 +1330,7 @@ class TestNodeConsole(base.TestCase):
     def test_set_console_mode(self):
         self.node.set_console_mode(self.session, True)
         self.session.put.assert_called_once_with(
-            'nodes/%s/states/console' % self.node.id,
+            f'nodes/{self.node.id}/states/console',
             json={'enabled': True},
             headers=mock.ANY,
             microversion=mock.ANY,
@@ -1382,7 +1382,7 @@ class TestNodeInventory(base.TestCase):
         self.assertEqual(node_inventory, res)
 
         self.session.get.assert_called_once_with(
-            'nodes/%s/inventory' % self.node.id,
+            f'nodes/{self.node.id}/inventory',
             headers=mock.ANY,
             microversion='1.81',
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
@@ -1427,7 +1427,7 @@ class TestNodeFirmware(base.TestCase):
         self.assertEqual(node_firmware, res)
 
         self.session.get.assert_called_once_with(
-            'nodes/%s/firmware' % self.node.id,
+            f'nodes/{self.node.id}/firmware',
             headers=mock.ANY,
             microversion='1.86',
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,

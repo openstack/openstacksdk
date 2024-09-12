@@ -16,7 +16,7 @@ from openstack.key_manager.v1 import secret
 from openstack.tests.unit import base
 
 ID_VAL = "123"
-IDENTIFIER = 'http://localhost:9311/v1/secrets/%s' % ID_VAL
+IDENTIFIER = f'http://localhost:9311/v1/secrets/{ID_VAL}'
 EXAMPLE = {
     'algorithm': '1',
     'bit_length': '2',

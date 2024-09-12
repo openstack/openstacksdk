@@ -41,10 +41,10 @@ class TestBareMetalDriverDetails(base.BaseBaremetalTest):
         self.assertEqual('fake-hardware', driver.name)
         for iface in ('boot', 'deploy', 'management', 'power'):
             self.assertIn(
-                'fake', getattr(driver, 'enabled_%s_interfaces' % iface)
+                'fake', getattr(driver, f'enabled_{iface}_interfaces')
             )
             self.assertEqual(
-                'fake', getattr(driver, 'default_%s_interface' % iface)
+                'fake', getattr(driver, f'default_{iface}_interface')
             )
         self.assertNotEqual([], driver.hosts)
 
@@ -53,8 +53,8 @@ class TestBareMetalDriverDetails(base.BaseBaremetalTest):
         driver = [d for d in drivers if d.name == 'fake-hardware'][0]
         for iface in ('boot', 'deploy', 'management', 'power'):
             self.assertIn(
-                'fake', getattr(driver, 'enabled_%s_interfaces' % iface)
+                'fake', getattr(driver, f'enabled_{iface}_interfaces')
             )
             self.assertEqual(
-                'fake', getattr(driver, 'default_%s_interface' % iface)
+                'fake', getattr(driver, f'default_{iface}_interface')
             )

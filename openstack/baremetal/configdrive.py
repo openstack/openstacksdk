@@ -67,9 +67,7 @@ def populate_directory(
                 # Strictly speaking, user data is binary, but in many cases
                 # it's actually a text (cloud-init, ignition, etc).
                 flag = 't' if isinstance(user_data, str) else 'b'
-                with open(
-                    os.path.join(subdir, 'user_data'), 'w%s' % flag
-                ) as fp:
+                with open(os.path.join(subdir, 'user_data'), f'w{flag}') as fp:
                     fp.write(user_data)
 
         yield d
@@ -147,15 +145,14 @@ def pack(path: str) -> str:
             raise RuntimeError(
                 'Error generating the configdrive. Make sure the '
                 '"genisoimage", "mkisofs" or "xorrisofs" tool is installed. '
-                'Error: %s' % error
+                f'Error: {error}'
             )
 
         stdout, stderr = p.communicate()
         if p.returncode != 0:
             raise RuntimeError(
                 'Error generating the configdrive.'
-                'Stdout: "%(stdout)s". Stderr: "%(stderr)s"'
-                % {'stdout': stdout.decode(), 'stderr': stderr.decode()}
+                f'Stdout: "{stdout.decode()}". Stderr: "{stderr.decode()}"'
             )
 
         tmpfile.seek(0)

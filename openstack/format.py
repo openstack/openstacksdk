@@ -28,6 +28,4 @@ class BoolStr(Formatter):
         elif "false" == expr:
             return False
         else:
-            raise ValueError(
-                "Unable to deserialize boolean string: %s" % value
-            )
+            raise ValueError(f"Unable to deserialize boolean string: {value}")

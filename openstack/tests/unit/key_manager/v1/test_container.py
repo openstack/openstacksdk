@@ -15,7 +15,7 @@ from openstack.tests.unit import base
 
 
 ID_VAL = "123"
-IDENTIFIER = 'http://localhost/containers/%s' % ID_VAL
+IDENTIFIER = f'http://localhost/containers/{ID_VAL}'
 EXAMPLE = {
     'container_ref': IDENTIFIER,
     'created': '2015-03-09T12:14:57.233772',

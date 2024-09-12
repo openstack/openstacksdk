@@ -257,7 +257,7 @@ class TestImage(base.TestCase):
 
         sot.add_tag(self.sess, tag)
         self.sess.put.assert_called_with(
-            'images/IDENTIFIER/tags/%s' % tag,
+            f'images/IDENTIFIER/tags/{tag}',
         )
 
     def test_remove_tag(self):
@@ -266,7 +266,7 @@ class TestImage(base.TestCase):
 
         sot.remove_tag(self.sess, tag)
         self.sess.delete.assert_called_with(
-            'images/IDENTIFIER/tags/%s' % tag,
+            f'images/IDENTIFIER/tags/{tag}',
         )
 
     def test_import_image(self):

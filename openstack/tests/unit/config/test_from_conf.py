@@ -285,8 +285,8 @@ class TestFromConf(base.TestCase):
             exceptions.ServiceDisabledException, getattr, adap, 'get'
         )
         self.assertIn(
-            "Service '%s' is disabled because its configuration "
-            "could not be loaded." % service_type,
+            f"Service '{service_type}' is disabled because its configuration "
+            "could not be loaded.",
             ex.message,
         )
         self.assertIn(expected_reason, ex.message)

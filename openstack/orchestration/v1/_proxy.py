@@ -573,7 +573,7 @@ class Proxy(proxy.Proxy):
             )
         except Exception as e:
             raise exceptions.SDKException(
-                "Error in processing template files: %s" % str(e)
+                f"Error in processing template files: {str(e)}"
             )
 
     def _get_cleanup_dependencies(self):

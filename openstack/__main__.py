@@ -20,8 +20,9 @@ import pbr.version
 
 def show_version(args):
     print(
-        "OpenstackSDK Version %s"
-        % pbr.version.VersionInfo('openstacksdk').version_string_with_vcs()
+        "OpenstackSDK Version {}".format(
+            pbr.version.VersionInfo('openstacksdk').version_string_with_vcs()
+        )
     )
 
 
