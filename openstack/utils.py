@@ -73,6 +73,16 @@ def iterate_timeout(timeout, message, wait=2):
     raise exceptions.ResourceTimeout(message)
 
 
+class _AccessSaver:
+    __slots__ = ('keys',)
+
+    def __init__(self):
+        self.keys = []
+
+    def __getitem__(self, key):
+        self.keys.append(key)
+
+
 def get_string_format_keys(fmt_string, old_style=True):
     """Gets a list of required keys from a format string
 
@@ -80,15 +90,7 @@ def get_string_format_keys(fmt_string, old_style=True):
     use the old style string formatting.
     """
     if old_style:
-
-        class AccessSaver:
-            def __init__(self):
-                self.keys = []
-
-            def __getitem__(self, key):
-                self.keys.append(key)
-
-        a = AccessSaver()
+        a = _AccessSaver()
         fmt_string % a
 
         return a.keys
