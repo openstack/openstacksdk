@@ -113,7 +113,10 @@ class Secret(resource.Resource):
                 headers={"Accept": content_type},
                 skip_cache=skip_cache,
             )
-            response["payload"] = payload.text
+            if content_type == "text/plain":
+                response["payload"] = payload.content.decode("UTF-8")
+            else:
+                response["payload"] = payload.content
 
         # We already have the JSON here so don't call into _translate_response
         self._update_from_body_attrs(response)

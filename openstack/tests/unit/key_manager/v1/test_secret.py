@@ -100,16 +100,14 @@ class TestSecret(base.TestCase):
 
         sess.get.assert_called_once_with("secrets/id")
 
-    def _test_payload(self, sot, metadata, content_type):
-        content_type = "some/type"
-
+    def _test_payload(self, sot, metadata, content_type="some/type"):
         metadata_response = mock.Mock()
         # Use copy because the dict gets consumed.
         metadata_response.json = mock.Mock(return_value=metadata.copy())
 
         payload_response = mock.Mock()
-        payload = "secret info"
-        payload_response.text = payload
+        payload = b"secret info"
+        payload_response.content = payload
 
         sess = mock.Mock()
         sess.get = mock.Mock(side_effect=[metadata_response, payload_response])
@@ -129,7 +127,11 @@ class TestSecret(base.TestCase):
             ]
         )
 
-        self.assertEqual(rv.payload, payload)
+        if content_type == "text/plain":
+            expected_payload = payload.decode("utf-8")
+        else:
+            expected_payload = payload
+        self.assertEqual(rv.payload, expected_payload)
         self.assertEqual(rv.status, metadata["status"])
 
     def test_get_with_payload_from_argument(self):
@@ -140,6 +142,15 @@ class TestSecret(base.TestCase):
 
     def test_get_with_payload_from_content_types(self):
         content_type = "some/type"
+        metadata = {
+            "status": "fine",
+            "content_types": {"default": content_type},
+        }
+        sot = secret.Secret(id="id")
+        self._test_payload(sot, metadata, content_type)
+
+    def test_get_with_text_payload(self):
+        content_type = "text/plain"
         metadata = {
             "status": "fine",
             "content_types": {"default": content_type},
