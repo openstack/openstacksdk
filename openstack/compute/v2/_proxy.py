@@ -2095,15 +2095,16 @@ class Proxy(proxy.Proxy):
 
     # ========== Server Migrations ==========
 
-    def migrate_server(self, server):
+    def migrate_server(self, server, *, host=None):
         """Migrate a server from one host to another
 
         :param server: Either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server` instance.
+        :param str host: The host to which to migrate the server.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.migrate(self)
+        server.migrate(self, host=host)
 
     def live_migrate_server(
         self,
