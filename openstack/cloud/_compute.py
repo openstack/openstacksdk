@@ -381,13 +381,8 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         params = {}
         if name_or_id:
             project = self.identity.find_project(
-                name_or_id, ignore_missing=True
+                name_or_id, ignore_missing=False
             )
-            if not project:
-                raise exceptions.SDKException(
-                    f"Project {name_or_id} was requested but was not found "
-                    f"on the cloud"
-                )
             params['tenant_id'] = project.id
         return self.compute.get_limits(**params).absolute
 
@@ -429,13 +424,12 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         """
         if not filters:
             filters = {}
-        flavor = self.compute.find_flavor(
+        return self.compute.find_flavor(
             name_or_id,
             get_extra_specs=get_extra,
             ignore_missing=True,
             **filters,
         )
-        return flavor
 
     def get_flavor_by_id(self, id, get_extra=False):
         """Get a flavor by ID
@@ -835,13 +829,8 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                 group_id = group['id']
             else:  # object
                 group_obj = self.compute.find_server_group(
-                    group, ignore_missing=True
+                    group, ignore_missing=False
                 )
-                if not group_obj:
-                    raise exceptions.SDKException(
-                        "Server Group {group} was requested but was not found"
-                        " on the cloud".format(group=group)
-                    )
                 group_id = group_obj['id']
             if 'scheduler_hints' not in kwargs:
                 kwargs['scheduler_hints'] = {}
@@ -871,17 +860,8 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                     network_id = net['id']
                 else:
                     network_obj = self.network.find_network(
-                        net, ignore_missing=True
+                        net, ignore_missing=False
                     )
-                    if not network_obj:
-                        raise exceptions.SDKException(
-                            'Network {network} is not a valid network in'
-                            ' {cloud}:{region}'.format(
-                                network=network,
-                                cloud=self.name,
-                                region=self._compute_region,
-                            )
-                        )
                     network_id = network_obj['id']
                 nics.append({'net-id': network_id})
 
@@ -902,14 +882,8 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             elif 'net-name' in nic:
                 net_name = nic.pop('net-name')
                 nic_net = self.network.find_network(
-                    net_name, ignore_missing=True
+                    net_name, ignore_missing=False
                 )
-                if not nic_net:
-                    raise exceptions.SDKException(
-                        "Requested network {net} could not be found.".format(
-                            net=net_name
-                        )
-                    )
                 net['uuid'] = nic_net['id']
             for ip_key in ('v4-fixed-ip', 'v6-fixed-ip', 'fixed_ip'):
                 fixed_ip = nic.pop(ip_key, None)
@@ -948,12 +922,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             if isinstance(image, dict):
                 kwargs['imageRef'] = image['id']
             else:
-                image_obj = self.image.find_image(image, ignore_missing=True)
-                if not image_obj:
-                    raise exc.OpenStackCloudException(
-                        f"Image {image} was requested but was not found "
-                        f"on the cloud"
-                    )
+                image_obj = self.image.find_image(image, ignore_missing=False)
                 kwargs['imageRef'] = image_obj.id
 
         # TODO(stephenfin): Drop support for dicts: we should only accept
@@ -1055,13 +1024,8 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                 volume_id = boot_volume['id']
             else:
                 volume = self.block_storage.find_volume(
-                    boot_volume, ignore_missing=True
+                    boot_volume, ignore_missing=False
                 )
-                if not volume:
-                    raise exceptions.SDKException(
-                        f"Volume {volume} was requested but was not found "
-                        f"on the cloud"
-                    )
                 volume_id = volume['id']
             block_mapping = {
                 'boot_index': '0',
@@ -1078,12 +1042,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             if isinstance(image, dict):
                 image_obj = image
             else:
-                image_obj = self.image.find_image(image, ignore_missing=True)
-                if not image_obj:
-                    raise exceptions.SDKException(
-                        f"Image {image} was requested but was not found "
-                        f"on the cloud"
-                    )
+                image_obj = self.image.find_image(image, ignore_missing=False)
 
             block_mapping = {
                 'boot_index': '0',
@@ -1115,13 +1074,8 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                 volume_id = volume['id']
             else:
                 volume_obj = self.block_storage.find_volume(
-                    volume, ignore_missing=True
+                    volume, ignore_missing=False
                 )
-                if not volume_obj:
-                    raise exceptions.SDKException(
-                        f"Volume {volume} was requested but was not found "
-                        f"on the cloud"
-                    )
                 volume_id = volume_obj['id']
             block_mapping = {
                 'boot_index': '-1',
@@ -1841,14 +1795,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         if isinstance(end, str):
             end = parse_date(end)
 
-        proj = self.identity.find_project(name_or_id, ignore_missing=True)
-        if not proj:
-            raise exceptions.SDKException(
-                f"Project {name_or_id} was requested but was not found "
-                f"on the cloud"
-            )
+        project = self.identity.find_project(name_or_id, ignore_missing=False)
 
-        return self.compute.get_usage(proj, start, end)
+        return self.compute.get_usage(project, start, end)
 
     def _encode_server_userdata(self, userdata):
         if hasattr(userdata, 'read'):

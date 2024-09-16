@@ -136,12 +136,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
             if isinstance(image, dict):
                 kwargs['imageRef'] = image['id']
             else:  # object
-                image_obj = self.image.find_image(image, ignore_missing=True)
-                if not image_obj:
-                    raise exceptions.SDKException(
-                        f"Image {image} was requested as the basis for a new "
-                        f"volume but was not found on the cloud"
-                    )
+                image_obj = self.image.find_image(image, ignore_missing=False)
                 kwargs['imageRef'] = image_obj['id']
         kwargs = self._get_volume_kwargs(kwargs)
         kwargs['size'] = size
@@ -267,10 +262,8 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         params = {}
         if name_or_id:
             project = self.identity.find_project(
-                name_or_id, ignore_missing=True
+                name_or_id, ignore_missing=False
             )
-            if not project:
-                raise exceptions.SDKException("project does not exist")
             params['project'] = project
         return self.block_storage.get_limits(**params)
 
