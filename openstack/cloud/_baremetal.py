@@ -82,10 +82,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         :rtype: :class:`~openstack.baremetal.v1.node.Node`.
         :returns: The node found or None if no nodes are found.
         """
-        try:
-            return self.baremetal.find_node(name_or_id, ignore_missing=False)
-        except exceptions.NotFoundException:
-            return None
+        return self.baremetal.find_node(name_or_id, ignore_missing=True)
 
     def get_machine_by_mac(self, mac):
         """Get machine by port MAC address
@@ -417,7 +414,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         :return: Nothing.
         """
         machine = self.get_machine(name_or_id)
-        port = self.network.find_port(port_name_or_id)
+        port = self.network.find_port(port_name_or_id, ignore_missing=False)
         self.baremetal.attach_vif_to_node(machine, port['id'])
 
     def detach_port_from_machine(self, name_or_id, port_name_or_id):
@@ -429,7 +426,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         :return: Nothing.
         """
         machine = self.get_machine(name_or_id)
-        port = self.network.find_port(port_name_or_id)
+        port = self.network.find_port(port_name_or_id, ignore_missing=False)
         self.baremetal.detach_vif_from_node(machine, port['id'])
 
     def list_ports_attached_to_machine(self, name_or_id):
@@ -441,7 +438,10 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         machine = self.get_machine(name_or_id)
         vif_ids = self.baremetal.list_node_vifs(machine)
-        return [self.network.find_port(vif) for vif in vif_ids]
+        return [
+            self.network.find_port(vif, ignore_missing=False)
+            for vif in vif_ids
+        ]
 
     def validate_machine(self, name_or_id, for_deploy=True):
         """Validate parameters of the machine.

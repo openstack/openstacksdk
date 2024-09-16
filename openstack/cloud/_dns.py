@@ -39,12 +39,9 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         if not filters:
             filters = {}
-        zone = self.dns.find_zone(
+        return self.dns.find_zone(
             name_or_id=name_or_id, ignore_missing=True, **filters
         )
-        if not zone:
-            return None
-        return zone
 
     def search_zones(self, name_or_id=None, filters=None):
         zones = self.list_zones(filters)
@@ -136,7 +133,7 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
             error.
         """
 
-        zone = self.dns.find_zone(name_or_id)
+        zone = self.dns.find_zone(name_or_id, ignore_missing=True)
         if not zone:
             self.log.debug("Zone %s not found for deleting", name_or_id)
             return False
@@ -179,12 +176,9 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
             zone_obj = self.get_zone(zone)
         if not zone_obj:
             raise exceptions.SDKException("Zone %s not found." % zone)
-        try:
-            return self.dns.find_recordset(
-                zone=zone_obj, name_or_id=name_or_id, ignore_missing=False
-            )
-        except Exception:
-            return None
+        return self.dns.find_recordset(
+            zone=zone_obj, name_or_id=name_or_id, ignore_missing=True
+        )
 
     def search_recordsets(self, zone, name_or_id=None, filters=None):
         recordsets = self.list_recordsets(zone=zone)

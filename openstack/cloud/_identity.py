@@ -165,6 +165,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         project = self.identity.find_project(
             name_or_id=name_or_id,
             domain_id=domain_id,
+            ignore_missing=True,
         )
         if not project:
             raise exceptions.SDKException("Project %s not found." % name_or_id)
@@ -211,7 +212,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         try:
             project = self.identity.find_project(
-                name_or_id=name_or_id, ignore_missing=True, domain_id=domain_id
+                name_or_id=name_or_id, domain_id=domain_id, ignore_missing=True
             )
             if not project:
                 self.log.debug("Project %s not found for deleting", name_or_id)
@@ -848,7 +849,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             wrong during the OpenStack API call.
         """
         if domain_id is None:
-            return self.identity.find_domain(name_or_id)
+            return self.identity.find_domain(name_or_id, ignore_missing=False)
         else:
             return self.identity.get_domain(domain_id)
 
@@ -948,7 +949,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
-        group = self.identity.find_group(name_or_id, **kwargs)
+        group = self.identity.find_group(
+            name_or_id, ignore_missing=True, **kwargs
+        )
         if group is None:
             raise exceptions.SDKException(
                 f"Group {name_or_id} not found for updating"
@@ -974,7 +977,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             wrong during the OpenStack API call.
         """
         try:
-            group = self.identity.find_group(name_or_id)
+            group = self.identity.find_group(name_or_id, ignore_missing=True)
             if group is None:
                 self.log.debug("Group %s not found for deleting", name_or_id)
                 return False
@@ -1215,7 +1218,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             # group, role, project
             search_args['domain_id'] = data['domain'].id
 
-        data['role'] = self.identity.find_role(name_or_id=role)
+        data['role'] = self.identity.find_role(
+            name_or_id=role, ignore_missing=True
+        )
         if not data['role']:
             raise exceptions.SDKException(f'Role {role} not found.')
 

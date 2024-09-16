@@ -136,7 +136,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
             if isinstance(image, dict):
                 kwargs['imageRef'] = image['id']
             else:  # object
-                image_obj = self.image.find_image(image)
+                image_obj = self.image.find_image(image, ignore_missing=True)
                 if not image_obj:
                     raise exceptions.SDKException(
                         f"Image {image} was requested as the basis for a new "
@@ -221,8 +221,9 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         """
-        volume = self.block_storage.find_volume(name_or_id)
-
+        volume = self.block_storage.find_volume(
+            name_or_id, ignore_missing=True
+        )
         if not volume:
             self.log.debug(
                 "Volume %(name_or_id)s does not exist",
@@ -265,7 +266,9 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         params = {}
         if name_or_id:
-            project = self.identity.find_project(name_or_id)
+            project = self.identity.find_project(
+                name_or_id, ignore_missing=True
+            )
             if not project:
                 raise exceptions.SDKException("project does not exist")
             params['project'] = project

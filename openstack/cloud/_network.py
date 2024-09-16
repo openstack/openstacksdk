@@ -617,7 +617,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if the resource to
             set the quota does not exist.
         """
-        proj = self.identity.find_project(name_or_id)
+        proj = self.identity.find_project(name_or_id, ignore_missing=True)
         if not proj:
             raise exceptions.SDKException(
                 f"Project {name_or_id} was requested by was not found "
@@ -636,7 +636,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if it's not a
             valid project
         """
-        proj = self.identity.find_project(name_or_id)
+        proj = self.identity.find_project(name_or_id, ignore_missing=True)
         if not proj:
             raise exc.OpenStackCloudException(
                 f"Project {name_or_id} was requested by was not found "
@@ -660,7 +660,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if it's not a
             valid project or the network client call failed
         """
-        proj = self.identity.find_project(name_or_id)
+        proj = self.identity.find_project(name_or_id, ignore_missing=True)
         if not proj:
             raise exceptions.SDKException(
                 f"Project {name_or_id} was requested by was not found "
@@ -1351,7 +1351,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             self.log.debug("No QoS policy data to update")
             return
 
-        curr_policy = self.network.find_qos_policy(name_or_id)
+        curr_policy = self.network.find_qos_policy(
+            name_or_id, ignore_missing=True
+        )
         if not curr_policy:
             raise exceptions.SDKException(
                 "QoS policy %s not found." % name_or_id
@@ -1372,7 +1374,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud'
             )
-        policy = self.network.find_qos_policy(name_or_id)
+        policy = self.network.find_qos_policy(name_or_id, ignore_missing=True)
         if not policy:
             self.log.debug("QoS policy %s not found for deleting", name_or_id)
             return False
@@ -1419,7 +1421,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
                 'QoS extension is not available on target cloud'
             )
 
-        policy = self.network.find_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(
+            policy_name_or_id, ignore_missing=True
+        )
         if not policy:
             raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
@@ -1451,7 +1455,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
                 'QoS extension is not available on target cloud'
             )
 
-        policy = self.network.find_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(
+            policy_name_or_id, ignore_missing=True
+        )
         if not policy:
             raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
@@ -1487,7 +1493,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
                 'QoS extension is not available on target cloud'
             )
 
-        policy = self.network.find_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(
+            policy_name_or_id, ignore_missing=True
+        )
         if not policy:
             raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
@@ -1581,7 +1589,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
                 'QoS extension is not available on target cloud'
             )
 
-        policy = self.network.find_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(
+            policy_name_or_id, ignore_missing=True
+        )
         if not policy:
             raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
@@ -1671,7 +1681,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
                 'QoS extension is not available on target cloud'
             )
 
-        policy = self.network.find_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(
+            policy_name_or_id, ignore_missing=True
+        )
         if not policy:
             raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
@@ -1701,7 +1713,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
                 'QoS extension is not available on target cloud'
             )
 
-        policy = self.network.find_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(
+            policy_name_or_id, ignore_missing=True
+        )
         if not policy:
             raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
@@ -1733,7 +1747,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
                 'QoS extension is not available on target cloud'
             )
 
-        policy = self.network.find_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(
+            policy_name_or_id, ignore_missing=True
+        )
         if not policy:
             raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
@@ -1771,7 +1787,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
                 'QoS extension is not available on target cloud'
             )
 
-        policy = self.network.find_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(
+            policy_name_or_id, ignore_missing=True
+        )
         if not policy:
             raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
@@ -1836,7 +1854,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
                 'QoS extension is not available on target cloud'
             )
 
-        policy = self.network.find_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(
+            policy_name_or_id, ignore_missing=True
+        )
         if not policy:
             raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
@@ -1866,7 +1886,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
                 'QoS extension is not available on target cloud'
             )
 
-        policy = self.network.find_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(
+            policy_name_or_id, ignore_missing=True
+        )
         if not policy:
             raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
@@ -1900,7 +1922,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
                 'QoS extension is not available on target cloud'
             )
 
-        policy = self.network.find_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(
+            policy_name_or_id, ignore_missing=True
+        )
         if not policy:
             raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
@@ -1934,7 +1958,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
                 'QoS extension is not available on target cloud'
             )
 
-        policy = self.network.find_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(
+            policy_name_or_id, ignore_missing=True
+        )
         if not policy:
             raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
@@ -1974,7 +2000,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
                 'QoS extension is not available on target cloud'
             )
 
-        policy = self.network.find_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(
+            policy_name_or_id, ignore_missing=True
+        )
         if not policy:
             raise exceptions.NotFoundException(
                 "QoS policy {name_or_id} not Found.".format(
@@ -2669,8 +2697,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         """
-        port = self.network.find_port(name_or_id)
-
+        port = self.network.find_port(name_or_id, ignore_missing=True)
         if port is None:
             self.log.debug("Port %s not found for deleting", name_or_id)
             return False
