@@ -10,34 +10,32 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.shared_file_system.v2 import quota_class_set as _quota_class_set
 from openstack.tests.functional.shared_file_system import base
 
 
 class QuotaClassSetTest(base.BaseSharedFileSystemTest):
+    def setUp(self):
+        super().setUp()
+
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud required for this test")
+
+        self.project = self.create_temporary_project()
+
     def test_quota_class_set(self):
-        project_id = self.operator_cloud.current_project_id
+        # set quota class set
 
-        initial_quota_class_set = (
-            self.operator_cloud.share.get_quota_class_set(project_id)
+        quota_class_set = self.operator_cloud.share.update_quota_class_set(
+            self.project.id, backups=123
         )
-        self.assertIn('shares', initial_quota_class_set)
+        self.assertIsInstance(quota_class_set, _quota_class_set.QuotaClassSet)
+        self.assertEqual(quota_class_set.backups, 123)
 
-        initial_backups_value = initial_quota_class_set['backups']
+        # retrieve details of the (updated) quota class set
 
-        updated_quota_class_set = (
-            self.operator_cloud.share.update_quota_class_set(
-                project_id,
-                **{
-                    "backups": initial_backups_value + 1,
-                },
-            )
+        quota_class_set = self.operator_cloud.share.get_quota_class_set(
+            self.project.id
         )
-        self.assertEqual(
-            updated_quota_class_set['backups'], initial_backups_value + 1
-        )
-
-        reverted = self.operator_cloud.share.update_quota_class_set(
-            project_id, **{"backups": initial_backups_value}
-        )
-
-        self.assertEqual(initial_quota_class_set, reverted)
+        self.assertIsInstance(quota_class_set, _quota_class_set.QuotaClassSet)
+        self.assertEqual(quota_class_set.backups, 123)
