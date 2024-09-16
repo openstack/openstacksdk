@@ -62,11 +62,18 @@ class Project(resource.Resource, tag.TagMixin):
     #: New in version 3.4
     parent_id = resource.Body('parent_id')
 
-    def assign_role_to_user(self, session, user, role):
+    def assign_role_to_user(self, session, user, role, inherited):
         """Assign role to user on project"""
         url = utils.urljoin(
-            self.base_path, self.id, 'users', user.id, 'roles', role.id
+            self.base_path,
+            self.id,
+            'users',
+            user.id,
+            'roles',
+            role.id,
         )
+        if inherited:
+            url = utils.urljoin('OS-INHERIT', url, 'inherited_to_projects')
         resp = session.put(
             url,
         )
@@ -74,11 +81,13 @@ class Project(resource.Resource, tag.TagMixin):
             return True
         return False
 
-    def validate_user_has_role(self, session, user, role):
+    def validate_user_has_role(self, session, user, role, inherited):
         """Validates that a user has a role on a project"""
         url = utils.urljoin(
             self.base_path, self.id, 'users', user.id, 'roles', role.id
         )
+        if inherited:
+            url = utils.urljoin('OS-INHERIT', url, 'inherited_to_projects')
         resp = session.head(
             url,
         )
@@ -86,11 +95,13 @@ class Project(resource.Resource, tag.TagMixin):
             return True
         return False
 
-    def unassign_role_from_user(self, session, user, role):
+    def unassign_role_from_user(self, session, user, role, inherited):
         """Unassigns a role from a user on a project"""
         url = utils.urljoin(
             self.base_path, self.id, 'users', user.id, 'roles', role.id
         )
+        if inherited:
+            url = utils.urljoin('OS-INHERIT', url, 'inherited_to_projects')
         resp = session.delete(
             url,
         )
@@ -98,11 +109,18 @@ class Project(resource.Resource, tag.TagMixin):
             return True
         return False
 
-    def assign_role_to_group(self, session, group, role):
+    def assign_role_to_group(self, session, group, role, inherited):
         """Assign role to group on project"""
         url = utils.urljoin(
-            self.base_path, self.id, 'groups', group.id, 'roles', role.id
+            self.base_path,
+            self.id,
+            'groups',
+            group.id,
+            'roles',
+            role.id,
         )
+        if inherited:
+            url = utils.urljoin('OS-INHERIT', url, 'inherited_to_projects')
         resp = session.put(
             url,
         )
@@ -110,11 +128,13 @@ class Project(resource.Resource, tag.TagMixin):
             return True
         return False
 
-    def validate_group_has_role(self, session, group, role):
+    def validate_group_has_role(self, session, group, role, inherited):
         """Validates that a group has a role on a project"""
         url = utils.urljoin(
             self.base_path, self.id, 'groups', group.id, 'roles', role.id
         )
+        if inherited:
+            url = utils.urljoin('OS-INHERIT', url, 'inherited_to_projects')
         resp = session.head(
             url,
         )
@@ -122,11 +142,13 @@ class Project(resource.Resource, tag.TagMixin):
             return True
         return False
 
-    def unassign_role_from_group(self, session, group, role):
+    def unassign_role_from_group(self, session, group, role, inherited):
         """Unassigns a role from a group on a project"""
         url = utils.urljoin(
             self.base_path, self.id, 'groups', group.id, 'roles', role.id
         )
+        if inherited:
+            url = utils.urljoin('OS-INHERIT', url, 'inherited_to_projects')
         resp = session.delete(
             url,
         )

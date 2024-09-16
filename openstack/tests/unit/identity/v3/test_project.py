@@ -97,11 +97,26 @@ class TestProject(base.TestCase):
 
         self.assertTrue(
             sot.assign_role_to_user(
-                self.sess, user.User(id='1'), role.Role(id='2')
+                self.sess, user.User(id='1'), role.Role(id='2'), False
             )
         )
 
         self.sess.put.assert_called_with('projects/IDENTIFIER/users/1/roles/2')
+
+    def test_assign_inherited_role_to_user_good(self):
+        sot = project.Project(**EXAMPLE)
+        resp = self.good_resp
+        self.sess.put = mock.Mock(return_value=resp)
+
+        self.assertTrue(
+            sot.assign_role_to_user(
+                self.sess, user.User(id='1'), role.Role(id='2'), True
+            )
+        )
+
+        self.sess.put.assert_called_with(
+            'OS-INHERIT/projects/IDENTIFIER/users/1/roles/2/inherited_to_projects'
+        )
 
     def test_assign_role_to_user_bad(self):
         sot = project.Project(**EXAMPLE)
@@ -110,7 +125,7 @@ class TestProject(base.TestCase):
 
         self.assertFalse(
             sot.assign_role_to_user(
-                self.sess, user.User(id='1'), role.Role(id='2')
+                self.sess, user.User(id='1'), role.Role(id='2'), False
             )
         )
 
@@ -121,12 +136,27 @@ class TestProject(base.TestCase):
 
         self.assertTrue(
             sot.validate_user_has_role(
-                self.sess, user.User(id='1'), role.Role(id='2')
+                self.sess, user.User(id='1'), role.Role(id='2'), False
             )
         )
 
         self.sess.head.assert_called_with(
             'projects/IDENTIFIER/users/1/roles/2'
+        )
+
+    def test_validate_user_has_inherited_role_good(self):
+        sot = project.Project(**EXAMPLE)
+        resp = self.good_resp
+        self.sess.head = mock.Mock(return_value=resp)
+
+        self.assertTrue(
+            sot.validate_user_has_role(
+                self.sess, user.User(id='1'), role.Role(id='2'), True
+            )
+        )
+
+        self.sess.head.assert_called_with(
+            'OS-INHERIT/projects/IDENTIFIER/users/1/roles/2/inherited_to_projects'
         )
 
     def test_validate_user_has_role_bad(self):
@@ -136,7 +166,7 @@ class TestProject(base.TestCase):
 
         self.assertFalse(
             sot.validate_user_has_role(
-                self.sess, user.User(id='1'), role.Role(id='2')
+                self.sess, user.User(id='1'), role.Role(id='2'), False
             )
         )
 
@@ -147,12 +177,27 @@ class TestProject(base.TestCase):
 
         self.assertTrue(
             sot.unassign_role_from_user(
-                self.sess, user.User(id='1'), role.Role(id='2')
+                self.sess, user.User(id='1'), role.Role(id='2'), False
             )
         )
 
         self.sess.delete.assert_called_with(
             'projects/IDENTIFIER/users/1/roles/2'
+        )
+
+    def test_unassign_inherited_role_from_user_good(self):
+        sot = project.Project(**EXAMPLE)
+        resp = self.good_resp
+        self.sess.delete = mock.Mock(return_value=resp)
+
+        self.assertTrue(
+            sot.unassign_role_from_user(
+                self.sess, user.User(id='1'), role.Role(id='2'), True
+            )
+        )
+
+        self.sess.delete.assert_called_with(
+            'OS-INHERIT/projects/IDENTIFIER/users/1/roles/2/inherited_to_projects'
         )
 
     def test_unassign_role_from_user_bad(self):
@@ -162,7 +207,7 @@ class TestProject(base.TestCase):
 
         self.assertFalse(
             sot.unassign_role_from_user(
-                self.sess, user.User(id='1'), role.Role(id='2')
+                self.sess, user.User(id='1'), role.Role(id='2'), False
             )
         )
 
@@ -173,12 +218,27 @@ class TestProject(base.TestCase):
 
         self.assertTrue(
             sot.assign_role_to_group(
-                self.sess, group.Group(id='1'), role.Role(id='2')
+                self.sess, group.Group(id='1'), role.Role(id='2'), False
             )
         )
 
         self.sess.put.assert_called_with(
             'projects/IDENTIFIER/groups/1/roles/2'
+        )
+
+    def test_assign_inherited_role_to_group_good(self):
+        sot = project.Project(**EXAMPLE)
+        resp = self.good_resp
+        self.sess.put = mock.Mock(return_value=resp)
+
+        self.assertTrue(
+            sot.assign_role_to_group(
+                self.sess, group.Group(id='1'), role.Role(id='2'), True
+            )
+        )
+
+        self.sess.put.assert_called_with(
+            'OS-INHERIT/projects/IDENTIFIER/groups/1/roles/2/inherited_to_projects'
         )
 
     def test_assign_role_to_group_bad(self):
@@ -188,7 +248,7 @@ class TestProject(base.TestCase):
 
         self.assertFalse(
             sot.assign_role_to_group(
-                self.sess, group.Group(id='1'), role.Role(id='2')
+                self.sess, group.Group(id='1'), role.Role(id='2'), False
             )
         )
 
@@ -199,12 +259,27 @@ class TestProject(base.TestCase):
 
         self.assertTrue(
             sot.validate_group_has_role(
-                self.sess, group.Group(id='1'), role.Role(id='2')
+                self.sess, group.Group(id='1'), role.Role(id='2'), False
             )
         )
 
         self.sess.head.assert_called_with(
             'projects/IDENTIFIER/groups/1/roles/2'
+        )
+
+    def test_validate_group_has_inherited_role_good(self):
+        sot = project.Project(**EXAMPLE)
+        resp = self.good_resp
+        self.sess.head = mock.Mock(return_value=resp)
+
+        self.assertTrue(
+            sot.validate_group_has_role(
+                self.sess, group.Group(id='1'), role.Role(id='2'), True
+            )
+        )
+
+        self.sess.head.assert_called_with(
+            'OS-INHERIT/projects/IDENTIFIER/groups/1/roles/2/inherited_to_projects'
         )
 
     def test_validate_group_has_role_bad(self):
@@ -214,7 +289,7 @@ class TestProject(base.TestCase):
 
         self.assertFalse(
             sot.validate_group_has_role(
-                self.sess, group.Group(id='1'), role.Role(id='2')
+                self.sess, group.Group(id='1'), role.Role(id='2'), False
             )
         )
 
@@ -225,12 +300,27 @@ class TestProject(base.TestCase):
 
         self.assertTrue(
             sot.unassign_role_from_group(
-                self.sess, group.Group(id='1'), role.Role(id='2')
+                self.sess, group.Group(id='1'), role.Role(id='2'), False
             )
         )
 
         self.sess.delete.assert_called_with(
             'projects/IDENTIFIER/groups/1/roles/2'
+        )
+
+    def test_unassign_inherited_role_from_group_good(self):
+        sot = project.Project(**EXAMPLE)
+        resp = self.good_resp
+        self.sess.delete = mock.Mock(return_value=resp)
+
+        self.assertTrue(
+            sot.unassign_role_from_group(
+                self.sess, group.Group(id='1'), role.Role(id='2'), True
+            )
+        )
+
+        self.sess.delete.assert_called_with(
+            'OS-INHERIT/projects/IDENTIFIER/groups/1/roles/2/inherited_to_projects'
         )
 
     def test_unassign_role_from_group_bad(self):
@@ -240,7 +330,7 @@ class TestProject(base.TestCase):
 
         self.assertFalse(
             sot.unassign_role_from_group(
-                self.sess, group.Group(id='1'), role.Role(id='2')
+                self.sess, group.Group(id='1'), role.Role(id='2'), False
             )
         )
 

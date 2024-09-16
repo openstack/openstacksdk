@@ -1233,7 +1233,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_role_assignment.RoleAssignment, **query)
 
-    def assign_domain_role_to_user(self, domain, user, role):
+    def assign_domain_role_to_user(
+        self, domain, user, role, *, inherited=False
+    ):
         """Assign role to user on a domain
 
         :param domain: Either the ID of a domain or a
@@ -1242,14 +1244,17 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.user.User` instance.
         :param role: Either the ID of a role or a
             :class:`~openstack.identity.v3.role.Role` instance.
+        :param bool inherited: Whether the role assignment is inherited.
         :return: ``None``
         """
         domain = self._get_resource(_domain.Domain, domain)
         user = self._get_resource(_user.User, user)
         role = self._get_resource(_role.Role, role)
-        domain.assign_role_to_user(self, user, role)
+        domain.assign_role_to_user(self, user, role, inherited)
 
-    def unassign_domain_role_from_user(self, domain, user, role):
+    def unassign_domain_role_from_user(
+        self, domain, user, role, *, inherited=False
+    ):
         """Unassign role from user on a domain
 
         :param domain: Either the ID of a domain or a
@@ -1258,14 +1263,17 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.user.User` instance.
         :param role: Either the ID of a role or a
             :class:`~openstack.identity.v3.role.Role` instance.
+        :param bool inherited: Whether the role assignment is inherited.
         :return: ``None``
         """
         domain = self._get_resource(_domain.Domain, domain)
         user = self._get_resource(_user.User, user)
         role = self._get_resource(_role.Role, role)
-        domain.unassign_role_from_user(self, user, role)
+        domain.unassign_role_from_user(self, user, role, inherited)
 
-    def validate_user_has_domain_role(self, domain, user, role):
+    def validate_user_has_domain_role(
+        self, domain, user, role, *, inherited=False
+    ):
         """Validates that a user has a role on a domain
 
         :param domain: Either the ID of a domain or a
@@ -1279,9 +1287,11 @@ class Proxy(proxy.Proxy):
         domain = self._get_resource(_domain.Domain, domain)
         user = self._get_resource(_user.User, user)
         role = self._get_resource(_role.Role, role)
-        return domain.validate_user_has_role(self, user, role)
+        return domain.validate_user_has_role(self, user, role, inherited)
 
-    def assign_domain_role_to_group(self, domain, group, role):
+    def assign_domain_role_to_group(
+        self, domain, group, role, *, inherited=False
+    ):
         """Assign role to group on a domain
 
         :param domain: Either the ID of a domain or a
@@ -1290,14 +1300,17 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.group.Group` instance.
         :param role: Either the ID of a role or a
             :class:`~openstack.identity.v3.role.Role` instance.
+        :param bool inherited: Whether the role assignment is inherited.
         :return: ``None``
         """
         domain = self._get_resource(_domain.Domain, domain)
         group = self._get_resource(_group.Group, group)
         role = self._get_resource(_role.Role, role)
-        domain.assign_role_to_group(self, group, role)
+        domain.assign_role_to_group(self, group, role, inherited)
 
-    def unassign_domain_role_from_group(self, domain, group, role):
+    def unassign_domain_role_from_group(
+        self, domain, group, role, *, inherited=False
+    ):
         """Unassign role from group on a domain
 
         :param domain: Either the ID of a domain or a
@@ -1306,14 +1319,17 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.group.Group` instance.
         :param role: Either the ID of a role or a
             :class:`~openstack.identity.v3.role.Role` instance.
+        :param bool inherited: Whether the role assignment is inherited.
         :return: ``None``
         """
         domain = self._get_resource(_domain.Domain, domain)
         group = self._get_resource(_group.Group, group)
         role = self._get_resource(_role.Role, role)
-        domain.unassign_role_from_group(self, group, role)
+        domain.unassign_role_from_group(self, group, role, inherited)
 
-    def validate_group_has_domain_role(self, domain, group, role):
+    def validate_group_has_domain_role(
+        self, domain, group, role, *, inherited=False
+    ):
         """Validates that a group has a role on a domain
 
         :param domain: Either the ID of a domain or a
@@ -1327,9 +1343,11 @@ class Proxy(proxy.Proxy):
         domain = self._get_resource(_domain.Domain, domain)
         group = self._get_resource(_group.Group, group)
         role = self._get_resource(_role.Role, role)
-        return domain.validate_group_has_role(self, group, role)
+        return domain.validate_group_has_role(self, group, role, inherited)
 
-    def assign_project_role_to_user(self, project, user, role):
+    def assign_project_role_to_user(
+        self, project, user, role, *, inherited=False
+    ):
         """Assign role to user on a project
 
         :param project: Either the ID of a project or a
@@ -1339,14 +1357,17 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.user.User` instance.
         :param role: Either the ID of a role or a
             :class:`~openstack.identity.v3.role.Role` instance.
+        :param bool inherited: Whether the role assignment is inherited.
         :return: ``None``
         """
         project = self._get_resource(_project.Project, project)
         user = self._get_resource(_user.User, user)
         role = self._get_resource(_role.Role, role)
-        project.assign_role_to_user(self, user, role)
+        project.assign_role_to_user(self, user, role, inherited)
 
-    def unassign_project_role_from_user(self, project, user, role):
+    def unassign_project_role_from_user(
+        self, project, user, role, *, inherited=False
+    ):
         """Unassign role from user on a project
 
         :param project: Either the ID of a project or a
@@ -1356,14 +1377,17 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.user.User` instance.
         :param role: Either the ID of a role or a
             :class:`~openstack.identity.v3.role.Role` instance.
+        :param bool inherited: Whether the role assignment is inherited.
         :return: ``None``
         """
         project = self._get_resource(_project.Project, project)
         user = self._get_resource(_user.User, user)
         role = self._get_resource(_role.Role, role)
-        project.unassign_role_from_user(self, user, role)
+        project.unassign_role_from_user(self, user, role, inherited)
 
-    def validate_user_has_project_role(self, project, user, role):
+    def validate_user_has_project_role(
+        self, project, user, role, *, inherited=False
+    ):
         """Validates that a user has a role on a project
 
         :param project: Either the ID of a project or a
@@ -1378,9 +1402,11 @@ class Proxy(proxy.Proxy):
         project = self._get_resource(_project.Project, project)
         user = self._get_resource(_user.User, user)
         role = self._get_resource(_role.Role, role)
-        return project.validate_user_has_role(self, user, role)
+        return project.validate_user_has_role(self, user, role, inherited)
 
-    def assign_project_role_to_group(self, project, group, role):
+    def assign_project_role_to_group(
+        self, project, group, role, *, inherited=False
+    ):
         """Assign role to group on a project
 
         :param project: Either the ID of a project or a
@@ -1390,14 +1416,17 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.group.Group` instance.
         :param role: Either the ID of a role or a
             :class:`~openstack.identity.v3.role.Role` instance.
+        :param bool inherited: Whether the role assignment is inherited.
         :return: ``None``
         """
         project = self._get_resource(_project.Project, project)
         group = self._get_resource(_group.Group, group)
         role = self._get_resource(_role.Role, role)
-        project.assign_role_to_group(self, group, role)
+        project.assign_role_to_group(self, group, role, inherited)
 
-    def unassign_project_role_from_group(self, project, group, role):
+    def unassign_project_role_from_group(
+        self, project, group, role, *, inherited=False
+    ):
         """Unassign role from group on a project
 
         :param project: Either the ID of a project or a
@@ -1407,14 +1436,17 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.group.Group` instance.
         :param role: Either the ID of a role or a
             :class:`~openstack.identity.v3.role.Role` instance.
+        :param bool inherited: Whether the role assignment is inherited.
         :return: ``None``
         """
         project = self._get_resource(_project.Project, project)
         group = self._get_resource(_group.Group, group)
         role = self._get_resource(_role.Role, role)
-        project.unassign_role_from_group(self, group, role)
+        project.unassign_role_from_group(self, group, role, inherited)
 
-    def validate_group_has_project_role(self, project, group, role):
+    def validate_group_has_project_role(
+        self, project, group, role, *, inherited=False
+    ):
         """Validates that a group has a role on a project
 
         :param project: Either the ID of a project or a
@@ -1429,7 +1461,7 @@ class Proxy(proxy.Proxy):
         project = self._get_resource(_project.Project, project)
         group = self._get_resource(_group.Group, group)
         role = self._get_resource(_role.Role, role)
-        return project.validate_group_has_role(self, group, role)
+        return project.validate_group_has_role(self, group, role, inherited)
 
     def assign_system_role_to_user(self, user, role, system):
         """Assign a role to user on a system
