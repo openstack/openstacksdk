@@ -35,5 +35,8 @@ class Role(resource.Resource):
     description = resource.Body('description')
     #: References the domain ID which owns the role. *Type: string*
     domain_id = resource.Body('domain_id')
+    #: The resource options for the role. Available resource options are
+    #: immutable.
+    options = resource.Body('options', type=dict)
     #: The links for the service resource.
     links = resource.Body('links')

@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Add support for `options` property for roles in identity.
