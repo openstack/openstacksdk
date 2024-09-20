@@ -1738,6 +1738,32 @@ class TestQuotaSet(TestComputeProxy):
             ]
         )
 
+    @mock.patch.object(proxy_base.Proxy, "_get_resource")
+    def test_quota_set_update__legacy(self, mock_get):
+        fake_quota_set = quota_set.QuotaSet(project_id='prj')
+        mock_get.side_effect = [fake_quota_set]
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter('always')
+
+            self._verify(
+                'openstack.resource.Resource.commit',
+                self.proxy.update_quota_set,
+                method_args=[fake_quota_set],
+                method_kwargs={'ram': 123},
+                expected_args=[self.proxy],
+                expected_kwargs={},
+            )
+
+            self.assertEqual(1, len(w))
+            self.assertEqual(
+                os_warnings.RemovedInSDK50Warning,
+                w[-1].category,
+            )
+            self.assertIn(
+                "The signature of 'update_quota_set' has changed ",
+                str(w[-1]),
+            )
+
 
 class TestServerAction(TestComputeProxy):
     def test_server_action_get(self):

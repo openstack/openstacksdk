@@ -1,0 +1,10 @@
+---
+fixes:
+  - |
+    The ``update_quota_set`` methods in the Compute and Block Storage (v2, v3)
+    proxy APIs were modified in v3.3.0 to accept ``Project`` objects as the
+    first argument. A compatibility shim was included to handle callers still
+    passing ``QuotaSet`` objects, but this shim did not modify the provided
+    ``QuotaSet`` object in place as the previous code did. This has now been
+    fixed. The shim is still expected to be removed in v5.0.0.
+    [`bug 2081292 <https://bugs.launchpad.net/openstacksdk/+bug/2081292>`_]

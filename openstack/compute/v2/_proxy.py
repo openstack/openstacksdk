@@ -2450,7 +2450,7 @@ class Proxy(proxy.Proxy):
     # ========== Quota sets ==========
 
     def get_quota_set(self, project, usage=False, **query):
-        """Show QuotaSet information for the project
+        """Show QuotaSet information for the project.
 
         :param project: ID or instance of
             :class:`~openstack.identity.project.Project` of the project for
@@ -2473,7 +2473,7 @@ class Proxy(proxy.Proxy):
         return res.fetch(self, base_path=base_path, **query)
 
     def get_quota_set_defaults(self, project):
-        """Show QuotaSet defaults for the project
+        """Show QuotaSet defaults for the project.
 
         :param project: ID or instance of
             :class:`~openstack.identity.project.Project` of the project for
@@ -2525,8 +2525,6 @@ class Proxy(proxy.Proxy):
         :returns: The updated QuotaSet
         :rtype: :class:`~openstack.compute.v2.quota_set.QuotaSet`
         """
-        query = {}
-
         if 'project_id' in attrs or isinstance(project, _quota_set.QuotaSet):
             warnings.warn(
                 "The signature of 'update_quota_set' has changed and it "
@@ -2534,23 +2532,38 @@ class Proxy(proxy.Proxy):
                 "with the other quota set methods.",
                 os_warnings.RemovedInSDK50Warning,
             )
-            if isinstance(project, _quota_set.QuotaSet):
-                attrs['project_id'] = project.project_id
+            if user is not None:
+                raise exceptions.SDKException(
+                    'The user argument can only be provided once the entire '
+                    'call has been updated.'
+                )
 
             if 'query' in attrs:
-                query = attrs.pop('query')
+                warnings.warn(
+                    "The query argument is no longer supported and should "
+                    "be removed.",
+                    os_warnings.RemovedInSDK50Warning,
+                )
+                query = attrs.pop('query') or {}
+            else:
+                query = {}
+
+            res = self._get_resource(_quota_set.QuotaSet, project, **attrs)
+            return res.commit(self, **query)
         else:
             project = self._get_resource(_project.Project, project)
             attrs['project_id'] = project.id
 
             if user:
                 user = self._get_resource(_user.User, user)
-                query['user_id'] = user.id
+                query = {'user_id': user.id}
+            else:
+                query = {}
 
-        # we don't use Proxy._update since that doesn't allow passing arbitrary
-        # query string parameters
-        quota_set = self._get_resource(_quota_set.QuotaSet, None, **attrs)
-        return quota_set.commit(self, **query)
+            # we don't use Proxy._update since that doesn't allow passing
+            # arbitrary query string parameters
+            quota_set = self._get_resource(_quota_set.QuotaSet, None, **attrs)
+            return quota_set.commit(self, **query)
 
     # ========== Server actions ==========
 
