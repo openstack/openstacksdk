@@ -23,7 +23,7 @@ from openstack.tests.functional import base
 
 class TestUsage(base.BaseFunctionalTest):
     def test_get_our_compute_limits(self):
-        '''Test quotas functionality'''
+        """Test limits functionality"""
         limits = self.user_cloud.get_compute_limits()
         self.assertIsNotNone(limits)
 
@@ -32,7 +32,7 @@ class TestUsage(base.BaseFunctionalTest):
         self.assertIsNotNone(limits.image_meta)
 
     def test_get_other_compute_limits(self):
-        '''Test quotas functionality'''
+        """Test limits functionality"""
         if not self.operator_cloud:
             self.skipTest("Operator cloud is required for this test")
 
@@ -44,13 +44,13 @@ class TestUsage(base.BaseFunctionalTest):
         self.assertFalse(hasattr(limits, 'maxImageMeta'))
 
     def test_get_our_volume_limits(self):
-        '''Test quotas functionality'''
+        """Test limits functionality"""
         limits = self.user_cloud.get_volume_limits()
         self.assertIsNotNone(limits)
         self.assertFalse(hasattr(limits, 'maxTotalVolumes'))
 
     def test_get_other_volume_limits(self):
-        '''Test quotas functionality'''
+        """Test limits functionality"""
         if not self.operator_cloud:
             self.skipTest("Operator cloud is required for this test")
 

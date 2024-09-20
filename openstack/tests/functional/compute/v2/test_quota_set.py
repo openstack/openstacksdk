@@ -10,35 +10,42 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.compute.v2 import quota_set as _quota_set
 from openstack.tests.functional import base
 
 
-class TestQS(base.BaseFunctionalTest):
-    def test_qs(self):
-        sot = self.conn.compute.get_quota_set(self.conn.current_project_id)
-        self.assertIsNotNone(sot.key_pairs)
+class TestQuotaSet(base.BaseFunctionalTest):
+    def setUp(self):
+        super().setUp()
 
-    def test_qs_user(self):
-        sot = self.conn.compute.get_quota_set(
-            self.conn.current_project_id,
-            user_id=self.conn.session.auth.get_user_id(self.conn.compute),
-        )
-        self.assertIsNotNone(sot.key_pairs)
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud required for this test")
 
-    def test_update(self):
-        sot = self.conn.compute.get_quota_set(self.conn.current_project_id)
-        self.conn.compute.update_quota_set(
-            sot,
-            query={
-                'user_id': self.conn.session.auth.get_user_id(
-                    self.conn.compute
-                )
-            },
-            key_pairs=100,
-        )
+        self.project = self.create_temporary_project()
 
-    def test_revert(self):
-        self.conn.compute.revert_quota_set(
-            self.conn.current_project_id,
-            user_id=self.conn.session.auth.get_user_id(self.conn.compute),
+    def test_quota_set(self):
+        # update quota
+
+        quota_set = self.operator_cloud.compute.update_quota_set(
+            self.project.id, key_pairs=123
         )
+        self.assertIsInstance(quota_set, _quota_set.QuotaSet)
+        self.assertEqual(quota_set.key_pairs, 123)
+
+        # retrieve details of the (updated) quota
+
+        quota_set = self.operator_cloud.compute.get_quota_set(self.project.id)
+        self.assertIsInstance(quota_set, _quota_set.QuotaSet)
+        self.assertEqual(quota_set.key_pairs, 123)
+
+        # retrieve quota defaults
+
+        defaults = self.operator_cloud.compute.get_quota_set_defaults(
+            self.project.id
+        )
+        self.assertIsInstance(defaults, _quota_set.QuotaSet)
+        self.assertNotEqual(defaults.key_pairs, 123)
+
+        # revert quota
+
+        self.operator_cloud.compute.revert_quota_set(self.project.id)

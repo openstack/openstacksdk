@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.network.v2 import quota as _quota
 from openstack.tests.functional import base
 
 
@@ -20,26 +21,37 @@ class TestQuota(base.BaseFunctionalTest):
         if not self.operator_cloud:
             self.skipTest("Operator cloud required for this test")
 
-    def test_list(self):
-        for qot in self.operator_cloud.network.quotas():
-            self.assertIsNotNone(qot.project_id)
-            self.assertIsNotNone(qot.networks)
+        self.project = self.create_temporary_project()
 
-    def test_list_details(self):
-        expected_keys = ["limit", "used", "reserved"]
-        project_id = self.operator_cloud.session.get_project_id()
-        quota_details = self.operator_cloud.network.get_quota(
-            project_id, details=True
+    def test_quota(self):
+        # update quota
+
+        quota = self.operator_cloud.network.update_quota(
+            self.project.id, networks=123456789
         )
-        for details in quota_details._body.attributes.values():
-            for expected_key in expected_keys:
-                self.assertTrue(expected_key in details.keys())
+        self.assertIsInstance(quota, _quota.Quota)
+        self.assertEqual(quota.networks, 123456789)
 
-    def test_set(self):
-        attrs = {"networks": 123456789}
-        for project_quota in self.operator_cloud.network.quotas():
-            self.operator_cloud.network.update_quota(project_quota, **attrs)
-            new_quota = self.operator_cloud.network.get_quota(
-                project_quota.project_id
-            )
-            self.assertEqual(123456789, new_quota.networks)
+        # retrieve details of the (updated) quota
+
+        quota = self.operator_cloud.network.get_quota(self.project.id)
+        self.assertIsInstance(quota, _quota.Quota)
+        self.assertEqual(quota.networks, 123456789)
+
+        # retrieve quota defaults
+
+        defaults = self.operator_cloud.network.get_quota_default(
+            self.project.id
+        )
+        self.assertIsInstance(defaults, _quota.QuotaDefault)
+        self.assertNotEqual(defaults.networks, 123456789)
+
+        # list quotas
+
+        quotas = list(self.operator_cloud.network.quotas())
+        self.assertIn(self.project.id, [x.project_id for x in quotas])
+
+        # revert quota
+
+        ret = self.operator_cloud.network.delete_quota(self.project.id)
+        self.assertIsNone(ret)
