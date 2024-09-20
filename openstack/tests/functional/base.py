@@ -256,6 +256,45 @@ class BaseFunctionalTest(base.TestCase):
             time=int(time.time()), uuid=uuid.uuid4().hex
         )
 
+    def create_temporary_project(self):
+        """Create a new temporary project.
+
+        This is useful for tests that modify things like quotas, which would
+        cause issues for other tests.
+        """
+        project_name = self.getUniqueString('project-')
+        project = self.operator_cloud.get_project(project_name)
+        if not project:
+            params = {
+                'name': project_name,
+                'description': f'Temporary project created for {self.id()}',
+                # assume identity API v3 for now
+                'domain_id': self.operator_cloud.get_domain('default')['id'],
+            }
+            project = self.operator_cloud.create_project(**params)
+
+        # Grant the current user access to the project
+        user_id = self.operator_cloud.current_user_id
+        role_assignment = self.operator_cloud.list_role_assignments(
+            {'user': user_id, 'project': project['id']}
+        )
+        if not role_assignment:
+            self.operator_cloud.grant_role(
+                'member', user=user_id, project=project['id'], wait=True
+            )
+
+        self.addCleanup(self._delete_temporary_project, project)
+
+        return project
+
+    def _delete_temporary_project(self, project):
+        self.operator_cloud.revoke_role(
+            'member',
+            user=self.operator_cloud.current_user_id,
+            project=project.id,
+        )
+        self.operator_cloud.delete_project(project.id)
+
 
 class KeystoneBaseFunctionalTest(BaseFunctionalTest):
     def setUp(self):
