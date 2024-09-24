@@ -258,7 +258,7 @@ class Proxy(proxy.Proxy):
         """
         warnings.warn(
             "upload_image is deprecated. Use create_image instead.",
-            os_warnings.OpenStackDeprecationWarning,
+            os_warnings.RemovedInSDK50Warning,
         )
         return self._create(_image.Image, **attrs)
 

@@ -1064,7 +1064,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             warnings.warn(
                 "os_inherit_extension_inherited_to is deprecated. Use "
                 "inherited_to instead.",
-                os_warnings.OpenStackDeprecationWarning,
+                os_warnings.RemovedInSDK50Warning,
             )
             filters['scope.OS-INHERIT:inherited_to'] = filters[
                 'os_inherit_extension_inherited_to'
@@ -1134,7 +1134,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             warnings.warn(
                 "os_inherit_extension_inherited_to is deprecated. Use "
                 "inherited_to instead.",
-                os_warnings.OpenStackDeprecationWarning,
+                os_warnings.RemovedInSDK50Warning,
             )
             filters['inherited_to'] = filters.pop(
                 'os_inherit_extension_inherited_to'

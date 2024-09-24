@@ -302,7 +302,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         if wait is not None:
             warnings.warn(
                 "wait argument is deprecated and has no effect",
-                os_warnings.OpenStackDeprecationWarning,
+                os_warnings.RemovedInSDK50Warning,
             )
 
         machine = self.get_machine(uuid)
@@ -461,7 +461,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
     def validate_node(self, uuid):
         warnings.warn(
             'validate_node is deprecated, please use validate_machine instead',
-            os_warnings.OpenStackDeprecationWarning,
+            os_warnings.RemovedInSDK50Warning,
         )
         self.baremetal.validate_node(uuid)
 
@@ -602,7 +602,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         warnings.warn(
             "The set_node_instance_info call is deprecated, "
             "use patch_machine or update_machine instead",
-            os_warnings.OpenStackDeprecationWarning,
+            os_warnings.RemovedInSDK50Warning,
         )
         return self.patch_machine(uuid, patch)
 
@@ -610,7 +610,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         warnings.warn(
             "The purge_node_instance_info call is deprecated, "
             "use patch_machine or update_machine instead",
-            os_warnings.OpenStackDeprecationWarning,
+            os_warnings.RemovedInSDK50Warning,
         )
         return self.patch_machine(
             uuid, dict(path='/instance_info', op='remove')
@@ -629,6 +629,6 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
             "The wait_for_baremetal_node_lock call is deprecated "
             "in favor of wait_for_node_reservation on the baremetal "
             "proxy",
-            os_warnings.OpenStackDeprecationWarning,
+            os_warnings.RemovedInSDK50Warning,
         )
         self.baremetal.wait_for_node_reservation(node, timeout)

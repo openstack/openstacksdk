@@ -30,7 +30,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         warnings.warn(
             "the 'cache' argument is deprecated and no longer does anything; "
             "consider removing it from calls",
-            os_warnings.OpenStackDeprecationWarning,
+            os_warnings.RemovedInSDK50Warning,
         )
         return list(self.block_storage.volumes())
 
@@ -46,7 +46,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
             warnings.warn(
                 "the 'get_extra' argument is deprecated and no longer does "
                 "anything; consider removing it from calls",
-                os_warnings.OpenStackDeprecationWarning,
+                os_warnings.RemovedInSDK50Warning,
             )
         return list(self.block_storage.types())
 

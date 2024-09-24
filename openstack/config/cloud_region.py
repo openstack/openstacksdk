@@ -661,9 +661,9 @@ class CloudRegion:
 
         try:
             if state:
-                # NOTE: under some conditions the method may be invoked when auth
-                # is empty. This may lead to exception in the keyring lib, thus do
-                # nothing.
+                # NOTE: under some conditions the method may be invoked when
+                # auth is empty. This may lead to exception in the keyring lib,
+                # thus do nothing.
                 keyring.set_password('openstacksdk', cache_id, state)
         except RuntimeError:  # the fail backend raises this
             self.log.debug('Failed to set auth into keyring')
@@ -699,8 +699,9 @@ class CloudRegion:
             # cert verification
             if not verify:
                 self.log.debug(
-                    "Turning off SSL warnings for {full_name}"
-                    " since verify=False".format(full_name=self.full_name)
+                    'Turning off SSL warnings for %(full_name)s since '
+                    'verify=False',
+                    {'full_name': self.full_name},
                 )
             requestsexceptions.squelch_warnings(insecure_requests=not verify)
             self._keystone_session = self._session_constructor(
