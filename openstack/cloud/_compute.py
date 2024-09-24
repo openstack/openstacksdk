@@ -827,15 +827,21 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                 kwargs[desired] = value
 
         if group:
-            group_obj = self.compute.find_server_group(group)
-            if not group_obj:
-                raise exceptions.SDKException(
-                    "Server Group {group} was requested but was not found"
-                    " on the cloud".format(group=group)
-                )
+            if isinstance(group, dict):
+                # TODO(stephenfin): Drop support for dicts: we should only
+                # accept strings or Image objects
+                group_id = group['id']
+            else:  # object
+                group_obj = self.compute.find_server_group(group)
+                if not group_obj:
+                    raise exceptions.SDKException(
+                        "Server Group {group} was requested but was not found"
+                        " on the cloud".format(group=group)
+                    )
+                group_id = group_obj['id']
             if 'scheduler_hints' not in kwargs:
                 kwargs['scheduler_hints'] = {}
-            kwargs['scheduler_hints']['group'] = group_obj['id']
+            kwargs['scheduler_hints']['group'] = group_id
 
         kwargs.setdefault('max_count', kwargs.get('max_count', 1))
         kwargs.setdefault('min_count', kwargs.get('min_count', 1))
@@ -854,21 +860,24 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             nics = []
             if not isinstance(network, list):
                 network = [network]
-            for net_name in network:
-                if isinstance(net_name, dict) and 'id' in net_name:
-                    network_obj = net_name
+            for net in network:
+                if isinstance(net, dict):
+                    # TODO(stephenfin): Drop support for dicts: we should only
+                    # accept strings or Network objects
+                    network_id = net['id']
                 else:
-                    network_obj = self.network.find_network(net_name)
-                if not network_obj:
-                    raise exceptions.SDKException(
-                        'Network {network} is not a valid network in'
-                        ' {cloud}:{region}'.format(
-                            network=network,
-                            cloud=self.name,
-                            region=self._compute_region,
+                    network_obj = self.network.find_network(net)
+                    if not network_obj:
+                        raise exceptions.SDKException(
+                            'Network {network} is not a valid network in'
+                            ' {cloud}:{region}'.format(
+                                network=network,
+                                cloud=self.name,
+                                region=self._compute_region,
+                            )
                         )
-                    )
-                nics.append({'net-id': network_obj['id']})
+                    network_id = network_obj['id']
+                nics.append({'net-id': network_id})
 
             kwargs['nics'] = nics
         if not network and ('nics' not in kwargs or not kwargs['nics']):
@@ -1032,17 +1041,23 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         # If we have boot_from_volume but no root volume, then we're
         # booting an image from volume
         if boot_volume:
-            volume = self.block_storage.find_volume(boot_volume)
-            if not volume:
-                raise exceptions.SDKException(
-                    f"Volume {volume} was requested but was not found "
-                    f"on the cloud"
-                )
+            # TODO(stephenfin): Drop support for dicts: we should only accept
+            # strings or Volume objects
+            if isinstance(boot_volume, dict):
+                volume_id = boot_volume['id']
+            else:
+                volume = self.block_storage.find_volume(boot_volume)
+                if not volume:
+                    raise exceptions.SDKException(
+                        f"Volume {volume} was requested but was not found "
+                        f"on the cloud"
+                    )
+                volume_id = volume['id']
             block_mapping = {
                 'boot_index': '0',
                 'delete_on_termination': terminate_volume,
                 'destination_type': 'volume',
-                'uuid': volume['id'],
+                'uuid': volume_id,
                 'source_type': 'volume',
             }
             kwargs['block_device_mapping_v2'].append(block_mapping)
@@ -1070,6 +1085,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             }
             kwargs['imageRef'] = ''
             kwargs['block_device_mapping_v2'].append(block_mapping)
+
         if volumes and kwargs['imageRef']:
             # If we're attaching volumes on boot but booting from an image,
             # we need to specify that in the BDM.
@@ -1081,18 +1097,25 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                 'uuid': kwargs['imageRef'],
             }
             kwargs['block_device_mapping_v2'].append(block_mapping)
+
         for volume in volumes:
-            volume_obj = self.block_storage.find_volume(volume)
-            if not volume_obj:
-                raise exceptions.SDKException(
-                    f"Volume {volume} was requested but was not found "
-                    f"on the cloud"
-                )
+            # TODO(stephenfin): Drop support for dicts: we should only accept
+            # strings or Image objects
+            if isinstance(volume, dict):
+                volume_id = volume['id']
+            else:
+                volume_obj = self.block_storage.find_volume(volume)
+                if not volume_obj:
+                    raise exceptions.SDKException(
+                        f"Volume {volume} was requested but was not found "
+                        f"on the cloud"
+                    )
+                volume_id = volume_obj['id']
             block_mapping = {
                 'boot_index': '-1',
                 'delete_on_termination': False,
                 'destination_type': 'volume',
-                'uuid': volume_obj['id'],
+                'uuid': volume_id,
                 'source_type': 'volume',
             }
             kwargs['block_device_mapping_v2'].append(block_mapping)
