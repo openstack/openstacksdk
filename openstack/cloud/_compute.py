@@ -14,6 +14,7 @@ import base64
 import functools
 import operator
 import time
+import warnings
 
 import iso8601
 
@@ -23,7 +24,9 @@ from openstack.cloud import exc
 from openstack.cloud import meta
 from openstack.compute.v2 import server as _server
 from openstack import exceptions
+from openstack import resource
 from openstack import utils
+from openstack import warnings as os_warnings
 
 
 _SERVER_FIELDS = (
@@ -828,8 +831,13 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         if group:
             if isinstance(group, dict):
-                # TODO(stephenfin): Drop support for dicts: we should only
-                # accept strings or Image objects
+                if not isinstance(group, resource.Resource):
+                    warnings.warn(
+                        "Support for passing server group as a raw dict has "
+                        "been deprecated for removal. Consider passing a "
+                        "string name or ID or a ServerGroup object instead.",
+                        os_warnings.RemovedInSDK60Warning,
+                    )
                 group_id = group['id']
             else:  # object
                 group_obj = self.compute.find_server_group(group)
@@ -862,8 +870,13 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                 network = [network]
             for net in network:
                 if isinstance(net, dict):
-                    # TODO(stephenfin): Drop support for dicts: we should only
-                    # accept strings or Network objects
+                    if not isinstance(net, resource.Resource):
+                        warnings.warn(
+                            "Support for passing network as a raw dict has "
+                            "been deprecated for removal. Consider passing a "
+                            "string name or ID or a Network object instead.",
+                            os_warnings.RemovedInSDK60Warning,
+                        )
                     network_id = net['id']
                 else:
                     network_obj = self.network.find_network(net)
@@ -935,9 +948,14 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                 kwargs['networks'] = 'auto'
 
         if image:
-            # TODO(stephenfin): Drop support for dicts: we should only accept
-            # strings or Image objects
             if isinstance(image, dict):
+                if not isinstance(image, resource.Resource):
+                    warnings.warn(
+                        "Support for passing image as a raw dict has "
+                        "been deprecated for removal. Consider passing a "
+                        "string name or ID or an Image object instead.",
+                        os_warnings.RemovedInSDK60Warning,
+                    )
                 kwargs['imageRef'] = image['id']
             else:
                 image_obj = self.image.find_image(image)
@@ -948,9 +966,14 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                     )
                 kwargs['imageRef'] = image_obj.id
 
-        # TODO(stephenfin): Drop support for dicts: we should only accept
-        # strings or Image objects
         if isinstance(flavor, dict):
+            if not isinstance(flavor, resource.Resource):
+                warnings.warn(
+                    "Support for passing flavor as a raw dict has "
+                    "been deprecated for removal. Consider passing a "
+                    "string name or ID or a Flavor object instead.",
+                    os_warnings.RemovedInSDK60Warning,
+                )
             kwargs['flavorRef'] = flavor['id']
         else:
             kwargs['flavorRef'] = self.get_flavor(flavor, get_extra=False).id
@@ -1041,9 +1064,14 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         # If we have boot_from_volume but no root volume, then we're
         # booting an image from volume
         if boot_volume:
-            # TODO(stephenfin): Drop support for dicts: we should only accept
-            # strings or Volume objects
             if isinstance(boot_volume, dict):
+                if not isinstance(boot_volume, resource.Resource):
+                    warnings.warn(
+                        "Support for passing boot_volume as a raw dict has "
+                        "been deprecated for removal. Consider passing a "
+                        "string name or ID or a Volume object instead.",
+                        os_warnings.RemovedInSDK60Warning,
+                    )
                 volume_id = boot_volume['id']
             else:
                 volume = self.block_storage.find_volume(boot_volume)
@@ -1063,9 +1091,14 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             kwargs['block_device_mapping_v2'].append(block_mapping)
             kwargs['imageRef'] = ''
         elif boot_from_volume:
-            # TODO(stephenfin): Drop support for dicts: we should only accept
-            # strings or Image objects
             if isinstance(image, dict):
+                if not isinstance(image, resource.Resource):
+                    warnings.warn(
+                        "Support for passing image as a raw dict has "
+                        "been deprecated for removal. Consider passing a "
+                        "string name or ID or an Image object instead.",
+                        os_warnings.RemovedInSDK60Warning,
+                    )
                 image_obj = image
             else:
                 image_obj = self.image.find_image(image)
@@ -1099,9 +1132,14 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             kwargs['block_device_mapping_v2'].append(block_mapping)
 
         for volume in volumes:
-            # TODO(stephenfin): Drop support for dicts: we should only accept
-            # strings or Image objects
             if isinstance(volume, dict):
+                if not isinstance(volume, resource.Resource):
+                    warnings.warn(
+                        "Support for passing volumes as a list of raw dicts "
+                        "been deprecated for removal. Consider passing a list "
+                        "of string name or ID or ServerGroup objects instead.",
+                        os_warnings.RemovedInSDK60Warning,
+                    )
                 volume_id = volume['id']
             else:
                 volume_obj = self.block_storage.find_volume(volume)

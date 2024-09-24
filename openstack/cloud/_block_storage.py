@@ -15,6 +15,7 @@ import warnings
 from openstack.cloud import _utils
 from openstack.cloud import openstackcloud
 from openstack import exceptions
+from openstack import resource
 from openstack import warnings as os_warnings
 
 
@@ -131,9 +132,14 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
             wait = True
 
         if image:
-            # TODO(stephenfin): Drop support for dicts: we should only accept
-            # strings or Image objects
             if isinstance(image, dict):
+                if not isinstance(image, resource.Resource):
+                    warnings.warn(
+                        "Support for passing image as a raw dict has "
+                        "been deprecated for removal. Consider passing a "
+                        "string name or ID or an Image object instead.",
+                        os_warnings.RemovedInSDK60Warning,
+                    )
                 kwargs['imageRef'] = image['id']
             else:  # object
                 image_obj = self.image.find_image(image)
