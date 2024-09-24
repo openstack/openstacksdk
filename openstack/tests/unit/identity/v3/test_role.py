@@ -21,6 +21,7 @@ EXAMPLE = {
     'name': '2',
     'description': 'test description for role',
     'domain_id': 'default',
+    'options': {'immutable': True},
 }
 
 
@@ -54,3 +55,4 @@ class TestRole(base.TestCase):
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['domain_id'], sot.domain_id)
+        self.assertEqual(EXAMPLE['options'], sot.options)
