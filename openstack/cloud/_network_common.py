@@ -811,7 +811,9 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         if not network_id:
             if network_name_or_id:
                 try:
-                    network = self.network.find_network(network_name_or_id)
+                    network = self.network.find_network(
+                        network_name_or_id, ignore_missing=False
+                    )
                 except exceptions.NotFoundException:
                     raise exceptions.NotFoundException(
                         "unable to find network for floating ips with ID "
