@@ -1528,7 +1528,9 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         if not fixed_address:
             if len(ports) > 1:
                 if nat_destination:
-                    nat_network = self.network.find_network(nat_destination)
+                    nat_network = self.network.find_network(
+                        nat_destination, ignore_missing=True
+                    )
                     if not nat_network:
                         raise exceptions.SDKException(
                             'NAT Destination {nat_destination} was configured'

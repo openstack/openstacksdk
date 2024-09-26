@@ -383,7 +383,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         """
         params = {}
         if name_or_id:
-            project = self.identity.find_project(name_or_id)
+            project = self.identity.find_project(
+                name_or_id, ignore_missing=True
+            )
             if not project:
                 raise exceptions.SDKException(
                     f"Project {name_or_id} was requested but was not found "
@@ -840,7 +842,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                     )
                 group_id = group['id']
             else:  # object
-                group_obj = self.compute.find_server_group(group)
+                group_obj = self.compute.find_server_group(
+                    group, ignore_missing=True
+                )
                 if not group_obj:
                     raise exceptions.SDKException(
                         "Server Group {group} was requested but was not found"
@@ -879,7 +883,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                         )
                     network_id = net['id']
                 else:
-                    network_obj = self.network.find_network(net)
+                    network_obj = self.network.find_network(
+                        net, ignore_missing=True
+                    )
                     if not network_obj:
                         raise exceptions.SDKException(
                             'Network {network} is not a valid network in'
@@ -908,7 +914,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                 nic.pop('net-name', None)
             elif 'net-name' in nic:
                 net_name = nic.pop('net-name')
-                nic_net = self.network.find_network(net_name)
+                nic_net = self.network.find_network(
+                    net_name, ignore_missing=True
+                )
                 if not nic_net:
                     raise exceptions.SDKException(
                         "Requested network {net} could not be found.".format(
@@ -958,7 +966,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                     )
                 kwargs['imageRef'] = image['id']
             else:
-                image_obj = self.image.find_image(image)
+                image_obj = self.image.find_image(image, ignore_missing=True)
                 if not image_obj:
                     raise exc.OpenStackCloudException(
                         f"Image {image} was requested but was not found "
@@ -1074,7 +1082,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                     )
                 volume_id = boot_volume['id']
             else:
-                volume = self.block_storage.find_volume(boot_volume)
+                volume = self.block_storage.find_volume(
+                    boot_volume, ignore_missing=True
+                )
                 if not volume:
                     raise exceptions.SDKException(
                         f"Volume {volume} was requested but was not found "
@@ -1101,7 +1111,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                     )
                 image_obj = image
             else:
-                image_obj = self.image.find_image(image)
+                image_obj = self.image.find_image(image, ignore_missing=True)
                 if not image_obj:
                     raise exceptions.SDKException(
                         f"Image {image} was requested but was not found "
@@ -1142,7 +1152,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                     )
                 volume_id = volume['id']
             else:
-                volume_obj = self.block_storage.find_volume(volume)
+                volume_obj = self.block_storage.find_volume(
+                    volume, ignore_missing=True
+                )
                 if not volume_obj:
                     raise exceptions.SDKException(
                         f"Volume {volume} was requested but was not found "
@@ -1471,7 +1483,6 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             error.
         """
         server = self.compute.find_server(name_or_id, ignore_missing=False)
-
         server = self.compute.update_server(server, **kwargs)
 
         return self._expand_server(server, bare=bare, detailed=detailed)
@@ -1569,7 +1580,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             error.
         """
         try:
-            flavor = self.compute.find_flavor(name_or_id)
+            flavor = self.compute.find_flavor(name_or_id, ignore_missing=True)
             if not flavor:
                 self.log.debug("Flavor %s not found for deleting", name_or_id)
                 return False
@@ -1868,7 +1879,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         if isinstance(end, str):
             end = parse_date(end)
 
-        proj = self.identity.find_project(name_or_id)
+        proj = self.identity.find_project(name_or_id, ignore_missing=True)
         if not proj:
             raise exceptions.SDKException(
                 f"Project {name_or_id} was requested but was not found "
