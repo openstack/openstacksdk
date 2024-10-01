@@ -13,6 +13,7 @@
 from openstack.dns.v2 import floating_ip as _fip
 from openstack.dns.v2 import recordset as _rs
 from openstack.dns.v2 import service_status as _svc_status
+from openstack.dns.v2 import tsigkey as _tsigkey
 from openstack.dns.v2 import zone as _zone
 from openstack.dns.v2 import zone_export as _zone_export
 from openstack.dns.v2 import zone_import as _zone_import
@@ -27,6 +28,7 @@ class Proxy(proxy.Proxy):
         "recordset": _rs.Recordset,
         "service_status": _svc_status.ServiceStatus,
         "zone": _zone.Zone,
+        "tsigkey": _tsigkey.TSIGKey,
         "zone_export": _zone_export.ZoneExport,
         "zone_import": _zone_import.ZoneImport,
         "zone_share": _zone_share.ZoneShare,
@@ -719,3 +721,76 @@ class Proxy(proxy.Proxy):
                     filters=filters,
                     resource_evaluation_fn=resource_evaluation_fn,
                 )
+
+    # ====== TSIG keys ======
+    def tsigkeys(self, **query):
+        """Retrieve a generator of zones
+
+        :param dict query: Optional query parameters to be sent to limit the
+            resources being returned.
+
+        :returns: A generator of zone
+            :class: `~openstack.dns.v2.tsigkey.TSIGKey` instances.
+        """
+        return self._list(_tsigkey.TSIGKey, **query)
+
+    def create_tsigkey(self, **attrs):
+        """Create a new tsigkey from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.dns.v2.tsigkey.Tsigkey`,
+            comprised of the properties on the Tsigkey class.
+        :returns: The results of zone creation.
+        :rtype: :class:`~openstack.dns.v2.tsigkey.Tsigkey`
+        """
+        return self._create(_tsigkey.TSIGKey, prepend_key=False, **attrs)
+
+    def get_tsigkey(self, tsigkey):
+        """Get a zone
+
+        :param tsigkey: The value can be the ID of a tsigkey
+            or a :class:'~openstack.dns.v2.tsigkey.TSIGKey' instance.
+        :returns: A generator of tsigkey
+            :class:'~openstack.dns.v2.tsigkey.TSIGKey' instances.
+        """
+        return self._get(_tsigkey.TSIGKey, tsigkey)
+
+    def delete_tsigkey(
+        self, tsigkey, ignore_missing=True, delete_shares=False
+    ):
+        """Delete a TSIG key
+
+        :param tsigkey: The value can be the ID of a TSIG key
+            or a :class:`~openstack.dns.v2.tsigkey.TSIGKey` instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the TSIG key does not exist.
+            When set to ``True``, no exception will be set when attempting to
+            delete a nonexistent TSIG key.
+
+        :returns: TSIG Key that has been deleted
+        :rtype: :class:`~openstack.dns.v2.tsigkey.TSIGKey`
+        """
+
+        return self._delete(
+            _tsigkey.TSIGKey,
+            tsigkey,
+            ignore_missing=ignore_missing,
+            delete_shares=delete_shares,
+        )
+
+    def find_tsigkey(self, name_or_id, ignore_missing=True):
+        """Find a single tsigkey
+
+        :param name_or_id: The name or ID of a tsigkey
+        :param bool ignore_missing: When set to ``False``
+            :class: `!openstack.exceptions.ResourceNotFound` will be raised
+            when the tsigkey does not exit.
+            Wehn set to ``True``, no exception will be set when attempting
+            to delete a nonexitstent zone.
+
+        :returns::class:`~openstack.dns.v2.tsigkey.TSIGKey`
+        """
+        return self._find(
+            _tsigkey.TSIGKey, name_or_id, ignore_missing=ignore_missing
+        )
