@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Adds support for runbooks; an API feature that enables project members
+    to self-serve maintenance tasks via predefined step lists in lieu of
+    an arbitrary list of clean/service steps.
