@@ -984,8 +984,13 @@ class OpenStackConfig:
                     )
         return clouds
 
-    # TODO(mordred) Backwards compat for OSC transition
-    get_all_clouds = get_all
+    def get_all_clouds(self):
+        warnings.warn(
+            "The 'get_all_clouds' method is a deprecated alias for "
+            "'get_clouds' and will be removed in a future release.",
+            os_warnings.RemovedInSDK60Warning,
+        )
+        return self.get_all()
 
     def _fix_args(self, args=None, argparse=None):
         """Massage the passed-in options
@@ -1343,8 +1348,20 @@ class OpenStackConfig:
             influxdb_config=influxdb_config,
         )
 
-    # TODO(mordred) Backwards compat for OSC transition
-    get_one_cloud = get_one
+    def get_one_cloud(
+        self, cloud=None, validate=True, argparse=None, **kwargs
+    ):
+        warnings.warn(
+            "The 'get_one_cloud' method is a deprecated alias for 'get_one' "
+            "and will be removed in a future release.",
+            os_warnings.RemovedInSDK60Warning,
+        )
+        return self.get_one(
+            cloud=cloud,
+            validate=validate,
+            argparse=argparse,
+            **kwargs,
+        )
 
     def get_one_cloud_osc(
         self, cloud=None, validate=True, argparse=None, **kwargs

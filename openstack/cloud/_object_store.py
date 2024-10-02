@@ -12,12 +12,15 @@
 
 import concurrent.futures
 import urllib.parse
+import warnings
 
 import keystoneauth1.exceptions
 
 from openstack.cloud import _utils
 from openstack.cloud import openstackcloud
 from openstack import exceptions
+from openstack import warnings as os_warnings
+
 
 OBJECT_CONTAINER_ACLS = {
     'public': '.r:*,.rlistings',
@@ -26,8 +29,7 @@ OBJECT_CONTAINER_ACLS = {
 
 
 class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
-    # TODO(stephenfin): Remove 'full_listing' as it's a noop
-    def list_containers(self, full_listing=True, prefix=None):
+    def list_containers(self, full_listing=None, prefix=None):
         """List containers.
 
         :param full_listing: Ignored. Present for backwards compat
@@ -37,6 +39,12 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         """
+        if full_listing is not None:
+            warnings.warn(
+                "The 'full_listing' field is unnecessary and will be removed "
+                "in a future release.",
+                os_warnings.RemovedInSDK60Warning,
+            )
         return list(self.object_store.containers(prefix=prefix))
 
     def search_containers(self, name=None, filters=None):

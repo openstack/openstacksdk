@@ -20,21 +20,20 @@ from openstack import warnings as os_warnings
 
 
 class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
-    # TODO(stephenfin): Remove 'cache' in a future major version
-    def list_volumes(self, cache=True):
+    def list_volumes(self, cache=None):
         """List all available volumes.
 
         :param cache: **DEPRECATED** This parameter no longer does anything.
         :returns: A list of volume ``Volume`` objects.
         """
-        warnings.warn(
-            "the 'cache' argument is deprecated and no longer does anything; "
-            "consider removing it from calls",
-            os_warnings.RemovedInSDK50Warning,
-        )
+        if cache is not None:
+            warnings.warn(
+                "the 'cache' argument is deprecated and no longer does "
+                "anything; consider removing it from calls",
+                os_warnings.RemovedInSDK50Warning,
+            )
         return list(self.block_storage.volumes())
 
-    # TODO(stephenfin): Remove 'get_extra' in a future major version
     def list_volume_types(self, get_extra=None):
         """List all available volume types.
 
@@ -243,14 +242,22 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return True
 
-    # TODO(stephenfin): Remove 'cache' in a future major version
-    def get_volumes(self, server, cache=True):
+    def get_volumes(self, server, cache=None):
         """Get volumes for a server.
 
         :param server: The server to fetch volumes for.
         :param cache: **DEPRECATED** This parameter no longer does anything.
         :returns: A list of volume ``Volume`` objects.
         """
+        if cache is not None:
+            warnings.warn(
+                "the 'cache' argument is deprecated and no longer does "
+                "anything; consider removing it from calls",
+                os_warnings.RemovedInSDK50Warning,
+            )
+            # avoid spamming warnings
+            cache = None
+
         volumes = []
         for volume in self.list_volumes(cache=cache):
             for attach in volume['attachments']:
@@ -715,7 +722,6 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         volume_backups = self.list_volume_backups()
         return _utils._filter_list(volume_backups, name_or_id, filters)
 
-    # TODO(stephenfin): Remove 'get_extra' in a future major version
     def search_volume_types(
         self,
         name_or_id=None,
@@ -740,7 +746,13 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         :returns: A list of volume ``Type`` objects, if any are found.
         """
-        volume_types = self.list_volume_types(get_extra=get_extra)
+        if get_extra is not None:
+            warnings.warn(
+                "the 'get_extra' argument is deprecated and no longer does "
+                "anything; consider removing it from calls",
+                os_warnings.RemovedInSDK50Warning,
+            )
+        volume_types = self.list_volume_types()
         return _utils._filter_list(volume_types, name_or_id, filters)
 
     def get_volume_type_access(self, name_or_id):

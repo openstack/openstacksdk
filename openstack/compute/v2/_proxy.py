@@ -1366,8 +1366,6 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    # TODO(stephenfin): Does this work? There's no 'value' parameter for the
-    # call to '_delete'
     def delete_server_interface(
         self,
         server_interface,
