@@ -15,7 +15,7 @@ repos:
         files: .*\.(yaml|yml)$
         exclude: '^zuul.d/.*$'
   - repo: https://github.com/PyCQA/doc8
-    rev: v1.1.1
+    rev: v1.1.2
     hooks:
       - id: doc8
   - repo: https://github.com/asottile/pyupgrade
@@ -24,7 +24,7 @@ repos:
       - id: pyupgrade
         args: ['--py38-plus']
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.2
+    rev: v0.6.7
     hooks:
       - id: ruff
         args: ['--fix']
