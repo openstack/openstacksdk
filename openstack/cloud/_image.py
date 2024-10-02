@@ -122,12 +122,7 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
                 ' however only one can be used at once'
             )
 
-        image = self.image.find_image(name_or_id, ignore_missing=True)
-        if not image:
-            raise exceptions.NotFoundException(
-                "No images with name or ID %s were found" % name_or_id, None
-            )
-
+        image = self.image.find_image(name_or_id, ignore_missing=False)
         return self.image.download_image(
             image, output=output_file or output_path, chunk_size=chunk_size
         )

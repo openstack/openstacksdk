@@ -122,15 +122,7 @@ class TestProject(base.TestCase):
                 ),
             ]
         )
-        # NOTE(notmorgan): This test (and shade) does not represent a case
-        # where the project is in the project list but a 404 is raised when
-        # the PATCH is issued. This is a bug in shade and should be fixed,
-        # shade will raise an attribute error instead of the proper
-        # project not found exception.
-        with testtools.ExpectedException(
-            exceptions.SDKException,
-            "Project %s not found." % project_data.project_id,
-        ):
+        with testtools.ExpectedException(exceptions.NotFoundException):
             self.cloud.update_project(project_data.project_id)
         self.assert_calls()
 

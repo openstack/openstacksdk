@@ -1742,10 +1742,7 @@ class TestRoleAssignment(base.TestCase):
         )
         self.register_uris(uris)
 
-        with testtools.ExpectedException(
-            exceptions.SDKException,
-            f'Role {self.role_data.role_name} not found',
-        ):
+        with testtools.ExpectedException(exceptions.NotFoundException):
             self.cloud.grant_role(
                 self.role_data.role_name,
                 group=self.group_data.group_name,
@@ -1782,10 +1779,7 @@ class TestRoleAssignment(base.TestCase):
         )
         self.register_uris(uris)
 
-        with testtools.ExpectedException(
-            exceptions.SDKException,
-            f'Role {self.role_data.role_name} not found',
-        ):
+        with testtools.ExpectedException(exceptions.NotFoundException):
             self.cloud.revoke_role(
                 self.role_data.role_name,
                 group=self.group_data.group_name,

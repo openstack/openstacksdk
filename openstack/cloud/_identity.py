@@ -165,10 +165,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         project = self.identity.find_project(
             name_or_id=name_or_id,
             domain_id=domain_id,
-            ignore_missing=True,
+            ignore_missing=False,
         )
-        if not project:
-            raise exceptions.SDKException("Project %s not found." % name_or_id)
         if enabled is not None:
             kwargs.update({'enabled': enabled})
         project = self.identity.update_project(project, **kwargs)
@@ -950,12 +948,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             wrong during the OpenStack API call.
         """
         group = self.identity.find_group(
-            name_or_id, ignore_missing=True, **kwargs
+            name_or_id, ignore_missing=False, **kwargs
         )
-        if group is None:
-            raise exceptions.SDKException(
-                f"Group {name_or_id} not found for updating"
-            )
 
         group_ref = {}
         if name:
@@ -1218,11 +1212,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             # group, role, project
             search_args['domain_id'] = data['domain'].id
 
-        data['role'] = self.identity.find_role(
-            name_or_id=role, ignore_missing=True
-        )
-        if not data['role']:
-            raise exceptions.SDKException(f'Role {role} not found.')
+        data['role'] = self.identity.find_role(role, ignore_missing=False)
 
         if user:
             # use cloud.get_user to save us from bad searching by name
