@@ -12,6 +12,7 @@
 
 from openstack.dns.v2 import floating_ip as _fip
 from openstack.dns.v2 import recordset as _rs
+from openstack.dns.v2 import service_status as _svc_status
 from openstack.dns.v2 import zone as _zone
 from openstack.dns.v2 import zone_export as _zone_export
 from openstack.dns.v2 import zone_import as _zone_import
@@ -24,6 +25,7 @@ class Proxy(proxy.Proxy):
     _resource_registry = {
         "floating_ip": _fip.FloatingIP,
         "recordset": _rs.Recordset,
+        "service_status": _svc_status.ServiceStatus,
         "zone": _zone.Zone,
         "zone_export": _zone_export.ZoneExport,
         "zone_import": _zone_import.ZoneImport,
@@ -655,6 +657,26 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
             zone_id=zone_obj.id,
         )
+
+    # ======== Service Statuses ========
+    def service_statuses(self):
+        """Retrieve a generator of service statuses
+
+        :returns: A generator of service statuses
+            :class:`~openstack.dns.v2.service_status.ServiceStatus` instances.
+        """
+        return self._list(_svc_status.ServiceStatus)
+
+    def get_service_status(self, service):
+        """Get a status of a service in the Designate system
+
+        :param service: The value can be the ID of a service
+            or a :class:`~openstack.dns.v2.service_status.ServiceStatus` instance.
+
+        :returns: ServiceStatus instance.
+        :rtype: :class:`~openstack.dns.v2.service_status.ServiceStatus`
+        """
+        return self._get(_svc_status.ServiceStatus, service)
 
     def _get_cleanup_dependencies(self):
         # DNS may depend on floating ip

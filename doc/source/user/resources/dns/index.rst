@@ -11,3 +11,4 @@ DNS Resources
    v2/zone_share
    v2/floating_ip
    v2/recordset
+   v2/service_status

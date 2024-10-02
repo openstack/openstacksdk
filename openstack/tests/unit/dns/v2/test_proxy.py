@@ -13,6 +13,7 @@
 from openstack.dns.v2 import _proxy
 from openstack.dns.v2 import floating_ip
 from openstack.dns.v2 import recordset
+from openstack.dns.v2 import service_status
 from openstack.dns.v2 import zone
 from openstack.dns.v2 import zone_export
 from openstack.dns.v2 import zone_import
@@ -310,4 +311,16 @@ class TestDnsZoneShare(TestDnsProxy):
             method_args=['zone'],
             expected_args=[],
             expected_kwargs={'zone_id': 'zone'},
+        )
+
+
+class TestDnsServiceStatus(TestDnsProxy):
+    def test_service_statuses(self):
+        self.verify_list(
+            self.proxy.service_statuses, service_status.ServiceStatus
+        )
+
+    def test_service_status_get(self):
+        self.verify_get(
+            self.proxy.get_service_status, service_status.ServiceStatus
         )
