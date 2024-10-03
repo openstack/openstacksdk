@@ -854,7 +854,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             wrong during the OpenStack API call.
         """
         if domain_id is None:
-            return self.identity.find_domain(name_or_id, ignore_missing=False)
+            return self.identity.find_domain(name_or_id, ignore_missing=True)
         else:
             return self.identity.get_domain(domain_id)
 
