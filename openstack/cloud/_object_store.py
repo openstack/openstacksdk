@@ -288,6 +288,7 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
             data=data,
             md5=md5,
             sha256=sha256,
+            segment_size=segment_size,
             use_slo=use_slo,
             generate_checksums=generate_checksums,
             metadata=metadata,
