@@ -15,12 +15,14 @@
 import contextlib
 import fnmatch
 import inspect
+import ipaddress
 import re
+import socket
 import uuid
 
 from decorator import decorator
 import jmespath
-import netifaces
+import psutil
 
 from openstack import _log
 from openstack import exceptions
@@ -182,15 +184,19 @@ def _get_entity(cloud, resource, name_or_id, filters, **kwargs):
 def localhost_supports_ipv6():
     """Determine whether the local host supports IPv6
 
-    We look for a default route that supports the IPv6 address family,
-    and assume that if it is present, this host has globally routable
-    IPv6 connectivity.
+    We look for the all ip addresses configured to this node, and assume that
+    if any of these is IPv6 address (but not loopback or link local), this host
+    has IPv6 connectivity.
     """
 
-    try:
-        return netifaces.AF_INET6 in netifaces.gateways()['default']
-    except AttributeError:
-        return False
+    for ifname, if_addrs in psutil.net_if_addrs().items():
+        for if_addr in if_addrs:
+            if if_addr.family != socket.AF_INET6:
+                continue
+            addr = ipaddress.ip_address(if_addr.address)
+            if not addr.is_link_local and not addr.is_loopback:
+                return True
+    return False
 
 
 def valid_kwargs(*valid_args):
