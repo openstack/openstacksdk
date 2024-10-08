@@ -150,6 +150,18 @@ class TestBackup(base.TestCase):
     def test_restore(self):
         sot = backup.Backup(**BACKUP)
 
+        restore_response = mock.Mock()
+        restore_response.status_code = 202
+        restore_response.json.return_value = {
+            "restore": {
+                "backup_id": "back",
+                "volume_id": "vol",
+                "volume_name": "name",
+            }
+        }
+        restore_response.headers = {}
+        self.sess.post.return_value = restore_response
+
         self.assertEqual(sot, sot.restore(self.sess, 'vol', 'name'))
 
         url = 'backups/%s/restore' % FAKE_ID
@@ -159,6 +171,18 @@ class TestBackup(base.TestCase):
     def test_restore_name(self):
         sot = backup.Backup(**BACKUP)
 
+        restore_response = mock.Mock()
+        restore_response.status_code = 202
+        restore_response.json.return_value = {
+            "restore": {
+                "backup_id": "back",
+                "volume_id": "vol",
+                "volume_name": "name",
+            }
+        }
+        restore_response.headers = {}
+        self.sess.post.return_value = restore_response
+
         self.assertEqual(sot, sot.restore(self.sess, name='name'))
 
         url = 'backups/%s/restore' % FAKE_ID
@@ -167,6 +191,18 @@ class TestBackup(base.TestCase):
 
     def test_restore_vol_id(self):
         sot = backup.Backup(**BACKUP)
+
+        restore_response = mock.Mock()
+        restore_response.status_code = 202
+        restore_response.json.return_value = {
+            "restore": {
+                "backup_id": "back",
+                "volume_id": "vol",
+                "volume_name": "name",
+            }
+        }
+        restore_response.headers = {}
+        self.sess.post.return_value = restore_response
 
         self.assertEqual(sot, sot.restore(self.sess, volume_id='vol'))
 
