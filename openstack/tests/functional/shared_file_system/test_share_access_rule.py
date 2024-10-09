@@ -85,6 +85,8 @@ class ShareAccessRuleTest(base.BaseSharedFileSystemTest):
             lock_deletion=True,
             lock_visibility=True,
         )
+
         self.user_cloud.share.delete_access_rule(
             access_rule['id'], self.SHARE_ID, unrestrict=True
         )
+        self.user_cloud.shared_file_system.wait_for_delete(access_rule)
