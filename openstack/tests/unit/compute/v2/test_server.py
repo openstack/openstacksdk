@@ -158,6 +158,7 @@ class TestServer(base.TestCase):
                 "launch_index": "launch_index",
                 "launched_at": "launched_at",
                 "limit": "limit",
+                "locked": "locked",
                 "locked_by": "locked_by",
                 "marker": "marker",
                 "name": "name",
