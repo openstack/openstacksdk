@@ -57,6 +57,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         "key_name",
         "launch_index",
         "launched_at",
+        "locked",
         "locked_by",
         "name",
         "node",
