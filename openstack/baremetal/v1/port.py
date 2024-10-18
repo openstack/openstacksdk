@@ -76,6 +76,10 @@ class Port(_common.Resource):
     #: The UUID of PortGroup this port belongs to. Added in API microversion
     #: 1.24.
     port_group_id = resource.Body('portgroup_uuid')
+    #: Read-only. The parent port trunk details dictionary, with the trunk ID
+    # and the subports information (port ID, segmentation ID and segmentation
+    # type).
+    trunk_details = resource.Body('trunk_details', type=dict)
     #: Timestamp at which the port was last updated.
     updated_at = resource.Body('updated_at')
 
