@@ -9,13 +9,13 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+# mypy: disable-error-code="method-assign"
 
 from openstack.network.v2 import subnet_pool as _subnet_pool
-from openstack.tests.functional import base
+from openstack.tests.functional.network.v2 import common
 
 
-class TestSubnetPool(base.BaseFunctionalTest):
+class TestSubnetPool(common.TestTagNeutron):
     SUBNET_POOL_ID = None
     MINIMUM_PREFIX_LENGTH = 8
     DEFAULT_PREFIX_LENGTH = 24
@@ -40,7 +40,8 @@ class TestSubnetPool(base.BaseFunctionalTest):
         )
         assert isinstance(subnet_pool, _subnet_pool.SubnetPool)
         self.assertEqual(self.SUBNET_POOL_NAME, subnet_pool.name)
-        self.SUBNET_POOL_ID = subnet_pool.id
+        self.SUBNET_POOL_ID = self.ID = subnet_pool.id
+        self.get_command = self.user_cloud.network.get_subnet_pool
 
     def tearDown(self):
         sot = self.user_cloud.network.delete_subnet_pool(self.SUBNET_POOL_ID)
@@ -71,15 +72,3 @@ class TestSubnetPool(base.BaseFunctionalTest):
             self.SUBNET_POOL_ID, name=self.SUBNET_POOL_NAME_UPDATED
         )
         self.assertEqual(self.SUBNET_POOL_NAME_UPDATED, sot.name)
-
-    def test_set_tags(self):
-        sot = self.user_cloud.network.get_subnet_pool(self.SUBNET_POOL_ID)
-        self.assertEqual([], sot.tags)
-
-        self.user_cloud.network.set_tags(sot, ["blue"])
-        sot = self.user_cloud.network.get_subnet_pool(self.SUBNET_POOL_ID)
-        self.assertEqual(["blue"], sot.tags)
-
-        self.user_cloud.network.set_tags(sot, [])
-        sot = self.user_cloud.network.get_subnet_pool(self.SUBNET_POOL_ID)
-        self.assertEqual([], sot.tags)

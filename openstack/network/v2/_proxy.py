@@ -5408,6 +5408,17 @@ class Proxy(proxy.Proxy):
                 % resource.__class__.__name__
             )
 
+    def get_tags(self, resource):
+        """Retrieve the tags of a specified resource
+
+        :param resource: :class:`~openstack.resource.Resource` instance.
+
+        :returns: The resource tags list
+        :rtype: "list"
+        """
+        self._check_tag_support(resource)
+        return resource.fetch_tags(self).tags
+
     def set_tags(self, resource, tags):
         """Replace tags of a specified resource with specified tags
 
@@ -5421,6 +5432,56 @@ class Proxy(proxy.Proxy):
         """
         self._check_tag_support(resource)
         return resource.set_tags(self, tags)
+
+    def add_tag(self, resource, tag):
+        """Add one single tag to a specified resource
+
+        :param resource: :class:`~openstack.resource.Resource` instance.
+        :param tag: New tag to be set.
+        :type tag: "str"
+
+        :returns: The updated resource
+        :rtype: :class:`~openstack.resource.Resource`
+        """
+        self._check_tag_support(resource)
+        return resource.add_tag(self, tag)
+
+    def remove_tag(self, resource, tag):
+        """Remove one single tag of a specified resource
+
+        :param resource: :class:`~openstack.resource.Resource` instance.
+        :param tag: New tag to be set.
+        :type tag: "str"
+
+        :returns: The updated resource
+        :rtype: :class:`~openstack.resource.Resource`
+        """
+        self._check_tag_support(resource)
+        return resource.remove_tag(self, tag)
+
+    def remove_all_tags(self, resource):
+        """Remove all tags of a specified resource
+
+        :param resource: :class:`~openstack.resource.Resource` instance.
+
+        :returns: The updated resource
+        :rtype: :class:`~openstack.resource.Resource`
+        """
+        self._check_tag_support(resource)
+        return resource.remove_all_tags(self)
+
+    def check_tag(self, resource, tag):
+        """Checks if tag exists on the specified resource
+
+        :param resource: :class:`~openstack.resource.Resource` instance.
+        :param tag: Tag to be tested
+        :type tags: "string"
+
+        :returns: If the tag exists in the specified resource
+        :rtype: bool
+        """
+        self._check_tag_support(resource)
+        return resource.check_tag(self, tag)
 
     def create_trunk(self, **attrs):
         """Create a new trunk from attributes

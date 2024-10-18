@@ -9,17 +9,17 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+# mypy: disable-error-code="method-assign"
 
 from openstack.network.v2 import floating_ip
 from openstack.network.v2 import network
 from openstack.network.v2 import port
 from openstack.network.v2 import router
 from openstack.network.v2 import subnet
-from openstack.tests.functional import base
+from openstack.tests.functional.network.v2 import common
 
 
-class TestFloatingIP(base.BaseFunctionalTest):
+class TestFloatingIP(common.TestTagNeutron):
     IPV4 = 4
     EXT_CIDR = "10.100.0.0/24"
     INT_CIDR = "10.101.0.0/24"
@@ -105,6 +105,8 @@ class TestFloatingIP(base.BaseFunctionalTest):
         fip = self.user_cloud.network.create_ip(**fip_args)
         assert isinstance(fip, floating_ip.FloatingIP)
         self.FIP = fip
+        self.ID = self.FIP.id
+        self.get_command = self.user_cloud.network.get_ip
 
     def tearDown(self):
         sot = self.user_cloud.network.delete_ip(
@@ -193,18 +195,6 @@ class TestFloatingIP(base.BaseFunctionalTest):
         self.assertEqual(self.PORT_ID, sot.port_id)
         self._assert_port_details(self.PORT, sot.port_details)
         self.assertEqual(self.FIP.id, sot.id)
-
-    def test_set_tags(self):
-        sot = self.user_cloud.network.get_ip(self.FIP.id)
-        self.assertEqual([], sot.tags)
-
-        self.user_cloud.network.set_tags(sot, ["blue"])
-        sot = self.user_cloud.network.get_ip(self.FIP.id)
-        self.assertEqual(["blue"], sot.tags)
-
-        self.user_cloud.network.set_tags(sot, [])
-        sot = self.user_cloud.network.get_ip(self.FIP.id)
-        self.assertEqual([], sot.tags)
 
     def _assert_port_details(self, port, port_details):
         self.assertEqual(port.name, port_details["name"])

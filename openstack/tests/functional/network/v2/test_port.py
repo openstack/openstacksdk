@@ -9,15 +9,15 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+# mypy: disable-error-code="method-assign"
 
 from openstack.network.v2 import network
 from openstack.network.v2 import port
 from openstack.network.v2 import subnet
-from openstack.tests.functional import base
+from openstack.tests.functional.network.v2 import common
 
 
-class TestPort(base.BaseFunctionalTest):
+class TestPort(common.TestTagNeutron):
     IPV4 = 4
     CIDR = "10.100.0.0/24"
     NET_ID = None
@@ -48,7 +48,8 @@ class TestPort(base.BaseFunctionalTest):
         )
         assert isinstance(prt, port.Port)
         self.assertEqual(self.PORT_NAME, prt.name)
-        self.PORT_ID = prt.id
+        self.PORT_ID = self.ID = prt.id
+        self.get_command = self.user_cloud.network.get_port
 
     def tearDown(self):
         sot = self.user_cloud.network.delete_port(
@@ -84,15 +85,3 @@ class TestPort(base.BaseFunctionalTest):
             self.PORT_ID, name=self.UPDATE_NAME
         )
         self.assertEqual(self.UPDATE_NAME, sot.name)
-
-    def test_set_tags(self):
-        sot = self.user_cloud.network.get_port(self.PORT_ID)
-        self.assertEqual([], sot.tags)
-
-        self.user_cloud.network.set_tags(sot, ["blue"])
-        sot = self.user_cloud.network.get_port(self.PORT_ID)
-        self.assertEqual(["blue"], sot.tags)
-
-        self.user_cloud.network.set_tags(sot, [])
-        sot = self.user_cloud.network.get_port(self.PORT_ID)
-        self.assertEqual([], sot.tags)
