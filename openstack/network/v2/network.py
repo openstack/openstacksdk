@@ -9,12 +9,12 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from openstack.common import tag
+
 from openstack.network.v2 import _base
 from openstack import resource
 
 
-class Network(_base.NetworkResource, tag.TagMixin):
+class Network(_base.NetworkResource, _base.TagMixinNetwork):
     resource_key = 'network'
     resources_key = 'networks'
     base_path = '/networks'
@@ -43,7 +43,7 @@ class Network(_base.NetworkResource, tag.TagMixin):
         provider_network_type='provider:network_type',
         provider_physical_network='provider:physical_network',
         provider_segmentation_id='provider:segmentation_id',
-        **tag.TagMixin._tag_query_parameters,
+        **_base.TagMixinNetwork._tag_query_parameters,
     )
 
     # Properties

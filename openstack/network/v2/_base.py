@@ -9,7 +9,11 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
+from openstack.common import tag
+from openstack import exceptions
 from openstack import resource
+from openstack import utils
 
 
 class NetworkResource(resource.Resource):
@@ -39,3 +43,19 @@ class NetworkResource(resource.Resource):
         if if_revision is not None:
             req.headers['If-Match'] = "revision_number=%d" % if_revision
         return req
+
+
+class TagMixinNetwork(tag.TagMixin):
+    def add_tags(self, session, tags):
+        """Create the tags on the resource
+
+        :param session: The session to use for making this request.
+        :param tags: List with tags to be set on the resource
+        """
+        tags = tags or []
+        url = utils.urljoin(self.base_path, self.id, 'tags')
+        session = self._get_session(session)
+        response = session.post(url, json={'tags': tags})
+        exceptions.raise_from_response(response)
+        self._body.attributes.update({'tags': tags})
+        return self
