@@ -71,3 +71,5 @@ class User(resource.Resource):
     #: This is a response object attribute, not valid for requests.
     #: *New in version 3.7*
     password_expires_at = resource.Body('password_expires_at')
+    #: A dictionary of users extra options.
+    options = resource.Body('options', type=dict, default={})
