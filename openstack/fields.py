@@ -28,36 +28,35 @@ def _convert_type(value, data_type, list_type=None):
     # and the RateLimit type for an example.
     if not data_type:
         return value
-    if issubclass(data_type, list):
+    elif issubclass(data_type, list):
         if isinstance(value, (list, tuple, set)):
             if not list_type:
-                return value
-            ret = []
-            for raw in value:
-                ret.append(_convert_type(raw, list_type))
-            return ret
+                return data_type(value)
+            return [_convert_type(raw, list_type) for raw in value]
         elif list_type:
             return [_convert_type(value, list_type)]
-        # "if-match" in Object is a good example of the need here
-        return [value]
+        else:
+            # "if-match" in Object is a good example of the need here
+            return [value]
     elif isinstance(value, data_type):
         return value
-    if not isinstance(value, data_type):
-        if issubclass(data_type, format.Formatter):
-            return data_type.deserialize(value)
+    elif issubclass(data_type, format.Formatter):
+        return data_type.deserialize(value)
+    elif isinstance(value, dict):
         # This should allow handling sub-dicts that have their own
         # Component type directly. See openstack/compute/v2/limits.py
         # and the AbsoluteLimits type for an example.
-        if isinstance(value, dict):
-            return data_type(**value)
-        try:
-            return data_type(value)
-        except ValueError:
-            # If we can not convert data to the expected type return empty
-            # instance of the expected type.
-            # This is necessary to handle issues like with flavor.swap where
-            # empty string means "0".
-            return data_type()
+        # NOTE(stephenfin): This will fail if value is not one of a select set
+        # of types (basically dict or list of two item tuples/lists)
+        return data_type(**value)
+    try:
+        return data_type(value)
+    except ValueError:
+        # If we can not convert data to the expected type return empty
+        # instance of the expected type.
+        # This is necessary to handle issues like with flavor.swap where
+        # empty string means "0".
+        return data_type()
 
 
 class _BaseComponent(abc.ABC):
@@ -169,12 +168,13 @@ class _BaseComponent(abc.ABC):
         if value is None:
             return None
 
-        # This warning are pretty intruisive. Every time attribute is accessed
+        # This warning are pretty intrusive. Every time attribute is accessed
         # a warning is being thrown. In neutron clients we have way too many
         # places that still refer to tenant_id even though they may also
         # properly support project_id. For now we silence tenant_id warnings.
         if self.name != "tenant_id":
             self.warn_if_deprecated_property(value)
+
         return _convert_type(value, self.type, self.list_type)
 
     def warn_if_deprecated_property(self, value):

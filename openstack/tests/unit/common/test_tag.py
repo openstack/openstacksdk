@@ -85,7 +85,7 @@ class TestTagMixin(base.TestCase):
         sess = self.session
 
         # Set some initial value to check rewrite
-        res.tags.extend(['blue_old', 'green_old'])
+        res.tags = ['blue_old', 'green_old']
 
         result = res.set_tags(sess, ['blue', 'green'])
         # Check tags attribute is updated
@@ -100,7 +100,7 @@ class TestTagMixin(base.TestCase):
         sess = self.session
 
         # Set some initial value to check removal
-        res.tags.extend(['blue_old', 'green_old'])
+        res.tags = ['blue_old', 'green_old']
 
         result = res.remove_all_tags(sess)
         # Check tags attribute is updated
@@ -114,7 +114,7 @@ class TestTagMixin(base.TestCase):
         res = self.sot
         sess = self.session
 
-        res.tags.extend(['blue', 'dummy'])
+        res.tags = ['blue', 'dummy']
 
         result = res.remove_tag(sess, 'dummy')
         # Check tags attribute is updated
@@ -162,7 +162,7 @@ class TestTagMixin(base.TestCase):
         sess = self.session
 
         # Set some initial value to check add
-        res.tags.extend(['blue', 'green'])
+        res.tags = ['blue', 'green']
 
         result = res.add_tag(sess, 'lila')
         # Check tags attribute is updated

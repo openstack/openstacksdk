@@ -12,7 +12,108 @@
 
 from openstack import fields
 from openstack import format
+from openstack import resource
 from openstack.tests.unit import base
+
+
+class TestConvertValue(base.TestCase):
+    def test_convert_value(self):
+        class FakeResource(resource.Resource):
+            abc = fields.Body('abc', type=int)
+
+        test_data = [
+            {
+                'name': 'no data_type',
+                'value': '123',
+                'data_type': None,
+                'expected': '123',
+            },
+            {
+                'name': 'convert list to list with no list_type',
+                'value': ['123'],
+                'data_type': list,
+                'expected': ['123'],
+            },
+            {
+                'name': 'convert tuple to list with no list_type',
+                'value': ('123',),
+                'data_type': list,
+                'expected': ['123'],
+            },
+            {
+                'name': 'convert set to list with no list_type',
+                'value': {'123'},
+                'data_type': list,
+                'expected': ['123'],
+            },
+            {
+                'name': 'convert list to list with list_type',
+                'value': ['123'],
+                'data_type': list,
+                'list_type': int,
+                'expected': [123],
+            },
+            {
+                'name': 'convert tuple to list with list_type',
+                'value': ('123',),
+                'data_type': list,
+                'list_type': int,
+                'expected': [123],
+            },
+            {
+                'name': 'convert set to list with list_type',
+                'value': {'123'},
+                'data_type': list,
+                'list_type': int,
+                'expected': [123],
+            },
+            {
+                'name': 'convert with formatter',
+                'value': 'true',
+                'data_type': format.BoolStr,
+                'expected': True,
+            },
+            {
+                'name': 'convert to resource',
+                'value': {'abc': '123'},
+                'data_type': FakeResource,
+                # NOTE(stephenfin): The Resource.__eq__ compares the underlying
+                # value types, not the converted value types, so we need a
+                # string here
+                'expected': FakeResource(abc='123'),
+            },
+            {
+                'name': 'convert string to int',
+                'value': '123',
+                'data_type': int,
+                'expected': 123,
+            },
+            {
+                'name': 'convert invalid string to int',
+                'value': 'abc',
+                'data_type': int,
+                'expected': 0,
+            },
+            {
+                'name': 'convert valid int to string',
+                'value': 123,
+                'data_type': str,
+                'expected': '123',
+            },
+            {
+                'name': 'convert string to bool',
+                'value': 'anything',
+                'data_type': bool,
+                'expected': True,
+            },
+        ]
+
+        for data in test_data:
+            with self.subTest(msg=data['name']):
+                ret = fields._convert_type(
+                    data['value'], data['data_type'], data.get('list_type')
+                )
+                self.assertEqual(ret, data['expected'])
 
 
 class TestComponent(base.TestCase):
