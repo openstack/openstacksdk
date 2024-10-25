@@ -292,6 +292,7 @@ class Proxy(proxy.Proxy):
         domain_id = resource.Resource._get_id(domain)
         self._delete(
             _domain_config.DomainConfig,
+            None,
             domain_id=domain_id,
             ignore_missing=ignore_missing,
         )

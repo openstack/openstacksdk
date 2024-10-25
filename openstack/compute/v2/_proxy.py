@@ -2058,6 +2058,7 @@ class Proxy(proxy.Proxy):
 
         self._delete(
             _volume_attachment.VolumeAttachment,
+            None,
             id=volume_id,
             server_id=server_id,
             ignore_missing=ignore_missing,

@@ -116,7 +116,7 @@ class TestIdentityProxyDomainConfig(TestIdentityProxyBase):
             ignore_missing=False,
             method_args=['domain_id'],
             method_kwargs={},
-            expected_args=[],
+            expected_args=[None],
             expected_kwargs={
                 'domain_id': 'domain_id',
             },
@@ -129,7 +129,7 @@ class TestIdentityProxyDomainConfig(TestIdentityProxyBase):
             ignore_missing=True,
             method_args=['domain_id'],
             method_kwargs={},
-            expected_args=[],
+            expected_args=[None],
             expected_kwargs={
                 'domain_id': 'domain_id',
             },

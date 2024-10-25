@@ -196,12 +196,12 @@ class Proxy(proxy.Proxy):
     @proxy._check_resource(strict=False)
     def _update(
         self,
-        resource_type: type[resource.Resource],
-        value: ty.Union[str, resource.Resource],
+        resource_type: type[resource.ResourceT],
+        value: ty.Union[str, resource.ResourceT],
         base_path: ty.Optional[str] = None,
         if_revision: ty.Optional[int] = None,
         **attrs: ty.Any,
-    ) -> resource.Resource:
+    ) -> resource.ResourceT:
         if (
             issubclass(resource_type, _base.NetworkResource)
             and if_revision is not None
@@ -215,12 +215,12 @@ class Proxy(proxy.Proxy):
     @proxy._check_resource(strict=False)
     def _delete(
         self,
-        resource_type: type[resource.Resource],
-        value: ty.Union[str, resource.Resource],
+        resource_type: type[resource.ResourceT],
+        value: ty.Union[str, resource.ResourceT],
         ignore_missing: bool = True,
         if_revision: ty.Optional[int] = None,
         **attrs: ty.Any,
-    ) -> ty.Optional[resource.Resource]:
+    ) -> ty.Optional[resource.ResourceT]:
         if (
             issubclass(resource_type, _base.NetworkResource)
             and if_revision is not None

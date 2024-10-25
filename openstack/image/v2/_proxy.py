@@ -1026,6 +1026,7 @@ class Proxy(proxy.Proxy):
         member_id = resource.Resource._get_id(member)
         self._delete(
             _member.Member,
+            None,
             member_id=member_id,
             image_id=image_id,
             ignore_missing=ignore_missing,

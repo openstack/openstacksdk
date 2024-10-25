@@ -663,7 +663,7 @@ class TestVolumeAttachment(TestComputeProxy):
             ignore_missing=False,
             method_args=[fake_server, fake_volume],
             method_kwargs={},
-            expected_args=[],
+            expected_args=[None],
             expected_kwargs={
                 'id': fake_volume.id,
                 'server_id': fake_server.id,
@@ -682,7 +682,7 @@ class TestVolumeAttachment(TestComputeProxy):
             ignore_missing=True,
             method_args=[fake_server, fake_volume],
             method_kwargs={},
-            expected_args=[],
+            expected_args=[None],
             expected_kwargs={
                 'id': fake_volume.id,
                 'server_id': fake_server.id,
@@ -708,7 +708,7 @@ class TestVolumeAttachment(TestComputeProxy):
                 ignore_missing=False,
                 method_args=[fake_volume.id, fake_server.id],
                 method_kwargs={},
-                expected_args=[],
+                expected_args=[None],
                 expected_kwargs={
                     'id': fake_volume.id,
                     'server_id': fake_server.id,
