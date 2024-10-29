@@ -54,19 +54,21 @@ from openstack import warnings as os_warnings
 LOG = _log.setup_logging(__name__)
 
 
+# TODO(stephenfin): We should deprecate the 'type' and 'list_type' arguments
+# for all of the below in favour of annotations. To that end, we have stuck
+# with Any rather than generating super complex types
 def Body(
-    name,
-    type=None,
-    default=None,
-    alias=None,
-    aka=None,
-    alternate_id=False,
-    list_type=None,
-    coerce_to_default=False,
-    deprecated=False,
-    deprecation_reason=None,
-    **kwargs,
-):
+    name: str,
+    type: ty.Optional[ty.Any] = None,
+    default: ty.Any = None,
+    alias: ty.Optional[str] = None,
+    aka: ty.Optional[str] = None,
+    alternate_id: bool = False,
+    list_type: ty.Optional[ty.Any] = None,
+    coerce_to_default: bool = False,
+    deprecated: bool = False,
+    deprecation_reason: ty.Optional[str] = None,
+) -> ty.Any:
     return fields.Body(
         name,
         type=type,
@@ -78,23 +80,21 @@ def Body(
         coerce_to_default=coerce_to_default,
         deprecated=deprecated,
         deprecation_reason=deprecation_reason,
-        **kwargs,
     )
 
 
 def Header(
-    name,
-    type=None,
-    default=None,
-    alias=None,
-    aka=None,
-    alternate_id=False,
-    list_type=None,
-    coerce_to_default=False,
-    deprecated=False,
-    deprecation_reason=None,
-    **kwargs,
-):
+    name: str,
+    type: ty.Optional[ty.Any] = None,
+    default: ty.Any = None,
+    alias: ty.Optional[str] = None,
+    aka: ty.Optional[str] = None,
+    alternate_id: bool = False,
+    list_type: ty.Optional[ty.Any] = None,
+    coerce_to_default: bool = False,
+    deprecated: bool = False,
+    deprecation_reason: ty.Optional[str] = None,
+) -> ty.Any:
     return fields.Header(
         name,
         type=type,
@@ -106,23 +106,21 @@ def Header(
         coerce_to_default=coerce_to_default,
         deprecated=deprecated,
         deprecation_reason=deprecation_reason,
-        **kwargs,
     )
 
 
 def URI(
-    name,
-    type=None,
-    default=None,
-    alias=None,
-    aka=None,
-    alternate_id=False,
-    list_type=None,
-    coerce_to_default=False,
-    deprecated=False,
-    deprecation_reason=None,
-    **kwargs,
-):
+    name: str,
+    type: ty.Optional[ty.Any] = None,
+    default: ty.Any = None,
+    alias: ty.Optional[str] = None,
+    aka: ty.Optional[str] = None,
+    alternate_id: bool = False,
+    list_type: ty.Optional[ty.Any] = None,
+    coerce_to_default: bool = False,
+    deprecated: bool = False,
+    deprecation_reason: ty.Optional[str] = None,
+) -> ty.Any:
     return fields.URI(
         name,
         type=type,
@@ -134,23 +132,21 @@ def URI(
         coerce_to_default=coerce_to_default,
         deprecated=deprecated,
         deprecation_reason=deprecation_reason,
-        **kwargs,
     )
 
 
 def Computed(
-    name,
-    type=None,
-    default=None,
-    alias=None,
-    aka=None,
-    alternate_id=False,
-    list_type=None,
-    coerce_to_default=False,
-    deprecated=False,
-    deprecation_reason=None,
-    **kwargs,
-):
+    name: str,
+    type: ty.Optional[ty.Any] = None,
+    default: ty.Any = None,
+    alias: ty.Optional[str] = None,
+    aka: ty.Optional[str] = None,
+    alternate_id: bool = False,
+    list_type: ty.Optional[ty.Any] = None,
+    coerce_to_default: bool = False,
+    deprecated: bool = False,
+    deprecation_reason: ty.Optional[str] = None,
+) -> ty.Any:
     return fields.Computed(
         name,
         type=type,
@@ -162,7 +158,6 @@ def Computed(
         coerce_to_default=coerce_to_default,
         deprecated=deprecated,
         deprecation_reason=deprecation_reason,
-        **kwargs,
     )
 
 

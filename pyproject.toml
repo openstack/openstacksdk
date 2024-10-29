@@ -29,7 +29,10 @@ exclude = '''
 '''
 
 [[tool.mypy.overrides]]
-module = ["openstack.format"]
+module = [
+    "openstack.fields",
+    "openstack.format",
+]
 warn_return_any = true
 disallow_untyped_decorators = true
 disallow_any_generics = true

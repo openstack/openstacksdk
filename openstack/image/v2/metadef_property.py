@@ -52,9 +52,9 @@ class MetadefProperty(resource.Resource):
     #: that a string value must match.
     pattern = resource.Body('pattern')
     #: Minimum allowed string length.
-    min_length = resource.Body('minLength', type=int, minimum=0, default=0)
+    min_length = resource.Body('minLength', type=int, default=0)
     #: Maximum allowed string length.
-    max_length = resource.Body('maxLength', type=int, minimum=0)
+    max_length = resource.Body('maxLength', type=int)
     # FIXME(stephenfin): This is causing conflicts due to the 'dict.items'
     # method. Perhaps we need to rename it?
     #: Schema for the items in an array.
@@ -64,9 +64,9 @@ class MetadefProperty(resource.Resource):
         'uniqueItems', type=bool, default=False
     )
     #: Minimum length of an array.
-    min_items = resource.Body('minItems', type=int, minimum=0, default=0)
+    min_items = resource.Body('minItems', type=int, default=0)
     #: Maximum length of an array.
-    max_items = resource.Body('maxItems', type=int, minimum=0)
+    max_items = resource.Body('maxItems', type=int)
     #: Describes extra items, if you use tuple typing.  If the value of
     #: ``items`` is an array (tuple typing) and the instance is longer than
     #: the list of schemas in ``items``, the additional items are described by

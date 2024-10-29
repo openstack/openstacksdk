@@ -21,7 +21,6 @@ from openstack import warnings as os_warnings
 
 _SEEN_FORMAT = '{name}_seen'
 
-
 _T1 = ty.TypeVar('_T1')
 _T2 = ty.TypeVar('_T2')
 _T3 = ty.TypeVar('_T3', str, bool, int, float)
@@ -145,32 +144,33 @@ def _convert_type(
 
 class _BaseComponent(abc.ABC):
     # The name this component is being tracked as in the Resource
-    key: str
+    key: ty.ClassVar[str]
     # The class to be used for mappings
-    _map_cls: type[ty.Mapping] = dict
+    _map_cls: ty.ClassVar[type[ty.MutableMapping[str, ty.Any]]] = dict
 
-    #: Marks the property as deprecated.
-    deprecated = False
-    #: Deprecation reason message used to warn users when deprecated == True
-    deprecation_reason = None
-
-    #: Control field used to manage the deprecation warning. We want to warn
-    #: only once when the attribute is retrieved in the code.
-    already_warned_deprecation = False
+    name: str
+    data_type: ty.Optional[ty.Any]
+    default: ty.Any
+    alias: ty.Optional[str]
+    aka: ty.Optional[str]
+    alternate_id: bool
+    list_type: ty.Optional[ty.Any]
+    coerce_to_default: bool
+    deprecated: bool
+    deprecation_reason: ty.Optional[str]
 
     def __init__(
         self,
-        name,
-        type=None,
-        default=None,
-        alias=None,
-        aka=None,
-        alternate_id=False,
-        list_type=None,
-        coerce_to_default=False,
-        deprecated=False,
-        deprecation_reason=None,
-        **kwargs,
+        name: str,
+        type: ty.Optional[ty.Any] = None,
+        default: ty.Any = None,
+        alias: ty.Optional[str] = None,
+        aka: ty.Optional[str] = None,
+        alternate_id: bool = False,
+        list_type: ty.Optional[ty.Any] = None,
+        coerce_to_default: bool = False,
+        deprecated: bool = False,
+        deprecation_reason: ty.Optional[str] = None,
     ):
         """A typed descriptor for a component that makes up a Resource
 
@@ -183,26 +183,21 @@ class _BaseComponent(abc.ABC):
         :param default: Typically None, but any other default can be set.
         :param alias: If set, alternative attribute on object to return.
         :param aka: If set, additional name attribute would be available under.
-        :param alternate_id:
-            When `True`, this property is known internally as a value that
-            can be sent with requests that require an ID but when `id` is
-            not a name the Resource has. This is a relatively uncommon case,
-            and this setting should only be used once per Resource.
-        :param list_type:
-            If type is `list`, list_type designates what the type of the
-            elements of the list should be.
-        :param coerce_to_default:
-            If the Component is None or not present, force the given default
-            to be used. If a default is not given but a type is given,
-            construct an empty version of the type in question.
-        :param deprecated:
-            Indicates if the option is deprecated. If it is, we display a
-            warning message to the user.
-        :param deprecation_reason:
-            Custom deprecation message.
+        :param alternate_id: When `True`, this property is known internally as
+            a value that can be sent with requests that require an ID but when
+            `id` is not a name the Resource has. This is a relatively uncommon
+            case, and this setting should only be used once per Resource.
+        :param list_type: If type is `list`, list_type designates what the type
+            of the elements of the list should be.
+        :param coerce_to_default: If the Component is None or not present,
+            force the given default to be used. If a default is not given but a
+            type is given, construct an empty version of the type in question.
+        :param deprecated: Indicates if the option is deprecated. If it is, we
+            display a warning message to the user.
+        :param deprecation_reason: Custom deprecation message.
         """
         self.name = name
-        self.type = type
+        self.data_type = type
         if type is not None and coerce_to_default and not default:
             self.default = type()
         else:
@@ -216,7 +211,11 @@ class _BaseComponent(abc.ABC):
         self.deprecated = deprecated
         self.deprecation_reason = deprecation_reason
 
-    def __get__(self, instance, owner):
+    def __get__(
+        self,
+        instance: object,
+        owner: ty.Optional[type[object]] = None,
+    ) -> ty.Any:
         if instance is None:
             return self
 
@@ -248,7 +247,7 @@ class _BaseComponent(abc.ABC):
             self.warn_if_deprecated_property(value)
             return value
 
-        # self.type() should not be called on None objects.
+        # self.data_type() should not be called on None objects.
         if value is None:
             return None
 
@@ -259,9 +258,14 @@ class _BaseComponent(abc.ABC):
         if self.name != "tenant_id":
             self.warn_if_deprecated_property(value)
 
-        return _convert_type(value, self.type, self.list_type)
+        return _convert_type(value, self.data_type, self.list_type)
 
-    def warn_if_deprecated_property(self, value):
+    @property
+    def type(self) -> ty.Optional[ty.Any]:
+        # deprecated alias proxy
+        return self.data_type
+
+    def warn_if_deprecated_property(self, value: ty.Any) -> None:
         deprecated = object.__getattribute__(self, 'deprecated')
         deprecation_reason = object.__getattribute__(
             self,
@@ -275,18 +279,19 @@ class _BaseComponent(abc.ABC):
                 ),
                 os_warnings.RemovedFieldWarning,
             )
-        return value
 
-    def __set__(self, instance, value):
+    def __set__(self, instance: object, value: ty.Any) -> None:
         if self.coerce_to_default and value is None:
-            value = self.default
-        if value != self.default:
-            value = _convert_type(value, self.type, self.list_type)
+            value_ = self.default
+        elif value != self.default:
+            value_ = _convert_type(value, self.data_type, self.list_type)
+        else:
+            value_ = value
 
         attributes = getattr(instance, self.key)
-        attributes[self.name] = value
+        attributes[self.name] = value_
 
-    def __delete__(self, instance):
+    def __delete__(self, instance: object) -> None:
         try:
             attributes = getattr(instance, self.key)
             del attributes[self.name]

@@ -31,7 +31,7 @@ class ShareExportLocation(resource.Resource):
 
     #: Properties
     # The share ID, part of the URI for export locations
-    share_id = resource.URI("share_id", type='str')
+    share_id = resource.URI("share_id", type=str)
     #: The path of the export location.
     path = resource.Body("path", type=str)
     #: Indicate if export location is preferred.
