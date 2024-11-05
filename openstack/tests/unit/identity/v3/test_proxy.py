@@ -36,6 +36,7 @@ from openstack.identity.v3 import user
 from openstack.tests.unit import test_proxy_base
 
 USER_ID = 'user-id-' + uuid.uuid4().hex
+ENDPOINT_ID = 'user-id-' + uuid.uuid4().hex
 
 
 class TestIdentityProxyBase(test_proxy_base.TestProxyBase):
@@ -300,6 +301,14 @@ class TestIdentityProxyProject(TestIdentityProxyBase):
             project.UserProject,
             method_kwargs={'user': USER_ID},
             expected_kwargs={'user_id': USER_ID},
+        )
+
+    def test_endpoint_projects(self):
+        self.verify_list(
+            self.proxy.endpoint_projects,
+            project.EndpointProject,
+            method_kwargs={'endpoint': ENDPOINT_ID},
+            expected_kwargs={'endpoint_id': ENDPOINT_ID},
         )
 
     def test_project_update(self):

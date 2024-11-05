@@ -67,7 +67,7 @@ Project Operations
 .. autoclass:: openstack.identity.v3._proxy.Proxy
   :noindex:
   :members: create_project, update_project, delete_project, get_project,
-            find_project, projects, user_projects
+            find_project, projects, user_projects, endpoint_projects
 
 Service Operations
 ^^^^^^^^^^^^^^^^^^
