@@ -9,13 +9,13 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+# mypy: disable-error-code="method-assign"
 
 from openstack.network.v2 import security_group
-from openstack.tests.functional import base
+from openstack.tests.functional.network.v2 import common
 
 
-class TestSecurityGroup(base.BaseFunctionalTest):
+class TestSecurityGroup(common.TestTagNeutron):
     ID = None
 
     def setUp(self):
@@ -25,6 +25,7 @@ class TestSecurityGroup(base.BaseFunctionalTest):
         assert isinstance(sot, security_group.SecurityGroup)
         self.assertEqual(self.NAME, sot.name)
         self.ID = sot.id
+        self.get_command = self.user_cloud.network.get_security_group
 
     def tearDown(self):
         sot = self.user_cloud.network.delete_security_group(
@@ -51,15 +52,3 @@ class TestSecurityGroup(base.BaseFunctionalTest):
             o.id for o in self.user_cloud.network.security_groups(id=[self.ID])
         ]
         self.assertIn(self.ID, ids)
-
-    def test_set_tags(self):
-        sot = self.user_cloud.network.get_security_group(self.ID)
-        self.assertEqual([], sot.tags)
-
-        self.user_cloud.network.set_tags(sot, ["blue"])
-        sot = self.user_cloud.network.get_security_group(self.ID)
-        self.assertEqual(["blue"], sot.tags)
-
-        self.user_cloud.network.set_tags(sot, [])
-        sot = self.user_cloud.network.get_security_group(self.ID)
-        self.assertEqual([], sot.tags)

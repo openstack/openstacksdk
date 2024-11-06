@@ -9,14 +9,14 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+# mypy: disable-error-code="method-assign"
 
 from openstack.network.v2 import network
 from openstack.network.v2 import subnet
-from openstack.tests.functional import base
+from openstack.tests.functional.network.v2 import common
 
 
-class TestSubnet(base.BaseFunctionalTest):
+class TestSubnet(common.TestTagNeutron):
     IPV4 = 4
     CIDR = "10.100.0.0/24"
     DNS_SERVERS = ["8.8.4.4", "8.8.8.8"]
@@ -45,7 +45,8 @@ class TestSubnet(base.BaseFunctionalTest):
         )
         assert isinstance(sub, subnet.Subnet)
         self.assertEqual(self.SUB_NAME, sub.name)
-        self.SUB_ID = sub.id
+        self.SUB_ID = self.ID = sub.id
+        self.get_command = self.user_cloud.network.get_subnet
 
     def tearDown(self):
         sot = self.user_cloud.network.delete_subnet(self.SUB_ID)
@@ -81,15 +82,3 @@ class TestSubnet(base.BaseFunctionalTest):
             self.SUB_ID, name=self.UPDATE_NAME
         )
         self.assertEqual(self.UPDATE_NAME, sot.name)
-
-    def test_set_tags(self):
-        sot = self.user_cloud.network.get_subnet(self.SUB_ID)
-        self.assertEqual([], sot.tags)
-
-        self.user_cloud.network.set_tags(sot, ["blue"])
-        sot = self.user_cloud.network.get_subnet(self.SUB_ID)
-        self.assertEqual(["blue"], sot.tags)
-
-        self.user_cloud.network.set_tags(sot, [])
-        sot = self.user_cloud.network.get_subnet(self.SUB_ID)
-        self.assertEqual([], sot.tags)
