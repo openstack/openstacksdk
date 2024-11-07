@@ -414,6 +414,8 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_endpoint.Endpoint, endpoint, **attrs)
 
+    # ========== Project endpoints ==========
+
     def project_endpoints(self, project, **query):
         """Retrieve a generator of endpoints which are associated with the
         project.
@@ -430,6 +432,32 @@ class Proxy(proxy.Proxy):
         return self._list(
             _endpoint.ProjectEndpoint, project_id=project_id, **query
         )
+
+    def associate_endpoint_with_project(self, project, endpoint):
+        """Creates a direct association between project and endpoint
+
+        :param project: Either the ID of a project or a
+            :class:`~openstack.identity.v3.project.Project` instance.
+        :param endpoint: Either the ID of an endpoint or a
+            :class:`~openstack.identity.v3.endpoint.Endpoint` instance.
+        :returns: None
+        """
+        project = self._get_resource(_project.Project, project)
+        endpoint = self._get_resource(_endpoint.Endpoint, endpoint)
+        project.associate_endpoint(self, endpoint.id)
+
+    def disassociate_endpoint_from_project(self, project, endpoint):
+        """Removes a direct association between project and endpoint
+
+        :param project: Either the ID of a project or a
+            :class:`~openstack.identity.v3.project.Project` instance.
+        :param endpoint: Either the ID of an endpoint or a
+            :class:`~openstack.identity.v3.endpoint.Endpoint` instance.
+        :returns: None
+        """
+        project = self._get_resource(_project.Project, project)
+        endpoint = self._get_resource(_endpoint.Endpoint, endpoint)
+        project.disassociate_endpoint(self, endpoint.id)
 
     # ========== Groups ==========
 

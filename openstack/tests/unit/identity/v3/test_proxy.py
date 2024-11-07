@@ -36,7 +36,8 @@ from openstack.identity.v3 import user
 from openstack.tests.unit import test_proxy_base
 
 USER_ID = 'user-id-' + uuid.uuid4().hex
-ENDPOINT_ID = 'user-id-' + uuid.uuid4().hex
+ENDPOINT_ID = 'endpoint-id-' + uuid.uuid4().hex
+PROJECT_ID = 'project-id-' + uuid.uuid4().hex
 
 
 class TestIdentityProxyBase(test_proxy_base.TestProxyBase):
@@ -185,6 +186,14 @@ class TestIdentityProxyEndpoint(TestIdentityProxyBase):
     def test_endpoints(self):
         self.verify_list(self.proxy.endpoints, endpoint.Endpoint)
 
+    def test_project_endpoints(self):
+        self.verify_list(
+            self.proxy.project_endpoints,
+            endpoint.ProjectEndpoint,
+            method_kwargs={'project': PROJECT_ID},
+            expected_kwargs={'project_id': PROJECT_ID},
+        )
+
     def test_endpoint_update(self):
         self.verify_update(self.proxy.update_endpoint, endpoint.Endpoint)
 
@@ -313,6 +322,22 @@ class TestIdentityProxyProject(TestIdentityProxyBase):
 
     def test_project_update(self):
         self.verify_update(self.proxy.update_project, project.Project)
+
+    def test_project_associate_endpoint(self):
+        self._verify(
+            'openstack.identity.v3.project.Project.associate_endpoint',
+            self.proxy.associate_endpoint_with_project,
+            method_args=['project_id', 'endpoint_id'],
+            expected_args=[self.proxy, 'endpoint_id'],
+        )
+
+    def test_project_disassociate_endpoint(self):
+        self._verify(
+            'openstack.identity.v3.project.Project.disassociate_endpoint',
+            self.proxy.disassociate_endpoint_from_project,
+            method_args=['project_id', 'endpoint_id'],
+            expected_args=[self.proxy, 'endpoint_id'],
+        )
 
 
 class TestIdentityProxyService(TestIdentityProxyBase):
