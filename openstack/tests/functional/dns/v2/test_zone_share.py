@@ -51,6 +51,13 @@ class TestZoneShare(base.BaseFunctionalTest):
 
         self.project_id = self.operator_cloud.session.get_project_id()
         self.demo_project_id = self.user_cloud.session.get_project_id()
+        assert self.demo_project_id is not None
+
+        # Increase the zone quota by 1 to ensure the new zone creation.
+        quota = self.operator_cloud.dns.get_quota(self.demo_project_id)
+        self.operator_cloud.dns.update_quota(
+            self.demo_project_id, zones=quota.zones + 1
+        )
 
     def test_create_delete_zone_share(self):
         zone_share = self.operator_cloud.dns.create_zone_share(
