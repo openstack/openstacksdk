@@ -26,8 +26,9 @@ EXAMPLE = {
     'description': '1',
     'enabled': True,
     'id': IDENTIFIER,
-    'links': {'self': 'http://example.com/identity/v3/domains/id'},
+    'links': {'self': f'http://example.com/identity/v3/domains/{IDENTIFIER}'},
     'name': '4',
+    'options': {'foo': 'bar'},
 }
 
 
@@ -65,6 +66,10 @@ class TestDomain(base.TestCase):
                 'is_enabled': 'enabled',
                 'limit': 'limit',
                 'marker': 'marker',
+                'tags': 'tags',
+                'any_tags': 'tags-any',
+                'not_tags': 'not-tags',
+                'not_any_tags': 'not-tags-any',
             },
             sot._query_mapping._mapping,
         )
@@ -76,6 +81,7 @@ class TestDomain(base.TestCase):
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['name'], sot.name)
+        self.assertDictEqual(EXAMPLE['options'], sot.options)
 
     def test_assign_role_to_user_good(self):
         sot = domain.Domain(**EXAMPLE)

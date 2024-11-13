@@ -10,11 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.common import tag
 from openstack import resource
 from openstack import utils
 
 
-class Domain(resource.Resource):
+class Domain(resource.Resource, tag.TagMixin):
     resource_key = 'domain'
     resources_key = 'domains'
     base_path = '/domains'
@@ -30,6 +31,7 @@ class Domain(resource.Resource):
     _query_mapping = resource.QueryParameters(
         'name',
         is_enabled='enabled',
+        **tag.TagMixin._tag_query_parameters,
     )
 
     # Properties
@@ -43,8 +45,9 @@ class Domain(resource.Resource):
     #: Re-enabling a domain does not re-enable pre-existing tokens.
     #: *Type: bool*
     is_enabled = resource.Body('enabled', type=bool)
-    #: The globally unique name of this domain. *Type: string*
-    name = resource.Body('name')
+    #: The resource options for the project. Available resource options are
+    #: immutable.
+    options = resource.Body('options', type=dict)
     #: The links related to the domain resource.
     links = resource.Body('links')
 

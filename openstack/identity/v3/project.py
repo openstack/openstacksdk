@@ -9,6 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 from openstack.common import tag
 from openstack import resource
 from openstack import utils
@@ -61,6 +62,8 @@ class Project(resource.Resource, tag.TagMixin):
     #: The ID of the parent of the project.
     #: New in version 3.4
     parent_id = resource.Body('parent_id')
+    #: The links related to the project resource.
+    links = resource.Body('links')
 
     def assign_role_to_user(self, session, user, role):
         """Assign role to user on project"""
