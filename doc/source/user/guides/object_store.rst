@@ -77,12 +77,12 @@ To set the metadata for a container, use the
 :meth:`~openstack.object_store.v1._proxy.Proxy.set_container_metadata` method.
 This method takes a :class:`~openstack.object_store.v1.container.Container`
 object. For example, to grant another user write access to this container,
-you can set the
-:attr:`~openstack.object_store.v1.container.Container.write_ACL` on a
-resource and pass it to `set_container_metadata`. ::
+you can call `set_container_metadata` passing it the `Container` to update
+and keyward argument key/value pairs representing the metadata name and
+value to set. ::
 
-    >>> cont.write_ACL = "big_project:another_user"
-    >>> conn.object_store.set_container_metadata(cont)
+    >>> acl = "big_project:another_user"
+    >>> conn.object_store.set_container_metadata(cont, write_ACL=acl)
     openstack.object_store.v1.container.Container: {'content-length': '0',
     'x-container-object-count': '0',
     'name': u'my new container', 'accept-ranges': 'bytes',
