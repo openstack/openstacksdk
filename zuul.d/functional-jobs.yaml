@@ -39,7 +39,6 @@
         q-metering: true
         q-svc: true
         # sdk doesn't need vnc access
-        n-cauth: false
         n-novnc: false
         # sdk testing uses config drive only
         n-api-meta: false
@@ -290,11 +289,9 @@
         s-proxy: false
         n-api: false
         n-api-meta: false
-        n-cauth: false
         n-cond: false
         n-cpu: false
         n-novnc: false
-        n-obj: false
         n-sch: false
         nova: false
         placement-api: false
@@ -432,11 +429,9 @@
         s-proxy: false
         n-api: false
         n-api-meta: false
-        n-cauth: false
         n-cond: false
         n-cpu: false
         n-novnc: false
-        n-obj: false
         n-sch: false
         nova: false
         placement-api: false
