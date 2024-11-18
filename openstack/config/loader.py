@@ -477,7 +477,7 @@ class OpenStackConfig:
         """
         if not isinstance(data, dict):
             raise exceptions.ConfigException(
-                'Configuration file {path} is empty or not a valid mapping'
+                f'Configuration file {path} is empty or not a valid mapping'
             )
 
         if 'clouds' not in data:
