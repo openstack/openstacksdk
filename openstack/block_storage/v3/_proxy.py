@@ -1499,14 +1499,18 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.block_storage.v3.limits.RateLimit`
         :rtype: :class:`~openstack.block_storage.v3.limits.Limits`
         """
-        params = {}
+        project_id = None
         if project:
-            params['project_id'] = resource.Resource._get_id(project)
+            project_id = resource.Resource._get_id(project)
 
         # we don't use Proxy._get since that doesn't allow passing arbitrary
         # query string parameters
         res = self._get_resource(_limits.Limits, None)
-        return res.fetch(self, requires_id=False, **params)
+        return res.fetch(
+            self,
+            requires_id=False,
+            project_id=project_id,
+        )
 
     # ====== CAPABILITIES ======
     def get_capabilities(self, host):

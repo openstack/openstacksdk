@@ -14,6 +14,7 @@
 
 import copy
 import os.path
+import typing as ty
 from urllib import parse
 import warnings
 
@@ -30,17 +31,17 @@ import os_service_types
 import requestsexceptions
 
 try:
-    import statsd
+    import statsd as statsd_client
 except ImportError:
-    statsd = None
+    statsd_client = None
 try:
     import prometheus_client
 except ImportError:
     prometheus_client = None
 try:
-    import influxdb
+    import influxdb as influxdb_client
 except ImportError:
-    influxdb = None
+    influxdb_client = None
 
 from openstack import _log
 from openstack.config import _util
@@ -1131,8 +1132,10 @@ class CloudRegion:
             'concurrency', service_type=service_type
         )
 
-    def get_statsd_client(self):
-        if not statsd:
+    def get_statsd_client(
+        self,
+    ) -> ty.Optional['statsd_client.StatsClientBase']:
+        if not statsd_client:
             if self._statsd_host:
                 self.log.warning(
                     'StatsD python library is not available. '
@@ -1146,25 +1149,29 @@ class CloudRegion:
             statsd_args['port'] = self._statsd_port
         if statsd_args:
             try:
-                return statsd.StatsClient(**statsd_args)
+                return statsd_client.StatsClient(**statsd_args)
             except Exception:
                 self.log.warning('Cannot establish connection to statsd')
                 return None
         else:
             return None
 
-    def get_statsd_prefix(self):
+    def get_statsd_prefix(self) -> str:
         return self._statsd_prefix or 'openstack.api'
 
-    def get_prometheus_registry(self):
+    def get_prometheus_registry(
+        self,
+    ) -> ty.Optional['prometheus_client.CollectorRegistry']:
         if not self._collector_registry and prometheus_client:
             self._collector_registry = prometheus_client.REGISTRY
         return self._collector_registry
 
-    def get_prometheus_histogram(self):
+    def get_prometheus_histogram(
+        self,
+    ) -> ty.Optional['prometheus_client.Histogram']:
         registry = self.get_prometheus_registry()
         if not registry or not prometheus_client:
-            return
+            return None
         # We have to hide a reference to the histogram on the registry
         # object, because it's collectors must be singletons for a given
         # registry but register at creation time.
@@ -1184,10 +1191,12 @@ class CloudRegion:
             registry._openstacksdk_histogram = hist
         return hist
 
-    def get_prometheus_counter(self):
+    def get_prometheus_counter(
+        self,
+    ) -> ty.Optional['prometheus_client.Counter']:
         registry = self.get_prometheus_registry()
         if not registry or not prometheus_client:
-            return
+            return None
         counter = getattr(registry, '_openstacksdk_counter', None)
         if not counter:
             counter = prometheus_client.Counter(
@@ -1224,7 +1233,9 @@ class CloudRegion:
         d_key = _make_key('disabled_reason', service_type)
         return self.config.get(d_key)
 
-    def get_influxdb_client(self):
+    def get_influxdb_client(
+        self,
+    ) -> ty.Optional['influxdb_client.InfluxDBClient']:
         influx_args = {}
         if not self._influxdb_config:
             return None
@@ -1240,9 +1251,9 @@ class CloudRegion:
         for key in ['host', 'username', 'password', 'database', 'timeout']:
             if key in self._influxdb_config:
                 influx_args[key] = self._influxdb_config[key]
-        if influxdb and influx_args:
+        if influxdb_client and influx_args:
             try:
-                return influxdb.InfluxDBClient(**influx_args)
+                return influxdb_client.InfluxDBClient(**influx_args)
             except Exception:
                 self.log.warning('Cannot establish connection to InfluxDB')
         else:

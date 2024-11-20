@@ -33,6 +33,7 @@ module = [
     "openstack.exceptions",
     "openstack.fields",
     "openstack.format",
+    "openstack.proxy",
     "openstack.utils",
 ]
 warn_return_any = true

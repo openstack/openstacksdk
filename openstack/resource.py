@@ -51,9 +51,13 @@ from openstack import fields
 from openstack import utils
 from openstack import warnings as os_warnings
 
+if ty.TYPE_CHECKING:
+    from openstack import connection
+
 LOG = _log.setup_logging(__name__)
 
 AdapterT = ty.TypeVar('AdapterT', bound=adapter.Adapter)
+ResourceT = ty.TypeVar('ResourceT', bound='Resource')
 
 
 # TODO(stephenfin): We should deprecate the 'type' and 'list_type' arguments
@@ -354,7 +358,7 @@ class Resource(dict):
     pagination_key: ty.Optional[str] = None
 
     #: The ID of this resource.
-    id = Body("id")
+    id: str = Body("id")
 
     #: The name of this resource.
     name: str = Body("name")
@@ -658,7 +662,7 @@ class Resource(dict):
             res.append((attr, self[attr]))
         return res
 
-    def _update(self, **attrs):
+    def _update(self, **attrs: ty.Any) -> None:
         """Given attributes, update them on this instance
 
         This is intended to be used from within the proxy
@@ -858,7 +862,7 @@ class Resource(dict):
         return ""
 
     @staticmethod
-    def _get_id(value):
+    def _get_id(value: ty.Union['Resource', str]) -> str:
         """If a value is a Resource, return the canonical ID
 
         This will return either the value specified by `id` or
@@ -872,7 +876,7 @@ class Resource(dict):
             return value
 
     @classmethod
-    def new(cls, **kwargs):
+    def new(cls, **kwargs: ty.Any) -> ty_ext.Self:
         """Create a new instance of this resource.
 
         When creating the instance set the ``_synchronized`` parameter
@@ -903,7 +907,12 @@ class Resource(dict):
         return cls(_synchronized=True, connection=connection, **kwargs)
 
     @classmethod
-    def _from_munch(cls, obj, synchronized=True, connection=None):
+    def _from_munch(
+        cls,
+        obj: dict[str, ty.Union],
+        synchronized: bool = True,
+        connection: ty.Optional['connection.Connection'] = None,
+    ) -> ty_ext.Self:
         """Create an instance from a ``utils.Munch`` object.
 
         This is intended as a temporary measure to convert between shade-style
@@ -1325,15 +1334,15 @@ class Resource(dict):
 
     def create(
         self,
-        session,
-        prepend_key=True,
-        base_path=None,
+        session: adapter.Adapter,
+        prepend_key: bool = True,
+        base_path: ty.Optional[str] = None,
         *,
-        resource_request_key=None,
-        resource_response_key=None,
-        microversion=None,
-        **params,
-    ):
+        resource_request_key: ty.Optional[str] = None,
+        resource_response_key: ty.Optional[str] = None,
+        microversion: ty.Optional[str] = None,
+        **params: ty.Any,
+    ) -> ty_ext.Self:
         """Create a remote resource based on this instance.
 
         :param session: The session to use for making this request.
@@ -1417,23 +1426,23 @@ class Resource(dict):
         # direct comparision to False since we need to rule out None
         if self.has_body and self.create_returns_body is False:
             # fetch the body if it's required but not returned by create
-            fetch_kwargs = {}
-            if resource_response_key is not None:
-                fetch_kwargs = {'resource_response_key': resource_response_key}
-            return self.fetch(session, **fetch_kwargs)
+            return self.fetch(
+                session,
+                resource_response_key=resource_response_key,
+            )
         return self
 
     @classmethod
     def bulk_create(
         cls,
-        session,
-        data,
-        prepend_key=True,
-        base_path=None,
+        session: adapter.Adapter,
+        data: list[dict[str, ty.Any]],
+        prepend_key: bool = True,
+        base_path: ty.Optional[str] = None,
         *,
-        microversion=None,
-        **params,
-    ):
+        microversion: ty.Optional[str] = None,
+        **params: ty.Any,
+    ) -> ty.Generator[ty_ext.Self, None, None]:
         """Create multiple remote resources based on this class and data.
 
         :param session: The session to use for making this request.
@@ -1486,7 +1495,10 @@ class Resource(dict):
             # Those objects will be used in case where request doesn't return
             # JSON data representing created resource, and yet it's required
             # to return newly created resource objects.
-            resource = cls.new(connection=session._get_connection(), **attrs)
+            # TODO(stephenfin): Our types say we accept a ksa Adapter, but this
+            # requires an SDK Proxy. Do we update the types or rework this to
+            # support use of an adapter.
+            resource = cls.new(connection=session._get_connection(), **attrs)  # type: ignore
             resources.append(resource)
             request = resource._prepare_request(
                 requires_id=requires_id, base_path=base_path
@@ -1507,13 +1519,17 @@ class Resource(dict):
             params=params,
         )
         exceptions.raise_from_response(response)
-        data = response.json()
+        json = response.json()
 
         if cls.resources_key:
-            data = data[cls.resources_key]
+            json = json[cls.resources_key]
+        else:
+            json = json
 
-        if not isinstance(data, list):
-            data = [data]
+        if isinstance(data, list):
+            json = json
+        else:
+            json = [json]
 
         has_body = (
             cls.has_body
@@ -1524,26 +1540,29 @@ class Resource(dict):
             return (r.fetch(session) for r in resources)
         else:
             return (
+                # TODO(stephenfin): Our types say we accept a ksa Adapter, but
+                # this requires an SDK Proxy. Do we update the types or rework
+                # this to support use of an adapter.
                 cls.existing(
                     microversion=microversion,
-                    connection=session._get_connection(),
+                    connection=session._get_connection(),  # type: ignore
                     **res_dict,
                 )
-                for res_dict in data
+                for res_dict in json
             )
 
     def fetch(
         self,
-        session,
-        requires_id=True,
-        base_path=None,
-        error_message=None,
-        skip_cache=False,
+        session: adapter.Adapter,
+        requires_id: bool = True,
+        base_path: ty.Optional[str] = None,
+        error_message: ty.Optional[str] = None,
+        skip_cache: bool = False,
         *,
-        resource_response_key=None,
-        microversion=None,
-        **params,
-    ):
+        resource_response_key: ty.Optional[str] = None,
+        microversion: ty.Optional[str] = None,
+        **params: ty.Any,
+    ) -> ty_ext.Self:
         """Get a remote resource based on this instance.
 
         :param session: The session to use for making this request.
@@ -1594,7 +1613,13 @@ class Resource(dict):
 
         return self
 
-    def head(self, session, base_path=None, *, microversion=None):
+    def head(
+        self,
+        session: adapter.Adapter,
+        base_path: ty.Optional[str] = None,
+        *,
+        microversion: ty.Optional[str] = None,
+    ) -> ty_ext.Self:
         """Get headers from a remote resource based on this instance.
 
         :param session: The session to use for making this request.
@@ -1633,15 +1658,15 @@ class Resource(dict):
 
     def commit(
         self,
-        session,
-        prepend_key=True,
-        has_body=True,
-        retry_on_conflict=None,
-        base_path=None,
+        session: adapter.Adapter,
+        prepend_key: bool = True,
+        has_body: bool = True,
+        retry_on_conflict: ty.Optional[bool] = None,
+        base_path: ty.Optional[str] = None,
         *,
-        microversion=None,
-        **kwargs,
-    ):
+        microversion: ty.Optional[str] = None,
+        **kwargs: ty.Any,
+    ) -> ty_ext.Self:
         """Commit the state of the instance to the remote resource.
 
         :param session: The session to use for making this request.
@@ -1826,8 +1851,13 @@ class Resource(dict):
         )
 
     def delete(
-        self, session, error_message=None, *, microversion=None, **kwargs
-    ):
+        self,
+        session: adapter.Adapter,
+        error_message: ty.Optional[str] = None,
+        *,
+        microversion: ty.Optional[str] = None,
+        **kwargs: ty.Any,
+    ) -> ty_ext.Self:
         """Delete the remote resource based on this instance.
 
         :param session: The session to use for making this request.
@@ -1873,15 +1903,15 @@ class Resource(dict):
     @classmethod
     def list(
         cls,
-        session,
-        paginated=True,
-        base_path=None,
-        allow_unknown_params=False,
+        session: adapter.Adapter,
+        paginated: bool = True,
+        base_path: ty.Optional[str] = None,
+        allow_unknown_params: bool = False,
         *,
-        microversion=None,
-        headers=None,
-        **params,
-    ):
+        microversion: ty.Optional[str] = None,
+        headers: ty.Optional[dict[str, str]] = None,
+        **params: ty.Any,
+    ) -> ty.Generator[ty_ext.Self, None, None]:
         """This method is a generator which yields resource objects.
 
         This resource object list generator handles pagination and takes query
@@ -2012,9 +2042,12 @@ class Resource(dict):
                 # We want that URI props are available on the resource
                 raw_resource.update(uri_params)
 
+                # TODO(stephenfin): Our types say we accept a ksa Adapter, but
+                # this requires an SDK Proxy. Do we update the types or rework
+                # this to support use of an adapter.
                 value = cls.existing(
                     microversion=microversion,
-                    connection=session._get_connection(),
+                    connection=session._get_connection(),  # type: ignore
                     **raw_resource,
                 )
                 marker = value.id
@@ -2278,9 +2311,6 @@ def _normalize_status(status: ty.Optional[str]) -> ty.Optional[str]:
     if status is not None:
         status = status.lower()
     return status
-
-
-ResourceT = ty.TypeVar('ResourceT', bound=Resource)
 
 
 def wait_for_status(
