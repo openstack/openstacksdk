@@ -28,6 +28,7 @@ EXAMPLE = {
     'enabled': True,
     'id': IDENTIFIER,
     'is_domain': False,
+    'links': {'self': f'http://example.com/identity/v3/projects/{IDENTIFIER}'},
     'name': '5',
     'parent_id': '6',
     'options': {'foo': 'bar'},
@@ -86,6 +87,7 @@ class TestProject(base.TestCase):
         self.assertFalse(sot.is_domain)
         self.assertTrue(sot.is_enabled)
         self.assertEqual(EXAMPLE['id'], sot.id)
+        self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['parent_id'], sot.parent_id)
         self.assertDictEqual(EXAMPLE['options'], sot.options)
