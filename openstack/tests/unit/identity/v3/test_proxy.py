@@ -495,6 +495,7 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
                 self.proxy,
                 self.proxy._get_resource(user.User, 'uid'),
                 self.proxy._get_resource(role.Role, 'rid'),
+                False,
             ],
         )
 
@@ -508,6 +509,7 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
                 self.proxy,
                 self.proxy._get_resource(user.User, 'uid'),
                 self.proxy._get_resource(role.Role, 'rid'),
+                False,
             ],
         )
 
@@ -521,6 +523,7 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
                 self.proxy,
                 self.proxy._get_resource(user.User, 'uid'),
                 self.proxy._get_resource(role.Role, 'rid'),
+                False,
             ],
         )
 
@@ -534,6 +537,7 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
                 self.proxy,
                 self.proxy._get_resource(group.Group, 'uid'),
                 self.proxy._get_resource(role.Role, 'rid'),
+                False,
             ],
         )
 
@@ -547,6 +551,7 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
                 self.proxy,
                 self.proxy._get_resource(group.Group, 'uid'),
                 self.proxy._get_resource(role.Role, 'rid'),
+                False,
             ],
         )
 
@@ -560,6 +565,7 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
                 self.proxy,
                 self.proxy._get_resource(group.Group, 'uid'),
                 self.proxy._get_resource(role.Role, 'rid'),
+                False,
             ],
         )
 
@@ -573,6 +579,7 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
                 self.proxy,
                 self.proxy._get_resource(user.User, 'uid'),
                 self.proxy._get_resource(role.Role, 'rid'),
+                False,
             ],
         )
 
@@ -586,6 +593,7 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
                 self.proxy,
                 self.proxy._get_resource(user.User, 'uid'),
                 self.proxy._get_resource(role.Role, 'rid'),
+                False,
             ],
         )
 
@@ -599,6 +607,7 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
                 self.proxy,
                 self.proxy._get_resource(user.User, 'uid'),
                 self.proxy._get_resource(role.Role, 'rid'),
+                False,
             ],
         )
 
@@ -612,6 +621,7 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
                 self.proxy,
                 self.proxy._get_resource(group.Group, 'uid'),
                 self.proxy._get_resource(role.Role, 'rid'),
+                False,
             ],
         )
 
@@ -625,6 +635,7 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
                 self.proxy,
                 self.proxy._get_resource(group.Group, 'uid'),
                 self.proxy._get_resource(role.Role, 'rid'),
+                False,
             ],
         )
 
@@ -638,6 +649,7 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
                 self.proxy,
                 self.proxy._get_resource(group.Group, 'uid'),
                 self.proxy._get_resource(role.Role, 'rid'),
+                False,
             ],
         )
 

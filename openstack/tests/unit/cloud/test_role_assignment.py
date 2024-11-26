@@ -19,6 +19,8 @@ from openstack.tests.unit import base
 
 
 class TestRoleAssignment(base.TestCase):
+    IS_INHERITED = False
+
     def _build_role_assignment_response(
         self, role_id, scope_type, scope_id, entity_type, entity_id
     ):
@@ -119,7 +121,13 @@ class TestRoleAssignment(base.TestCase):
         append=None,
         base_url_append='v3',
         qs_elements=None,
+        inherited=False,
     ):
+        if inherited:
+            base_url_append = base_url_append + '/OS-INHERIT'
+        if append and inherited:
+            append.append('inherited_to_projects')
+
         return super().get_mock_url(
             service_type,
             interface,
@@ -318,6 +326,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=404,
@@ -333,6 +342,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     status_code=200,
                 ),
@@ -345,6 +355,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 user=self.user_data.user_id,
                 project=self.project_data.project_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -370,6 +381,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=404,
@@ -385,6 +397,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     status_code=200,
                 ),
@@ -397,6 +410,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 user=self.user_data.name,
                 project=self.project_data.project_id,
+                inherited=self.IS_INHERITED,
             )
         )
 
@@ -419,6 +433,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=204,
@@ -432,6 +447,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_id,
                 user=self.user_data.user_id,
                 project=self.project_data.project_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -457,6 +473,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=204,
@@ -470,6 +487,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 user=self.user_data.name,
                 project=self.project_data.project_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -494,6 +512,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=404,
@@ -509,6 +528,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     status_code=200,
                 ),
@@ -521,6 +541,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 group=self.group_data.group_id,
                 project=self.project_data.project_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -546,6 +567,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=404,
@@ -561,6 +583,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     status_code=200,
                 ),
@@ -573,6 +596,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 group=self.group_data.group_name,
                 project=self.project_data.project_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -596,6 +620,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=204,
@@ -609,6 +634,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_id,
                 group=self.group_data.group_id,
                 project=self.project_data.project_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -634,6 +660,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=204,
@@ -647,6 +674,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 group=self.group_data.group_name,
                 project=self.project_data.project_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -672,6 +700,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=404,
@@ -687,6 +716,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     status_code=200,
                 ),
@@ -699,6 +729,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 user=self.user_data.user_id,
                 domain=self.domain_data.domain_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -724,6 +755,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=404,
@@ -739,6 +771,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     status_code=200,
                 ),
@@ -751,6 +784,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 user=self.user_data.name,
                 domain=self.domain_data.domain_id,
+                inherited=self.IS_INHERITED,
             )
         )
 
@@ -773,6 +807,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=204,
@@ -786,6 +821,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_id,
                 user=self.user_data.user_id,
                 domain=self.domain_data.domain_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -811,6 +847,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=204,
@@ -824,6 +861,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 user=self.user_data.name,
                 domain=self.domain_data.domain_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -848,6 +886,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=404,
@@ -863,6 +902,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     status_code=200,
                 ),
@@ -875,6 +915,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 group=self.group_data.group_id,
                 domain=self.domain_data.domain_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -900,6 +941,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=404,
@@ -915,6 +957,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     status_code=200,
                 ),
@@ -927,6 +970,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 group=self.group_data.group_name,
                 domain=self.domain_data.domain_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -950,6 +994,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=204,
@@ -963,6 +1008,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_id,
                 group=self.group_data.group_id,
                 domain=self.domain_data.domain_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -988,6 +1034,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=204,
@@ -1001,6 +1048,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 group=self.group_data.group_name,
                 domain=self.domain_data.domain_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -1026,6 +1074,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=204,
@@ -1041,6 +1090,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     status_code=200,
                 ),
@@ -1053,6 +1103,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 user=self.user_data.user_id,
                 project=self.project_data.project_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -1078,6 +1129,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=204,
@@ -1093,6 +1145,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     status_code=200,
                 ),
@@ -1105,6 +1158,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 user=self.user_data.name,
                 project=self.project_data.project_id,
+                inherited=self.IS_INHERITED,
             )
         )
 
@@ -1127,6 +1181,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=404,
@@ -1140,6 +1195,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_id,
                 user=self.user_data.user_id,
                 project=self.project_data.project_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -1165,6 +1221,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=404,
@@ -1178,6 +1235,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 user=self.user_data.name,
                 project=self.project_data.project_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -1202,6 +1260,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=204,
@@ -1217,6 +1276,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     status_code=200,
                 ),
@@ -1229,6 +1289,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 group=self.group_data.group_id,
                 project=self.project_data.project_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -1254,6 +1315,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=204,
@@ -1269,6 +1331,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     status_code=200,
                 ),
@@ -1281,6 +1344,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 group=self.group_data.group_name,
                 project=self.project_data.project_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -1304,6 +1368,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=404,
@@ -1317,6 +1382,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_id,
                 group=self.group_data.group_id,
                 project=self.project_data.project_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -1342,6 +1408,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=404,
@@ -1355,6 +1422,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 group=self.group_data.group_name,
                 project=self.project_data.project_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -1380,6 +1448,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=204,
@@ -1395,6 +1464,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     status_code=200,
                 ),
@@ -1407,6 +1477,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 user=self.user_data.user_id,
                 domain=self.domain_data.domain_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -1432,6 +1503,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=204,
@@ -1447,6 +1519,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     status_code=200,
                 ),
@@ -1459,6 +1532,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 user=self.user_data.name,
                 domain=self.domain_data.domain_id,
+                inherited=self.IS_INHERITED,
             )
         )
 
@@ -1481,6 +1555,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=404,
@@ -1494,6 +1569,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_id,
                 user=self.user_data.user_id,
                 domain=self.domain_data.domain_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -1519,6 +1595,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=404,
@@ -1532,6 +1609,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 user=self.user_data.name,
                 domain=self.domain_data.domain_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -1556,6 +1634,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=204,
@@ -1571,6 +1650,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     status_code=200,
                 ),
@@ -1583,6 +1663,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 group=self.group_data.group_id,
                 domain=self.domain_data.domain_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -1608,6 +1689,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=204,
@@ -1623,6 +1705,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     status_code=200,
                 ),
@@ -1635,6 +1718,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 group=self.group_data.group_name,
                 domain=self.domain_data.domain_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -1658,6 +1742,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=404,
@@ -1671,6 +1756,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_id,
                 group=self.group_data.group_id,
                 domain=self.domain_data.domain_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -1696,6 +1782,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=404,
@@ -1709,6 +1796,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 group=self.group_data.group_name,
                 domain=self.domain_data.domain_id,
+                inherited=self.IS_INHERITED,
             )
         )
         self.assert_calls()
@@ -1747,6 +1835,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 group=self.group_data.group_name,
                 domain=self.domain_data.domain_name,
+                inherited=self.IS_INHERITED,
             )
         self.assert_calls()
 
@@ -1784,6 +1873,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 group=self.group_data.group_name,
                 domain=self.domain_data.domain_name,
+                inherited=self.IS_INHERITED,
             )
         self.assert_calls()
 
@@ -1796,7 +1886,10 @@ class TestRoleAssignment(base.TestCase):
             exceptions.SDKException,
             'Must specify either a user or a group',
         ):
-            self.cloud.grant_role(self.role_data.role_name)
+            self.cloud.grant_role(
+                self.role_data.role_name,
+                inherited=self.IS_INHERITED,
+            )
         self.assert_calls()
 
     def test_revoke_no_user_or_group_specified(self):
@@ -1808,7 +1901,10 @@ class TestRoleAssignment(base.TestCase):
             exceptions.SDKException,
             'Must specify either a user or a group',
         ):
-            self.cloud.revoke_role(self.role_data.role_name)
+            self.cloud.revoke_role(
+                self.role_data.role_name,
+                inherited=self.IS_INHERITED,
+            )
         self.assert_calls()
 
     def test_grant_no_user_or_group(self):
@@ -1825,7 +1921,9 @@ class TestRoleAssignment(base.TestCase):
             'Must specify either a user or a group',
         ):
             self.cloud.grant_role(
-                self.role_data.role_name, user=self.user_data.name
+                self.role_data.role_name,
+                user=self.user_data.name,
+                inherited=self.IS_INHERITED,
             )
         self.assert_calls()
 
@@ -1843,7 +1941,9 @@ class TestRoleAssignment(base.TestCase):
             'Must specify either a user or a group',
         ):
             self.cloud.revoke_role(
-                self.role_data.role_name, user=self.user_data.name
+                self.role_data.role_name,
+                user=self.user_data.name,
+                inherited=self.IS_INHERITED,
             )
         self.assert_calls()
 
@@ -1867,6 +1967,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 user=self.user_data.name,
                 group=self.group_data.group_name,
+                inherited=self.IS_INHERITED,
             )
         self.assert_calls()
 
@@ -1890,6 +1991,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 user=self.user_data.name,
                 group=self.group_data.group_name,
+                inherited=self.IS_INHERITED,
             )
 
     def test_grant_both_project_and_domain(self):
@@ -1917,6 +2019,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=404,
@@ -1932,6 +2035,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     status_code=200,
                 ),
@@ -1945,6 +2049,7 @@ class TestRoleAssignment(base.TestCase):
                 user=self.user_data.name,
                 project=self.project_data.project_name,
                 domain=self.domain_data.domain_name,
+                inherited=self.IS_INHERITED,
             )
         )
 
@@ -1973,6 +2078,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     complete_qs=True,
                     status_code=204,
@@ -1988,6 +2094,7 @@ class TestRoleAssignment(base.TestCase):
                             'roles',
                             self.role_data.role_id,
                         ],
+                        inherited=self.IS_INHERITED,
                     ),
                     status_code=200,
                 ),
@@ -2001,6 +2108,7 @@ class TestRoleAssignment(base.TestCase):
                 user=self.user_data.name,
                 project=self.project_data.project_name,
                 domain=self.domain_data.domain_name,
+                inherited=self.IS_INHERITED,
             )
         )
 
@@ -2019,7 +2127,9 @@ class TestRoleAssignment(base.TestCase):
             'Must specify either a domain, project or system',
         ):
             self.cloud.grant_role(
-                self.role_data.role_name, user=self.user_data.name
+                self.role_data.role_name,
+                user=self.user_data.name,
+                inherited=self.IS_INHERITED,
             )
         self.assert_calls()
 
@@ -2038,7 +2148,9 @@ class TestRoleAssignment(base.TestCase):
             'Must specify either a domain, project or system',
         ):
             self.cloud.revoke_role(
-                self.role_data.role_name, user=self.user_data.name
+                self.role_data.role_name,
+                user=self.user_data.name,
+                inherited=self.IS_INHERITED,
             )
         self.assert_calls()
 
@@ -2066,6 +2178,7 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 user=self.user_data.name,
                 domain='baddomain',
+                inherited=self.IS_INHERITED,
             )
         self.assert_calls()
 
@@ -2093,5 +2206,10 @@ class TestRoleAssignment(base.TestCase):
                 self.role_data.role_name,
                 user=self.user_data.name,
                 domain='baddomain',
+                inherited=self.IS_INHERITED,
             )
         self.assert_calls()
+
+
+class TestInheritedRoleAssignment(TestRoleAssignment):
+    IS_INHERITED = True

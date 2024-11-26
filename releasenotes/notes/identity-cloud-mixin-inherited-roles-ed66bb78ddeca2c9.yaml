@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add support for granting inherited roles.
+    Roles assignments can be added to a user or group
+    on the system, a domain, or a project.

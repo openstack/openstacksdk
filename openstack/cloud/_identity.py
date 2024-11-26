@@ -1256,6 +1256,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         project=None,
         domain=None,
         system=None,
+        inherited=False,
         wait=False,
         timeout=60,
     ):
@@ -1267,6 +1268,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :param string project: The name or id of the project.
         :param string domain: The id of the domain. (v3)
         :param bool system: The name of the system. (v3)
+        :param bool inherited: Whether the role assignment is inherited. (v3)
         :param bool wait: Wait for role to be granted
         :param int timeout: Timeout to wait for role to be granted
 
@@ -1303,40 +1305,46 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             # Proceed with project - precedence over domain and system
             if user:
                 has_role = self.identity.validate_user_has_project_role(
-                    project, user, role
+                    project, user, role, inherited=inherited
                 )
                 if has_role:
                     self.log.debug('Assignment already exists')
                     return False
-                self.identity.assign_project_role_to_user(project, user, role)
+                self.identity.assign_project_role_to_user(
+                    project, user, role, inherited=inherited
+                )
             else:
                 has_role = self.identity.validate_group_has_project_role(
-                    project, group, role
+                    project, group, role, inherited=inherited
                 )
                 if has_role:
                     self.log.debug('Assignment already exists')
                     return False
                 self.identity.assign_project_role_to_group(
-                    project, group, role
+                    project, group, role, inherited=inherited
                 )
         elif domain:
             # Proceed with domain - precedence over system
             if user:
                 has_role = self.identity.validate_user_has_domain_role(
-                    domain, user, role
+                    domain, user, role, inherited=inherited
                 )
                 if has_role:
                     self.log.debug('Assignment already exists')
                     return False
-                self.identity.assign_domain_role_to_user(domain, user, role)
+                self.identity.assign_domain_role_to_user(
+                    domain, user, role, inherited=inherited
+                )
             else:
                 has_role = self.identity.validate_group_has_domain_role(
-                    domain, group, role
+                    domain, group, role, inherited=inherited
                 )
                 if has_role:
                     self.log.debug('Assignment already exists')
                     return False
-                self.identity.assign_domain_role_to_group(domain, group, role)
+                self.identity.assign_domain_role_to_group(
+                    domain, group, role, inherited=inherited
+                )
         else:
             # Proceed with system
             # System name must be 'all' due to checks performed in
@@ -1367,6 +1375,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         project=None,
         domain=None,
         system=None,
+        inherited=False,
         wait=False,
         timeout=60,
     ):
@@ -1378,6 +1387,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :param string project: The name or id of the project.
         :param string domain: The id of the domain. (v3)
         :param bool system: The name of the system. (v3)
+        :param bool inherited: Whether the role assignment is inherited.
         :param bool wait: Wait for role to be revoked
         :param int timeout: Timeout to wait for role to be revoked
 
@@ -1411,45 +1421,45 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             # Proceed with project - precedence over domain and system
             if user:
                 has_role = self.identity.validate_user_has_project_role(
-                    project, user, role
+                    project, user, role, inherited=inherited
                 )
                 if not has_role:
                     self.log.debug('Assignment does not exists')
                     return False
                 self.identity.unassign_project_role_from_user(
-                    project, user, role
+                    project, user, role, inherited=inherited
                 )
             else:
                 has_role = self.identity.validate_group_has_project_role(
-                    project, group, role
+                    project, group, role, inherited=inherited
                 )
                 if not has_role:
                     self.log.debug('Assignment does not exists')
                     return False
                 self.identity.unassign_project_role_from_group(
-                    project, group, role
+                    project, group, role, inherited=inherited
                 )
         elif domain:
             # Proceed with domain - precedence over system
             if user:
                 has_role = self.identity.validate_user_has_domain_role(
-                    domain, user, role
+                    domain, user, role, inherited=inherited
                 )
                 if not has_role:
                     self.log.debug('Assignment does not exists')
                     return False
                 self.identity.unassign_domain_role_from_user(
-                    domain, user, role
+                    domain, user, role, inherited=inherited
                 )
             else:
                 has_role = self.identity.validate_group_has_domain_role(
-                    domain, group, role
+                    domain, group, role, inherited=inherited
                 )
                 if not has_role:
                     self.log.debug('Assignment does not exists')
                     return False
                 self.identity.unassign_domain_role_from_group(
-                    domain, group, role
+                    domain, group, role, inherited=inherited
                 )
         else:
             # Proceed with system
