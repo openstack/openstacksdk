@@ -102,7 +102,7 @@ class TestStats(base.TestCase):
 
         Check statsd return values.  A ``value`` should specify a
         ``kind``, however a ``kind`` may be specified without a
-        ``value`` for a generic match.  Leave both empy to just check
+        ``value`` for a generic match.  Leave both empty to just check
         for key presence.
 
         :arg str key: The statsd key
@@ -113,6 +113,9 @@ class TestStats(base.TestCase):
           - ``g`` gauge
           - ``ms`` timing
           - ``s`` set
+
+        Note that for ``ms`` type, you are expressing a maximum value,
+        not an exact value. This is to avoid flakey tests.
         """
 
         self.assertIsNotNone(self.statsd)
@@ -149,9 +152,9 @@ class TestStats(base.TestCase):
                         # timing results into float of indeterminate
                         # length, hence foiling string matching.
                         if kind == 'ms':
-                            if float(value) == float(s_value):
+                            if float(value) >= float(s_value):
                                 return True
-                        if value == s_value:
+                        elif value == s_value:
                             return True
                         # otherwise keep looking for other matches
                         continue
@@ -255,7 +258,7 @@ class TestStats(base.TestCase):
         )
         self.assert_reported_stat(
             'openstack.api.compute.GET.servers_detail.200',
-            value='0',
+            value='5',
             kind='ms',
         )
         self.assert_prometheus_stat(
@@ -290,7 +293,7 @@ class TestStats(base.TestCase):
             'openstack.api.compute.GET.servers.200', value='1', kind='c'
         )
         self.assert_reported_stat(
-            'openstack.api.compute.GET.servers.200', value='0', kind='ms'
+            'openstack.api.compute.GET.servers.200', value='5', kind='ms'
         )
         self.assert_reported_stat(
             'openstack.api.compute.GET.servers.attempted', value='1', kind='c'
@@ -320,7 +323,7 @@ class TestStats(base.TestCase):
             'openstack.api.compute.GET.servers.500', value='1', kind='c'
         )
         self.assert_reported_stat(
-            'openstack.api.compute.GET.servers.500', value='0', kind='ms'
+            'openstack.api.compute.GET.servers.500', value='5', kind='ms'
         )
         self.assert_reported_stat(
             'openstack.api.compute.GET.servers.attempted', value='1', kind='c'
