@@ -69,6 +69,17 @@ VOLUME = {
 
 
 class TestVolume(base.TestCase):
+    def setUp(self):
+        super().setUp()
+        self.resp = mock.Mock()
+        self.resp.body = None
+        self.resp.status_code = 200
+        self.resp.json = mock.Mock(return_value=self.resp.body)
+        self.sess = mock.Mock(spec=adapter.Adapter)
+        self.sess.default_microversion = '3.60'
+        self.sess.post = mock.Mock(return_value=self.resp)
+        self.sess._get_connection = mock.Mock(return_value=self.cloud)
+
     def test_basic(self):
         sot = volume.Volume(VOLUME)
         self.assertEqual("volume", sot.resource_key)
@@ -85,6 +96,7 @@ class TestVolume(base.TestCase):
                 "name": "name",
                 "status": "status",
                 "all_projects": "all_tenants",
+                "user_id": "user_id",
                 "project_id": "project_id",
                 "created_at": "created_at",
                 "updated_at": "updated_at",
@@ -140,19 +152,6 @@ class TestVolume(base.TestCase):
         self.assertDictEqual(
             VOLUME["OS-SCH-HNT:scheduler_hints"], sot.scheduler_hints
         )
-
-
-class TestVolumeActions(TestVolume):
-    def setUp(self):
-        super().setUp()
-        self.resp = mock.Mock()
-        self.resp.body = None
-        self.resp.status_code = 200
-        self.resp.json = mock.Mock(return_value=self.resp.body)
-        self.sess = mock.Mock(spec=adapter.Adapter)
-        self.sess.default_microversion = '3.60'
-        self.sess.post = mock.Mock(return_value=self.resp)
-        self.sess._get_connection = mock.Mock(return_value=self.cloud)
 
     def test_extend(self):
         sot = volume.Volume(**VOLUME)
