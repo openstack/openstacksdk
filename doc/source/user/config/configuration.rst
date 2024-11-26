@@ -512,3 +512,115 @@ In the above example, the ``project_id`` configuration values will be ignored
 in favor of the ``project_name`` configuration values, and the higher-level
 project will be chosen over the auth-specified project. So the actual project
 used will be ```myfavoriteproject```.
+
+
+Examples
+--------
+
+``auth``
+~~~~~~~~
+
+.. rubric:: Password-based authentication (domain-scoped)
+
+.. code-block:: yaml
+
+    example:
+        auth:
+            auth_url: http://example.com/identity
+            password: password
+            project_domain_id: default
+            project_name: admin
+            user_domain_id: default
+            username: admin
+        region_name: RegionOne
+
+.. rubric:: Password-based authentication (trust-scoped)
+
+.. code-block:: yaml
+
+    example-trust:
+        auth:
+            auth_url: http://example.com/identity
+            password: password
+            username: admin
+            trust_id: 95946f9eef864fdc993079d8fe3e5747
+        region_name: RegionOne
+
+.. rubric:: Password-based authentication (system-scoped)
+
+.. code-block:: yaml
+
+    example-system:
+        auth:
+            auth_url: http://example.com/identity
+            password: password
+            system_scope: all
+            username: admin
+        region_name: RegionOne
+
+.. rubric:: Application credential-based authentication
+
+.. code-block:: yaml
+
+    example-appcred:
+        auth:
+            auth_url: http://example.com/identity
+            application_credential_id: 9da0a8da3d394d09bf49dfc27014d254
+            application_credential_secret: pKfDSvUOFwO2t2_XxCajAFhzCKAVHI7yfqPb6xjshVDnMUHF7ifju8gMdhHTI4Eo56UP_hEc8ssmgA1NNtKMpA
+        auth_type: v3applicationcredential
+        region_name: RegionOne
+
+.. rubric:: Token-based authentication
+
+.. code-block:: yaml
+
+    example-token:
+        auth:
+            auth_url: http://example.com/identity
+            token: gAAAAABl32ptw2PN6L9JyBeO16PwQU1SrdMUvUz8Eon7LC2PFItdGRWFpOkK0qwH3JkukTuEM5qbYK9ucowRXET1RBMjZlfVpUa8Nz3qjQdzXw7pBKH4w1e4tekvDCOKfn15ZoujBOvdGqgtpW-febVGaW9oJzf6R3WTMDxWz3YRJjmiOBpwcN8
+            project_id: 1fd93a4455c74d2ea94b929fc5f0e488
+        auth_type: v3token
+        region_name: RegionOne
+
+.. note::
+
+    This is a toy example: by their very definition token's are short-lived.
+    You are unlikely to store them in a `clouds.yaml` file.
+    Instead, you would likely pass the TOTP token via the command line
+    (``--os-token``) or as an environment variable (``OS_TOKEN``).
+
+.. rubric:: TOTP-based authentication
+
+.. code-block:: yaml
+
+    example-totp:
+        auth:
+            auth_url: http://example.com/identity
+            passcode: password
+            project_domain_id: default
+            project_name: admin
+            user_domain_id: default
+            username: admin
+        auth_type: v3totp
+        region_name: RegionOne
+
+.. note::
+
+    This is a toy example: by their very definition TOTP token's are
+    short-lived. You are unlikely to store them in a `clouds.yaml` file.
+    Instead, you would likely pass the TOTP token via the command line
+    (``--os-passcode``) or as an environment variable (``OS_PASSCODE``).
+
+.. rubric:: OAuth1-based authentication
+
+.. code-block:: yaml
+
+    example-oauth:
+        auth:
+            auth_url: http://example.com/identity
+            consumer_key: foo
+            consumer_secret: secret
+            access_key: bar
+            access_secret: secret
+        auth_type: v3oauth1
+        region_name: RegionOne
