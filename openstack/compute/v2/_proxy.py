@@ -2110,6 +2110,7 @@ class Proxy(proxy.Proxy):
         host=None,
         force=False,
         block_migration=None,
+        disk_over_commit=None,
     ):
         """Live migrate a server from one host to target host
 
@@ -2128,14 +2129,17 @@ class Proxy(proxy.Proxy):
             Some clouds are too old to support 'auto', in which case a
             ValueError will be thrown. If omitted, the value will be 'auto' on
             clouds that support it, and False on clouds that do not.
+        :param disk_over_commit: Whether to allow disk over-commit on the
+            destination host. (Optional)
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
         server.live_migrate(
             self,
-            host,
+            host=host,
             force=force,
             block_migration=block_migration,
+            disk_over_commit=disk_over_commit,
         )
 
     def abort_server_migration(
