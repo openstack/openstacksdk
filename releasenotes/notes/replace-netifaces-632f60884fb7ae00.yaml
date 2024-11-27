@@ -1,0 +1,7 @@
+---
+upgrade:
+  - |
+    IPv6 support now is detected according to the IP addresses assigned to all
+    network interfaces, instead of presence of IPv6 default route. In case
+    there is any IP v6 address, which is not loopback or link-local, then
+    the host is considered to support IPv6.
