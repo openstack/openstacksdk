@@ -520,7 +520,7 @@ Examples
 ``auth``
 ~~~~~~~~
 
-.. rubric:: Password-based authentication (domain-scoped)
+.. rubric:: Password-based authentication (project-scoped)
 
 .. code-block:: yaml
 
@@ -531,6 +531,18 @@ Examples
             project_domain_id: default
             project_name: admin
             user_domain_id: default
+            username: admin
+        region_name: RegionOne
+
+.. rubric:: Password-based authentication (domain-scoped)
+
+.. code-block:: yaml
+
+    example:
+        auth:
+            auth_url: http://example.com/identity
+            domain_id: default
+            password: password
             username: admin
         region_name: RegionOne
 
@@ -584,8 +596,8 @@ Examples
 
 .. note::
 
-    This is a toy example: by their very definition token's are short-lived.
-    You are unlikely to store them in a `clouds.yaml` file.
+    This is a toy example: by their very definition tokens are short-lived.
+    You are unlikely to store them in a ``clouds.yaml`` file.
     Instead, you would likely pass the TOTP token via the command line
     (``--os-token``) or as an environment variable (``OS_TOKEN``).
 
@@ -606,8 +618,8 @@ Examples
 
 .. note::
 
-    This is a toy example: by their very definition TOTP token's are
-    short-lived. You are unlikely to store them in a `clouds.yaml` file.
+    This is a toy example: by their very definition TOTP tokens are
+    short-lived. You are unlikely to store them in a ``clouds.yaml`` file.
     Instead, you would likely pass the TOTP token via the command line
     (``--os-passcode``) or as an environment variable (``OS_PASSCODE``).
 
