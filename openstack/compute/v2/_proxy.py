@@ -1267,7 +1267,7 @@ class Proxy(proxy.Proxy):
 
         :param server: Either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server` instance.
-        :param security_group: Either the ID, Name of a security group or a
+        :param security_group: Either the ID or name of a security group or a
             :class:`~openstack.network.v2.security_group.SecurityGroup`
             instance.
 
@@ -1275,14 +1275,17 @@ class Proxy(proxy.Proxy):
         """
         server = self._get_resource(_server.Server, server)
         security_group = self._get_resource(_sg.SecurityGroup, security_group)
-        server.add_security_group(self, security_group.name)
+        server.add_security_group(
+            self,
+            security_group.name or security_group.id,
+        )
 
     def remove_security_group_from_server(self, server, security_group):
         """Remove a security group from a server
 
         :param server: Either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server` instance.
-        :param security_group: Either the ID of a security group or a
+        :param security_group: Either the ID or name of a security group or a
             :class:`~openstack.network.v2.security_group.SecurityGroup`
             instance.
 
@@ -1290,7 +1293,10 @@ class Proxy(proxy.Proxy):
         """
         server = self._get_resource(_server.Server, server)
         security_group = self._get_resource(_sg.SecurityGroup, security_group)
-        server.remove_security_group(self, security_group.name)
+        server.remove_security_group(
+            self,
+            security_group.name or security_group.id,
+        )
 
     # ========== Server IPs ==========
 

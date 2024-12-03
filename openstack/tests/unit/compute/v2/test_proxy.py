@@ -1522,7 +1522,7 @@ class TestCompute(TestComputeProxy):
         self._verify(
             'openstack.compute.v2.server.Server.add_security_group',
             self.proxy.add_security_group_to_server,
-            method_args=["value", {'id': 'id', 'name': 'sg'}],
+            method_args=["value", 'sg'],
             expected_args=[self.proxy, 'sg'],
         )
 
@@ -1530,7 +1530,7 @@ class TestCompute(TestComputeProxy):
         self._verify(
             'openstack.compute.v2.server.Server.remove_security_group',
             self.proxy.remove_security_group_from_server,
-            method_args=["value", {'id': 'id', 'name': 'sg'}],
+            method_args=["value", 'sg'],
             expected_args=[self.proxy, 'sg'],
         )
 
