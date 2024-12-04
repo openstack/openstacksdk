@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add ``trunk_details`` attribute to ``port`` resource. This attribute is
+    a dictionary with the trunk ID and a list of subports. Each element in the
+    subports list is a dictionary with the subport ID, the segmentation type
+    and segmentation ID.
