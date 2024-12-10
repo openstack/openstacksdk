@@ -89,16 +89,12 @@ class TestImage(BaseTestImage):
             [
                 dict(
                     method='GET',
-                    uri='https://image.example.com/v2/images/{name}'.format(
-                        name=self.image_name
-                    ),
+                    uri=f'https://image.example.com/v2/images/{self.image_name}',
                     status_code=404,
                 ),
                 dict(
                     method='GET',
-                    uri='https://image.example.com/v2/images?name={name}'.format(  # noqa: E501
-                        name=self.image_name
-                    ),
+                    uri=f'https://image.example.com/v2/images?name={self.image_name}',  # noqa: E501
                     json=dict(images=[]),
                 ),
                 dict(
@@ -121,23 +117,17 @@ class TestImage(BaseTestImage):
             [
                 dict(
                     method='GET',
-                    uri='https://image.example.com/v2/images/{name}'.format(
-                        name=self.image_name
-                    ),
+                    uri=f'https://image.example.com/v2/images/{self.image_name}',
                     status_code=404,
                 ),
                 dict(
                     method='GET',
-                    uri='https://image.example.com/v2/images?name={name}'.format(  # noqa: E501
-                        name=self.image_name
-                    ),
+                    uri=f'https://image.example.com/v2/images?name={self.image_name}',  # noqa: E501
                     json=self.fake_search_return,
                 ),
                 dict(
                     method='GET',
-                    uri='https://image.example.com/v2/images/{id}/file'.format(
-                        id=self.image_id
-                    ),
+                    uri=f'https://image.example.com/v2/images/{self.image_id}/file',
                     content=self.output,
                     headers={
                         'Content-Type': 'application/octet-stream',
@@ -417,9 +407,7 @@ class TestImage(BaseTestImage):
                     ),
                     json={
                         'images': [self.fake_image_dict],
-                        'next': '/v2/images?marker={marker}'.format(
-                            marker=marker
-                        ),
+                        'next': f'/v2/images?marker={marker}',
                     },
                 ),
                 dict(
@@ -821,16 +809,12 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='HEAD',
-                    uri='{endpoint}/{container}'.format(
-                        endpoint=endpoint, container=self.container_name
-                    ),
+                    uri=f'{endpoint}/{self.container_name}',
                     status_code=404,
                 ),
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}'.format(
-                        endpoint=endpoint, container=self.container_name
-                    ),
+                    uri=f'{endpoint}/{self.container_name}',
                     status_code=201,
                     headers={
                         'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
@@ -840,9 +824,7 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='HEAD',
-                    uri='{endpoint}/{container}'.format(
-                        endpoint=endpoint, container=self.container_name
-                    ),
+                    uri=f'{endpoint}/{self.container_name}',
                     headers={
                         'Content-Length': '0',
                         'X-Container-Object-Count': '0',
@@ -867,20 +849,12 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='HEAD',
-                    uri='{endpoint}/{container}/{object}'.format(
-                        endpoint=endpoint,
-                        container=self.container_name,
-                        object=self.image_name,
-                    ),
+                    uri=f'{endpoint}/{self.container_name}/{self.image_name}',
                     status_code=404,
                 ),
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}'.format(
-                        endpoint=endpoint,
-                        container=self.container_name,
-                        object=self.image_name,
-                    ),
+                    uri=f'{endpoint}/{self.container_name}/{self.image_name}',
                     status_code=201,
                     validate=dict(
                         headers={
@@ -903,10 +877,7 @@ class TestImage(BaseTestImage):
                         json=dict(
                             type='import',
                             input={
-                                'import_from': '{container}/{object}'.format(
-                                    container=self.container_name,
-                                    object=self.image_name,
-                                ),
+                                'import_from': f'{self.container_name}/{self.image_name}',
                                 'image_properties': {'name': self.image_name},
                             },
                         )
@@ -952,10 +923,7 @@ class TestImage(BaseTestImage):
                             [
                                 {
                                     'op': 'add',
-                                    'value': '{container}/{object}'.format(
-                                        container=self.container_name,
-                                        object=self.image_name,
-                                    ),
+                                    'value': f'{self.container_name}/{self.image_name}',
                                     'path': '/owner_specified.openstack.object',  # noqa: E501
                                 },
                                 {
@@ -983,11 +951,7 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='HEAD',
-                    uri='{endpoint}/{container}/{object}'.format(
-                        endpoint=endpoint,
-                        container=self.container_name,
-                        object=self.image_name,
-                    ),
+                    uri=f'{endpoint}/{self.container_name}/{self.image_name}',
                     headers={
                         'X-Timestamp': '1429036140.50253',
                         'X-Trans-Id': 'txbbb825960a3243b49a36f-005a0dadaedfw1',
@@ -1007,11 +971,7 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='DELETE',
-                    uri='{endpoint}/{container}/{object}'.format(
-                        endpoint=endpoint,
-                        container=self.container_name,
-                        object=self.image_name,
-                    ),
+                    uri=f'{endpoint}/{self.container_name}/{self.image_name}',
                 ),
                 dict(
                     method='GET',
@@ -1069,15 +1029,11 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='DELETE',
-                    uri='https://image.example.com/v2/images/{id}'.format(
-                        id=self.image_id
-                    ),
+                    uri=f'https://image.example.com/v2/images/{self.image_id}',
                 ),
                 dict(
                     method='HEAD',
-                    uri='{endpoint}/{object}'.format(
-                        endpoint=endpoint, object=object_path
-                    ),
+                    uri=f'{endpoint}/{object_path}',
                     headers={
                         'X-Timestamp': '1429036140.50253',
                         'X-Trans-Id': 'txbbb825960a3243b49a36f-005a0dadaedfw1',
@@ -1097,9 +1053,7 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='DELETE',
-                    uri='{endpoint}/{object}'.format(
-                        endpoint=endpoint, object=object_path
-                    ),
+                    uri=f'{endpoint}/{object_path}',
                 ),
             ]
         )
@@ -1187,11 +1141,7 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='DELETE',
-                    uri='{endpoint}/{container}/{object}'.format(
-                        endpoint=endpoint,
-                        container=self.container_name,
-                        object=self.image_name,
-                    ),
+                    uri=f'{endpoint}/{self.container_name}/{self.image_name}',
                 ),
             ]
         )
@@ -1230,9 +1180,7 @@ class TestImage(BaseTestImage):
             'properties': {
                 'owner_specified.openstack.md5': fakes.NO_MD5,
                 'owner_specified.openstack.sha256': fakes.NO_SHA256,
-                'owner_specified.openstack.object': 'images/{name}'.format(
-                    name=self.image_name
-                ),
+                'owner_specified.openstack.object': f'images/{self.image_name}',
                 'is_public': False,
             },
         }
@@ -1263,9 +1211,7 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='PUT',
-                    uri='https://image.example.com/v1/images/{id}'.format(
-                        id=self.image_id
-                    ),
+                    uri=f'https://image.example.com/v1/images/{self.image_id}',
                     json={'image': ret},
                     validate=dict(
                         headers={
@@ -1297,9 +1243,7 @@ class TestImage(BaseTestImage):
             'properties': {
                 'owner_specified.openstack.md5': fakes.NO_MD5,
                 'owner_specified.openstack.sha256': fakes.NO_SHA256,
-                'owner_specified.openstack.object': 'images/{name}'.format(
-                    name=self.image_name
-                ),
+                'owner_specified.openstack.object': f'images/{self.image_name}',
                 'is_public': False,
             },
             'validate_checksum': True,
@@ -1331,9 +1275,7 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='PUT',
-                    uri='https://image.example.com/v1/images/{id}'.format(
-                        id=self.image_id
-                    ),
+                    uri=f'https://image.example.com/v1/images/{self.image_id}',
                     status_code=400,
                     validate=dict(
                         headers={
@@ -1344,9 +1286,7 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='DELETE',
-                    uri='https://image.example.com/v1/images/{id}'.format(
-                        id=self.image_id
-                    ),
+                    uri=f'https://image.example.com/v1/images/{self.image_id}',
                     json={'images': [ret]},
                 ),
             ]
@@ -1369,9 +1309,7 @@ class TestImage(BaseTestImage):
             'disk_format': 'qcow2',
             'owner_specified.openstack.md5': fakes.NO_MD5,
             'owner_specified.openstack.sha256': fakes.NO_SHA256,
-            'owner_specified.openstack.object': 'images/{name}'.format(
-                name=self.image_name
-            ),
+            'owner_specified.openstack.object': f'images/{self.image_name}',
             'visibility': 'private',
         }
 
@@ -1382,9 +1320,7 @@ class TestImage(BaseTestImage):
         self.cloud.update_image_properties(
             image=image.Image.existing(**ret),
             **{
-                'owner_specified.openstack.object': 'images/{name}'.format(
-                    name=self.image_name
-                )
+                'owner_specified.openstack.object': f'images/{self.image_name}'
             },
         )
 
@@ -1399,9 +1335,7 @@ class TestImage(BaseTestImage):
             'disk_format': 'qcow2',
             'owner_specified.openstack.md5': fakes.NO_MD5,
             'owner_specified.openstack.sha256': fakes.NO_SHA256,
-            'owner_specified.openstack.object': 'images/{name}'.format(
-                name=self.image_name
-            ),
+            'owner_specified.openstack.object': f'images/{self.image_name}',
             'visibility': 'private',
         }
 
@@ -1449,9 +1383,7 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='PUT',
-                    uri='https://image.example.com/v2/images/{id}/file'.format(
-                        id=self.image_id
-                    ),
+                    uri=f'https://image.example.com/v2/images/{self.image_id}/file',
                     status_code=400,
                     validate=dict(
                         headers={
@@ -1461,9 +1393,7 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='DELETE',
-                    uri='https://image.example.com/v2/images/{id}'.format(
-                        id=self.image_id
-                    ),
+                    uri=f'https://image.example.com/v2/images/{self.image_id}',
                 ),
             ]
         )
@@ -1530,9 +1460,7 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='DELETE',
-                    uri='https://image.example.com/v2/images/{id}'.format(
-                        id=self.image_id
-                    ),
+                    uri=f'https://image.example.com/v2/images/{self.image_id}',
                 ),
             ]
         )
@@ -1574,9 +1502,7 @@ class TestImage(BaseTestImage):
             'disk_format': 'qcow2',
             'owner_specified.openstack.md5': fakes.NO_MD5,
             'owner_specified.openstack.sha256': fakes.NO_SHA256,
-            'owner_specified.openstack.object': 'images/{name}'.format(
-                name=self.image_name
-            ),
+            'owner_specified.openstack.object': f'images/{self.image_name}',
             'int_v': '12345',
             'visibility': 'private',
             'min_disk': 0,
@@ -1627,9 +1553,7 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='PUT',
-                    uri='https://image.example.com/v2/images/{id}/file'.format(
-                        id=self.image_id
-                    ),
+                    uri=f'https://image.example.com/v2/images/{self.image_id}/file',
                     validate=dict(
                         headers={
                             'Content-Type': 'application/octet-stream',
@@ -1638,9 +1562,7 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='GET',
-                    uri='https://image.example.com/v2/images/{id}'.format(
-                        id=self.image_id
-                    ),
+                    uri=f'https://image.example.com/v2/images/{self.image_id}',
                     json=ret,
                 ),
                 dict(
@@ -1667,9 +1589,7 @@ class TestImage(BaseTestImage):
             'disk_format': 'qcow2',
             'owner_specified.openstack.md5': fakes.NO_MD5,
             'owner_specified.openstack.sha256': fakes.NO_SHA256,
-            'owner_specified.openstack.object': 'images/{name}'.format(
-                name=self.image_name
-            ),
+            'owner_specified.openstack.object': f'images/{self.image_name}',
             'int_v': 12345,
             'visibility': 'private',
             'min_disk': 0,
@@ -1721,9 +1641,7 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='PUT',
-                    uri='https://image.example.com/v2/images/{id}/file'.format(
-                        id=self.image_id
-                    ),
+                    uri=f'https://image.example.com/v2/images/{self.image_id}/file',
                     validate=dict(
                         headers={
                             'Content-Type': 'application/octet-stream',
@@ -1732,9 +1650,7 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='GET',
-                    uri='https://image.example.com/v2/images/{id}'.format(
-                        id=self.image_id
-                    ),
+                    uri=f'https://image.example.com/v2/images/{self.image_id}',
                     json=ret,
                 ),
                 dict(
@@ -1761,9 +1677,7 @@ class TestImage(BaseTestImage):
             'disk_format': 'qcow2',
             'owner_specified.openstack.md5': fakes.NO_MD5,
             'owner_specified.openstack.sha256': fakes.NO_SHA256,
-            'owner_specified.openstack.object': 'images/{name}'.format(
-                name=self.image_name
-            ),
+            'owner_specified.openstack.object': f'images/{self.image_name}',
             'int_v': '12345',
             'protected': False,
             'visibility': 'private',
@@ -1816,9 +1730,7 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='PUT',
-                    uri='https://image.example.com/v2/images/{id}/file'.format(
-                        id=self.image_id
-                    ),
+                    uri=f'https://image.example.com/v2/images/{self.image_id}/file',
                     validate=dict(
                         headers={
                             'Content-Type': 'application/octet-stream',
@@ -1827,9 +1739,7 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='GET',
-                    uri='https://image.example.com/v2/images/{id}'.format(
-                        id=self.image_id
-                    ),
+                    uri=f'https://image.example.com/v2/images/{self.image_id}',
                     json=ret,
                 ),
                 dict(
@@ -1892,9 +1802,7 @@ class TestImageSuburl(BaseTestImage):
                     ),
                     json={
                         'images': [self.fake_image_dict],
-                        'next': '/v2/images?marker={marker}'.format(
-                            marker=marker
-                        ),
+                        'next': f'/v2/images?marker={marker}',
                     },
                 ),
                 dict(

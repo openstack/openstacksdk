@@ -132,11 +132,7 @@ class TestCase(base.BaseTestCase):
             if not whole[key] and part[key]:
                 missing_keys.append(key)
         if missing_keys:
-            self.fail(
-                "Keys {} are in {} but not in {}".format(
-                    missing_keys, part, whole
-                )
-            )
+            self.fail(f"Keys {missing_keys} are in {part} but not in {whole}")
         wrong_values = [
             (key, part[key], whole[key])
             for key in part
@@ -144,8 +140,10 @@ class TestCase(base.BaseTestCase):
         ]
         if wrong_values:
             self.fail(
-                "Mismatched values: %s"
-                % ", ".join(
-                    "for %s got %s and %s" % tpl for tpl in wrong_values
+                "Mismatched values: {}".format(
+                    ", ".join(
+                        "for {} got {} and {}".format(*tpl)
+                        for tpl in wrong_values
+                    )
                 )
             )

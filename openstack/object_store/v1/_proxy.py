@@ -430,9 +430,7 @@ class Proxy(proxy.Proxy):
             metadata[self._connection._OBJECT_SHA256_KEY] = sha256
 
         container_name = self._get_container_name(container=container)
-        endpoint = '{container}/{name}'.format(
-            container=container_name, name=name
-        )
+        endpoint = f'{container_name}/{name}'
 
         if data is not None:
             self.log.debug(
@@ -582,9 +580,7 @@ class Proxy(proxy.Proxy):
             metadata = self.get_object_metadata(name, container).metadata
         except exceptions.NotFoundException:
             self._connection.log.debug(
-                "swift stale check, no object: {container}/{name}".format(
-                    container=container, name=name
-                )
+                f"swift stale check, no object: {container}/{name}"
             )
             return True
 
@@ -608,7 +604,7 @@ class Proxy(proxy.Proxy):
         if not up_to_date:
             self._connection.log.debug(
                 "swift checksum mismatch: "
-                " %(filename)s!=%(container)s/%(name)s",
+                "%(filename)s!=%(container)s/%(name)s",
                 {'filename': filename, 'container': container, 'name': name},
             )
             return True
@@ -758,9 +754,7 @@ class Proxy(proxy.Proxy):
                 offset,
                 segment_size if segment_size < remaining else remaining,
             )
-            name = '{endpoint}/{index:0>6}'.format(
-                endpoint=endpoint, index=index
-            )
+            name = f'{endpoint}/{index:0>6}'
             segments[name] = segment
         return segments
 
@@ -878,8 +872,8 @@ class Proxy(proxy.Proxy):
             temp_url_key = self.get_temp_url_key(container)
         if not temp_url_key:
             raise exceptions.SDKException(
-                'temp_url_key was not given, nor was a temporary url key'
-                ' found for the account or the container.'
+                'temp_url_key was not given, nor was a temporary url key '
+                'found for the account or the container.'
             )
         return temp_url_key
 
@@ -933,13 +927,7 @@ class Proxy(proxy.Proxy):
         endpoint = parse.urlparse(self.get_endpoint())
         path = '/'.join([endpoint.path, res.name, object_prefix])
 
-        data = '{}\n{}\n{}\n{}\n{}'.format(
-            path,
-            redirect_url,
-            max_file_size,
-            max_upload_count,
-            expires,
-        )
+        data = f'{path}\n{redirect_url}\n{max_file_size}\n{max_upload_count}\n{expires}'
         sig = hmac.new(temp_url_key, data.encode(), sha1).hexdigest()
 
         return (expires, sig)
@@ -1067,7 +1055,7 @@ class Proxy(proxy.Proxy):
                     ip_range = ip_range.decode('utf-8')
                 except UnicodeDecodeError:
                     raise ValueError('ip_range must be representable as UTF-8')
-            hmac_parts.insert(0, "ip=%s" % ip_range)
+            hmac_parts.insert(0, f"ip={ip_range}")
 
         hmac_body = '\n'.join(hmac_parts)
 
@@ -1084,11 +1072,7 @@ class Proxy(proxy.Proxy):
         else:
             exp = str(expiration)
 
-        temp_url = '{path}?temp_url_sig={sig}&temp_url_expires={exp}'.format(
-            path=path_for_body,
-            sig=sig,
-            exp=exp,
-        )
+        temp_url = f'{path_for_body}?temp_url_sig={sig}&temp_url_expires={exp}'
 
         if ip_range:
             temp_url += f'&temp_url_ip_range={ip_range}'

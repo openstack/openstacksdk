@@ -339,9 +339,7 @@ class TestCompute(base.BaseFunctionalTest):
         # consistency!
         for count in utils.iterate_timeout(
             60,
-            'Timeout waiting for volume {volume_id} to detach'.format(
-                volume_id=volume_id
-            ),
+            f'Timeout waiting for volume {volume_id} to detach',
         ):
             volume = self.user_cloud.get_volume(volume_id)
             if volume.status in (

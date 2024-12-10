@@ -114,11 +114,9 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
             return False
         except exceptions.ConflictException:
             raise exceptions.SDKException(
-                'Attempt to delete container {container} failed. The'
-                ' container is not empty. Please delete the objects'
-                ' inside it before deleting the container'.format(
-                    container=name
-                )
+                f'Attempt to delete container {name} failed. The '
+                f'container is not empty. Please delete the objects '
+                f'inside it before deleting the container'
             )
 
     def update_container(self, name, headers):
@@ -142,8 +140,8 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         if access not in OBJECT_CONTAINER_ACLS:
             raise exceptions.SDKException(
-                "Invalid container access specified: %s.  Must be one of %s"
-                % (access, list(OBJECT_CONTAINER_ACLS.keys()))
+                f"Invalid container access specified: {access}. "
+                f"Must be one of {list(OBJECT_CONTAINER_ACLS.keys())}"
             )
         return self.object_store.set_container_metadata(
             name, read_ACL=OBJECT_CONTAINER_ACLS[access], refresh=refresh
@@ -159,7 +157,7 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         container = self.get_container(name, skip_cache=True)
         if not container:
-            raise exceptions.SDKException("Container not found: %s" % name)
+            raise exceptions.SDKException(f"Container not found: {name}")
         acl = container.read_ACL or ''
         for key, value in OBJECT_CONTAINER_ACLS.items():
             # Convert to string for the comparison because swiftclient
@@ -168,7 +166,7 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
             if str(acl) == str(value):
                 return key
         raise exceptions.SDKException(
-            "Could not determine container access for ACL: %s." % acl
+            f"Could not determine container access for ACL: {acl}."
         )
 
     def get_object_capabilities(self):
@@ -423,13 +421,9 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
     def _get_object_endpoint(self, container, obj=None, query_string=None):
         endpoint = urllib.parse.quote(container)
         if obj:
-            endpoint = '{endpoint}/{object}'.format(
-                endpoint=endpoint, object=urllib.parse.quote(obj)
-            )
+            endpoint = f'{endpoint}/{urllib.parse.quote(obj)}'
         if query_string:
-            endpoint = '{endpoint}?{query_string}'.format(
-                endpoint=endpoint, query_string=query_string
-            )
+            endpoint = f'{endpoint}?{query_string}'
         return endpoint
 
     def stream_object(
@@ -517,9 +511,7 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
                 keystoneauth1.exceptions.RetriableConnectionFailure,
                 exceptions.HttpException,
             ) as e:
-                error_text = "Exception processing async task: {}".format(
-                    str(e)
-                )
+                error_text = f"Exception processing async task: {str(e)}"
                 if raise_on_error:
                     self.log.exception(error_text)
                     raise

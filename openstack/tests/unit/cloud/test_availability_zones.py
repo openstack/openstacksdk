@@ -29,9 +29,7 @@ class TestAvailabilityZoneNames(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/os-availability-zone'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/os-availability-zone',
                     json=_fake_zone_list,
                 ),
             ]
@@ -46,9 +44,7 @@ class TestAvailabilityZoneNames(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/os-availability-zone'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/os-availability-zone',
                     status_code=403,
                 ),
             ]
@@ -63,9 +59,7 @@ class TestAvailabilityZoneNames(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/os-availability-zone'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/os-availability-zone',
                     json=_fake_zone_list,
                 ),
             ]

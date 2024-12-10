@@ -45,9 +45,7 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks',
                     json={"stacks": fake_stacks},
                 ),
             ]
@@ -88,9 +86,7 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks',
                     status_code=404,
                 )
             ]
@@ -110,9 +106,7 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks',
                     json={"stacks": fake_stacks},
                 ),
             ]
@@ -134,9 +128,7 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks',
                     json={"stacks": fake_stacks},
                 ),
             ]
@@ -151,9 +143,7 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks',
                     status_code=404,
                 )
             ]
@@ -167,36 +157,20 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}?{resolve}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        name=self.stack_name,
-                        resolve=resolve,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}?{resolve}',
                     status_code=302,
                     headers=dict(
-                        location='{endpoint}/stacks/{name}/{id}?{resolve}'.format(  # noqa: E501
-                            endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                            id=self.stack_id,
-                            name=self.stack_name,
-                            resolve=resolve,
-                        )
+                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',  # noqa: E501
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}/{id}?{resolve}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        id=self.stack_id,
-                        name=self.stack_name,
-                        resolve=resolve,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     json={"stack": self.stack},
                 ),
                 dict(
                     method='DELETE',
-                    uri='{endpoint}/stacks/{id}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT, id=self.stack_id
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}',
                 ),
             ]
         )
@@ -209,9 +183,7 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/stack_name?{resolve}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT, resolve=resolve
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/stack_name?{resolve}',
                     status_code=404,
                 ),
             ]
@@ -225,36 +197,20 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{id}?{resolve}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        id=self.stack_id,
-                        resolve=resolve,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}?{resolve}',
                     status_code=302,
                     headers=dict(
-                        location='{endpoint}/stacks/{name}/{id}?{resolve}'.format(  # noqa: E501
-                            endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                            id=self.stack_id,
-                            name=self.stack_name,
-                            resolve=resolve,
-                        )
+                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',  # noqa: E501
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}/{id}?{resolve}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        id=self.stack_id,
-                        name=self.stack_name,
-                        resolve=resolve,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     json={"stack": self.stack},
                 ),
                 dict(
                     method='DELETE',
-                    uri='{endpoint}/stacks/{id}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT, id=self.stack_id
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}',
                     status_code=400,
                     reason="ouch",
                 ),
@@ -279,29 +235,15 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}?{resolve}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        name=self.stack_name,
-                        resolve=resolve,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}?{resolve}',
                     status_code=302,
                     headers=dict(
-                        location='{endpoint}/stacks/{name}/{id}?{resolve}'.format(  # noqa: E501
-                            endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                            id=self.stack_id,
-                            name=self.stack_name,
-                            resolve=resolve,
-                        )
+                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',  # noqa: E501
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}/{id}?{resolve}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        id=self.stack_id,
-                        name=self.stack_name,
-                        resolve=resolve,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     json={"stack": self.stack},
                 ),
                 dict(
@@ -316,17 +258,11 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='DELETE',
-                    uri='{endpoint}/stacks/{id}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT, id=self.stack_id
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}',
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}/events?{qs}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        name=self.stack_name,
-                        qs=marker_qs,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/events?{marker_qs}',
                     complete_qs=True,
                     json={
                         "events": [
@@ -341,11 +277,7 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}?{resolve}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        name=self.stack_name,
-                        resolve=resolve,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}?{resolve}',
                     status_code=404,
                 ),
             ]
@@ -369,29 +301,15 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{id}?{resolve}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        id=self.stack_id,
-                        resolve=resolve,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}?{resolve}',
                     status_code=302,
                     headers=dict(
-                        location='{endpoint}/stacks/{name}/{id}?{resolve}'.format(  # noqa: E501
-                            endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                            id=self.stack_id,
-                            name=self.stack_name,
-                            resolve=resolve,
-                        )
+                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',  # noqa: E501
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}/{id}?{resolve}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        id=self.stack_id,
-                        name=self.stack_name,
-                        resolve=resolve,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     json={"stack": self.stack},
                 ),
                 dict(
@@ -406,17 +324,11 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='DELETE',
-                    uri='{endpoint}/stacks/{id}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT, id=self.stack_id
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}',
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{id}/events?{qs}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        id=self.stack_id,
-                        qs=marker_qs,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}/events?{marker_qs}',
                     complete_qs=True,
                     json={
                         "events": [
@@ -430,11 +342,7 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{id}?{resolve}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        id=self.stack_id,
-                        resolve=resolve,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}?{resolve}',
                     status_code=404,
                 ),
             ]
@@ -457,29 +365,15 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{id}?{resolve}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        id=self.stack_id,
-                        resolve=resolve,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}?{resolve}',
                     status_code=302,
                     headers=dict(
-                        location='{endpoint}/stacks/{name}/{id}?{resolve}'.format(  # noqa: E501
-                            endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                            id=self.stack_id,
-                            name=self.stack_name,
-                            resolve=resolve,
-                        )
+                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',  # noqa: E501
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}/{id}?{resolve}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        id=self.stack_id,
-                        name=self.stack_name,
-                        resolve=resolve,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     json={"stack": self.stack},
                 ),
                 dict(
@@ -494,17 +388,11 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='DELETE',
-                    uri='{endpoint}/stacks/{id}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT, id=self.stack_id
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}',
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{id}/events?{qs}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        id=self.stack_id,
-                        qs=marker_qs,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}/events?{marker_qs}',
                     complete_qs=True,
                     json={
                         "events": [
@@ -518,27 +406,15 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{id}?resolve_outputs=False'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT, id=self.stack_id
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}?resolve_outputs=False',
                     status_code=302,
                     headers=dict(
-                        location='{endpoint}/stacks/{name}/{id}?{resolve}'.format(  # noqa: E501
-                            endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                            id=self.stack_id,
-                            name=self.stack_name,
-                            resolve=resolve,
-                        )
+                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',  # noqa: E501
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}/{id}?{resolve}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        id=self.stack_id,
-                        name=self.stack_name,
-                        resolve=resolve,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     json={"stack": failed_stack},
                 ),
             ]
@@ -557,9 +433,7 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='POST',
-                    uri='{endpoint}/stacks'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks',
                     json={"stack": self.stack},
                     validate=dict(
                         json={
@@ -574,26 +448,15 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        name=self.stack_name,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
                     status_code=302,
                     headers=dict(
-                        location='{endpoint}/stacks/{name}/{id}'.format(
-                            endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                            id=self.stack_id,
-                            name=self.stack_name,
-                        )
+                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}'
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}/{id}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        id=self.stack_id,
-                        name=self.stack_name,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}',
                     json={"stack": self.stack},
                 ),
             ]
@@ -616,9 +479,7 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='POST',
-                    uri='{endpoint}/stacks'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks',
                     json={"stack": self.stack},
                     validate=dict(
                         json={
@@ -633,10 +494,7 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}/events?sort_dir=asc'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        name=self.stack_name,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/events?sort_dir=asc',
                     json={
                         "events": [
                             fakes.make_fake_stack_event(
@@ -650,26 +508,15 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        name=self.stack_name,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
                     status_code=302,
                     headers=dict(
-                        location='{endpoint}/stacks/{name}/{id}'.format(
-                            endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                            id=self.stack_id,
-                            name=self.stack_name,
-                        )
+                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}'
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}/{id}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        id=self.stack_id,
-                        name=self.stack_name,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}',
                     json={"stack": self.stack},
                 ),
             ]
@@ -692,10 +539,7 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='PUT',
-                    uri='{endpoint}/stacks/{name}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        name=self.stack_name,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
                     validate=dict(
                         json={
                             'disable_rollback': False,
@@ -709,26 +553,15 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        name=self.stack_name,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
                     status_code=302,
                     headers=dict(
-                        location='{endpoint}/stacks/{name}/{id}'.format(
-                            endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                            id=self.stack_id,
-                            name=self.stack_name,
-                        )
+                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}'
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}/{id}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        id=self.stack_id,
-                        name=self.stack_name,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}',
                     json={"stack": self.stack},
                 ),
             ]
@@ -768,10 +601,7 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='PUT',
-                    uri='{endpoint}/stacks/{name}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        name=self.stack_name,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
                     validate=dict(
                         json={
                             'disable_rollback': False,
@@ -785,11 +615,7 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}/events?{qs}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        name=self.stack_name,
-                        qs=marker_qs,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/events?{marker_qs}',
                     json={
                         "events": [
                             fakes.make_fake_stack_event(
@@ -803,26 +629,15 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        name=self.stack_name,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
                     status_code=302,
                     headers=dict(
-                        location='{endpoint}/stacks/{name}/{id}'.format(
-                            endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                            id=self.stack_id,
-                            name=self.stack_name,
-                        )
+                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}'
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}/{id}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        id=self.stack_id,
-                        name=self.stack_name,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}',
                     json={"stack": self.stack},
                 ),
             ]
@@ -841,26 +656,15 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        name=self.stack_name,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
                     status_code=302,
                     headers=dict(
-                        location='{endpoint}/stacks/{name}/{id}'.format(
-                            endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                            id=self.stack_id,
-                            name=self.stack_name,
-                        )
+                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}'
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}/{id}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        id=self.stack_id,
-                        name=self.stack_name,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}',
                     json={"stack": self.stack},
                 ),
             ]
@@ -881,26 +685,15 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        name=self.stack_name,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
                     status_code=302,
                     headers=dict(
-                        location='{endpoint}/stacks/{name}/{id}'.format(
-                            endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                            id=self.stack_id,
-                            name=self.stack_name,
-                        )
+                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}'
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/stacks/{name}/{id}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                        id=self.stack_id,
-                        name=self.stack_name,
-                    ),
+                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}',
                     json={"stack": in_progress},
                 ),
             ]

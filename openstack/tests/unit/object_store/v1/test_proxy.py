@@ -45,9 +45,7 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
         self.proxy = self.cloud.object_store
         self.container = self.getUniqueString()
         self.endpoint = self.cloud.object_store.get_endpoint() + '/'
-        self.container_endpoint = '{endpoint}{container}'.format(
-            endpoint=self.endpoint, container=self.container
-        )
+        self.container_endpoint = f'{self.endpoint}{self.container}'
 
     def test_account_metadata_get(self):
         self.verify_head(
@@ -132,13 +130,13 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
 
     def test_object_get(self):
         with requests_mock.Mocker() as m:
-            m.get("%scontainer/object" % self.endpoint, text="data")
+            m.get(f"{self.endpoint}container/object", text="data")
             res = self.proxy.get_object("object", container="container")
             self.assertIsNone(res.data)
 
     def test_object_get_write_file(self):
         with requests_mock.Mocker() as m:
-            m.get("%scontainer/object" % self.endpoint, text="data")
+            m.get(f"{self.endpoint}container/object", text="data")
             with tempfile.NamedTemporaryFile() as f:
                 self.proxy.get_object(
                     "object", container="container", outfile=f.name
@@ -148,7 +146,7 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
 
     def test_object_get_remember_content(self):
         with requests_mock.Mocker() as m:
-            m.get("%scontainer/object" % self.endpoint, text="data")
+            m.get(f"{self.endpoint}container/object", text="data")
             res = self.proxy.get_object(
                 "object", container="container", remember_content=True
             )
@@ -657,8 +655,8 @@ class TestTempURLUnicodePathAndKey(TestTempURL):
     url = '/v1/\u00e4/c/\u00f3'
     key = 'k\u00e9y'
     expected_url = (
-        '%s?temp_url_sig=temp_url_signature&temp_url_expires=1400003600'
-    ) % url
+        f'{url}?temp_url_sig=temp_url_signature&temp_url_expires=1400003600'
+    )
     expected_body = '\n'.join(
         [
             'GET',
@@ -672,8 +670,8 @@ class TestTempURLUnicodePathBytesKey(TestTempURL):
     url = '/v1/\u00e4/c/\u00f3'
     key = 'k\u00e9y'.encode()
     expected_url = (
-        '%s?temp_url_sig=temp_url_signature&temp_url_expires=1400003600'
-    ) % url
+        f'{url}?temp_url_sig=temp_url_signature&temp_url_expires=1400003600'
+    )
     expected_body = '\n'.join(
         [
             'GET',

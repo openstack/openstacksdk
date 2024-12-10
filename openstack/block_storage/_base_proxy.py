@@ -38,8 +38,8 @@ class BaseBlockStorageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
             volume_obj = self.get_volume(volume)
             if not volume_obj:
                 raise exceptions.SDKException(
-                    "Volume {volume} given to create_image could"
-                    " not be found".format(volume=volume)
+                    f"Volume {volume} given to create_image could "
+                    f"not be found"
                 )
             volume_id = volume_obj['id']
         data = self.post(

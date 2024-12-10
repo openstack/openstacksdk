@@ -179,7 +179,7 @@ class TestProject(base.TestCase):
                     method='GET',
                     uri=self.get_mock_url(
                         resource=(
-                            'projects?domain_id=%s' % project_data.domain_id
+                            f'projects?domain_id={project_data.domain_id}'
                         )
                     ),
                     status_code=200,
@@ -204,7 +204,7 @@ class TestProject(base.TestCase):
                     method='GET',
                     uri=self.get_mock_url(
                         resource=(
-                            'projects?domain_id=%s' % project_data.domain_id
+                            f'projects?domain_id={project_data.domain_id}'
                         )
                     ),
                     status_code=200,
@@ -250,7 +250,7 @@ class TestProject(base.TestCase):
                     method='GET',
                     uri=self.get_mock_url(
                         resource=(
-                            'projects?domain_id=%s' % project_data.domain_id
+                            f'projects?domain_id={project_data.domain_id}'
                         )
                     ),
                     status_code=200,

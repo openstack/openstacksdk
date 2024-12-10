@@ -51,13 +51,12 @@ def _check_resource(strict=False):
                 and actual is not None
                 and not isinstance(actual, resource.Resource)
             ):
-                raise ValueError("A %s must be passed" % expected.__name__)
+                raise ValueError(f"A {expected.__name__} must be passed")
             elif isinstance(actual, resource.Resource) and not isinstance(
                 actual, expected
             ):
                 raise ValueError(
-                    "Expected %s but received %s"
-                    % (expected.__name__, actual.__class__.__name__)
+                    f"Expected {expected.__name__} but received {actual.__class__.__name__}"
                 )
 
             return method(self, expected, actual, *args, **kwargs)
@@ -340,16 +339,14 @@ class Proxy(adapter.Adapter):
             with self._statsd_client.pipeline() as pipe:
                 if response is not None:
                     duration = int(response.elapsed.total_seconds() * 1000)
-                    metric_name = '{}.{}'.format(
-                        key, str(response.status_code)
-                    )
+                    metric_name = f'{key}.{str(response.status_code)}'
                     pipe.timing(metric_name, duration)
                     pipe.incr(metric_name)
                     if duration > 1000:
-                        pipe.incr('%s.over_1000' % key)
+                        pipe.incr(f'{key}.over_1000')
                 elif exc is not None:
-                    pipe.incr('%s.failed' % key)
-                pipe.incr('%s.attempted' % key)
+                    pipe.incr(f'{key}.failed')
+                pipe.incr(f'{key}.attempted')
         except Exception:
             # We do not want errors in metric reporting ever break client
             self.log.exception("Exception reporting metrics")
@@ -362,8 +359,8 @@ class Proxy(adapter.Adapter):
         if response is not None and not method:
             method = response.request.method
         parsed_url = urlparse(url)
-        endpoint = "{}://{}{}".format(
-            parsed_url.scheme, parsed_url.netloc, parsed_url.path
+        endpoint = (
+            f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}"
         )
         if response is not None:
             labels = dict(
@@ -713,9 +710,7 @@ class Proxy(adapter.Adapter):
             requires_id=requires_id,
             base_path=base_path,
             skip_cache=skip_cache,
-            error_message="No {resource_type} found for {value}".format(
-                resource_type=resource_type.__name__, value=value
-            ),
+            error_message=f"No {resource_type.__name__} found for {value}",
         )
 
     def _list(
@@ -875,8 +870,8 @@ class Proxy(adapter.Adapter):
                         # There are filters set, but we can't get required
                         # attribute, so skip the resource
                         self.log.debug(
-                            'Requested cleanup attribute %s is not '
-                            'available on the resource' % k
+                            f'Requested cleanup attribute {k} is not '
+                            'available on the resource'
                         )
                         part_cond.append(False)
                 except Exception:

@@ -33,12 +33,8 @@ class BaseTestObject(base.TestCase):
         self.container = self.getUniqueString()
         self.object = self.getUniqueString()
         self.endpoint = self.cloud.object_store.get_endpoint()
-        self.container_endpoint = '{endpoint}/{container}'.format(
-            endpoint=self.endpoint, container=self.container
-        )
-        self.object_endpoint = '{endpoint}/{object}'.format(
-            endpoint=self.container_endpoint, object=self.object
-        )
+        self.container_endpoint = f'{self.endpoint}/{self.container}'
+        self.object_endpoint = f'{self.container_endpoint}/{self.object}'
 
     def _compare_containers(self, exp, real):
         self.assertDictEqual(
@@ -330,7 +326,7 @@ class TestObject(BaseTestObject):
         )
         with testtools.ExpectedException(
             exceptions.SDKException,
-            "Container not found: %s" % self.container,
+            f"Container not found: {self.container}",
         ):
             self.cloud.get_container_access(self.container)
 
@@ -594,9 +590,7 @@ class TestObject(BaseTestObject):
         self.assert_calls()
 
     def test_list_objects(self):
-        endpoint = '{endpoint}?format=json'.format(
-            endpoint=self.container_endpoint
-        )
+        endpoint = f'{self.container_endpoint}?format=json'
 
         objects = [
             {
@@ -619,9 +613,7 @@ class TestObject(BaseTestObject):
             self._compare_objects(a, b)
 
     def test_list_objects_with_prefix(self):
-        endpoint = '{endpoint}?format=json&prefix=test'.format(
-            endpoint=self.container_endpoint
-        )
+        endpoint = f'{self.container_endpoint}?format=json&prefix=test'
 
         objects = [
             {
@@ -644,9 +636,7 @@ class TestObject(BaseTestObject):
             self._compare_objects(a, b)
 
     def test_list_objects_exception(self):
-        endpoint = '{endpoint}?format=json'.format(
-            endpoint=self.container_endpoint
-        )
+        endpoint = f'{self.container_endpoint}?format=json'
         self.register_uris(
             [
                 dict(
@@ -903,20 +893,12 @@ class TestObjectUploads(BaseTestObject):
                 ),
                 dict(
                     method='HEAD',
-                    uri='{endpoint}/{container}/{object}'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}',
                     status_code=404,
                 ),
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}',
                     status_code=201,
                     validate=dict(
                         headers={
@@ -972,11 +954,7 @@ class TestObjectUploads(BaseTestObject):
             [
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}',
                     status_code=201,
                     validate=dict(
                         headers={
@@ -1008,11 +986,7 @@ class TestObjectUploads(BaseTestObject):
             ),
             dict(
                 method='HEAD',
-                uri='{endpoint}/{container}/{object}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container,
-                    object=self.object,
-                ),
+                uri=f'{self.endpoint}/{self.container}/{self.object}',
                 status_code=404,
             ),
         ]
@@ -1021,12 +995,7 @@ class TestObjectUploads(BaseTestObject):
             [
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}/{index:0>6}'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                        index=index,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}/{index:0>6}',
                     status_code=201,
                 )
                 for index, offset in enumerate(
@@ -1038,17 +1007,11 @@ class TestObjectUploads(BaseTestObject):
         uris_to_mock.append(
             dict(
                 method='PUT',
-                uri='{endpoint}/{container}/{object}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container,
-                    object=self.object,
-                ),
+                uri=f'{self.endpoint}/{self.container}/{self.object}',
                 status_code=201,
                 validate=dict(
                     headers={
-                        'x-object-manifest': '{container}/{object}'.format(
-                            container=self.container, object=self.object
-                        ),
+                        'x-object-manifest': f'{self.container}/{self.object}',
                         'x-object-meta-x-sdk-md5': self.md5,
                         'x-object-meta-x-sdk-sha256': self.sha256,
                     }
@@ -1088,11 +1051,7 @@ class TestObjectUploads(BaseTestObject):
             ),
             dict(
                 method='HEAD',
-                uri='{endpoint}/{container}/{object}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container,
-                    object=self.object,
-                ),
+                uri=f'{self.endpoint}/{self.container}/{self.object}',
                 status_code=404,
             ),
         ]
@@ -1101,12 +1060,7 @@ class TestObjectUploads(BaseTestObject):
             [
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}/{index:0>6}'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                        index=index,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}/{index:0>6}',
                     status_code=201,
                     headers=dict(Etag=f'etag{index}'),
                 )
@@ -1119,11 +1073,7 @@ class TestObjectUploads(BaseTestObject):
         uris_to_mock.append(
             dict(
                 method='PUT',
-                uri='{endpoint}/{container}/{object}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container,
-                    object=self.object,
-                ),
+                uri=f'{self.endpoint}/{self.container}/{self.object}',
                 status_code=201,
                 validate=dict(
                     params={'multipart-manifest', 'put'},
@@ -1153,37 +1103,27 @@ class TestObjectUploads(BaseTestObject):
                 'header mismatch in manifest call',
             )
 
-        base_object = '/{container}/{object}'.format(
-            container=self.container, object=self.object
-        )
+        base_object = f'/{self.container}/{self.object}'
 
         self.assertEqual(
             [
                 {
-                    'path': "{base_object}/000000".format(
-                        base_object=base_object
-                    ),
+                    'path': f"{base_object}/000000",
                     'size_bytes': 25,
                     'etag': 'etag0',
                 },
                 {
-                    'path': "{base_object}/000001".format(
-                        base_object=base_object
-                    ),
+                    'path': f"{base_object}/000001",
                     'size_bytes': 25,
                     'etag': 'etag1',
                 },
                 {
-                    'path': "{base_object}/000002".format(
-                        base_object=base_object
-                    ),
+                    'path': f"{base_object}/000002",
                     'size_bytes': 25,
                     'etag': 'etag2',
                 },
                 {
-                    'path': "{base_object}/000003".format(
-                        base_object=base_object
-                    ),
+                    'path': f"{base_object}/000003",
                     'size_bytes': len(self.object) - 75,
                     'etag': 'etag3',
                 },
@@ -1210,11 +1150,7 @@ class TestObjectUploads(BaseTestObject):
             ),
             dict(
                 method='HEAD',
-                uri='{endpoint}/{container}/{object}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container,
-                    object=self.object,
-                ),
+                uri=f'{self.endpoint}/{self.container}/{self.object}',
                 status_code=404,
             ),
         ]
@@ -1223,12 +1159,7 @@ class TestObjectUploads(BaseTestObject):
             [
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}/{index:0>6}'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                        index=index,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}/{index:0>6}',
                     status_code=201,
                     headers=dict(Etag=f'etag{index}'),
                 )
@@ -1243,11 +1174,7 @@ class TestObjectUploads(BaseTestObject):
             [
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}',
                     status_code=400,
                     validate=dict(
                         params={'multipart-manifest', 'put'},
@@ -1259,11 +1186,7 @@ class TestObjectUploads(BaseTestObject):
                 ),
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}',
                     status_code=400,
                     validate=dict(
                         params={'multipart-manifest', 'put'},
@@ -1275,11 +1198,7 @@ class TestObjectUploads(BaseTestObject):
                 ),
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}',
                     status_code=201,
                     validate=dict(
                         params={'multipart-manifest', 'put'},
@@ -1311,37 +1230,27 @@ class TestObjectUploads(BaseTestObject):
                 'header mismatch in manifest call',
             )
 
-        base_object = '/{container}/{object}'.format(
-            container=self.container, object=self.object
-        )
+        base_object = f'/{self.container}/{self.object}'
 
         self.assertEqual(
             [
                 {
-                    'path': "{base_object}/000000".format(
-                        base_object=base_object
-                    ),
+                    'path': f"{base_object}/000000",
                     'size_bytes': 25,
                     'etag': 'etag0',
                 },
                 {
-                    'path': "{base_object}/000001".format(
-                        base_object=base_object
-                    ),
+                    'path': f"{base_object}/000001",
                     'size_bytes': 25,
                     'etag': 'etag1',
                 },
                 {
-                    'path': "{base_object}/000002".format(
-                        base_object=base_object
-                    ),
+                    'path': f"{base_object}/000002",
                     'size_bytes': 25,
                     'etag': 'etag2',
                 },
                 {
-                    'path': "{base_object}/000003".format(
-                        base_object=base_object
-                    ),
+                    'path': f"{base_object}/000003",
                     'size_bytes': len(self.object) - 75,
                     'etag': 'etag3',
                 },
@@ -1369,11 +1278,7 @@ class TestObjectUploads(BaseTestObject):
             ),
             dict(
                 method='HEAD',
-                uri='{endpoint}/{container}/{object}'.format(
-                    endpoint=self.endpoint,
-                    container=self.container,
-                    object=self.object,
-                ),
+                uri=f'{self.endpoint}/{self.container}/{self.object}',
                 status_code=404,
             ),
         ]
@@ -1382,12 +1287,7 @@ class TestObjectUploads(BaseTestObject):
             [
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}/{index:0>6}'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                        index=index,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}/{index:0>6}',
                     status_code=201,
                     headers=dict(Etag=f'etag{index}'),
                 )
@@ -1402,11 +1302,7 @@ class TestObjectUploads(BaseTestObject):
             [
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}',
                     status_code=400,
                     validate=dict(
                         params={'multipart-manifest', 'put'},
@@ -1418,11 +1314,7 @@ class TestObjectUploads(BaseTestObject):
                 ),
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}',
                     status_code=400,
                     validate=dict(
                         params={'multipart-manifest', 'put'},
@@ -1434,11 +1326,7 @@ class TestObjectUploads(BaseTestObject):
                 ),
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}',
                     status_code=400,
                     validate=dict(
                         params={'multipart-manifest', 'put'},
@@ -1459,9 +1347,7 @@ class TestObjectUploads(BaseTestObject):
             [
                 dict(
                     method='GET',
-                    uri='{endpoint}/images?format=json&prefix={prefix}'.format(
-                        endpoint=self.endpoint, prefix=self.object
-                    ),
+                    uri=f'{self.endpoint}/images?format=json&prefix={self.object}',
                     complete_qs=True,
                     json=[
                         {
@@ -1475,9 +1361,7 @@ class TestObjectUploads(BaseTestObject):
                 ),
                 dict(
                     method='HEAD',
-                    uri='{endpoint}/images/{object}'.format(
-                        endpoint=self.endpoint, object=self.object
-                    ),
+                    uri=f'{self.endpoint}/images/{self.object}',
                     headers={
                         'X-Timestamp': '1429036140.50253',
                         'X-Trans-Id': 'txbbb825960a3243b49a36f-005a0dadaedfw1',
@@ -1495,9 +1379,7 @@ class TestObjectUploads(BaseTestObject):
                 ),
                 dict(
                     method='DELETE',
-                    uri='{endpoint}/images/{object}'.format(
-                        endpoint=self.endpoint, object=self.object
-                    ),
+                    uri=f'{self.endpoint}/images/{self.object}',
                 ),
             ]
         )
@@ -1536,56 +1418,32 @@ class TestObjectUploads(BaseTestObject):
                 ),
                 dict(
                     method='HEAD',
-                    uri='{endpoint}/{container}/{object}'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}',
                     status_code=404,
                 ),
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}/000000'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}/000000',
                     status_code=201,
                 ),
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}/000001'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}/000001',
                     status_code=201,
                 ),
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}/000002'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}/000002',
                     status_code=201,
                 ),
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}/000003'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}/000003',
                     status_code=501,
                 ),
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}',
                     status_code=201,
                 ),
             ]
@@ -1619,69 +1477,41 @@ class TestObjectUploads(BaseTestObject):
                 ),
                 dict(
                     method='HEAD',
-                    uri='{endpoint}/{container}/{object}'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}',
                     status_code=404,
                 ),
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}/000000'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}/000000',
                     headers={'etag': 'etag0'},
                     status_code=201,
                 ),
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}/000001'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}/000001',
                     headers={'etag': 'etag1'},
                     status_code=201,
                 ),
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}/000002'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}/000002',
                     headers={'etag': 'etag2'},
                     status_code=201,
                 ),
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}/000003'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}/000003',
                     status_code=501,
                 ),
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}/000003'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}/000003',
                     status_code=201,
                     headers={'etag': 'etag3'},
                 ),
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}',
                     status_code=201,
                     validate=dict(
                         params={'multipart-manifest', 'put'},
@@ -1711,37 +1541,27 @@ class TestObjectUploads(BaseTestObject):
                 'header mismatch in manifest call',
             )
 
-        base_object = '/{container}/{object}'.format(
-            container=self.container, object=self.object
-        )
+        base_object = f'/{self.container}/{self.object}'
 
         self.assertEqual(
             [
                 {
-                    'path': "{base_object}/000000".format(
-                        base_object=base_object
-                    ),
+                    'path': f"{base_object}/000000",
                     'size_bytes': 25,
                     'etag': 'etag0',
                 },
                 {
-                    'path': "{base_object}/000001".format(
-                        base_object=base_object
-                    ),
+                    'path': f"{base_object}/000001",
                     'size_bytes': 25,
                     'etag': 'etag1',
                 },
                 {
-                    'path': "{base_object}/000002".format(
-                        base_object=base_object
-                    ),
+                    'path': f"{base_object}/000002",
                     'size_bytes': 25,
                     'etag': 'etag2',
                 },
                 {
-                    'path': "{base_object}/000003".format(
-                        base_object=base_object
-                    ),
+                    'path': f"{base_object}/000003",
                     'size_bytes': len(self.object) - 75,
                     'etag': 'etag3',
                 },
@@ -1762,20 +1582,12 @@ class TestObjectUploads(BaseTestObject):
                 ),
                 dict(
                     method='HEAD',
-                    uri='{endpoint}/{container}/{object}'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}',
                     status_code=200,
                 ),
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}',
                     status_code=201,
                     validate=dict(headers={}),
                 ),
@@ -1796,11 +1608,7 @@ class TestObjectUploads(BaseTestObject):
             [
                 dict(
                     method='PUT',
-                    uri='{endpoint}/{container}/{object}'.format(
-                        endpoint=self.endpoint,
-                        container=self.container,
-                        object=self.object,
-                    ),
+                    uri=f'{self.endpoint}/{self.container}/{self.object}',
                     status_code=201,
                     validate=dict(
                         headers={},

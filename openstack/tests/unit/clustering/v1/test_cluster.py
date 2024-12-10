@@ -121,7 +121,7 @@ class TestCluster(base.TestCase):
         sess = mock.Mock()
         sess.post = mock.Mock(return_value=resp)
         self.assertEqual('', sot.scale_in(sess, 3))
-        url = 'clusters/%s/actions' % sot.id
+        url = f'clusters/{sot.id}/actions'
         body = {'scale_in': {'count': 3}}
         sess.post.assert_called_once_with(url, json=body)
 
@@ -133,7 +133,7 @@ class TestCluster(base.TestCase):
         sess = mock.Mock()
         sess.post = mock.Mock(return_value=resp)
         self.assertEqual('', sot.scale_out(sess, 3))
-        url = 'clusters/%s/actions' % sot.id
+        url = f'clusters/{sot.id}/actions'
         body = {'scale_out': {'count': 3}}
         sess.post.assert_called_once_with(url, json=body)
 
@@ -145,7 +145,7 @@ class TestCluster(base.TestCase):
         sess = mock.Mock()
         sess.post = mock.Mock(return_value=resp)
         self.assertEqual('', sot.resize(sess, foo='bar', zoo=5))
-        url = 'clusters/%s/actions' % sot.id
+        url = f'clusters/{sot.id}/actions'
         body = {'resize': {'foo': 'bar', 'zoo': 5}}
         sess.post.assert_called_once_with(url, json=body)
 
@@ -157,7 +157,7 @@ class TestCluster(base.TestCase):
         sess = mock.Mock()
         sess.post = mock.Mock(return_value=resp)
         self.assertEqual('', sot.add_nodes(sess, ['node-33']))
-        url = 'clusters/%s/actions' % sot.id
+        url = f'clusters/{sot.id}/actions'
         body = {'add_nodes': {'nodes': ['node-33']}}
         sess.post.assert_called_once_with(url, json=body)
 
@@ -169,7 +169,7 @@ class TestCluster(base.TestCase):
         sess = mock.Mock()
         sess.post = mock.Mock(return_value=resp)
         self.assertEqual('', sot.del_nodes(sess, ['node-11']))
-        url = 'clusters/%s/actions' % sot.id
+        url = f'clusters/{sot.id}/actions'
         body = {'del_nodes': {'nodes': ['node-11']}}
         sess.post.assert_called_once_with(url, json=body)
 
@@ -184,7 +184,7 @@ class TestCluster(base.TestCase):
             'destroy_after_deletion': True,
         }
         self.assertEqual('', sot.del_nodes(sess, ['node-11'], **params))
-        url = 'clusters/%s/actions' % sot.id
+        url = f'clusters/{sot.id}/actions'
         body = {
             'del_nodes': {
                 'nodes': ['node-11'],
@@ -201,7 +201,7 @@ class TestCluster(base.TestCase):
         sess = mock.Mock()
         sess.post = mock.Mock(return_value=resp)
         self.assertEqual('', sot.replace_nodes(sess, {'node-22': 'node-44'}))
-        url = 'clusters/%s/actions' % sot.id
+        url = f'clusters/{sot.id}/actions'
         body = {'replace_nodes': {'nodes': {'node-22': 'node-44'}}}
         sess.post.assert_called_once_with(url, json=body)
 
@@ -217,7 +217,7 @@ class TestCluster(base.TestCase):
         }
         self.assertEqual('', sot.policy_attach(sess, 'POLICY', **params))
 
-        url = 'clusters/%s/actions' % sot.id
+        url = f'clusters/{sot.id}/actions'
         body = {
             'policy_attach': {
                 'policy_id': 'POLICY',
@@ -235,7 +235,7 @@ class TestCluster(base.TestCase):
         sess.post = mock.Mock(return_value=resp)
         self.assertEqual('', sot.policy_detach(sess, 'POLICY'))
 
-        url = 'clusters/%s/actions' % sot.id
+        url = f'clusters/{sot.id}/actions'
         body = {'policy_detach': {'policy_id': 'POLICY'}}
         sess.post.assert_called_once_with(url, json=body)
 
@@ -249,7 +249,7 @@ class TestCluster(base.TestCase):
         params = {'enabled': False}
         self.assertEqual('', sot.policy_update(sess, 'POLICY', **params))
 
-        url = 'clusters/%s/actions' % sot.id
+        url = f'clusters/{sot.id}/actions'
         body = {'policy_update': {'policy_id': 'POLICY', 'enabled': False}}
         sess.post.assert_called_once_with(url, json=body)
 
@@ -261,7 +261,7 @@ class TestCluster(base.TestCase):
         sess = mock.Mock()
         sess.post = mock.Mock(return_value=resp)
         self.assertEqual('', sot.check(sess))
-        url = 'clusters/%s/actions' % sot.id
+        url = f'clusters/{sot.id}/actions'
         body = {'check': {}}
         sess.post.assert_called_once_with(url, json=body)
 
@@ -273,7 +273,7 @@ class TestCluster(base.TestCase):
         sess = mock.Mock()
         sess.post = mock.Mock(return_value=resp)
         self.assertEqual('', sot.recover(sess))
-        url = 'clusters/%s/actions' % sot.id
+        url = f'clusters/{sot.id}/actions'
         body = {'recover': {}}
         sess.post.assert_called_once_with(url, json=body)
 
@@ -285,7 +285,7 @@ class TestCluster(base.TestCase):
         sess = mock.Mock()
         sess.post = mock.Mock(return_value=resp)
         self.assertEqual('', sot.op(sess, 'dance', style='tango'))
-        url = 'clusters/%s/ops' % sot.id
+        url = f'clusters/{sot.id}/ops'
         body = {'dance': {'style': 'tango'}}
         sess.post.assert_called_once_with(url, json=body)
 
@@ -302,6 +302,6 @@ class TestCluster(base.TestCase):
 
         res = sot.force_delete(sess)
         self.assertEqual(fake_action_id, res.id)
-        url = 'clusters/%s' % sot.id
+        url = f'clusters/{sot.id}'
         body = {'force': True}
         sess.delete.assert_called_once_with(url, json=body)

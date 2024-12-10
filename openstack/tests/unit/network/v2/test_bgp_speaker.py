@@ -169,7 +169,7 @@ class TestBgpSpeaker(base.TestCase):
         self.assertIsNone(sot.add_bgp_speaker_to_dragent(sess, agent_id))
 
         body = {'bgp_speaker_id': sot.id}
-        url = 'agents/%s/bgp-drinstances' % agent_id
+        url = f'agents/{agent_id}/bgp-drinstances'
         sess.post.assert_called_with(url, json=body)
 
     def test_remove_bgp_speaker_from_dragent(self):

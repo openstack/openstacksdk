@@ -111,9 +111,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             ):
                 return flavor
         raise exceptions.SDKException(
-            "Could not find a flavor with {ram} and '{include}'".format(
-                ram=ram, include=include
-            )
+            f"Could not find a flavor with {ram} and '{include}'"
         )
 
     def search_keypairs(self, name_or_id=None, filters=None):
@@ -622,8 +620,8 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             server_obj = self.get_server(server, bare=True)
             if not server_obj:
                 raise exceptions.SDKException(
-                    "Server {server} could not be found and therefore"
-                    " could not be snapshotted.".format(server=server)
+                    f"Server {server} could not be found and therefore "
+                    f"could not be snapshotted."
                 )
             server = server_obj
         image = self.compute.create_server_image(
@@ -853,8 +851,8 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                 kwargs['nics'] = [kwargs['nics']]
             else:
                 raise exceptions.SDKException(
-                    'nics parameter to create_server takes a list of dicts.'
-                    ' Got: {nics}'.format(nics=kwargs['nics'])
+                    'nics parameter to create_server takes a list of dicts. '
+                    'Got: {nics}'.format(nics=kwargs['nics'])
                 )
 
         if network and ('nics' not in kwargs or not kwargs['nics']):
@@ -902,8 +900,8 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                 fixed_ip = nic.pop(ip_key, None)
                 if fixed_ip and net.get('fixed_ip'):
                     raise exceptions.SDKException(
-                        "Only one of v4-fixed-ip, v6-fixed-ip or fixed_ip"
-                        " may be given"
+                        "Only one of v4-fixed-ip, v6-fixed-ip or fixed_ip "
+                        "may be given"
                     )
                 if fixed_ip:
                     net['fixed_ip'] = fixed_ip
@@ -917,8 +915,8 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                 net['tag'] = nic.pop('tag')
             if nic:
                 raise exceptions.SDKException(
-                    "Additional unsupported keys given for server network"
-                    " creation: {keys}".format(keys=nic.keys())
+                    f"Additional unsupported keys given for server network "
+                    f"creation: {nic.keys()}"
                 )
             networks.append(net)
         if networks:
@@ -1220,23 +1218,21 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                 )
 
             self.log.debug(
-                'Server %(server)s reached ACTIVE state without'
-                ' being allocated an IP address.'
-                ' Deleting server.',
-                {'server': server['id']},
+                f'Server {server["id"]} reached ACTIVE state without '
+                f'being allocated an IP address. Deleting server.',
             )
             try:
                 self._delete_server(server=server, wait=wait, timeout=timeout)
             except Exception as e:
                 raise exceptions.SDKException(
-                    'Server reached ACTIVE state without being'
-                    ' allocated an IP address AND then could not'
-                    ' be deleted: {}'.format(e),
+                    f'Server reached ACTIVE state without being '
+                    f'allocated an IP address AND then could not '
+                    f'be deleted: {e}',
                     extra_data=dict(server=server),
                 )
             raise exceptions.SDKException(
-                'Server reached ACTIVE state without being'
-                ' allocated an IP address.',
+                'Server reached ACTIVE state without being '
+                'allocated an IP address.',
                 extra_data=dict(server=server),
             )
         return None
@@ -1378,9 +1374,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             deleted = self.delete_floating_ip(ip['id'], retry=delete_ip_retry)
             if not deleted:
                 raise exceptions.SDKException(
-                    "Tried to delete floating ip {floating_ip}"
-                    " associated with server {id} but there was"
-                    " an error deleting it. Not deleting server.".format(
+                    "Tried to delete floating ip {floating_ip} "
+                    "associated with server {id} but there was "
+                    "an error deleting it. Not deleting server.".format(
                         floating_ip=ip['floating_ip_address'], id=server['id']
                     )
                 )
@@ -1725,7 +1721,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         aggregate = self.get_aggregate(name_or_id)
         if not aggregate:
             raise exceptions.SDKException(
-                "Host aggregate %s not found." % name_or_id
+                f"Host aggregate {name_or_id} not found."
             )
 
         return self.compute.set_aggregate_metadata(aggregate, metadata)
@@ -1742,7 +1738,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         aggregate = self.get_aggregate(name_or_id)
         if not aggregate:
             raise exceptions.SDKException(
-                "Host aggregate %s not found." % name_or_id
+                f"Host aggregate {name_or_id} not found."
             )
 
         return self.compute.add_host_to_aggregate(aggregate, host_name)
@@ -1759,7 +1755,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         aggregate = self.get_aggregate(name_or_id)
         if not aggregate:
             raise exceptions.SDKException(
-                "Host aggregate %s not found." % name_or_id
+                f"Host aggregate {name_or_id} not found."
             )
 
         return self.compute.remove_host_from_aggregate(aggregate, host_name)
@@ -1823,9 +1819,8 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                 # implementation detail - and the error message is actually
                 # less informative.
                 raise exceptions.SDKException(
-                    "Date given, {date}, is invalid. Please pass in a date"
-                    " string in ISO 8601 format -"
-                    " YYYY-MM-DDTHH:MM:SS".format(date=date)
+                    f"Date given, {date}, is invalid. Please pass in a date "
+                    f"string in ISO 8601 format (YYYY-MM-DDTHH:MM:SS)"
                 )
 
         if isinstance(start, str):
@@ -1844,7 +1839,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         if not isinstance(userdata, bytes):
             # If the userdata passed in is bytes, just send it unmodified
             if not isinstance(userdata, str):
-                raise TypeError("%s can't be encoded" % type(userdata))
+                raise TypeError(f"{type(userdata)} can't be encoded")
             # If it's not bytes, make it bytes
             userdata = userdata.encode('utf-8', 'strict')
 

@@ -21,9 +21,7 @@ class TestContainer(base.TestCase):
         super().setUp()
         self.container = self.getUniqueString()
         self.endpoint = self.cloud.object_store.get_endpoint() + '/'
-        self.container_endpoint = '{endpoint}{container}'.format(
-            endpoint=self.endpoint, container=self.container
-        )
+        self.container_endpoint = f'{self.endpoint}{self.container}'
 
         self.body = {
             "count": 2,

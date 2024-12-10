@@ -507,7 +507,7 @@ class TestPort(base.TestCase):
                         'network',
                         'public',
                         append=['v2.0', 'ports'],
-                        qs_elements=['name=%s' % port_name],
+                        qs_elements=[f'name={port_name}'],
                     ),
                     json={'ports': [port1, port2]},
                 ),

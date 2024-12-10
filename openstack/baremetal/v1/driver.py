@@ -188,8 +188,6 @@ class Driver(resource.Resource):
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 
-        msg = "Failed call to method {method} on driver {driver_name}".format(
-            method=method, driver_name=self.name
-        )
+        msg = f"Failed call to method {method} on driver {self.name}"
         exceptions.raise_from_response(response, error_message=msg)
         return response

@@ -102,9 +102,7 @@ class Introspection(resource.Resource):
         response = session.get(
             request.url, headers=request.headers, microversion=version
         )
-        msg = "Failed to fetch introspection data for node {id}".format(
-            id=self.id
-        )
+        msg = f"Failed to fetch introspection data for node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
         return response.json()
 
@@ -127,7 +125,7 @@ class Introspection(resource.Resource):
             return self
 
         for count in utils.iterate_timeout(
-            timeout, "Timeout waiting for introspection on node %s" % self.id
+            timeout, f"Timeout waiting for introspection on node {self.id}"
         ):
             self.fetch(session)
             if self._check_state(ignore_error):
@@ -142,8 +140,7 @@ class Introspection(resource.Resource):
     def _check_state(self, ignore_error):
         if self.state == 'error' and not ignore_error:
             raise exceptions.ResourceFailure(
-                "Introspection of node %(node)s failed: %(error)s"
-                % {'node': self.id, 'error': self.error}
+                f"Introspection of node {self.id} failed: {self.error}"
             )
         else:
             return self.is_finished

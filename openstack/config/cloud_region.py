@@ -190,10 +190,8 @@ def from_conf(conf, session=None, service_types=None, **kwargs):
                 _disable_service(
                     config_dict,
                     st,
-                    reason="No section for project '{project}' (service type "
-                    "'{service_type}') was present in the config.".format(
-                        project=project_name, service_type=st
-                    ),
+                    reason=f"No section for project '{project_name}' (service type "
+                    f"'{st}') was present in the config.",
                 )
                 continue
         opt_dict: ty.Dict[str, str] = {}
@@ -212,16 +210,10 @@ def from_conf(conf, session=None, service_types=None, **kwargs):
             # *that* blow up.
             reason = (
                 "Encountered an exception attempting to process config "
-                "for project '{project}' (service type "
-                "'{service_type}'): {exception}".format(
-                    project=project_name, service_type=st, exception=e
-                )
+                f"for project '{project_name}' (service type "
+                f"'{st}'): {e}"
             )
-            _logger.warning(
-                "Disabling service '{service_type}': {reason}".format(
-                    service_type=st, reason=reason
-                )
-            )
+            _logger.warning(f"Disabling service '{st}': {reason}")
             _disable_service(config_dict, st, reason=reason)
             continue
         # Load them into config_dict under keys prefixed by ${service_type}_
@@ -699,9 +691,8 @@ class CloudRegion:
             # cert verification
             if not verify:
                 self.log.debug(
-                    'Turning off SSL warnings for %(full_name)s since '
-                    'verify=False',
-                    {'full_name': self.full_name},
+                    f"Turning off SSL warnings for {self.full_name} "
+                    f"since verify=False"
                 )
             requestsexceptions.squelch_warnings(insecure_requests=not verify)
             self._keystone_session = self._session_constructor(
@@ -765,13 +756,10 @@ class CloudRegion:
             and implied_microversion != default_microversion
         ):
             raise exceptions.ConfigException(
-                "default_microversion of {default_microversion} was given"
-                " for {service_type}, but api_version looks like a"
-                " microversion as well. Please set api_version to just the"
-                " desired major version, or omit default_microversion".format(
-                    default_microversion=default_microversion,
-                    service_type=service_type,
-                )
+                f"default_microversion of {default_microversion} was given "
+                f"for {service_type}, but api_version looks like a "
+                f"microversion as well. Please set api_version to just the "
+                f"desired major version, or omit default_microversion"
             )
         if implied_microversion:
             default_microversion = implied_microversion
@@ -896,10 +884,10 @@ class CloudRegion:
             ):
                 if self.get_default_microversion(service_type):
                     raise exceptions.ConfigException(
-                        "A default microversion for service {service_type} of"
-                        " {default_microversion} was requested, but the cloud"
-                        " only supports a minimum of {min_microversion} and"
-                        " a maximum of {max_microversion}.".format(
+                        "A default microversion for service {service_type} of "
+                        "{default_microversion} was requested, but the cloud "
+                        "only supports a minimum of {min_microversion} and "
+                        "a maximum of {max_microversion}.".format(
                             service_type=service_type,
                             default_microversion=default_microversion,
                             min_microversion=discover.version_to_string(
@@ -912,17 +900,17 @@ class CloudRegion:
                     )
                 else:
                     raise exceptions.ConfigException(
-                        "A default microversion for service {service_type} of"
-                        " {default_microversion} was requested, but the cloud"
-                        " only supports a minimum of {min_microversion} and"
-                        " a maximum of {max_microversion}. The default"
-                        " microversion was set because a microversion"
-                        " formatted version string, '{api_version}', was"
-                        " passed for the api_version of the service. If it"
-                        " was not intended to set a default microversion"
-                        " please remove anything other than an integer major"
-                        " version from the version setting for"
-                        " the service.".format(
+                        "A default microversion for service {service_type} of "
+                        "{default_microversion} was requested, but the cloud "
+                        "only supports a minimum of {min_microversion} and "
+                        "a maximum of {max_microversion}. The default "
+                        "microversion was set because a microversion "
+                        "formatted version string, '{api_version}', was "
+                        "passed for the api_version of the service. If it "
+                        "was not intended to set a default microversion "
+                        "please remove anything other than an integer major "
+                        "version from the version setting for "
+                        "the service.".format(
                             service_type=service_type,
                             api_version=self.get_api_version(service_type),
                             default_microversion=default_microversion,

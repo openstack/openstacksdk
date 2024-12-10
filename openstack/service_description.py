@@ -224,9 +224,7 @@ class ServiceDescription:
             if not data and instance._strict_proxies:
                 raise exceptions.ServiceDiscoveryException(
                     "Failed to create a working proxy for service "
-                    "{service_type}: No endpoint data found.".format(
-                        service_type=self.service_type
-                    )
+                    f"{self.service_type}: No endpoint data found."
                 )
 
             # If we've gotten here with a proxy object it means we have
@@ -279,8 +277,8 @@ class ServiceDescription:
                 )
         else:
             version_kwargs['min_version'] = str(supported_versions[0])
-            version_kwargs['max_version'] = '{version}.latest'.format(
-                version=str(supported_versions[-1])
+            version_kwargs['max_version'] = (
+                f'{str(supported_versions[-1])}.latest'
             )
 
         temp_adapter = config.get_session_client(
@@ -291,21 +289,15 @@ class ServiceDescription:
             region_name = instance.config.get_region_name(self.service_type)
             if version_kwargs:
                 raise exceptions.NotSupported(
-                    "The {service_type} service for {cloud}:{region_name}"
-                    " exists but does not have any supported versions.".format(
-                        service_type=self.service_type,
-                        cloud=instance.name,
-                        region_name=region_name,
-                    )
+                    f"The {self.service_type} service for "
+                    f"{instance.name}:{region_name} exists but does not have "
+                    f"any supported versions."
                 )
             else:
                 raise exceptions.NotSupported(
-                    "The {service_type} service for {cloud}:{region_name}"
-                    " exists but no version was discoverable.".format(
-                        service_type=self.service_type,
-                        cloud=instance.name,
-                        region_name=region_name,
-                    )
+                    f"The {self.service_type} service for "
+                    f"{instance.name}:{region_name} exists but no version "
+                    f"was discoverable."
                 )
         proxy_class = self.supported_versions.get(str(found_version[0]))
         if proxy_class:
@@ -322,11 +314,9 @@ class ServiceDescription:
         # service catalog that also doesn't have any useful
         # version discovery?
         warnings.warn(
-            "Service {service_type} has no discoverable version. "
+            f"Service {self.service_type} has no discoverable version. "
             "The resulting Proxy object will only have direct "
-            "passthrough REST capabilities.".format(
-                service_type=self.service_type
-            ),
+            "passthrough REST capabilities.",
             category=os_warnings.UnsupportedServiceVersion,
         )
         return temp_adapter

@@ -30,9 +30,7 @@ FLAVOR_ID = '0c1d9008-f546-4608-9e8f-f8bdaec8dddd'
 CHOCOLATE_FLAVOR_ID = '0c1d9008-f546-4608-9e8f-f8bdaec8ddde'
 STRAWBERRY_FLAVOR_ID = '0c1d9008-f546-4608-9e8f-f8bdaec8dddf'
 COMPUTE_ENDPOINT = 'https://compute.example.com/v2.1'
-ORCHESTRATION_ENDPOINT = 'https://orchestration.example.com/v1/{p}'.format(
-    p=PROJECT_ID
-)
+ORCHESTRATION_ENDPOINT = f'https://orchestration.example.com/v1/{PROJECT_ID}'
 NO_MD5 = '93b885adfe0da089cdf634904fd59f71'
 NO_SHA256 = '6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d'
 FAKE_PUBLIC_KEY = (
@@ -53,15 +51,11 @@ def make_fake_flavor(flavor_id, name, ram=100, disk=1600, vcpus=24):
         'id': flavor_id,
         'links': [
             {
-                'href': '{endpoint}/flavors/{id}'.format(
-                    endpoint=COMPUTE_ENDPOINT, id=flavor_id
-                ),
+                'href': f'{COMPUTE_ENDPOINT}/flavors/{flavor_id}',
                 'rel': 'self',
             },
             {
-                'href': '{endpoint}/flavors/{id}'.format(
-                    endpoint=COMPUTE_ENDPOINT, id=flavor_id
-                ),
+                'href': f'{COMPUTE_ENDPOINT}/flavors/{flavor_id}',
                 'rel': 'bookmark',
             },
         ],
@@ -231,9 +225,7 @@ def make_fake_stack_event(
                 "rel": "resource",
             },
             {
-                "href": "{endpoint}/stacks/{name}/{id}".format(
-                    endpoint=ORCHESTRATION_ENDPOINT, name=name, id=id
-                ),
+                "href": f"{ORCHESTRATION_ENDPOINT}/stacks/{name}/{id}",
                 "rel": "stack",
             },
         ],
@@ -288,9 +280,7 @@ def make_fake_image(
         'created_at': '2016-02-10T05:03:11Z',
         'owner_specified.openstack.md5': md5 or NO_MD5,
         'owner_specified.openstack.sha256': sha256 or NO_SHA256,
-        'owner_specified.openstack.object': 'images/{name}'.format(
-            name=image_name
-        ),
+        'owner_specified.openstack.object': f'images/{image_name}',
         'protected': False,
     }
 

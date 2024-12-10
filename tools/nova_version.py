@@ -28,7 +28,7 @@ for cloud in openstack.config.OpenStackConfig().get_all_clouds():
         print(endpoint)
         r = c.get(endpoint).json()
     except Exception:
-        print("Error with %s" % cloud.name)
+        print(f"Error with {cloud.name}")
         continue
     for version in r['versions']:
         if version['status'] == 'CURRENT':

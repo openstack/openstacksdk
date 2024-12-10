@@ -33,9 +33,7 @@ class TestServerConsole(base.TestCase):
                 self.get_nova_discovery_mock_dict(),
                 dict(
                     method='POST',
-                    uri='{endpoint}/servers/{id}/action'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT, id=self.server_id
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/servers/{self.server_id}/action',
                     json={"output": self.output},
                     validate=dict(json={'os-getConsoleOutput': {'length': 5}}),
                 ),
@@ -53,16 +51,12 @@ class TestServerConsole(base.TestCase):
                 self.get_nova_discovery_mock_dict(),
                 dict(
                     method='GET',
-                    uri='{endpoint}/servers/detail'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/servers/detail',
                     json={"servers": [self.server]},
                 ),
                 dict(
                     method='POST',
-                    uri='{endpoint}/servers/{id}/action'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT, id=self.server_id
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/servers/{self.server_id}/action',
                     json={"output": self.output},
                     validate=dict(json={'os-getConsoleOutput': {}}),
                 ),
@@ -81,9 +75,7 @@ class TestServerConsole(base.TestCase):
                 self.get_nova_discovery_mock_dict(),
                 dict(
                     method='POST',
-                    uri='{endpoint}/servers/{id}/action'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT, id=self.server_id
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/servers/{self.server_id}/action',
                     status_code=400,
                     validate=dict(json={'os-getConsoleOutput': {}}),
                 ),

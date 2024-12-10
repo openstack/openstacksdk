@@ -138,10 +138,10 @@ def _fix_argv(argv):
             overlap.extend(old)
     if overlap:
         raise exceptions.ConfigException(
-            "The following options were given: '{options}' which contain"
-            " duplicates except that one has _ and one has -. There is"
-            " no sane way for us to know what you're doing. Remove the"
-            " duplicate option and try again".format(options=','.join(overlap))
+            "The following options were given: '{options}' which contain "
+            "duplicates except that one has _ and one has -. There is "
+            "no sane way for us to know what you're doing. Remove the "
+            "duplicate option and try again".format(options=','.join(overlap))
         )
 
 
@@ -264,12 +264,11 @@ class OpenStackConfig:
         self.envvar_key = self._get_envvar('OS_CLOUD_NAME', 'envvars')
         if self.envvar_key in self.cloud_config['clouds']:
             raise exceptions.ConfigException(
-                '"{0}" defines a cloud named "{1}", but'
-                ' OS_CLOUD_NAME is also set to "{1}". Please rename'
-                ' either your environment based cloud, or one of your'
-                ' file-based clouds.'.format(
-                    self.config_filename, self.envvar_key
-                )
+                f'{self.config_filename!r} defines a cloud named '
+                f'{self.envvar_key!r}, but OS_CLOUD_NAME is also set to '
+                f'{self.envvar_key!r}. '
+                f'Please rename either your environment-based cloud, '
+                f'or one of your file-based clouds.'
             )
 
         self.default_cloud = self._get_envvar('OS_CLOUD')
@@ -501,7 +500,7 @@ class OpenStackConfig:
                     region
                 ):
                     raise exceptions.ConfigException(
-                        'Invalid region entry at: %s' % region
+                        f'Invalid region entry at: {region}'
                     )
                 if 'values' not in region:
                     region['values'] = {}
@@ -564,9 +563,9 @@ class OpenStackConfig:
                 return region
 
         raise exceptions.ConfigException(
-            'Region {region_name} is not a valid region name for cloud'
-            ' {cloud}. Valid choices are {region_list}. Please note that'
-            ' region names are case sensitive.'.format(
+            'Region {region_name} is not a valid region name for cloud '
+            '{cloud}. Valid choices are {region_list}. Please note that '
+            'region names are case sensitive.'.format(
                 region_name=region_name,
                 region_list=','.join([r['name'] for r in regions]),
                 cloud=cloud,
@@ -638,10 +637,8 @@ class OpenStackConfig:
                     )
                 elif status == 'shutdown':
                     raise exceptions.ConfigException(
-                        "{profile_name} references a cloud that no longer"
-                        " exists: {message}".format(
-                            profile_name=profile_name, message=message
-                        )
+                        f"{profile_name} references a cloud that no longer "
+                        f"exists: {message}"
                     )
                 _auth_update(cloud, profile_data)
             else:
@@ -665,8 +662,8 @@ class OpenStackConfig:
         for net in networks:
             if value and net[key]:
                 raise exceptions.ConfigException(
-                    "Duplicate network entries for {key}: {net1} and {net2}."
-                    " Only one network can be flagged with {key}".format(
+                    "Duplicate network entries for {key}: {net1} and {net2}. "
+                    "Only one network can be flagged with {key}".format(
                         key=key, net1=value['name'], net2=net['name']
                     )
                 )
@@ -705,9 +702,9 @@ class OpenStackConfig:
             external = key.startswith('external')
             if key in cloud and 'networks' in cloud:
                 raise exceptions.ConfigException(
-                    "Both {key} and networks were specified in the config."
-                    " Please remove {key} from the config and use the network"
-                    " list to configure network behavior.".format(key=key)
+                    f"Both {key} and networks were specified in the config. "
+                    f"Please remove {key} from the config and use the network "
+                    f"list to configure network behavior."
                 )
             if key in cloud:
                 warnings.warn(
@@ -906,8 +903,8 @@ class OpenStackConfig:
             options, _args = parser.parse_known_args(argv)
             plugin_names = loading.get_available_plugin_names()
             raise exceptions.ConfigException(
-                "An invalid auth-type was specified: {auth_type}."
-                " Valid choices are: {plugin_names}.".format(
+                "An invalid auth-type was specified: {auth_type}. "
+                "Valid choices are: {plugin_names}.".format(
                     auth_type=options.os_auth_type,
                     plugin_names=",".join(plugin_names),
                 )

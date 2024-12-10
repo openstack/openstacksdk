@@ -59,8 +59,8 @@ def iterate_timeout(timeout, message, wait=2):
         wait = float(wait)
     except ValueError:
         raise exceptions.SDKException(
-            "Wait value must be an int or float value. {wait} given"
-            " instead".format(wait=wait)
+            f"Wait value must be an int or float value. "
+            f"{wait} given instead"
         )
 
     start = time.time()
@@ -172,17 +172,15 @@ def supports_microversion(adapter, microversion, raise_exception=False):
             supports = discover.version_match(required, candidate)
             if raise_exception and not supports:
                 raise exceptions.SDKException(
-                    'Required microversion {ver} is higher than currently '
-                    'selected {curr}'.format(
-                        ver=microversion, curr=adapter.default_microversion
-                    )
+                    f'Required microversion {microversion} is higher than '
+                    f'currently selected {adapter.default_microversion}'
                 )
             return supports
         return True
     if raise_exception:
         raise exceptions.SDKException(
-            'Required microversion {ver} is not supported '
-            'by the server side'.format(ver=microversion)
+            f'Required microversion {microversion} is not supported '
+            f'by the server side'
         )
     return False
 

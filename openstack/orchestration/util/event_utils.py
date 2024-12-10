@@ -50,7 +50,7 @@ def poll_for_events(
     """Continuously poll events and logs for performed action on stack."""
 
     def stop_check_action(a):
-        stop_status = ('%s_FAILED' % action, '%s_COMPLETE' % action)
+        stop_status = (f'{action}_FAILED', f'{action}_COMPLETE')
         return a in stop_status
 
     def stop_check_no_action(a):

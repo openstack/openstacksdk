@@ -530,9 +530,7 @@ class TestMeta(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/servers/test-id/os-security-groups'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/servers/test-id/os-security-groups',
                     json={'security_groups': []},
                 ),
             ]
@@ -609,9 +607,7 @@ class TestMeta(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/servers/test-id/os-security-groups'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/servers/test-id/os-security-groups',
                     json={'security_groups': []},
                 ),
             ]
@@ -685,9 +681,7 @@ class TestMeta(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/servers/test-id/os-security-groups'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/servers/test-id/os-security-groups',
                     json={'security_groups': []},
                 ),
             ]
@@ -804,9 +798,7 @@ class TestMeta(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/servers/test-id/os-security-groups'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/servers/test-id/os-security-groups',
                     json={'security_groups': []},
                 ),
             ]
@@ -865,9 +857,7 @@ class TestMeta(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/servers/test-id/os-security-groups'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/servers/test-id/os-security-groups',
                     json={'security_groups': []},
                 ),
             ]
@@ -947,9 +937,7 @@ class TestMeta(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri='{endpoint}/servers/test-id/os-security-groups'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/servers/test-id/os-security-groups',
                     json={'security_groups': []},
                 ),
             ]

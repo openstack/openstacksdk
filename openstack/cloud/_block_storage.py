@@ -169,7 +169,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         volume = self.get_volume(name_or_id)
         if not volume:
-            raise exceptions.SDKException("Volume %s not found." % name_or_id)
+            raise exceptions.SDKException(f"Volume {name_or_id} not found.")
 
         volume = self.block_storage.update_volume(volume, **kwargs)
 
@@ -193,9 +193,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         if not volume:
             raise exceptions.SDKException(
-                "Volume {name_or_id} does not exist".format(
-                    name_or_id=name_or_id
-                )
+                f"Volume {name_or_id} does not exist"
             )
 
         self.block_storage.set_volume_bootable_status(volume, bootable)
@@ -371,14 +369,16 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         dev = self.get_volume_attach_device(volume, server['id'])
         if dev:
             raise exceptions.SDKException(
-                "Volume %s already attached to server %s on device %s"
-                % (volume['id'], server['id'], dev)
+                "Volume {} already attached to server {} on device {}".format(
+                    volume['id'], server['id'], dev
+                )
             )
 
         if volume['status'] != 'available':
             raise exceptions.SDKException(
-                "Volume %s is not available. Status is '%s'"
-                % (volume['id'], volume['status'])
+                "Volume {} is not available. Status is '{}'".format(
+                    volume['id'], volume['status']
+                )
             )
 
         payload = {}
@@ -766,7 +766,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         volume_type = self.get_volume_type(name_or_id)
         if not volume_type:
             raise exceptions.SDKException(
-                "VolumeType not found: %s" % name_or_id
+                f"VolumeType not found: {name_or_id}"
             )
 
         return self.block_storage.get_type_access(volume_type)
@@ -786,7 +786,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         volume_type = self.get_volume_type(name_or_id)
         if not volume_type:
             raise exceptions.SDKException(
-                "VolumeType not found: %s" % name_or_id
+                f"VolumeType not found: {name_or_id}"
             )
 
         self.block_storage.add_type_access(volume_type, project_id)
@@ -804,7 +804,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         volume_type = self.get_volume_type(name_or_id)
         if not volume_type:
             raise exceptions.SDKException(
-                "VolumeType not found: %s" % name_or_id
+                f"VolumeType not found: {name_or_id}"
             )
         self.block_storage.remove_type_access(volume_type, project_id)
 

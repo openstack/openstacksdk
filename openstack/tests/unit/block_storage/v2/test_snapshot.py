@@ -97,7 +97,7 @@ class TestSnapshotActions(base.TestCase):
 
         self.assertIsNone(sot.reset(self.sess, 'new_status'))
 
-        url = 'snapshots/%s/action' % FAKE_ID
+        url = f'snapshots/{FAKE_ID}/action'
         body = {'os-reset_status': {'status': 'new_status'}}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion

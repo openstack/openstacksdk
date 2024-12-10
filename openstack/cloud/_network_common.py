@@ -174,11 +174,11 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                 if nat_source:
                     raise exceptions.SDKException(
                         'Multiple networks were found matching '
-                        '{nat_net} which is the network configured '
+                        f'{self._nat_source} which is the network configured '
                         'to be the NAT source. Please check your '
                         'cloud resources. It is probably a good idea '
                         'to configure this network by ID rather than '
-                        'by name.'.format(nat_net=self._nat_source)
+                        'by name.'
                     )
                 external_ipv4_floating_networks.append(network)
                 nat_source = network
@@ -192,11 +192,11 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                 if nat_destination:
                     raise exceptions.SDKException(
                         'Multiple networks were found matching '
-                        '{nat_net} which is the network configured '
+                        f'{self._nat_destination} which is the network configured '
                         'to be the NAT destination. Please check your '
                         'cloud resources. It is probably a good idea '
                         'to configure this network by ID rather than '
-                        'by name.'.format(nat_net=self._nat_destination)
+                        'by name.'
                     )
                 nat_destination = network
             elif self._nat_destination is None:
@@ -230,12 +230,12 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                 if default_network:
                     raise exceptions.SDKException(
                         'Multiple networks were found matching '
-                        '{default_net} which is the network '
+                        f'{self._default_network} which is the network '
                         'configured to be the default interface '
                         'network. Please check your cloud resources. '
                         'It is probably a good idea '
                         'to configure this network by ID rather than '
-                        'by name.'.format(default_net=self._default_network)
+                        'by name.'
                     )
                 default_network = network
 
@@ -243,58 +243,50 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         for net_name in self._external_ipv4_names:
             if net_name not in [net['name'] for net in external_ipv4_networks]:
                 raise exceptions.SDKException(
-                    "Networks: {network} was provided for external IPv4 "
-                    "access and those networks could not be found".format(
-                        network=net_name
-                    )
+                    f"Networks: {net_name} was provided for external IPv4 "
+                    "access and those networks could not be found"
                 )
 
         for net_name in self._internal_ipv4_names:
             if net_name not in [net['name'] for net in internal_ipv4_networks]:
                 raise exceptions.SDKException(
-                    "Networks: {network} was provided for internal IPv4 "
-                    "access and those networks could not be found".format(
-                        network=net_name
-                    )
+                    f"Networks: {net_name} was provided for internal IPv4 "
+                    "access and those networks could not be found"
                 )
 
         for net_name in self._external_ipv6_names:
             if net_name not in [net['name'] for net in external_ipv6_networks]:
                 raise exceptions.SDKException(
-                    "Networks: {network} was provided for external IPv6 "
-                    "access and those networks could not be found".format(
-                        network=net_name
-                    )
+                    f"Networks: {net_name} was provided for external IPv6 "
+                    "access and those networks could not be found"
                 )
 
         for net_name in self._internal_ipv6_names:
             if net_name not in [net['name'] for net in internal_ipv6_networks]:
                 raise exceptions.SDKException(
-                    "Networks: {network} was provided for internal IPv6 "
-                    "access and those networks could not be found".format(
-                        network=net_name
-                    )
+                    f"Networks: {net_name} was provided for internal IPv6 "
+                    "access and those networks could not be found"
                 )
 
         if self._nat_destination and not nat_destination:
             raise exceptions.SDKException(
-                'Network {network} was configured to be the '
+                f'Network {self._nat_destination} was configured to be the '
                 'destination for inbound NAT but it could not be '
-                'found'.format(network=self._nat_destination)
+                'found'
             )
 
         if self._nat_source and not nat_source:
             raise exceptions.SDKException(
-                'Network {network} was configured to be the '
+                f'Network {self._nat_source} was configured to be the '
                 'source for inbound NAT but it could not be '
-                'found'.format(network=self._nat_source)
+                'found'
             )
 
         if self._default_network and not default_network:
             raise exceptions.SDKException(
-                'Network {network} was configured to be the '
+                f'Network {self._default_network} was configured to be the '
                 'default network interface but it could not be '
-                'found'.format(network=self._default_network)
+                'found'
             )
 
         self._external_ipv4_networks = external_ipv4_networks
@@ -812,7 +804,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                 except exceptions.NotFoundException:
                     raise exceptions.NotFoundException(
                         "unable to find network for floating ips with ID "
-                        "{}".format(network_name_or_id)
+                        f"{network_name_or_id}"
                     )
                 network_id = network['id']
             else:
@@ -879,8 +871,8 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                     )
                 else:
                     raise exceptions.SDKException(
-                        "Attempted to create FIP on port {port} "
-                        "but something went wrong".format(port=port)
+                        f"Attempted to create FIP on port {port} "
+                        "but something went wrong"
                     )
         return fip
 
@@ -970,9 +962,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         try:
             proxy._json_response(
                 self.compute.delete(f'/os-floating-ips/{floating_ip_id}'),
-                error_message='Unable to delete floating IP {fip_id}'.format(
-                    fip_id=floating_ip_id
-                ),
+                error_message=f'Unable to delete floating IP {floating_ip_id}',
             )
         except exceptions.NotFoundException:
             return False
@@ -1123,8 +1113,8 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             raise exceptions.SDKException(
                 f"unable to find floating IP {floating_ip_id}"
             )
-        error_message = "Error attaching IP {ip} to instance {id}".format(
-            ip=floating_ip_id, id=server_id
+        error_message = (
+            f"Error attaching IP {floating_ip_id} to instance {server_id}"
         )
         body = {'address': f_ip['floating_ip_address']}
         if fixed_address:
@@ -1174,9 +1164,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             self.network.update_ip(floating_ip_id, port_id=None)
         except exceptions.SDKException:
             raise exceptions.SDKException(
-                "Error detaching IP {ip} from server {server_id}".format(
-                    ip=floating_ip_id, server_id=server_id
-                )
+                f"Error detaching IP {floating_ip_id} from server {server_id}"
             )
 
         return True
@@ -1187,8 +1175,8 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             raise exceptions.SDKException(
                 f"unable to find floating IP {floating_ip_id}"
             )
-        error_message = "Error detaching IP {ip} from instance {id}".format(
-            ip=floating_ip_id, id=server_id
+        error_message = (
+            f"Error detaching IP {floating_ip_id} from instance {server_id}"
         )
         return proxy._json_response(
             self.compute.post(
@@ -1533,27 +1521,25 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                     )
                     if not nat_network:
                         raise exceptions.SDKException(
-                            'NAT Destination {nat_destination} was configured'
-                            ' but not found on the cloud. Please check your'
-                            ' config and your cloud and try again.'.format(
-                                nat_destination=nat_destination
-                            )
+                            f'NAT Destination {nat_destination} was '
+                            f'configured but not found on the cloud. Please '
+                            f'check your config and your cloud and try again.'
                         )
                 else:
                     nat_network = self.get_nat_destination()
 
                 if not nat_network:
                     raise exceptions.SDKException(
-                        'Multiple ports were found for server {server}'
-                        ' but none of the networks are a valid NAT'
-                        ' destination, so it is impossible to add a'
-                        ' floating IP. If you have a network that is a valid'
-                        ' destination for NAT and we could not find it,'
-                        ' please file a bug. But also configure the'
-                        ' nat_destination property of the networks list in'
-                        ' your clouds.yaml file. If you do not have a'
-                        ' clouds.yaml file, please make one - your setup'
-                        ' is complicated.'.format(server=server['id'])
+                        f'Multiple ports were found for server {server["id"]} '
+                        f'but none of the networks are a valid NAT '
+                        f'destination, so it is impossible to add a '
+                        f'floating IP. If you have a network that is a valid '
+                        f'destination for NAT and we could not find it, '
+                        f'please file a bug. But also configure the '
+                        f'nat_destination property of the networks list in '
+                        f'your clouds.yaml file. If you do not have a '
+                        f'clouds.yaml file, please make one - your setup '
+                        f'is complicated.'
                     )
 
                 maybe_ports = []
@@ -1562,11 +1548,9 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                         maybe_ports.append(maybe_port)
                 if not maybe_ports:
                     raise exceptions.SDKException(
-                        'No port on server {server} was found matching'
-                        ' your NAT destination network {dest}. Please '
-                        ' check your config'.format(
-                            server=server['id'], dest=nat_network['name']
-                        )
+                        f'No port on server {server["id"]} was found matching '
+                        f'your NAT destination network {nat_network["name"]}.'
+                        f'Please check your config'
                     )
                 ports = maybe_ports
 
@@ -1914,7 +1898,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         if group is None:
             raise exceptions.SDKException(
-                "Security group %s not found." % name_or_id
+                f"Security group {name_or_id} not found."
             )
 
         if self._use_neutron_secgroups():
@@ -2006,7 +1990,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         secgroup = self.get_security_group(secgroup_name_or_id)
         if not secgroup:
             raise exceptions.SDKException(
-                "Security group %s not found." % secgroup_name_or_id
+                f"Security group {secgroup_name_or_id} not found."
             )
 
         if self._use_neutron_secgroups():

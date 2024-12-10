@@ -103,10 +103,7 @@ def generate_fake_resource(
                     base_attrs[name] = [uuid.uuid4().hex]
                 else:
                     # Everything else
-                    msg = "Fake value for {}.{} can not be generated".format(
-                        resource_type.__name__,
-                        name,
-                    )
+                    msg = f"Fake value for {resource_type.__name__}.{name} can not be generated"
                     raise NotImplementedError(msg)
             elif issubclass(target_type, list) and value.list_type is None:
                 # List of str
@@ -130,10 +127,7 @@ def generate_fake_resource(
                 base_attrs[name] = dict()
             else:
                 # Everything else
-                msg = "Fake value for {}.{} can not be generated".format(
-                    resource_type.__name__,
-                    name,
-                )
+                msg = f"Fake value for {resource_type.__name__}.{name} can not be generated"
                 raise NotImplementedError(msg)
 
         if isinstance(value, resource.URI):

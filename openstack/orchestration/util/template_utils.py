@@ -50,13 +50,13 @@ def get_template_contents(
         return {}, None
     else:
         raise exceptions.SDKException(
-            'Must provide one of template_file,'
-            ' template_url or template_object'
+            'Must provide one of template_file, template_url or '
+            'template_object'
         )
 
     if not tpl:
         raise exceptions.SDKException(
-            'Could not fetch template from %s' % template_url
+            f'Could not fetch template from {template_url}'
         )
 
     try:
@@ -65,8 +65,7 @@ def get_template_contents(
         template = template_format.parse(tpl)
     except ValueError as e:
         raise exceptions.SDKException(
-            'Error parsing template %(url)s %(error)s'
-            % {'url': template_url, 'error': e}
+            f'Error parsing template {template_url} {e}'
         )
 
     tmpl_base_url = utils.base_url_for_url(template_url)

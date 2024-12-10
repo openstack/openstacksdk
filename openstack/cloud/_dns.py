@@ -78,8 +78,7 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
             zone_type = zone_type.upper()
             if zone_type not in ('PRIMARY', 'SECONDARY'):
                 raise exceptions.SDKException(
-                    "Invalid type %s, valid choices are PRIMARY or SECONDARY"
-                    % zone_type
+                    f"Invalid type {zone_type}, valid choices are PRIMARY or SECONDARY"
                 )
 
         zone = {
@@ -119,7 +118,7 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         zone = self.get_zone(name_or_id)
         if not zone:
-            raise exceptions.SDKException("Zone %s not found." % name_or_id)
+            raise exceptions.SDKException(f"Zone {name_or_id} not found.")
 
         return self.dns.update_zone(zone['id'], **kwargs)
 
@@ -156,7 +155,7 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
         else:
             zone_obj = self.get_zone(zone)
         if zone_obj is None:
-            raise exceptions.SDKException("Zone %s not found." % zone)
+            raise exceptions.SDKException(f"Zone {zone} not found.")
         return list(self.dns.recordsets(zone_obj))
 
     def get_recordset(self, zone, name_or_id):
@@ -175,7 +174,7 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
         else:
             zone_obj = self.get_zone(zone)
         if not zone_obj:
-            raise exceptions.SDKException("Zone %s not found." % zone)
+            raise exceptions.SDKException(f"Zone {name_or_id} not found.")
         return self.dns.find_recordset(
             zone=zone_obj, name_or_id=name_or_id, ignore_missing=True
         )
@@ -206,7 +205,7 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
         else:
             zone_obj = self.get_zone(zone)
         if not zone_obj:
-            raise exceptions.SDKException("Zone %s not found." % zone)
+            raise exceptions.SDKException(f"Zone {zone} not found.")
 
         # We capitalize the type in case the user sends in lowercase
         recordset_type = recordset_type.upper()
@@ -239,9 +238,7 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         rs = self.get_recordset(zone, name_or_id)
         if not rs:
-            raise exceptions.SDKException(
-                "Recordset %s not found." % name_or_id
-            )
+            raise exceptions.SDKException(f"Recordset {name_or_id} not found.")
 
         rs = self.dns.update_recordset(recordset=rs, **kwargs)
 

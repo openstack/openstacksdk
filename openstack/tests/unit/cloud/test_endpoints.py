@@ -40,7 +40,7 @@ class TestCloudEndpoints(base.TestCase):
         )
 
     def _dummy_url(self):
-        return 'https://%s.example.com/' % uuid.uuid4().hex
+        return f'https://{uuid.uuid4().hex}.example.com/'
 
     def test_create_endpoint_v3(self):
         service_data = self._get_service_data()

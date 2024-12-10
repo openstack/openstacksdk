@@ -37,10 +37,7 @@ class TestImageSnapshot(base.TestCase):
                 self.get_nova_discovery_mock_dict(),
                 dict(
                     method='POST',
-                    uri='{endpoint}/servers/{server_id}/action'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT,
-                        server_id=self.server_id,
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/servers/{self.server_id}/action',
                     headers=dict(
                         Location='{endpoint}/images/{image_id}'.format(
                             endpoint='https://images.example.com',
@@ -87,10 +84,7 @@ class TestImageSnapshot(base.TestCase):
                 self.get_nova_discovery_mock_dict(),
                 dict(
                     method='POST',
-                    uri='{endpoint}/servers/{server_id}/action'.format(
-                        endpoint=fakes.COMPUTE_ENDPOINT,
-                        server_id=self.server_id,
-                    ),
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/servers/{self.server_id}/action',
                     headers=dict(
                         Location='{endpoint}/images/{image_id}'.format(
                             endpoint='https://images.example.com',

@@ -167,6 +167,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             domain_id=domain_id,
             ignore_missing=False,
         )
+        if not project:
+            raise exceptions.SDKException(f"Project {name_or_id} not found.")
         if enabled is not None:
             kwargs.update({'enabled': enabled})
         project = self.identity.update_project(project, **kwargs)
@@ -218,11 +220,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             self.identity.delete_project(project)
             return True
         except exceptions.SDKException:
-            self.log.exception(
-                "Error in deleting project {project}".format(
-                    project=name_or_id
-                )
-            )
+            self.log.exception(f"Error in deleting project {name_or_id}")
             return False
 
     @_utils.valid_kwargs('domain_id', 'name')
@@ -577,9 +575,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         service = self.get_service(name_or_id=service_name_or_id)
         if service is None:
             raise exceptions.SDKException(
-                "service {service} not found".format(
-                    service=service_name_or_id
-                )
+                f"service {service_name_or_id} not found"
             )
 
         endpoints_args = []
@@ -786,7 +782,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
             return True
         except exceptions.SDKException:
-            self.log.exception("Failed to delete domain %s" % domain_id)
+            self.log.exception(f"Failed to delete domain {domain_id}")
             raise
 
     def list_domains(self, **filters):
@@ -928,8 +924,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             dom = self.get_domain(domain)
             if not dom:
                 raise exceptions.SDKException(
-                    "Creating group {group} failed: Invalid domain "
-                    "{domain}".format(group=name, domain=domain)
+                    f"Creating group {name} failed: Invalid domain "
+                    f"{domain}"
                 )
             group_ref['domain_id'] = dom['id']
 
@@ -1124,11 +1120,11 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         for k in ['role', 'group', 'user']:
             if k in filters:
-                filters['%s_id' % k] = filters.pop(k)
+                filters[f'{k}_id'] = filters.pop(k)
 
         for k in ['domain', 'project']:
             if k in filters:
-                filters['scope_%s_id' % k] = filters.pop(k)
+                filters[f'scope_{k}_id'] = filters.pop(k)
 
         if 'system' in filters:
             system_scope = filters.pop('system')

@@ -122,7 +122,7 @@ class ServerGroup(resource.Resource):
             )
         else:
             raise exceptions.ResourceFailure(
-                "Invalid create method: %s" % self.create_method
+                f"Invalid create method: {self.create_method}"
             )
 
         has_body = (

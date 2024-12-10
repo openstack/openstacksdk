@@ -113,16 +113,17 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         if output_path is None and output_file is None:
             raise exceptions.SDKException(
-                'No output specified, an output path or file object'
-                ' is necessary to write the image data to'
+                'No output specified, an output path or file object '
+                'is necessary to write the image data to'
             )
         elif output_path is not None and output_file is not None:
             raise exceptions.SDKException(
-                'Both an output path and file object were provided,'
-                ' however only one can be used at once'
+                'Both an output path and file object were provided, '
+                'however only one can be used at once'
             )
 
         image = self.image.find_image(name_or_id, ignore_missing=False)
+
         return self.image.download_image(
             image, output=output_file or output_path, chunk_size=chunk_size
         )

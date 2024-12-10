@@ -58,6 +58,6 @@ def parse(env_str):
 
     for param in env:
         if param not in SECTIONS:
-            raise ValueError('environment has wrong section "%s"' % param)
+            raise ValueError(f'environment has wrong section "{param}"')
 
     return env

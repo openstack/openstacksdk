@@ -40,7 +40,7 @@ def read_url_content(url):
         # TODO(mordred) Use requests
         content = request.urlopen(url).read()
     except error.URLError:
-        raise exceptions.SDKException('Could not fetch contents for %s' % url)
+        raise exceptions.SDKException(f'Could not fetch contents for {url}')
 
     if content:
         try:

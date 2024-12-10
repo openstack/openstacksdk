@@ -579,7 +579,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         network = self.get_network(name_or_id)
         if not network:
-            raise exceptions.SDKException("Network %s not found." % name_or_id)
+            raise exceptions.SDKException(f"Network {name_or_id} not found.")
 
         network = self.network.update_network(network, **kwargs)
 
@@ -1356,7 +1356,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
         if not curr_policy:
             raise exceptions.SDKException(
-                "QoS policy %s not found." % name_or_id
+                f"QoS policy {name_or_id} not found."
             )
 
         return self.network.update_qos_policy(curr_policy, **kwargs)
@@ -1426,9 +1426,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
         if not policy:
             raise exceptions.NotFoundException(
-                "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id
-                )
+                f"QoS policy {policy_name_or_id} not Found."
             )
 
         # Translate None from search interface to empty {} for kwargs below
@@ -1460,9 +1458,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
         if not policy:
             raise exceptions.NotFoundException(
-                "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id
-                )
+                f"QoS policy {policy_name_or_id} not Found."
             )
 
         return self.network.get_qos_bandwidth_limit_rule(rule_id, policy)
@@ -1498,9 +1494,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
         if not policy:
             raise exceptions.NotFoundException(
-                "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id
-                )
+                f"QoS policy {policy_name_or_id} not Found."
             )
 
         if kwargs.get("direction") is not None:
@@ -1544,9 +1538,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
         if not policy:
             raise exceptions.NotFoundException(
-                "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id
-                )
+                f"QoS policy {policy_name_or_id} not Found."
             )
 
         if kwargs.get("direction") is not None:
@@ -1594,9 +1586,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
         if not policy:
             raise exceptions.NotFoundException(
-                "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id
-                )
+                f"QoS policy {policy_name_or_id} not Found."
             )
 
         try:
@@ -1657,9 +1647,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
         if not policy:
             raise exceptions.NotFoundException(
-                "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id
-                )
+                f"QoS policy {policy_name_or_id} not Found."
             )
 
         # Translate None from search interface to empty {} for kwargs below
@@ -1686,9 +1674,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
         if not policy:
             raise exceptions.NotFoundException(
-                "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id
-                )
+                f"QoS policy {policy_name_or_id} not Found."
             )
 
         return self.network.get_qos_dscp_marking_rule(rule_id, policy)
@@ -1718,9 +1704,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
         if not policy:
             raise exceptions.NotFoundException(
-                "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id
-                )
+                f"QoS policy {policy_name_or_id} not Found."
             )
 
         return self.network.create_qos_dscp_marking_rule(
@@ -1752,9 +1736,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
         if not policy:
             raise exceptions.NotFoundException(
-                "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id
-                )
+                f"QoS policy {policy_name_or_id} not Found."
             )
 
         if not kwargs:
@@ -1792,9 +1774,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
         if not policy:
             raise exceptions.NotFoundException(
-                "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id
-                )
+                f"QoS policy {policy_name_or_id} not Found."
             )
 
         try:
@@ -1859,9 +1839,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
         if not policy:
             raise exceptions.NotFoundException(
-                "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id
-                )
+                f"QoS policy {policy_name_or_id} not Found."
             )
 
         # Translate None from search interface to empty {} for kwargs below
@@ -1891,9 +1869,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
         if not policy:
             raise exceptions.NotFoundException(
-                "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id
-                )
+                f"QoS policy {policy_name_or_id} not Found."
             )
 
         return self.network.get_qos_minimum_bandwidth_rule(rule_id, policy)
@@ -1927,9 +1903,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
         if not policy:
             raise exceptions.NotFoundException(
-                "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id
-                )
+                f"QoS policy {policy_name_or_id} not Found."
             )
 
         kwargs['min_kbps'] = min_kbps
@@ -1963,9 +1937,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
         if not policy:
             raise exceptions.NotFoundException(
-                "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id
-                )
+                f"QoS policy {policy_name_or_id} not Found."
             )
 
         if not kwargs:
@@ -2005,9 +1977,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
         if not policy:
             raise exceptions.NotFoundException(
-                "QoS policy {name_or_id} not Found.".format(
-                    name_or_id=policy_name_or_id
-                )
+                f"QoS policy {policy_name_or_id} not Found."
             )
 
         try:
@@ -2235,7 +2205,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         curr_router = self.get_router(name_or_id)
         if not curr_router:
-            raise exceptions.SDKException("Router %s not found." % name_or_id)
+            raise exceptions.SDKException(f"Router {name_or_id} not found.")
 
         return self.network.update_router(curr_router, **router)
 
@@ -2348,7 +2318,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         network = self.get_network(network_name_or_id, filters)
         if not network:
             raise exceptions.SDKException(
-                "Network %s not found." % network_name_or_id
+                f"Network {network_name_or_id} not found."
             )
 
         if disable_gateway_ip and gateway_ip:
@@ -2378,7 +2348,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             subnetpool = self.get_subnetpool(subnetpool_name_or_id)
             if not subnetpool:
                 raise exceptions.SDKException(
-                    "Subnetpool %s not found." % subnetpool_name_or_id
+                    f"Subnetpool {subnetpool_name_or_id} not found."
                 )
 
         # Be friendly on ip_version and allow strings
@@ -2523,7 +2493,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         curr_subnet = self.get_subnet(name_or_id)
         if not curr_subnet:
-            raise exceptions.SDKException("Subnet %s not found." % name_or_id)
+            raise exceptions.SDKException(f"Subnet {name_or_id} not found.")
 
         return self.network.update_subnet(curr_subnet, **subnet)
 

@@ -58,12 +58,8 @@ def get_profile(profile_name):
     response = requests.get(well_known_url)
     if not response.ok:
         raise exceptions.ConfigException(
-            "{profile_name} is a remote profile that could not be fetched:"
-            " {status_code} {reason}".format(
-                profile_name=profile_name,
-                status_code=response.status_code,
-                reason=response.reason,
-            )
+            f"{profile_name} is a remote profile that could not be fetched: "
+            f"{response.status_code} {response.reason}"
         )
         vendor_defaults[profile_name] = None
         return

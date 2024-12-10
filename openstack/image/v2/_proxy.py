@@ -464,7 +464,7 @@ class Proxy(proxy.Proxy):
         if 'queued' != image.status:
             raise exceptions.SDKException(
                 'Image stage is only possible for images in the queued state. '
-                'Current state is {status}'.format(status=image.status)
+                f'Current state is {image.status}'
             )
 
         if filename:
@@ -694,9 +694,9 @@ class Proxy(proxy.Proxy):
     ):
         if not self._connection.has_service('object-store'):
             raise exceptions.SDKException(
-                "The cloud {cloud} is configured to use tasks for image "
+                f"The cloud {self._connection.config.name} is configured to use tasks for image "
                 "upload, but no object-store service is available. "
-                "Aborting.".format(cloud=self._connection.config.name)
+                "Aborting."
             )
 
         properties = image_kwargs.get('properties', {})
@@ -759,9 +759,7 @@ class Proxy(proxy.Proxy):
             except exceptions.ResourceFailure as e:
                 glance_task = self.get_task(glance_task)
                 raise exceptions.SDKException(
-                    "Image creation failed: {message}".format(
-                        message=e.message
-                    ),
+                    f"Image creation failed: {e.message}",
                     extra_data=glance_task,
                 )
             finally:
@@ -1839,9 +1837,7 @@ class Proxy(proxy.Proxy):
             return task
 
         name = f"{task.__class__.__name__}:{task.id}"
-        msg = "Timeout waiting for {name} to transition to {status}".format(
-            name=name, status=status
-        )
+        msg = f"Timeout waiting for {name} to transition to {status}"
 
         for count in utils.iterate_timeout(
             timeout=wait, message=msg, wait=interval
@@ -1850,9 +1846,7 @@ class Proxy(proxy.Proxy):
 
             if not task:
                 raise exceptions.ResourceFailure(
-                    "{name} went away while waiting for {status}".format(
-                        name=name, status=status
-                    )
+                    f"{name} went away while waiting for {status}"
                 )
 
             new_status = task.status
@@ -1863,12 +1857,10 @@ class Proxy(proxy.Proxy):
                 if task.message == _IMAGE_ERROR_396:
                     task_args = {'input': task.input, 'type': task.type}
                     task = self.create_task(**task_args)
-                    self.log.debug('Got error 396. Recreating task %s' % task)
+                    self.log.debug(f'Got error 396. Recreating task {task}')
                 else:
                     raise exceptions.ResourceFailure(
-                        "{name} transitioned to failure state {status}".format(
-                            name=name, status=new_status
-                        )
+                        f"{name} transitioned to failure state {new_status}"
                     )
 
             self.log.debug(

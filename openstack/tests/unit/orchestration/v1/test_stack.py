@@ -237,7 +237,7 @@ class TestStack(base.TestCase):
         ex = self.assertRaises(exceptions.NotFoundException, sot.fetch, sess)
         self.assertEqual('oops', str(ex))
         ex = self.assertRaises(exceptions.NotFoundException, sot.fetch, sess)
-        self.assertEqual('No stack found for %s' % FAKE_ID, str(ex))
+        self.assertEqual(f'No stack found for {FAKE_ID}', str(ex))
 
     def test_abandon(self):
         sess = mock.Mock()
@@ -333,7 +333,7 @@ class TestStack(base.TestCase):
         mock_response.headers = {}
         mock_response.json.return_value = {}
         sess.post = mock.Mock(return_value=mock_response)
-        url = "stacks/%s/actions" % FAKE_ID
+        url = f"stacks/{FAKE_ID}/actions"
         body = {"suspend": None}
         sot = stack.Stack(**FAKE)
 
@@ -350,7 +350,7 @@ class TestStack(base.TestCase):
         mock_response.headers = {}
         mock_response.json.return_value = {}
         sess.post = mock.Mock(return_value=mock_response)
-        url = "stacks/%s/actions" % FAKE_ID
+        url = f"stacks/{FAKE_ID}/actions"
 
         body = {"resume": None}
 

@@ -540,13 +540,8 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
             raise
         except Exception as e:
             raise exceptions.SDKException(
-                "Error getting {service} endpoint on {cloud}:{region}: "
-                "{error}".format(
-                    service=service_key,
-                    cloud=self.name,
-                    region=self.config.get_region_name(service_key),
-                    error=str(e),
-                )
+                f"Error getting {service_key} endpoint on {self.name}:{self.config.get_region_name(service_key)}: "
+                f"{str(e)}"
             )
         return endpoint
 
@@ -611,15 +606,14 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
         (service_name, resource_name) = resource_type.split('.')
         if not hasattr(self, service_name):
             raise exceptions.SDKException(
-                "service %s is not existing/enabled" % service_name
+                f"service {service_name} is not existing/enabled"
             )
         service_proxy = getattr(self, service_name)
         try:
             resource_type = service_proxy._resource_registry[resource_name]
         except KeyError:
             raise exceptions.SDKException(
-                "Resource %s is not known in service %s"
-                % (resource_name, service_name)
+                f"Resource {resource_name} is not known in service {service_name}"
             )
 
         if name_or_id:
@@ -745,6 +739,6 @@ def cleanup_task(graph, service, fn):
         fn()
     except Exception:
         log = _log.setup_logging('openstack.project_cleanup')
-        log.exception('Error in the %s cleanup function' % service)
+        log.exception(f'Error in the {service} cleanup function')
     finally:
         graph.node_done(service)

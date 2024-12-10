@@ -155,7 +155,7 @@ class Message(resource.Resource):
         # parameter when deleting a message that has been claimed, we
         # rebuild the request URI if claim_id is not None.
         if self.claim_id:
-            request.url += '?claim_id=%s' % self.claim_id
+            request.url += f'?claim_id={self.claim_id}'
         response = session.delete(request.url, headers=headers)
 
         self._translate_response(response, has_body=False)

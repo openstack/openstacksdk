@@ -35,7 +35,7 @@ def _normalize_port_list(nics):
             except KeyError:
                 raise TypeError(
                     "Either 'address' or 'mac' must be provided "
-                    "for port %s" % row
+                    f"for port {row}"
                 )
         ports.append(dict(row, address=address))
     return ports
@@ -126,10 +126,9 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         if node.provision_state == 'available':
             if node.instance_id:
                 raise exceptions.SDKException(
-                    "Refusing to inspect available machine %(node)s "
+                    f"Refusing to inspect available machine {node.id} "
                     "which is associated with an instance "
-                    "(instance_uuid %(inst)s)"
-                    % {'node': node.id, 'inst': node.instance_id}
+                    f"(instance_uuid {node.instance_id})"
                 )
 
             return_to_available = True
@@ -142,10 +141,9 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         if node.provision_state not in ('manageable', 'inspect failed'):
             raise exceptions.SDKException(
-                "Machine %(node)s must be in 'manageable', 'inspect failed' "
+                f"Machine {node.id} must be in 'manageable', 'inspect failed' "
                 "or 'available' provision state to start inspection, the "
-                "current state is %(state)s"
-                % {'node': node.id, 'state': node.provision_state}
+                f"current state is {node.provision_state}"
             )
 
         node = self.baremetal.set_node_provision_state(
@@ -229,7 +227,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         if provision_state not in ('enroll', 'manageable', 'available'):
             raise ValueError(
                 'Initial provision state must be enroll, '
-                'manageable or available, got %s' % provision_state
+                f'manageable or available, got {provision_state}'
             )
 
         # Available is tricky: it cannot be directly requested on newer API
@@ -306,8 +304,8 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         invalid_states = ['active', 'cleaning', 'clean wait', 'clean failed']
         if machine['provision_state'] in invalid_states:
             raise exceptions.SDKException(
-                "Error unregistering node '%s' due to current provision "
-                "state '%s'" % (uuid, machine['provision_state'])
+                "Error unregistering node '{}' due to current provision "
+                "state '{}'".format(uuid, machine['provision_state'])
             )
 
         # NOTE(TheJulia) There is a high possibility of a lock being present
@@ -318,8 +316,8 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
             self.baremetal.wait_for_node_reservation(machine, timeout)
         except exceptions.SDKException as e:
             raise exceptions.SDKException(
-                "Error unregistering node '%s': Exception occured while"
-                " waiting to be able to proceed: %s" % (machine['uuid'], e)
+                "Error unregistering node '{}': Exception occured while "
+                "waiting to be able to proceed: {}".format(machine['uuid'], e)
             )
 
         for nic in _normalize_port_list(nics):
@@ -382,7 +380,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         machine = self.get_machine(name_or_id)
         if not machine:
             raise exceptions.SDKException(
-                "Machine update failed to find Machine: %s. " % name_or_id
+                f"Machine update failed to find Machine: {name_or_id}. "
             )
 
         new_config = dict(machine._to_munch(), **attrs)
@@ -394,8 +392,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         except Exception as e:
             raise exceptions.SDKException(
                 "Machine update failed - Error generating JSON patch object "
-                "for submission to the API. Machine: %s Error: %s"
-                % (name_or_id, e)
+                f"for submission to the API. Machine: {name_or_id} Error: {e}"
             )
 
         if not patch:

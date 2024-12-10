@@ -221,8 +221,9 @@ class _BaseComponent(abc.ABC):
 
         if value and deprecated:
             warnings.warn(
-                "The field %r has been deprecated. %s"
-                % (self.name, deprecation_reason or "Avoid usage."),
+                "The field {!r} has been deprecated. {}".format(
+                    self.name, deprecation_reason or "Avoid usage."
+                ),
                 os_warnings.RemovedFieldWarning,
             )
         return value
@@ -386,8 +387,9 @@ class QueryParameters:
         else:
             if not allow_unknown_params:
                 raise exceptions.InvalidResourceQuery(
-                    message="Invalid query params: %s"
-                    % ",".join(invalid_keys),
+                    message="Invalid query params: {}".format(
+                        ",".join(invalid_keys)
+                    ),
                     extra_data=invalid_keys,
                 )
             else:
@@ -620,9 +622,7 @@ class Resource(dict):
         ]
         args = ", ".join(pairs)
 
-        return "{}.{}({})".format(
-            self.__module__, self.__class__.__name__, args
-        )
+        return f"{self.__module__}.{self.__class__.__name__}({args})"
 
     def __eq__(self, comparand):
         """Return True if another resource has the same contents"""
@@ -687,9 +687,8 @@ class Resource(dict):
             for attr, component in self._attributes_iterator(tuple([Body])):
                 if component.name == name:
                     warnings.warn(
-                        "Access to '%s[%s]' is deprecated. "
-                        "Use '%s.%s' attribute instead"
-                        % (self.__class__, name, self.__class__, attr),
+                        f"Access to '{self.__class__}[{name}]' is deprecated. "
+                        f"Use '{self.__class__}.{attr}' attribute instead",
                         os_warnings.LegacyAPIWarning,
                     )
                     return getattr(self, attr)
@@ -710,13 +709,9 @@ class Resource(dict):
                 self._unknown_attrs_in_body[name] = value
                 return
             raise KeyError(
-                "{name} is not found. {module}.{cls} objects do not support"
-                " setting arbitrary keys through the"
-                " dict interface.".format(
-                    module=self.__module__,
-                    cls=self.__class__.__name__,
-                    name=name,
-                )
+                f"{name} is not found. "
+                f"{self.__module__}.{self.__class__.__name__} objects do not "
+                f"support setting arbitrary keys through the dict interface."
             )
 
     def _attributes(
@@ -1340,9 +1335,9 @@ class Resource(dict):
         if isinstance(session, adapter.Adapter):
             return session
         raise ValueError(
-            "The session argument to Resource methods requires either an"
-            " instance of an openstack.proxy.Proxy object or at the very least"
-            " a raw keystoneauth1.adapter.Adapter."
+            "The session argument to Resource methods requires either an "
+            "instance of an openstack.proxy.Proxy object or at the very least "
+            "a raw keystoneauth1.adapter.Adapter."
         )
 
     @classmethod
@@ -1373,7 +1368,7 @@ class Resource(dict):
             'delete',
             'patch',
         }:
-            raise ValueError('Invalid action: %s' % action)
+            raise ValueError(f'Invalid action: {action}')
 
         if session.default_microversion:
             return session.default_microversion
@@ -1414,9 +1409,9 @@ class Resource(dict):
 
         if actual is None:
             message = (
-                "API version %s is required, but the default "
+                f"API version {expected} is required, but the default "
                 "version will be used."
-            ) % expected
+            )
             _raise(message)
         actual_n = discover.normalize_version_number(actual)
 
@@ -1424,9 +1419,9 @@ class Resource(dict):
             expected_n = discover.normalize_version_number(expected)
             if actual_n < expected_n:
                 message = (
-                    "API version %(expected)s is required, but %(actual)s "
+                    f"API version {expected} is required, but {actual} "
                     "will be used."
-                ) % {'expected': expected, 'actual': actual}
+                )
                 _raise(message)
         if maximum is not None:
             maximum_n = discover.normalize_version_number(maximum)
@@ -1514,7 +1509,7 @@ class Resource(dict):
             )
         else:
             raise exceptions.ResourceFailure(
-                "Invalid create method: %s" % self.create_method
+                f"Invalid create method: {self.create_method}"
             )
 
         has_body = (
@@ -1576,7 +1571,7 @@ class Resource(dict):
             and isinstance(data, list)
             and all([isinstance(x, dict) for x in data])
         ):
-            raise ValueError('Invalid data passed: %s' % data)
+            raise ValueError(f'Invalid data passed: {data}')
 
         session = cls._get_session(session)
         if microversion is None:
@@ -1592,7 +1587,7 @@ class Resource(dict):
             method = session.post
         else:
             raise exceptions.ResourceFailure(
-                "Invalid create method: %s" % cls.create_method
+                f"Invalid create method: {cls.create_method}"
             )
 
         _body: ty.List[ty.Any] = []
@@ -1831,7 +1826,7 @@ class Resource(dict):
             call = getattr(session, method.lower())
         except AttributeError:
             raise exceptions.ResourceFailure(
-                "Invalid commit method: %s" % method
+                f"Invalid commit method: {method}"
             )
 
         response = call(
@@ -1858,7 +1853,7 @@ class Resource(dict):
                 parts = path.lstrip('/').split('/', 1)
                 field = parts[0]
             except (KeyError, IndexError):
-                raise ValueError("Malformed or missing path in %s" % item)
+                raise ValueError(f"Malformed or missing path in {item}")
 
             try:
                 component = getattr(self.__class__, field)
@@ -1870,7 +1865,7 @@ class Resource(dict):
             if len(parts) > 1:
                 new_path = f'/{server_field}/{parts[1]}'
             else:
-                new_path = '/%s' % server_field
+                new_path = f'/{server_field}'
             converted.append(dict(item, path=new_path))
 
         return converted
@@ -2435,9 +2430,7 @@ def wait_for_status(
 
     failures = [f.lower() for f in failures]
     name = f"{resource.__class__.__name__}:{resource.id}"
-    msg = "Timeout waiting for {name} to transition to {status}".format(
-        name=name, status=status
-    )
+    msg = f"Timeout waiting for {name} to transition to {status}"
 
     for count in utils.iterate_timeout(
         timeout=wait, message=msg, wait=interval
@@ -2445,9 +2438,7 @@ def wait_for_status(
         resource = resource.fetch(session, skip_cache=True)
         if not resource:
             raise exceptions.ResourceFailure(
-                "{name} went away while waiting for {status}".format(
-                    name=name, status=status
-                )
+                f"{name} went away while waiting for {status}"
             )
 
         new_status = getattr(resource, attribute)
@@ -2456,9 +2447,7 @@ def wait_for_status(
             return resource
         elif normalized_status in failures:
             raise exceptions.ResourceFailure(
-                "{name} transitioned to failure state {status}".format(
-                    name=name, status=new_status
-                )
+                f"{name} transitioned to failure state {new_status}"
             )
 
         LOG.debug(
@@ -2494,9 +2483,7 @@ def wait_for_delete(session, resource, interval, wait, callback=None):
     orig_resource = resource
     for count in utils.iterate_timeout(
         timeout=wait,
-        message="Timeout waiting for {res}:{id} to delete".format(
-            res=resource.__class__.__name__, id=resource.id
-        ),
+        message=f"Timeout waiting for {resource.__class__.__name__}:{resource.id} to delete",
         wait=interval,
     ):
         try:
