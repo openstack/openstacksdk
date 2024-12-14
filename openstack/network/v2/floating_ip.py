@@ -9,12 +9,12 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from openstack.common import tag
+
 from openstack.network.v2 import _base
 from openstack import resource
 
 
-class FloatingIP(_base.NetworkResource, tag.TagMixin):
+class FloatingIP(_base.NetworkResource, _base.TagMixinNetwork):
     name_attribute = "floating_ip_address"
     resource_name = "floating ip"
     resource_key = 'floatingip'
@@ -43,7 +43,7 @@ class FloatingIP(_base.NetworkResource, tag.TagMixin):
         'sort_key',
         'sort_dir',
         tenant_id='project_id',
-        **tag.TagMixin._tag_query_parameters,
+        **_base.TagMixinNetwork._tag_query_parameters,
     )
 
     # Properties

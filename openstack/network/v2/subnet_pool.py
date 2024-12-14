@@ -9,11 +9,12 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from openstack.common import tag
+
+from openstack.network.v2 import _base
 from openstack import resource
 
 
-class SubnetPool(resource.Resource, tag.TagMixin):
+class SubnetPool(resource.Resource, _base.TagMixinNetwork):
     resource_key = 'subnetpool'
     resources_key = 'subnetpools'
     base_path = '/subnetpools'
@@ -37,7 +38,7 @@ class SubnetPool(resource.Resource, tag.TagMixin):
         'sort_key',
         'sort_dir',
         is_shared='shared',
-        **tag.TagMixin._tag_query_parameters,
+        **_base.TagMixinNetwork._tag_query_parameters,
     )
 
     # Properties

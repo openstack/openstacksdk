@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added a method to create (POST) tags in the network resources. This method
+    is idempotent.

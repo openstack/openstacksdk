@@ -88,3 +88,21 @@ class TestTagNeutron(base.BaseFunctionalTest):
         self.user_cloud.network.remove_all_tags(sot)
         sot = self.get_command(self.ID)
         self.assertEqual([], sot.tags)
+
+    def test_add_tags(self):
+        sot = self.get_command(self.ID)
+        self.assertEqual([], sot.tags)
+
+        self.user_cloud.network.add_tags(sot, ["red", "green"])
+        self.user_cloud.network.add_tags(sot, ["blue", "yellow"])
+        sot = self.get_command(self.ID)
+        self.assertEqual(["blue", "green", "red", "yellow"], sot.tags)
+
+        # The operation is idempotent.
+        self.user_cloud.network.add_tags(sot, ["blue", "yellow"])
+        sot = self.get_command(self.ID)
+        self.assertEqual(["blue", "green", "red", "yellow"], sot.tags)
+
+        self.user_cloud.network.add_tags(sot, [])
+        sot = self.get_command(self.ID)
+        self.assertEqual(["blue", "green", "red", "yellow"], sot.tags)

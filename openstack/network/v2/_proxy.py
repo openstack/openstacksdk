@@ -5518,6 +5518,19 @@ class Proxy(proxy.Proxy):
         self._check_tag_support(resource)
         return resource.set_tags(self, tags)
 
+    def add_tags(self, resource, tags):
+        """Add tags to a specified resource
+
+        :param resource: :class:`~openstack.resource.Resource` instance.
+        :param tags: New tags to be set.
+        :type tags: "list"
+
+        :returns: The updated resource
+        :rtype: :class:`~openstack.resource.Resource`
+        """
+        self._check_tag_support(resource)
+        return resource.add_tags(self, tags)
+
     def add_tag(self, resource, tag):
         """Add one single tag to a specified resource
 

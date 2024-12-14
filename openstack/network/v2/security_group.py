@@ -9,12 +9,12 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from openstack.common import tag
+
 from openstack.network.v2 import _base
 from openstack import resource
 
 
-class SecurityGroup(_base.NetworkResource, tag.TagMixin):
+class SecurityGroup(_base.NetworkResource, _base.TagMixinNetwork):
     resource_key = 'security_group'
     resources_key = 'security_groups'
     base_path = '/security-groups'
@@ -37,7 +37,7 @@ class SecurityGroup(_base.NetworkResource, tag.TagMixin):
         'revision_number',
         'sort_dir',
         'sort_key',
-        **tag.TagMixin._tag_query_parameters,
+        **_base.TagMixinNetwork._tag_query_parameters,
     )
 
     # Properties
