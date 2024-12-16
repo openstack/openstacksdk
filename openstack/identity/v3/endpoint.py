@@ -57,3 +57,17 @@ class Endpoint(resource.Resource):
     service_id = resource.Body('service_id')
     #: Fully qualified URL of the service endpoint. *Type: string*
     url = resource.Body('url')
+
+
+class ProjectEndpoint(Endpoint):
+    base_path = '/OS-EP-FILTER/projects/%(project_id)s/endpoints'
+
+    #: The ID for the project from the URI of the resource
+    project_id = resource.URI('project_id')
+
+    # capabilities
+    allow_create = False
+    allow_fetch = False
+    allow_commit = False
+    allow_delete = False
+    allow_list = True
