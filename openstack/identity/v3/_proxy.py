@@ -736,6 +736,23 @@ class Proxy(proxy.Proxy):
         user = self._get_resource(_user.User, user)
         return self._list(_project.UserProject, user_id=user.id, **query)
 
+    def endpoint_projects(self, endpoint, **query):
+        """Retrieve a generator of projects which are associated with the
+        endpoint.
+
+        :param endpoint: Either the endpoint ID or an instance of
+            :class:`~openstack.identity.v3.endpoint.Endpoint`
+        :param kwargs query: Optional query parameters to be sent to limit
+            the resources being returned.
+
+        :returns: A generator of project instances.
+        :rtype: :class:`~openstack.identity.v3.project.EndpointProject`
+        """
+        endpoint_id = self._get_resource(_endpoint.Endpoint, endpoint).id
+        return self._list(
+            _project.EndpointProject, endpoint_id=endpoint_id, **query
+        )
+
     def update_project(self, project, **attrs):
         """Update a project
 

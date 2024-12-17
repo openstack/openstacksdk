@@ -161,9 +161,24 @@ class Project(resource.Resource, tag.TagMixin):
 
 
 class UserProject(Project):
-    resource_key = 'project'
-    resources_key = 'projects'
     base_path = '/users/%(user_id)s/projects'
+
+    #: The ID for the user from the URI of the resource
+    user_id = resource.URI('user_id')
+
+    # capabilities
+    allow_create = False
+    allow_fetch = False
+    allow_commit = False
+    allow_delete = False
+    allow_list = True
+
+
+class EndpointProject(Project):
+    base_path = '/OS-EP-FILTER/endpoints/%(endpoint_id)s/projects'
+
+    #: The ID for the endpoint from the URI of the resource
+    endpoint_id = resource.URI('endpoint_id')
 
     # capabilities
     allow_create = False
