@@ -100,6 +100,8 @@ class Backup(resource.Resource):
     user_id = resource.Body('user_id')
     #: The UUID of the volume.
     volume_id = resource.Body("volume_id")
+    #: The name of the volume.
+    volume_name = resource.Body("volume_name")
 
     _max_microversion = "3.64"
 
@@ -202,7 +204,7 @@ class Backup(resource.Resource):
                 'Either of `name` or `volume_id` must be specified.'
             )
         response = session.post(url, json=body)
-        self._translate_response(response, has_body=False)
+        self._translate_response(response, resource_response_key='restore')
         return self
 
     def force_delete(self, session):

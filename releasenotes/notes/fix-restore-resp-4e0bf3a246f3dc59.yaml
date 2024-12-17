@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Previously the volume backup restore response only
+    returned ``id`` and now it also returns ``volume_id``
+    and ``volume_name`` fields.
