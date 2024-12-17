@@ -14,6 +14,7 @@ from openstack.dns.v2 import _proxy
 from openstack.dns.v2 import floating_ip
 from openstack.dns.v2 import recordset
 from openstack.dns.v2 import service_status
+from openstack.dns.v2 import tsigkey
 from openstack.dns.v2 import zone
 from openstack.dns.v2 import zone_export
 from openstack.dns.v2 import zone_import
@@ -324,3 +325,30 @@ class TestDnsServiceStatus(TestDnsProxy):
         self.verify_get(
             self.proxy.get_service_status, service_status.ServiceStatus
         )
+
+
+class TestDnsTsigKey(TestDnsProxy):
+    def test_tsigkey_create(self):
+        self.verify_create(
+            self.proxy.create_tsigkey,
+            tsigkey.TSIGKey,
+            method_kwargs={'name': 'id'},
+            expected_kwargs={'name': 'id', 'prepend_key': False},
+        )
+
+    def test_tsigkey_delete(self):
+        self.verify_delete(
+            self.proxy.delete_tsigkey,
+            tsigkey.TSIGKey,
+            True,
+            expected_kwargs={'ignore_missing': True, 'delete_shares': False},
+        )
+
+    def test_tsigkey_find(self):
+        self.verify_find(self.proxy.find_tsigkey, tsigkey.TSIGKey)
+
+    def test_tsigkey_get(self):
+        self.verify_get(self.proxy.get_tsigkey, tsigkey.TSIGKey)
+
+    def test_tesigkeys(self):
+        self.verify_list(self.proxy.tsigkeys, tsigkey.TSIGKey)
