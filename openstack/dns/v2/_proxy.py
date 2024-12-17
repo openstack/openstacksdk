@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack.dns.v2 import floating_ip as _fip
+from openstack.dns.v2 import limit as _limit
 from openstack.dns.v2 import recordset as _rs
 from openstack.dns.v2 import service_status as _svc_status
 from openstack.dns.v2 import zone as _zone
@@ -24,6 +25,7 @@ from openstack import proxy
 class Proxy(proxy.Proxy):
     _resource_registry = {
         "floating_ip": _fip.FloatingIP,
+        "limits": _limit.Limit,
         "recordset": _rs.Recordset,
         "service_status": _svc_status.ServiceStatus,
         "zone": _zone.Zone,
@@ -657,6 +659,15 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
             zone_id=zone_obj.id,
         )
+
+    # ======== Limits ========
+    def limits(self, **query):
+        """Retrieve a generator of limits
+
+        :returns: A generator of limits
+            (:class:`~openstack.dns.v2.limit.Limit`) instances
+        """
+        return self._list(_limit.Limit, **query)
 
     # ======== Service Statuses ========
     def service_statuses(self):
