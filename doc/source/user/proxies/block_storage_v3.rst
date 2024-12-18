@@ -173,3 +173,11 @@ Helpers
 .. autoclass:: openstack.block_storage.v3._proxy.Proxy
   :noindex:
   :members: wait_for_status, wait_for_delete
+
+Default Volume Types
+^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v3._proxy.Proxy
+  :noindex:
+  :members: default_types, show_default_type, set_default_type,
+            unset_default_type
