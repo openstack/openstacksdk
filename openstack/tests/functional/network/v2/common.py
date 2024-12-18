@@ -90,6 +90,10 @@ class TestTagNeutron(base.BaseFunctionalTest):
         self.assertEqual([], sot.tags)
 
     def test_add_tags(self):
+        # Skip the test if tag-creation extension is not enabled.
+        if not self.user_cloud.network.find_extension("tag-creation"):
+            self.skipTest("Network tag-creation extension disabled")
+
         sot = self.get_command(self.ID)
         self.assertEqual([], sot.tags)
 
