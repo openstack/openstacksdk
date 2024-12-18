@@ -824,18 +824,22 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
                 "with the other quota set methods.",
                 os_warnings.RemovedInSDK50Warning,
             )
-            if isinstance(project, _quota_set.QuotaSet):
-                attrs['project_id'] = project.project_id
-
             # cinder doesn't support any query parameters so we simply pop
             # these
             if 'query' in attrs:
-                attrs.pop('params')
+                warnings.warn(
+                    "The query argument is no longer supported and should "
+                    "be removed.",
+                    os_warnings.RemovedInSDK50Warning,
+                )
+                attrs.pop('query')
+
+            res = self._get_resource(_quota_set.QuotaSet, project, **attrs)
+            return res.commit(self)
         else:
             project = self._get_resource(_project.Project, project)
             attrs['project_id'] = project.id
-
-        return self._update(_quota_set.QuotaSet, None, **attrs)
+            return self._update(_quota_set.QuotaSet, None, **attrs)
 
     # ====== VOLUME METADATA ======
     def get_volume_metadata(self, volume):
