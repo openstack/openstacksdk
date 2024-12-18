@@ -12,6 +12,7 @@
 
 from unittest import mock
 
+from openstack.network.v2 import agent
 from openstack.network.v2 import bgp_speaker
 from openstack.tests.unit import base
 
@@ -143,12 +144,21 @@ class TestBgpSpeaker(base.TestCase):
         sess.get.assert_called_with(url)
         self.assertEqual(ret, response.body)
 
-    def test_get_bgp_dragents(self):
+    @mock.patch.object(agent.Agent, 'list')
+    def test_get_bgp_dragents(self, mock_list):
         sot = bgp_speaker.BgpSpeaker(**EXAMPLE)
         response = mock.Mock()
-        response.body = {
-            'agents': [{'binary': 'neutron-bgp-dragent', 'alive': True}]
+        agent_body = {
+            'agents': [
+                {
+                    'binary': 'neutron-bgp-dragent',
+                    'alive': True,
+                    'id': IDENTIFIER,
+                }
+            ]
         }
+        response.body = agent_body
+        mock_list.return_value = [agent.Agent(**agent_body['agents'][0])]
         response.json = mock.Mock(return_value=response.body)
         response.status_code = 200
         sess = mock.Mock()
@@ -157,7 +167,8 @@ class TestBgpSpeaker(base.TestCase):
 
         url = 'bgp-speakers/IDENTIFIER/bgp-dragents'
         sess.get.assert_called_with(url)
-        self.assertEqual(ret, response.body)
+        print('BBBBB0  ', ret)
+        self.assertEqual(ret, [agent.Agent(**response.body['agents'][0])])
 
     def test_add_bgp_speaker_to_dragent(self):
         sot = bgp_speaker.BgpSpeaker(**EXAMPLE)

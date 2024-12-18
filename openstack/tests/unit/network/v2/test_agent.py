@@ -13,6 +13,7 @@
 from unittest import mock
 
 from openstack.network.v2 import agent
+from openstack.network.v2 import bgp_speaker
 from openstack.tests.unit import base
 
 IDENTIFIER = 'IDENTIFIER'
@@ -119,19 +120,28 @@ class TestAgent(base.TestCase):
             'agents/IDENTIFIER/l3-routers/', json=body
         )
 
-    def test_get_bgp_speakers_hosted_by_dragent(self):
+    @mock.patch.object(bgp_speaker.BgpSpeaker, 'list')
+    def test_get_bgp_speakers_hosted_by_dragent(self, mock_list):
         sot = agent.Agent(**EXAMPLE)
         sess = mock.Mock()
         response = mock.Mock()
-        response.body = {
-            'bgp_speakers': [{'name': 'bgp_speaker_1', 'ip_version': 4}]
+        speaker_body = {
+            'bgp_speakers': [
+                {'name': 'bgp_speaker_1', 'ip_version': 4, 'id': IDENTIFIER}
+            ]
         }
+        response.body = speaker_body
+        mock_list.return_value = [
+            bgp_speaker.BgpSpeaker(**speaker_body['bgp_speakers'][0])
+        ]
         response.json = mock.Mock(return_value=response.body)
         response.status_code = 200
         sess.get = mock.Mock(return_value=response)
         resp = sot.get_bgp_speakers_hosted_by_dragent(sess)
 
-        self.assertEqual(resp, response.body)
+        self.assertEqual(
+            resp, [bgp_speaker.BgpSpeaker(**response.body['bgp_speakers'][0])]
+        )
         sess.get.assert_called_with('agents/IDENTIFIER/bgp-drinstances')
 
 

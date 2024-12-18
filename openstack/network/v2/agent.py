@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack import exceptions
+from openstack.network.v2 import bgp_speaker as _speaker
 from openstack import resource
 from openstack import utils
 
@@ -112,12 +113,17 @@ class Agent(resource.Resource):
 
         :param session: The session to communicate through.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
+
+        :returns: A list of BgpSpeakers
+        :rtype: :class:`~openstack.network.v2.bgp_speaker.BgpSpeaker`
         """
         url = utils.urljoin(self.base_path, self.id, 'bgp-drinstances')
         resp = session.get(url)
         exceptions.raise_from_response(resp)
         self._body.attributes.update(resp.json())
-        return resp.json()
+        speaker_ids = [sp['id'] for sp in resp.json()['bgp_speakers']]
+        speakers = _speaker.BgpSpeaker.list(session=session)
+        return [sp for sp in speakers if sp.id in speaker_ids]
 
 
 class NetworkHostingDHCPAgent(Agent):

@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    ``get_dragents`` and ``get_bgp_speakers_hosted_by_dragent`` return list
+    of Agents and BgpSpeakers, see https://launchpad.net/bugs/2067039
