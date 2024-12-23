@@ -22,31 +22,102 @@ from openstack import warnings as os_warnings
 _SEEN_FORMAT = '{name}_seen'
 
 
-def _convert_type(value, data_type, list_type=None):
+_T1 = ty.TypeVar('_T1')
+_T2 = ty.TypeVar('_T2')
+_T3 = ty.TypeVar('_T3', str, bool, int, float)
+
+
+# case 1: data_type is unset -> return value as-is
+@ty.overload
+def _convert_type(
+    value: _T1,
+    data_type: None,
+    list_type: None = None,
+) -> _T1: ...
+
+
+# case 2: data_type is primitive type -> return value as said primitive type
+@ty.overload
+def _convert_type(
+    value: _T1,
+    data_type: type[_T3],
+    list_type: None = None,
+) -> _T3: ...
+
+
+# case 3: data_type is list, no list_type -> return value as list of whatever
+# we got
+@ty.overload
+def _convert_type(
+    value: _T1,
+    data_type: type[list[ty.Any]],
+    list_type: None = None,
+) -> list[_T1]: ...
+
+
+# case 4: data_type is list, list_type is primitive type -> return value as
+# list of said primitive type
+@ty.overload
+def _convert_type(
+    value: ty.Any,
+    data_type: type[list[ty.Any]],
+    list_type: type[_T3],
+) -> list[_T3]: ...
+
+
+# case 5: data_type is dict or Resource -> return value as dict/Resource
+@ty.overload
+def _convert_type(
+    value: ty.Any,
+    data_type: type[dict[ty.Any, ty.Any]],
+    list_type: None = None,
+) -> dict[ty.Any, ty.Any]: ...
+
+
+# case 6: data_type is a Formatter -> return value after conversion
+@ty.overload
+def _convert_type(
+    value: ty.Any,
+    data_type: type[format.Formatter[type[_T2]]],
+    list_type: None = None,
+) -> _T2: ...
+
+
+def _convert_type(
+    value: _T1,
+    data_type: ty.Optional[
+        type[
+            ty.Union[
+                _T3,
+                list[ty.Any],
+                dict[ty.Any, ty.Any],
+                format.Formatter[_T2],
+            ],
+        ]
+    ],
+    list_type: ty.Optional[type[_T3]] = None,
+) -> ty.Union[_T1, _T3, list[_T3], list[_T1], dict[ty.Any, ty.Any], _T2]:
     # This should allow handling list of dicts that have their own
     # Component type directly. See openstack/compute/v2/limits.py
     # and the RateLimit type for an example.
-    if not data_type:
+    if data_type is None:
         return value
     elif issubclass(data_type, list):
-        if isinstance(value, (list, tuple, set)):
+        if isinstance(value, (list, set, tuple)):
             if not list_type:
                 return data_type(value)
-            return [_convert_type(raw, list_type) for raw in value]
+            return [_convert_type(x, list_type) for x in value]
         elif list_type:
             return [_convert_type(value, list_type)]
         else:
-            # "if-match" in Object is a good example of the need here
             return [value]
     elif isinstance(value, data_type):
         return value
-    elif isinstance(value, dict):
-        # This should allow handling sub-dicts that have their own
-        # Component type directly. See openstack/compute/v2/limits.py
-        # and the AbsoluteLimits type for an example.
-        # NOTE(stephenfin): This will fail if value is not one of a select set
-        # of types (basically dict or list of two item tuples/lists)
-        return data_type(**value)
+    elif issubclass(data_type, dict):
+        if isinstance(value, dict):
+            return data_type(**value)
+        # TODO(stephenfin): This should be a warning/error
+        return dict()
     elif issubclass(data_type, format.Formatter):
         return data_type.deserialize(value)
     elif issubclass(data_type, bool):
