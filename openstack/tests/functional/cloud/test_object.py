@@ -59,7 +59,7 @@ class TestObject(base.BaseFunctionalTest):
 
                 fake_file.write(fake_content)
                 fake_file.flush()
-                name = 'test-%d' % size
+                name = f'test-{size}'
                 self.addCleanup(
                     self.user_cloud.delete_object, container_name, name
                 )
@@ -136,7 +136,7 @@ class TestObject(base.BaseFunctionalTest):
 
                 fake_file.write(fake_content)
                 fake_file.flush()
-                name = 'test-%d' % size
+                name = f'test-{size}'
                 self.addCleanup(
                     self.user_cloud.delete_object, container_name, name
                 )

@@ -348,7 +348,9 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
 
                 patch = []
                 patch.append({'op': 'remove', 'path': '/instance_info'})
-                patch.append({'op': 'replace', 'path': '/name', 'value': 'newname'})
+                patch.append(
+                    {'op': 'replace', 'path': '/name', 'value': 'newname'}
+                )
                 patch.append(
                     {
                         'op': 'add',

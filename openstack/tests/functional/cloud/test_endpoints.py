@@ -52,15 +52,15 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
 
     def _cleanup_endpoints(self):
         exception_list = list()
-        for e in self.operator_cloud.list_endpoints():
-            if e.get('region') is not None and e['region'].startswith(
-                self.new_item_name
-            ):
+        for endpoint in self.operator_cloud.list_endpoints():
+            if endpoint.get('region') is not None and endpoint[
+                'region'
+            ].startswith(self.new_item_name):
                 try:
-                    self.operator_cloud.delete_endpoint(id=e['id'])
-                except Exception as e:
+                    self.operator_cloud.delete_endpoint(id=endpoint['id'])
+                except Exception as exc:
                     # We were unable to delete a service, let's try with next
-                    exception_list.append(str(e))
+                    exception_list.append(str(exc))
                     continue
         if exception_list:
             # Raise an error: we must make users aware that something went

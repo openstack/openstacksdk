@@ -887,16 +887,10 @@ class TestCase(base.TestCase):
                     urllib.parse.parse_qs(history_uri_parts.query),
                 ),
                 (
-                    'REST mismatch on call %(index)d. Expected %(call)r. '
-                    'Got %(history)r). '
+                    f'REST mismatch on call {x}. '
+                    f'Expected {call["method"]} {call["url"]}. '
+                    f'Got {history.method} {history.url}. '
                     'NOTE: query string order differences wont cause mismatch'
-                    % {
-                        'index': x,
-                        'call': '{method} {url}'.format(
-                            method=call['method'], url=call['url']
-                        ),
-                        'history': f'{history.method} {history.url}',
-                    }
                 ),
             )
             if 'json' in call:

@@ -41,7 +41,7 @@ class NetworkResource(resource.Resource):
             params=params,
         )
         if if_revision is not None:
-            req.headers['If-Match'] = "revision_number=%d" % if_revision
+            req.headers['If-Match'] = f"revision_number={if_revision}"
         return req
 
 

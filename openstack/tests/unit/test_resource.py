@@ -2398,8 +2398,7 @@ class TestResourceActions(base.TestCase):
                 "resources": [{"id": ids[0]}],
                 "resources_links": [
                     {
-                        "href": "https://example.com/next-url?limit=%d"
-                        % q_limit,
+                        "href": f"https://example.com/next-url?limit={q_limit}",
                         "rel": "next",
                     }
                 ],

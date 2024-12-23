@@ -181,7 +181,7 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         self.assertEqual(node.provision_state, 'available')
 
     def test_node_create_in_enroll_provide_by_name(self):
-        name = 'node-%d' % random.randint(0, 1000)
+        name = f'node-{random.randint(0, 1000)}'
         node = self.create_node(name=name)
         self.node_id = node.id
 

@@ -452,7 +452,7 @@ class Node(_common.Resource):
 
         version = None
         if target in _common.PROVISIONING_VERSIONS:
-            version = '1.%d' % _common.PROVISIONING_VERSIONS[target]
+            version = f'1.{_common.PROVISIONING_VERSIONS[target]}'
 
         if config_drive:
             # Some config drive actions require a higher version.

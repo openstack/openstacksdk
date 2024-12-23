@@ -21,7 +21,7 @@ class Base(base.BaseBaremetalTest):
         super().setUp()
         # NOTE(dtantsur): generate a unique resource class to prevent parallel
         # tests from clashing.
-        self.resource_class = 'baremetal-%d' % random.randrange(1024)
+        self.resource_class = f'baremetal-{random.randrange(1024)}'
         self.node = self._create_available_node()
 
     def _create_available_node(self):
