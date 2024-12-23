@@ -40,8 +40,6 @@ def _convert_type(value, data_type, list_type=None):
             return [value]
     elif isinstance(value, data_type):
         return value
-    elif issubclass(data_type, format.Formatter):
-        return data_type.deserialize(value)
     elif isinstance(value, dict):
         # This should allow handling sub-dicts that have their own
         # Component type directly. See openstack/compute/v2/limits.py
@@ -49,13 +47,28 @@ def _convert_type(value, data_type, list_type=None):
         # NOTE(stephenfin): This will fail if value is not one of a select set
         # of types (basically dict or list of two item tuples/lists)
         return data_type(**value)
+    elif issubclass(data_type, format.Formatter):
+        return data_type.deserialize(value)
+    elif issubclass(data_type, bool):
+        return data_type(value)
+    elif issubclass(data_type, (int, float)):
+        if isinstance(value, (int, float)):
+            return data_type(value)
+        if isinstance(value, str):
+            if issubclass(data_type, int) and value.isdigit():
+                return data_type(value)
+            elif issubclass(data_type, float) and (
+                x.isdigit() for x in value.split()
+            ):
+                return data_type(value)
+        return data_type()
+
+    # at this point we expect to have a str and you can convert basically
+    # anything to a string, but there could be untyped code out there passing
+    # random monstrosities so we need the try-catch to be safe
     try:
         return data_type(value)
     except ValueError:
-        # If we can not convert data to the expected type return empty
-        # instance of the expected type.
-        # This is necessary to handle issues like with flavor.swap where
-        # empty string means "0".
         return data_type()
 
 
