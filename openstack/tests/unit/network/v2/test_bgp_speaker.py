@@ -167,7 +167,6 @@ class TestBgpSpeaker(base.TestCase):
 
         url = 'bgp-speakers/IDENTIFIER/bgp-dragents'
         sess.get.assert_called_with(url)
-        print('BBBBB0  ', ret)
         self.assertEqual(ret, [agent.Agent(**response.body['agents'][0])])
 
     def test_add_bgp_speaker_to_dragent(self):
