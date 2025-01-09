@@ -102,7 +102,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         **tag.TagMixin._tag_query_parameters,
     )
 
-    _max_microversion = '2.96'
+    _max_microversion = '2.100'
 
     #: A list of dictionaries holding links relevant to this server.
     links = resource.Body('links')
