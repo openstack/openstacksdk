@@ -12,6 +12,7 @@
 
 import contextlib
 import datetime
+import fixtures
 from unittest import mock
 import uuid
 import warnings
@@ -40,6 +41,7 @@ from openstack.compute.v2 import usage
 from openstack.compute.v2 import volume_attachment
 from openstack.identity.v3 import project
 from openstack import proxy as proxy_base
+from openstack.tests.unit import base
 from openstack.tests.unit import test_proxy_base
 from openstack import warnings as os_warnings
 
@@ -266,18 +268,32 @@ class TestKeyPair(TestComputeProxy):
         self.verify_create(self.proxy.create_keypair, keypair.Keypair)
 
     def test_keypair_delete(self):
-        self.verify_delete(self.proxy.delete_keypair, keypair.Keypair, False)
+        self._verify(
+            "openstack.compute.v2.keypair.Keypair.delete",
+            self.proxy.delete_keypair,
+            method_args=["value"],
+            expected_args=[self.proxy],
+            expected_kwargs={"params": {}},
+        )
 
     def test_keypair_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_keypair, keypair.Keypair, True)
+        self._verify(
+            "openstack.compute.v2.keypair.Keypair.delete",
+            self.proxy.delete_keypair,
+            method_args=["value", True],
+            method_kwargs={"user_id": "fake_user"},
+            expected_args=[self.proxy],
+            expected_kwargs={"params": {"user_id": "fake_user"}},
+        )
 
     def test_keypair_delete_user_id(self):
-        self.verify_delete(
+        self._verify(
+            "openstack.compute.v2.keypair.Keypair.delete",
             self.proxy.delete_keypair,
-            keypair.Keypair,
-            True,
-            method_kwargs={'user_id': 'fake_user'},
-            expected_kwargs={'user_id': 'fake_user'},
+            method_args=["value"],
+            method_kwargs={"user_id": "fake_user"},
+            expected_args=[self.proxy],
+            expected_kwargs={"params": {"user_id": "fake_user"}},
         )
 
     def test_keypair_find(self):
@@ -292,14 +308,28 @@ class TestKeyPair(TestComputeProxy):
         )
 
     def test_keypair_get(self):
-        self.verify_get(self.proxy.get_keypair, keypair.Keypair)
+        self._verify(
+            "openstack.compute.v2.keypair.Keypair.fetch",
+            self.proxy.get_keypair,
+            method_args=["value"],
+            method_kwargs={},
+            expected_args=[self.proxy],
+            expected_kwargs={
+                "error_message": "No Keypair found for value",
+            },
+        )
 
     def test_keypair_get_user_id(self):
-        self.verify_get(
+        self._verify(
+            "openstack.compute.v2.keypair.Keypair.fetch",
             self.proxy.get_keypair,
-            keypair.Keypair,
-            method_kwargs={'user_id': 'fake_user'},
-            expected_kwargs={'user_id': 'fake_user'},
+            method_args=["value"],
+            method_kwargs={"user_id": "fake_user"},
+            expected_args=[self.proxy],
+            expected_kwargs={
+                "error_message": "No Keypair found for value",
+                "user_id": "fake_user",
+            },
         )
 
     def test_keypairs(self):
@@ -312,6 +342,68 @@ class TestKeyPair(TestComputeProxy):
             method_kwargs={'user_id': 'fake_user'},
             expected_kwargs={'user_id': 'fake_user'},
         )
+
+
+class TestKeyPairUrl(base.TestCase):
+    def setUp(self):
+        super().setUp()
+        self.useFixture(
+            fixtures.MonkeyPatch(
+                "openstack.utils.maximum_supported_microversion",
+                lambda *args, **kwargs: "2.10",
+            )
+        )
+
+    def test_keypair_find_user_id(self):
+        self.register_uris(
+            [
+                dict(
+                    method="GET",
+                    uri=self.get_mock_url(
+                        "compute",
+                        "public",
+                        append=["os-keypairs", "fake_keypair"],
+                        qs_elements=["user_id=fake_user"],
+                    ),
+                ),
+            ]
+        )
+
+        self.cloud.compute.find_keypair("fake_keypair", user_id="fake_user")
+
+    def test_keypair_get_user_id(self):
+        self.register_uris(
+            [
+                dict(
+                    method="GET",
+                    uri=self.get_mock_url(
+                        "compute",
+                        "public",
+                        append=["os-keypairs", "fake_keypair"],
+                        qs_elements=["user_id=fake_user"],
+                    ),
+                ),
+            ]
+        )
+
+        self.cloud.compute.get_keypair("fake_keypair", user_id="fake_user")
+
+    def test_keypair_delete_user_id(self):
+        self.register_uris(
+            [
+                dict(
+                    method="DELETE",
+                    uri=self.get_mock_url(
+                        "compute",
+                        "public",
+                        append=["os-keypairs", "fake_keypair"],
+                        qs_elements=["user_id=fake_user"],
+                    ),
+                ),
+            ]
+        )
+
+        self.cloud.compute.delete_keypair("fake_keypair", user_id="fake_user")
 
 
 class TestAggregate(TestComputeProxy):

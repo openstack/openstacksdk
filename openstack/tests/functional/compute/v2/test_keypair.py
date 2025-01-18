@@ -65,12 +65,12 @@ class TestKeypairAdmin(base.BaseFunctionalTest):
         self._keypair = sot
 
     def tearDown(self):
-        sot = self.conn.compute.delete_keypair(self._keypair)
+        sot = self.conn.compute.delete_keypair(self.NAME, user_id=self.USER.id)
         self.assertIsNone(sot)
         super().tearDown()
 
     def test_get(self):
-        sot = self.conn.compute.get_keypair(self.NAME)
+        sot = self.conn.compute.get_keypair(self.NAME, user_id=self.USER.id)
         self.assertEqual(self.NAME, sot.name)
         self.assertEqual(self.NAME, sot.id)
         self.assertEqual(self.USER.id, sot.user_id)

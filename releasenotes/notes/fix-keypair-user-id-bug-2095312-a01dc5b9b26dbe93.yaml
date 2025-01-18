@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fix the ``delete_keypair``, ``get_keypair`` and ``find_keypair`` methods
+    not including the optional ``user_id`` parameter in API queries.
+    [`bug 2095312 <https://bugs.launchpad.net/openstacksdk/+bug/2095312>`_]

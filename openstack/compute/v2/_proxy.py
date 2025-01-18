@@ -643,13 +643,17 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        attrs = {'user_id': user_id} if user_id else {}
-        self._delete(
-            _keypair.Keypair,
-            keypair,
-            ignore_missing=ignore_missing,
-            **attrs,
-        )
+        # NOTE(gtema): it is necessary to overload normal logic since query
+        # parameters are not properly respected in typical DELETE case
+        res = self._get_resource(_keypair.Keypair, keypair)
+
+        try:
+            delete_params = {'user_id': user_id} if user_id else {}
+            res.delete(self, params=delete_params)
+        except exceptions.NotFoundException:
+            if ignore_missing:
+                return None
+            raise
 
     def get_keypair(self, keypair, user_id=None):
         """Get a single keypair
@@ -662,8 +666,14 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        attrs = {'user_id': user_id} if user_id else {}
-        return self._get(_keypair.Keypair, keypair, **attrs)
+        # NOTE(gtema): it is necessary to overload normal logic since query
+        # parameters are not properly respected in typical fetch case
+        res = self._get_resource(_keypair.Keypair, keypair)
+
+        get_params = {'user_id': user_id} if user_id else {}
+        return res.fetch(
+            self, error_message=f"No Keypair found for {keypair}", **get_params
+        )
 
     def find_keypair(self, name_or_id, ignore_missing=True, *, user_id=None):
         """Find a single keypair
