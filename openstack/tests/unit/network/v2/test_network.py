@@ -42,6 +42,7 @@ EXAMPLE = {
     'subnets': ['18', '19'],
     'updated_at': '2016-07-09T12:14:57.233772',
     'vlan_transparent': False,
+    'vlan_qinq': False,
 }
 
 
@@ -97,6 +98,7 @@ class TestNetwork(base.TestCase):
         self.assertEqual(EXAMPLE['subnets'], sot.subnet_ids)
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
         self.assertEqual(EXAMPLE['vlan_transparent'], sot.is_vlan_transparent)
+        self.assertEqual(EXAMPLE['vlan_qinq'], sot.is_vlan_qinq)
 
         self.assertDictEqual(
             {

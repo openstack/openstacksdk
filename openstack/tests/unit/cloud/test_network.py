@@ -162,6 +162,7 @@ class TestNetworks(base.TestCase):
         'mtu': 0,
         'dns_domain': 'sample.openstack.org.',
         'vlan_transparent': None,
+        'vlan_qinq': None,
         'segments': None,
     }
 

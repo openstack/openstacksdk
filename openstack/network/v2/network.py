@@ -115,6 +115,8 @@ class Network(_base.NetworkResource, _base.TagMixinNetwork):
     updated_at = resource.Body('updated_at')
     #: Indicates the VLAN transparency mode of the network
     is_vlan_transparent = resource.Body('vlan_transparent', type=bool)
+    #: Indicates the VLAN QinQ mode of the network
+    is_vlan_qinq = resource.Body('vlan_qinq', type=bool)
 
 
 class DHCPAgentHostingNetwork(Network):
