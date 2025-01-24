@@ -25,6 +25,7 @@ from typing import Any, TYPE_CHECKING
 import warnings
 
 from keystoneauth1 import adapter
+from keystoneauth1 import exceptions as ksa_exceptions
 from keystoneauth1 import loading
 from keystoneauth1 import session
 import platformdirs
@@ -1046,12 +1047,21 @@ class OpenStackConfig:
     def get_all(self) -> list[cloud_region.CloudRegion]:
         clouds = []
 
-        for cloud in self.get_cloud_names():
-            for region in self._get_regions(cloud):
-                if region:
-                    clouds.append(
-                        self.get_one(cloud, region_name=region['name'])
+        for name in self.get_cloud_names():
+            for region in self._get_regions(name):
+                if not region:
+                    continue
+
+                try:
+                    cloud = self.get_one(name, region_name=region['name'])
+                except ksa_exceptions.AuthPluginException:
+                    self.log.exception(
+                        'Failed to load cloud entry',
                     )
+                    continue
+
+                clouds.append(cloud)
+
         return clouds
 
     def get_all_clouds(self) -> list[cloud_region.CloudRegion]:
