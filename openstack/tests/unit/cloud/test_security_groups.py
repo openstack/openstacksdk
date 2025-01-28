@@ -488,6 +488,7 @@ class TestSecurityGroups(base.TestCase):
         new_rule.pop('revision_number')
         new_rule.pop('tags')
         new_rule.pop('updated_at')
+        new_rule.pop('if-match')
         self.assertEqual(expected_new_rule, new_rule)
         self.assert_calls()
 
@@ -551,6 +552,7 @@ class TestSecurityGroups(base.TestCase):
         new_rule.pop('revision_number')
         new_rule.pop('tags')
         new_rule.pop('updated_at')
+        new_rule.pop('if-match')
         self.assertEqual(expected_new_rule, new_rule)
         self.assert_calls()
 
