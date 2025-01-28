@@ -95,5 +95,5 @@ class Group(resource.Resource):
         exceptions.raise_from_response(response)
 
         group = Group()
-        group._translate_response(response=response)
+        group._translate_response(response)
         return group

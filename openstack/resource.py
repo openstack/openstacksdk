@@ -1417,13 +1417,11 @@ class Resource(dict):
         )
         self.microversion = microversion
 
-        response_kwargs = {
-            "has_body": has_body,
-        }
-        if resource_response_key is not None:
-            response_kwargs['resource_response_key'] = resource_response_key
-
-        self._translate_response(response, **response_kwargs)
+        self._translate_response(
+            response,
+            has_body=has_body,
+            resource_response_key=resource_response_key,
+        )
         # direct comparision to False since we need to rule out None
         if self.has_body and self.create_returns_body is False:
             # fetch the body if it's required but not returned by create
@@ -1583,23 +1581,25 @@ class Resource(dict):
             requires_id=requires_id,
             base_path=base_path,
         )
+
         session = self._get_session(session)
         if microversion is None:
             microversion = self._get_microversion(session, action='fetch')
+        self.microversion = microversion
+
         response = session.get(
             request.url,
             microversion=microversion,
             params=params,
             skip_cache=skip_cache,
         )
-        kwargs = {}
-        if error_message:
-            kwargs['error_message'] = error_message
 
-        self.microversion = microversion
-        if resource_response_key is not None:
-            kwargs['resource_response_key'] = resource_response_key
-        self._translate_response(response, **kwargs)
+        self._translate_response(
+            response,
+            error_message=error_message,
+            resource_response_key=resource_response_key,
+        )
+
         return self
 
     def head(self, session, base_path=None, *, microversion=None):
@@ -1623,12 +1623,13 @@ class Resource(dict):
         session = self._get_session(session)
         if microversion is None:
             microversion = self._get_microversion(session, action='fetch')
+        self.microversion = microversion
 
         request = self._prepare_request(base_path=base_path)
         response = session.head(request.url, microversion=microversion)
 
-        self.microversion = microversion
         self._translate_response(response, has_body=False)
+
         return self
 
     @property
@@ -1736,6 +1737,7 @@ class Resource(dict):
         )
 
         self.microversion = microversion
+
         self._translate_response(response, has_body=has_body)
 
         return self
@@ -1856,7 +1858,9 @@ class Resource(dict):
         if error_message:
             kwargs['error_message'] = error_message
 
-        self._translate_response(response, has_body=False, **kwargs)
+        self._translate_response(
+            response, has_body=False, error_message=error_message
+        )
         return self
 
     def _raw_delete(self, session, microversion=None, **kwargs):

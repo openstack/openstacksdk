@@ -55,7 +55,7 @@ class Aggregate(resource.Resource):
         response = session.post(url, json=body, microversion=microversion)
         exceptions.raise_from_response(response)
         aggregate = Aggregate()
-        aggregate._translate_response(response=response)
+        aggregate._translate_response(response)
         return aggregate
 
     def add_host(self, session, host):

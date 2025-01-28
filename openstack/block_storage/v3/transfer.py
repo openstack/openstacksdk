@@ -199,5 +199,5 @@ class Transfer(resource.Resource):
         exceptions.raise_from_response(resp)
 
         transfer = Transfer()
-        transfer._translate_response(response=resp)
+        transfer._translate_response(resp)
         return transfer

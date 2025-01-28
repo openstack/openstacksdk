@@ -87,10 +87,7 @@ class Info(resource.Resource):
 
         microversion = self._get_microversion(session, action='fetch')
         response = session.get(info_url, microversion=microversion)
-        kwargs = {}
-        if error_message:
-            kwargs['error_message'] = error_message
 
         self.microversion = microversion
-        self._translate_response(response, **kwargs)
+        self._translate_response(response, error_message=error_message)
         return self

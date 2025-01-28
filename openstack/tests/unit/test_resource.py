@@ -1419,11 +1419,10 @@ class TestResourceActions(base.TestCase):
             )
 
         self.assertEqual(sot.microversion, microversion)
-        res_kwargs = {}
-        if resource_response_key is not None:
-            res_kwargs['resource_response_key'] = resource_response_key
         sot._translate_response.assert_called_once_with(
-            self.response, has_body=sot.has_body, **res_kwargs
+            self.response,
+            has_body=sot.has_body,
+            resource_response_key=resource_response_key,
         )
         self.assertEqual(result, sot)
 
@@ -1574,7 +1573,9 @@ class TestResourceActions(base.TestCase):
         )
 
         self.assertIsNone(self.sot.microversion)
-        self.sot._translate_response.assert_called_once_with(self.response)
+        self.sot._translate_response.assert_called_once_with(
+            self.response, error_message=None, resource_response_key=None
+        )
         self.assertEqual(result, self.sot)
 
     def test_fetch_with_override_key(self):
@@ -1589,7 +1590,7 @@ class TestResourceActions(base.TestCase):
 
         self.assertIsNone(self.sot.microversion)
         self.sot._translate_response.assert_called_once_with(
-            self.response, resource_response_key="SomeKey"
+            self.response, error_message=None, resource_response_key="SomeKey"
         )
         self.assertEqual(result, self.sot)
 
@@ -1607,7 +1608,9 @@ class TestResourceActions(base.TestCase):
         )
 
         self.assertIsNone(self.sot.microversion)
-        self.sot._translate_response.assert_called_once_with(self.response)
+        self.sot._translate_response.assert_called_once_with(
+            self.response, error_message=None, resource_response_key=None
+        )
         self.assertEqual(result, self.sot)
 
     def test_fetch_with_microversion(self):
@@ -1631,7 +1634,9 @@ class TestResourceActions(base.TestCase):
         )
 
         self.assertEqual(sot.microversion, '1.42')
-        sot._translate_response.assert_called_once_with(self.response)
+        sot._translate_response.assert_called_once_with(
+            self.response, error_message=None, resource_response_key=None
+        )
         self.assertEqual(result, sot)
 
     def test_fetch_with_explicit_microversion(self):
@@ -1655,7 +1660,9 @@ class TestResourceActions(base.TestCase):
         )
 
         self.assertEqual(sot.microversion, '1.42')
-        sot._translate_response.assert_called_once_with(self.response)
+        sot._translate_response.assert_called_once_with(
+            self.response, error_message=None, resource_response_key=None
+        )
         self.assertEqual(result, sot)
 
     def test_fetch_not_requires_id(self):
@@ -1668,7 +1675,9 @@ class TestResourceActions(base.TestCase):
             self.request.url, microversion=None, params={}, skip_cache=False
         )
 
-        self.sot._translate_response.assert_called_once_with(self.response)
+        self.sot._translate_response.assert_called_once_with(
+            self.response, error_message=None, resource_response_key=None
+        )
         self.assertEqual(result, self.sot)
 
     def test_fetch_base_path(self):
@@ -1681,7 +1690,9 @@ class TestResourceActions(base.TestCase):
             self.request.url, microversion=None, params={}, skip_cache=False
         )
 
-        self.sot._translate_response.assert_called_once_with(self.response)
+        self.sot._translate_response.assert_called_once_with(
+            self.response, error_message=None, resource_response_key=None
+        )
         self.assertEqual(result, self.sot)
 
     def test_head(self):
@@ -1694,7 +1705,8 @@ class TestResourceActions(base.TestCase):
 
         self.assertIsNone(self.sot.microversion)
         self.sot._translate_response.assert_called_once_with(
-            self.response, has_body=False
+            self.response,
+            has_body=False,
         )
         self.assertEqual(result, self.sot)
 
@@ -1708,7 +1720,8 @@ class TestResourceActions(base.TestCase):
 
         self.assertIsNone(self.sot.microversion)
         self.sot._translate_response.assert_called_once_with(
-            self.response, has_body=False
+            self.response,
+            has_body=False,
         )
         self.assertEqual(result, self.sot)
 
@@ -1732,7 +1745,8 @@ class TestResourceActions(base.TestCase):
 
         self.assertEqual(sot.microversion, '1.42')
         sot._translate_response.assert_called_once_with(
-            self.response, has_body=False
+            self.response,
+            has_body=False,
         )
         self.assertEqual(result, sot)
 
@@ -1796,7 +1810,8 @@ class TestResourceActions(base.TestCase):
 
         self.assertEqual(self.sot.microversion, microversion)
         self.sot._translate_response.assert_called_once_with(
-            self.response, has_body=has_body
+            self.response,
+            has_body=has_body,
         )
 
     def test_commit_put(self):
@@ -1937,7 +1952,9 @@ class TestResourceActions(base.TestCase):
         )
 
         self.sot._translate_response.assert_called_once_with(
-            self.response, has_body=False
+            self.response,
+            has_body=False,
+            error_message=None,
         )
         self.assertEqual(result, self.sot)
 
@@ -1960,7 +1977,9 @@ class TestResourceActions(base.TestCase):
         )
 
         sot._translate_response.assert_called_once_with(
-            self.response, has_body=False
+            self.response,
+            has_body=False,
+            error_message=None,
         )
         self.assertEqual(result, sot)
 
@@ -1983,7 +2002,7 @@ class TestResourceActions(base.TestCase):
         )
 
         sot._translate_response.assert_called_once_with(
-            self.response, has_body=False
+            self.response, has_body=False, error_message=None
         )
         self.assertEqual(result, sot)
 
