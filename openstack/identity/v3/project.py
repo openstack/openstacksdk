@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack.common import tag
+from openstack import exceptions
 from openstack import resource
 from openstack import utils
 
@@ -158,6 +159,38 @@ class Project(resource.Resource, tag.TagMixin):
         if resp.status_code == 204:
             return True
         return False
+
+    def associate_endpoint(self, session, endpoint_id):
+        """Associate endpoint with project.
+
+        :param session: The session to use for making this request.
+        :param endpoint_id: The ID of an endpoint.
+        :returns: None
+        """
+        url = utils.urljoin(
+            '/OS-EP-FILTER/projects',
+            self.id,
+            'endpoints',
+            endpoint_id,
+        )
+        response = session.put(url)
+        exceptions.raise_from_response(response)
+
+    def disassociate_endpoint(self, session, endpoint_id):
+        """Disassociate endpoint from project.
+
+        :param session: The session to use for making this request.
+        :param endpoint_id: The ID of an endpoint.
+        :returns: None
+        """
+        url = utils.urljoin(
+            '/OS-EP-FILTER/projects',
+            self.id,
+            'endpoints',
+            endpoint_id,
+        )
+        response = session.delete(url)
+        exceptions.raise_from_response(response)
 
 
 class UserProject(Project):
