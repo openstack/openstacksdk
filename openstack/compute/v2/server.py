@@ -38,6 +38,20 @@ CONSOLE_TYPE_ACTION_MAPPING = {
 }
 
 
+class ServerImage(resource.Resource):
+    """The image reference embedded in a Compute server response.
+
+    This is not a full Image service resource and supports no API operations.
+    """
+
+    #: Image links, as dictionaries with ``href`` and ``rel`` keys.
+    links = resource.Body('links', type=list)
+    #: Image properties stored on the server. Available from Compute API
+    #: microversion 2.98. These are not necessarily the current properties of
+    #: the image in the Image service.
+    properties = resource.Body('properties', type=dict)
+
+
 class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     resource_key = 'server'
     resources_key = 'servers'
@@ -162,8 +176,9 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     #: The image reference, as a ID or full URL, for the image to use for
     #: this server.
     image_id = resource.Body('imageRef')
-    #: The image property as returned from server.
-    image = resource.Body('image', type=_image.Image)
+    #: The image reference returned by the Compute API, represented as a
+    #: :class:`~openstack.compute.v2.server.ServerImage`.
+    image = resource.Body('image', type=ServerImage)
     #: The instance name. The Compute API generates the instance name from the
     #: instance name template. Appears in the response for administrative users
     #: only.
