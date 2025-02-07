@@ -125,7 +125,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the load balancer does not exist.
             When set to ``True``, no exception will be set when attempting
-            to delete a nonexistent load balancer.
+            to find a nonexistent load balancer.
 
         :returns: ``None``
         """
@@ -352,7 +352,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the pool does not exist.
             When set to ``True``, no exception will be set when attempting
-            to delete a nonexistent pool.
+            to find a nonexistent pool.
 
         :returns: ``None``
         """
@@ -935,7 +935,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the flavor profile does not exist.
             When set to ``True``, no exception will be set when attempting
-            to delete a nonexistent flavor profile.
+            to find a nonexistent flavor profile.
 
         :returns: ``None``
         """
@@ -1015,7 +1015,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the flavor does not exist.
             When set to ``True``, no exception will be set when attempting
-            to delete a nonexistent flavor.
+            to find a nonexistent flavor.
 
         :returns: ``None``
         """
@@ -1159,7 +1159,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the availability zone profile does not exist.
             When set to ``True``, no exception will be set when attempting
-            to delete a nonexistent availability zone profile.
+            to find a nonexistent availability zone profile.
 
         :returns: ``None``
         """
@@ -1253,7 +1253,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the availability zone does not exist.
             When set to ``True``, no exception will be set when attempting
-            to delete a nonexistent availability zone.
+            to find a nonexistent availability zone.
 
         :returns: ``None``
         """
