@@ -385,6 +385,14 @@ class TestIdentityProxyUser(TestIdentityProxyBase):
     def test_user_update(self):
         self.verify_update(self.proxy.update_user, user.User)
 
+    def test_user_groups(self):
+        self.verify_list(
+            self.proxy.user_groups,
+            group.UserGroup,
+            method_kwargs={"user": 'user'},
+            expected_kwargs={"user_id": "user"},
+        )
+
 
 class TestIdentityProxyTrust(TestIdentityProxyBase):
     def test_trust_create_attrs(self):
