@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``vlan_qinq`` attribute to the ``network`` resource. Users can use this
+    attribute to create network which will allow to configure VLANs
+    transparently in the guest VM and will use ethertype ``0x8a88 (802.1ad)``.
