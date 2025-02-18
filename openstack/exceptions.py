@@ -18,14 +18,21 @@ Exception definitions.
 
 import json
 import re
+import typing as ty
 
+import requests
 from requests import exceptions as _rex
+
+if ty.TYPE_CHECKING:
+    from openstack import resource
 
 
 class SDKException(Exception):
     """The base exception class for all exceptions this library raises."""
 
-    def __init__(self, message=None, extra_data=None):
+    def __init__(
+        self, message: ty.Optional[str] = None, extra_data: ty.Any = None
+    ):
         self.message = self.__class__.__name__ if message is None else message
         self.extra_data = extra_data
         super().__init__(self.message)
@@ -34,35 +41,37 @@ class SDKException(Exception):
 class EndpointNotFound(SDKException):
     """A mismatch occurred between what the client and server expect."""
 
-    def __init__(self, message=None):
+    def __init__(self, message: ty.Optional[str] = None):
         super().__init__(message)
 
 
 class InvalidResponse(SDKException):
     """The response from the server is not valid for this request."""
 
-    def __init__(self, response):
-        super().__init__()
-        self.response = response
+    def __init__(self, message: ty.Optional[str] = None):
+        super().__init__(message)
 
 
 class InvalidRequest(SDKException):
     """The request to the server is not valid."""
 
-    def __init__(self, message=None):
+    def __init__(self, message: ty.Optional[str] = None):
         super().__init__(message)
 
 
 class HttpException(SDKException, _rex.HTTPError):
     """The base exception for all HTTP error responses."""
 
+    source: str
+    status_code: ty.Optional[int]
+
     def __init__(
         self,
-        message='Error',
-        response=None,
-        http_status=None,
-        details=None,
-        request_id=None,
+        message: ty.Optional[str] = 'Error',
+        response: ty.Optional[requests.Response] = None,
+        http_status: ty.Optional[int] = None,
+        details: ty.Optional[str] = None,
+        request_id: ty.Optional[str] = None,
     ):
         # TODO(shade) Remove http_status parameter and the ability for response
         # to be None once we're not mocking Session everywhere.
@@ -89,7 +98,7 @@ class HttpException(SDKException, _rex.HTTPError):
         if self.status_code is not None and (400 <= self.status_code < 500):
             self.source = "Client"
 
-    def __str__(self):
+    def __str__(self) -> str:
         # 'Error' is the default value for self.message. If self.message isn't
         # 'Error', then someone has set a more informative error message
         # and we should use it. If it is 'Error', then we should construct a
@@ -129,7 +138,11 @@ class PreconditionFailedException(HttpException):
 class MethodNotSupported(SDKException):
     """The resource does not support this operation type."""
 
-    def __init__(self, resource, method):
+    def __init__(
+        self,
+        resource: ty.Union['resource.Resource', type['resource.Resource']],
+        method: str,
+    ):
         # This needs to work with both classes and instances.
         try:
             name = resource.__name__
@@ -156,14 +169,14 @@ class InvalidResourceQuery(SDKException):
     """Invalid query params for resource."""
 
 
-def _extract_message(obj):
+def _extract_message(obj: ty.Any) -> ty.Optional[str]:
     if isinstance(obj, dict):
         # Most of services: compute, network
         if obj.get('message'):
-            return obj['message']
+            return str(obj['message'])
         # Ironic starting with Stein
         elif obj.get('faultstring'):
-            return obj['faultstring']
+            return str(obj['faultstring'])
     elif isinstance(obj, str):
         # Ironic before Stein has double JSON encoding, nobody remembers why.
         try:
@@ -172,9 +185,13 @@ def _extract_message(obj):
             pass
         else:
             return _extract_message(obj)
+    return None
 
 
-def raise_from_response(response, error_message=None):
+def raise_from_response(
+    response: requests.Response,
+    error_message: ty.Optional[str] = None,
+) -> None:
     """Raise an instance of an HTTPException based on keystoneauth response."""
     if response.status_code < 400:
         return
@@ -219,7 +236,7 @@ def raise_from_response(response, error_message=None):
                 messages.append(message)
 
         # Return joined string separated by colons.
-        details = ': '.join(messages)
+        details = ': '.join(msg for msg in messages if msg)
 
     if not details:
         details = response.reason if response.reason else response.text

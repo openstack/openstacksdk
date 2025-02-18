@@ -41,7 +41,7 @@ class TestQosMinimumBandwidthRule(base.BaseFunctionalTest):
         try:
             self.operator_cloud.delete_qos_policy(self.policy['id'])
         except Exception as e:
-            raise exceptions.SDKException(e)
+            raise exceptions.SDKException(str(e))
 
     def test_qos_minimum_bandwidth_rule_lifecycle(self):
         min_kbps = 1500

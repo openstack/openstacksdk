@@ -41,7 +41,7 @@ class TestQosDscpMarkingRule(base.BaseFunctionalTest):
         try:
             self.operator_cloud.delete_qos_policy(self.policy['id'])
         except Exception as e:
-            raise exceptions.SDKException(e)
+            raise exceptions.SDKException(str(e))
 
     def test_qos_dscp_marking_rule_lifecycle(self):
         dscp_mark = 16

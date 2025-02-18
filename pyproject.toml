@@ -30,6 +30,7 @@ exclude = '''
 
 [[tool.mypy.overrides]]
 module = [
+    "openstack.exceptions",
     "openstack.fields",
     "openstack.format",
 ]
