@@ -2235,9 +2235,12 @@ class Resource(dict):
 
         # Try to short-circuit by looking directly for a matching ID.
         try:
+            # TODO(stephenfin): Our types say we accept a ksa Adapter, but this
+            # requires an SDK Proxy. Do we update the types or rework this to
+            # support use of an adapter.
             match = cls.existing(
                 id=name_or_id,
-                connection=session._get_connection(),
+                connection=session._get_connection(),  # type: ignore
                 **params,
             )
             return match.fetch(session, microversion=microversion, **params)

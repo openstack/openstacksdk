@@ -37,8 +37,11 @@ from openstack.config import vendors
 from openstack import exceptions
 from openstack import warnings as os_warnings
 
+if ty.TYPE_CHECKING:
+    from keystoneauth1.loading._plugins.identity import v3 as v3_loaders
+
 PLATFORMDIRS = platformdirs.PlatformDirs(
-    'openstack', 'OpenStack', multipath='/etc'
+    'openstack', 'OpenStack', multipath=True
 )
 CONFIG_HOME = PLATFORMDIRS.user_config_dir
 CACHE_PATH = PLATFORMDIRS.user_cache_dir
@@ -1061,7 +1064,9 @@ class OpenStackConfig:
             # doing what they want causes them sorrow.
             config['auth_type'] = 'admin_token'
 
-        loader = loading.get_plugin_loader(config['auth_type'])
+        loader: loading.BaseLoader[ty.Any] = loading.get_plugin_loader(
+            config['auth_type']
+        )
 
         # As the name would suggest, v3multifactor uses multiple factors for
         # authentication. As a result, we need to register the configuration
@@ -1074,6 +1079,9 @@ class OpenStackConfig:
         # options in keystoneauth1.loading._plugins.identity.v3.MultiAuth
         # without calling 'load_from_options'.
         if config['auth_type'] == 'v3multifactor':
+            if ty.TYPE_CHECKING:
+                # narrow types
+                assert isinstance(loader, v3_loaders.MultiFactor)
             # We use '.get' since we can't be sure this key is set yet -
             # validation happens later, in _validate_auth
             loader._methods = config.get('auth_methods')

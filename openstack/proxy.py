@@ -32,6 +32,9 @@ from openstack import resource
 from openstack import utils
 from openstack import warnings as os_warnings
 
+if ty.TYPE_CHECKING:
+    from openstack import connection
+
 
 ResourceType = ty.TypeVar('ResourceType', bound=resource.Resource)
 
@@ -89,6 +92,8 @@ class Proxy(adapter.Adapter):
     Dictionary of resource names (key) types (value).
     """
 
+    _connection: 'connection.Connection'
+
     def __init__(
         self,
         session,
@@ -106,7 +111,9 @@ class Proxy(adapter.Adapter):
         kwargs.setdefault(
             'retriable_status_codes', self.retriable_status_codes
         )
-        super().__init__(session=session, *args, **kwargs)
+        # TODO(stephenfin): Resolve this by copying the signature of
+        # adapter.Adapter.__init__
+        super().__init__(session=session, *args, **kwargs)  # type: ignore
         self._statsd_client = statsd_client
         self._statsd_prefix = statsd_prefix
         self._prometheus_counter = prometheus_counter
@@ -887,6 +894,10 @@ class Proxy(adapter.Adapter):
 
     def should_skip_resource_cleanup(self, resource=None, skip_resources=None):
         if resource is None or skip_resources is None:
+            return False
+
+        if self.service_type is None:
+            # to keep mypy happy - this should never happen
             return False
 
         resource_name = f"{self.service_type.replace('-', '_')}.{resource}"

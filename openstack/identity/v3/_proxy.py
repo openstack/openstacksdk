@@ -378,7 +378,8 @@ class Proxy(proxy.Proxy):
             _endpoint.Endpoint, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_endpoint(self, endpoint):
+    # TODO(stephenfin): This conflicts with Adapter.get_endpoint
+    def get_endpoint(self, endpoint):  # type: ignore[override]
         """Get a single endpoint
 
         :param endpoint: The value can be the ID of an endpoint or a

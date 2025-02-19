@@ -561,7 +561,7 @@ class Connection(
         try:
             return self.session.get_token()
         except keystoneauth1.exceptions.ClientException as e:
-            raise exceptions.SDKException(e)
+            raise exceptions.SDKException(str(e))
 
     def connect_as(self, **kwargs):
         """Make a new Connection object with new auth context.

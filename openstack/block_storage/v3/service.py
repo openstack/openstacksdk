@@ -153,7 +153,7 @@ class Service(resource.Resource):
             body['backend_id'] = backend_id
 
         action = 'failover_host'
-        if utils.supports_microversion(self, '3.26'):
+        if utils.supports_microversion(session, '3.26'):
             action = 'failover'
 
         return self._action(session, action, body)

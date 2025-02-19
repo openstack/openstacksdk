@@ -926,7 +926,13 @@ class Proxy(proxy.Proxy):
 
         res = self._get_resource(_container.Container, container)
         endpoint = parse.urlparse(self.get_endpoint())
-        path = '/'.join([endpoint.path, res.name, object_prefix])
+        if isinstance(endpoint.path, bytes):
+            # To keep mypy happy: the output type will be the same as the input
+            # type
+            path = endpoint.path.decode()
+        else:
+            path = endpoint.path
+        path = '/'.join([path, res.name, object_prefix])
 
         data = f'{path}\n{redirect_url}\n{max_file_size}\n{max_upload_count}\n{expires}'
         sig = hmac.new(temp_url_key, data.encode(), sha1).hexdigest()
