@@ -38,6 +38,7 @@ import inspect
 import itertools
 import operator
 import typing as ty
+import typing_extensions as ty_ext
 import urllib.parse
 import warnings
 
@@ -2252,29 +2253,29 @@ class Resource(dict):
     @classmethod
     def find(
         cls,
-        session,
+        session: adapter.Adapter,
         name_or_id: str,
         ignore_missing: ty.Literal[True] = True,
         list_base_path: ty.Optional[str] = None,
         *,
         microversion: ty.Optional[str] = None,
         all_projects: ty.Optional[bool] = None,
-        **params,
-    ) -> ty.Optional['Resource']: ...
+        **params: ty.Any,
+    ) -> ty.Optional[ty_ext.Self]: ...
 
     @ty.overload
     @classmethod
     def find(
         cls,
-        session,
+        session: adapter.Adapter,
         name_or_id: str,
         ignore_missing: ty.Literal[False],
         list_base_path: ty.Optional[str] = None,
         *,
         microversion: ty.Optional[str] = None,
         all_projects: ty.Optional[bool] = None,
-        **params,
-    ) -> 'Resource': ...
+        **params: ty.Any,
+    ) -> ty_ext.Self: ...
 
     # excuse the duplication here: it's mypy's fault
     # https://github.com/python/mypy/issues/14764
@@ -2282,28 +2283,28 @@ class Resource(dict):
     @classmethod
     def find(
         cls,
-        session,
+        session: adapter.Adapter,
         name_or_id: str,
         ignore_missing: bool,
         list_base_path: ty.Optional[str] = None,
         *,
         microversion: ty.Optional[str] = None,
         all_projects: ty.Optional[bool] = None,
-        **params,
-    ): ...
+        **params: ty.Any,
+    ) -> ty.Optional[ty_ext.Self]: ...
 
     @classmethod
     def find(
         cls,
-        session,
+        session: adapter.Adapter,
         name_or_id: str,
         ignore_missing: bool = True,
         list_base_path: ty.Optional[str] = None,
         *,
         microversion: ty.Optional[str] = None,
         all_projects: ty.Optional[bool] = None,
-        **params,
-    ):
+        **params: ty.Any,
+    ) -> ty.Optional[ty_ext.Self]:
         """Find a resource by its name or id.
 
         :param session: The session to use for making this request.

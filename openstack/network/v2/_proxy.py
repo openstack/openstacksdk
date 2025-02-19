@@ -196,10 +196,10 @@ class Proxy(proxy.Proxy):
     def _update(
         self,
         resource_type: type[resource.Resource],
-        value,
-        base_path=None,
-        if_revision=None,
-        **attrs,
+        value: ty.Union[str, resource.Resource],
+        base_path: ty.Optional[str] = None,
+        if_revision: ty.Optional[int] = None,
+        **attrs: ty.Any,
     ) -> resource.Resource:
         res = self._get_resource(resource_type, value, **attrs)
         return res.commit(self, base_path=base_path, if_revision=if_revision)
@@ -208,10 +208,10 @@ class Proxy(proxy.Proxy):
     def _delete(
         self,
         resource_type: type[resource.Resource],
-        value,
-        ignore_missing=True,
-        if_revision=None,
-        **attrs,
+        value: ty.Union[str, resource.Resource],
+        ignore_missing: bool = True,
+        if_revision: ty.Optional[int] = None,
+        **attrs: ty.Any,
     ) -> ty.Optional[resource.Resource]:
         res = self._get_resource(resource_type, value, **attrs)
 
@@ -306,7 +306,9 @@ class Proxy(proxy.Proxy):
         return self._list(_address_group.AddressGroup, **query)
 
     def update_address_group(
-        self, address_group, **attrs
+        self,
+        address_group: ty.Union[str, _address_group.AddressGroup],
+        **attrs: ty.Any,
     ) -> _address_group.AddressGroup:
         """Update an address group
 
@@ -2979,7 +2981,12 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_port.Port, **query)
 
-    def update_port(self, port, if_revision=None, **attrs) -> _port.Port:
+    def update_port(
+        self,
+        port: ty.Union[str, _port.Port],
+        if_revision: ty.Optional[int] = None,
+        **attrs: ty.Any,
+    ) -> _port.Port:
         """Update a port
 
         :param port: Either the id of a port or a

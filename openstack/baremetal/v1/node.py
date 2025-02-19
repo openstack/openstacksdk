@@ -15,6 +15,8 @@ import enum
 import typing as ty
 import warnings
 
+from keystoneauth1 import adapter
+
 from openstack.baremetal.v1 import _common
 from openstack import exceptions
 from openstack import resource
@@ -815,7 +817,7 @@ class Node(_common.Resource):
 
     def attach_vif(
         self,
-        session,
+        session: adapter.Adapter,
         vif_id: str,
         retry_on_conflict: bool = True,
         *,

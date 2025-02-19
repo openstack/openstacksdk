@@ -12,6 +12,9 @@
 
 import typing as ty
 
+from keystoneauth1 import adapter
+import requests
+
 from openstack.baremetal.v1 import _common
 from openstack import exceptions
 from openstack import resource
@@ -155,8 +158,12 @@ class Driver(resource.Resource):
         return response.json()
 
     def call_vendor_passthru(
-        self, session, verb: str, method: str, body: ty.Optional[dict] = None
-    ):
+        self,
+        session: adapter.Adapter,
+        verb: str,
+        method: str,
+        body: ty.Optional[dict] = None,
+    ) -> requests.Response:
         """Call a vendor specific passthru method
 
         Contents of body are params passed to the hardware driver

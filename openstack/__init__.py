@@ -70,7 +70,7 @@ def connect(
     options: ty.Optional[argparse.Namespace] = None,
     load_yaml_config: bool = True,
     load_envvars: bool = True,
-    **kwargs,
+    **kwargs: ty.Any,
 ) -> openstack.connection.Connection:
     """Create a :class:`~openstack.connection.Connection`
 

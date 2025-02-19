@@ -12,6 +12,8 @@
 
 import typing as ty
 
+import requests
+
 from openstack.baremetal.v1 import _common
 from openstack.baremetal.v1 import allocation as _allocation
 from openstack.baremetal.v1 import chassis as _chassis
@@ -225,8 +227,12 @@ class Proxy(proxy.Proxy):
         return driver.list_vendor_passthru(self)
 
     def call_driver_vendor_passthru(
-        self, driver, verb: str, method: str, body=None
-    ):
+        self,
+        driver: ty.Union[str, _driver.Driver],
+        verb: str,
+        method: str,
+        body: object = None,
+    ) -> requests.Response:
         """Call driver's vendor_passthru method.
 
         :param driver: The value can be the name of a driver or a
@@ -238,8 +244,9 @@ class Proxy(proxy.Proxy):
 
         :returns: Server response
         """
-        driver = self.get_driver(driver)
-        return driver.call_vendor_passthru(self, verb, method, body)
+        return self.get_driver(driver).call_vendor_passthru(
+            self, verb, method, body
+        )
 
     def nodes(self, details=False, **query):
         """Retrieve a generator of nodes.

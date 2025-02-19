@@ -121,7 +121,7 @@ class Router(_base.NetworkResource, _base.TagMixinNetwork):
         resp = self._put(session, url, body)
         return resp.json()
 
-    def add_extra_routes(self, session, body) -> 'Router':
+    def add_extra_routes(self, session, body):
         """Add extra routes to a logical router.
 
         :param session: The session to communicate through.
@@ -137,7 +137,7 @@ class Router(_base.NetworkResource, _base.TagMixinNetwork):
         self._translate_response(resp)
         return self
 
-    def remove_extra_routes(self, session, body) -> 'Router':
+    def remove_extra_routes(self, session, body):
         """Remove extra routes from a logical router.
 
         :param session: The session to communicate through.

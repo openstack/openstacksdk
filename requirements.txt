@@ -11,3 +11,4 @@ platformdirs>=3 # MIT License
 psutil>=3.2.2 # BSD
 PyYAML>=3.13 # MIT
 requestsexceptions>=1.2.0 # Apache-2.0
+typing-extensions>=4.12.0 # PSF

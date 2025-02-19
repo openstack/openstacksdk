@@ -1921,7 +1921,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         self,
         name_or_id: str,
         ignore_missing: ty.Literal[True] = True,
-        **query,
+        **query: ty.Any,
     ) -> ty.Optional[_service.Service]: ...
 
     @ty.overload
@@ -1929,7 +1929,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         self,
         name_or_id: str,
         ignore_missing: ty.Literal[False],
-        **query,
+        **query: ty.Any,
     ) -> _service.Service: ...
 
     # excuse the duplication here: it's mypy's fault
@@ -1939,14 +1939,14 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         self,
         name_or_id: str,
         ignore_missing: bool,
-        **query,
+        **query: ty.Any,
     ) -> ty.Optional[_service.Service]: ...
 
     def find_service(
         self,
         name_or_id: str,
         ignore_missing: bool = True,
-        **query,
+        **query: ty.Any,
     ) -> ty.Optional[_service.Service]:
         """Find a single service
 

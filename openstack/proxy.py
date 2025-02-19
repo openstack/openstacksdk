@@ -29,6 +29,7 @@ from keystoneauth1 import adapter
 from openstack import _log
 from openstack import exceptions
 from openstack import resource
+from openstack import utils
 from openstack import warnings as os_warnings
 
 
@@ -436,7 +437,10 @@ class Proxy(adapter.Adapter):
         )
 
     def _get_resource(
-        self, resource_type: type[ResourceType], value, **attrs
+        self,
+        resource_type: type[ResourceType],
+        value: ty.Union[None, str, ResourceType, utils.Munch],
+        **attrs: ty.Any,
     ) -> ResourceType:
         """Get a resource object to work on
 
@@ -489,7 +493,7 @@ class Proxy(adapter.Adapter):
         resource_type: type[ResourceType],
         name_or_id: str,
         ignore_missing: ty.Literal[True] = True,
-        **attrs,
+        **attrs: ty.Any,
     ) -> ty.Optional[ResourceType]: ...
 
     @ty.overload
@@ -498,7 +502,7 @@ class Proxy(adapter.Adapter):
         resource_type: type[ResourceType],
         name_or_id: str,
         ignore_missing: ty.Literal[False],
-        **attrs,
+        **attrs: ty.Any,
     ) -> ResourceType: ...
 
     # excuse the duplication here: it's mypy's fault
@@ -509,7 +513,7 @@ class Proxy(adapter.Adapter):
         resource_type: type[ResourceType],
         name_or_id: str,
         ignore_missing: bool,
-        **attrs,
+        **attrs: ty.Any,
     ) -> ty.Optional[ResourceType]: ...
 
     def _find(
@@ -517,7 +521,7 @@ class Proxy(adapter.Adapter):
         resource_type: type[ResourceType],
         name_or_id: str,
         ignore_missing: bool = True,
-        **attrs,
+        **attrs: ty.Any,
     ) -> ty.Optional[ResourceType]:
         """Find a resource
 
@@ -541,9 +545,9 @@ class Proxy(adapter.Adapter):
     def _delete(
         self,
         resource_type: type[ResourceType],
-        value,
-        ignore_missing=True,
-        **attrs,
+        value: ty.Union[str, ResourceType],
+        ignore_missing: bool = True,
+        **attrs: ty.Any,
     ) -> ty.Optional[ResourceType]:
         """Delete a resource
 
@@ -583,9 +587,9 @@ class Proxy(adapter.Adapter):
     def _update(
         self,
         resource_type: type[ResourceType],
-        value,
-        base_path=None,
-        **attrs,
+        value: ty.Union[str, ResourceType],
+        base_path: ty.Optional[str] = None,
+        **attrs: ty.Any,
     ) -> ResourceType:
         """Update a resource
 
@@ -613,8 +617,8 @@ class Proxy(adapter.Adapter):
     def _create(
         self,
         resource_type: type[ResourceType],
-        base_path=None,
-        **attrs,
+        base_path: ty.Optional[str] = None,
+        **attrs: ty.Any,
     ) -> ResourceType:
         """Create a resource from attributes
 
@@ -649,8 +653,8 @@ class Proxy(adapter.Adapter):
     def _bulk_create(
         self,
         resource_type: type[ResourceType],
-        data,
-        base_path=None,
+        data: list[dict[str, ty.Any]],
+        base_path: ty.Optional[str] = None,
     ) -> ty.Generator[ResourceType, None, None]:
         """Create a resource from attributes
 
@@ -675,11 +679,11 @@ class Proxy(adapter.Adapter):
     def _get(
         self,
         resource_type: type[ResourceType],
-        value=None,
-        requires_id=True,
-        base_path=None,
-        skip_cache=False,
-        **attrs,
+        value: ty.Union[str, ResourceType, None] = None,
+        requires_id: bool = True,
+        base_path: ty.Optional[str] = None,
+        skip_cache: bool = False,
+        **attrs: ty.Any,
     ) -> ResourceType:
         """Fetch a resource
 
@@ -716,10 +720,10 @@ class Proxy(adapter.Adapter):
     def _list(
         self,
         resource_type: type[ResourceType],
-        paginated=True,
-        base_path=None,
-        jmespath_filters=None,
-        **attrs,
+        paginated: bool = True,
+        base_path: ty.Optional[str] = None,
+        jmespath_filters: ty.Optional[str] = None,
+        **attrs: ty.Any,
     ) -> ty.Generator[ResourceType, None, None]:
         """List a resource
 
@@ -766,9 +770,9 @@ class Proxy(adapter.Adapter):
     def _head(
         self,
         resource_type: type[ResourceType],
-        value=None,
-        base_path=None,
-        **attrs,
+        value: ty.Union[str, ResourceType, None] = None,
+        base_path: ty.Optional[str] = None,
+        **attrs: ty.Any,
     ) -> ResourceType:
         """Retrieve a resource's header
 

@@ -340,7 +340,7 @@ class Proxy(proxy.Proxy):
             properties = image_kwargs.pop('properties', {})
             image_kwargs.update(self._make_v2_image_params(meta, properties))
             image_kwargs['name'] = name
-            image = self._create(_image.Image, **image_kwargs)
+            image = self._create(_image.Image, **image_kwargs)  # type: ignore[arg-type]
 
         return image
 
