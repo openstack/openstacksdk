@@ -1022,7 +1022,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         :param session: The session to use for making this request.
         :returns: None
         """
-        utils.require_microversion(session, 2.78)
+        utils.require_microversion(session, '2.78')
 
         url = utils.urljoin(Server.base_path, self.id, 'topology')
 

@@ -244,25 +244,28 @@ class TestTinyDAG(base.TestCase):
         'g': ['e'],
     }
 
+    @classmethod
+    def _create_tinydag(cls, data):
+        sot = utils.TinyDAG()
+        for k, v in data.items():
+            sot.add_node(k)
+            for dep in v:
+                sot.add_edge(k, dep)
+        return sot
+
     def _verify_order(self, test_graph, test_list):
         for k, v in test_graph.items():
             for dep in v:
                 self.assertTrue(test_list.index(k) < test_list.index(dep))
 
-    def test_from_dict(self):
-        sot = utils.TinyDAG()
-        sot.from_dict(self.test_graph)
-
     def test_topological_sort(self):
-        sot = utils.TinyDAG()
-        sot.from_dict(self.test_graph)
+        sot = self._create_tinydag(self.test_graph)
         sorted_list = sot.topological_sort()
         self._verify_order(sot.graph, sorted_list)
         self.assertEqual(len(self.test_graph.keys()), len(sorted_list))
 
     def test_walk(self):
-        sot = utils.TinyDAG()
-        sot.from_dict(self.test_graph)
+        sot = self._create_tinydag(self.test_graph)
         sorted_list = []
         for node in sot.walk():
             sorted_list.append(node)
@@ -271,8 +274,7 @@ class TestTinyDAG(base.TestCase):
         self.assertEqual(len(self.test_graph.keys()), len(sorted_list))
 
     def test_walk_parallel(self):
-        sot = utils.TinyDAG()
-        sot.from_dict(self.test_graph)
+        sot = self._create_tinydag(self.test_graph)
         sorted_list = []
         with concurrent.futures.ThreadPoolExecutor(max_workers=15) as executor:
             for node in sot.walk(timeout=1):
@@ -281,8 +283,7 @@ class TestTinyDAG(base.TestCase):
         self.assertEqual(len(self.test_graph.keys()), len(sorted_list))
 
     def test_walk_raise(self):
-        sot = utils.TinyDAG()
-        sot.from_dict(self.test_graph)
+        sot = self._create_tinydag(self.test_graph)
         bad_node = 'f'
         with testtools.ExpectedException(exceptions.SDKException):
             for node in sot.walk(timeout=1):

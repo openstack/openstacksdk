@@ -10,8 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from collections.abc import Mapping
+import collections.abc
 import hashlib
+import io
 import queue
 import string
 import threading
@@ -26,7 +27,7 @@ from openstack import _log
 from openstack import exceptions
 
 
-def urljoin(*args):
+def urljoin(*args: ty.Optional[str]) -> str:
     """A custom version of urljoin that simply joins strings into a path.
 
     The real urljoin takes into account web semantics like when joining a url
@@ -90,14 +91,16 @@ def iterate_timeout(
 class _AccessSaver:
     __slots__ = ('keys',)
 
-    def __init__(self):
-        self.keys = []
+    def __init__(self) -> None:
+        self.keys: list[str] = []
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> None:
         self.keys.append(key)
 
 
-def get_string_format_keys(fmt_string, old_style=True):
+def get_string_format_keys(
+    fmt_string: str, old_style: bool = True
+) -> list[str]:
     """Gets a list of required keys from a format string
 
     Required mostly for parsing base_path urls for required keys, which
@@ -135,20 +138,36 @@ def supports_version(
     :raises: :class:`~openstack.exceptions.SDKException` when
         ``raise_exception`` is ``True`` and requested version is not supported.
     """
-    required = discover.normalize_version_number(version)
 
-    if discover.version_match(required, adapter.get_api_major_version()):
+    def _supports_version() -> bool:
+        required = discover.normalize_version_number(version)
+        major_version = adapter.get_api_major_version()
+
+        if not major_version:
+            return False
+
+        if not discover.version_match(required, major_version):
+            return False
+
         return True
 
-    if raise_exception:
+    supported = _supports_version()
+
+    if not supported and raise_exception:
         raise exceptions.SDKException(
             f'Required version {version} is not supported by the server'
         )
 
-    return False
+    return supported
 
 
-def supports_microversion(adapter, microversion, raise_exception=False):
+def supports_microversion(
+    adapter: ks_adapter.Adapter,
+    microversion: ty.Union[
+        str, int, float, ty.Iterable[ty.Union[str, int, float]]
+    ],
+    raise_exception: bool = False,
+) -> bool:
     """Determine if the given adapter supports the given microversion.
 
     Checks the min and max microversion asserted by the service and ensures
@@ -156,17 +175,21 @@ def supports_microversion(adapter, microversion, raise_exception=False):
     taken into consideration to ensure ``microversion <= default``.
 
     :param adapter: :class:`~keystoneauth1.adapter.Adapter` instance.
-    :param str microversion: String containing the desired microversion.
-    :param bool raise_exception: Raise exception when requested microversion
+    :param microversion: String containing the desired microversion.
+    :param raise_exception: Raise exception when requested microversion
         is not supported by the server or is higher than the current default
         microversion.
     :returns: True if the service supports the microversion, else False.
-    :rtype: bool
     :raises: :class:`~openstack.exceptions.SDKException` when
         ``raise_exception`` is ``True`` and requested microversion is not
         supported.
     """
     endpoint_data = adapter.get_endpoint_data()
+    if endpoint_data is None:
+        if raise_exception:
+            raise exceptions.SDKException('Could not retrieve endpoint data')
+        return False
+
     if (
         endpoint_data.min_microversion
         and endpoint_data.max_microversion
@@ -189,17 +212,20 @@ def supports_microversion(adapter, microversion, raise_exception=False):
                     f'Required microversion {microversion} is higher than '
                     f'currently selected {adapter.default_microversion}'
                 )
-            return supports
+            return supports  # type: ignore[no-any-return]
+
         return True
+
     if raise_exception:
         raise exceptions.SDKException(
             f'Required microversion {microversion} is not supported '
             f'by the server side'
         )
+
     return False
 
 
-def require_microversion(adapter, required):
+def require_microversion(adapter: ks_adapter.Adapter, required: str) -> None:
     """Require microversion.
 
     :param adapter: :class:`~keystoneauth1.adapter.Adapter` instance.
@@ -210,13 +236,13 @@ def require_microversion(adapter, required):
     supports_microversion(adapter, required, raise_exception=True)
 
 
-def pick_microversion(session, required):
+def pick_microversion(
+    session: ks_adapter.Adapter, required: str
+) -> ty.Optional[str]:
     """Get a new microversion if it is higher than session's default.
 
     :param session: The session to use for making this request.
-    :type session: :class:`~keystoneauth1.adapter.Adapter`
     :param required: Minimum version that is required for an action.
-    :type required: String or tuple or None.
     :return: ``required`` as a string if the ``session``'s default is too low,
         otherwise the ``session``'s default. Returns ``None`` if both
         are ``None``.
@@ -224,33 +250,39 @@ def pick_microversion(session, required):
     :raises: :class:`~openstack.exceptions.SDKException` if requested
         microversion is not supported.
     """
+    required_normalized = None
     if required is not None:
-        required = discover.normalize_version_number(required)
+        required_normalized = discover.normalize_version_number(required)
 
     if session.default_microversion is not None:
         default = discover.normalize_version_number(
             session.default_microversion
         )
 
-        if required is None:
-            required = default
+        if required_normalized is None:
+            required_normalized = default
         else:
-            required = (
+            required_normalized = (
                 default
-                if discover.version_match(required, default)
-                else required
+                if discover.version_match(required_normalized, default)
+                else required_normalized
             )
 
-    if required is not None:
-        if not supports_microversion(session, required):
-            raise exceptions.SDKException(
-                'Requested microversion is not supported by the server side '
-                'or the default microversion is too low'
-            )
-        return discover.version_to_string(required)
+    if required_normalized is None:
+        return None
+
+    if not supports_microversion(session, required_normalized):
+        raise exceptions.SDKException(
+            'Requested microversion is not supported by the server side '
+            'or the default microversion is too low'
+        )
+    return discover.version_to_string(required_normalized)  # type: ignore[no-any-return]
 
 
-def maximum_supported_microversion(adapter, client_maximum):
+def maximum_supported_microversion(
+    adapter: ks_adapter.Adapter,
+    client_maximum: ty.Optional[str],
+) -> ty.Optional[str]:
     """Determine the maximum microversion supported by both client and server.
 
     :param adapter: :class:`~keystoneauth1.adapter.Adapter` instance.
@@ -295,10 +327,15 @@ def maximum_supported_microversion(adapter, client_maximum):
             return None
 
     result = min(client_max, server_max)
-    return discover.version_to_string(result)
+    return discover.version_to_string(result)  # type: ignore[no-any-return]
 
 
-def _hashes_up_to_date(md5, sha256, md5_key, sha256_key):
+def _hashes_up_to_date(
+    md5: ty.Optional[str],
+    sha256: ty.Optional[str],
+    md5_key: str,
+    sha256_key: str,
+) -> bool:
     """Compare md5 and sha256 hashes for being up to date
 
     md5 and sha256 are the current values.
@@ -316,26 +353,34 @@ def _hashes_up_to_date(md5, sha256, md5_key, sha256_key):
     return up_to_date
 
 
-def _calculate_data_hashes(data):
+def _calculate_data_hashes(
+    data: ty.Union[io.BufferedReader, bytes],
+) -> tuple[str, str]:
     _md5 = hashlib.md5(usedforsecurity=False)
     _sha256 = hashlib.sha256()
 
-    if hasattr(data, 'read'):
+    if isinstance(data, io.BufferedIOBase):
         for chunk in iter(lambda: data.read(8192), b''):
             _md5.update(chunk)
             _sha256.update(chunk)
-    else:
+    elif isinstance(data, bytes):
         _md5.update(data)
         _sha256.update(data)
-    return (_md5.hexdigest(), _sha256.hexdigest())
+    else:
+        raise TypeError(
+            'unsupported type for data; expected IO stream or bytes; got '
+            '{type(data)}'
+        )
+
+    return _md5.hexdigest(), _sha256.hexdigest()
 
 
-def _get_file_hashes(filename):
-    (_md5, _sha256) = (None, None)
+def _get_file_hashes(filename: str) -> tuple[str, str]:
+    _md5, _sha256 = (None, None)
     with open(filename, 'rb') as file_obj:
-        (_md5, _sha256) = _calculate_data_hashes(file_obj)
+        _md5, _sha256 = _calculate_data_hashes(file_obj)
 
-    return (_md5, _sha256)
+    return _md5, _sha256
 
 
 class TinyDAG:
@@ -345,45 +390,36 @@ class TinyDAG:
     (parallel execution of the workflow items).
     """
 
-    def __init__(self, data=None):
+    def __init__(self) -> None:
         self._reset()
         self._lock = threading.Lock()
-        if data and isinstance(data, dict):
-            self.from_dict(data)
 
-    def _reset(self):
-        self._graph = dict()
+    def _reset(self) -> None:
+        self._graph: dict[str, set[str]] = {}
         self._wait_timeout = 120
 
     @property
-    def graph(self):
+    def graph(self) -> dict[str, set[str]]:
         """Get graph as adjacency dict"""
         return self._graph
 
-    def add_node(self, node):
+    def add_node(self, node: str) -> None:
         self._graph.setdefault(node, set())
 
-    def add_edge(self, u, v):
+    def add_edge(self, u: str, v: str) -> None:
         self._graph[u].add(v)
 
-    def from_dict(self, data):
-        self._reset()
-        for k, v in data.items():
-            self.add_node(k)
-            for dep in v:
-                self.add_edge(k, dep)
-
-    def walk(self, timeout=None):
+    def walk(self, timeout: ty.Optional[int] = None) -> 'TinyDAG':
         """Start the walking from the beginning."""
         if timeout:
             self._wait_timeout = timeout
         return self
 
-    def __iter__(self):
+    def __iter__(self) -> 'TinyDAG':
         self._start_traverse()
         return self
 
-    def __next__(self):
+    def __next__(self) -> str:
         # Start waiting if it is expected to get something
         # (counting down from graph length to 0).
         if self._it_cnt > 0:
@@ -399,7 +435,7 @@ class TinyDAG:
         else:
             raise StopIteration
 
-    def node_done(self, node):
+    def node_done(self, node: str) -> None:
         """Mark node as "processed" and put following items into the queue"""
         self._done.add(node)
 
@@ -408,18 +444,18 @@ class TinyDAG:
             if self._run_in_degree[v] == 0:
                 self._queue.put(v)
 
-    def _start_traverse(self):
+    def _start_traverse(self) -> None:
         """Initialize graph traversing"""
         self._run_in_degree = self._get_in_degree()
         self._queue: queue.Queue[str] = queue.Queue()
-        self._done = set()
+        self._done: set[str] = set()
         self._it_cnt = len(self._graph)
 
         for k, v in self._run_in_degree.items():
             if v == 0:
                 self._queue.put(k)
 
-    def _get_in_degree(self):
+    def _get_in_degree(self) -> dict[str, int]:
         """Calculate the in_degree (count incoming) for nodes"""
         _in_degree: dict[str, int] = {u: 0 for u in self._graph.keys()}
         for u in self._graph:
@@ -428,7 +464,7 @@ class TinyDAG:
 
         return _in_degree
 
-    def topological_sort(self):
+    def topological_sort(self) -> list[str]:
         """Return the graph nodes in the topological order"""
         result = []
         for node in self:
@@ -437,24 +473,24 @@ class TinyDAG:
 
         return result
 
-    def size(self):
+    def size(self) -> int:
         return len(self._graph.keys())
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return len(self._done) == self.size()
 
 
 # Importing Munch is a relatively expensive operation (0.3s) while we do not
 # really even need much of it. Before we can rework all places where we rely on
 # it we can have a reduced version.
-class Munch(dict):
+class Munch(dict[str, ty.Any]):
     """A slightly stripped version of munch.Munch class"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: ty.Any, **kwargs: ty.Any):
         self.update(*args, **kwargs)
 
     # only called if k not found in normal places
-    def __getattr__(self, k):
+    def __getattr__(self, k: str) -> ty.Any:
         """Gets key if it exists, otherwise throws AttributeError."""
         try:
             return object.__getattribute__(self, k)
@@ -464,7 +500,7 @@ class Munch(dict):
             except KeyError:
                 raise AttributeError(k)
 
-    def __setattr__(self, k, v):
+    def __setattr__(self, k: str, v: ty.Any) -> None:
         """Sets attribute k if it exists, otherwise sets key k. A KeyError
         raised by set-item (only likely if you subclass Munch) will
         propagate as an AttributeError instead.
@@ -480,7 +516,7 @@ class Munch(dict):
         else:
             object.__setattr__(self, k, v)
 
-    def __delattr__(self, k):
+    def __delattr__(self, k: str) -> None:
         """Deletes attribute k if it exists, otherwise deletes key k.
 
         A KeyError raised by deleting the key - such as when the key is missing
@@ -497,43 +533,83 @@ class Munch(dict):
         else:
             object.__delattr__(self, k)
 
-    def toDict(self):
+    def toDict(self) -> dict[str, ty.Any]:
         """Recursively converts a munch back into a dictionary."""
         return unmunchify(self)
 
     @property
-    def __dict__(self):
+    def __dict__(self) -> dict[str, ty.Any]:  # type: ignore[override]
         return self.toDict()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Invertible* string-form of a Munch."""
         return f'{self.__class__.__name__}({dict.__repr__(self)})'
 
-    def __dir__(self):
+    def __dir__(self) -> list[str]:
         return list(self.keys())
 
-    def __getstate__(self):
+    def __getstate__(self) -> dict[str, ty.Any]:
         """Implement a serializable interface used for pickling.
         See https://docs.python.org/3.6/library/pickle.html.
         """
         return {k: v for k, v in self.items()}
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: dict[str, ty.Any]) -> None:
         """Implement a serializable interface used for pickling.
         See https://docs.python.org/3.6/library/pickle.html.
         """
         self.clear()
         self.update(state)
 
+    # TODO(stephenfin): This needs to be stricter in the types that it will
+    # accept. By limiting it to the primitive types (or subclasses of same) we
+    # should cover everything we (sdk) care about and will be able to type the
+    # results.
     @classmethod
-    def fromDict(cls, d):
+    def fromDict(cls, d: dict[str, ty.Any]) -> 'Munch':
         """Recursively transforms a dictionary into a Munch via copy."""
-        return munchify(d, cls)
+        # Munchify x, using `seen` to track object cycles
+        seen: dict[int, ty.Any] = dict()
 
-    def copy(self):
-        return type(self).fromDict(self)
+        def munchify_cycles(obj: ty.Any) -> ty.Any:
+            try:
+                return seen[id(obj)]
+            except KeyError:
+                pass
 
-    def update(self, *args, **kwargs):
+            seen[id(obj)] = partial = pre_munchify(obj)
+            return post_munchify(partial, obj)
+
+        def pre_munchify(obj: ty.Any) -> ty.Any:
+            if isinstance(obj, collections.abc.Mapping):
+                return cls({})
+            elif isinstance(obj, list):
+                return type(obj)()
+            elif isinstance(obj, tuple):
+                type_factory = getattr(obj, "_make", type(obj))
+                return type_factory(munchify_cycles(item) for item in obj)
+            else:
+                return obj
+
+        def post_munchify(partial: ty.Any, obj: ty.Any) -> ty.Any:
+            if isinstance(obj, collections.abc.Mapping):
+                partial.update(
+                    (k, munchify_cycles(obj[k])) for k in obj.keys()
+                )
+            elif isinstance(obj, list):
+                partial.extend(munchify_cycles(item) for item in obj)
+            elif isinstance(obj, tuple):
+                for item_partial, item in zip(partial, obj):
+                    post_munchify(item_partial, item)
+
+            return partial
+
+        return ty.cast('Munch', munchify_cycles(d))
+
+    def copy(self) -> 'Munch':
+        return self.fromDict(self)
+
+    def update(self, *args: ty.Any, **kwargs: ty.Any) -> None:
         """
         Override built-in method to call custom __setitem__ method that may
         be defined in subclasses.
@@ -541,7 +617,7 @@ class Munch(dict):
         for k, v in dict(*args, **kwargs).items():
             self[k] = v
 
-    def get(self, k, d=None):
+    def get(self, k: str, d: ty.Any = None) -> ty.Any:
         """
         D.get(k[,d]) -> D[k] if k in D, else d.  d defaults to None.
         """
@@ -549,7 +625,7 @@ class Munch(dict):
             return d
         return self[k]
 
-    def setdefault(self, k, d=None):
+    def setdefault(self, k: str, d: ty.Any = None) -> ty.Any:
         """
         D.setdefault(k[,d]) -> D.get(k,d), also set D[k]=d if k not in D
         """
@@ -558,52 +634,18 @@ class Munch(dict):
         return self[k]
 
 
-def munchify(x, factory=Munch):
+def munchify(x: dict[str, ty.Any], factory: type[Munch] = Munch) -> Munch:
     """Recursively transforms a dictionary into a Munch via copy."""
-    # Munchify x, using `seen` to track object cycles
-    seen: dict[int, ty.Any] = dict()
-
-    def munchify_cycles(obj):
-        try:
-            return seen[id(obj)]
-        except KeyError:
-            pass
-
-        seen[id(obj)] = partial = pre_munchify(obj)
-        return post_munchify(partial, obj)
-
-    def pre_munchify(obj):
-        if isinstance(obj, Mapping):
-            return factory({})
-        elif isinstance(obj, list):
-            return type(obj)()
-        elif isinstance(obj, tuple):
-            type_factory = getattr(obj, "_make", type(obj))
-            return type_factory(munchify_cycles(item) for item in obj)
-        else:
-            return obj
-
-    def post_munchify(partial, obj):
-        if isinstance(obj, Mapping):
-            partial.update((k, munchify_cycles(obj[k])) for k in obj.keys())
-        elif isinstance(obj, list):
-            partial.extend(munchify_cycles(item) for item in obj)
-        elif isinstance(obj, tuple):
-            for item_partial, item in zip(partial, obj):
-                post_munchify(item_partial, item)
-
-        return partial
-
-    return munchify_cycles(x)
+    return Munch.fromDict(x)
 
 
-def unmunchify(x):
+def unmunchify(x: Munch) -> dict[str, ty.Any]:
     """Recursively converts a Munch into a dictionary."""
 
     # Munchify x, using `seen` to track object cycles
     seen: dict[int, ty.Any] = dict()
 
-    def unmunchify_cycles(obj):
+    def unmunchify_cycles(obj: ty.Any) -> ty.Any:
         try:
             return seen[id(obj)]
         except KeyError:
@@ -612,8 +654,8 @@ def unmunchify(x):
         seen[id(obj)] = partial = pre_unmunchify(obj)
         return post_unmunchify(partial, obj)
 
-    def pre_unmunchify(obj):
-        if isinstance(obj, Mapping):
+    def pre_unmunchify(obj: ty.Any) -> ty.Any:
+        if isinstance(obj, collections.abc.Mapping):
             return dict()
         elif isinstance(obj, list):
             return type(obj)()
@@ -623,8 +665,8 @@ def unmunchify(x):
         else:
             return obj
 
-    def post_unmunchify(partial, obj):
-        if isinstance(obj, Mapping):
+    def post_unmunchify(partial: ty.Any, obj: ty.Any) -> ty.Any:
+        if isinstance(obj, collections.abc.Mapping):
             partial.update((k, unmunchify_cycles(obj[k])) for k in obj.keys())
         elif isinstance(obj, list):
             partial.extend(unmunchify_cycles(v) for v in obj)
@@ -634,4 +676,4 @@ def unmunchify(x):
 
         return partial
 
-    return unmunchify_cycles(x)
+    return ty.cast(dict[str, ty.Any], unmunchify_cycles(x))

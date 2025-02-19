@@ -5,7 +5,8 @@ show_error_context = true
 ignore_missing_imports = true
 follow_imports = "normal"
 check_untyped_defs = true
-warn_unused_ignores = true
+# TODO(stephenfin): Remove this when typed keystoneauth1 (5.10.0?) is released
+warn_unused_ignores = false
 # many of the following are false while we incrementally add typing
 warn_return_any = false
 warn_unused_configs = true
@@ -33,6 +34,7 @@ module = [
     "openstack.exceptions",
     "openstack.fields",
     "openstack.format",
+    "openstack.utils",
 ]
 warn_return_any = true
 disallow_untyped_decorators = true
