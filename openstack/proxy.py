@@ -36,9 +36,6 @@ if ty.TYPE_CHECKING:
     from openstack import connection
 
 
-ResourceType = ty.TypeVar('ResourceType', bound=resource.Resource)
-
-
 # The _check_resource decorator is used on Proxy methods to ensure that
 # the `actual` argument is in fact the type of the `expected` argument.
 # It does so under two cases:
@@ -445,10 +442,10 @@ class Proxy(adapter.Adapter):
 
     def _get_resource(
         self,
-        resource_type: type[ResourceType],
-        value: ty.Union[None, str, ResourceType, utils.Munch],
+        resource_type: type[resource.ResourceT],
+        value: ty.Union[None, str, resource.ResourceT, utils.Munch],
         **attrs: ty.Any,
-    ) -> ResourceType:
+    ) -> resource.ResourceT:
         """Get a resource object to work on
 
         :param resource_type: The type of resource to operate on. This should
@@ -497,39 +494,39 @@ class Proxy(adapter.Adapter):
     @ty.overload
     def _find(
         self,
-        resource_type: type[ResourceType],
+        resource_type: type[resource.ResourceT],
         name_or_id: str,
         ignore_missing: ty.Literal[True] = True,
         **attrs: ty.Any,
-    ) -> ty.Optional[ResourceType]: ...
+    ) -> ty.Optional[resource.ResourceT]: ...
 
     @ty.overload
     def _find(
         self,
-        resource_type: type[ResourceType],
+        resource_type: type[resource.ResourceT],
         name_or_id: str,
         ignore_missing: ty.Literal[False],
         **attrs: ty.Any,
-    ) -> ResourceType: ...
+    ) -> resource.ResourceT: ...
 
     # excuse the duplication here: it's mypy's fault
     # https://github.com/python/mypy/issues/14764
     @ty.overload
     def _find(
         self,
-        resource_type: type[ResourceType],
+        resource_type: type[resource.ResourceT],
         name_or_id: str,
         ignore_missing: bool,
         **attrs: ty.Any,
-    ) -> ty.Optional[ResourceType]: ...
+    ) -> ty.Optional[resource.ResourceT]: ...
 
     def _find(
         self,
-        resource_type: type[ResourceType],
+        resource_type: type[resource.ResourceT],
         name_or_id: str,
         ignore_missing: bool = True,
         **attrs: ty.Any,
-    ) -> ty.Optional[ResourceType]:
+    ) -> ty.Optional[resource.ResourceT]:
         """Find a resource
 
         :param name_or_id: The name or ID of a resource to find.
@@ -551,11 +548,11 @@ class Proxy(adapter.Adapter):
     @_check_resource(strict=False)
     def _delete(
         self,
-        resource_type: type[ResourceType],
-        value: ty.Union[str, ResourceType],
+        resource_type: type[resource.ResourceT],
+        value: ty.Union[str, resource.ResourceT],
         ignore_missing: bool = True,
         **attrs: ty.Any,
-    ) -> ty.Optional[ResourceType]:
+    ) -> ty.Optional[resource.ResourceT]:
         """Delete a resource
 
         :param resource_type: The type of resource to delete. This should
@@ -593,11 +590,11 @@ class Proxy(adapter.Adapter):
     @_check_resource(strict=False)
     def _update(
         self,
-        resource_type: type[ResourceType],
-        value: ty.Union[str, ResourceType],
+        resource_type: type[resource.ResourceT],
+        value: ty.Union[str, resource.ResourceT],
         base_path: ty.Optional[str] = None,
         **attrs: ty.Any,
-    ) -> ResourceType:
+    ) -> resource.ResourceT:
         """Update a resource
 
         :param resource_type: The type of resource to update.
@@ -623,10 +620,10 @@ class Proxy(adapter.Adapter):
 
     def _create(
         self,
-        resource_type: type[ResourceType],
+        resource_type: type[resource.ResourceT],
         base_path: ty.Optional[str] = None,
         **attrs: ty.Any,
-    ) -> ResourceType:
+    ) -> resource.ResourceT:
         """Create a resource from attributes
 
         :param resource_type: The type of resource to create.
@@ -659,10 +656,10 @@ class Proxy(adapter.Adapter):
 
     def _bulk_create(
         self,
-        resource_type: type[ResourceType],
+        resource_type: type[resource.ResourceT],
         data: list[dict[str, ty.Any]],
         base_path: ty.Optional[str] = None,
-    ) -> ty.Generator[ResourceType, None, None]:
+    ) -> ty.Generator[resource.ResourceT, None, None]:
         """Create a resource from attributes
 
         :param resource_type: The type of resource to create.
@@ -685,13 +682,13 @@ class Proxy(adapter.Adapter):
     @_check_resource(strict=False)
     def _get(
         self,
-        resource_type: type[ResourceType],
-        value: ty.Union[str, ResourceType, None] = None,
+        resource_type: type[resource.ResourceT],
+        value: ty.Union[str, resource.ResourceT, None] = None,
         requires_id: bool = True,
         base_path: ty.Optional[str] = None,
         skip_cache: bool = False,
         **attrs: ty.Any,
-    ) -> ResourceType:
+    ) -> resource.ResourceT:
         """Fetch a resource
 
         :param resource_type: The type of resource to get.
@@ -726,12 +723,12 @@ class Proxy(adapter.Adapter):
 
     def _list(
         self,
-        resource_type: type[ResourceType],
+        resource_type: type[resource.ResourceT],
         paginated: bool = True,
         base_path: ty.Optional[str] = None,
         jmespath_filters: ty.Optional[str] = None,
         **attrs: ty.Any,
-    ) -> ty.Generator[ResourceType, None, None]:
+    ) -> ty.Generator[resource.ResourceT, None, None]:
         """List a resource
 
         :param resource_type: The type of resource to list. This should
@@ -776,11 +773,11 @@ class Proxy(adapter.Adapter):
 
     def _head(
         self,
-        resource_type: type[ResourceType],
-        value: ty.Union[str, ResourceType, None] = None,
+        resource_type: type[resource.ResourceT],
+        value: ty.Union[str, resource.ResourceT, None] = None,
         base_path: ty.Optional[str] = None,
         **attrs: ty.Any,
-    ) -> ResourceType:
+    ) -> resource.ResourceT:
         """Retrieve a resource's header
 
         :param resource_type: The type of resource to retrieve.
