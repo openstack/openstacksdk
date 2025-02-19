@@ -13,7 +13,6 @@
 import typing as ty
 import warnings
 
-from openstack.block_storage import _base_proxy
 from openstack.block_storage.v2 import backup as _backup
 from openstack.block_storage.v2 import capabilities as _capabilities
 from openstack.block_storage.v2 import extension as _extension
@@ -24,12 +23,14 @@ from openstack.block_storage.v2 import snapshot as _snapshot
 from openstack.block_storage.v2 import stats as _stats
 from openstack.block_storage.v2 import type as _type
 from openstack.block_storage.v2 import volume as _volume
+from openstack import exceptions
 from openstack.identity.v3 import project as _project
+from openstack import proxy
 from openstack import resource
 from openstack import warnings as os_warnings
 
 
-class Proxy(_base_proxy.BaseBlockStorageProxy):
+class Proxy(proxy.Proxy):
     # ========== Extensions ==========
 
     def extensions(self):
@@ -39,6 +40,50 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :rtype: :class:`~openstack.block_storage.v2.extension.Extension`
         """
         return self._list(_extension.Extension)
+
+    # ========== Images ==========
+
+    # TODO(stephenfin): Convert to use resources/proxy rather than direct calls
+    def create_image(
+        self,
+        name,
+        volume,
+        allow_duplicates,
+        container_format,
+        disk_format,
+        wait,
+        timeout,
+    ):
+        if not disk_format:
+            disk_format = self._connection.config.config['image_format']
+        if not container_format:
+            # https://docs.openstack.org/image-guide/image-formats.html
+            container_format = 'bare'
+
+        if 'id' in volume:
+            volume_id = volume['id']
+        else:
+            volume_obj = self.get_volume(volume)
+            if not volume_obj:
+                raise exceptions.SDKException(
+                    f"Volume {volume} given to create_image could not be found"
+                )
+            volume_id = volume_obj['id']
+        data = self.post(
+            f'/volumes/{volume_id}/action',
+            json={
+                'os-volume_upload_image': {
+                    'force': allow_duplicates,
+                    'image_name': name,
+                    'container_format': container_format,
+                    'disk_format': disk_format,
+                }
+            },
+        )
+        response = self._connection._get_and_munchify(
+            'os-volume_upload_image', data
+        )
+        return self._connection.image._existing_image(id=response['image_id'])
 
     # ========== Snapshots ==========
 
