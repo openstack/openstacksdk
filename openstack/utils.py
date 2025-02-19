@@ -36,13 +36,28 @@ def urljoin(*args):
     return '/'.join(str(a or '').strip('/') for a in args)
 
 
-def iterate_timeout(timeout, message, wait=2):
+def iterate_timeout(
+    timeout: ty.Optional[int],
+    message: str,
+    wait: ty.Union[int, float, None] = 2,
+) -> ty.Generator[int, None, None]:
     """Iterate and raise an exception on timeout.
 
     This is a generator that will continually yield and sleep for
     wait seconds, and if the timeout is reached, will raise an exception
     with <message>.
 
+    :param timeout: Maximum number of seconds to wait for transition. Set to
+        ``None`` to wait forever.
+    :param message: The message to use for the exception if the timeout is
+        reached.
+    :param wait: Number of seconds to wait between checks. Set to ``None``
+        to use the default interval.
+
+    :returns: None
+    :raises: :class:`~openstack.exceptions.ResourceTimeout` transition
+    :raises: :class:`~openstack.exceptions.SDKException` if ``wait`` is not a
+        valid float, integer or None.
     """
     log = _log.setup_logging('openstack.iterate_timeout')
 
@@ -59,7 +74,7 @@ def iterate_timeout(timeout, message, wait=2):
         wait = float(wait)
     except ValueError:
         raise exceptions.SDKException(
-            f"Wait value must be an int or float value. {wait} given instead"
+            f"Wait value must be an int or float value. {wait!r} given instead"
         )
 
     start = time.time()

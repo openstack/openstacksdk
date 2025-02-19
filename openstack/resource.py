@@ -2378,34 +2378,35 @@ class Resource(dict):
         )
 
 
-def _normalize_status(status):
+def _normalize_status(status: ty.Optional[str]) -> ty.Optional[str]:
     if status is not None:
         status = status.lower()
     return status
 
 
+ResourceT = ty.TypeVar('ResourceT', bound=Resource)
+
+
 def wait_for_status(
-    session,
-    resource,
-    status,
-    failures,
-    interval=None,
-    wait=None,
-    attribute='status',
-    callback=None,
-):
+    session: adapter.Adapter,
+    resource: ResourceT,
+    status: str,
+    failures: list[str],
+    interval: ty.Union[int, float, None] = 2,
+    wait: ty.Optional[int] = None,
+    attribute: str = 'status',
+    callback: ty.Optional[ty.Callable[[int], None]] = None,
+) -> ResourceT:
     """Wait for the resource to be in a particular status.
 
     :param session: The session to use for making this request.
-    :type session: :class:`~keystoneauth1.adapter.Adapter`
     :param resource: The resource to wait on to reach the status. The resource
         must have a status attribute specified via ``attribute``.
-    :type resource: :class:`~openstack.resource.Resource`
     :param status: Desired status of the resource.
-    :param list failures: Statuses that would indicate the transition
+    :param failures: Statuses that would indicate the transition
         failed such as 'ERROR'. Defaults to ['ERROR'].
-    :param interval: Number of seconds to wait between checks.
-        Set to ``None`` to use the default interval.
+    :param interval: Number of seconds to wait between checks. Set to ``None``
+        to use the default interval.
     :param wait: Maximum number of seconds to wait for transition.
         Set to ``None`` to wait forever.
     :param attribute: Name of the resource attribute that contains the status.
@@ -2414,14 +2415,13 @@ def wait_for_status(
         value from 0-100.
 
     :return: The updated resource.
-    :raises: :class:`~openstack.exceptions.ResourceTimeout` transition
-        to status failed to occur in wait seconds.
-    :raises: :class:`~openstack.exceptions.ResourceFailure` resource
-        transitioned to one of the failure states.
-    :raises: :class:`~AttributeError` if the resource does not have a status
-        attribute
+    :raises: :class:`~openstack.exceptions.ResourceTimeout` if the transition
+        to status failed to occur in ``wait`` seconds.
+    :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource
+        transitioned to one of the states in ``failures``.
+    :raises: :class:`~AttributeError` if the resource does not have a
+        ``status`` attribute
     """
-
     current_status = getattr(resource, attribute)
     if _normalize_status(current_status) == _normalize_status(status):
         return resource
@@ -2463,21 +2463,27 @@ def wait_for_status(
             progress = getattr(resource, 'progress', None) or 0
             callback(progress)
 
+    raise RuntimeError('cannot reach this')
 
-def wait_for_delete(session, resource, interval, wait, callback=None):
-    """Wait for the resource to be deleted.
+
+def wait_for_delete(
+    session: adapter.Adapter,
+    resource: ResourceT,
+    interval: ty.Union[int, float, None] = 2,
+    wait: ty.Optional[int] = None,
+    callback: ty.Optional[ty.Callable[[int], None]] = None,
+) -> ResourceT:
+    """Wait for a resource to be deleted.
 
     :param session: The session to use for making this request.
-    :type session: :class:`~keystoneauth1.adapter.Adapter`
     :param resource: The resource to wait on to be deleted.
-    :type resource: :class:`~openstack.resource.Resource`
     :param interval: Number of seconds to wait between checks.
     :param wait: Maximum number of seconds to wait for the delete.
     :param callback: A callback function. This will be called with a single
         value, progress. This is API specific but is generally a percentage
         value from 0-100.
 
-    :return: Method returns self on success.
+    :return: The original resource.
     :raises: :class:`~openstack.exceptions.ResourceTimeout` transition
         to status failed to occur in wait seconds.
     """
@@ -2501,3 +2507,5 @@ def wait_for_delete(session, resource, interval, wait, callback=None):
         if callback:
             progress = getattr(resource, 'progress', None) or 0
             callback(progress)
+
+    raise RuntimeError('cannot reach this')
