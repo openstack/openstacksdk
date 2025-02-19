@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import typing as ty
+
 from openstack import exceptions
 from openstack.orchestration.util import template_utils
 from openstack.orchestration.v1 import resource as _resource
@@ -25,9 +27,8 @@ from openstack import proxy
 from openstack import resource
 
 
-# TODO(rladntjr4): Some of these methods support lookup by ID, while
-#                  others support lookup by ID or name. We should choose one and use
-#                  it consistently.
+# TODO(rladntjr4): Some of these methods support lookup by ID, while others
+# support lookup by ID or name. We should choose one and use it consistently.
 class Proxy(proxy.Proxy):
     _resource_registry = {
         "resource": _resource.Resource,
@@ -514,49 +515,6 @@ class Proxy(proxy.Proxy):
             ignore_errors=ignore_errors,
         )
 
-    def wait_for_status(
-        self, res, status='ACTIVE', failures=None, interval=2, wait=120
-    ):
-        """Wait for a resource to be in a particular status.
-
-        :param res: The resource to wait on to reach the specified status.
-            The resource must have a ``status`` attribute.
-        :type resource: A :class:`~openstack.resource.Resource` object.
-        :param status: Desired status.
-        :param failures: Statuses that would be interpreted as failures.
-        :type failures: :py:class:`list`
-        :param interval: Number of seconds to wait before to consecutive
-            checks. Default to 2.
-        :param wait: Maximum number of seconds to wait before the change.
-            Default to 120.
-        :returns: The resource is returned on success.
-        :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
-            to the desired status failed to occur in specified seconds.
-        :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource
-            has transited to one of the failure statuses.
-        :raises: :class:`~AttributeError` if the resource does not have a
-            ``status`` attribute.
-        """
-        failures = [] if failures is None else failures
-        return resource.wait_for_status(
-            self, res, status, failures, interval, wait
-        )
-
-    def wait_for_delete(self, res, interval=2, wait=120):
-        """Wait for a resource to be deleted.
-
-        :param res: The resource to wait on to be deleted.
-        :type resource: A :class:`~openstack.resource.Resource` object.
-        :param interval: Number of seconds to wait before to consecutive
-            checks. Default to 2.
-        :param wait: Maximum number of seconds to wait before the change.
-            Default to 120.
-        :returns: The resource is returned on success.
-        :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
-            to delete failed to occur in the specified seconds.
-        """
-        return resource.wait_for_delete(self, res, interval, wait)
-
     def get_template_contents(
         self,
         template_file=None,
@@ -575,6 +533,106 @@ class Proxy(proxy.Proxy):
             raise exceptions.SDKException(
                 f"Error in processing template files: {str(e)}"
             )
+
+    # ========== Stack events ==========
+
+    def stack_events(self, stack, resource_name=None, **attr):
+        """Get a stack events
+
+        :param stack: The value can be the ID of a stack or an instance of
+            :class:`~openstack.orchestration.v1.stack.Stack`
+        :param resource_name: The name of resource. If the resource_name is not
+            None, the base_path changes.
+
+        :returns: A generator of stack_events objects
+        :rtype: :class:`~openstack.orchestration.v1.stack_event.StackEvent`
+        """
+
+        if isinstance(stack, _stack.Stack):
+            obj = stack
+        else:
+            obj = self._get(_stack.Stack, stack)
+
+        if resource_name:
+            base_path = '/stacks/%(stack_name)s/%(stack_id)s/resources/%(resource_name)s/events'
+            return self._list(
+                _stack_event.StackEvent,
+                stack_name=obj.name,
+                stack_id=obj.id,
+                resource_name=resource_name,
+                base_path=base_path,
+                **attr,
+            )
+
+        return self._list(
+            _stack_event.StackEvent,
+            stack_name=obj.name,
+            stack_id=obj.id,
+            **attr,
+        )
+
+    # ========== Utilities ==========
+
+    def wait_for_status(
+        self,
+        res: resource.ResourceT,
+        status: str,
+        failures: ty.Optional[list[str]] = None,
+        interval: ty.Union[int, float, None] = 2,
+        wait: ty.Optional[int] = None,
+        attribute: str = 'status',
+        callback: ty.Optional[ty.Callable[[int], None]] = None,
+    ) -> resource.ResourceT:
+        """Wait for the resource to be in a particular status.
+
+        :param session: The session to use for making this request.
+        :param resource: The resource to wait on to reach the status. The
+            resource must have a status attribute specified via ``attribute``.
+        :param status: Desired status of the resource.
+        :param failures: Statuses that would indicate the transition
+            failed such as 'ERROR'. Defaults to ['ERROR'].
+        :param interval: Number of seconds to wait between checks.
+        :param wait: Maximum number of seconds to wait for transition.
+            Set to ``None`` to wait forever.
+        :param attribute: Name of the resource attribute that contains the
+            status.
+        :param callback: A callback function. This will be called with a single
+            value, progress. This is API specific but is generally a percentage
+            value from 0-100.
+
+        :return: The updated resource.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
+            transition to status failed to occur in ``wait`` seconds.
+        :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource
+            transitioned to one of the states in ``failures``.
+        :raises: :class:`~AttributeError` if the resource does not have a
+            ``status`` attribute
+        """
+        return resource.wait_for_status(
+            self, res, status, failures, interval, wait, attribute, callback
+        )
+
+    def wait_for_delete(
+        self,
+        res: resource.ResourceT,
+        interval: int = 2,
+        wait: int = 120,
+        callback: ty.Optional[ty.Callable[[int], None]] = None,
+    ) -> resource.ResourceT:
+        """Wait for a resource to be deleted.
+
+        :param res: The resource to wait on to be deleted.
+        :param interval: Number of seconds to wait before to consecutive
+            checks.
+        :param wait: Maximum number of seconds to wait before the change.
+        :param callback: A callback function. This will be called with a single
+            value, progress, which is a percentage value from 0-100.
+
+        :returns: The resource is returned on success.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
+            to delete failed to occur in the specified seconds.
+        """
+        return resource.wait_for_delete(self, res, interval, wait, callback)
 
     def _get_cleanup_dependencies(self):
         return {
@@ -609,38 +667,3 @@ class Proxy(proxy.Proxy):
 
         for stack in stacks:
             self.wait_for_delete(stack)
-
-    def stack_events(self, stack, resource_name=None, **attr):
-        """Get a stack events
-
-        :param stack: The value can be the ID of a stack or an instance of
-            :class:`~openstack.orchestration.v1.stack.Stack`
-        :param resource_name: The name of resource. If the resource_name is not None,
-            the base_path changes.
-
-        :returns: A generator of stack_events objects
-        :rtype: :class:`~openstack.orchestration.v1.stack_event.StackEvent`
-        """
-
-        if isinstance(stack, _stack.Stack):
-            obj = stack
-        else:
-            obj = self._get(_stack.Stack, stack)
-
-        if resource_name:
-            base_path = '/stacks/%(stack_name)s/%(stack_id)s/resources/%(resource_name)s/events'
-            return self._list(
-                _stack_event.StackEvent,
-                stack_name=obj.name,
-                stack_id=obj.id,
-                resource_name=resource_name,
-                base_path=base_path,
-                **attr,
-            )
-
-        return self._list(
-            _stack_event.StackEvent,
-            stack_name=obj.name,
-            stack_id=obj.id,
-            **attr,
-        )

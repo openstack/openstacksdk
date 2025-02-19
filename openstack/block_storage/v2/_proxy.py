@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import typing as ty
 import warnings
 
 from openstack.block_storage import _base_proxy
@@ -29,7 +30,18 @@ from openstack import warnings as os_warnings
 
 
 class Proxy(_base_proxy.BaseBlockStorageProxy):
-    # ====== SNAPSHOTS ======
+    # ========== Extensions ==========
+
+    def extensions(self):
+        """Return a generator of extensions
+
+        :returns: A generator of extension
+        :rtype: :class:`~openstack.block_storage.v2.extension.Extension`
+        """
+        return self._list(_extension.Extension)
+
+    # ========== Snapshots ==========
+
     def get_snapshot(self, snapshot):
         """Get a single snapshot
 
@@ -142,7 +154,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             _snapshot.Snapshot, snapshot, ignore_missing=ignore_missing
         )
 
-    # ====== SNAPSHOT ACTIONS ======
+    # ========== Snapshot actions ==========
+
     def reset_snapshot(self, snapshot, status):
         """Reset status of the snapshot
 
@@ -155,7 +168,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
         snapshot.reset(self, status)
 
-    # ====== TYPES ======
+    # ========== Types ==========
+
     def get_type(self, type):
         """Get a single type
 
@@ -260,7 +274,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         res = self._get_resource(_type.Type, type)
         return res.remove_private_access(self, project_id)
 
-    # ====== VOLUMES ======
+    # ========== Volumes ==========
+
     def get_volume(self, volume):
         """Get a single volume
 
@@ -367,7 +382,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             volume = self._get_resource(_volume.Volume, volume)
             volume.force_delete(self)
 
-    # ====== VOLUME ACTIONS ======
+    # ========== Volume actions ==========
+
     def extend_volume(self, volume, size):
         """Extend a volume
 
@@ -548,7 +564,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.complete_migration(self, new_volume, error)
 
-    # ====== BACKEND POOLS ======
+    # ========== Backend pools ==========
+
     def backend_pools(self, **query):
         """Returns a generator of cinder Back-end storage pools
 
@@ -559,7 +576,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         return self._list(_stats.Pools, **query)
 
-    # ====== BACKUPS ======
+    # ========== Backups ==========
+
     def backups(self, details=True, **query):
         """Retrieve a generator of backups
 
@@ -654,7 +672,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             backup = self._get_resource(_backup.Backup, backup)
             backup.force_delete(self)
 
-    # ====== BACKUP ACTIONS ======
+    # ========== Backup actions ==========
+
     def restore_backup(self, backup, volume_id, name):
         """Restore a Backup to volume
 
@@ -681,7 +700,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         backup = self._get_resource(_backup.Backup, backup)
         backup.reset(self, status)
 
-    # ====== LIMITS ======
+    # ========== Limits ==========
+
     def get_limits(self, project=None):
         """Retrieves limits
 
@@ -698,7 +718,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             params['project_id'] = resource.Resource._get_id(project)
         return self._get(_limits.Limits, requires_id=False, **params)
 
-    # ====== CAPABILITIES ======
+    # ========== Capabilities ==========
+
     def get_capabilities(self, host):
         """Get a backend's capabilites
 
@@ -711,7 +732,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         return self._get(_capabilities.Capabilities, host)
 
-    # ====== QUOTA CLASS SETS ======
+    # ========== Quota class sets ==========
+
     def get_quota_class_set(self, quota_class_set='default'):
         """Get a single quota class set
 
@@ -748,7 +770,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             _quota_class_set.QuotaClassSet, quota_class_set, **attrs
         )
 
-    # ====== QUOTA SETS ======
+    # ========== Quota sets ==========
+
     def get_quota_set(self, project, usage=False, **query):
         """Show QuotaSet information for the project
 
@@ -841,7 +864,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             attrs['project_id'] = project.id
             return self._update(_quota_set.QuotaSet, None, **attrs)
 
-    # ====== VOLUME METADATA ======
+    # ========== Volume metadata ==========
+
     def get_volume_metadata(self, volume):
         """Return a dictionary of metadata for a volume
 
@@ -888,7 +912,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         else:
             volume.delete_metadata(self)
 
-    # ====== SNAPSHOT METADATA ======
+    # ========== Snapshot metadata ==========
+
     def get_snapshot_metadata(self, snapshot):
         """Return a dictionary of metadata for a snapshot
 
@@ -937,79 +962,68 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         else:
             snapshot.delete_metadata(self)
 
-    # ====== EXTENSIONS ======
-    def extensions(self):
-        """Return a generator of extensions
+    # ========== Utilities ==========
 
-        :returns: A generator of extension
-        :rtype: :class:`~openstack.block_storage.v2.extension.Extension`
-        """
-        return self._list(_extension.Extension)
-
-    # ====== UTILS ======
     def wait_for_status(
         self,
-        res,
-        status='available',
-        failures=None,
-        interval=2,
-        wait=120,
-        callback=None,
-    ):
-        """Wait for a resource to be in a particular status.
+        res: resource.ResourceT,
+        status: str = 'available',
+        failures: ty.Optional[list[str]] = None,
+        interval: ty.Union[int, float, None] = 2,
+        wait: ty.Optional[int] = None,
+        attribute: str = 'status',
+        callback: ty.Optional[ty.Callable[[int], None]] = None,
+    ) -> resource.ResourceT:
+        """Wait for the resource to be in a particular status.
 
-        :param res: The resource to wait on to reach the specified status.
-            The resource must have a ``status`` attribute.
-        :type resource: A :class:`~openstack.resource.Resource` object.
-        :param status: Desired status.
-        :param failures: Statuses that would be interpreted as failures.
-        :type failures: :py:class:`list`
-        :param interval: Number of seconds to wait before to consecutive
-            checks. Default to 2.
-        :param wait: Maximum number of seconds to wait before the change.
-            Default to 120.
+        :param session: The session to use for making this request.
+        :param resource: The resource to wait on to reach the status. The
+            resource must have a status attribute specified via ``attribute``.
+        :param status: Desired status of the resource.
+        :param failures: Statuses that would indicate the transition
+            failed such as 'ERROR'. Defaults to ['ERROR'].
+        :param interval: Number of seconds to wait between checks.
+        :param wait: Maximum number of seconds to wait for transition.
+            Set to ``None`` to wait forever.
+        :param attribute: Name of the resource attribute that contains the
+            status.
         :param callback: A callback function. This will be called with a single
-            value, progress.
+            value, progress. This is API specific but is generally a percentage
+            value from 0-100.
 
-        :returns: The resource is returned on success.
-        :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
-            to the desired status failed to occur in specified seconds.
+        :return: The updated resource.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
+            transition to status failed to occur in ``wait`` seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource
-            has transited to one of the failure statuses.
+            transitioned to one of the states in ``failures``.
         :raises: :class:`~AttributeError` if the resource does not have a
-            ``status`` attribute.
+            ``status`` attribute
         """
-        failures = ['error'] if failures is None else failures
+        if failures is None:
+            failures = ['error']
+
         return resource.wait_for_status(
-            self,
-            res,
-            status,
-            failures,
-            interval,
-            wait,
-            callback=callback,
+            self, res, status, failures, interval, wait, attribute, callback
         )
 
-    def wait_for_delete(self, res, interval=2, wait=120, callback=None):
+    def wait_for_delete(
+        self,
+        res: resource.ResourceT,
+        interval: int = 2,
+        wait: int = 120,
+        callback: ty.Optional[ty.Callable[[int], None]] = None,
+    ) -> resource.ResourceT:
         """Wait for a resource to be deleted.
 
         :param res: The resource to wait on to be deleted.
-        :type resource: A :class:`~openstack.resource.Resource` object.
         :param interval: Number of seconds to wait before to consecutive
-            checks. Default to 2.
+            checks.
         :param wait: Maximum number of seconds to wait before the change.
-            Default to 120.
         :param callback: A callback function. This will be called with a single
-            value, progress.
+            value, progress, which is a percentage value from 0-100.
 
         :returns: The resource is returned on success.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
             to delete failed to occur in the specified seconds.
         """
-        return resource.wait_for_delete(
-            self,
-            res,
-            interval,
-            wait,
-            callback=callback,
-        )
+        return resource.wait_for_delete(self, res, interval, wait, callback)

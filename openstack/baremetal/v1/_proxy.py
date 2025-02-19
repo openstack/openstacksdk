@@ -27,6 +27,7 @@ from openstack.baremetal.v1 import volume_connector as _volumeconnector
 from openstack.baremetal.v1 import volume_target as _volumetarget
 from openstack import exceptions
 from openstack import proxy
+from openstack import resource
 from openstack import utils
 
 
@@ -68,6 +69,8 @@ class Proxy(proxy.Proxy):
             error_message=f"No {resource_type.__name__} found for {value}",
             **kwargs,
         )
+
+    # ========== Chassis ==========
 
     def chassis(self, details=False, **query):
         """Retrieve a generator of chassis.
@@ -186,6 +189,8 @@ class Proxy(proxy.Proxy):
             _chassis.Chassis, chassis, ignore_missing=ignore_missing
         )
 
+    # ========== Drivers ==========
+
     def drivers(self, details=False, **query):
         """Retrieve a generator of drivers.
 
@@ -247,6 +252,8 @@ class Proxy(proxy.Proxy):
         return self.get_driver(driver).call_vendor_passthru(
             self, verb, method, body
         )
+
+    # ========== Nodes ==========
 
     def nodes(self, details=False, **query):
         """Retrieve a generator of nodes.
@@ -718,6 +725,114 @@ class Proxy(proxy.Proxy):
         """
         return self._delete(_node.Node, node, ignore_missing=ignore_missing)
 
+    # ========== Node actions ==========
+
+    def add_node_trait(self, node, trait):
+        """Add a trait to a node.
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :param trait: trait to remove from the node.
+        :returns: The updated node
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.add_trait(self, trait)
+
+    def remove_node_trait(self, node, trait, ignore_missing=True):
+        """Remove a trait from a node.
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :param trait: trait to remove from the node.
+        :param bool ignore_missing: When set to ``False``, an exception
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the trait could not be found. When set to ``True``, no
+            exception will be raised when attempting to delete a non-existent
+            trait.
+        :returns: The updated :class:`~openstack.baremetal.v1.node.Node`
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.remove_trait(self, trait, ignore_missing=ignore_missing)
+
+    def call_node_vendor_passthru(self, node, verb, method, body=None):
+        """Calls vendor_passthru for a node.
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :param verb: The HTTP verb, one of GET, SET, POST, DELETE.
+        :param method: The method to call using vendor_passthru.
+        :param body: The JSON body in the HTTP call.
+        :returns: The raw response from the method.
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.call_vendor_passthru(self, verb, method, body)
+
+    def list_node_vendor_passthru(self, node):
+        """Lists vendor_passthru for a node.
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :returns: A list of vendor_passthru methods for the node.
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.list_vendor_passthru(self)
+
+    def get_node_console(self, node):
+        """Get the console for a node.
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :returns: Connection information for the console.
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.get_node_console(self)
+
+    def enable_node_console(self, node):
+        """Enable the console for a node.
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :returns: None
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.set_console_mode(self, True)
+
+    def disable_node_console(self, node):
+        """Disable the console for a node.
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :returns: None
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.set_console_mode(self, False)
+
+    def set_node_traits(self, node, traits):
+        """Set traits for a node.
+
+        Removes any existing traits and adds the traits passed in to this
+        method.
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :param traits: list of traits to add to the node.
+        :returns: The updated :class:`~openstack.baremetal.v1.node.Node`
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.set_traits(self, traits)
+
+    def list_node_firmware(self, node):
+        """Lists firmware components for a node.
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :returns: A list of the node's firmware components.
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.list_firmware(self)
+
+    # ========== Ports ==========
+
     def ports(self, details=False, **query):
         """Retrieve a generator of ports.
 
@@ -842,6 +957,8 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.baremetal.v1.port.Port`.
         """
         return self._delete(_port.Port, port, ignore_missing=ignore_missing)
+
+    # ========== Port groups ==========
 
     def port_groups(self, details=False, **query):
         """Retrieve a generator of port groups.
@@ -970,6 +1087,8 @@ class Proxy(proxy.Proxy):
             _portgroup.PortGroup, port_group, ignore_missing=ignore_missing
         )
 
+    # ========== VIFs ==========
+
     def attach_vif_to_node(
         self,
         node: ty.Union[_node.Node, str],
@@ -1048,6 +1167,8 @@ class Proxy(proxy.Proxy):
         """
         res = self._get_resource(_node.Node, node)
         return res.list_vifs(self)
+
+    # ========== Allocations ==========
 
     def allocations(self, **query):
         """Retrieve a generator of allocations.
@@ -1175,109 +1296,7 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_allocation.Allocation, allocation)
         return res.wait(self, timeout=timeout, ignore_error=ignore_error)
 
-    def add_node_trait(self, node, trait):
-        """Add a trait to a node.
-
-        :param node: The value can be the name or ID of a node or a
-            :class:`~openstack.baremetal.v1.node.Node` instance.
-        :param trait: trait to remove from the node.
-        :returns: The updated node
-        """
-        res = self._get_resource(_node.Node, node)
-        return res.add_trait(self, trait)
-
-    def remove_node_trait(self, node, trait, ignore_missing=True):
-        """Remove a trait from a node.
-
-        :param node: The value can be the name or ID of a node or a
-            :class:`~openstack.baremetal.v1.node.Node` instance.
-        :param trait: trait to remove from the node.
-        :param bool ignore_missing: When set to ``False``, an exception
-            :class:`~openstack.exceptions.NotFoundException` will be raised
-            when the trait could not be found. When set to ``True``, no
-            exception will be raised when attempting to delete a non-existent
-            trait.
-        :returns: The updated :class:`~openstack.baremetal.v1.node.Node`
-        """
-        res = self._get_resource(_node.Node, node)
-        return res.remove_trait(self, trait, ignore_missing=ignore_missing)
-
-    def call_node_vendor_passthru(self, node, verb, method, body=None):
-        """Calls vendor_passthru for a node.
-
-        :param node: The value can be the name or ID of a node or a
-            :class:`~openstack.baremetal.v1.node.Node` instance.
-        :param verb: The HTTP verb, one of GET, SET, POST, DELETE.
-        :param method: The method to call using vendor_passthru.
-        :param body: The JSON body in the HTTP call.
-        :returns: The raw response from the method.
-        """
-        res = self._get_resource(_node.Node, node)
-        return res.call_vendor_passthru(self, verb, method, body)
-
-    def list_node_vendor_passthru(self, node):
-        """Lists vendor_passthru for a node.
-
-        :param node: The value can be the name or ID of a node or a
-            :class:`~openstack.baremetal.v1.node.Node` instance.
-        :returns: A list of vendor_passthru methods for the node.
-        """
-        res = self._get_resource(_node.Node, node)
-        return res.list_vendor_passthru(self)
-
-    def get_node_console(self, node):
-        """Get the console for a node.
-
-        :param node: The value can be the name or ID of a node or a
-            :class:`~openstack.baremetal.v1.node.Node` instance.
-        :returns: Connection information for the console.
-        """
-        res = self._get_resource(_node.Node, node)
-        return res.get_node_console(self)
-
-    def enable_node_console(self, node):
-        """Enable the console for a node.
-
-        :param node: The value can be the name or ID of a node or a
-            :class:`~openstack.baremetal.v1.node.Node` instance.
-        :returns: None
-        """
-        res = self._get_resource(_node.Node, node)
-        return res.set_console_mode(self, True)
-
-    def disable_node_console(self, node):
-        """Disable the console for a node.
-
-        :param node: The value can be the name or ID of a node or a
-            :class:`~openstack.baremetal.v1.node.Node` instance.
-        :returns: None
-        """
-        res = self._get_resource(_node.Node, node)
-        return res.set_console_mode(self, False)
-
-    def set_node_traits(self, node, traits):
-        """Set traits for a node.
-
-        Removes any existing traits and adds the traits passed in to this
-        method.
-
-        :param node: The value can be the name or ID of a node or a
-            :class:`~openstack.baremetal.v1.node.Node` instance.
-        :param traits: list of traits to add to the node.
-        :returns: The updated :class:`~openstack.baremetal.v1.node.Node`
-        """
-        res = self._get_resource(_node.Node, node)
-        return res.set_traits(self, traits)
-
-    def list_node_firmware(self, node):
-        """Lists firmware components for a node.
-
-        :param node: The value can be the name or ID of a node or a
-            :class:`~openstack.baremetal.v1.node.Node` instance.
-        :returns: A list of the node's firmware components.
-        """
-        res = self._get_resource(_node.Node, node)
-        return res.list_firmware(self)
+    # ========== Volume connectors ==========
 
     def volume_connectors(self, details=False, **query):
         """Retrieve a generator of volume_connector.
@@ -1426,6 +1445,8 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
+    # ========== Volume targets ==========
+
     def volume_targets(self, details=False, **query):
         """Retrieve a generator of volume_target.
 
@@ -1568,6 +1589,8 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
+    # ========== Deploy templates ==========
+
     def deploy_templates(self, details=False, **query):
         """Retrieve a generator of deploy_templates.
 
@@ -1678,6 +1701,8 @@ class Proxy(proxy.Proxy):
             _deploytemplates.DeployTemplate, deploy_template
         ).patch(self, patch)
 
+    # ========== Conductors ==========
+
     def conductors(self, details=False, **query):
         """Retrieve a generator of conductors.
 
@@ -1705,3 +1730,66 @@ class Proxy(proxy.Proxy):
         return self._get_with_fields(
             _conductor.Conductor, conductor, fields=fields
         )
+
+    # ========== Utilities ==========
+
+    def wait_for_status(
+        self,
+        res: resource.ResourceT,
+        status: str,
+        failures: ty.Optional[list[str]] = None,
+        interval: ty.Union[int, float, None] = 2,
+        wait: ty.Optional[int] = None,
+        attribute: str = 'status',
+        callback: ty.Optional[ty.Callable[[int], None]] = None,
+    ) -> resource.ResourceT:
+        """Wait for the resource to be in a particular status.
+
+        :param session: The session to use for making this request.
+        :param resource: The resource to wait on to reach the status. The
+            resource must have a status attribute specified via ``attribute``.
+        :param status: Desired status of the resource.
+        :param failures: Statuses that would indicate the transition
+            failed such as 'ERROR'. Defaults to ['ERROR'].
+        :param interval: Number of seconds to wait between checks.
+        :param wait: Maximum number of seconds to wait for transition.
+            Set to ``None`` to wait forever.
+        :param attribute: Name of the resource attribute that contains the
+            status.
+        :param callback: A callback function. This will be called with a single
+            value, progress. This is API specific but is generally a percentage
+            value from 0-100.
+
+        :return: The updated resource.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
+            transition to status failed to occur in ``wait`` seconds.
+        :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource
+            transitioned to one of the states in ``failures``.
+        :raises: :class:`~AttributeError` if the resource does not have a
+            ``status`` attribute
+        """
+        return resource.wait_for_status(
+            self, res, status, failures, interval, wait, attribute, callback
+        )
+
+    def wait_for_delete(
+        self,
+        res: resource.ResourceT,
+        interval: int = 2,
+        wait: int = 120,
+        callback: ty.Optional[ty.Callable[[int], None]] = None,
+    ) -> resource.ResourceT:
+        """Wait for a resource to be deleted.
+
+        :param res: The resource to wait on to be deleted.
+        :param interval: Number of seconds to wait before to consecutive
+            checks.
+        :param wait: Maximum number of seconds to wait before the change.
+        :param callback: A callback function. This will be called with a single
+            value, progress, which is a percentage value from 0-100.
+
+        :returns: The resource is returned on success.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
+            to delete failed to occur in the specified seconds.
+        """
+        return resource.wait_for_delete(self, res, interval, wait, callback)

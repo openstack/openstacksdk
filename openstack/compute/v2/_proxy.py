@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import typing as ty
 import warnings
 
 from openstack.block_storage.v3 import volume as _volume
@@ -2630,13 +2631,13 @@ class Proxy(proxy.Proxy):
 
     def wait_for_server(
         self,
-        server,
-        status='ACTIVE',
-        failures=None,
-        interval=2,
-        wait=120,
-        callback=None,
-    ):
+        server: _server.Server,
+        status: str = 'ACTIVE',
+        failures: ty.Optional[list[str]] = None,
+        interval: ty.Union[int, float, None] = 2,
+        wait: ty.Optional[int] = 120,
+        callback: ty.Optional[ty.Callable[[int], None]] = None,
+    ) -> _server.Server:
         """Wait for a server to be in a particular status.
 
         :param server: The :class:`~openstack.compute.v2.server.Server` to wait
@@ -2651,7 +2652,6 @@ class Proxy(proxy.Proxy):
         :type interval: int
         :param wait: Maximum number of seconds to wait before the change.
             Default to 120.
-        :type wait: int
         :param callback: A callback function. This will be called with a single
             value, progress, which is a percentage value from 0-100.
         :type callback: callable
@@ -2675,15 +2675,58 @@ class Proxy(proxy.Proxy):
             callback=callback,
         )
 
-    def wait_for_delete(self, res, interval=2, wait=120, callback=None):
+    def wait_for_status(
+        self,
+        res: resource.ResourceT,
+        status: str,
+        failures: ty.Optional[list[str]] = None,
+        interval: ty.Union[int, float, None] = 2,
+        wait: ty.Optional[int] = None,
+        attribute: str = 'status',
+        callback: ty.Optional[ty.Callable[[int], None]] = None,
+    ) -> resource.ResourceT:
+        """Wait for the resource to be in a particular status.
+
+        :param session: The session to use for making this request.
+        :param resource: The resource to wait on to reach the status. The
+            resource must have a status attribute specified via ``attribute``.
+        :param status: Desired status of the resource.
+        :param failures: Statuses that would indicate the transition
+            failed such as 'ERROR'. Defaults to ['ERROR'].
+        :param interval: Number of seconds to wait between checks.
+        :param wait: Maximum number of seconds to wait for transition.
+            Set to ``None`` to wait forever.
+        :param attribute: Name of the resource attribute that contains the
+            status.
+        :param callback: A callback function. This will be called with a single
+            value, progress. This is API specific but is generally a percentage
+            value from 0-100.
+
+        :return: The updated resource.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
+            transition to status failed to occur in ``wait`` seconds.
+        :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource
+            transitioned to one of the states in ``failures``.
+        :raises: :class:`~AttributeError` if the resource does not have a
+            ``status`` attribute
+        """
+        return resource.wait_for_status(
+            self, res, status, failures, interval, wait, attribute, callback
+        )
+
+    def wait_for_delete(
+        self,
+        res: resource.ResourceT,
+        interval: int = 2,
+        wait: int = 120,
+        callback: ty.Optional[ty.Callable[[int], None]] = None,
+    ) -> resource.ResourceT:
         """Wait for a resource to be deleted.
 
         :param res: The resource to wait on to be deleted.
-        :type resource: A :class:`~openstack.resource.Resource` object.
         :param interval: Number of seconds to wait before to consecutive
-            checks. Default to 2.
+            checks.
         :param wait: Maximum number of seconds to wait before the change.
-            Default to 120.
         :param callback: A callback function. This will be called with a single
             value, progress, which is a percentage value from 0-100.
 

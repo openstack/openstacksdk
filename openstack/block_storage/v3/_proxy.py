@@ -2192,69 +2192,67 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
     # ====== UTILS ======
     def wait_for_status(
         self,
-        res,
-        status='available',
-        failures=None,
-        interval=2,
-        wait=120,
-        callback=None,
-    ):
-        """Wait for a resource to be in a particular status.
+        res: resource.ResourceT,
+        status: str = 'available',
+        failures: ty.Optional[list[str]] = None,
+        interval: ty.Union[int, float, None] = 2,
+        wait: ty.Optional[int] = None,
+        attribute: str = 'status',
+        callback: ty.Optional[ty.Callable[[int], None]] = None,
+    ) -> resource.ResourceT:
+        """Wait for the resource to be in a particular status.
 
-        :param res: The resource to wait on to reach the specified status.
-            The resource must have a ``status`` attribute.
-        :type resource: A :class:`~openstack.resource.Resource` object.
-        :param str status: Desired status.
-        :param list failures: Statuses that would be interpreted as failures.
-        :param interval: Number of seconds to wait before to consecutive
-            checks. Default to 2.
-        :param wait: Maximum number of seconds to wait before the change.
-            Default to 120.
+        :param session: The session to use for making this request.
+        :param resource: The resource to wait on to reach the status. The
+            resource must have a status attribute specified via ``attribute``.
+        :param status: Desired status of the resource.
+        :param failures: Statuses that would indicate the transition
+            failed such as 'ERROR'. Defaults to ['ERROR'].
+        :param interval: Number of seconds to wait between checks.
+        :param wait: Maximum number of seconds to wait for transition.
+            Set to ``None`` to wait forever.
+        :param attribute: Name of the resource attribute that contains the
+            status.
         :param callback: A callback function. This will be called with a single
-            value, progress.
+            value, progress. This is API specific but is generally a percentage
+            value from 0-100.
 
-        :returns: The resource is returned on success.
-        :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
-            to the desired status failed to occur in specified seconds.
+        :return: The updated resource.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
+            transition to status failed to occur in ``wait`` seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource
-            has transited to one of the failure statuses.
+            transitioned to one of the states in ``failures``.
         :raises: :class:`~AttributeError` if the resource does not have a
-            ``status`` attribute.
+            ``status`` attribute
         """
-        failures = ['error'] if failures is None else failures
+        if failures is None:
+            failures = ['error']
+
         return resource.wait_for_status(
-            self,
-            res,
-            status,
-            failures,
-            interval,
-            wait,
-            callback=callback,
+            self, res, status, failures, interval, wait, attribute, callback
         )
 
-    def wait_for_delete(self, res, interval=2, wait=120, callback=None):
+    def wait_for_delete(
+        self,
+        res: resource.ResourceT,
+        interval: int = 2,
+        wait: int = 120,
+        callback: ty.Optional[ty.Callable[[int], None]] = None,
+    ) -> resource.ResourceT:
         """Wait for a resource to be deleted.
 
         :param res: The resource to wait on to be deleted.
-        :type resource: A :class:`~openstack.resource.Resource` object.
-        :param int interval: Number of seconds to wait before two consecutive
-            checks. Default to 2.
-        :param int wait: Maximum number of seconds to wait before the change.
-            Default to 120.
+        :param interval: Number of seconds to wait before to consecutive
+            checks.
+        :param wait: Maximum number of seconds to wait before the change.
         :param callback: A callback function. This will be called with a single
-            value, progress.
+            value, progress, which is a percentage value from 0-100.
 
         :returns: The resource is returned on success.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
             to delete failed to occur in the specified seconds.
         """
-        return resource.wait_for_delete(
-            self,
-            res,
-            interval,
-            wait,
-            callback=callback,
-        )
+        return resource.wait_for_delete(self, res, interval, wait, callback)
 
     def _get_cleanup_dependencies(self):
         return {'block_storage': {'before': []}}

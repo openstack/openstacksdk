@@ -2391,7 +2391,7 @@ def wait_for_status(
     session: adapter.Adapter,
     resource: ResourceT,
     status: str,
-    failures: list[str],
+    failures: ty.Optional[list[str]] = None,
     interval: ty.Union[int, float, None] = 2,
     wait: ty.Optional[int] = None,
     attribute: str = 'status',

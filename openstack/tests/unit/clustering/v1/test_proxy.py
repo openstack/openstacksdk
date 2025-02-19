@@ -410,7 +410,7 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
         self.proxy.wait_for_status(mock_resource, 'ACTIVE')
 
         mock_wait.assert_called_once_with(
-            self.proxy, mock_resource, 'ACTIVE', [], 2, 120
+            self.proxy, mock_resource, 'ACTIVE', None, 2, None, 'status', None
         )
 
     @mock.patch("openstack.resource.wait_for_status")
@@ -421,7 +421,14 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
         self.proxy.wait_for_status(mock_resource, 'ACTIVE', ['ERROR'], 1, 2)
 
         mock_wait.assert_called_once_with(
-            self.proxy, mock_resource, 'ACTIVE', ['ERROR'], 1, 2
+            self.proxy,
+            mock_resource,
+            'ACTIVE',
+            ['ERROR'],
+            1,
+            2,
+            'status',
+            None,
         )
 
     @mock.patch("openstack.resource.wait_for_delete")
@@ -431,7 +438,9 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
 
         self.proxy.wait_for_delete(mock_resource)
 
-        mock_wait.assert_called_once_with(self.proxy, mock_resource, 2, 120)
+        mock_wait.assert_called_once_with(
+            self.proxy, mock_resource, 2, 120, None
+        )
 
     @mock.patch("openstack.resource.wait_for_delete")
     def test_wait_for_delete_params(self, mock_wait):
@@ -440,7 +449,9 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
 
         self.proxy.wait_for_delete(mock_resource, 1, 2)
 
-        mock_wait.assert_called_once_with(self.proxy, mock_resource, 1, 2)
+        mock_wait.assert_called_once_with(
+            self.proxy, mock_resource, 1, 2, None
+        )
 
     def test_get_cluster_metadata(self):
         self._verify(

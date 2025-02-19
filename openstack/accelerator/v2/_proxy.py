@@ -10,14 +10,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import typing as ty
+
 from openstack.accelerator.v2 import accelerator_request as _arq
 from openstack.accelerator.v2 import deployable as _deployable
 from openstack.accelerator.v2 import device as _device
 from openstack.accelerator.v2 import device_profile as _device_profile
 from openstack import proxy
+from openstack import resource
 
 
 class Proxy(proxy.Proxy):
+    # ========== Deployables ==========
+
     def deployables(self, **query):
         """Retrieve a generator of deployables.
 
@@ -47,6 +52,8 @@ class Proxy(proxy.Proxy):
         return self._get_resource(_deployable.Deployable, uuid).patch(
             self, patch
         )
+
+    # ========== Devices ==========
 
     def devices(self, **query):
         """Retrieve a generator of devices.
@@ -80,6 +87,8 @@ class Proxy(proxy.Proxy):
             device matching the criteria could be found.
         """
         return self._get(_device.Device, uuid)
+
+    # ========== Device profiles ==========
 
     def device_profiles(self, **query):
         """Retrieve a generator of device profiles.
@@ -128,6 +137,8 @@ class Proxy(proxy.Proxy):
             device profile matching the criteria could be found.
         """
         return self._get(_device_profile.DeviceProfile, uuid)
+
+    # ========== Accelerator requests ==========
 
     def accelerator_requests(self, **query):
         """Retrieve a generator of accelerator requests.
@@ -192,3 +203,66 @@ class Proxy(proxy.Proxy):
         return self._get_resource(_arq.AcceleratorRequest, uuid).patch(
             self, properties
         )
+
+    # ========== Utilities ==========
+
+    def wait_for_status(
+        self,
+        res: resource.ResourceT,
+        status: str,
+        failures: ty.Optional[list[str]] = None,
+        interval: ty.Union[int, float, None] = 2,
+        wait: ty.Optional[int] = None,
+        attribute: str = 'status',
+        callback: ty.Optional[ty.Callable[[int], None]] = None,
+    ) -> resource.ResourceT:
+        """Wait for the resource to be in a particular status.
+
+        :param session: The session to use for making this request.
+        :param resource: The resource to wait on to reach the status. The
+            resource must have a status attribute specified via ``attribute``.
+        :param status: Desired status of the resource.
+        :param failures: Statuses that would indicate the transition
+            failed such as 'ERROR'. Defaults to ['ERROR'].
+        :param interval: Number of seconds to wait between checks.
+        :param wait: Maximum number of seconds to wait for transition.
+            Set to ``None`` to wait forever.
+        :param attribute: Name of the resource attribute that contains the
+            status.
+        :param callback: A callback function. This will be called with a single
+            value, progress. This is API specific but is generally a percentage
+            value from 0-100.
+
+        :return: The updated resource.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
+            transition to status failed to occur in ``wait`` seconds.
+        :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource
+            transitioned to one of the states in ``failures``.
+        :raises: :class:`~AttributeError` if the resource does not have a
+            ``status`` attribute
+        """
+        return resource.wait_for_status(
+            self, res, status, failures, interval, wait, attribute, callback
+        )
+
+    def wait_for_delete(
+        self,
+        res: resource.ResourceT,
+        interval: int = 2,
+        wait: int = 120,
+        callback: ty.Optional[ty.Callable[[int], None]] = None,
+    ) -> resource.ResourceT:
+        """Wait for a resource to be deleted.
+
+        :param res: The resource to wait on to be deleted.
+        :param interval: Number of seconds to wait before to consecutive
+            checks.
+        :param wait: Maximum number of seconds to wait before the change.
+        :param callback: A callback function. This will be called with a single
+            value, progress, which is a percentage value from 0-100.
+
+        :returns: The resource is returned on success.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
+            to delete failed to occur in the specified seconds.
+        """
+        return resource.wait_for_delete(self, res, interval, wait, callback)

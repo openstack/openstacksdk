@@ -131,7 +131,7 @@ class TestSharedFileSystemShare(TestSharedFileSystemProxy):
         self.proxy.wait_for_status(mock_resource, 'ACTIVE')
 
         mock_wait.assert_called_once_with(
-            self.proxy, mock_resource, 'ACTIVE', [], 2, 120, attribute='status'
+            self.proxy, mock_resource, 'ACTIVE', None, 2, None, 'status', None
         )
 
 
@@ -308,7 +308,9 @@ class TestShareSnapshotResource(test_proxy_base.TestProxyBase):
 
         self.proxy.wait_for_delete(mock_resource)
 
-        mock_wait.assert_called_once_with(self.proxy, mock_resource, 2, 120)
+        mock_wait.assert_called_once_with(
+            self.proxy, mock_resource, 2, 120, None
+        )
 
 
 class TestShareSnapshotInstanceResource(test_proxy_base.TestProxyBase):
