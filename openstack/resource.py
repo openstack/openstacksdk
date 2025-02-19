@@ -99,7 +99,7 @@ class _BaseComponent(abc.ABC):
     # The name this component is being tracked as in the Resource
     key: str
     # The class to be used for mappings
-    _map_cls: ty.Type[ty.Mapping] = dict
+    _map_cls: type[ty.Mapping] = dict
 
     #: Marks the property as deprecated.
     deprecated = False
@@ -273,7 +273,7 @@ class Computed(_BaseComponent):
 class _ComponentManager(collections.abc.MutableMapping):
     """Storage of a component type"""
 
-    attributes: ty.Dict[str, ty.Any]
+    attributes: dict[str, ty.Any]
 
     def __init__(self, attributes=None, synchronized=False):
         self.attributes = dict() if attributes is None else attributes.copy()
@@ -354,7 +354,7 @@ class QueryParameters:
             parameters, ``limit`` and ``marker``. These are the most common
             query parameters used for listing resources in OpenStack APIs.
         """
-        self._mapping: ty.Dict[str, ty.Union[str, ty.Dict]] = {}
+        self._mapping: dict[str, ty.Union[str, dict]] = {}
         if include_pagination_defaults:
             self._mapping.update({"limit": "limit", "marker": "marker"})
         self._mapping.update({name: name for name in names})
@@ -520,13 +520,13 @@ class Resource(dict):
     _header: _ComponentManager
     _uri: _ComponentManager
     _computed: _ComponentManager
-    _original_body: ty.Dict[str, ty.Any] = {}
+    _original_body: dict[str, ty.Any] = {}
     _store_unknown_attrs_as_properties = False
     _allow_unknown_attrs_in_body = False
-    _unknown_attrs_in_body: ty.Dict[str, ty.Any] = {}
+    _unknown_attrs_in_body: dict[str, ty.Any] = {}
 
     # Placeholder for aliases as dict of {__alias__:__original}
-    _attr_aliases: ty.Dict[str, str] = {}
+    _attr_aliases: dict[str, str] = {}
 
     def __init__(self, _synchronized=False, connection=None, **attrs):
         """The base resource
@@ -1070,13 +1070,13 @@ class Resource(dict):
         :return: A dictionary of key/value pairs where keys are named
             as they exist as attributes of this class.
         """
-        mapping: ty.Union[utils.Munch, ty.Dict]
+        mapping: ty.Union[utils.Munch, dict]
         if _to_munch:
             mapping = utils.Munch()
         else:
             mapping = {}
 
-        components: ty.List[ty.Type[_BaseComponent]] = []
+        components: list[type[_BaseComponent]] = []
         if body:
             components.append(Body)
         if headers:
@@ -1164,7 +1164,7 @@ class Resource(dict):
         *,
         resource_request_key=None,
     ):
-        body: ty.Union[ty.Dict[str, ty.Any], ty.List[ty.Any]]
+        body: ty.Union[dict[str, ty.Any], list[ty.Any]]
         if patch:
             if not self._store_unknown_attrs_as_properties:
                 # Default case
@@ -1590,7 +1590,7 @@ class Resource(dict):
                 f"Invalid create method: {cls.create_method}"
             )
 
-        _body: ty.List[ty.Any] = []
+        _body: list[ty.Any] = []
         resources = []
         for attrs in data:
             # NOTE(gryf): we need to create resource objects, since
@@ -1605,7 +1605,7 @@ class Resource(dict):
             )
             _body.append(request.body)
 
-        body: ty.Union[ty.Dict[str, ty.Any], ty.List[ty.Any]] = _body
+        body: ty.Union[dict[str, ty.Any], list[ty.Any]] = _body
 
         if prepend_key:
             assert cls.resources_key

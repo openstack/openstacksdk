@@ -14,7 +14,6 @@
 
 import copy
 import os.path
-import typing as ty
 from urllib import parse
 import warnings
 
@@ -194,7 +193,7 @@ def from_conf(conf, session=None, service_types=None, **kwargs):
                     f"'{st}') was present in the config.",
                 )
                 continue
-        opt_dict: ty.Dict[str, str] = {}
+        opt_dict: dict[str, str] = {}
         # Populate opt_dict with (appropriately processed) Adapter conf opts
         try:
             ks_load_adap.process_conf_options(conf[project_name], opt_dict)

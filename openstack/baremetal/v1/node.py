@@ -527,16 +527,14 @@ class Node(_common.Resource):
         if service_steps is not None:
             if target != 'service':
                 raise ValueError(
-                    'Service steps can only be provided with '
-                    '"service" target'
+                    'Service steps can only be provided with "service" target'
                 )
             body['service_steps'] = service_steps
 
         if rescue_password is not None:
             if target != 'rescue':
                 raise ValueError(
-                    'Rescue password can only be provided with '
-                    '"rescue" target'
+                    'Rescue password can only be provided with "rescue" target'
                 )
             body['rescue_password'] = rescue_password
 

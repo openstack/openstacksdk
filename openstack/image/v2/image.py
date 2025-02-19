@@ -338,7 +338,7 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
             stores = stores or []
 
         url = utils.urljoin(self.base_path, self.id, 'import')
-        data: ty.Dict[str, ty.Any] = {'method': {'name': method}}
+        data: dict[str, ty.Any] = {'method': {'name': method}}
 
         if uri:
             if method != 'web-download':

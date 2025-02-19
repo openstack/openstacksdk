@@ -183,9 +183,10 @@ class TestFirewallRule(FirewallTestCase):
             ]
         )
 
-        with mock.patch.object(
-            self.cloud.network, 'delete_firewall_rule'
-        ), mock.patch.object(self.cloud.log, 'debug'):
+        with (
+            mock.patch.object(self.cloud.network, 'delete_firewall_rule'),
+            mock.patch.object(self.cloud.log, 'debug'),
+        ):
             self.assertFalse(
                 self.cloud.delete_firewall_rule(self.firewall_rule_name)
             )
@@ -501,11 +502,14 @@ class TestFirewallPolicy(FirewallTestCase):
             ]
         )
 
-        with mock.patch.object(
-            self.cloud.network,
-            'find_firewall_policy',
-            return_value=self.mock_firewall_policy,
-        ), mock.patch.object(self.cloud.log, 'debug'):
+        with (
+            mock.patch.object(
+                self.cloud.network,
+                'find_firewall_policy',
+                return_value=self.mock_firewall_policy,
+            ),
+            mock.patch.object(self.cloud.log, 'debug'),
+        ):
             self.assertTrue(
                 self.cloud.delete_firewall_policy(
                     self.firewall_policy_name, filters
@@ -1151,9 +1155,10 @@ class TestFirewallPolicy(FirewallTestCase):
             ]
         )
 
-        with mock.patch.object(
-            self.cloud.network, 'remove_rule_from_policy'
-        ), mock.patch.object(self.cloud.log, 'debug'):
+        with (
+            mock.patch.object(self.cloud.network, 'remove_rule_from_policy'),
+            mock.patch.object(self.cloud.log, 'debug'),
+        ):
             r = self.cloud.remove_rule_from_policy(policy['id'], rule['id'])
             self.assertDictEqual(policy, r.to_dict())
             self.assert_calls()

@@ -91,8 +91,7 @@ class TestOperatorCloud(base.TestCase):
         self.cloud.config.config['region_name'] = 'testregion'
         with testtools.ExpectedException(
             exceptions.SDKException,
-            "Error getting image endpoint on testcloud:testregion: "
-            "No service",
+            "Error getting image endpoint on testcloud:testregion: No service",
         ):
             self.cloud.get_session_endpoint("image")
 

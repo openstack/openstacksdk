@@ -18,7 +18,6 @@ Exception definitions.
 
 import json
 import re
-import typing as ty
 
 from requests import exceptions as _rex
 
@@ -180,7 +179,7 @@ def raise_from_response(response, error_message=None):
     if response.status_code < 400:
         return
 
-    cls: ty.Type[SDKException]
+    cls: type[SDKException]
     if response.status_code == 400:
         cls = BadRequestException
     elif response.status_code == 403:

@@ -3358,11 +3358,16 @@ class TestResourceFind(base.TestCase):
         )
 
     def test_find_result_name_not_in_query_parameters(self):
-        with mock.patch.object(
-            self.one_result, 'existing', side_effect=self.OneResult.existing
-        ) as mock_existing, mock.patch.object(
-            self.one_result, 'list', side_effect=self.OneResult.list
-        ) as mock_list:
+        with (
+            mock.patch.object(
+                self.one_result,
+                'existing',
+                side_effect=self.OneResult.existing,
+            ) as mock_existing,
+            mock.patch.object(
+                self.one_result, 'list', side_effect=self.OneResult.list
+            ) as mock_list,
+        ):
             self.assertEqual(
                 self.result, self.one_result.find(self.cloud.compute, "name")
             )

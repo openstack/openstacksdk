@@ -19,7 +19,7 @@ import typing as ty
 
 def setup_logging(
     name: str,
-    handlers: ty.Optional[ty.List[logging.Handler]] = None,
+    handlers: ty.Optional[list[logging.Handler]] = None,
     level: ty.Optional[int] = None,
 ) -> logging.Logger:
     """Set up logging for a named logger.
@@ -54,7 +54,7 @@ def enable_logging(
     stream: ty.Optional[ty.TextIO] = None,
     format_stream: bool = False,
     format_template: str = '%(asctime)s %(levelname)s: %(name)s %(message)s',
-    handlers: ty.Optional[ty.List[logging.Handler]] = None,
+    handlers: ty.Optional[list[logging.Handler]] = None,
 ) -> None:
     """Enable logging output.
 

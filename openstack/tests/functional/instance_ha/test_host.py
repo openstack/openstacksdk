@@ -13,13 +13,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import typing as ty
 
 from openstack.compute.v2 import hypervisor
 from openstack import connection
 from openstack.tests.functional import base
 
-HYPERVISORS: ty.List[hypervisor.Hypervisor] = []
+HYPERVISORS: list[hypervisor.Hypervisor] = []
 
 
 def hypervisors():
@@ -40,8 +39,7 @@ class TestHost(base.BaseFunctionalTest):
 
         if not hypervisors():
             self.skipTest(
-                "Skip TestHost as there are no hypervisors "
-                "configured in nova"
+                "Skip TestHost as there are no hypervisors configured in nova"
             )
 
         # Create segment

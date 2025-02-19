@@ -80,7 +80,7 @@ class Resource(resource.Resource):
         all_projects=None,
         **params,
     ):
-        headers: ty.Union[ty.Union[ty.Dict[str, str], None]] = (
+        headers: ty.Union[ty.Union[dict[str, str], None]] = (
             {} if project_id or all_projects else None
         )
 
@@ -95,7 +95,7 @@ class Resource(resource.Resource):
     @classmethod
     def _get_next_link(cls, uri, response, data, marker, limit, total_yielded):
         next_link = None
-        params: ty.Dict[str, ty.Union[ty.List[str], str]] = {}
+        params: dict[str, ty.Union[list[str], str]] = {}
         if isinstance(data, dict):
             links = data.get('links')
             if links:

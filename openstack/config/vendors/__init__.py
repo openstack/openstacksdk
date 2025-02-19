@@ -15,7 +15,6 @@
 import glob
 import json
 import os
-import typing as ty
 import urllib
 
 import requests
@@ -25,7 +24,7 @@ from openstack.config import _util
 from openstack import exceptions
 
 _VENDORS_PATH = os.path.dirname(os.path.realpath(__file__))
-_VENDOR_DEFAULTS: ty.Dict[str, ty.Dict] = {}
+_VENDOR_DEFAULTS: dict[str, dict] = {}
 _WELL_KNOWN_PATH = "{scheme}://{netloc}/.well-known/openstack/api"
 
 

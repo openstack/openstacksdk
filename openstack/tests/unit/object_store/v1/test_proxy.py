@@ -685,7 +685,7 @@ class TestTempURLBytesPathUnicodeKey(TestTempURL):
     url = '/v1/\u00e4/c/\u00f3'.encode()
     key = 'k\u00e9y'
     expected_url = url + (
-        b'?temp_url_sig=temp_url_signature' b'&temp_url_expires=1400003600'
+        b'?temp_url_sig=temp_url_signature&temp_url_expires=1400003600'
     )
     expected_body = b'\n'.join(
         [
@@ -700,7 +700,7 @@ class TestTempURLBytesPathAndKey(TestTempURL):
     url = '/v1/\u00e4/c/\u00f3'.encode()
     key = 'k\u00e9y'.encode()
     expected_url = url + (
-        b'?temp_url_sig=temp_url_signature' b'&temp_url_expires=1400003600'
+        b'?temp_url_sig=temp_url_signature&temp_url_expires=1400003600'
     )
     expected_body = b'\n'.join(
         [
@@ -715,7 +715,7 @@ class TestTempURLBytesPathAndNonUtf8Key(TestTempURL):
     url = '/v1/\u00e4/c/\u00f3'.encode()
     key = b'k\xffy'
     expected_url = url + (
-        b'?temp_url_sig=temp_url_signature' b'&temp_url_expires=1400003600'
+        b'?temp_url_sig=temp_url_signature&temp_url_expires=1400003600'
     )
     expected_body = b'\n'.join(
         [

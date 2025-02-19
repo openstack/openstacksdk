@@ -15,7 +15,6 @@ import concurrent.futures
 import copy
 import functools
 import queue
-import typing as ty
 import warnings
 import weakref
 
@@ -492,7 +491,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
         :raises: :class:`~openstack.exceptions.SDKException` on invalid range
             expressions.
         """
-        filtered: ty.List[object] = []
+        filtered: list[object] = []
 
         for key, range_value in filters.items():
             # We always want to operate on the full data set so that
@@ -697,7 +696,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
             for dep in v.get('after', []):
                 dep_graph.add_edge(dep, k)
 
-        cleanup_resources: ty.Dict[str, resource.Resource] = {}
+        cleanup_resources: dict[str, resource.Resource] = {}
 
         for service in dep_graph.walk(timeout=wait_timeout):
             fn = None

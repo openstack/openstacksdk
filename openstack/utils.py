@@ -59,8 +59,7 @@ def iterate_timeout(timeout, message, wait=2):
         wait = float(wait)
     except ValueError:
         raise exceptions.SDKException(
-            f"Wait value must be an int or float value. "
-            f"{wait} given instead"
+            f"Wait value must be an int or float value. {wait} given instead"
         )
 
     start = time.time()
@@ -407,7 +406,7 @@ class TinyDAG:
 
     def _get_in_degree(self):
         """Calculate the in_degree (count incoming) for nodes"""
-        _in_degree: ty.Dict[str, int] = {u: 0 for u in self._graph.keys()}
+        _in_degree: dict[str, int] = {u: 0 for u in self._graph.keys()}
         for u in self._graph:
             for v in self._graph[u]:
                 _in_degree[v] += 1
@@ -547,7 +546,7 @@ class Munch(dict):
 def munchify(x, factory=Munch):
     """Recursively transforms a dictionary into a Munch via copy."""
     # Munchify x, using `seen` to track object cycles
-    seen: ty.Dict[int, ty.Any] = dict()
+    seen: dict[int, ty.Any] = dict()
 
     def munchify_cycles(obj):
         try:
@@ -587,7 +586,7 @@ def unmunchify(x):
     """Recursively converts a Munch into a dictionary."""
 
     # Munchify x, using `seen` to track object cycles
-    seen: ty.Dict[int, ty.Any] = dict()
+    seen: dict[int, ty.Any] = dict()
 
     def unmunchify_cycles(obj):
         try:

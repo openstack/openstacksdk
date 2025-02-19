@@ -257,8 +257,7 @@ class TestFloatingIP(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='https://network.example.com/v2.0/floatingips/'
-                    f'{fid}',
+                    uri=f'https://network.example.com/v2.0/floatingips/{fid}',
                     json=self.mock_floating_ip_new_rep,
                 )
             ]

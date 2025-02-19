@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import typing as ty
 
 from openstack.common import metadata
 from openstack import exceptions
@@ -161,7 +160,7 @@ class Volume(resource.Resource, metadata.MetadataMixin):
         self, session, status=None, attach_status=None, migration_status=None
     ):
         """Reset volume statuses (admin operation)"""
-        body: ty.Dict[str, ty.Dict[str, str]] = {'os-reset_status': {}}
+        body: dict[str, dict[str, str]] = {'os-reset_status': {}}
         if status:
             body['os-reset_status']['status'] = status
         if attach_status:

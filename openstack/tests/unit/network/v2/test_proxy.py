@@ -188,8 +188,7 @@ class TestNetworkAddressGroup(TestNetworkProxy):
         add_addresses.assert_called_once_with(address_group.AddressGroup, data)
 
     @mock.patch(
-        'openstack.network.v2._proxy.Proxy.'
-        'remove_addresses_from_address_group'
+        'openstack.network.v2._proxy.Proxy.remove_addresses_from_address_group'
     )
     def test_remove_addresses_from_address_group(self, remove_addresses):
         data = mock.sentinel

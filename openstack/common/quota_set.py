@@ -105,7 +105,7 @@ class QuotaSet(resource.Resource):
                 body.pop("self", None)
 
                 # Process body_attrs to strip usage and reservation out
-                normalized_attrs: ty.Dict[str, ty.Any] = dict(
+                normalized_attrs: dict[str, ty.Any] = dict(
                     reservation={},
                     usage={},
                 )

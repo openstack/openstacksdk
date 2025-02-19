@@ -195,7 +195,7 @@ class Proxy(proxy.Proxy):
     @proxy._check_resource(strict=False)
     def _update(
         self,
-        resource_type: ty.Type[resource.Resource],
+        resource_type: type[resource.Resource],
         value,
         base_path=None,
         if_revision=None,
@@ -207,7 +207,7 @@ class Proxy(proxy.Proxy):
     @proxy._check_resource(strict=False)
     def _delete(
         self,
-        resource_type: ty.Type[resource.Resource],
+        resource_type: type[resource.Resource],
         value,
         ignore_missing=True,
         if_revision=None,

@@ -924,8 +924,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             dom = self.get_domain(domain)
             if not dom:
                 raise exceptions.SDKException(
-                    f"Creating group {name} failed: Invalid domain "
-                    f"{domain}"
+                    f"Creating group {name} failed: Invalid domain {domain}"
                 )
             group_ref['domain_id'] = dom['id']
 

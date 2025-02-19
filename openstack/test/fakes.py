@@ -24,12 +24,10 @@ import inspect
 import random
 from typing import (
     Any,
-    Dict,
-    Generator,
     Optional,
-    Type,
     TypeVar,
 )
+from collections.abc import Generator
 from unittest import mock
 import uuid
 
@@ -43,8 +41,8 @@ Resource = TypeVar('Resource', bound=resource.Resource)
 
 
 def generate_fake_resource(
-    resource_type: Type[Resource],
-    **attrs: Dict[str, Any],
+    resource_type: type[Resource],
+    **attrs: dict[str, Any],
 ) -> Resource:
     """Generate a fake resource
 
@@ -67,7 +65,7 @@ def generate_fake_resource(
     :raises NotImplementedError: If a resource attribute specifies a ``type``
         or ``list_type`` that cannot be automatically generated
     """
-    base_attrs: Dict[str, Any] = {}
+    base_attrs: dict[str, Any] = {}
     for name, value in inspect.getmembers(
         resource_type,
         predicate=lambda x: isinstance(x, (resource.Body, resource.URI)),
@@ -140,9 +138,9 @@ def generate_fake_resource(
 
 
 def generate_fake_resources(
-    resource_type: Type[Resource],
+    resource_type: type[Resource],
     count: int = 1,
-    attrs: Optional[Dict[str, Any]] = None,
+    attrs: Optional[dict[str, Any]] = None,
 ) -> Generator[Resource, None, None]:
     """Generate a given number of fake resource entities
 
@@ -175,7 +173,7 @@ def generate_fake_resources(
 # various proxy methods also, but doing so requires deep code introspection or
 # (better) type annotations
 def generate_fake_proxy(
-    service: Type[service_description.ServiceDescription],
+    service: type[service_description.ServiceDescription],
     api_version: Optional[str] = None,
 ) -> proxy.Proxy:
     """Generate a fake proxy for the given service type

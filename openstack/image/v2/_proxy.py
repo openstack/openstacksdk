@@ -12,7 +12,6 @@
 
 import os
 import time
-import typing as ty
 import warnings
 
 from openstack import exceptions
@@ -601,7 +600,7 @@ class Proxy(proxy.Proxy):
             raise exceptions.SDKException(f"Image creation failed: {str(e)}")
 
     def _make_v2_image_params(self, meta, properties):
-        ret: ty.Dict = {}
+        ret: dict = {}
         for k, v in iter(properties.items()):
             if k in _INT_PROPERTIES:
                 ret[k] = int(v)

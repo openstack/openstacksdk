@@ -75,14 +75,14 @@ def normalize_metric_name(name):
 class Proxy(adapter.Adapter):
     """Represents a service."""
 
-    retriable_status_codes: ty.Optional[ty.List[int]] = None
+    retriable_status_codes: ty.Optional[list[int]] = None
     """HTTP status codes that should be retried by default.
 
     The number of retries is defined by the configuration in parameters called
     ``<service-type>_status_code_retries``.
     """
 
-    _resource_registry: ty.Dict[str, ty.Type[resource.Resource]] = {}
+    _resource_registry: dict[str, type[resource.Resource]] = {}
     """Registry of the supported resourses.
 
     Dictionary of resource names (key) types (value).
@@ -436,7 +436,7 @@ class Proxy(adapter.Adapter):
         )
 
     def _get_resource(
-        self, resource_type: ty.Type[ResourceType], value, **attrs
+        self, resource_type: type[ResourceType], value, **attrs
     ) -> ResourceType:
         """Get a resource object to work on
 
@@ -486,7 +486,7 @@ class Proxy(adapter.Adapter):
     @ty.overload
     def _find(
         self,
-        resource_type: ty.Type[ResourceType],
+        resource_type: type[ResourceType],
         name_or_id: str,
         ignore_missing: ty.Literal[True] = True,
         **attrs,
@@ -495,7 +495,7 @@ class Proxy(adapter.Adapter):
     @ty.overload
     def _find(
         self,
-        resource_type: ty.Type[ResourceType],
+        resource_type: type[ResourceType],
         name_or_id: str,
         ignore_missing: ty.Literal[False],
         **attrs,
@@ -506,7 +506,7 @@ class Proxy(adapter.Adapter):
     @ty.overload
     def _find(
         self,
-        resource_type: ty.Type[ResourceType],
+        resource_type: type[ResourceType],
         name_or_id: str,
         ignore_missing: bool,
         **attrs,
@@ -514,7 +514,7 @@ class Proxy(adapter.Adapter):
 
     def _find(
         self,
-        resource_type: ty.Type[ResourceType],
+        resource_type: type[ResourceType],
         name_or_id: str,
         ignore_missing: bool = True,
         **attrs,
@@ -540,7 +540,7 @@ class Proxy(adapter.Adapter):
     @_check_resource(strict=False)
     def _delete(
         self,
-        resource_type: ty.Type[ResourceType],
+        resource_type: type[ResourceType],
         value,
         ignore_missing=True,
         **attrs,
@@ -582,7 +582,7 @@ class Proxy(adapter.Adapter):
     @_check_resource(strict=False)
     def _update(
         self,
-        resource_type: ty.Type[ResourceType],
+        resource_type: type[ResourceType],
         value,
         base_path=None,
         **attrs,
@@ -612,7 +612,7 @@ class Proxy(adapter.Adapter):
 
     def _create(
         self,
-        resource_type: ty.Type[ResourceType],
+        resource_type: type[ResourceType],
         base_path=None,
         **attrs,
     ) -> ResourceType:
@@ -648,7 +648,7 @@ class Proxy(adapter.Adapter):
 
     def _bulk_create(
         self,
-        resource_type: ty.Type[ResourceType],
+        resource_type: type[ResourceType],
         data,
         base_path=None,
     ) -> ty.Generator[ResourceType, None, None]:
@@ -674,7 +674,7 @@ class Proxy(adapter.Adapter):
     @_check_resource(strict=False)
     def _get(
         self,
-        resource_type: ty.Type[ResourceType],
+        resource_type: type[ResourceType],
         value=None,
         requires_id=True,
         base_path=None,
@@ -715,7 +715,7 @@ class Proxy(adapter.Adapter):
 
     def _list(
         self,
-        resource_type: ty.Type[ResourceType],
+        resource_type: type[ResourceType],
         paginated=True,
         base_path=None,
         jmespath_filters=None,
@@ -765,7 +765,7 @@ class Proxy(adapter.Adapter):
 
     def _head(
         self,
-        resource_type: ty.Type[ResourceType],
+        resource_type: type[ResourceType],
         value=None,
         base_path=None,
         **attrs,

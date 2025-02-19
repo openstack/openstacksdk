@@ -1309,8 +1309,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
                 kwargs['is_default'] = default
             else:
                 self.log.debug(
-                    "'qos-default' extension is not available on "
-                    "target cloud"
+                    "'qos-default' extension is not available on target cloud"
                 )
 
         return self.network.create_qos_policy(**kwargs)
@@ -1343,8 +1342,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
                 kwargs['is_default'] = default
             else:
                 self.log.debug(
-                    "'qos-default' extension is not available on "
-                    "target cloud"
+                    "'qos-default' extension is not available on target cloud"
                 )
 
         if not kwargs:
@@ -2552,7 +2550,13 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         :param allowed_address_pairs: Allowed address pairs list (Optional)
             For example::
 
-              [{"ip_address": "23.23.23.1", "mac_address": "fa:16:3e:c4:cd:3f"}, ...]
+              [
+                  {
+                      "ip_address": "23.23.23.1",
+                      "mac_address": "fa:16:3e:c4:cd:3f",
+                  },
+                  ...,
+              ]
 
         :param extra_dhcp_opts: Extra DHCP options. (Optional).
             For example::
@@ -2631,7 +2635,13 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         :param allowed_address_pairs: Allowed address pairs list (Optional)
             For example::
 
-              [{"ip_address": "23.23.23.1", "mac_address": "fa:16:3e:c4:cd:3f"}, ...]
+              [
+                  {
+                      "ip_address": "23.23.23.1",
+                      "mac_address": "fa:16:3e:c4:cd:3f",
+                  },
+                  ...,
+              ]
 
         :param extra_dhcp_opts: Extra DHCP options. (Optional).
             For example::

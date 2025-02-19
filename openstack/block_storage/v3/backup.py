@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import typing as ty
 
 from openstack import exceptions
 from openstack import resource
@@ -194,7 +193,7 @@ class Backup(resource.Resource):
         :return: Updated backup instance
         """
         url = utils.urljoin(self.base_path, self.id, "restore")
-        body: ty.Dict[str, ty.Dict] = {'restore': {}}
+        body: dict[str, dict] = {'restore': {}}
         if volume_id:
             body['restore']['volume_id'] = volume_id
         if name:

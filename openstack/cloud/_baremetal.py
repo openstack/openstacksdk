@@ -202,7 +202,10 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
 
             Example::
 
-                [{'address': 'aa:bb:cc:dd:ee:01'}, {'address': 'aa:bb:cc:dd:ee:02'}]
+                [
+                    {'address': 'aa:bb:cc:dd:ee:01'},
+                    {'address': 'aa:bb:cc:dd:ee:02'},
+                ]
 
             Alternatively, you can provide an array of MAC addresses.
         :param wait: Boolean value, defaulting to false, to wait for the node
