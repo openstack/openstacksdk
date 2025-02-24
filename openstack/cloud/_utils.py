@@ -19,6 +19,7 @@ import ipaddress
 import re
 import socket
 import uuid
+import warnings
 
 from decorator import decorator
 import jmespath
@@ -26,6 +27,7 @@ import psutil
 
 from openstack import _log
 from openstack import exceptions
+from openstack import warnings as os_warnings
 
 
 def _dictify_resource(resource):
@@ -100,6 +102,12 @@ def _filter_list(data, name_or_id, filters):
         return data
 
     if isinstance(filters, str):
+        warnings.warn(
+            'Support for jmespath-style filters is deprecated and will be '
+            'removed in a future release. Consider using dictionary-style '
+            'filters instead.',
+            os_warnings.RemovedInSDK60Warning,
+        )
         return jmespath.search(filters, data)
 
     def _dict_filter(f, d):
