@@ -1229,7 +1229,7 @@ class Proxy(proxy.Proxy):
         :returns: Connection information for the console.
         """
         res = self._get_resource(_node.Node, node)
-        return res.get_node_console(self)
+        return res.get_console(self)
 
     def enable_node_console(self, node):
         """Enable the console for a node.
