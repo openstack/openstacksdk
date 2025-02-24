@@ -20,6 +20,10 @@ class NetworkResource(resource.Resource):
     #: Revision number of the resource. *Type: int*
     revision_number = resource.Body('revision_number', type=int)
 
+    # Headers for HEAD and GET requests
+    #: See http://www.ietf.org/rfc/rfc2616.txt.
+    if_match = resource.Header("if-match", type=list)
+
     _allow_unknown_attrs_in_body = True
 
     def _prepare_request(
@@ -29,8 +33,6 @@ class NetworkResource(resource.Resource):
         patch=False,
         base_path=None,
         params=None,
-        *,
-        if_revision=None,
         **kwargs,
     ):
         req = super()._prepare_request(
@@ -39,9 +41,8 @@ class NetworkResource(resource.Resource):
             patch=patch,
             base_path=base_path,
             params=params,
+            **kwargs,
         )
-        if if_revision is not None:
-            req.headers['If-Match'] = f"revision_number={if_revision}"
         return req
 
 

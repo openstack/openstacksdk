@@ -13,6 +13,7 @@
 import typing as ty
 
 from openstack import exceptions
+from openstack.network.v2 import _base
 from openstack.network.v2 import address_group as _address_group
 from openstack.network.v2 import address_scope as _address_scope
 from openstack.network.v2 import agent as _agent
@@ -201,8 +202,15 @@ class Proxy(proxy.Proxy):
         if_revision: ty.Optional[int] = None,
         **attrs: ty.Any,
     ) -> resource.Resource:
+        if (
+            issubclass(resource_type, _base.NetworkResource)
+            and if_revision is not None
+        ):
+            attrs.update({'if_match': f'revision_number={if_revision}'})
+
         res = self._get_resource(resource_type, value, **attrs)
-        return res.commit(self, base_path=base_path, if_revision=if_revision)
+
+        return res.commit(self, base_path=base_path)
 
     @proxy._check_resource(strict=False)
     def _delete(
@@ -213,10 +221,16 @@ class Proxy(proxy.Proxy):
         if_revision: ty.Optional[int] = None,
         **attrs: ty.Any,
     ) -> ty.Optional[resource.Resource]:
+        if (
+            issubclass(resource_type, _base.NetworkResource)
+            and if_revision is not None
+        ):
+            attrs.update({'if_match': f'revision_number={if_revision}'})
+
         res = self._get_resource(resource_type, value, **attrs)
 
         try:
-            rv = res.delete(self, if_revision=if_revision)
+            rv = res.delete(self)
         except exceptions.NotFoundException:
             if ignore_missing:
                 return None
