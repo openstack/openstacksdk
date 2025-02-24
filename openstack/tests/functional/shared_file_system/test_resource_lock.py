@@ -46,7 +46,7 @@ class ResourceLocksTest(base.BaseSharedFileSystemTest):
             failures=['error'],
             interval=5,
             wait=self._wait_for_timeout,
-            status_attr_name='state',
+            attribute='state',
         )
         self.assertIsNotNone(share)
         self.assertIsNotNone(share.id)
