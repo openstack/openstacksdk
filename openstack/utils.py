@@ -212,7 +212,7 @@ def supports_microversion(
                     f'Required microversion {microversion} is higher than '
                     f'currently selected {adapter.default_microversion}'
                 )
-            return supports  # type: ignore[no-any-return]
+            return supports
 
         return True
 
@@ -276,7 +276,7 @@ def pick_microversion(
             'Requested microversion is not supported by the server side '
             'or the default microversion is too low'
         )
-    return discover.version_to_string(required_normalized)  # type: ignore[no-any-return]
+    return discover.version_to_string(required_normalized)
 
 
 def maximum_supported_microversion(
@@ -327,7 +327,7 @@ def maximum_supported_microversion(
             return None
 
     result = min(client_max, server_max)
-    return discover.version_to_string(result)  # type: ignore[no-any-return]
+    return discover.version_to_string(result)
 
 
 def _hashes_up_to_date(
