@@ -29,11 +29,11 @@ class TestClusterTemplate(base.BaseFunctionalTest):
         self.ssh_directory = self.useFixture(fixtures.TempDir()).path
 
     def test_cluster_templates(self):
-        '''Test cluster_templates functionality'''
+        """Test cluster_templates functionality."""
         name = 'fake-cluster_template'
         server_type = 'vm'
         public = False
-        image_id = 'fedora-atomic-f23-dib'
+        image_id = 'ubuntu-24.04-v1.35.4'
         tls_disabled = False
         registry_enabled = False
         coe = 'kubernetes'
@@ -62,7 +62,12 @@ class TestClusterTemplate(base.BaseFunctionalTest):
 
         # Test we can create a cluster_template and we get it returned
         self.ct = self.user_cloud.create_cluster_template(
-            name=name, image_id=image_id, keypair_id=keypair_id, coe=coe
+            name=name,
+            image_id=image_id,
+            keypair_id=keypair_id,
+            coe=coe,
+            flavor_id=self.flavor.id,
+            master_flavor_id=self.flavor.id,
         )
         self.assertEqual(self.ct['name'], name)
         self.assertEqual(self.ct['image_id'], image_id)
