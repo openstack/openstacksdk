@@ -40,7 +40,19 @@ class TestServerSetMetadata(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'compute', 'public', append=['servers', 'detail']
+                        'compute',
+                        'public',
+                        append=['servers', self.server_name],
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['servers', 'detail'],
+                        qs_elements=[f'name={self.server_name}'],
                     ),
                     json={'servers': [self.fake_server]},
                 ),
@@ -75,9 +87,9 @@ class TestServerSetMetadata(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'compute', 'public', append=['servers', 'detail']
+                        'compute', 'public', append=['servers', self.server_id]
                     ),
-                    json={'servers': [self.fake_server]},
+                    json={'server': self.fake_server},
                 ),
                 dict(
                     method='POST',

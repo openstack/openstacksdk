@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import base64
-import functools
 import operator
 import time
 import warnings
@@ -387,31 +386,49 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             params['tenant_id'] = project.id
         return self.compute.get_limits(**params).absolute
 
-    def get_keypair(self, name_or_id, filters=None):
+    def get_keypair(self, name_or_id, filters=None, *, user_id=None):
         """Get a keypair by name or ID.
 
         :param name_or_id: Name or ID of the keypair.
-        :param filters: A dictionary of meta data to use for further filtering.
-            Elements of this dictionary may, themselves, be dictionaries.
-            Example::
+        :param filters: **DEPRECATED** A dictionary of meta data to use for
+            further filtering. Elements of this dictionary may, themselves, be
+            dictionaries. Example::
 
                 {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
             OR
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+        :param user_id: User to retrieve keypair from.
 
         :returns: A compute ``Keypair`` object if found, else None.
         """
-        return _utils._get_entity(self, 'keypair', name_or_id, filters)
+        if filters is not None:
+            warnings.warn(
+                "The 'filters' argument is deprecated; use 'search_keypairs' "
+                "instead",
+                os_warnings.RemovedInSDK60Warning,
+            )
+            entities = self.search_keypairs(name_or_id, filters)
+            if not entities:
+                return None
+
+            if len(entities) > 1:
+                raise exceptions.SDKException(
+                    f"Multiple matches found for {name_or_id}",
+                )
+
+            return entities[0]
+
+        return self.compute.find_keypair(name_or_id, user_id=user_id)
 
     def get_flavor(self, name_or_id, filters=None, get_extra=True):
         """Get a flavor by name or ID.
 
         :param name_or_id: Name or ID of the flavor.
-        :param filters: A dictionary of meta data to use for further filtering.
-            Elements of this dictionary may, themselves, be dictionaries.
-            Example::
+        :param filters: **DEPRECATED** A dictionary of meta data to use for
+            further filtering. Elements of this dictionary may, themselves, be
+            dictionaries. Example::
 
                 {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
@@ -423,6 +440,13 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             extra flavor specs.
         :returns: A compute ``Flavor`` object if found, else None.
         """
+        if filters is not None:
+            warnings.warn(
+                "The 'filters' argument is deprecated; use 'search_flavors' "
+                "instead",
+                os_warnings.RemovedInSDK60Warning,
+            )
+
         if not filters:
             filters = {}
         return self.compute.find_flavor(
@@ -487,9 +511,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         """Get a server by name or ID.
 
         :param name_or_id: Name or ID of the server.
-        :param filters:
-            A dictionary of meta data to use for further filtering. Elements
-            of this dictionary may, themselves, be dictionaries. Example::
+        :param filters: **DEPRECATED** A dictionary of meta data to use for
+            further filtering. Elements of this dictionary may, themselves, be
+            dictionaries. Example::
 
                 {'last_name': 'Smith', 'other': {'gender': 'Female'}}
 
@@ -506,13 +530,37 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             the current auth scoped project.
         :returns: A compute ``Server`` object if found, else None.
         """
-        searchfunc = functools.partial(
-            self.search_servers,
-            detailed=detailed,
-            bare=True,
+        if filters is not None:
+            warnings.warn(
+                "The 'filters' argument is deprecated; use "
+                "'search_servers' instead",
+                os_warnings.RemovedInSDK60Warning,
+            )
+            entities = self.search_servers(
+                name_or_id,
+                filters,
+                detailed=detailed,
+                bare=True,
+                all_projects=all_projects,
+            )
+            if not entities:
+                return None
+
+            if len(entities) > 1:
+                raise exceptions.SDKException(
+                    f"Multiple matches found for {name_or_id}",
+                )
+
+            server = entities[0]
+            return self._expand_server(server, detailed, bare)
+
+        server = self.compute.find_server(
+            name_or_id,
+            # detailed controls whether we fetch more information about images,
+            # volumes etc., not the initial list operation
+            details=True,
             all_projects=all_projects,
         )
-        server = _utils._get_entity(self, searchfunc, name_or_id, filters)
         return self._expand_server(server, detailed, bare)
 
     def _expand_server(self, server, detailed, bare):
@@ -540,9 +588,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         """Get a server group by name or ID.
 
         :param name_or_id: Name or ID of the server group.
-        :param filters: A dictionary of meta data to use for further filtering.
-            Elements of this dictionary may, themselves, be dictionaries.
-            Example::
+        :param filters: **DEPRECATED** A dictionary of meta data to use for
+            further filtering. Elements of this dictionary may, themselves, be
+            dictionaries. Example::
 
                 {
                     'policy': 'affinity',
@@ -554,7 +602,24 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         :returns: A compute ``ServerGroup`` object if found, else None.
         """
-        return _utils._get_entity(self, 'server_group', name_or_id, filters)
+        if filters is not None:
+            warnings.warn(
+                "The 'filters' argument is deprecated; use "
+                "'search_server_groups' instead",
+                os_warnings.RemovedInSDK60Warning,
+            )
+            entities = self.search_server_groups(name_or_id, filters)
+            if not entities:
+                return None
+
+            if len(entities) > 1:
+                raise exceptions.SDKException(
+                    f"Multiple matches found for {name_or_id}",
+                )
+
+            return entities[0]
+
+        return self.compute.find_server_group(name_or_id)
 
     def create_keypair(self, name, public_key=None):
         """Create a new keypair.
@@ -1640,9 +1705,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         """Get an aggregate by name or ID.
 
         :param name_or_id: Name or ID of the aggregate.
-        :param dict filters:
-            A dictionary of meta data to use for further filtering. Elements
-            of this dictionary may, themselves, be dictionaries. Example::
+        :param dict filters: **DEPRECATED** A dictionary of meta data to use
+            for further filtering. Elements of this dictionary may, themselves,
+            be dictionaries. Example::
 
                 {
                     'availability_zone': 'nova',
@@ -1652,6 +1717,13 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         :returns: An aggregate dict or None if no matching aggregate is
             found.
         """
+        if filters is not None:
+            warnings.warn(
+                "The 'filters' argument is deprecated; use "
+                "'search_aggregates' instead",
+                os_warnings.RemovedInSDK60Warning,
+            )
+
         return self.compute.find_aggregate(name_or_id, ignore_missing=True)
 
     def create_aggregate(self, name, availability_zone=None):

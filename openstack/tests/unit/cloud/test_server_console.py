@@ -51,8 +51,8 @@ class TestServerConsole(base.TestCase):
                 self.get_nova_discovery_mock_dict(),
                 dict(
                     method='GET',
-                    uri=f'{fakes.COMPUTE_ENDPOINT}/servers/detail',
-                    json={"servers": [self.server]},
+                    uri=f'{fakes.COMPUTE_ENDPOINT}/servers/{self.server_id}',
+                    json={'server': self.server},
                 ),
                 dict(
                     method='POST',

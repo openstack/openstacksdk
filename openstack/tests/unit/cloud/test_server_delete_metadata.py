@@ -43,9 +43,9 @@ class TestServerDeleteMetadata(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'compute', 'public', append=['servers', 'detail']
+                        'compute', 'public', append=['servers', self.server_id]
                     ),
-                    json={'servers': [self.fake_server]},
+                    json={'server': self.fake_server},
                 ),
                 dict(
                     method='DELETE',
@@ -67,7 +67,7 @@ class TestServerDeleteMetadata(base.TestCase):
         self.assertRaises(
             exceptions.NotFoundException,
             self.cloud.delete_server_metadata,
-            self.server_name,
+            self.server_id,
             ['key'],
         )
 
@@ -80,9 +80,9 @@ class TestServerDeleteMetadata(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'compute', 'public', append=['servers', 'detail']
+                        'compute', 'public', append=['servers', self.server_id]
                     ),
-                    json={'servers': [self.fake_server]},
+                    json={'server': self.fake_server},
                 ),
                 dict(
                     method='DELETE',

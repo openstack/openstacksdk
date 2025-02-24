@@ -67,50 +67,70 @@ class TestMicroversions(base.TestCase):
     def test_inferred_default_microversion(self):
         self.cloud.config.config['compute_api_version'] = '2.42'
 
-        server1 = fakes.make_fake_server('123', 'mickey')
-        server2 = fakes.make_fake_server('345', 'mouse')
+        server = fakes.make_fake_server('123', 'mickey')
 
         self.register_uris(
             [
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'compute', 'public', append=['servers', 'detail']
+                        'compute', 'public', append=['servers', 'mickey']
                     ),
                     request_headers={'OpenStack-API-Version': 'compute 2.42'},
-                    json={'servers': [server1, server2]},
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['servers', 'detail'],
+                        qs_elements=['name=mickey'],
+                    ),
+                    request_headers={'OpenStack-API-Version': 'compute 2.42'},
+                    json={'servers': [server]},
                 ),
             ]
         )
 
         r = self.cloud.get_server('mickey', bare=True)
         self.assertIsNotNone(r)
-        self.assertEqual(server1['name'], r['name'])
+        self.assertEqual(server['name'], r['name'])
 
         self.assert_calls()
 
     def test_default_microversion(self):
         self.cloud.config.config['compute_default_microversion'] = '2.42'
 
-        server1 = fakes.make_fake_server('123', 'mickey')
-        server2 = fakes.make_fake_server('345', 'mouse')
+        server = fakes.make_fake_server('123', 'mickey')
 
         self.register_uris(
             [
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'compute', 'public', append=['servers', 'detail']
+                        'compute', 'public', append=['servers', 'mickey']
                     ),
                     request_headers={'OpenStack-API-Version': 'compute 2.42'},
-                    json={'servers': [server1, server2]},
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['servers', 'detail'],
+                        qs_elements=['name=mickey'],
+                    ),
+                    request_headers={'OpenStack-API-Version': 'compute 2.42'},
+                    json={'servers': [server]},
                 ),
             ]
         )
 
         r = self.cloud.get_server('mickey', bare=True)
         self.assertIsNotNone(r)
-        self.assertEqual(server1['name'], r['name'])
+        self.assertEqual(server['name'], r['name'])
 
         self.assert_calls()
 
