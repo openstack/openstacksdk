@@ -26,8 +26,7 @@
         - openstacksdk-functional-devstack-magnum:
             voting: false
         - openstacksdk-functional-devstack-manila
-        - openstacksdk-functional-devstack-masakari:
-            voting: false
+        - openstacksdk-functional-devstack-masakari
         - openstacksdk-functional-devstack-ironic:
             voting: false
         - osc-functional-devstack-tips:
