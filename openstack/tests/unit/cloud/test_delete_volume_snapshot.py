@@ -43,9 +43,11 @@ class TestDeleteVolumeSnapshot(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'volumev3', 'public', append=['snapshots', 'detail']
+                        'volumev3',
+                        'public',
+                        append=['snapshots', fake_snapshot.id],
                     ),
-                    json={'snapshots': [fake_snapshot_dict]},
+                    json={'snapshot': fake_snapshot_dict},
                 ),
                 dict(
                     method='DELETE',
@@ -77,9 +79,11 @@ class TestDeleteVolumeSnapshot(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'volumev3', 'public', append=['snapshots', 'detail']
+                        'volumev3',
+                        'public',
+                        append=['snapshots', fake_snapshot.id],
                     ),
-                    json={'snapshots': [fake_snapshot_dict]},
+                    json={'snapshot': fake_snapshot_dict},
                 ),
                 dict(
                     method='DELETE',
@@ -115,7 +119,9 @@ class TestDeleteVolumeSnapshot(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'volumev3', 'public', append=['snapshots', 'detail']
+                        'volumev3',
+                        'public',
+                        append=['snapshots', fake_snapshot.id],
                     ),
                     json={'snapshots': [fake_snapshot_dict]},
                 ),

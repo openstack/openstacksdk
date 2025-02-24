@@ -51,13 +51,24 @@ class TestVolumeAccess(base.TestCase):
         )
         self.register_uris(
             [
+                # "find" will attempt to retrieve using the name as an ID
+                # first, but cinder only supports lookup by ID so we'll see 404
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'volumev3',
+                        'public',
+                        append=['types', volume_type['name']],
+                    ),
+                    status_code=404,
+                ),
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
                         'volumev3', 'public', append=['types']
                     ),
                     json={'volume_types': [volume_type]},
-                )
+                ),
             ]
         )
         volume_type_got = self.cloud.get_volume_type(volume_type['name'])
@@ -76,6 +87,17 @@ class TestVolumeAccess(base.TestCase):
         ]
         self.register_uris(
             [
+                # "find" will attempt to retrieve using the name as an ID
+                # first, but cinder only supports lookup by ID so we'll see 404
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'volumev3',
+                        'public',
+                        append=['types', volume_type['name']],
+                    ),
+                    status_code=404,
+                ),
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
@@ -119,6 +141,17 @@ class TestVolumeAccess(base.TestCase):
         volume_type_access = [project_001, project_002]
         self.register_uris(
             [
+                # "find" will attempt to retrieve using the name as an ID
+                # first, but cinder only supports lookup by ID so we'll see 404
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'volumev3',
+                        'public',
+                        append=['types', volume_type['name']],
+                    ),
+                    status_code=404,
+                ),
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
@@ -138,6 +171,15 @@ class TestVolumeAccess(base.TestCase):
                         ],
                     ),
                     json={'volume_type_access': volume_type_access},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'volumev3',
+                        'public',
+                        append=['types', volume_type['name']],
+                    ),
+                    status_code=404,
                 ),
                 dict(
                     method='GET',
@@ -165,6 +207,15 @@ class TestVolumeAccess(base.TestCase):
                             }
                         }
                     ),
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'volumev3',
+                        'public',
+                        append=['types', volume_type['name']],
+                    ),
+                    status_code=404,
                 ),
                 dict(
                     method='GET',
@@ -215,6 +266,17 @@ class TestVolumeAccess(base.TestCase):
         volume_type_access = [project_001, project_002]
         self.register_uris(
             [
+                # "find" will attempt to retrieve using the name as an ID
+                # first, but cinder only supports lookup by ID so we'll see 404
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'volumev3',
+                        'public',
+                        append=['types', volume_type['name']],
+                    ),
+                    status_code=404,
+                ),
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
@@ -241,6 +303,15 @@ class TestVolumeAccess(base.TestCase):
                             }
                         }
                     ),
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'volumev3',
+                        'public',
+                        append=['types', volume_type['name']],
+                    ),
+                    status_code=404,
                 ),
                 dict(
                     method='GET',
@@ -284,13 +355,22 @@ class TestVolumeAccess(base.TestCase):
         )
         self.register_uris(
             [
+                # "find" will attempt to retrieve using the name as an ID
+                # first, but cinder only supports lookup by ID so we'll see 404
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'volumev3', 'public', append=['types', 'MISSING']
+                    ),
+                    status_code=404,
+                ),
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
                         'volumev3', 'public', append=['types']
                     ),
                     json={'volume_types': [volume_type]},
-                )
+                ),
             ]
         )
         with testtools.ExpectedException(

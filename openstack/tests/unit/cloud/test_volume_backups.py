@@ -50,6 +50,34 @@ class TestVolumeBackups(base.TestCase):
 
     def test_get_volume_backup(self):
         name = 'Volume1'
+        backup = {'name': name, 'availability_zone': 'az1'}
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'volumev3', 'public', append=['backups', name]
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'volumev3',
+                        'public',
+                        append=['backups', 'detail'],
+                        qs_elements=[f'name={name}'],
+                    ),
+                    json={"backups": [backup]},
+                ),
+            ]
+        )
+        result = self.cloud.get_volume_backup(name)
+        self._compare_backups(backup, result)
+        self.assert_calls()
+
+    def test_get_volume_backup_with_filters(self):
+        name = 'Volume1'
         vol1 = {'name': name, 'availability_zone': 'az1'}
         vol2 = {'name': name, 'availability_zone': 'az2'}
         vol3 = {'name': 'Volume2', 'availability_zone': 'az1'}
@@ -104,9 +132,9 @@ class TestVolumeBackups(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'volumev3', 'public', append=['backups', 'detail']
+                        'volumev3', 'public', append=['backups', backup_id]
                     ),
-                    json={"backups": [backup]},
+                    json={'backup': backup},
                 ),
                 dict(
                     method='DELETE',
@@ -141,9 +169,9 @@ class TestVolumeBackups(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'volumev3', 'public', append=['backups', 'detail']
+                        'volumev3', 'public', append=['backups', backup_id]
                     ),
-                    json={"backups": [backup]},
+                    json={'backup': backup},
                 ),
                 dict(
                     method='POST',
