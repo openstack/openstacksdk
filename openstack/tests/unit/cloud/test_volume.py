@@ -371,9 +371,9 @@ class TestVolume(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'volumev3', 'public', append=['volumes', 'detail']
+                        'volumev3', 'public', append=['volumes', volume.id]
                     ),
-                    json={'volumes': [avail_volume]},
+                    json={'volume': avail_volume},
                 ),
             ]
         )
@@ -420,9 +420,9 @@ class TestVolume(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'volumev3', 'public', append=['volumes', 'detail']
+                        'volumev3', 'public', append=['volumes', volume.id]
                     ),
-                    json={'volumes': [errored_volume]},
+                    json={'volume': errored_volume},
                 ),
                 dict(
                     method='GET',
@@ -565,9 +565,9 @@ class TestVolume(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'volumev3', 'public', append=['volumes', 'detail']
+                        'volumev3', 'public', append=['volumes', volume.id]
                     ),
-                    json={'volumes': [volume]},
+                    json={'volume': volume},
                 ),
                 dict(
                     method='POST',
@@ -597,9 +597,9 @@ class TestVolume(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'volumev3', 'public', append=['volumes', 'detail']
+                        'volumev3', 'public', append=['volumes', volume.id]
                     ),
-                    json={'volumes': [volume]},
+                    json={'volume': volume},
                 ),
                 dict(
                     method='POST',

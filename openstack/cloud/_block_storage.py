@@ -69,7 +69,24 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         :returns: A volume ``Volume`` object if found, else None.
         """
-        return _utils._get_entity(self, 'volume', name_or_id, filters)
+        if filters is not None:
+            warnings.warn(
+                "The 'filters' argument is deprecated; use "
+                "'search_volumes' instead",
+                os_warnings.RemovedInSDK60Warning,
+            )
+            entities = self.search_volumes(name_or_id, filters)
+            if not entities:
+                return None
+
+            if len(entities) > 1:
+                raise exceptions.SDKException(
+                    f"Multiple matches found for {name_or_id}",
+                )
+
+            return entities[0]
+
+        return self.block_storage.find_volume(name_or_id)
 
     def get_volume_by_id(self, id):
         """Get a volume by ID
@@ -99,7 +116,24 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         :returns: A volume ``Type`` object if found, else None.
         """
-        return _utils._get_entity(self, 'volume_type', name_or_id, filters)
+        if filters is not None:
+            warnings.warn(
+                "The 'filters' argument is deprecated; use "
+                "'search_volume_types' instead",
+                os_warnings.RemovedInSDK60Warning,
+            )
+            entities = self.search_volume_types(name_or_id, filters)
+            if not entities:
+                return None
+
+            if len(entities) > 1:
+                raise exceptions.SDKException(
+                    f"Multiple matches found for {name_or_id}",
+                )
+
+            return entities[0]
+
+        return self.block_storage.find_type(name_or_id)
 
     def create_volume(
         self,
@@ -481,7 +515,24 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         :returns: A volume ``Snapshot`` object if found, else None.
         """
-        return _utils._get_entity(self, 'volume_snapshot', name_or_id, filters)
+        if filters is not None:
+            warnings.warn(
+                "The 'filters' argument is deprecated; use "
+                "'search_volume_snapshots' instead",
+                os_warnings.RemovedInSDK60Warning,
+            )
+            entities = self.search_volume_snapshots(name_or_id, filters)
+            if not entities:
+                return None
+
+            if len(entities) > 1:
+                raise exceptions.SDKException(
+                    f"Multiple matches found for {name_or_id}",
+                )
+
+            return entities[0]
+
+        return self.block_storage.find_snapshot(name_or_id)
 
     def create_volume_backup(
         self,
@@ -551,7 +602,24 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         :returns: A volume ``Backup`` object if found, else None.
         """
-        return _utils._get_entity(self, 'volume_backup', name_or_id, filters)
+        if filters is not None:
+            warnings.warn(
+                "The 'filters' argument is deprecated; use "
+                "'search_volume_backups' instead",
+                os_warnings.RemovedInSDK60Warning,
+            )
+            entities = self.search_volume_backups(name_or_id, filters)
+            if not entities:
+                return None
+
+            if len(entities) > 1:
+                raise exceptions.SDKException(
+                    f"Multiple matches found for {name_or_id}",
+                )
+
+            return entities[0]
+
+        return self.block_storage.find_backup(name_or_id)
 
     def list_volume_snapshots(self, detailed=True, filters=None):
         """List all volume snapshots.
