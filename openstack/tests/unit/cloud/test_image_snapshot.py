@@ -31,7 +31,7 @@ class TestImageSnapshot(base.TestCase):
 
     def test_create_image_snapshot_wait_until_active_never_active(self):
         snapshot_name = 'test-snapshot'
-        fake_image = fakes.make_fake_image(self.image_id, status='pending')
+        pending_image = fakes.make_fake_image(self.image_id, status='pending')
         self.register_uris(
             [
                 self.get_nova_discovery_mock_dict(),
@@ -56,8 +56,12 @@ class TestImageSnapshot(base.TestCase):
                 self.get_glance_discovery_mock_dict(),
                 dict(
                     method='GET',
-                    uri='https://image.example.com/v2/images',
-                    json=dict(images=[fake_image]),
+                    uri=self.get_mock_url(
+                        'image',
+                        append=['images', self.image_id],
+                        base_url_append='v2',
+                    ),
+                    json=pending_image,
                 ),
             ]
         )
@@ -103,13 +107,21 @@ class TestImageSnapshot(base.TestCase):
                 self.get_glance_discovery_mock_dict(),
                 dict(
                     method='GET',
-                    uri='https://image.example.com/v2/images',
-                    json=dict(images=[pending_image]),
+                    uri=self.get_mock_url(
+                        'image',
+                        append=['images', self.image_id],
+                        base_url_append='v2',
+                    ),
+                    json=pending_image,
                 ),
                 dict(
                     method='GET',
-                    uri='https://image.example.com/v2/images',
-                    json=dict(images=[fake_image]),
+                    uri=self.get_mock_url(
+                        'image',
+                        append=['images', self.image_id],
+                        base_url_append='v2',
+                    ),
+                    json=fake_image,
                 ),
             ]
         )

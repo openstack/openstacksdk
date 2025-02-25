@@ -914,8 +914,15 @@ class TestCase(base.TestCase):
                 len(self.calls),
                 len(self.adapter.request_history),
                 "Expected:\n{}'\nGot:\n{}".format(
-                    '\n'.join([c['url'] for c in self.calls]),
-                    '\n'.join([h.url for h in self.adapter.request_history]),
+                    '\n'.join(
+                        [f'{c["method"]} {c["url"]}' for c in self.calls]
+                    ),
+                    '\n'.join(
+                        [
+                            f'{h.method} {h.url}'
+                            for h in self.adapter.request_history
+                        ]
+                    ),
                 ),
             )
 

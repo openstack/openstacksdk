@@ -19,7 +19,6 @@ from unittest import mock
 import uuid
 
 from openstack.cloud import meta
-from openstack import connection
 from openstack import exceptions
 from openstack.image.v1 import image as image_v1
 from openstack.image.v2 import image
@@ -155,17 +154,17 @@ class TestImage(BaseTestImage):
         self.assertEqual(output_file.read(), self.output)
         self.assert_calls()
 
-    @mock.patch.object(connection.Connection, 'search_images')
-    def test_get_images(self, mock_search):
+    @mock.patch('openstack.image.v2._proxy.Proxy.find_image')
+    def test_get_images(self, mock_find):
         image1 = dict(id='123', name='mickey')
-        mock_search.return_value = [image1]
+        mock_find.return_value = image1
         r = self.cloud.get_image('mickey')
         self.assertIsNotNone(r)
         self.assertDictEqual(image1, r)
 
-    @mock.patch.object(connection.Connection, 'search_images')
-    def test_get_image_not_found(self, mock_search):
-        mock_search.return_value = []
+    @mock.patch('openstack.image.v2._proxy.Proxy.find_image')
+    def test_get_image_not_found(self, mock_find):
+        mock_find.return_value = None
         r = self.cloud.get_image('doesNotExist')
         self.assertIsNone(r)
 
@@ -509,10 +508,12 @@ class TestImage(BaseTestImage):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'image', append=['images'], base_url_append='v2'
+                        'image',
+                        append=['images', self.fake_image_dict['id']],
+                        base_url_append='v2',
                     ),
                     complete_qs=True,
-                    json=self.fake_search_return,
+                    json=self.fake_image_dict,
                 ),
             ]
         )
@@ -616,10 +617,12 @@ class TestImage(BaseTestImage):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'image', append=['images'], base_url_append='v2'
+                        'image',
+                        append=['images', self.fake_image_dict['id']],
+                        base_url_append='v2',
                     ),
                     complete_qs=True,
-                    json=self.fake_search_return,
+                    json=self.fake_image_dict,
                 ),
             ]
         )
@@ -732,10 +735,12 @@ class TestImage(BaseTestImage):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'image', append=['images'], base_url_append='v2'
+                        'image',
+                        append=['images', self.fake_image_dict['id']],
+                        base_url_append='v2',
                     ),
                     complete_qs=True,
-                    json=self.fake_search_return,
+                    json=self.fake_image_dict,
                 ),
             ]
         )
@@ -976,10 +981,12 @@ class TestImage(BaseTestImage):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'image', append=['images'], base_url_append='v2'
+                        'image',
+                        append=['images', self.image_id],
+                        base_url_append='v2',
                     ),
                     complete_qs=True,
-                    json=self.fake_search_return,
+                    json=image_no_checksums,
                 ),
             ]
         )
@@ -1023,9 +1030,11 @@ class TestImage(BaseTestImage):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'image', append=['images'], base_url_append='v2'
+                        'image',
+                        append=['images', self.image_id],
+                        base_url_append='v2',
                     ),
-                    json=self.fake_search_return,
+                    json=self.fake_image_dict,
                 ),
                 dict(
                     method='DELETE',
@@ -1212,7 +1221,7 @@ class TestImage(BaseTestImage):
                 dict(
                     method='PUT',
                     uri=f'https://image.example.com/v1/images/{self.image_id}',
-                    json={'image': ret},
+                    json=ret,
                     validate=dict(
                         headers={
                             'x-image-meta-checksum': fakes.NO_MD5,
@@ -1224,6 +1233,16 @@ class TestImage(BaseTestImage):
                     method='GET',
                     uri='https://image.example.com/v1/images/detail',
                     json={'images': [ret]},
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'image',
+                        append=['images', self.image_id],
+                        base_url_append='v1',
+                    ),
+                    complete_qs=True,
+                    json=ret,
                 ),
             ]
         )
@@ -1567,9 +1586,13 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='GET',
-                    uri='https://image.example.com/v2/images',
+                    uri=self.get_mock_url(
+                        'image',
+                        append=['images', self.image_id],
+                        base_url_append='v2',
+                    ),
                     complete_qs=True,
-                    json={'images': [ret]},
+                    json=ret,
                 ),
             ]
         )
@@ -1655,9 +1678,13 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='GET',
-                    uri='https://image.example.com/v2/images',
+                    uri=self.get_mock_url(
+                        'image',
+                        append=['images', self.image_id],
+                        base_url_append='v2',
+                    ),
                     complete_qs=True,
-                    json={'images': [ret]},
+                    json=ret,
                 ),
             ]
         )
@@ -1744,9 +1771,13 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='GET',
-                    uri='https://image.example.com/v2/images',
+                    uri=self.get_mock_url(
+                        'image',
+                        append=['images', self.image_id],
+                        base_url_append='v2',
+                    ),
                     complete_qs=True,
-                    json={'images': [ret]},
+                    json=ret,
                 ),
             ]
         )
@@ -1864,9 +1895,11 @@ class TestImageVolume(BaseTestImage):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'image', append=['images'], base_url_append='v2'
+                        'image',
+                        append=['images', self.image_id],
+                        base_url_append='v2',
                     ),
-                    json=self.fake_search_return,
+                    json=self.fake_image_dict,
                 ),
             ]
         )
@@ -1913,9 +1946,11 @@ class TestImageVolume(BaseTestImage):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'image', append=['images'], base_url_append='v2'
+                        'image',
+                        append=['images', self.image_id],
+                        base_url_append='v2',
                     ),
-                    json=self.fake_search_return,
+                    json=self.fake_image_dict,
                 ),
             ]
         )
