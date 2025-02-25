@@ -9,8 +9,11 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 from openstack.common import tag
+from openstack import exceptions
 from openstack import resource
+from openstack import utils
 
 
 class LoadBalancer(resource.Resource, tag.TagMixin):
@@ -99,6 +102,26 @@ class LoadBalancer(resource.Resource, tag.TagMixin):
         )
         return self
 
+    def failover(self, session):
+        """Failover load balancer.
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
+        session = self._get_session(session)
+        version = self._get_microversion(session, action='patch')
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'failover')
+
+        response = session.put(
+            request.url,
+            headers=request.headers,
+            microversion=version,
+        )
+
+        msg = f"Failed to failover load balancer {self.id}"
+        exceptions.raise_from_response(response, error_message=msg)
+
 
 class LoadBalancerStats(resource.Resource):
     resource_key = 'stats'
@@ -126,6 +149,7 @@ class LoadBalancerStats(resource.Resource):
     total_connections = resource.Body('total_connections', type=int)
 
 
+# TODO(stephenfin): Delete this: it's useless
 class LoadBalancerFailover(resource.Resource):
     base_path = '/lbaas/loadbalancers/%(lb_id)s/failover'
 

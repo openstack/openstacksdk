@@ -103,12 +103,11 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
         self.verify_update(self.proxy.update_load_balancer, lb.LoadBalancer)
 
     def test_load_balancer_failover(self):
-        self.verify_update(
+        self._verify(
+            "openstack.load_balancer.v2.load_balancer.LoadBalancer.failover",
             self.proxy.failover_load_balancer,
-            lb.LoadBalancerFailover,
             method_args=[self.LB_ID],
-            expected_args=[],
-            expected_kwargs={'lb_id': self.LB_ID},
+            expected_args=[self.proxy],
         )
 
     def test_listeners(self):
@@ -411,21 +410,19 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
         self.verify_find(self.proxy.find_amphora, amphora.Amphora)
 
     def test_amphora_configure(self):
-        self.verify_update(
+        self._verify(
+            "openstack.load_balancer.v2.amphora.Amphora.configure",
             self.proxy.configure_amphora,
-            amphora.AmphoraConfig,
             method_args=[self.AMPHORA_ID],
-            expected_args=[],
-            expected_kwargs={'amphora_id': self.AMPHORA_ID},
+            expected_args=[self.proxy],
         )
 
     def test_amphora_failover(self):
-        self.verify_update(
+        self._verify(
+            "openstack.load_balancer.v2.amphora.Amphora.failover",
             self.proxy.failover_amphora,
-            amphora.AmphoraFailover,
             method_args=[self.AMPHORA_ID],
-            expected_args=[],
-            expected_kwargs={'amphora_id': self.AMPHORA_ID},
+            expected_args=[self.proxy],
         )
 
     def test_availability_zone_profiles(self):

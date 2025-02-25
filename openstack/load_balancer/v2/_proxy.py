@@ -189,7 +189,7 @@ class Proxy(proxy.Proxy):
             attribute='provisioning_status',
         )
 
-    def failover_load_balancer(self, load_balancer, **attrs):
+    def failover_load_balancer(self, load_balancer):
         """Failover a load balancer
 
         :param load_balancer: The value can be the ID of a load balancer
@@ -198,7 +198,8 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        return self._update(_lb.LoadBalancerFailover, lb_id=load_balancer)
+        lb = self._get_resource(_lb.LoadBalancer, load_balancer)
+        lb.failover(self)
 
     def create_listener(self, **attrs):
         """Create a new listener from attributes
@@ -1072,23 +1073,25 @@ class Proxy(proxy.Proxy):
             _amphora.Amphora, amphora_id, ignore_missing=ignore_missing
         )
 
-    def configure_amphora(self, amphora_id, **attrs):
+    def configure_amphora(self, amphora_id):
         """Update the configuration of an amphora agent
 
         :param amphora_id: The ID of an amphora
 
         :returns: ``None``
         """
-        return self._update(_amphora.AmphoraConfig, amphora_id=amphora_id)
+        lb = self._get_resource(_amphora.Amphora, amphora_id)
+        lb.configure(self)
 
-    def failover_amphora(self, amphora_id, **attrs):
+    def failover_amphora(self, amphora_id):
         """Failover an amphora
 
         :param amphora_id: The ID of an amphora
 
         :returns: ``None``
         """
-        return self._update(_amphora.AmphoraFailover, amphora_id=amphora_id)
+        lb = self._get_resource(_amphora.Amphora, amphora_id)
+        lb.failover(self)
 
     def create_availability_zone_profile(self, **attrs):
         """Create a new availability zone profile from attributes

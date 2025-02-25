@@ -12,7 +12,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import exceptions
 from openstack import resource
+from openstack import utils
 
 
 class Amphora(resource.Resource):
@@ -93,7 +95,52 @@ class Amphora(resource.Resource):
     #: The ID of the compute flavor used for the amphora.
     compute_flavor = resource.Body('compute_flavor')
 
+    def configure(self, session):
+        """Configure load balancer.
 
+        Update the amphora agent configuration. This will push the new
+        configuration to the amphora agent and will update the configuration
+        options that are mutatable.
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
+        session = self._get_session(session)
+        version = self._get_microversion(session, action='patch')
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'config')
+
+        response = session.put(
+            request.url,
+            headers=request.headers,
+            microversion=version,
+        )
+
+        msg = f"Failed to configure load balancer {self.id}"
+        exceptions.raise_from_response(response, error_message=msg)
+
+    def failover(self, session):
+        """Failover load balancer.
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
+        session = self._get_session(session)
+        version = self._get_microversion(session, action='patch')
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'failover')
+
+        response = session.put(
+            request.url,
+            headers=request.headers,
+            microversion=version,
+        )
+
+        msg = f"Failed to failover load balancer {self.id}"
+        exceptions.raise_from_response(response, error_message=msg)
+
+
+# TODO(stephenfin): Delete this: it's useless
 class AmphoraConfig(resource.Resource):
     base_path = '/octavia/amphorae/%(amphora_id)s/config'
 
@@ -119,6 +166,7 @@ class AmphoraConfig(resource.Resource):
         return super().commit(session, prepend_key, has_body, *args, *kwargs)
 
 
+# TODO(stephenfin): Delete this: it's useless
 class AmphoraFailover(resource.Resource):
     base_path = '/octavia/amphorae/%(amphora_id)s/failover'
 
