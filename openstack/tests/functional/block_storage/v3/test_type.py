@@ -21,7 +21,7 @@ class TestType(base.BaseBlockStorageTest):
 
         self.TYPE_NAME = self.getUniqueString()
         self.TYPE_ID = None
-        if not self._op_name:
+        if not self._operator_cloud_name:
             self.skip("Operator cloud must be set for this test")
         self._set_operator_cloud(block_storage_api_version='3')
         sot = self.operator_cloud.block_storage.create_type(

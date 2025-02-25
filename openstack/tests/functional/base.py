@@ -49,35 +49,38 @@ class BaseFunctionalTest(base.TestCase):
 
     def setUp(self):
         super().setUp()
+
         self.conn = connection.Connection(config=TEST_CLOUD_REGION)
         _disable_keep_alive(self.conn)
 
-        self._demo_name = os.environ.get('OPENSTACKSDK_DEMO_CLOUD', 'devstack')
-        if not self._demo_name:
-            raise self.failureException(
-                "OPENSTACKSDK_OPERATOR_CLOUD must be set to a non-empty value"
-            )
-
-        self._demo_name_alt = os.environ.get(
-            'OPENSTACKSDK_DEMO_CLOUD_ALT',
-            'devstack-alt',
-        )
-        if not self._demo_name_alt:
-            raise self.failureException(
-                "OPENSTACKSDK_OPERATOR_CLOUD must be set to a non-empty value"
-            )
-
-        self._op_name = os.environ.get(
-            'OPENSTACKSDK_OPERATOR_CLOUD',
-            'devstack-admin',
-        )
-        if not self._op_name:
-            raise self.failureException(
-                "OPENSTACKSDK_OPERATOR_CLOUD must be set to a non-empty value"
-            )
-
         self.config = openstack.config.OpenStackConfig()
+
+        self._user_cloud_name = os.environ.get(
+            'OPENSTACKSDK_DEMO_CLOUD', 'devstack'
+        )
+        if not self._user_cloud_name:
+            raise self.failureException(
+                "OPENSTACKSDK_DEMO_CLOUD must be set to a non-empty value"
+            )
+
+        self._user_alt_cloud_name = os.environ.get(
+            'OPENSTACKSDK_DEMO_CLOUD_ALT', 'devstack-alt'
+        )
+        if not self._user_alt_cloud_name:
+            raise self.failureException(
+                "OPENSTACKSDK_DEMO_CLOUD_ALT must be set to a non-empty value"
+            )
+
         self._set_user_cloud()
+
+        self._operator_cloud_name = os.environ.get(
+            'OPENSTACKSDK_OPERATOR_CLOUD', 'devstack-admin'
+        )
+        if not self._operator_cloud_name:
+            raise self.failureException(
+                "OPENSTACKSDK_OPERATOR_CLOUD must be set to a non-empty value"
+            )
+
         self._set_operator_cloud()
 
         self.identity_version = self.user_cloud.config.get_api_version(
@@ -97,18 +100,22 @@ class BaseFunctionalTest(base.TestCase):
         )
 
     def _set_user_cloud(self, **kwargs):
-        user_config = self.config.get_one(cloud=self._demo_name, **kwargs)
+        user_config = self.config.get_one(
+            cloud=self._user_cloud_name, **kwargs
+        )
         self.user_cloud = connection.Connection(config=user_config)
         _disable_keep_alive(self.user_cloud)
 
         user_config_alt = self.config.get_one(
-            cloud=self._demo_name_alt, **kwargs
+            cloud=self._user_alt_cloud_name, **kwargs
         )
         self.user_cloud_alt = connection.Connection(config=user_config_alt)
         _disable_keep_alive(self.user_cloud_alt)
 
     def _set_operator_cloud(self, **kwargs):
-        operator_config = self.config.get_one(cloud=self._op_name, **kwargs)
+        operator_config = self.config.get_one(
+            cloud=self._operator_cloud_name, **kwargs
+        )
         self.operator_cloud = connection.Connection(config=operator_config)
         _disable_keep_alive(self.operator_cloud)
 
@@ -122,7 +129,6 @@ class BaseFunctionalTest(base.TestCase):
             return None
 
         flavors = self.user_cloud.list_flavors(get_extra=False)
-        # self.add_info_on_exception('flavors', flavors)
 
         flavor_name = os.environ.get('OPENSTACKSDK_FLAVOR')
 
@@ -163,7 +169,6 @@ class BaseFunctionalTest(base.TestCase):
             return None
 
         images = self.user_cloud.list_images()
-        # self.add_info_on_exception('images', images)
 
         image_name = os.environ.get('OPENSTACKSDK_IMAGE')
 
