@@ -271,12 +271,17 @@ Additional information about the services can be found in the
 :ref:`service-proxies` documentation.
 """
 
+import argparse
+import concurrent.futures
 import copy
 import importlib.metadata as importlib_metadata
+import typing as ty
 import warnings
 
 import keystoneauth1.exceptions
+from keystoneauth1 import session as ks_session
 import requestsexceptions
+import typing_extensions as ty_ext
 
 from openstack import _log
 from openstack.cloud import _accelerator
@@ -296,6 +301,12 @@ import openstack.config.cloud_region
 from openstack import exceptions
 from openstack import service_description
 
+if ty.TYPE_CHECKING:
+    from oslo_config import cfg
+
+    from openstack.config import cloud_region
+    from openstack import proxy
+
 __all__ = [
     'from_config',
     'Connection',
@@ -309,7 +320,12 @@ if requestsexceptions.SubjectAltNameWarning:
 _logger = _log.setup_logging('openstack')
 
 
-def from_config(cloud=None, config=None, options=None, **kwargs):
+def from_config(
+    cloud: ty.Optional[str] = None,
+    config: ty.Optional['cloud_region.CloudRegion'] = None,
+    options: ty.Optional[argparse.Namespace] = None,
+    **kwargs: ty.Any,
+) -> 'Connection':
     """Create a Connection using openstack.config
 
     :param str cloud:
@@ -355,22 +371,24 @@ class Connection(
 ):
     def __init__(
         self,
-        cloud=None,
-        config=None,
-        session=None,
-        app_name=None,
-        app_version=None,
-        extra_services=None,
-        strict=False,
-        use_direct_get=None,
-        task_manager=None,
-        rate_limit=None,
-        oslo_conf=None,
-        service_types=None,
-        global_request_id=None,
-        strict_proxies=False,
-        pool_executor=None,
-        **kwargs,
+        cloud: ty.Optional[str] = None,
+        config: ty.Optional['cloud_region.CloudRegion'] = None,
+        session: ty.Optional[ks_session.Session] = None,
+        app_name: ty.Optional[str] = None,
+        app_version: ty.Optional[str] = None,
+        extra_services: ty.Optional[
+            list[service_description.ServiceDescription]
+        ] = None,
+        strict: bool = False,
+        use_direct_get: ty.Optional[bool] = None,
+        task_manager: ty.Any = None,
+        rate_limit: ty.Union[float, dict[str, float], None] = None,
+        oslo_conf: ty.Optional['cfg.ConfigOpts'] = None,
+        service_types: ty.Optional[list[str]] = None,
+        global_request_id: ty.Optional[str] = None,
+        strict_proxies: bool = False,
+        pool_executor: ty.Optional[concurrent.futures.Executor] = None,
+        **kwargs: ty.Any,
     ):
         """Create a connection to a cloud.
 
@@ -507,7 +525,9 @@ class Connection(
                 self.config.config['additional_metric_tags']
             )
 
-    def add_service(self, service):
+    def add_service(
+        self, service: service_description.ServiceDescription
+    ) -> None:
         """Add a service to the Connection.
 
         Attaches an instance of the :class:`~openstack.proxy.Proxy`
@@ -530,8 +550,10 @@ class Connection(
             service = service_description.ServiceDescription(service)
 
         # Directly invoke descriptor of the ServiceDescription
-        def getter(self):
-            return service.__get__(self, service)
+        def getter(self: 'Connection') -> 'proxy.Proxy':
+            # TODO(stephenfin): Remove ignore once we have typed
+            # ServiceDescription
+            return service.__get__(self, service)  # type: ignore
 
         # Register the ServiceDescription class (as property)
         # with every known alias for a "runtime descriptor"
@@ -543,7 +565,7 @@ class Connection(
             )
         self.config.enable_service(service.service_type)
 
-    def authorize(self):
+    def authorize(self) -> str:
         """Authorize this Connection
 
         .. note::
@@ -554,16 +576,16 @@ class Connection(
 
         :returns: A string token.
         :raises: :class:`~openstack.exceptions.HttpException` if the
-            authorization fails due to reasons like the credentials
-            provided are unable to be authorized or the `auth_type`
-            argument is missing, etc.
+            authorization fails due to reasons like the credentials provided
+            are unable to be authorized or the `auth_type` argument is missing,
+            etc.
         """
         try:
-            return self.session.get_token()
+            return ty.cast(str, self.session.get_token())
         except keystoneauth1.exceptions.ClientException as e:
             raise exceptions.SDKException(str(e))
 
-    def connect_as(self, **kwargs):
+    def connect_as(self, **kwargs: ty.Any) -> ty_ext.Self:
         """Make a new Connection object with new auth context.
 
         Take the existing settings from the current cloud and construct a new
@@ -600,7 +622,12 @@ class Connection(
         params.pop('profile', None)
 
         # Utility function to help with the stripping below.
-        def pop_keys(params, auth, name_key, id_key):
+        def pop_keys(
+            params: dict[str, dict[str, ty.Optional[str]]],
+            auth: dict[str, ty.Optional[str]],
+            name_key: str,
+            id_key: str,
+        ) -> None:
             if name_key in auth or id_key in auth:
                 params['auth'].pop(name_key, None)
                 params['auth'].pop(id_key, None)
@@ -635,7 +662,7 @@ class Connection(
         # a subclass in the case of shade wrapping sdk.
         return self.__class__(config=cloud_region)
 
-    def connect_as_project(self, project):
+    def connect_as_project(self, project: str) -> ty_ext.Self:
         """Make a new Connection object with a new project.
 
         Take the existing settings from the current cloud and construct a new
@@ -665,7 +692,12 @@ class Connection(
             auth['project_name'] = project
         return self.connect_as(**auth)
 
-    def endpoint_for(self, service_type, interface=None, region_name=None):
+    def endpoint_for(
+        self,
+        service_type: str,
+        interface: ty.Optional[str] = None,
+        region_name: ty.Optional[str] = None,
+    ) -> ty.Optional[str]:
         """Return the endpoint for a given service.
 
         Respects config values for Connection, including
@@ -683,10 +715,12 @@ class Connection(
         :returns: The endpoint of the service, or None if not found.
         """
 
+        # FIXME(stephenfin): Why is self.config showing as Any?
+
         endpoint_override = self.config.get_endpoint(service_type)
         if endpoint_override:
-            return endpoint_override
-        return self.config.get_endpoint_from_catalog(
+            return endpoint_override  # type: ignore
+        return self.config.get_endpoint_from_catalog(  # type: ignore
             service_type=service_type,
             interface=interface,
             region_name=region_name,

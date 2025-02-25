@@ -14,6 +14,7 @@ import os
 from unittest import mock
 
 import fixtures
+from keystoneauth1 import identity
 from keystoneauth1 import session
 
 import openstack.config
@@ -116,8 +117,11 @@ class TestConnection(_TestConnectionBase):
 
     def test_session_provided(self):
         mock_session = mock.Mock(spec=session.Session)
-        mock_session.auth = mock.Mock()
-        mock_session.auth.auth_url = 'https://auth.example.com'
+        mock_session.auth = identity.V3Password(
+            auth_url='https://auth.example.com',
+            password='passw0rd',
+            user_id='fake',
+        )
         conn = connection.Connection(session=mock_session, cert='cert')
         self.assertEqual(mock_session, conn.session)
         self.assertEqual('auth.example.com', conn.config.name)

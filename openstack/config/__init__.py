@@ -12,20 +12,40 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import argparse
 import sys
+import typing as ty
 
 from openstack.config.loader import OpenStackConfig  # noqa
 
+if ty.TYPE_CHECKING:
+    from openstack.config.cloud import cloud_region
 
+
+# TODO(stephenfin): Expand kwargs once we've typed OpenstackConfig.get_one
 def get_cloud_region(
-    service_key=None,
-    options=None,
-    app_name=None,
-    app_version=None,
-    load_yaml_config=True,
-    load_envvars=True,
-    **kwargs,
-):
+    service_key: ty.Optional[str] = None,
+    options: ty.Optional[argparse.ArgumentParser] = None,
+    app_name: ty.Optional[str] = None,
+    app_version: ty.Optional[str] = None,
+    load_yaml_config: bool = True,
+    load_envvars: bool = True,
+    **kwargs: ty.Any,
+) -> 'cloud_region.CloudRegion':
+    """Retrieve a single CloudRegion and merge additional options
+
+    :param service_key: Service this argparse should be specialized for, if
+        known. This will be used as the default value for service_type.
+    :param options: Parser to attach additional options to
+    :param app_name: Name of the application to be added to User Agent.
+    :param app_version: Version of the application to be added to User Agent.
+    :param load_yaml_config: Whether to load configuration from clouds.yaml and
+        related configuration files.
+    :param load_envvars: Whether to load configuration from environment
+        variables
+    :returns: A populated
+        :class:`~openstack.config.cloud.cloud_region.CloudRegion` object.
+    """
     config = OpenStackConfig(
         load_yaml_config=load_yaml_config,
         load_envvars=load_envvars,
@@ -34,7 +54,7 @@ def get_cloud_region(
     )
     if options:
         config.register_argparse_arguments(options, sys.argv, service_key)
-        parsed_options, _rest_of_argv = options.parse_known_args(sys.argv)
+        parsed_options, _ = options.parse_known_args(sys.argv)
     else:
         parsed_options = None
 
