@@ -16,21 +16,21 @@ from openstack.tests.functional.image.v2 import base
 
 class TestSchema(base.BaseImageTest):
     def test_get_images_schema(self):
-        schema = self.conn.image.get_images_schema()
+        schema = self.operator_cloud.image.get_images_schema()
         self.assertIsNotNone(schema)
         self.assertIsInstance(schema, _schema.Schema)
 
     def test_get_image_schema(self):
-        schema = self.conn.image.get_image_schema()
+        schema = self.operator_cloud.image.get_image_schema()
         self.assertIsNotNone(schema)
         self.assertIsInstance(schema, _schema.Schema)
 
     def test_get_members_schema(self):
-        schema = self.conn.image.get_members_schema()
+        schema = self.operator_cloud.image.get_members_schema()
         self.assertIsNotNone(schema)
         self.assertIsInstance(schema, _schema.Schema)
 
     def test_get_member_schema(self):
-        schema = self.conn.image.get_member_schema()
+        schema = self.operator_cloud.image.get_member_schema()
         self.assertIsNotNone(schema)
         self.assertIsInstance(schema, _schema.Schema)

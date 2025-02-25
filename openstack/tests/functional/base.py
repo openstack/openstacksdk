@@ -50,9 +50,6 @@ class BaseFunctionalTest(base.TestCase):
     def setUp(self):
         super().setUp()
 
-        self.conn = connection.Connection(config=TEST_CLOUD_REGION)
-        _disable_keep_alive(self.conn)
-
         self.config = openstack.config.OpenStackConfig()
 
         self._user_cloud_name = os.environ.get(
@@ -220,13 +217,13 @@ class BaseFunctionalTest(base.TestCase):
 
         :returns: True if the service exists, otherwise False.
         """
-        if not self.conn.has_service(service_type):
+        if not self.operator_cloud.has_service(service_type):
             self.skipTest(f'Service {service_type} not found in cloud')
 
         if not min_microversion:
             return
 
-        data = self.conn.session.get_endpoint_data(
+        data = self.operator_cloud.session.get_endpoint_data(
             service_type=service_type, **kwargs
         )
 
@@ -299,5 +296,5 @@ class KeystoneBaseFunctionalTest(BaseFunctionalTest):
 
         # we only support v3, since v2 was deprecated in Queens (2018)
 
-        if not self.conn.has_service('identity', '3'):
+        if not self.user_cloud.has_service('identity', '3'):
             self.skipTest('identity service not supported by cloud')

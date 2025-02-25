@@ -36,4 +36,6 @@ class UserMessageTest(base.BaseSharedFileSystemTest):
                 self.assertTrue(hasattr(u_message, attribute))
                 self.assertIsInstance(getattr(u_message, attribute), str)
 
-            self.conn.shared_file_system.delete_user_message(u_message)
+            self.operator_cloud.shared_file_system.delete_user_message(
+                u_message
+            )

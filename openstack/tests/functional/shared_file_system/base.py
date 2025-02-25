@@ -71,7 +71,7 @@ class BaseSharedFileSystemTest(base.BaseFunctionalTest):
     def create_share_group(self, **kwargs):
         share_group = self.user_cloud.share.create_share_group(**kwargs)
         self.addCleanup(
-            self.conn.share.delete_share_group,
+            self.operator_cloud.share.delete_share_group,
             share_group.id,
             ignore_missing=True,
         )

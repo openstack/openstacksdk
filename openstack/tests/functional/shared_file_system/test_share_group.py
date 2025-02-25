@@ -55,7 +55,9 @@ class ShareGroupTest(base.BaseSharedFileSystemTest):
             for attribute in ('id', 'name', 'created_at'):
                 self.assertTrue(hasattr(s_grp, attribute))
 
-            sot = self.conn.shared_file_system.delete_share_group(s_grp)
+            sot = self.operator_cloud.shared_file_system.delete_share_group(
+                s_grp
+            )
             self.assertIsNone(sot)
 
     def test_update(self):

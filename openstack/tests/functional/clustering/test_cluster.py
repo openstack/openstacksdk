@@ -27,7 +27,7 @@ class TestCluster(base.BaseFunctionalTest):
         self.cidr = '10.99.99.0/16'
 
         self.network, self.subnet = test_network.create_network(
-            self.conn, self.getUniqueString(), self.cidr
+            self.operator_cloud, self.getUniqueString(), self.cidr
         )
         self.assertIsNotNone(self.network)
 
@@ -45,7 +45,9 @@ class TestCluster(base.BaseFunctionalTest):
             },
         }
 
-        self.profile = self.conn.clustering.create_profile(**profile_attrs)
+        self.profile = self.operator_cloud.clustering.create_profile(
+            **profile_attrs
+        )
         self.assertIsNotNone(self.profile)
 
         self.cluster_name = self.getUniqueString()
@@ -57,57 +59,63 @@ class TestCluster(base.BaseFunctionalTest):
             "desired_capacity": 0,
         }
 
-        self.cluster = self.conn.clustering.create_cluster(**cluster_spec)
-        self.conn.clustering.wait_for_status(
+        self.cluster = self.operator_cloud.clustering.create_cluster(
+            **cluster_spec
+        )
+        self.operator_cloud.clustering.wait_for_status(
             self.cluster, 'ACTIVE', wait=self._wait_for_timeout
         )
         assert isinstance(self.cluster, cluster.Cluster)
 
     def tearDown(self):
         if self.cluster:
-            self.conn.clustering.delete_cluster(self.cluster.id)
-            self.conn.clustering.wait_for_delete(
+            self.operator_cloud.clustering.delete_cluster(self.cluster.id)
+            self.operator_cloud.clustering.wait_for_delete(
                 self.cluster, wait=self._wait_for_timeout
             )
 
-        test_network.delete_network(self.conn, self.network, self.subnet)
+        test_network.delete_network(
+            self.operator_cloud, self.network, self.subnet
+        )
 
-        self.conn.clustering.delete_profile(self.profile)
+        self.operator_cloud.clustering.delete_profile(self.profile)
 
         super().tearDown()
 
     def test_find(self):
-        sot = self.conn.clustering.find_cluster(self.cluster.id)
+        sot = self.operator_cloud.clustering.find_cluster(self.cluster.id)
         self.assertEqual(self.cluster.id, sot.id)
 
     def test_get(self):
-        sot = self.conn.clustering.get_cluster(self.cluster)
+        sot = self.operator_cloud.clustering.get_cluster(self.cluster)
         self.assertEqual(self.cluster.id, sot.id)
 
     def test_list(self):
-        names = [o.name for o in self.conn.clustering.clusters()]
+        names = [o.name for o in self.operator_cloud.clustering.clusters()]
         self.assertIn(self.cluster_name, names)
 
     def test_update(self):
         new_cluster_name = self.getUniqueString()
-        sot = self.conn.clustering.update_cluster(
+        sot = self.operator_cloud.clustering.update_cluster(
             self.cluster, name=new_cluster_name, profile_only=False
         )
 
         time.sleep(2)
-        sot = self.conn.clustering.get_cluster(self.cluster)
+        sot = self.operator_cloud.clustering.get_cluster(self.cluster)
         self.assertEqual(new_cluster_name, sot.name)
 
     def test_delete(self):
-        cluster_delete_action = self.conn.clustering.delete_cluster(
+        cluster_delete_action = self.operator_cloud.clustering.delete_cluster(
             self.cluster.id
         )
 
-        self.conn.clustering.wait_for_delete(
+        self.operator_cloud.clustering.wait_for_delete(
             self.cluster, wait=self._wait_for_timeout
         )
 
-        action = self.conn.clustering.get_action(cluster_delete_action.id)
+        action = self.operator_cloud.clustering.get_action(
+            cluster_delete_action.id
+        )
         self.assertEqual(action.target_id, self.cluster.id)
         self.assertEqual(action.action, 'CLUSTER_DELETE')
         self.assertEqual(action.status, 'SUCCEEDED')
@@ -115,15 +123,17 @@ class TestCluster(base.BaseFunctionalTest):
         self.cluster = None
 
     def test_force_delete(self):
-        cluster_delete_action = self.conn.clustering.delete_cluster(
+        cluster_delete_action = self.operator_cloud.clustering.delete_cluster(
             self.cluster.id, False, True
         )
 
-        self.conn.clustering.wait_for_delete(
+        self.operator_cloud.clustering.wait_for_delete(
             self.cluster, wait=self._wait_for_timeout
         )
 
-        action = self.conn.clustering.get_action(cluster_delete_action.id)
+        action = self.operator_cloud.clustering.get_action(
+            cluster_delete_action.id
+        )
         self.assertEqual(action.target_id, self.cluster.id)
         self.assertEqual(action.action, 'CLUSTER_DELETE')
         self.assertEqual(action.status, 'SUCCEEDED')

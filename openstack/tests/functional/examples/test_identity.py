@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from examples import connect
 from examples.identity import list as identity_list
 
 from openstack.tests.functional import base
@@ -19,20 +18,15 @@ from openstack.tests.functional import base
 class TestIdentity(base.BaseFunctionalTest):
     """Test the identity examples
 
-    The purpose of these tests is to ensure the examples run without erring
-    out.
+    The purpose of these tests is to ensure the examples run successfully.
     """
 
-    def setUp(self):
-        super().setUp()
-        self.conn = connect.create_connection_from_config()
-
     def test_identity(self):
-        identity_list.list_users(self.conn)
-        identity_list.list_credentials(self.conn)
-        identity_list.list_projects(self.conn)
-        identity_list.list_domains(self.conn)
-        identity_list.list_groups(self.conn)
-        identity_list.list_services(self.conn)
-        identity_list.list_endpoints(self.conn)
-        identity_list.list_regions(self.conn)
+        identity_list.list_users(self.operator_cloud)
+        identity_list.list_credentials(self.operator_cloud)
+        identity_list.list_projects(self.operator_cloud)
+        identity_list.list_domains(self.operator_cloud)
+        identity_list.list_groups(self.operator_cloud)
+        identity_list.list_services(self.operator_cloud)
+        identity_list.list_endpoints(self.operator_cloud)
+        identity_list.list_regions(self.operator_cloud)

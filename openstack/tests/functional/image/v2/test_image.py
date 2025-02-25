@@ -23,7 +23,7 @@ class TestImage(base.BaseImageTest):
         super().setUp()
 
         # there's a limit on name length
-        self.image = self.conn.image.create_image(
+        self.image = self.operator_cloud.image.create_image(
             name=TEST_IMAGE_NAME,
             disk_format='raw',
             container_format='bare',
@@ -38,50 +38,50 @@ class TestImage(base.BaseImageTest):
     def tearDown(self):
         # we do this in tearDown rather than via 'addCleanup' since we want to
         # wait for the deletion of the resource to ensure it completes
-        self.conn.image.delete_image(self.image)
-        self.conn.image.wait_for_delete(self.image)
+        self.operator_cloud.image.delete_image(self.image)
+        self.operator_cloud.image.wait_for_delete(self.image)
 
         super().tearDown()
 
     def test_images(self):
         # get image
-        image = self.conn.image.get_image(self.image.id)
+        image = self.operator_cloud.image.get_image(self.image.id)
         self.assertEqual(self.image.name, image.name)
 
         # find image
-        image = self.conn.image.find_image(self.image.name)
+        image = self.operator_cloud.image.find_image(self.image.name)
         self.assertEqual(self.image.id, image.id)
 
         # list
-        images = list(self.conn.image.images())
+        images = list(self.operator_cloud.image.images())
         # there are many other images so we don't assert that this is the
         # *only* image present
         self.assertIn(self.image.id, {i.id for i in images})
 
         # update
         image_name = self.getUniqueString()
-        image = self.conn.image.update_image(
+        image = self.operator_cloud.image.update_image(
             self.image,
             name=image_name,
         )
         self.assertIsInstance(image, _image.Image)
-        image = self.conn.image.get_image(self.image.id)
+        image = self.operator_cloud.image.get_image(self.image.id)
         self.assertEqual(image_name, image.name)
 
     def test_tags(self):
         # add tag
-        image = self.conn.image.get_image(self.image)
-        self.conn.image.add_tag(image, 't1')
-        self.conn.image.add_tag(image, 't2')
+        image = self.operator_cloud.image.get_image(self.image)
+        self.operator_cloud.image.add_tag(image, 't1')
+        self.operator_cloud.image.add_tag(image, 't2')
 
         # filter image by tags
-        image = list(self.conn.image.images(tag=['t1', 't2']))[0]
+        image = list(self.operator_cloud.image.images(tag=['t1', 't2']))[0]
         self.assertEqual(image.id, image.id)
         self.assertIn('t1', image.tags)
         self.assertIn('t2', image.tags)
 
         # remove tag
-        self.conn.image.remove_tag(image, 't1')
-        image = self.conn.image.get_image(self.image)
+        self.operator_cloud.image.remove_tag(image, 't1')
+        image = self.operator_cloud.image.get_image(self.image)
         self.assertIn('t2', image.tags)
         self.assertNotIn('t1', image.tags)

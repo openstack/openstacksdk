@@ -15,7 +15,7 @@ from openstack.tests.functional.image.v2 import base
 
 class TestTask(base.BaseImageTest):
     def test_tasks(self):
-        tasks = list(self.conn.image.tasks())
+        tasks = list(self.operator_cloud.image.tasks())
         # NOTE(stephenfin): Yes, this is a dumb test. Basically all that we're
         # checking is that the API endpoint is correct. It would be nice to
         # have a proper check here that includes creation of tasks but we don't

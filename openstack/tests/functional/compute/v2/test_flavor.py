@@ -19,10 +19,10 @@ class TestFlavor(base.BaseFunctionalTest):
     def setUp(self):
         super().setUp()
         self.new_item_name = self.getUniqueString('flavor')
-        self.one_flavor = list(self.conn.compute.flavors())[0]
+        self.one_flavor = list(self.operator_cloud.compute.flavors())[0]
 
     def test_flavors(self):
-        flavors = list(self.conn.compute.flavors())
+        flavors = list(self.operator_cloud.compute.flavors())
         self.assertGreater(len(flavors), 0)
 
         for flavor in flavors:
@@ -33,15 +33,15 @@ class TestFlavor(base.BaseFunctionalTest):
             self.assertIsInstance(flavor.vcpus, int)
 
     def test_find_flavors_by_id(self):
-        rslt = self.conn.compute.find_flavor(self.one_flavor.id)
+        rslt = self.operator_cloud.compute.find_flavor(self.one_flavor.id)
         self.assertEqual(rslt.id, self.one_flavor.id)
 
     def test_find_flavors_by_name(self):
-        rslt = self.conn.compute.find_flavor(self.one_flavor.name)
+        rslt = self.operator_cloud.compute.find_flavor(self.one_flavor.name)
         self.assertEqual(rslt.name, self.one_flavor.name)
 
     def test_find_flavors_no_match_ignore_true(self):
-        rslt = self.conn.compute.find_flavor(
+        rslt = self.operator_cloud.compute.find_flavor(
             "not a flavor", ignore_missing=True
         )
         self.assertIsNone(rslt)
@@ -49,7 +49,7 @@ class TestFlavor(base.BaseFunctionalTest):
     def test_find_flavors_no_match_ignore_false(self):
         self.assertRaises(
             exceptions.NotFoundException,
-            self.conn.compute.find_flavor,
+            self.operator_cloud.compute.find_flavor,
             "not a flavor",
             ignore_missing=False,
         )
@@ -86,7 +86,7 @@ class TestFlavor(base.BaseFunctionalTest):
         flv = self.operator_cloud.compute.create_flavor(
             is_public=False, name=flavor_name, ram=128, vcpus=1, disk=0
         )
-        self.addCleanup(self.conn.compute.delete_flavor, flv.id)
+        self.addCleanup(self.operator_cloud.compute.delete_flavor, flv.id)
         # Validate the 'demo' user cannot see the new flavor
         flv_cmp = self.user_cloud.compute.find_flavor(flavor_name)
         self.assertIsNone(flv_cmp)
@@ -118,23 +118,31 @@ class TestFlavor(base.BaseFunctionalTest):
 
     def test_extra_props_calls(self):
         flavor_name = uuid.uuid4().hex
-        flv = self.conn.compute.create_flavor(
+        flv = self.operator_cloud.compute.create_flavor(
             is_public=False, name=flavor_name, ram=128, vcpus=1, disk=0
         )
-        self.addCleanup(self.conn.compute.delete_flavor, flv.id)
+        self.addCleanup(self.operator_cloud.compute.delete_flavor, flv.id)
         # Create extra_specs
         specs = {'a': 'b'}
-        self.conn.compute.create_flavor_extra_specs(flv, extra_specs=specs)
+        self.operator_cloud.compute.create_flavor_extra_specs(
+            flv, extra_specs=specs
+        )
         # verify specs
-        flv_cmp = self.conn.compute.fetch_flavor_extra_specs(flv)
+        flv_cmp = self.operator_cloud.compute.fetch_flavor_extra_specs(flv)
         self.assertDictEqual(specs, flv_cmp.extra_specs)
         # update
-        self.conn.compute.update_flavor_extra_specs_property(flv, 'c', 'd')
-        val_cmp = self.conn.compute.get_flavor_extra_specs_property(flv, 'c')
+        self.operator_cloud.compute.update_flavor_extra_specs_property(
+            flv, 'c', 'd'
+        )
+        val_cmp = self.operator_cloud.compute.get_flavor_extra_specs_property(
+            flv, 'c'
+        )
         # fetch single prop
         self.assertEqual('d', val_cmp)
         # drop new prop
-        self.conn.compute.delete_flavor_extra_specs_property(flv, 'c')
+        self.operator_cloud.compute.delete_flavor_extra_specs_property(
+            flv, 'c'
+        )
         # re-fetch and ensure prev state
-        flv_cmp = self.conn.compute.fetch_flavor_extra_specs(flv)
+        flv_cmp = self.operator_cloud.compute.fetch_flavor_extra_specs(flv)
         self.assertDictEqual(specs, flv_cmp.extra_specs)

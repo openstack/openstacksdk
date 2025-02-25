@@ -30,21 +30,21 @@ class TestDefaultType(base.BaseBlockStorageTest):
         ).id
 
         # Set default type for a project
-        default_type = self.conn.block_storage.set_default_type(
+        default_type = self.operator_cloud.block_storage.set_default_type(
             self.PROJECT_ID,
             volume_type_id,
         )
         self.assertIsInstance(default_type, _default_type.DefaultType)
 
         # Show default type for a project
-        default_type = self.conn.block_storage.show_default_type(
+        default_type = self.operator_cloud.block_storage.show_default_type(
             self.PROJECT_ID
         )
         self.assertIsInstance(default_type, _default_type.DefaultType)
         self.assertEqual(volume_type_id, default_type.volume_type_id)
 
         # List all default types
-        default_types = self.conn.block_storage.default_types()
+        default_types = self.operator_cloud.block_storage.default_types()
         for default_type in default_types:
             self.assertIsInstance(default_type, _default_type.DefaultType)
             # There could be existing default types set in the environment
@@ -53,7 +53,7 @@ class TestDefaultType(base.BaseBlockStorageTest):
                 self.assertEqual(volume_type_id, default_type.volume_type_id)
 
         # Unset default type for a project
-        default_type = self.conn.block_storage.unset_default_type(
+        default_type = self.operator_cloud.block_storage.unset_default_type(
             self.PROJECT_ID
         )
         self.assertIsNone(default_type)

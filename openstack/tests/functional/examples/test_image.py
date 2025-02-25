@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from examples import connect
 from examples.image import create as image_create
 from examples.image import delete as image_delete
 from examples.image import list as image_list
@@ -21,17 +20,12 @@ from openstack.tests.functional import base
 class TestImage(base.BaseFunctionalTest):
     """Test the image examples
 
-    The purpose of these tests is to ensure the examples run without erring
-    out.
+    The purpose of these tests is to ensure the examples run successfully.
     """
 
-    def setUp(self):
-        super().setUp()
-        self.conn = connect.create_connection_from_config()
-
     def test_image(self):
-        image_list.list_images(self.conn)
+        image_list.list_images(self.operator_cloud)
 
-        image_create.upload_image(self.conn)
+        image_create.upload_image(self.operator_cloud)
 
-        image_delete.delete_image(self.conn)
+        image_delete.delete_image(self.operator_cloud)

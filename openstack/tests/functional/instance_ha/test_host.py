@@ -43,13 +43,13 @@ class TestHost(base.BaseFunctionalTest):
             )
 
         # Create segment
-        self.segment = self.conn.ha.create_segment(
+        self.segment = self.operator_cloud.ha.create_segment(
             name=self.NAME, recovery_method='auto', service_type='COMPUTE'
         )
 
         # Create valid host
         self.NAME = HYPERVISORS[0].name
-        self.host = self.conn.ha.create_host(
+        self.host = self.operator_cloud.ha.create_host(
             segment_id=self.segment.uuid,
             name=self.NAME,
             type='COMPUTE',
@@ -58,15 +58,19 @@ class TestHost(base.BaseFunctionalTest):
 
         # Delete host
         self.addCleanup(
-            self.conn.ha.delete_host, self.segment.uuid, self.host.uuid
+            self.operator_cloud.ha.delete_host,
+            self.segment.uuid,
+            self.host.uuid,
         )
         # Delete segment
-        self.addCleanup(self.conn.ha.delete_segment, self.segment.uuid)
+        self.addCleanup(
+            self.operator_cloud.ha.delete_segment, self.segment.uuid
+        )
 
     def test_list(self):
         names = [
             o.name
-            for o in self.conn.ha.hosts(
+            for o in self.operator_cloud.ha.hosts(
                 self.segment.uuid,
                 failover_segment_id=self.segment.uuid,
                 type='COMPUTE',
@@ -75,12 +79,12 @@ class TestHost(base.BaseFunctionalTest):
         self.assertIn(self.NAME, names)
 
     def test_update(self):
-        updated_host = self.conn.ha.update_host(
+        updated_host = self.operator_cloud.ha.update_host(
             self.host['uuid'],
             segment_id=self.segment.uuid,
             on_maintenance='True',
         )
-        get_host = self.conn.ha.get_host(
+        get_host = self.operator_cloud.ha.get_host(
             updated_host.uuid, updated_host.segment_id
         )
         self.assertEqual(True, get_host.on_maintenance)

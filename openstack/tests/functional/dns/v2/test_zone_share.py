@@ -31,7 +31,7 @@ class TestZoneShare(base.BaseFunctionalTest):
         self.ZONE_NAME = f'example-{uuid.uuid4().hex}.org.'
 
         # Make sure the API under test has shared zones support
-        if not utils.supports_version(self.conn.dns, '2.1'):
+        if not utils.supports_version(self.operator_cloud.dns, '2.1'):
             self.skipTest(
                 'Designate API version does not support shared zones.'
             )

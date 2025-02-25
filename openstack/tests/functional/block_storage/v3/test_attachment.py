@@ -64,15 +64,15 @@ class TestAttachment(base.BaseBlockStorageTest):
     def tearDown(self):
         # Since delete_on_termination flag is set to True, we
         # don't need to cleanup the volume manually
-        result = self.conn.compute.delete_server(self.server.id)
-        self.conn.compute.wait_for_delete(
+        result = self.operator_cloud.compute.delete_server(self.server.id)
+        self.operator_cloud.compute.wait_for_delete(
             self.server, wait=self._wait_for_timeout
         )
         self.assertIsNone(result)
         super().tearDown()
 
     def test_attachment(self):
-        attachment = self.conn.block_storage.create_attachment(
+        attachment = self.operator_cloud.block_storage.create_attachment(
             self.VOLUME_ID,
             connector={},
             instance_id=self.server.id,

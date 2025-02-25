@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from examples import connect
 from examples.network import create as network_create
 from examples.network import delete as network_delete
 from examples.network import find as network_find
@@ -22,22 +21,17 @@ from openstack.tests.functional import base
 class TestNetwork(base.BaseFunctionalTest):
     """Test the network examples
 
-    The purpose of these tests is to ensure the examples run without erring
-    out.
+    The purpose of these tests is to ensure the examples run successfully.
     """
 
-    def setUp(self):
-        super().setUp()
-        self.conn = connect.create_connection_from_config()
-
     def test_network(self):
-        network_list.list_networks(self.conn)
-        network_list.list_subnets(self.conn)
-        network_list.list_ports(self.conn)
-        network_list.list_security_groups(self.conn)
-        network_list.list_routers(self.conn)
+        network_list.list_networks(self.operator_cloud)
+        network_list.list_subnets(self.operator_cloud)
+        network_list.list_ports(self.operator_cloud)
+        network_list.list_security_groups(self.operator_cloud)
+        network_list.list_routers(self.operator_cloud)
 
-        network_find.find_network(self.conn)
+        network_find.find_network(self.operator_cloud)
 
-        network_create.create_network(self.conn)
-        network_delete.delete_network(self.conn)
+        network_create.create_network(self.operator_cloud)
+        network_delete.delete_network(self.operator_cloud)

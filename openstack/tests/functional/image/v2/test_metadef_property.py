@@ -26,8 +26,10 @@ class TestMetadefProperty(base.BaseImageTest):
         namespace = 'test_' + ''.join(
             random.choice(string.ascii_lowercase) for _ in range(75)
         )
-        self.metadef_namespace = self.conn.image.create_metadef_namespace(
-            namespace=namespace,
+        self.metadef_namespace = (
+            self.operator_cloud.image.create_metadef_namespace(
+                namespace=namespace,
+            )
         )
         self.assertIsInstance(
             self.metadef_namespace,
@@ -46,8 +48,10 @@ class TestMetadefProperty(base.BaseImageTest):
             'description': 'Web Server port',
             'enum': ["80", "443"],
         }
-        self.metadef_property = self.conn.image.create_metadef_property(
-            self.metadef_namespace.namespace, **self.attrs
+        self.metadef_property = (
+            self.operator_cloud.image.create_metadef_property(
+                self.metadef_namespace.namespace, **self.attrs
+            )
         )
         self.assertIsInstance(
             self.metadef_property, _metadef_property.MetadefProperty
@@ -63,17 +67,19 @@ class TestMetadefProperty(base.BaseImageTest):
     def tearDown(self):
         # we do this in tearDown rather than via 'addCleanup' since we want to
         # wait for the deletion of the resource to ensure it completes
-        self.conn.image.delete_metadef_property(
+        self.operator_cloud.image.delete_metadef_property(
             self.metadef_property, self.metadef_namespace
         )
-        self.conn.image.delete_metadef_namespace(self.metadef_namespace)
-        self.conn.image.wait_for_delete(self.metadef_namespace)
+        self.operator_cloud.image.delete_metadef_namespace(
+            self.metadef_namespace
+        )
+        self.operator_cloud.image.wait_for_delete(self.metadef_namespace)
 
         super().tearDown()
 
     def test_metadef_property(self):
         # get metadef property
-        metadef_property = self.conn.image.get_metadef_property(
+        metadef_property = self.operator_cloud.image.get_metadef_property(
             self.metadef_property, self.metadef_namespace
         )
         self.assertIsNotNone(metadef_property)
@@ -92,7 +98,9 @@ class TestMetadefProperty(base.BaseImageTest):
 
         # list
         metadef_properties = list(
-            self.conn.image.metadef_properties(self.metadef_namespace)
+            self.operator_cloud.image.metadef_properties(
+                self.metadef_namespace
+            )
         )
         self.assertIsNotNone(metadef_properties)
         self.assertIsInstance(
@@ -106,7 +114,7 @@ class TestMetadefProperty(base.BaseImageTest):
         self.attrs['description'] = ''.join(
             random.choice(string.ascii_lowercase) for _ in range(10)
         )
-        metadef_property = self.conn.image.update_metadef_property(
+        metadef_property = self.operator_cloud.image.update_metadef_property(
             self.metadef_property,
             self.metadef_namespace.namespace,
             **self.attrs,
@@ -116,7 +124,7 @@ class TestMetadefProperty(base.BaseImageTest):
             metadef_property,
             _metadef_property.MetadefProperty,
         )
-        metadef_property = self.conn.image.get_metadef_property(
+        metadef_property = self.operator_cloud.image.get_metadef_property(
             self.metadef_property.name, self.metadef_namespace
         )
         self.assertEqual(

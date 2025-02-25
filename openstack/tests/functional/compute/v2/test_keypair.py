@@ -22,29 +22,31 @@ class TestKeypair(base.BaseFunctionalTest):
         # Keypairs can't have .'s in the name. Because why?
         self.NAME = self.getUniqueString().split('.')[-1]
 
-        sot = self.conn.compute.create_keypair(name=self.NAME, type='ssh')
+        sot = self.operator_cloud.compute.create_keypair(
+            name=self.NAME, type='ssh'
+        )
         assert isinstance(sot, keypair.Keypair)
         self.assertEqual(self.NAME, sot.name)
         self._keypair = sot
 
     def tearDown(self):
-        sot = self.conn.compute.delete_keypair(self._keypair)
+        sot = self.operator_cloud.compute.delete_keypair(self._keypair)
         self.assertIsNone(sot)
         super().tearDown()
 
     def test_find(self):
-        sot = self.conn.compute.find_keypair(self.NAME)
+        sot = self.operator_cloud.compute.find_keypair(self.NAME)
         self.assertEqual(self.NAME, sot.name)
         self.assertEqual(self.NAME, sot.id)
 
     def test_get(self):
-        sot = self.conn.compute.get_keypair(self.NAME)
+        sot = self.operator_cloud.compute.get_keypair(self.NAME)
         self.assertEqual(self.NAME, sot.name)
         self.assertEqual(self.NAME, sot.id)
         self.assertEqual('ssh', sot.type)
 
     def test_list(self):
-        names = [o.name for o in self.conn.compute.keypairs()]
+        names = [o.name for o in self.operator_cloud.compute.keypairs()]
         self.assertIn(self.NAME, names)
 
 
@@ -53,9 +55,9 @@ class TestKeypairAdmin(base.BaseFunctionalTest):
         super().setUp()
 
         self.NAME = self.getUniqueString().split('.')[-1]
-        self.USER = self.conn.list_users()[0]
+        self.USER = self.operator_cloud.list_users()[0]
 
-        sot = self.conn.compute.create_keypair(
+        sot = self.operator_cloud.compute.create_keypair(
             name=self.NAME, user_id=self.USER.id
         )
         assert isinstance(sot, keypair.Keypair)
@@ -64,12 +66,16 @@ class TestKeypairAdmin(base.BaseFunctionalTest):
         self._keypair = sot
 
     def tearDown(self):
-        sot = self.conn.compute.delete_keypair(self.NAME, user_id=self.USER.id)
+        sot = self.operator_cloud.compute.delete_keypair(
+            self.NAME, user_id=self.USER.id
+        )
         self.assertIsNone(sot)
         super().tearDown()
 
     def test_get(self):
-        sot = self.conn.compute.get_keypair(self.NAME, user_id=self.USER.id)
+        sot = self.operator_cloud.compute.get_keypair(
+            self.NAME, user_id=self.USER.id
+        )
         self.assertEqual(self.NAME, sot.name)
         self.assertEqual(self.NAME, sot.id)
         self.assertEqual(self.USER.id, sot.user_id)

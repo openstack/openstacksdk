@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import connection
 from openstack.tests.functional import base
 
 
@@ -18,8 +17,6 @@ class TestServiceStatus(base.BaseFunctionalTest):
     def setUp(self):
         super().setUp()
         self.require_service('dns')
-
-        self.conn = connection.from_config(cloud_name=base.TEST_CLOUD_NAME)
 
         self.service_names = [
             "api",
@@ -34,7 +31,7 @@ class TestServiceStatus(base.BaseFunctionalTest):
         self.service_status = ["UP", "DOWN"]
 
     def test_service_status(self):
-        service_statuses = list(self.conn.dns.service_statuses())
+        service_statuses = list(self.operator_cloud.dns.service_statuses())
         if not service_statuses:
             self.skipTest(
                 "The Service in Designate System is required for this test"
@@ -49,6 +46,8 @@ class TestServiceStatus(base.BaseFunctionalTest):
         self.assertTrue(all(name in self.service_names for name in names))
 
         # Test that we can fetch a service status
-        service_status = self.conn.dns.get_service_status(service_statuses[0])
+        service_status = self.operator_cloud.dns.get_service_status(
+            service_statuses[0]
+        )
         self.assertIn(service_status.service_name, self.service_names)
         self.assertIn(service_status.status, self.service_status)

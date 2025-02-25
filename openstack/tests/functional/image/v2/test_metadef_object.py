@@ -21,8 +21,10 @@ class TestMetadefObject(base.BaseImageTest):
 
         # create namespace for object
         namespace = self.getUniqueString().split('.')[-1]
-        self.metadef_namespace = self.conn.image.create_metadef_namespace(
-            namespace=namespace,
+        self.metadef_namespace = (
+            self.operator_cloud.image.create_metadef_namespace(
+                namespace=namespace,
+            )
         )
         self.assertIsInstance(
             self.metadef_namespace,
@@ -32,7 +34,7 @@ class TestMetadefObject(base.BaseImageTest):
 
         # create object
         object = self.getUniqueString().split('.')[-1]
-        self.metadef_object = self.conn.image.create_metadef_object(
+        self.metadef_object = self.operator_cloud.image.create_metadef_object(
             name=object,
             namespace=self.metadef_namespace,
         )
@@ -43,20 +45,22 @@ class TestMetadefObject(base.BaseImageTest):
         self.assertEqual(object, self.metadef_object.name)
 
     def tearDown(self):
-        self.conn.image.delete_metadef_object(
+        self.operator_cloud.image.delete_metadef_object(
             self.metadef_object,
             self.metadef_object.namespace_name,
         )
-        self.conn.image.wait_for_delete(self.metadef_object)
+        self.operator_cloud.image.wait_for_delete(self.metadef_object)
 
-        self.conn.image.delete_metadef_namespace(self.metadef_namespace)
-        self.conn.image.wait_for_delete(self.metadef_namespace)
+        self.operator_cloud.image.delete_metadef_namespace(
+            self.metadef_namespace
+        )
+        self.operator_cloud.image.wait_for_delete(self.metadef_namespace)
 
         super().tearDown()
 
     def test_metadef_objects(self):
         # get
-        metadef_object = self.conn.image.get_metadef_object(
+        metadef_object = self.operator_cloud.image.get_metadef_object(
             self.metadef_object.name,
             self.metadef_namespace,
         )
@@ -71,7 +75,9 @@ class TestMetadefObject(base.BaseImageTest):
 
         # list
         metadef_objects = list(
-            self.conn.image.metadef_objects(self.metadef_object.namespace_name)
+            self.operator_cloud.image.metadef_objects(
+                self.metadef_object.namespace_name
+            )
         )
         # there are a load of default metadef objects so we don't assert
         # that this is the *only* metadef objects present
@@ -83,7 +89,7 @@ class TestMetadefObject(base.BaseImageTest):
         # update
         metadef_object_new_name = 'New object name'
         metadef_object_new_description = 'New object description'
-        metadef_object = self.conn.image.update_metadef_object(
+        metadef_object = self.operator_cloud.image.update_metadef_object(
             self.metadef_object.name,
             namespace=self.metadef_object.namespace_name,
             name=metadef_object_new_name,

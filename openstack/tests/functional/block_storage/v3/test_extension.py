@@ -15,7 +15,7 @@ from openstack.tests.functional.block_storage.v3 import base
 
 class Extensions(base.BaseBlockStorageTest):
     def test_get(self):
-        extensions = list(self.conn.block_storage.extensions())
+        extensions = list(self.operator_cloud.block_storage.extensions())
 
         for extension in extensions:
             self.assertIsInstance(extension.alias, str)

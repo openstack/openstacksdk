@@ -15,7 +15,7 @@ from openstack.tests.functional.block_storage.v3 import base
 
 class TestBlockStorageSummary(base.BaseBlockStorageTest):
     def test_get(self):
-        sot = self.conn.block_storage.summary(all_projects=True)
+        sot = self.operator_cloud.block_storage.summary(all_projects=True)
         self.assertIn('total_size', sot)
         self.assertIn('total_count', sot)
         self.assertIn('metadata', sot)

@@ -20,8 +20,8 @@ class TestServerAdmin(ft_base.BaseComputeTest):
         super().setUp()
         self.NAME = 'needstobeshortandlowercase'
         self.USERDATA = 'SSdtIGFjdHVhbGx5IGEgZ29hdC4='
-        volume = self.conn.create_volume(1)
-        sot = self.conn.compute.create_server(
+        volume = self.operator_cloud.create_volume(1)
+        sot = self.operator_cloud.compute.create_server(
             name=self.NAME,
             flavor_id=self.flavor.id,
             image_id=self.image.id,
@@ -38,21 +38,23 @@ class TestServerAdmin(ft_base.BaseComputeTest):
                 },
             ],
         )
-        self.conn.compute.wait_for_server(sot, wait=self._wait_for_timeout)
+        self.operator_cloud.compute.wait_for_server(
+            sot, wait=self._wait_for_timeout
+        )
         assert isinstance(sot, server.Server)
         self.assertEqual(self.NAME, sot.name)
         self.server = sot
 
     def tearDown(self):
-        sot = self.conn.compute.delete_server(self.server.id)
-        self.conn.compute.wait_for_delete(
+        sot = self.operator_cloud.compute.delete_server(self.server.id)
+        self.operator_cloud.compute.wait_for_delete(
             self.server, wait=self._wait_for_timeout
         )
         self.assertIsNone(sot)
         super().tearDown()
 
     def test_get(self):
-        sot = self.conn.compute.get_server(self.server.id)
+        sot = self.operator_cloud.compute.get_server(self.server.id)
         self.assertIsNotNone(sot.reservation_id)
         self.assertIsNotNone(sot.launch_index)
         self.assertIsNotNone(sot.ramdisk_id)
@@ -72,64 +74,74 @@ class TestServer(ft_base.BaseComputeTest):
         self.cidr = '10.99.99.0/16'
 
         self.network, self.subnet = test_network.create_network(
-            self.conn, self.NAME, self.cidr
+            self.operator_cloud, self.NAME, self.cidr
         )
         self.assertIsNotNone(self.network)
 
-        sot = self.conn.compute.create_server(
+        sot = self.operator_cloud.compute.create_server(
             name=self.NAME,
             flavor_id=self.flavor.id,
             image_id=self.image.id,
             networks=[{"uuid": self.network.id}],
         )
-        self.conn.compute.wait_for_server(sot, wait=self._wait_for_timeout)
+        self.operator_cloud.compute.wait_for_server(
+            sot, wait=self._wait_for_timeout
+        )
         assert isinstance(sot, server.Server)
         self.assertEqual(self.NAME, sot.name)
         self.server = sot
 
     def tearDown(self):
-        sot = self.conn.compute.delete_server(self.server.id)
+        sot = self.operator_cloud.compute.delete_server(self.server.id)
         self.assertIsNone(sot)
         # Need to wait for the stack to go away before network delete
-        self.conn.compute.wait_for_delete(
+        self.operator_cloud.compute.wait_for_delete(
             self.server, wait=self._wait_for_timeout
         )
-        test_network.delete_network(self.conn, self.network, self.subnet)
+        test_network.delete_network(
+            self.operator_cloud, self.network, self.subnet
+        )
         super().tearDown()
 
     def test_find(self):
-        sot = self.conn.compute.find_server(self.NAME)
+        sot = self.operator_cloud.compute.find_server(self.NAME)
         self.assertEqual(self.server.id, sot.id)
 
     def test_get(self):
-        sot = self.conn.compute.get_server(self.server.id)
+        sot = self.operator_cloud.compute.get_server(self.server.id)
         self.assertEqual(self.NAME, sot.name)
         self.assertEqual(self.server.id, sot.id)
 
     def test_list(self):
-        names = [o.name for o in self.conn.compute.servers()]
+        names = [o.name for o in self.operator_cloud.compute.servers()]
         self.assertIn(self.NAME, names)
 
     def test_server_metadata(self):
-        test_server = self.conn.compute.get_server(self.server.id)
+        test_server = self.operator_cloud.compute.get_server(self.server.id)
 
         # get metadata
-        test_server = self.conn.compute.get_server_metadata(test_server)
+        test_server = self.operator_cloud.compute.get_server_metadata(
+            test_server
+        )
         self.assertFalse(test_server.metadata)
 
         # set no metadata
-        self.conn.compute.set_server_metadata(test_server)
-        test_server = self.conn.compute.get_server_metadata(test_server)
+        self.operator_cloud.compute.set_server_metadata(test_server)
+        test_server = self.operator_cloud.compute.get_server_metadata(
+            test_server
+        )
         self.assertFalse(test_server.metadata)
 
         # set empty metadata
-        self.conn.compute.set_server_metadata(test_server, k0='')
-        server = self.conn.compute.get_server_metadata(test_server)
+        self.operator_cloud.compute.set_server_metadata(test_server, k0='')
+        server = self.operator_cloud.compute.get_server_metadata(test_server)
         self.assertTrue(server.metadata)
 
         # set metadata
-        self.conn.compute.set_server_metadata(test_server, k1='v1')
-        test_server = self.conn.compute.get_server_metadata(test_server)
+        self.operator_cloud.compute.set_server_metadata(test_server, k1='v1')
+        test_server = self.operator_cloud.compute.get_server_metadata(
+            test_server
+        )
         self.assertTrue(test_server.metadata)
         self.assertEqual(2, len(test_server.metadata))
         self.assertIn('k0', test_server.metadata)
@@ -138,8 +150,10 @@ class TestServer(ft_base.BaseComputeTest):
         self.assertEqual('v1', test_server.metadata['k1'])
 
         # set more metadata
-        self.conn.compute.set_server_metadata(test_server, k2='v2')
-        test_server = self.conn.compute.get_server_metadata(test_server)
+        self.operator_cloud.compute.set_server_metadata(test_server, k2='v2')
+        test_server = self.operator_cloud.compute.get_server_metadata(
+            test_server
+        )
         self.assertTrue(test_server.metadata)
         self.assertEqual(3, len(test_server.metadata))
         self.assertIn('k0', test_server.metadata)
@@ -150,8 +164,10 @@ class TestServer(ft_base.BaseComputeTest):
         self.assertEqual('v2', test_server.metadata['k2'])
 
         # update metadata
-        self.conn.compute.set_server_metadata(test_server, k1='v1.1')
-        test_server = self.conn.compute.get_server_metadata(test_server)
+        self.operator_cloud.compute.set_server_metadata(test_server, k1='v1.1')
+        test_server = self.operator_cloud.compute.get_server_metadata(
+            test_server
+        )
         self.assertTrue(test_server.metadata)
         self.assertEqual(3, len(test_server.metadata))
         self.assertIn('k0', test_server.metadata)
@@ -162,14 +178,16 @@ class TestServer(ft_base.BaseComputeTest):
         self.assertEqual('v2', test_server.metadata['k2'])
 
         # delete metadata
-        self.conn.compute.delete_server_metadata(
+        self.operator_cloud.compute.delete_server_metadata(
             test_server, test_server.metadata.keys()
         )
-        test_server = self.conn.compute.get_server_metadata(test_server)
+        test_server = self.operator_cloud.compute.get_server_metadata(
+            test_server
+        )
         self.assertFalse(test_server.metadata)
 
     def test_server_remote_console(self):
-        console = self.conn.compute.create_server_remote_console(
+        console = self.operator_cloud.compute.create_server_remote_console(
             self.server, protocol='vnc', type='novnc'
         )
         self.assertEqual('vnc', console.protocol)

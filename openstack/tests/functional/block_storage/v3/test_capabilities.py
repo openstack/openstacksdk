@@ -25,7 +25,7 @@ class TestCapabilities(base.BaseBlockStorageTest):
             if service.binary == 'cinder-volume'
         ][0].host
 
-        sot = self.conn.block_storage.get_capabilities(host)
+        sot = self.operator_cloud.block_storage.get_capabilities(host)
         self.assertIn('description', sot)
         self.assertIn('display_name', sot)
         self.assertIn('driver_version', sot)

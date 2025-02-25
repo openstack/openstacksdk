@@ -21,8 +21,10 @@ class TestMetadefNamespace(base.BaseImageTest):
 
         # there's a limit on namespace length
         namespace = self.getUniqueString().split('.')[-1]
-        self.metadef_namespace = self.conn.image.create_metadef_namespace(
-            namespace=namespace,
+        self.metadef_namespace = (
+            self.operator_cloud.image.create_metadef_namespace(
+                namespace=namespace,
+            )
         )
         self.assertIsInstance(
             self.metadef_namespace,
@@ -33,14 +35,16 @@ class TestMetadefNamespace(base.BaseImageTest):
     def tearDown(self):
         # we do this in tearDown rather than via 'addCleanup' since we want to
         # wait for the deletion of the resource to ensure it completes
-        self.conn.image.delete_metadef_namespace(self.metadef_namespace)
-        self.conn.image.wait_for_delete(self.metadef_namespace)
+        self.operator_cloud.image.delete_metadef_namespace(
+            self.metadef_namespace
+        )
+        self.operator_cloud.image.wait_for_delete(self.metadef_namespace)
 
         super().tearDown()
 
     def test_metadef_namespace(self):
         # get
-        metadef_namespace = self.conn.image.get_metadef_namespace(
+        metadef_namespace = self.operator_cloud.image.get_metadef_namespace(
             self.metadef_namespace.namespace
         )
         self.assertEqual(
@@ -51,7 +55,9 @@ class TestMetadefNamespace(base.BaseImageTest):
         # (no find_metadef_namespace method)
 
         # list
-        metadef_namespaces = list(self.conn.image.metadef_namespaces())
+        metadef_namespaces = list(
+            self.operator_cloud.image.metadef_namespaces()
+        )
         # there are a load of default metadef namespaces so we don't assert
         # that this is the *only* metadef namespace present
         self.assertIn(
@@ -64,7 +70,7 @@ class TestMetadefNamespace(base.BaseImageTest):
         # inherent need for randomness so we use fixed strings
         metadef_namespace_display_name = 'A display name'
         metadef_namespace_description = 'A description'
-        metadef_namespace = self.conn.image.update_metadef_namespace(
+        metadef_namespace = self.operator_cloud.image.update_metadef_namespace(
             self.metadef_namespace,
             display_name=metadef_namespace_display_name,
             description=metadef_namespace_description,
@@ -73,7 +79,7 @@ class TestMetadefNamespace(base.BaseImageTest):
             metadef_namespace,
             _metadef_namespace.MetadefNamespace,
         )
-        metadef_namespace = self.conn.image.get_metadef_namespace(
+        metadef_namespace = self.operator_cloud.image.get_metadef_namespace(
             self.metadef_namespace.namespace
         )
         self.assertEqual(

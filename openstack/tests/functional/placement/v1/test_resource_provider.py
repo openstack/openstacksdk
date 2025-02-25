@@ -37,7 +37,7 @@ class TestResourceProvider(base.BaseFunctionalTest):
         self.resource_provider = resource_provider
 
     def tearDown(self):
-        result = self.conn.placement.delete_resource_provider(
+        result = self.operator_cloud.placement.delete_resource_provider(
             self.resource_provider,
         )
         self.assertIsNone(result)

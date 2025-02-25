@@ -11,7 +11,6 @@
 # under the License.
 import random
 
-from openstack import connection
 from openstack import exceptions
 from openstack.tests.functional import base
 from openstack import utils
@@ -22,35 +21,33 @@ class TestZone(base.BaseFunctionalTest):
         super().setUp()
         self.require_service('dns')
 
-        self.conn = connection.from_config(cloud_name=base.TEST_CLOUD_NAME)
-
         # Note: zone deletion is not an immediate operation, so each time
         # chose a new zone name for a test
         # getUniqueString is not guaranteed to return unique string between
         # different tests of the same class.
         self.ZONE_NAME = f'example-{random.randint(1, 10000)}.org.'
 
-        self.zone = self.conn.dns.create_zone(
+        self.zone = self.operator_cloud.dns.create_zone(
             name=self.ZONE_NAME,
             email='joe@example.org',
             type='PRIMARY',
             ttl=7200,
             description='example zone',
         )
-        self.addCleanup(self.conn.dns.delete_zone, self.zone)
+        self.addCleanup(self.operator_cloud.dns.delete_zone, self.zone)
 
     def test_get_zone(self):
-        zone = self.conn.dns.get_zone(self.zone)
+        zone = self.operator_cloud.dns.get_zone(self.zone)
         self.assertEqual(self.zone, zone)
 
     def test_list_zones(self):
-        names = [f.name for f in self.conn.dns.zones()]
+        names = [f.name for f in self.operator_cloud.dns.zones()]
         self.assertIn(self.ZONE_NAME, names)
 
     def test_update_zone(self):
-        current_ttl = self.conn.dns.get_zone(self.zone)['ttl']
-        self.conn.dns.update_zone(self.zone, ttl=current_ttl + 1)
-        updated_zone_ttl = self.conn.dns.get_zone(self.zone)['ttl']
+        current_ttl = self.operator_cloud.dns.get_zone(self.zone)['ttl']
+        self.operator_cloud.dns.update_zone(self.zone, ttl=current_ttl + 1)
+        updated_zone_ttl = self.operator_cloud.dns.get_zone(self.zone)['ttl']
         self.assertEqual(
             current_ttl + 1,
             updated_zone_ttl,
@@ -58,9 +55,9 @@ class TestZone(base.BaseFunctionalTest):
         )
 
     def test_create_rs(self):
-        zone = self.conn.dns.get_zone(self.zone)
+        zone = self.operator_cloud.dns.get_zone(self.zone)
         self.assertIsNotNone(
-            self.conn.dns.create_recordset(
+            self.operator_cloud.dns.create_recordset(
                 zone=zone,
                 name=f'www.{zone.name}',
                 type='A',
@@ -72,30 +69,34 @@ class TestZone(base.BaseFunctionalTest):
 
     def test_delete_zone_with_shares(self):
         # Make sure the API under test has shared zones support
-        if not utils.supports_version(self.conn.dns, '2.1'):
+        if not utils.supports_version(self.operator_cloud.dns, '2.1'):
             self.skipTest(
                 'Designate API version does not support shared zones.'
             )
 
         zone_name = f'example-{random.randint(1, 10000)}.org.'
-        zone = self.conn.dns.create_zone(
+        zone = self.operator_cloud.dns.create_zone(
             name=zone_name,
             email='joe@example.org',
             type='PRIMARY',
             ttl=7200,
             description='example zone',
         )
-        self.addCleanup(self.conn.dns.delete_zone, zone)
+        self.addCleanup(self.operator_cloud.dns.delete_zone, zone)
 
         demo_project_id = self.operator_cloud.get_project('demo')['id']
-        zone_share = self.conn.dns.create_zone_share(
+        zone_share = self.operator_cloud.dns.create_zone_share(
             zone, target_project_id=demo_project_id
         )
-        self.addCleanup(self.conn.dns.delete_zone_share, zone, zone_share)
+        self.addCleanup(
+            self.operator_cloud.dns.delete_zone_share, zone, zone_share
+        )
 
         # Test that we cannot delete a zone with shares
         self.assertRaises(
-            exceptions.BadRequestException, self.conn.dns.delete_zone, zone
+            exceptions.BadRequestException,
+            self.operator_cloud.dns.delete_zone,
+            zone,
         )
 
-        self.conn.dns.delete_zone(zone, delete_shares=True)
+        self.operator_cloud.dns.delete_zone(zone, delete_shares=True)

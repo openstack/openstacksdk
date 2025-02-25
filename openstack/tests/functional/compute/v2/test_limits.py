@@ -15,7 +15,7 @@ from openstack.tests.functional import base
 
 class TestLimits(base.BaseFunctionalTest):
     def test_limits(self):
-        sot = self.conn.compute.get_limits()
+        sot = self.operator_cloud.compute.get_limits()
         self.assertIsNotNone(sot.absolute['instances'])
         self.assertIsNotNone(sot.absolute['total_ram'])
         self.assertIsNotNone(sot.absolute['keypairs'])

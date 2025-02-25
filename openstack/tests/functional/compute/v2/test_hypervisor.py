@@ -18,13 +18,13 @@ class TestHypervisor(base.BaseFunctionalTest):
         super().setUp()
 
     def test_list_hypervisors(self):
-        rslt = list(self.conn.compute.hypervisors())
+        rslt = list(self.operator_cloud.compute.hypervisors())
         self.assertIsNotNone(rslt)
 
-        rslt = list(self.conn.compute.hypervisors(details=True))
+        rslt = list(self.operator_cloud.compute.hypervisors(details=True))
         self.assertIsNotNone(rslt)
 
     def test_get_find_hypervisors(self):
-        for hypervisor in self.conn.compute.hypervisors():
-            self.conn.compute.get_hypervisor(hypervisor.id)
-            self.conn.compute.find_hypervisor(hypervisor.id)
+        for hypervisor in self.operator_cloud.compute.hypervisors():
+            self.operator_cloud.compute.get_hypervisor(hypervisor.id)
+            self.operator_cloud.compute.find_hypervisor(hypervisor.id)

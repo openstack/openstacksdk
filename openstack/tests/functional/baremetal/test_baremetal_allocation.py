@@ -26,14 +26,18 @@ class Base(base.BaseBaremetalTest):
 
     def _create_available_node(self):
         node = self.create_node(resource_class=self.resource_class)
-        self.conn.baremetal.set_node_provision_state(node, 'manage', wait=True)
-        self.conn.baremetal.set_node_provision_state(
+        self.operator_cloud.baremetal.set_node_provision_state(
+            node, 'manage', wait=True
+        )
+        self.operator_cloud.baremetal.set_node_provision_state(
             node, 'provide', wait=True
         )
         # Make sure the node has non-empty power state by forcing power off.
-        self.conn.baremetal.set_node_power_state(node, 'power off')
+        self.operator_cloud.baremetal.set_node_power_state(node, 'power off')
         self.addCleanup(
-            lambda: self.conn.baremetal.update_node(node.id, instance_id=None)
+            lambda: self.operator_cloud.baremetal.update_node(
+                node.id, instance_id=None
+            )
         )
         return node
 
@@ -47,25 +51,27 @@ class TestBareMetalAllocation(Base):
         self.assertIsNone(allocation.node_id)
         self.assertIsNone(allocation.last_error)
 
-        loaded = self.conn.baremetal.wait_for_allocation(allocation)
+        loaded = self.operator_cloud.baremetal.wait_for_allocation(allocation)
         self.assertEqual(loaded.id, allocation.id)
         self.assertEqual('active', allocation.state)
         self.assertEqual(self.node.id, allocation.node_id)
         self.assertIsNone(allocation.last_error)
 
-        with_fields = self.conn.baremetal.get_allocation(
+        with_fields = self.operator_cloud.baremetal.get_allocation(
             allocation.id, fields=['uuid', 'node_uuid']
         )
         self.assertEqual(allocation.id, with_fields.id)
         self.assertIsNone(with_fields.state)
 
-        node = self.conn.baremetal.get_node(self.node.id)
+        node = self.operator_cloud.baremetal.get_node(self.node.id)
         self.assertEqual(allocation.id, node.allocation_id)
 
-        self.conn.baremetal.delete_allocation(allocation, ignore_missing=False)
+        self.operator_cloud.baremetal.delete_allocation(
+            allocation, ignore_missing=False
+        )
         self.assertRaises(
             exceptions.NotFoundException,
-            self.conn.baremetal.get_allocation,
+            self.operator_cloud.baremetal.get_allocation,
             allocation.id,
         )
 
@@ -77,21 +83,25 @@ class TestBareMetalAllocation(Base):
             resource_class=self.resource_class + '-fail'
         )
 
-        self.conn.baremetal.wait_for_allocation(allocation1)
-        self.conn.baremetal.wait_for_allocation(allocation2, ignore_error=True)
+        self.operator_cloud.baremetal.wait_for_allocation(allocation1)
+        self.operator_cloud.baremetal.wait_for_allocation(
+            allocation2, ignore_error=True
+        )
 
-        allocations = self.conn.baremetal.allocations()
+        allocations = self.operator_cloud.baremetal.allocations()
         self.assertEqual(
             {p.id for p in allocations}, {allocation1.id, allocation2.id}
         )
 
-        allocations = self.conn.baremetal.allocations(state='active')
+        allocations = self.operator_cloud.baremetal.allocations(state='active')
         self.assertEqual([p.id for p in allocations], [allocation1.id])
 
-        allocations = self.conn.baremetal.allocations(node=self.node.id)
+        allocations = self.operator_cloud.baremetal.allocations(
+            node=self.node.id
+        )
         self.assertEqual([p.id for p in allocations], [allocation1.id])
 
-        allocations = self.conn.baremetal.allocations(
+        allocations = self.operator_cloud.baremetal.allocations(
             resource_class=self.resource_class + '-fail'
         )
         self.assertEqual([p.id for p in allocations], [allocation2.id])
@@ -102,11 +112,13 @@ class TestBareMetalAllocation(Base):
         )
         self.assertRaises(
             exceptions.SDKException,
-            self.conn.baremetal.wait_for_allocation,
+            self.operator_cloud.baremetal.wait_for_allocation,
             allocation,
         )
 
-        allocation = self.conn.baremetal.get_allocation(allocation.id)
+        allocation = self.operator_cloud.baremetal.get_allocation(
+            allocation.id
+        )
         self.assertEqual('error', allocation.state)
         self.assertIn(self.resource_class + '-fail', allocation.last_error)
 
@@ -114,20 +126,22 @@ class TestBareMetalAllocation(Base):
         uuid = "5c9dcd04-2073-49bc-9618-99ae634d8971"
         self.assertRaises(
             exceptions.NotFoundException,
-            self.conn.baremetal.get_allocation,
+            self.operator_cloud.baremetal.get_allocation,
             uuid,
         )
         self.assertRaises(
             exceptions.NotFoundException,
-            self.conn.baremetal.delete_allocation,
+            self.operator_cloud.baremetal.delete_allocation,
             uuid,
             ignore_missing=False,
         )
-        self.assertIsNone(self.conn.baremetal.delete_allocation(uuid))
+        self.assertIsNone(
+            self.operator_cloud.baremetal.delete_allocation(uuid)
+        )
 
     def test_allocation_fields(self):
         self.create_allocation(resource_class=self.resource_class)
-        result = self.conn.baremetal.allocations(fields=['uuid'])
+        result = self.operator_cloud.baremetal.allocations(fields=['uuid'])
         for item in result:
             self.assertIsNotNone(item.id)
             self.assertIsNone(item.resource_class)
@@ -140,26 +154,30 @@ class TestBareMetalAllocationUpdate(Base):
         name = 'ossdk-name1'
 
         allocation = self.create_allocation(resource_class=self.resource_class)
-        allocation = self.conn.baremetal.wait_for_allocation(allocation)
+        allocation = self.operator_cloud.baremetal.wait_for_allocation(
+            allocation
+        )
         self.assertEqual('active', allocation.state)
         self.assertIsNone(allocation.last_error)
         self.assertIsNone(allocation.name)
         self.assertEqual({}, allocation.extra)
 
-        allocation = self.conn.baremetal.update_allocation(
+        allocation = self.operator_cloud.baremetal.update_allocation(
             allocation, name=name, extra={'answer': 42}
         )
         self.assertEqual(name, allocation.name)
         self.assertEqual({'answer': 42}, allocation.extra)
 
-        allocation = self.conn.baremetal.get_allocation(name)
+        allocation = self.operator_cloud.baremetal.get_allocation(name)
         self.assertEqual(name, allocation.name)
         self.assertEqual({'answer': 42}, allocation.extra)
 
-        self.conn.baremetal.delete_allocation(allocation, ignore_missing=False)
+        self.operator_cloud.baremetal.delete_allocation(
+            allocation, ignore_missing=False
+        )
         self.assertRaises(
             exceptions.NotFoundException,
-            self.conn.baremetal.get_allocation,
+            self.operator_cloud.baremetal.get_allocation,
             allocation.id,
         )
 
@@ -167,13 +185,15 @@ class TestBareMetalAllocationUpdate(Base):
         name = 'ossdk-name2'
 
         allocation = self.create_allocation(resource_class=self.resource_class)
-        allocation = self.conn.baremetal.wait_for_allocation(allocation)
+        allocation = self.operator_cloud.baremetal.wait_for_allocation(
+            allocation
+        )
         self.assertEqual('active', allocation.state)
         self.assertIsNone(allocation.last_error)
         self.assertIsNone(allocation.name)
         self.assertEqual({}, allocation.extra)
 
-        allocation = self.conn.baremetal.patch_allocation(
+        allocation = self.operator_cloud.baremetal.patch_allocation(
             allocation,
             [
                 {'op': 'replace', 'path': '/name', 'value': name},
@@ -183,11 +203,11 @@ class TestBareMetalAllocationUpdate(Base):
         self.assertEqual(name, allocation.name)
         self.assertEqual({'answer': 42}, allocation.extra)
 
-        allocation = self.conn.baremetal.get_allocation(name)
+        allocation = self.operator_cloud.baremetal.get_allocation(name)
         self.assertEqual(name, allocation.name)
         self.assertEqual({'answer': 42}, allocation.extra)
 
-        allocation = self.conn.baremetal.patch_allocation(
+        allocation = self.operator_cloud.baremetal.patch_allocation(
             allocation,
             [
                 {'op': 'remove', 'path': '/name'},
@@ -197,13 +217,17 @@ class TestBareMetalAllocationUpdate(Base):
         self.assertIsNone(allocation.name)
         self.assertEqual({}, allocation.extra)
 
-        allocation = self.conn.baremetal.get_allocation(allocation.id)
+        allocation = self.operator_cloud.baremetal.get_allocation(
+            allocation.id
+        )
         self.assertIsNone(allocation.name)
         self.assertEqual({}, allocation.extra)
 
-        self.conn.baremetal.delete_allocation(allocation, ignore_missing=False)
+        self.operator_cloud.baremetal.delete_allocation(
+            allocation, ignore_missing=False
+        )
         self.assertRaises(
             exceptions.NotFoundException,
-            self.conn.baremetal.get_allocation,
+            self.operator_cloud.baremetal.get_allocation,
             allocation.id,
         )

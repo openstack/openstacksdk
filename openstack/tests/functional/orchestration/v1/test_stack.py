@@ -31,9 +31,9 @@ class TestStack(base.BaseFunctionalTest):
         super().setUp()
         self.require_service('orchestration')
 
-        if self.conn.compute.find_keypair(self.NAME) is None:
-            self.conn.compute.create_keypair(name=self.NAME)
-        image = next(self.conn.image.images())
+        if self.operator_cloud.compute.find_keypair(self.NAME) is None:
+            self.operator_cloud.compute.create_keypair(name=self.NAME)
+        image = next(self.operator_cloud.image.images())
         tname = "openstack/tests/functional/orchestration/v1/hello_world.yaml"
         with open(tname) as f:
             template = yaml.safe_load(f)
@@ -41,14 +41,14 @@ class TestStack(base.BaseFunctionalTest):
         # the shade layer.
         template['heat_template_version'] = '2013-05-23'
         self.network, self.subnet = test_network.create_network(
-            self.conn, self.NAME, self.cidr
+            self.operator_cloud, self.NAME, self.cidr
         )
         parameters = {
             'image': image.id,
             'key_name': self.NAME,
             'network': self.network.id,
         }
-        sot = self.conn.orchestration.create_stack(
+        sot = self.operator_cloud.orchestration.create_stack(
             name=self.NAME,
             parameters=parameters,
             template=template,
@@ -57,7 +57,7 @@ class TestStack(base.BaseFunctionalTest):
         self.assertEqual(True, (sot.id is not None))
         self.stack = sot
         self.assertEqual(self.NAME, sot.name)
-        self.conn.orchestration.wait_for_status(
+        self.operator_cloud.orchestration.wait_for_status(
             sot,
             status='CREATE_COMPLETE',
             failures=['CREATE_FAILED'],
@@ -65,20 +65,24 @@ class TestStack(base.BaseFunctionalTest):
         )
 
     def tearDown(self):
-        self.conn.orchestration.delete_stack(self.stack, ignore_missing=False)
-        self.conn.compute.delete_keypair(self.NAME)
+        self.operator_cloud.orchestration.delete_stack(
+            self.stack, ignore_missing=False
+        )
+        self.operator_cloud.compute.delete_keypair(self.NAME)
         # Need to wait for the stack to go away before network delete
         try:
-            self.conn.orchestration.wait_for_status(
+            self.operator_cloud.orchestration.wait_for_status(
                 self.stack, 'DELETE_COMPLETE', wait=self._wait_for_timeout
             )
         except exceptions.NotFoundException:
             pass
-        test_network.delete_network(self.conn, self.network, self.subnet)
+        test_network.delete_network(
+            self.operator_cloud, self.network, self.subnet
+        )
         super().tearDown()
 
     def test_list(self):
-        names = [o.name for o in self.conn.orchestration.stacks()]
+        names = [o.name for o in self.operator_cloud.orchestration.stacks()]
         self.assertIn(self.NAME, names)
 
     def test_suspend_resume(self):
@@ -87,8 +91,8 @@ class TestStack(base.BaseFunctionalTest):
         resume_status = "RESUME_COMPLETE"
 
         # when
-        self.conn.orchestration.suspend_stack(self.stack)
-        sot = self.conn.orchestration.wait_for_status(
+        self.operator_cloud.orchestration.suspend_stack(self.stack)
+        sot = self.operator_cloud.orchestration.wait_for_status(
             self.stack, suspend_status, wait=self._wait_for_timeout
         )
 
@@ -96,8 +100,8 @@ class TestStack(base.BaseFunctionalTest):
         self.assertEqual(suspend_status, sot.status)
 
         # when
-        self.conn.orchestration.resume_stack(self.stack)
-        sot = self.conn.orchestration.wait_for_status(
+        self.operator_cloud.orchestration.resume_stack(self.stack)
+        sot = self.operator_cloud.orchestration.wait_for_status(
             self.stack, resume_status, wait=self._wait_for_timeout
         )
 

@@ -41,9 +41,11 @@ class TestTransfer(base.BaseBlockStorageTest):
         super().tearDown()
 
     def test_transfer(self):
-        if not utils.supports_microversion(self.conn.block_storage, "3.55"):
+        if not utils.supports_microversion(
+            self.operator_cloud.block_storage, "3.55"
+        ):
             self.skipTest("Cannot test new transfer API if MV < 3.55")
-        sot = self.conn.block_storage.create_transfer(
+        sot = self.operator_cloud.block_storage.create_transfer(
             volume_id=self.VOLUME_ID,
             name=self.VOLUME_NAME,
         )

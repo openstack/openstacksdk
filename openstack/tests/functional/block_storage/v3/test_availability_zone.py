@@ -16,7 +16,9 @@ from openstack.tests.functional import base
 
 class TestAvailabilityZone(base.BaseFunctionalTest):
     def test_list(self):
-        availability_zones = list(self.conn.block_storage.availability_zones())
+        availability_zones = list(
+            self.operator_cloud.block_storage.availability_zones()
+        )
         self.assertGreater(len(availability_zones), 0)
 
         for az in availability_zones:
