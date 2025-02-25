@@ -95,10 +95,17 @@ class TestIdentityRoles(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=self.get_mock_url(),
+                    uri=self.get_mock_url(append=[role_data.role_name]),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        qs_elements=[f'name={role_data.role_name}']
+                    ),
                     status_code=200,
                     json={'roles': [role_data.json_response['role']]},
-                )
+                ),
             ]
         )
         role = self.cloud.get_role(role_data.role_name)
@@ -114,9 +121,9 @@ class TestIdentityRoles(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=self.get_mock_url(),
+                    uri=self.get_mock_url(append=[role_data.role_id]),
                     status_code=200,
-                    json={'roles': [role_data.json_response['role']]},
+                    json=role_data.json_response,
                 )
             ]
         )
@@ -155,9 +162,9 @@ class TestIdentityRoles(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=self.get_mock_url(),
+                    uri=self.get_mock_url(append=[role_data.role_id]),
                     status_code=200,
-                    json={'roles': [role_data.json_response['role']]},
+                    json=role_data.json_response,
                 ),
                 dict(
                     method='PATCH',
@@ -182,9 +189,9 @@ class TestIdentityRoles(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=self.get_mock_url(),
+                    uri=self.get_mock_url(append=[role_data.role_id]),
                     status_code=200,
-                    json={'roles': [role_data.json_response['role']]},
+                    json=role_data.json_response,
                 ),
                 dict(
                     method='DELETE',
@@ -203,7 +210,14 @@ class TestIdentityRoles(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=self.get_mock_url(),
+                    uri=self.get_mock_url(append=[role_data.role_name]),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        qs_elements=[f'name={role_data.role_name}']
+                    ),
                     status_code=200,
                     json={'roles': [role_data.json_response['role']]},
                 ),

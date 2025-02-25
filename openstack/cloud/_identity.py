@@ -144,8 +144,27 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
-        return _utils._get_entity(
-            self, 'project', name_or_id, filters, domain_id=domain_id
+        if filters is not None:
+            warnings.warn(
+                "the 'filters' argument is deprecated; use "
+                "'search_projects' instead",
+                os_warnings.RemovedInSDK60Warning,
+            )
+            entities = self.search_projects(
+                name_or_id, filters, domain_id=domain_id
+            )
+            if not entities:
+                return None
+
+            if len(entities) > 1:
+                raise exceptions.SDKException(
+                    f"Multiple matches found for {name_or_id}",
+                )
+
+            return entities[0]
+
+        return self.identity.find_project(
+            name_or_id=name_or_id, domain_id=domain_id
         )
 
     def update_project(
@@ -270,9 +289,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         return _utils._filter_list(users, name_or_id, filters)
 
     # TODO(stephenfin): Remove 'filters' in a future major version
-    # TODO(stephenfin): Remove 'kwargs' since it doesn't do anything
-    @_utils.valid_kwargs('domain_id')
-    def get_user(self, name_or_id, filters=None, **kwargs):
+    def get_user(self, name_or_id, filters=None, domain_id=None):
         """Get exactly one user.
 
         :param name_or_id: Name or unique ID of the user.
@@ -288,12 +305,30 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             Example::
 
                 "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+        :param domain_id: Domain ID to scope the retrieved user.
 
         :returns: an identity ``User`` object
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
-        return _utils._get_entity(self, 'user', name_or_id, filters, **kwargs)
+        if filters is not None:
+            warnings.warn(
+                "the 'filters' argument is deprecated; use "
+                "'search_user' instead",
+                os_warnings.RemovedInSDK60Warning,
+            )
+            entities = self.search_users(
+                name_or_id, filters, domain_id=domain_id
+            )
+            if not entities:
+                return None
+
+            if len(entities) > 1:
+                raise exceptions.SDKException(
+                    f"Multiple matches found for {name_or_id}",
+                )
+
+        return self.identity.find_user(name_or_id, domain_id=domain_id)
 
     # TODO(stephenfin): Remove normalize since it doesn't do anything
     def get_user_by_id(self, user_id, normalize=None):
@@ -500,7 +535,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         services = self.list_services()
         return _utils._filter_list(services, name_or_id, filters)
 
-    # TODO(stephenfin): Remove 'filters' since it's a noop
+    # TODO(stephenfin): Remove 'filters' in a future major version
     def get_service(self, name_or_id, filters=None):
         """Get exactly one Keystone service.
 
@@ -511,7 +546,24 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             wrong during the OpenStack API call or if multiple matches are
             found.
         """
-        return _utils._get_entity(self, 'service', name_or_id, filters)
+        if filters is not None:
+            warnings.warn(
+                "the 'filters' argument is deprecated; use "
+                "'search_services' instead",
+                os_warnings.RemovedInSDK60Warning,
+            )
+            entities = self.search_services(name_or_id, filters)
+            if not entities:
+                return None
+
+            if len(entities) > 1:
+                raise exceptions.SDKException(
+                    f"Multiple matches found for {name_or_id}",
+                )
+
+            return entities[0]
+
+        return self.identity.find_service(name_or_id=name_or_id)
 
     def delete_service(self, name_or_id):
         """Delete a Keystone service.
@@ -673,7 +725,24 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :param id: ID of endpoint.
         :returns: An identity ``Endpoint`` object
         """
-        return _utils._get_entity(self, 'endpoint', id, filters)
+        if filters is not None:
+            warnings.warn(
+                "the 'filters' argument is deprecated; use "
+                "'search_endpoints' instead",
+                os_warnings.RemovedInSDK60Warning,
+            )
+            entities = self.search_endpoints(id, filters)
+            if not entities:
+                return None
+
+            if len(entities) > 1:
+                raise exceptions.SDKException(
+                    f"Multiple matches found for {id}",
+                )
+
+            return entities[0]
+
+        return self.identity.find_endpoint(name_or_id=id)
 
     def delete_endpoint(self, id):
         """Delete a Keystone endpoint.
@@ -849,6 +918,13 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
+        if filters is not None:
+            warnings.warn(
+                "The 'filters' argument is deprecated for removal. It is a "
+                "no-op and can be safely removed.",
+                os_warnings.RemovedInSDK60Warning,
+            )
+
         if domain_id is None:
             return self.identity.find_domain(name_or_id, ignore_missing=True)
         else:
@@ -866,8 +942,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         return list(self.identity.groups(**kwargs))
 
-    @_utils.valid_kwargs('domain_id')
-    def search_groups(self, name_or_id=None, filters=None, **kwargs):
+    def search_groups(self, name_or_id=None, filters=None, domain_id=None):
         """Search Keystone groups.
 
         :param name_or_id: Name or ID of the group(s).
@@ -883,28 +958,48 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             Example::
 
                 "[?last_name==`Smith`] | [?other.gender]==`Female`]"
-        :param domain_id: domain id.
+        :param domain_id: Domain ID to scope the searched groups.
 
         :returns: A list of identity ``Group`` objects
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
-        groups = self.list_groups(**kwargs)
+        groups = self.list_groups(domain_id=domain_id)
         return _utils._filter_list(groups, name_or_id, filters)
 
-    # TODO(stephenfin): Remove filters since it's a noop
-    # TODO(stephenfin): Remove kwargs since it's a noop
-    @_utils.valid_kwargs('domain_id')
-    def get_group(self, name_or_id, filters=None, **kwargs):
+    # TODO(stephenfin): Remove 'filters' in a future major version
+    def get_group(self, name_or_id, filters=None, domain_id=None):
         """Get exactly one Keystone group.
 
         :param name_or_id: Name or unique ID of the group(s).
+        :param domain_id: Domain ID to scope the retrieved group.
 
         :returns: An identity ``Group`` object
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
-        return _utils._get_entity(self, 'group', name_or_id, filters, **kwargs)
+        if filters is not None:
+            warnings.warn(
+                "the 'filters' argument is deprecated; use "
+                "'search_projects' instead",
+                os_warnings.RemovedInSDK60Warning,
+            )
+            entities = self.search_groups(
+                name_or_id, filters, domain_id=domain_id
+            )
+            if not entities:
+                return None
+
+            if len(entities) > 1:
+                raise exceptions.SDKException(
+                    f"Multiple matches found for {name_or_id}",
+                )
+
+            return entities[0]
+
+        return self.identity.find_group(
+            name_or_id=name_or_id, domain_id=domain_id
+        )
 
     def create_group(self, name, description, domain=None):
         """Create a group.
@@ -995,7 +1090,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         return list(self.identity.roles(**kwargs))
 
-    def search_roles(self, name_or_id=None, filters=None):
+    def search_roles(self, name_or_id=None, filters=None, domain_id=None):
         """Seach Keystone roles.
 
         :param name: Name or ID of the role(s).
@@ -1011,27 +1106,48 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             Example::
 
                 "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+        :param domain_id: Domain ID to scope the searched roles.
 
         :returns: a list of identity ``Role`` objects
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
-        roles = self.list_roles()
+        roles = self.list_roles(domain_id=domain_id)
         return _utils._filter_list(roles, name_or_id, filters)
 
-    # TODO(stephenfin): Remove filters since it's a noop
-    # TODO(stephenfin): Remove kwargs since it's a noop
-    @_utils.valid_kwargs('domain_id')
-    def get_role(self, name_or_id, filters=None, **kwargs):
+    # TODO(stephenfin): Remove 'filters' in a future major version
+    def get_role(self, name_or_id, filters=None, domain_id=None):
         """Get a Keystone role.
 
         :param name_or_id: Name or unique ID of the role.
+        :param domain_id: Domain ID to scope the retrieved role.
 
         :returns: An identity ``Role`` object if found, else None.
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
-        return _utils._get_entity(self, 'role', name_or_id, filters, **kwargs)
+        if filters is not None:
+            warnings.warn(
+                "the 'filters' argument is deprecated; use "
+                "'search_roles' instead",
+                os_warnings.RemovedInSDK60Warning,
+            )
+            entities = self.search_roles(
+                name_or_id, filters, domain_id=domain_id
+            )
+            if not entities:
+                return None
+
+            if len(entities) > 1:
+                raise exceptions.SDKException(
+                    f"Multiple matches found for {name_or_id}",
+                )
+
+            return entities[0]
+
+        return self.identity.find_role(
+            name_or_id=name_or_id, domain_id=domain_id
+        )
 
     def _keystone_v3_role_assignments(self, **filters):
         # NOTE(samueldmq): different parameters have different representation

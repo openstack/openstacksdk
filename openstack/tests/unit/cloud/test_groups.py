@@ -55,9 +55,9 @@ class TestGroups(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=self.get_mock_url(),
+                    uri=self.get_mock_url(append=[group_data.group_id]),
                     status_code=200,
-                    json={'groups': [group_data.json_response['group']]},
+                    json=group_data.json_response,
                 ),
             ]
         )

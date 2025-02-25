@@ -42,7 +42,7 @@ class TestCloudEndpoints(base.TestCase):
     def _dummy_url(self):
         return f'https://{uuid.uuid4().hex}.example.com/'
 
-    def test_create_endpoint_v3(self):
+    def test_create_endpoint(self):
         service_data = self._get_service_data()
         public_endpoint_data = self._get_endpoint_v3_data(
             service_id=service_data.service_id,
@@ -72,11 +72,11 @@ class TestCloudEndpoints(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=self.get_mock_url(resource='services'),
+                    uri=self.get_mock_url(
+                        resource='services', append=[service_data.service_id]
+                    ),
                     status_code=200,
-                    json={
-                        'services': [service_data.json_response_v3['service']]
-                    },
+                    json=service_data.json_response_v3,
                 ),
                 dict(
                     method='POST',
@@ -89,11 +89,11 @@ class TestCloudEndpoints(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri=self.get_mock_url(resource='services'),
+                    uri=self.get_mock_url(
+                        resource='services', append=[service_data.service_id]
+                    ),
                     status_code=200,
-                    json={
-                        'services': [service_data.json_response_v3['service']]
-                    },
+                    json=service_data.json_response_v3,
                 ),
                 dict(
                     method='POST',
@@ -186,7 +186,7 @@ class TestCloudEndpoints(base.TestCase):
             )
         self.assert_calls()
 
-    def test_update_endpoint_v3(self):
+    def test_update_endpoint(self):
         service_data = self._get_service_data()
         dummy_url = self._dummy_url()
         endpoint_data = self._get_endpoint_v3_data(
@@ -363,11 +363,9 @@ class TestCloudEndpoints(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=self.get_mock_url(),
+                    uri=self.get_mock_url(append=[endpoint_data.endpoint_id]),
                     status_code=200,
-                    json={
-                        'endpoints': [endpoint_data.json_response['endpoint']]
-                    },
+                    json=endpoint_data.json_response['endpoint'],
                 ),
                 dict(
                     method='DELETE',
