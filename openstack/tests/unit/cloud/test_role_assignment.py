@@ -198,30 +198,45 @@ class TestRoleAssignment(base.TestCase):
                 ),
             ]
 
-    def __user_mocks(self, user_data, use_name, is_found=True):
+    def __user_mocks(
+        self, user_data, use_name, is_found=True, domain_data=None
+    ):
+        qs_elements = []
+        if domain_data:
+            qs_elements = ['domain_id=' + domain_data.domain_id]
         uri_mocks = []
         if not use_name:
             uri_mocks.append(
                 dict(
                     method='GET',
-                    uri=self.get_mock_url(resource='users'),
-                    status_code=200,
-                    json={
-                        'users': (
-                            [user_data.json_response['user']]
-                            if is_found
-                            else []
-                        )
-                    },
-                )
+                    uri=self.get_mock_url(
+                        resource='users',
+                        append=[user_data.user_id],
+                        # TODO(stephenfin): We shouldn't be passing domain ID
+                        # here since it's unnecessary, but that requires a much
+                        # larger rework of the Resource.find method.
+                        qs_elements=qs_elements,
+                    ),
+                    json=user_data.json_response if is_found else None,
+                    status_code=200 if is_found else 404,
+                ),
             )
         else:
-            uri_mocks.append(
+            uri_mocks += [
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
                         resource='users',
-                        qs_elements=['name=' + user_data.name],
+                        append=[user_data.name],
+                        qs_elements=qs_elements,
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        resource='users',
+                        qs_elements=qs_elements + ['name=' + user_data.name],
                     ),
                     status_code=200,
                     json={
@@ -231,8 +246,8 @@ class TestRoleAssignment(base.TestCase):
                             else []
                         )
                     },
-                )
-            )
+                ),
+            ]
         return uri_mocks
 
     def _get_mock_role_query_urls(
@@ -279,7 +294,12 @@ class TestRoleAssignment(base.TestCase):
 
         if user_data:
             uri_mocks.extend(
-                self.__user_mocks(user_data, use_user_name, is_found=True)
+                self.__user_mocks(
+                    user_data,
+                    use_user_name,
+                    is_found=True,
+                    domain_data=domain_data,
+                )
             )
 
         if group_data:
@@ -1907,55 +1927,9 @@ class TestRoleAssignment(base.TestCase):
             )
         self.assert_calls()
 
-    def test_grant_no_user_or_group(self):
-        uris = self.__get(
-            'role', self.role_data, 'role_name', [], use_name=True
-        )
-        uris.extend(
-            self.__user_mocks(self.user_data, use_name=True, is_found=False)
-        )
-        self.register_uris(uris)
-
-        with testtools.ExpectedException(
-            exceptions.SDKException,
-            'Must specify either a user or a group',
-        ):
-            self.cloud.grant_role(
-                self.role_data.role_name,
-                user=self.user_data.name,
-                inherited=self.IS_INHERITED,
-            )
-        self.assert_calls()
-
-    def test_revoke_no_user_or_group(self):
-        uris = self.__get(
-            'role', self.role_data, 'role_name', [], use_name=True
-        )
-        uris.extend(
-            self.__user_mocks(self.user_data, use_name=True, is_found=False)
-        )
-        self.register_uris(uris)
-
-        with testtools.ExpectedException(
-            exceptions.SDKException,
-            'Must specify either a user or a group',
-        ):
-            self.cloud.revoke_role(
-                self.role_data.role_name,
-                user=self.user_data.name,
-                inherited=self.IS_INHERITED,
-            )
-        self.assert_calls()
-
     def test_grant_both_user_and_group(self):
         uris = self.__get(
             'role', self.role_data, 'role_name', [], use_name=True
-        )
-        uris.extend(self.__user_mocks(self.user_data, use_name=True))
-        uris.extend(
-            self.__get(
-                'group', self.group_data, 'group_name', [], use_name=True
-            )
         )
         self.register_uris(uris)
 
@@ -2115,9 +2089,7 @@ class TestRoleAssignment(base.TestCase):
     def test_grant_no_project_or_domain(self):
         uris = self._get_mock_role_query_urls(
             self.role_data,
-            user_data=self.user_data,
             use_role_name=True,
-            use_user_name=True,
         )
 
         self.register_uris(uris)
@@ -2136,9 +2108,7 @@ class TestRoleAssignment(base.TestCase):
     def test_revoke_no_project_or_domain_or_system(self):
         uris = self._get_mock_role_query_urls(
             self.role_data,
-            user_data=self.user_data,
             use_role_name=True,
-            use_user_name=True,
         )
 
         self.register_uris(uris)

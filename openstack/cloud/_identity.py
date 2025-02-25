@@ -1216,19 +1216,11 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         data['role'] = self.identity.find_role(role, ignore_missing=False)
 
-        if user:
-            # use cloud.get_user to save us from bad searching by name
-            data['user'] = self.get_user(user, filters=search_args)
-        if group:
-            data['group'] = self.identity.find_group(
-                group, ignore_missing=False, **search_args
-            )
-
-        if data.get('user') and data.get('group'):
+        if user and group:
             raise exceptions.SDKException(
                 'Specify either a group or a user, not both'
             )
-        if data.get('user') is None and data.get('group') is None:
+        if user is None and group is None:
             raise exceptions.SDKException(
                 'Must specify either a user or a group'
             )
@@ -1237,10 +1229,19 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
                 'Must specify either a domain, project or system'
             )
 
+        if user:
+            data['user'] = self.identity.find_user(
+                user, ignore_missing=False, **search_args
+            )
+        if group:
+            data['group'] = self.identity.find_group(
+                group, ignore_missing=False, **search_args
+            )
         if project:
             data['project'] = self.identity.find_project(
                 project, ignore_missing=False, **search_args
             )
+
         return data
 
     def grant_role(
