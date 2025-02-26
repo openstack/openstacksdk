@@ -193,11 +193,10 @@ class Proxy(proxy.Proxy):
         "vpn_service": _vpn_service.VpnService,
     }
 
-    @proxy._check_resource(strict=False)
     def _update(
         self,
         resource_type: type[resource.ResourceT],
-        value: ty.Union[str, resource.ResourceT],
+        value: ty.Union[str, resource.ResourceT, None],
         base_path: ty.Optional[str] = None,
         if_revision: ty.Optional[int] = None,
         **attrs: ty.Any,
@@ -212,11 +211,10 @@ class Proxy(proxy.Proxy):
 
         return res.commit(self, base_path=base_path)
 
-    @proxy._check_resource(strict=False)
     def _delete(
         self,
         resource_type: type[resource.ResourceT],
-        value: ty.Union[str, resource.ResourceT],
+        value: ty.Union[str, resource.ResourceT, None],
         ignore_missing: bool = True,
         if_revision: ty.Optional[int] = None,
         **attrs: ty.Any,
@@ -3594,10 +3592,10 @@ class Proxy(proxy.Proxy):
             rule belongs or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the resource does not exist. When set to ``True``, no exception
-            will be set when attempting to delete a nonexistent minimum packet
-            rate rule.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource does not exist. When set to ``True``, no
+            exception will be set when attempting to delete a nonexistent
+            minimum packet rate rule.
 
         :returns: ``None``
         """

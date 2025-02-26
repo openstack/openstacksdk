@@ -758,10 +758,13 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.block_storage.v2.limits.RateLimit`
         :rtype: :class:`~openstack.block_storage.v2.limits.Limits`
         """
-        params = {}
         if project:
-            params['project_id'] = resource.Resource._get_id(project)
-        return self._get(_limits.Limits, requires_id=False, **params)
+            return self._get(
+                _limits.Limits,
+                requires_id=False,
+                project_id=resource.Resource._get_id(project),
+            )
+        return self._get(_limits.Limits, requires_id=False)
 
     # ========== Capabilities ==========
 
