@@ -623,7 +623,7 @@ class TestMember(TestImageProxy):
             "openstack.proxy.Proxy._update",
             self.proxy.update_member,
             method_args=['member_id', 'image_id'],
-            expected_args=[_member.Member],
+            expected_args=[_member.Member, None],
             expected_kwargs={'member_id': 'member_id', 'image_id': 'image_id'},
         )
 

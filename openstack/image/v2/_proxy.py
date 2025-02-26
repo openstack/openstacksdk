@@ -1109,6 +1109,7 @@ class Proxy(proxy.Proxy):
         image_id = resource.Resource._get_id(image)
         return self._update(
             _member.Member,
+            None,
             member_id=member_id,
             image_id=image_id,
             **attrs,

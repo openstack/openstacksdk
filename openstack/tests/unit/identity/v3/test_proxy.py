@@ -158,7 +158,7 @@ class TestIdentityProxyDomainConfig(TestIdentityProxyBase):
             domain_config.DomainConfig,
             method_args=['domain_id'],
             method_kwargs={},
-            expected_args=[],
+            expected_args=[None],
             expected_kwargs={
                 'domain_id': 'domain_id',
             },

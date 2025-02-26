@@ -329,6 +329,7 @@ class Proxy(proxy.Proxy):
         domain_id = resource.Resource._get_id(domain)
         return self._update(
             _domain_config.DomainConfig,
+            None,
             domain_id=domain_id,
             **attrs,
         )
