@@ -25,8 +25,7 @@
         - openstacksdk-functional-devstack-networking-ext
         - openstacksdk-functional-devstack-magnum:
             voting: false
-        - openstacksdk-functional-devstack-manila:
-            voting: false
+        - openstacksdk-functional-devstack-manila
         - openstacksdk-functional-devstack-masakari:
             voting: false
         - openstacksdk-functional-devstack-ironic:
