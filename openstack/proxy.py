@@ -767,6 +767,11 @@ class Proxy(adapter.Adapter):
         )
 
         if jmespath_filters and isinstance(jmespath_filters, str):
+            warnings.warn(
+                'Support for jmespath-style filters is deprecated and will be '
+                'removed in a future release.',
+                os_warnings.RemovedInSDK60Warning,
+            )
             return jmespath.search(jmespath_filters, data)
 
         return data
