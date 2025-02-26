@@ -5,8 +5,7 @@ show_error_context = true
 ignore_missing_imports = true
 follow_imports = "normal"
 check_untyped_defs = true
-# TODO(stephenfin): Remove this when typed keystoneauth1 (5.10.0?) is released
-warn_unused_ignores = false
+warn_unused_ignores = true
 # many of the following are false while we incrementally add typing
 warn_return_any = false
 warn_unused_configs = true
