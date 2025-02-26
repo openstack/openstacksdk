@@ -19,9 +19,12 @@ Exception definitions.
 import json
 import re
 import typing as ty
+import warnings
 
 import requests
 from requests import exceptions as _rex
+
+from openstack import warnings as os_warnings
 
 if ty.TYPE_CHECKING:
     from openstack import resource
@@ -73,13 +76,31 @@ class HttpException(SDKException, _rex.HTTPError):
         details: ty.Optional[str] = None,
         request_id: ty.Optional[str] = None,
     ):
-        # TODO(shade) Remove http_status parameter and the ability for response
-        # to be None once we're not mocking Session everywhere.
+        if http_status is not None:
+            warnings.warn(
+                "The 'http_status' parameter is unnecessary and will be "
+                "removed in a future release",
+                os_warnings.RemovedInSDK50Warning,
+            )
+
+        if request_id is not None:
+            warnings.warn(
+                "The 'request_id' parameter is unnecessary and will be "
+                "removed in a future release",
+                os_warnings.RemovedInSDK50Warning,
+            )
+
         if not message:
             if response is not None:
                 message = f"{self.__class__.__name__}: {response.status_code}"
             else:
                 message = f"{self.__class__.__name__}: Unknown error"
+            status = (
+                response.status_code
+                if response is not None
+                else 'Unknown error'
+            )
+            message = f'{self.__class__.__name__}: {status}'
 
         # Call directly rather than via super to control parameters
         SDKException.__init__(self, message=message)
@@ -241,15 +262,10 @@ def raise_from_response(
     if not details:
         details = response.reason if response.reason else response.text
 
-    http_status = response.status_code
-    request_id = response.headers.get('x-openstack-request-id')
-
     raise cls(
         message=error_message,
         response=response,
         details=details,
-        http_status=http_status,
-        request_id=request_id,
     )
 
 

@@ -13,9 +13,11 @@
 import json
 from unittest import mock
 import uuid
+import warnings
 
 from openstack import exceptions
 from openstack.tests.unit import base
+from openstack.tests.unit import fakes
 
 
 class Test_Exception(base.TestCase):
@@ -23,7 +25,7 @@ class Test_Exception(base.TestCase):
         exc = exceptions.MethodNotSupported(self.__class__, 'list')
         expected = (
             'The list method is not supported for '
-            + 'openstack.tests.unit.test_exceptions.Test_Exception'
+            'openstack.tests.unit.test_exceptions.Test_Exception'
         )
         self.assertEqual(expected, str(exc))
 
@@ -31,14 +33,29 @@ class Test_Exception(base.TestCase):
 class Test_HttpException(base.TestCase):
     def setUp(self):
         super().setUp()
-        self.message = "mayday"
+        self.message = 'mayday'
+        self.response = fakes.FakeResponse(
+            status_code=401,
+            data={
+                'error': {
+                    'code': 401,
+                    'message': (
+                        'The request you have made requires authentication.'
+                    ),
+                    'title': 'Unauthorized',
+                },
+            },
+        )
 
     def _do_raise(self, *args, **kwargs):
         raise exceptions.HttpException(*args, **kwargs)
 
     def test_message(self):
         exc = self.assertRaises(
-            exceptions.HttpException, self._do_raise, self.message
+            exceptions.HttpException,
+            self._do_raise,
+            self.message,
+            response=self.response,
         )
 
         self.assertEqual(self.message, exc.message)
@@ -49,6 +66,7 @@ class Test_HttpException(base.TestCase):
             exceptions.HttpException,
             self._do_raise,
             self.message,
+            response=self.response,
             details=details,
         )
 
@@ -57,15 +75,23 @@ class Test_HttpException(base.TestCase):
 
     def test_http_status(self):
         http_status = 123
-        exc = self.assertRaises(
-            exceptions.HttpException,
-            self._do_raise,
-            self.message,
-            http_status=http_status,
-        )
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter('always')
+
+            exc = self.assertRaises(
+                exceptions.HttpException,
+                self._do_raise,
+                self.message,
+                http_status=http_status,
+            )
 
         self.assertEqual(self.message, exc.message)
         self.assertEqual(http_status, exc.status_code)
+
+        self.assertIn(
+            "The 'http_status' parameter is unnecessary",
+            str(w[-1]),
+        )
 
 
 class TestRaiseFromResponse(base.TestCase):

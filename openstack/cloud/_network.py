@@ -1863,12 +1863,8 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             )
 
         policy = self.network.find_qos_policy(
-            policy_name_or_id, ignore_missing=True
+            policy_name_or_id, ignore_missing=False
         )
-        if not policy:
-            raise exceptions.NotFoundException(
-                f"QoS policy {policy_name_or_id} not Found."
-            )
 
         return self.network.get_qos_minimum_bandwidth_rule(rule_id, policy)
 
@@ -1897,12 +1893,8 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             )
 
         policy = self.network.find_qos_policy(
-            policy_name_or_id, ignore_missing=True
+            policy_name_or_id, ignore_missing=False
         )
-        if not policy:
-            raise exceptions.NotFoundException(
-                f"QoS policy {policy_name_or_id} not Found."
-            )
 
         kwargs['min_kbps'] = min_kbps
 
@@ -1931,12 +1923,8 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             )
 
         policy = self.network.find_qos_policy(
-            policy_name_or_id, ignore_missing=True
+            policy_name_or_id, ignore_missing=False
         )
-        if not policy:
-            raise exceptions.NotFoundException(
-                f"QoS policy {policy_name_or_id} not Found."
-            )
 
         if not kwargs:
             self.log.debug("No QoS minimum bandwidth rule data to update")
@@ -1971,12 +1959,8 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             )
 
         policy = self.network.find_qos_policy(
-            policy_name_or_id, ignore_missing=True
+            policy_name_or_id, ignore_missing=False
         )
-        if not policy:
-            raise exceptions.NotFoundException(
-                f"QoS policy {policy_name_or_id} not Found."
-            )
 
         try:
             self.network.delete_qos_minimum_bandwidth_rule(

@@ -21,6 +21,7 @@ from openstack import exceptions
 from openstack import proxy
 from openstack import resource
 from openstack.tests.unit import base
+from openstack.tests.unit import fakes
 from openstack import utils
 
 
@@ -237,7 +238,8 @@ class TestProxyDelete(base.TestCase):
 
     def test_delete_ignore_missing(self):
         self.res.delete.side_effect = exceptions.NotFoundException(
-            message="test", http_status=404
+            message="test",
+            response=fakes.FakeResponse(status_code=404, data={'error': None}),
         )
 
         rv = self.sot._delete(DeleteableResource, self.fake_id)
@@ -245,7 +247,8 @@ class TestProxyDelete(base.TestCase):
 
     def test_delete_NotFound(self):
         self.res.delete.side_effect = exceptions.NotFoundException(
-            message="test", http_status=404
+            message="test",
+            response=fakes.FakeResponse(status_code=404, data={'error': None}),
         )
 
         self.assertRaisesRegex(
@@ -259,8 +262,9 @@ class TestProxyDelete(base.TestCase):
         )
 
     def test_delete_HttpException(self):
-        self.res.delete.side_effect = exceptions.HttpException(
-            message="test", http_status=500
+        self.res.delete.side_effect = exceptions.ResourceNotFound(
+            message="test",
+            response=fakes.FakeResponse(status_code=500, data={'error': None}),
         )
 
         self.assertRaises(
@@ -468,7 +472,8 @@ class TestProxyGet(base.TestCase):
 
     def test_get_not_found(self):
         self.res.fetch.side_effect = exceptions.NotFoundException(
-            message="test", http_status=404
+            message="test",
+            response=fakes.FakeResponse(status_code=404, data={'error': None}),
         )
 
         self.assertRaisesRegex(
