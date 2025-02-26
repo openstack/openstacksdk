@@ -48,6 +48,27 @@ class Limit(resource.Resource):
     #: ID of project. *Type: string*
     project_id = resource.Body('project_id')
 
+    def create(
+        self,
+        session,
+        prepend_key=True,
+        base_path=None,
+        *,
+        resource_request_key=None,
+        resource_response_key='limits',
+        microversion=None,
+        **params,
+    ):
+        return super().create(
+            session,
+            prepend_key=prepend_key,
+            base_path=base_path,
+            resource_request_key=resource_request_key,
+            resource_response_key=resource_response_key,
+            microversion=microversion,
+            **params,
+        )
+
     def _prepare_request_body(
         self,
         patch,
@@ -71,7 +92,7 @@ class Limit(resource.Resource):
         has_body=None,
         error_message=None,
         *,
-        resource_response_key='limits',
+        resource_response_key=None,
     ):
         """Given a KSA response, inflate this instance with its data
 
