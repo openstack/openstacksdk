@@ -28,7 +28,17 @@ class TestServers(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'compute', 'public', append=['servers', 'detail']
+                        'compute', 'public', append=['servers', 'mickey']
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['servers', 'detail'],
+                        qs_elements=['name=mickey'],
                     ),
                     json={'servers': [server1, server2]},
                 ),
@@ -55,7 +65,17 @@ class TestServers(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'compute', 'public', append=['servers', 'detail']
+                        'compute', 'public', append=['servers', 'doesNotExist']
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['servers', 'detail'],
+                        qs_elements=['name=doesNotExist'],
                     ),
                     json={'servers': []},
                 ),
@@ -100,6 +120,7 @@ class TestServers(base.TestCase):
 
     def test_list_server_private_ip(self):
         self.has_neutron = True
+        server_id = "97fe35e9-756a-41a2-960a-1d057d2c9ee4"
         fake_server = {
             "OS-EXT-STS:task_state": None,
             "addresses": {
@@ -145,7 +166,7 @@ class TestServers(base.TestCase):
                     }
                 ],
             },
-            "id": "97fe35e9-756a-41a2-960a-1d057d2c9ee4",
+            "id": server_id,
             "security_groups": [{"name": "default"}],
             "user_id": "c17534835f8f42bf98fc367e0bf35e09",
             "OS-DCF:diskConfig": "MANUAL",
@@ -277,9 +298,9 @@ class TestServers(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'compute', 'public', append=['servers', 'detail']
+                        'compute', 'public', append=['servers', server_id]
                     ),
-                    json={'servers': [fake_server]},
+                    json={'server': fake_server},
                 ),
                 dict(
                     method='GET',
@@ -298,7 +319,7 @@ class TestServers(base.TestCase):
             ]
         )
 
-        r = self.cloud.get_server('97fe35e9-756a-41a2-960a-1d057d2c9ee4')
+        r = self.cloud.get_server(server_id)
 
         self.assertEqual('10.4.0.13', r['private_v4'])
 

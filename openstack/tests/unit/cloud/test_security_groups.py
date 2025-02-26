@@ -854,7 +854,19 @@ class TestSecurityGroups(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'compute', 'public', append=['servers', 'detail']
+                        'compute',
+                        'public',
+                        append=['servers', 'server-name'],
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['servers', 'detail'],
+                        qs_elements=['name=server-name'],
                     ),
                     json={'servers': [fake_server]},
                 ),
@@ -934,7 +946,19 @@ class TestSecurityGroups(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'compute', 'public', append=['servers', 'detail']
+                        'compute',
+                        'public',
+                        append=['servers', 'server-name'],
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['servers', 'detail'],
+                        qs_elements=['name=server-name'],
                     ),
                     json={'servers': [fake_server]},
                 ),
@@ -974,7 +998,21 @@ class TestSecurityGroups(base.TestCase):
                 self.get_nova_discovery_mock_dict(),
                 dict(
                     method='GET',
-                    uri=f'{fakes.COMPUTE_ENDPOINT}/servers/detail',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['servers', 'server-name'],
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['servers', 'detail'],
+                        qs_elements=['name=server-name'],
+                    ),
                     json={'servers': [fake_server]},
                 ),
                 dict(
@@ -1005,7 +1043,19 @@ class TestSecurityGroups(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'compute', 'public', append=['servers', 'detail']
+                        'compute',
+                        'public',
+                        append=['servers', 'server-name'],
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['servers', 'detail'],
+                        qs_elements=['name=server-name'],
                     ),
                     json={'servers': [fake_server]},
                 ),
@@ -1029,12 +1079,35 @@ class TestSecurityGroups(base.TestCase):
         # fake to get server by name, server-name must match
         fake_server = fakes.make_fake_server('1234', 'server-name', 'ACTIVE')
 
+        print(
+            self.get_mock_url(
+                'compute',
+                'public',
+                append=['servers', 'unknown-server-name'],
+                base_url_append='v2.1',
+            )
+        )
+
         self.register_uris(
             [
                 self.get_nova_discovery_mock_dict(),
                 dict(
                     method='GET',
-                    uri=f'{fakes.COMPUTE_ENDPOINT}/servers/detail',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['servers', 'unknown-server-name'],
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['servers', 'detail'],
+                        qs_elements=['name=unknown-server-name'],
+                    ),
                     json={'servers': [fake_server]},
                 ),
             ]

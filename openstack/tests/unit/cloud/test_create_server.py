@@ -181,16 +181,16 @@ class TestCreateServer(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'compute', 'public', append=['servers', 'detail']
+                        'compute', 'public', append=['servers', '1234']
                     ),
-                    json={'servers': [build_server]},
+                    json={'server': build_server},
                 ),
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'compute', 'public', append=['servers', 'detail']
+                        'compute', 'public', append=['servers', '1234']
                     ),
-                    json={'servers': [error_server]},
+                    json={'server': error_server},
                 ),
             ]
         )
@@ -243,9 +243,9 @@ class TestCreateServer(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'compute', 'public', append=['servers', 'detail']
+                        'compute', 'public', append=['servers', '1234']
                     ),
-                    json={'servers': [fake_server]},
+                    json={'server': fake_server},
                 ),
             ]
         )
@@ -539,6 +539,7 @@ class TestCreateServer(base.TestCase):
             flavor=dict(id='flavor-id'),
             admin_pass=admin_pass,
             wait=True,
+            timeout=0.01,
         )
 
         # Assert that we did wait
@@ -709,6 +710,7 @@ class TestCreateServer(base.TestCase):
             dict(id='image-id'),
             dict(id='flavor-id'),
             wait=True,
+            timeout=0.01,
         )
 
         # This is a pretty dirty hack to ensure we in principle use object with
@@ -728,7 +730,7 @@ class TestCreateServer(base.TestCase):
             ips=None,
             ip_pool=None,
             reuse=True,
-            timeout=180,
+            timeout=0.01,
             nat_destination=None,
         )
         self.assert_calls()
@@ -775,16 +777,9 @@ class TestCreateServer(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'compute', 'public', append=['servers', 'detail']
+                        'compute', 'public', append=['servers', '1234']
                     ),
-                    json={'servers': [build_server]},
-                ),
-                dict(
-                    method='GET',
-                    uri=self.get_mock_url(
-                        'compute', 'public', append=['servers', 'detail']
-                    ),
-                    json={'servers': [fake_server]},
+                    json={'server': fake_server},
                 ),
                 dict(
                     method='GET',
@@ -820,6 +815,7 @@ class TestCreateServer(base.TestCase):
             {'id': 'image-id'},
             {'id': 'flavor-id'},
             wait=True,
+            timeout=0.01,
         )
 
         self.assert_calls()

@@ -62,7 +62,18 @@ class TestServerGroup(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'compute', 'public', append=['os-server-groups']
+                        'compute',
+                        'public',
+                        append=['os-server-groups', self.group_name],
+                    ),
+                    status_code=404,
+                ),
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        'compute',
+                        'public',
+                        append=['os-server-groups'],
                     ),
                     json={'server_groups': [self.fake_group]},
                 ),
