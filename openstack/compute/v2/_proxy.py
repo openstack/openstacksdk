@@ -1988,6 +1988,7 @@ class Proxy(proxy.Proxy):
 
         return self._update(
             _volume_attachment.VolumeAttachment,
+            None,
             id=volume_id,
             server_id=server_id,
             volume_id=new_volume_id,

@@ -644,6 +644,7 @@ class TestVolumeAttachment(TestComputeProxy):
             volume_attachment.VolumeAttachment,
             method_args=[],
             method_kwargs={'server': 'server_id', 'volume': 'volume_id'},
+            expected_args=[None],
             expected_kwargs={
                 'id': 'volume_id',
                 'server_id': 'server_id',
