@@ -11,7 +11,7 @@
 # under the License.
 
 
-from openstack.compute.v2 import keypair
+from openstack.compute.v2 import keypair as _keypair
 from openstack.tests.functional import base
 
 
@@ -20,62 +20,69 @@ class TestKeypair(base.BaseFunctionalTest):
         super().setUp()
 
         # Keypairs can't have .'s in the name. Because why?
-        self.NAME = self.getUniqueString().split('.')[-1]
+        self.keypair_name = self.getUniqueString().split('.')[-1]
 
-        sot = self.user_cloud.compute.create_keypair(
-            name=self.NAME, type='ssh'
+    def _delete_keypair(self, keypair):
+        ret = self.user_cloud.compute.delete_keypair(keypair)
+        self.assertIsNone(ret)
+
+    def test_keypair(self):
+        # create the keypair
+
+        keypair = self.user_cloud.compute.create_keypair(
+            name=self.keypair_name, type='ssh'
         )
-        assert isinstance(sot, keypair.Keypair)
-        self.assertEqual(self.NAME, sot.name)
-        self._keypair = sot
+        self.assertIsInstance(keypair, _keypair.Keypair)
+        self.assertEqual(self.keypair_name, keypair.name)
+        self.addCleanup(self._delete_keypair, keypair)
 
-    def tearDown(self):
-        sot = self.user_cloud.compute.delete_keypair(self._keypair)
-        self.assertIsNone(sot)
-        super().tearDown()
+        # retrieve details of the keypair by ID
 
-    def test_find(self):
-        sot = self.user_cloud.compute.find_keypair(self.NAME)
-        self.assertEqual(self.NAME, sot.name)
-        self.assertEqual(self.NAME, sot.id)
+        keypair = self.user_cloud.compute.get_keypair(self.keypair_name)
+        self.assertIsInstance(keypair, _keypair.Keypair)
+        self.assertEqual(self.keypair_name, keypair.name)
+        self.assertEqual(self.keypair_name, keypair.id)
+        self.assertEqual('ssh', keypair.type)
 
-    def test_get(self):
-        sot = self.user_cloud.compute.get_keypair(self.NAME)
-        self.assertEqual(self.NAME, sot.name)
-        self.assertEqual(self.NAME, sot.id)
-        self.assertEqual('ssh', sot.type)
+        # retrieve details of the keypair by name
 
-    def test_list(self):
-        names = [o.name for o in self.user_cloud.compute.keypairs()]
-        self.assertIn(self.NAME, names)
+        keypair = self.user_cloud.compute.find_keypair(self.keypair_name)
+        self.assertIsInstance(keypair, _keypair.Keypair)
+        self.assertEqual(self.keypair_name, keypair.name)
+        self.assertEqual(self.keypair_name, keypair.id)
+
+        # list all keypairs
+
+        keypairs = list(self.user_cloud.compute.keypairs())
+        self.assertIsInstance(keypair, _keypair.Keypair)
+        self.assertIn(self.keypair_name, {x.name for x in keypairs})
 
 
 class TestKeypairAdmin(base.BaseFunctionalTest):
     def setUp(self):
         super().setUp()
 
-        self.NAME = self.getUniqueString().split('.')[-1]
-        self.USER = self.operator_cloud.list_users()[0]
+        self.keypair_name = self.getUniqueString().split('.')[-1]
+        self.user = self.operator_cloud.list_users()[0]
 
-        sot = self.operator_cloud.compute.create_keypair(
-            name=self.NAME, user_id=self.USER.id
-        )
-        assert isinstance(sot, keypair.Keypair)
-        self.assertEqual(self.NAME, sot.name)
-        self.assertEqual(self.USER.id, sot.user_id)
-        self._keypair = sot
+    def _delete_keypair(self, keypair):
+        ret = self.user_cloud.compute.delete_keypair(keypair)
+        self.assertIsNone(ret)
 
-    def tearDown(self):
-        sot = self.operator_cloud.compute.delete_keypair(
-            self.NAME, user_id=self.USER.id
+    def test_keypair(self):
+        # create the keypair (for another user)
+        keypair = self.operator_cloud.compute.create_keypair(
+            name=self.keypair_name, user_id=self.user.id
         )
-        self.assertIsNone(sot)
-        super().tearDown()
+        self.assertIsInstance(keypair, _keypair.Keypair)
+        self.assertEqual(self.keypair_name, keypair.name)
+        self.addCleanup(self._delete_keypair, keypair)
 
-    def test_get(self):
-        sot = self.operator_cloud.compute.get_keypair(
-            self.NAME, user_id=self.USER.id
+        # retrieve details of the keypair by ID (for another user)
+
+        keypair = self.operator_cloud.compute.get_keypair(
+            self.keypair_name, user_id=self.user.id
         )
-        self.assertEqual(self.NAME, sot.name)
-        self.assertEqual(self.NAME, sot.id)
-        self.assertEqual(self.USER.id, sot.user_id)
+        self.assertEqual(self.keypair_name, keypair.name)
+        self.assertEqual(self.keypair_name, keypair.id)
+        self.assertEqual(self.user.id, keypair.user_id)
