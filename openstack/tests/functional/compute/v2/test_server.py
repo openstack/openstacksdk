@@ -18,7 +18,6 @@ from openstack.tests.functional.network.v2 import test_network
 class TestServerAdmin(ft_base.BaseComputeTest):
     def setUp(self):
         super().setUp()
-        self._set_operator_cloud(interface='admin')
         self.NAME = 'needstobeshortandlowercase'
         self.USERDATA = 'SSdtIGFjdHVhbGx5IGEgZ29hdC4='
         volume = self.conn.create_volume(1)
