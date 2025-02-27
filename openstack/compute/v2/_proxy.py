@@ -42,6 +42,7 @@ from openstack.identity.v3 import user as _user
 from openstack.network.v2 import security_group as _sg
 from openstack import proxy
 from openstack import resource
+from openstack import types
 from openstack import utils
 from openstack import warnings as os_warnings
 
@@ -1194,7 +1195,9 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.shelve_offload(self)
 
-    def unshelve_server(self, server, *, host=None):
+    def unshelve_server(
+        self, server, *, host=None, availability_zone=types.UNSET
+    ):
         """Unshelves or restores a shelved server.
 
         Policy defaults enable only users with administrative role or the
@@ -1208,7 +1211,7 @@ class Proxy(proxy.Proxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.unshelve(self, host=host)
+        server.unshelve(self, host=host, availability_zone=availability_zone)
 
     def trigger_server_crash_dump(self, server):
         """Trigger a crash dump in a server.
