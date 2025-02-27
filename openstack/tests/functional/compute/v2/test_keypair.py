@@ -22,7 +22,7 @@ class TestKeypair(base.BaseFunctionalTest):
         # Keypairs can't have .'s in the name. Because why?
         self.NAME = self.getUniqueString().split('.')[-1]
 
-        sot = self.operator_cloud.compute.create_keypair(
+        sot = self.user_cloud.compute.create_keypair(
             name=self.NAME, type='ssh'
         )
         assert isinstance(sot, keypair.Keypair)
@@ -30,23 +30,23 @@ class TestKeypair(base.BaseFunctionalTest):
         self._keypair = sot
 
     def tearDown(self):
-        sot = self.operator_cloud.compute.delete_keypair(self._keypair)
+        sot = self.user_cloud.compute.delete_keypair(self._keypair)
         self.assertIsNone(sot)
         super().tearDown()
 
     def test_find(self):
-        sot = self.operator_cloud.compute.find_keypair(self.NAME)
+        sot = self.user_cloud.compute.find_keypair(self.NAME)
         self.assertEqual(self.NAME, sot.name)
         self.assertEqual(self.NAME, sot.id)
 
     def test_get(self):
-        sot = self.operator_cloud.compute.get_keypair(self.NAME)
+        sot = self.user_cloud.compute.get_keypair(self.NAME)
         self.assertEqual(self.NAME, sot.name)
         self.assertEqual(self.NAME, sot.id)
         self.assertEqual('ssh', sot.type)
 
     def test_list(self):
-        names = [o.name for o in self.operator_cloud.compute.keypairs()]
+        names = [o.name for o in self.user_cloud.compute.keypairs()]
         self.assertIn(self.NAME, names)
 
 
