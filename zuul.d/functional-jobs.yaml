@@ -10,14 +10,14 @@
       # NOTE: We pull in roles from the tempest repo for stackviz processing.
       - zuul: opendev.org/openstack/tempest
     required-projects:
-      # These jobs will DTRT when openstacksdk triggers them, but we want to
-      # make sure stable branches of openstacksdk never get cloned by other
-      # people, since stable branches of openstacksdk are, well, not actually
-      # things.
+      # NOTE(elod.illes): originally this job runs against openstacksdk's and
+      # os-client-config's master branch as that is what we want to test. This
+      # is fine up till that point where the constraints of dependencies begin
+      # to contradict on master and on old stable branches. Thus we have to
+      # fallback to original behaviour: use the actual stable branches on old
+      # stable gates.
       - name: openstack/openstacksdk
-        override-branch: master
       - name: openstack/os-client-config
-        override-branch: master
     timeout: 9000
     vars:
       devstack_localrc:
