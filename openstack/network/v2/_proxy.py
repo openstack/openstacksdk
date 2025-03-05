@@ -7253,23 +7253,6 @@ class Proxy(proxy.Proxy):
                     resource_evaluation_fn=fip_cleanup_evaluation,
                 )
 
-        if not self.should_skip_resource_cleanup(
-            "security_group", skip_resources
-        ):
-            # Delete (try to delete) all security groups in the project
-            # Let's hope we can't drop SG in use
-            for obj in self.security_groups(project_id=project_id):
-                if obj.name != 'default':
-                    self._service_cleanup_del_res(
-                        self.delete_security_group,
-                        obj,
-                        dry_run=dry_run,
-                        client_status_queue=client_status_queue,
-                        identified_resources=identified_resources,
-                        filters=filters,
-                        resource_evaluation_fn=resource_evaluation_fn,
-                    )
-
         if not (
             self.should_skip_resource_cleanup("network", skip_resources)
             or self.should_skip_resource_cleanup("router", skip_resources)
@@ -7418,6 +7401,23 @@ class Proxy(proxy.Proxy):
                         identified_resources=identified_resources,
                         filters=None,
                         resource_evaluation_fn=None,
+                    )
+
+        if not self.should_skip_resource_cleanup(
+            "security_group", skip_resources
+        ):
+            # Delete (try to delete) all security groups in the project
+            # Let's hope we can't drop SG in use
+            for obj in self.security_groups(project_id=project_id):
+                if obj.name != 'default':
+                    self._service_cleanup_del_res(
+                        self.delete_security_group,
+                        obj,
+                        dry_run=dry_run,
+                        client_status_queue=client_status_queue,
+                        identified_resources=identified_resources,
+                        filters=filters,
+                        resource_evaluation_fn=resource_evaluation_fn,
                     )
 
 
