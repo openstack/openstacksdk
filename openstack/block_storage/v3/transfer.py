@@ -190,7 +190,7 @@ class Transfer(resource.Resource):
             path = '/os-volume-transfer'
 
         url = utils.urljoin(path, self.id, 'accept')
-        microversion = self._get_microversion(session, action='commit')
+        microversion = self._get_microversion(session)
         resp = session.post(
             url,
             json=body,

@@ -46,7 +46,7 @@ class Cache(resource.Resource):
         :returns: The server response
         """
         if microversion is None:
-            microversion = self._get_microversion(session, action='commit')
+            microversion = self._get_microversion(session)
         image_id = resource.Resource._get_id(image)
         url = utils.urljoin(self.base_path, image_id)
 

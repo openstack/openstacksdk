@@ -96,7 +96,7 @@ class TestShareInstanceActions(TestShareInstances):
 
     def test_reset_status(self):
         sot = share_instance.ShareInstance(**EXAMPLE)
-        microversion = sot._get_microversion(self.sess, action='patch')
+        microversion = sot._get_microversion(self.sess)
 
         self.assertIsNone(sot.reset_status(self.sess, 'active'))
 
@@ -109,7 +109,7 @@ class TestShareInstanceActions(TestShareInstances):
 
     def test_force_delete(self):
         sot = share_instance.ShareInstance(**EXAMPLE)
-        microversion = sot._get_microversion(self.sess, action='delete')
+        microversion = sot._get_microversion(self.sess)
 
         self.assertIsNone(sot.force_delete(self.sess))
 

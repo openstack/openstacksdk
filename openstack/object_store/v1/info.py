@@ -85,7 +85,7 @@ class Info(resource.Resource):
         session = self._get_session(session)
         info_url = self._get_info_url(session.get_endpoint())
 
-        microversion = self._get_microversion(session, action='fetch')
+        microversion = self._get_microversion(session)
         response = session.get(info_url, microversion=microversion)
 
         self.microversion = microversion

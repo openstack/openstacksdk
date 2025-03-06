@@ -142,7 +142,7 @@ class Stack(resource.Resource):
             prepend_key=False, requires_id=False, base_path=base_path
         )
 
-        microversion = self._get_microversion(session, action='commit')
+        microversion = self._get_microversion(session)
 
         request_url = request.url
         if preview:
@@ -225,7 +225,7 @@ class Stack(resource.Resource):
             requires_id=requires_id, base_path=base_path
         )
         # session = self._get_session(session)
-        microversion = self._get_microversion(session, action='fetch')
+        microversion = self._get_microversion(session)
 
         # NOTE(gtema): would be nice to simply use QueryParameters, however
         # Heat return 302 with parameters being set into URL and requests

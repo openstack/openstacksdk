@@ -59,16 +59,14 @@ class ShareGroupSnapshot(resource.Resource):
     #: NFS, CIFS, GlusterFS, HDFS, CephFS or MAPRFS.
     share_protocol = resource.Body("share_proto", type=str)
 
-    def _action(self, session, body, action='patch', microversion=None):
+    def _action(self, session, body, microversion=None):
         """Perform ShareGroupSnapshot actions given the message body."""
         # NOTE: This is using ShareGroupSnapshot.base_path instead of
         # self.base_path as ShareGroupSnapshot instances can be acted on,
         # but the URL used is sans any additional /detail/ part.
         url = utils.urljoin(self.base_path, self.id, 'action')
         headers = {'Accept': ''}
-        microversion = microversion or self._get_microversion(
-            session, action=action
-        )
+        microversion = microversion or self._get_microversion(session)
         extra_attrs = {'microversion': microversion}
         session.post(url, json=body, headers=headers, **extra_attrs)
 
@@ -78,9 +76,7 @@ class ShareGroupSnapshot(resource.Resource):
 
     def get_members(self, session, microversion=None):
         url = utils.urljoin(self.base_path, self.id, 'members')
-        microversion = microversion or self._get_microversion(
-            session, action='list'
-        )
+        microversion = microversion or self._get_microversion(session)
         headers = {'Accept': ''}
         response = session.get(url, headers=headers, microversion=microversion)
         return response.json()

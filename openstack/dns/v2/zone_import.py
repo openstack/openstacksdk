@@ -70,7 +70,7 @@ class ZoneImport(_base.Resource):
             raise exceptions.MethodNotSupported(self, "create")
 
         session = self._get_session(session)
-        microversion = self._get_microversion(session, action='create')
+        microversion = self._get_microversion(session)
         # Create ZoneImport requires empty body and 'text/dns' as content-type
         # skip _prepare_request completely, since we need just empty body
         request = resource._Request(

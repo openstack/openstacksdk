@@ -337,7 +337,7 @@ class Object(_base.BaseResource):
         request = self._prepare_request(**kwargs)
         session = self._get_session(session)
         if microversion is None:
-            microversion = self._get_microversion(session, action='delete')
+            microversion = self._get_microversion(session)
 
         if self.is_static_large_object is None:
             # Fetch metadata to determine SLO flag

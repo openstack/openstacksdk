@@ -107,13 +107,13 @@ class Share(resource.Resource, metadata.MetadataMixin):
     #: Display description for updating description
     display_description = resource.Body("display_description", type=str)
 
-    def _action(self, session, body, action='patch', microversion=None):
+    def _action(self, session, body, microversion=None):
         """Perform share instance actions given the message body"""
         url = utils.urljoin(self.base_path, self.id, 'action')
         headers = {'Accept': ''}
 
         if microversion is None:
-            microversion = self._get_microversion(session, action=action)
+            microversion = self._get_microversion(session)
 
         response = session.post(
             url, json=body, headers=headers, microversion=microversion

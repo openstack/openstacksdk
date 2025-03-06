@@ -84,7 +84,7 @@ class AcceleratorRequest(resource.Resource):
         request = self._prepare_request(
             prepend_key=prepend_key, base_path=base_path, patch=True
         )
-        microversion = self._get_microversion(session, action='patch')
+        microversion = self._get_microversion(session)
         if patch:
             request.body = self._convert_patch(patch)
 
