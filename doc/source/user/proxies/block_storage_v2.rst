@@ -82,6 +82,14 @@ QuotaSet Operations
   :members: get_quota_set, get_quota_set_defaults,
             revert_quota_set, update_quota_set
 
+Service Operations
+^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v2._proxy.Proxy
+   :noindex:
+   :members: find_service, services, enable_service, disable_service,
+             thaw_service, freeze_service, failover_service
+
 Helpers
 ^^^^^^^
 

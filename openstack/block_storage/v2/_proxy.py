@@ -19,6 +19,7 @@ from openstack.block_storage.v2 import extension as _extension
 from openstack.block_storage.v2 import limits as _limits
 from openstack.block_storage.v2 import quota_class_set as _quota_class_set
 from openstack.block_storage.v2 import quota_set as _quota_set
+from openstack.block_storage.v2 import service as _service
 from openstack.block_storage.v2 import snapshot as _snapshot
 from openstack.block_storage.v2 import stats as _stats
 from openstack.block_storage.v2 import type as _type
@@ -886,7 +887,7 @@ class Proxy(proxy.Proxy):
             by ``quota_set``.
 
         :returns: The updated QuotaSet
-        :rtype: :class:`~openstack.block_storage.v3.quota_set.QuotaSet`
+        :rtype: :class:`~openstack.block_storage.v2.quota_set.QuotaSet`
         """
         if 'project_id' in attrs or isinstance(project, _quota_set.QuotaSet):
             warnings.warn(
@@ -911,6 +912,157 @@ class Proxy(proxy.Proxy):
             project = self._get_resource(_project.Project, project)
             attrs['project_id'] = project.id
             return self._update(_quota_set.QuotaSet, None, **attrs)
+
+    # ========== Services ==========
+    @ty.overload
+    def find_service(
+        self,
+        name_or_id: str,
+        ignore_missing: ty.Literal[True] = True,
+        **query: ty.Any,
+    ) -> ty.Optional[_service.Service]: ...
+
+    @ty.overload
+    def find_service(
+        self,
+        name_or_id: str,
+        ignore_missing: ty.Literal[False],
+        **query: ty.Any,
+    ) -> _service.Service: ...
+
+    # excuse the duplication here: it's mypy's fault
+    # https://github.com/python/mypy/issues/14764
+    @ty.overload
+    def find_service(
+        self,
+        name_or_id: str,
+        ignore_missing: bool,
+        **query: ty.Any,
+    ) -> ty.Optional[_service.Service]: ...
+
+    def find_service(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: ty.Any,
+    ) -> ty.Optional[_service.Service]:
+        """Find a single service
+
+        :param name_or_id: The name or ID of a service
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
+            the resource does not exist.
+            When set to ``True``, None will be returned when attempting to find
+            a nonexistent resource.
+        :param dict query: Additional attributes like 'host'
+
+        :returns: One: class:`~openstack.block_storage.v2.service.Service` or None
+        :raises: :class:`~openstack.exceptions.NotFoundException`
+            when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
+        """
+        return self._find(
+            _service.Service,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
+
+    def services(
+        self,
+        **query: ty.Any,
+    ) -> ty.Generator[_service.Service, None, None]:
+        """Return a generator of service
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the resources being returned.
+        :returns: A generator of Service objects
+        :rtype: class: `~openstack.block_storage.v2.service.Service`
+        """
+        return self._list(_service.Service, **query)
+
+    def enable_service(
+        self,
+        service: ty.Union[str, _service.Service],
+    ) -> _service.Service:
+        """Enable a service
+
+        :param service: Either the ID of a service or a
+            :class:`~openstack.block_storage.v2.service.Service` instance.
+
+        :returns: Updated service instance
+        :rtype: class: `~openstack.block_storage.v2.service.Service`
+        """
+        service_obj = self._get_resource(_service.Service, service)
+        return service_obj.enable(self)
+
+    def disable_service(
+        self,
+        service: ty.Union[str, _service.Service],
+        *,
+        reason: ty.Optional[str] = None,
+    ) -> _service.Service:
+        """Disable a service
+
+        :param service: Either the ID of a service or a
+            :class:`~openstack.block_storage.v2.service.Service` instance
+        :param str reason: The reason to disable a service
+
+        :returns: Updated service instance
+        :rtype: class: `~openstack.block_storage.v2.service.Service`
+        """
+        service_obj = self._get_resource(_service.Service, service)
+        return service_obj.disable(self, reason=reason)
+
+    def thaw_service(
+        self,
+        service: ty.Union[str, _service.Service],
+    ) -> _service.Service:
+        """Thaw a service
+
+        :param service: Either the ID of a service or a
+            :class:`~openstack.block_storage.v2.service.Service` instance
+
+        :returns: Updated service instance
+        :rtype: class: `~openstack.block_storage.v2.service.Service`
+        """
+        service_obj = self._get_resource(_service.Service, service)
+        return service_obj.thaw(self)
+
+    def freeze_service(
+        self,
+        service: ty.Union[str, _service.Service],
+    ) -> _service.Service:
+        """Freeze a service
+
+        :param service: Either the ID of a service or a
+            :class:`~openstack.block_storage.v2.service.Service` instance
+
+        :returns: Updated service instance
+        :rtype: class: `~openstack.block_storage.v2.service.Service`
+        """
+        service_obj = self._get_resource(_service.Service, service)
+        return service_obj.freeze(self)
+
+    def failover_service(
+        self,
+        service: ty.Union[str, _service.Service],
+        *,
+        backend_id: ty.Optional[str] = None,
+    ) -> _service.Service:
+        """Failover a service
+
+        Only applies to replicating cinder-volume services.
+
+        :param service: Either the ID of a service or a
+            :class:`~openstack.block_storage.v2.service.Service` instance
+
+        :returns: Updated service instance
+        :rtype: class: `~openstack.block_storage.v2.service.Service`
+        """
+        service_obj = self._get_resource(_service.Service, service)
+        return service_obj.failover(self, backend_id=backend_id)
 
     # ========== Volume metadata ==========
 
