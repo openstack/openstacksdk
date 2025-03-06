@@ -102,7 +102,7 @@ FAKE = {
 }
 
 
-def _fake_assert(self, session, action, expected, error_message=None):
+def _fake_assert(self, session, expected, error_message=None):
     return expected
 
 

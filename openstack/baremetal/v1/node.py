@@ -334,7 +334,7 @@ class Node(_common.Resource):
                 )
             else:
                 error_message = (
-                    "Cannot create a node with initial provision "
+                    f"Cannot create a node with initial provision "
                     f"state {expected_provision_state}"
                 )
                 # Nodes cannot be created as available using new API versions
@@ -343,7 +343,6 @@ class Node(_common.Resource):
                 )
                 microversion = self._assert_microversion_for(
                     session,
-                    'create',
                     microversion,
                     maximum=maximum,
                     error_message=error_message,
@@ -452,26 +451,26 @@ class Node(_common.Resource):
         """
         session = self._get_session(session)
 
-        version = None
+        microversion = None
         if target in _common.PROVISIONING_VERSIONS:
-            version = f'1.{_common.PROVISIONING_VERSIONS[target]}'
+            microversion = f'1.{_common.PROVISIONING_VERSIONS[target]}'
 
         if config_drive:
             # Some config drive actions require a higher version.
             if isinstance(config_drive, dict):
-                version = _common.CONFIG_DRIVE_DICT_VERSION
+                microversion = _common.CONFIG_DRIVE_DICT_VERSION
             elif target == 'rebuild':
-                version = _common.CONFIG_DRIVE_REBUILD_VERSION
+                microversion = _common.CONFIG_DRIVE_REBUILD_VERSION
 
         if deploy_steps:
-            version = _common.DEPLOY_STEPS_VERSION
+            microversion = _common.DEPLOY_STEPS_VERSION
 
-        version = self._assert_microversion_for(session, 'commit', version)
+        microversion = self._assert_microversion_for(session, microversion)
 
         body = {'target': target}
         if runbook:
-            version = self._assert_microversion_for(
-                session, 'commit', _common.RUNBOOKS_VERSION
+            microversion = self._assert_microversion_for(
+                session, _common.RUNBOOKS_VERSION
             )
 
             if clean_steps is not None:
@@ -546,7 +545,7 @@ class Node(_common.Resource):
             except KeyError:
                 raise ValueError(
                     f'For target {target} the expected state is not '
-                    'known, cannot wait for it'
+                    f'known, cannot wait for it'
                 )
 
         request = self._prepare_request(requires_id=True)
@@ -555,7 +554,7 @@ class Node(_common.Resource):
             request.url,
             json=body,
             headers=request.headers,
-            microversion=version,
+            microversion=microversion,
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 
@@ -740,9 +739,7 @@ class Node(_common.Resource):
         """
         session = self._get_session(session)
         version = self._assert_microversion_for(
-            session,
-            'commit',
-            _common.INJECT_NMI_VERSION,
+            session, _common.INJECT_NMI_VERSION
         )
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'management', 'inject_nmi')
@@ -781,17 +778,17 @@ class Node(_common.Resource):
             except KeyError:
                 raise ValueError(
                     f"Cannot use target power state {target} with wait, "
-                    "the expected state is not known"
+                    f"the expected state is not known"
                 )
 
         session = self._get_session(session)
 
         if target.startswith("soft "):
-            version = '1.27'
+            microversion = '1.27'
         else:
-            version = None
+            microversion = None
 
-        version = self._assert_microversion_for(session, 'commit', version)
+        microversion = self._assert_microversion_for(session, microversion)
 
         # TODO(dtantsur): server timeout support
         body = {'target': target}
@@ -802,7 +799,7 @@ class Node(_common.Resource):
             request.url,
             json=body,
             headers=request.headers,
-            microversion=version,
+            microversion=microversion,
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 
@@ -856,13 +853,12 @@ class Node(_common.Resource):
 
         session = self._get_session(session)
         if port_id or port_group_id:
-            required_version = _common.VIF_OPTIONAL_PARAMS_VERSION
+            microversion = _common.VIF_OPTIONAL_PARAMS_VERSION
         else:
-            required_version = _common.VIF_VERSION
-        version = self._assert_microversion_for(
+            microversion = _common.VIF_VERSION
+        microversion = self._assert_microversion_for(
             session,
-            'commit',
-            required_version,
+            microversion,
             error_message=("Cannot use VIF attachment API"),
         )
 
@@ -880,7 +876,7 @@ class Node(_common.Resource):
             request.url,
             json=body,
             headers=request.headers,
-            microversion=version,
+            microversion=microversion,
             retriable_status_codes=retriable_status_codes,
         )
 
@@ -908,7 +904,6 @@ class Node(_common.Resource):
         session = self._get_session(session)
         version = self._assert_microversion_for(
             session,
-            'commit',
             _common.VIF_VERSION,
             error_message=("Cannot use VIF attachment API"),
         )
@@ -949,7 +944,6 @@ class Node(_common.Resource):
         session = self._get_session(session)
         version = self._assert_microversion_for(
             session,
-            'fetch',
             _common.VIF_VERSION,
             error_message=("Cannot use VIF attachment API"),
         )
@@ -1144,7 +1138,7 @@ class Node(_common.Resource):
         if target not in ('uefi', 'bios'):
             raise ValueError(
                 f"Unrecognized boot mode {target}."
-                "Boot mode should be one of 'uefi' or 'bios'."
+                f"Boot mode should be one of 'uefi' or 'bios'."
             )
         body = {'target': target}
 
@@ -1180,7 +1174,7 @@ class Node(_common.Resource):
         if not isinstance(target, bool):
             raise ValueError(
                 f"Invalid target {target}. It should be True or False "
-                "corresponding to secure boot state 'on' or 'off'"
+                f"corresponding to secure boot state 'on' or 'off'"
             )
         body = {'target': target}
 
@@ -1384,7 +1378,7 @@ class Node(_common.Resource):
         if not isinstance(enabled, bool):
             raise ValueError(
                 f"Invalid enabled {enabled}. It should be True or False "
-                "corresponding to console enabled or disabled"
+                f"corresponding to console enabled or disabled"
             )
         body = {'enabled': enabled}
 
@@ -1437,7 +1431,6 @@ class Node(_common.Resource):
         session = self._get_session(session)
         version = self._assert_microversion_for(
             session,
-            'fetch',
             _common.FIRMWARE_VERSION,
             error_message=("Cannot use node list firmware components API"),
         )
@@ -1482,7 +1475,7 @@ class Node(_common.Resource):
 
             session = self._get_session(session)
             microversion = self._assert_microversion_for(
-                session, 'commit', _common.RESET_INTERFACES_VERSION
+                session, _common.RESET_INTERFACES_VERSION
             )
             params = [('reset_interfaces', reset_interfaces)]
 
