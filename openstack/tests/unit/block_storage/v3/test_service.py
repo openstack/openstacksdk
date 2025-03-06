@@ -30,8 +30,8 @@ class TestService(base.TestCase):
     def setUp(self):
         super().setUp()
         self.resp = mock.Mock()
-        self.resp.body = {'service': {}}
-        self.resp.json = mock.Mock(return_value=self.resp.body)
+        self.resp.body = None  # nothing uses this
+        self.resp.json = mock.Mock(return_value={'service': {}})
         self.resp.status_code = 200
         self.resp.headers = {}
         self.sess = mock.Mock()
@@ -144,6 +144,65 @@ class TestService(base.TestCase):
 
         url = 'os-services/freeze'
         body = {'host': 'devstack'}
+        self.sess.put.assert_called_with(
+            url,
+            json=body,
+            microversion=self.sess.default_microversion,
+        )
+
+    def test_set_log_levels(self):
+        self.sess.default_microversion = '3.32'
+        res = service.Service.set_log_levels(
+            self.sess,
+            level=service.Level.DEBUG,
+            binary=service.Binary.ANY,
+            server='foo',
+            prefix='cinder.',
+        )
+        self.assertIsNone(res)
+
+        url = 'os-services/set-log'
+        body = {
+            'level': service.Level.DEBUG,
+            'binary': service.Binary.ANY,
+            'server': 'foo',
+            'prefix': 'cinder.',
+        }
+        self.sess.put.assert_called_with(
+            url,
+            json=body,
+            microversion=self.sess.default_microversion,
+        )
+
+    def test_get_log_levels(self):
+        self.sess.default_microversion = '3.32'
+        self.resp.json = mock.Mock(
+            return_value={
+                'log_levels': [
+                    {
+                        "binary": "cinder-api",
+                        "host": "devstack",
+                        "levels": {"cinder.volume.api": "DEBUG"},
+                    },
+                ],
+            },
+        )
+        res = list(
+            service.Service.get_log_levels(
+                self.sess,
+                binary=service.Binary.ANY,
+                server='foo',
+                prefix='cinder.',
+            )
+        )
+        self.assertIsNotNone(res)
+
+        url = 'os-services/get-log'
+        body = {
+            'binary': service.Binary.ANY,
+            'server': 'foo',
+            'prefix': 'cinder.',
+        }
         self.sess.put.assert_called_with(
             url,
             json=body,

@@ -2090,6 +2090,50 @@ class Proxy(proxy.Proxy):
         service_obj = self._get_resource(_service.Service, service)
         return service_obj.freeze(self)
 
+    def set_service_log_levels(
+        self,
+        *,
+        level: _service.Level,
+        binary: ty.Optional[_service.Binary] = None,
+        server: ty.Optional[str] = None,
+        prefix: ty.Optional[str] = None,
+    ) -> None:
+        """Set log level for services.
+
+        :param level: The log level to set, case insensitive, accepted values
+            are ``INFO``, ``WARNING``, ``ERROR`` and ``DEBUG``.
+        :param binary: The binary name of the service.
+        :param server: The name of the host.
+        :param prefix: The prefix for the log path we are querying, for example
+            ``cinder.`` or ``sqlalchemy.engine.`` When not present or the empty
+            string is passed all log levels will be retrieved.
+        :returns: None.
+        """
+        return _service.Service.set_log_levels(
+            self, level=level, binary=binary, server=server, prefix=prefix
+        )
+
+    def get_service_log_levels(
+        self,
+        *,
+        binary: ty.Optional[_service.Binary] = None,
+        server: ty.Optional[str] = None,
+        prefix: ty.Optional[str] = None,
+    ) -> ty.Generator[_service.LogLevel, None, None]:
+        """Get log level for services.
+
+        :param binary: The binary name of the service.
+        :param server: The name of the host.
+        :param prefix: The prefix for the log path we are querying, for example
+            ``cinder.`` or ``sqlalchemy.engine.`` When not present or the empty
+            string is passed all log levels will be retrieved.
+        :returns: A generator of
+            :class:`~openstack.block_storage.v3.log_level.LogLevel` objects.
+        """
+        return _service.Service.get_log_levels(
+            self, binary=binary, server=server, prefix=prefix
+        )
+
     def failover_service(
         self,
         service: ty.Union[str, _service.Service],

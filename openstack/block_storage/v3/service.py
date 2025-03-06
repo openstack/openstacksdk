@@ -10,9 +10,46 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import enum
+import typing as ty
+
+from keystoneauth1 import adapter as ksa_adapter
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
+
+
+class Level(enum.Enum):
+    ERROR = 'ERROR'
+    WARNING = 'WARNING'
+    INFO = 'INFO'
+    DEBUG = 'DEBUG'
+
+
+class Binary(enum.Enum):
+    ANY = '*'
+    API = 'cinder-api'
+    VOLUME = 'cinder-volume'
+    SCHEDULER = 'cinder-scheduler'
+    BACKUP = 'cinder-backup'
+
+
+class LogLevel(resource.Resource):
+    # Properties
+    #: The binary name of the service.
+    binary = resource.Body('binary')
+    # TODO(stephenfin): Do we need these? They are request-only.
+    # #: The name of the host.
+    # server = resource.Body('server')
+    # #: he prefix for the log path we are querying, for example ``cinder.`` or
+    # #: ``sqlalchemy.engine.`` When not present or the empty string is passed
+    # #: all log levels will be retrieved.
+    # prefix = resource.Body('prefix')
+    #: The name of the host.
+    host = resource.Body('host')
+    #: The current log level that queried.
+    levels = resource.Body('levels', type=dict)
 
 
 class Service(resource.Resource):
@@ -55,8 +92,8 @@ class Service(resource.Resource):
     #: The date and time when the resource was updated
     updated_at = resource.Body('updated_at')
 
-    # 3.7 introduced the 'cluster' field
-    _max_microversion = '3.7'
+    # 3.32 introduced the 'set-log' action
+    _max_microversion = '3.32'
 
     @classmethod
     def find(cls, session, name_or_id, ignore_missing=True, **params):
@@ -107,9 +144,6 @@ class Service(resource.Resource):
         self._translate_response(response)
         return self
 
-    # TODO(stephenfin): Add support for log levels once we have the resource
-    # modelled (it can be done on a deployment wide basis)
-
     def enable(self, session):
         """Enable service."""
         body = {'binary': self.binary, 'host': self.host}
@@ -134,6 +168,80 @@ class Service(resource.Resource):
     def freeze(self, session):
         body = {'host': self.host}
         return self._action(session, 'freeze', body)
+
+    @classmethod
+    def set_log_levels(
+        cls,
+        session: ksa_adapter.Adapter,
+        *,
+        level: Level,
+        binary: ty.Optional[Binary] = None,
+        server: ty.Optional[str] = None,
+        prefix: ty.Optional[str] = None,
+    ) -> None:
+        """Set log level for services.
+
+        :param session: The session to use for making this request.
+        :param level: The log level to set, case insensitive, accepted values
+            are ``INFO``, ``WARNING``, ``ERROR`` and ``DEBUG``.
+        :param binary: The binary name of the service.
+        :param server: The name of the host.
+        :param prefix: The prefix for the log path we are querying, for example
+            ``cinder.`` or ``sqlalchemy.engine.`` When not present or the empty
+            string is passed all log levels will be retrieved.
+        :returns: None.
+        """
+        microversion = cls._assert_microversion_for(
+            session, '3.32', error_message="Cannot use set-log action"
+        )
+        body = {
+            'level': level,
+            'binary': binary or '',  # cinder insists on strings
+            'server': server,
+            'prefix': prefix,
+        }
+        url = utils.urljoin(cls.base_path, 'set-log')
+        response = session.put(url, json=body, microversion=microversion)
+        exceptions.raise_from_response(response)
+
+    @classmethod
+    def get_log_levels(
+        cls,
+        session: ksa_adapter.Adapter,
+        *,
+        binary: ty.Optional[Binary] = None,
+        server: ty.Optional[str] = None,
+        prefix: ty.Optional[str] = None,
+    ) -> ty.Generator[LogLevel, None, None]:
+        """Get log level for services.
+
+        :param session: The session to use for making this request.
+        :param binary: The binary name of the service.
+        :param server: The name of the host.
+        :param prefix: The prefix for the log path we are querying, for example
+            ``cinder.`` or ``sqlalchemy.engine.`` When not present or the empty
+            string is passed all log levels will be retrieved.
+        :returns: A generator of
+            :class:`~openstack.block_storage.v3.service.LogLevel` objects.
+        """
+        microversion = cls._assert_microversion_for(
+            session, '3.32', error_message="Cannot use get-log action"
+        )
+        body = {
+            'binary': binary or '',  # cinder insists on strings
+            'server': server,
+            'prefix': prefix,
+        }
+        url = utils.urljoin(cls.base_path, 'get-log')
+        response = session.put(url, json=body, microversion=microversion)
+        exceptions.raise_from_response(response)
+
+        for entry in response.json()['log_levels']:
+            yield LogLevel(
+                binary=entry['binary'],
+                host=entry['host'],
+                levels=entry['levels'],
+            )
 
     def failover(
         self,

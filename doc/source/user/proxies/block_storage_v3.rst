@@ -99,7 +99,8 @@ Service Operations
 .. autoclass:: openstack.block_storage.v3._proxy.Proxy
    :noindex:
    :members: find_service, services, enable_service, disable_service,
-             thaw_service, freeze_service, failover_service
+             thaw_service, freeze_service, failover_service,
+             get_service_log_levels, set_service_log_levels
 
 Type Operations
 ^^^^^^^^^^^^^^^
