@@ -42,8 +42,6 @@ class Volume(resource.Resource, metadata.MetadataMixin):
     consistency_group_id = resource.Body("consistencygroup_id")
     #: The timestamp of this volume creation.
     created_at = resource.Body("created_at")
-    #: The date and time when the resource was updated.
-    updated_at = resource.Body("updated_at")
     #: The volume description.
     description = resource.Body("description")
     #: Extended replication status on this volume.
@@ -61,6 +59,8 @@ class Volume(resource.Resource, metadata.MetadataMixin):
     #: ``True`` if this volume is encrypted, ``False`` if not.
     #: *Type: bool*
     is_encrypted = resource.Body("encrypted", type=format.BoolStr)
+    #: Whether volume will be sharable or not.
+    is_multiattach = resource.Body("multiattach", type=format.BoolStr)
     #: The volume ID that this volume's name on the back-end is based on.
     migration_id = resource.Body("os-vol-mig-status-attr:name_id")
     #: The status of this volume's migration (None means that a migration
@@ -91,6 +91,8 @@ class Volume(resource.Resource, metadata.MetadataMixin):
     #: error_restoring. For details on these statuses, see the
     #: Block Storage API documentation.
     status = resource.Body("status")
+    #: The date and time when the resource was updated.
+    updated_at = resource.Body("updated_at")
     #: The user ID associated with the volume
     user_id = resource.Body("user_id")
     #: One or more metadata key and value pairs about image

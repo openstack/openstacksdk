@@ -41,23 +41,33 @@ class Volume(resource.Resource, metadata.MetadataMixin):
     allow_list = True
 
     # Properties
-    #: TODO(briancurtin): This is currently undocumented in the API.
-    attachments = resource.Body("attachments")
+    #: Instance attachment information. If this volume is attached to a server
+    #: instance, the attachments list includes the UUID of the attached server,
+    #: an attachment UUID, the name of the attached host, if any, the volume
+    #: UUID, the device, and the device UUID. Otherwise, this list is empty.
+    attachments = resource.Body("attachments", type=list)
     #: The availability zone.
     availability_zone = resource.Body("availability_zone")
     #: ID of the consistency group.
     consistency_group_id = resource.Body("consistencygroup_id")
+    #: Whether this resource consumes quota or not. Resources that not counted
+    #: for quota usage are usually temporary internal resources created to
+    #: perform an operation. (since 3.65)
+    consumes_quota = resource.Body("consumes_quota")
+    #: The cluster name of volume backend. (since 3.61)
+    cluster_name = resource.Body("cluster_name")
     #: The timestamp of this volume creation.
     created_at = resource.Body("created_at")
-    #: The date and time when the resource was updated.
-    updated_at = resource.Body("updated_at")
     #: The volume description.
     description = resource.Body("description")
+    #: The UUID of the encryption key. Only included for encrypted volumes.
+    #: (since 3.64)
+    encryption_key_id = resource.Body("encryption_key_id")
     #: Extended replication status on this volume.
     extended_replication_status = resource.Body(
         "os-volume-replication:extended_status"
     )
-    #: The ID of the group that the volume belongs to.
+    #: The ID of the group that the volume belongs to. (since 3.13)
     group_id = resource.Body("group_id")
     #: The volume's current back-end.
     host = resource.Body("os-vol-host-attr:host")
@@ -83,13 +93,22 @@ class Volume(resource.Resource, metadata.MetadataMixin):
     replication_driver_data = resource.Body(
         "os-volume-replication:driver_data"
     )
-    #: The provider ID for the volume.
+    #: The provider ID for the volume. (since 3.21)
     provider_id = resource.Body("provider_id")
     #: Status of replication on this volume.
     replication_status = resource.Body("replication_status")
     #: Scheduler hints for the volume
     scheduler_hints = resource.Body('OS-SCH-HNT:scheduler_hints', type=dict)
-    #: The size of the volume, in GBs. *Type: int*
+    #: A unique identifier that's used to indicate what node the volume-service
+    #: for a particular volume is being serviced by. (since 3.48)
+    service_uuid = resource.Body("service_uuid")
+    #: An indicator whether the host connecting the volume should lock for the
+    #: whole attach/detach process or not. true means only is iSCSI initiator
+    #: running on host doesn't support manual scans, false means never use
+    #: locks, and null means to always use locks. Look at os-brick's
+    #: guard_connection context manager. Default=True. (since 3.48)
+    shared_targets = resource.Body("shared_targets", type=bool)
+    #: The size of the volume, in GBs.
     size = resource.Body("size", type=int)
     #: To create a volume from an existing snapshot, specify the ID of
     #: the existing volume snapshot. If specified, the volume is created
@@ -104,12 +123,16 @@ class Volume(resource.Resource, metadata.MetadataMixin):
     #: error_restoring. For details on these statuses, see the
     #: Block Storage API documentation.
     status = resource.Body("status")
+    #: The date and time when the resource was updated.
+    updated_at = resource.Body("updated_at")
     #: The user ID associated with the volume
     user_id = resource.Body("user_id")
     #: One or more metadata key and value pairs about image
     volume_image_metadata = resource.Body("volume_image_metadata")
     #: The name of the associated volume type.
     volume_type = resource.Body("volume_type")
+    #: The associated volume type ID for the volume. (since 3.61)
+    volume_type_id = resource.Body("volume_type_id")
 
     _max_microversion = "3.71"
 
