@@ -75,10 +75,13 @@ class TestVolume(TestVolumeProxy):
         self.verify_create(self.proxy.create_volume, volume.Volume)
 
     def test_volume_delete(self):
-        self.verify_delete(self.proxy.delete_volume, volume.Volume, False)
-
-    def test_volume_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_volume, volume.Volume, True)
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.delete",
+            self.proxy.delete_volume,
+            method_args=["value"],
+            expected_args=[self.proxy],
+            expected_kwargs={"params": {"cascade": False}},
+        )
 
     def test_volume_delete_force(self):
         self._verify(

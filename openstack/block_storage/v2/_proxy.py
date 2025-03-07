@@ -408,7 +408,9 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_volume.Volume, **attrs)
 
-    def delete_volume(self, volume, ignore_missing=True, force=False):
+    def delete_volume(
+        self, volume, ignore_missing=True, *, force=False, cascade=False
+    ):
         """Delete a volume
 
         :param volume: The value can be either the ID of a volume or a
@@ -419,14 +421,21 @@ class Proxy(proxy.Proxy):
             exception will be set when attempting to delete a nonexistent
             volume.
         :param bool force: Whether to try forcing volume deletion.
+        :param bool cascade: Whether to remove any snapshots along with the
+            volume.
 
         :returns: ``None``
         """
-        if not force:
-            self._delete(_volume.Volume, volume, ignore_missing=ignore_missing)
-        else:
-            volume = self._get_resource(_volume.Volume, volume)
-            volume.force_delete(self)
+        volume = self._get_resource(_volume.Volume, volume)
+        try:
+            if not force:
+                volume.delete(self, params={'cascade': cascade})
+            else:
+                volume.force_delete(self)
+        except exceptions.NotFoundException:
+            if ignore_missing:
+                return None
+            raise
 
     # ========== Volume actions ==========
 
