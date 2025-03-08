@@ -25,7 +25,6 @@ class Transfer(resource.Resource):
     allow_delete = True
     allow_fetch = True
     allow_list = True
-    allow_get = True
 
     # Properties
     #: UUID of the transfer.

@@ -117,6 +117,9 @@ class TestVolume(TestVolumeProxy):
             expected_kwargs={"params": {"cascade": False, "force": True}},
         )
 
+    def test_volume_update(self):
+        self.verify_update(self.proxy.update_volume, volume.Volume)
+
     def test_get_volume_metadata(self):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.fetch_metadata",
@@ -745,6 +748,9 @@ class TestBackup(TestVolumeProxy):
             expected_args=[self.proxy],
         )
 
+    def test_backup_update(self):
+        self.verify_update(self.proxy.update_backup, backup.Backup)
+
     def test_backup_create_attrs(self):
         # NOTE: mock has_service
         self.proxy._connection = mock.Mock()
@@ -770,6 +776,38 @@ class TestBackup(TestVolumeProxy):
             self.proxy.reset_backup_status,
             method_args=["value", "new_status"],
             expected_args=[self.proxy, "new_status"],
+        )
+
+    def test_backup_get_metadata(self):
+        self._verify(
+            "openstack.block_storage.v3.backup.Backup.fetch_metadata",
+            self.proxy.get_backup_metadata,
+            method_args=["value"],
+            expected_args=[self.proxy],
+            expected_result=volume.Volume(id="value", metadata={}),
+        )
+
+    def test_backup_set_metadata(self):
+        kwargs = {"a": "1", "b": "2"}
+        id = "an_id"
+        self._verify(
+            "openstack.block_storage.v3.backup.Backup.set_metadata",
+            self.proxy.set_backup_metadata,
+            method_args=[id],
+            method_kwargs=kwargs,
+            method_result=volume.Volume.existing(id=id, metadata=kwargs),
+            expected_args=[self.proxy],
+            expected_kwargs={'metadata': kwargs},
+            expected_result=volume.Volume.existing(id=id, metadata=kwargs),
+        )
+
+    def test_backup_delete_metadata(self):
+        self._verify(
+            "openstack.block_storage.v3.backup.Backup.delete_metadata_item",
+            self.proxy.delete_backup_metadata,
+            expected_result=None,
+            method_args=["value", ["key"]],
+            expected_args=[self.proxy, "key"],
         )
 
 

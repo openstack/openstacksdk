@@ -1395,6 +1395,63 @@ class Proxy(proxy.Proxy):
             backup = self._get_resource(_backup.Backup, backup)
             backup.force_delete(self)
 
+    def update_backup(self, backup, **attrs):
+        """Update a backup
+
+        :param backup: Either the ID of a backup or a
+            :class:`~openstack.block_storage.v3.backup.Backup`.
+        :param dict attrs: The attributes to update on the volume.
+
+        :returns: The updated backup
+        :rtype: :class:`~openstack.block_storage.v3.backup.Backup`
+        """
+        return self._update(_backup.Backup, backup, **attrs)
+
+    def get_backup_metadata(self, backup):
+        """Return a dictionary of metadata for a backup
+
+        :param backup: Either the ID of a backup or a
+            :class:`~openstack.block_storage.v3.backup.Backup`.
+
+        :returns: A :class:`~openstack.block_storage.v3.backup.Backup` with the
+            backup's metadata.
+        :rtype: :class:`~openstack.block_storage.v3.backup.Backup`
+        """
+        backup = self._get_resource(_backup.Backup, backup)
+        return backup.fetch_metadata(self)
+
+    def set_backup_metadata(self, backup, **metadata):
+        """Update metadata for a backup
+
+        :param backup: Either the ID of a backup or a
+            :class:`~openstack.block_storage.v3.backup.Backup`.
+        :param metadata: Key/value pairs to be updated in the backup's
+            metadata. No other metadata is modified by this call.
+
+        :returns: A :class:`~openstack.block_storage.v3.backup.Backup` with the
+            backup's metadata.
+        :rtype: :class:`~openstack.block_storage.v3.backup.Backup`
+        """
+        backup = self._get_resource(_backup.Backup, backup)
+        return backup.set_metadata(self, metadata=metadata)
+
+    def delete_backup_metadata(self, backup, keys=None):
+        """Delete metadata for a backup
+
+        :param backup: Either the ID of a backup or a
+            :class:`~openstack.block_storage.v3.backup.Backup`.
+        :param list keys: The keys to delete. If left empty complete
+            metadata will be removed.
+
+        :rtype: ``None``
+        """
+        backup = self._get_resource(_backup.Backup, backup)
+        if keys is not None:
+            for key in keys:
+                backup.delete_metadata_item(self, key)
+        else:
+            backup.delete_metadata(self)
+
     # ====== BACKUP ACTIONS ======
     def restore_backup(self, backup, volume_id=None, name=None):
         """Restore a Backup to volume
