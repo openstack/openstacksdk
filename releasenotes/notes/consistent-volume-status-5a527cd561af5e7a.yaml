@@ -1,0 +1,11 @@
+---
+upgrade:
+  - |
+    The following volume (v2 and v3) helpers have been renamed:
+
+    - ``reset_snapshot`` -> ``reset_snapshot_status``
+    - ``reset_backup`` -> ``reset_backup_status``
+    - ``reset_group_state`` -> ``reset_group_status``
+    - ``reset_group_snapshot_state`` -> ``reset_group_snapshot_status``
+
+    Aliases are provided for backwards compatibility.

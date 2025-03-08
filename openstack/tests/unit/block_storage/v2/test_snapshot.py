@@ -92,10 +92,10 @@ class TestSnapshotActions(base.TestCase):
         self.sess.post = mock.Mock(return_value=self.resp)
         self.sess.default_microversion = None
 
-    def test_reset(self):
+    def test_reset_status(self):
         sot = snapshot.Snapshot(**SNAPSHOT)
 
-        self.assertIsNone(sot.reset(self.sess, 'new_status'))
+        self.assertIsNone(sot.reset_status(self.sess, 'new_status'))
 
         url = f'snapshots/{FAKE_ID}/action'
         body = {'os-reset_status': {'status': 'new_status'}}

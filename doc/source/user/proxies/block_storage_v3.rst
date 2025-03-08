@@ -40,7 +40,7 @@ Backup Operations
 .. autoclass:: openstack.block_storage.v3._proxy.Proxy
   :noindex:
   :members: create_backup, delete_backup, get_backup, find_backup, backups,
-            restore_backup, reset_backup
+            restore_backup, reset_backup_status
 
 BlockStorageSummary Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -77,7 +77,7 @@ Group Operations
 .. autoclass:: openstack.block_storage.v3._proxy.Proxy
   :noindex:
   :members: create_group, create_group_from_source, delete_group, update_group,
-            get_group, find_group, groups, reset_group_state
+            get_group, find_group, groups, reset_group_status
 
 Group Snapshot Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -85,7 +85,7 @@ Group Snapshot Operations
 .. autoclass:: openstack.block_storage.v3._proxy.Proxy
   :noindex:
   :members: create_group_snapshot, delete_group_snapshot, get_group_snapshot,
-            find_group_snapshot, group_snapshots, reset_group_snapshot_state
+            find_group_snapshot, group_snapshots, reset_group_snapshot_status
 
 Group Type Operations
 ^^^^^^^^^^^^^^^^^^^^^
@@ -130,8 +130,9 @@ Snapshot Operations
   :noindex:
   :members: create_snapshot, delete_snapshot, update_snapshot, get_snapshot,
             find_snapshot, snapshots, get_snapshot_metadata,
-            set_snapshot_metadata, delete_snapshot_metadata, reset_snapshot,
-            set_snapshot_status, manage_snapshot, unmanage_snapshot
+            set_snapshot_metadata, delete_snapshot_metadata,
+            reset_snapshot_status, set_snapshot_status, manage_snapshot,
+            unmanage_snapshot
 
 Stats Operations
 ^^^^^^^^^^^^^^^^

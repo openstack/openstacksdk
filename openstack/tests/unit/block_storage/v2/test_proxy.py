@@ -177,7 +177,7 @@ class TestVolumeActions(TestVolumeProxy):
             expected_args=[self.proxy, True],
         )
 
-    def test_volume_reset_volume_status(self):
+    def test_volume_reset_status(self):
         self._verify(
             "openstack.block_storage.v2.volume.Volume.reset_status",
             self.proxy.reset_volume_status,
@@ -341,10 +341,10 @@ class TestBackup(TestVolumeProxy):
             expected_kwargs={'volume_id': 'vol_id', 'name': 'name'},
         )
 
-    def test_backup_reset(self):
+    def test_backup_reset_status(self):
         self._verify(
-            "openstack.block_storage.v2.backup.Backup.reset",
-            self.proxy.reset_backup,
+            "openstack.block_storage.v2.backup.Backup.reset_status",
+            self.proxy.reset_backup_status,
             method_args=["value", "new_status"],
             expected_args=[self.proxy, "new_status"],
         )
@@ -407,10 +407,10 @@ class TestSnapshot(TestVolumeProxy):
     def test_snapshot_delete_ignore(self):
         self.verify_delete(self.proxy.delete_snapshot, snapshot.Snapshot, True)
 
-    def test_reset(self):
+    def test_snapshot_reset_status(self):
         self._verify(
-            "openstack.block_storage.v2.snapshot.Snapshot.reset",
-            self.proxy.reset_snapshot,
+            "openstack.block_storage.v2.snapshot.Snapshot.reset_status",
+            self.proxy.reset_snapshot_status,
             method_args=["value", "new_status"],
             expected_args=[self.proxy, "new_status"],
         )

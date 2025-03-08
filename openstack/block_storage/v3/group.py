@@ -10,9 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import warnings
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
+from openstack import warnings as os_warnings
 
 
 class Group(resource.Resource):
@@ -65,10 +68,18 @@ class Group(resource.Resource):
         body = {'delete': {'delete-volumes': delete_volumes}}
         self._action(session, body)
 
-    def reset(self, session, status):
+    def reset_status(self, session, status):
         """Resets the status for a group."""
         body = {'reset_status': {'status': status}}
         self._action(session, body)
+
+    def reset(self, session, status):
+        warnings.warn(
+            "reset is a deprecated alias for reset_status and will be "
+            "removed in a future release.",
+            os_warnings.RemovedInSDK60Warning,
+        )
+        self.reset_status(session, status)
 
     @classmethod
     def create_from_source(

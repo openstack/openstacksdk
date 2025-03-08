@@ -202,7 +202,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Snapshot actions ==========
 
-    def reset_snapshot(self, snapshot, status):
+    def reset_snapshot_status(self, snapshot, status):
         """Reset status of the snapshot
 
         :param snapshot: The value can be either the ID of a backup or a
@@ -212,7 +212,15 @@ class Proxy(proxy.Proxy):
         :returns: None
         """
         snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
-        snapshot.reset(self, status)
+        snapshot.reset_status(self, status)
+
+    def reset_snapshot(self, snapshot, status):
+        warnings.warn(
+            "reset_snapshot is a deprecated alias for reset_snapshot_status "
+            "and will be removed in a future release.",
+            os_warnings.RemovedInSDK60Warning,
+        )
+        return self.reset_snapshot_status(snapshot, status)
 
     # ========== Types ==========
 
@@ -743,7 +751,7 @@ class Proxy(proxy.Proxy):
         backup = self._get_resource(_backup.Backup, backup)
         return backup.restore(self, volume_id=volume_id, name=name)
 
-    def reset_backup(self, backup, status):
+    def reset_backup_status(self, backup, status):
         """Reset status of the backup
 
         :param backup: The value can be either the ID of a backup or a
@@ -753,7 +761,15 @@ class Proxy(proxy.Proxy):
         :returns: None
         """
         backup = self._get_resource(_backup.Backup, backup)
-        backup.reset(self, status)
+        backup.reset_status(self, status)
+
+    def reset_backup(self, backup, status):
+        warnings.warn(
+            "reset_backup is a deprecated alias for reset_backup_status "
+            "and will be removed in a future release.",
+            os_warnings.RemovedInSDK60Warning,
+        )
+        return self.reset_backup_status(backup, status)
 
     # ========== Limits ==========
 

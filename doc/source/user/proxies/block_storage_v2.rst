@@ -17,7 +17,8 @@ Backup Operations
 
 .. autoclass:: openstack.block_storage.v2._proxy.Proxy
   :noindex:
-  :members: create_backup, delete_backup, get_backup, backups, restore_backup
+  :members: create_backup, delete_backup, get_backup, backups, restore_backup,
+            reset_backup_status
 
 Capabilities Operations
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -61,7 +62,8 @@ Snapshot Operations
 
 .. autoclass:: openstack.block_storage.v2._proxy.Proxy
   :noindex:
-  :members: create_snapshot, delete_snapshot, get_snapshot, snapshots
+  :members: create_snapshot, delete_snapshot, get_snapshot, snapshots,
+            reset_snapshot_status
 
 Stats Operations
 ^^^^^^^^^^^^^^^^

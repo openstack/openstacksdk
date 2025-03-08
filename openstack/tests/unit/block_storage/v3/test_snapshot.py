@@ -111,10 +111,10 @@ class TestSnapshotActions(base.TestCase):
             url, json=body, microversion=sot._max_microversion
         )
 
-    def test_reset(self):
+    def test_reset_status(self):
         sot = snapshot.Snapshot(**SNAPSHOT)
 
-        self.assertIsNone(sot.reset(self.sess, 'new_status'))
+        self.assertIsNone(sot.reset_status(self.sess, 'new_status'))
 
         url = f'snapshots/{FAKE_ID}/action'
         body = {'os-reset_status': {'status': 'new_status'}}
