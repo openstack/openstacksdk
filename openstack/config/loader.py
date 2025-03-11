@@ -1188,14 +1188,6 @@ class OpenStackConfig:
     def magic_fixes(self, config):
         """Perform the set of magic argument fixups"""
 
-        # Infer token plugin if a token was given
-        if (
-            ('auth' in config and 'token' in config['auth'])
-            or ('auth_token' in config and config['auth_token'])
-            or ('token' in config and config['token'])
-        ):
-            config.setdefault('token', config.pop('auth_token', None))
-
         # Infer passcode if it was given separately
         # This is generally absolutely impractical to require setting passcode
         # in the clouds.yaml

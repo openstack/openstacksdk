@@ -1591,3 +1591,77 @@ class TestBackwardsCompatibility(base.TestCase):
         self.assertRaises(
             exceptions.ConfigException, c._fix_backwards_networks, cloud
         )
+
+    def test_token_auth(self):
+        c = config.OpenStackConfig(
+            config_files=[self.cloud_yaml], vendor_files=[self.vendor_yaml]
+        )
+        expected = {
+            "auth_type": "v3token",
+            "auth": {
+                "token": "my_token",
+            },
+            "networks": [],
+        }
+
+        cloud = {
+            "auth_type": "v3token",
+            "auth": {
+                "token": "my_token",
+            },
+        }
+        result = c.magic_fixes(cloud)
+        self.assertEqual(expected, result)
+
+        cloud = {
+            "auth_type": "v3token",
+            "auth": {
+                "auth_token": "my_token",
+            },
+        }
+        result = c.magic_fixes(cloud)
+        self.assertEqual(expected, result)
+
+        cloud = {
+            "auth_type": "v3token",
+            "auth": {
+                "auth-token": "my_token",
+            },
+        }
+        result = c.magic_fixes(cloud)
+        self.assertEqual(expected, result)
+
+        cloud = {
+            "auth_type": "v3token",
+            "auth": {},
+            "token": "my_token",
+        }
+        result = c.magic_fixes(cloud)
+        self.assertEqual(expected, result)
+
+        cloud = {
+            "auth_type": "v3token",
+            "auth": {},
+            "auth_token": "my_token",
+        }
+        result = c.magic_fixes(cloud)
+        self.assertEqual(expected, result)
+
+        cloud = {
+            "auth_type": "v3token",
+            "auth": {},
+            "auth-token": "my_token",
+        }
+        result = c.magic_fixes(cloud)
+        self.assertEqual(expected, result)
+
+        # test priority
+        cloud = {
+            "auth_type": "v3token",
+            "auth": {
+                "token": "I will be ignored",
+            },
+            "token": "my_token",
+        }
+        result = c.magic_fixes(cloud)
+        self.assertEqual(expected, result)
