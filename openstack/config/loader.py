@@ -185,9 +185,10 @@ class OpenStackConfig:
         load_yaml_config: bool = True,
         load_envvars: bool = True,
         statsd_host: str | None = None,
-        statsd_port: str | None = None,
+        statsd_port: int | None = None,
         statsd_prefix: str | None = None,
-        influxdb_config: dict[str, Any] | None = None,
+        statsd_config: types.StatsdConfig | None = None,
+        influxdb_config: types.InfluxDBConfig | None = None,
     ):
         self.log = _log.setup_logging('openstack.config')
         self._session_constructor = session_constructor
@@ -304,7 +305,6 @@ class OpenStackConfig:
         self._cache_class = 'dogpile.cache.null'
         self._cache_arguments: dict[str, Any] = {}
         self._cache_expirations: dict[str, int] = {}
-        self._influxdb_config = {}
         if 'cache' in self.cloud_config:
             cache_settings = _util.normalize_keys(self.cloud_config['cache'])
 
@@ -337,65 +337,34 @@ class OpenStackConfig:
                 'expiration', self._cache_expirations
             )
 
-        if load_yaml_config:
-            metrics_config = self.cloud_config.get('metrics', {})
-            statsd_config = metrics_config.get('statsd', {})
-            statsd_host = statsd_host or statsd_config.get('host')
-            statsd_port = statsd_port or statsd_config.get('port')
-            statsd_prefix = statsd_prefix or statsd_config.get('prefix')
+        if statsd_host or statsd_port or statsd_prefix:
+            if statsd_config:
+                raise exceptions.ConfigException(
+                    'cannot specify statsd_config and any of statsd_host, '
+                    'statsd_port, and statsd_prefix: remove the latter'
+                )
 
-            influxdb_cfg = metrics_config.get('influxdb', {})
-            # Parse InfluxDB configuration
-            if not influxdb_config:
-                influxdb_config = influxdb_cfg
-            else:
-                influxdb_config.update(influxdb_cfg)
-
-        if influxdb_config:
-            # NOTE(stephenfin): defer the warning to here so we catch config in
-            # both clouds.yaml and directly passed in
-            warnings.warn(
-                'Support for InfluxDB requires the influxdb library which '
-                'only supports InfluxDB 1.x and is deprecated. As a result, '
-                'influxdb is also deprecated and will be removed in a future '
-                'release.',
-                os_warnings.RemovedInSDK60Warning,
+            self.log.warning(
+                'the statsd_host, statsd_port, and statsd_prefix arguments '
+                'have been deprecated in favour of statsd_config'
             )
+            statsd_config = {
+                'host': statsd_host,
+                'port': statsd_port,
+                'prefix': statsd_prefix,
+            }
 
-            config = {}
-            if 'use_udp' in influxdb_config:
-                use_udp = influxdb_config['use_udp']
-                if isinstance(use_udp, str):
-                    use_udp = use_udp.lower() in ('true', 'yes', '1')
-                elif not isinstance(use_udp, bool):
-                    use_udp = False
-                    self.log.warning(
-                        'InfluxDB.use_udp value type is not '
-                        'supported. Use one of '
-                        '[true|false|yes|no|1|0]'
-                    )
-                config['use_udp'] = use_udp
-            for key in [
-                'host',
-                'port',
-                'username',
-                'password',
-                'database',
-                'measurement',
-                'timeout',
-            ]:
-                if key in influxdb_config:
-                    config[key] = influxdb_config[key]
-            self._influxdb_config = config
+        self._statsd_config = self._parse_section__metrics_statsd(
+            statsd_config,
+            load_config=load_yaml_config,
+            load_envvars=load_envvars,
+        )
 
-        if load_envvars:
-            statsd_host = statsd_host or os.environ.get('STATSD_HOST')
-            statsd_port = statsd_port or os.environ.get('STATSD_PORT')
-            statsd_prefix = statsd_prefix or os.environ.get('STATSD_PREFIX')
-
-        self._statsd_host = statsd_host
-        self._statsd_port = statsd_port
-        self._statsd_prefix = statsd_prefix
+        self._influxdb_config = self._parse_section__metrics_influxdb(
+            influxdb_config,
+            load_config=load_yaml_config,
+            load_envvars=load_envvars,
+        )
 
         # Flag location to hold the peeked value of an argparse timeout value
         self._argv_timeout = False
@@ -454,6 +423,146 @@ class OpenStackConfig:
 
         client['force_ipv4'] = force_ipv4
         return client
+
+    def _parse_section__metrics_statsd(
+        self,
+        config: types.StatsdConfig | None,
+        *,
+        load_config: bool,
+        load_envvars: bool,
+    ) -> types.StatsdConfig:
+        """Parse the '.metrics.statsd' section of the config file.
+
+        :param config: Configuration provided explicitly. Any values specified
+            here supersede those specified via environment variables or the
+            configuration file.
+        :param load_config: Whether to load configuration from the config file.
+        :param load_envvars: Whether to load configuration from environment
+            variables.
+
+        :returns: Configuration for the statsd connection.
+        """
+        config = copy.deepcopy(config) if config else {}
+
+        host = config.pop('host', None)
+        port = config.pop('port', None)
+        prefix = config.pop('prefix', None)
+
+        if config:
+            self.log.warning(
+                'statsd_config contained unrecognised keys: %s',
+                ', '.join(config),
+            )
+
+        # Values are resolved in order of precedence: explicit configuration
+        # (i.e. the 'config' argument) first, then environment variables and
+        # finally the configuration file.
+        if load_envvars:
+            host = host or os.environ.get('STATSD_HOST')
+            if not port and 'STATSD_PORT' in os.environ:
+                port = int(os.environ['STATSD_PORT'])
+            prefix = prefix or os.environ.get('STATSD_PREFIX')
+
+        if load_config:
+            metrics_config = self.cloud_config.get('metrics', {})
+            statsd_config = metrics_config.get('statsd', {})
+
+            host = host or statsd_config.get('host')
+            port = port or statsd_config.get('port')
+            prefix = prefix or statsd_config.get('prefix')
+
+        return {
+            'host': host,
+            'port': port,
+            'prefix': prefix,
+        }
+
+    # FIXME(stephenfin): Allow loading configuration from environment variables
+    def _parse_section__metrics_influxdb(
+        self,
+        config: types.InfluxDBConfig | None,
+        *,
+        load_config: bool,
+        load_envvars: bool,
+    ) -> types.InfluxDBConfig:
+        """Parse the '.metrics.influxdb' section of the config file.
+
+        For more information on the significance of these values, refer to the
+        InfluxDB reference guide.
+
+        https://docs.influxdata.com/influxdb/v2/reference/glossary/
+
+        :param config: The influxdb_config argument. Any values specified here
+            supersede those specified via the configuration file or environment
+            variables.
+        :param load_config: Whether to load configuration from the config file.
+        :param load_envvars: Whether to load configuration from environment
+            variables. (currently ignored)
+        :returns: Configuration for the influxdb connection, if any.
+        """
+        config = copy.deepcopy(config) if config else {}
+
+        host = config.pop('host', None)
+        port = config.pop('port', None)
+        username = config.pop('username', None)
+        password = config.pop('password', None)
+        database = config.pop('database', None)
+        measurement = config.pop('measurement', None)
+        timeout = config.pop('timeout', None)
+        use_udp = config.pop('use_udp', None)
+
+        if config:
+            self.log.warning(
+                'influxdb_config contained unrecognised keys: %s',
+                ', '.join(config),
+            )
+
+        if load_config:
+            metrics_config = self.cloud_config.get('metrics', {})
+            influxdb_config = metrics_config.get('influxdb', {})
+
+            host = host or influxdb_config.get('host')
+            port = port or influxdb_config.get('port')
+            username = username or influxdb_config.get('username')
+            password = password or influxdb_config.get('password')
+            database = database or influxdb_config.get('database')
+            measurement = measurement or influxdb_config.get('measurement')
+            timeout = timeout or influxdb_config.get('timeout')
+            if use_udp is None:
+                use_udp = influxdb_config.get('use_udp')
+
+        # normalise use_udp, but only if a value was actually provided
+        if use_udp is not None and not isinstance(use_udp, bool):
+            if isinstance(use_udp, str):
+                use_udp = use_udp.lower() in ('true', 'yes', '1')
+            else:
+                use_udp = False
+                self.log.warning(
+                    'InfluxDB.use_udp value type is not supported. '
+                    'Use one of [true|false|yes|no|1|0]'
+                )
+
+        if host:
+            # NOTE(stephenfin): defer the warning to here so we catch config in
+            # both clouds.yaml and directly passed in
+            warnings.warn(
+                'Support for InfluxDB requires the influxdb library which '
+                'only supports InfluxDB 1.x and is deprecated. As a result, '
+                'influxdb is also deprecated and will be removed in a future '
+                'release.',
+                os_warnings.RemovedInSDK60Warning,
+            )
+
+        return {
+            'host': host,
+            'port': port,
+            'username': username,
+            'password': password,
+            'database': database,
+            'measurement': measurement,
+            'timeout': timeout,
+            'use_udp': use_udp,
+        }
 
     def _get_os_environ(
         self, envvar_prefix: str | None = None
@@ -1353,7 +1462,7 @@ class OpenStackConfig:
             to be created. It's really only useful for testing.
         :param Namespace argparse:
             An argparse Namespace object; allows direct passing in of
-            argparse options to be added to the cloud config.  Values
+            argparse options to be added to the cloud config. Values
             of None and '' will be removed.
         :param region_name: Name of the region of the cloud.
         :param kwargs: Additional configuration options
@@ -1422,10 +1531,15 @@ class OpenStackConfig:
         # Override global metrics config with more specific per-cloud
         # details.
         metrics_config = config.get('metrics', {})
+
         statsd_config = metrics_config.get('statsd', {})
-        statsd_host = statsd_config.get('host') or self._statsd_host
-        statsd_port = statsd_config.get('port') or self._statsd_port
-        statsd_prefix = statsd_config.get('prefix') or self._statsd_prefix
+        if statsd_config:
+            merged_statsd = copy.deepcopy(self._statsd_config)
+            merged_statsd.update(statsd_config)
+            statsd_config = merged_statsd
+        else:
+            statsd_config = self._statsd_config
+
         influxdb_config = metrics_config.get('influxdb', {})
         if influxdb_config:
             merged_influxdb = copy.deepcopy(self._influxdb_config)
@@ -1456,9 +1570,7 @@ class OpenStackConfig:
             cache_class=self._cache_class,
             cache_arguments=self._cache_arguments,
             password_callback=self._pw_callback,
-            statsd_host=statsd_host,
-            statsd_port=statsd_port,
-            statsd_prefix=statsd_prefix,
+            statsd_config=statsd_config,
             influxdb_config=influxdb_config,
         )
 

@@ -864,18 +864,17 @@ class TestConfig(base.TestCase):
         )
         self.assertIsInstance(c.cloud_config, dict)
         cc = c.get_one('_test-cloud_')
-        statsd = {
-            'host': '127.0.0.1',
-            'port': '1234',
-        }
         # NOTE(ianw) we don't test/call get_<stat>_client() because we
         # don't want to instantiate the client, which tries to
         # connect / do hostname lookups.
-        self.assertEqual(statsd['host'], cc._statsd_host)
-        self.assertEqual(statsd['port'], cc._statsd_port)
+        statsd = {
+            'host': '127.0.0.1',
+            'port': '1234',
+            'prefix': None,
+        }
+        self.assertEqual(statsd, cc._statsd_config)
         self.assertEqual('openstack.api', cc.get_statsd_prefix())
         influxdb = {
-            'use_udp': True,
             'host': '127.0.0.1',
             'port': '1234',
             'username': 'username',
@@ -883,6 +882,7 @@ class TestConfig(base.TestCase):
             'database': 'database',
             'measurement': 'measurement.name',
             'timeout': 10,
+            'use_udp': True,
         }
         self.assertEqual(influxdb, cc._influxdb_config)
 
@@ -899,11 +899,9 @@ class TestConfig(base.TestCase):
             'port': '4321',
             'prefix': 'statsd.override.prefix',
         }
-        self.assertEqual(statsd['host'], cc._statsd_host)
-        self.assertEqual(statsd['port'], cc._statsd_port)
+        self.assertEqual(statsd, cc._statsd_config)
         self.assertEqual(statsd['prefix'], cc.get_statsd_prefix())
         influxdb = {
-            'use_udp': True,
             'host': '127.0.0.1',
             'port': '1234',
             'username': 'override-username',
@@ -911,8 +909,58 @@ class TestConfig(base.TestCase):
             'database': 'override-database',
             'measurement': 'measurement.name',
             'timeout': 10,
+            'use_udp': True,
         }
         self.assertEqual(influxdb, cc._influxdb_config)
+
+    def test_metrics_statsd_from_environment(self):
+        # environment variables take precedence over the configuration file
+        self.useFixture(
+            fixtures.EnvironmentVariable('STATSD_HOST', '10.0.0.1')
+        )
+        self.useFixture(fixtures.EnvironmentVariable('STATSD_PORT', '9999'))
+        self.useFixture(
+            fixtures.EnvironmentVariable('STATSD_PREFIX', 'env.prefix')
+        )
+        c = config.OpenStackConfig(
+            config_files=[self.cloud_yaml],
+            vendor_files=[self.vendor_yaml],
+            secure_files=[self.secure_yaml],
+        )
+        self.assertEqual(
+            {'host': '10.0.0.1', 'port': 9999, 'prefix': 'env.prefix'},
+            c._statsd_config,
+        )
+
+    def test_metrics_unset(self):
+        # a region with no metrics configuration should not report any and
+        # should not attempt to build a client
+        cc = cloud_region.CloudRegion()
+        self.assertEqual({}, cc._statsd_config)
+        self.assertEqual({}, cc._influxdb_config)
+        self.assertEqual('openstack.api', cc.get_statsd_prefix())
+        self.assertIsNone(cc.get_influxdb_client())
+
+    def test_metrics_statsd_deprecated_args(self):
+        # the legacy scalar arguments are still honoured...
+        cc = cloud_region.CloudRegion(
+            statsd_host='127.0.0.1',
+            statsd_port=8125,
+            statsd_prefix='my.prefix',
+        )
+        self.assertEqual(
+            {'host': '127.0.0.1', 'port': 8125, 'prefix': 'my.prefix'},
+            cc._statsd_config,
+        )
+        self.assertEqual('my.prefix', cc.get_statsd_prefix())
+
+        # ...but not in combination with the replacement argument
+        self.assertRaises(
+            exceptions.ConfigException,
+            cloud_region.CloudRegion,
+            statsd_host='127.0.0.1',
+            statsd_config={'host': '127.0.0.1'},
+        )
 
 
 class TestExcludedFormattedConfigValue(base.TestCase):

@@ -16,15 +16,7 @@ from collections.abc import Iterator
 import copy
 import importlib.metadata as importlib_metadata
 import os.path
-from typing import (
-    Any,
-    Optional,
-    Protocol,
-    TYPE_CHECKING,
-    TypeVar,
-    cast,
-    overload,
-)
+from typing import Any, Protocol, TYPE_CHECKING, TypeVar, cast, overload
 from urllib import parse
 import warnings
 
@@ -61,6 +53,7 @@ except ImportError:
 from openstack import _log
 from openstack.config import _util
 from openstack.config import defaults as config_defaults
+from openstack.config import types
 from openstack import exceptions
 from openstack import proxy
 from openstack import warnings as os_warnings
@@ -328,9 +321,11 @@ class CloudRegion:
         backend.
     :param password_callback: A callable invoked to prompt for a password when
         one is required but not otherwise available.
-    :param statsd_host:
-    :param statsd_port:
-    :param statsd_prefix:
+    :param statsd_host: **DEPRECATED** Use statsd_config instead.
+    :param statsd_port: **DEPRECATED** Use statsd_config instead.
+    :param statsd_prefix: **DEPRECATED** Use statsd_config instead.
+    :param statsd_config: Configuration for reporting API call metrics to
+        statsd.
     :param influxdb_config: Configuration for reporting API call metrics to
         InfluxDB. **DEPRECATED**: InfluxDB support relies on a deprecated
         library and will be removed in a future release.
@@ -348,7 +343,7 @@ class CloudRegion:
         config: dict[str, Any] | None = None,
         force_ipv4: bool = False,
         auth_plugin: plugin.BaseAuthPlugin | None = None,
-        openstack_config: Optional['loader.OpenStackConfig'] = None,
+        openstack_config: 'loader.OpenStackConfig | None' = None,
         session_constructor: type[ks_session.Session] | None = None,
         app_name: str | None = None,
         app_version: str | None = None,
@@ -362,13 +357,14 @@ class CloudRegion:
         cache_arguments: dict[str, Any] | None = None,
         password_callback: _PasswordCallback | None = None,
         statsd_host: str | None = None,
-        statsd_port: str | None = None,
+        statsd_port: int | None = None,
         statsd_prefix: str | None = None,
-        # TODO(stephenfin): Add better types
-        influxdb_config: dict[str, Any] | None = None,
-        collector_registry: Optional[
-            'prometheus_client.CollectorRegistry'
-        ] = None,
+        statsd_config: types.StatsdConfig | None = None,
+        influxdb_config: types.InfluxDBConfig | None = None,
+        prometheus_config: types.PrometheusConfig | None = None,
+        collector_registry: (
+            'prometheus_client.CollectorRegistry | None'
+        ) = None,
         cache_auth: bool = False,
     ) -> None:
         self._name = name
@@ -380,6 +376,56 @@ class CloudRegion:
             self.config['region_name'] = region_name
         self._extra_config = extra_config or {}
         self.log = _log.setup_logging('openstack.config')
+
+        if statsd_host or statsd_port or statsd_prefix:
+            if statsd_config:
+                raise exceptions.ConfigException(
+                    'cannot specify statsd_config alongside any of '
+                    'statsd_host, statsd_port, or statsd_prefix: remove the '
+                    'latter'
+                )
+
+            warnings.warn(
+                'the statsd_host, statsd_port, and statsd_prefix arguments '
+                'have been deprecated in favour of statsd_config',
+                os_warnings.RemovedInSDK60Warning,
+            )
+            statsd_config = {
+                'host': statsd_host,
+                'port': statsd_port,
+                'prefix': statsd_prefix,
+            }
+
+        if influxdb_config:
+            # NOTE(stephenfin): If you are a user and care about InfluxDB,
+            # please propose patches to migrate this to the influxdb3-python
+            # library [1]. Any migration should include tests.
+            #
+            # [1] https://github.com/InfluxCommunity/influxdb3-python
+            warnings.warn(
+                'Support for InfluxDB requires the influxdb library which '
+                'only supports InfluxDB 1.x and is deprecated. As a result, '
+                'influxdb is also deprecated and will be removed in a future '
+                'release.',
+                os_warnings.RemovedInSDK60Warning,
+            )
+
+        if collector_registry:
+            if prometheus_config:
+                raise exceptions.ConfigException(
+                    'cannot specify prometheus_config alongside '
+                    'collector_registry: remove the latter'
+                )
+
+            warnings.warn(
+                'the collector_registry argument has been deprecated in '
+                'favour of prometheus_config',
+                os_warnings.RemovedInSDK60Warning,
+            )
+            prometheus_config = {
+                'collector_registry': collector_registry,
+            }
+
         self._force_ipv4 = force_ipv4
         self._auth = auth_plugin
         self._cache_auth = cache_auth
@@ -396,29 +442,11 @@ class CloudRegion:
         self._cache_class = cache_class
         self._cache_arguments = cache_arguments
         self._password_callback = password_callback
-        self._statsd_host = statsd_host
-        self._statsd_port = statsd_port
-        self._statsd_prefix = statsd_prefix
+        self._statsd_config = statsd_config or {}
         self._statsd_client = None
-        self._influxdb_config = influxdb_config
+        self._influxdb_config = influxdb_config or {}
         self._influxdb_client = None
-
-        if influxdb_config is not None:
-            # NOTE(stephenfin): If you are a user and care about InfluxDB,
-            # please propose patches to migrate this to the influxdb3-python
-            # library [1]. Any migration should include tests.
-            #
-            # [1] https://github.com/InfluxCommunity/influxdb3-python
-            warnings.warn(
-                'Support for InfluxDB requires the influxdb library which '
-                'only supports InfluxDB 1.x and is deprecated. As a result, '
-                'influxdb is also deprecated and will be removed in a future '
-                'release.',
-                os_warnings.RemovedInSDK60Warning,
-            )
-
-        self._collector_registry = collector_registry
-
+        self._prometheus_config = prometheus_config or {}
         self._service_type_manager = os_service_types.ServiceTypes()
 
     def __getattr__(self, key: str) -> Any:
@@ -1530,19 +1558,19 @@ class CloudRegion:
 
     def get_statsd_client(
         self,
-    ) -> Optional['statsd_client.StatsClientBase']:
+    ) -> 'statsd_client.StatsClientBase | None':
         if not statsd_client:
-            if self._statsd_host:
+            if self._statsd_config.get('host'):
                 self.log.warning(
                     'StatsD python library is not available. '
                     'Reporting disabled'
                 )
             return None
-        statsd_args = {}
-        if self._statsd_host:
-            statsd_args['host'] = self._statsd_host
-        if self._statsd_port:
-            statsd_args['port'] = self._statsd_port
+        statsd_args: dict[str, Any] = {}
+        if self._statsd_config.get('host'):
+            statsd_args['host'] = self._statsd_config['host']
+        if self._statsd_config.get('port'):
+            statsd_args['port'] = self._statsd_config['port']
         if statsd_args:
             try:
                 return statsd_client.StatsClient(**statsd_args)
@@ -1553,16 +1581,16 @@ class CloudRegion:
             return None
 
     def get_statsd_prefix(self) -> str:
-        return self._statsd_prefix or 'openstack.api'
+        return self._statsd_config.get('prefix') or 'openstack.api'
 
     def get_prometheus_registry(
         self,
-    ) -> Optional['prometheus_client.CollectorRegistry']:
-        return self._collector_registry
+    ) -> 'prometheus_client.CollectorRegistry | None':
+        return self._prometheus_config.get('collector_registry')
 
     def get_prometheus_histogram(
         self,
-    ) -> Optional['prometheus_client.Histogram']:
+    ) -> 'prometheus_client.Histogram | None':
         registry = self.get_prometheus_registry()
         if not registry or not prometheus_client:
             return None
@@ -1587,7 +1615,7 @@ class CloudRegion:
 
     def get_prometheus_counter(
         self,
-    ) -> Optional['prometheus_client.Counter']:
+    ) -> 'prometheus_client.Counter | None':
         registry = self.get_prometheus_registry()
         if not registry or not prometheus_client:
             return None
@@ -1633,9 +1661,9 @@ class CloudRegion:
 
     def get_influxdb_client(
         self,
-    ) -> Optional['influxdb_client.InfluxDBClient']:
+    ) -> 'influxdb_client.InfluxDBClient | None':
         influx_args: dict[str, Any] = {}
-        if not self._influxdb_config:
+        if not self._influxdb_config.get('host'):
             return None
 
         warnings.warn(
@@ -1646,18 +1674,20 @@ class CloudRegion:
             os_warnings.RemovedInSDK60Warning,
         )
 
-        use_udp = bool(self._influxdb_config.get('use_udp', False))
-        port = self._influxdb_config.get('port')
+        # coerce to a plain dict so we can index it with dynamic keys
+        influxdb_config = dict(self._influxdb_config)
+        use_udp = bool(influxdb_config.get('use_udp', False))
+        port = influxdb_config.get('port')
         if use_udp:
             influx_args['use_udp'] = True
-        if 'port' in self._influxdb_config:
+        if port is not None:
             if use_udp:
                 influx_args['udp_port'] = port
             else:
                 influx_args['port'] = port
         for key in ['host', 'username', 'password', 'database', 'timeout']:
-            if key in self._influxdb_config:
-                influx_args[key] = self._influxdb_config[key]
+            if influxdb_config.get(key) is not None:
+                influx_args[key] = influxdb_config[key]
         if influxdb_client and influx_args:
             try:
                 return influxdb_client.InfluxDBClient(**influx_args)

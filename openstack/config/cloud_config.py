@@ -17,6 +17,7 @@ import warnings
 # TODO(mordred) This is only here to ease the OSC transition
 
 from openstack.config import cloud_region
+from openstack.config import types
 from openstack import warnings as os_warnings
 
 if TYPE_CHECKING:
@@ -50,10 +51,9 @@ class CloudConfig(cloud_region.CloudRegion):
         cache_arguments: dict[str, Any] | None = None,
         password_callback: cloud_region._PasswordCallback | None = None,
         statsd_host: str | None = None,
-        statsd_port: str | None = None,
+        statsd_port: int | None = None,
         statsd_prefix: str | None = None,
-        # TODO(stephenfin): Add better types
-        influxdb_config: dict[str, Any] | None = None,
+        influxdb_config: types.InfluxDBConfig | None = None,
         collector_registry: Optional[
             'prometheus_client.CollectorRegistry'
         ] = None,
