@@ -143,12 +143,13 @@ def _fix_argv(argv: list[str]) -> None:
     for new, old in processed.items():
         if len(old) > 1:
             overlap.extend(old)
+
     if overlap:
         raise exceptions.ConfigException(
-            "The following options were given: '{options}' which contain "
-            "duplicates except that one has _ and one has -. There is "
-            "no sane way for us to know what you're doing. Remove the "
-            "duplicate option and try again".format(options=','.join(overlap))
+            f"The following options were given: '{','.join(overlap)}' which "
+            f"contain duplicates except that one has '_' and one has '-'. "
+            f"There is no sane way for us to know what you're doing. "
+            f"Remove the duplicate option and try again."
         )
 
 
