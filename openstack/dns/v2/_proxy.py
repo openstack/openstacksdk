@@ -70,6 +70,9 @@ class Proxy(proxy.Proxy):
         :returns: The results of zone creation.
         :rtype: :class:`~openstack.dns.v2.zone.Zone`
         """
+        if attrs.get('type') == "SECONDARY":
+            attrs.pop('email', None)
+            attrs.pop('ttl', None)
         return self._create(_zone.Zone, prepend_key=False, **attrs)
 
     def get_zone(self, zone):

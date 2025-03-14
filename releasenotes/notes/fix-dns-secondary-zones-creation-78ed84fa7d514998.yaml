@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fixed DNS secondary zone creation. Now secondary zones do not
+    require email not ttl, as both get overriden by the following
+    zone transfer.
