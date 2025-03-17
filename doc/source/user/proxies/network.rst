@@ -152,7 +152,12 @@ QoS Operations
             qos_bandwidth_limit_rules,
             create_qos_dscp_marking_rule, update_qos_dscp_marking_rule,
             delete_qos_dscp_marking_rule, get_qos_dscp_marking_rule,
-            find_qos_dscp_marking_rule, qos_dscp_marking_rules
+            find_qos_dscp_marking_rule, qos_dscp_marking_rules,
+            create_qos_packet_rate_limit_rule,
+            update_qos_packet_rate_limit_rule,
+            delete_qos_packet_rate_limit_rule,
+            get_qos_packet_rate_limit_rule,
+            find_qos_packet_rate_limit_rule,
 
 Agent Operations
 ^^^^^^^^^^^^^^^^
