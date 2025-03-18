@@ -34,8 +34,8 @@ def get_cloud_region(
     )
     if options:
         config.register_argparse_arguments(options, sys.argv, service_key)
-        parsed_options = options.parse_known_args(sys.argv)
+        parsed_options, _rest_of_argv = options.parse_known_args(sys.argv)
     else:
         parsed_options = None
 
-    return config.get_one(options=parsed_options, **kwargs)
+    return config.get_one(argparse=parsed_options, **kwargs)

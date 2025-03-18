@@ -67,7 +67,7 @@ def connect(
     cloud: ty.Optional[str] = None,
     app_name: ty.Optional[str] = None,
     app_version: ty.Optional[str] = None,
-    options: ty.Optional[argparse.Namespace] = None,
+    options: ty.Optional[argparse.ArgumentParser] = None,
     load_yaml_config: bool = True,
     load_envvars: bool = True,
     **kwargs: ty.Any,
@@ -78,10 +78,9 @@ def connect(
         The name of the configuration to load from clouds.yaml. Defaults
         to 'envvars' which will load configuration settings from environment
         variables that start with ``OS_``.
-    :param argparse.Namespace options:
-        An argparse Namespace object. Allows direct passing in of
-        argparse options to be added to the cloud config.  Values
-        of None and '' will be removed.
+    :param argparse.ArgumentParser options:
+        An argparse ArgumentParser object. SDK-specific options will be
+        registered, parsed out and used to configure the connection.
     :param bool load_yaml_config:
         Whether or not to load config settings from clouds.yaml files.
         Defaults to True.
