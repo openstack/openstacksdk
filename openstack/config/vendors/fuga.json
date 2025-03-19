@@ -10,6 +10,8 @@
       "cystack"
     ],
     "identity_api_version": "3",
-    "block_storage_api_version": "3"
+    "block_storage_api_version": "3",
+    "status": "deprecated",
+    "message": "the API Endpoint is no longer responsive"
   }
 }

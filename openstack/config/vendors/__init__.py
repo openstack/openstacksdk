@@ -30,15 +30,18 @@ _WELL_KNOWN_PATH = "{scheme}://{netloc}/.well-known/openstack/api"
 
 def _get_vendor_defaults():
     global _VENDOR_DEFAULTS
+
     if not _VENDOR_DEFAULTS:
         for vendor in glob.glob(os.path.join(_VENDORS_PATH, '*.yaml')):
             with open(vendor) as f:
                 vendor_data = yaml.safe_load(f)
                 _VENDOR_DEFAULTS[vendor_data['name']] = vendor_data['profile']
+
         for vendor in glob.glob(os.path.join(_VENDORS_PATH, '*.json')):
             with open(vendor) as f:
                 vendor_data = json.load(f)
                 _VENDOR_DEFAULTS[vendor_data['name']] = vendor_data['profile']
+
     return _VENDOR_DEFAULTS
 
 
@@ -46,10 +49,12 @@ def get_profile(profile_name):
     vendor_defaults = _get_vendor_defaults()
     if profile_name in vendor_defaults:
         return vendor_defaults[profile_name].copy()
+
     profile_url = urllib.parse.urlparse(profile_name)
     if not profile_url.netloc:
         # This isn't a url, and we already don't have it.
         return
+
     well_known_url = _WELL_KNOWN_PATH.format(
         scheme=profile_url.scheme,
         netloc=profile_url.netloc,
@@ -62,6 +67,7 @@ def get_profile(profile_name):
         )
         vendor_defaults[profile_name] = None
         return
+
     vendor_data = response.json()
     name = vendor_data['name']
     # Merge named and url cloud config, but make named config override the
@@ -77,4 +83,5 @@ def get_profile(profile_name):
     # how we're called.
     vendor_defaults[profile_name] = profile
     vendor_defaults[name] = profile
+
     return profile

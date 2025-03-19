@@ -8,6 +8,8 @@
     "identity_api_version": "3",
     "regions": [
       "london"
-    ]
+    ],
+    "status": "shutdown",
+    "message": "the API Endpoint is no longer responsive"
   }
 }

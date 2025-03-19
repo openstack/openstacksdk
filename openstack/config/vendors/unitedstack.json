@@ -11,6 +11,8 @@
     "block_storage_api_version": "1",
     "identity_api_version": "3",
     "image_format": "raw",
-    "floating_ip_source": "None"
+    "floating_ip_source": "None",
+    "status": "shutdown",
+    "message": "the API Endpoint is no longer responsive"
   }
 }
