@@ -24,6 +24,7 @@ import yaml
 from openstack import config
 from openstack.config import cloud_region
 from openstack.config import defaults
+from openstack.config import loader
 from openstack import exceptions
 from openstack.tests.unit.config import base
 
@@ -1409,30 +1410,33 @@ class TestConfigDefault(base.TestCase):
         self.assertEqual('password', cc.auth_type)
 
 
-class TestBackwardsCompatibility(base.TestCase):
-    def test_set_no_default(self):
+class TestMagicFixes(base.TestCase):
+    def _test_magic_fixes(self, cloud, expected):
         c = config.OpenStackConfig(
             config_files=[self.cloud_yaml], vendor_files=[self.vendor_yaml]
         )
+        result = c.magic_fixes(cloud)
+        self.assertEqual(expected, result)
+
+    def test_set_no_default(self):
         cloud = {
+            'auth': {},
             'identity_endpoint_type': 'admin',
             'compute_endpoint_type': 'private',
             'endpoint_type': 'public',
             'auth_type': 'v3password',
         }
-        result = c._fix_backwards_interface(cloud)
         expected = {
             'identity_interface': 'admin',
             'compute_interface': 'private',
             'interface': 'public',
             'auth_type': 'v3password',
+            'auth': {},
+            'networks': [],
         }
-        self.assertDictEqual(expected, result)
+        self._test_magic_fixes(cloud, expected)
 
     def test_project_v2password(self):
-        c = config.OpenStackConfig(
-            config_files=[self.cloud_yaml], vendor_files=[self.vendor_yaml]
-        )
         cloud = {
             'auth_type': 'v2password',
             'auth': {
@@ -1440,20 +1444,17 @@ class TestBackwardsCompatibility(base.TestCase):
                 'project-id': 'my_project_id',
             },
         }
-        result = c._fix_backwards_project(cloud)
         expected = {
             'auth_type': 'v2password',
             'auth': {
                 'tenant_name': 'my_project_name',
                 'tenant_id': 'my_project_id',
             },
+            'networks': [],
         }
-        self.assertEqual(expected, result)
+        self._test_magic_fixes(cloud, expected)
 
     def test_project_password(self):
-        c = config.OpenStackConfig(
-            config_files=[self.cloud_yaml], vendor_files=[self.vendor_yaml]
-        )
         cloud = {
             'auth_type': 'password',
             'auth': {
@@ -1461,15 +1462,15 @@ class TestBackwardsCompatibility(base.TestCase):
                 'project-id': 'my_project_id',
             },
         }
-        result = c._fix_backwards_project(cloud)
         expected = {
             'auth_type': 'password',
             'auth': {
                 'project_name': 'my_project_name',
                 'project_id': 'my_project_id',
             },
+            'networks': [],
         }
-        self.assertEqual(expected, result)
+        self._test_magic_fixes(cloud, expected)
 
     def test_project_conflict_priority(self):
         """The order of priority should be
@@ -1480,23 +1481,20 @@ class TestBackwardsCompatibility(base.TestCase):
         inherited credentials in clouds.yaml.
         """
 
-        c = config.OpenStackConfig(
-            config_files=[self.cloud_yaml], vendor_files=[self.vendor_yaml]
-        )
         cloud = {
             'auth_type': 'password',
             'auth': {
                 'project_id': 'my_project_id',
             },
         }
-        result = c._fix_backwards_project(cloud)
         expected = {
             'auth_type': 'password',
             'auth': {
                 'project_id': 'my_project_id',
             },
+            'networks': [],
         }
-        self.assertEqual(expected, result)
+        self._test_magic_fixes(cloud, expected)
 
         cloud = {
             'auth_type': 'password',
@@ -1505,39 +1503,36 @@ class TestBackwardsCompatibility(base.TestCase):
             },
             'project_id': 'different_project_id',
         }
-        result = c._fix_backwards_project(cloud)
         expected = {
             'auth_type': 'password',
             'auth': {
                 'project_id': 'different_project_id',
             },
+            'networks': [],
         }
-        self.assertEqual(expected, result)
+        self._test_magic_fixes(cloud, expected)
 
     def test_backwards_network_fail(self):
-        c = config.OpenStackConfig(
-            config_files=[self.cloud_yaml], vendor_files=[self.vendor_yaml]
-        )
         cloud = {
+            'auth': {},
             'external_network': 'public',
             'networks': [
                 {'name': 'private', 'routes_externally': False},
             ],
         }
         self.assertRaises(
-            exceptions.ConfigException, c._fix_backwards_networks, cloud
+            exceptions.ConfigException, self._test_magic_fixes, cloud, {}
         )
 
     def test_backwards_network(self):
-        c = config.OpenStackConfig(
-            config_files=[self.cloud_yaml], vendor_files=[self.vendor_yaml]
-        )
         cloud = {
+            'auth': {},
             'external_network': 'public',
             'internal_network': 'private',
         }
-        result = c._fix_backwards_networks(cloud)
         expected = {
+            'auth': {},
+            'auth_type': None,
             'external_network': 'public',
             'internal_network': 'private',
             'networks': [
@@ -1555,15 +1550,13 @@ class TestBackwardsCompatibility(base.TestCase):
                 },
             ],
         }
-        self.assertEqual(expected, result)
+        self._test_magic_fixes(cloud, expected)
 
     def test_normalize_network(self):
-        c = config.OpenStackConfig(
-            config_files=[self.cloud_yaml], vendor_files=[self.vendor_yaml]
-        )
-        cloud = {'networks': [{'name': 'private'}]}
-        result = c._fix_backwards_networks(cloud)
+        cloud = {'auth': {}, 'networks': [{'name': 'private'}]}
         expected = {
+            'auth': {},
+            'auth_type': None,
             'networks': [
                 {
                     'name': 'private',
@@ -1574,34 +1567,29 @@ class TestBackwardsCompatibility(base.TestCase):
                     'routes_ipv4_externally': False,
                     'routes_ipv6_externally': False,
                 },
-            ]
+            ],
         }
-        self.assertEqual(expected, result)
+        self._test_magic_fixes(cloud, expected)
 
     def test_single_default_interface(self):
-        c = config.OpenStackConfig(
-            config_files=[self.cloud_yaml], vendor_files=[self.vendor_yaml]
-        )
         cloud = {
+            'auth': {},
             'networks': [
                 {'name': 'blue', 'default_interface': True},
                 {'name': 'purple', 'default_interface': True},
-            ]
+            ],
         }
         self.assertRaises(
-            exceptions.ConfigException, c._fix_backwards_networks, cloud
+            exceptions.ConfigException, self._test_magic_fixes, cloud, {}
         )
 
     def test_token_auth(self):
-        c = config.OpenStackConfig(
-            config_files=[self.cloud_yaml], vendor_files=[self.vendor_yaml]
-        )
         expected = {
             "auth_type": "v3token",
             "auth": {
                 "token": "my_token",
             },
-            "networks": [],
+            'networks': [],
         }
 
         cloud = {
@@ -1610,8 +1598,7 @@ class TestBackwardsCompatibility(base.TestCase):
                 "token": "my_token",
             },
         }
-        result = c.magic_fixes(cloud)
-        self.assertEqual(expected, result)
+        self._test_magic_fixes(cloud, expected)
 
         cloud = {
             "auth_type": "v3token",
@@ -1619,8 +1606,7 @@ class TestBackwardsCompatibility(base.TestCase):
                 "auth_token": "my_token",
             },
         }
-        result = c.magic_fixes(cloud)
-        self.assertEqual(expected, result)
+        self._test_magic_fixes(cloud, expected)
 
         cloud = {
             "auth_type": "v3token",
@@ -1628,32 +1614,28 @@ class TestBackwardsCompatibility(base.TestCase):
                 "auth-token": "my_token",
             },
         }
-        result = c.magic_fixes(cloud)
-        self.assertEqual(expected, result)
+        self._test_magic_fixes(cloud, expected)
 
         cloud = {
             "auth_type": "v3token",
             "auth": {},
             "token": "my_token",
         }
-        result = c.magic_fixes(cloud)
-        self.assertEqual(expected, result)
+        self._test_magic_fixes(cloud, expected)
 
         cloud = {
             "auth_type": "v3token",
             "auth": {},
             "auth_token": "my_token",
         }
-        result = c.magic_fixes(cloud)
-        self.assertEqual(expected, result)
+        self._test_magic_fixes(cloud, expected)
 
         cloud = {
             "auth_type": "v3token",
             "auth": {},
             "auth-token": "my_token",
         }
-        result = c.magic_fixes(cloud)
-        self.assertEqual(expected, result)
+        self._test_magic_fixes(cloud, expected)
 
         # test priority
         cloud = {
@@ -1663,5 +1645,72 @@ class TestBackwardsCompatibility(base.TestCase):
             },
             "token": "my_token",
         }
-        result = c.magic_fixes(cloud)
-        self.assertEqual(expected, result)
+        self._test_magic_fixes(cloud, expected)
+
+    def test_passcode(self):
+        cloud = {
+            "auth": {},
+            "passcode": "totp",
+        }
+        expected = {
+            "auth": {
+                "passcode": "totp",
+            },
+            'auth_type': None,
+            'networks': [],
+        }
+        self._test_magic_fixes(cloud, expected)
+
+    def test_endpoint_type_to_interface(self):
+        cloud = {
+            'auth': {},
+            "endpoint_type": "public",
+            "foo_endpoint_type": "internal",
+        }
+        expected = {
+            "auth": {},
+            'auth_type': None,
+            'networks': [],
+            "interface": "public",
+            "foo_interface": "internal",
+        }
+        self._test_magic_fixes(cloud, expected)
+
+    def test_bool_keys(self):
+        cloud = {"auth": {}}
+        cloud.update({k: "True" for k in loader.BOOL_KEYS})
+        expected = {
+            "auth_type": None,
+            "auth": {},
+            "networks": [],
+        }
+        expected.update({k: True for k in loader.BOOL_KEYS})
+        self._test_magic_fixes(cloud, expected)
+
+    def test_csv_keys(self):
+        cloud = {"auth": {}}
+        cloud.update({k: "spam,ham" for k in loader.CSV_KEYS})
+        expected = {
+            "auth_type": None,
+            "auth": {},
+            "networks": [],
+        }
+        expected.update({k: ["spam", "ham"] for k in loader.CSV_KEYS})
+        self._test_magic_fixes(cloud, expected)
+
+    def test_auth_url_formatting(self):
+        cloud = {
+            "auth": {
+                "auth_url": "https://my.cloud/{region_id}",
+            },
+            "region_id": "RegionOne",
+        }
+        expected = {
+            "auth_type": None,
+            "auth": {
+                "auth_url": "https://my.cloud/RegionOne",
+            },
+            "region_id": "RegionOne",
+            "networks": [],
+        }
+        self._test_magic_fixes(cloud, expected)
