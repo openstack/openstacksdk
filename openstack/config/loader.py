@@ -750,10 +750,7 @@ class OpenStackConfig:
             cloud['auth'].pop(target_key, None)
         return cloud
 
-    def _fix_backwards_project(self, cloud):
-        # Do the lists backwards so that project_name is the ultimate winner
-        # Also handle moving domain names into auth so that domain mapping
-        # is easier
+    def _fix_backwards_auth(self, cloud):
         mappings = {
             'domain_id': ('domain_id', 'domain-id'),
             'domain_name': ('domain_name', 'domain-name'),
@@ -765,6 +762,7 @@ class OpenStackConfig:
                 'project-domain-name',
             ),
             'token': ('auth-token', 'auth_token', 'token'),
+            'passcode': ('passcode',),
         }
         if cloud.get('auth_type', None) == 'v2password':
             # If v2password is explcitly requested, this is to deal with old
@@ -798,12 +796,12 @@ class OpenStackConfig:
         for target_key, possible_values in mappings.items():
             target = None
             for key in possible_values:
-                # Prefer values from the 'auth' section
-                # as they may contain cli or environment overrides.
-                # See story 2010784 for context.
                 if key in cloud['auth']:
                     target = str(cloud['auth'][key])
                     del cloud['auth'][key]
+                # Prefer values NOT from the 'auth' section
+                # as they may contain cli or environment overrides.
+                # See story 2010784 for context.
                 if key in cloud:
                     target = str(cloud[key])
                     del cloud[key]
@@ -1185,36 +1183,30 @@ class OpenStackConfig:
                 config['auth'][p_opt.dest] = winning_value
         return config
 
-    def magic_fixes(self, config):
-        """Perform the set of magic argument fixups"""
-
-        # Infer passcode if it was given separately
-        # This is generally absolutely impractical to require setting passcode
-        # in the clouds.yaml
-        if 'auth' in config and 'passcode' in config:
-            config['auth']['passcode'] = config.pop('passcode', None)
-
-        # These backwards compat values are only set via argparse. If it's
-        # there, it's because it was passed in explicitly, and should win
-        config = self._fix_backwards_api_timeout(config)
-        if 'endpoint_type' in config:
-            config['interface'] = config.pop('endpoint_type')
-
-        config = self._fix_backwards_auth_plugin(config)
-        config = self._fix_backwards_project(config)
-        config = self._fix_backwards_interface(config)
-        config = self._fix_backwards_networks(config)
-        config = self._handle_domain_id(config)
-
+    def _handle_value_types(self, config: dict) -> dict:
         for key in BOOL_KEYS:
             if key in config:
-                if type(config[key]) is not bool:
+                if not isinstance(config[key], bool):
                     config[key] = get_boolean(config[key])
 
         for key in CSV_KEYS:
             if key in config:
                 if isinstance(config[key], str):
                     config[key] = config[key].split(',')
+        return config
+
+    def magic_fixes(self, config):
+        """Perform the set of magic argument fixups"""
+
+        # These backwards compat values are only set via argparse. If it's
+        # there, it's because it was passed in explicitly, and should win
+        config = self._fix_backwards_api_timeout(config)
+        config = self._fix_backwards_auth_plugin(config)
+        config = self._fix_backwards_auth(config)
+        config = self._fix_backwards_interface(config)
+        config = self._fix_backwards_networks(config)
+        config = self._handle_domain_id(config)
+        config = self._handle_value_types(config)
 
         # TODO(mordred): Special casing auth_url here. We should
         #                come back to this betterer later so that it's
