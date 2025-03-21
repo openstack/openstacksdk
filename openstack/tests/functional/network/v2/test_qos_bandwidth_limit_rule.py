@@ -63,7 +63,7 @@ class TestQoSBandwidthLimitRule(base.BaseFunctionalTest):
         self.RULE_ID = qos_rule.id
 
     def tearDown(self):
-        rule = self.operator_cloud.network.delete_qos_minimum_bandwidth_rule(
+        rule = self.operator_cloud.network.delete_qos_bandwidth_limit_rule(
             self.RULE_ID, self.QOS_POLICY_ID
         )
         qos_policy = self.operator_cloud.network.delete_qos_policy(
