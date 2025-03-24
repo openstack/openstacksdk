@@ -51,7 +51,7 @@ class TestQoSDSCPMarkingRule(base.BaseFunctionalTest):
         self.RULE_ID = qos_rule.id
 
     def tearDown(self):
-        rule = self.conn.network.delete_qos_minimum_bandwidth_rule(
+        rule = self.conn.network.delete_qos_dscp_marking_rule(
             self.RULE_ID, self.QOS_POLICY_ID
         )
         qos_policy = self.conn.network.delete_qos_policy(self.QOS_POLICY_ID)
