@@ -3,7 +3,7 @@
 # out of general entry.
 - job:
     name: metalsmith-integration-openstacksdk-src
-    parent: metalsmith-integration-glance-netboot-cirros-direct
+    parent: metalsmith-integration-http-cirros
     required-projects:
       - openstack/openstacksdk
 
