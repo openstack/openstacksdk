@@ -22,7 +22,6 @@ Functional tests for endpoint resource.
 import random
 import string
 
-from openstack.cloud.exc import OpenStackCloudUnavailableFeature
 from openstack import exceptions
 from openstack.tests.functional import base
 
@@ -39,6 +38,7 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
 
     def setUp(self):
         super().setUp()
+
         if not self.operator_cloud:
             self.skipTest("Operator cloud is required for this test")
 
@@ -117,47 +117,38 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
         self.assertIsNotNone(endpoints[0].get('id'))
 
     def test_update_endpoint(self):
-        ver = self.operator_cloud.config.get_api_version('identity')
-        if ver.startswith('2'):
-            # NOTE(SamYaple): Update endpoint only works with v3 api
-            self.assertRaises(
-                OpenStackCloudUnavailableFeature,
-                self.operator_cloud.update_endpoint,
-                'endpoint_id1',
-            )
-        else:
-            # service operations require existing region. Do not test updating
-            # region for now
-            region = list(self.operator_cloud.identity.regions())[0].id
+        # service operations require existing region. Do not test updating
+        # region for now
+        region = list(self.operator_cloud.identity.regions())[0].id
 
-            service = self.operator_cloud.create_service(
-                name='service1', type='test_type'
-            )
-            endpoint = self.operator_cloud.create_endpoint(
-                service_name_or_id=service['id'],
-                url='http://admin.url/',
-                interface='admin',
-                region=region,
-                enabled=False,
-            )[0]
+        service = self.operator_cloud.create_service(
+            name='service1', type='test_type'
+        )
+        endpoint = self.operator_cloud.create_endpoint(
+            service_name_or_id=service['id'],
+            url='http://admin.url/',
+            interface='admin',
+            region=region,
+            enabled=False,
+        )[0]
 
-            new_service = self.operator_cloud.create_service(
-                name='service2', type='test_type'
-            )
-            new_endpoint = self.operator_cloud.update_endpoint(
-                endpoint.id,
-                service_name_or_id=new_service.id,
-                url='http://public.url/',
-                interface='public',
-                region=region,
-                enabled=True,
-            )
+        new_service = self.operator_cloud.create_service(
+            name='service2', type='test_type'
+        )
+        new_endpoint = self.operator_cloud.update_endpoint(
+            endpoint.id,
+            service_name_or_id=new_service.id,
+            url='http://public.url/',
+            interface='public',
+            region=region,
+            enabled=True,
+        )
 
-            self.assertEqual(new_endpoint.url, 'http://public.url/')
-            self.assertEqual(new_endpoint.interface, 'public')
-            self.assertEqual(new_endpoint.region_id, region)
-            self.assertEqual(new_endpoint.service_id, new_service.id)
-            self.assertTrue(new_endpoint.is_enabled)
+        self.assertEqual(new_endpoint.url, 'http://public.url/')
+        self.assertEqual(new_endpoint.interface, 'public')
+        self.assertEqual(new_endpoint.region_id, region)
+        self.assertEqual(new_endpoint.service_id, new_service.id)
+        self.assertTrue(new_endpoint.is_enabled)
 
     def test_list_endpoints(self):
         service_name = self.new_item_name + '_list'

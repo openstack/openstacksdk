@@ -21,14 +21,13 @@ from openstack import exceptions
 from openstack.tests.functional import base
 
 
-class TestDomain(base.BaseFunctionalTest):
+class TestDomain(base.KeystoneBaseFunctionalTest):
     def setUp(self):
         super().setUp()
+
         if not self.operator_cloud:
             self.skipTest("Operator cloud is required for this test")
-        i_ver = self.operator_cloud.config.get_api_version('identity')
-        if i_ver in ('2', '2.0'):
-            self.skipTest('Identity service does not support domains')
+
         self.domain_prefix = self.getUniqueString('domain')
         self.addCleanup(self._cleanup_domains)
 

@@ -28,6 +28,7 @@ from openstack.tests.functional import base
 class TestProject(base.KeystoneBaseFunctionalTest):
     def setUp(self):
         super().setUp()
+
         if not self.operator_cloud:
             self.skipTest("Operator cloud is required for this test")
 
@@ -52,11 +53,8 @@ class TestProject(base.KeystoneBaseFunctionalTest):
         params = {
             'name': project_name,
             'description': 'test_create_project',
+            'domain_id': self.operator_cloud.get_domain('default')['id'],
         }
-        if self.identity_version == '3':
-            params['domain_id'] = self.operator_cloud.get_domain('default')[
-                'id'
-            ]
 
         project = self.operator_cloud.create_project(**params)
 
@@ -94,11 +92,8 @@ class TestProject(base.KeystoneBaseFunctionalTest):
             'name': project_name,
             'description': 'test_update_project',
             'enabled': True,
+            'domain_id': self.operator_cloud.get_domain('default')['id'],
         }
-        if self.identity_version == '3':
-            params['domain_id'] = self.operator_cloud.get_domain('default')[
-                'id'
-            ]
 
         project = self.operator_cloud.create_project(**params)
         updated_project = self.operator_cloud.update_project(
@@ -126,11 +121,10 @@ class TestProject(base.KeystoneBaseFunctionalTest):
 
     def test_delete_project(self):
         project_name = self.new_project_name + '_delete'
-        params = {'name': project_name}
-        if self.identity_version == '3':
-            params['domain_id'] = self.operator_cloud.get_domain('default')[
-                'id'
-            ]
+        params = {
+            'name': project_name,
+            'domain_id': self.operator_cloud.get_domain('default')['id'],
+        }
         project = self.operator_cloud.create_project(**params)
         self.assertIsNotNone(project)
         self.assertTrue(self.operator_cloud.delete_project(project['id']))

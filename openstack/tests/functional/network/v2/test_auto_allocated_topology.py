@@ -20,8 +20,10 @@ class TestAutoAllocatedTopology(base.BaseFunctionalTest):
 
     def setUp(self):
         super().setUp()
+
         if not self.operator_cloud:
             self.skipTest("Operator cloud is required for this test")
+
         if not self.operator_cloud._has_neutron_extension(
             "auto-allocated-topology"
         ):
@@ -55,11 +57,8 @@ class TestAutoAllocatedTopology(base.BaseFunctionalTest):
                     'test project used only for the '
                     'TestAutoAllocatedTopology tests class'
                 ),
+                'domain_id': self.operator_cloud.get_domain('default')['id'],
             }
-            if self.identity_version == '3':
-                params['domain_id'] = self.operator_cloud.get_domain(
-                    'default'
-                )['id']
 
             project = self.operator_cloud.create_project(**params)
 

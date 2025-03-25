@@ -11,10 +11,10 @@
 # under the License.
 
 """
-test_identity
+test_roles
 ----------------------------------
 
-Functional tests for identity methods.
+Functional tests for role methods.
 """
 
 import random
@@ -24,11 +24,13 @@ from openstack import exceptions
 from openstack.tests.functional import base
 
 
-class TestIdentity(base.KeystoneBaseFunctionalTest):
+class TestRoles(base.KeystoneBaseFunctionalTest):
     def setUp(self):
         super().setUp()
+
         if not self.operator_cloud:
             self.skipTest("Operator cloud is required for this test")
+
         self.role_prefix = 'test_role' + ''.join(
             random.choice(string.ascii_lowercase) for _ in range(5)
         )
@@ -36,8 +38,7 @@ class TestIdentity(base.KeystoneBaseFunctionalTest):
         self.group_prefix = self.getUniqueString('group')
 
         self.addCleanup(self._cleanup_users)
-        if self.identity_version not in ('2', '2.0'):
-            self.addCleanup(self._cleanup_groups)
+        self.addCleanup(self._cleanup_groups)
         self.addCleanup(self._cleanup_roles)
 
     def _cleanup_groups(self):
@@ -82,11 +83,10 @@ class TestIdentity(base.KeystoneBaseFunctionalTest):
             raise exceptions.SDKException('\n'.join(exception_list))
 
     def _create_user(self, **kwargs):
-        domain_id = None
-        if self.identity_version not in ('2', '2.0'):
-            domain = self.operator_cloud.get_domain('default')
-            domain_id = domain['id']
-        return self.operator_cloud.create_user(domain_id=domain_id, **kwargs)
+        domain = self.operator_cloud.get_domain('default')
+        return self.operator_cloud.create_user(
+            domain_id=domain['id'], **kwargs
+        )
 
     def test_list_roles(self):
         roles = self.operator_cloud.list_roles()
@@ -124,8 +124,6 @@ class TestIdentity(base.KeystoneBaseFunctionalTest):
     # need to make this test a little more specific, and add more for testing
     # filtering functionality.
     def test_list_role_assignments(self):
-        if self.identity_version in ('2', '2.0'):
-            self.skipTest("Identity service does not support role assignments")
         assignments = self.operator_cloud.list_role_assignments()
         self.assertIsInstance(assignments, list)
         self.assertGreater(len(assignments), 0)
@@ -177,8 +175,6 @@ class TestIdentity(base.KeystoneBaseFunctionalTest):
         self.assertEqual(0, len(assignments))
 
     def test_grant_revoke_role_group_project(self):
-        if self.identity_version in ('2', '2.0'):
-            self.skipTest("Identity service does not support group")
         role_name = self.role_prefix + '_grant_group_project'
         role = self.operator_cloud.create_role(role_name)
         group_name = self.group_prefix + '_group_project'
@@ -215,8 +211,6 @@ class TestIdentity(base.KeystoneBaseFunctionalTest):
         self.assertEqual(0, len(assignments))
 
     def test_grant_revoke_role_user_domain(self):
-        if self.identity_version in ('2', '2.0'):
-            self.skipTest("Identity service does not support domain")
         role_name = self.role_prefix + '_grant_user_domain'
         role = self.operator_cloud.create_role(role_name)
         user_name = self.user_prefix + '_user_domain'
@@ -254,8 +248,6 @@ class TestIdentity(base.KeystoneBaseFunctionalTest):
         self.assertEqual(0, len(assignments))
 
     def test_grant_revoke_role_group_domain(self):
-        if self.identity_version in ('2', '2.0'):
-            self.skipTest("Identity service does not support domain or group")
         role_name = self.role_prefix + '_grant_group_domain'
         role = self.operator_cloud.create_role(role_name)
         group_name = self.group_prefix + '_group_domain'
@@ -321,8 +313,6 @@ class TestIdentity(base.KeystoneBaseFunctionalTest):
         self.assertEqual(0, len(assignments))
 
     def test_grant_revoke_role_group_system(self):
-        if self.identity_version in ('2', '2.0'):
-            self.skipTest("Identity service does not support system or group")
         role_name = self.role_prefix + '_grant_group_system'
         role = self.operator_cloud.create_role(role_name)
         group_name = self.group_prefix + '_group_system'

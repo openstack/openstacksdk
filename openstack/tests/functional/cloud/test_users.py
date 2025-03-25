@@ -44,12 +44,10 @@ class TestUsers(base.KeystoneBaseFunctionalTest):
             raise exceptions.SDKException('\n'.join(exception_list))
 
     def _create_user(self, **kwargs):
-        domain_id = None
-        i_ver = self.operator_cloud.config.get_api_version('identity')
-        if i_ver not in ('2', '2.0'):
-            domain = self.operator_cloud.get_domain('default')
-            domain_id = domain['id']
-        return self.operator_cloud.create_user(domain_id=domain_id, **kwargs)
+        domain = self.operator_cloud.get_domain('default')
+        return self.operator_cloud.create_user(
+            domain_id=domain['id'], **kwargs
+        )
 
     def test_list_users(self):
         users = self.operator_cloud.list_users()
@@ -154,10 +152,6 @@ class TestUsers(base.KeystoneBaseFunctionalTest):
         self.assertIsNotNone(new_cloud.service_catalog)
 
     def test_users_and_groups(self):
-        i_ver = self.operator_cloud.config.get_api_version('identity')
-        if i_ver in ('2', '2.0'):
-            self.skipTest('Identity service does not support groups')
-
         group_name = self.getUniqueString('group')
         self.addCleanup(self.operator_cloud.delete_group, group_name)
 

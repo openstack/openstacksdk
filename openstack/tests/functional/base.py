@@ -83,10 +83,6 @@ class BaseFunctionalTest(base.TestCase):
 
         self._set_operator_cloud()
 
-        self.identity_version = self.user_cloud.config.get_api_version(
-            'identity'
-        )
-
         self.flavor = self._pick_flavor()
         self.image = self._pick_image()
 
@@ -301,12 +297,7 @@ class KeystoneBaseFunctionalTest(BaseFunctionalTest):
     def setUp(self):
         super().setUp()
 
-        use_keystone_v2 = os.environ.get('OPENSTACKSDK_USE_KEYSTONE_V2', False)
-        if use_keystone_v2:
-            # keystone v2 has special behavior for the admin
-            # interface and some of the operations, so make a new cloud
-            # object with interface set to admin.
-            # We only do it for keystone tests on v2 because otherwise
-            # the admin interface is not a thing that wants to actually
-            # be used
-            self._set_operator_cloud(interface='admin')
+        # we only support v3, since v2 was deprecated in Queens (2018)
+
+        if not self.conn.has_service('identity', '3'):
+            self.skipTest('identity service not supported by cloud')
