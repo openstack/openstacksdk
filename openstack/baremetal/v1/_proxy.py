@@ -20,6 +20,7 @@ from openstack.baremetal.v1 import chassis as _chassis
 from openstack.baremetal.v1 import conductor as _conductor
 from openstack.baremetal.v1 import deploy_templates as _deploytemplates
 from openstack.baremetal.v1 import driver as _driver
+from openstack.baremetal.v1 import inspection_rules as _inspectionrules
 from openstack.baremetal.v1 import node as _node
 from openstack.baremetal.v1 import port as _port
 from openstack.baremetal.v1 import port_group as _portgroup
@@ -47,6 +48,7 @@ class Proxy(proxy.Proxy):
         "runbook": _runbooks.Runbook,
         "volume_connector": _volumeconnector.VolumeConnector,
         "volume_target": _volumetarget.VolumeTarget,
+        "inspection_rules": _inspectionrules.InspectionRule,
     }
 
     def _get_with_fields(self, resource_type, value, fields=None):
@@ -2026,3 +2028,105 @@ class Proxy(proxy.Proxy):
             to delete failed to occur in the specified seconds.
         """
         return resource.wait_for_delete(self, res, interval, wait, callback)
+
+    # ========== Inspection Rules ==========
+
+    def inspection_rules(self, details=False, **query):
+        """Retrieve a generator of inspection rules.
+
+        :param dict query: Optional query parameters to be sent to
+            restrict the inspection rules to be returned.
+
+        :returns: A generator of InspectionRule instances.
+        """
+        if details:
+            query['details'] = True
+        return _inspectionrules.InspectionRule.list(self, **query)
+
+    def create_inspection_rule(self, **attrs):
+        """Create a new inspection rule from attributes.
+
+        :param dict attrs: Keyword arguments that will be used to create a
+            :class:`~openstack.baremetal.v1.inspection_rules.InspectionRule`.
+
+        :returns: The results of inspection rule creation.
+        :rtype:
+            :class:`~openstack.baremetal.v1.inspection_rules.InspectionRule`.
+        """
+        return self._create(_inspectionrules.InspectionRule, **attrs)
+
+    def get_inspection_rule(self, inspection_rule, fields=None):
+        """Get a specific inspection rule.
+
+        :param inspection_rule: The ID of an inspection rule
+            :class:`~openstack.baremetal.v1.inspection_rules.InspectionRule`
+            instance.
+
+        :param fields: Limit the resource fields to fetch.
+
+        :returns: One
+            :class:`~openstack.baremetal.v1.inspection_rules.InspectionRule`
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
+            inspection rule matching the ID could be found.
+        """
+        return self._get_with_fields(
+            _inspectionrules.InspectionRule, inspection_rule, fields=fields
+        )
+
+    def update_inspection_rule(self, inspection_rule, **attrs):
+        """Update an inspection rule.
+
+        :param inspection_rule: Either the ID of an inspection rule
+            or an instance of
+            :class:`~openstack.baremetal.v1.inspection_rules.InspectionRule`.
+        :param dict attrs: The attributes to update on the
+            inspection rule represented by the ``inspection_rule`` parameter.
+
+        :returns: The updated inspection rule.
+        :rtype:
+            :class:`~openstack.baremetal.v1.inspection_rules.InspectionRule`
+        """
+        return self._update(
+            _inspectionrules.InspectionRule, inspection_rule, **attrs
+        )
+
+    def delete_inspection_rule(self, inspection_rule, ignore_missing=True):
+        """Delete an inspection rule.
+
+        :param inspection_rule: The value can be either the ID of a
+            inspection_rule or a
+            :class:`~openstack.baremetal.v1.inspection_rules.InspectionRule`
+            instance.
+        :param bool ignore_missing: When set to ``False``, an exception
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the inspection rule could not be found.
+            When set to ``True``, no exception will be raised when
+            attempting to delete a non-existent inspection rule.
+
+        :returns: The instance of the inspection rule which was deleted.
+        :rtype:
+            :class:`~openstack.baremetal.v1.inspection_rules.InspectionRule`.
+        """
+        return self._delete(
+            _inspectionrules.InspectionRule,
+            inspection_rule,
+            ignore_missing=ignore_missing,
+        )
+
+    def patch_inspection_rule(self, inspection_rule, patch):
+        """Apply a JSON patch to the inspection rule.
+
+        :param inspection_rule: The value can be the ID of a
+            inspection_rule or a
+            :class:`~openstack.baremetal.v1.inspection_rules.InspectionRule`
+            instance.
+
+        :param patch: JSON patch to apply.
+
+        :returns: The updated inspection rule.
+        :rtype:
+            :class:`~openstack.baremetal.v1.inspection_rules.InspectionRule`
+        """
+        return self._get_resource(
+            _inspectionrules.InspectionRule, inspection_rule
+        ).patch(self, patch)

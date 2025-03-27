@@ -15,3 +15,4 @@ Baremetal Resources
    v1/deploy_templates
    v1/conductor
    v1/runbooks
+   v1/inspection_rules
