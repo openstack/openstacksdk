@@ -53,6 +53,8 @@ from openstack import warnings as os_warnings
 
 LOG = _log.setup_logging(__name__)
 
+AdapterT = ty.TypeVar('AdapterT', bound=adapter.Adapter)
+
 
 # TODO(stephenfin): We should deprecate the 'type' and 'list_type' arguments
 # for all of the below in favour of annotations. To that end, we have stuck
@@ -1218,7 +1220,7 @@ class Resource(dict):
         dict.update(self, self.to_dict())
 
     @classmethod
-    def _get_session(cls, session):
+    def _get_session(cls, session: AdapterT) -> AdapterT:
         """Attempt to get an Adapter from a raw session.
 
         Some older code used conn.session has the session argument to Resource
@@ -1238,9 +1240,8 @@ class Resource(dict):
             "a raw keystoneauth1.adapter.Adapter."
         )
 
-    # TODO(stephenfin): Drop action argument. It has never been used.
     @classmethod
-    def _get_microversion(cls, session, *, action=None):
+    def _get_microversion(cls, session: adapter.Adapter) -> ty.Optional[str]:
         """Get microversion to use for the given action.
 
         The base version uses the following logic:
@@ -1255,21 +1256,8 @@ class Resource(dict):
 
         :param session: The session to use for making the request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
-        :param action: One of "fetch", "commit", "create", "delete", "patch".
-        :type action: str
         :return: Microversion as string or ``None``
         """
-        if action not in {
-            'list',
-            'fetch',
-            'commit',
-            'create',
-            'delete',
-            'patch',
-            None,
-        }:
-            raise ValueError(f'Invalid action: {action}')
-
         if session.default_microversion:
             return session.default_microversion
 
@@ -1372,7 +1360,7 @@ class Resource(dict):
 
         session = self._get_session(session)
         if microversion is None:
-            microversion = self._get_microversion(session, action='create')
+            microversion = self._get_microversion(session)
         requires_id = (
             self.create_requires_id
             if self.create_requires_id is not None
@@ -1475,7 +1463,7 @@ class Resource(dict):
 
         session = cls._get_session(session)
         if microversion is None:
-            microversion = cls._get_microversion(session, action='create')
+            microversion = cls._get_microversion(session)
         requires_id = (
             cls.create_requires_id
             if cls.create_requires_id is not None
@@ -1588,7 +1576,7 @@ class Resource(dict):
 
         session = self._get_session(session)
         if microversion is None:
-            microversion = self._get_microversion(session, action='fetch')
+            microversion = self._get_microversion(session)
         self.microversion = microversion
 
         response = session.get(
@@ -1626,7 +1614,7 @@ class Resource(dict):
 
         session = self._get_session(session)
         if microversion is None:
-            microversion = self._get_microversion(session, action='fetch')
+            microversion = self._get_microversion(session)
         self.microversion = microversion
 
         request = self._prepare_request(base_path=base_path)
@@ -1694,7 +1682,7 @@ class Resource(dict):
             **kwargs,
         )
         if microversion is None:
-            microversion = self._get_microversion(session, action='commit')
+            microversion = self._get_microversion(session)
 
         return self._commit(
             session,
@@ -1824,7 +1812,7 @@ class Resource(dict):
             patch=True,
         )
         if microversion is None:
-            microversion = self._get_microversion(session, action='patch')
+            microversion = self._get_microversion(session)
         if patch:
             request.body += self._convert_patch(patch)
 
@@ -1874,7 +1862,7 @@ class Resource(dict):
         request = self._prepare_request(**kwargs)
         session = self._get_session(session)
         if microversion is None:
-            microversion = self._get_microversion(session, action='delete')
+            microversion = self._get_microversion(session)
 
         return session.delete(
             request.url,
@@ -1938,7 +1926,7 @@ class Resource(dict):
         session = cls._get_session(session)
 
         if microversion is None:
-            microversion = cls._get_microversion(session, action='list')
+            microversion = cls._get_microversion(session)
 
         if base_path is None:
             base_path = cls.base_path

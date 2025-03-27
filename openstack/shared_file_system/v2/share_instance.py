@@ -57,7 +57,7 @@ class ShareInstance(resource.Resource):
     #: The share or share instance status.
     status = resource.Body("status", type=str)
 
-    def _action(self, session, body, action='patch', microversion=None):
+    def _action(self, session, body, microversion=None):
         """Perform share instance actions given the message body"""
         url = utils.urljoin(self.base_path, self.id, 'action')
         headers = {'Accept': ''}
@@ -66,9 +66,7 @@ class ShareInstance(resource.Resource):
             # Set microversion override
             extra_attrs['microversion'] = microversion
         else:
-            extra_attrs['microversion'] = self._get_microversion(
-                session, action=action
-            )
+            extra_attrs['microversion'] = self._get_microversion(session)
         response = session.post(url, json=body, headers=headers, **extra_attrs)
         exceptions.raise_from_response(response)
         return response
@@ -81,4 +79,4 @@ class ShareInstance(resource.Resource):
     def force_delete(self, session):
         """Force delete share instance"""
         body = {"force_delete": None}
-        self._action(session, body, action='delete')
+        self._action(session, body)

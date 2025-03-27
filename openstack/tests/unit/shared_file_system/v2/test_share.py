@@ -144,7 +144,7 @@ class TestShareActions(TestShares):
 
     def test_shrink_share(self):
         sot = share.Share(**EXAMPLE)
-        microversion = sot._get_microversion(self.sess, action='patch')
+        microversion = sot._get_microversion(self.sess)
 
         self.assertIsNone(sot.shrink_share(self.sess, new_size=1))
 
@@ -158,7 +158,7 @@ class TestShareActions(TestShares):
 
     def test_extend_share(self):
         sot = share.Share(**EXAMPLE)
-        microversion = sot._get_microversion(self.sess, action='patch')
+        microversion = sot._get_microversion(self.sess)
 
         self.assertIsNone(sot.extend_share(self.sess, new_size=3))
 
@@ -172,7 +172,7 @@ class TestShareActions(TestShares):
 
     def test_revert_to_snapshot(self):
         sot = share.Share(**EXAMPLE)
-        microversion = sot._get_microversion(self.sess, action='patch')
+        microversion = sot._get_microversion(self.sess)
 
         self.assertIsNone(sot.revert_to_snapshot(self.sess, "fake_id"))
 
@@ -220,7 +220,7 @@ class TestShareActions(TestShares):
 
     def test_unmanage_share(self):
         sot = share.Share(**EXAMPLE)
-        microversion = sot._get_microversion(self.sess, action='patch')
+        microversion = sot._get_microversion(self.sess)
 
         self.assertIsNone(sot.unmanage(self.sess))
 

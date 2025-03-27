@@ -81,7 +81,7 @@ class Attachment(resource.Resource):
         """Mark the attachment as completed."""
         body = {'os-complete': self.id}
         if not microversion:
-            microversion = self._get_microversion(session, action='commit')
+            microversion = self._get_microversion(session)
         url = os.path.join(Attachment.base_path, self.id, 'action')
         response = session.post(url, json=body, microversion=microversion)
         exceptions.raise_from_response(response)

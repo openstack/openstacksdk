@@ -109,7 +109,7 @@ class LoadBalancer(resource.Resource, tag.TagMixin):
         :returns: None
         """
         session = self._get_session(session)
-        version = self._get_microversion(session, action='patch')
+        version = self._get_microversion(session)
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'failover')
 

@@ -63,11 +63,11 @@ class ShareAccessRule(resource.Resource):
     #: Reason for placing the loc
     lock_reason = resource.Body("lock_reason", type=bool)
 
-    def _action(self, session, body, url, action='patch', microversion=None):
+    def _action(self, session, body, url, microversion=None):
         headers = {'Accept': ''}
 
         if microversion is None:
-            microversion = self._get_microversion(session, action=action)
+            microversion = self._get_microversion(session)
 
         return session.post(
             url, json=body, headers=headers, microversion=microversion

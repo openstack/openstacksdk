@@ -333,7 +333,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         # these aren't all necessary "commit" actions (i.e. updates) but it's
         # good enough...
         if microversion is None:
-            microversion = self._get_microversion(session, action='commit')
+            microversion = self._get_microversion(session)
 
         response = session.post(
             url,
@@ -362,7 +362,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         """
         url = utils.urljoin(Server.base_path, self.id, 'os-server-password')
         if microversion is None:
-            microversion = self._get_microversion(session, action='commit')
+            microversion = self._get_microversion(session)
 
         response = session.get(url, microversion=microversion)
         exceptions.raise_from_response(response)
@@ -381,7 +381,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         """
         url = utils.urljoin(Server.base_path, self.id, 'os-server-password')
         if microversion is None:
-            microversion = self._get_microversion(session, action='commit')
+            microversion = self._get_microversion(session)
 
         response = session.delete(url, microversion=microversion)
         exceptions.raise_from_response(response)

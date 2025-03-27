@@ -95,7 +95,7 @@ class Hypervisor(resource.Resource):
                 'Hypervisor.get_uptime is not supported anymore'
             )
         url = utils.urljoin(self.base_path, self.id, 'uptime')
-        microversion = self._get_microversion(session, action='fetch')
+        microversion = self._get_microversion(session)
         response = session.get(url, microversion=microversion)
         self._translate_response(response)
         return self

@@ -973,7 +973,7 @@ class Node(_common.Resource):
             fails for a required interface.
         """
         session = self._get_session(session)
-        version = self._get_microversion(session, action='fetch')
+        version = self._get_microversion(session)
 
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'validate')
@@ -1028,7 +1028,7 @@ class Node(_common.Resource):
 
     def _do_maintenance_action(self, session, verb, body=None):
         session = self._get_session(session)
-        version = self._get_microversion(session, action='commit')
+        version = self._get_microversion(session)
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'maintenance')
         response = getattr(session, verb)(
@@ -1047,7 +1047,7 @@ class Node(_common.Resource):
         :returns: The HTTP response.
         """
         session = self._get_session(session)
-        version = self._get_microversion(session, action='fetch')
+        version = self._get_microversion(session)
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'management', 'boot_device')
 
@@ -1073,7 +1073,7 @@ class Node(_common.Resource):
         :returns: ``None``
         """
         session = self._get_session(session)
-        version = self._get_microversion(session, action='commit')
+        version = self._get_microversion(session)
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'management', 'boot_device')
 
@@ -1097,7 +1097,7 @@ class Node(_common.Resource):
         :returns: The HTTP response.
         """
         session = self._get_session(session)
-        version = self._get_microversion(session, action='fetch')
+        version = self._get_microversion(session)
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(
             request.url,
@@ -1295,7 +1295,7 @@ class Node(_common.Resource):
         :returns: The HTTP response.
         """
         session = self._get_session(session)
-        version = self._get_microversion(session, action='commit')
+        version = self._get_microversion(session)
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(
             request.url, f'vendor_passthru?method={method}'
@@ -1325,7 +1325,7 @@ class Node(_common.Resource):
         :returns: The HTTP response.
         """
         session = self._get_session(session)
-        version = self._get_microversion(session, action='fetch')
+        version = self._get_microversion(session)
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'vendor_passthru/methods')
 
@@ -1348,7 +1348,7 @@ class Node(_common.Resource):
         :returns: The HTTP response.
         """
         session = self._get_session(session)
-        version = self._get_microversion(session, action='fetch')
+        version = self._get_microversion(session)
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'states', 'console')
 
@@ -1372,7 +1372,7 @@ class Node(_common.Resource):
         :return: ``None``
         """
         session = self._get_session(session)
-        version = self._get_microversion(session, action='commit')
+        version = self._get_microversion(session)
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'states', 'console')
         if not isinstance(enabled, bool):
@@ -1407,7 +1407,7 @@ class Node(_common.Resource):
                 os_warnings.RemovedInSDK60Warning,
             )
         session = self._get_session(session)
-        version = self._get_microversion(session, action='fetch')
+        version = self._get_microversion(session)
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'inventory')
 

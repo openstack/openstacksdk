@@ -71,7 +71,7 @@ class ResourceProvider(resource.Resource):
         :return: The resource provider with aggregates populated
         """
         url = utils.urljoin(self.base_path, self.id, 'aggregates')
-        microversion = self._get_microversion(session, action='fetch')
+        microversion = self._get_microversion(session)
 
         response = session.get(url, microversion=microversion)
         exceptions.raise_from_response(response)
@@ -92,7 +92,7 @@ class ResourceProvider(resource.Resource):
         :return: The resource provider with updated aggregates populated
         """
         url = utils.urljoin(self.base_path, self.id, 'aggregates')
-        microversion = self._get_microversion(session, action='commit')
+        microversion = self._get_microversion(session)
 
         body = {
             'aggregates': aggregates or [],

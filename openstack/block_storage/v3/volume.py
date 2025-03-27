@@ -113,14 +113,14 @@ class Volume(resource.Resource, metadata.MetadataMixin):
 
     _max_microversion = "3.60"
 
-    def _action(self, session, body, microversion=None, action='patch'):
+    def _action(self, session, body, microversion=None):
         """Preform volume actions given the message body."""
         # NOTE: This is using Volume.base_path instead of self.base_path
         # as both Volume and VolumeDetail instances can be acted on, but
         # the URL used is sans any additional /detail/ part.
         url = utils.urljoin(Volume.base_path, self.id, 'action')
         if microversion is None:
-            microversion = self._get_microversion(session, action=action)
+            microversion = self._get_microversion(session)
         resp = session.post(url, json=body, microversion=microversion)
         exceptions.raise_from_response(resp)
         return resp

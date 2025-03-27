@@ -164,7 +164,7 @@ class Flavor(resource.Resource):
         :returns: The updated flavor.
         """
         url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs')
-        microversion = self._get_microversion(session, action='fetch')
+        microversion = self._get_microversion(session)
         response = session.get(url, microversion=microversion)
         exceptions.raise_from_response(response)
         specs = response.json().get('extra_specs', {})
@@ -179,7 +179,7 @@ class Flavor(resource.Resource):
         :returns: The updated flavor.
         """
         url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs')
-        microversion = self._get_microversion(session, action='create')
+        microversion = self._get_microversion(session)
         response = session.post(
             url, json={'extra_specs': specs}, microversion=microversion
         )
@@ -196,7 +196,7 @@ class Flavor(resource.Resource):
         :returns: The value of the property if it exists, else ``None``.
         """
         url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs', prop)
-        microversion = self._get_microversion(session, action='fetch')
+        microversion = self._get_microversion(session)
         response = session.get(url, microversion=microversion)
         exceptions.raise_from_response(response)
         val = response.json().get(prop)
@@ -211,7 +211,7 @@ class Flavor(resource.Resource):
         :returns: The updated value of the property.
         """
         url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs', prop)
-        microversion = self._get_microversion(session, action='commit')
+        microversion = self._get_microversion(session)
         response = session.put(
             url, json={prop: val}, microversion=microversion
         )
@@ -227,7 +227,7 @@ class Flavor(resource.Resource):
         :returns: None
         """
         url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs', prop)
-        microversion = self._get_microversion(session, action='delete')
+        microversion = self._get_microversion(session)
         response = session.delete(url, microversion=microversion)
         exceptions.raise_from_response(response)
 

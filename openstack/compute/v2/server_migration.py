@@ -74,7 +74,7 @@ class ServerMigration(resource.Resource):
     def _action(self, session, body):
         """Preform server migration actions given the message body."""
         session = self._get_session(session)
-        microversion = self._get_microversion(session, action='list')
+        microversion = self._get_microversion(session)
 
         url = utils.urljoin(
             self.base_path % {'server_id': self.server_id},

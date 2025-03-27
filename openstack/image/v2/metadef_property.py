@@ -102,7 +102,7 @@ class MetadefProperty(resource.Resource):
         session = cls._get_session(session)
 
         if microversion is None:
-            microversion = cls._get_microversion(session, action='list')
+            microversion = cls._get_microversion(session)
 
         if base_path is None:
             base_path = cls.base_path
