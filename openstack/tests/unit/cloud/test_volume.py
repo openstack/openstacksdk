@@ -460,7 +460,10 @@ class TestVolume(base.TestCase):
                 dict(
                     method='DELETE',
                     uri=self.get_mock_url(
-                        'volumev3', 'public', append=['volumes', volume.id]
+                        'volumev3',
+                        'public',
+                        append=['volumes', volume.id],
+                        qs_elements=['cascade=False'],
                     ),
                 ),
                 dict(
@@ -496,7 +499,10 @@ class TestVolume(base.TestCase):
                 dict(
                     method='DELETE',
                     uri=self.get_mock_url(
-                        'volumev3', 'public', append=['volumes', volume.id]
+                        'volumev3',
+                        'public',
+                        append=['volumes', volume.id],
+                        qs_elements=['cascade=False'],
                     ),
                     status_code=404,
                 ),
