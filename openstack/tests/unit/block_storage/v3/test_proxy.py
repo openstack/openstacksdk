@@ -367,6 +367,33 @@ class TestService(TestVolumeProxy):
             expected_args=[self.proxy],
         )
 
+    def test_set_service_log_levels(self):
+        self._verify(
+            'openstack.block_storage.v3.service.Service.set_log_levels',
+            self.proxy.set_service_log_levels,
+            method_kwargs={"level": service.Level.INFO},
+            expected_args=[self.proxy],
+            expected_kwargs={
+                "level": service.Level.INFO,
+                "binary": None,
+                "server": None,
+                "prefix": None,
+            },
+        )
+
+    def test_get_service_log_level(self):
+        self._verify(
+            'openstack.block_storage.v3.service.Service.get_log_levels',
+            self.proxy.get_service_log_levels,
+            method_args=[],
+            expected_args=[self.proxy],
+            expected_kwargs={
+                "binary": None,
+                "server": None,
+                "prefix": None,
+            },
+        )
+
     def test_failover_service(self):
         self._verify(
             'openstack.block_storage.v3.service.Service.failover',
