@@ -42,7 +42,6 @@ class Backup(resource.Resource):
     allow_create = True
     allow_delete = True
     allow_list = True
-    allow_get = True
 
     #: Properties
     #: backup availability zone

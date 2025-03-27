@@ -61,7 +61,6 @@ class TestBackup(base.TestCase):
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
-        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_fetch)
 
         self.assertDictEqual(

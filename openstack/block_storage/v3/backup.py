@@ -12,13 +12,14 @@
 
 import warnings
 
+from openstack.common import metadata
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
 from openstack import warnings as os_warnings
 
 
-class Backup(resource.Resource):
+class Backup(resource.Resource, metadata.MetadataMixin):
     """Volume Backup"""
 
     resource_key = "backup"
@@ -46,8 +47,8 @@ class Backup(resource.Resource):
     allow_fetch = True
     allow_create = True
     allow_delete = True
+    allow_commit = True
     allow_list = True
-    allow_get = True
 
     #: Properties
     #: backup availability zone

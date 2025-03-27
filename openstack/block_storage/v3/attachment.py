@@ -27,7 +27,6 @@ class Attachment(resource.Resource):
     allow_delete = True
     allow_commit = True
     allow_list = True
-    allow_get = True
     allow_fetch = True
 
     _max_microversion = "3.54"
