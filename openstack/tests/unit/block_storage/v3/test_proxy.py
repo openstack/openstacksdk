@@ -74,7 +74,12 @@ class TestVolume(TestVolumeProxy):
     def test_volume_create_attrs(self):
         self.verify_create(self.proxy.create_volume, volume.Volume)
 
-    def test_volume_delete(self):
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=False,
+    )
+    def test_volume_delete(self, mock_mv):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.delete",
             self.proxy.delete_volume,
@@ -83,13 +88,33 @@ class TestVolume(TestVolumeProxy):
             expected_kwargs={"params": {"cascade": False}},
         )
 
-    def test_volume_delete_force(self):
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=False,
+    )
+    def test_volume_delete_force(self, mock_mv):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.force_delete",
             self.proxy.delete_volume,
             method_args=["value"],
             method_kwargs={"force": True},
             expected_args=[self.proxy],
+        )
+
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=True,
+    )
+    def test_volume_delete_force_v323(self, mock_mv):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.delete",
+            self.proxy.delete_volume,
+            method_args=["value"],
+            method_kwargs={"force": True},
+            expected_args=[self.proxy],
+            expected_kwargs={"params": {"cascade": False, "force": True}},
         )
 
     def test_get_volume_metadata(self):

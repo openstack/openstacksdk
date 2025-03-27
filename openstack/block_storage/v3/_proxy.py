@@ -761,11 +761,16 @@ class Proxy(proxy.Proxy):
         :returns: ``None``
         """
         volume = self._get_resource(_volume.Volume, volume)
+
+        params = {'cascade': cascade}
+        if utils.supports_microversion(self, '3.23'):
+            params['force'] = force
+
         try:
-            if not force:
-                volume.delete(self, params={'cascade': cascade})
-            else:
+            if force and not utils.supports_microversion(self, '3.23'):
                 volume.force_delete(self)
+            else:
+                volume.delete(self, params=params)
         except exceptions.NotFoundException:
             if ignore_missing:
                 return None
