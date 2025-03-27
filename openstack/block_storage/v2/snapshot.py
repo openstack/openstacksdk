@@ -54,12 +54,10 @@ class Snapshot(resource.Resource, metadata.MetadataMixin):
     #: The ID of the volume this snapshot was taken of.
     volume_id = resource.Body("volume_id")
 
-    def _action(self, session, body, microversion=None):
+    def _action(self, session, body):
         """Preform backup actions given the message body."""
         url = utils.urljoin(self.base_path, self.id, 'action')
-        resp = session.post(
-            url, json=body, microversion=self._max_microversion
-        )
+        resp = session.post(url, json=body)
         exceptions.raise_from_response(resp)
         return resp
 
@@ -75,6 +73,38 @@ class Snapshot(resource.Resource, metadata.MetadataMixin):
             os_warnings.RemovedInSDK60Warning,
         )
         self.reset_status(session, status)
+
+    @classmethod
+    def manage(
+        cls,
+        session,
+        volume_id,
+        ref,
+        name=None,
+        description=None,
+        metadata=None,
+    ):
+        """Manage a snapshot under block storage provisioning."""
+        url = '/os-snapshot-manage'
+        body = {
+            'snapshot': {
+                'volume_id': volume_id,
+                'ref': ref,
+                'name': name,
+                'description': description,
+                'metadata': metadata,
+            }
+        }
+        resp = session.post(url, json=body)
+        exceptions.raise_from_response(resp)
+        snapshot = Snapshot()
+        snapshot._translate_response(resp)
+        return snapshot
+
+    def unmanage(self, session):
+        """Unmanage a snapshot from block storage provisioning."""
+        body = {'os-unmanage': None}
+        self._action(session, body)
 
 
 SnapshotDetail = Snapshot

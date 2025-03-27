@@ -873,7 +873,7 @@ class TestSnapshot(TestVolumeProxy):
             expected_args=[self.proxy, "new_status"],
         )
 
-    def test_set_status(self):
+    def test_snapshot_set_status(self):
         self._verify(
             "openstack.block_storage.v3.snapshot.Snapshot.set_status",
             self.proxy.set_snapshot_status,
@@ -881,12 +881,39 @@ class TestSnapshot(TestVolumeProxy):
             expected_args=[self.proxy, "new_status", None],
         )
 
-    def test_set_status_percentage(self):
+    def test_snapshot_set_status_percentage(self):
         self._verify(
             "openstack.block_storage.v3.snapshot.Snapshot.set_status",
             self.proxy.set_snapshot_status,
             method_args=["value", "new_status", "per"],
             expected_args=[self.proxy, "new_status", "per"],
+        )
+
+    def test_snapshot_manage(self):
+        kwargs = {
+            "volume_id": "fake_id",
+            "remote_source": "fake_volume",
+            "snapshot_name": "fake_snap",
+            "description": "test_snap",
+            "property": {"k": "v"},
+        }
+        self._verify(
+            "openstack.block_storage.v3.snapshot.Snapshot.manage",
+            self.proxy.manage_snapshot,
+            method_kwargs=kwargs,
+            method_result=snapshot.Snapshot(id="fake_id"),
+            expected_args=[self.proxy],
+            expected_kwargs=kwargs,
+            expected_result=snapshot.Snapshot(id="fake_id"),
+        )
+
+    def test_snapshot_unmanage(self):
+        self._verify(
+            "openstack.block_storage.v3.snapshot.Snapshot.unmanage",
+            self.proxy.unmanage_snapshot,
+            method_args=["value"],
+            expected_args=[self.proxy],
+            expected_result=None,
         )
 
     def test_get_snapshot_metadata(self):
@@ -920,24 +947,6 @@ class TestSnapshot(TestVolumeProxy):
             expected_result=None,
             method_args=["value", ["key"]],
             expected_args=[self.proxy, "key"],
-        )
-
-    def test_manage_snapshot(self):
-        kwargs = {
-            "volume_id": "fake_id",
-            "remote_source": "fake_volume",
-            "snapshot_name": "fake_snap",
-            "description": "test_snap",
-            "property": {"k": "v"},
-        }
-        self._verify(
-            "openstack.block_storage.v3.snapshot.Snapshot.manage",
-            self.proxy.manage_snapshot,
-            method_kwargs=kwargs,
-            method_result=snapshot.Snapshot(id="fake_id"),
-            expected_args=[self.proxy],
-            expected_kwargs=kwargs,
-            expected_result=snapshot.Snapshot(id="fake_id"),
         )
 
 
