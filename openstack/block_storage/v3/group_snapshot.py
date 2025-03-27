@@ -10,9 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import warnings
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
+from openstack import warnings as os_warnings
 
 
 class GroupSnapshot(resource.Resource):
@@ -80,7 +83,15 @@ class GroupSnapshot(resource.Resource):
         exceptions.raise_from_response(response)
         return response
 
-    def reset_state(self, session, state):
+    def reset_status(self, session, state):
         """Resets the status for a group snapshot."""
         body = {'reset_status': {'status': state}}
         return self._action(session, body)
+
+    def reset_state(self, session, status):
+        warnings.warn(
+            "reset_state is a deprecated alias for reset_status and will be "
+            "removed in a future release.",
+            os_warnings.RemovedInSDK60Warning,
+        )
+        self.reset_status(session, status)

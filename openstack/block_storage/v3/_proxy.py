@@ -280,7 +280,7 @@ class Proxy(proxy.Proxy):
             snapshot.delete_metadata(self)
 
     # ====== SNAPSHOT ACTIONS ======
-    def reset_snapshot(self, snapshot, status):
+    def reset_snapshot_status(self, snapshot, status):
         """Reset status of the snapshot
 
         :param snapshot: The value can be either the ID of a backup or a
@@ -290,7 +290,15 @@ class Proxy(proxy.Proxy):
         :returns: None
         """
         snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
-        snapshot.reset(self, status)
+        snapshot.reset_status(self, status)
+
+    def reset_snapshot(self, snapshot, status):
+        warnings.warn(
+            "reset_snapshot is a deprecated alias for reset_snapshot_status "
+            "and will be removed in a future release.",
+            os_warnings.RemovedInSDK60Warning,
+        )
+        return self.reset_snapshot_status(snapshot, status)
 
     def set_snapshot_status(self, snapshot, status, progress=None):
         """Update fields related to the status of a snapshot.
@@ -1402,7 +1410,7 @@ class Proxy(proxy.Proxy):
         backup = self._get_resource(_backup.Backup, backup)
         return backup.restore(self, volume_id=volume_id, name=name)
 
-    def reset_backup(self, backup, status):
+    def reset_backup_status(self, backup, status):
         """Reset status of the backup
 
         :param backup: The value can be either the ID of a backup or a
@@ -1412,7 +1420,15 @@ class Proxy(proxy.Proxy):
         :returns: None
         """
         backup = self._get_resource(_backup.Backup, backup)
-        backup.reset(self, status)
+        backup.reset_status(self, status)
+
+    def reset_backup(self, backup, status):
+        warnings.warn(
+            "reset_backup is a deprecated alias for reset_backup_status "
+            "and will be removed in a future release.",
+            os_warnings.RemovedInSDK60Warning,
+        )
+        return self.reset_backup_status(backup, status)
 
     # ====== LIMITS ======
     def get_limits(self, project=None):
@@ -1535,7 +1551,7 @@ class Proxy(proxy.Proxy):
         """
         return _group.Group.create_from_source(self, **attrs)
 
-    def reset_group_state(self, group, status):
+    def reset_group_status(self, group, status):
         """Reset group status
 
         :param group: The :class:`~openstack.block_storage.v3.group.Group`
@@ -1546,6 +1562,14 @@ class Proxy(proxy.Proxy):
         """
         res = self._get_resource(_group.Group, group)
         return res.reset_status(self, status)
+
+    def reset_group_state(self, group, status):
+        warnings.warn(
+            "reset_group_state is a deprecated alias for reset_group_status "
+            "and will be removed in a future release.",
+            os_warnings.RemovedInSDK60Warning,
+        )
+        return self.reset_group_status(group, status)
 
     def delete_group(self, group, delete_volumes=False):
         """Delete a group
@@ -1654,20 +1678,29 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_group_snapshot.GroupSnapshot, **attrs)
 
-    def reset_group_snapshot_state(self, group_snapshot, state):
+    def reset_group_snapshot_status(self, group_snapshot, status):
         """Reset group snapshot status
 
         :param group_snapshot: The
             :class:`~openstack.block_storage.v3.group_snapshot.GroupSnapshot`
             to set the state.
-        :param state: The state of the group snapshot to be set.
+        :param state: The status of the group snapshot to be set.
 
         :returns: None
         """
         resource = self._get_resource(
             _group_snapshot.GroupSnapshot, group_snapshot
         )
-        resource.reset_state(self, state)
+        resource.reset_state(self, status)
+
+    def reset_group_snapshot_state(self, group_snapshot, state):
+        warnings.warn(
+            "reset_group_snapshot_state is a deprecated alias for "
+            "reset_group_snapshot_status and will be removed in a future "
+            "release.",
+            os_warnings.RemovedInSDK60Warning,
+        )
+        return self.reset_group_snapshot_status(group_snapshot, state)
 
     def delete_group_snapshot(self, group_snapshot, ignore_missing=True):
         """Delete a group snapshot

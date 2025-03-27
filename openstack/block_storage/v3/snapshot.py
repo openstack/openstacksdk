@@ -10,11 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import warnings
+
 from openstack.common import metadata
 from openstack import exceptions
 from openstack import format
 from openstack import resource
 from openstack import utils
+from openstack import warnings as os_warnings
 
 
 class Snapshot(resource.Resource, metadata.MetadataMixin):
@@ -92,10 +95,18 @@ class Snapshot(resource.Resource, metadata.MetadataMixin):
         body = {'os-force_delete': None}
         self._action(session, body)
 
-    def reset(self, session, status):
+    def reset_status(self, session, status):
         """Reset the status of the snapshot."""
         body = {'os-reset_status': {'status': status}}
         self._action(session, body)
+
+    def reset(self, session, status):
+        warnings.warn(
+            "reset is a deprecated alias for reset_status and will be "
+            "removed in a future release.",
+            os_warnings.RemovedInSDK60Warning,
+        )
+        self.reset_status(session, status)
 
     def set_status(self, session, status, progress=None):
         """Update fields related to the status of a snapshot."""

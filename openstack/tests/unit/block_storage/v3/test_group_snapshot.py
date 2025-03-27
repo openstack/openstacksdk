@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from unittest import mock
+
+from keystoneauth1 import adapter
+
 from openstack.block_storage.v3 import group_snapshot
 from openstack.tests.unit import base
 
@@ -49,3 +53,32 @@ class TestGroupSnapshot(base.TestCase):
         self.assertEqual(GROUP_SNAPSHOT["name"], resource.name)
         self.assertEqual(GROUP_SNAPSHOT["project_id"], resource.project_id)
         self.assertEqual(GROUP_SNAPSHOT["status"], resource.status)
+
+
+class TestGroupSnapshotActions(base.TestCase):
+    def setUp(self):
+        super().setUp()
+        self.resp = mock.Mock()
+        self.resp.body = None
+        self.resp.json = mock.Mock(return_value=self.resp.body)
+        self.resp.headers = {}
+        self.resp.status_code = 202
+
+        self.sess = mock.Mock(spec=adapter.Adapter)
+        self.sess.get = mock.Mock()
+        self.sess.post = mock.Mock(return_value=self.resp)
+        self.sess.default_microversion = '3.0'
+
+    def test_reset_status(self):
+        resource = group_snapshot.GroupSnapshot(**GROUP_SNAPSHOT)
+
+        self.assertIsNotNone(resource.reset_status(self.sess, 'new_status'))
+
+        url = f'group_snapshots/{GROUP_SNAPSHOT["id"]}/action'
+        body = {'reset_status': {'status': 'new_status'}}
+        self.sess.post.assert_called_with(
+            url,
+            json=body,
+            headers={'Accept': ''},
+            microversion='3.0',
+        )
