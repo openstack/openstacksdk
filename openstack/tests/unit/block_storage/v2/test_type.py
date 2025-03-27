@@ -31,7 +31,6 @@ class TestType(base.TestCase):
         self.resp.status_code = 200
         self.resp.json = mock.Mock(return_value=self.resp.body)
         self.sess = mock.Mock(spec=adapter.Adapter)
-        self.sess.default_microversion = '3.0'
         self.sess.post = mock.Mock(return_value=self.resp)
         self.sess._get_connection = mock.Mock(return_value=self.cloud)
 

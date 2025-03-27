@@ -51,7 +51,6 @@ class TestBackup(base.TestCase):
         self.sess = mock.Mock(spec=adapter.Adapter)
         self.sess.get = mock.Mock()
         self.sess.post = mock.Mock(return_value=self.resp)
-        self.sess.default_microversion = None
 
     def test_basic(self):
         sot = backup.Backup(BACKUP)
@@ -116,7 +115,6 @@ class TestBackup(base.TestCase):
                     'incremental': True,
                 }
             },
-            microversion=None,
             params={},
         )
 
@@ -129,7 +127,6 @@ class TestBackup(base.TestCase):
                     'incremental': False,
                 }
             },
-            microversion=None,
             params={},
         )
 
@@ -208,9 +205,7 @@ class TestBackup(base.TestCase):
 
         url = f'backups/{FAKE_ID}/action'
         body = {'os-force_delete': None}
-        self.sess.post.assert_called_with(
-            url, json=body, microversion=sot._max_microversion
-        )
+        self.sess.post.assert_called_with(url, json=body)
 
     def test_reset_status(self):
         sot = backup.Backup(**BACKUP)
@@ -219,6 +214,4 @@ class TestBackup(base.TestCase):
 
         url = f'backups/{FAKE_ID}/action'
         body = {'os-reset_status': {'status': 'new_status'}}
-        self.sess.post.assert_called_with(
-            url, json=body, microversion=sot._max_microversion
-        )
+        self.sess.post.assert_called_with(url, json=body)

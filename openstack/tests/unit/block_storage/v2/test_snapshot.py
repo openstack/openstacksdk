@@ -93,7 +93,6 @@ class TestSnapshotActions(base.TestCase):
         self.sess = mock.Mock(spec=adapter.Adapter)
         self.sess.get = mock.Mock()
         self.sess.post = mock.Mock(return_value=self.resp)
-        self.sess.default_microversion = None
 
     def test_reset_status(self):
         sot = snapshot.Snapshot(**SNAPSHOT)
