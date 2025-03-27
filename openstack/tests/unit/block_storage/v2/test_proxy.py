@@ -19,6 +19,7 @@ from openstack.block_storage.v2 import capabilities
 from openstack.block_storage.v2 import limits
 from openstack.block_storage.v2 import quota_class_set
 from openstack.block_storage.v2 import quota_set
+from openstack.block_storage.v2 import service
 from openstack.block_storage.v2 import snapshot
 from openstack.block_storage.v2 import stats
 from openstack.block_storage.v2 import type
@@ -614,3 +615,50 @@ class TestQuotaSet(TestVolumeProxy):
                 "The signature of 'update_quota_set' has changed ",
                 str(w[-1]),
             )
+
+
+class TestService(TestVolumeProxy):
+    def test_services(self):
+        self.verify_list(self.proxy.services, service.Service)
+
+    def test_enable_service(self):
+        self._verify(
+            'openstack.block_storage.v2.service.Service.enable',
+            self.proxy.enable_service,
+            method_args=["value"],
+            expected_args=[self.proxy],
+        )
+
+    def test_disable_service(self):
+        self._verify(
+            'openstack.block_storage.v2.service.Service.disable',
+            self.proxy.disable_service,
+            method_args=["value"],
+            expected_kwargs={"reason": None},
+            expected_args=[self.proxy],
+        )
+
+    def test_thaw_service(self):
+        self._verify(
+            'openstack.block_storage.v2.service.Service.thaw',
+            self.proxy.thaw_service,
+            method_args=["value"],
+            expected_args=[self.proxy],
+        )
+
+    def test_freeze_service(self):
+        self._verify(
+            'openstack.block_storage.v2.service.Service.freeze',
+            self.proxy.freeze_service,
+            method_args=["value"],
+            expected_args=[self.proxy],
+        )
+
+    def test_failover_service(self):
+        self._verify(
+            'openstack.block_storage.v2.service.Service.failover',
+            self.proxy.failover_service,
+            method_args=["value"],
+            expected_args=[self.proxy],
+            expected_kwargs={"backend_id": None},
+        )
