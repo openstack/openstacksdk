@@ -17,6 +17,7 @@ from openstack.tests.unit import base
 FAKE = {
     "address": "11:11:11:11:11:11",
     "created_at": "2016-08-18T22:28:49.946416+00:00",
+    "description": "Physical network",
     "extra": {},
     "internal_info": {},
     "is_smartnic": True,
