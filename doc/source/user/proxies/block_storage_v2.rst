@@ -12,19 +12,6 @@ The block_storage high-level interface is available through the
 ``block_storage`` member of a :class:`~openstack.connection.Connection` object.
 The ``block_storage`` member will only be added if the service is detected.
 
-Volume Operations
-^^^^^^^^^^^^^^^^^
-
-.. autoclass:: openstack.block_storage.v2._proxy.Proxy
-  :noindex:
-  :members: create_volume, delete_volume, get_volume,
-            find_volume, volumes, get_volume_metadata, set_volume_metadata,
-            delete_volume_metadata, extend_volume,
-            retype_volume, set_volume_bootable_status, reset_volume_status,
-            set_volume_image_metadata, delete_volume_image_metadata,
-            attach_volume, detach_volume,
-            unmanage_volume, migrate_volume, complete_volume_migration
-
 Backup Operations
 ^^^^^^^^^^^^^^^^^
 
@@ -45,27 +32,6 @@ Limits Operations
 .. autoclass:: openstack.block_storage.v2._proxy.Proxy
   :noindex:
   :members: get_limits
-
-Type Operations
-^^^^^^^^^^^^^^^
-
-.. autoclass:: openstack.block_storage.v2._proxy.Proxy
-  :noindex:
-  :members: create_type, delete_type, get_type, types
-
-Snapshot Operations
-^^^^^^^^^^^^^^^^^^^
-
-.. autoclass:: openstack.block_storage.v2._proxy.Proxy
-  :noindex:
-  :members: create_snapshot, delete_snapshot, get_snapshot, snapshots
-
-Stats Operations
-^^^^^^^^^^^^^^^^
-
-.. autoclass:: openstack.block_storage.v2._proxy.Proxy
-  :noindex:
-  :members: backend_pools
 
 QuotaClassSet Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -89,6 +55,40 @@ Service Operations
    :noindex:
    :members: find_service, services, enable_service, disable_service,
              thaw_service, freeze_service, failover_service
+
+Snapshot Operations
+^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v2._proxy.Proxy
+  :noindex:
+  :members: create_snapshot, delete_snapshot, get_snapshot, snapshots
+
+Stats Operations
+^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v2._proxy.Proxy
+  :noindex:
+  :members: backend_pools
+
+Type Operations
+^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v2._proxy.Proxy
+  :noindex:
+  :members: create_type, delete_type, get_type, types
+
+Volume Operations
+^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v2._proxy.Proxy
+  :noindex:
+  :members: create_volume, delete_volume, get_volume,
+            find_volume, volumes, get_volume_metadata, set_volume_metadata,
+            delete_volume_metadata, extend_volume,
+            retype_volume, set_volume_bootable_status, reset_volume_status,
+            set_volume_image_metadata, delete_volume_image_metadata,
+            attach_volume, detach_volume,
+            unmanage_volume, migrate_volume, complete_volume_migration
 
 Helpers
 ^^^^^^^
