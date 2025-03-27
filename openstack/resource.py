@@ -1238,8 +1238,9 @@ class Resource(dict):
             "a raw keystoneauth1.adapter.Adapter."
         )
 
+    # TODO(stephenfin): Drop action argument. It has never been used.
     @classmethod
-    def _get_microversion(cls, session, *, action):
+    def _get_microversion(cls, session, *, action=None):
         """Get microversion to use for the given action.
 
         The base version uses the following logic:
@@ -1265,6 +1266,7 @@ class Resource(dict):
             'create',
             'delete',
             'patch',
+            None,
         }:
             raise ValueError(f'Invalid action: {action}')
 
@@ -1275,18 +1277,18 @@ class Resource(dict):
             session, cls._max_microversion
         )
 
+    @classmethod
     def _assert_microversion_for(
-        self,
-        session,
-        action,
-        expected,
-        error_message=None,
-        maximum=None,
-    ):
+        cls,
+        session: adapter.Adapter,
+        expected: ty.Optional[str],
+        *,
+        error_message: ty.Optional[str] = None,
+        maximum: ty.Optional[str] = None,
+    ) -> str:
         """Enforce that the microversion for action satisfies the requirement.
 
         :param session: :class`keystoneauth1.adapter.Adapter`
-        :param action: One of "fetch", "commit", "create", "delete".
         :param expected: Expected microversion.
         :param error_message: Optional error message with details. Will be
             prepended to the message generated here.
@@ -1296,21 +1298,22 @@ class Resource(dict):
             used for the action is lower than the expected one.
         """
 
-        def _raise(message):
+        def _raise(message: str) -> ty.NoReturn:
             if error_message:
                 error_message.rstrip('.')
                 message = f'{error_message}. {message}'
 
             raise exceptions.NotSupported(message)
 
-        actual = self._get_microversion(session, action=action)
+        actual = cls._get_microversion(session)
 
         if actual is None:
             message = (
                 f"API version {expected} is required, but the default "
-                "version will be used."
+                f"version will be used."
             )
             _raise(message)
+
         actual_n = discover.normalize_version_number(actual)
 
         if expected is not None:
@@ -1318,14 +1321,15 @@ class Resource(dict):
             if actual_n < expected_n:
                 message = (
                     f"API version {expected} is required, but {actual} "
-                    "will be used."
+                    f"will be used."
                 )
                 _raise(message)
+
         if maximum is not None:
             maximum_n = discover.normalize_version_number(maximum)
             # Assume that if a service supports higher versions, it also
             # supports lower ones. Breaks for services that remove old API
-            # versions (which is not something they should do).
+            # versions (which is not something that has been done yet).
             if actual_n > maximum_n:
                 return maximum
 
