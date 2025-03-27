@@ -109,7 +109,6 @@ class Backup(resource.Resource):
             raise exceptions.MethodNotSupported(self, "create")
 
         session = self._get_session(session)
-        microversion = self._get_microversion(session)
         requires_id = (
             self.create_requires_id
             if self.create_requires_id is not None
@@ -138,7 +137,6 @@ class Backup(resource.Resource):
                 request.url,
                 json=request.body,
                 headers=request.headers,
-                microversion=microversion,
                 params=params,
             )
         else:
@@ -152,7 +150,6 @@ class Backup(resource.Resource):
             if self.create_returns_body is None
             else self.create_returns_body
         )
-        self.microversion = microversion
         self._translate_response(response, has_body=has_body)
         # direct comparision to False since we need to rule out None
         if self.has_body and self.create_returns_body is False:
@@ -160,12 +157,10 @@ class Backup(resource.Resource):
             return self.fetch(session)
         return self
 
-    def _action(self, session, body, microversion=None):
+    def _action(self, session, body):
         """Preform backup actions given the message body."""
         url = utils.urljoin(self.base_path, self.id, 'action')
-        resp = session.post(
-            url, json=body, microversion=self._max_microversion
-        )
+        resp = session.post(url, json=body)
         exceptions.raise_from_response(resp)
         return resp
 

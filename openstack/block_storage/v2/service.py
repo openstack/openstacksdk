@@ -93,11 +93,9 @@ class Service(resource.Resource):
             **kwargs,
         )
 
-    def _action(self, session, action, body, microversion=None):
-        if not microversion:
-            microversion = session.default_microversion
+    def _action(self, session, action, body):
         url = utils.urljoin(Service.base_path, action)
-        response = session.put(url, json=body, microversion=microversion)
+        response = session.put(url, json=body)
         self._translate_response(response)
         return self
 

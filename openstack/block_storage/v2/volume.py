@@ -104,7 +104,7 @@ class Volume(resource.Resource, metadata.MetadataMixin):
         # as both Volume and VolumeDetail instances can be acted on, but
         # the URL used is sans any additional /detail/ part.
         url = utils.urljoin(Volume.base_path, self.id, 'action')
-        return session.post(url, json=body, microversion=None)
+        return session.post(url, json=body)
 
     def extend(self, session, size):
         """Extend a volume size."""

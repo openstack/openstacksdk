@@ -36,7 +36,6 @@ class TestService(base.TestCase):
         self.resp.headers = {}
         self.sess = mock.Mock()
         self.sess.put = mock.Mock(return_value=self.resp)
-        self.sess.default_microversion = '3.0'
 
     def test_basic(self):
         sot = service.Service()
@@ -79,11 +78,7 @@ class TestService(base.TestCase):
             'binary': 'cinder-scheduler',
             'host': 'devstack',
         }
-        self.sess.put.assert_called_with(
-            url,
-            json=body,
-            microversion=self.sess.default_microversion,
-        )
+        self.sess.put.assert_called_with(url, json=body)
 
     def test_disable(self):
         sot = service.Service(**EXAMPLE)
@@ -96,11 +91,7 @@ class TestService(base.TestCase):
             'binary': 'cinder-scheduler',
             'host': 'devstack',
         }
-        self.sess.put.assert_called_with(
-            url,
-            json=body,
-            microversion=self.sess.default_microversion,
-        )
+        self.sess.put.assert_called_with(url, json=body)
 
     def test_disable__with_reason(self):
         sot = service.Service(**EXAMPLE)
@@ -116,11 +107,7 @@ class TestService(base.TestCase):
             'host': 'devstack',
             'disabled_reason': reason,
         }
-        self.sess.put.assert_called_with(
-            url,
-            json=body,
-            microversion=self.sess.default_microversion,
-        )
+        self.sess.put.assert_called_with(url, json=body)
 
     def test_thaw(self):
         sot = service.Service(**EXAMPLE)
@@ -130,11 +117,7 @@ class TestService(base.TestCase):
 
         url = 'os-services/thaw'
         body = {'host': 'devstack'}
-        self.sess.put.assert_called_with(
-            url,
-            json=body,
-            microversion=self.sess.default_microversion,
-        )
+        self.sess.put.assert_called_with(url, json=body)
 
     def test_freeze(self):
         sot = service.Service(**EXAMPLE)
@@ -144,11 +127,7 @@ class TestService(base.TestCase):
 
         url = 'os-services/freeze'
         body = {'host': 'devstack'}
-        self.sess.put.assert_called_with(
-            url,
-            json=body,
-            microversion=self.sess.default_microversion,
-        )
+        self.sess.put.assert_called_with(url, json=body)
 
     def test_failover(self):
         sot = service.Service(**EXAMPLE)
@@ -158,8 +137,4 @@ class TestService(base.TestCase):
 
         url = 'os-services/failover_host'
         body = {'host': 'devstack'}
-        self.sess.put.assert_called_with(
-            url,
-            json=body,
-            microversion=self.sess.default_microversion,
-        )
+        self.sess.put.assert_called_with(url, json=body)
