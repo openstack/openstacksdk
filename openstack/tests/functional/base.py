@@ -245,7 +245,7 @@ class BaseFunctionalTest(base.TestCase):
             service_type=service_type, **kwargs
         )
 
-        if not (
+        if not data or not (
             data.min_microversion
             and data.max_microversion
             and discover.version_between(
