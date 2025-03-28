@@ -51,10 +51,9 @@ class TestKeypair(base.BaseFunctionalTest):
 class TestKeypairAdmin(base.BaseFunctionalTest):
     def setUp(self):
         super().setUp()
-        self._set_operator_cloud(interface='admin')
 
         self.NAME = self.getUniqueString().split('.')[-1]
-        self.USER = self.operator_cloud.list_users()[0]
+        self.USER = self.conn.list_users()[0]
 
         sot = self.conn.compute.create_keypair(
             name=self.NAME, user_id=self.USER.id

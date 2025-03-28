@@ -14,10 +14,6 @@ from openstack.tests.functional import base
 
 
 class TestService(base.BaseFunctionalTest):
-    def setUp(self):
-        super().setUp()
-        self._set_operator_cloud(interface='admin')
-
     def test_list(self):
         sot = list(self.conn.compute.services())
         self.assertIsNotNone(sot)
