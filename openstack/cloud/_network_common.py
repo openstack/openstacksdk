@@ -1729,7 +1729,6 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         if not filters:
             filters = {}
 
-        data = []
         # Handle neutron security groups
         if self._use_neutron_secgroups():
             # pass filters dict to the list to filter as much as possible on
@@ -1815,7 +1814,6 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                 "Unavailable feature: security groups"
             )
 
-        data = []
         security_group_json = {'name': name, 'description': description}
         if stateful is not None:
             security_group_json['stateful'] = stateful
