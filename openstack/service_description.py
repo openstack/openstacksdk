@@ -11,6 +11,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import typing as ty
 import warnings
 
 import os_service_types
@@ -50,7 +51,14 @@ class ServiceDescription:
     #: list of aliases this service might be registered as
     aliases: list[str] = []
 
-    def __init__(self, service_type, supported_versions=None, aliases=None):
+    def __init__(
+        self,
+        service_type: str,
+        supported_versions: ty.Optional[
+            dict[str, type[proxy_mod.Proxy]]
+        ] = None,
+        aliases: ty.Optional[list[str]] = None,
+    ):
         """Class describing how to interact with a REST service.
 
         Each service in an OpenStack cloud needs to be found by looking
@@ -67,11 +75,9 @@ class ServiceDescription:
         a service-specific subclass can be used that sets the attributes
         directly.
 
-        :param string service_type:
-            service_type to look for in the keystone catalog
-        :param list aliases:
-            Optional list of aliases, if there is more than one name that might
-            be used to register the service in the catalog.
+        :param service_type: service_type to look for in the keystone catalog
+        :param aliases: Optional list of aliases, if there is more than one
+            name that might be used to register the service in the catalog.
         """
         self.service_type = service_type or self.service_type
         self.supported_versions = (

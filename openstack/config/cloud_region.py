@@ -25,7 +25,9 @@ except ImportError:
 
 from keystoneauth1 import discover
 import keystoneauth1.exceptions.catalog
+from keystoneauth1.identity import base as ks_identity_base
 from keystoneauth1.loading import adapter as ks_load_adap
+from keystoneauth1 import plugin
 from keystoneauth1 import session as ks_session
 import os_service_types
 import requestsexceptions
@@ -51,6 +53,11 @@ from openstack import proxy
 from openstack import version as openstack_version
 from openstack import warnings as os_warnings
 
+if ty.TYPE_CHECKING:
+    from oslo_config import cfg
+
+    from openstack.config import loader
+
 
 _logger = _log.setup_logging('openstack')
 
@@ -64,6 +71,10 @@ SCOPE_KEYS = {
 
 # Sentinel for nonexistence
 _ENOENT = object()
+
+
+class _PasswordCallback(ty.Protocol):
+    def __call__(self, prompt: ty.Optional[str] = None) -> str: ...
 
 
 def _make_key(key, service_type):
@@ -96,14 +107,14 @@ def _get_implied_microversion(version):
 
 
 def from_session(
-    session,
-    name=None,
-    region_name=None,
-    force_ipv4=False,
-    app_name=None,
-    app_version=None,
-    **kwargs,
-):
+    session: ks_session.Session,
+    name: ty.Optional[str] = None,
+    region_name: ty.Optional[str] = None,
+    force_ipv4: bool = False,
+    app_name: ty.Optional[str] = None,
+    app_version: ty.Optional[str] = None,
+    **kwargs: ty.Any,
+) -> 'CloudRegion':
     """Construct a CloudRegion from an existing `keystoneauth1.session.Session`
 
     When a Session already exists, we don't actually even need to go through
@@ -139,7 +150,12 @@ def from_session(
     )
 
 
-def from_conf(conf, session=None, service_types=None, **kwargs):
+def from_conf(
+    conf: 'cfg.ConfigOpts',
+    session: ty.Optional[ks_session.Session] = None,
+    service_types: ty.Optional[list[str]] = None,
+    **kwargs: ty.Any,
+) -> 'CloudRegion':
     """Create a CloudRegion from oslo.config ConfigOpts.
 
     :param oslo_config.cfg.ConfigOpts conf:
@@ -230,12 +246,13 @@ class CloudRegion:
     A CloudRegion encapsulates the config information needed for connections
     to all of the services in a Region of a Cloud.
 
-    :param str region_name:
+    :param name:
+    :param region_name:
         The default region name for all services in this CloudRegion. If
         both ``region_name`` and ``config['region_name']`` are specified, the
         kwarg takes precedence. May be overridden for a given ${service}
         via a ${service}_region_name key in the ``config`` dict.
-    :param dict config:
+    :param config:
         A dict of configuration values for the CloudRegion and its
         services. The key for a ${config_option} for a specific ${service}
         should be ${service}_${config_option}. For example, to configure
@@ -249,35 +266,59 @@ class CloudRegion:
         key, e.g.::
 
             'interface': 'public'
+    :param force_ipv4:
+    :param auth_plugin:
+    :param openstack_config:
+    :param session_constructor:
+    :param app_name:
+    :param app_version:
+    :param session:
+    :param discovery_cache:
+    :param extra_config:
+    :param cache_expiration_time:
+    :param cache_expirations:
+    :param cache_path:
+    :param cache_class:
+    :param cache_arguments:
+    :param password_callback:
+    :param statsd_host:
+    :param statsd_port:
+    :param statsd_prefix:
+    :param influxdb_config:
+    :param collector_registry:
+    :param cache_auth:
     """
 
     def __init__(
         self,
-        name=None,
-        region_name=None,
-        config=None,
-        force_ipv4=False,
-        auth_plugin=None,
-        openstack_config=None,
-        session_constructor=None,
-        app_name=None,
-        app_version=None,
-        session=None,
-        discovery_cache=None,
-        extra_config=None,
-        cache_expiration_time=0,
-        cache_expirations=None,
-        cache_path=None,
-        cache_class='dogpile.cache.null',
-        cache_arguments=None,
-        password_callback=None,
-        statsd_host=None,
-        statsd_port=None,
-        statsd_prefix=None,
-        influxdb_config=None,
-        collector_registry=None,
-        cache_auth=False,
-    ):
+        name: ty.Optional[str] = None,
+        region_name: ty.Optional[str] = None,
+        config: ty.Optional[dict[str, ty.Any]] = None,
+        force_ipv4: bool = False,
+        auth_plugin: ty.Optional[plugin.BaseAuthPlugin] = None,
+        openstack_config: ty.Optional['loader.OpenStackConfig'] = None,
+        session_constructor: ty.Optional[type[ks_session.Session]] = None,
+        app_name: ty.Optional[str] = None,
+        app_version: ty.Optional[str] = None,
+        session: ty.Optional[ks_session.Session] = None,
+        discovery_cache: ty.Optional[dict[str, discover.Discover]] = None,
+        extra_config: ty.Optional[dict[str, ty.Any]] = None,
+        cache_expiration_time: int = 0,
+        cache_expirations: ty.Optional[dict[str, int]] = None,
+        cache_path: ty.Optional[str] = None,
+        cache_class: str = 'dogpile.cache.null',
+        cache_arguments: ty.Optional[dict[str, ty.Any]] = None,
+        password_callback: ty.Optional[_PasswordCallback] = None,
+        statsd_host: ty.Optional[str] = None,
+        statsd_port: ty.Optional[str] = None,
+        statsd_prefix: ty.Optional[str] = None,
+        # TODO(stephenfin): Add better types
+        influxdb_config: ty.Optional[dict[str, ty.Any]] = None,
+        collector_registry: ty.Optional[
+            'prometheus_client.CollectorRegistry'
+        ] = None,
+        cache_auth: bool = False,
+    ) -> None:
         self._name = name
         self.config = _util.normalize_keys(config)
         # NOTE(efried): For backward compatibility: a) continue to accept the
@@ -335,13 +376,20 @@ class CloudRegion:
 
     @property
     def name(self):
-        if self._name is None:
-            try:
-                self._name = parse.urlparse(
-                    self.get_session().auth.auth_url
-                ).hostname
-            except Exception:
-                self._name = self._app_name or ''
+        if self._name is not None:
+            return self._name
+
+        auth = self.get_session().auth
+        # not all auth plugins are identity plugins
+        if (
+            auth
+            and isinstance(auth, ks_identity_base.BaseIdentityPlugin)
+            and auth.auth_url
+        ):
+            self._name = parse.urlparse(auth.auth_url).hostname
+        else:
+            self._name = self._app_name or ''
+
         return self._name
 
     @property
@@ -529,16 +577,18 @@ class CloudRegion:
     def get_service_name(self, service_type):
         return self._get_config('service_name', service_type)
 
-    def get_endpoint(self, service_type):
+    def get_endpoint(self, service_type: str) -> ty.Optional[str]:
         auth = self.config.get('auth', {})
         value = self._get_config('endpoint_override', service_type)
         if not value:
             value = self._get_config('endpoint', service_type)
+
         if not value and self.config.get('auth_type') == 'none':
             # If endpoint is given and we're using the none auth type,
             # then the endpoint value is the endpoint_override for every
             # service.
             value = auth.get('endpoint')
+
         if (
             not value
             and service_type == 'identity'
@@ -548,6 +598,7 @@ class CloudRegion:
             # Specifically, looking up a list of projects/domains/system to
             # scope to.
             value = auth.get('auth_url')
+
         # Because of course. Seriously.
         # We have to override the Rackspace block-storage endpoint because
         # only v1 is in the catalog but the service actually does support
@@ -561,11 +612,15 @@ class CloudRegion:
             and service_type == 'block-storage'
         ):
             value = value + auth.get('project_id')
-        return value
+
+        return str(value) if value else None
 
     def get_endpoint_from_catalog(
-        self, service_type, interface=None, region_name=None
-    ):
+        self,
+        service_type: str,
+        interface: ty.Optional[str] = None,
+        region_name: ty.Optional[str] = None,
+    ) -> ty.Optional[str]:
         """Return the endpoint for a given service as found in the catalog.
 
         For values respecting endpoint overrides, see
@@ -584,8 +639,14 @@ class CloudRegion:
         interface = interface or self.get_interface(service_type)
         region_name = region_name or self.get_region_name(service_type)
         session = self.get_session()
-        catalog = session.auth.get_access(session).service_catalog
+
+        auth = session.auth
+        if not isinstance(auth, ks_identity_base.BaseIdentityPlugin):
+            return None
+
+        catalog = auth.get_access(session).service_catalog
         try:
+            # FIXME(stephenfin): Remove once keystoneauth1 has type hints
             return catalog.url_for(
                 service_type=service_type,
                 interface=interface,
@@ -629,6 +690,8 @@ class CloudRegion:
         if self.skip_auth_cache():
             return
 
+        assert self._auth is not None  # narrow type
+
         cache_id = self._auth.get_cache_id()
 
         # skip if the plugin does not support caching
@@ -644,9 +707,11 @@ class CloudRegion:
         self.log.debug('Reusing authentication from keyring')
         self._auth.set_auth_state(state)
 
-    def set_auth_cache(self):
+    def set_auth_cache(self) -> None:
         if self.skip_auth_cache():
             return
+
+        assert self._auth is not None  # narrow type
 
         cache_id = self._auth.get_cache_id()
         state = self._auth.get_auth_state()
@@ -674,11 +739,14 @@ class CloudRegion:
         :class:`~openstack.config.cloud_region.CloudRegion` it may be
         desirable.
         """
+        if not self._keystone_session:
+            return
+
         self._keystone_session.additional_user_agent.append(
             ('openstacksdk', openstack_version.__version__)
         )
 
-    def get_session(self):
+    def get_session(self) -> ks_session.Session:
         """Return a keystoneauth session based on the auth credentials."""
         if self._keystone_session is None:
             if not self._auth:
@@ -716,6 +784,9 @@ class CloudRegion:
 
     def get_service_catalog(self):
         """Helper method to grab the service catalog."""
+        # not all auth plugins are identity plugins
+        if not isinstance(self._auth, ks_identity_base.BaseIdentityPlugin):
+            return None
         return self._auth.get_access(self.get_session()).service_catalog
 
     def _get_version_request(self, service_type, version):
@@ -1223,7 +1294,7 @@ class CloudRegion:
     def disable_service(self, service_type, reason=None):
         _disable_service(self.config, service_type, reason=reason)
 
-    def enable_service(self, service_type):
+    def enable_service(self, service_type: str) -> None:
         service_type = service_type.lower().replace('-', '_')
         key = f'has_{service_type}'
         self.config[key] = True
@@ -1236,7 +1307,8 @@ class CloudRegion:
     def get_influxdb_client(
         self,
     ) -> ty.Optional['influxdb_client.InfluxDBClient']:
-        influx_args = {}
+        # TODO(stephenfin): We could do with a typed dict here.
+        influx_args: dict[str, ty.Any] = {}
         if not self._influxdb_config:
             return None
         use_udp = bool(self._influxdb_config.get('use_udp', False))

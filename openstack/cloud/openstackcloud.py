@@ -15,6 +15,8 @@ import concurrent.futures
 import copy
 import functools
 import queue
+import types
+import typing as ty
 import warnings
 import weakref
 
@@ -22,18 +24,25 @@ import dogpile.cache
 import keystoneauth1.exceptions
 import requests.models
 import requestsexceptions
+import typing_extensions as ty_ext
 
 from openstack import _log
 from openstack import _services_mixin
 from openstack.cloud import _utils
 from openstack.cloud import meta
-import openstack.config
-import openstack.config.cloud_region
+from openstack import config as cloud_config
+from openstack.config import cloud_region
 from openstack import exceptions
 from openstack import proxy
 from openstack import resource
 from openstack import utils
 from openstack import warnings as os_warnings
+
+if ty.TYPE_CHECKING:
+    from keystoneauth1 import session as ks_session
+    from oslo_config import cfg
+
+    from openstack import service_description
 
 
 class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
@@ -59,24 +68,28 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
     _SHADE_OBJECT_SHA256_KEY = 'x-object-meta-x-shade-sha256'
     _SHADE_OBJECT_AUTOCREATE_KEY = 'x-object-meta-x-shade-autocreated'
 
+    config: cloud_region.CloudRegion
+
     def __init__(
         self,
-        cloud=None,
-        config=None,
-        session=None,
-        app_name=None,
-        app_version=None,
-        extra_services=None,
-        strict=False,
-        use_direct_get=None,
-        task_manager=None,
-        rate_limit=None,
-        oslo_conf=None,
-        service_types=None,
-        global_request_id=None,
-        strict_proxies=False,
-        pool_executor=None,
-        **kwargs,
+        cloud: ty.Optional[str] = None,
+        config: ty.Optional[cloud_region.CloudRegion] = None,
+        session: ty.Optional['ks_session.Session'] = None,
+        app_name: ty.Optional[str] = None,
+        app_version: ty.Optional[str] = None,
+        extra_services: ty.Optional[
+            list['service_description.ServiceDescription']
+        ] = None,
+        strict: bool = False,
+        use_direct_get: ty.Optional[bool] = None,
+        task_manager: ty.Any = None,
+        rate_limit: ty.Union[float, dict[str, float], None] = None,
+        oslo_conf: ty.Optional['cfg.ConfigOpts'] = None,
+        service_types: ty.Optional[list[str]] = None,
+        global_request_id: ty.Optional[str] = None,
+        strict_proxies: bool = False,
+        pool_executor: ty.Optional[concurrent.futures.Executor] = None,
+        **kwargs: ty.Any,
     ):
         """Create a connection to a cloud.
 
@@ -161,16 +174,17 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
                 os_warnings.RemovedInSDK50Warning,
             )
 
-        self.config = config
         self._extra_services = {}
         self._strict_proxies = strict_proxies
         if extra_services:
             for service in extra_services:
                 self._extra_services[service.service_type] = service
 
-        if not self.config:
+        if config:
+            self.config = config
+        else:
             if oslo_conf:
-                self.config = openstack.config.cloud_region.from_conf(
+                self.config = cloud_region.from_conf(
                     oslo_conf,
                     session=session,
                     app_name=app_name,
@@ -178,7 +192,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
                     service_types=service_types,
                 )
             elif session:
-                self.config = openstack.config.cloud_region.from_session(
+                self.config = cloud_region.from_session(
                     session=session,
                     app_name=app_name,
                     app_version=app_version,
@@ -188,7 +202,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
                     **kwargs,
                 )
             else:
-                self.config = openstack.config.get_cloud_region(
+                self.config = cloud_config.get_cloud_region(
                     cloud=cloud,
                     app_name=app_name,
                     app_version=app_version,
@@ -199,7 +213,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
                 )
 
         self._session = None
-        self._proxies = {}
+        self._proxies: dict[str, proxy.Proxy] = {}
         self.__pool_executor = pool_executor
         self._global_request_id = global_request_id
         self.use_direct_get = use_direct_get or False
@@ -226,7 +240,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
                 # InsecureRequestWarning references a Warning class or is None
                 warnings.filterwarnings('ignore', category=category)
 
-        self._disable_warnings = {}
+        self._disable_warnings: dict[str, bool] = {}
 
         cache_expiration_time = int(self.config.get_cache_expiration_time())
         cache_class = self.config.get_cache_class()
@@ -247,7 +261,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
         for expire_key in expirations.keys():
             self._cache_expirations[expire_key] = expirations[expire_key]
 
-        self._api_cache_keys = set()
+        self._api_cache_keys: set[str] = set()
 
         self._local_ipv6 = (
             _utils.localhost_supports_ipv6() if not self.force_ipv4 else False
@@ -267,27 +281,32 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
         return self._session
 
     @property
-    def _pool_executor(self):
+    def _pool_executor(self) -> concurrent.futures.Executor:
         if not self.__pool_executor:
             self.__pool_executor = concurrent.futures.ThreadPoolExecutor(
                 max_workers=5
             )
         return self.__pool_executor
 
-    def close(self):
+    def close(self) -> None:
         """Release any resources held open."""
         self.config.set_auth_cache()
         if self.__pool_executor:
             self.__pool_executor.shutdown()
         atexit.unregister(self.close)
 
-    def __enter__(self):
+    def __enter__(self) -> ty_ext.Self:
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: ty.Optional[type[BaseException]],
+        exc_value: ty.Optional[BaseException],
+        traceback: ty.Optional[types.TracebackType],
+    ) -> None:
         self.close()
 
-    def set_global_request_id(self, global_request_id):
+    def set_global_request_id(self, global_request_id: str) -> None:
         self._global_request_id = global_request_id
 
     def global_request(self, global_request_id):
@@ -323,7 +342,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
         :param global_request_id: The `global_request_id` to send.
         """
         params = copy.deepcopy(self.config.config)
-        cloud_region = openstack.config.cloud_region.from_session(
+        config = cloud_region.from_session(
             session=self.session,
             app_name=self.config._app_name,
             app_version=self.config._app_version,
@@ -332,11 +351,11 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
         )
 
         # Override the cloud name so that logging/location work right
-        cloud_region._name = self.name
-        cloud_region.config['profile'] = self.name
+        config._name = self.name
+        config.config['profile'] = self.name
         # Use self.__class__ so that we return whatever this is, like if it's
         # a subclass in the case of shade wrapping sdk.
-        new_conn = self.__class__(config=cloud_region)
+        new_conn = self.__class__(config=config)
         new_conn.set_global_request_id(global_request_id)
         return new_conn
 

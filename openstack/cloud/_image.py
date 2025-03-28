@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import typing as ty
 import warnings
 
 from openstack.cloud import _utils
@@ -18,10 +19,55 @@ from openstack import exceptions
 from openstack import utils
 from openstack import warnings as os_warnings
 
+if ty.TYPE_CHECKING:
+    import concurrent.futures
+    from keystoneauth1 import session as ks_session
+    from oslo_config import cfg
+
+    from openstack.config import cloud_region
+    from openstack import service_description
+
 
 class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self,
+        cloud: ty.Optional[str] = None,
+        config: ty.Optional['cloud_region.CloudRegion'] = None,
+        session: ty.Optional['ks_session.Session'] = None,
+        app_name: ty.Optional[str] = None,
+        app_version: ty.Optional[str] = None,
+        extra_services: ty.Optional[
+            list['service_description.ServiceDescription']
+        ] = None,
+        strict: bool = False,
+        use_direct_get: ty.Optional[bool] = None,
+        task_manager: ty.Any = None,
+        rate_limit: ty.Union[float, dict[str, float], None] = None,
+        oslo_conf: ty.Optional['cfg.ConfigOpts'] = None,
+        service_types: ty.Optional[list[str]] = None,
+        global_request_id: ty.Optional[str] = None,
+        strict_proxies: bool = False,
+        pool_executor: ty.Optional['concurrent.futures.Executor'] = None,
+        **kwargs: ty.Any,
+    ):
+        super().__init__(
+            cloud=cloud,
+            config=config,
+            session=session,
+            app_name=app_name,
+            app_version=app_version,
+            extra_services=extra_services,
+            strict=strict,
+            use_direct_get=use_direct_get,
+            task_manager=task_manager,
+            rate_limit=rate_limit,
+            oslo_conf=oslo_conf,
+            service_types=service_types,
+            global_request_id=global_request_id,
+            strict_proxies=strict_proxies,
+            pool_executor=pool_executor,
+            **kwargs,
+        )
 
         self.image_api_use_tasks = self.config.config['image_api_use_tasks']
 

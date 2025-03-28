@@ -26,6 +26,7 @@ import warnings
 
 from keystoneauth1 import adapter
 from keystoneauth1 import loading
+from keystoneauth1 import session
 import platformdirs
 import yaml
 
@@ -157,22 +158,22 @@ class OpenStackConfig:
 
     def __init__(
         self,
-        config_files=None,
-        vendor_files=None,
-        override_defaults=None,
-        force_ipv4=None,
-        envvar_prefix=None,
-        secure_files=None,
-        pw_func=None,
-        session_constructor=None,
-        app_name=None,
-        app_version=None,
-        load_yaml_config=True,
-        load_envvars=True,
-        statsd_host=None,
-        statsd_port=None,
-        statsd_prefix=None,
-        influxdb_config=None,
+        config_files: ty.Optional[list[str]] = None,
+        vendor_files: ty.Optional[list[str]] = None,
+        override_defaults: ty.Optional[dict[str, ty.Any]] = None,
+        force_ipv4: ty.Optional[bool] = None,
+        envvar_prefix: ty.Optional[str] = None,
+        secure_files: ty.Optional[list[str]] = None,
+        pw_func: ty.Optional[cloud_region._PasswordCallback] = None,
+        session_constructor: ty.Optional[type[session.Session]] = None,
+        app_name: ty.Optional[str] = None,
+        app_version: ty.Optional[str] = None,
+        load_yaml_config: bool = True,
+        load_envvars: bool = True,
+        statsd_host: ty.Optional[str] = None,
+        statsd_port: ty.Optional[str] = None,
+        statsd_prefix: ty.Optional[str] = None,
+        influxdb_config: ty.Optional[dict[str, ty.Any]] = None,
     ):
         self.log = _log.setup_logging('openstack.config')
         self._session_constructor = session_constructor
@@ -1218,7 +1219,13 @@ class OpenStackConfig:
 
         return config
 
-    def get_one(self, cloud=None, validate=True, argparse=None, **kwargs):
+    def get_one(
+        self,
+        cloud: ty.Optional[str] = None,
+        validate: bool = True,
+        argparse: ty.Optional[argparse_mod.Namespace] = None,
+        **kwargs: ty.Any,
+    ) -> cloud_region.CloudRegion:
         """Retrieve a single CloudRegion and merge additional options
 
         :param string cloud:
