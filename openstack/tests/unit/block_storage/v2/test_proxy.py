@@ -399,6 +399,9 @@ class TestSnapshot(TestVolumeProxy):
     def test_snapshot_create_attrs(self):
         self.verify_create(self.proxy.create_snapshot, snapshot.Snapshot)
 
+    def test_snapshot_update(self):
+        self.verify_update(self.proxy.update_snapshot, snapshot.Snapshot)
+
     def test_snapshot_delete(self):
         self.verify_delete(
             self.proxy.delete_snapshot, snapshot.Snapshot, False
