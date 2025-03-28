@@ -33,17 +33,19 @@ and then returned to the caller.
 """
 
 import collections
+import collections.abc
 import inspect
 import itertools
 import operator
 import typing as ty
-import typing_extensions as ty_ext
 import urllib.parse
 import warnings
 
 import jsonpatch
 from keystoneauth1 import adapter
 from keystoneauth1 import discover
+import requests
+import typing_extensions as ty_ext
 
 from openstack import _log
 from openstack import exceptions
@@ -202,11 +204,11 @@ class _ComponentManager(collections.abc.MutableMapping):
         return len(self.attributes)
 
     @property
-    def dirty(self):
+    def dirty(self) -> dict[str, ty.Any]:
         """Return a dict of modified attributes"""
         return {key: self.attributes.get(key, None) for key in self._dirty}
 
-    def clean(self, only=None):
+    def clean(self, only: collections.abc.Iterable[str] | None = None) -> None:
         """Signal that the resource no longer has modified attributes.
 
         :param only: an optional set of attributes to no longer consider
@@ -227,18 +229,26 @@ class _Request:
         self.headers = headers
 
 
+class QueryMapping(ty.TypedDict):
+    name: ty_ext.NotRequired[str]
+    type: ty_ext.NotRequired[ty.Callable[[ty.Any, type[ResourceT]], ResourceT]]
+
+
 class QueryParameters:
     def __init__(
         self,
-        *names,
-        include_pagination_defaults=True,
-        **mappings,
+        *names: str,
+        include_pagination_defaults: bool = True,
+        **mappings: str | QueryMapping,
     ):
         """Create a dict of accepted query parameters
 
         :param names: List of strings containing client-side query parameter
             names. Each name in the list maps directly to the name
             expected by the server.
+        :param include_pagination_defaults: If true, include default pagination
+            parameters, ``limit`` and ``marker``. These are the most common
+            query parameters used for listing resources in OpenStack APIs.
         :param mappings: Key-value pairs where the key is the client-side
             name we'll accept here and the value is the name
             the server expects, e.g, ``changes_since=changes-since``.
@@ -247,11 +257,8 @@ class QueryParameters:
             - ``name`` - server-side name,
             - ``type`` - callable to convert from client to server
               representation
-        :param include_pagination_defaults: If true, include default pagination
-            parameters, ``limit`` and ``marker``. These are the most common
-            query parameters used for listing resources in OpenStack APIs.
         """
-        self._mapping: dict[str, str | dict] = {}
+        self._mapping: dict[str, str | QueryMapping] = {}
         if include_pagination_defaults:
             self._mapping.update({"limit": "limit", "marker": "marker"})
         self._mapping.update({name: name for name in names})
@@ -333,10 +340,23 @@ class QueryParameters:
                 if provide_resource_type:
                     result[name] = type_(value, resource_type)
                 else:
-                    result[name] = type_(value)
+                    result[name] = type_(value)  # type: ignore
             else:
                 result[name] = value
         return result
+
+
+class ResourceMixinProtocol(ty.Protocol):
+    id: str
+    base_path: str
+
+    _body: _ComponentManager
+    _header: _ComponentManager
+    _uri: _ComponentManager
+    _computed: _ComponentManager
+
+    @classmethod
+    def _get_session(cls, session: AdapterT) -> AdapterT: ...
 
 
 class Resource(dict):
@@ -492,7 +512,7 @@ class Resource(dict):
         # obj.items() ... but I think the if not obj: is short-circuiting down
         # in the C code and thus since we don't store the data in self[] it's
         # always False even if we override __len__ or __bool__.
-        dict.update(self, self.to_dict())
+        dict.update(self, self.to_dict())  # type: ignore
 
     @classmethod
     def _attributes_iterator(
@@ -683,7 +703,7 @@ class Resource(dict):
         # obj.items() ... but I think the if not obj: is short-circuiting down
         # in the C code and thus since we don't store the data in self[] it's
         # always False even if we override __len__ or __bool__.
-        dict.update(self, self.to_dict())
+        dict.update(self, self.to_dict())  # type: ignore
 
     def _collect_attrs(self, attrs):
         """Given attributes, return a dict per type of attribute
@@ -718,7 +738,7 @@ class Resource(dict):
 
         return body, header, uri, computed
 
-    def _update_location(self):
+    def _update_location(self) -> None:
         """Update location to include resource project/zone information.
 
         Location should describe the location of the resource. For some
@@ -743,35 +763,55 @@ class Resource(dict):
         """Compute additional attributes from the remote resource."""
         return {}
 
-    def _consume_body_attrs(self, attrs):
+    def _consume_body_attrs(
+        self, attrs: collections.abc.MutableMapping[str, ty.Any]
+    ) -> dict[str, ty.Any]:
         return self._consume_mapped_attrs(fields.Body, attrs)
 
-    def _consume_header_attrs(self, attrs):
+    def _consume_header_attrs(
+        self, attrs: collections.abc.MutableMapping[str, ty.Any]
+    ) -> dict[str, ty.Any]:
         return self._consume_mapped_attrs(fields.Header, attrs)
 
-    def _consume_uri_attrs(self, attrs):
+    def _consume_uri_attrs(
+        self, attrs: collections.abc.MutableMapping[str, ty.Any]
+    ) -> dict[str, ty.Any]:
         return self._consume_mapped_attrs(fields.URI, attrs)
 
-    def _update_from_body_attrs(self, attrs):
+    def _update_from_body_attrs(
+        self, attrs: collections.abc.MutableMapping[str, ty.Any]
+    ) -> None:
         body = self._consume_body_attrs(attrs)
         self._body.attributes.update(body)
         self._body.clean()
 
-    def _update_from_header_attrs(self, attrs):
+    def _update_from_header_attrs(
+        self, attrs: collections.abc.MutableMapping[str, ty.Any]
+    ) -> None:
         headers = self._consume_header_attrs(attrs)
         self._header.attributes.update(headers)
         self._header.clean()
 
-    def _update_uri_from_attrs(self, attrs):
+    def _update_uri_from_attrs(
+        self, attrs: collections.abc.MutableMapping[str, ty.Any]
+    ) -> None:
         uri = self._consume_uri_attrs(attrs)
         self._uri.attributes.update(uri)
         self._uri.clean()
 
-    def _consume_mapped_attrs(self, mapping_cls, attrs):
+    def _consume_mapped_attrs(
+        self,
+        mapping_cls: type[fields._BaseComponent],
+        attrs: collections.abc.MutableMapping[str, ty.Any],
+    ) -> dict[str, ty.Any]:
         mapping = self._get_mapping(mapping_cls)
         return self._consume_attrs(mapping, attrs)
 
-    def _consume_attrs(self, mapping, attrs):
+    def _consume_attrs(
+        self,
+        mapping: collections.abc.MutableMapping[str, ty.Any],
+        attrs: collections.abc.MutableMapping[str, ty.Any],
+    ) -> dict[str, ty.Any]:
         """Given a mapping and attributes, return relevant matches
 
         This method finds keys in attrs that exist in the mapping, then
@@ -811,7 +851,9 @@ class Resource(dict):
                     self._original_body[attr] = self._body[attr]
 
     @classmethod
-    def _get_mapping(cls, component):
+    def _get_mapping(
+        cls, component: type[fields._BaseComponent]
+    ) -> ty.MutableMapping[str, ty.Any]:
         """Return a dict of attributes of a given component on the class"""
         mapping = component._map_cls()
         ret = component._map_cls()
@@ -953,13 +995,13 @@ class Resource(dict):
 
     def to_dict(
         self,
-        body=True,
-        headers=True,
-        computed=True,
-        ignore_none=False,
-        original_names=False,
-        _to_munch=False,
-    ):
+        body: bool = True,
+        headers: bool = True,
+        computed: bool = True,
+        ignore_none: bool = False,
+        original_names: bool = False,
+        _to_munch: bool = False,
+    ) -> dict[str, ty.Any]:
         """Return a dictionary of this resource's contents
 
         :param bool body: Include the :class:`~openstack.fields.Body`
@@ -1068,11 +1110,11 @@ class Resource(dict):
 
     def _prepare_request_body(
         self,
-        patch,
-        prepend_key,
+        patch: bool,
+        prepend_key: bool,
         *,
-        resource_request_key=None,
-    ):
+        resource_request_key: str | None = None,
+    ) -> dict[str, ty.Any] | list[ty.Any]:
         body: dict[str, ty.Any] | list[ty.Any]
         if patch:
             if not self._store_unknown_attrs_as_properties:
@@ -1169,12 +1211,12 @@ class Resource(dict):
 
     def _translate_response(
         self,
-        response,
-        has_body=None,
-        error_message=None,
+        response: requests.Response,
+        has_body: bool | None = None,
+        error_message: str | None = None,
         *,
-        resource_response_key=None,
-    ):
+        resource_response_key: str | None = None,
+    ) -> None:
         """Given a KSA response, inflate this instance with its data
 
         DELETE operations don't return a body, so only try to work
@@ -1226,7 +1268,7 @@ class Resource(dict):
         self._header.attributes.update(headers)
         self._header.clean()
         self._update_location()
-        dict.update(self, self.to_dict())
+        dict.update(self, self.to_dict())  # type: ignore
 
     @classmethod
     def _get_session(cls, session: AdapterT) -> AdapterT:

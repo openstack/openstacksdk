@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import typing as ty
+
+import typing_extensions as ty_ext
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -23,7 +27,7 @@ class MetadataMixin:
     #: *Type: list of tag strings*
     metadata = resource.Body('metadata', type=dict)
 
-    def fetch_metadata(self, session):
+    def fetch_metadata(self, session: resource.AdapterT) -> ty_ext.Self:
         """Lists metadata set on the entity.
 
         :param session: The session to use for making this request.
@@ -38,7 +42,12 @@ class MetadataMixin:
             self._body.attributes.update({'metadata': json['metadata']})
         return self
 
-    def set_metadata(self, session, metadata=None, replace=False):
+    def set_metadata(
+        self,
+        session: resource.AdapterT,
+        metadata: dict[str, ty.Any] | None = None,
+        replace: bool = False,
+    ) -> ty_ext.Self:
         """Sets/Replaces metadata key value pairs on the resource.
 
         :param session: The session to use for making this request.
@@ -57,7 +66,11 @@ class MetadataMixin:
         self._body.attributes.update({'metadata': metadata})
         return self
 
-    def replace_metadata(self, session, metadata=None):
+    def replace_metadata(
+        self,
+        session: resource.AdapterT,
+        metadata: dict[str, ty.Any] | None = None,
+    ) -> ty_ext.Self:
         """Replaces all metadata key value pairs on the resource.
 
         :param session: The session to use for making this request.
@@ -67,7 +80,7 @@ class MetadataMixin:
         """
         return self.set_metadata(session, metadata, replace=True)
 
-    def delete_metadata(self, session):
+    def delete_metadata(self, session: resource.AdapterT) -> ty_ext.Self:
         """Removes all metadata on the entity.
 
         :param session: The session to use for making this request.
@@ -75,7 +88,9 @@ class MetadataMixin:
         self.set_metadata(session, None, replace=True)
         return self
 
-    def get_metadata_item(self, session, key):
+    def get_metadata_item(
+        self, session: resource.AdapterT, key: str
+    ) -> ty_ext.Self:
         """Get the single metadata item on the entity.
 
         If the metadata key does not exist a 404 will be returned
@@ -96,7 +111,9 @@ class MetadataMixin:
 
         return self
 
-    def set_metadata_item(self, session, key, value):
+    def set_metadata_item(
+        self, session: resource.AdapterT, key: str, value: ty.Any
+    ) -> ty_ext.Self:
         """Create or replace single metadata item to the resource.
 
         :param session: The session to use for making this request.
@@ -112,7 +129,9 @@ class MetadataMixin:
         self._body.attributes.update({'metadata': metadata})
         return self
 
-    def delete_metadata_item(self, session, key):
+    def delete_metadata_item(
+        self, session: resource.AdapterT, key: str
+    ) -> ty_ext.Self:
         """Removes a single metadata item from the specified resource.
 
         :param session: The session to use for making this request.
