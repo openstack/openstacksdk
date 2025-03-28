@@ -6,6 +6,8 @@
     },
     "identity_api_version": "3",
     "block_storage_api_version": "1",
-    "region-name": "RegionOne"
+    "region-name": "RegionOne",
+    "status": "shutdown",
+    "message": "ultimum-cloud.com has ceased business"
   }
 }

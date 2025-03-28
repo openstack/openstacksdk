@@ -9,6 +9,8 @@
     ],
     "identity_api_version": "3",
     "image_format": "raw",
-    "block_storage_api_version": "3"
+    "block_storage_api_version": "3",
+    "status": "shutdown",
+    "message": "betacloud.de has ceased business"
   }
 }

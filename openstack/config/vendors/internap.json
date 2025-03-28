@@ -12,6 +12,8 @@
       "sjc01"
     ],
     "identity_api_version": "3",
-    "floating_ip_source": "None"
+    "floating_ip_source": "None",
+    "status": "shutdown",
+    "message": "Internap have been rebranded as HorizonIQ"
   }
 }
