@@ -211,7 +211,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
                     **kwargs,
                 )
 
-        self._session = None
+        self._session: ks_session.Session | None = None
         self._proxies: dict[str, proxy.Proxy] = {}
         self.__pool_executor = pool_executor
         self._global_request_id = global_request_id

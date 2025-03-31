@@ -19,7 +19,7 @@ import typing as ty
 from openstack.config.loader import OpenStackConfig  # noqa
 
 if ty.TYPE_CHECKING:
-    from openstack.config.cloud import cloud_region
+    from openstack.config import cloud_region
 
 
 # TODO(stephenfin): Expand kwargs once we've typed OpenstackConfig.get_one

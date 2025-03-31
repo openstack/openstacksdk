@@ -714,12 +714,10 @@ class Connection(
         :returns: The endpoint of the service, or None if not found.
         """
 
-        # FIXME(stephenfin): Why is self.config showing as Any?
-
         endpoint_override = self.config.get_endpoint(service_type)
         if endpoint_override:
-            return endpoint_override  # type: ignore
-        return self.config.get_endpoint_from_catalog(  # type: ignore
+            return endpoint_override
+        return self.config.get_endpoint_from_catalog(
             service_type=service_type,
             interface=interface,
             region_name=region_name,
