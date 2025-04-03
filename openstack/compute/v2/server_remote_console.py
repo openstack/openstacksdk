@@ -17,6 +17,7 @@ CONSOLE_TYPE_PROTOCOL_MAPPING = {
     'novnc': 'vnc',
     'xvpvnc': 'vnc',
     'spice-html5': 'spice',
+    'spice-direct': 'spice',
     'rdp-html5': 'rdp',
     'serial': 'serial',
     'webmks': 'mks',
@@ -34,7 +35,7 @@ class ServerRemoteConsole(resource.Resource):
     allow_delete = False
     allow_list = False
 
-    _max_microversion = '2.8'
+    _max_microversion = '2.99'
 
     #: Protocol of the remote console.
     protocol = resource.Body('protocol')
@@ -54,6 +55,13 @@ class ServerRemoteConsole(resource.Resource):
         ):
             raise ValueError(
                 'Console type webmks is not supported on server side'
+            )
+        if (
+            not utils.supports_microversion(session, '2.99')
+            and self.type == 'spice-direct'
+        ):
+            raise ValueError(
+                'Console type spice-direct is not supported on server side'
             )
         return super().create(
             session, prepend_key=prepend_key, base_path=base_path, **params

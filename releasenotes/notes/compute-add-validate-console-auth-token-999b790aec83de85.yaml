@@ -1,0 +1,13 @@
+---
+features:
+  - |
+    Add the ``validate_console_auth_token`` method to the Compute proxy. This
+    method uses the pre-existing ``os-console-auth-tokens`` OpenStack Compute
+    API to validate a console access token as produced by
+    ``get_console_url``. In addition, the method returns hypervisor connection
+    information for the console (hypervisor IP and port numbers), as this call
+    is generally used by the console proxies which users connect to.
+
+    By default, callers of this method must have ``admin`` access to the
+    OpenStack Compute API due to the privileged nature of the hypervisor
+    connection information returned.

@@ -42,7 +42,7 @@ Starting, Stopping, etc.
             reboot_server, restore_server, shelve_server, unshelve_server,
             lock_server, unlock_server, pause_server, unpause_server,
             rescue_server, unrescue_server, evacuate_server, migrate_server,
-            get_server_console_output, live_migrate_server
+            live_migrate_server
 
 Modifying a Server
 ******************
@@ -186,6 +186,15 @@ Migration Operations
 .. autoclass:: openstack.compute.v2._proxy.Proxy
   :noindex:
   :members: migrations
+
+Interactive Consoles
+^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.compute.v2._proxy.Proxy
+  :noindex:
+  :members: create_server_remote_console, get_server_console_url,
+            validate_console_auth_token, get_server_console_output,
+            create_console
 
 Helpers
 ^^^^^^^

@@ -16,6 +16,7 @@ import warnings
 from openstack.block_storage.v3 import volume as _volume
 from openstack.compute.v2 import aggregate as _aggregate
 from openstack.compute.v2 import availability_zone
+from openstack.compute.v2 import console_auth_token as _console_auth_token
 from openstack.compute.v2 import extension
 from openstack.compute.v2 import flavor as _flavor
 from openstack.compute.v2 import hypervisor as _hypervisor
@@ -57,6 +58,7 @@ class Proxy(proxy.Proxy):
         "keypair": _keypair.Keypair,
         "limits": limits.Limits,
         "migration": _migration.Migration,
+        "os_console_auth_token": _console_auth_token.ConsoleAuthToken,
         "quota_class_set": _quota_class_set.QuotaClassSet,
         "quota_set": _quota_set.QuotaSet,
         "server": _server.Server,
@@ -2384,6 +2386,15 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         return server.get_console_url(self, console_type)
 
+    def validate_console_auth_token(self, console_token):
+        """Lookup console connection information for a console auth token.
+
+        :param console_token: The console auth token as returned in the URL
+            from get_server_console_url.
+        :returns: Dictionary with connection details, varying by console type.
+        """
+        return self._get(_console_auth_token.ConsoleAuthToken, console_token)
+
     def get_server_console_output(self, server, length=None):
         """Return the console output for a server.
 
@@ -2411,10 +2422,12 @@ class Proxy(proxy.Proxy):
             * rdp-html5
             * serial
             * webmks (supported after 2.8)
+            * spice-direct (supported after 2.99)
         :param console_protocol: Optional console protocol (is respected only
             after microversion 2.6).
 
-        :returns: Dictionary with console type, url and optionally protocol.
+        :returns: Dictionary with console type, connection details (a url), and
+            optionally protocol.
         """
         server = self._get_resource(_server.Server, server)
         # NOTE: novaclient supports undocumented type xcpvnc also supported

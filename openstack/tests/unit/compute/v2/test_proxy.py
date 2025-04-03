@@ -21,6 +21,7 @@ from openstack.block_storage.v3 import volume
 from openstack.compute.v2 import _proxy
 from openstack.compute.v2 import aggregate
 from openstack.compute.v2 import availability_zone as az
+from openstack.compute.v2 import console_auth_token
 from openstack.compute.v2 import extension
 from openstack.compute.v2 import flavor
 from openstack.compute.v2 import hypervisor
@@ -1884,4 +1885,12 @@ class TestServerAction(TestComputeProxy):
             server_action.ServerAction,
             method_kwargs={'server': 'server_a'},
             expected_kwargs={'server_id': 'server_a'},
+        )
+
+
+class TestValidateConsoleAuthToken(TestComputeProxy):
+    def test_validate_console_auth_token(self):
+        self.verify_get(
+            self.proxy.validate_console_auth_token,
+            console_auth_token.ConsoleAuthToken,
         )

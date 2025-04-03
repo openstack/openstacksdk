@@ -35,6 +35,7 @@ CONSOLE_TYPE_ACTION_MAPPING = {
     'novnc': 'os-getVNCConsole',
     'xvpvnc': 'os-getVNCConsole',
     'spice-html5': 'os-getSPICEConsole',
+    'spice-direct': 'os-getSPICEConsole',
     'rdp-html5': 'os-getRDPConsole',
     'serial': 'os-getSerialConsole',
 }
@@ -889,7 +890,8 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         :param session: The session to use for making this request.
         :param console_type: The type of console to return. This is
             cloud-specific. One of: ``novnc``, ``xvpvnc``, ``spice-html5``,
-            ``rdp-html5``, ``serial``.
+            ``spice-direct`` (after Nova microversion 2.99), ``rdp-html5``,
+            or ``serial``.
         :returns: None
         """
         action = CONSOLE_TYPE_ACTION_MAPPING.get(console_type)

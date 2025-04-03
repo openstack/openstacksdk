@@ -1256,6 +1256,14 @@ class TestServer(base.TestCase):
             microversion=self.sess.default_microversion,
         )
 
+        sot.get_console_url(self.sess, 'spice-direct')
+        self.sess.post.assert_called_with(
+            'servers/IDENTIFIER/action',
+            json={'os-getSPICEConsole': {'type': 'spice-direct'}},
+            headers={'Accept': ''},
+            microversion=self.sess.default_microversion,
+        )
+
         sot.get_console_url(self.sess, 'rdp-html5')
         self.sess.post.assert_called_with(
             'servers/IDENTIFIER/action',
