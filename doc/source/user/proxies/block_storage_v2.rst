@@ -72,6 +72,14 @@ Stats Operations
   :noindex:
   :members: backend_pools
 
+Transfer Operations
+^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v2._proxy.Proxy
+  :noindex:
+  :members: create_transfer, delete_transfer, find_transfer,
+            get_transfer, transfers, accept_transfer
+
 Type Operations
 ^^^^^^^^^^^^^^^
 
