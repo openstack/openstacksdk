@@ -50,6 +50,16 @@ class BaseFunctionalTest(base.TestCase):
     def setUp(self):
         super().setUp()
 
+        self._system_admin_name = os.environ.get(
+            'OPENSTACKSDK_SYSTEM_ADMIN_CLOUD',
+            'devstack-system-admin',
+        )
+        if not self._system_admin_name:
+            raise self.failureException(
+                "OPENSTACKSDK_SYSTEM_ADMIN_CLOUD must be set to a non-empty "
+                "value"
+            )
+
         self.config = openstack.config.OpenStackConfig()
 
         self._user_cloud_name = os.environ.get(
@@ -111,6 +121,14 @@ class BaseFunctionalTest(base.TestCase):
         )
         self.operator_cloud = connection.Connection(config=operator_config)
         _disable_keep_alive(self.operator_cloud)
+
+        system_admin_config = self.config.get_one(
+            cloud=self._system_admin_name, **kwargs
+        )
+        self.system_admin_cloud = connection.Connection(
+            config=system_admin_config
+        )
+        _disable_keep_alive(self.system_admin_cloud)
 
     def _pick_flavor(self):
         """Pick a sensible flavor to run tests with.
