@@ -111,7 +111,7 @@ class Volume(resource.Resource, metadata.MetadataMixin):
     #: The name of the associated volume type.
     volume_type = resource.Body("volume_type")
 
-    _max_microversion = "3.60"
+    _max_microversion = "3.71"
 
     def _action(self, session, body, microversion=None):
         """Preform volume actions given the message body."""
@@ -128,6 +128,11 @@ class Volume(resource.Resource, metadata.MetadataMixin):
     def extend(self, session, size):
         """Extend a volume size."""
         body = {'os-extend': {'new_size': size}}
+        self._action(session, body)
+
+    def complete_extend(self, session, error=False):
+        """Complete volume extend operation"""
+        body = {'os-extend_volume_completion': {'error': error}}
         self._action(session, body)
 
     def set_bootable_status(self, session, bootable=True):

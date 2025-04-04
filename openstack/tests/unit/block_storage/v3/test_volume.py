@@ -76,7 +76,7 @@ class TestVolume(base.TestCase):
         self.resp.status_code = 200
         self.resp.json = mock.Mock(return_value=self.resp.body)
         self.sess = mock.Mock(spec=adapter.Adapter)
-        self.sess.default_microversion = '3.60'
+        self.sess.default_microversion = '3.71'
         self.sess.post = mock.Mock(return_value=self.resp)
         self.sess._get_connection = mock.Mock(return_value=self.cloud)
 
@@ -160,6 +160,28 @@ class TestVolume(base.TestCase):
 
         url = f'volumes/{FAKE_ID}/action'
         body = {"os-extend": {"new_size": "20"}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion
+        )
+
+    def test_complete_extend(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.complete_extend(self.sess))
+
+        url = f'volumes/{FAKE_ID}/action'
+        body = {'os-extend_volume_completion': {'error': False}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion
+        )
+
+    def test_complete_extend_error(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.complete_extend(self.sess, error=True))
+
+        url = f'volumes/{FAKE_ID}/action'
+        body = {'os-extend_volume_completion': {'error': True}}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
         )
@@ -661,7 +683,7 @@ class TestVolume(base.TestCase):
         self.sess.post.assert_called_with(
             url,
             json=body,
-            microversion='3.60',
+            microversion=sot._max_microversion,
             headers={},
             params={},
         )
