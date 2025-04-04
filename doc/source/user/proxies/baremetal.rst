@@ -58,6 +58,12 @@ Chassis Operations
   :members: chassis, find_chassis, get_chassis,
             create_chassis, update_chassis, patch_chassis, delete_chassis
 
+Virtual Media Operations
+^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: openstack.baremetal.v1._proxy.Proxy
+  :noindex:
+  :members: attach_vmedia_to_node, detach_vmedia_from_node
+
 VIF Operations
 ^^^^^^^^^^^^^^
 .. autoclass:: openstack.baremetal.v1._proxy.Proxy

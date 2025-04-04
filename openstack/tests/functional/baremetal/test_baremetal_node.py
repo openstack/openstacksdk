@@ -467,6 +467,38 @@ class TestBareMetalVif(base.BaseBaremetalTest):
         )
 
 
+class TestBareMetalVirtualMedia(base.BaseBaremetalTest):
+    min_microversion = '1.89'
+
+    def setUp(self):
+        super().setUp()
+        self.node = self.create_node(network_interface='noop')
+        self.device_type = "CDROM"
+        self.image_url = "http://image"
+
+    def test_node_vmedia_attach_detach(self):
+        self.conn.baremetal.attach_vmedia_to_node(
+            self.node, self.device_type, self.image_url
+        )
+        res = self.conn.baremetal.detach_vmedia_from_node(self.node)
+        self.assertNone(res)
+
+    def test_node_vmedia_negative(self):
+        uuid = "5c9dcd04-2073-49bc-9618-99ae634d8971"
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.conn.baremetal.attach_vmedia_to_node,
+            uuid,
+            self.device_type,
+            self.image_url,
+        )
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.conn.baremetal.detach_vmedia_from_node,
+            uuid,
+        )
+
+
 class TestTraits(base.BaseBaremetalTest):
     min_microversion = '1.37'
 
