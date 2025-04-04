@@ -1087,6 +1087,55 @@ class Proxy(proxy.Proxy):
             _portgroup.PortGroup, port_group, ignore_missing=ignore_missing
         )
 
+    # ========== Virtual Media ==========
+
+    def attach_vmedia_to_node(
+        self,
+        node,
+        device_type,
+        image_url,
+        image_download_source=None,
+        retry_on_conflict=True,
+    ):
+        """Attach virtual media device to a node.
+
+        :param node: The value can be either the name or ID of a node or
+            a :class:`~openstack.baremetal.v1.node.Node` instance.
+        :param device_type: The type of virtual media device.
+        :param image_url: The URL of the image to attach.
+        :param image_download_source: The source of the image download.
+        :param retry_on_conflict: Whether to retry HTTP CONFLICT errors.
+            This can happen when either the virtual media is already used on
+            a node or the node is locked. Since the latter happens more often,
+            the default value is True.
+        :return: ``None``
+        :raises: :exc:`~openstack.exceptions.NotSupported` if the server
+            does not support the VMEDIA API.
+        """
+        res = self._get_resource(_node.Node, node)
+        res.attach_vmedia(
+            self,
+            device_type=device_type,
+            image_url=image_url,
+            image_download_source=image_download_source,
+            retry_on_conflict=retry_on_conflict,
+        )
+
+    def detach_vmedia_from_node(self, node, device_types=None):
+        """Detach virtual media from the node.
+
+        :param node: The value can be either the name or ID of a node or
+            a :class:`~openstack.baremetal.v1.node.Node` instance.
+        :param device_types: A list with the types of virtual media
+            devices to detach.
+        :return: ``True`` if the virtual media was detached,
+            otherwise ``False``.
+        :raises: :exc:`~openstack.exceptions.NotSupported` if the server
+            does not support the VMEDIA API.
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.detach_vmedia(self, device_types=device_types)
+
     # ========== VIFs ==========
 
     def attach_vif_to_node(

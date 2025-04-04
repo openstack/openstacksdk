@@ -738,6 +738,92 @@ class TestNodeVif(base.TestCase):
 
 @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
 @mock.patch.object(node.Node, '_get_session', lambda self, x: x)
+class TestNodeVmedia(base.TestCase):
+    def setUp(self):
+        super().setUp()
+        self.session = mock.Mock(spec=adapter.Adapter)
+        self.session.default_microversion = '1.89'
+        self.session.log = mock.Mock()
+        self.node = node.Node(
+            id='c29db401-b6a7-4530-af8e-20a720dee946', driver=FAKE['driver']
+        )
+        self.device_type = "CDROM"
+        self.image_url = "http://image"
+
+    def test_attach_vmedia(self):
+        self.assertIsNone(
+            self.node.attach_vmedia(
+                self.session, self.device_type, self.image_url
+            )
+        )
+        self.session.post.assert_called_once_with(
+            f'nodes/{self.node.id}/vmedia',
+            json={
+                'device_type': self.device_type,
+                'image_url': self.image_url,
+            },
+            headers=mock.ANY,
+            microversion='1.89',
+            retriable_status_codes=[409, 503],
+        )
+
+    def test_attach_vmedia_no_retries(self):
+        self.assertIsNone(
+            self.node.attach_vmedia(
+                self.session,
+                self.device_type,
+                self.image_url,
+                retry_on_conflict=False,
+            )
+        )
+        self.session.post.assert_called_once_with(
+            f'nodes/{self.node.id}/vmedia',
+            json={
+                'device_type': self.device_type,
+                'image_url': self.image_url,
+            },
+            headers=mock.ANY,
+            microversion='1.89',
+            retriable_status_codes=[503],
+        )
+
+    def test_detach_vmedia_existing(self):
+        self.assertIsNone(self.node.detach_vmedia(self.session))
+        self.session.delete.assert_called_once_with(
+            f'nodes/{self.node.id}/vmedia',
+            headers=mock.ANY,
+            microversion='1.89',
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
+
+    def test_detach_vmedia_missing(self):
+        self.session.delete.return_value.status_code = 400
+        self.assertIsNone(self.node.detach_vmedia(self.session))
+        self.session.delete.assert_called_once_with(
+            f'nodes/{self.node.id}/vmedia',
+            headers=mock.ANY,
+            microversion='1.89',
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
+
+    def test_incompatible_microversion(self):
+        self.session.default_microversion = '1.1'
+        self.assertRaises(
+            exceptions.NotSupported,
+            self.node.attach_vmedia,
+            self.session,
+            self.device_type,
+            self.image_url,
+        )
+        self.assertRaises(
+            exceptions.NotSupported,
+            self.node.detach_vmedia,
+            self.session,
+        )
+
+
+@mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
+@mock.patch.object(node.Node, '_get_session', lambda self, x: x)
 class TestNodeValidate(base.TestCase):
     def setUp(self):
         super().setUp()

@@ -95,6 +95,9 @@ CHANGE_BOOT_MODE_VERSION = '1.76'
 FIRMWARE_VERSION = '1.86'
 """API version in which firmware components of a node can be accessed"""
 
+VMEDIA_VERSION = '1.89'
+"""API version in which the virtual media operations were introduced."""
+
 RUNBOOKS_VERSION = '1.92'
 """API version in which a runbook can be used in place of arbitrary steps
 for provisioning"""

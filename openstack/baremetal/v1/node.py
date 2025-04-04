@@ -212,7 +212,7 @@ class Node(_common.Resource):
     #: unit of a specific type of resource. Added in API microversion 1.21.
     resource_class = resource.Body("resource_class")
     #: A string representing the current service step being executed upon.
-    #: Added in API microversion 1.87.
+    #: Added in API microversion 1.89.
     service_step = resource.Body("service_step")
     #: A string representing the uuid or logical name of a runbook as an
     #: alternative to providing ``clean_steps`` or ``service_steps``.
@@ -811,6 +811,100 @@ class Node(_common.Resource):
 
         if wait:
             self.wait_for_power_state(session, expected, timeout=timeout)
+
+    def attach_vmedia(
+        self,
+        session,
+        device_type,
+        image_url,
+        image_download_source=None,
+        retry_on_conflict=True,
+    ):
+        """Attach virtual media device to a node.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param device_type: The type of virtual media device.
+        :param image_url: The URL of the image to attach.
+        :param image_download_source: The source of the image download.
+        :param retry_on_conflict: Whether to retry HTTP CONFLICT errors.
+            This can happen when either the virtual media is already used on
+            a node or the node is locked. Since the latter happens more often,
+            the default value is True.
+        :return: ``None``
+        :raises: :exc:`~openstack.exceptions.NotSupported` if the server
+            does not support the VMEDIA API.
+
+        """
+        session = self._get_session(session)
+        version = self._assert_microversion_for(
+            session,
+            _common.VMEDIA_VERSION,
+            error_message=("Cannot use virtual media API"),
+        )
+        # Prepare the request and create the request body
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'vmedia')
+        body = {"device_type": device_type, "image_url": image_url}
+        if image_download_source:
+            body["image_download_source"] = image_download_source
+        retriable_status_codes = _common.RETRIABLE_STATUS_CODES
+        if not retry_on_conflict:
+            retriable_status_codes = list(set(retriable_status_codes) - {409})
+        response = session.post(
+            request.url,
+            json=body,
+            headers=request.headers,
+            microversion=version,
+            retriable_status_codes=retriable_status_codes,
+        )
+
+        msg = f"Failed to attach Virtual Media to bare metal node {self.id}"
+        exceptions.raise_from_response(response, error_message=msg)
+
+    def detach_vmedia(self, session, device_types=None):
+        """Detach virtual media from a node
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param device_types: A list with the types of virtual media
+            devices to detach.
+        :return: ``True`` if the virtual media was detached,
+            otherwise ``False``.
+        :raises: :exc:`~openstack.exceptions.NotSupported` if the server
+            does not support the VMEDIA API
+        """
+        session = self._get_session(session)
+        version = self._assert_microversion_for(
+            session,
+            _common.VMEDIA_VERSION,
+            error_message=("Cannot use virtual media API"),
+        )
+
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'vmedia')
+
+        delete_kwargs = {
+            'headers': request.headers,
+            'microversion': version,
+            'retriable_status_codes': _common.RETRIABLE_STATUS_CODES,
+        }
+
+        if device_types:
+            delete_kwargs['json'] = {
+                'device_types': _common.comma_separated_list(device_types)
+            }
+
+        response = session.delete(request.url, **delete_kwargs)
+
+        if response.status_code == 400:
+            session.log.debug(
+                "Virtual media doesn't exist for node %(node)s",
+                {'node': self.id},
+            )
+
+        msg = f"Failed to detach virtual media from bare metal node {self.id}"
+        exceptions.raise_from_response(response, error_message=msg)
 
     def attach_vif(
         self,
