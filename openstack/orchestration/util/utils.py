@@ -38,7 +38,7 @@ def normalise_file_path_to_url(path):
 def read_url_content(url):
     try:
         # TODO(mordred) Use requests
-        content = request.urlopen(url).read()
+        content = request.urlopen(url).read()  # noqa: S310
     except error.URLError:
         raise exceptions.SDKException(f'Could not fetch contents for {url}')
 

@@ -112,15 +112,15 @@ def generate_fake_resource(
                 base_attrs[name] = uuid.uuid4().hex
             elif issubclass(target_type, int):
                 # int
-                base_attrs[name] = random.randint(1, 100)
+                base_attrs[name] = random.randint(1, 100)  # noqa: S311
             elif issubclass(target_type, float):
                 # float
-                base_attrs[name] = random.random()
+                base_attrs[name] = random.random()  # noqa: S311
             elif issubclass(target_type, bool) or issubclass(
                 target_type, _format.BoolStr
             ):
                 # bool
-                base_attrs[name] = random.choice([True, False])
+                base_attrs[name] = random.choice([True, False])  # noqa: S311
             elif issubclass(target_type, dict):
                 # some dict - without further details leave it empty
                 base_attrs[name] = dict()

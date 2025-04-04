@@ -39,7 +39,7 @@ def get_template_contents(
         template_url = utils.normalise_file_path_to_url(template_file)
 
     if template_url:
-        tpl = request.urlopen(template_url).read()
+        tpl = request.urlopen(template_url).read()  # noqa: S310
 
     elif template_object:
         is_object = True
@@ -295,7 +295,7 @@ def process_environment_and_files(
     elif env_path:
         env_url = utils.normalise_file_path_to_url(env_path)
         env_base_url = utils.base_url_for_url(env_url)
-        raw_env = request.urlopen(env_url).read()
+        raw_env = request.urlopen(env_url).read()  # noqa: S310
 
         env = environment_format.parse(raw_env)
 

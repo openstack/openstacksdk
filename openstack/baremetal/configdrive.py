@@ -110,11 +110,10 @@ def pack(path: str) -> str:
     with tempfile.NamedTemporaryFile() as tmpfile:
         # NOTE(toabctl): Luckily, genisoimage, mkisofs and xorrisofs understand
         # the same parameters which are currently used.
-        cmds = ['genisoimage', 'mkisofs', 'xorrisofs']
         error: ty.Optional[Exception]
-        for c in cmds:
+        for c in ['genisoimage', 'mkisofs', 'xorrisofs']:
             try:
-                p = subprocess.Popen(
+                p = subprocess.Popen(  # noqa: S603
                     [
                         c,
                         '-o',

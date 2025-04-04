@@ -1566,7 +1566,8 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                 for address in port.get('fixed_ips', list()):
                     try:
                         ip = ipaddress.ip_address(address['ip_address'])
-                    except Exception:
+                    except Exception:  # noqa: S112
+                        # the address might be unset; ignore if so
                         continue
                     if ip.version == 4:
                         fixed_address = address['ip_address']

@@ -220,7 +220,7 @@ def get_server_external_ipv4(cloud, server):
         for interface in interfaces:
             try:
                 ip = ipaddress.ip_address(interface['addr'])
-            except Exception:
+            except Exception:  # noqa: S112
                 # Skip any error, we're looking for a working ip - if the
                 # cloud returns garbage, it wouldn't be the first weird thing
                 # but it still doesn't meet the requirement of "be a working
@@ -268,7 +268,8 @@ def find_best_address(addresses, public=False, cloud_public=True):
                         # will fail fast, but can often come alive
                         # when retried.
                         continue
-            except Exception:
+            except Exception:  # noqa: S110
+                # This is best effort. Ignore any errors.
                 pass
 
     # Give up and return the first - none work as far as we can tell

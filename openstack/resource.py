@@ -1508,7 +1508,11 @@ class Resource(dict):
         body: ty.Union[dict[str, ty.Any], list[ty.Any]] = _body
 
         if prepend_key:
-            assert cls.resources_key
+            if not cls.resources_key:
+                raise exceptions.ResourceFailure(
+                    "Cannot request prepend_key with Unset resources key"
+                )
+
             body = {cls.resources_key: body}
 
         response = method(

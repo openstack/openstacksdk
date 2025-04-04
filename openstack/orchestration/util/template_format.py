@@ -52,7 +52,7 @@ def parse(tmpl_str):
         tpl = json.loads(tmpl_str)
     else:
         try:
-            tpl = yaml.load(tmpl_str, Loader=HeatYamlLoader)
+            tpl = yaml.load(tmpl_str, Loader=HeatYamlLoader)  # noqa: S506
         except yaml.YAMLError:
             # NOTE(prazumovsky): we need to return more informative error for
             # user, so use SafeLoader, which return error message with template

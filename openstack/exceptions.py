@@ -202,7 +202,8 @@ def _extract_message(obj: ty.Any) -> ty.Optional[str]:
         # Ironic before Stein has double JSON encoding, nobody remembers why.
         try:
             obj = json.loads(obj)
-        except Exception:
+        except Exception:  # noqa: S110
+            # This is best effort. Ignore any errors.
             pass
         else:
             return _extract_message(obj)
