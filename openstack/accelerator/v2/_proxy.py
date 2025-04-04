@@ -13,6 +13,7 @@
 import typing as ty
 
 from openstack.accelerator.v2 import accelerator_request as _arq
+from openstack.accelerator.v2 import attribute as _attribute
 from openstack.accelerator.v2 import deployable as _deployable
 from openstack.accelerator.v2 import device as _device
 from openstack.accelerator.v2 import device_profile as _device_profile
@@ -203,6 +204,55 @@ class Proxy(proxy.Proxy):
         return self._get_resource(_arq.AcceleratorRequest, uuid).patch(
             self, properties
         )
+
+    # ========== Attributes ==========
+
+    def attributes(self, **query):
+        """Retrieve a generator of attributes.
+
+        :param kwargs query: Optional query parameters to be sent to
+            restrict the attributes to be returned.
+        :returns: A generator of attribute instances.
+        """
+        return self._list(_attribute.Attribute, **query)
+
+    def create_attribute(self, **attrs):
+        """Create a attribute.
+
+        :param kwargs attrs: a list of attributes.
+        :returns: The list of created attributes
+        """
+        return self._create(_attribute.Attribute, **attrs)
+
+    def delete_attribute(self, attribute, ignore_missing=True):
+        """Delete a attribute
+
+        :param attribute: The value can be either the ID of a attributes or a
+            :class:`~openstack.accelerator.v2.attribute.Attributes`
+            instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the device profile does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent device profile.
+        :returns: ``None``
+        """
+        return self._delete(
+            _attribute.Attribute,
+            attribute,
+            ignore_missing=ignore_missing,
+        )
+
+    def get_attribute(self, uuid, fields=None):
+        """Get a single device profile.
+
+        :param uuid: The value can be the UUID of a attribute.
+        :returns: One :class:
+            `~openstack.accelerator.v2.attribute.Attribute`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            device profile matching the criteria could be found.
+        """
+        return self._get(_attribute.Attribute, uuid)
 
     # ========== Utilities ==========
 

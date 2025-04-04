@@ -1,5 +1,5 @@
 openstack.accelerator.v2.deployable
-============================================
+===================================
 
 .. automodule:: openstack.accelerator.v2.deployable
 

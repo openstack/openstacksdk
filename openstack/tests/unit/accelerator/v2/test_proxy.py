@@ -12,6 +12,7 @@
 
 from openstack.accelerator.v2 import _proxy
 from openstack.accelerator.v2 import accelerator_request
+from openstack.accelerator.v2 import attribute
 from openstack.accelerator.v2 import deployable
 from openstack.accelerator.v2 import device_profile
 from openstack.tests.unit import test_proxy_base as test_proxy_base
@@ -90,4 +91,31 @@ class TestAcceleratorRequest(TestAcceleratorProxy):
         self.verify_get(
             self.proxy.get_accelerator_request,
             accelerator_request.AcceleratorRequest,
+        )
+
+
+class TestAttribute(TestAcceleratorProxy):
+    def test_list_attribute(self):
+        self.verify_list(
+            self.proxy.attributes,
+            attribute.Attribute,
+        )
+
+    def test_create_attribute(self):
+        self.verify_create(
+            self.proxy.create_attribute,
+            attribute.Attribute,
+        )
+
+    def test_delete_attribute(self):
+        self.verify_delete(
+            self.proxy.delete_attribute,
+            attribute.Attribute,
+            False,
+        )
+
+    def test_get_attribute(self):
+        self.verify_get(
+            self.proxy.get_attribute,
+            attribute.Attribute,
         )
