@@ -1,0 +1,14 @@
+---
+features:
+  - |
+    The following proxy ``find_*`` operations will now retrieve a detailed
+    resource by default when retrieving by name:
+
+    * Bare metal (v1)
+
+      * ``find_chassis``
+      * ``find_node``
+      * ``find_port``
+      * ``find_port_group``
+      * ``find_volume_connector``
+      * ``find_volume_target``
