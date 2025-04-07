@@ -20,14 +20,10 @@ valid attributes and methods for both :class:`~openstack.resource.Resource` and
 :class:`~openstack.proxy.Proxy` instances.
 """
 
+from collections.abc import Generator
 import inspect
 import random
-from typing import (
-    Any,
-    Optional,
-    TypeVar,
-)
-from collections.abc import Generator
+import typing as ty
 from unittest import mock
 import uuid
 
@@ -38,17 +34,11 @@ from openstack import resource
 from openstack import service_description
 
 
-Resource = TypeVar('Resource', bound=resource.Resource)
-
-
 def generate_fake_resource(
-    resource_type: type[Resource],
-    **attrs: dict[str, Any],
-) -> Resource:
+    resource_type: type[resource.ResourceT],
+    **attrs: ty.Any,
+) -> resource.ResourceT:
     """Generate a fake resource
-
-    :param type resource_type: Object class
-    :param dict attrs: Optional attributes to be set on resource
 
     Example usage:
 
@@ -59,14 +49,14 @@ def generate_fake_resource(
         >>> fakes.generate_fake_resource(server.Server)
         openstack.compute.v2.server.Server(...)
 
-    :param type resource_type: Object class
-    :param dict attrs: Optional attributes to be set on resource
+    :param resource_type: Object class
+    :param attrs: Optional attributes to be set on resource
     :return: Instance of ``resource_type`` class populated with fake
         values of expected types
     :raises NotImplementedError: If a resource attribute specifies a ``type``
         or ``list_type`` that cannot be automatically generated
     """
-    base_attrs: dict[str, Any] = {}
+    base_attrs: dict[str, ty.Any] = {}
     for name, value in inspect.getmembers(
         resource_type,
         predicate=lambda x: isinstance(x, (fields.Body, fields.URI)),
@@ -139,15 +129,11 @@ def generate_fake_resource(
 
 
 def generate_fake_resources(
-    resource_type: type[Resource],
+    resource_type: type[resource.ResourceT],
     count: int = 1,
-    attrs: Optional[dict[str, Any]] = None,
-) -> Generator[Resource, None, None]:
+    attrs: ty.Optional[dict[str, ty.Any]] = None,
+) -> Generator[resource.ResourceT, None, None]:
     """Generate a given number of fake resource entities
-
-    :param type resource_type: Object class
-    :param int count: Number of objects to return
-    :param dict attrs: Attribute values to set into each instance
 
     Example usage:
 
@@ -158,9 +144,9 @@ def generate_fake_resources(
         >>> fakes.generate_fake_resources(server.Server, count=3)
         <generator object generate_fake_resources at 0x7f075dc65040>
 
-    :param type resource_type: Object class
-    :param int count: Number of objects to return
-    :param dict attrs: Attribute values to set into each instance
+    :param resource_type: Object class
+    :param count: Number of objects to return
+    :param attrs: Attribute values to set into each instance
     :return: Generator of ``resource_type`` class instances populated with fake
         values of expected types.
     """
@@ -175,7 +161,7 @@ def generate_fake_resources(
 # (better) type annotations
 def generate_fake_proxy(
     service: type[service_description.ServiceDescription],
-    api_version: Optional[str] = None,
+    api_version: ty.Optional[str] = None,
 ) -> proxy.Proxy:
     """Generate a fake proxy for the given service type
 
