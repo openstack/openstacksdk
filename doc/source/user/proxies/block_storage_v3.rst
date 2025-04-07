@@ -141,6 +141,14 @@ Stats Operations
   :noindex:
   :members: backend_pools
 
+Transfer Operations
+^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v3._proxy.Proxy
+  :noindex:
+  :members: create_transfer, delete_transfer, find_transfer,
+            get_transfer, transfers, accept_transfer
+
 Type Operations
 ^^^^^^^^^^^^^^^
 
@@ -151,14 +159,6 @@ Type Operations
             add_type_access, remove_type_access, get_type_encryption,
             create_type_encryption, delete_type_encryption,
             update_type_encryption
-
-Transfer Operations
-^^^^^^^^^^^^^^^^^^^
-
-.. autoclass:: openstack.block_storage.v3._proxy.Proxy
-  :noindex:
-  :members: create_transfer, delete_transfer, find_transfer,
-            get_transfer, transfers, accept_transfer
 
 Volume Operations
 ^^^^^^^^^^^^^^^^^

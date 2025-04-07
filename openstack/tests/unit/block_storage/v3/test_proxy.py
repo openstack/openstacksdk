@@ -26,6 +26,7 @@ from openstack.block_storage.v3 import resource_filter
 from openstack.block_storage.v3 import service
 from openstack.block_storage.v3 import snapshot
 from openstack.block_storage.v3 import stats
+from openstack.block_storage.v3 import transfer
 from openstack.block_storage.v3 import type
 from openstack.block_storage.v3 import volume
 from openstack.identity.v3 import project
@@ -1081,6 +1082,39 @@ class TestType(TestVolumeProxy):
     def test_type_encryption_delete_ignore(self):
         self.verify_delete(
             self.proxy.delete_type_encryption, type.TypeEncryption, True
+        )
+
+
+class TestTransfer(TestVolumeProxy):
+    def test_transfer_create(self):
+        self.verify_create(self.proxy.create_transfer, transfer.Transfer)
+
+    def test_transfer_delete(self):
+        self.verify_delete(
+            self.proxy.delete_transfer, transfer.Transfer, False
+        )
+
+    def test_transfer_get(self):
+        self.verify_get(self.proxy.get_transfer, transfer.Transfer)
+
+    def test_transfer_find(self):
+        self.verify_find(self.proxy.find_transfer, transfer.Transfer)
+
+    @mock.patch(
+        'openstack.utils.supports_microversion',
+        autospec=True,
+        return_value=False,
+    )
+    def test_transfers(self, mock_mv):
+        self.verify_list(self.proxy.transfers, transfer.Transfer)
+
+    def test_accept_transfer(self):
+        self._verify(
+            'openstack.block_storage.v3.transfer.Transfer.accept',
+            self.proxy.accept_transfer,
+            method_args=['value', 'auth_key'],
+            expected_args=[self.proxy],
+            expected_kwargs={'auth_key': 'auth_key'},
         )
 
 

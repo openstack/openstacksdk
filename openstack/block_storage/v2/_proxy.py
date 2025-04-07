@@ -22,12 +22,14 @@ from openstack.block_storage.v2 import quota_set as _quota_set
 from openstack.block_storage.v2 import service as _service
 from openstack.block_storage.v2 import snapshot as _snapshot
 from openstack.block_storage.v2 import stats as _stats
+from openstack.block_storage.v2 import transfer as _transfer
 from openstack.block_storage.v2 import type as _type
 from openstack.block_storage.v2 import volume as _volume
 from openstack import exceptions
 from openstack.identity.v3 import project as _project
 from openstack import proxy
 from openstack import resource
+from openstack import utils
 from openstack import warnings as os_warnings
 
 
@@ -1222,6 +1224,107 @@ class Proxy(proxy.Proxy):
                 snapshot.delete_metadata_item(self, key)
         else:
             snapshot.delete_metadata(self)
+
+    # ========== Transfers ==========
+
+    def create_transfer(self, **attrs):
+        """Create a new Transfer record
+
+        :param volume_id: The value is ID of the volume.
+        :param name: The value is name of the transfer
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.block_storage.v2.transfer.Transfer`
+            comprised of the properties on the Transfer class.
+        :returns: The results of Transfer creation
+        :rtype: :class:`~openstack.block_storage.v2.transfer.Transfer`
+        """
+        return self._create(_transfer.Transfer, **attrs)
+
+    def delete_transfer(self, transfer, ignore_missing=True):
+        """Delete a volume transfer
+
+        :param transfer: The value can be either the ID of a transfer or a
+            :class:`~openstack.block_storage.v2.transfer.Transfer`` instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be
+            raised when the transfer does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent transfer.
+
+        :returns: ``None``
+        """
+        self._delete(
+            _transfer.Transfer,
+            transfer,
+            ignore_missing=ignore_missing,
+        )
+
+    def find_transfer(self, name_or_id, ignore_missing=True):
+        """Find a single transfer
+
+        :param name_or_id: The name or ID a transfer
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the volume transfer does not exist.
+
+        :returns: One :class:`~openstack.block_storage.v2.transfer.Transfer`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
+            when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
+        """
+        return self._find(
+            _transfer.Transfer,
+            name_or_id,
+            ignore_missing=ignore_missing,
+        )
+
+    def get_transfer(self, transfer):
+        """Get a single transfer
+
+        :param transfer: The value can be the ID of a transfer or a
+            :class:`~openstack.block_storage.v2.transfer.Transfer`
+            instance.
+
+        :returns: One :class:`~openstack.block_storage.v2.transfer.Transfer`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
+            when no resource can be found.
+        """
+        return self._get(_transfer.Transfer, transfer)
+
+    def transfers(self, *, details=True, all_projects=False, **query):
+        """Retrieve a generator of transfers
+
+        :param bool details: When set to ``False`` no extended attributes
+            will be returned. The default, ``True``, will cause objects with
+            additional attributes to be returned.
+        :param bool all_projects: When set to ``True``, list transfers from
+            all projects. Admin-only by default.
+        :param kwargs query: Optional query parameters to be sent to limit
+            the transfers being returned.
+
+        :returns: A generator of transfer objects.
+        """
+        if all_projects:
+            query['all_projects'] = True
+        base_path = '/volume-transfers'
+        if details:
+            base_path = utils.urljoin(base_path, 'detail')
+        return self._list(_transfer.Transfer, base_path=base_path, **query)
+
+    def accept_transfer(self, transfer_id, auth_key):
+        """Accept a Transfer
+
+        :param transfer_id: The value can be the ID of a transfer or a
+            :class:`~openstack.block_storage.v2.transfer.Transfer`
+            instance.
+        :param auth_key: The key to authenticate volume transfer.
+
+        :returns: The results of Transfer creation
+        :rtype: :class:`~openstack.block_storage.v2.transfer.Transfer`
+        """
+        transfer = self._get_resource(_transfer.Transfer, transfer_id)
+        return transfer.accept(self, auth_key=auth_key)
 
     # ========== Utilities ==========
 
