@@ -939,6 +939,18 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_user.User, user)
 
+    def user_groups(self, user):
+        """List groups a user is in
+
+        :param user: Either the ID of a user or a
+            :class:`~openstack.identity.v3.user.User` instance
+
+        :return: List of :class:`~openstack.identity.v3.group.group`
+        """
+        user_id = self._get_resource(_user.User, user).id
+        groups = self._list(_group.UserGroup, user_id=user_id)
+        return groups
+
     def users(self, **query):
         """Retrieve a generator of users
 

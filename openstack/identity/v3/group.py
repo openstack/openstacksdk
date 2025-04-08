@@ -74,3 +74,17 @@ class Group(resource.Resource):
         if resp.status_code == 204:
             return True
         return False
+
+
+class UserGroup(Group):
+    base_path = '/users/%(user_id)%/groups'
+
+    #: The ID for the user from the URI of the resource
+    user_id = resource.URI('user_id')
+
+    # capabilities
+    allow_create = False
+    allow_fetch = False
+    allow_commit = False
+    allow_delete = False
+    allow_list = True
