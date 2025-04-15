@@ -1019,14 +1019,15 @@ class TestQuotaSet(TestVolumeProxy):
         )
 
     def test_quota_set_get_defaults(self):
+        project_id = 'prj'
         self._verify(
             'openstack.resource.Resource.fetch',
             self.proxy.get_quota_set_defaults,
-            method_args=['prj'],
+            method_args=[project_id],
             expected_args=[
                 self.proxy,
                 False,
-                '/os-quota-sets/defaults',
+                f'/os-quota-sets/{project_id}/defaults',
                 None,
                 False,
             ],

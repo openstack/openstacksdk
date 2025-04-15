@@ -1903,7 +1903,9 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(
             _quota_set.QuotaSet, None, project_id=project.id
         )
-        return res.fetch(self, base_path='/os-quota-sets/defaults')
+        return res.fetch(
+            self, base_path=(f'/os-quota-sets/{project.id}/defaults')
+        )
 
     def revert_quota_set(self, project, **query):
         """Reset Quota for the project/user.
