@@ -605,7 +605,6 @@ class TestServer(base.TestCase):
 
         rsp = mock.Mock()
         rsp.json.return_value = {'image_id': 'dummy3'}
-        rsp.headers = {'Location': 'dummy/dummy2'}
         rsp.status_code = 200
 
         self.sess.post.return_value = rsp
@@ -634,8 +633,7 @@ class TestServer(base.TestCase):
         headers = {'Accept': ''}
 
         rsp = mock.Mock()
-        rsp.json.return_value = None
-        rsp.headers = {'Location': 'dummy/dummy2'}
+        rsp.json.return_value = {'image_id': 'dummy3'}
         rsp.status_code = 200
 
         self.sess.post.return_value = rsp
@@ -786,10 +784,59 @@ class TestServer(base.TestCase):
 
     def test_backup(self):
         sot = server.Server(**EXAMPLE)
+        backup_image_id = "13ceed3a-8b5b-4259-b70e-cd5e2fa54e56"
+        rsp = mock.Mock()
+        rsp.json.return_value = {'image_id': backup_image_id}
+        rsp.status_code = 200
+
+        self.sess.post.return_value = rsp
+        self.endpoint_data = mock.Mock(
+            spec=['min_microversion', 'max_microversion'],
+            min_microversion='2.1',
+            max_microversion='2.56',
+        )
+        self.sess.get_endpoint_data.return_value = self.endpoint_data
+        self.sess.default_microversion = None
 
         res = sot.backup(self.sess, "name", "daily", 1)
 
-        self.assertIsNone(res)
+        self.assertEqual(res, backup_image_id)
+        url = 'servers/IDENTIFIER/action'
+        body = {
+            "createBackup": {
+                "name": "name",
+                "backup_type": "daily",
+                "rotation": 1,
+            }
+        }
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url,
+            json=body,
+            headers=headers,
+            microversion='2.45',
+        )
+
+    def test_backup_pre_v245(self):
+        sot = server.Server(**EXAMPLE)
+        backup_image_id = "13ceed3a-8b5b-4259-b70e-cd5e2fa54e56"
+        rsp = mock.Mock()
+        rsp.json.return_value = None
+        rsp.headers = {'Location': f'dummy/{backup_image_id}'}
+
+        rsp.status_code = 200
+
+        self.sess.post.return_value = rsp
+        self.endpoint_data = mock.Mock(
+            spec=['min_microversion', 'max_microversion'],
+            min_microversion='2.1',
+            max_microversion='2.44',
+        )
+        self.sess.get_endpoint_data.return_value = self.endpoint_data
+
+        res = sot.backup(self.sess, "name", "daily", 1)
+
+        self.assertEqual(res, backup_image_id)
         url = 'servers/IDENTIFIER/action'
         body = {
             "createBackup": {

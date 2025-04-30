@@ -1219,12 +1219,26 @@ class TestCompute(TestComputeProxy):
         )
 
     def test_server_backup(self):
-        self._verify(
-            "openstack.compute.v2.server.Server.backup",
-            self.proxy.backup_server,
-            method_args=["value", "name", "daily", 1],
-            expected_args=[self.proxy, "name", "daily", 1],
-        )
+        with mock.patch(
+            'openstack.compute.v2.server.Server.backup'
+        ) as ci_mock:
+            ci_mock.return_value = 'image_id'
+            connection_mock = mock.Mock()
+            connection_mock.get_image = mock.Mock(return_value='image')
+            connection_mock.wait_for_image = mock.Mock()
+            self.proxy._connection = connection_mock
+
+            rsp = self.proxy.backup_server(
+                'server', 'image_name', 'daily', 1, wait=True, timeout=1
+            )
+
+            ci_mock.assert_called_with(self.proxy, 'image_name', 'daily', 1)
+            self.proxy._connection.get_image.assert_called_with('image_id')
+            self.proxy._connection.wait_for_image.assert_called_with(
+                'image', timeout=1
+            )
+
+            self.assertEqual(connection_mock.wait_for_image.return_value, rsp)
 
     def test_server_pause(self):
         self._verify(
@@ -1515,13 +1529,12 @@ class TestCompute(TestComputeProxy):
             )
 
             ci_mock.assert_called_with(self.proxy, 'image_name', metadata)
-
             self.proxy._connection.get_image.assert_called_with('image_id')
             self.proxy._connection.wait_for_image.assert_called_with(
                 'image', timeout=1
             )
 
-            self.assertEqual(connection_mock.wait_for_image(), rsp)
+            self.assertEqual(connection_mock.wait_for_image.return_value, rsp)
 
     def test_server_group_create(self):
         self.verify_create(
