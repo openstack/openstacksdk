@@ -102,6 +102,14 @@ Deploy Template Operations
             create_deploy_template, update_deploy_template,
             patch_deploy_template, delete_deploy_template
 
+Runbook Operations
+^^^^^^^^^^^^^^^^^^^
+.. autoclass:: openstack.baremetal.v1._proxy.Proxy
+  :noindex:
+  :members: runbooks, get_runbook,
+            create_runbook, update_runbook,
+            patch_runbook, delete_runbook
+
 Utilities
 ---------
 
