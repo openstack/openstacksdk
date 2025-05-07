@@ -400,12 +400,6 @@
         OPENSTACKSDK_TESTS_SUBDIR: shared_file_system
 
 - job:
-    name: metalsmith-integration-openstacksdk-src
-    parent: metalsmith-integration-glance-netboot-cirros-direct
-    required-projects:
-      - openstack/openstacksdk
-
-- job:
     name: bifrost-integration-openstacksdk-src
     parent: bifrost-integration-tinyipa-ubuntu-focal
     required-projects:
@@ -462,8 +456,6 @@
         - ironic-inspector-tempest-openstacksdk-src:
             voting: false
         - bifrost-integration-openstacksdk-src:
-            voting: false
-        - metalsmith-integration-openstacksdk-src:
             voting: false
         - ansible-collections-openstack-functional-devstack:
             voting: false
