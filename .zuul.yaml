@@ -141,8 +141,12 @@
       Run openstacksdk functional tests against a devstack with advanced
       networking services enabled.
     required-projects:
-      - openstack/designate
-      - openstack/octavia
+      # NOTE(elod.illes): designate and octavia's yoga branch became End of
+      # Life, while the job is working with yoga-eol, we can keep this job.
+      - name: openstack/designate
+        override-checkout: yoga-eol
+      - name: openstack/octavia
+        override-checkout: yoga-eol
     vars:
       devstack_local_conf:
         post-config:
@@ -336,12 +340,6 @@
         '{{ devstack_base_dir }}/masakari-logs': logs
 
 - job:
-    name: metalsmith-integration-openstacksdk-src
-    parent: metalsmith-integration-glance-netboot-cirros-direct
-    required-projects:
-      - openstack/openstacksdk
-
-- job:
     name: ironic-inspector-tempest-openstacksdk-src
     parent: ironic-inspector-tempest
     required-projects:
@@ -384,8 +382,6 @@
         - ironic-inspector-tempest-openstacksdk-src:
             voting: false
         - bifrost-integration-tinyipa-ubuntu-focal:
-            voting: false
-        - metalsmith-integration-openstacksdk-src:
             voting: false
         - ansible-collections-openstack-functional-devstack:
             voting: false
