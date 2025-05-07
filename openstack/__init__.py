@@ -64,10 +64,10 @@ __all__ = [
 
 
 def connect(
-    cloud: ty.Optional[str] = None,
-    app_name: ty.Optional[str] = None,
-    app_version: ty.Optional[str] = None,
-    options: ty.Optional[argparse.ArgumentParser] = None,
+    cloud: str | None = None,
+    app_name: str | None = None,
+    app_version: str | None = None,
+    options: argparse.ArgumentParser | None = None,
     load_yaml_config: bool = True,
     load_envvars: bool = True,
     **kwargs: ty.Any,

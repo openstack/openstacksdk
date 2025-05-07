@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import typing as ty
 import urllib.parse
 
 from openstack import exceptions
@@ -80,7 +79,7 @@ class Resource(resource.Resource):
         all_projects=None,
         **params,
     ):
-        headers: ty.Union[ty.Union[dict[str, str], None]] = (
+        headers: dict[str, str] | None = (
             {} if project_id or all_projects else None
         )
 
@@ -95,7 +94,7 @@ class Resource(resource.Resource):
     @classmethod
     def _get_next_link(cls, uri, response, data, marker, limit, total_yielded):
         next_link = None
-        params: dict[str, ty.Union[list[str], str]] = {}
+        params: dict[str, list[str] | str] = {}
         if isinstance(data, dict):
             links = data.get('links')
             if links:

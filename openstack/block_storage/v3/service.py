@@ -175,9 +175,9 @@ class Service(resource.Resource):
         session: ksa_adapter.Adapter,
         *,
         level: Level,
-        binary: ty.Optional[Binary] = None,
-        server: ty.Optional[str] = None,
-        prefix: ty.Optional[str] = None,
+        binary: Binary | None = None,
+        server: str | None = None,
+        prefix: str | None = None,
     ) -> None:
         """Set log level for services.
 
@@ -209,9 +209,9 @@ class Service(resource.Resource):
         cls,
         session: ksa_adapter.Adapter,
         *,
-        binary: ty.Optional[Binary] = None,
-        server: ty.Optional[str] = None,
-        prefix: ty.Optional[str] = None,
+        binary: Binary | None = None,
+        server: str | None = None,
+        prefix: str | None = None,
     ) -> ty.Generator[LogLevel, None, None]:
         """Get log level for services.
 

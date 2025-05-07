@@ -11,7 +11,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import typing as ty
 import warnings
 
 import os_service_types
@@ -54,10 +53,8 @@ class ServiceDescription:
     def __init__(
         self,
         service_type: str,
-        supported_versions: ty.Optional[
-            dict[str, type[proxy_mod.Proxy]]
-        ] = None,
-        aliases: ty.Optional[list[str]] = None,
+        supported_versions: dict[str, type[proxy_mod.Proxy]] | None = None,
+        aliases: list[str] | None = None,
     ):
         """Class describing how to interact with a REST service.
 

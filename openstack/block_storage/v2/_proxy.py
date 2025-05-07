@@ -983,7 +983,7 @@ class Proxy(proxy.Proxy):
         name_or_id: str,
         ignore_missing: ty.Literal[True] = True,
         **query: ty.Any,
-    ) -> ty.Optional[_service.Service]: ...
+    ) -> _service.Service | None: ...
 
     @ty.overload
     def find_service(
@@ -1001,14 +1001,14 @@ class Proxy(proxy.Proxy):
         name_or_id: str,
         ignore_missing: bool,
         **query: ty.Any,
-    ) -> ty.Optional[_service.Service]: ...
+    ) -> _service.Service | None: ...
 
     def find_service(
         self,
         name_or_id: str,
         ignore_missing: bool = True,
         **query: ty.Any,
-    ) -> ty.Optional[_service.Service]:
+    ) -> _service.Service | None:
         """Find a single service
 
         :param name_or_id: The name or ID of a service
@@ -1047,7 +1047,7 @@ class Proxy(proxy.Proxy):
 
     def enable_service(
         self,
-        service: ty.Union[str, _service.Service],
+        service: str | _service.Service,
     ) -> _service.Service:
         """Enable a service
 
@@ -1062,9 +1062,9 @@ class Proxy(proxy.Proxy):
 
     def disable_service(
         self,
-        service: ty.Union[str, _service.Service],
+        service: str | _service.Service,
         *,
-        reason: ty.Optional[str] = None,
+        reason: str | None = None,
     ) -> _service.Service:
         """Disable a service
 
@@ -1080,7 +1080,7 @@ class Proxy(proxy.Proxy):
 
     def thaw_service(
         self,
-        service: ty.Union[str, _service.Service],
+        service: str | _service.Service,
     ) -> _service.Service:
         """Thaw a service
 
@@ -1095,7 +1095,7 @@ class Proxy(proxy.Proxy):
 
     def freeze_service(
         self,
-        service: ty.Union[str, _service.Service],
+        service: str | _service.Service,
     ) -> _service.Service:
         """Freeze a service
 
@@ -1110,9 +1110,9 @@ class Proxy(proxy.Proxy):
 
     def failover_service(
         self,
-        service: ty.Union[str, _service.Service],
+        service: str | _service.Service,
         *,
-        backend_id: ty.Optional[str] = None,
+        backend_id: str | None = None,
     ) -> _service.Service:
         """Failover a service
 
@@ -1332,11 +1332,11 @@ class Proxy(proxy.Proxy):
         self,
         res: resource.ResourceT,
         status: str = 'available',
-        failures: ty.Optional[list[str]] = None,
-        interval: ty.Union[int, float, None] = 2,
-        wait: ty.Optional[int] = None,
+        failures: list[str] | None = None,
+        interval: int | float | None = 2,
+        wait: int | None = None,
         attribute: str = 'status',
-        callback: ty.Optional[ty.Callable[[int], None]] = None,
+        callback: ty.Callable[[int], None] | None = None,
     ) -> resource.ResourceT:
         """Wait for the resource to be in a particular status.
 
@@ -1375,7 +1375,7 @@ class Proxy(proxy.Proxy):
         res: resource.ResourceT,
         interval: int = 2,
         wait: int = 120,
-        callback: ty.Optional[ty.Callable[[int], None]] = None,
+        callback: ty.Callable[[int], None] | None = None,
     ) -> resource.ResourceT:
         """Wait for a resource to be deleted.
 

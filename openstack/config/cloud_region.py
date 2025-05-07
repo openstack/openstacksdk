@@ -74,7 +74,7 @@ _ENOENT = object()
 
 
 class _PasswordCallback(ty.Protocol):
-    def __call__(self, prompt: ty.Optional[str] = None) -> str: ...
+    def __call__(self, prompt: str | None = None) -> str: ...
 
 
 def _make_key(key, service_type):
@@ -108,11 +108,11 @@ def _get_implied_microversion(version):
 
 def from_session(
     session: ks_session.Session,
-    name: ty.Optional[str] = None,
-    region_name: ty.Optional[str] = None,
+    name: str | None = None,
+    region_name: str | None = None,
     force_ipv4: bool = False,
-    app_name: ty.Optional[str] = None,
-    app_version: ty.Optional[str] = None,
+    app_name: str | None = None,
+    app_version: str | None = None,
     **kwargs: ty.Any,
 ) -> 'CloudRegion':
     """Construct a CloudRegion from an existing `keystoneauth1.session.Session`
@@ -152,8 +152,8 @@ def from_session(
 
 def from_conf(
     conf: 'cfg.ConfigOpts',
-    session: ty.Optional[ks_session.Session] = None,
-    service_types: ty.Optional[list[str]] = None,
+    session: ks_session.Session | None = None,
+    service_types: list[str] | None = None,
     **kwargs: ty.Any,
 ) -> 'CloudRegion':
     """Create a CloudRegion from oslo.config ConfigOpts.
@@ -291,29 +291,29 @@ class CloudRegion:
 
     def __init__(
         self,
-        name: ty.Optional[str] = None,
-        region_name: ty.Optional[str] = None,
-        config: ty.Optional[dict[str, ty.Any]] = None,
+        name: str | None = None,
+        region_name: str | None = None,
+        config: dict[str, ty.Any] | None = None,
         force_ipv4: bool = False,
-        auth_plugin: ty.Optional[plugin.BaseAuthPlugin] = None,
+        auth_plugin: plugin.BaseAuthPlugin | None = None,
         openstack_config: ty.Optional['loader.OpenStackConfig'] = None,
-        session_constructor: ty.Optional[type[ks_session.Session]] = None,
-        app_name: ty.Optional[str] = None,
-        app_version: ty.Optional[str] = None,
-        session: ty.Optional[ks_session.Session] = None,
-        discovery_cache: ty.Optional[dict[str, discover.Discover]] = None,
-        extra_config: ty.Optional[dict[str, ty.Any]] = None,
+        session_constructor: type[ks_session.Session] | None = None,
+        app_name: str | None = None,
+        app_version: str | None = None,
+        session: ks_session.Session | None = None,
+        discovery_cache: dict[str, discover.Discover] | None = None,
+        extra_config: dict[str, ty.Any] | None = None,
         cache_expiration_time: int = 0,
-        cache_expirations: ty.Optional[dict[str, int]] = None,
-        cache_path: ty.Optional[str] = None,
+        cache_expirations: dict[str, int] | None = None,
+        cache_path: str | None = None,
         cache_class: str = 'dogpile.cache.null',
-        cache_arguments: ty.Optional[dict[str, ty.Any]] = None,
-        password_callback: ty.Optional[_PasswordCallback] = None,
-        statsd_host: ty.Optional[str] = None,
-        statsd_port: ty.Optional[str] = None,
-        statsd_prefix: ty.Optional[str] = None,
+        cache_arguments: dict[str, ty.Any] | None = None,
+        password_callback: _PasswordCallback | None = None,
+        statsd_host: str | None = None,
+        statsd_port: str | None = None,
+        statsd_prefix: str | None = None,
         # TODO(stephenfin): Add better types
-        influxdb_config: ty.Optional[dict[str, ty.Any]] = None,
+        influxdb_config: dict[str, ty.Any] | None = None,
         collector_registry: ty.Optional[
             'prometheus_client.CollectorRegistry'
         ] = None,
@@ -577,7 +577,7 @@ class CloudRegion:
     def get_service_name(self, service_type):
         return self._get_config('service_name', service_type)
 
-    def get_endpoint(self, service_type: str) -> ty.Optional[str]:
+    def get_endpoint(self, service_type: str) -> str | None:
         auth = self.config.get('auth', {})
         value = self._get_config('endpoint_override', service_type)
         if not value:
@@ -618,9 +618,9 @@ class CloudRegion:
     def get_endpoint_from_catalog(
         self,
         service_type: str,
-        interface: ty.Optional[str] = None,
-        region_name: ty.Optional[str] = None,
-    ) -> ty.Optional[str]:
+        interface: str | None = None,
+        region_name: str | None = None,
+    ) -> str | None:
         """Return the endpoint for a given service as found in the catalog.
 
         For values respecting endpoint overrides, see

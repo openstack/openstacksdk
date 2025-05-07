@@ -10,14 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import typing as ty
 
 from openstack import resource
 from openstack.tests.functional import base
 
 
 class BaseSharedFileSystemTest(base.BaseFunctionalTest):
-    min_microversion: ty.Optional[str] = None
+    min_microversion: str | None = None
 
     def setUp(self):
         super().setUp()

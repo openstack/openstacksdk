@@ -19,8 +19,8 @@ import typing as ty
 
 def setup_logging(
     name: str,
-    handlers: ty.Optional[list[logging.Handler]] = None,
-    level: ty.Optional[int] = None,
+    handlers: list[logging.Handler] | None = None,
+    level: int | None = None,
 ) -> logging.Logger:
     """Set up logging for a named logger.
 
@@ -50,11 +50,11 @@ def setup_logging(
 def enable_logging(
     debug: bool = False,
     http_debug: bool = False,
-    path: ty.Optional[str] = None,
-    stream: ty.Optional[ty.TextIO] = None,
+    path: str | None = None,
+    stream: ty.TextIO | None = None,
     format_stream: bool = False,
     format_template: str = '%(asctime)s %(levelname)s: %(name)s %(message)s',
-    handlers: ty.Optional[list[logging.Handler]] = None,
+    handlers: list[logging.Handler] | None = None,
 ) -> None:
     """Enable logging output.
 

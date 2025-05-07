@@ -27,7 +27,7 @@ from openstack import _log
 from openstack import exceptions
 
 
-def urljoin(*args: ty.Optional[str]) -> str:
+def urljoin(*args: str | None) -> str:
     """A custom version of urljoin that simply joins strings into a path.
 
     The real urljoin takes into account web semantics like when joining a url
@@ -38,9 +38,9 @@ def urljoin(*args: ty.Optional[str]) -> str:
 
 
 def iterate_timeout(
-    timeout: ty.Optional[int],
+    timeout: int | None,
     message: str,
-    wait: ty.Union[int, float, None] = 2,
+    wait: int | float | None = 2,
 ) -> ty.Generator[int, None, None]:
     """Iterate and raise an exception on timeout.
 
@@ -163,9 +163,7 @@ def supports_version(
 
 def supports_microversion(
     adapter: ks_adapter.Adapter,
-    microversion: ty.Union[
-        str, int, float, ty.Iterable[ty.Union[str, int, float]]
-    ],
+    microversion: str | int | float | ty.Iterable[str | int | float],
     raise_exception: bool = False,
 ) -> bool:
     """Determine if the given adapter supports the given microversion.
@@ -238,7 +236,7 @@ def require_microversion(adapter: ks_adapter.Adapter, required: str) -> None:
 
 def pick_microversion(
     session: ks_adapter.Adapter, required: str
-) -> ty.Optional[str]:
+) -> str | None:
     """Get a new microversion if it is higher than session's default.
 
     :param session: The session to use for making this request.
@@ -281,8 +279,8 @@ def pick_microversion(
 
 def maximum_supported_microversion(
     adapter: ks_adapter.Adapter,
-    client_maximum: ty.Optional[str],
-) -> ty.Optional[str]:
+    client_maximum: str | None,
+) -> str | None:
     """Determine the maximum microversion supported by both client and server.
 
     :param adapter: :class:`~keystoneauth1.adapter.Adapter` instance.
@@ -331,8 +329,8 @@ def maximum_supported_microversion(
 
 
 def _hashes_up_to_date(
-    md5: ty.Optional[str],
-    sha256: ty.Optional[str],
+    md5: str | None,
+    sha256: str | None,
     md5_key: str,
     sha256_key: str,
 ) -> bool:
@@ -354,7 +352,7 @@ def _hashes_up_to_date(
 
 
 def _calculate_data_hashes(
-    data: ty.Union[io.BufferedReader, bytes],
+    data: io.BufferedReader | bytes,
 ) -> tuple[str, str]:
     _md5 = hashlib.md5(usedforsecurity=False)
     _sha256 = hashlib.sha256()
@@ -409,7 +407,7 @@ class TinyDAG:
     def add_edge(self, u: str, v: str) -> None:
         self._graph[u].add(v)
 
-    def walk(self, timeout: ty.Optional[int] = None) -> 'TinyDAG':
+    def walk(self, timeout: int | None = None) -> 'TinyDAG':
         """Start the walking from the beginning."""
         if timeout:
             self._wait_timeout = timeout

@@ -158,22 +158,22 @@ class OpenStackConfig:
 
     def __init__(
         self,
-        config_files: ty.Optional[list[str]] = None,
-        vendor_files: ty.Optional[list[str]] = None,
-        override_defaults: ty.Optional[dict[str, ty.Any]] = None,
-        force_ipv4: ty.Optional[bool] = None,
-        envvar_prefix: ty.Optional[str] = None,
-        secure_files: ty.Optional[list[str]] = None,
-        pw_func: ty.Optional[cloud_region._PasswordCallback] = None,
-        session_constructor: ty.Optional[type[session.Session]] = None,
-        app_name: ty.Optional[str] = None,
-        app_version: ty.Optional[str] = None,
+        config_files: list[str] | None = None,
+        vendor_files: list[str] | None = None,
+        override_defaults: dict[str, ty.Any] | None = None,
+        force_ipv4: bool | None = None,
+        envvar_prefix: str | None = None,
+        secure_files: list[str] | None = None,
+        pw_func: cloud_region._PasswordCallback | None = None,
+        session_constructor: type[session.Session] | None = None,
+        app_name: str | None = None,
+        app_version: str | None = None,
         load_yaml_config: bool = True,
         load_envvars: bool = True,
-        statsd_host: ty.Optional[str] = None,
-        statsd_port: ty.Optional[str] = None,
-        statsd_prefix: ty.Optional[str] = None,
-        influxdb_config: ty.Optional[dict[str, ty.Any]] = None,
+        statsd_host: str | None = None,
+        statsd_port: str | None = None,
+        statsd_prefix: str | None = None,
+        influxdb_config: dict[str, ty.Any] | None = None,
     ):
         self.log = _log.setup_logging('openstack.config')
         self._session_constructor = session_constructor
@@ -1221,9 +1221,9 @@ class OpenStackConfig:
 
     def get_one(
         self,
-        cloud: ty.Optional[str] = None,
+        cloud: str | None = None,
         validate: bool = True,
-        argparse: ty.Optional[argparse_mod.Namespace] = None,
+        argparse: argparse_mod.Namespace | None = None,
         **kwargs: ty.Any,
     ) -> cloud_region.CloudRegion:
         """Retrieve a single CloudRegion and merge additional options

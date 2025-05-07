@@ -59,7 +59,7 @@ def generate_fake_resource(
     base_attrs: dict[str, ty.Any] = {}
     for name, value in inspect.getmembers(
         resource_type,
-        predicate=lambda x: isinstance(x, (fields.Body, fields.URI)),
+        predicate=lambda x: isinstance(x, fields.Body | fields.URI),
     ):
         if isinstance(value, fields.Body):
             target_type = value.type
@@ -131,7 +131,7 @@ def generate_fake_resource(
 def generate_fake_resources(
     resource_type: type[resource.ResourceT],
     count: int = 1,
-    attrs: ty.Optional[dict[str, ty.Any]] = None,
+    attrs: dict[str, ty.Any] | None = None,
 ) -> Generator[resource.ResourceT, None, None]:
     """Generate a given number of fake resource entities
 
@@ -161,7 +161,7 @@ def generate_fake_resources(
 # (better) type annotations
 def generate_fake_proxy(
     service: type[service_description.ServiceDescription],
-    api_version: ty.Optional[str] = None,
+    api_version: str | None = None,
 ) -> proxy.Proxy:
     """Generate a fake proxy for the given service type
 

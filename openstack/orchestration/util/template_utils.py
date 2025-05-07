@@ -89,7 +89,7 @@ def resolve_template_get_files(
         return False
 
     def recurse_if(value):
-        return isinstance(value, (dict, list))
+        return isinstance(value, dict | list)
 
     get_file_contents(
         template,

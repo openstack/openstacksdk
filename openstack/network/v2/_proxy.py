@@ -199,9 +199,9 @@ class Proxy(proxy.Proxy):
     def _update(
         self,
         resource_type: type[resource.ResourceT],
-        value: ty.Union[str, resource.ResourceT, None],
-        base_path: ty.Optional[str] = None,
-        if_revision: ty.Optional[int] = None,
+        value: str | resource.ResourceT | None,
+        base_path: str | None = None,
+        if_revision: int | None = None,
         **attrs: ty.Any,
     ) -> resource.ResourceT:
         if (
@@ -217,11 +217,11 @@ class Proxy(proxy.Proxy):
     def _delete(
         self,
         resource_type: type[resource.ResourceT],
-        value: ty.Union[str, resource.ResourceT, None],
+        value: str | resource.ResourceT | None,
         ignore_missing: bool = True,
-        if_revision: ty.Optional[int] = None,
+        if_revision: int | None = None,
         **attrs: ty.Any,
-    ) -> ty.Optional[resource.ResourceT]:
+    ) -> resource.ResourceT | None:
         if (
             issubclass(resource_type, _base.NetworkResource)
             and if_revision is not None
@@ -322,7 +322,7 @@ class Proxy(proxy.Proxy):
 
     def update_address_group(
         self,
-        address_group: ty.Union[str, _address_group.AddressGroup],
+        address_group: str | _address_group.AddressGroup,
         **attrs: ty.Any,
     ) -> _address_group.AddressGroup:
         """Update an address group
@@ -2998,8 +2998,8 @@ class Proxy(proxy.Proxy):
 
     def update_port(
         self,
-        port: ty.Union[str, _port.Port],
-        if_revision: ty.Optional[int] = None,
+        port: str | _port.Port,
+        if_revision: int | None = None,
         **attrs: ty.Any,
     ) -> _port.Port:
         """Update a port
@@ -7238,11 +7238,11 @@ class Proxy(proxy.Proxy):
         self,
         res: resource.ResourceT,
         status: str,
-        failures: ty.Optional[list[str]] = None,
-        interval: ty.Union[int, float, None] = 2,
-        wait: ty.Optional[int] = None,
+        failures: list[str] | None = None,
+        interval: int | float | None = 2,
+        wait: int | None = None,
         attribute: str = 'status',
-        callback: ty.Optional[ty.Callable[[int], None]] = None,
+        callback: ty.Callable[[int], None] | None = None,
     ) -> resource.ResourceT:
         """Wait for the resource to be in a particular status.
 
@@ -7278,7 +7278,7 @@ class Proxy(proxy.Proxy):
         res: resource.ResourceT,
         interval: int = 2,
         wait: int = 120,
-        callback: ty.Optional[ty.Callable[[int], None]] = None,
+        callback: ty.Callable[[int], None] | None = None,
     ) -> resource.ResourceT:
         """Wait for a resource to be deleted.
 

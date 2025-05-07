@@ -321,9 +321,9 @@ _logger = _log.setup_logging('openstack')
 
 
 def from_config(
-    cloud: ty.Optional[str] = None,
+    cloud: str | None = None,
     config: ty.Optional['cloud_region.CloudRegion'] = None,
-    options: ty.Optional[argparse.Namespace] = None,
+    options: argparse.Namespace | None = None,
     **kwargs: ty.Any,
 ) -> 'Connection':
     """Create a Connection using openstack.config
@@ -371,23 +371,22 @@ class Connection(
 ):
     def __init__(
         self,
-        cloud: ty.Optional[str] = None,
+        cloud: str | None = None,
         config: ty.Optional['cloud_region.CloudRegion'] = None,
-        session: ty.Optional[ks_session.Session] = None,
-        app_name: ty.Optional[str] = None,
-        app_version: ty.Optional[str] = None,
-        extra_services: ty.Optional[
-            list[service_description.ServiceDescription]
-        ] = None,
+        session: ks_session.Session | None = None,
+        app_name: str | None = None,
+        app_version: str | None = None,
+        extra_services: list[service_description.ServiceDescription]
+        | None = None,
         strict: bool = False,
-        use_direct_get: ty.Optional[bool] = None,
+        use_direct_get: bool | None = None,
         task_manager: ty.Any = None,
-        rate_limit: ty.Union[float, dict[str, float], None] = None,
+        rate_limit: float | dict[str, float] | None = None,
         oslo_conf: ty.Optional['cfg.ConfigOpts'] = None,
-        service_types: ty.Optional[list[str]] = None,
-        global_request_id: ty.Optional[str] = None,
+        service_types: list[str] | None = None,
+        global_request_id: str | None = None,
         strict_proxies: bool = False,
-        pool_executor: ty.Optional[concurrent.futures.Executor] = None,
+        pool_executor: concurrent.futures.Executor | None = None,
         **kwargs: ty.Any,
     ):
         """Create a connection to a cloud.
@@ -623,8 +622,8 @@ class Connection(
 
         # Utility function to help with the stripping below.
         def pop_keys(
-            params: dict[str, dict[str, ty.Optional[str]]],
-            auth: dict[str, ty.Optional[str]],
+            params: dict[str, dict[str, str | None]],
+            auth: dict[str, str | None],
             name_key: str,
             id_key: str,
         ) -> None:
@@ -695,9 +694,9 @@ class Connection(
     def endpoint_for(
         self,
         service_type: str,
-        interface: ty.Optional[str] = None,
-        region_name: ty.Optional[str] = None,
-    ) -> ty.Optional[str]:
+        interface: str | None = None,
+        region_name: str | None = None,
+    ) -> str | None:
         """Return the endpoint for a given service.
 
         Respects config values for Connection, including

@@ -84,25 +84,19 @@ def _convert_type(
 
 def _convert_type(
     value: _T1,
-    data_type: ty.Optional[
-        type[
-            ty.Union[
-                _T3,
-                list[ty.Any],
-                dict[ty.Any, ty.Any],
-                format.Formatter[_T2],
-            ],
-        ]
-    ],
-    list_type: ty.Optional[type[_T3]] = None,
-) -> ty.Union[_T1, _T3, list[_T3], list[_T1], dict[ty.Any, ty.Any], _T2]:
+    data_type: type[
+        _T3 | list[ty.Any] | dict[ty.Any, ty.Any] | format.Formatter[_T2],
+    ]
+    | None,
+    list_type: type[_T3] | None = None,
+) -> _T1 | _T3 | list[_T3] | list[_T1] | dict[ty.Any, ty.Any] | _T2:
     # This should allow handling list of dicts that have their own
     # Component type directly. See openstack/compute/v2/limits.py
     # and the RateLimit type for an example.
     if data_type is None:
         return value
     elif issubclass(data_type, list):
-        if isinstance(value, (list, set, tuple)):
+        if isinstance(value, list | set | tuple):
             if not list_type:
                 return data_type(value)
             return [_convert_type(x, list_type) for x in value]
@@ -121,8 +115,8 @@ def _convert_type(
         return data_type.deserialize(value)
     elif issubclass(data_type, bool):
         return data_type(value)
-    elif issubclass(data_type, (int, float)):
-        if isinstance(value, (int, float)):
+    elif issubclass(data_type, int | float):
+        if isinstance(value, int | float):
             return data_type(value)
         if isinstance(value, str):
             if issubclass(data_type, int) and value.isdigit():
@@ -149,28 +143,28 @@ class _BaseComponent(abc.ABC):
     _map_cls: ty.ClassVar[type[ty.MutableMapping[str, ty.Any]]] = dict
 
     name: str
-    data_type: ty.Optional[ty.Any]
+    data_type: ty.Any | None
     default: ty.Any
-    alias: ty.Optional[str]
-    aka: ty.Optional[str]
+    alias: str | None
+    aka: str | None
     alternate_id: bool
-    list_type: ty.Optional[ty.Any]
+    list_type: ty.Any | None
     coerce_to_default: bool
     deprecated: bool
-    deprecation_reason: ty.Optional[str]
+    deprecation_reason: str | None
 
     def __init__(
         self,
         name: str,
-        type: ty.Optional[ty.Any] = None,
+        type: ty.Any | None = None,
         default: ty.Any = None,
-        alias: ty.Optional[str] = None,
-        aka: ty.Optional[str] = None,
+        alias: str | None = None,
+        aka: str | None = None,
         alternate_id: bool = False,
-        list_type: ty.Optional[ty.Any] = None,
+        list_type: ty.Any | None = None,
         coerce_to_default: bool = False,
         deprecated: bool = False,
-        deprecation_reason: ty.Optional[str] = None,
+        deprecation_reason: str | None = None,
     ):
         """A typed descriptor for a component that makes up a Resource
 
@@ -214,7 +208,7 @@ class _BaseComponent(abc.ABC):
     def __get__(
         self,
         instance: object,
-        owner: ty.Optional[type[object]] = None,
+        owner: type[object] | None = None,
     ) -> ty.Any:
         if instance is None:
             return self
@@ -261,7 +255,7 @@ class _BaseComponent(abc.ABC):
         return _convert_type(value, self.data_type, self.list_type)
 
     @property
-    def type(self) -> ty.Optional[ty.Any]:
+    def type(self) -> ty.Any | None:
         # deprecated alias proxy
         return self.data_type
 

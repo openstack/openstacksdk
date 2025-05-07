@@ -65,15 +65,15 @@ ResourceT = ty.TypeVar('ResourceT', bound='Resource')
 # with Any rather than generating super complex types
 def Body(
     name: str,
-    type: ty.Optional[ty.Any] = None,
+    type: ty.Any | None = None,
     default: ty.Any = None,
-    alias: ty.Optional[str] = None,
-    aka: ty.Optional[str] = None,
+    alias: str | None = None,
+    aka: str | None = None,
     alternate_id: bool = False,
-    list_type: ty.Optional[ty.Any] = None,
+    list_type: ty.Any | None = None,
     coerce_to_default: bool = False,
     deprecated: bool = False,
-    deprecation_reason: ty.Optional[str] = None,
+    deprecation_reason: str | None = None,
 ) -> ty.Any:
     return fields.Body(
         name,
@@ -91,15 +91,15 @@ def Body(
 
 def Header(
     name: str,
-    type: ty.Optional[ty.Any] = None,
+    type: ty.Any | None = None,
     default: ty.Any = None,
-    alias: ty.Optional[str] = None,
-    aka: ty.Optional[str] = None,
+    alias: str | None = None,
+    aka: str | None = None,
     alternate_id: bool = False,
-    list_type: ty.Optional[ty.Any] = None,
+    list_type: ty.Any | None = None,
     coerce_to_default: bool = False,
     deprecated: bool = False,
-    deprecation_reason: ty.Optional[str] = None,
+    deprecation_reason: str | None = None,
 ) -> ty.Any:
     return fields.Header(
         name,
@@ -117,15 +117,15 @@ def Header(
 
 def URI(
     name: str,
-    type: ty.Optional[ty.Any] = None,
+    type: ty.Any | None = None,
     default: ty.Any = None,
-    alias: ty.Optional[str] = None,
-    aka: ty.Optional[str] = None,
+    alias: str | None = None,
+    aka: str | None = None,
     alternate_id: bool = False,
-    list_type: ty.Optional[ty.Any] = None,
+    list_type: ty.Any | None = None,
     coerce_to_default: bool = False,
     deprecated: bool = False,
-    deprecation_reason: ty.Optional[str] = None,
+    deprecation_reason: str | None = None,
 ) -> ty.Any:
     return fields.URI(
         name,
@@ -143,15 +143,15 @@ def URI(
 
 def Computed(
     name: str,
-    type: ty.Optional[ty.Any] = None,
+    type: ty.Any | None = None,
     default: ty.Any = None,
-    alias: ty.Optional[str] = None,
-    aka: ty.Optional[str] = None,
+    alias: str | None = None,
+    aka: str | None = None,
     alternate_id: bool = False,
-    list_type: ty.Optional[ty.Any] = None,
+    list_type: ty.Any | None = None,
     coerce_to_default: bool = False,
     deprecated: bool = False,
-    deprecation_reason: ty.Optional[str] = None,
+    deprecation_reason: str | None = None,
 ) -> ty.Any:
     return fields.Computed(
         name,
@@ -251,7 +251,7 @@ class QueryParameters:
             parameters, ``limit`` and ``marker``. These are the most common
             query parameters used for listing resources in OpenStack APIs.
         """
-        self._mapping: dict[str, ty.Union[str, dict]] = {}
+        self._mapping: dict[str, str | dict] = {}
         if include_pagination_defaults:
             self._mapping.update({"limit": "limit", "marker": "marker"})
         self._mapping.update({name: name for name in names})
@@ -351,11 +351,11 @@ class Resource(dict):
     # will work properly.
 
     #: Singular form of key for resource.
-    resource_key: ty.Optional[str] = None
+    resource_key: str | None = None
     #: Plural form of key for resource.
-    resources_key: ty.Optional[str] = None
+    resources_key: str | None = None
     #: Key used for pagination links
-    pagination_key: ty.Optional[str] = None
+    pagination_key: str | None = None
 
     #: The ID of this resource.
     id: str = Body("id")
@@ -399,16 +399,16 @@ class Resource(dict):
     #: Do calls for this resource require an id
     requires_id = True
     #: Whether create requires an ID (determined from method if None).
-    create_requires_id: ty.Optional[bool] = None
+    create_requires_id: bool | None = None
     #: Whether create should exclude ID in the body of the request.
     create_exclude_id_from_body = False
     #: Do responses for this resource have bodies
     has_body = True
     #: Does create returns a body (if False requires ID), defaults to has_body
-    create_returns_body: ty.Optional[bool] = None
+    create_returns_body: bool | None = None
 
     #: Maximum microversion to use for getting/creating/updating the Resource
-    _max_microversion: ty.Optional[str] = None
+    _max_microversion: str | None = None
     #: API microversion (string or None) this Resource was loaded with
     microversion = None
 
@@ -979,7 +979,7 @@ class Resource(dict):
         :return: A dictionary of key/value pairs where keys are named
             as they exist as attributes of this class.
         """
-        mapping: ty.Union[utils.Munch, dict]
+        mapping: utils.Munch | dict
         if _to_munch:
             mapping = utils.Munch()
         else:
@@ -1073,7 +1073,7 @@ class Resource(dict):
         *,
         resource_request_key=None,
     ):
-        body: ty.Union[dict[str, ty.Any], list[ty.Any]]
+        body: dict[str, ty.Any] | list[ty.Any]
         if patch:
             if not self._store_unknown_attrs_as_properties:
                 # Default case
@@ -1250,7 +1250,7 @@ class Resource(dict):
         )
 
     @classmethod
-    def _get_microversion(cls, session: adapter.Adapter) -> ty.Optional[str]:
+    def _get_microversion(cls, session: adapter.Adapter) -> str | None:
         """Get microversion to use for the given action.
 
         The base version uses the following logic:
@@ -1278,10 +1278,10 @@ class Resource(dict):
     def _assert_microversion_for(
         cls,
         session: adapter.Adapter,
-        expected: ty.Optional[str],
+        expected: str | None,
         *,
-        error_message: ty.Optional[str] = None,
-        maximum: ty.Optional[str] = None,
+        error_message: str | None = None,
+        maximum: str | None = None,
     ) -> str:
         """Enforce that the microversion for action satisfies the requirement.
 
@@ -1336,11 +1336,11 @@ class Resource(dict):
         self,
         session: adapter.Adapter,
         prepend_key: bool = True,
-        base_path: ty.Optional[str] = None,
+        base_path: str | None = None,
         *,
-        resource_request_key: ty.Optional[str] = None,
-        resource_response_key: ty.Optional[str] = None,
-        microversion: ty.Optional[str] = None,
+        resource_request_key: str | None = None,
+        resource_response_key: str | None = None,
+        microversion: str | None = None,
         **params: ty.Any,
     ) -> ty_ext.Self:
         """Create a remote resource based on this instance.
@@ -1438,9 +1438,9 @@ class Resource(dict):
         session: adapter.Adapter,
         data: list[dict[str, ty.Any]],
         prepend_key: bool = True,
-        base_path: ty.Optional[str] = None,
+        base_path: str | None = None,
         *,
-        microversion: ty.Optional[str] = None,
+        microversion: str | None = None,
         **params: ty.Any,
     ) -> ty.Generator[ty_ext.Self, None, None]:
         """Create multiple remote resources based on this class and data.
@@ -1505,7 +1505,7 @@ class Resource(dict):
             )
             _body.append(request.body)
 
-        body: ty.Union[dict[str, ty.Any], list[ty.Any]] = _body
+        body: dict[str, ty.Any] | list[ty.Any] = _body
 
         if prepend_key:
             if not cls.resources_key:
@@ -1559,12 +1559,12 @@ class Resource(dict):
         self,
         session: adapter.Adapter,
         requires_id: bool = True,
-        base_path: ty.Optional[str] = None,
-        error_message: ty.Optional[str] = None,
+        base_path: str | None = None,
+        error_message: str | None = None,
         skip_cache: bool = False,
         *,
-        resource_response_key: ty.Optional[str] = None,
-        microversion: ty.Optional[str] = None,
+        resource_response_key: str | None = None,
+        microversion: str | None = None,
         **params: ty.Any,
     ) -> ty_ext.Self:
         """Get a remote resource based on this instance.
@@ -1620,9 +1620,9 @@ class Resource(dict):
     def head(
         self,
         session: adapter.Adapter,
-        base_path: ty.Optional[str] = None,
+        base_path: str | None = None,
         *,
-        microversion: ty.Optional[str] = None,
+        microversion: str | None = None,
     ) -> ty_ext.Self:
         """Get headers from a remote resource based on this instance.
 
@@ -1665,10 +1665,10 @@ class Resource(dict):
         session: adapter.Adapter,
         prepend_key: bool = True,
         has_body: bool = True,
-        retry_on_conflict: ty.Optional[bool] = None,
-        base_path: ty.Optional[str] = None,
+        retry_on_conflict: bool | None = None,
+        base_path: str | None = None,
         *,
-        microversion: ty.Optional[str] = None,
+        microversion: str | None = None,
         **kwargs: ty.Any,
     ) -> ty_ext.Self:
         """Commit the state of the instance to the remote resource.
@@ -1857,9 +1857,9 @@ class Resource(dict):
     def delete(
         self,
         session: adapter.Adapter,
-        error_message: ty.Optional[str] = None,
+        error_message: str | None = None,
         *,
-        microversion: ty.Optional[str] = None,
+        microversion: str | None = None,
         **kwargs: ty.Any,
     ) -> ty_ext.Self:
         """Delete the remote resource based on this instance.
@@ -1909,11 +1909,11 @@ class Resource(dict):
         cls,
         session: adapter.Adapter,
         paginated: bool = True,
-        base_path: ty.Optional[str] = None,
+        base_path: str | None = None,
         allow_unknown_params: bool = False,
         *,
-        microversion: ty.Optional[str] = None,
-        headers: ty.Optional[dict[str, str]] = None,
+        microversion: str | None = None,
+        headers: dict[str, str] | None = None,
         **params: ty.Any,
     ) -> ty.Generator[ty_ext.Self, None, None]:
         """This method is a generator which yields resource objects.
@@ -2186,12 +2186,12 @@ class Resource(dict):
         session: adapter.Adapter,
         name_or_id: str,
         ignore_missing: ty.Literal[True] = True,
-        list_base_path: ty.Optional[str] = None,
+        list_base_path: str | None = None,
         *,
-        microversion: ty.Optional[str] = None,
-        all_projects: ty.Optional[bool] = None,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
         **params: ty.Any,
-    ) -> ty.Optional[ty_ext.Self]: ...
+    ) -> ty_ext.Self | None: ...
 
     @ty.overload
     @classmethod
@@ -2200,10 +2200,10 @@ class Resource(dict):
         session: adapter.Adapter,
         name_or_id: str,
         ignore_missing: ty.Literal[False],
-        list_base_path: ty.Optional[str] = None,
+        list_base_path: str | None = None,
         *,
-        microversion: ty.Optional[str] = None,
-        all_projects: ty.Optional[bool] = None,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
         **params: ty.Any,
     ) -> ty_ext.Self: ...
 
@@ -2216,12 +2216,12 @@ class Resource(dict):
         session: adapter.Adapter,
         name_or_id: str,
         ignore_missing: bool,
-        list_base_path: ty.Optional[str] = None,
+        list_base_path: str | None = None,
         *,
-        microversion: ty.Optional[str] = None,
-        all_projects: ty.Optional[bool] = None,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
         **params: ty.Any,
-    ) -> ty.Optional[ty_ext.Self]: ...
+    ) -> ty_ext.Self | None: ...
 
     @classmethod
     def find(
@@ -2229,12 +2229,12 @@ class Resource(dict):
         session: adapter.Adapter,
         name_or_id: str,
         ignore_missing: bool = True,
-        list_base_path: ty.Optional[str] = None,
+        list_base_path: str | None = None,
         *,
-        microversion: ty.Optional[str] = None,
-        all_projects: ty.Optional[bool] = None,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
         **params: ty.Any,
-    ) -> ty.Optional[ty_ext.Self]:
+    ) -> ty_ext.Self | None:
         """Find a resource by its name or id.
 
         :param session: The session to use for making this request.
@@ -2311,7 +2311,7 @@ class Resource(dict):
         )
 
 
-def _normalize_status(status: ty.Optional[str]) -> ty.Optional[str]:
+def _normalize_status(status: str | None) -> str | None:
     if status is not None:
         status = status.lower()
     return status
@@ -2321,11 +2321,11 @@ def wait_for_status(
     session: adapter.Adapter,
     resource: ResourceT,
     status: str,
-    failures: ty.Optional[list[str]] = None,
-    interval: ty.Union[int, float, None] = 2,
-    wait: ty.Optional[int] = None,
+    failures: list[str] | None = None,
+    interval: int | float | None = 2,
+    wait: int | None = None,
     attribute: str = 'status',
-    callback: ty.Optional[ty.Callable[[int], None]] = None,
+    callback: ty.Callable[[int], None] | None = None,
 ) -> ResourceT:
     """Wait for the resource to be in a particular status.
 
@@ -2399,9 +2399,9 @@ def wait_for_status(
 def wait_for_delete(
     session: adapter.Adapter,
     resource: ResourceT,
-    interval: ty.Union[int, float, None] = 2,
-    wait: ty.Optional[int] = None,
-    callback: ty.Optional[ty.Callable[[int], None]] = None,
+    interval: int | float | None = 2,
+    wait: int | None = None,
+    callback: ty.Callable[[int], None] | None = None,
 ) -> ResourceT:
     """Wait for a resource to be deleted.
 

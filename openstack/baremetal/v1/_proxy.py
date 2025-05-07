@@ -241,7 +241,7 @@ class Proxy(proxy.Proxy):
 
     def call_driver_vendor_passthru(
         self,
-        driver: ty.Union[str, _driver.Driver],
+        driver: str | _driver.Driver,
         verb: str,
         method: str,
         body: object = None,
@@ -1171,12 +1171,12 @@ class Proxy(proxy.Proxy):
 
     def attach_vif_to_node(
         self,
-        node: ty.Union[_node.Node, str],
+        node: _node.Node | str,
         vif_id: str,
         retry_on_conflict: bool = True,
         *,
-        port_id: ty.Optional[str] = None,
-        port_group_id: ty.Optional[str] = None,
+        port_id: str | None = None,
+        port_group_id: str | None = None,
     ) -> None:
         """Attach a VIF to the node.
 
@@ -1868,11 +1868,11 @@ class Proxy(proxy.Proxy):
         self,
         res: resource.ResourceT,
         status: str,
-        failures: ty.Optional[list[str]] = None,
-        interval: ty.Union[int, float, None] = 2,
-        wait: ty.Optional[int] = None,
+        failures: list[str] | None = None,
+        interval: int | float | None = 2,
+        wait: int | None = None,
         attribute: str = 'status',
-        callback: ty.Optional[ty.Callable[[int], None]] = None,
+        callback: ty.Callable[[int], None] | None = None,
     ) -> resource.ResourceT:
         """Wait for the resource to be in a particular status.
 
@@ -1908,7 +1908,7 @@ class Proxy(proxy.Proxy):
         res: resource.ResourceT,
         interval: int = 2,
         wait: int = 120,
-        callback: ty.Optional[ty.Callable[[int], None]] = None,
+        callback: ty.Callable[[int], None] | None = None,
     ) -> resource.ResourceT:
         """Wait for a resource to be deleted.
 

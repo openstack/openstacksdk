@@ -20,7 +20,6 @@ import os
 import shutil
 import subprocess
 import tempfile
-import typing as ty
 
 
 @contextlib.contextmanager
@@ -110,7 +109,7 @@ def pack(path: str) -> str:
     with tempfile.NamedTemporaryFile() as tmpfile:
         # NOTE(toabctl): Luckily, genisoimage, mkisofs and xorrisofs understand
         # the same parameters which are currently used.
-        error: ty.Optional[Exception]
+        error: Exception | None
         for c in ['genisoimage', 'mkisofs', 'xorrisofs']:
             try:
                 p = subprocess.Popen(  # noqa: S603

@@ -33,9 +33,7 @@ if ty.TYPE_CHECKING:
 class SDKException(Exception):
     """The base exception class for all exceptions this library raises."""
 
-    def __init__(
-        self, message: ty.Optional[str] = None, extra_data: ty.Any = None
-    ):
+    def __init__(self, message: str | None = None, extra_data: ty.Any = None):
         self.message = self.__class__.__name__ if message is None else message
         self.extra_data = extra_data
         super().__init__(self.message)
@@ -44,21 +42,21 @@ class SDKException(Exception):
 class EndpointNotFound(SDKException):
     """A mismatch occurred between what the client and server expect."""
 
-    def __init__(self, message: ty.Optional[str] = None):
+    def __init__(self, message: str | None = None):
         super().__init__(message)
 
 
 class InvalidResponse(SDKException):
     """The response from the server is not valid for this request."""
 
-    def __init__(self, message: ty.Optional[str] = None):
+    def __init__(self, message: str | None = None):
         super().__init__(message)
 
 
 class InvalidRequest(SDKException):
     """The request to the server is not valid."""
 
-    def __init__(self, message: ty.Optional[str] = None):
+    def __init__(self, message: str | None = None):
         super().__init__(message)
 
 
@@ -66,15 +64,15 @@ class HttpException(SDKException, _rex.HTTPError):
     """The base exception for all HTTP error responses."""
 
     source: str
-    status_code: ty.Optional[int]
+    status_code: int | None
 
     def __init__(
         self,
-        message: ty.Optional[str] = 'Error',
-        response: ty.Optional[requests.Response] = None,
-        http_status: ty.Optional[int] = None,
-        details: ty.Optional[str] = None,
-        request_id: ty.Optional[str] = None,
+        message: str | None = 'Error',
+        response: requests.Response | None = None,
+        http_status: int | None = None,
+        details: str | None = None,
+        request_id: str | None = None,
     ):
         if http_status is not None:
             warnings.warn(
@@ -190,7 +188,7 @@ class InvalidResourceQuery(SDKException):
     """Invalid query params for resource."""
 
 
-def _extract_message(obj: ty.Any) -> ty.Optional[str]:
+def _extract_message(obj: ty.Any) -> str | None:
     if isinstance(obj, dict):
         # Most of services: compute, network
         if obj.get('message'):
@@ -212,7 +210,7 @@ def _extract_message(obj: ty.Any) -> ty.Optional[str]:
 
 def raise_from_response(
     response: requests.Response,
-    error_message: ty.Optional[str] = None,
+    error_message: str | None = None,
 ) -> None:
     """Raise an instance of an HTTPException based on keystoneauth response."""
     if response.status_code < 400:

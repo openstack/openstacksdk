@@ -278,7 +278,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                 self.log.debug('Server %s not found', server)
                 return None, None
 
-        if not isinstance(security_groups, (list, tuple)):
+        if not isinstance(security_groups, list | tuple):
             security_groups = [security_groups]
 
         sec_group_objs = []
@@ -1812,7 +1812,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         """
-        if isinstance(name_or_id, (str, bytes)) and not name_or_id.isdigit():
+        if isinstance(name_or_id, str | bytes) and not name_or_id.isdigit():
             aggregate = self.get_aggregate(name_or_id)
             if not aggregate:
                 self.log.debug(

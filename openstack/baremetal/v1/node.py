@@ -12,7 +12,6 @@
 
 import collections
 import enum
-import typing as ty
 import warnings
 
 from keystoneauth1 import adapter
@@ -912,8 +911,8 @@ class Node(_common.Resource):
         vif_id: str,
         retry_on_conflict: bool = True,
         *,
-        port_id: ty.Optional[str] = None,
-        port_group_id: ty.Optional[str] = None,
+        port_id: str | None = None,
+        port_group_id: str | None = None,
     ) -> None:
         """Attach a VIF to the node.
 

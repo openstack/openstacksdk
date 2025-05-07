@@ -10,13 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import typing as ty
 
 from openstack.tests.functional import base
 
 
 class BaseBaremetalTest(base.BaseFunctionalTest):
-    min_microversion: ty.Optional[str] = None
+    min_microversion: str | None = None
     node_id: str
 
     def setUp(self):

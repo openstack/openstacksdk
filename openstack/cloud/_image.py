@@ -31,21 +31,20 @@ if ty.TYPE_CHECKING:
 class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
     def __init__(
         self,
-        cloud: ty.Optional[str] = None,
+        cloud: str | None = None,
         config: ty.Optional['cloud_region.CloudRegion'] = None,
         session: ty.Optional['ks_session.Session'] = None,
-        app_name: ty.Optional[str] = None,
-        app_version: ty.Optional[str] = None,
-        extra_services: ty.Optional[
-            list['service_description.ServiceDescription']
-        ] = None,
+        app_name: str | None = None,
+        app_version: str | None = None,
+        extra_services: list['service_description.ServiceDescription']
+        | None = None,
         strict: bool = False,
-        use_direct_get: ty.Optional[bool] = None,
+        use_direct_get: bool | None = None,
         task_manager: ty.Any = None,
-        rate_limit: ty.Union[float, dict[str, float], None] = None,
+        rate_limit: float | dict[str, float] | None = None,
         oslo_conf: ty.Optional['cfg.ConfigOpts'] = None,
-        service_types: ty.Optional[list[str]] = None,
-        global_request_id: ty.Optional[str] = None,
+        service_types: list[str] | None = None,
+        global_request_id: str | None = None,
         strict_proxies: bool = False,
         pool_executor: ty.Optional['concurrent.futures.Executor'] = None,
         **kwargs: ty.Any,
