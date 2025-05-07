@@ -135,7 +135,10 @@
       networking services enabled.
     required-projects:
       - openstack/designate
-      - openstack/octavia
+      # NOTE(elod.illes): octavia's zed branch became End of Life, while
+      # the job is working with zed-eol, we can keep this job.
+      - name: openstack/octavia
+        override-checkout: zed-eol
     vars:
       configure_swap_size: 4096
       devstack_local_conf:
@@ -400,12 +403,6 @@
         OPENSTACKSDK_TESTS_SUBDIR: shared_file_system
 
 - job:
-    name: metalsmith-integration-openstacksdk-src
-    parent: metalsmith-integration-glance-netboot-cirros-direct
-    required-projects:
-      - openstack/openstacksdk
-
-- job:
     name: ironic-inspector-tempest-openstacksdk-src
     parent: ironic-inspector-tempest
     required-projects:
@@ -455,8 +452,6 @@
         - ironic-inspector-tempest-openstacksdk-src:
             voting: false
         - bifrost-integration-tinyipa-ubuntu-focal:
-            voting: false
-        - metalsmith-integration-openstacksdk-src:
             voting: false
         - ansible-collections-openstack-functional-devstack:
             voting: false
