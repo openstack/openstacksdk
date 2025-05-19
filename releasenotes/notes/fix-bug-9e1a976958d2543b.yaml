@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixed the issue that unshelving a server to a specific availability zone
+    was failed due to unhandled ``availability_zone`` option.

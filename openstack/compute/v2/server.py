@@ -19,17 +19,9 @@ from openstack.compute.v2 import volume_attachment
 from openstack import exceptions
 from openstack.image.v2 import image
 from openstack import resource
+from openstack import types
 from openstack import utils
 
-
-# Workaround Python's lack of an undefined sentinel
-# https://python-patterns.guide/python/sentinel-object/
-class Unset:
-    def __bool__(self) -> ty.Literal[False]:
-        return False
-
-
-UNSET: Unset = Unset()
 
 CONSOLE_TYPE_ACTION_MAPPING = {
     'novnc': 'os-getVNCConsole',
@@ -52,11 +44,6 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     allow_commit = True
     allow_delete = True
     allow_list = True
-
-    # Sentinel used to differentiate API called without parameter or None
-    # Ex unshelve API can be called without an availability_zone or with
-    # availability_zone = None to unpin the az.
-    _sentinel = object()
 
     _query_mapping = resource.QueryParameters(
         "auto_disk_config",
@@ -410,17 +397,17 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         self,
         session,
         image,
-        name=UNSET,
-        admin_password=UNSET,
-        preserve_ephemeral=UNSET,
-        access_ipv4=UNSET,
-        access_ipv6=UNSET,
-        metadata=UNSET,
-        user_data=UNSET,
-        key_name=UNSET,
-        description=UNSET,
-        trusted_image_certificates=UNSET,
-        hostname=UNSET,
+        name=types.UNSET,
+        admin_password=types.UNSET,
+        preserve_ephemeral=types.UNSET,
+        access_ipv4=types.UNSET,
+        access_ipv6=types.UNSET,
+        metadata=types.UNSET,
+        user_data=types.UNSET,
+        key_name=types.UNSET,
+        description=types.UNSET,
+        trusted_image_certificates=types.UNSET,
+        hostname=types.UNSET,
     ):
         """Rebuild the server with the given arguments.
 
@@ -449,27 +436,27 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         :returns: The updated server.
         """
         action = {'imageRef': resource.Resource._get_id(image)}
-        if preserve_ephemeral is not UNSET:
+        if preserve_ephemeral is not types.UNSET:
             action['preserve_ephemeral'] = preserve_ephemeral
-        if name is not UNSET:
+        if name is not types.UNSET:
             action['name'] = name
-        if admin_password is not UNSET:
+        if admin_password is not types.UNSET:
             action['adminPass'] = admin_password
-        if access_ipv4 is not UNSET:
+        if access_ipv4 is not types.UNSET:
             action['accessIPv4'] = access_ipv4
-        if access_ipv6 is not UNSET:
+        if access_ipv6 is not types.UNSET:
             action['accessIPv6'] = access_ipv6
-        if metadata is not UNSET:
+        if metadata is not types.UNSET:
             action['metadata'] = metadata
-        if user_data is not UNSET:
+        if user_data is not types.UNSET:
             action['user_data'] = user_data
-        if key_name is not UNSET:
+        if key_name is not types.UNSET:
             action['key_name'] = key_name
-        if description is not UNSET:
+        if description is not types.UNSET:
             action['description'] = description
-        if trusted_image_certificates is not UNSET:
+        if trusted_image_certificates is not types.UNSET:
             action['trusted_image_certificates'] = trusted_image_certificates
-        if hostname is not UNSET:
+        if hostname is not types.UNSET:
             action['hostname'] = hostname
 
         body = {'rebuild': action}
@@ -821,7 +808,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"shelveOffload": None}
         self._action(session, body)
 
-    def unshelve(self, session, availability_zone=_sentinel, host=None):
+    def unshelve(self, session, availability_zone=types.UNSET, host=None):
         """Unshelve the server.
 
         :param session: The session to use for making this request.
