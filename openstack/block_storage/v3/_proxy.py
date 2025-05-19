@@ -1625,26 +1625,6 @@ class Proxy(proxy.Proxy):
         """
         return _group.Group.create_from_source(self, **attrs)
 
-    def reset_group_status(self, group, status):
-        """Reset group status
-
-        :param group: The :class:`~openstack.block_storage.v3.group.Group`
-            to set the state.
-        :param status: The status for a group.
-
-        :returns: ``None``
-        """
-        res = self._get_resource(_group.Group, group)
-        return res.reset_status(self, status)
-
-    def reset_group_state(self, group, status):
-        warnings.warn(
-            "reset_group_state is a deprecated alias for reset_group_status "
-            "and will be removed in a future release.",
-            os_warnings.RemovedInSDK60Warning,
-        )
-        return self.reset_group_status(group, status)
-
     def delete_group(self, group, delete_volumes=False):
         """Delete a group
 
@@ -1669,6 +1649,72 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.volume.v3.group.Group`
         """
         return self._update(_group.Group, group, **attrs)
+
+    def reset_group_status(self, group, status):
+        """Reset group status
+
+        :param group: The :class:`~openstack.block_storage.v3.group.Group`
+            to set the state.
+        :param status: The status for a group.
+
+        :returns: ``None``
+        """
+        res = self._get_resource(_group.Group, group)
+        return res.reset_status(self, status)
+
+    def reset_group_state(self, group, status):
+        warnings.warn(
+            "reset_group_state is a deprecated alias for reset_group_status "
+            "and will be removed in a future release.",
+            os_warnings.RemovedInSDK60Warning,
+        )
+        return self.reset_group_status(group, status)
+
+    def enable_group_replication(self, group):
+        """Enable replication for a group
+
+        :param group: The :class:`~openstack.block_storage.v3.group.Group`
+            to enable replication for.
+
+        :returns: ``None``
+        """
+        res = self._get_resource(_group.Group, group)
+        return res.enable_replication(self)
+
+    def disable_group_replication(self, group):
+        """Disable replication for a group
+
+        :param group: The :class:`~openstack.block_storage.v3.group.Group`
+            to disable replication for.
+
+        :returns: ``None``
+        """
+        res = self._get_resource(_group.Group, group)
+        return res.disable_replication(self)
+
+    def failover_group_replication(
+        self,
+        group,
+        *,
+        allowed_attached_volume=False,
+        secondary_backend_id=None,
+    ):
+        """Failover replication for a group
+
+        :param group: The :class:`~openstack.block_storage.v3.group.Group`
+            to failover replication for.
+        :param allowed_attached_volume: Whether to allow attached volumes in
+            the group.
+        :param secondary_backend_id: The secondary backend ID.
+
+        :returns: ``None``
+        """
+        res = self._get_resource(_group.Group, group)
+        return res.failover_replication(
+            self,
+            allowed_attached_volume=allowed_attached_volume,
+            secondary_backend_id=secondary_backend_id,
+        )
 
     # ====== AVAILABILITY ZONES ======
     def availability_zones(self):
