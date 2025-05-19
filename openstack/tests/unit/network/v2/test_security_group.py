@@ -59,6 +59,7 @@ EXAMPLE = {
     'project_id': '4',
     'updated_at': '2016-10-14T12:16:57.233772',
     'tags': ['5'],
+    'is_shared': True,
 }
 
 
@@ -80,6 +81,7 @@ class TestSecurityGroup(base.TestCase):
                 'description': 'description',
                 'fields': 'fields',
                 'id': 'id',
+                'is_shared': 'shared',
                 'limit': 'limit',
                 'marker': 'marker',
                 'name': 'name',
@@ -111,3 +113,4 @@ class TestSecurityGroup(base.TestCase):
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
         self.assertEqual(EXAMPLE['tags'], sot.tags)
+        self.assertEqual(EXAMPLE['is_shared'], sot.is_shared)
