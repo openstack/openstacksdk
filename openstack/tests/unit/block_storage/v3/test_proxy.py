@@ -237,12 +237,40 @@ class TestGroup(TestVolumeProxy):
     def test_group_update(self):
         self.verify_update(self.proxy.update_group, group.Group)
 
-    def test_reset_group_status(self):
+    def test_group_reset_status(self):
         self._verify(
             "openstack.block_storage.v3.group.Group.reset_status",
             self.proxy.reset_group_status,
             method_args=["value", "new_status"],
             expected_args=[self.proxy, "new_status"],
+        )
+
+    def test_group_enable_replication(self):
+        self._verify(
+            "openstack.block_storage.v3.group.Group.enable_replication",
+            self.proxy.enable_group_replication,
+            method_args=["value"],
+            expected_args=[self.proxy],
+        )
+
+    def test_group_disable_replication(self):
+        self._verify(
+            "openstack.block_storage.v3.group.Group.disable_replication",
+            self.proxy.disable_group_replication,
+            method_args=["value"],
+            expected_args=[self.proxy],
+        )
+
+    def test_group_failover_replication(self):
+        self._verify(
+            "openstack.block_storage.v3.group.Group.failover_replication",
+            self.proxy.failover_group_replication,
+            method_args=["value"],
+            expected_args=[self.proxy],
+            expected_kwargs={
+                'allowed_attached_volume': False,
+                'secondary_backend_id': None,
+            },
         )
 
 

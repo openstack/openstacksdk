@@ -93,6 +93,85 @@ class TestGroupAction(base.TestCase):
             url, json=body, microversion=sot._max_microversion
         )
 
+    def test_enable_replication(self):
+        sot = group.Group(**GROUP)
+
+        ret = sot.enable_replication(self.sess)
+        self.assertIsNone(ret)
+
+        url = f'groups/{GROUP_ID}/action'
+        body = {'enable_replication': None}
+        self.sess.post.assert_called_with(
+            url,
+            json=body,
+            microversion=sot._max_microversion,
+        )
+
+    def test_disable_replication(self):
+        sot = group.Group(**GROUP)
+
+        ret = sot.disable_replication(self.sess)
+        self.assertIsNone(ret)
+
+        url = f'groups/{GROUP_ID}/action'
+        body = {'disable_replication': None}
+        self.sess.post.assert_called_with(
+            url,
+            json=body,
+            microversion=sot._max_microversion,
+        )
+
+    def test_failover_replication(self):
+        sot = group.Group(**GROUP)
+
+        ret = sot.failover_replication(
+            self.sess, allowed_attached_volume=True, secondary_backend_id=None
+        )
+        self.assertIsNone(ret)
+
+        url = f'groups/{GROUP_ID}/action'
+        body = {
+            'modify_body_for_action': {
+                'allow_attached_volume': True,
+                'secondary_backend_id': None,
+            }
+        }
+        self.sess.post.assert_called_with(
+            url,
+            json=body,
+            microversion=sot._max_microversion,
+        )
+
+    def test_fetch_replication_targets(self):
+        resp = mock.Mock()
+        resp.links = {}
+        resp.json = mock.Mock(
+            return_value={
+                'replication_targets': [
+                    {
+                        'backend_id': 'vendor-id-1',
+                        'unique_key': 'val1',
+                    },
+                ],
+            }
+        )
+        resp.status_code = 200
+
+        self.sess.post = mock.Mock(return_value=resp)
+
+        sot = group.Group(**GROUP)
+        result = sot.fetch_replication_targets(self.sess)
+        self.assertEqual(
+            [
+                {
+                    'backend_id': 'vendor-id-1',
+                    'unique_key': 'val1',
+                },
+            ],
+            sot.replication_targets,
+        )
+        self.assertEqual(sot, result)
+
     def test_reset_status(self):
         sot = group.Group(**GROUP)
 

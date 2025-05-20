@@ -46,6 +46,7 @@ class Group(resource.Resource):
     group_snapshot_id = resource.Body("group_snapshot_id")
     group_type = resource.Body("group_type")
     project_id = resource.Body("project_id")
+    replication_targets = resource.Body("replication_targets", type=list)
     replication_status = resource.Body("replication_status")
     source_group_id = resource.Body("source_group_id")
     status = resource.Body("status")
@@ -68,8 +69,64 @@ class Group(resource.Resource):
         body = {'delete': {'delete-volumes': delete_volumes}}
         self._action(session, body)
 
+    def fetch_replication_targets(self, session):
+        """Fetch replication targets for the group.
+
+        :param session: The session to use for making this request.
+        :return: This group with the ``replication_targets`` field populated.
+        """
+        body = {'list_replication_targets': None}
+        response = self._action(session, body)
+        self._body.attributes.update(
+            {'replication_targets': response.json()['replication_targets']}
+        )
+        return self
+
+    def enable_replication(self, session):
+        """Enable replication for the group.
+
+        :param session: The session to use for making this request.
+        """
+        body = {'enable_replication': None}
+        self._action(session, body)
+
+    def disable_replication(self, session):
+        """Disable replication for the group.
+
+        :param session: The session to use for making this request.
+        """
+        body = {'disable_replication': None}
+        self._action(session, body)
+
+    def failover_replication(
+        self,
+        session,
+        *,
+        allowed_attached_volume=False,
+        secondary_backend_id=None,
+    ):
+        """Failover replication for the group.
+
+        :param session: The session to use for making this request.
+        :param allowed_attached_volume: Whether to allow attached volumes in
+            the group.
+        :param secondary_backend_id: The secondary backend ID.
+        :returns: None
+        """
+        body = {
+            'modify_body_for_action': {
+                'allow_attached_volume': allowed_attached_volume,
+                'secondary_backend_id': secondary_backend_id,
+            },
+        }
+        self._action(session, body)
+
     def reset_status(self, session, status):
-        """Resets the status for a group."""
+        """Resets the status for a group.
+
+        :param session: The session to use for making this request.
+        :param status: The status for the group.
+        """
         body = {'reset_status': {'status': status}}
         self._action(session, body)
 
