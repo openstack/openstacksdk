@@ -24,6 +24,8 @@ for cloud in openstack.config.OpenStackConfig().get_all_clouds():
     try:
         raw_endpoint = c.get_endpoint()
         have_current = False
+        if raw_endpoint is None:
+            raise Exception('endpoint was empty')
         endpoint = raw_endpoint.rsplit('/', 2)[0]
         print(endpoint)
         r = c.get(endpoint).json()
