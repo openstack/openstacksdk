@@ -19,9 +19,9 @@ repos:
     hooks:
       - id: doc8
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.8
+    rev: v0.11.11
     hooks:
-      - id: ruff
+      - id: ruff-check
         args: ['--fix', '--unsafe-fixes']
       - id: ruff-format
   - repo: https://opendev.org/openstack/hacking
