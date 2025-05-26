@@ -15,6 +15,7 @@ from unittest import mock
 from keystoneauth1 import adapter
 
 from openstack.block_storage.v2 import transfer
+from openstack import resource
 from openstack.tests.unit import base
 
 
@@ -37,7 +38,7 @@ class TestTransfer(base.TestCase):
     def setUp(self):
         super().setUp()
         self.resp = mock.Mock()
-        self.resp.body = {'transfer': TRANSFER}
+        self.resp.body = None  # nothing uses this
         self.resp.json = mock.Mock(return_value=self.resp.body)
         self.resp.headers = {}
         self.resp.status_code = 202
@@ -47,7 +48,7 @@ class TestTransfer(base.TestCase):
         self.sess.default_microversion = "3.55"
 
     def test_basic(self):
-        sot = transfer.Transfer(TRANSFER)
+        sot = transfer.Transfer()
         self.assertEqual("transfer", sot.resource_key)
         self.assertEqual("transfers", sot.resources_key)
         self.assertEqual("/os-volume-transfer", sot.base_path)
@@ -61,7 +62,7 @@ class TestTransfer(base.TestCase):
             sot._query_mapping._mapping,
         )
 
-    def test_create(self):
+    def test_make_it(self):
         sot = transfer.Transfer(**TRANSFER)
         self.assertEqual(TRANSFER["auth_key"], sot.auth_key)
         self.assertEqual(TRANSFER["created_at"], sot.created_at)
@@ -69,7 +70,8 @@ class TestTransfer(base.TestCase):
         self.assertEqual(TRANSFER["name"], sot.name)
         self.assertEqual(TRANSFER["volume_id"], sot.volume_id)
 
-    def test_accept(self):
+    @mock.patch.object(resource.Resource, '_translate_response')
+    def test_accept(self, mock_translate):
         sot = transfer.Transfer()
         sot.id = FAKE_TRANSFER
 
