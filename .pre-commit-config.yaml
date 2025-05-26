@@ -36,7 +36,7 @@ repos:
     hooks:
       - id: mypy
         additional_dependencies:
-          - keystoneauth1>=5.10.0
+          - keystoneauth1>=5.11.0
           - types-decorator
           - types-PyYAML
           - types-requests

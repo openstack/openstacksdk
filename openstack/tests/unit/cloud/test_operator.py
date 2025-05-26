@@ -109,10 +109,12 @@ class TestOperatorCloud(base.TestCase):
         get_session_mock.return_value = session_mock
         self.cloud.get_session_endpoint('identity')
         kwargs = dict(
-            interface='public',
-            region_name='RegionOne',
-            service_name=None,
             service_type='identity',
+            region_name='RegionOne',
+            interface='public',
+            service_name=None,
+            min_version=None,
+            max_version=None,
         )
 
         session_mock.get_endpoint.assert_called_with(**kwargs)

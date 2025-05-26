@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import collections.abc
 import copy
 import os.path
 import typing as ty
@@ -23,6 +24,7 @@ try:
 except ImportError:
     keyring = None
 
+from keystoneauth1.access import service_catalog as ks_service_catalog
 from keystoneauth1 import discover
 import keystoneauth1.exceptions.catalog
 from keystoneauth1.identity import base as ks_identity_base
@@ -59,6 +61,8 @@ if ty.TYPE_CHECKING:
     from openstack.config import loader
 
 
+_T = ty.TypeVar('_T')
+
 _logger = _log.setup_logging('openstack')
 
 SCOPE_KEYS = {
@@ -77,7 +81,7 @@ class _PasswordCallback(ty.Protocol):
     def __call__(self, prompt: str | None = None) -> str: ...
 
 
-def _make_key(key, service_type):
+def _make_key(key: str, service_type: str | None) -> str:
     if not service_type:
         return key
     else:
@@ -85,7 +89,11 @@ def _make_key(key, service_type):
         return "_".join([service_type, key])
 
 
-def _disable_service(config, service_type, reason=None):
+def _disable_service(
+    config: dict[str, ty.Any],
+    service_type: str,
+    reason: str | None = None,
+) -> None:
     service_type = service_type.lower().replace('-', '_')
     key = f'has_{service_type}'
     config[key] = False
@@ -94,16 +102,16 @@ def _disable_service(config, service_type, reason=None):
         config[d_key] = reason
 
 
-def _get_implied_microversion(version):
-    if not version:
-        return
-    if '.' in version:
+def _get_implied_microversion(version: str | None) -> str | None:
+    if version and '.' in version:
         # Some services historically had a .0 in their normal api version.
         # Neutron springs to mind with version "2.0". If a user has "2.0"
         # set in a variable or config file just because history, we don't
         # need to send any microversion headers.
         if version.split('.')[1] != "0":
             return version
+
+    return None
 
 
 def from_session(
@@ -320,7 +328,7 @@ class CloudRegion:
         cache_auth: bool = False,
     ) -> None:
         self._name = name
-        self.config = _util.normalize_keys(config)
+        self.config = _util.normalize_keys(config or {})
         # NOTE(efried): For backward compatibility: a) continue to accept the
         # region_name kwarg; b) make it take precedence over (non-service_type-
         # specific) region_name set in the config dict.
@@ -354,7 +362,7 @@ class CloudRegion:
 
         self._service_type_manager = os_service_types.ServiceTypes()
 
-    def __getattr__(self, key):
+    def __getattr__(self, key: str) -> ty.Any:
         """Return arbitrary attributes."""
 
         if key.startswith('os_'):
@@ -365,17 +373,20 @@ class CloudRegion:
         else:
             return None
 
-    def __iter__(self):
+    def __iter__(self) -> collections.abc.Iterator[ty.Any]:
         return self.config.__iter__()
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, CloudRegion):
+            return NotImplemented
+
         return self.name == other.name and self.config == other.config
 
-    def __ne__(self, other):
+    def __ne__(self, other: object) -> bool:
         return not self == other
 
     @property
-    def name(self):
+    def name(self) -> str:
         if self._name is not None:
             return self._name
 
@@ -386,14 +397,16 @@ class CloudRegion:
             and isinstance(auth, ks_identity_base.BaseIdentityPlugin)
             and auth.auth_url
         ):
-            self._name = parse.urlparse(auth.auth_url).hostname
+            name = parse.urlparse(auth.auth_url).hostname or ''
         else:
-            self._name = self._app_name or ''
+            name = self._app_name or ''
 
-        return self._name
+        self._name = name
+
+        return name
 
     @property
-    def full_name(self):
+    def full_name(self) -> str:
         """Return a string that can be used as an identifier.
 
         Always returns a valid string. It will have name and region_name
@@ -409,15 +422,19 @@ class CloudRegion:
         else:
             return 'unknown'
 
-    def set_service_value(self, key, service_type, value):
+    def set_service_value(
+        self, key: str, service_type: str, value: ty.Any
+    ) -> None:
         key = _make_key(key, service_type)
         self.config[key] = value
 
-    def set_session_constructor(self, session_constructor):
+    def set_session_constructor(
+        self, session_constructor: type[ks_session.Session]
+    ) -> None:
         """Sets the Session constructor."""
         self._session_constructor = session_constructor
 
-    def get_requests_verify_args(self):
+    def get_requests_verify_args(self) -> tuple[bool, str | None]:
         """Return the verify and cert values for the requests library."""
         insecure = self.config.get('insecure', False)
         verify = self.config.get('verify', True)
@@ -440,10 +457,10 @@ class CloudRegion:
         if cert:
             cert = os.path.expanduser(cert)
             if self.config.get('key'):
-                cert = (cert, os.path.expanduser(self.config.get('key')))
+                cert = (cert, os.path.expanduser(self.config['key']))
         return (verify, cert)
 
-    def get_services(self):
+    def get_services(self) -> list[str]:
         """Return a list of service types we know something about."""
         services = []
         for key, val in self.config.items():
@@ -455,7 +472,7 @@ class CloudRegion:
                 services.append("_".join(key.split('_')[:-2]))
         return list(set(services))
 
-    def get_enabled_services(self):
+    def get_enabled_services(self) -> set[str]:
         services = set()
 
         all_services = [
@@ -472,18 +489,35 @@ class CloudRegion:
 
         return services
 
-    def get_auth_args(self):
-        return self.config.get('auth', {})
+    def get_auth_args(self) -> dict[str, ty.Any]:
+        return ty.cast(dict[str, ty.Any], self.config.get('auth', {}))
+
+    @ty.overload
+    def _get_config(
+        self,
+        key: str,
+        service_type: str | None,
+        default: _T,
+        fallback_to_unprefixed: bool = False,
+    ) -> _T: ...
+
+    @ty.overload
+    def _get_config(
+        self,
+        key: str,
+        service_type: str | None,
+        default: None = None,
+        fallback_to_unprefixed: bool = False,
+    ) -> ty.Any | None: ...
 
     def _get_config(
         self,
-        key,
-        service_type,
-        default=None,
-        fallback_to_unprefixed=False,
-        converter=None,
-    ):
-        '''Get a config value for a service_type.
+        key: str,
+        service_type: str | None,
+        default: _T | None = None,
+        fallback_to_unprefixed: bool = False,
+    ) -> _T | ty.Any | None:
+        """Get a config value for a service_type.
 
         Finds the config value for a key, looking first for it prefixed by
         the given service_type, then by any known aliases of that service_type.
@@ -491,74 +525,101 @@ class CloudRegion:
         for without a prefix to support the config values where a global
         default makes sense.
 
-        For instance, ``_get_config('example', 'block-storage', True)`` would
+        For instance, ``_get_config('example', 'block-storage')`` would
         first look for ``block_storage_example``, then ``volumev3_example``,
         ``volumev2_example`` and ``volume_example``. If no value was found, it
         would look for ``example``.
 
         If none of that works, it returns the value in ``default``.
-        '''
+        """
         if service_type is None:
-            return self.config.get(key)
-
-        for st in self._service_type_manager.get_all_types(service_type):
-            value = self.config.get(_make_key(key, st))
-            if value is not None:
-                break
+            value = self.config.get(key)
         else:
-            if fallback_to_unprefixed:
-                value = self.config.get(key)
+            for st in self._service_type_manager.get_all_types(service_type):
+                _key = _make_key(key, st)
+                value = self.config.get(_key)
+                if value is not None:
+                    key = _key
+                    break
+            else:
+                if fallback_to_unprefixed:
+                    value = self.config.get(key)
 
         if value is None:
             return default
         else:
-            if converter is not None:
-                value = converter(value)
             return value
 
-    def _get_service_config(self, key, service_type):
+    def _get_service_config(
+        self, key: str, service_type: str
+    ) -> ty.Any | None:
         config_dict = self.config.get(key)
         if not config_dict:
             return None
+
         if not isinstance(config_dict, dict):
-            return config_dict
+            raise RuntimeError(
+                f'invalid configuration for service type {service_type!r}'
+            )
 
         for st in self._service_type_manager.get_all_types(service_type):
             if st in config_dict:
                 return config_dict[st]
 
-    def get_region_name(self, service_type=None):
+        return None
+
+    def get_region_name(self, service_type: str | None = None) -> str | None:
         # If a region_name for the specific service_type is configured, use it;
         # else use the one configured for the CloudRegion as a whole.
-        return self._get_config(
+        value = self._get_config(
             'region_name', service_type, fallback_to_unprefixed=True
         )
+        return str(value) if value is not None else value
 
-    def get_interface(self, service_type=None):
-        return self._get_config(
+    def get_interface(
+        self, service_type: str | None = None
+    ) -> list[str] | str | None:
+        value = self._get_config(
             'interface', service_type, fallback_to_unprefixed=True
         )
+        if value is None:
+            return value
+        if isinstance(value, str):
+            return value
+        if isinstance(value, list) and all(
+            {isinstance(x, str) or x is None for x in value}
+        ):
+            return value
 
-    def get_api_version(self, service_type):
+        raise exceptions.ConfigException(
+            f'interface should be str, list of str or None but is '
+            f'{type(value)}'
+        )
+
+    def get_api_version(self, service_type: str) -> str | None:
         version = self._get_config('api_version', service_type)
-        if version:
-            try:
-                float(version)
-            except ValueError:
-                if 'latest' in version:
-                    warnings.warn(
-                        "You have a configured API_VERSION with 'latest' in "
-                        "it. In the context of openstacksdk this doesn't make "
-                        "any sense.",
-                        os_warnings.ConfigurationWarning,
-                    )
-                return None
-        return version
+        if not version:
+            return None
 
-    def get_default_microversion(self, service_type):
-        return self._get_config('default_microversion', service_type)
+        try:
+            float(version)
+        except ValueError:
+            if 'latest' in version:
+                warnings.warn(
+                    "You have a configured API_VERSION with 'latest' in "
+                    "it. In the context of openstacksdk this doesn't make "
+                    "any sense.",
+                    os_warnings.ConfigurationWarning,
+                )
+            return None
 
-    def get_service_type(self, service_type):
+        return str(version)
+
+    def get_default_microversion(self, service_type: str) -> str | None:
+        value = self._get_config('default_microversion', service_type)
+        return str(value) if value is not None else value
+
+    def get_service_type(self, service_type: str) -> str:
         # People requesting 'volume' are doing so because os-client-config
         # let them. What they want is block-storage, not explicitly the
         # v1 of cinder. If someone actually wants v1, they'll have api_version
@@ -570,12 +631,14 @@ class CloudRegion:
             service_type = self._service_type_manager.get_service_type(
                 service_type
             )
-        return self._get_config(
+        value = self._get_config(
             'service_type', service_type, default=service_type
         )
+        return str(value) if value is not None else value
 
-    def get_service_name(self, service_type):
-        return self._get_config('service_name', service_type)
+    def get_service_name(self, service_type: str) -> str | None:
+        value = self._get_config('service_name', service_type)
+        return str(value) if value is not None else value
 
     def get_endpoint(self, service_type: str) -> str | None:
         auth = self.config.get('auth', {})
@@ -618,7 +681,7 @@ class CloudRegion:
     def get_endpoint_from_catalog(
         self,
         service_type: str,
-        interface: str | None = None,
+        interface: list[str] | str | None = None,
         region_name: str | None = None,
     ) -> str | None:
         """Return the endpoint for a given service as found in the catalog.
@@ -646,7 +709,6 @@ class CloudRegion:
 
         catalog = auth.get_access(session).service_catalog
         try:
-            # FIXME(stephenfin): Remove once keystoneauth1 has type hints
             return catalog.url_for(
                 service_type=service_type,
                 interface=interface,
@@ -655,38 +717,34 @@ class CloudRegion:
         except (keystoneauth1.exceptions.catalog.EndpointNotFound, ValueError):
             return None
 
-    def get_connect_retries(self, service_type):
-        return self._get_config(
-            'connect_retries',
-            service_type,
-            fallback_to_unprefixed=True,
-            converter=int,
+    def get_connect_retries(self, service_type: str) -> int | None:
+        value = self._get_config(
+            'connect_retries', service_type, fallback_to_unprefixed=True
         )
+        return int(value) if value is not None else value
 
-    def get_status_code_retries(self, service_type):
-        return self._get_config(
-            'status_code_retries',
-            service_type,
-            fallback_to_unprefixed=True,
-            converter=int,
+    def get_status_code_retries(self, service_type: str) -> int | None:
+        value = self._get_config(
+            'status_code_retries', service_type, fallback_to_unprefixed=True
         )
+        return int(value) if value is not None else value
 
     @property
-    def prefer_ipv6(self):
+    def prefer_ipv6(self) -> bool:
         return not self._force_ipv4
 
     @property
-    def force_ipv4(self):
+    def force_ipv4(self) -> bool:
         return self._force_ipv4
 
-    def get_auth(self):
+    def get_auth(self) -> plugin.BaseAuthPlugin | None:
         """Return a keystoneauth plugin from the auth credentials."""
         return self._auth
 
-    def skip_auth_cache(self):
+    def skip_auth_cache(self) -> bool:
         return not keyring or not self._auth or not self._cache_auth
 
-    def load_auth_from_cache(self):
+    def load_auth_from_cache(self) -> None:
         if self.skip_auth_cache():
             return
 
@@ -725,7 +783,7 @@ class CloudRegion:
         except RuntimeError:  # the fail backend raises this
             self.log.debug('Failed to set auth into keyring')
 
-    def insert_user_agent(self):
+    def insert_user_agent(self) -> None:
         """Set sdk information into the user agent of the Session.
 
         .. warning::
@@ -768,7 +826,7 @@ class CloudRegion:
                 verify=verify,
                 cert=cert,
                 timeout=self.config.get('api_timeout'),
-                collect_timing=self.config.get('timing'),
+                collect_timing=bool(self.config.get('timing')),
                 discovery_cache=self._discovery_cache,
             )
             self.insert_user_agent()
@@ -782,14 +840,18 @@ class CloudRegion:
                 self._keystone_session.app_version = self._app_version
         return self._keystone_session
 
-    def get_service_catalog(self):
+    def get_service_catalog(
+        self,
+    ) -> ks_service_catalog.ServiceCatalog | None:
         """Helper method to grab the service catalog."""
         # not all auth plugins are identity plugins
         if not isinstance(self._auth, ks_identity_base.BaseIdentityPlugin):
             return None
         return self._auth.get_access(self.get_session()).service_catalog
 
-    def _get_version_request(self, service_type, version):
+    def _get_version_request(
+        self, service_type: str, version: str | None
+    ) -> _util.VersionRequest:
         """Translate OCC version args to those needed by ksa adapter.
 
         If no version is requested explicitly and we have a configured version,
@@ -833,6 +895,7 @@ class CloudRegion:
                 f"desired major version, or omit default_microversion"
             )
         if implied_microversion:
+            assert version is not None  # type narrow
             default_microversion = implied_microversion
             # If we're inferring a microversion, don't pass the whole
             # string in as api_version, since that tells keystoneauth
@@ -843,7 +906,9 @@ class CloudRegion:
 
         return version_request
 
-    def get_all_version_data(self, service_type):
+    def get_all_version_data(
+        self, service_type: str
+    ) -> list[discover.VersionData]:
         # Seriously. Don't think about the existential crisis
         # that is the next line. You'll wind up in cthulhu's lair.
         service_type = self.get_service_type(service_type)
@@ -853,23 +918,34 @@ class CloudRegion:
             interface=self.get_interface(service_type),
             region_name=region_name,
         )
-        region_versions = versions.get(region_name, {})
+
+        region_versions = versions.get(region_name, {})  # type: ignore
         interface_versions = region_versions.get(
-            self.get_interface(service_type), {}
+            self.get_interface(service_type),  # type: ignore
+            {},
         )
         return interface_versions.get(service_type, [])
 
-    def _get_endpoint_from_catalog(self, service_type, constructor):
+    def _get_endpoint_from_catalog(
+        self,
+        service_type: str,
+        constructor: type[proxy.Proxy],
+    ) -> str:
         adapter = constructor(
             session=self.get_session(),
             service_type=self.get_service_type(service_type),
             service_name=self.get_service_name(service_type),
-            interface=self.get_interface(service_type),
+            # https://review.opendev.org/c/openstack/keystoneauth/+/951183
+            interface=self.get_interface(service_type),  # type: ignore
             region_name=self.get_region_name(service_type),
         )
-        return adapter.get_endpoint()
+        endpoint = adapter.get_endpoint()
+        assert endpoint is not None  # narrow type
+        return endpoint
 
-    def _get_hardcoded_endpoint(self, service_type, constructor):
+    def _get_hardcoded_endpoint(
+        self, service_type: str, constructor: type[proxy.Proxy]
+    ) -> str:
         endpoint = self._get_endpoint_from_catalog(service_type, constructor)
         if not endpoint.rstrip().rsplit('/')[-1] == 'v2.0':
             if not endpoint.endswith('/'):
@@ -878,8 +954,12 @@ class CloudRegion:
         return endpoint
 
     def get_session_client(
-        self, service_type, version=None, constructor=proxy.Proxy, **kwargs
-    ):
+        self,
+        service_type: str,
+        version: str | None = None,
+        constructor: type[proxy.Proxy] = proxy.Proxy,
+        **kwargs: ty.Any,
+    ) -> proxy.Proxy:
         """Return a prepped keystoneauth Adapter for a given service.
 
         This is useful for making direct requests calls against a
@@ -935,7 +1015,8 @@ class CloudRegion:
             session=self.get_session(),
             service_type=self.get_service_type(service_type),
             service_name=self.get_service_name(service_type),
-            interface=self.get_interface(service_type),
+            # https://review.opendev.org/c/openstack/keystoneauth/+/951183
+            interface=self.get_interface(service_type),  # type: ignore
             version=version,
             min_version=min_api_version,
             max_version=max_api_version,
@@ -948,7 +1029,7 @@ class CloudRegion:
         if version_request.default_microversion:
             default_microversion = version_request.default_microversion
             info = client.get_endpoint_data()
-            if not discover.version_between(
+            if info and not discover.version_between(
                 info.min_microversion,
                 info.max_microversion,
                 default_microversion,
@@ -962,10 +1043,10 @@ class CloudRegion:
                             service_type=service_type,
                             default_microversion=default_microversion,
                             min_microversion=discover.version_to_string(
-                                info.min_microversion
+                                info.min_microversion or (0,)
                             ),
                             max_microversion=discover.version_to_string(
-                                info.max_microversion
+                                info.max_microversion or (0,)
                             ),
                         )
                     )
@@ -986,18 +1067,21 @@ class CloudRegion:
                             api_version=self.get_api_version(service_type),
                             default_microversion=default_microversion,
                             min_microversion=discover.version_to_string(
-                                info.min_microversion
+                                info.min_microversion or (0,)
                             ),
                             max_microversion=discover.version_to_string(
-                                info.max_microversion
+                                info.max_microversion or (0,)
                             ),
                         )
                     )
         return client
 
     def get_session_endpoint(
-        self, service_type, min_version=None, max_version=None
-    ):
+        self,
+        service_type: str,
+        min_version: str | None = None,
+        max_version: str | None = None,
+    ) -> str | None:
         """Return the endpoint from config or the catalog.
 
         If a configuration lists an explicit endpoint for a service,
@@ -1015,12 +1099,6 @@ class CloudRegion:
         service_name = self.get_service_name(service_type)
         interface = self.get_interface(service_type)
         session = self.get_session()
-        # Do this as kwargs because of os-client-config unittest mocking
-        version_kwargs = {}
-        if min_version:
-            version_kwargs['min_version'] = min_version
-        if max_version:
-            version_kwargs['max_version'] = max_version
         try:
             # Return the highest version we find that matches
             # the request
@@ -1029,7 +1107,8 @@ class CloudRegion:
                 region_name=region_name,
                 interface=interface,
                 service_name=service_name,
-                **version_kwargs,
+                min_version=min_version,
+                max_version=max_version,
             )
         except keystoneauth1.exceptions.catalog.EndpointNotFound:
             endpoint = None
@@ -1045,23 +1124,25 @@ class CloudRegion:
             )
         return endpoint
 
-    def get_cache_expiration_time(self):
+    def get_cache_expiration_time(self) -> int:
         # TODO(mordred) We should be validating/transforming this on input
         return int(self._cache_expiration_time)
 
-    def get_cache_path(self):
+    def get_cache_path(self) -> str | None:
         return self._cache_path
 
-    def get_cache_class(self):
+    def get_cache_class(self) -> str:
         return self._cache_class
 
-    def get_cache_arguments(self):
+    def get_cache_arguments(self) -> dict[str, ty.Any] | None:
         return copy.deepcopy(self._cache_arguments)
 
-    def get_cache_expirations(self):
+    def get_cache_expirations(self) -> dict[str, int]:
         return copy.deepcopy(self._cache_expirations)
 
-    def get_cache_resource_expiration(self, resource, default=None):
+    def get_cache_resource_expiration(
+        self, resource: str, default: float | None = None
+    ) -> float | None:
         """Get expiration time for a resource
 
         :param resource: Name of the resource type
@@ -1074,19 +1155,22 @@ class CloudRegion:
             return default
         return float(self._cache_expirations[resource])
 
-    def requires_floating_ip(self):
+    def requires_floating_ip(self) -> bool | None:
         """Return whether or not this cloud requires floating ips.
 
 
-        :returns: True of False if know, None if discovery is needed.
+        :returns: True or False if know, None if discovery is needed.
                   If requires_floating_ip is not configured but the cloud is
                   known to not provide floating ips, will return False.
         """
         if self.config['floating_ip_source'] == "None":
             return False
-        return self.config.get('requires_floating_ip')
+        requires_floating_ip = self.config.get('requires_floating_ip')
+        if requires_floating_ip is None:
+            return None
+        return bool(requires_floating_ip)
 
-    def get_external_networks(self):
+    def get_external_networks(self) -> list[str]:
         """Get list of network names for external networks."""
         return [
             net['name']
@@ -1094,68 +1178,72 @@ class CloudRegion:
             if net['routes_externally']
         ]
 
-    def get_external_ipv4_networks(self):
+    def get_external_ipv4_networks(self) -> list[str]:
         """Get list of network names for external IPv4 networks."""
         return [
-            net['name']
+            str(net['name'])
             for net in self.config.get('networks', [])
             if net['routes_ipv4_externally']
         ]
 
-    def get_external_ipv6_networks(self):
+    def get_external_ipv6_networks(self) -> list[str]:
         """Get list of network names for external IPv6 networks."""
         return [
-            net['name']
+            str(net['name'])
             for net in self.config.get('networks', [])
             if net['routes_ipv6_externally']
         ]
 
-    def get_internal_networks(self):
+    def get_internal_networks(self) -> list[str]:
         """Get list of network names for internal networks."""
         return [
-            net['name']
+            str(net['name'])
             for net in self.config.get('networks', [])
             if not net['routes_externally']
         ]
 
-    def get_internal_ipv4_networks(self):
+    def get_internal_ipv4_networks(self) -> list[str]:
         """Get list of network names for internal IPv4 networks."""
         return [
-            net['name']
+            str(net['name'])
             for net in self.config.get('networks', [])
             if not net['routes_ipv4_externally']
         ]
 
-    def get_internal_ipv6_networks(self):
+    def get_internal_ipv6_networks(self) -> list[str]:
         """Get list of network names for internal IPv6 networks."""
         return [
-            net['name']
+            str(net['name'])
             for net in self.config.get('networks', [])
             if not net['routes_ipv6_externally']
         ]
 
-    def get_default_network(self):
+    def get_default_network(self) -> str | None:
         """Get network used for default interactions."""
         for net in self.config.get('networks', []):
             if net['default_interface']:
-                return net['name']
+                return str(net['name'])
         return None
 
-    def get_nat_destination(self):
+    def get_nat_destination(self) -> str | None:
         """Get network used for NAT destination."""
         for net in self.config.get('networks', []):
             if net['nat_destination']:
-                return net['name']
+                return str(net['name'])
         return None
 
-    def get_nat_source(self):
+    def get_nat_source(self) -> str | None:
         """Get network used for NAT source."""
         for net in self.config.get('networks', []):
             if net.get('nat_source'):
-                return net['name']
+                return str(net['name'])
         return None
 
-    def _get_extra_config(self, key, defaults=None):
+    def _get_extra_config(
+        self,
+        key: str | None,
+        defaults: dict[str, ty.Any] | None = None,
+    ) -> dict[str, ty.Any]:
         """Fetch an arbitrary extra chunk of config, laying in defaults.
 
         :param string key: name of the config section to fetch
@@ -1164,12 +1252,16 @@ class CloudRegion:
         """
         defaults = _util.normalize_keys(defaults or {})
         if not key:
-            return defaults
+            return defaults or {}
         return _util.merge_clouds(
             defaults, _util.normalize_keys(self._extra_config.get(key, {}))
         )
 
-    def get_client_config(self, name=None, defaults=None):
+    def get_client_config(
+        self,
+        name: str | None = None,
+        defaults: dict[str, ty.Any] | None = None,
+    ) -> dict[str, ty.Any] | None:
         """Get config settings for a named client.
 
         Settings will also be looked for in a section called 'client'.
@@ -1190,15 +1282,15 @@ class CloudRegion:
             name, self._get_extra_config('client', defaults)
         )
 
-    def get_password_callback(self):
+    def get_password_callback(self) -> _PasswordCallback | None:
         return self._password_callback
 
-    def get_rate_limit(self, service_type=None):
+    def get_rate_limit(self, service_type: str) -> float | None:
         return self._get_service_config(
             'rate_limit', service_type=service_type
         )
 
-    def get_concurrency(self, service_type=None):
+    def get_concurrency(self, service_type: str) -> int | None:
         return self._get_service_config(
             'concurrency', service_type=service_type
         )
@@ -1284,14 +1376,18 @@ class CloudRegion:
             registry._openstacksdk_counter = counter
         return counter
 
-    def has_service(self, service_type):
+    def has_service(self, service_type: str) -> bool:
         service_type = service_type.lower().replace('-', '_')
         key = f'has_{service_type}'
-        return self.config.get(
+        value = self.config.get(
             key, self._service_type_manager.is_official(service_type)
         )
+        assert isinstance(value, bool)
+        return value
 
-    def disable_service(self, service_type, reason=None):
+    def disable_service(
+        self, service_type: str, reason: str | None = None
+    ) -> None:
         _disable_service(self.config, service_type, reason=reason)
 
     def enable_service(self, service_type: str) -> None:
@@ -1299,7 +1395,7 @@ class CloudRegion:
         key = f'has_{service_type}'
         self.config[key] = True
 
-    def get_disabled_reason(self, service_type):
+    def get_disabled_reason(self, service_type: str) -> str | None:
         service_type = service_type.lower().replace('-', '_')
         d_key = _make_key('disabled_reason', service_type)
         return self.config.get(d_key)

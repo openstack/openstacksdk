@@ -12,9 +12,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import typing as ty
 
-def normalize_keys(config):
-    new_config = {}
+
+def normalize_keys(config: dict[str, ty.Any]) -> dict[str, ty.Any]:
+    new_config: dict[str, ty.Any] = {}
     for key, value in config.items():
         key = key.replace('-', '_')
         if isinstance(value, dict):
@@ -33,7 +35,9 @@ def normalize_keys(config):
     return new_config
 
 
-def merge_clouds(old_dict, new_dict):
+def merge_clouds(
+    old_dict: dict[str, ty.Any], new_dict: dict[str, ty.Any]
+) -> dict[str, ty.Any]:
     """Like dict.update, except handling nested dicts."""
     ret = old_dict.copy()
     for k, v in new_dict.items():
@@ -50,11 +54,11 @@ def merge_clouds(old_dict, new_dict):
 class VersionRequest:
     def __init__(
         self,
-        version=None,
-        min_api_version=None,
-        max_api_version=None,
-        default_microversion=None,
-    ):
+        version: str | None = None,
+        min_api_version: str | None = None,
+        max_api_version: str | None = None,
+        default_microversion: str | None = None,
+    ) -> None:
         self.version = version
         self.min_api_version = min_api_version
         self.max_api_version = max_api_version

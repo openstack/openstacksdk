@@ -15,6 +15,7 @@
 import json
 import os
 import threading
+import typing as ty
 
 _json_path = os.path.join(
     os.path.dirname(os.path.realpath(__file__)), 'defaults.json'
@@ -24,7 +25,7 @@ _defaults_lock = threading.Lock()
 
 
 # json_path argument is there for os-client-config
-def get_defaults(json_path=_json_path):
+def get_defaults(json_path: str = _json_path) -> dict[str, ty.Any]:
     global _defaults
     if _defaults is not None:
         return _defaults.copy()
@@ -39,13 +40,13 @@ def get_defaults(json_path=_json_path):
         # NOTE(harlowja): update a in-memory dict, before updating
         # the global one so that other callers of get_defaults do not
         # see the partially filled one.
-        tmp_defaults = dict(
-            api_timeout=None,
-            verify=True,
-            cacert=None,
-            cert=None,
-            key=None,
-        )
+        tmp_defaults = {
+            'api_timeout': None,
+            'verify': True,
+            'cacert': None,
+            'cert': None,
+            'key': None,
+        }
         with open(json_path) as json_file:
             updates = json.load(json_file)
             if updates is not None:

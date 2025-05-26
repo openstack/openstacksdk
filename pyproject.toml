@@ -30,14 +30,16 @@ exclude = '''
 
 [[tool.mypy.overrides]]
 module = [
+    "openstack._log",
     "openstack.common",
     "openstack.common.*",
-    # "openstack.config.cloud_region",
+    "openstack.config._util",
+    "openstack.config.defaults",
+    "openstack.config.cloud_region",
     "openstack.connection",
     "openstack.exceptions",
     "openstack.fields",
     "openstack.format",
-    "openstack._log",
     "openstack.proxy",
     "openstack.utils",
     "openstack.version",

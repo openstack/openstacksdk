@@ -88,7 +88,8 @@ class TestCloudRegion(base.TestCase):
         self.assertIsNone(cc._get_config('nothing', None))
         # This is what is happening behind the scenes in get_default_interface.
         self.assertEqual(
-            fake_services_dict['interface'], cc._get_config('interface', None)
+            fake_services_dict['interface'],
+            cc._get_config('interface', None),
         )
         # The same call as above, but from one step up the stack
         self.assertEqual(fake_services_dict['interface'], cc.get_interface())
@@ -299,7 +300,7 @@ class TestCloudRegion(base.TestCase):
             verify=True,
             cert=None,
             timeout=None,
-            collect_timing=None,
+            collect_timing=False,
             discovery_cache=None,
         )
         self.assertEqual(
@@ -330,7 +331,7 @@ class TestCloudRegion(base.TestCase):
             verify=True,
             cert=None,
             timeout=None,
-            collect_timing=None,
+            collect_timing=False,
             discovery_cache=None,
         )
         self.assertEqual(fake_session.app_name, "test_app")
@@ -357,7 +358,7 @@ class TestCloudRegion(base.TestCase):
             verify=True,
             cert=None,
             timeout=9,
-            collect_timing=None,
+            collect_timing=False,
             discovery_cache=None,
         )
         self.assertEqual(
@@ -425,10 +426,12 @@ class TestCloudRegion(base.TestCase):
         )
         cc.get_session_endpoint('orchestration')
         mock_session.get_endpoint.assert_called_with(
+            service_type='orchestration',
+            region_name='region-al',
             interface='public',
             service_name=None,
-            region_name='region-al',
-            service_type='orchestration',
+            min_version=None,
+            max_version=None,
         )
 
     @mock.patch.object(cloud_region.CloudRegion, 'get_session')
