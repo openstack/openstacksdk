@@ -12,6 +12,9 @@
 
 import typing as ty
 
+import requests
+import typing_extensions as ty_ext
+
 from openstack import exceptions
 from openstack import resource
 
@@ -51,16 +54,16 @@ class QuotaSet(resource.Resource):
 
     def fetch(
         self,
-        session,
-        requires_id=False,
-        base_path=None,
-        error_message=None,
-        skip_cache=False,
+        session: resource.AdapterT,
+        requires_id: bool = False,
+        base_path: str | None = None,
+        error_message: str | None = None,
+        skip_cache: bool = False,
         *,
-        resource_response_key=None,
-        microversion=None,
-        **params,
-    ):
+        resource_response_key: str | None = None,
+        microversion: str | None = None,
+        **params: ty.Any,
+    ) -> ty_ext.Self:
         return super().fetch(
             session,
             requires_id,
@@ -74,12 +77,12 @@ class QuotaSet(resource.Resource):
 
     def _translate_response(
         self,
-        response,
-        has_body=None,
-        error_message=None,
+        response: requests.Response,
+        has_body: bool | None = None,
+        error_message: str | None = None,
         *,
-        resource_response_key=None,
-    ):
+        resource_response_key: str | None = None,
+    ) -> None:
         """Given a KSA response, inflate this instance with its data
 
         DELETE operations don't return a body, so only try to work
@@ -139,15 +142,15 @@ class QuotaSet(resource.Resource):
         self._header.attributes.update(headers)
         self._header.clean()
         self._update_location()
-        dict.update(self, self.to_dict())
+        dict.update(self, self.to_dict())  # type: ignore
 
     def _prepare_request_body(
         self,
-        patch,
-        prepend_key,
+        patch: bool,
+        prepend_key: bool,
         *,
-        resource_request_key=None,
-    ):
+        resource_request_key: str | None = None,
+    ) -> dict[str, ty.Any] | list[ty.Any]:
         body = self._body.dirty
         # Ensure we never try to send meta props reservation and usage
         body.pop('reservation', None)

@@ -30,13 +30,18 @@ exclude = '''
 
 [[tool.mypy.overrides]]
 module = [
+    "openstack.common",
+    "openstack.common.*",
     # "openstack.config.cloud_region",
     "openstack.connection",
     "openstack.exceptions",
     "openstack.fields",
     "openstack.format",
+    "openstack._log",
     "openstack.proxy",
     "openstack.utils",
+    "openstack.version",
+    "openstack.warnings",
 ]
 warn_return_any = true
 disallow_untyped_decorators = true
