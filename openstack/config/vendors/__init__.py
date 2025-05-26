@@ -15,6 +15,7 @@
 import glob
 import json
 import os
+import typing as ty
 import urllib
 
 import requests
@@ -24,11 +25,11 @@ from openstack.config import _util
 from openstack import exceptions
 
 _VENDORS_PATH = os.path.dirname(os.path.realpath(__file__))
-_VENDOR_DEFAULTS: dict[str, dict] = {}
+_VENDOR_DEFAULTS: dict[str, dict[str, ty.Any]] = {}
 _WELL_KNOWN_PATH = "{scheme}://{netloc}/.well-known/openstack/api"
 
 
-def _get_vendor_defaults():
+def _get_vendor_defaults() -> dict[str, dict[str, ty.Any]]:
     global _VENDOR_DEFAULTS
 
     if not _VENDOR_DEFAULTS:
@@ -45,7 +46,7 @@ def _get_vendor_defaults():
     return _VENDOR_DEFAULTS
 
 
-def get_profile(profile_name):
+def get_profile(profile_name: str) -> dict[str, ty.Any] | None:
     vendor_defaults = _get_vendor_defaults()
     if profile_name in vendor_defaults:
         return vendor_defaults[profile_name].copy()
@@ -53,7 +54,7 @@ def get_profile(profile_name):
     profile_url = urllib.parse.urlparse(profile_name)
     if not profile_url.netloc:
         # This isn't a url, and we already don't have it.
-        return
+        return None
 
     well_known_url = _WELL_KNOWN_PATH.format(
         scheme=profile_url.scheme,

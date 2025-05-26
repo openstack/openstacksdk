@@ -36,6 +36,7 @@ module = [
     "openstack.config._util",
     "openstack.config.defaults",
     "openstack.config.cloud_region",
+    "openstack.config.vendors",
     "openstack.connection",
     "openstack.exceptions",
     "openstack.fields",
