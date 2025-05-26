@@ -716,6 +716,18 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_backup.Backup, backup)
 
+    def export_record(self, backup):
+        """Get a backup
+
+        :param backup: The value can be the ID of a backup
+            or a :class:`~openstack.block_storage.v2.backup.Backup`
+            instance.
+
+        :returns: The backup export record fields
+        """
+        backup = self._get_resource(_backup.Backup, backup)
+        return backup.export(self)
+
     def find_backup(self, name_or_id, ignore_missing=True, *, details=True):
         """Find a single backup
 
