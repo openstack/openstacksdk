@@ -38,7 +38,7 @@ class TestTransfer(base.TestCase):
     def setUp(self):
         super().setUp()
         self.resp = mock.Mock()
-        self.resp.body = None
+        self.resp.body = None  # nothing uses this
         self.resp.json = mock.Mock(return_value=self.resp.body)
         self.resp.headers = {}
         self.resp.status_code = 202
@@ -48,7 +48,7 @@ class TestTransfer(base.TestCase):
         self.sess.default_microversion = "3.55"
 
     def test_basic(self):
-        tr = transfer.Transfer(TRANSFER)
+        tr = transfer.Transfer()
         self.assertEqual("transfer", tr.resource_key)
         self.assertEqual("transfers", tr.resources_key)
         self.assertEqual("/volume-transfers", tr.base_path)
@@ -62,6 +62,14 @@ class TestTransfer(base.TestCase):
             },
             tr._query_mapping._mapping,
         )
+
+    def test_make_it(self):
+        sot = transfer.Transfer(**TRANSFER)
+        self.assertEqual(TRANSFER["auth_key"], sot.auth_key)
+        self.assertEqual(TRANSFER["created_at"], sot.created_at)
+        self.assertEqual(TRANSFER["id"], sot.id)
+        self.assertEqual(TRANSFER["name"], sot.name)
+        self.assertEqual(TRANSFER["volume_id"], sot.volume_id)
 
     @mock.patch(
         'openstack.utils.supports_microversion',
