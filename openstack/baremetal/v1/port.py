@@ -41,13 +41,16 @@ class Port(_common.Resource):
     # The is_smartnic field added in 1.53
     # Query filter by shard added in 1.82
     # The name field added in 1.88
-    _max_microversion = '1.88'
+    # The description field added in 1.97
+    _max_microversion = '1.97'
 
     #: The physical hardware address of the network port, typically the
     #: hardware MAC address.
     address = resource.Body('address')
     #: Timestamp at which the port was created.
     created_at = resource.Body('created_at')
+    #: The description for the port
+    description = resource.Body('description')
     #: A set of one or more arbitrary metadata key and value pairs.
     extra = resource.Body('extra')
     #: The UUID of the port
