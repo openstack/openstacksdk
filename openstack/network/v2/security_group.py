@@ -37,6 +37,7 @@ class SecurityGroup(_base.NetworkResource, _base.TagMixinNetwork):
         'revision_number',
         'sort_dir',
         'sort_key',
+        is_shared='shared',
         **_base.TagMixinNetwork._tag_query_parameters,
     )
 
@@ -59,3 +60,6 @@ class SecurityGroup(_base.NetworkResource, _base.TagMixinNetwork):
     tenant_id = resource.Body('tenant_id', deprecated=True)
     #: Timestamp when the security group was last updated.
     updated_at = resource.Body('updated_at')
+    #: Indicates whether this Security Group is shared across all projects.
+    #: *Type: bool*
+    is_shared = resource.Body('shared', type=bool)
