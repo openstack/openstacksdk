@@ -14,7 +14,7 @@ from openstack.baremetal.v1 import _common
 from openstack import resource
 
 
-class InspectionRule(_common.Resource):
+class InspectionRule(resource.Resource):
     resources_key = 'inspection_rules'
     base_path = '/inspection_rules'
 

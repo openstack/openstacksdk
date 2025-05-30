@@ -19,15 +19,15 @@ class TestBareMetalChassis(base.BaseBaremetalTest):
     def test_chassis_create_get_delete(self):
         chassis = self.create_chassis()
 
-        loaded = self.operator_cloud.baremetal.get_chassis(chassis.id)
+        loaded = self.system_admin_cloud.baremetal.get_chassis(chassis.id)
         self.assertEqual(loaded.id, chassis.id)
 
-        self.operator_cloud.baremetal.delete_chassis(
+        self.system_admin_cloud.baremetal.delete_chassis(
             chassis, ignore_missing=False
         )
         self.assertRaises(
             exceptions.NotFoundException,
-            self.operator_cloud.baremetal.get_chassis,
+            self.system_admin_cloud.baremetal.get_chassis,
             chassis.id,
         )
 
@@ -35,44 +35,46 @@ class TestBareMetalChassis(base.BaseBaremetalTest):
         chassis = self.create_chassis()
         chassis.extra = {'answer': 42}
 
-        chassis = self.operator_cloud.baremetal.update_chassis(chassis)
+        chassis = self.system_admin_cloud.baremetal.update_chassis(chassis)
         self.assertEqual({'answer': 42}, chassis.extra)
 
-        chassis = self.operator_cloud.baremetal.get_chassis(chassis.id)
+        chassis = self.system_admin_cloud.baremetal.get_chassis(chassis.id)
         self.assertEqual({'answer': 42}, chassis.extra)
 
     def test_chassis_patch(self):
         chassis = self.create_chassis()
 
-        chassis = self.operator_cloud.baremetal.patch_chassis(
+        chassis = self.system_admin_cloud.baremetal.patch_chassis(
             chassis, dict(path='/extra/answer', op='add', value=42)
         )
         self.assertEqual({'answer': 42}, chassis.extra)
 
-        chassis = self.operator_cloud.baremetal.get_chassis(chassis.id)
+        chassis = self.system_admin_cloud.baremetal.get_chassis(chassis.id)
         self.assertEqual({'answer': 42}, chassis.extra)
 
     def test_chassis_negative_non_existing(self):
         uuid = "5c9dcd04-2073-49bc-9618-99ae634d8971"
         self.assertRaises(
             exceptions.NotFoundException,
-            self.operator_cloud.baremetal.get_chassis,
+            self.system_admin_cloud.baremetal.get_chassis,
             uuid,
         )
         self.assertRaises(
             exceptions.NotFoundException,
-            self.operator_cloud.baremetal.find_chassis,
+            self.system_admin_cloud.baremetal.find_chassis,
             uuid,
             ignore_missing=False,
         )
         self.assertRaises(
             exceptions.NotFoundException,
-            self.operator_cloud.baremetal.delete_chassis,
+            self.system_admin_cloud.baremetal.delete_chassis,
             uuid,
             ignore_missing=False,
         )
-        self.assertIsNone(self.operator_cloud.baremetal.find_chassis(uuid))
-        self.assertIsNone(self.operator_cloud.baremetal.delete_chassis(uuid))
+        self.assertIsNone(self.system_admin_cloud.baremetal.find_chassis(uuid))
+        self.assertIsNone(
+            self.system_admin_cloud.baremetal.delete_chassis(uuid)
+        )
 
 
 class TestBareMetalChassisFields(base.BaseBaremetalTest):
@@ -80,7 +82,7 @@ class TestBareMetalChassisFields(base.BaseBaremetalTest):
 
     def test_chassis_fields(self):
         self.create_chassis(description='something')
-        result = self.operator_cloud.baremetal.chassis(
+        result = self.system_admin_cloud.baremetal.chassis(
             fields=['uuid', 'extra']
         )
         for ch in result:

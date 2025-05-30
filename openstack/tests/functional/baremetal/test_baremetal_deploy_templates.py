@@ -17,9 +17,6 @@ from openstack.tests.functional.baremetal import base
 class TestBareMetalDeployTemplate(base.BaseBaremetalTest):
     min_microversion = '1.55'
 
-    def setUp(self):
-        super().setUp()
-
     def test_baremetal_deploy_create_get_delete(self):
         steps = [
             {
@@ -34,16 +31,16 @@ class TestBareMetalDeployTemplate(base.BaseBaremetalTest):
         deploy_template = self.create_deploy_template(
             name='CUSTOM_DEPLOY_TEMPLATE', steps=steps
         )
-        loaded = self.operator_cloud.baremetal.get_deploy_template(
+        loaded = self.system_admin_cloud.baremetal.get_deploy_template(
             deploy_template.id
         )
         self.assertEqual(loaded.id, deploy_template.id)
-        self.operator_cloud.baremetal.delete_deploy_template(
+        self.system_admin_cloud.baremetal.delete_deploy_template(
             deploy_template, ignore_missing=False
         )
         self.assertRaises(
             exceptions.NotFoundException,
-            self.operator_cloud.baremetal.get_deploy_template,
+            self.system_admin_cloud.baremetal.get_deploy_template,
             deploy_template.id,
         )
 
@@ -65,20 +62,20 @@ class TestBareMetalDeployTemplate(base.BaseBaremetalTest):
         deploy_template2 = self.create_deploy_template(
             name='CUSTOM_DEPLOY_TEMPLATE2', steps=steps
         )
-        deploy_templates = self.operator_cloud.baremetal.deploy_templates()
+        deploy_templates = self.system_admin_cloud.baremetal.deploy_templates()
         ids = [template.id for template in deploy_templates]
         self.assertIn(deploy_template1.id, ids)
         self.assertIn(deploy_template2.id, ids)
 
         deploy_templates_with_details = (
-            self.operator_cloud.baremetal.deploy_templates(details=True)
+            self.system_admin_cloud.baremetal.deploy_templates(details=True)
         )
         for dp in deploy_templates_with_details:
             self.assertIsNotNone(dp.id)
             self.assertIsNotNone(dp.name)
 
         deploy_tempalte_with_fields = (
-            self.operator_cloud.baremetal.deploy_templates(fields=['uuid'])
+            self.system_admin_cloud.baremetal.deploy_templates(fields=['uuid'])
         )
         for dp in deploy_tempalte_with_fields:
             self.assertIsNotNone(dp.id)
@@ -101,16 +98,20 @@ class TestBareMetalDeployTemplate(base.BaseBaremetalTest):
         self.assertFalse(deploy_template.extra)
         deploy_template.extra = {'answer': 42}
 
-        deploy_template = self.operator_cloud.baremetal.update_deploy_template(
-            deploy_template
+        deploy_template = (
+            self.system_admin_cloud.baremetal.update_deploy_template(
+                deploy_template
+            )
         )
         self.assertEqual({'answer': 42}, deploy_template.extra)
 
-        deploy_template = self.operator_cloud.baremetal.get_deploy_template(
-            deploy_template.id
+        deploy_template = (
+            self.system_admin_cloud.baremetal.get_deploy_template(
+                deploy_template.id
+            )
         )
 
-        self.operator_cloud.baremetal.delete_deploy_template(
+        self.system_admin_cloud.baremetal.delete_deploy_template(
             deploy_template.id, ignore_missing=False
         )
 
@@ -130,13 +131,17 @@ class TestBareMetalDeployTemplate(base.BaseBaremetalTest):
         )
         deploy_template.extra = {'answer': 42}
 
-        deploy_template = self.operator_cloud.baremetal.update_deploy_template(
-            deploy_template
+        deploy_template = (
+            self.system_admin_cloud.baremetal.update_deploy_template(
+                deploy_template
+            )
         )
         self.assertEqual({'answer': 42}, deploy_template.extra)
 
-        deploy_template = self.operator_cloud.baremetal.get_deploy_template(
-            deploy_template.id
+        deploy_template = (
+            self.system_admin_cloud.baremetal.get_deploy_template(
+                deploy_template.id
+            )
         )
         self.assertEqual({'answer': 42}, deploy_template.extra)
 
@@ -153,14 +158,18 @@ class TestBareMetalDeployTemplate(base.BaseBaremetalTest):
             }
         ]
         deploy_template = self.create_deploy_template(name=name, steps=steps)
-        deploy_template = self.operator_cloud.baremetal.patch_deploy_template(
-            deploy_template, dict(path='/extra/answer', op='add', value=42)
+        deploy_template = (
+            self.system_admin_cloud.baremetal.patch_deploy_template(
+                deploy_template, dict(path='/extra/answer', op='add', value=42)
+            )
         )
         self.assertEqual({'answer': 42}, deploy_template.extra)
         self.assertEqual(name, deploy_template.name)
 
-        deploy_template = self.operator_cloud.baremetal.get_deploy_template(
-            deploy_template.id
+        deploy_template = (
+            self.system_admin_cloud.baremetal.get_deploy_template(
+                deploy_template.id
+            )
         )
         self.assertEqual({'answer': 42}, deploy_template.extra)
 
@@ -168,15 +177,15 @@ class TestBareMetalDeployTemplate(base.BaseBaremetalTest):
         uuid = "bbb45f41-d4bc-4307-8d1d-32f95ce1e920"
         self.assertRaises(
             exceptions.NotFoundException,
-            self.operator_cloud.baremetal.get_deploy_template,
+            self.system_admin_cloud.baremetal.get_deploy_template,
             uuid,
         )
         self.assertRaises(
             exceptions.NotFoundException,
-            self.operator_cloud.baremetal.delete_deploy_template,
+            self.system_admin_cloud.baremetal.delete_deploy_template,
             uuid,
             ignore_missing=False,
         )
         self.assertIsNone(
-            self.operator_cloud.baremetal.delete_deploy_template(uuid)
+            self.system_admin_cloud.baremetal.delete_deploy_template(uuid)
         )

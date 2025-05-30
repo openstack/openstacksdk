@@ -19,10 +19,10 @@ class TestBareMetalConductor(base.BaseBaremetalTest):
 
     def test_list_get_conductor(self):
         node = self.create_node(name='node-name')
-        conductors = self.operator_cloud.baremetal.conductors()
+        conductors = self.system_admin_cloud.baremetal.conductors()
         hostname_list = [conductor.hostname for conductor in conductors]
         self.assertIn(node.conductor, hostname_list)
-        conductor1 = self.operator_cloud.baremetal.get_conductor(
+        conductor1 = self.system_admin_cloud.baremetal.get_conductor(
             node.conductor
         )
         self.assertIsNotNone(conductor1.conductor_group)

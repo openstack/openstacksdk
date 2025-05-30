@@ -17,9 +17,6 @@ from openstack.tests.functional.baremetal import base
 class TestBareMetalRunbook(base.BaseBaremetalTest):
     min_microversion = '1.92'
 
-    def setUp(self):
-        super().setUp()
-
     def test_baremetal_runbook_create_get_delete(self):
         steps = [
             {
@@ -28,16 +25,18 @@ class TestBareMetalRunbook(base.BaseBaremetalTest):
                 "args": {
                     "settings": [{"name": "LogicalProc", "value": "Enabled"}]
                 },
-                "priority": 150,
+                "order": 150,
             }
         ]
         runbook = self.create_runbook(name='CUSTOM_RUNBOOK', steps=steps)
-        loaded = self.conn.baremetal.get_runbook(runbook.id)
+        loaded = self.operator_cloud.baremetal.get_runbook(runbook.id)
         self.assertEqual(loaded.id, runbook.id)
-        self.conn.baremetal.delete_runbook(runbook, ignore_missing=False)
+        self.operator_cloud.baremetal.delete_runbook(
+            runbook, ignore_missing=False
+        )
         self.assertRaises(
             exceptions.NotFoundException,
-            self.conn.baremetal.get_runbook,
+            self.operator_cloud.baremetal.get_runbook,
             runbook.id,
         )
 
@@ -49,23 +48,27 @@ class TestBareMetalRunbook(base.BaseBaremetalTest):
                 "args": {
                     "settings": [{"name": "LogicalProc", "value": "Enabled"}]
                 },
-                "priority": 150,
+                "order": 150,
             }
         ]
 
         runbook1 = self.create_runbook(name='CUSTOM_RUNBOOK1', steps=steps)
         runbook2 = self.create_runbook(name='CUSTOM_RUNBOOK2', steps=steps)
-        runbooks = self.conn.baremetal.runbooks()
+        runbooks = self.operator_cloud.baremetal.runbooks()
         ids = [runbook.id for runbook in runbooks]
         self.assertIn(runbook1.id, ids)
         self.assertIn(runbook2.id, ids)
 
-        runbooks_with_details = self.conn.baremetal.runbooks(details=True)
+        runbooks_with_details = self.operator_cloud.baremetal.runbooks(
+            details=True
+        )
         for runbook in runbooks_with_details:
             self.assertIsNotNone(runbook.id)
             self.assertIsNotNone(runbook.name)
 
-        runbook_with_fields = self.conn.baremetal.runbooks(fields=['uuid'])
+        runbook_with_fields = self.operator_cloud.baremetal.runbooks(
+            fields=['uuid']
+        )
         for runbook in runbook_with_fields:
             self.assertIsNotNone(runbook.id)
             self.assertIsNone(runbook.name)
@@ -78,19 +81,21 @@ class TestBareMetalRunbook(base.BaseBaremetalTest):
                 "args": {
                     "settings": [{"name": "LogicalProc", "value": "Enabled"}]
                 },
-                "priority": 150,
+                "order": 150,
             }
         ]
         runbook = self.create_runbook(name='CUSTOM_RUNBOOK4', steps=steps)
         self.assertFalse(runbook.extra)
         runbook.extra = {'answer': 42}
 
-        runbook = self.conn.baremetal.update_runbook(runbook)
+        runbook = self.operator_cloud.baremetal.update_runbook(runbook)
         self.assertEqual({'answer': 42}, runbook.extra)
 
-        runbook = self.conn.baremetal.get_runbook(runbook.id)
+        runbook = self.operator_cloud.baremetal.get_runbook(runbook.id)
 
-        self.conn.baremetal.delete_runbook(runbook.id, ignore_missing=False)
+        self.operator_cloud.baremetal.delete_runbook(
+            runbook.id, ignore_missing=False
+        )
 
     def test_baremetal_runbook_update(self):
         steps = [
@@ -100,16 +105,16 @@ class TestBareMetalRunbook(base.BaseBaremetalTest):
                 "args": {
                     "settings": [{"name": "LogicalProc", "value": "Enabled"}]
                 },
-                "priority": 150,
+                "order": 150,
             }
         ]
         runbook = self.create_runbook(name='CUSTOM_RUNBOOK4', steps=steps)
         runbook.extra = {'answer': 42}
 
-        runbook = self.conn.baremetal.update_runbook(runbook)
+        runbook = self.operator_cloud.baremetal.update_runbook(runbook)
         self.assertEqual({'answer': 42}, runbook.extra)
 
-        runbook = self.conn.baremetal.get_runbook(runbook.id)
+        runbook = self.operator_cloud.baremetal.get_runbook(runbook.id)
         self.assertEqual({'answer': 42}, runbook.extra)
 
     def test_runbook_patch(self):
@@ -121,33 +126,33 @@ class TestBareMetalRunbook(base.BaseBaremetalTest):
                 "args": {
                     "settings": [{"name": "LogicalProc", "value": "Enabled"}]
                 },
-                "priority": 150,
+                "order": 150,
             }
         ]
         runbook = self.create_runbook(name=name, steps=steps)
-        runbook = self.conn.baremetal.patch_runbook(
+        runbook = self.operator_cloud.baremetal.patch_runbook(
             runbook, dict(path='/extra/answer', op='add', value=42)
         )
         self.assertEqual({'answer': 42}, runbook.extra)
         self.assertEqual(name, runbook.name)
 
-        runbook = self.conn.baremetal.get_runbook(runbook.id)
+        runbook = self.operator_cloud.baremetal.get_runbook(runbook.id)
         self.assertEqual({'answer': 42}, runbook.extra)
 
     def test_runbook_negative_non_existing(self):
         uuid = "b4145fbb-d4bc-0d1d-4382-e1e922f9035c"
         self.assertRaises(
             exceptions.NotFoundException,
-            self.conn.baremetal.get_runbook,
+            self.operator_cloud.baremetal.get_runbook,
             uuid,
         )
         self.assertRaises(
             exceptions.NotFoundException,
-            self.conn.baremetal.delete_runbook,
+            self.operator_cloud.baremetal.delete_runbook,
             uuid,
             ignore_missing=False,
         )
-        self.assertIsNone(self.conn.baremetal.delete_runbook(uuid))
+        self.assertIsNone(self.operator_cloud.baremetal.delete_runbook(uuid))
 
     def test_runbook_rbac_project_scoped(self):
         steps = [
@@ -157,20 +162,23 @@ class TestBareMetalRunbook(base.BaseBaremetalTest):
                 "args": {
                     "settings": [{"name": "LogicalProc", "value": "Enabled"}]
                 },
-                "priority": 150,
+                "order": 150,
             }
         ]
 
-        runbook = self.create_runbook(
-            name='CUSTOM_PROJ_AWESOME',
-            steps=steps,
-            owner=self.conn.current_project_id,
+        runbook = self.operator_cloud.baremetal.create_runbook(
+            name='CUSTOM_PROJ_AWESOME', steps=steps
+        )
+        self.addCleanup(
+            lambda: self.operator_cloud.baremetal.delete_runbook(
+                runbook.id, ignore_missing=True
+            )
         )
         self.assertFalse(runbook.public)
-        self.assertEqual(self.conn.current_project_id, runbook.owner)
+        self.assertEqual(self.operator_cloud.current_project_id, runbook.owner)
 
         # is accessible to the owner
-        loaded = self.conn.baremetal.get_runbook(runbook.id)
+        loaded = self.operator_cloud.baremetal.get_runbook(runbook.id)
         self.assertEqual(loaded.id, runbook.id)
 
     def test_runbook_rbac_system_scoped(self):
@@ -181,14 +189,22 @@ class TestBareMetalRunbook(base.BaseBaremetalTest):
                 "args": {
                     "settings": [{"name": "LogicalProc", "value": "Enabled"}]
                 },
-                "priority": 150,
+                "order": 150,
             }
         ]
 
-        runbook = self.create_runbook(name='CUSTOM_SYS_AWESOME', steps=steps)
+        runbook = self.system_admin_cloud.baremetal.create_runbook(
+            name='CUSTOM_SYS_AWESOME', steps=steps
+        )
+        self.addCleanup(
+            lambda: self.system_admin_cloud.baremetal.delete_runbook(
+                runbook.id, ignore_missing=True
+            )
+        )
+
         self.assertFalse(runbook.public)
         self.assertIsNone(runbook.owner)
 
         # is accessible to system-scoped users
-        loaded = self.conn.baremetal.get_runbook(runbook.id)
+        loaded = self.system_admin_cloud.baremetal.get_runbook(runbook.id)
         self.assertEqual(loaded.id, runbook.id)

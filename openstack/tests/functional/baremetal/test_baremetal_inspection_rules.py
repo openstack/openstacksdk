@@ -33,14 +33,16 @@ class TestBareMetalInspectionRule(base.BaseBaremetalTest):
             priority=100,
             sensitive=False,
         )
-        loaded = self.conn.baremetal.get_inspection_rule(inspection_rule.id)
+        loaded = self.system_admin_cloud.baremetal.get_inspection_rule(
+            inspection_rule.id
+        )
         self.assertEqual(loaded.id, inspection_rule.id)
-        self.conn.baremetal.delete_inspection_rule(
+        self.system_admin_cloud.baremetal.delete_inspection_rule(
             inspection_rule, ignore_missing=False
         )
         self.assertRaises(
             exceptions.NotFoundException,
-            self.conn.baremetal.get_inspection_rule,
+            self.system_admin_cloud.baremetal.get_inspection_rule,
             inspection_rule.id,
         )
 
@@ -64,20 +66,20 @@ class TestBareMetalInspectionRule(base.BaseBaremetalTest):
             conditions=conditions,
             description="Test inspection rule 2",
         )
-        inspection_rules = self.conn.baremetal.inspection_rules()
+        inspection_rules = self.system_admin_cloud.baremetal.inspection_rules()
         ids = [rule.id for rule in inspection_rules]
         self.assertIn(inspection_rule1.id, ids)
         self.assertIn(inspection_rule2.id, ids)
 
-        inspection_rules_with_details = self.conn.baremetal.inspection_rules(
-            details=True
+        inspection_rules_with_details = (
+            self.system_admin_cloud.baremetal.inspection_rules(details=True)
         )
         for rule in inspection_rules_with_details:
             self.assertIsNotNone(rule.id)
             self.assertIsNotNone(rule.description)
 
-        inspection_rule_with_fields = self.conn.baremetal.inspection_rules(
-            fields=['uuid']
+        inspection_rule_with_fields = (
+            self.system_admin_cloud.baremetal.inspection_rules(fields=['uuid'])
         )
         for rule in inspection_rule_with_fields:
             self.assertIsNotNone(rule.id)
@@ -97,41 +99,48 @@ class TestBareMetalInspectionRule(base.BaseBaremetalTest):
             conditions=conditions,
             description="Test inspection rule",
         )
-        self.assertFalse(inspection_rule.extra)
         inspection_rule.description = 'Updated inspection rule'
 
-        inspection_rule = self.conn.baremetal.update_inspection_rule(
-            inspection_rule
+        inspection_rule = (
+            self.system_admin_cloud.baremetal.update_inspection_rule(
+                inspection_rule
+            )
         )
         self.assertEqual(
             'Updated inspection rule', inspection_rule.description
         )
 
-        inspection_rule = self.conn.baremetal.get_inspection_rule(
-            inspection_rule.id
+        inspection_rule = (
+            self.system_admin_cloud.baremetal.get_inspection_rule(
+                inspection_rule.id
+            )
         )
 
-        self.conn.baremetal.delete_inspection_rule(
+        self.system_admin_cloud.baremetal.delete_inspection_rule(
             inspection_rule.id, ignore_missing=False
         )
 
     def test_baremetal_inspection_rule_update(self):
         actions = [{"op": "set-attribute", "args": ["/driver", "idrac"]}]
         conditions = [
-            {"op": "ge", "args": ["node:memory_mb", 4096], "multiple": "all"}
+            {"op": "gt", "args": ["node:memory_mb", 4096], "multiple": "all"}
         ]
         inspection_rule = self.create_inspection_rule(
             actions=actions, conditions=conditions, phase="main", priority=100
         )
         inspection_rule.priority = 150
 
-        inspection_rule = self.conn.baremetal.update_inspection_rule(
-            inspection_rule
+        inspection_rule = (
+            self.system_admin_cloud.baremetal.update_inspection_rule(
+                inspection_rule
+            )
         )
         self.assertEqual(150, inspection_rule.priority)
 
-        inspection_rule = self.conn.baremetal.get_inspection_rule(
-            inspection_rule.id
+        inspection_rule = (
+            self.system_admin_cloud.baremetal.get_inspection_rule(
+                inspection_rule.id
+            )
         )
         self.assertEqual(150, inspection_rule.priority)
 
@@ -160,19 +169,24 @@ class TestBareMetalInspectionRule(base.BaseBaremetalTest):
         updated_actions = [
             {
                 "op": "set-attribute",
+                "loop": [],
                 "args": ["/driver", "fake"],
             }
         ]
 
-        inspection_rule = self.conn.baremetal.patch_inspection_rule(
-            inspection_rule,
-            dict(path='/actions', op='add', value=updated_actions),
+        inspection_rule = (
+            self.system_admin_cloud.baremetal.patch_inspection_rule(
+                inspection_rule,
+                dict(path='/actions', op='add', value=updated_actions),
+            )
         )
         self.assertEqual(updated_actions, inspection_rule.actions)
         self.assertEqual(description, inspection_rule.description)
 
-        inspection_rule = self.conn.baremetal.get_inspection_rule(
-            inspection_rule.id
+        inspection_rule = (
+            self.system_admin_cloud.baremetal.get_inspection_rule(
+                inspection_rule.id
+            )
         )
         self.assertEqual(updated_actions, inspection_rule.actions)
 
@@ -180,13 +194,15 @@ class TestBareMetalInspectionRule(base.BaseBaremetalTest):
         uuid = "bbb45f41-d4bc-4307-8d1d-32f95ce1e920"
         self.assertRaises(
             exceptions.NotFoundException,
-            self.conn.baremetal.get_inspection_rule,
+            self.system_admin_cloud.baremetal.get_inspection_rule,
             uuid,
         )
         self.assertRaises(
             exceptions.NotFoundException,
-            self.conn.baremetal.delete_inspection_rule,
+            self.system_admin_cloud.baremetal.delete_inspection_rule,
             uuid,
             ignore_missing=False,
         )
-        self.assertIsNone(self.conn.baremetal.delete_inspection_rule(uuid))
+        self.assertIsNone(
+            self.system_admin_cloud.baremetal.delete_inspection_rule(uuid)
+        )

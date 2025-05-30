@@ -854,7 +854,7 @@ class TestCase(base.TestCase):
             )
 
     def assert_no_calls(self):
-        # TODO(mordred) For now, creating the adapter for self.conn is
+        # TODO(mordred) For now, creating the adapter for connections is
         # triggering catalog lookups. Make sure no_calls is only 2.
         # When we can make that on-demand through a descriptor object,
         # drop this to 0.

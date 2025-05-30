@@ -30,8 +30,7 @@
         # [1] https://review.opendev.org/c/openstack/masakari/+/949153
         - openstacksdk-functional-devstack-masakari:
             voting: false
-        - openstacksdk-functional-devstack-ironic:
-            voting: false
+        - openstacksdk-functional-devstack-ironic
         - osc-functional-devstack-tips:
             voting: false
         - ansible-collections-openstack-functional-devstack:
@@ -42,3 +41,4 @@
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-networking-ext
+        - openstacksdk-functional-devstack-ironic

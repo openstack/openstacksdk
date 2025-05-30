@@ -17,18 +17,18 @@ from openstack.tests.functional.baremetal import base
 
 class TestBareMetalDriver(base.BaseBaremetalTest):
     def test_fake_hardware_get(self):
-        driver = self.operator_cloud.baremetal.get_driver('fake-hardware')
+        driver = self.system_admin_cloud.baremetal.get_driver('fake-hardware')
         self.assertEqual('fake-hardware', driver.name)
         self.assertNotEqual([], driver.hosts)
 
     def test_fake_hardware_list(self):
-        drivers = self.operator_cloud.baremetal.drivers()
+        drivers = self.system_admin_cloud.baremetal.drivers()
         self.assertIn('fake-hardware', [d.name for d in drivers])
 
     def test_driver_negative_non_existing(self):
         self.assertRaises(
             exceptions.NotFoundException,
-            self.operator_cloud.baremetal.get_driver,
+            self.system_admin_cloud.baremetal.get_driver,
             'not-a-driver',
         )
 
@@ -37,7 +37,7 @@ class TestBareMetalDriverDetails(base.BaseBaremetalTest):
     min_microversion = '1.30'
 
     def test_fake_hardware_get(self):
-        driver = self.operator_cloud.baremetal.get_driver('fake-hardware')
+        driver = self.system_admin_cloud.baremetal.get_driver('fake-hardware')
         self.assertEqual('fake-hardware', driver.name)
         for iface in ('boot', 'deploy', 'management', 'power'):
             self.assertIn(
@@ -49,7 +49,7 @@ class TestBareMetalDriverDetails(base.BaseBaremetalTest):
         self.assertNotEqual([], driver.hosts)
 
     def test_fake_hardware_list_details(self):
-        drivers = self.operator_cloud.baremetal.drivers(details=True)
+        drivers = self.system_admin_cloud.baremetal.drivers(details=True)
         driver = [d for d in drivers if d.name == 'fake-hardware'][0]
         for iface in ('boot', 'deploy', 'management', 'power'):
             self.assertIn(

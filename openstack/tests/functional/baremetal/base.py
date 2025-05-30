@@ -34,9 +34,9 @@ class BaseBaremetalTest(base.BaseFunctionalTest):
         return allocation
 
     def create_chassis(self, **kwargs):
-        chassis = self.operator_cloud.baremetal.create_chassis(**kwargs)
+        chassis = self.system_admin_cloud.baremetal.create_chassis(**kwargs)
         self.addCleanup(
-            lambda: self.operator_cloud.baremetal.delete_chassis(
+            lambda: self.system_admin_cloud.baremetal.delete_chassis(
                 chassis.id, ignore_missing=True
             )
         )
@@ -110,12 +110,12 @@ class BaseBaremetalTest(base.BaseFunctionalTest):
     def create_deploy_template(self, **kwargs):
         """Create a new deploy_template from attributes."""
 
-        deploy_template = self.operator_cloud.baremetal.create_deploy_template(
-            **kwargs
+        deploy_template = (
+            self.system_admin_cloud.baremetal.create_deploy_template(**kwargs)
         )
 
         self.addCleanup(
-            lambda: self.operator_cloud.baremetal.delete_deploy_template(
+            lambda: self.system_admin_cloud.baremetal.delete_deploy_template(
                 deploy_template.id, ignore_missing=True
             )
         )
@@ -124,10 +124,10 @@ class BaseBaremetalTest(base.BaseFunctionalTest):
     def create_runbook(self, **kwargs):
         """Create a new runbook from attributes."""
 
-        runbook = self.conn.baremetal.create_runbook(**kwargs)
+        runbook = self.operator_cloud.baremetal.create_runbook(**kwargs)
 
         self.addCleanup(
-            lambda: self.conn.baremetal.delete_runbook(
+            lambda: self.operator_cloud.baremetal.delete_runbook(
                 runbook.id, ignore_missing=True
             )
         )
@@ -136,10 +136,12 @@ class BaseBaremetalTest(base.BaseFunctionalTest):
     def create_inspection_rule(self, **kwargs):
         """Create a new inspection_rule from attributes."""
 
-        inspection_rule = self.conn.baremetal.create_inspection_rule(**kwargs)
+        inspection_rule = (
+            self.system_admin_cloud.baremetal.create_inspection_rule(**kwargs)
+        )
 
         self.addCleanup(
-            lambda: self.conn.baremetal.delete_inspection_rule(
+            lambda: self.system_admin_cloud.baremetal.delete_inspection_rule(
                 inspection_rule.id, ignore_missing=True
             )
         )
