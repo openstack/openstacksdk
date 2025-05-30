@@ -1,6 +1,10 @@
 # You can configure git to automatically use this file with the following config:
 # git config --global blame.ignoreRevsFile .git-blame-ignore-revs
 
+e0f57ad81fb6a9f5100cfdefdd30661326edb031  # Bump Python version used for linters to 3.10
+4beac2a236993bd7890279f3f22a2eda3cd89bad  # pre-commit: Prepare for bump
+399dfcc0e59124fde68376b77089b20485f6566f  # pre-commit: Migrate pyupgrade to ruff-format
+187e88a5593e4f475379738811043ee4528a7df3  # pre-commit: Migrate from black to ruff format
 c7010a2f929de9fad4e1a7c7f5a17cb8e210432a  # Bump black to 23.3.0
 a36f514295a4b4e6157ce69a210f653bcc4df7f2  # Blackify everything else
 004c7352d0a4fb467a319ae9743eb6ca5ee9ce7f  # Blackify openstack.cloud
