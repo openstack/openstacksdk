@@ -2313,6 +2313,85 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(2, len(self.session.get.call_args_list))
         self.assertIsInstance(results[0], Test)
 
+    def test_list_response_paginated_with_max_items(self):
+        """Test pagination with a 'max_items' in the response.
+
+        The limit variable is used in two meanings.
+        To make it clear, we add the max_items parameter and
+        use this value to determine the number of resources to be returned.
+        """
+        ids = [1, 2, 3, 4]
+
+        def make_mock_response():
+            resp = mock.Mock()
+            resp.status_code = 200
+            resp.links = {}
+            resp.json.return_value = {
+                "resources": [
+                    {"id": 1},
+                    {"id": 2},
+                    {"id": 3},
+                    {"id": 4},
+                ],
+            }
+            return resp
+
+        self.session.get.side_effect = [
+            make_mock_response(),
+            make_mock_response(),
+            make_mock_response(),
+        ]
+
+        # Since the limit value is 3 but the max_items value is 2, two resources are returned.
+        results = self.sot.list(
+            self.session, limit=3, paginated=True, max_items=2
+        )
+
+        result0 = next(results)
+        self.assertEqual(result0.id, ids[0])
+        result1 = next(results)
+        self.assertEqual(result1.id, ids[1])
+        self.session.get.assert_called_with(
+            self.base_path,
+            headers={"Accept": "application/json"},
+            params={"limit": 3},
+            microversion=None,
+        )
+        self.assertRaises(StopIteration, next, results)
+
+        # max_items is set and limit in unset (so limit defaults to max_items)
+        results = self.sot.list(self.session, paginated=True, max_items=2)
+        result0 = next(results)
+        self.assertEqual(result0.id, ids[0])
+        result1 = next(results)
+        self.assertEqual(result1.id, ids[1])
+        self.session.get.assert_called_with(
+            self.base_path,
+            headers={"Accept": "application/json"},
+            params={"limit": 2},
+            microversion=None,
+        )
+        self.assertRaises(StopIteration, next, results)
+
+        # both max_items and limit are set, and max_items is greater than limit
+        # (the opposite of this test: we should see multiple requests for limit resources each time)
+        results = self.sot.list(
+            self.session, limit=1, paginated=True, max_items=3
+        )
+        result0 = next(results)
+        self.assertEqual(result0.id, ids[0])
+        result1 = next(results)
+        self.assertEqual(result1.id, ids[1])
+        result2 = next(results)
+        self.assertEqual(result2.id, ids[2])
+        self.session.get.assert_called_with(
+            self.base_path,
+            headers={"Accept": "application/json"},
+            params={"limit": 1},
+            microversion=None,
+        )
+        self.assertRaises(StopIteration, next, results)
+
     def test_list_response_paginated_with_microversions(self):
         class Test(resource.Resource):
             service = self.service_name
@@ -2812,7 +2891,6 @@ class TestResourceActions(base.TestCase):
         self.session.get.side_effect = [resp1, resp2]
 
         results = self.sot.list(self.session, limit=2, paginated=True)
-
         # Get the first page's two items
         result0 = next(results)
         self.assertEqual(result0.id, ids[0])

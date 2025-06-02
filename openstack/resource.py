@@ -1956,6 +1956,7 @@ class Resource(dict):
         *,
         microversion: str | None = None,
         headers: dict[str, str] | None = None,
+        max_items: int | None = None,
         **params: ty.Any,
     ) -> ty.Generator[ty_ext.Self, None, None]:
         """This method is a generator which yields resource objects.
@@ -1978,6 +1979,8 @@ class Resource(dict):
         :param str microversion: API version to override the negotiated one.
         :param dict headers: Additional headers to inject into the HTTP
             request.
+        :param int max_items: The maximum number of items to return. Typically
+            this must be used with ``paginated=True``.
         :param dict params: These keyword arguments are passed through the
             :meth:`~openstack.resource.QueryParamter._transpose` method
             to find if any of them match expected query parameters to be sent
@@ -2027,6 +2030,17 @@ class Resource(dict):
         query_params = cls._query_mapping._transpose(api_filters, cls)
         uri = base_path % params
         uri_params = {}
+
+        if max_items and not query_params.get('limit'):
+            # If a user requested max_items but not a limit, set limit to
+            # max_items on the assumption that if (a) the value is smaller than
+            # the maximum server allowed value for limit then we'll be able to
+            # do a single call to get everything, while (b) if the value is
+            # larger then the server will ignore the value (or rather use its
+            # own hardcoded limit) making this is a no-op.
+            # If a user requested both max_items and limit then we assume they
+            # know what they're doing.
+            query_params['limit'] = max_items
 
         limit = query_params.get('limit')
 
@@ -2079,6 +2093,11 @@ class Resource(dict):
 
             marker = None
             for raw_resource in resources:
+                # We return as soon as we hit our limit, even if we have items
+                # remaining
+                if max_items and total_yielded >= max_items:
+                    return
+
                 # Do not allow keys called "self" through. Glance chose
                 # to name a key "self", so we need to pop it out because
                 # we can't send it through cls.existing and into the
@@ -2136,7 +2155,7 @@ class Resource(dict):
     @classmethod
     def _get_next_link(cls, uri, response, data, marker, limit, total_yielded):
         next_link = None
-        params = {}
+        params: dict[str, str | list[str] | int] = {}
 
         if isinstance(data, dict):
             pagination_key = cls.pagination_key

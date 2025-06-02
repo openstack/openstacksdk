@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    A new parameter, ``max_items``, is added to the ``Resource.list``
+    method. This allows users to specify the maximum number of resources
+    that should be returned to the user, as opposed to the maximum number
+    of items that should be requested from the server in a single request.
+    The latter is already handled by the ``limit`` parameter

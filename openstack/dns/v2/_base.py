@@ -123,4 +123,5 @@ class Resource(resource.Resource):
             next_link = uri
             params['marker'] = marker
             params['limit'] = limit
+
         return next_link, params
