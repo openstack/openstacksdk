@@ -10,6 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import typing as ty
+
+from keystoneauth1 import adapter
+import typing_extensions as ty_ext
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -91,11 +96,16 @@ class Flavor(resource.Resource):
     @classmethod
     def list(
         cls,
-        session,
-        paginated=True,
-        base_path='/flavors/detail',
-        **params,
-    ):
+        session: adapter.Adapter,
+        paginated: bool = True,
+        base_path: str | None = '/flavors/detail',
+        allow_unknown_params: bool = False,
+        *,
+        microversion: str | None = None,
+        headers: dict[str, str] | None = None,
+        max_items: int | None = None,
+        **params: ty.Any,
+    ) -> ty.Generator[ty_ext.Self, None, None]:
         # Find will invoke list when name was passed. Since we want to return
         # flavor with details (same as direct get) we need to swap default here
         # and list with "/flavors" if no details explicitely requested
@@ -104,7 +114,14 @@ class Flavor(resource.Resource):
             # Force it to string to avoid requests skipping it.
             params['is_public'] = 'None'
         return super().list(
-            session, paginated=paginated, base_path=base_path, **params
+            session,
+            paginated=paginated,
+            base_path=base_path,
+            allow_unknown_params=allow_unknown_params,
+            microversion=microversion,
+            headers=headers,
+            max_items=max_items,
+            **params,
         )
 
     def _action(self, session, body, microversion=None):

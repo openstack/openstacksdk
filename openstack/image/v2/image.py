@@ -12,6 +12,9 @@
 
 import typing as ty
 
+from keystoneauth1 import adapter
+import typing_extensions as ty_ext
+
 from openstack.common import tag
 from openstack import exceptions
 from openstack.image import _download
@@ -403,10 +406,72 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
 
         return request
 
+    @ty.overload
     @classmethod
-    def find(cls, session, name_or_id, ignore_missing=True, **params):
+    def find(
+        cls,
+        session: adapter.Adapter,
+        name_or_id: str,
+        ignore_missing: ty.Literal[True] = True,
+        list_base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
+        **params: ty.Any,
+    ) -> ty_ext.Self | None: ...
+
+    @ty.overload
+    @classmethod
+    def find(
+        cls,
+        session: adapter.Adapter,
+        name_or_id: str,
+        ignore_missing: ty.Literal[False],
+        list_base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
+        **params: ty.Any,
+    ) -> ty_ext.Self: ...
+
+    # excuse the duplication here: it's mypy's fault
+    # https://github.com/python/mypy/issues/14764
+    @ty.overload
+    @classmethod
+    def find(
+        cls,
+        session: adapter.Adapter,
+        name_or_id: str,
+        ignore_missing: bool,
+        list_base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
+        **params: ty.Any,
+    ) -> ty_ext.Self | None: ...
+
+    @classmethod
+    def find(
+        cls,
+        session: adapter.Adapter,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        list_base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
+        **params: ty.Any,
+    ) -> ty_ext.Self | None:
         # Do a regular search first (ignoring missing)
-        result = super().find(session, name_or_id, True, **params)
+        result = super().find(
+            session,
+            name_or_id,
+            ignore_missing=True,
+            list_base_path=list_base_path,
+            microversion=microversion,
+            all_projects=all_projects,
+            **params,
+        )
 
         if result:
             return result

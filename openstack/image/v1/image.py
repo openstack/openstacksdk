@@ -10,6 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import typing as ty
+
+from keystoneauth1 import adapter
+import typing_extensions as ty_ext
+
 from openstack import exceptions
 from openstack.image import _download
 from openstack import resource
@@ -87,8 +92,62 @@ class Image(resource.Resource, _download.DownloadMixin):
     #: The timestamp when this image was last updated.
     updated_at = resource.Body('updated_at')
 
+    @ty.overload
     @classmethod
-    def find(cls, session, name_or_id, ignore_missing=True, **params):
+    def find(
+        cls,
+        session: adapter.Adapter,
+        name_or_id: str,
+        ignore_missing: ty.Literal[True] = True,
+        list_base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
+        **params: ty.Any,
+    ) -> ty_ext.Self | None: ...
+
+    @ty.overload
+    @classmethod
+    def find(
+        cls,
+        session: adapter.Adapter,
+        name_or_id: str,
+        ignore_missing: ty.Literal[False],
+        list_base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
+        **params: ty.Any,
+    ) -> ty_ext.Self: ...
+
+    # excuse the duplication here: it's mypy's fault
+    # https://github.com/python/mypy/issues/14764
+    @ty.overload
+    @classmethod
+    def find(
+        cls,
+        session: adapter.Adapter,
+        name_or_id: str,
+        ignore_missing: bool,
+        list_base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
+        **params: ty.Any,
+    ) -> ty_ext.Self | None: ...
+
+    @classmethod
+    def find(
+        cls,
+        session: adapter.Adapter,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        list_base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
+        **params: ty.Any,
+    ) -> ty_ext.Self | None:
         """Find a resource by its name or id.
 
         :param session: The session to use for making this request.
@@ -117,7 +176,7 @@ class Image(resource.Resource, _download.DownloadMixin):
         try:
             match = cls.existing(
                 id=name_or_id,
-                connection=session._get_connection(),
+                connection=session._get_connection(),  # type: ignore
                 **params,
             )
             return match.fetch(session, **params)
@@ -126,7 +185,12 @@ class Image(resource.Resource, _download.DownloadMixin):
 
         params['name'] = name_or_id
 
-        data = cls.list(session, base_path='/images/detail', **params)
+        data = cls.list(
+            session,
+            base_path='/images/detail',
+            all_projects=all_projects,
+            **params,
+        )
 
         result = cls._get_one_match(name_or_id, data)
         if result is not None:
