@@ -35,6 +35,7 @@ module = [
     "openstack.common.*",
     "openstack.config._util",
     "openstack.config.defaults",
+    "openstack.config.cloud_config",
     "openstack.config.cloud_region",
     "openstack.config.loader",
     "openstack.config.vendors",

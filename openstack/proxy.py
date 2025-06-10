@@ -222,6 +222,7 @@ class Proxy(adapter.Adapter):
 
         try:
             if conn.cache_enabled and not skip_cache and method == 'GET':
+                assert key is not None  # type narrow
                 # Get the object expiration time from config
                 # default to 0 to disable caching for this resource type
                 expiration_time = int(
