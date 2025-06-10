@@ -120,3 +120,15 @@ class BaseBaremetalTest(base.BaseFunctionalTest):
             )
         )
         return deploy_template
+
+    def create_runbook(self, **kwargs):
+        """Create a new runbook from attributes."""
+
+        runbook = self.conn.baremetal.create_runbook(**kwargs)
+
+        self.addCleanup(
+            lambda: self.conn.baremetal.delete_runbook(
+                runbook.id, ignore_missing=True
+            )
+        )
+        return runbook

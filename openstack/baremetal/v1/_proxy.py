@@ -23,6 +23,7 @@ from openstack.baremetal.v1 import driver as _driver
 from openstack.baremetal.v1 import node as _node
 from openstack.baremetal.v1 import port as _port
 from openstack.baremetal.v1 import port_group as _portgroup
+from openstack.baremetal.v1 import runbooks as _runbooks
 from openstack.baremetal.v1 import volume_connector as _volumeconnector
 from openstack.baremetal.v1 import volume_target as _volumetarget
 from openstack import exceptions
@@ -43,6 +44,7 @@ class Proxy(proxy.Proxy):
         "node": _node.Node,
         "port": _port.Port,
         "port_group": _portgroup.PortGroup,
+        "runbook": _runbooks.Runbook,
         "volume_connector": _volumeconnector.VolumeConnector,
         "volume_target": _volumetarget.VolumeTarget,
     }
@@ -1827,6 +1829,106 @@ class Proxy(proxy.Proxy):
         return self._get_resource(
             _deploytemplates.DeployTemplate, deploy_template
         ).patch(self, patch)
+
+    # ========== Runbooks ==========
+
+    def runbooks(self, details=False, **query):
+        """Retrieve a generator of runbooks.
+
+        :param details: A boolean indicating whether the detailed information
+            for every runbook should be returned.
+        :param dict query: Optional query parameters to be sent to
+            restrict the runbooks to be returned.
+
+        :returns: A generator of Runbooks instances.
+        """
+        if details:
+            query['detail'] = True
+        return _runbooks.Runbook.list(self, **query)
+
+    def create_runbook(self, **attrs):
+        """Create a new runbook from attributes.
+
+        :param dict attrs: Keyword arguments that will be used to create a
+            :class:`~openstack.baremetal.v1.runbooks.Runbook`.
+
+        :returns: The results of runbook creation.
+        :rtype: :class:`~openstack.baremetal.v1.runbooks.Runbook`.
+        """
+        return self._create(_runbooks.Runbook, **attrs)
+
+    def update_runbook(self, runbook, **attrs):
+        """Update a runbook.
+
+        :param runbook: Either the ID of a runbook,
+            or an instance of
+            :class:`~openstack.baremetal.v1.runbooks.Runbook`.
+        :param dict attrs: The attributes to update on
+            the runbook represented
+            by the ``runbook`` parameter.
+
+        :returns: The updated runbook.
+        :rtype: :class:`~openstack.baremetal.v1.runbooks.Runbook`
+        """
+        return self._update(_runbooks.Runbook, runbook, **attrs)
+
+    def delete_runbook(self, runbook, ignore_missing=True):
+        """Delete a runbook.
+
+        :param runbook:The value can be
+            either the ID of a runbook or a
+            :class:`~openstack.baremetal.v1.runbooks.Runbook`
+            instance.
+
+        :param bool ignore_missing: When set to ``False``,
+            an exception:class:`~openstack.exceptions.NotFoundException`
+            will be raised when the runbook could not be found.
+            When set to ``True``, no exception will be raised when attempting
+            to delete a non-existent runbook.
+
+        :returns: The instance of the runbook which was deleted.
+        :rtype: :class:`~openstack.baremetal.v1.runbooks.Runbook`.
+        """
+
+        return self._delete(
+            _runbooks.Runbook,
+            runbook,
+            ignore_missing=ignore_missing,
+        )
+
+    def get_runbook(self, runbook, fields=None):
+        """Get a specific runbook.
+
+        :param runbook: The value can be the name or ID
+            of a runbook
+            :class:`~openstack.baremetal.v1.runbooks.Runbook`
+            instance.
+
+        :param fields: Limit the resource fields to fetch.
+
+        :returns: One
+            :class:`~openstack.baremetal.v1.runbooks.Runbook`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
+            when no runbook matching the name or ID could be found.
+        """
+        return self._get_with_fields(_runbooks.Runbook, runbook, fields=fields)
+
+    def patch_runbook(self, runbook, patch):
+        """Apply a JSON patch to the runbook.
+
+        :param runbooks: The value can be the ID of a
+            runbook or a :class:`~openstack.baremetal.v1.runbooks.Runbook`
+            instance.
+
+        :param patch: JSON patch to apply.
+
+        :returns: The updated runbook.
+        :rtype:
+            :class:`~openstack.baremetal.v1.runbooks.Runbook`
+        """
+        return self._get_resource(_runbooks.Runbook, runbook).patch(
+            self, patch
+        )
 
     # ========== Conductors ==========
 
