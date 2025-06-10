@@ -134,8 +134,8 @@ construct a Connection with the ``CONF`` object and an authenticated Session.
 .. code-block:: python
 
     from keystoneauth1 import loading as ks_loading
-    from oslo_config import cfg
     from openstack import connection
+    from oslo_config import cfg
 
     CONF = cfg.CONF
 

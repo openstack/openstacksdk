@@ -909,22 +909,36 @@ class CloudRegion:
     def get_all_version_data(
         self, service_type: str
     ) -> list[discover.VersionData]:
+        """Retrieve version data for the given service.
+
+        :param service_type: The service to fetch version data for.
+        :returns: A `~keystoneauth1.discover.VersionData` object containing the
+            version data for the requested service.
+        """
         # Seriously. Don't think about the existential crisis
         # that is the next line. You'll wind up in cthulhu's lair.
         service_type = self.get_service_type(service_type)
         region_name = self.get_region_name(service_type)
+        assert region_name is not None  # narrow type
+        interface = self.get_interface(service_type)
+        assert interface is not None  # narrow type
+
+        interfaces = interface if isinstance(interface, list) else [interface]
+
         versions = self.get_session().get_all_version_data(
             service_type=service_type,
-            interface=self.get_interface(service_type),
+            interface=interface,
             region_name=region_name,
         )
 
-        region_versions = versions.get(region_name, {})  # type: ignore
-        interface_versions = region_versions.get(
-            self.get_interface(service_type),  # type: ignore
-            {},
-        )
-        return interface_versions.get(service_type, [])
+        region_versions = versions.get(region_name, {})
+        for interface in interfaces:
+            interface_versions = region_versions.get(interface, {})
+            service_version_data = interface_versions.get(service_type)
+            if service_version_data is not None:
+                return service_version_data
+
+        return []
 
     def _get_endpoint_from_catalog(
         self,
