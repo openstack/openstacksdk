@@ -22,6 +22,13 @@ if ty.TYPE_CHECKING:
     from openstack.config import cloud_region
 
 
+__all__ = [
+    'OpenStackConfig',
+    'cloud_region',
+    'get_cloud_region',
+]
+
+
 # TODO(stephenfin): Expand kwargs once we've typed OpenstackConfig.get_one
 def get_cloud_region(
     service_key: str | None = None,
@@ -53,7 +60,8 @@ def get_cloud_region(
         app_version=app_version,
     )
     if options:
-        config.register_argparse_arguments(options, sys.argv, service_key)
+        service_keys = [service_key] if service_key is not None else []
+        config.register_argparse_arguments(options, sys.argv, service_keys)
         parsed_options, _ = options.parse_known_args(sys.argv)
     else:
         parsed_options = None
