@@ -31,12 +31,12 @@ During development, it may be more convenient to run a subset of the tests
 to keep test time to a minimum. You can choose to run the tests only on one
 version. A step further is to run only the tests you are working on.::
 
-   # Run run the tests on Python 3.9
-   $ tox -e py39
-   # Run only the compute unit tests on Python 3.9
-   $ tox -e py39 openstack.tests.unit.compute
-   # Run only the tests in a specific file on Python 3.9
-   $ tox -e py39 -- -n openstack/tests/unit/compute/test_version.py
+   # Run run the tests on Python 3.13
+   $ tox -e py313
+   # Run only the compute unit tests on Python 3.13
+   $ tox -e py313 openstack.tests.unit.compute
+   # Run only the tests in a specific file on Python 3.13
+   $ tox -e py313 -- -n openstack/tests/unit/compute/test_version.py
 
 
 Functional Tests
