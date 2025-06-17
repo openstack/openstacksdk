@@ -110,6 +110,14 @@ Runbook Operations
             create_runbook, update_runbook,
             patch_runbook, delete_runbook
 
+Inspection Rule Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: openstack.baremetal.v1._proxy.Proxy
+  :noindex:
+  :members: inspection_rules, get_inspection_rule,
+            create_inspection_rule, update_inspection_rule,
+            patch_inspection_rule, delete_inspection_rule
+
 Utilities
 ---------
 

@@ -132,3 +132,15 @@ class BaseBaremetalTest(base.BaseFunctionalTest):
             )
         )
         return runbook
+
+    def create_inspection_rule(self, **kwargs):
+        """Create a new inspection_rule from attributes."""
+
+        inspection_rule = self.conn.baremetal.create_inspection_rule(**kwargs)
+
+        self.addCleanup(
+            lambda: self.conn.baremetal.delete_inspection_rule(
+                inspection_rule.id, ignore_missing=True
+            )
+        )
+        return inspection_rule

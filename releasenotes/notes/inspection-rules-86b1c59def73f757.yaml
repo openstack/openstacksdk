@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Adds support for inspection rules; an API feature to create a resource
+    containing conditions that evaluate against inspection data and actions
+    that run on a node when conditions are met during inspection.

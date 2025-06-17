@@ -17,6 +17,7 @@ from openstack.baremetal.v1 import allocation
 from openstack.baremetal.v1 import chassis
 from openstack.baremetal.v1 import deploy_templates
 from openstack.baremetal.v1 import driver
+from openstack.baremetal.v1 import inspection_rules
 from openstack.baremetal.v1 import node
 from openstack.baremetal.v1 import port
 from openstack.baremetal.v1 import port_group
@@ -510,3 +511,49 @@ class TestWaitForNodesProvisionState(base.TestCase):
         self.assertEqual(['1'], [x.id for x in result.success])
         self.assertEqual(['3'], [x.id for x in result.timeout])
         self.assertEqual(['2'], [x.id for x in result.failure])
+
+
+class TestInspectionRules(TestBaremetalProxy):
+    @mock.patch.object(inspection_rules.InspectionRule, 'list')
+    def test_inspection_rules_detailed(self, mock_list):
+        result = self.proxy.inspection_rules(details=True, query=1)
+        self.assertIs(result, mock_list.return_value)
+        mock_list.assert_called_once_with(self.proxy, details=True, query=1)
+
+    @mock.patch.object(inspection_rules.InspectionRule, 'list')
+    def test_inspection_rules_not_detailed(self, mock_list):
+        result = self.proxy.inspection_rules(query=1)
+        self.assertIs(result, mock_list.return_value)
+        mock_list.assert_called_once_with(self.proxy, query=1)
+
+    def test_create_inspection_rule(self):
+        self.verify_create(
+            self.proxy.create_inspection_rule, inspection_rules.InspectionRule
+        )
+
+    def test_get_inspection_rule(self):
+        self.verify_get(
+            self.proxy.get_inspection_rule,
+            inspection_rules.InspectionRule,
+            mock_method=_MOCK_METHOD,
+            expected_kwargs={'fields': None},
+        )
+
+    def test_update_inspection_rule(self):
+        self.verify_update(
+            self.proxy.update_inspection_rule, inspection_rules.InspectionRule
+        )
+
+    def test_delete_inspection_rule(self):
+        self.verify_delete(
+            self.proxy.delete_inspection_rule,
+            inspection_rules.InspectionRule,
+            False,
+        )
+
+    def test_delete_inspection_rule_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_inspection_rule,
+            inspection_rules.InspectionRule,
+            True,
+        )
