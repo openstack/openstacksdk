@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack.dns.v2 import _proxy
+from openstack.dns.v2 import blacklist
 from openstack.dns.v2 import floating_ip
 from openstack.dns.v2 import recordset
 from openstack.dns.v2 import service_status
@@ -363,3 +364,32 @@ class TestDnsTsigKey(TestDnsProxy):
 
     def test_tesigkeys(self):
         self.verify_list(self.proxy.tsigkeys, tsigkey.TSIGKey)
+
+
+class TestDnsBlacklist(TestDnsProxy):
+    def test_blacklist_create(self):
+        self.verify_create(
+            self.proxy.create_blacklist,
+            blacklist.Blacklist,
+            method_kwargs={'pattern': '.*\.example\.com'},
+            expected_kwargs={
+                'pattern': '.*\.example\.com',
+                'prepend_key': False,
+            },
+        )
+
+    def test_blacklist_delete(self):
+        self.verify_delete(
+            self.proxy.delete_blacklist,
+            blacklist.Blacklist,
+            ignore_missing=True,
+        )
+
+    def test_blacklist_update(self):
+        self.verify_update(self.proxy.update_blacklist, blacklist.Blacklist)
+
+    def test_blacklist_get(self):
+        self.verify_get(self.proxy.get_blacklist, blacklist.Blacklist)
+
+    def test_blacklists(self):
+        self.verify_list(self.proxy.blacklists, blacklist.Blacklist)

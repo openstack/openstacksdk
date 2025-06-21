@@ -82,3 +82,12 @@ Service Status Operations
 .. autoclass:: openstack.dns.v2._proxy.Proxy
   :noindex:
   :members: service_statuses, get_service_status
+
+
+Blacklist Operations
+^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.dns.v2._proxy.Proxy
+  :noindex:
+  :members: blacklists, get_blacklist, create_blacklist,
+            update_blacklist, delete_blacklist
