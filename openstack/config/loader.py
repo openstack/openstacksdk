@@ -342,7 +342,6 @@ class OpenStackConfig:
 
             # If cache class is given, use that. If not, but if cache time
             # is given, default to memory. Otherwise, default to nothing.
-            # to memory.
             if self._cache_expiration_time:
                 self._cache_class = 'dogpile.cache.memory'
             self._cache_class = self.cloud_config['cache'].get(
