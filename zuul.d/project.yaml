@@ -16,10 +16,6 @@
       jobs:
         - openstack-tox-py312
         - opendev-buildset-registry
-        - nodepool-build-image-siblings:
-            voting: false
-        - dib-nodepool-functional-openstack-ubuntu-noble-src:
-            voting: false
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-networking-ext
