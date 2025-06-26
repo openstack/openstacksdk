@@ -1,3 +1,50 @@
+[build-system]
+requires = ["pbr>=6.1.1"]
+build-backend = "pbr.build"
+
+[project]
+name = "openstacksdk"
+description = "An SDK for building applications to work with OpenStack"
+authors = [
+    {name = "OpenStack"},
+    {email="openstack-discuss@lists.openstack.org"}
+]
+readme = {file = "README.rst", content-type = "text/x-rst"}
+license = {text = "Apache-2.0"}
+dynamic = ["version", "dependencies"]
+# dependencies = [ ]
+requires-python = ">=3.10"
+classifiers = [
+  "Environment :: OpenStack",
+  "Intended Audience :: Information Technology",
+  "Intended Audience :: System Administrators",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+
+# [project.optional-dependencies]
+# test = [
+# ]
+
+[project.urls]
+Homepage = "https://docs.openstack.org/openstacksdk"
+Repository = "https://opendev.org/openstack/openstacksdk/"
+
+[project.scripts]
+# TODO(mordred) Move this to an OSC command at some point
+openstack-inventory = "openstack.cloud.cmd.inventory:main"
+
+[tool.setuptools]
+packages = [
+    "openstack"
+]
+
 [tool.mypy]
 python_version = "3.10"
 show_column_numbers = true
