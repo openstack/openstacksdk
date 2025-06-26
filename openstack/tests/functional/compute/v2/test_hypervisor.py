@@ -10,21 +10,28 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.compute.v2 import hypervisor as _hypervisor
 from openstack.tests.functional import base
 
 
 class TestHypervisor(base.BaseFunctionalTest):
-    def setUp(self):
-        super().setUp()
+    def test_hypervisors(self):
+        hypervisors = list(self.operator_cloud.compute.hypervisors())
+        self.assertIsNotNone(hypervisors)
 
-    def test_list_hypervisors(self):
-        rslt = list(self.operator_cloud.compute.hypervisors())
-        self.assertIsNotNone(rslt)
+        hypervisors = list(
+            self.operator_cloud.compute.hypervisors(details=True)
+        )
+        self.assertIsNotNone(hypervisors)
 
-        rslt = list(self.operator_cloud.compute.hypervisors(details=True))
-        self.assertIsNotNone(rslt)
+        hypervisor = self.operator_cloud.compute.get_hypervisor(
+            hypervisors[0].id
+        )
+        self.assertIsInstance(hypervisor, _hypervisor.Hypervisor)
+        self.assertEqual(hypervisor.id, hypervisors[0].id)
 
-    def test_get_find_hypervisors(self):
-        for hypervisor in self.operator_cloud.compute.hypervisors():
-            self.operator_cloud.compute.get_hypervisor(hypervisor.id)
-            self.operator_cloud.compute.find_hypervisor(hypervisor.id)
+        hypervisor = self.operator_cloud.compute.find_hypervisor(
+            hypervisors[0].name, ignore_missing=False
+        )
+        self.assertIsInstance(hypervisor, _hypervisor.Hypervisor)
+        self.assertEqual(hypervisor.id, hypervisors[0].id)
