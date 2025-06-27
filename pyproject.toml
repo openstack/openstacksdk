@@ -6,8 +6,7 @@ build-backend = "pbr.build"
 name = "openstacksdk"
 description = "An SDK for building applications to work with OpenStack"
 authors = [
-    {name = "OpenStack"},
-    {email="openstack-discuss@lists.openstack.org"}
+    {name = "OpenStack", email = "openstack-discuss@lists.openstack.org"},
 ]
 readme = {file = "README.rst", content-type = "text/x-rst"}
 license = {text = "Apache-2.0"}
@@ -105,7 +104,6 @@ ignore_errors = true
 
 [tool.ruff]
 line-length = 79
-target-version = "py310"
 
 [tool.ruff.format]
 quote-style = "preserve"
