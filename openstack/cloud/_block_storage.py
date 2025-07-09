@@ -454,7 +454,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         timeout=None,
         **kwargs,
     ):
-        """Create a volume.
+        """Create a snapshot.
 
         :param volume_id: the ID of the volume to snapshot.
         :param force: If set to True the snapshot will be created even if the
