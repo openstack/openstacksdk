@@ -169,7 +169,6 @@ class TestBareMetalInspectionRule(base.BaseBaremetalTest):
         updated_actions = [
             {
                 "op": "set-attribute",
-                "loop": [],
                 "args": ["/driver", "fake"],
             }
         ]

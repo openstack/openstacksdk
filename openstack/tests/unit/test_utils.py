@@ -223,13 +223,12 @@ class TestMaximumSupportedMicroversion(base.TestCase):
 
 class TestOsServiceTypesVersion(base.TestCase):
     def test_ost_version(self):
-        ost_version = '2019-05-01T19:53:21.498745'
+        ost_version = '2022-09-13T15:34:32.154125'
         self.assertEqual(
             ost_version,
             os_service_types.ServiceTypes().version,
             "This project must be pinned to the latest version of "
-            "os-service-types. Please bump requirements.txt and "
-            "lower-constraints.txt accordingly.",
+            "os-service-types. Please bump requirements.txt accordingly.",
         )
 
 
