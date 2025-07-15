@@ -211,7 +211,7 @@ class TestMaximumSupportedMicroversion(base.TestCase):
 
     def test_value_more_than_max(self):
         self.assertEqual(
-            '1.99', utils.maximum_supported_microversion(self.adapter, '1.100')
+            '1.99', utils.maximum_supported_microversion(self.adapter, '1.104')
         )
 
     def test_value_less_than_min(self):

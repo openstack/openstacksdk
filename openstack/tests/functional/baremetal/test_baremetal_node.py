@@ -557,3 +557,134 @@ class TestBareMetalNodeListFirmware(base.BaseBaremetalTest):
         self.assertEqual("no-firmware", node.firmware_interface)
         result = self.operator_cloud.baremetal.list_node_firmware(node)
         self.assertEqual({'firmware': []}, result)
+
+
+class TestBareMetalNodeInstanceName(base.BaseBaremetalTest):
+    min_microversion = '1.104'
+
+    def test_node_instance_name(self):
+        """Test instance_name field functionality."""
+        node = self.create_node(name='test-node-instance-name')
+        self.assertIsNone(node.instance_name)
+
+        # Set instance_name
+        instance_name = "test-instance-123"
+        node = self.operator_cloud.baremetal.patch_node(
+            node.id,
+            [{'op': 'add', 'path': '/instance_name', 'value': instance_name}],
+        )
+        self.assertEqual(instance_name, node.instance_name)
+
+        # Verify on server side
+        node = self.operator_cloud.baremetal.get_node(node.id)
+        self.assertEqual(instance_name, node.instance_name)
+
+        # Clear instance_name
+        node = self.operator_cloud.baremetal.patch_node(
+            node.id, [{'op': 'remove', 'path': '/instance_name'}]
+        )
+        self.assertIsNone(node.instance_name)
+
+        # Verify on server side
+        node = self.operator_cloud.baremetal.get_node(node.id)
+        self.assertIsNone(node.instance_name)
+
+    def test_node_instance_name_query(self):
+        """Test querying nodes by instance_name."""
+        node1 = self.create_node(name='node1')
+        node2 = self.create_node(name='node2')
+
+        # Set different instance names using explicit patches
+        self.operator_cloud.baremetal.patch_node(
+            node1.id,
+            [{'op': 'add', 'path': '/instance_name', 'value': 'instance-1'}],
+        )
+        self.operator_cloud.baremetal.patch_node(
+            node2.id,
+            [{'op': 'add', 'path': '/instance_name', 'value': 'instance-2'}],
+        )
+
+        # Query by instance_name
+        result = list(
+            self.operator_cloud.baremetal.nodes(
+                instance_name="instance-1", details=True
+            )
+        )
+        self.assertEqual(1, len(result))
+        self.assertEqual(node1.id, result[0].id)
+        self.assertEqual("instance-1", result[0].instance_name)
+
+        # Query by different instance_name
+        result = list(
+            self.operator_cloud.baremetal.nodes(
+                instance_name="instance-2", details=True
+            )
+        )
+        self.assertEqual(1, len(result))
+        self.assertEqual(node2.id, result[0].id)
+        self.assertEqual("instance-2", result[0].instance_name)
+
+        # Query by non-existent instance_name
+        result = list(
+            self.operator_cloud.baremetal.nodes(
+                instance_name="non-existent", details=True
+            )
+        )
+        self.assertEqual(0, len(result))
+
+    def test_node_instance_name_with_instance_info(self):
+        """Test that instance_name works with instance_info.display_name."""
+        node = self.create_node(name='test-node-display-name')
+
+        # Set instance_info.display_name first
+        self.operator_cloud.baremetal.patch_node(
+            node.id,
+            [
+                {
+                    'op': 'add',
+                    'path': '/instance_info',
+                    'value': {'display_name': 'display-name-123'},
+                }
+            ],
+        )
+
+        # Verify instance_name was automatically set
+        node = self.operator_cloud.baremetal.get_node(node.id)
+        self.assertEqual('display-name-123', node.instance_name)
+        self.assertEqual(
+            {'display_name': 'display-name-123'}, node.instance_info
+        )
+
+        # Set instance_name explicitly
+        self.operator_cloud.baremetal.patch_node(
+            node.id,
+            [
+                {
+                    'op': 'replace',
+                    'path': '/instance_name',
+                    'value': 'explicit-name',
+                }
+            ],
+        )
+
+        # Verify explicit instance_name takes precedence
+        node = self.operator_cloud.baremetal.get_node(node.id)
+        self.assertEqual('explicit-name', node.instance_name)
+
+        self.operator_cloud.baremetal.patch_node(
+            node.id,
+            [
+                {
+                    'op': 'replace',
+                    'path': '/instance_info',
+                    'value': {'display_name': 'new-display-name'},
+                }
+            ],
+        )
+
+        # Verify instance_name was not overridden
+        node = self.operator_cloud.baremetal.get_node(node.id)
+        self.assertEqual('explicit-name', node.instance_name)
+        self.assertEqual(
+            {'display_name': 'new-display-name'}, node.instance_info
+        )
