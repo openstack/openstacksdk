@@ -1,13 +1,13 @@
-openstack.network.v2.vpn_ikepolicy
-==================================
+openstack.network.v2.vpn_ipsec_policy
+=====================================
 
-.. automodule:: openstack.network.v2.vpn_ikepolicy
+.. automodule:: openstack.network.v2.vpn_ipsec_policy
 
-The VpnIkePolicy Class
-----------------------
+The VpnIpsecPolicy Class
+------------------------
 
-The ``VpnIkePolicy`` class inherits from
+The ``VpnIpsecPolicy`` class inherits from
 :class:`~openstack.resource.Resource`.
 
-.. autoclass:: openstack.network.v2.vpn_ikepolicy.VpnIkePolicy
+.. autoclass:: openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy
    :members:

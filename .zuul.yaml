@@ -11,7 +11,8 @@
     required-projects:
       - openstack/keystoneauth
       - openstack/openstacksdk
-      - openstack/os-client-config
+      - name: openstack/os-client-config
+        override-checkout: 2.1.0
 
 - project-template:
     name: openstacksdk-tox-tips
@@ -40,6 +41,7 @@
       # stable gates.
       - name: openstack/openstacksdk
       - name: openstack/os-client-config
+        override-checkout: 2.1.0
     timeout: 9000
     vars:
       devstack_localrc:
@@ -186,7 +188,8 @@
     required-projects:
       - openstack/keystoneauth
       - openstack/openstacksdk
-      - openstack/os-client-config
+      - name: openstack/os-client-config
+        override-checkout: 2.1.0
     vars:
       tox_install_siblings: true
 
