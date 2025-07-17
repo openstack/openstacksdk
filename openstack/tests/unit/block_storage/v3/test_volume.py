@@ -100,6 +100,7 @@ class TestVolume(base.TestCase):
                 "project_id": "project_id",
                 "created_at": "created_at",
                 "updated_at": "updated_at",
+                "properties": "metadata",
                 "limit": "limit",
                 "marker": "marker",
             },
