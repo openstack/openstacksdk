@@ -99,7 +99,7 @@
       - openstack/designate
       - openstack/octavia
     vars:
-      configure_swap_size: 4096
+      configure_swap_size: 8192
       devstack_local_conf:
         post-config:
           $OCTAVIA_CONF:
@@ -148,7 +148,7 @@
       - openstack/tap-as-a-service
     vars:
       INSTALL_OVN: False
-      configure_swap_size: 4096
+      configure_swap_size: 8192
       devstack_local_conf:
         post-config:
           $OCTAVIA_CONF:
