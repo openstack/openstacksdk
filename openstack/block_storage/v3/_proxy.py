@@ -1433,6 +1433,18 @@ class Proxy(proxy.Proxy):
         backup = self._get_resource(_backup.Backup, backup)
         return backup.fetch_metadata(self)
 
+    def export_record(self, backup):
+        """Get a backup meatadata to export
+
+        :param backup: The value can be the ID of a backup
+            or a :class:`~openstack.block_storage.v2.backup.Backup`
+            instance.
+
+        :returns: The backup export record fields
+        """
+        backup = self._get_resource(_backup.Backup, backup)
+        return backup.export(self)
+
     def set_backup_metadata(self, backup, **metadata):
         """Update metadata for a backup
 

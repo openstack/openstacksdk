@@ -187,6 +187,17 @@ class Backup(resource.Resource, metadata.MetadataMixin):
         exceptions.raise_from_response(resp)
         return resp
 
+    def export(self, session):
+        """Export the current backup
+
+        :param session: openstack session
+        :return: The backup export record fields
+        """
+        url = utils.urljoin(self.base_path, self.id, "export_record")
+        resp = session.get(url)
+        exceptions.raise_from_response(resp)
+        return resp
+
     def restore(self, session, volume_id=None, name=None):
         """Restore current backup to volume
 

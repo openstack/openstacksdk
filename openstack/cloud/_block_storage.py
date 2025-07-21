@@ -582,6 +582,21 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return backup
 
+    def export_volume_backup(self, backup_id):
+        """Export a volume backup.
+
+        :param backup_id: the ID of the backup.
+
+        :returns: The backup export record fields
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if wait time
+            exceeded.
+        :raises: :class:`~openstack.exceptions.SDKException` on operation
+            error.
+        """
+        payload = {'backup': backup_id}
+
+        return self.block_storage.export_record(**payload)
+
     # TODO(stephenfin): Remove 'filters' in a future major version
     def get_volume_backup(self, name_or_id, filters=None):
         """Get a volume backup by name or ID.

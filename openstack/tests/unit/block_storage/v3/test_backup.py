@@ -147,6 +147,18 @@ class TestBackup(base.TestCase):
             params={},
         )
 
+    def test_export(self):
+        sot = backup.Backup(**BACKUP)
+
+        create_response = mock.Mock()
+        create_response.status_code = 200
+        create_response.json.return_value = {}
+        create_response.headers = {}
+        self.sess.get.return_value = create_response
+        url = f'backups/{FAKE_ID}/export_record'
+        sot.export(self.sess)
+        self.sess.get.assert_called_with(url)
+
     def test_restore(self):
         sot = backup.Backup(**BACKUP)
 
