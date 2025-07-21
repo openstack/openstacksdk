@@ -198,7 +198,7 @@ class TestVolumeActions(TestVolume):
         self.assertIsNone(sot.set_image_metadata(self.sess, {'foo': 'bar'}))
 
         url = f'volumes/{FAKE_ID}/action'
-        body = {'os-set_image_metadata': {'foo': 'bar'}}
+        body = {'os-set_image_metadata': {'metadata': {'foo': 'bar'}}}
         self.sess.post.assert_called_with(url, json=body)
 
     def test_delete_image_metadata(self):

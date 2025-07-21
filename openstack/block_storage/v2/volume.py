@@ -125,7 +125,7 @@ class Volume(resource.Resource, metadata.MetadataMixin):
 
     def set_image_metadata(self, session, metadata):
         """Sets image metadata key-value pairs on the volume"""
-        body = {'os-set_image_metadata': metadata}
+        body = {'os-set_image_metadata': {'metadata': metadata}}
         self._action(session, body)
 
     def delete_image_metadata(self, session):
