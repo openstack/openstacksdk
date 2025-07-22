@@ -274,6 +274,7 @@ class TestServer(base.TestCase):
         zone = 1
         data = 2
         hints = {"hint": 3}
+        hostname = 'foo'
 
         sot = server.Server(
             id=1,
@@ -282,6 +283,7 @@ class TestServer(base.TestCase):
             scheduler_hints=hints,
             min_count=2,
             max_count=3,
+            hostname=hostname,
         )
         request = sot._prepare_request()
 
@@ -301,6 +303,11 @@ class TestServer(base.TestCase):
             "OS-SCH-HNT:scheduler_hints", request.body[sot.resource_key]
         )
         self.assertEqual(request.body["OS-SCH-HNT:scheduler_hints"], hints)
+
+        self.assertNotIn(
+            "OS-EXT-SRV-ATTR:hostname", request.body[sot.resource_key]
+        )
+        self.assertEqual(request.body[sot.resource_key]["hostname"], hostname)
 
         self.assertEqual(2, request.body[sot.resource_key]['min_count'])
         self.assertEqual(3, request.body[sot.resource_key]['max_count'])

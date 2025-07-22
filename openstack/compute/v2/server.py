@@ -308,6 +308,11 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         if hint_key in server_body:
             request.body[hint_key] = server_body.pop(hint_key)
 
+        # hostname exists with a prefix on response, but not request
+        hostname_key = "OS-EXT-SRV-ATTR:hostname"
+        if hostname_key in server_body:
+            server_body["hostname"] = server_body.pop(hostname_key)
+
         return request
 
     def _action(self, session, body, microversion=None):
