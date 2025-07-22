@@ -30,6 +30,7 @@ class Volume(resource.Resource, metadata.MetadataMixin):
         'project_id',
         'created_at',
         'updated_at',
+        properties='metadata',
         all_projects='all_tenants',
     )
 
