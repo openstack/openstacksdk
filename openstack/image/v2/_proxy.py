@@ -131,6 +131,11 @@ class Proxy(proxy.Proxy):
         timeout=3600,
         validate_checksum=False,
         use_import=False,
+        import_method=None,
+        uri=None,
+        remote_region=None,
+        remote_image_id=None,
+        remote_service_interface=None,
         stores=None,
         all_stores=None,
         all_stores_must_succeed=None,
@@ -198,6 +203,20 @@ class Proxy(proxy.Proxy):
             cloud to transform image format. If the cloud has disabled direct
             uploads, this will default to true. If you wish to use other import
             methods, use the ``import_image`` method instead.
+        :param import_method: Method to use for importing the image. Not all
+            deployments support all methods. One of: ``glance-direct``
+            (default), ``web-download``, ``glance-download`` (``copy-image`` is
+            not used with create). Use of ``glance-direct`` requires the image
+            be first staged.
+        :param uri: Required only if using the ``web-download`` import method.
+            This url is where the data is made available to the Image
+            service.
+        :param remote_region: The remote glance region to download the image
+            from when using glance-download.
+        :param remote_image_id: The ID of the image to import from the
+            remote glance when using glance-download.
+        :param remote_service_interface: The remote glance service interface to
+            use when using glance-download.
         :param stores: List of stores to be used when enabled_backends is
             activated in glance. List values can be the id of a store or a
             :class:`~openstack.image.v2.service_info.Store` instance.
@@ -322,7 +341,7 @@ class Proxy(proxy.Proxy):
         if tags:
             image_kwargs['tags'] = tags
 
-        if filename or data:
+        if filename or data or import_method:
             image = self._upload_image(
                 name,
                 filename=filename,
@@ -332,6 +351,11 @@ class Proxy(proxy.Proxy):
                 timeout=timeout,
                 validate_checksum=validate_checksum,
                 use_import=use_import,
+                import_method=import_method,
+                uri=uri,
+                remote_region=remote_region,
+                remote_image_id=remote_image_id,
+                remote_service_interface=remote_service_interface,
                 stores=stores,
                 all_stores=all_stores,
                 all_stores_must_succeed=all_stores_must_succeed,
@@ -547,6 +571,11 @@ class Proxy(proxy.Proxy):
         timeout=None,
         validate_checksum=True,
         use_import=False,
+        import_method=None,
+        uri=None,
+        remote_region=None,
+        remote_image_id=None,
+        remote_service_interface=None,
         stores=None,
         all_stores=None,
         all_stores_must_succeed=None,
@@ -589,6 +618,11 @@ class Proxy(proxy.Proxy):
                     meta=meta,
                     validate_checksum=validate_checksum,
                     use_import=use_import,
+                    import_method=import_method,
+                    uri=uri,
+                    remote_region=remote_region,
+                    remote_image_id=remote_image_id,
+                    remote_service_interface=remote_service_interface,
                     stores=stores,
                     all_stores=all_stores,
                     all_stores_must_succeed=all_stores_must_succeed,
@@ -623,11 +657,21 @@ class Proxy(proxy.Proxy):
         meta,
         validate_checksum,
         use_import=False,
+        import_method=None,
+        uri=None,
+        remote_region=None,
+        remote_image_id=None,
+        remote_service_interface=None,
         stores=None,
         all_stores=None,
         all_stores_must_succeed=None,
         **image_kwargs,
     ):
+        if all_stores and stores:
+            raise exceptions.InvalidRequest(
+                "all_stores is mutually exclusive with stores"
+            )
+
         # use of any of these imply use_import=True
         if stores or all_stores or all_stores_must_succeed:
             use_import = True
@@ -647,7 +691,7 @@ class Proxy(proxy.Proxy):
 
         supports_import = (
             image.image_import_methods
-            and 'glance-direct' in image.image_import_methods
+            and import_method in image.image_import_methods
         )
         if use_import and not supports_import:
             raise exceptions.SDKException(
@@ -660,8 +704,23 @@ class Proxy(proxy.Proxy):
                 response = image.upload(self)
                 exceptions.raise_from_response(response)
             if use_import:
-                image.stage(self)
-                image.import_image(self)
+                kwargs = {}
+                if stores is not None:
+                    kwargs['stores'] = stores
+                else:
+                    kwargs['all_stores'] = all_stores
+                    kwargs['all_stores_must_succeed'] = all_stores_must_succeed
+                if import_method == 'glance-direct':
+                    image.stage(self)
+                elif import_method == 'web-download':
+                    kwargs['uri'] = uri
+                elif import_method == 'glance-download':
+                    kwargs.update(
+                        remote_region=remote_region,
+                        remote_image_id=remote_image_id,
+                        remote_service_interface=remote_service_interface,
+                    )
+                self.import_image(image, method=import_method, **kwargs)
 
             # image_kwargs are flat here
             md5 = image_kwargs.get(self._IMAGE_MD5_KEY)

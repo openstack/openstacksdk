@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The ``create_image`` method now takes new parameters (``import_method``,
+    ``uri``, ``remote_region``, ``remote_image_id`` and
+    ``remote_service_interface``) to support all import methods from Glance.
