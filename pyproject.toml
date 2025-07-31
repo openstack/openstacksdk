@@ -11,25 +11,20 @@ authors = [
 readme = {file = "README.rst", content-type = "text/x-rst"}
 license = {text = "Apache-2.0"}
 dynamic = ["version", "dependencies"]
-# dependencies = [ ]
 requires-python = ">=3.10"
 classifiers = [
-  "Environment :: OpenStack",
-  "Intended Audience :: Information Technology",
-  "Intended Audience :: System Administrators",
-  "License :: OSI Approved :: Apache Software License",
-  "Operating System :: POSIX :: Linux",
-  "Programming Language :: Python",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.13",
+    "Environment :: OpenStack",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
-
-# [project.optional-dependencies]
-# test = [
-# ]
 
 [project.urls]
 Homepage = "https://docs.openstack.org/openstacksdk"
