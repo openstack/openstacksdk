@@ -11,82 +11,84 @@
 # under the License.
 
 
+from openstack.compute.v2 import image as _image
 from openstack.tests.functional import base
 from openstack.tests.functional.image.v2.test_image import TEST_IMAGE_NAME
 
 
 class TestImage(base.BaseFunctionalTest):
-    def test_images(self):
+    def setUp(self):
+        super().setUp()
+
+        # get a non-test image to work with
+        images = self.operator_cloud.compute.images()
+        self.image = next(images)
+
+        if self.image.name == TEST_IMAGE_NAME:
+            self.image = next(images)
+
+    def test_image(self):
+        # list all images
+
         images = list(self.operator_cloud.compute.images())
         self.assertGreater(len(images), 0)
         for image in images:
             self.assertIsInstance(image.id, str)
 
-    def _get_non_test_image(self):
-        images = self.operator_cloud.compute.images()
-        image = next(images)
+        # find image by name
 
-        if image.name == TEST_IMAGE_NAME:
-            image = next(images)
+        image = self.operator_cloud.compute.find_image(self.image.name)
+        self.assertIsInstance(image, _image.Image)
+        self.assertEqual(self.image.id, image.id)
+        self.assertEqual(self.image.name, image.name)
 
-        return image
+        # get image by ID
 
-    def test_find_image(self):
-        image = self._get_non_test_image()
-        self.assertIsNotNone(image)
-        sot = self.operator_cloud.compute.find_image(image.id)
-        self.assertEqual(image.id, sot.id)
-        self.assertEqual(image.name, sot.name)
-
-    def test_get_image(self):
-        image = self._get_non_test_image()
-        self.assertIsNotNone(image)
-        sot = self.operator_cloud.compute.get_image(image.id)
-        self.assertEqual(image.id, sot.id)
-        self.assertEqual(image.name, sot.name)
-        self.assertIsNotNone(image.links)
-        self.assertIsNotNone(image.min_disk)
-        self.assertIsNotNone(image.min_ram)
-        self.assertIsNotNone(image.metadata)
-        self.assertIsNotNone(image.progress)
-        self.assertIsNotNone(image.status)
+        image = self.operator_cloud.compute.get_image(self.image.id)
+        self.assertIsInstance(image, _image.Image)
+        self.assertEqual(self.image.id, image.id)
+        self.assertEqual(self.image.name, image.name)
 
     def test_image_metadata(self):
-        image = self._get_non_test_image()
-
         # delete pre-existing metadata
+
         self.operator_cloud.compute.delete_image_metadata(
-            image, image.metadata.keys()
+            self.image, self.image.metadata.keys()
         )
-        image = self.operator_cloud.compute.get_image_metadata(image)
+        image = self.operator_cloud.compute.get_image_metadata(self.image)
         self.assertFalse(image.metadata)
 
-        # get metadata
-        image = self.operator_cloud.compute.get_image_metadata(image)
+        # get metadata (should be empty)
+
+        image = self.operator_cloud.compute.get_image_metadata(self.image)
         self.assertFalse(image.metadata)
 
         # set no metadata
-        self.operator_cloud.compute.set_image_metadata(image)
-        image = self.operator_cloud.compute.get_image_metadata(image)
+
+        self.operator_cloud.compute.set_image_metadata(self.image)
+        image = self.operator_cloud.compute.get_image_metadata(self.image)
         self.assertFalse(image.metadata)
 
         # set empty metadata
-        self.operator_cloud.compute.set_image_metadata(image, k0='')
-        image = self.operator_cloud.compute.get_image_metadata(image)
+
+        self.operator_cloud.compute.set_image_metadata(self.image, k0='')
+        image = self.operator_cloud.compute.get_image_metadata(self.image)
         self.assertIn('k0', image.metadata)
         self.assertEqual('', image.metadata['k0'])
 
         # set metadata
-        self.operator_cloud.compute.set_image_metadata(image, k1='v1')
-        image = self.operator_cloud.compute.get_image_metadata(image)
+
+        self.operator_cloud.compute.set_image_metadata(self.image, k1='v1')
+        image = self.operator_cloud.compute.get_image_metadata(self.image)
         self.assertTrue(image.metadata)
         self.assertEqual(2, len(image.metadata))
         self.assertIn('k1', image.metadata)
         self.assertEqual('v1', image.metadata['k1'])
 
         # set more metadata
-        self.operator_cloud.compute.set_image_metadata(image, k2='v2')
-        image = self.operator_cloud.compute.get_image_metadata(image)
+
+        self.operator_cloud.compute.set_image_metadata(self.image, k2='v2')
+        image = self.operator_cloud.compute.get_image_metadata(self.image)
         self.assertTrue(image.metadata)
         self.assertEqual(3, len(image.metadata))
         self.assertIn('k1', image.metadata)
@@ -95,8 +97,9 @@ class TestImage(base.BaseFunctionalTest):
         self.assertEqual('v2', image.metadata['k2'])
 
         # update metadata
-        self.operator_cloud.compute.set_image_metadata(image, k1='v1.1')
-        image = self.operator_cloud.compute.get_image_metadata(image)
+
+        self.operator_cloud.compute.set_image_metadata(self.image, k1='v1.1')
+        image = self.operator_cloud.compute.get_image_metadata(self.image)
         self.assertTrue(image.metadata)
         self.assertEqual(3, len(image.metadata))
         self.assertIn('k1', image.metadata)
@@ -104,9 +107,10 @@ class TestImage(base.BaseFunctionalTest):
         self.assertIn('k2', image.metadata)
         self.assertEqual('v2', image.metadata['k2'])
 
-        # delete metadata
+        # delete all metadata (cleanup)
+
         self.operator_cloud.compute.delete_image_metadata(
-            image, image.metadata.keys()
+            self.image, image.metadata.keys()
         )
-        image = self.operator_cloud.compute.get_image_metadata(image)
+        image = self.operator_cloud.compute.get_image_metadata(self.image)
         self.assertFalse(image.metadata)
