@@ -7,23 +7,27 @@ Contributing to openstacksdk
 If you're interested in contributing to the openstacksdk project,
 the following will help get you started.
 
-Contributor License Agreement
------------------------------
+Developer Certificate of Origin
+-------------------------------
 
 .. index::
    single: license; agreement
 
-In order to contribute to the openstacksdk project, you need to have
-signed OpenStack's contributor's agreement.
+In order to contribute to the Tacker-Horizon project, you need to adhere
+to the `Developer Certificate of Origin`_. OpenStack utilizes the Developer
+Certificate of Origin (DCO) as a lightweight means to confirm that you are
+entitled to contribute the code you submit. This ensures that you are
+providing your contributions under the project’s license and that you have
+the right to do so.
 
 Please read `DeveloperWorkflow`_ before sending your first patch for review.
 Pull requests submitted through GitHub will be ignored.
 
 .. seealso::
 
-   * https://wiki.openstack.org/wiki/How_To_Contribute
-   * https://wiki.openstack.org/wiki/CLA
+   * https://docs.openstack.org/contributors/common/dco.html
 
+.. _Developer Certificate of Origin: https://developercertificate.org/
 .. _DeveloperWorkflow: https://docs.openstack.org/infra/manual/developers.html#development-workflow
 
 Project Hosting Details
