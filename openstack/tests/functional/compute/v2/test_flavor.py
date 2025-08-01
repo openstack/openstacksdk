@@ -11,138 +11,179 @@
 # under the License.
 import uuid
 
-from openstack import exceptions
+from openstack.compute.v2 import flavor as _flavor
 from openstack.tests.functional import base
 
 
 class TestFlavor(base.BaseFunctionalTest):
     def setUp(self):
         super().setUp()
-        self.new_item_name = self.getUniqueString('flavor')
-        self.one_flavor = list(self.operator_cloud.compute.flavors())[0]
 
-    def test_flavors(self):
-        flavors = list(self.operator_cloud.compute.flavors())
-        self.assertGreater(len(flavors), 0)
+        self.public_flavor_name = uuid.uuid4().hex
+        self.private_flavor_name = uuid.uuid4().hex
 
-        for flavor in flavors:
-            self.assertIsInstance(flavor.id, str)
-            self.assertIsInstance(flavor.name, str)
-            self.assertIsInstance(flavor.disk, int)
-            self.assertIsInstance(flavor.ram, int)
-            self.assertIsInstance(flavor.vcpus, int)
+    def _delete_flavor(self, flavor):
+        ret = self.operator_cloud.compute.delete_flavor(flavor)
+        self.assertIsNone(ret)
 
-    def test_find_flavors_by_id(self):
-        rslt = self.operator_cloud.compute.find_flavor(self.one_flavor.id)
-        self.assertEqual(rslt.id, self.one_flavor.id)
+    def test_flavor(self):
+        # create flavors
+        #
+        # create a public and private flavor so we can test that they are both
+        # listed for an operator
 
-    def test_find_flavors_by_name(self):
-        rslt = self.operator_cloud.compute.find_flavor(self.one_flavor.name)
-        self.assertEqual(rslt.name, self.one_flavor.name)
-
-    def test_find_flavors_no_match_ignore_true(self):
-        rslt = self.operator_cloud.compute.find_flavor(
-            "not a flavor", ignore_missing=True
+        public_flavor = self.operator_cloud.compute.create_flavor(
+            name=self.public_flavor_name,
+            ram=1024,
+            vcpus=2,
+            disk=10,
+            is_public=True,
         )
-        self.assertIsNone(rslt)
+        self.addCleanup(self._delete_flavor, public_flavor)
+        self.assertIsInstance(public_flavor, _flavor.Flavor)
 
-    def test_find_flavors_no_match_ignore_false(self):
-        self.assertRaises(
-            exceptions.NotFoundException,
-            self.operator_cloud.compute.find_flavor,
-            "not a flavor",
-            ignore_missing=False,
+        private_flavor = self.operator_cloud.compute.create_flavor(
+            name=self.private_flavor_name,
+            ram=1024,
+            vcpus=2,
+            disk=10,
+            is_public=False,
         )
+        self.addCleanup(self._delete_flavor, private_flavor)
+        self.assertIsInstance(private_flavor, _flavor.Flavor)
 
-    def test_list_flavors(self):
-        pub_flavor_name = self.new_item_name + '_public'
-        priv_flavor_name = self.new_item_name + '_private'
-        public_kwargs = dict(
-            name=pub_flavor_name, ram=1024, vcpus=2, disk=10, is_public=True
-        )
-        private_kwargs = dict(
-            name=priv_flavor_name, ram=1024, vcpus=2, disk=10, is_public=False
-        )
-
-        # Create a public and private flavor. We expect both to be listed
-        # for an operator.
-        self.operator_cloud.compute.create_flavor(**public_kwargs)
-        self.operator_cloud.compute.create_flavor(**private_kwargs)
-
-        flavors = self.operator_cloud.compute.flavors()
-
-        # Flavor list will include the standard devstack flavors. We just want
+        # list all flavors
+        #
+        # flavor list will include the standard devstack flavors. We just want
         # to make sure both of the flavors we just created are present.
-        found = []
-        for f in flavors:
-            # extra_specs should be added within list_flavors()
-            self.assertIn('extra_specs', f)
-            if f['name'] in (pub_flavor_name, priv_flavor_name):
-                found.append(f)
-        self.assertEqual(2, len(found))
+        flavors = list(self.operator_cloud.compute.flavors())
+        self.assertIn(self.public_flavor_name, {x.name for x in flavors})
+        self.assertIn(self.private_flavor_name, {x.name for x in flavors})
+
+        # get flavor by ID
+
+        flavor = self.operator_cloud.compute.get_flavor(public_flavor.id)
+        self.assertEqual(flavor.id, public_flavor.id)
+
+        # find flavor by name
+
+        flavor = self.operator_cloud.compute.find_flavor(public_flavor.name)
+        self.assertEqual(flavor.name, public_flavor.name)
+
+        # update a flavor
+
+        self.operator_cloud.compute.update_flavor(
+            public_flavor,
+            description="updated description",
+        )
+
+        # fetch the updated flavor
+
+        flavor = self.operator_cloud.compute.get_flavor(public_flavor.id)
+        self.assertEqual(flavor.description, "updated description")
 
     def test_flavor_access(self):
-        flavor_name = uuid.uuid4().hex
-        flv = self.operator_cloud.compute.create_flavor(
-            is_public=False, name=flavor_name, ram=128, vcpus=1, disk=0
-        )
-        self.addCleanup(self.operator_cloud.compute.delete_flavor, flv.id)
-        # Validate the 'demo' user cannot see the new flavor
-        flv_cmp = self.user_cloud.compute.find_flavor(flavor_name)
-        self.assertIsNone(flv_cmp)
+        # create private flavor
 
-        # Validate we can see the new flavor ourselves
-        flv_cmp = self.operator_cloud.compute.find_flavor(flavor_name)
-        self.assertIsNotNone(flv_cmp)
-        self.assertEqual(flavor_name, flv_cmp.name)
+        flavor_name = uuid.uuid4().hex
+        flavor = self.operator_cloud.compute.create_flavor(
+            name=flavor_name, ram=128, vcpus=1, disk=0, is_public=False
+        )
+        self.addCleanup(self._delete_flavor, flavor)
+        self.assertIsInstance(flavor, _flavor.Flavor)
+
+        # validate the 'demo' user cannot see the new flavor
+
+        flavor = self.user_cloud.compute.find_flavor(
+            flavor_name, ignore_missing=True
+        )
+        self.assertIsNone(flavor)
+
+        # validate we can see the new flavor ourselves
+
+        flavor = self.operator_cloud.compute.find_flavor(
+            flavor_name, ignore_missing=True
+        )
+        self.assertIsNotNone(flavor)
+        self.assertEqual(flavor_name, flavor.name)
+
+        # get demo project for access control
 
         project = self.operator_cloud.get_project('demo')
         self.assertIsNotNone(project)
 
-        # Now give 'demo' access
+        # give 'demo' access to the flavor
+
         self.operator_cloud.compute.flavor_add_tenant_access(
-            flv.id, project['id']
+            flavor.id, project['id']
         )
 
-        # Now see if the 'demo' user has access to it
-        flv_cmp = self.user_cloud.compute.find_flavor(flavor_name)
-        self.assertIsNotNone(flv_cmp)
+        # verify that the 'demo' user now has access to it
 
-        # Now remove 'demo' access and check we can't find it
+        flavor = self.user_cloud.compute.find_flavor(
+            flavor_name, ignore_missing=True
+        )
+        self.assertIsNotNone(flavor)
+
+        # remove 'demo' access and check we can't find it anymore
+
         self.operator_cloud.compute.flavor_remove_tenant_access(
-            flv.id, project['id']
+            flavor.id, project['id']
         )
 
-        flv_cmp = self.user_cloud.compute.find_flavor(flavor_name)
-        self.assertIsNone(flv_cmp)
+        flavor = self.user_cloud.compute.find_flavor(
+            flavor_name, ignore_missing=True
+        )
+        self.assertIsNone(flavor)
 
-    def test_extra_props_calls(self):
+    def test_flavor_extra_specs(self):
+        # create private flavor
+
         flavor_name = uuid.uuid4().hex
-        flv = self.operator_cloud.compute.create_flavor(
+        flavor = self.operator_cloud.compute.create_flavor(
             is_public=False, name=flavor_name, ram=128, vcpus=1, disk=0
         )
-        self.addCleanup(self.operator_cloud.compute.delete_flavor, flv.id)
-        # Create extra_specs
+        self.addCleanup(self._delete_flavor, flavor)
+        self.assertIsInstance(flavor, _flavor.Flavor)
+
+        # create extra_specs
+
         specs = {'a': 'b'}
         self.operator_cloud.compute.create_flavor_extra_specs(
-            flv, extra_specs=specs
+            flavor, extra_specs=specs
         )
-        # verify specs
-        flv_cmp = self.operator_cloud.compute.fetch_flavor_extra_specs(flv)
-        self.assertDictEqual(specs, flv_cmp.extra_specs)
-        # update
+
+        # verify specs were created correctly
+
+        flavor_with_specs = (
+            self.operator_cloud.compute.fetch_flavor_extra_specs(flavor)
+        )
+        self.assertDictEqual(specs, flavor_with_specs.extra_specs)
+
+        # update/add a single extra spec property
+
         self.operator_cloud.compute.update_flavor_extra_specs_property(
-            flv, 'c', 'd'
+            flavor, 'c', 'd'
         )
-        val_cmp = self.operator_cloud.compute.get_flavor_extra_specs_property(
-            flv, 'c'
+
+        # fetch single property value
+
+        prop_value = (
+            self.operator_cloud.compute.get_flavor_extra_specs_property(
+                flavor, 'c'
+            )
         )
-        # fetch single prop
-        self.assertEqual('d', val_cmp)
-        # drop new prop
+        self.assertEqual('d', prop_value)
+
+        # delete the new property
+
         self.operator_cloud.compute.delete_flavor_extra_specs_property(
-            flv, 'c'
+            flavor, 'c'
         )
-        # re-fetch and ensure prev state
-        flv_cmp = self.operator_cloud.compute.fetch_flavor_extra_specs(flv)
-        self.assertDictEqual(specs, flv_cmp.extra_specs)
+
+        # re-fetch and ensure we're back to the previous state
+
+        flavor_with_specs = (
+            self.operator_cloud.compute.fetch_flavor_extra_specs(flavor)
+        )
+        self.assertDictEqual(specs, flavor_with_specs.extra_specs)
