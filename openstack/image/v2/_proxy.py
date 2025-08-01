@@ -632,7 +632,9 @@ class Proxy(proxy.Proxy):
             self.log.debug("Image creation failed", exc_info=True)
             raise
         except Exception as e:
-            raise exceptions.SDKException(f"Image creation failed: {str(e)}")
+            raise exceptions.SDKException(
+                f"Image creation failed: {str(e)}"
+            ) from e
 
     def _make_v2_image_params(self, meta, properties):
         ret: dict = {}
@@ -820,7 +822,7 @@ class Proxy(proxy.Proxy):
                 raise exceptions.SDKException(
                     f"Image creation failed: {e.message}",
                     extra_data=glance_task,
-                )
+                ) from e
             finally:
                 # Clean up after ourselves. The object we created is not
                 # needed after the import is done.

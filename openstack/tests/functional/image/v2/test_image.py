@@ -22,6 +22,9 @@ class TestImage(base.BaseImageTest):
     def setUp(self):
         super().setUp()
 
+        with open('CONTRIBUTING.rst', 'rb') as fh:
+            data = fh.read()
+
         # there's a limit on name length
         self.image = self.operator_cloud.image.create_image(
             name=TEST_IMAGE_NAME,
@@ -30,7 +33,7 @@ class TestImage(base.BaseImageTest):
             properties={
                 'description': 'This is not an image',
             },
-            data=open('CONTRIBUTING.rst'),
+            data=data,
         )
         self.assertIsInstance(self.image, _image.Image)
         self.assertEqual(TEST_IMAGE_NAME, self.image.name)

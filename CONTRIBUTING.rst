@@ -13,11 +13,11 @@ Developer Certificate of Origin
 .. index::
    single: license; agreement
 
-In order to contribute to the Tacker-Horizon project, you need to adhere
+In order to contribute to the openstacksdk project, you need to adhere
 to the `Developer Certificate of Origin`_. OpenStack utilizes the Developer
 Certificate of Origin (DCO) as a lightweight means to confirm that you are
 entitled to contribute the code you submit. This ensures that you are
-providing your contributions under the project’s license and that you have
+providing your contributions under the project's license and that you have
 the right to do so.
 
 Please read `DeveloperWorkflow`_ before sending your first patch for review.
