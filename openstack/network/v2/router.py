@@ -32,6 +32,7 @@ class Router(_base.NetworkResource, _base.TagMixinNetwork):
     _query_mapping = resource.QueryParameters(
         'description',
         'flavor_id',
+        'id',
         'name',
         'status',
         'project_id',

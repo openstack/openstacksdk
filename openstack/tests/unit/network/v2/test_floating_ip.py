@@ -87,6 +87,7 @@ class TestFloatingIP(base.TestCase):
                 'fixed_ip_address': 'fixed_ip_address',
                 'floating_ip_address': 'floating_ip_address',
                 'floating_network_id': 'floating_network_id',
+                'id': 'id',
                 'tags': 'tags',
                 'any_tags': 'tags-any',
                 'not_tags': 'not-tags',

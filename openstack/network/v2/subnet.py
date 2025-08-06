@@ -31,6 +31,7 @@ class Subnet(_base.NetworkResource, _base.TagMixinNetwork):
         'cidr',
         'description',
         'gateway_ip',
+        'id',
         'ip_version',
         'ipv6_address_mode',
         'ipv6_ra_mode',

@@ -105,6 +105,7 @@ class TestNetwork(base.TestCase):
                 'limit': 'limit',
                 'marker': 'marker',
                 'description': 'description',
+                'id': 'id',
                 'name': 'name',
                 'project_id': 'project_id',
                 'status': 'status',

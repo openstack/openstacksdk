@@ -34,6 +34,7 @@ class Network(_base.NetworkResource, _base.TagMixinNetwork):
         'project_id',
         'sort_key',
         'sort_dir',
+        'id',
         ipv4_address_scope_id='ipv4_address_scope',
         ipv6_address_scope_id='ipv6_address_scope',
         is_admin_state_up='admin_state_up',
