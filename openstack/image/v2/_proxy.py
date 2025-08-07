@@ -18,6 +18,7 @@ import warnings
 from openstack import exceptions
 from openstack.image.v2 import cache as _cache
 from openstack.image.v2 import image as _image
+from openstack.image.v2 import image_tasks as _image_tasks
 from openstack.image.v2 import member as _member
 from openstack.image.v2 import metadef_namespace as _metadef_namespace
 from openstack.image.v2 import metadef_object as _metadef_object
@@ -1020,6 +1021,19 @@ class Proxy(proxy.Proxy):
         self.update_image(image, **img_props)
 
         return True
+
+    def image_tasks(self, image):
+        """Return a generator of Image Tasks
+
+        :param image: The value can be either the name of an image or a
+            :class:`~openstack.image.v2.image.Image` instance.
+        :return: A generator object of image tasks
+        :rtype: :class: ~openstack.image.v2.image_tasks.ImageTasks
+        :raises: :class:`~openstack.exceptions.NotFoundException`
+                when no resource can be found.
+        """
+        image_id = resource.Resource._get_id(image)
+        return self._list(_image_tasks.ImageTasks, image_id=image_id)
 
     def add_tag(self, image, tag):
         """Add a tag to an image
