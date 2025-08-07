@@ -299,3 +299,78 @@ class TestTinyDAG(base.TestCase):
 def test_walker_fn(graph, node, lst):
     lst.append(node)
     graph.node_done(node)
+
+
+class TestGetFileSize(base.TestCase):
+    def test_get_file_size_with_seekable_file(self):
+        """Test get_file_size with a file-like object that supports
+        seek/tell."""
+        # Create a mock file object that supports seek and tell
+        mock_file = mock.Mock()
+        mock_file.seekable.return_value = True
+        mock_file.tell.side_effect = [
+            0,
+            1024,
+            0,
+        ]  # Initial, after seek, after reset
+
+        size = utils.get_file_size(mock_file)
+
+        self.assertEqual(size, 1024)
+        mock_file.seek.assert_has_calls(
+            [
+                mock.call(0, 2),  # SEEK_END
+                mock.call(0),  # Reset to original position
+            ]
+        )
+
+    def test_get_file_size_with_non_seekable_file(self):
+        """Test get_file_size with a file-like object that doesn't
+        support seek."""
+        # Create a mock file object that doesn't support seek
+        mock_file = mock.Mock()
+        mock_file.seekable.return_value = False
+
+        size = utils.get_file_size(mock_file)
+
+        self.assertIsNone(size)
+        mock_file.tell.assert_not_called()
+        mock_file.seek.assert_not_called()
+
+    def test_get_file_size_with_pipe_error(self):
+        """Test get_file_size with a pipe (ESPIPE error)."""
+        # Create a mock file object that raises ESPIPE
+        mock_file = mock.Mock()
+        mock_file.seekable.return_value = True
+        mock_file.tell.side_effect = [0]
+        mock_file.seek.side_effect = OSError(29, "Illegal seek")  # ESPIPE
+
+        size = utils.get_file_size(mock_file)
+
+        self.assertIsNone(size)
+
+    def test_get_file_size_with_other_io_error(self):
+        """Test get_file_size with other IO errors."""
+        # Create a mock file object that raises a different IO error
+        mock_file = mock.Mock()
+        mock_file.seekable.return_value = True
+        mock_file.tell.side_effect = [0]
+        mock_file.seek.side_effect = OSError(2, "No such file")  # ENOENT
+
+        self.assertRaises(OSError, utils.get_file_size, mock_file)
+
+    def test_get_file_size_with_bytes_object(self):
+        """Test get_file_size with a bytes object."""
+        data = b"test data"
+
+        size = utils.get_file_size(data)
+
+        self.assertIsNone(size)  # bytes objects don't have seek/tell
+
+    def test_get_file_size_with_string_object(self):
+        """Test get_file_size with a string object."""
+        data = "test data"
+
+        size = utils.get_file_size(data)
+
+        self.assertIsNone(size)  # string objects don't have seek/tell

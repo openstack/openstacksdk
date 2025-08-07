@@ -367,6 +367,44 @@ class TestImage(base.TestCase):
             headers={"Content-Type": "application/octet-stream", "Accept": ""},
         )
 
+    def test_upload_with_size(self):
+        sot = image.Image(**EXAMPLE)
+
+        self.assertIsNotNone(sot.upload(self.sess, size=1024))
+        self.sess.put.assert_called_with(
+            'images/IDENTIFIER/file',
+            data=sot.data,
+            headers={
+                "Content-Type": "application/octet-stream",
+                "Accept": "",
+                "X-OpenStack-Image-Size": "1024",
+            },
+        )
+
+    def test_upload_with_invalid_size_type(self):
+        sot = image.Image(**EXAMPLE)
+
+        self.assertRaises(TypeError, sot.upload, self.sess, size="invalid")
+        self.sess.put.assert_not_called()
+
+    def test_upload_with_data_and_size_calculation(self):
+        sot = image.Image(**EXAMPLE)
+        test_data = b"test data"
+        sot.data = test_data
+
+        # Mock the get_file_size function to return a known size
+        with mock.patch('openstack.utils.get_file_size', return_value=9):
+            self.assertIsNotNone(sot.upload(self.sess))
+            self.sess.put.assert_called_with(
+                'images/IDENTIFIER/file',
+                data=sot.data,
+                headers={
+                    "Content-Type": "application/octet-stream",
+                    "Accept": "",
+                    "X-OpenStack-Image-Size": "9",
+                },
+            )
+
     def test_stage(self):
         sot = image.Image(**EXAMPLE)
 
@@ -376,6 +414,62 @@ class TestImage(base.TestCase):
             data=sot.data,
             headers={"Content-Type": "application/octet-stream", "Accept": ""},
         )
+
+    def test_stage_with_size(self):
+        sot = image.Image(**EXAMPLE)
+
+        self.assertIsNotNone(sot.stage(self.sess, size=2048))
+        self.sess.put.assert_called_with(
+            'images/IDENTIFIER/stage',
+            data=sot.data,
+            headers={
+                "Content-Type": "application/octet-stream",
+                "Accept": "",
+                "X-OpenStack-Image-Size": "2048",
+            },
+        )
+
+    def test_stage_with_size_calculation(self):
+        sot = image.Image(**EXAMPLE)
+        # Set data to a file-like object that can be calculated
+        sot.data = io.BytesIO(b'\0' * 1024)  # 1KB of data
+
+        # Mock the get_file_size function to return a known size
+        with mock.patch('openstack.utils.get_file_size', return_value=1024):
+            self.assertIsNotNone(sot.stage(self.sess))
+            self.sess.put.assert_called_with(
+                'images/IDENTIFIER/stage',
+                data=sot.data,
+                headers={
+                    "Content-Type": "application/octet-stream",
+                    "Accept": "",
+                    "X-OpenStack-Image-Size": "1024",
+                },
+            )
+
+    def test_stage_with_invalid_size_type(self):
+        sot = image.Image(**EXAMPLE)
+
+        self.assertRaises(TypeError, sot.stage, self.sess, size="invalid")
+        self.sess.put.assert_not_called()
+
+    def test_stage_with_data_and_size_calculation(self):
+        sot = image.Image(**EXAMPLE)
+        test_data = b"test data"
+        sot.data = test_data
+
+        # Mock the get_file_size function to return a known size
+        with mock.patch('openstack.utils.get_file_size', return_value=9):
+            self.assertIsNotNone(sot.stage(self.sess))
+            self.sess.put.assert_called_with(
+                'images/IDENTIFIER/stage',
+                data=sot.data,
+                headers={
+                    "Content-Type": "application/octet-stream",
+                    "Accept": "",
+                    "X-OpenStack-Image-Size": "9",
+                },
+            )
 
     def test_stage_error(self):
         sot = image.Image(**EXAMPLE)

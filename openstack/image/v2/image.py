@@ -279,40 +279,85 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
         self._action(session, "reactivate")
 
     def upload(
-        self, session: adapter.Adapter, *, data: Any = None
+        self,
+        session: adapter.Adapter,
+        *,
+        data: Any = None,
+        size: int | None = None,
     ) -> requests.Response:
         """Upload data into an existing image
 
         :param session: The session to use for making this request
         :param data: Optional data to be uploaded. If not provided, the
             `~Image.data` attribute will be used
+        :param size: Optional size of the data in bytes. Providing this allows
+            Glance to pre-allocate storage and can improve upload performance.
+            If not provided and data is a file-like object, the size will be
+            calculated automatically.
         :returns: The server response
         """
         if data:
             self.data = data
+
+        headers = {"Content-Type": "application/octet-stream", "Accept": ""}
+
+        # Calculate size if not provided and data is available
+        if size is None and self.data:
+            size = utils.get_file_size(self.data)
+
+        if size is not None:
+            if not isinstance(size, int):
+                raise TypeError(
+                    f"size must be an integer, got {type(size).__name__}"
+                )
+            headers['X-OpenStack-Image-Size'] = str(size)
+
         url = utils.urljoin(self.base_path, self.id, 'file')
         return session.put(
             url,
             data=self.data,
-            headers={"Content-Type": "application/octet-stream", "Accept": ""},
+            headers=headers,
         )
 
-    def stage(self, session: adapter.Adapter, *, data: Any = None) -> Self:
+    def stage(
+        self,
+        session: adapter.Adapter,
+        *,
+        data: Any = None,
+        size: int | None = None,
+    ) -> Self:
         """Stage binary image data into an existing image
 
         :param session: The session to use for making this request
         :param data: Optional data to be uploaded. If not provided, the
             `~Image.data` attribute will be used
+        :param size: Optional size of the data in bytes. Providing this allows
+            Glance to pre-allocate storage and can improve upload performance.
+            If not provided and data is a file-like object, the size will be
+            calculated automatically.
         :returns: The server response
         """
         if data:
             self.data = data
 
+        headers = {"Content-Type": "application/octet-stream", "Accept": ""}
+
+        # Calculate size if not provided and data is available
+        if size is None and self.data:
+            size = utils.get_file_size(self.data)
+
+        if size is not None:
+            if not isinstance(size, int):
+                raise TypeError(
+                    f"size must be an integer, got {type(size).__name__}"
+                )
+            headers['X-OpenStack-Image-Size'] = str(size)
+
         url = utils.urljoin(self.base_path, self.id, 'stage')
         response = session.put(
             url,
             data=self.data,
-            headers={"Content-Type": "application/octet-stream", "Accept": ""},
+            headers=headers,
         )
         self._translate_response(response, has_body=False)
         return self

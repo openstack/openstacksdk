@@ -11,8 +11,10 @@
 # under the License.
 
 from collections.abc import Mapping
+import errno
 import hashlib
 import io
+import os
 import queue
 import string
 import threading
@@ -455,6 +457,38 @@ def _get_file_hashes(filename: str) -> tuple[str, str]:
         _md5, _sha256 = _calculate_data_hashes(file_obj)
 
     return _md5, _sha256
+
+
+def get_file_size(file_obj: Any) -> int | None:
+    """Analyze file-like object and attempt to determine its size.
+
+    :param file_obj: file-like object.
+    :retval: The file's size or None if it cannot be determined.
+    """
+    if (
+        hasattr(file_obj, 'seek')
+        and hasattr(file_obj, 'tell')
+        and file_obj.seekable()
+    ):
+        try:
+            curr = file_obj.tell()
+            file_obj.seek(0, os.SEEK_END)
+            size = file_obj.tell()
+            file_obj.seek(curr)
+            return int(size)  # Explicitly convert to int
+        except OSError as e:
+            if e.errno == errno.ESPIPE:
+                # Illegal seek. This means the file object
+                # is a pipe (e.g. the user is trying
+                # to pipe image data to the client,
+                # echo testdata | bin/glance add blah...), or
+                # that file object is empty, or that a file-like
+                # object which doesn't support 'seek/tell' has
+                # been supplied.
+                return None
+            else:
+                raise
+    return None
 
 
 class TinyDAG:
