@@ -15,6 +15,7 @@ import typing as ty
 from openstack.key_manager.v1 import container as _container
 from openstack.key_manager.v1 import order as _order
 from openstack.key_manager.v1 import secret as _secret
+from openstack.key_manager.v1 import secret_store as _secret_store
 from openstack import proxy
 from openstack import resource
 
@@ -24,6 +25,7 @@ class Proxy(proxy.Proxy):
         "container": _container.Container,
         "order": _order.Order,
         "secret": _secret.Secret,
+        "secret_store": _secret_store.SecretStore,
     }
 
     def create_container(self, **attrs):
@@ -269,6 +271,47 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.key_manager.v1.secret.Secret`
         """
         return self._update(_secret.Secret, secret, **attrs)
+
+    # ========== Secret Store Operations ==========
+
+    def secret_stores(self, **query):
+        """Return a generator of secret stores
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the resources being returned.
+
+        :returns: A generator of secret store objects
+        :rtype: :class:`~openstack.key_manager.v1.secret_store.SecretStore`
+        """
+        return self._list(_secret_store.SecretStore, **query)
+
+    def get_global_default_secret_store(self):
+        """Get the global default secret store
+
+        :returns: One :class:`~openstack.key_manager.v1.secret_store.SecretStore`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
+            when no resource can be found.
+        """
+        return self._get(
+            _secret_store.SecretStore,
+            None,
+            requires_id=False,
+            base_path='/secret-stores/global-default',
+        )
+
+    def get_preferred_secret_store(self):
+        """Get the preferred secret store for the current project
+
+        :returns: One :class:`~openstack.key_manager.v1.secret_store.SecretStore`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
+            when no resource can be found.
+        """
+        return self._get(
+            _secret_store.SecretStore,
+            None,
+            requires_id=False,
+            base_path='/secret-stores/preferred',
+        )
 
     # ========== Utilities ==========
 

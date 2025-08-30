@@ -37,3 +37,11 @@ Order Operations
   :noindex:
   :members: create_order, update_order, delete_order, get_order,
             find_order, orders
+
+Secret Store Operations
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.key_manager.v1._proxy.Proxy
+  :noindex:
+  :members: secret_stores, get_global_default_secret_store,
+            get_preferred_secret_store
