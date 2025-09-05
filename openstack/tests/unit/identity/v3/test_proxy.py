@@ -394,6 +394,38 @@ class TestIdentityProxyUser(TestIdentityProxyBase):
         )
 
 
+class TestIdentityProxyToken(TestIdentityProxyBase):
+    def test_token_validate(self):
+        self._verify(
+            "openstack.identity.v3.token.Token.validate",
+            self.proxy.validate_token,
+            method_args=['token'],
+            method_kwargs={'nocatalog': False, 'allow_expired': False},
+            expected_args=[self.proxy, 'token'],
+            expected_kwargs={'nocatalog': False, 'allow_expired': False},
+        )
+
+    def test_token_check(self):
+        self._verify(
+            "openstack.identity.v3.token.Token.check",
+            self.proxy.check_token,
+            method_args=['token'],
+            method_kwargs={'allow_expired': False},
+            expected_args=[self.proxy, 'token'],
+            expected_kwargs={'allow_expired': False},
+        )
+
+    def test_token_revoke(self):
+        self._verify(
+            "openstack.identity.v3.token.Token.revoke",
+            self.proxy.revoke_token,
+            method_args=['token'],
+            method_kwargs={},
+            expected_args=[self.proxy, 'token'],
+            expected_kwargs={},
+        )
+
+
 class TestIdentityProxyTrust(TestIdentityProxyBase):
     def test_trust_create_attrs(self):
         self.verify_create(self.proxy.create_trust, trust.Trust)

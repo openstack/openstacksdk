@@ -53,6 +53,7 @@ from openstack.identity.v3 import (
 from openstack.identity.v3 import service as _service
 from openstack.identity.v3 import service_provider as _service_provider
 from openstack.identity.v3 import system as _system
+from openstack.identity.v3 import token as _token
 from openstack.identity.v3 import trust as _trust
 from openstack.identity.v3 import user as _user
 from openstack import proxy
@@ -87,6 +88,7 @@ class Proxy(proxy.Proxy):
         "service": _service.Service,
         "system": _system.System,
         "trust": _trust.Trust,
+        "token": _token.Token,
         "user": _user.User,
     }
 
@@ -975,6 +977,43 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.identity.v3.user.User`
         """
         return self._update(_user.User, user, **attrs)
+
+    # ========== Tokens ==========
+
+    def validate_token(
+        self, token: str, nocatalog: bool = False, allow_expired: bool = False
+    ) -> _token.Token:
+        """Validate a token
+
+        :param token: The token to validate.
+        :param nocatalog: Whether the returned token should not include a
+            catalog.
+        :param allow_expired: Whether to allow expired tokens.
+
+        :returns: A :class:`~openstack.identity.v3.token.Token`.
+        """
+        return _token.Token.validate(
+            self, token, nocatalog=nocatalog, allow_expired=allow_expired
+        )
+
+    def check_token(self, token: str, allow_expired: bool = False) -> bool:
+        """Check if a token is valid.
+
+        :param token: The token to check.
+        :param allow_expired: Whether to allow expired tokens.
+
+        :returns: True if valid, else False.
+        """
+        return _token.Token.check(self, token, allow_expired=allow_expired)
+
+    def revoke_token(self, token: str) -> None:
+        """Revoke a token.
+
+        :param token: The token to revoke.
+
+        :returns: None
+        """
+        _token.Token.revoke(self, token)
 
     # ========== Trusts ==========
 

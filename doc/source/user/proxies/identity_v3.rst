@@ -86,6 +86,13 @@ User Operations
   :members: create_user, update_user, delete_user, get_user, find_user, users,
             user_groups
 
+Token Operations
+^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.identity.v3._proxy.Proxy
+  :noindex:
+  :members: validate_token, check_token, revoke_token
+
 Trust Operations
 ^^^^^^^^^^^^^^^^
 
