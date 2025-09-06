@@ -6,5 +6,6 @@ KeyManager Resources
 
    v1/container
    v1/order
+   v1/project_quota
    v1/secret
    v1/secret_store
