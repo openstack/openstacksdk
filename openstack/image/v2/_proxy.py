@@ -679,6 +679,9 @@ class Proxy(proxy.Proxy):
         if stores or all_stores or all_stores_must_succeed:
             use_import = True
 
+        if use_import and not import_method:
+            import_method = 'glance-direct'
+
         if filename and not data:
             image_data = open(filename, 'rb')
         else:
