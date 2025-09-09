@@ -27,10 +27,7 @@
             voting: false
         - openstacksdk-functional-devstack-manila
         - openstacksdk-functional-devstack-masakari
-        # TODO(stephenfin): Make this voting once we get to the bottom of the
-        # 2 failures
-        - openstacksdk-functional-devstack-ironic:
-            voting: false
+        - openstacksdk-functional-devstack-ironic
         - osc-functional-devstack-tips:
             voting: false
         - ansible-collections-openstack-functional-devstack:
@@ -41,5 +38,4 @@
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-networking-ext
-        # TODO(stephenfin): Per above
-        # - openstacksdk-functional-devstack-ironic
+        - openstacksdk-functional-devstack-ironic
