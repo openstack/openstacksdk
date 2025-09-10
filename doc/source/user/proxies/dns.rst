@@ -83,6 +83,13 @@ Limit Operations
   :noindex:
   :members: limits
 
+Quota Operations
+^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.dns.v2._proxy.Proxy
+  :noindex:
+  :members:  quotas, get_quota, update_quota, delete_quota
+
 Service Status Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
