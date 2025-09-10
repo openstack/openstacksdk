@@ -76,7 +76,7 @@ class Volume(resource.Resource, metadata.MetadataMixin):
     replication_status = resource.Body("replication_status")
     #: Scheduler hints for the volume
     scheduler_hints = resource.Body('OS-SCH-HNT:scheduler_hints', type=dict)
-    #: The size of the volume, in GBs. *Type: int*
+    #: The size of the volume, in gibibytes (GiB). *Type: int*
     size = resource.Body("size", type=int)
     #: To create a volume from an existing snapshot, specify the ID of
     #: the existing volume snapshot. If specified, the volume is created

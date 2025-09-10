@@ -44,7 +44,7 @@ class Snapshot(resource.Resource, metadata.MetadataMixin):
     #: Indicate whether to create snapshot, even if the volume is attached.
     #: Default is ``False``. *Type: bool*
     is_forced = resource.Body("force", type=format.BoolStr)
-    #: The size of the volume, in GBs.
+    #: The size of the volume, in gibibytes (GiB).
     size = resource.Body("size", type=int)
     #: The current status of this snapshot. Potential values are creating,
     #: available, deleting, error, and error_deleting.

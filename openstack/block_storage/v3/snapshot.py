@@ -66,7 +66,7 @@ class Snapshot(resource.Resource, metadata.MetadataMixin):
     progress = resource.Body("os-extended-snapshot-attributes:progress")
     #: The project ID this snapshot is associated with.
     project_id = resource.Body("os-extended-snapshot-attributes:project_id")
-    #: The size of the volume, in GBs.
+    #: The size of the volume, in gibibytes (GiB).
     size = resource.Body("size", type=int)
     #: The current status of this snapshot. Potential values are creating,
     #: available, deleting, error, and error_deleting.

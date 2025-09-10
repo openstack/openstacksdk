@@ -22,11 +22,11 @@ class QuotaClassSet(resource.Resource):
     allow_commit = True
 
     # Properties
-    #: The size (GB) of backups that are allowed for each project.
+    #: The size (GiB) of backups that are allowed for each project.
     backup_gigabytes = resource.Body('backup_gigabytes', type=int)
     #: The number of backups that are allowed for each project.
     backups = resource.Body('backups', type=int)
-    #: The size (GB) of volumes and snapshots that are allowed for each
+    #: The size (GiB) of volumes and snapshots that are allowed for each
     #: project.
     gigabytes = resource.Body('gigabytes', type=int)
     #: The number of groups that are allowed for each project.

@@ -112,7 +112,7 @@ class Volume(resource.Resource, metadata.MetadataMixin):
     #: locks, and null means to always use locks. Look at os-brick's
     #: guard_connection context manager. Default=True. (since 3.48)
     shared_targets = resource.Body("shared_targets", type=bool)
-    #: The size of the volume, in GBs.
+    #: The size of the volume, in gibibytes (GiB).
     size = resource.Body("size", type=int)
     #: To create a volume from an existing snapshot, specify the ID of
     #: the existing volume snapshot. If specified, the volume is created
