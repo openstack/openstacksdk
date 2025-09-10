@@ -12,15 +12,11 @@
 
 import uuid
 
+from openstack.message.v2 import _base
 from openstack import resource
 
 
-class Claim(resource.Resource):
-    # FIXME(anyone): The name string of `location` field of Zaqar API response
-    # is lower case. That is inconsistent with the guide from API-WG. This is
-    # a workaround for this issue.
-    location = resource.Header("location")
-
+class Claim(_base.MessageResource):
     resources_key = 'claims'
     base_path = '/queues/%(queue_name)s/claims'
 
@@ -48,12 +44,6 @@ class Claim(resource.Resource):
     ttl = resource.Body("ttl")
     #: The name of queue to claim message from.
     queue_name = resource.URI("queue_name")
-    #: The ID to identify the client accessing Zaqar API. Must be specified
-    #: in header for each API request.
-    client_id = resource.Header("Client-ID")
-    #: The ID to identify the project. Must be provided when keystone
-    #: authentication is not enabled in Zaqar service.
-    project_id = resource.Header("X-PROJECT-ID")
 
     def _translate_response(
         self,
@@ -63,6 +53,12 @@ class Claim(resource.Resource):
         *,
         resource_response_key=None,
     ):
+        # For case no message was claimed successfully, 204 No Content
+        # message will be returned. In other cases, we translate response
+        # body which has `messages` field(list) included.
+        if response.status_code == 204:
+            return
+
         super()._translate_response(
             response,
             has_body,
@@ -94,31 +90,6 @@ class Claim(resource.Resource):
 
         return self
 
-    def fetch(
-        self,
-        session,
-        requires_id=True,
-        base_path=None,
-        error_message=None,
-        skip_cache=False,
-        **kwargs,
-    ):
-        request = self._prepare_request(
-            requires_id=requires_id, base_path=base_path
-        )
-        headers = {
-            "Client-ID": self.client_id or str(uuid.uuid4()),
-            "X-PROJECT-ID": self.project_id or session.get_project_id(),
-        }
-
-        request.headers.update(headers)
-        response = session.get(
-            request.url, headers=request.headers, skip_cache=False
-        )
-        self._translate_response(response)
-
-        return self
-
     def commit(
         self,
         session,
@@ -139,17 +110,4 @@ class Claim(resource.Resource):
         request.headers.update(headers)
         session.patch(request.url, json=request.body, headers=request.headers)
 
-        return self
-
-    def delete(self, session, *args, **kwargs):
-        request = self._prepare_request()
-        headers = {
-            "Client-ID": self.client_id or str(uuid.uuid4()),
-            "X-PROJECT-ID": self.project_id or session.get_project_id(),
-        }
-
-        request.headers.update(headers)
-        response = session.delete(request.url, headers=request.headers)
-
-        self._translate_response(response, has_body=False)
         return self
