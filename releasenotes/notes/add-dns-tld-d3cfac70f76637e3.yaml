@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Adds support for `dns tld
+    <https://docs.openstack.org/api-ref/dns/dns-api-v2-index.html#tld>`_ service.

@@ -51,6 +51,13 @@ FloatingIP Operations
   :noindex:
   :members: floating_ips, get_floating_ip, update_floating_ip
 
+TLD Operations
+^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.dns.v2._proxy.Proxy
+  :noindex:
+  :members: create_tld, delete_tld, get_tld, find_tld, tlds
+
 Zone Transfer Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^
 

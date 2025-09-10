@@ -17,6 +17,7 @@ from openstack.dns.v2 import floating_ip as _fip
 from openstack.dns.v2 import limit as _limit
 from openstack.dns.v2 import recordset as _rs
 from openstack.dns.v2 import service_status as _svc_status
+from openstack.dns.v2 import tld as _tld
 from openstack.dns.v2 import tsigkey as _tsigkey
 from openstack.dns.v2 import zone as _zone
 from openstack.dns.v2 import zone_export as _zone_export
@@ -42,6 +43,7 @@ class Proxy(proxy.Proxy):
         "zone_nameserver": _zone_nameserver.ZoneNameserver,
         "zone_share": _zone_share.ZoneShare,
         "zone_transfer_request": _zone_transfer.ZoneTransferRequest,
+        "tld": _tld.TLD,
     }
 
     # ======== Zones ========
@@ -716,6 +718,87 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.dns.v2.service_status.ServiceStatus`
         """
         return self._get(_svc_status.ServiceStatus, service)
+
+    # ======== TLDs ========
+    def tlds(self, **query):
+        """Retrieve a generator of tlds
+
+        :param dict query: Optional query parameters to be sent to limit the
+            resources being returned.
+
+            * `name`: TLD Name field.
+
+        :returns: A generator of tld
+            :class:`~openstack.dns.v2.tld.TLD` instances.
+        """
+        return self._list(_tld.TLD, **query)
+
+    def create_tld(self, **attrs):
+        """Create a new tld from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.dns.v2.tld.TLD`,
+            comprised of the properties on the TLD class.
+        :returns: The results of TLD creation.
+        :rtype: :class:`~openstack.dns.v2.tld.TLD`
+        """
+        return self._create(_tld.TLD, prepend_key=False, **attrs)
+
+    def get_tld(self, tld):
+        """Get a tld
+
+        :param tld: The value can be the ID of a tld
+            or a :class:`~openstack.dns.v2.tld.TLD` instance.
+        :returns: tld instance.
+        :rtype: :class:`~openstack.dns.v2.tld.TLD`
+        """
+        return self._get(_tld.TLD, tld)
+
+    def delete_tld(self, tld, ignore_missing=True):
+        """Delete a tld
+
+        :param tld: The value can be the ID of a tld
+            or a :class:`~openstack.dns.v2.tld.TLD` instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised when
+            the tld does not exist.
+            When set to ``True``, no exception will be set when attempting to
+            delete a nonexistent tld.
+
+        :returns: TLD been deleted
+        :rtype: :class:`~openstack.dns.v2.tld.TLD`
+        """
+        return self._delete(
+            _tld.TLD,
+            tld,
+            ignore_missing=ignore_missing,
+        )
+
+    def update_tld(self, tld, **attrs):
+        """Update tld attributes
+
+        :param tld: The id or an instance of
+            :class:`~openstack.dns.v2.tld.TLD`.
+        :param dict attrs: attributes for update on
+            :class:`~openstack.dns.v2.tld.TLD`.
+
+        :rtype: :class:`~openstack.dns.v2.tld.TLD`
+        """
+        return self._update(_tld.TLD, tld, **attrs)
+
+    def find_tld(self, name_or_id, ignore_missing=True):
+        """Find a single tld
+
+        :param name_or_id: The name or ID of a tld
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the tld does not exist.
+            When set to ``True``, no exception will be set when attempting
+            to delete a nonexistent tld.
+
+        :returns: :class:`~openstack.dns.v2.tld.TLD`
+        """
+        return self._find(_tld.TLD, name_or_id, ignore_missing=ignore_missing)
 
     # ========== Utilities ==========
     def wait_for_status(
