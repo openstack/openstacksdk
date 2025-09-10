@@ -12,6 +12,7 @@
 
 import typing as ty
 
+from openstack.dns.v2 import blacklist as _blacklist
 from openstack.dns.v2 import floating_ip as _fip
 from openstack.dns.v2 import limit as _limit
 from openstack.dns.v2 import recordset as _rs
@@ -29,6 +30,7 @@ from openstack import resource
 
 class Proxy(proxy.Proxy):
     _resource_registry = {
+        "blacklist": _blacklist.Blacklist,
         "floating_ip": _fip.FloatingIP,
         "limits": _limit.Limit,
         "recordset": _rs.Recordset,
@@ -890,4 +892,61 @@ class Proxy(proxy.Proxy):
         """
         return self._find(
             _tsigkey.TSIGKey, name_or_id, ignore_missing=ignore_missing
+        )
+
+    # ======== Blacklists ========
+    def blacklists(self, **query):
+        """Retrieve a generator of blacklists
+
+        :returns: A generator of blacklist
+            (:class:`~openstack.dns.v2.blacklist.Blacklist`) instances
+        """
+        return self._list(_blacklist.Blacklist, **query)
+
+    def get_blacklist(self, blacklist):
+        """Get a blacklist
+
+        :param blacklist: The value can be the ID of a blacklist
+            or a :class:`~openstack.dns.v2.blacklist.Blacklist` instance.
+
+        :returns: Blacklist instance.
+        :rtype: :class:`~openstack.dns.v2.blacklist.Blacklist`
+        """
+        return self._get(_blacklist.Blacklist, blacklist)
+
+    def create_blacklist(self, **attrs):
+        """Create a new blacklist
+
+        :param attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.dns.v2.blacklist.Blacklist`,
+            comprised of the properties on the Blacklist class.
+
+        :returns: The results of blacklist creation.
+        :rtype: :class:`~openstack.dns.v2.blacklist.Blacklist`
+        """
+        return self._create(_blacklist.Blacklist, prepend_key=False, **attrs)
+
+    def update_blacklist(self, blacklist, **attrs):
+        """Update blacklist attributes
+
+        :param blacklist: The id or an instance of
+            :class: `~openstack.dns.v2.blacklist.Blacklist`.
+        :param attrs: attributes for update on
+            :class: `~openstack.dns.v2.blacklist.Blacklist`.
+
+        :rtype: :class: `~openstack.dns.v2.blacklist.Blacklist`.
+        """
+        return self._update(_blacklist.Blacklist, blacklist, **attrs)
+
+    def delete_blacklist(self, blacklist, ignore_missing=True):
+        """Delete a blacklist
+
+        :param blacklist: The id or an instance of
+            :class: `~openstack.dns.v2.blacklist.Blacklist`.
+
+        :returns: Blacklist been deleted
+        :rtype: :class:`~openstack.dns.v2.blacklist.Blacklist`
+        """
+        return self._delete(
+            _blacklist.Blacklist, blacklist, ignore_missing=ignore_missing
         )
