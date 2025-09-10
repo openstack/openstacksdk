@@ -856,110 +856,6 @@ class Proxy(proxy.Proxy):
         """
         return self._find(_tld.TLD, name_or_id, ignore_missing=ignore_missing)
 
-    # ========== Utilities ==========
-    def wait_for_status(
-        self,
-        res: resource.ResourceT,
-        status: str,
-        failures: list[str] | None = None,
-        interval: int | float | None = 2,
-        wait: int | None = None,
-        attribute: str = 'status',
-        callback: ty.Callable[[int], None] | None = None,
-    ) -> resource.ResourceT:
-        """Wait for the resource to be in a particular status.
-
-        :param session: The session to use for making this request.
-        :param resource: The resource to wait on to reach the status. The
-            resource must have a status attribute specified via ``attribute``.
-        :param status: Desired status of the resource.
-        :param failures: Statuses that would indicate the transition
-            failed such as 'ERROR'. Defaults to ['ERROR'].
-        :param interval: Number of seconds to wait between checks.
-        :param wait: Maximum number of seconds to wait for transition.
-            Set to ``None`` to wait forever.
-        :param attribute: Name of the resource attribute that contains the
-            status.
-        :param callback: A callback function. This will be called with a single
-            value, progress. This is API specific but is generally a percentage
-            value from 0-100.
-
-        :return: The updated resource.
-        :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
-            transition to status failed to occur in ``wait`` seconds.
-        :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource
-            transitioned to one of the states in ``failures``.
-        :raises: :class:`~AttributeError` if the resource does not have a
-            ``status`` attribute
-        """
-        return resource.wait_for_status(
-            self, res, status, failures, interval, wait, attribute, callback
-        )
-
-    def wait_for_delete(
-        self,
-        res: resource.ResourceT,
-        interval: int = 2,
-        wait: int = 120,
-        callback: ty.Callable[[int], None] | None = None,
-    ) -> resource.ResourceT:
-        """Wait for a resource to be deleted.
-
-        :param res: The resource to wait on to be deleted.
-        :param interval: Number of seconds to wait before to consecutive
-            checks.
-        :param wait: Maximum number of seconds to wait before the change.
-        :param callback: A callback function. This will be called with a single
-            value, progress, which is a percentage value from 0-100.
-
-        :returns: The resource is returned on success.
-        :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
-            to delete failed to occur in the specified seconds.
-        """
-        return resource.wait_for_delete(self, res, interval, wait, callback)
-
-    def _get_cleanup_dependencies(self):
-        # DNS may depend on floating ip
-        return {'dns': {'before': ['network']}}
-
-    def _service_cleanup(
-        self,
-        dry_run=True,
-        client_status_queue=False,
-        identified_resources=None,
-        filters=None,
-        resource_evaluation_fn=None,
-        skip_resources=None,
-    ):
-        if not self.should_skip_resource_cleanup("zone", skip_resources):
-            # Delete all zones
-            for obj in self.zones():
-                self._service_cleanup_del_res(
-                    self.delete_zone,
-                    obj,
-                    dry_run=dry_run,
-                    client_status_queue=client_status_queue,
-                    identified_resources=identified_resources,
-                    filters=filters,
-                    resource_evaluation_fn=resource_evaluation_fn,
-                )
-
-        if not self.should_skip_resource_cleanup(
-            "floating_ip", skip_resources
-        ):
-            # Unset all floatingIPs
-            # NOTE: FloatingIPs are not cleaned when filters are set
-            for obj in self.floating_ips():
-                self._service_cleanup_del_res(
-                    self.unset_floating_ip,
-                    obj,
-                    dry_run=dry_run,
-                    client_status_queue=client_status_queue,
-                    identified_resources=identified_resources,
-                    filters=filters,
-                    resource_evaluation_fn=resource_evaluation_fn,
-                )
-
     # ====== TSIG keys ======
     def tsigkeys(self, **query):
         """Retrieve a generator of zones
@@ -1089,3 +985,107 @@ class Proxy(proxy.Proxy):
         return self._delete(
             _blacklist.Blacklist, blacklist, ignore_missing=ignore_missing
         )
+
+    # ========== Utilities ==========
+    def wait_for_status(
+        self,
+        res: resource.ResourceT,
+        status: str,
+        failures: list[str] | None = None,
+        interval: int | float | None = 2,
+        wait: int | None = None,
+        attribute: str = 'status',
+        callback: ty.Callable[[int], None] | None = None,
+    ) -> resource.ResourceT:
+        """Wait for the resource to be in a particular status.
+
+        :param session: The session to use for making this request.
+        :param resource: The resource to wait on to reach the status. The
+            resource must have a status attribute specified via ``attribute``.
+        :param status: Desired status of the resource.
+        :param failures: Statuses that would indicate the transition
+            failed such as 'ERROR'. Defaults to ['ERROR'].
+        :param interval: Number of seconds to wait between checks.
+        :param wait: Maximum number of seconds to wait for transition.
+            Set to ``None`` to wait forever.
+        :param attribute: Name of the resource attribute that contains the
+            status.
+        :param callback: A callback function. This will be called with a single
+            value, progress. This is API specific but is generally a percentage
+            value from 0-100.
+
+        :return: The updated resource.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
+            transition to status failed to occur in ``wait`` seconds.
+        :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource
+            transitioned to one of the states in ``failures``.
+        :raises: :class:`~AttributeError` if the resource does not have a
+            ``status`` attribute
+        """
+        return resource.wait_for_status(
+            self, res, status, failures, interval, wait, attribute, callback
+        )
+
+    def wait_for_delete(
+        self,
+        res: resource.ResourceT,
+        interval: int = 2,
+        wait: int = 120,
+        callback: ty.Callable[[int], None] | None = None,
+    ) -> resource.ResourceT:
+        """Wait for a resource to be deleted.
+
+        :param res: The resource to wait on to be deleted.
+        :param interval: Number of seconds to wait before to consecutive
+            checks.
+        :param wait: Maximum number of seconds to wait before the change.
+        :param callback: A callback function. This will be called with a single
+            value, progress, which is a percentage value from 0-100.
+
+        :returns: The resource is returned on success.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
+            to delete failed to occur in the specified seconds.
+        """
+        return resource.wait_for_delete(self, res, interval, wait, callback)
+
+    def _get_cleanup_dependencies(self):
+        # DNS may depend on floating ip
+        return {'dns': {'before': ['network']}}
+
+    def _service_cleanup(
+        self,
+        dry_run=True,
+        client_status_queue=False,
+        identified_resources=None,
+        filters=None,
+        resource_evaluation_fn=None,
+        skip_resources=None,
+    ):
+        if not self.should_skip_resource_cleanup("zone", skip_resources):
+            # Delete all zones
+            for obj in self.zones():
+                self._service_cleanup_del_res(
+                    self.delete_zone,
+                    obj,
+                    dry_run=dry_run,
+                    client_status_queue=client_status_queue,
+                    identified_resources=identified_resources,
+                    filters=filters,
+                    resource_evaluation_fn=resource_evaluation_fn,
+                )
+
+        if not self.should_skip_resource_cleanup(
+            "floating_ip", skip_resources
+        ):
+            # Unset all floatingIPs
+            # NOTE: FloatingIPs are not cleaned when filters are set
+            for obj in self.floating_ips():
+                self._service_cleanup_del_res(
+                    self.unset_floating_ip,
+                    obj,
+                    dry_run=dry_run,
+                    client_status_queue=client_status_queue,
+                    identified_resources=identified_resources,
+                    filters=filters,
+                    resource_evaluation_fn=resource_evaluation_fn,
+                )
