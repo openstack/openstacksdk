@@ -12,15 +12,11 @@
 
 import uuid
 
+from openstack.message.v2 import _base
 from openstack import resource
 
 
-class Message(resource.Resource):
-    # FIXME(anyone): The name string of `location` field of Zaqar API response
-    # is lower case. That is inconsistent with the guide from API-WG. This is
-    # a workaround for this issue.
-    location = resource.Header("location")
-
+class Message(_base.MessageResource):
     resources_key = 'messages'
     base_path = '/queues/%(queue_name)s/messages'
 
@@ -46,12 +42,6 @@ class Message(resource.Resource):
     ttl = resource.Body("ttl")
     #: The name of target queue message is post to or got from.
     queue_name = resource.URI("queue_name")
-    #: The ID to identify the client accessing Zaqar API. Must be specified
-    #: in header for each API request.
-    client_id = resource.Header("Client-ID")
-    #: The ID to identify the project accessing Zaqar API. Must be specified
-    #: in case keystone auth is not enabled in Zaqar service.
-    project_id = resource.Header("X-PROJECT-ID")
 
     # FIXME(stephenfin): This is actually a query arg but we need it for
     # deletions and resource.delete doesn't respect these currently
@@ -71,72 +61,24 @@ class Message(resource.Resource):
 
         return response.json()['resources']
 
-    @classmethod
-    def list(cls, session, paginated=True, base_path=None, **params):
-        """This method is a generator which yields message objects.
-
-        This is almost the copy of list method of resource.Resource class.
-        The only difference is the request header now includes `Client-ID`
-        and `X-PROJECT-ID` fields which are required by Zaqar v2 API.
-        """
-        more_data = True
-
-        if base_path is None:
-            base_path = cls.base_path
-
-        uri = base_path % params
-        headers = {
-            "Client-ID": params.get('client_id', None) or str(uuid.uuid4()),
-            "X-PROJECT-ID": params.get('project_id', None)
-            or session.get_project_id(),
-        }
-
-        query_params = cls._query_mapping._transpose(params, cls)
-        while more_data:
-            resp = session.get(uri, headers=headers, params=query_params)
-            resp = resp.json()
-            resp = resp[cls.resources_key]
-
-            if not resp:
-                more_data = False
-
-            yielded = 0
-            new_marker = None
-            for data in resp:
-                value = cls.existing(**data)
-                new_marker = value.id
-                yielded += 1
-                yield value
-
-            if not paginated:
-                return
-            if "limit" in query_params and yielded < query_params["limit"]:
-                return
-            query_params["limit"] = yielded
-            query_params["marker"] = new_marker
-
-    def fetch(
-        self,
-        session,
-        requires_id=True,
-        base_path=None,
-        error_message=None,
-        skip_cache=False,
-        **kwargs,
-    ):
+    def create(self, session, prepend_key=False, base_path=None, **kwargs):
         request = self._prepare_request(
-            requires_id=requires_id, base_path=base_path
+            requires_id=False, prepend_key=prepend_key, base_path=base_path
         )
         headers = {
             "Client-ID": self.client_id or str(uuid.uuid4()),
             "X-PROJECT-ID": self.project_id or session.get_project_id(),
         }
-
         request.headers.update(headers)
-        response = session.get(
-            request.url, headers=headers, skip_cache=skip_cache
+        response = session.post(
+            request.url, json=request.body, headers=request.headers
         )
-        self._translate_response(response)
+
+        # For case no message was claimed successfully, 204 No Content
+        # message will be returned. In other cases, we translate response
+        # body which has `messages` field(list) included.
+        if response.status_code != 204:
+            self._translate_response(response)
 
         return self
 
