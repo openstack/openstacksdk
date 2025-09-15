@@ -434,7 +434,9 @@ class CloudRegion:
         """Sets the Session constructor."""
         self._session_constructor = session_constructor
 
-    def get_requests_verify_args(self) -> tuple[bool, str | None]:
+    def get_requests_verify_args(
+        self,
+    ) -> tuple[bool | str | None, str | tuple[str, str] | None]:
         """Return the verify and cert values for the requests library."""
         insecure = self.config.get('insecure', False)
         verify = self.config.get('verify', True)

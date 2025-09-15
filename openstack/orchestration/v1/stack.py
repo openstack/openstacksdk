@@ -9,6 +9,12 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
+import typing as ty
+
+from keystoneauth1 import adapter
+import typing_extensions as ty_ext
+
 from openstack.common import tag
 from openstack import exceptions
 from openstack import resource
@@ -246,8 +252,62 @@ class Stack(resource.Resource):
             raise exceptions.NotFoundException(f"No stack found for {self.id}")
         return self
 
+    @ty.overload
     @classmethod
-    def find(cls, session, name_or_id, ignore_missing=True, **params):
+    def find(
+        cls,
+        session: adapter.Adapter,
+        name_or_id: str,
+        ignore_missing: ty.Literal[True] = True,
+        list_base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
+        **params: ty.Any,
+    ) -> ty_ext.Self | None: ...
+
+    @ty.overload
+    @classmethod
+    def find(
+        cls,
+        session: adapter.Adapter,
+        name_or_id: str,
+        ignore_missing: ty.Literal[False],
+        list_base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
+        **params: ty.Any,
+    ) -> ty_ext.Self: ...
+
+    # excuse the duplication here: it's mypy's fault
+    # https://github.com/python/mypy/issues/14764
+    @ty.overload
+    @classmethod
+    def find(
+        cls,
+        session: adapter.Adapter,
+        name_or_id: str,
+        ignore_missing: bool,
+        list_base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
+        **params: ty.Any,
+    ) -> ty_ext.Self | None: ...
+
+    @classmethod
+    def find(
+        cls,
+        session: adapter.Adapter,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        list_base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
+        **params: ty.Any,
+    ) -> ty_ext.Self | None:
         """Find a resource by its name or id.
 
         :param session: The session to use for making this request.
@@ -275,7 +335,9 @@ class Stack(resource.Resource):
         # Try to short-circuit by looking directly for a matching ID.
         try:
             match = cls.existing(
-                id=name_or_id, connection=session._get_connection(), **params
+                id=name_or_id,
+                connection=session._get_connection(),  # type: ignore
+                **params,
             )
             return match.fetch(session, **params)
         except exceptions.NotFoundException:
@@ -286,6 +348,7 @@ class Stack(resource.Resource):
 
         if ignore_missing:
             return None
+
         raise exceptions.NotFoundException(
             f"No {cls.__name__} found for {name_or_id}"
         )

@@ -150,4 +150,4 @@ class Limit(resource.Resource):
         self._header.attributes.update(headers)
         self._header.clean()
         self._update_location()
-        dict.update(self, self.to_dict())  # type: ignore
+        dict.update(self, self.to_dict())

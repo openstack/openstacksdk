@@ -1,13 +1,13 @@
 ---
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
       - id: mixed-line-ending
         args: ['--fix', 'lf']
         exclude: '.*\.(svg)$'
-      - id: check-byte-order-marker
+      - id: fix-byte-order-marker
       - id: check-executables-have-shebangs
       - id: check-merge-conflict
       - id: debug-statements
@@ -15,11 +15,11 @@ repos:
         files: .*\.(yaml|yml)$
         exclude: '^zuul.d/.*$'
   - repo: https://github.com/PyCQA/doc8
-    rev: v1.1.2
+    rev: v2.0.0
     hooks:
       - id: doc8
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.11
+    rev: v0.12.12
     hooks:
       - id: ruff-check
         args: ['--fix', '--unsafe-fixes']
@@ -32,7 +32,7 @@ repos:
           - flake8-import-order~=0.18.2
         exclude: '^(doc|releasenotes|tools)/.*$'
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.15.0
+    rev: v1.17.1
     hooks:
       - id: mypy
         additional_dependencies:

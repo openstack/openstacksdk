@@ -10,6 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import typing as ty
+
+from keystoneauth1 import adapter
+import typing_extensions as ty_ext
+
 from openstack import resource
 
 
@@ -27,7 +32,17 @@ class Version(resource.Resource):
     updated = resource.Body('updated')
 
     @classmethod
-    def list(cls, session, paginated=False, base_path=None, **params):
+    def list(
+        cls,
+        session: adapter.Adapter,
+        paginated: bool = True,
+        base_path: str | None = None,
+        allow_unknown_params: bool = False,
+        *,
+        microversion: str | None = None,
+        headers: dict[str, str] | None = None,
+        **params: ty.Any,
+    ) -> ty.Generator[ty_ext.Self, None, None]:
         if base_path is None:
             base_path = cls.base_path
 

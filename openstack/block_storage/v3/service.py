@@ -13,7 +13,8 @@
 import enum
 import typing as ty
 
-from keystoneauth1 import adapter as ksa_adapter
+from keystoneauth1 import adapter
+import typing_extensions as ty_ext
 
 from openstack import exceptions
 from openstack import resource
@@ -95,9 +96,72 @@ class Service(resource.Resource):
     # 3.32 introduced the 'set-log' action
     _max_microversion = '3.32'
 
+    @ty.overload
     @classmethod
-    def find(cls, session, name_or_id, ignore_missing=True, **params):
+    def find(
+        cls,
+        session: adapter.Adapter,
+        name_or_id: str,
+        ignore_missing: ty.Literal[True] = True,
+        list_base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
+        **params: ty.Any,
+    ) -> ty_ext.Self | None: ...
+
+    @ty.overload
+    @classmethod
+    def find(
+        cls,
+        session: adapter.Adapter,
+        name_or_id: str,
+        ignore_missing: ty.Literal[False],
+        list_base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
+        **params: ty.Any,
+    ) -> ty_ext.Self: ...
+
+    # excuse the duplication here: it's mypy's fault
+    # https://github.com/python/mypy/issues/14764
+    @ty.overload
+    @classmethod
+    def find(
+        cls,
+        session: adapter.Adapter,
+        name_or_id: str,
+        ignore_missing: bool,
+        list_base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
+        **params: ty.Any,
+    ) -> ty_ext.Self | None: ...
+
+    @classmethod
+    def find(
+        cls,
+        session: adapter.Adapter,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        list_base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
+        **params: ty.Any,
+    ) -> ty_ext.Self | None:
         # No direct request possible, thus go directly to list
+        if list_base_path:
+            params['base_path'] = list_base_path
+
+        # all_projects is a special case that is used by multiple services. We
+        # handle it here since it doesn't make sense to pass it to the .fetch
+        # call above
+        if all_projects is not None:
+            params['all_projects'] = all_projects
+
         data = cls.list(session, **params)
 
         result = None
@@ -172,7 +236,7 @@ class Service(resource.Resource):
     @classmethod
     def set_log_levels(
         cls,
-        session: ksa_adapter.Adapter,
+        session: adapter.Adapter,
         *,
         level: Level,
         binary: Binary | None = None,
@@ -207,7 +271,7 @@ class Service(resource.Resource):
     @classmethod
     def get_log_levels(
         cls,
-        session: ksa_adapter.Adapter,
+        session: adapter.Adapter,
         *,
         binary: Binary | None = None,
         server: str | None = None,

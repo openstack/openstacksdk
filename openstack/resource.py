@@ -512,7 +512,7 @@ class Resource(dict):
         # obj.items() ... but I think the if not obj: is short-circuiting down
         # in the C code and thus since we don't store the data in self[] it's
         # always False even if we override __len__ or __bool__.
-        dict.update(self, self.to_dict())  # type: ignore
+        dict.update(self, self.to_dict())
 
     @classmethod
     def _attributes_iterator(
@@ -703,7 +703,7 @@ class Resource(dict):
         # obj.items() ... but I think the if not obj: is short-circuiting down
         # in the C code and thus since we don't store the data in self[] it's
         # always False even if we override __len__ or __bool__.
-        dict.update(self, self.to_dict())  # type: ignore
+        dict.update(self, self.to_dict())
 
     def _collect_attrs(self, attrs):
         """Given attributes, return a dict per type of attribute
@@ -1268,7 +1268,7 @@ class Resource(dict):
         self._header.attributes.update(headers)
         self._header.clean()
         self._update_location()
-        dict.update(self, self.to_dict())  # type: ignore
+        dict.update(self, self.to_dict())
 
     @classmethod
     def _get_session(cls, session: AdapterT) -> AdapterT:

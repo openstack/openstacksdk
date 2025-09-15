@@ -10,15 +10,73 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import typing as ty
 import urllib.parse
+
+from keystoneauth1 import adapter
+import typing_extensions as ty_ext
 
 from openstack import exceptions
 from openstack import resource
 
 
 class Resource(resource.Resource):
+    @ty.overload
     @classmethod
-    def find(cls, session, name_or_id, ignore_missing=True, **params):
+    def find(
+        cls,
+        session: adapter.Adapter,
+        name_or_id: str,
+        ignore_missing: ty.Literal[True] = True,
+        list_base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
+        **params: ty.Any,
+    ) -> ty_ext.Self | None: ...
+
+    @ty.overload
+    @classmethod
+    def find(
+        cls,
+        session: adapter.Adapter,
+        name_or_id: str,
+        ignore_missing: ty.Literal[False],
+        list_base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
+        **params: ty.Any,
+    ) -> ty_ext.Self: ...
+
+    # excuse the duplication here: it's mypy's fault
+    # https://github.com/python/mypy/issues/14764
+    @ty.overload
+    @classmethod
+    def find(
+        cls,
+        session: adapter.Adapter,
+        name_or_id: str,
+        ignore_missing: bool,
+        list_base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
+        **params: ty.Any,
+    ) -> ty_ext.Self | None: ...
+
+    @classmethod
+    def find(
+        cls,
+        session: adapter.Adapter,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        list_base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
+        **params: ty.Any,
+    ) -> ty_ext.Self | None:
         """Find a resource by its name or id.
 
         :param session: The session to use for making this request.
@@ -46,7 +104,9 @@ class Resource(resource.Resource):
         # Try to short-circuit by looking directly for a matching ID.
         try:
             match = cls.existing(
-                id=name_or_id, connection=session._get_connection(), **params
+                id=name_or_id,
+                connection=session._get_connection(),  # type: ignore
+                **params,
             )
             return match.fetch(session)
         except exceptions.SDKException:
@@ -59,7 +119,13 @@ class Resource(resource.Resource):
         ):
             params['name'] = name_or_id
 
-        data = cls.list(session, **params)
+        data = cls.list(
+            session,
+            list_base_path=list_base_path,
+            microversion=microversion,
+            all_projects=all_projects,
+            **params,
+        )
 
         result = cls._get_one_match(name_or_id, data)
         if result is not None:
@@ -74,16 +140,21 @@ class Resource(resource.Resource):
     @classmethod
     def list(
         cls,
-        session,
-        project_id=None,
-        all_projects=None,
-        **params,
-    ):
-        headers: dict[str, str] | None = (
-            {} if project_id or all_projects else None
-        )
-
-        if headers is not None:
+        session: adapter.Adapter,
+        paginated: bool = True,
+        base_path: str | None = None,
+        allow_unknown_params: bool = False,
+        *,
+        microversion: str | None = None,
+        headers: dict[str, str] | None = None,
+        max_items: int | None = None,
+        project_id: str | None = None,
+        all_projects: bool | None = None,
+        **params: ty.Any,
+    ) -> ty.Generator[ty_ext.Self, None, None]:
+        if project_id or all_projects is not None:
+            if headers is None:
+                headers = {}
             if project_id:
                 headers["x-auth-sudo-project-id"] = str(project_id)
             if all_projects:

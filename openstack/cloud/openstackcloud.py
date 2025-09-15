@@ -73,6 +73,13 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
 
     config: cloud_region.CloudRegion
 
+    cache_enabled: bool
+    _cache_expirations: dict[str, int]
+    _cache: 'cache_region.CacheRegion'
+
+    verify: bool | str | None
+    cert: str | tuple[str, str] | None
+
     def __init__(
         self,
         cloud: str | None = None,
@@ -228,7 +235,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
         self.default_interface = self.config.get_interface()
         self.force_ipv4 = self.config.force_ipv4
 
-        (self.verify, self.cert) = self.config.get_requests_verify_args()
+        self.verify, self.cert = self.config.get_requests_verify_args()
 
         # Turn off urllib3 warnings about insecure certs if we have
         # explicitly configured requests to tell it we do not want
