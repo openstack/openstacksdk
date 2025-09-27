@@ -18,6 +18,7 @@ from openstack._utils import renamed_param
 from openstack import exceptions
 from openstack.identity.v3 import project as _project
 from openstack.key_manager.v1 import container as _container
+from openstack.key_manager.v1 import container_acl as _container_acl
 from openstack.key_manager.v1 import order as _order
 from openstack.key_manager.v1 import project_quota as _project_quota
 from openstack.key_manager.v1 import quota as _quota
@@ -34,6 +35,7 @@ class Proxy(proxy.Proxy):
 
     _resource_registry = {
         "container": _container.Container,
+        "container_acl": _container_acl.ContainerACL,
         "order": _order.Order,
         "project_quota": _project_quota.ProjectQuota,
         "secret": _secret.Secret,
@@ -355,6 +357,90 @@ class Proxy(proxy.Proxy):
         :returns: The updated secret
         """
         return self._update(_secret.Secret, secret, **attrs)
+
+    # ====== Container ACLs ======
+
+    def get_container_acl(
+        self, container: str | _container.Container
+    ) -> _container_acl.ContainerACL:
+        """Get a container's ACL settings
+
+        :param container: The value can be the ID of a container or a
+            :class:`~openstack.key_manager.v1.container.Container` instance.
+
+        :returns: One container ACL
+        """
+        container = self._get_resource(_container.Container, container)
+        return self._get(
+            _container_acl.ContainerACL,
+            None,
+            requires_id=False,
+            container_id=container.id,
+        )
+
+    def create_container_acl(
+        self, container: str | _container.Container, **attrs: Any
+    ) -> _container_acl.ContainerACL:
+        """Create or replace a container's ACL
+
+        :param container: The value can be the ID of a container or a
+            :class:`~openstack.key_manager.v1.container.Container` instance.
+        :param attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.key_manager.v1.container_acl.ContainerACL`,
+            comprised of the properties on the ContainerACL class. The ACL
+            body must be supplied explicitly, typically as a ``read`` dict,
+            e.g. ``read={'users': ['user-id'], 'project-access': False}``.
+
+        :returns: The results of ACL creation
+        """
+        container = self._get_resource(_container.Container, container)
+        attrs['container_id'] = container.id
+
+        return self._create(_container_acl.ContainerACL, **attrs)
+
+    def update_container_acl(
+        self, container: str | _container.Container, **attrs: Any
+    ) -> _container_acl.ContainerACL:
+        """Update a container's ACL
+
+        :param container: The value can be the ID of a container or a
+            :class:`~openstack.key_manager.v1.container.Container`
+            instance.
+        :param attrs: The attributes to update on the ACL. The ACL body must
+            be supplied explicitly, typically as a ``read`` dict, e.g.
+            ``read={'users': ['user-id'], 'project-access': True}``.
+
+        :returns: The updated ACL
+        """
+        container = self._get_resource(_container.Container, container)
+        attrs['container_id'] = container.id
+
+        return self._update(_container_acl.ContainerACL, None, **attrs)
+
+    def delete_container_acl(
+        self,
+        container: str | _container.Container,
+        ignore_missing: bool = True,
+    ) -> None:
+        """Reset a container's ACL to default settings
+
+        :param container: The value can be the ID of a container or a
+            :class:`~openstack.key_manager.v1.container.Container` instance.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be
+            raised when the container does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent container.
+
+        :returns: ``None``
+        """
+        container = self._get_resource(_container.Container, container)
+        self._delete(
+            _container_acl.ContainerACL,
+            None,
+            container_id=container.id,
+            ignore_missing=ignore_missing,
+        )
 
     # ====== Secret Stores ======
 

@@ -30,6 +30,14 @@ Container Operations
   :members: create_container, update_container, delete_container,
             get_container, find_container, containers
 
+Container ACL Operations
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.key_manager.v1._proxy.Proxy
+  :noindex:
+  :members: create_container_acl, update_container_acl, delete_container_acl,
+            get_container_acl
+
 Order Operations
 ^^^^^^^^^^^^^^^^
 
