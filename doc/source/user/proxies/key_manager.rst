@@ -52,3 +52,10 @@ ProjectQuota Operations
 .. autoclass:: openstack.key_manager.v1._proxy.Proxy
   :noindex:
   :members: update_project_quota, delete_project_quota, get_project_quota
+
+Secret ACL Operations
+^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.key_manager.v1._proxy.Proxy
+  :noindex:
+  :members: get_secret_acl, set_secret_acl, update_secret_acl, delete_secret_acl

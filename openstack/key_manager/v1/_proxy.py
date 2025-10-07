@@ -16,6 +16,7 @@ from openstack.key_manager.v1 import container as _container
 from openstack.key_manager.v1 import order as _order
 from openstack.key_manager.v1 import project_quota as _project_quota
 from openstack.key_manager.v1 import secret as _secret
+from openstack.key_manager.v1 import secret_acl as _secret_acl
 from openstack.key_manager.v1 import secret_store as _secret_store
 from openstack import proxy
 from openstack import resource
@@ -27,6 +28,7 @@ class Proxy(proxy.Proxy):
         "order": _order.Order,
         "project_quota": _project_quota.ProjectQuota,
         "secret": _secret.Secret,
+        "secret_acl": _secret_acl.SecretACL,
         "secret_store": _secret_store.SecretStore,
     }
 
@@ -355,6 +357,79 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.key_manager.v1.project_quota.ProjectQuota`
         """
         return self._update(_project_quota.ProjectQuota, project_id, **attrs)
+
+    # ========== Secret ACL Operations ==========
+
+    def get_secret_acl(self, secret):
+        """Get the ACL of a secret.
+
+        :param secret: Secret ID or a
+            :class:`~openstack.key_manager.v1.secret.Secret` instance.
+        :returns: :class:`~openstack.key_manager.v1.secret_acl.SecretACL`
+            whose ``read`` contains the ACL. If no explicit ACL exists,
+            the default ACL is returned.
+        :raises: :class:`~openstack.exceptions.NotFoundException`
+        """
+        sid = resource.Resource._get_id(secret)
+        return self._get(
+            _secret_acl.SecretACL,
+            None,
+            requires_id=False,
+            path_args={"secret_id": sid},
+        )
+
+    def set_secret_acl(self, secret, **attrs):
+        """Set (replace) the ACL of a secret (PUT).
+
+        :param secret: Secret ID or Secret instance.
+        :param dict attrs: ACL body, typically a ``read`` dict.
+        :returns: :class:`~openstack.key_manager.v1.secret_acl.SecretACL`
+            whose ``acl_ref`` references the ACL URL.
+        """
+        sid = resource.Resource._get_id(secret)
+        return self._update(
+            _secret_acl.SecretACL,
+            None,
+            requires_id=False,
+            path_args={"secret_id": sid},
+            method="PUT",
+            **attrs,
+        )
+
+    def update_secret_acl(self, secret, **attrs):
+        """Partially update the ACL of a secret (PATCH).
+
+        :param secret: Secret ID or Secret instance.
+        :param dict attrs: Partial ACL body, typically a ``read`` dict.
+        :returns: :class:`~openstack.key_manager.v1.secret_acl.SecretACL`
+            whose ``acl_ref`` references the ACL URL.
+        """
+        sid = resource.Resource._get_id(secret)
+        return self._update(
+            _secret_acl.SecretACL,
+            None,
+            requires_id=False,
+            path_args={"secret_id": sid},
+            method="PATCH",
+            **attrs,
+        )
+
+    def delete_secret_acl(self, secret, ignore_missing=True):
+        """Delete the ACL of a secret.
+
+        :param secret: Secret ID or Secret instance.
+        :param bool ignore_missing: When set to False, raise if not found.
+        :returns: ``None``
+        :raises: :class:`~openstack.exceptions.NotFoundException`
+        """
+        sid = resource.Resource._get_id(secret)
+        return self._delete(
+            _secret_acl.SecretACL,
+            None,
+            requires_id=False,
+            path_args={"secret_id": sid},
+            ignore_missing=ignore_missing,
+        )
 
     # ========== Utilities ==========
 
