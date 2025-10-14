@@ -17,6 +17,7 @@ from openstack._utils import renamed_param
 from openstack.key_manager.v1 import container as _container
 from openstack.key_manager.v1 import order as _order
 from openstack.key_manager.v1 import project_quota as _project_quota
+from openstack.key_manager.v1 import quota as _quota
 from openstack.key_manager.v1 import secret as _secret
 from openstack.key_manager.v1 import secret_store as _secret_store
 from openstack import proxy
@@ -417,6 +418,15 @@ class Proxy(proxy.Proxy):
             resource.Resource._get_id(project),
             **attrs,
         )
+
+    def get_quota(self) -> _quota.Quota:
+        """Get the effective quotas for the current project
+
+        :returns: One :class:`~openstack.key_manager.v1.quota.Quota`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
+            when no resource can be found.
+        """
+        return self._get(_quota.Quota, requires_id=False)
 
     # ========== Utilities ==========
 

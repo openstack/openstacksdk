@@ -38,6 +38,13 @@ Order Operations
   :members: create_order, update_order, delete_order, get_order,
             find_order, orders
 
+Quota Operations
+^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.key_manager.v1._proxy.Proxy
+  :noindex:
+  :members: get_project_quota, get_quota
+
 Secret Store Operations
 ^^^^^^^^^^^^^^^^^^^^^^^
 
