@@ -163,6 +163,7 @@ class TestNetworks(base.TestCase):
         'vlan_transparent': None,
         'vlan_qinq': None,
         'segments': None,
+        'l2_adjacency': False,
     }
 
     network_availability_zone_extension = {
