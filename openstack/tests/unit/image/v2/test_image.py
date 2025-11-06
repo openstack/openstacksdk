@@ -13,6 +13,7 @@
 import hashlib
 import io
 import operator
+import os
 import tempfile
 from unittest import mock
 
@@ -381,72 +382,91 @@ class TestImage(base.TestCase):
         self.assertRaises(exceptions.SDKException, sot.stage, self.sess)
 
     def test_download_checksum_match(self):
-        sot = image.Image(**EXAMPLE)
+        expected_hash = hashlib.sha512(b"abc").hexdigest()
+        example_with_hash = EXAMPLE.copy()
+        example_with_hash['os_hash_value'] = expected_hash
+        sot = image.Image(**example_with_hash)
 
-        resp = FakeResponse(
+        resp1 = FakeResponse(example_with_hash)
+        resp2 = FakeResponse(
             b"abc",
-            headers={
-                "Content-MD5": "900150983cd24fb0d6963f7d28e17f72",
-                "Content-Type": "application/octet-stream",
-            },
+            headers={"Content-Type": "application/octet-stream"},
         )
-        self.sess.get.return_value = resp
-
-        rv = sot.download(self.sess)
-        self.sess.get.assert_called_with(
-            'images/IDENTIFIER/file', stream=False
-        )
-
-        self.assertEqual(rv, resp)
-
-    def test_download_checksum_mismatch(self):
-        sot = image.Image(**EXAMPLE)
-
-        resp = FakeResponse(
-            b"abc",
-            headers={
-                "Content-MD5": "the wrong checksum",
-                "Content-Type": "application/octet-stream",
-            },
-        )
-        self.sess.get.return_value = resp
-
-        self.assertRaises(exceptions.InvalidResponse, sot.download, self.sess)
-
-    def test_download_no_checksum_header(self):
-        sot = image.Image(**EXAMPLE)
-
-        resp1 = FakeResponse(
-            b"abc", headers={"Content-Type": "application/octet-stream"}
-        )
-
-        resp2 = FakeResponse({"checksum": "900150983cd24fb0d6963f7d28e17f72"})
 
         self.sess.get.side_effect = [resp1, resp2]
 
         rv = sot.download(self.sess)
         self.sess.get.assert_has_calls(
             [
-                mock.call('images/IDENTIFIER/file', stream=False),
                 mock.call(
                     'images/IDENTIFIER',
                     microversion=None,
                     params={},
                     skip_cache=False,
                 ),
+                mock.call('images/IDENTIFIER/file', stream=False),
             ]
         )
 
-        self.assertEqual(rv, resp1)
+        self.assertEqual(rv, resp2)
 
-    def test_download_no_checksum_at_all2(self):
-        sot = image.Image(**EXAMPLE)
+    def test_download_checksum_mismatch(self):
+        example_with_wrong_hash = EXAMPLE.copy()
+        example_with_wrong_hash['os_hash_value'] = "wrong_hash_value"
+        sot = image.Image(**example_with_wrong_hash)
 
-        resp1 = FakeResponse(
+        resp1 = FakeResponse(example_with_wrong_hash)
+        resp2 = FakeResponse(
+            b"abc",
+            headers={"Content-Type": "application/octet-stream"},
+        )
+
+        self.sess.get.side_effect = [resp1, resp2]
+
+        self.assertRaises(exceptions.InvalidResponse, sot.download, self.sess)
+
+    def test_download_md5_fallback(self):
+        expected_md5 = hashlib.md5(b"abc", usedforsecurity=False).hexdigest()
+        example_md5_only = EXAMPLE.copy()
+        example_md5_only['os_hash_algo'] = None
+        example_md5_only['os_hash_value'] = None
+        example_md5_only['checksum'] = expected_md5
+        sot = image.Image(**example_md5_only)
+
+        resp1 = FakeResponse(example_md5_only)
+        resp2 = FakeResponse(
             b"abc", headers={"Content-Type": "application/octet-stream"}
         )
 
-        resp2 = FakeResponse({"checksum": None})
+        self.sess.get.side_effect = [resp1, resp2]
+
+        rv = sot.download(self.sess)
+        self.sess.get.assert_has_calls(
+            [
+                mock.call(
+                    'images/IDENTIFIER',
+                    microversion=None,
+                    params={},
+                    skip_cache=False,
+                ),
+                mock.call('images/IDENTIFIER/file', stream=False),
+            ]
+        )
+
+        self.assertEqual(rv, resp2)
+
+    def test_download_no_checksum_at_all2(self):
+        # No hash available at all
+        example_no_hash = EXAMPLE.copy()
+        example_no_hash['os_hash_algo'] = None
+        example_no_hash['os_hash_value'] = None
+        example_no_hash['checksum'] = None
+        sot = image.Image(**example_no_hash)
+
+        resp1 = FakeResponse(example_no_hash)
+        resp2 = FakeResponse(
+            b"abc", headers={"Content-Type": "application/octet-stream"}
+        )
 
         self.sess.get.side_effect = [resp1, resp2]
 
@@ -457,74 +477,220 @@ class TestImage(base.TestCase):
                 len(log.records), 1, "Too many warnings were logged"
             )
             self.assertEqual(
-                "Unable to verify the integrity of image %s",
+                "Unable to verify the integrity of image %s "
+                "- no hash available",
                 log.records[0].msg,
             )
             self.assertEqual((sot.id,), log.records[0].args)
 
         self.sess.get.assert_has_calls(
             [
-                mock.call('images/IDENTIFIER/file', stream=False),
                 mock.call(
                     'images/IDENTIFIER',
                     microversion=None,
                     params={},
                     skip_cache=False,
                 ),
+                mock.call('images/IDENTIFIER/file', stream=False),
             ]
         )
 
-        self.assertEqual(rv, resp1)
+        self.assertEqual(rv, resp2)
 
     def test_download_stream(self):
-        sot = image.Image(**EXAMPLE)
+        expected_hash = hashlib.sha512(b"abc").hexdigest()
+        example_with_hash = EXAMPLE.copy()
+        example_with_hash['os_hash_value'] = expected_hash
+        sot = image.Image(**example_with_hash)
 
-        resp = FakeResponse(
+        resp1 = FakeResponse(example_with_hash)
+        resp2 = FakeResponse(
             b"abc",
-            headers={
-                "Content-MD5": "900150983cd24fb0d6963f7d28e17f72",
-                "Content-Type": "application/octet-stream",
-            },
+            headers={"Content-Type": "application/octet-stream"},
         )
-        self.sess.get.return_value = resp
+
+        self.sess.get.side_effect = [resp1, resp2]
 
         rv = sot.download(self.sess, stream=True)
-        self.sess.get.assert_called_with('images/IDENTIFIER/file', stream=True)
+        self.sess.get.assert_has_calls(
+            [
+                mock.call(
+                    'images/IDENTIFIER',
+                    microversion=None,
+                    params={},
+                    skip_cache=False,
+                ),
+                mock.call('images/IDENTIFIER/file', stream=True),
+            ]
+        )
 
-        self.assertEqual(rv, resp)
+        self.assertEqual(rv, resp2)
+        self.assertIsNone(rv.headers.get('content-md5'))
 
     def test_image_download_output_fd(self):
         output_file = io.BytesIO()
-        sot = image.Image(**EXAMPLE)
+        expected_hash = hashlib.sha512(b'0102').hexdigest()
+        example_with_hash = EXAMPLE.copy()
+        example_with_hash['os_hash_value'] = expected_hash
+        sot = image.Image(**example_with_hash)
+
+        fetch_response = FakeResponse(example_with_hash)
         response = mock.Mock()
         response.status_code = 200
         response.iter_content.return_value = [b'01', b'02']
-        response.headers = {
-            'Content-MD5': calculate_md5_checksum(
-                response.iter_content.return_value
-            )
-        }
-        self.sess.get = mock.Mock(return_value=response)
+        response.headers = {}
+
+        self.sess.get = mock.Mock(side_effect=[fetch_response, response])
         sot.download(self.sess, output=output_file)
         output_file.seek(0)
         self.assertEqual(b'0102', output_file.read())
 
     def test_image_download_output_file(self):
-        sot = image.Image(**EXAMPLE)
+        expected_hash = hashlib.sha512(b'0102').hexdigest()
+        example_with_hash = EXAMPLE.copy()
+        example_with_hash['os_hash_value'] = expected_hash
+        sot = image.Image(**example_with_hash)
+
+        fetch_response = FakeResponse(example_with_hash)
         response = mock.Mock()
         response.status_code = 200
         response.iter_content.return_value = [b'01', b'02']
-        response.headers = {
-            'Content-MD5': calculate_md5_checksum(
-                response.iter_content.return_value
-            )
-        }
-        self.sess.get = mock.Mock(return_value=response)
+        response.headers = {}
 
-        output_file = tempfile.NamedTemporaryFile()
-        sot.download(self.sess, output=output_file.name)
-        output_file.seek(0)
-        self.assertEqual(b'0102', output_file.read())
+        self.sess.get = mock.Mock(side_effect=[fetch_response, response])
+
+        output_file = tempfile.NamedTemporaryFile(delete=False)
+        output_file.close()
+        try:
+            sot.download(self.sess, output=output_file.name)
+            with open(output_file.name, 'rb') as fd:
+                self.assertEqual(b'0102', fd.read())
+        finally:
+            os.unlink(output_file.name)
+
+    def test_download_secure_hash_sha256(self):
+        expected_hash = hashlib.sha256(b"abc").hexdigest()
+        example_with_sha256 = EXAMPLE.copy()
+        example_with_sha256['os_hash_algo'] = 'sha256'
+        example_with_sha256['os_hash_value'] = expected_hash
+        sot = image.Image(**example_with_sha256)
+
+        resp1 = FakeResponse(example_with_sha256)
+        resp2 = FakeResponse(
+            b"abc",
+            headers={"Content-Type": "application/octet-stream"},
+        )
+
+        self.sess.get.side_effect = [resp1, resp2]
+
+        rv = sot.download(self.sess)
+        self.assertEqual(rv, resp2)
+
+    def test_download_secure_hash_sha384(self):
+        expected_hash = hashlib.sha384(b"abc").hexdigest()
+        example_with_sha384 = EXAMPLE.copy()
+        example_with_sha384['os_hash_algo'] = 'sha384'
+        example_with_sha384['os_hash_value'] = expected_hash
+        sot = image.Image(**example_with_sha384)
+
+        resp1 = FakeResponse(example_with_sha384)
+        resp2 = FakeResponse(
+            b"abc",
+            headers={"Content-Type": "application/octet-stream"},
+        )
+
+        self.sess.get.side_effect = [resp1, resp2]
+
+        rv = sot.download(self.sess)
+        self.assertEqual(rv, resp2)
+
+    def test_download_content_md5_header_ignored(self):
+        correct_hash = hashlib.sha512(b"abc").hexdigest()
+        example_with_hash = EXAMPLE.copy()
+        example_with_hash['os_hash_value'] = correct_hash
+        sot = image.Image(**example_with_hash)
+
+        resp1 = FakeResponse(example_with_hash)
+        resp2 = FakeResponse(
+            b"abc",
+            headers={
+                "Content-MD5": "wrong_header_hash_that_should_be_ignored",
+                "Content-Type": "application/octet-stream",
+            },
+        )
+
+        self.sess.get.side_effect = [resp1, resp2]
+
+        # Succeeds since only metadata hash is used
+        rv = sot.download(self.sess)
+        self.assertEqual(rv, resp2)
+
+    def test_download_secure_hash_mismatch_sha512(self):
+        example_with_wrong_hash = EXAMPLE.copy()
+        example_with_wrong_hash['os_hash_value'] = "wrong_sha512_hash"
+        sot = image.Image(**example_with_wrong_hash)
+
+        resp1 = FakeResponse(example_with_wrong_hash)
+        resp2 = FakeResponse(
+            b"abc",
+            headers={"Content-Type": "application/octet-stream"},
+        )
+
+        self.sess.get.side_effect = [resp1, resp2]
+
+        self.assertRaises(exceptions.InvalidResponse, sot.download, self.sess)
+
+    def test_download_md5_fallback_mismatch(self):
+        example_md5_only = EXAMPLE.copy()
+        example_md5_only['os_hash_algo'] = None
+        example_md5_only['os_hash_value'] = None
+        example_md5_only['checksum'] = "wrong_md5_checksum"
+        sot = image.Image(**example_md5_only)
+
+        resp1 = FakeResponse(example_md5_only)
+        resp2 = FakeResponse(
+            b"abc",
+            headers={"Content-Type": "application/octet-stream"},
+        )
+
+        self.sess.get.side_effect = [resp1, resp2]
+
+        self.assertRaises(exceptions.InvalidResponse, sot.download, self.sess)
+
+    def test_download_unsupported_hash_algo_raises(self):
+        example_unsupported = EXAMPLE.copy()
+        example_unsupported['os_hash_algo'] = 'unsupported_algo'
+        example_unsupported['os_hash_value'] = 'some_hash_value'
+        sot = image.Image(**example_unsupported)
+
+        resp1 = FakeResponse(example_unsupported)
+        resp2 = FakeResponse(
+            b"abc",
+            headers={"Content-Type": "application/octet-stream"},
+        )
+
+        self.sess.get.side_effect = [resp1, resp2]
+
+        self.assertRaises(exceptions.SDKException, sot.download, self.sess)
+
+    def test_download_unsupported_hash_algo_falls_back_to_md5(self):
+        correct_md5 = hashlib.md5(b"abc", usedforsecurity=False).hexdigest()
+        example_unsupported = EXAMPLE.copy()
+        example_unsupported['os_hash_algo'] = 'ancient_hash_algo'
+        example_unsupported['os_hash_value'] = 'irrelevant_hash'
+        example_unsupported['checksum'] = correct_md5
+        sot = image.Image(**example_unsupported)
+
+        resp1 = FakeResponse(example_unsupported)
+        resp2 = FakeResponse(
+            b"abc",
+            headers={"Content-Type": "application/octet-stream"},
+        )
+
+        self.sess.get.side_effect = [resp1, resp2]
+
+        rv = sot.download(self.sess)
+        self.assertEqual(rv, resp2)
 
     def test_image_update(self):
         values = EXAMPLE.copy()

@@ -247,14 +247,19 @@ def make_fake_image(
     checksum='ee36e35a297980dee1b514de9803ec6d',
 ):
     if data:
-        md5 = hashlib.md5(usedforsecurity=False)
-        sha256 = hashlib.sha256()
+        md5_hash = hashlib.md5(usedforsecurity=False)
+        sha256_hash = hashlib.sha256()
+        sha512_hash = hashlib.sha512()
         with open(data, 'rb') as file_obj:
             for chunk in iter(lambda: file_obj.read(8192), b''):
-                md5.update(chunk)
-                sha256.update(chunk)
-        md5 = md5.hexdigest()
-        sha256 = sha256.hexdigest()
+                md5_hash.update(chunk)
+                sha256_hash.update(chunk)
+                sha512_hash.update(chunk)
+        md5 = md5_hash.hexdigest()
+        sha256 = sha256_hash.hexdigest()
+        sha512 = sha512_hash.hexdigest()
+    else:
+        sha512 = None
     return {
         'image_state': 'available',
         'container_format': 'bare',
@@ -282,6 +287,10 @@ def make_fake_image(
         'owner_specified.openstack.sha256': sha256 or NO_SHA256,
         'owner_specified.openstack.object': f'images/{image_name}',
         'protected': False,
+        # Add secure hash fields (os_hash_algo and os_hash_value)
+        # Default to sha512 if data was provided, otherwise None
+        'os_hash_algo': 'sha512' if sha512 else None,
+        'os_hash_value': sha512 if sha512 else None,
     }
 
 
