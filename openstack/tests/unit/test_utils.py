@@ -223,7 +223,7 @@ class TestMaximumSupportedMicroversion(base.TestCase):
 
 class TestOsServiceTypesVersion(base.TestCase):
     def test_ost_version(self):
-        ost_version = '2022-09-13T15:34:32.154125'
+        ost_version = '2024-05-08T19:22:13.804707'
         self.assertEqual(
             ost_version,
             os_service_types.ServiceTypes().version,
