@@ -20,6 +20,9 @@ class ShareGroup(resource.Resource):
 
     _query_mapping = resource.QueryParameters("share_group_id")
 
+    # The share group API is experimental until 2.55.
+    _max_microversion = "2.55"
+
     # capabilities
     allow_create = True
     allow_fetch = True
