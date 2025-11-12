@@ -54,3 +54,27 @@ when making this request.
 
 .. literalinclude:: ../examples/key_manager/get.py
    :pyobject: get_secret_payload
+
+Find Secret
+-----------
+
+To find a secret by name or ID, use the
+:meth:`~openstack.key_manager.v1._proxy.Proxy.find_secret` method.
+This method can search for a :class:`~openstack.key_manager.v1.secret.Secret`
+by either its name or ID, making it flexible when you don't have
+the exact secret ID.
+
+.. literalinclude:: ../examples/key_manager/find.py
+   :pyobject: find_secret
+
+Delete Secret
+-------------
+
+To delete a secret, use the
+:meth:`~openstack.key_manager.v1._proxy.Proxy.delete_secret` method.
+The secret can be identified by its ID or by using
+:meth:`~openstack.key_manager.v1._proxy.Proxy.find_secret` to locate
+it by name first.
+
+.. literalinclude:: ../examples/key_manager/delete.py
+   :pyobject: delete_secret
