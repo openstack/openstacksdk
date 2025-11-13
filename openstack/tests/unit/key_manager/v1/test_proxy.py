@@ -13,6 +13,7 @@
 from openstack.key_manager.v1 import _proxy
 from openstack.key_manager.v1 import container
 from openstack.key_manager.v1 import order
+from openstack.key_manager.v1 import project_quota
 from openstack.key_manager.v1 import secret
 from openstack.key_manager.v1 import secret_store
 from openstack.tests.unit import test_proxy_base
@@ -103,3 +104,25 @@ class TestKeyManagerSecret(TestKeyManagerProxy):
 class TestKeyManagerSecretStore(TestKeyManagerProxy):
     def test_secret_stores(self):
         self.verify_list(self.proxy.secret_stores, secret_store.SecretStore)
+
+
+class TestKeyManagerProjectQuota(TestKeyManagerProxy):
+    def test_project_quota_delete(self):
+        self.verify_delete(
+            self.proxy.delete_project_quota, project_quota.ProjectQuota, False
+        )
+
+    def test_project_quota_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_project_quota, project_quota.ProjectQuota, True
+        )
+
+    def test_project_quota_get(self):
+        self.verify_get(
+            self.proxy.get_project_quota, project_quota.ProjectQuota
+        )
+
+    def test_project_quota_update(self):
+        self.verify_update(
+            self.proxy.update_project_quota, project_quota.ProjectQuota
+        )

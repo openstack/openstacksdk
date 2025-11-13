@@ -45,3 +45,10 @@ Secret Store Operations
   :noindex:
   :members: secret_stores, get_global_default_secret_store,
             get_preferred_secret_store
+
+ProjectQuota Operations
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.key_manager.v1._proxy.Proxy
+  :noindex:
+  :members: update_project_quota, delete_project_quota, get_project_quota
