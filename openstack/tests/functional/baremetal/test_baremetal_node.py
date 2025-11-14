@@ -27,13 +27,12 @@ class TestBareMetalNode(base.BaseBaremetalTest):
 
         # NOTE(dtantsur): get_node and find_node only differ in handing missing
         # nodes, otherwise they are identical.
-        for call, ident in [
-            (self.operator_cloud.baremetal.get_node, self.node_id),
-            (self.operator_cloud.baremetal.get_node, 'node-name'),
-            (self.operator_cloud.baremetal.find_node, self.node_id),
-            (self.operator_cloud.baremetal.find_node, 'node-name'),
-        ]:
-            found = call(ident)
+        for ident in (self.node_id, 'node-name'):
+            found = self.operator_cloud.baremetal.get_node(ident)
+            self.assertEqual(node.id, found.id)
+            self.assertEqual(node.name, found.name)
+
+            found = self.operator_cloud.baremetal.find_node(ident)
             self.assertEqual(node.id, found.id)
             self.assertEqual(node.name, found.name)
 
