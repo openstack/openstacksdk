@@ -22,6 +22,8 @@ from openstack import resource
 
 
 class Proxy(proxy.Proxy):
+    api_version = '2'
+
     # ========== Deployables ==========
 
     def deployables(self, **query):

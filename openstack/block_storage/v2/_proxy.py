@@ -34,6 +34,8 @@ from openstack import warnings as os_warnings
 
 
 class Proxy(proxy.Proxy):
+    api_version = '2'
+
     # ========== Extensions ==========
 
     def extensions(self):

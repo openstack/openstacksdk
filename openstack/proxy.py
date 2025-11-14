@@ -64,6 +64,12 @@ class CleanupDependency(ty.TypedDict):
 class Proxy(adapter.Adapter):
     """Represents a service."""
 
+    api_version: ty.ClassVar[str]
+    """The API version.
+
+    This is used as a descriminating attribute for type checking.
+    """
+
     retriable_status_codes: list[int] | None = None
     """HTTP status codes that should be retried by default.
 

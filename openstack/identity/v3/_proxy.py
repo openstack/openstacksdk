@@ -64,6 +64,8 @@ from openstack import warnings as os_warnings
 
 
 class Proxy(proxy.Proxy):
+    api_version = '3'
+
     _resource_registry = {
         "application_credential": _application_credential.ApplicationCredential,  # noqa: E501
         "access_rule": _access_rule.AccessRule,

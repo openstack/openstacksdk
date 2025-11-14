@@ -31,6 +31,8 @@ from openstack import resource
 
 
 class Proxy(proxy.Proxy):
+    api_version = '2'
+
     _resource_registry = {
         "blacklist": _blacklist.Blacklist,
         "floating_ip": _fip.FloatingIP,

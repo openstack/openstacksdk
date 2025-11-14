@@ -34,6 +34,8 @@ from openstack import utils
 
 
 class Proxy(proxy.Proxy):
+    api_version = '1'
+
     retriable_status_codes = _common.RETRIABLE_STATUS_CODES
 
     _resource_registry = {

@@ -43,6 +43,8 @@ def _get_expiration(expiration):
 
 
 class Proxy(proxy.Proxy):
+    api_version = '1'
+
     _resource_registry = {
         "account": _account.Account,
         "container": _container.Container,

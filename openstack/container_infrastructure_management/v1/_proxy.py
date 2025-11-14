@@ -29,6 +29,8 @@ from openstack import resource
 
 
 class Proxy(proxy.Proxy):
+    api_version = '1'
+
     _resource_registry = {
         "cluster": _cluster.Cluster,
         "cluster_template": _cluster_template.ClusterTemplate,

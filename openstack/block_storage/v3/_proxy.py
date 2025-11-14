@@ -42,6 +42,8 @@ from openstack import warnings as os_warnings
 
 
 class Proxy(proxy.Proxy):
+    api_version = '3'
+
     _resource_registry = {
         "availability_zone": availability_zone.AvailabilityZone,
         "attachment": _attachment.Attachment,
