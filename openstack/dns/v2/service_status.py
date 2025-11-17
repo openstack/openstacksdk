@@ -36,8 +36,8 @@ class ServiceStatus(_base.Resource):
     #: Hostname of the host with the service instance
     #: *Type: str*
     hostname = resource.Body('hostname')
-    #: Links contains a `self` pertaining to this service status or a `next` pertaining
-    #: to next page
+    #: Links contains a `self` pertaining to this service status or a `next`
+    #: pertaining to next page
     links = resource.Body('links', type=dict)
     #: The name of the Designate service instance
     #: *Type: str*

@@ -95,7 +95,7 @@ class ShareGroupSnapshotTest(base.BaseSharedFileSystemTest):
         self.assertEqual('updated share group snapshot', get_u_ss.description)
 
     def test_reset(self):
-        res = self.operator_cloud.shared_file_system.reset_share_group_snapshot_status(
+        res = self.operator_cloud.shared_file_system.reset_share_group_snapshot_status(  # noqa: E501
             self.SHARE_GROUP_SNAPSHOT_ID, 'error'
         )
         self.assertIsNone(res)

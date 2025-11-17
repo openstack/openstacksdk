@@ -160,9 +160,10 @@ class Proxy(proxy.Proxy):
         :param container: The value can be either the name of a container or a
             :class:`~openstack.object_store.v1.container.Container` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the container does not exist. When set to ``True``, no exception
-            will be set when attempting to delete a nonexistent server.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the container does not exist. When set to ``True``, no
+            exception will be set when attempting to delete a nonexistent
+            server.
 
         :returns: ``None``
         """
@@ -492,9 +493,9 @@ class Proxy(proxy.Proxy):
         :param container: The value can be the ID of a container or a
             :class:`~openstack.object_store.v1.container.Container` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the object does not exist.  When set to ``True``, no exception will
-            be set when attempting to delete a nonexistent server.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the object does not exist.  When set to ``True``, no exception
+            will be set when attempting to delete a nonexistent server.
 
         :returns: ``None``
         """
@@ -934,7 +935,7 @@ class Proxy(proxy.Proxy):
             path = endpoint.path
         path = '/'.join([path, res.name, object_prefix])
 
-        data = f'{path}\n{redirect_url}\n{max_file_size}\n{max_upload_count}\n{expires}'
+        data = f'{path}\n{redirect_url}\n{max_file_size}\n{max_upload_count}\n{expires}'  # noqa: E501
         sig = hmac.new(temp_url_key, data.encode(), sha1).hexdigest()
 
         return (expires, sig)

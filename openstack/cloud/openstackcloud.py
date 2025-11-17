@@ -607,7 +607,8 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
             raise
         except Exception as e:
             raise exceptions.SDKException(
-                f"Error getting {service_key} endpoint on {self.name}:{self.config.get_region_name(service_key)}: "
+                f"Error getting {service_key} endpoint on "
+                f"{self.name}:{self.config.get_region_name(service_key)}: "
                 f"{str(e)}"
             )
         return endpoint
@@ -682,7 +683,8 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
             resource_type = service_proxy._resource_registry[resource_name]
         except KeyError:
             raise exceptions.SDKException(
-                f"Resource {resource_name} is not known in service {service_name}"
+                f"Resource {resource_name} is not known in service "
+                f"{service_name}"
             )
 
         if name_or_id:

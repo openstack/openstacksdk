@@ -1680,7 +1680,8 @@ class Proxy(proxy.Proxy):
             the registered_limits being returned.
 
         :returns: A generator of registered_limits instances.
-        :rtype: :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
+        :rtype:
+            :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
         """
         return self._list(_registered_limit.RegisteredLimit, **query)
 
@@ -1692,7 +1693,8 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
             instance.
 
-        :returns: One :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
+        :returns: One
+            :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
@@ -1706,7 +1708,8 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the RegisteredLimit class.
 
         :returns: The results of registered_limit creation.
-        :rtype: :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
+        :rtype:
+            :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
         """
         return self._create(_registered_limit.RegisteredLimit, **attrs)
 
@@ -1735,8 +1738,8 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the registered_limit does not exist. When set to ``True``, no
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the registered_limit does not exist. When set to ``True``, no
             exception will be thrown when attempting to delete a nonexistent
             registered_limit.
 
@@ -1804,9 +1807,9 @@ class Proxy(proxy.Proxy):
         :param limit: The value can be either the ID of a limit or a
             :class:`~openstack.identity.v3.limit.Limit` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the limit does not exist. When set to ``True``, no exception will
-            be thrown when attempting to delete a nonexistent limit.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the limit does not exist. When set to ``True``, no exception
+            will be thrown when attempting to delete a nonexistent limit.
 
         :returns: ``None``
         """
@@ -2316,9 +2319,10 @@ class Proxy(proxy.Proxy):
         :param access rule: The value can be either the ID of an
             access rule or a :class:`~.access_rule.AccessRule` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the access rule does not exist. When set to ``True``, no exception
-            will be thrown when attempting to delete a nonexistent access rule.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the access rule does not exist. When set to ``True``, no
+            exception will be thrown when attempting to delete a nonexistent
+            access rule.
 
         :returns: ``None``
         """
@@ -2370,9 +2374,9 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a service provider
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the resource does not exist. When set to ``True``, None will be
-            returned when attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource does not exist. When set to ``True``, None will
+            be returned when attempting to find a nonexistent resource.
 
         :returns: The details of an service provider or None.
         :rtype:

@@ -170,10 +170,10 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.accelerator.v2.device_profile.DeviceProfile`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the device profile does not exist.
-            When set to ``True``, no exception will be set when attempting to
-            delete a nonexistent accelerator request.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the device profile does not exist. When set to ``True``, no
+            exception will be set when attempting to delete a nonexistent
+            accelerator request.
         :returns: ``None``
         """
         return self._delete(

@@ -78,7 +78,8 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
             zone_type = zone_type.upper()
             if zone_type not in ('PRIMARY', 'SECONDARY'):
                 raise exceptions.SDKException(
-                    f"Invalid type {zone_type}, valid choices are PRIMARY or SECONDARY"
+                    f"Invalid type {zone_type}, valid choices are PRIMARY or "
+                    f"SECONDARY"
                 )
 
         zone = {

@@ -232,7 +232,7 @@ class TestNodeWaitForProvisionState(base.TestCase):
 
         self.assertRaisesRegex(
             exceptions.ResourceFailure,
-            'failure state "deploy failed"',
+            "failure state 'deploy failed'",
             self.node.wait_for_provision_state,
             self.session,
             'manageable',
@@ -247,7 +247,7 @@ class TestNodeWaitForProvisionState(base.TestCase):
 
         self.assertRaisesRegex(
             exceptions.ResourceFailure,
-            'failure state "error"',
+            "failure state 'error'",
             self.node.wait_for_provision_state,
             self.session,
             'manageable',

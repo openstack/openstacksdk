@@ -861,7 +861,7 @@ class TestLoadBalancer(base.BaseFunctionalTest):
     def test_availability_zone_profile_list(self):
         names = [
             az.name
-            for az in self.operator_cloud.load_balancer.availability_zone_profiles()
+            for az in self.operator_cloud.load_balancer.availability_zone_profiles()  # noqa: E501
         ]
         self.assertIn(self.AVAILABILITY_ZONE_PROFILE_NAME, names)
 

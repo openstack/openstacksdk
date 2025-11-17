@@ -290,7 +290,8 @@ class Proxy(proxy.Proxy):
     def get_global_default_secret_store(self):
         """Get the global default secret store
 
-        :returns: One :class:`~openstack.key_manager.v1.secret_store.SecretStore`
+        :returns: One
+            :class:`~openstack.key_manager.v1.secret_store.SecretStore`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
@@ -304,7 +305,8 @@ class Proxy(proxy.Proxy):
     def get_preferred_secret_store(self):
         """Get the preferred secret store for the current project
 
-        :returns: One :class:`~openstack.key_manager.v1.secret_store.SecretStore`
+        :returns: One
+            :class:`~openstack.key_manager.v1.secret_store.SecretStore`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
@@ -338,7 +340,8 @@ class Proxy(proxy.Proxy):
 
         :param project_id: A project ID.
 
-        :returns: One :class:`~openstack.key_manager.v1.project_quota.ProjectQuota`
+        :returns: One
+            :class:`~openstack.key_manager.v1.project_quota.ProjectQuota`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """

@@ -92,7 +92,10 @@ def generate_fake_resource(
                     base_attrs[name] = [uuid.uuid4().hex]
                 else:
                     # Everything else
-                    msg = f"Fake value for {resource_type.__name__}.{name} can not be generated"
+                    msg = (
+                        f"Fake value for {resource_type.__name__}.{name} can "
+                        f"not be generated"
+                    )
                     raise NotImplementedError(msg)
             elif issubclass(target_type, list) and value.list_type is None:
                 # List of str
@@ -116,7 +119,10 @@ def generate_fake_resource(
                 base_attrs[name] = dict()
             else:
                 # Everything else
-                msg = f"Fake value for {resource_type.__name__}.{name} can not be generated"
+                msg = (
+                    f"Fake value for {resource_type.__name__}.{name} can not "
+                    f"be generated"
+                )
                 raise NotImplementedError(msg)
 
         if isinstance(value, fields.URI):
@@ -209,7 +215,7 @@ def generate_fake_proxy(
         ``api_version`` is not supported
     :returns: An autospecced mock of the :class:`~openstack.proxy.Proxy`
         implementation for the specified service type and API version
-    """
+    """  # noqa: E501
     if not issubclass(service, service_description.ServiceDescription):
         raise ValueError(
             f"Service {service.__name__} is not a valid ServiceDescription"

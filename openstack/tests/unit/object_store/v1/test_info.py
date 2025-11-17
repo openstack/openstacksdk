@@ -36,8 +36,8 @@ class TestInfo(base.TestCase):
             'http://object.cloud.example.com/v1.0/test': 'http://object.cloud.example.com/info',
             'https://object.cloud.example.com/swift/v1/AUTH_%(tenant_id)s': 'https://object.cloud.example.com/swift/info',
             'https://object.cloud.example.com/swift/v1/AUTH_%(project_id)s': 'https://object.cloud.example.com/swift/info',
-            'https://object.cloud.example.com/services/swift/v1/AUTH_%(project_id)s': 'https://object.cloud.example.com/services/swift/info',
-            'https://object.cloud.example.com/services/swift/v1/AUTH_%(project_id)s/': 'https://object.cloud.example.com/services/swift/info',
+            'https://object.cloud.example.com/services/swift/v1/AUTH_%(project_id)s': 'https://object.cloud.example.com/services/swift/info',  # noqa: E501
+            'https://object.cloud.example.com/services/swift/v1/AUTH_%(project_id)s/': 'https://object.cloud.example.com/services/swift/info',  # noqa: E501
             'https://object.cloud.example.com/info/v1/AUTH_%(project_id)s/': 'https://object.cloud.example.com/info/info',
         }
         for uri_k, uri_v in test_urls.items():

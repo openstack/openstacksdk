@@ -191,12 +191,12 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             if self._nat_destination in (network['name'], network['id']):
                 if nat_destination:
                     raise exceptions.SDKException(
-                        'Multiple networks were found matching '
-                        f'{self._nat_destination} which is the network configured '
-                        'to be the NAT destination. Please check your '
-                        'cloud resources. It is probably a good idea '
-                        'to configure this network by ID rather than '
-                        'by name.'
+                        f'Multiple networks were found matching '
+                        f'{self._nat_destination} which is the network '
+                        f'configured to be the NAT destination. Please check '
+                        f'your cloud resources. It is probably a good idea '
+                        f'to configure this network by ID rather than '
+                        f'by name.'
                     )
                 nat_destination = network
             elif self._nat_destination is None:

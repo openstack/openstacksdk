@@ -3620,9 +3620,9 @@ class Proxy(proxy.Proxy):
             rule belongs or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the resource does not exist. When set to ``True``, None will be
-            returned when attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource does not exist. When set to ``True``, None will
+            be returned when attempting to find a nonexistent resource.
         :param dict query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
@@ -3739,10 +3739,10 @@ class Proxy(proxy.Proxy):
             rule belongs or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the resource does not exist. When set to ``True``, no exception
-            will be set when attempting to delete a nonexistent minimum packet
-            rate rule.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource does not exist. When set to ``True``, no
+            exception will be set when attempting to delete a nonexistent
+            minimum packet rate rule.
 
         :returns: ``None``
         """
@@ -3764,9 +3764,9 @@ class Proxy(proxy.Proxy):
             rule belongs or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the resource does not exist. When set to ``True``, None will be
-            returned when attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource does not exist. When set to ``True``, None will
+            be returned when attempting to find a nonexistent resource.
         :param dict query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
@@ -4472,9 +4472,9 @@ class Proxy(proxy.Proxy):
 
         :param ndp_proxy_id: The ID of a ndp proxy.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the resource does not exist.  When set to ``True``, None will be
-            returned when attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource does not exist.  When set to ``True``, None will
+            be returned when attempting to find a nonexistent resource.
         :param dict query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns:
@@ -4494,9 +4494,9 @@ class Proxy(proxy.Proxy):
             or a :class:`~openstack.network.v2.ndp_proxy.NDPProxy`
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the router does not exist.  When set to ``True``, no exception will
-            be set when attempting to delete a nonexistent ndp proxy.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the router does not exist.  When set to ``True``, no exception
+            will be set when attempting to delete a nonexistent ndp proxy.
 
         :returns: ``None``
         """
@@ -6074,10 +6074,10 @@ class Proxy(proxy.Proxy):
             instance.
         :param bool ignore_missing:
             When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the IPsec site connection does not exist.
-            When set to ``True``, no exception will be set when attempting to
-            delete a nonexistent IPsec site connection.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the IPsec site connection does not exist. When set to
+            ``True``, no exception will be set when attempting to delete a
+            nonexistent IPsec site connection.
 
         :returns: ``None``
         """
@@ -6779,7 +6779,8 @@ class Proxy(proxy.Proxy):
 
         :param flow_classifier:
             The value can be the ID of an SFC flow classifier or a
-            :class:`~openstack.network.v2.sfc_flow_classifier.SfcFlowClassifier` instance.
+            :class:`~openstack.network.v2.sfc_flow_classifier.SfcFlowClassifier`
+            instance.
 
         :returns:
             :class:`~openstack.network.v2.sfc_flow_classifier.SfcFlowClassifier`
@@ -7446,8 +7447,9 @@ class Proxy(proxy.Proxy):
                         identified_resources
                         and port.device_id not in identified_resources
                     ):
-                        # It seems some no other service identified this resource
-                        # to be deleted. We can assume it doesn't count
+                        # It seems some no other service identified this
+                        # resource to be deleted. We can assume it doesn't
+                        # count
                         network_has_ports_allocated = True
                 if network_has_ports_allocated:
                     # If some ports are on net - we cannot delete it
@@ -7474,8 +7476,8 @@ class Proxy(proxy.Proxy):
 
                     router = self.get_router(port.device_id)
                     if not dry_run:
-                        # Router interfaces cannot be deleted when the router has
-                        # static routes, so remove those first
+                        # Router interfaces cannot be deleted when the router
+                        # has static routes, so remove those first
                         if len(router.routes) > 0:
                             try:
                                 self.remove_extra_routes_from_router(
@@ -7484,7 +7486,8 @@ class Proxy(proxy.Proxy):
                                 )
                             except exceptions.SDKException:
                                 self.log.error(
-                                    f"Cannot delete routes {router.routes} from router {router}"
+                                    f"Cannot delete routes {router.routes} "
+                                    f"from router {router}"
                                 )
 
                         try:

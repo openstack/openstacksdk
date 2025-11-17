@@ -1019,7 +1019,8 @@ class Proxy(proxy.Proxy):
 
         :param share_id: The ID of the share
         :param keys: The list of share metadata keys to be deleted
-        :param ignore_missing: Boolean indicating if missing keys should be ignored.
+        :param ignore_missing: Boolean indicating if missing keys should be
+            ignored.
 
         :returns: None
         :rtype: None

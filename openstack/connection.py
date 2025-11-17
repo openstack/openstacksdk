@@ -147,7 +147,9 @@ construct a Connection with the ``CONF`` object and an authenticated Session.
     CONF()
 
     auth = ks_loading.load_auth_from_conf_options(CONF, 'neutron')
-    sess = ks_loading.load_session_from_conf_options(CONF, 'neutron', auth=auth)
+    sess = ks_loading.load_session_from_conf_options(
+        CONF, 'neutron', auth=auth
+    )
 
     conn = connection.Connection(
         session=sess,
@@ -202,7 +204,9 @@ which may have expired.
     service_auth = ks_loading.load_auth_from_conf_options(CONF, 'service_user')
     auth = service_token.ServiceTokenAuthWrapper(user_auth, service_auth)
 
-    sess = ks_loading.load_session_from_conf_options(CONF, 'neutron', auth=auth)
+    sess = ks_loading.load_session_from_conf_options(
+        CONF, 'neutron', auth=auth
+    )
 
     conn = connection.Connection(
         session=sess,

@@ -123,9 +123,9 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a flavor.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the resource does not exist.  When set to ``True``, None will be
-            returned when attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource does not exist.  When set to ``True``, None will
+            be returned when attempting to find a nonexistent resource.
         :param bool get_extra_specs: When set to ``True`` and extra_specs not
             present in the response will invoke additional API call to fetch
             extra_specs.
@@ -351,9 +351,9 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of an aggregate.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the resource does not exist.  When set to ``True``, None will be
-            returned when attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource does not exist.  When set to ``True``, None will
+            be returned when attempting to find a nonexistent resource.
 
         :returns: One :class:`~openstack.compute.v2.aggregate.Aggregate`
             or None
@@ -640,9 +640,10 @@ class Proxy(proxy.Proxy):
         :param keypair: The value can be either the ID of a keypair or a
             :class:`~openstack.compute.v2.keypair.Keypair` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the keypair does not exist.  When set to ``True``, no exception
-            will be set when attempting to delete a nonexistent keypair.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the keypair does not exist.  When set to ``True``, no
+            exception will be set when attempting to delete a nonexistent
+            keypair.
         :param str user_id: Optional user_id owning the keypair
 
         :returns: ``None``
@@ -684,9 +685,9 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a keypair.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the resource does not exist.  When set to ``True``, None will be
-            returned when attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource does not exist.  When set to ``True``, None will
+            be returned when attempting to find a nonexistent resource.
         :param str user_id: Optional user_id owning the keypair
 
         :returns: One :class:`~openstack.compute.v2.keypair.Keypair` or None
@@ -773,9 +774,9 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a server.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the resource does not exist. When set to ``True``, None will be
-            returned when attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource does not exist. When set to ``True``, None will
+            be returned when attempting to find a nonexistent resource.
         :param bool details: When set to ``False``
             instances with only basic data will be returned. The default,
             ``True``, will cause instances with full data to be returned.
@@ -1610,9 +1611,9 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a server group.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the resource does not exist. When set to ``True``, None will be
-            returned when attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource does not exist. When set to ``True``, None will
+            be returned when attempting to find a nonexistent resource.
         :param bool all_projects: When set to ``True``, search for server
             groups by name across all projects. Note that this will likely
             result in a higher chance of duplicates. Admin-only by default.
@@ -1699,9 +1700,9 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a hypervisor
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the resource does not exist. When set to ``True``, None will be
-            returned when attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource does not exist. When set to ``True``, None will
+            be returned when attempting to find a nonexistent resource.
         :param bool details: When set to ``False``
             instances with only basic data will be returned. The default,
             ``True``, will cause instances with full data to be returned.
@@ -1870,9 +1871,10 @@ class Proxy(proxy.Proxy):
             The value can be either the ID of a service or a
             :class:`~openstack.compute.v2.service.Service` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the service does not exist.  When set to ``True``, no exception
-            will be set when attempting to delete a nonexistent service.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the service does not exist.  When set to ``True``, no
+            exception will be set when attempting to delete a nonexistent
+            service.
 
         :returns: ``None``
         """
@@ -2050,8 +2052,8 @@ class Proxy(proxy.Proxy):
         :param volume: The value can be the ID of a volume or a
             :class:`~openstack.block_storage.v3.volume.Volume` instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the volume attachment does not exist. When set to ``True``, no
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the volume attachment does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
             volume attachment.
 
@@ -2183,8 +2185,8 @@ class Proxy(proxy.Proxy):
             server or a :class:`~openstack.compute.v2.server.Server` instance
             that the migration belongs to.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the server migration does not exist. When set to ``True``, no
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the server migration does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
             server migration.
 
@@ -2247,8 +2249,8 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.compute.v2.server.Server` instance that the
             migration belongs to.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the server migration does not exist. When set to ``True``, no
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the server migration does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
             server migration.
 
@@ -2614,8 +2616,8 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.compute.v2.server.Server` instance that the
             action is associated with.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the server action does not exist. When set to ``True``, no
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the server action does not exist. When set to ``True``, no
             exception will be set when attempting to retrieve a non-existent
             server action.
 

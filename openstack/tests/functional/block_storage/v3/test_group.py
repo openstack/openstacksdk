@@ -107,14 +107,14 @@ class TestGroup(base.BaseBlockStorageTest):
         )
 
         # get
-        spec = self.operator_cloud.block_storage.get_group_type_group_specs_property(
+        spec = self.operator_cloud.block_storage.get_group_type_group_specs_property(  # noqa: E501
             self.group_type,
             'foo',
         )
         self.assertEqual('bar', spec)
 
         # update
-        spec = self.operator_cloud.block_storage.update_group_type_group_specs_property(
+        spec = self.operator_cloud.block_storage.update_group_type_group_specs_property(  # noqa: E501
             self.group_type,
             'foo',
             'baz',

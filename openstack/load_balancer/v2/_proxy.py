@@ -104,10 +104,10 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.load_balancer.v2.load_balancer.LoadBalancer`
             instance
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the load balancer does not exist.
-            When set to ``True``, no exception will be set when attempting to
-            delete a nonexistent load balancer.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the load balancer does not exist. When set to ``True``, no
+            exception will be set when attempting to delete a nonexistent load
+            balancer.
         :param bool cascade: If true will delete all child objects of
             the load balancer.
 
@@ -338,10 +338,9 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.load_balancer.v2.pool.Pool`
             instance
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the pool does not exist.
-            When set to ``True``, no exception will be set when attempting to
-            delete a nonexistent pool.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the pool does not exist. When set to ``True``, no exception
+            will be set when attempting to delete a nonexistent pool.
 
         :returns: ``None``
         """
@@ -568,10 +567,10 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.load_balancer.v2.healthmonitor.HealthMonitor`
             instance
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the healthmonitor does not exist.
-            When set to ``True``, no exception will be set when attempting to
-            delete a nonexistent healthmonitor.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the healthmonitor does not exist. When set to ``True``, no
+            exception will be set when attempting to delete a nonexistent
+            healthmonitor.
 
         :returns: ``None``
         """
@@ -917,10 +916,10 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.load_balancer.v2.flavor_profile.FlavorProfile`
             instance
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the flavor profile does not exist.
-            When set to ``True``, no exception will be set when attempting to
-            delete a nonexistent flavor profile.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the flavor profile does not exist. When set to ``True``, no
+            exception will be set when attempting to delete a nonexistent
+            flavor profile.
 
         :returns: ``None``
         """
@@ -1001,10 +1000,9 @@ class Proxy(proxy.Proxy):
         :param flavor: The flavorcan be either the ID or a
             :class:`~openstack.load_balancer.v2.flavor.Flavor` instance
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the flavor does not exist.
-            When set to ``True``, no exception will be set when attempting to
-            delete a nonexistent flavor.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the flavor does not exist. When set to ``True``, no exception
+            will be set when attempting to delete a nonexistent flavor.
 
         :returns: ``None``
         """
@@ -1143,10 +1141,10 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.load_balancer.v2.availability_zone_profile.AvailabilityZoneProfile`
             instance
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the availability zone profile does not exist.
-            When set to ``True``, no exception will be set when attempting to
-            delete a nonexistent availability zone profile.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the availability zone profile does not exist. When set to
+            ``True``, no exception will be set when attempting to delete a
+            nonexistent availability zone profile.
 
         :returns: ``None``
         """
@@ -1237,10 +1235,10 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.load_balancer.v2.availability_zone.AvailabilityZone`
             instance
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the availability zone does not exist.
-            When set to ``True``, no exception will be set when attempting to
-            delete a nonexistent availability zone.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the availability zone does not exist. When set to ``True``, no
+            exception will be set when attempting to delete a nonexistent
+            availability zone.
 
         :returns: ``None``
         """

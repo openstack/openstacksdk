@@ -98,7 +98,7 @@ class TestResourceProviderInventory(base.BaseFunctionalTest):
 
         # update the resource provider inventory
 
-        resource_provider_inventory = self.operator_cloud.placement.update_resource_provider_inventory(
+        resource_provider_inventory = self.operator_cloud.placement.update_resource_provider_inventory(  # noqa: E501
             resource_provider_inventory,
             total=20,
             resource_provider_generation=resource_provider_inventory.resource_provider_generation,

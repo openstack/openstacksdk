@@ -26,13 +26,18 @@ class ProjectQuota(resource.Resource):
     allow_list = True
 
     # Properties
-    #: Contains the configured quota value of the requested project for the secret resource.
+    #: Contains the configured quota value of the requested project for the
+    #: secret resource.
     secrets = resource.Body("secrets")
-    #: Contains the configured quota value of the requested project for the orders resource.
+    #: Contains the configured quota value of the requested project for the
+    #: orders resource.
     orders = resource.Body("orders")
-    #: Contains the configured quota value of the requested project for the containers resource.
+    #: Contains the configured quota value of the requested project for the
+    #: containers resource.
     containers = resource.Body("containers")
-    #: Contains the configured quota value of the requested project for the consumers resource.
+    #: Contains the configured quota value of the requested project for the
+    #: consumers resource.
     consumers = resource.Body("consumers")
-    #: Contains the configured quota value of the requested project for the CAs resource.
+    #: Contains the configured quota value of the requested project for the CAs
+    #: resource.
     cas = resource.Body("cas")

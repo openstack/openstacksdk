@@ -57,6 +57,6 @@ class TSIGKey(_base.Resource):
     created_at = resource.Body('created_at')
     #: Timestamp when the tsigkey was last updated
     updated_at = resource.Body('updated_at')
-    #: Links contains a 'self' pertaining to this tsigkey or a 'next' pertaining
-    #: to next page
+    #: Links contains a 'self' pertaining to this tsigkey or a 'next'
+    #: pertaining to next page
     links = resource.Body('links', type=dict)

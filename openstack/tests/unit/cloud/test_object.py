@@ -103,7 +103,7 @@ class TestObject(BaseTestObject):
                         'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
                         'Content-Length': '0',
                         'Content-Type': 'text/html; charset=UTF-8',
-                        'x-container-read': _object_store.OBJECT_CONTAINER_ACLS[
+                        'x-container-read': _object_store.OBJECT_CONTAINER_ACLS[  # noqa: E501
                             'public'
                         ],
                     },
@@ -243,7 +243,7 @@ class TestObject(BaseTestObject):
                     status_code=204,
                     validate=dict(
                         headers={
-                            'x-container-read': _object_store.OBJECT_CONTAINER_ACLS[
+                            'x-container-read': _object_store.OBJECT_CONTAINER_ACLS[  # noqa: E501
                                 'public'
                             ]
                         }
@@ -265,7 +265,7 @@ class TestObject(BaseTestObject):
                     status_code=204,
                     validate=dict(
                         headers={
-                            'x-container-read': _object_store.OBJECT_CONTAINER_ACLS[
+                            'x-container-read': _object_store.OBJECT_CONTAINER_ACLS[  # noqa: E501
                                 'private'
                             ]
                         }

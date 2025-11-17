@@ -47,7 +47,7 @@ CONNECTOR = {
     "initiator": "iqn.2005-03.org.open-iscsi:1f6474a01f9a",
     "ip": "127.0.0.1",
     "multipath": False,
-    "nqn": "nqn.2014-08.org.nvmexpress:uuid:4dfe457e-6206-4a61-b547-5a9d0e2fa557",
+    "nqn": "nqn.2014-08.org.nvmexpress:uuid:4dfe457e-6206-4a61-b547-5a9d0e2fa557",  # noqa: E501
     "nvme_native_multipath": False,
     "os_type": "linux",
     "platform": "x86_64",

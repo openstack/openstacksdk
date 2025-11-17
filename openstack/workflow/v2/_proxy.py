@@ -271,9 +271,9 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a cron trigger.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the resource does not exist. When set to ``True``, None will be
-            returned when attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource does not exist. When set to ``True``, None will
+            be returned when attempting to find a nonexistent resource.
         :param bool all_projects: When set to ``True``, search for cron
             triggers by name across all projects. Note that this will likely
             result in a higher chance of duplicates.

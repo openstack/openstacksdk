@@ -2481,7 +2481,10 @@ def wait_for_delete(
     orig_resource = resource
     for count in utils.iterate_timeout(
         timeout=wait,
-        message=f"Timeout waiting for {resource.__class__.__name__}:{resource.id} to delete",
+        message=(
+            f"Timeout waiting for {resource.__class__.__name__}:{resource.id} "
+            f"to delete"
+        ),
         wait=interval,
     ):
         try:

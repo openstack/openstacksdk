@@ -36,22 +36,25 @@ class QuotaClassSet(resource.Resource):
     snapshots = resource.Body("snapshots", type=int)
     #: The maximum number of snapshot gigabytes that are allowed in a project.
     snapshot_gigabytes = resource.Body("snapshot_gigabytes", type=int)
-    #: The total maximum number of snapshot gigabytes that are allowed in a project.
+    #: The total maximum number of snapshot gigabytes that are allowed in a
+    #: project.
     shares = resource.Body("shares", type=int)
     #: The maximum number of share-networks that are allowed in a project.
     share_networks = resource.Body("share_networks", type=int)
     #: The maximum number of share replicas that is allowed.
     share_replicas = resource.Body("share_replicas", type=int)
-    #: The total maximum number of share gigabytes that are allowed in a project.
-    #: You cannot request a share that exceeds the allowed gigabytes quota.
+    #: The total maximum number of share gigabytes that are allowed in a
+    #: project. You cannot request a share that exceeds the allowed gigabytes
+    #: quota.
     gigabytes = resource.Body("gigabytes", type=int)
     #: The maximum number of replica gigabytes that are allowed in a project.
-    #: You cannot create a share, share replica, manage a share or extend a share
-    #: if it is going to exceed the allowed replica gigabytes quota.
+    #: You cannot create a share, share replica, manage a share or extend a
+    #: share if it is going to exceed the allowed replica gigabytes quota.
     replica_gigabytes = resource.Body("replica_gigabytes", type=int)
     #: The number of gigabytes per share allowed in a project.
     per_share_gigabytes = resource.Body("per_share_gigabytes", type=int)
     #: The total maximum number of share backups that are allowed in a project.
     backups = resource.Body("backups", type=int)
-    #: The total maximum number of backup gigabytes that are allowed in a project.
+    #: The total maximum number of backup gigabytes that are allowed in a
+    #: project.
     backup_gigabytes = resource.Body("backup_gigabytes", type=int)

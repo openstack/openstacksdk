@@ -51,7 +51,8 @@ class TestZone(base.BaseFunctionalTest):
         self.assertEqual(
             current_ttl + 1,
             updated_zone_ttl,
-            f'Failed, updated TTL value is:{updated_zone_ttl} instead of expected:{current_ttl + 1}',
+            f'Failed, updated TTL value is:{updated_zone_ttl} instead of '
+            f'expected:{current_ttl + 1}',
         )
 
     def test_create_rs(self):

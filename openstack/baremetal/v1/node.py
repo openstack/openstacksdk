@@ -714,8 +714,9 @@ class Node(_common.Resource):
             or self.provision_state == 'error'
         ):
             raise exceptions.ResourceFailure(
-                f"Node {self.id} reached failure state \"{self.provision_state}\"; "
-                f"the last error is {self.last_error}"
+                f"Node {self.id} reached failure state "
+                f"'{self.provision_state}'; the last error is "
+                f"{self.last_error}"
             )
         # Special case: a failure state for "manage" transition can be
         # "enroll"

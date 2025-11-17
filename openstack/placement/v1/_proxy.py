@@ -50,8 +50,8 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.placement.v1.resource_class.ResourceClass`,
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the resource class does not exist. When set to ``True``, no
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource class does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
             resource class.
 
@@ -132,8 +132,8 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.placement.v1.resource_provider.ResourceProvider`,
             instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the resource provider does not exist. When set to ``True``, no
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource provider does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
             resource provider.
 
@@ -187,9 +187,9 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a resource provider.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the resource does not exist.  When set to ``True``, None will be
-            returned when attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource does not exist.  When set to ``True``, None will
+            be returned when attempting to find a nonexistent resource.
 
         :returns: An instance of
             :class:`~openstack.placement.v1.resource_provider.ResourceProvider`
@@ -307,8 +307,8 @@ class Proxy(proxy.Proxy):
             instance. This value must be specified when
             ``resource_provider_inventory`` is an ID.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the resource provider inventory does not exist. When set to
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource provider inventory does not exist. When set to
             ``True``, no exception will be set when attempting to delete a
             nonexistent resource provider inventory.
 
@@ -431,8 +431,8 @@ class Proxy(proxy.Proxy):
         :param trait: The value can be either the ID of a trait or an
             :class:`~openstack.placement.v1.trait.Trait`, instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the resource provider inventory does not exist. When set to
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource provider inventory does not exist. When set to
             ``True``, no exception will be set when attempting to delete a
             nonexistent resource provider inventory.
 

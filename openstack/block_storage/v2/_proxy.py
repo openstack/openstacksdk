@@ -771,10 +771,9 @@ class Proxy(proxy.Proxy):
         :param backup: The value can be the ID of a backup or a
             :class:`~openstack.block_storage.v2.backup.Backup` instance
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the zone does not exist.
-            When set to ``True``, no exception will be set when attempting to
-            delete a nonexistent zone.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the zone does not exist. When set to ``True``, no exception
+            will be set when attempting to delete a nonexistent zone.
         :param bool force: Whether to try forcing backup deletion
 
         :returns: ``None``
@@ -1025,13 +1024,13 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a service
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the resource does not exist.
-            When set to ``True``, None will be returned when attempting to find
-            a nonexistent resource.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource does not exist. When set to ``True``, None will
+            be returned when attempting to find a nonexistent resource.
         :param dict query: Additional attributes like 'host'
 
-        :returns: One: class:`~openstack.block_storage.v2.service.Service` or None
+        :returns: One: class:`~openstack.block_storage.v2.service.Service` or
+            None
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple

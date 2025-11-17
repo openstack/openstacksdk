@@ -541,7 +541,7 @@ class TestOrchestrationStackEvents(TestOrchestrationProxy):
         stack_id = '1234'
         stack_name = 'test_stack'
         resource_name = 'id'
-        base_path = '/stacks/%(stack_name)s/%(stack_id)s/resources/%(resource_name)s/events'
+        base_path = '/stacks/%(stack_name)s/%(stack_id)s/resources/%(resource_name)s/events'  # noqa: E501
         stk = stack.Stack(id=stack_id, name=stack_name)
 
         self._verify(

@@ -42,11 +42,11 @@ class RoleAssignment(resource.Resource):
     # Properties
     #: The links for the service resource.
     links = resource.Body('links')
-    #: The role (dictionary contains only id) *Type: dict*
+    #: The role (dictionary contains only id)
     role = resource.Body('role', type=dict)
-    #: The scope (either domain or project; dictionary contains only id) *Type: dict*
+    #: The scope (either domain or project; dictionary contains only id)
     scope = resource.Body('scope', type=dict)
-    #: The user (dictionary contains only id) *Type: dict*
+    #: The user (dictionary contains only id)
     user = resource.Body('user', type=dict)
-    #: The group (dictionary contains only id) *Type: dict*
+    #: The group (dictionary contains only id)
     group = resource.Body('group', type=dict)

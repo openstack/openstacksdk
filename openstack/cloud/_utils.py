@@ -227,8 +227,8 @@ def valid_kwargs(*valid_args):
         for k in kwargs:
             if k not in argspec.args[1:] and k not in valid_args:
                 raise TypeError(
-                    f"{inspect.stack()[1][3]}() got an unexpected keyword argument "
-                    f"'{k}'"
+                    f"{inspect.stack()[1][3]}() got an unexpected keyword "
+                    f"argument '{k}'"
                 )
         return func(*args, **kwargs)
 

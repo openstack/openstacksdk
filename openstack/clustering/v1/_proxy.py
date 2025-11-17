@@ -114,9 +114,10 @@ class Proxy(proxy.Proxy):
         :param profile: The value can be either the name or ID of a profile or
             a :class:`~openstack.clustering.v1.profile.Profile` instance.
         :param bool ignore_missing: When set to ``False``, an exception
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the profile could not be found. When set to ``True``, no exception
-            will be raised when attempting to delete a non-existent profile.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the profile could not be found. When set to ``True``, no
+            exception will be raised when attempting to delete a non-existent
+            profile.
 
         :returns: ``None``
         """
@@ -221,9 +222,10 @@ class Proxy(proxy.Proxy):
         :param cluster: The value can be either the name or ID of a cluster or
             a :class:`~openstack.cluster.v1.cluster.Cluster` instance.
         :param bool ignore_missing: When set to ``False``, an exception
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the cluster could not be found. When set to ``True``, no exception
-            will be raised when attempting to delete a non-existent cluster.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the cluster could not be found. When set to ``True``, no
+            exception will be raised when attempting to delete a non-existent
+            cluster.
         :param bool force_delete: When set to ``True``, the cluster deletion
             will be forced immediately.
 
@@ -562,9 +564,10 @@ class Proxy(proxy.Proxy):
         :param node: The value can be either the name or ID of a node or a
             :class:`~openstack.cluster.v1.node.Node` instance.
         :param bool ignore_missing: When set to ``False``, an exception
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the node could not be found. When set to ``True``, no exception
-            will be raised when attempting to delete a non-existent node.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the node could not be found. When set to ``True``, no
+            exception will be raised when attempting to delete a non-existent
+            node.
         :param bool force_delete: When set to ``True``, the node deletion
             will be forced immediately.
 
@@ -743,9 +746,10 @@ class Proxy(proxy.Proxy):
         :param policy: The value can be either the name or ID of a policy or a
             :class:`~openstack.clustering.v1.policy.Policy` instance.
         :param bool ignore_missing: When set to ``False``, an exception
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the policy could not be found. When set to ``True``, no exception
-            will be raised when attempting to delete a non-existent policy.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the policy could not be found. When set to ``True``, no
+            exception will be raised when attempting to delete a non-existent
+            policy.
 
         :returns: ``None``
         """
@@ -895,9 +899,10 @@ class Proxy(proxy.Proxy):
         :param receiver: The value can be either the name or ID of a receiver
             or a :class:`~openstack.clustering.v1.receiver.Receiver` instance.
         :param bool ignore_missing: When set to ``False``, an exception
-            :class:`~openstack.exceptions.NotFoundException` will be raised when
-            the receiver could not be found. When set to ``True``, no exception
-            will be raised when attempting to delete a non-existent receiver.
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the receiver could not be found. When set to ``True``, no
+            exception will be raised when attempting to delete a non-existent
+            receiver.
 
         :returns: ``None``
         """

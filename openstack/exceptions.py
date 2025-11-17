@@ -168,7 +168,10 @@ class MethodNotSupported(SDKException):
         except AttributeError:
             name = resource.__class__.__name__
 
-        message = f'The {method} method is not supported for {resource.__module__}.{name}'
+        message = (
+            f'The {method} method is not supported for '
+            f'{resource.__module__}.{name}'
+        )
         super().__init__(message=message)
 
 

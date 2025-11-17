@@ -214,8 +214,10 @@ def from_conf(
                 _disable_service(
                     config_dict,
                     st,
-                    reason=f"No section for project '{project_name}' (service type "
-                    f"'{st}') was present in the config.",
+                    reason=(
+                        f"No section for project '{project_name}' (service "
+                        f"type '{st}') was present in the config."
+                    ),
                 )
                 continue
         opt_dict: dict[str, str] = {}

@@ -2342,7 +2342,8 @@ class TestResourceActions(base.TestCase):
             make_mock_response(),
         ]
 
-        # Since the limit value is 3 but the max_items value is 2, two resources are returned.
+        # Since the limit value is 3 but the max_items value is 2, two
+        # resources are returned.
         results = self.sot.list(
             self.session, limit=3, paginated=True, max_items=2
         )
@@ -2374,7 +2375,8 @@ class TestResourceActions(base.TestCase):
         self.assertRaises(StopIteration, next, results)
 
         # both max_items and limit are set, and max_items is greater than limit
-        # (the opposite of this test: we should see multiple requests for limit resources each time)
+        # (the opposite of this test: we should see multiple requests for limit
+        # resources each time)
         results = self.sot.list(
             self.session, limit=1, paginated=True, max_items=3
         )
