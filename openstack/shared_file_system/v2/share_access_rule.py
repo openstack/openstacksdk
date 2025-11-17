@@ -46,7 +46,7 @@ class ShareAccessRule(resource.Resource):
     #: The access rule type.
     access_type = resource.Body("access_type", type=str)
     #: The date and time stamp when the resource was created within the
-    #: service’s database.
+    #: services's database.
     created_at = resource.Body("created_at", type=str)
     #: One or more access rule metadata key and value pairs as a dictionary
     #: of strings.
@@ -56,7 +56,7 @@ class ShareAccessRule(resource.Resource):
     #: The state of the access rule.
     state = resource.Body("state", type=str)
     #: The date and time stamp when the resource was last updated within
-    #: the service’s database.
+    #: the services's database.
     updated_at = resource.Body("updated_at", type=str)
     #: Whether the visibility of some sensitive fields is restricted or not
     lock_visibility = resource.Body("lock_visibility", type=bool)

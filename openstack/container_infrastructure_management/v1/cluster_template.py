@@ -39,7 +39,7 @@ class ClusterTemplate(resource.Resource):
     #: The date and time when the resource was created.
     created_at = resource.Body('created_at')
     #: The name of a driver to manage the storage for the images and the
-    #: container’s writable layer.
+    #: container's writable layer.
     docker_storage_driver = resource.Body('docker_storage_driver')
     #: The size in GB for the local storage on each server for the Docker
     #: daemon to cache the images and host the containers.
@@ -71,7 +71,7 @@ class ClusterTemplate(resource.Resource):
     #: The name or UUID of the base image in Glance to boot the servers for the
     #: bay/cluster.
     image_id = resource.Body('image_id')
-    #: The URL pointing to users’s own private insecure docker
+    #: The URL pointing to user's own private insecure docker
     #: registry to deploy and run docker containers.
     insecure_registry = resource.Body('insecure_registry')
     #: Whether enable or not using the floating IP of cloud provider.

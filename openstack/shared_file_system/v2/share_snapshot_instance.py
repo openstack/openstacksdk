@@ -28,7 +28,7 @@ class ShareSnapshotInstance(resource.Resource):
 
     #: Properties
     #: The date and time stamp when the resource was created within the
-    #: service’s database.
+    #: services's database.
     created_at = resource.Body("created_at", type=str)
     #: The progress of the snapshot creation.
     progress = resource.Body("progress", type=str)
@@ -43,5 +43,5 @@ class ShareSnapshotInstance(resource.Resource):
     #: The snapshot instance status.
     status = resource.Body("status", type=str)
     #: The date and time stamp when the resource was updated within the
-    #: service’s database.
+    #: services's database.
     updated_at = resource.Body("updated_at", type=str)

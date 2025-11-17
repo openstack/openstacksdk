@@ -36,7 +36,7 @@ class Share(resource.Resource, metadata.MetadataMixin):
     #: The availability zone.
     availability_zone = resource.Body("availability_zone", type=str)
     #: The date and time stamp when the resource was created within the
-    #: service’s database.
+    #: services's database.
     created_at = resource.Body("created_at", type=str)
     #: The user defined description of the resource.
     description = resource.Body("description", type=str)

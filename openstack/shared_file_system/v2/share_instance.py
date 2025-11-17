@@ -38,7 +38,7 @@ class ShareInstance(resource.Resource):
     #: set to True, all existing access rules be cast to read/only.
     cast_rules_to_readonly = resource.Body("cast_rules_to_readonly", type=bool)
     #: The date and time stamp when the resource was created within the
-    #: service’s database.
+    #: services's database.
     created_at = resource.Body("created_at", type=str)
     #: The host name of the service back end that the resource is
     #: contained within.

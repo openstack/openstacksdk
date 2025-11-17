@@ -41,7 +41,7 @@ class ShareNetwork(resource.Resource):
 
     #: Properties
     #: The date and time stamp when the resource was created within the
-    #: service’s database.
+    #: services's database.
     created_at = resource.Body("created_at")
     #: The user defined description of the resource.
     description = resource.Body("description", type=str)
@@ -61,5 +61,5 @@ class ShareNetwork(resource.Resource):
     #: a share network subnet with neutron.
     neutron_subnet_id = resource.Body("neutron_subnet_id", type=str)
     #: The date and time stamp when the resource was last updated within
-    #: the service’s database.
+    #: the services's database.
     updated_at = resource.Body("updated_at", type=str)

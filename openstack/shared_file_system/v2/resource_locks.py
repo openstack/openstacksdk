@@ -52,10 +52,10 @@ class ResourceLock(resource.Resource):
 
     #: Properties
     #: The date and time stamp when the resource was created within the
-    #: service’s database.
+    #: services's database.
     created_at = resource.Body("created_at", type=str)
     #: The date and time stamp when the resource was last modified within the
-    #: service’s database.
+    #: services's database.
     updated_at = resource.Body("updated_at", type=str)
     #: The ID of the user that owns the lock
     user_id = resource.Body("user_id", type=str)

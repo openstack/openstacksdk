@@ -26,12 +26,12 @@ class ImageTasks(resource.Resource):
 
     #: The type of task represented by this content
     type = resource.Body('type')
-    #: The current status of this task. The value can be pending, processing,
+    #: The current status of this task. The value can be pending, processing,
     #: success or failure
     status = resource.Body('status')
     #: An identifier for the owner of the task, usually the tenant ID
     owner = resource.Body('owner')
-    #: The date and time when the task is subject to removal (ISO8601 format)
+    #: The date and time when the task is subject to removal (ISO8601 format)
     expires_at = resource.Body('expires_at')
     #: The date and time when the task was created (ISO8601 format)
     created_at = resource.Body('created_at')
