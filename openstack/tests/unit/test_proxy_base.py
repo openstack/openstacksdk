@@ -113,7 +113,7 @@ class TestProxyBase(base.TestCase):
             test_method,
             method_args=method_args,
             method_kwargs=method_kwargs,
-            expected_args=[resource_type] + expected_args,
+            expected_args=[resource_type, *expected_args],
             expected_kwargs=expected_kwargs,
             expected_result=expected_result,
         )
@@ -145,7 +145,7 @@ class TestProxyBase(base.TestCase):
             test_method,
             method_args=method_args,
             method_kwargs=method_kwargs,
-            expected_args=[resource_type] + expected_args,
+            expected_args=[resource_type, *expected_args],
             expected_kwargs=expected_kwargs,
         )
 
@@ -176,7 +176,7 @@ class TestProxyBase(base.TestCase):
             test_method,
             method_args=method_args,
             method_kwargs=method_kwargs,
-            expected_args=[resource_type] + expected_args,
+            expected_args=[resource_type, *expected_args],
             expected_kwargs=expected_kwargs,
         )
 
@@ -216,7 +216,7 @@ class TestProxyBase(base.TestCase):
             test_method,
             method_args=method_args,
             method_kwargs=method_kwargs,
-            expected_args=[resource_type] + expected_args,
+            expected_args=[resource_type, *expected_args],
             expected_kwargs=expected_kwargs,
         )
 
@@ -244,7 +244,7 @@ class TestProxyBase(base.TestCase):
             test_method,
             method_args=method_args,
             method_kwargs=method_kwargs,
-            expected_args=[resource_type] + expected_args,
+            expected_args=[resource_type, *expected_args],
             expected_kwargs=expected_kwargs,
         )
 
@@ -279,7 +279,7 @@ class TestProxyBase(base.TestCase):
             test_method,
             method_args=method_args,
             method_kwargs=method_kwargs,
-            expected_args=[resource_type] + expected_args,
+            expected_args=[resource_type, *expected_args],
             expected_kwargs=expected_kwargs,
         )
 
@@ -311,7 +311,7 @@ class TestProxyBase(base.TestCase):
             test_method,
             method_args=method_args,
             method_kwargs=method_kwargs,
-            expected_args=[resource_type] + expected_args,
+            expected_args=[resource_type, *expected_args],
             expected_kwargs=expected_kwargs,
         )
 

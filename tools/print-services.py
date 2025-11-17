@@ -115,7 +115,7 @@ def _find_service_description_class(service_type):
         # as an opt-in for people trying to figure out why something
         # didn't work.
         warnings.warn(
-            f"Could not import {service_type} service description: {str(e)}",
+            f"Could not import {service_type} service description: {e!s}",
             ImportWarning,
         )
         return service_description.ServiceDescription

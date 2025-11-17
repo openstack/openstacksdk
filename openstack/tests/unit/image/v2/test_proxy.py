@@ -375,7 +375,7 @@ class TestImage(TestImageProxy):
             meta={},
             properties={
                 self.proxy._IMAGE_MD5_KEY: '',
-                self.proxy._IMAGE_SHA256_KEY: '',  # noqa: E501
+                self.proxy._IMAGE_SHA256_KEY: '',
                 self.proxy._IMAGE_OBJECT_KEY: 'bare/fake',
             },
             timeout=3600,
@@ -417,7 +417,7 @@ class TestImage(TestImageProxy):
             meta={},
             properties={
                 self.proxy._IMAGE_MD5_KEY: '',
-                self.proxy._IMAGE_SHA256_KEY: '',  # noqa: E501
+                self.proxy._IMAGE_SHA256_KEY: '',
                 self.proxy._IMAGE_OBJECT_KEY: 'bare/fake',
             },
             timeout=3600,

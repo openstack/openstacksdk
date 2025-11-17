@@ -19,7 +19,7 @@ class TestUser(base.BaseFunctionalTest):
         super().setUp()
 
         self.username = self.getUniqueString('user')
-        self.password = "test_password_123"  # noqa: S105
+        self.password = "test_password_123"
         self.email = f"{self.username}@example.com"
         self.description = "Test user for functional testing"
 

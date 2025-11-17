@@ -87,7 +87,7 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
     def test_create_endpoint(self):
         service_name = self.new_item_name + '_create'
 
-        region = list(self.operator_cloud.identity.regions())[0].id
+        region = next(iter(self.operator_cloud.identity.regions())).id
 
         service = self.operator_cloud.create_service(
             name=service_name,
@@ -119,7 +119,7 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
     def test_update_endpoint(self):
         # service operations require existing region. Do not test updating
         # region for now
-        region = list(self.operator_cloud.identity.regions())[0].id
+        region = next(iter(self.operator_cloud.identity.regions())).id
 
         service = self.operator_cloud.create_service(
             name='service1', type='test_type'
@@ -153,7 +153,7 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
     def test_list_endpoints(self):
         service_name = self.new_item_name + '_list'
 
-        region = list(self.operator_cloud.identity.regions())[0].id
+        region = next(iter(self.operator_cloud.identity.regions())).id
 
         service = self.operator_cloud.create_service(
             name=service_name,
@@ -193,7 +193,7 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
     def test_delete_endpoint(self):
         service_name = self.new_item_name + '_delete'
 
-        region = list(self.operator_cloud.identity.regions())[0].id
+        region = next(iter(self.operator_cloud.identity.regions())).id
 
         service = self.operator_cloud.create_service(
             name=service_name,

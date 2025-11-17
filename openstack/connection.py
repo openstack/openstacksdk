@@ -312,8 +312,8 @@ if ty.TYPE_CHECKING:
     from openstack import proxy
 
 __all__ = [
-    'from_config',
     'Connection',
+    'from_config',
 ]
 
 if requestsexceptions.SubjectAltNameWarning:

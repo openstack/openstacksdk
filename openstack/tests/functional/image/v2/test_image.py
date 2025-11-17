@@ -78,7 +78,7 @@ class TestImage(base.BaseImageTest):
         self.operator_cloud.image.add_tag(image, 't2')
 
         # filter image by tags
-        image = list(self.operator_cloud.image.images(tag=['t1', 't2']))[0]
+        image = next(iter(self.operator_cloud.image.images(tag=['t1', 't2'])))
         self.assertEqual(image.id, image.id)
         self.assertIn('t1', image.tags)
         self.assertIn('t2', image.tags)

@@ -88,7 +88,7 @@ class Flavor(resource.Resource):
             # To get this handled try sequentially to access it from various
             # places until we find first non-empty value.
             for xname in ["id", "name", "original_name"]:
-                if xname in self._body and self._body[xname]:
+                if self._body.get(xname):
                     return self._body[xname]
         else:
             return super().__getattribute__(name)

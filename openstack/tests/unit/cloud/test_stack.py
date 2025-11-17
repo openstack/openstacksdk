@@ -160,7 +160,7 @@ class TestStack(base.TestCase):
                     uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}?{resolve}',
                     status_code=302,
                     headers=dict(
-                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',  # noqa: E501
+                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     ),
                 ),
                 dict(
@@ -200,7 +200,7 @@ class TestStack(base.TestCase):
                     uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}?{resolve}',
                     status_code=302,
                     headers=dict(
-                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',  # noqa: E501
+                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     ),
                 ),
                 dict(
@@ -238,7 +238,7 @@ class TestStack(base.TestCase):
                     uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}?{resolve}',
                     status_code=302,
                     headers=dict(
-                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',  # noqa: E501
+                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     ),
                 ),
                 dict(
@@ -304,7 +304,7 @@ class TestStack(base.TestCase):
                     uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}?{resolve}',
                     status_code=302,
                     headers=dict(
-                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',  # noqa: E501
+                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     ),
                 ),
                 dict(
@@ -368,7 +368,7 @@ class TestStack(base.TestCase):
                     uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}?{resolve}',
                     status_code=302,
                     headers=dict(
-                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',  # noqa: E501
+                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     ),
                 ),
                 dict(
@@ -409,7 +409,7 @@ class TestStack(base.TestCase):
                     uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}?resolve_outputs=False',
                     status_code=302,
                     headers=dict(
-                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',  # noqa: E501
+                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     ),
                 ),
                 dict(

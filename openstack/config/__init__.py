@@ -16,7 +16,7 @@ import argparse
 import sys
 import typing as ty
 
-from openstack.config.loader import OpenStackConfig  # noqa
+from openstack.config.loader import OpenStackConfig
 
 if ty.TYPE_CHECKING:
     from openstack.config import cloud_region

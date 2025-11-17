@@ -510,7 +510,7 @@ class TestFloatingIP(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri='https://network.example.com/v2.0/networks?name=ext-net',  # noqa: E501
+                    uri='https://network.example.com/v2.0/networks?name=ext-net',
                     json={
                         "networks": [
                             {
@@ -568,7 +568,7 @@ class TestFloatingIP(base.TestCase):
                                 "security_groups": [
                                     "9fb5ba44-5c46-4357-8e60-8b55526cab54"
                                 ],
-                                "device_id": server_id,  # noqa: E501
+                                "device_id": server_id,
                             }
                         ]
                     },
@@ -627,13 +627,13 @@ class TestFloatingIP(base.TestCase):
                             },
                             "key_name": None,
                             "image": {
-                                "id": "95e4c449-8abf-486e-97d9-dc3f82417d2d"  # noqa: E501
+                                "id": "95e4c449-8abf-486e-97d9-dc3f82417d2d"
                             },
                             "OS-EXT-STS:task_state": None,
                             "OS-EXT-STS:vm_state": "active",
                             "OS-SRV-USG:launched_at": "2017-02-06T20:59:48.000000",  # noqa: E501
                             "flavor": {
-                                "id": "2186bd79-a05e-4953-9dde-ddefb63c88d4"  # noqa: E501
+                                "id": "2186bd79-a05e-4953-9dde-ddefb63c88d4"
                             },
                             "id": server_id,
                             "security_groups": [{"name": "default"}],
@@ -642,7 +642,7 @@ class TestFloatingIP(base.TestCase):
                             "user_id": "c17534835f8f42bf98fc367e0bf35e09",
                             "name": "testmt",
                             "created": "2017-02-06T20:59:44Z",
-                            "tenant_id": "65222a4d09ea4c68934fa1028c77f394",  # noqa: E501
+                            "tenant_id": "65222a4d09ea4c68934fa1028c77f394",
                             "OS-DCF:diskConfig": "MANUAL",
                             "os-extended-volumes:volumes_attached": [],
                             "accessIPv4": "",

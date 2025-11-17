@@ -506,7 +506,7 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
                 keystoneauth1.exceptions.RetriableConnectionFailure,
                 exceptions.HttpException,
             ) as e:
-                error_text = f"Exception processing async task: {str(e)}"
+                error_text = f"Exception processing async task: {e!s}"
                 if raise_on_error:
                     self.log.exception(error_text)
                     raise

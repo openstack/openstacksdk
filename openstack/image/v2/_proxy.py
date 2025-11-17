@@ -634,7 +634,7 @@ class Proxy(proxy.Proxy):
             raise
         except Exception as e:
             raise exceptions.SDKException(
-                f"Image creation failed: {str(e)}"
+                f"Image creation failed: {e!s}"
             ) from e
 
     def _make_v2_image_params(self, meta, properties):

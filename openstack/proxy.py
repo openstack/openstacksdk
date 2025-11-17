@@ -175,7 +175,7 @@ class Proxy(adapter.Adapter):
             url, self.service_type, self.session.get_project_id()
         )
 
-        return '.'.join([self.service_type] + name_parts)
+        return '.'.join([self.service_type, *name_parts])
 
     def _invalidate_cache(
         self,
@@ -428,7 +428,7 @@ class Proxy(adapter.Adapter):
             with self._statsd_client.pipeline() as pipe:
                 if response is not None:
                     duration = int(response.elapsed.total_seconds() * 1000)
-                    metric_name = f'{key}.{str(response.status_code)}'
+                    metric_name = f'{key}.{response.status_code!s}'
                     pipe.timing(metric_name, duration)
                     pipe.incr(metric_name)
                     if duration > 1000:

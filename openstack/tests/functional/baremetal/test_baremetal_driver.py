@@ -50,7 +50,7 @@ class TestBareMetalDriverDetails(base.BaseBaremetalTest):
 
     def test_fake_hardware_list_details(self):
         drivers = self.system_admin_cloud.baremetal.drivers(details=True)
-        driver = [d for d in drivers if d.name == 'fake-hardware'][0]
+        driver = next(d for d in drivers if d.name == 'fake-hardware')
         for iface in ('boot', 'deploy', 'management', 'power'):
             self.assertIn(
                 'fake', getattr(driver, f'enabled_{iface}_interfaces')

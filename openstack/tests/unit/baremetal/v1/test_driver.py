@@ -35,7 +35,7 @@ FAKE = {
     "name": "agent_ipmitool",
     "properties": [
         {
-            "href": "http://127.0.0.1:6385/v1/drivers/agent_ipmitool/properties",  # noqa: E501
+            "href": "http://127.0.0.1:6385/v1/drivers/agent_ipmitool/properties",
             "rel": "self",
         },
         {

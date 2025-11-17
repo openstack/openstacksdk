@@ -357,7 +357,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
     )
     def update_user(self, name_or_id, **kwargs):
         user_kwargs = {}
-        if 'domain_id' in kwargs and kwargs['domain_id']:
+        if kwargs.get('domain_id'):
             user_kwargs['domain_id'] = kwargs['domain_id']
         user = self.get_user(name_or_id, **user_kwargs)
 

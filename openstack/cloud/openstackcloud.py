@@ -609,7 +609,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
             raise exceptions.SDKException(
                 f"Error getting {service_key} endpoint on "
                 f"{self.name}:{self.config.get_region_name(service_key)}: "
-                f"{str(e)}"
+                f"{e!s}"
             )
         return endpoint
 
@@ -618,10 +618,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
     ) -> bool:
         if not self.config.has_service(service_key):
             # TODO(mordred) add a stamp here so that we only report this once
-            if not (
-                service_key in self._disable_warnings
-                and self._disable_warnings[service_key]
-            ):
+            if not (self._disable_warnings.get(service_key)):
                 self.log.debug(
                     "Disabling %(service_key)s entry in catalog per config",
                     {'service_key': service_key},

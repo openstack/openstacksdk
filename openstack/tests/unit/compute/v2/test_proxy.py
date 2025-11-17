@@ -1569,7 +1569,7 @@ class TestCompute(TestComputeProxy):
 
     def test_force_complete_server_migration(self):
         self._verify(
-            'openstack.compute.v2.server_migration.ServerMigration.force_complete',  # noqa: E501
+            'openstack.compute.v2.server_migration.ServerMigration.force_complete',
             self.proxy.force_complete_server_migration,
             method_args=['server_migration', 'server'],
             expected_args=[self.proxy],

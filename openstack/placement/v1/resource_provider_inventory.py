@@ -166,7 +166,7 @@ class ResourceProviderInventory(resource.Resource):
                 'resource_class': resource_class,
                 'resource_provider_generation': data[
                     'resource_provider_generation'
-                ],  # noqa: E501
+                ],
                 **resource_data,
                 **uri_params,
             }

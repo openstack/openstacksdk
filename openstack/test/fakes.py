@@ -230,7 +230,7 @@ def generate_fake_proxy(
                 f"provides multiple API versions"
             )
         else:
-            api_version = list(supported_versions)[0]
+            api_version = next(iter(supported_versions))
     elif api_version not in supported_versions:
         raise ValueError(
             f"API version {api_version} is not supported by openstacksdk. "

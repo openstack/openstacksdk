@@ -93,7 +93,7 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='GET',
-                    uri=f'https://image.example.com/v2/images?name={self.image_name}',  # noqa: E501
+                    uri=f'https://image.example.com/v2/images?name={self.image_name}',
                     json=dict(images=[]),
                 ),
                 dict(
@@ -121,7 +121,7 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='GET',
-                    uri=f'https://image.example.com/v2/images?name={self.image_name}',  # noqa: E501
+                    uri=f'https://image.example.com/v2/images?name={self.image_name}',
                     json=self.fake_search_return,
                 ),
                 dict(

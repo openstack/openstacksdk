@@ -1306,7 +1306,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             )
 
         if server['status'] == 'ACTIVE':
-            if 'addresses' in server and server['addresses']:
+            if server.get('addresses'):
                 return self.add_ips_to_server(
                     server,
                     auto_ip,

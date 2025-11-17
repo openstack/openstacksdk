@@ -57,7 +57,7 @@ for cloud in openstack.config.OpenStackConfig().get_all_clouds():
         if verbose:
             pprint.pprint(r)
     except Exception as e:
-        print(f"Error with {cloud.name}: {str(e)}")
+        print(f"Error with {cloud.name}: {e!s}")
         continue
     if 'version' in r:
         print_version(r['version'])

@@ -26,7 +26,7 @@ class FirewallTestCase(base.TestCase):
         return self.get_mock_url(
             'network',
             'public',
-            append=['v2.0', 'fwaas'] + list(args),
+            append=['v2.0', 'fwaas', *list(args)],
             qs_elements=params_list or None,
         )
 

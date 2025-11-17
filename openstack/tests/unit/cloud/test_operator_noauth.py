@@ -159,7 +159,7 @@ class TestOpenStackCloudOperatorNoAuthUnversioned(base.TestCase):
                                 "id": "v1",
                                 "links": [
                                     {
-                                        "href": "https://baremetal.example.com/v1",  # noqa: E501
+                                        "href": "https://baremetal.example.com/v1",
                                         "rel": "self",
                                     }
                                 ],
@@ -189,7 +189,7 @@ class TestOpenStackCloudOperatorNoAuthUnversioned(base.TestCase):
                         ],
                         "ports": [
                             {
-                                "href": "https://baremetal.example.com/v1/ports/",  # noqa: E501
+                                "href": "https://baremetal.example.com/v1/ports/",
                                 "rel": "self",
                             },
                             {
@@ -199,7 +199,7 @@ class TestOpenStackCloudOperatorNoAuthUnversioned(base.TestCase):
                         ],
                         "nodes": [
                             {
-                                "href": "https://baremetal.example.com/v1/nodes/",  # noqa: E501
+                                "href": "https://baremetal.example.com/v1/nodes/",
                                 "rel": "self",
                             },
                             {

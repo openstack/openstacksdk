@@ -48,7 +48,7 @@ class TestObject(base.BaseFunctionalTest):
             (64 * 1024, 5),  # 64MB, 5 segments
         )
         for size, nseg in sizes:
-            segment_size = int(round(size / nseg))
+            segment_size = round(size / nseg)
             with tempfile.NamedTemporaryFile() as fake_file:
                 fake_content = ''.join(
                     random.SystemRandom().choice(
@@ -125,7 +125,7 @@ class TestObject(base.BaseFunctionalTest):
         )
         for size, nseg in sizes:
             fake_content = b''
-            segment_size = int(round(size / nseg))
+            segment_size = round(size / nseg)
             with tempfile.NamedTemporaryFile() as fake_file:
                 fake_content = ''.join(
                     random.SystemRandom().choice(

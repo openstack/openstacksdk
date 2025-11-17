@@ -82,7 +82,7 @@ class ServiceDescription:
         )
 
         self.aliases = aliases or self.aliases
-        self.all_types = [service_type] + self.aliases
+        self.all_types = [service_type, *self.aliases]
 
     def __get__(self, instance, owner):
         if instance is None:
@@ -175,7 +175,7 @@ class ServiceDescription:
         # If the user doesn't give a version in config, but we only support
         # one version, then just use that version.
         if not version_string and len(self.supported_versions) == 1:
-            version_string = list(self.supported_versions)[0]
+            version_string = next(iter(self.supported_versions))
 
         proxy_obj = None
         if endpoint_override and version_string:
@@ -280,7 +280,7 @@ class ServiceDescription:
         else:
             version_kwargs['min_version'] = str(supported_versions[0])
             version_kwargs['max_version'] = (
-                f'{str(supported_versions[-1])}.latest'
+                f'{supported_versions[-1]!s}.latest'
             )
 
         temp_adapter = config.get_session_client(

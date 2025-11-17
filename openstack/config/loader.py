@@ -574,9 +574,9 @@ class OpenStackConfig:
             new_cloud: dict[str, ty.Any] = {}
             our_cloud = self.cloud_config['clouds'].get(cloud, {})
             self._expand_vendor_profile(cloud, new_cloud, our_cloud)
-            if 'regions' in new_cloud and new_cloud['regions']:
+            if new_cloud.get('regions'):
                 return self._expand_regions(new_cloud['regions'])
-            elif 'region_name' in new_cloud and new_cloud['region_name']:
+            elif new_cloud.get('region_name'):
                 return [self._expand_region_name(new_cloud['region_name'])]
 
         return []
@@ -635,8 +635,7 @@ class OpenStackConfig:
             cloud['auth'] = {}
 
         _auth_update(cloud, our_cloud)
-        if 'cloud' in cloud:
-            del cloud['cloud']
+        cloud.pop('cloud', None)
 
         return cloud
 
@@ -1027,7 +1026,7 @@ class OpenStackConfig:
         # The common argparse arg from keystoneauth is called timeout, but
         # os-client-config expects it to be called api_timeout
         if self._argv_timeout:
-            if 'timeout' in new_cloud and new_cloud['timeout']:
+            if new_cloud.get('timeout'):
                 new_cloud['api_timeout'] = new_cloud.pop('timeout')
         return new_cloud
 

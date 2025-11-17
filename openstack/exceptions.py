@@ -111,8 +111,8 @@ class HttpException(SDKException, _rex.HTTPError):
             self.request_id = request_id
             self.status_code = http_status
         self.details = details
-        self.url = self.request and self.request.url or None
-        self.method = self.request and self.request.method or None
+        self.url = (self.request and self.request.url) or None
+        self.method = (self.request and self.request.method) or None
         self.source = "Server"
         if self.status_code is not None and (400 <= self.status_code < 500):
             self.source = "Client"

@@ -190,8 +190,10 @@ class TestRoleAssignment(base.TestCase):
                     method='GET',
                     uri=self.get_mock_url(
                         resource=resource + 's',
-                        qs_elements=['name=' + getattr(data, attr)]
-                        + qs_elements,
+                        qs_elements=[
+                            'name=' + getattr(data, attr),
+                            *qs_elements,
+                        ],
                     ),
                     status_code=200,
                     json={(resource + 's'): [data.json_response[resource]]},
@@ -236,7 +238,7 @@ class TestRoleAssignment(base.TestCase):
                     method='GET',
                     uri=self.get_mock_url(
                         resource='users',
-                        qs_elements=qs_elements + ['name=' + user_data.name],
+                        qs_elements=[*qs_elements, 'name=' + user_data.name],
                     ),
                     status_code=200,
                     json={

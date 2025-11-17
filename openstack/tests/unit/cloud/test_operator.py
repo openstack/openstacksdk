@@ -143,7 +143,7 @@ class TestOperatorCloud(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='https://compute.example.com/v2.1/os-hypervisors/detail',  # noqa: E501
+                    uri='https://compute.example.com/v2.1/os-hypervisors/detail',
                     json={
                         'hypervisors': [
                             fakes.make_fake_hypervisor(uuid1, 'testserver1'),
@@ -177,7 +177,7 @@ class TestOperatorCloud(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri='https://compute.example.com/v2.1/os-hypervisors/detail',  # noqa: E501
+                    uri='https://compute.example.com/v2.1/os-hypervisors/detail',
                     json={
                         'hypervisors': [
                             fakes.make_fake_hypervisor('1', 'testserver1'),

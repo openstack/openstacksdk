@@ -355,7 +355,7 @@ class TestGroupType(TestVolumeProxy):
 
     def test_group_type_fetch_group_specs(self):
         self._verify(
-            "openstack.block_storage.v3.group_type.GroupType.fetch_group_specs",  # noqa: E501
+            "openstack.block_storage.v3.group_type.GroupType.fetch_group_specs",
             self.proxy.fetch_group_type_group_specs,
             method_args=["value"],
             expected_args=[self.proxy],
@@ -363,7 +363,7 @@ class TestGroupType(TestVolumeProxy):
 
     def test_group_type_create_group_specs(self):
         self._verify(
-            "openstack.block_storage.v3.group_type.GroupType.create_group_specs",  # noqa: E501
+            "openstack.block_storage.v3.group_type.GroupType.create_group_specs",
             self.proxy.create_group_type_group_specs,
             method_args=["value", {'a': 'b'}],
             expected_args=[self.proxy],
@@ -372,7 +372,7 @@ class TestGroupType(TestVolumeProxy):
 
     def test_group_type_get_group_specs_prop(self):
         self._verify(
-            "openstack.block_storage.v3.group_type.GroupType.get_group_specs_property",  # noqa: E501
+            "openstack.block_storage.v3.group_type.GroupType.get_group_specs_property",
             self.proxy.get_group_type_group_specs_property,
             method_args=["value", "prop"],
             expected_args=[self.proxy, "prop"],
@@ -380,7 +380,7 @@ class TestGroupType(TestVolumeProxy):
 
     def test_group_type_update_group_specs_prop(self):
         self._verify(
-            "openstack.block_storage.v3.group_type.GroupType.update_group_specs_property",  # noqa: E501
+            "openstack.block_storage.v3.group_type.GroupType.update_group_specs_property",
             self.proxy.update_group_type_group_specs_property,
             method_args=["value", "prop", "val"],
             expected_args=[self.proxy, "prop", "val"],
@@ -388,7 +388,7 @@ class TestGroupType(TestVolumeProxy):
 
     def test_group_type_delete_group_specs_prop(self):
         self._verify(
-            "openstack.block_storage.v3.group_type.GroupType.delete_group_specs_property",  # noqa: E501
+            "openstack.block_storage.v3.group_type.GroupType.delete_group_specs_property",
             self.proxy.delete_group_type_group_specs_property,
             method_args=["value", "prop"],
             expected_args=[self.proxy, "prop"],
