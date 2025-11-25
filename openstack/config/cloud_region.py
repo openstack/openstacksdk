@@ -206,6 +206,13 @@ def from_conf(
             )
             continue
         project_name = stm.get_project_name(st)
+        if project_name is None:
+            _disable_service(
+                config_dict,
+                st,
+                reason=f"No project name found for service type '{st}'.",
+            )
+            continue
         if project_name not in conf:
             if '-' in project_name:
                 project_name = project_name.replace('-', '_')
@@ -632,9 +639,11 @@ class CloudRegion:
         # will still look for config by alias, but starting with the official
         # type will get us things in the right order.
         if self._service_type_manager.is_known(service_type):
-            service_type = self._service_type_manager.get_service_type(
+            official_type = self._service_type_manager.get_service_type(
                 service_type
             )
+            if official_type is not None:
+                service_type = official_type
         value = self._get_config(
             'service_type', service_type, default=service_type
         )
@@ -670,9 +679,11 @@ class CloudRegion:
         # We have to override the Rackspace block-storage endpoint because
         # only v1 is in the catalog but the service actually does support
         # v2. But the endpoint needs the project_id.
-        service_type = self._service_type_manager.get_service_type(
+        official_type = self._service_type_manager.get_service_type(
             service_type
         )
+        if official_type is not None:
+            service_type = official_type
         if (
             value
             and self.config.get('profile') == 'rackspace'
