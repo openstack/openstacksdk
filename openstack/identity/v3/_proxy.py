@@ -11,6 +11,7 @@
 # under the License.
 
 import typing as ty
+import warnings
 
 import openstack.exceptions as exception
 from openstack.identity.v3 import (
@@ -59,6 +60,7 @@ from openstack.identity.v3 import user as _user
 from openstack import proxy
 from openstack import resource
 from openstack import utils
+from openstack import warnings as os_warnings
 
 
 class Proxy(proxy.Proxy):
@@ -1123,6 +1125,11 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent region.
         :returns: One :class:`~openstack.identity.v3.region.Region` or None
         """
+        warnings.warn(
+            "find_region is deprecated and will be removed in a future "
+            "release; please use get_region instead.",
+            os_warnings.RemovedInSDK60Warning,
+        )
         return self._find(
             _region.Region, name_or_id, ignore_missing=ignore_missing
         )
