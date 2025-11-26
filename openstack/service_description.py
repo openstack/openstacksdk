@@ -207,7 +207,20 @@ class ServiceDescription:
                 )
         elif endpoint_override:
             temp_adapter = config.get_session_client(self.service_type)
-            api_version = temp_adapter.get_endpoint_data().api_version
+            endpoint_data = temp_adapter.get_endpoint_data()
+            if not endpoint_data:
+                raise exceptions.ServiceDiscoveryException(
+                    f"Failed to create a working proxy for service "
+                    f"{self.service_type}: No endpoint data found."
+                )
+
+            api_version = endpoint_data.api_version
+            if not api_version:
+                raise exceptions.ServiceDiscoveryException(
+                    f"Failed to create a working proxy for service "
+                    f"{self.service_type}: No version in endpoint data."
+                )
+
             proxy_class = self.supported_versions.get(str(api_version[0]))
             if proxy_class:
                 proxy_obj = config.get_session_client(
@@ -235,7 +248,7 @@ class ServiceDescription:
             data = proxy_obj.get_endpoint_data()
             if not data and instance._strict_proxies:
                 raise exceptions.ServiceDiscoveryException(
-                    "Failed to create a working proxy for service "
+                    f"Failed to create a working proxy for service "
                     f"{self.service_type}: No endpoint data found."
                 )
 
@@ -254,6 +267,7 @@ class ServiceDescription:
                     self.service_type,
                     constructor=proxy_class,
                 )
+
             return proxy_obj
 
         # Make an adapter to let discovery take over
