@@ -22,7 +22,7 @@ from openstack import resource
 
 
 class Proxy(proxy.Proxy):
-    api_version = '1'
+    api_version: ty.ClassVar[ty.Literal['1']] = '1'
 
     _resource_registry = {
         "container": _container.Container,

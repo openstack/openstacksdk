@@ -14,7 +14,9 @@ from openstack.load_balancer.v2 import _proxy
 from openstack import service_description
 
 
-class LoadBalancerService(service_description.ServiceDescription):
+class LoadBalancerService(
+    service_description.ServiceDescription[_proxy.Proxy]
+):
     """The load balancer service."""
 
     supported_versions = {

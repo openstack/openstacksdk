@@ -14,7 +14,7 @@ from openstack.database.v1 import _proxy
 from openstack import service_description
 
 
-class DatabaseService(service_description.ServiceDescription):
+class DatabaseService(service_description.ServiceDescription[_proxy.Proxy]):
     """The database service."""
 
     supported_versions = {

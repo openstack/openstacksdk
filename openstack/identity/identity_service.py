@@ -15,7 +15,9 @@ from openstack.identity.v3 import _proxy as _proxy_v3
 from openstack import service_description
 
 
-class IdentityService(service_description.ServiceDescription):
+class IdentityService(
+    service_description.ServiceDescription[_proxy_v2.Proxy | _proxy_v3.Proxy]
+):
     """The identity service."""
 
     supported_versions = {

@@ -14,7 +14,7 @@ from openstack.placement.v1 import _proxy
 from openstack import service_description
 
 
-class PlacementService(service_description.ServiceDescription):
+class PlacementService(service_description.ServiceDescription[_proxy.Proxy]):
     """The placement service."""
 
     supported_versions = {

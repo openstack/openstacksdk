@@ -109,7 +109,7 @@ from openstack import resource
 
 
 class Proxy(proxy.Proxy):
-    api_version = '2'
+    api_version: ty.ClassVar[ty.Literal['2']] = '2'
 
     _resource_registry = {
         "address_group": _address_group.AddressGroup,

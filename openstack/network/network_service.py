@@ -14,7 +14,7 @@ from openstack.network.v2 import _proxy
 from openstack import service_description
 
 
-class NetworkService(service_description.ServiceDescription):
+class NetworkService(service_description.ServiceDescription[_proxy.Proxy]):
     """The network service."""
 
     supported_versions = {

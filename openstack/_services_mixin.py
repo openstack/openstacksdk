@@ -1,4 +1,6 @@
 # Generated file, to change, run tools/print-services.py
+import typing as ty
+
 from openstack import service_description
 from openstack.accelerator import accelerator_service
 from openstack.baremetal import baremetal_service
@@ -24,6 +26,12 @@ from openstack.placement import placement_service
 from openstack.shared_file_system import shared_file_system_service
 from openstack.workflow import workflow_service
 
+if ty.TYPE_CHECKING:
+    # the noqa is necessary as 'proxy' is only referenced in string subscripts
+    # and ruff doesn't scan for name usage since they're not in annotation
+    # positions
+    from openstack import proxy  # noqa: F401
+
 
 class ServicesMixin:
     identity = identity_service.IdentityService(service_type='identity')
@@ -46,7 +54,7 @@ class ServicesMixin:
     resource_cluster = clustering
     cluster = clustering
 
-    data_processing = service_description.ServiceDescription(
+    data_processing = service_description.ServiceDescription['proxy.Proxy'](
         service_type='data-processing'
     )
 
@@ -63,17 +71,17 @@ class ServicesMixin:
         service_type='key-manager'
     )
 
-    resource_optimization = service_description.ServiceDescription(
-        service_type='resource-optimization'
-    )
+    resource_optimization = service_description.ServiceDescription[
+        'proxy.Proxy'
+    ](service_type='resource-optimization')
     infra_optim = resource_optimization
 
     message = message_service.MessageService(service_type='message')
     messaging = message
 
-    application_catalog = service_description.ServiceDescription(
-        service_type='application-catalog'
-    )
+    application_catalog = service_description.ServiceDescription[
+        'proxy.Proxy'
+    ](service_type='application-catalog')
 
     container_infrastructure_management = container_infrastructure_management_service.ContainerInfrastructureManagementService(
         service_type='container-infrastructure-management'
@@ -81,15 +89,19 @@ class ServicesMixin:
     container_infra = container_infrastructure_management
     container_infrastructure = container_infrastructure_management
 
-    search = service_description.ServiceDescription(service_type='search')
+    search = service_description.ServiceDescription['proxy.Proxy'](
+        service_type='search'
+    )
 
     dns = dns_service.DnsService(service_type='dns')
 
     workflow = workflow_service.WorkflowService(service_type='workflow')
 
-    rating = service_description.ServiceDescription(service_type='rating')
+    rating = service_description.ServiceDescription['proxy.Proxy'](
+        service_type='rating'
+    )
 
-    operator_policy = service_description.ServiceDescription(
+    operator_policy = service_description.ServiceDescription['proxy.Proxy'](
         service_type='operator-policy'
     )
     policy = operator_policy
@@ -99,9 +111,9 @@ class ServicesMixin:
     )
     share = shared_file_system
 
-    data_protection_orchestration = service_description.ServiceDescription(
-        service_type='data-protection-orchestration'
-    )
+    data_protection_orchestration = service_description.ServiceDescription[
+        'proxy.Proxy'
+    ](service_type='data-protection-orchestration')
 
     orchestration = orchestration_service.OrchestrationService(
         service_type='orchestration'
@@ -113,56 +125,64 @@ class ServicesMixin:
     block_store = block_storage
     volume = block_storage
 
-    alarm = service_description.ServiceDescription(service_type='alarm')
+    alarm = service_description.ServiceDescription['proxy.Proxy'](
+        service_type='alarm'
+    )
     alarming = alarm
 
-    meter = service_description.ServiceDescription(service_type='meter')
+    meter = service_description.ServiceDescription['proxy.Proxy'](
+        service_type='meter'
+    )
     metering = meter
     telemetry = meter
 
-    event = service_description.ServiceDescription(service_type='event')
+    event = service_description.ServiceDescription['proxy.Proxy'](
+        service_type='event'
+    )
     events = event
 
-    application_deployment = service_description.ServiceDescription(
-        service_type='application-deployment'
-    )
+    application_deployment = service_description.ServiceDescription[
+        'proxy.Proxy'
+    ](service_type='application-deployment')
     application_deployment = application_deployment
 
-    multi_region_network_automation = service_description.ServiceDescription(
-        service_type='multi-region-network-automation'
-    )
+    multi_region_network_automation = service_description.ServiceDescription[
+        'proxy.Proxy'
+    ](service_type='multi-region-network-automation')
     tricircle = multi_region_network_automation
 
     database = database_service.DatabaseService(service_type='database')
 
-    application_container = service_description.ServiceDescription(
-        service_type='application-container'
-    )
+    application_container = service_description.ServiceDescription[
+        'proxy.Proxy'
+    ](service_type='application-container')
     container = application_container
 
-    root_cause_analysis = service_description.ServiceDescription(
-        service_type='root-cause-analysis'
-    )
+    root_cause_analysis = service_description.ServiceDescription[
+        'proxy.Proxy'
+    ](service_type='root-cause-analysis')
     rca = root_cause_analysis
 
-    nfv_orchestration = service_description.ServiceDescription(
+    nfv_orchestration = service_description.ServiceDescription['proxy.Proxy'](
         service_type='nfv-orchestration'
     )
 
     network = network_service.NetworkService(service_type='network')
 
-    backup = service_description.ServiceDescription(service_type='backup')
+    backup = service_description.ServiceDescription['proxy.Proxy'](
+        service_type='backup'
+    )
 
-    monitoring_logging = service_description.ServiceDescription(
+    monitoring_logging = service_description.ServiceDescription['proxy.Proxy'](
         service_type='monitoring-logging'
     )
     monitoring_log_api = monitoring_logging
 
-    monitoring = service_description.ServiceDescription(
+    monitoring = service_description.ServiceDescription['proxy.Proxy'](
         service_type='monitoring'
     )
 
-    monitoring_events = service_description.ServiceDescription(
+    monitoring_events = service_description.ServiceDescription['proxy.Proxy'](
         service_type='monitoring-events'
     )
 
@@ -173,11 +193,11 @@ class ServicesMixin:
     )
     ha = instance_ha
 
-    reservation = service_description.ServiceDescription(
+    reservation = service_description.ServiceDescription['proxy.Proxy'](
         service_type='reservation'
     )
 
-    function_engine = service_description.ServiceDescription(
+    function_engine = service_description.ServiceDescription['proxy.Proxy'](
         service_type='function-engine'
     )
 
@@ -185,7 +205,7 @@ class ServicesMixin:
         service_type='accelerator'
     )
 
-    admin_logic = service_description.ServiceDescription(
+    admin_logic = service_description.ServiceDescription['proxy.Proxy'](
         service_type='admin-logic'
     )
     registration = admin_logic

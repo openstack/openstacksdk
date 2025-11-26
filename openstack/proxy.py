@@ -50,6 +50,9 @@ if ty.TYPE_CHECKING:
     from openstack import connection
 
 
+ProxyT = ty.TypeVar('ProxyT', bound='Proxy')
+
+
 def normalize_metric_name(name: str) -> str:
     name = name.replace('.', '_')
     name = name.replace(':', '_')

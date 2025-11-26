@@ -1010,11 +1010,29 @@ class CloudRegion:
             endpoint = parse.urljoin(endpoint, 'v2.0')
         return endpoint
 
+    @ty.overload
     def get_session_client(
         self,
         service_type: str,
         version: str | None = None,
-        constructor: type[proxy.Proxy] = proxy.Proxy,
+        constructor: None = None,
+        **kwargs: ty.Any,
+    ) -> proxy.Proxy: ...
+
+    @ty.overload
+    def get_session_client(
+        self,
+        service_type: str,
+        version: str | None = None,
+        constructor: type[proxy.ProxyT] = ...,
+        **kwargs: ty.Any,
+    ) -> proxy.ProxyT: ...
+
+    def get_session_client(
+        self,
+        service_type: str,
+        version: str | None = None,
+        constructor: type[proxy.Proxy] | None = None,
         **kwargs: ty.Any,
     ) -> proxy.Proxy:
         """Return a prepped keystoneauth Adapter for a given service.
@@ -1030,6 +1048,9 @@ class CloudRegion:
 
         and it will work like you think.
         """
+        if constructor is None:
+            constructor = proxy.Proxy
+
         version_request = self._get_version_request(service_type, version)
 
         kwargs.setdefault('region_name', self.get_region_name(service_type))

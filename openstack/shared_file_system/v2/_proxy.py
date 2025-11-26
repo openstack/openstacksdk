@@ -46,7 +46,7 @@ from openstack.shared_file_system.v2 import user_message as _user_message
 
 
 class Proxy(proxy.Proxy):
-    api_version = '2'
+    api_version: ty.ClassVar[ty.Literal['2']] = '2'
 
     _resource_registry = {
         "availability_zone": _availability_zone.AvailabilityZone,

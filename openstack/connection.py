@@ -380,8 +380,9 @@ class Connection(
         session: ks_session.Session | None = None,
         app_name: str | None = None,
         app_version: str | None = None,
-        extra_services: list[service_description.ServiceDescription]
-        | None = None,
+        extra_services: (
+            list[service_description.ServiceDescription[ty.Any]] | None
+        ) = None,
         strict: bool = False,
         use_direct_get: bool | None = None,
         task_manager: ty.Any = None,
@@ -529,7 +530,7 @@ class Connection(
             )
 
     def add_service(
-        self, service: service_description.ServiceDescription
+        self, service: service_description.ServiceDescription['proxy.Proxy']
     ) -> None:
         """Add a service to the Connection.
 
@@ -550,13 +551,13 @@ class Connection(
         # If we don't have a proxy, just instantiate Proxy so that
         # we get an adapter.
         if isinstance(service, str):
-            service = service_description.ServiceDescription(service)
+            service = service_description.ServiceDescription['proxy.Proxy'](
+                service
+            )
 
         # Directly invoke descriptor of the ServiceDescription
         def getter(self: 'Connection') -> 'proxy.Proxy':
-            # TODO(stephenfin): Remove ignore once we have typed
-            # ServiceDescription
-            return service.__get__(self, service)  # type: ignore
+            return service.__get__(self, type(self))
 
         # Register the ServiceDescription class (as property)
         # with every known alias for a "runtime descriptor"

@@ -10,13 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.accelerator.v2 import _proxy as _proxy_v2
+from openstack.accelerator.v2 import _proxy
 from openstack import service_description
 
 
-class AcceleratorService(service_description.ServiceDescription):
+class AcceleratorService(
+    service_description.ServiceDescription[_proxy.Proxy],
+):
     """The accelerator service."""
 
     supported_versions = {
-        '2': _proxy_v2.Proxy,
+        '2': _proxy.Proxy,
     }

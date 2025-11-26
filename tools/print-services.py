@@ -46,6 +46,9 @@ def make_names():
             dm = 'service_description'
 
         dc = desc_class.__name__
+        if dc == 'ServiceDescription':
+            dc = '{dc}[proxy.Proxy]'
+
         services.append(
             f"{st} = {dm}.{dc}(service_type='{service_type}')",
         )
