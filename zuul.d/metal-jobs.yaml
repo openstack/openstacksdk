@@ -9,7 +9,7 @@
 
 - job:
     name: bifrost-integration-openstacksdk-src
-    parent: bifrost-integration-tinyipa-ubuntu-jammy
+    parent: bifrost-integration-on-ubuntu-jammy
     required-projects:
       - openstack/ansible-collections-openstack
       - openstack/openstacksdk
