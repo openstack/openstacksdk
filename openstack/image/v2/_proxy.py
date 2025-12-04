@@ -874,6 +874,7 @@ class Proxy(proxy.Proxy):
         stream: bool = False,
         output: str | io.IOBase | None = None,
         chunk_size: int = 1024 * 1024,
+        store_preferences: Sequence[str] | None = None,
     ) -> requests.Response:
         """Download an image
 
@@ -898,6 +899,8 @@ class Proxy(proxy.Proxy):
         :param output: Either a file object or a path to store data into.
         :param chunk_size: size in bytes to read from the wire and buffer
             at one time. Defaults to 1024 * 1024 = 1 MiB
+        :param store_preferences: List of store names to prefer when
+            downloading.
 
         :returns: When output is not given - the bytes comprising the given
             Image when stream is False, otherwise a :class:`requests.Response`
@@ -912,6 +915,7 @@ class Proxy(proxy.Proxy):
             stream=stream,
             output=output,
             chunk_size=chunk_size,
+            store_preferences=store_preferences,
         )
 
     def delete_image(

@@ -511,23 +511,41 @@ class TestImage(base.TestCase):
             headers={"Content-Type": "application/octet-stream"},
         )
 
-        self.sess.get.side_effect = [resp1, resp2]
+        test_data = [
+            {
+                'name': 'Without store preferences',
+                'store_preferences': None,
+                'mock_call': 'images/IDENTIFIER/file',
+            },
+            {
+                'name': 'With store preferences',
+                'store_preferences': ['ceph', 's3'],
+                'mock_call': 'images/IDENTIFIER/file?prefer=ceph,s3',
+            },
+        ]
 
-        rv = sot.download(self.sess, stream=True)
-        self.sess.get.assert_has_calls(
-            [
-                mock.call(
-                    'images/IDENTIFIER',
-                    microversion=None,
-                    params={},
-                    skip_cache=False,
-                ),
-                mock.call('images/IDENTIFIER/file', stream=True),
-            ]
-        )
+        for data in test_data:
+            with self.subTest(msg=data['name']):
+                self.sess.get.side_effect = [resp1, resp2]
+                rv = sot.download(
+                    self.sess,
+                    stream=True,
+                    store_preferences=data['store_preferences'],
+                )
+                self.sess.get.assert_has_calls(
+                    [
+                        mock.call(
+                            'images/IDENTIFIER',
+                            microversion=None,
+                            params={},
+                            skip_cache=False,
+                        ),
+                        mock.call(data['mock_call'], stream=True),
+                    ]
+                )
 
-        self.assertEqual(rv, resp2)
-        self.assertIsNone(rv.headers.get('content-md5'))
+                self.assertEqual(rv, resp2)
+                self.assertIsNone(rv.headers.get('content-md5'))
 
     def test_image_download_output_fd(self):
         output_file = io.BytesIO()
