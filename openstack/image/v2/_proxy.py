@@ -587,6 +587,12 @@ class Proxy(proxy.Proxy):
         # is_public, we know what they mean. If they give us visibility, they
         # know that they mean.
         if 'is_public' in kwargs['properties']:
+            warnings.warn(
+                "The 'is_public' property is not supported by Glance v2: use "
+                "'visibility=public/private' instead",
+                os_warnings.RemovedInSDK60Warning,
+            )
+
             is_public = kwargs['properties'].pop('is_public')
             if is_public:
                 kwargs['visibility'] = 'public'
