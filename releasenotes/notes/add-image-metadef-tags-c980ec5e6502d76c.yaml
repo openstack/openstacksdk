@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add support for Image Metadef Tags to create, remove
+    create-multiple, update tags.
