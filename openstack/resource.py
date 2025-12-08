@@ -32,6 +32,7 @@ converted into this Resource class' appropriate components and types
 and then returned to the caller.
 """
 
+import builtins
 import collections
 import collections.abc
 import inspect
@@ -1114,7 +1115,7 @@ class Resource(dict):
         prepend_key: bool,
         *,
         resource_request_key: str | None = None,
-    ) -> dict[str, ty.Any] | list[ty.Any]:
+    ) -> dict[str, ty.Any] | builtins.list[ty.Any]:
         body: dict[str, ty.Any] | list[ty.Any]
         if patch:
             if not self._store_unknown_attrs_as_properties:
@@ -1478,7 +1479,7 @@ class Resource(dict):
     def bulk_create(
         cls,
         session: adapter.Adapter,
-        data: list[dict[str, ty.Any]],
+        data: builtins.list[dict[str, ty.Any]],
         prepend_key: bool = True,
         base_path: str | None = None,
         *,
