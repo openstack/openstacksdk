@@ -49,6 +49,8 @@ class Port(_base.NetworkResource, _base.TagMixinNetwork):
         'security_groups',
         'sort_key',
         'sort_dir',
+        # For backward compatibility include tenant_id as query param
+        tenant_id='project_id',
         is_admin_state_up='admin_state_up',
         is_port_security_enabled='port_security_enabled',
         security_group_ids='security_groups',
