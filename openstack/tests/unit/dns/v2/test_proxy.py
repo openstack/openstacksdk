@@ -373,9 +373,9 @@ class TestDnsBlacklist(TestDnsProxy):
         self.verify_create(
             self.proxy.create_blacklist,
             blacklist.Blacklist,
-            method_kwargs={'pattern': '.*\.example\.com'},
+            method_kwargs={'pattern': r'.*\.example\.com'},
             expected_kwargs={
-                'pattern': '.*\.example\.com',
+                'pattern': r'.*\.example\.com',
                 'prepend_key': False,
             },
         )
