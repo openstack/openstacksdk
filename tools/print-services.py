@@ -65,9 +65,9 @@ def make_names():
         print(imp)
     print('\n')
     print("class ServicesMixin:\n")
-    for service in services:  # type: ignore[assignment]
-        if service:
-            print(f"    {service}")
+    for attr in services:
+        if attr:
+            print(f"    {attr}")
         else:
             print()
 

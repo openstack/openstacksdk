@@ -126,6 +126,11 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='GET',
+                    uri=f'https://image.example.com/v2/images/{self.image_id}',
+                    json=self.fake_image_dict,
+                ),
+                dict(
+                    method='GET',
                     uri=f'https://image.example.com/v2/images/{self.image_id}/file',
                     content=self.output,
                     headers={
