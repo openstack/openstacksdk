@@ -1354,8 +1354,6 @@ class CloudRegion:
     def get_prometheus_registry(
         self,
     ) -> ty.Optional['prometheus_client.CollectorRegistry']:
-        if not self._collector_registry and prometheus_client:
-            self._collector_registry = prometheus_client.REGISTRY
         return self._collector_registry
 
     def get_prometheus_histogram(

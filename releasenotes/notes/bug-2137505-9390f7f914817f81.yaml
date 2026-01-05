@@ -1,0 +1,13 @@
+---
+fixes:
+  - |
+    openstacksdk was publishing metrics to the global Prometheus collector
+    registry (``prometheus_client.REGISTRY``) if the ``prometheus-client``
+    library was installed, but the ``Connection`` object was not configured
+    to publish Prometheus metrics to a custom registry. This was causing the
+    global Prometheus collector registry to be polluted with potentially
+    unwanted metrics, and was also a potential cause of memory leaks if
+    openstacksdk is used to make a large number of requests. This issue has
+    now been fixed; openstacksdk will only publish Prometheus metrics when
+    ``collector_registry`` has been passed to the connection object, and
+    will only publish to that registry.
