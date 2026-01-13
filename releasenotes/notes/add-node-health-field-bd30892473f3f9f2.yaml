@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add support for the node ``health`` field which exposes hardware health
+    status from the BMC via Redfish. Introduced in API microversion 1.109.

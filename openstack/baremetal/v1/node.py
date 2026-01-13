@@ -104,8 +104,8 @@ class Node(_common.Resource):
         is_maintenance='maintenance',
     )
 
-    # The name of the instance associated with this node.
-    _max_microversion = '1.104'
+    # Add health field to node object.
+    _max_microversion = '1.109'
 
     # Properties
     #: The UUID of the allocation associated with this node. Added in API
@@ -144,6 +144,9 @@ class Node(_common.Resource):
     #: Fault type that caused the node to enter maintenance mode.
     #: Introduced in API microversion 1.42.
     fault = resource.Body("fault")
+    #: The health status of the node from the BMC (e.g. 'OK', 'Warning',
+    #: 'Critical'). Introduced in API microversion 1.109.
+    health = resource.Body("health")
     #: The UUID of the node resource.
     id = resource.Body("uuid", alternate_id=True)
     #: Information used to customize the deployed image, e.g. size of root
