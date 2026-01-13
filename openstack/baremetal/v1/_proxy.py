@@ -860,6 +860,8 @@ class Proxy(proxy.Proxy):
 
             * ``address``: Only return ports with the specified physical
               hardware address, typically a MAC address.
+            * ``conductor_groups``: Only return ports associated with nodes
+              in the specified conductor group(s).
             * ``driver``: Only return those with the specified ``driver``.
             * ``fields``: A list containing one or more fields to be returned
               in the response. This may lead to some performance gain

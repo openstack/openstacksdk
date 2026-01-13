@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from unittest import mock
+
+from keystoneauth1 import adapter
+
 from openstack.baremetal.v1 import port
 from openstack.tests.unit import base
 
@@ -69,3 +73,29 @@ class TestPort(base.TestCase):
         self.assertEqual(FAKE['portgroup_uuid'], sot.port_group_id)
         self.assertEqual(FAKE['pxe_enabled'], sot.is_pxe_enabled)
         self.assertEqual(FAKE['updated_at'], sot.updated_at)
+
+    def test_list_conductor_groups(self):
+        self.port = port.Port()
+        self.session = mock.Mock(
+            spec=adapter.Adapter, default_microversion=None
+        )
+
+        self.session.default_microversion = float(self.port._max_microversion)
+        self.session.get.return_value.status_code = 200
+        self.session.get.return_value.json.return_value = {'ports': []}
+
+        result = list(
+            self.port.list(
+                self.session,
+                details=False,
+                conductor_groups=['group1', 'group2'],
+                allow_unknown_params=True,
+            )
+        )
+        self.assertEqual(0, len(result))
+        self.session.get.assert_called_once_with(
+            '/ports',
+            headers={'Accept': 'application/json'},
+            params={'conductor_groups': ['group1', 'group2']},
+            microversion=float(self.port._max_microversion),
+        )
