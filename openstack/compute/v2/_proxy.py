@@ -2635,17 +2635,23 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def server_actions(self, server):
+    def server_actions(self, server, **query):
         """Return a generator of server actions
 
         :param server: The server can be either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server`.
+        :param kwargs query: Optional query parameters to be sent to limit
+            the actions being returned.
 
         :returns: A generator of ServerAction objects
         :rtype: :class:`~openstack.compute.v2.server_action.ServerAction`
         """
         server_id = resource.Resource._get_id(server)
-        return self._list(_server_action.ServerAction, server_id=server_id)
+        return self._list(
+            _server_action.ServerAction,
+            server_id=server_id,
+            **query,
+        )
 
     # ========== Utilities ==========
 
