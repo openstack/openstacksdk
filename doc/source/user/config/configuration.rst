@@ -164,6 +164,10 @@ the same location rules as `clouds.yaml`. It can contain anything you put
 in `clouds.yaml` and will take precedence over anything in the `clouds.yaml`
 file.
 
+You can also set the environment variable `OS_CLIENT_SECURE_FILE` to an
+absolute path of a file to look for and that location will be inserted at the
+front of the file search list.
+
 .. code-block:: yaml
 
   # clouds.yaml
