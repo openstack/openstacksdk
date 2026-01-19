@@ -95,6 +95,12 @@ class TestAttachment(base.TestCase):
 
         self.assertDictEqual(
             {
+                "id": "id",
+                "status": "status",
+                "project_id": "project_id",
+                "volume_id": "volume_id",
+                "instance_id": "instance_id",
+                "all_projects": "all_tenants",
                 "limit": "limit",
                 "marker": "marker",
             },
@@ -142,7 +148,7 @@ class TestAttachment(base.TestCase):
                 'mode': 'rw',
             },
         )
-        self.sess.default_microversion = "3.54"
+        self.sess.default_microversion = "3.71"
 
     @mock.patch(
         'openstack.utils.supports_microversion',
