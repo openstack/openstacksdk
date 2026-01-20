@@ -259,6 +259,7 @@ class TestImage(base.TestCase):
         sot.add_tag(self.sess, tag)
         self.sess.put.assert_called_with(
             f'images/IDENTIFIER/tags/{tag}',
+            microversion=None,
         )
 
     def test_remove_tag(self):
@@ -268,6 +269,7 @@ class TestImage(base.TestCase):
         sot.remove_tag(self.sess, tag)
         self.sess.delete.assert_called_with(
             f'images/IDENTIFIER/tags/{tag}',
+            microversion=None,
         )
 
     def test_import_image(self):

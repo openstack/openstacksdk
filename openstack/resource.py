@@ -359,6 +359,9 @@ class ResourceMixinProtocol(ty.Protocol):
     @classmethod
     def _get_session(cls, session: AdapterT) -> AdapterT: ...
 
+    @classmethod
+    def _get_microversion(cls, session: adapter.Adapter) -> str | None: ...
+
 
 class Resource(dict):
     # TODO(mordred) While this behaves mostly like a munch for the purposes

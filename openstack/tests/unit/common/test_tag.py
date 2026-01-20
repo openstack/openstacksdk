@@ -50,6 +50,7 @@ class TestTagMixin(base.TestCase):
         self.sot = Test.new(id="id", tags=[])
         self.sot._prepare_request = mock.Mock(return_value=self.request)
         self.sot._translate_response = mock.Mock()
+        self.sot._get_microversion = mock.Mock(return_value=None)
 
         self.session = mock.Mock(spec=adapter.Adapter)
         self.session.get = mock.Mock(return_value=self.response)
@@ -78,7 +79,7 @@ class TestTagMixin(base.TestCase):
         # Check the passed resource is returned
         self.assertEqual(res, result)
         url = self.base_path + '/' + res.id + '/tags'
-        sess.get.assert_called_once_with(url)
+        sess.get.assert_called_once_with(url, microversion=None)
 
     def test_set_tags(self):
         res = self.sot
@@ -93,7 +94,9 @@ class TestTagMixin(base.TestCase):
         # Check the passed resource is returned
         self.assertEqual(res, result)
         url = self.base_path + '/' + res.id + '/tags'
-        sess.put.assert_called_once_with(url, json={'tags': ['blue', 'green']})
+        sess.put.assert_called_once_with(
+            url, json={'tags': ['blue', 'green']}, microversion=None
+        )
 
     def test_remove_all_tags(self):
         res = self.sot
@@ -108,7 +111,7 @@ class TestTagMixin(base.TestCase):
         # Check the passed resource is returned
         self.assertEqual(res, result)
         url = self.base_path + '/' + res.id + '/tags'
-        sess.delete.assert_called_once_with(url)
+        sess.delete.assert_called_once_with(url, microversion=None)
 
     def test_remove_single_tag(self):
         res = self.sot
@@ -122,7 +125,7 @@ class TestTagMixin(base.TestCase):
         # Check the passed resource is returned
         self.assertEqual(res, result)
         url = self.base_path + '/' + res.id + '/tags/dummy'
-        sess.delete.assert_called_once_with(url)
+        sess.delete.assert_called_once_with(url, microversion=None)
 
     def test_check_tag_exists(self):
         res = self.sot
@@ -136,7 +139,7 @@ class TestTagMixin(base.TestCase):
         # Check the passed resource is returned
         self.assertEqual(res, result)
         url = self.base_path + '/' + res.id + '/tags/blue'
-        sess.get.assert_called_once_with(url)
+        sess.get.assert_called_once_with(url, microversion=None)
 
     def test_check_tag_not_exists(self):
         res = self.sot
@@ -170,7 +173,92 @@ class TestTagMixin(base.TestCase):
         # Check the passed resource is returned
         self.assertEqual(res, result)
         url = self.base_path + '/' + res.id + '/tags/lila'
-        sess.put.assert_called_once_with(url)
+        sess.put.assert_called_once_with(url, microversion=None)
+
+    def test_add_tag_with_microversion(self):
+        res = self.sot
+        res._get_microversion = mock.Mock(return_value='2.26')
+        sess = self.session
+
+        res.tags = ['blue', 'green']
+
+        result = res.add_tag(sess, 'lila')
+        self.assertEqual(['blue', 'green', 'lila'], res.tags)
+        self.assertEqual(res, result)
+        url = self.base_path + '/' + res.id + '/tags/lila'
+        sess.put.assert_called_once_with(url, microversion='2.26')
+
+    def test_remove_single_tag_with_microversion(self):
+        res = self.sot
+        res._get_microversion = mock.Mock(return_value='2.26')
+        sess = self.session
+
+        res.tags = ['blue', 'dummy']
+
+        result = res.remove_tag(sess, 'dummy')
+        self.assertEqual(['blue'], res.tags)
+        self.assertEqual(res, result)
+        url = self.base_path + '/' + res.id + '/tags/dummy'
+        sess.delete.assert_called_once_with(url, microversion='2.26')
+
+    def test_fetch_tags_with_microversion(self):
+        res = self.sot
+        res._get_microversion = mock.Mock(return_value='2.26')
+        sess = self.session
+
+        mock_response = mock.Mock()
+        mock_response.status_code = 200
+        mock_response.links = {}
+        mock_response.json.return_value = {'tags': ['blue1', 'green1']}
+
+        sess.get.side_effect = [mock_response]
+
+        result = res.fetch_tags(sess)
+        self.assertEqual(['blue1', 'green1'], res.tags)
+        self.assertEqual(res, result)
+        url = self.base_path + '/' + res.id + '/tags'
+        sess.get.assert_called_once_with(url, microversion='2.26')
+
+    def test_set_tags_with_microversion(self):
+        res = self.sot
+        res._get_microversion = mock.Mock(return_value='2.26')
+        sess = self.session
+
+        res.tags = ['blue_old', 'green_old']
+
+        result = res.set_tags(sess, ['blue', 'green'])
+        self.assertEqual(['blue', 'green'], res.tags)
+        self.assertEqual(res, result)
+        url = self.base_path + '/' + res.id + '/tags'
+        sess.put.assert_called_once_with(
+            url, json={'tags': ['blue', 'green']}, microversion='2.26'
+        )
+
+    def test_remove_all_tags_with_microversion(self):
+        res = self.sot
+        res._get_microversion = mock.Mock(return_value='2.26')
+        sess = self.session
+
+        res.tags = ['blue_old', 'green_old']
+
+        result = res.remove_all_tags(sess)
+        self.assertEqual([], res.tags)
+        self.assertEqual(res, result)
+        url = self.base_path + '/' + res.id + '/tags'
+        sess.delete.assert_called_once_with(url, microversion='2.26')
+
+    def test_check_tag_with_microversion(self):
+        res = self.sot
+        res._get_microversion = mock.Mock(return_value='2.26')
+        sess = self.session
+
+        sess.get.side_effect = [FakeResponse(None, 202)]
+
+        result = res.check_tag(sess, 'blue')
+        self.assertEqual([], res.tags)
+        self.assertEqual(res, result)
+        url = self.base_path + '/' + res.id + '/tags/blue'
+        sess.get.assert_called_once_with(url, microversion='2.26')
 
     def test_tagged_resource_always_created_with_empty_tag_list(self):
         res = self.sot

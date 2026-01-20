@@ -47,7 +47,8 @@ class TagMixin(resource.ResourceMixinProtocol):
         """
         url = utils.urljoin(self.base_path, self.id, 'tags')
         session = self._get_session(session)
-        response = session.get(url)
+        microversion = self._get_microversion(session)
+        response = session.get(url, microversion=microversion)
         exceptions.raise_from_response(response)
         # NOTE(gtema): since this is a common method
         # we can't rely on the resource_key, because tags are returned
@@ -67,7 +68,10 @@ class TagMixin(resource.ResourceMixinProtocol):
         """
         url = utils.urljoin(self.base_path, self.id, 'tags')
         session = self._get_session(session)
-        response = session.put(url, json={'tags': tags})
+        microversion = self._get_microversion(session)
+        response = session.put(
+            url, json={'tags': tags}, microversion=microversion
+        )
         exceptions.raise_from_response(response)
         self._body.attributes.update({'tags': tags})
         return self
@@ -79,7 +83,8 @@ class TagMixin(resource.ResourceMixinProtocol):
         """
         url = utils.urljoin(self.base_path, self.id, 'tags')
         session = self._get_session(session)
-        response = session.delete(url)
+        microversion = self._get_microversion(session)
+        response = session.delete(url, microversion=microversion)
         exceptions.raise_from_response(response)
         self._body.attributes.update({'tags': []})
         return self
@@ -94,7 +99,8 @@ class TagMixin(resource.ResourceMixinProtocol):
         """
         url = utils.urljoin(self.base_path, self.id, 'tags', tag)
         session = self._get_session(session)
-        response = session.get(url)
+        microversion = self._get_microversion(session)
+        response = session.get(url, microversion=microversion)
         exceptions.raise_from_response(
             response, error_message='Tag does not exist'
         )
@@ -108,7 +114,8 @@ class TagMixin(resource.ResourceMixinProtocol):
         """
         url = utils.urljoin(self.base_path, self.id, 'tags', tag)
         session = self._get_session(session)
-        response = session.put(url)
+        microversion = self._get_microversion(session)
+        response = session.put(url, microversion=microversion)
         exceptions.raise_from_response(response)
         # we do not want to update tags directly
         tags = self.tags
@@ -124,7 +131,8 @@ class TagMixin(resource.ResourceMixinProtocol):
         """
         url = utils.urljoin(self.base_path, self.id, 'tags', tag)
         session = self._get_session(session)
-        response = session.delete(url)
+        microversion = self._get_microversion(session)
+        response = session.delete(url, microversion=microversion)
         exceptions.raise_from_response(response)
         # we do not want to update tags directly
         tags = self.tags
