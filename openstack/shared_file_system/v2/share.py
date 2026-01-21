@@ -21,6 +21,27 @@ class Share(resource.Resource, metadata.MetadataMixin):
     resources_key = "shares"
     base_path = "/shares"
 
+    _query_mapping = resource.QueryParameters(
+        "project_id",
+        "name",
+        "status",
+        "share_server_id",
+        "metadata",
+        "share_type_id",
+        "snapshot_id",
+        "host",
+        "share_network_id",
+        "is_public",
+        "share_group_id",
+        "export_location_id",
+        "export_location_path",
+        "limit",
+        "offset",
+        "sort_key",
+        "sort_dir",
+        all_projects="all_tenants",
+    )
+
     # capabilities
     allow_create = True
     allow_fetch = True
