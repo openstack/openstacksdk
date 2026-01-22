@@ -42,11 +42,15 @@ class Port(_common.Resource):
     # Query filter by shard added in 1.82
     # The name field added in 1.88
     # The description field added in 1.97
-    _max_microversion = '1.97'
+    # The vendor field added in 1.100
+    # The category field added in 1.101
+    _max_microversion = '1.101'
 
     #: The physical hardware address of the network port, typically the
     #: hardware MAC address.
     address = resource.Body('address')
+    #: The category for the port
+    category = resource.Body('category')
     #: Timestamp at which the port was created.
     created_at = resource.Body('created_at')
     #: The description for the port
@@ -85,6 +89,8 @@ class Port(_common.Resource):
     trunk_details = resource.Body('trunk_details', type=dict)
     #: Timestamp at which the port was last updated.
     updated_at = resource.Body('updated_at')
+    #: The vendor for the port
+    vendor = resource.Body('vendor')
 
 
 PortDetail = Port

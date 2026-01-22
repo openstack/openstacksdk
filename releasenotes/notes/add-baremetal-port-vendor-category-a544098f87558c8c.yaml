@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add the ``vendor`` field and ``category`` field on the baremetal ``Port``
+    object as added in Ironic API 1.100 and 1.101 respectively.
