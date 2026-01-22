@@ -40,6 +40,7 @@ FAKE = {
     "inspection_finished_at": None,
     "inspection_started_at": None,
     "instance_info": {},
+    "instance_name": "test-instance",
     "instance_uuid": None,
     "last_error": None,
     "lessee": None,
@@ -141,6 +142,7 @@ class TestNode(base.TestCase):
         self.assertEqual(FAKE['extra'], sot.extra)
         self.assertEqual(FAKE['firmware_interface'], sot.firmware_interface)
         self.assertEqual(FAKE['instance_info'], sot.instance_info)
+        self.assertEqual(FAKE['instance_name'], sot.instance_name)
         self.assertEqual(FAKE['instance_uuid'], sot.instance_id)
         self.assertEqual(FAKE['console_enabled'], sot.is_console_enabled)
         self.assertEqual(FAKE['maintenance'], sot.is_maintenance)

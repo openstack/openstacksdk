@@ -408,6 +408,7 @@ class FakeMachine:
         driver_info=None,
         chassis_uuid=None,
         instance_info=None,
+        instance_name=None,
         instance_uuid=None,
         properties=None,
         reservation=None,
@@ -420,6 +421,7 @@ class FakeMachine:
         self.driver_info = driver_info
         self.chassis_uuid = chassis_uuid
         self.instance_info = instance_info
+        self.instance_name = instance_name
         self.instance_uuid = instance_uuid
         self.properties = properties
         self.reservation = reservation
