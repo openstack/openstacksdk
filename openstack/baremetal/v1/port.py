@@ -30,6 +30,7 @@ class Port(_common.Resource):
 
     _query_mapping = resource.QueryParameters(
         'address',
+        'conductor_groups',
         'node',
         'portgroup',
         'shard',
@@ -42,6 +43,7 @@ class Port(_common.Resource):
     # Query filter by shard added in 1.82
     # The name field added in 1.88
     # The description field added in 1.97
+    # Filter by conductor_groups added in 1.99
     # The vendor field added in 1.100
     # The category field added in 1.101
     _max_microversion = '1.101'
