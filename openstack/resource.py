@@ -32,6 +32,8 @@ converted into this Resource class' appropriate components and types
 and then returned to the caller.
 """
 
+from __future__ import annotations
+
 import builtins
 import collections
 import collections.abc
@@ -908,7 +910,7 @@ class Resource(dict):
         return ""
 
     @staticmethod
-    def _get_id(value: ty.Union['Resource', str]) -> str:
+    def _get_id(value: Resource | str) -> str:
         """If a value is a Resource, return the canonical ID
 
         This will return either the value specified by `id` or
@@ -957,7 +959,7 @@ class Resource(dict):
         cls,
         obj: dict[str, ty.Union],
         synchronized: bool = True,
-        connection: ty.Optional['connection.Connection'] = None,
+        connection: connection.Connection | None = None,
     ) -> ty_ext.Self:
         """Create an instance from a ``utils.Munch`` object.
 
