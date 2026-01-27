@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    Fixed the ``Share`` resource in the shared file system service to properly
+    support query parameters when listing shares. Previously, query parameters
+    such as ``all_tenants`` were silently ignored because the ``_query_mapping``
+    attribute was missing. This affected admin users trying to list shares
+    across all projects, as well as filtering by status, name, and other
+    attributes.

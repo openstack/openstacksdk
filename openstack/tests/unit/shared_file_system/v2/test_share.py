@@ -64,6 +64,31 @@ class TestShares(base.TestCase):
         self.assertTrue(shares_resource.allow_commit)
         self.assertTrue(shares_resource.allow_delete)
 
+        self.assertDictEqual(
+            {
+                "limit": "limit",
+                "marker": "marker",
+                "project_id": "project_id",
+                "name": "name",
+                "status": "status",
+                "share_server_id": "share_server_id",
+                "metadata": "metadata",
+                "share_type_id": "share_type_id",
+                "snapshot_id": "snapshot_id",
+                "host": "host",
+                "share_network_id": "share_network_id",
+                "is_public": "is_public",
+                "share_group_id": "share_group_id",
+                "export_location_id": "export_location_id",
+                "export_location_path": "export_location_path",
+                "offset": "offset",
+                "sort_key": "sort_key",
+                "sort_dir": "sort_dir",
+                "all_projects": "all_tenants",
+            },
+            shares_resource._query_mapping._mapping,
+        )
+
     def test_make_shares(self):
         shares_resource = share.Share(**EXAMPLE)
         self.assertEqual(EXAMPLE['id'], shares_resource.id)
