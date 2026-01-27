@@ -460,6 +460,79 @@ class TestImage(TestImageProxy):
         created_image.upload.assert_called_with(self.proxy)
         self.assertEqual(rv, created_image)
 
+    def test_image_upload_positional_args(self):
+        """Test upload_image with positional arguments only"""
+        created_image = mock.Mock(spec=_image.Image(id="id"))
+
+        self.proxy._create = mock.Mock()
+        self.proxy._create.return_value = created_image
+
+        # Call with positional args for container_format, disk_format, data
+        rv = self.proxy.upload_image("bare", "qcow2", "imagedata")
+
+        self.proxy._create.assert_called_with(
+            _image.Image,
+            container_format="bare",
+            disk_format="qcow2",
+        )
+        created_image.upload.assert_called_with(self.proxy)
+        self.assertEqual(rv, created_image)
+        self.assertEqual(created_image.data, "imagedata")
+
+    def test_image_upload_keyword_args(self):
+        """Test upload_image with keyword arguments only"""
+        created_image = mock.Mock(spec=_image.Image(id="id"))
+
+        self.proxy._create = mock.Mock()
+        self.proxy._create.return_value = created_image
+
+        rv = self.proxy.upload_image(
+            container_format="bare",
+            disk_format="qcow2",
+            data="imagedata",
+            name="test-image",
+            visibility="public",
+        )
+
+        self.proxy._create.assert_called_with(
+            _image.Image,
+            container_format="bare",
+            disk_format="qcow2",
+            name="test-image",
+            visibility="public",
+        )
+        created_image.upload.assert_called_with(self.proxy)
+        self.assertEqual(rv, created_image)
+        self.assertEqual(created_image.data, "imagedata")
+
+    def test_image_upload_mixed_args(self):
+        """Test upload_image with both positional and keyword arguments"""
+        created_image = mock.Mock(spec=_image.Image(id="id"))
+
+        self.proxy._create = mock.Mock()
+        self.proxy._create.return_value = created_image
+
+        # Positional: container_format, disk_format
+        # Keyword: data, name, tags
+        rv = self.proxy.upload_image(
+            "bare",
+            "qcow2",
+            data="imagedata",
+            name="test-image",
+            tags=["tag1", "tag2"],
+        )
+
+        self.proxy._create.assert_called_with(
+            _image.Image,
+            container_format="bare",
+            disk_format="qcow2",
+            name="test-image",
+            tags=["tag1", "tag2"],
+        )
+        created_image.upload.assert_called_with(self.proxy)
+        self.assertEqual(rv, created_image)
+        self.assertEqual(created_image.data, "imagedata")
+
     def test_image_download(self):
         original_image = _image.Image(**EXAMPLE)
         self._verify(
