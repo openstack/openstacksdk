@@ -83,6 +83,21 @@ class TestCloudRegion(base.TestCase):
         cc2 = cloud_region.CloudRegion("test1", "region-al", {})
         self.assertNotEqual(cc1, cc2)
 
+    def test_deepcopy(self):
+        """Test that CloudRegion can be deep copied.
+
+        This is a regression test for a bug where copy.deepcopy() would cause
+        infinite recursion in __getattr__ because deepcopy creates instances
+        without calling __init__, so self.config doesn't exist.
+        """
+        cc = cloud_region.CloudRegion("test1", "region-al", fake_config_dict)
+        cc_copy = copy.deepcopy(cc)
+        self.assertEqual(cc.name, cc_copy.name)
+        self.assertEqual(cc.region_name, cc_copy.region_name)
+        self.assertEqual(cc.config, cc_copy.config)
+        # Verify the copy is independent
+        self.assertIsNot(cc.config, cc_copy.config)
+
     def test_get_config(self):
         cc = cloud_region.CloudRegion("test1", "region-al", fake_services_dict)
         self.assertIsNone(cc._get_config('nothing', None))

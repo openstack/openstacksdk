@@ -372,13 +372,30 @@ class CloudRegion:
         self._service_type_manager = os_service_types.ServiceTypes()
 
     def __getattr__(self, key: str) -> ty.Any:
-        """Return arbitrary attributes."""
+        """Return arbitrary attributes.
+
+        This method accesses config via __dict__ to avoid infinite recursion
+        during copy.deepcopy(). When deepcopy creates a new instance without
+        calling __init__, self.config doesn't exist, and accessing it directly
+        would trigger __getattr__ again, causing a RecursionError.
+
+        Dunder methods must raise AttributeError so Python can find inherited
+        implementations (e.g., __reduce_ex__ from object for pickling/copying).
+        """
+        # Don't handle dunder methods - let Python find inherited impls
+        if key.startswith('__') and key.endswith('__'):
+            raise AttributeError(key)
+
+        # Use __dict__.get() to safely check if config exists
+        config = self.__dict__.get('config')
+        if config is None:
+            raise AttributeError(key)
 
         if key.startswith('os_'):
             key = key[3:]
 
-        if key in [attr.replace('-', '_') for attr in self.config]:
-            return self.config[key]
+        if key in [attr.replace('-', '_') for attr in config]:
+            return config[key]
         else:
             return None
 
