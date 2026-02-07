@@ -143,7 +143,7 @@ class TestRouter(base.BaseFunctionalTest):
 
         self.assertEqual(router_name, router['name'])
         self.assertEqual('ACTIVE', router['status'])
-        self.assertEqual(proj_id, router['tenant_id'])
+        self.assertEqual(proj_id, router['project_id'])
         self.assertEqual(net1['id'], ext_gw_info['network_id'])
         self.assertTrue(ext_gw_info['enable_snat'])
 
@@ -228,7 +228,7 @@ class TestRouter(base.BaseFunctionalTest):
         # Test return values *after* the interface is detached so the
         # resources we've created can be cleaned up if these asserts fail.
         self.assertIsNotNone(iface)
-        for key in ('id', 'subnet_id', 'port_id', 'tenant_id'):
+        for key in ('id', 'subnet_id', 'port_id', 'project_id'):
             self.assertIn(key, iface)
         self.assertEqual(router['id'], iface['id'])
         self.assertEqual(sub['id'], iface['subnet_id'])

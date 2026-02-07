@@ -42,13 +42,12 @@ class TestRouter(base.TestCase):
         'project_id': '861808a93da0484ea1767967c4df8a23',
         'routes': [{"destination": "179.24.1.0/24", "nexthop": "172.24.3.99"}],
         'status': 'ACTIVE',
-        'tenant_id': '861808a93da0484ea1767967c4df8a23',
     }
 
     mock_router_interface_rep = {
         'network_id': '53aee281-b06d-47fc-9e1a-37f045182b8e',
         'subnet_id': '1f1696eb-7f47-47f6-835c-4889bff88604',
-        'tenant_id': '861808a93da0484ea1767967c4df8a23',
+        'project_id': '861808a93da0484ea1767967c4df8a23',
         'subnet_ids': [subnet_id],
         'port_id': '23999891-78b3-4a6b-818d-d1b713f67848',
         'id': '57076620-dcfb-42ed-8ad6-79ccb4a79ed2',
@@ -166,11 +165,10 @@ class TestRouter(base.TestCase):
         self._compare_routers(self.mock_router_rep, new_router)
         self.assert_calls()
 
-    def test_create_router_specific_tenant(self):
-        new_router_tenant_id = "project_id_value"
+    def test_create_router_specific_project(self):
+        new_router_project_id = "project_id_value"
         mock_router_rep = copy.copy(self.mock_router_rep)
-        mock_router_rep['tenant_id'] = new_router_tenant_id
-        mock_router_rep['project_id'] = new_router_tenant_id
+        mock_router_rep['project_id'] = new_router_project_id
         self.register_uris(
             [
                 dict(
@@ -184,7 +182,7 @@ class TestRouter(base.TestCase):
                             'router': {
                                 'name': self.router_name,
                                 'admin_state_up': True,
-                                'project_id': new_router_tenant_id,
+                                'project_id': new_router_project_id,
                             }
                         }
                     ),
@@ -193,7 +191,7 @@ class TestRouter(base.TestCase):
         )
 
         self.cloud.create_router(
-            self.router_name, project_id=new_router_tenant_id
+            self.router_name, project_id=new_router_project_id
         )
         self.assert_calls()
 
