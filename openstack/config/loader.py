@@ -658,7 +658,7 @@ class OpenStackConfig:
                 os_warnings.OpenStackDeprecationWarning,
             )
 
-        vendor_filename, vendor_file = self._load_vendor_file()
+        _, vendor_file = self._load_vendor_file()
         if (
             vendor_file
             and 'public-clouds' in vendor_file

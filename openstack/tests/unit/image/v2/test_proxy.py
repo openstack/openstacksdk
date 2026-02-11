@@ -348,7 +348,7 @@ class TestImage(TestImageProxy):
             **properties,
         )
 
-        args, kwargs = self.proxy._create.call_args
+        _, kwargs = self.proxy._create.call_args
         self.assertEqual(kwargs["is_protected"], True)
 
     def test_image_create_with_stores(self):

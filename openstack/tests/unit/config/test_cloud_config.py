@@ -102,17 +102,17 @@ class TestCloudRegion(base.TestCase):
 
         config_dict['verify'] = False
         cc = cloud_region.CloudRegion("test1", "region-xx", config_dict)
-        (verify, cert) = cc.get_requests_verify_args()
+        verify, _ = cc.get_requests_verify_args()
         self.assertFalse(verify)
 
         config_dict['verify'] = True
         cc = cloud_region.CloudRegion("test1", "region-xx", config_dict)
-        (verify, cert) = cc.get_requests_verify_args()
+        verify, _ = cc.get_requests_verify_args()
         self.assertTrue(verify)
 
         config_dict['insecure'] = True
         cc = cloud_region.CloudRegion("test1", "region-xx", config_dict)
-        (verify, cert) = cc.get_requests_verify_args()
+        verify, _ = cc.get_requests_verify_args()
         self.assertFalse(verify)
 
     def test_verify_cacert(self):
@@ -121,17 +121,17 @@ class TestCloudRegion(base.TestCase):
 
         config_dict['verify'] = False
         cc = cloud_region.CloudRegion("test1", "region-xx", config_dict)
-        (verify, cert) = cc.get_requests_verify_args()
+        verify, _ = cc.get_requests_verify_args()
         self.assertFalse(verify)
 
         config_dict['verify'] = True
         cc = cloud_region.CloudRegion("test1", "region-xx", config_dict)
-        (verify, cert) = cc.get_requests_verify_args()
+        verify, _ = cc.get_requests_verify_args()
         self.assertEqual("certfile", verify)
 
         config_dict['insecure'] = True
         cc = cloud_region.CloudRegion("test1", "region-xx", config_dict)
-        (verify, cert) = cc.get_requests_verify_args()
+        verify, _ = cc.get_requests_verify_args()
         self.assertEqual(False, verify)
 
     def test_cert_with_key(self):
@@ -143,7 +143,7 @@ class TestCloudRegion(base.TestCase):
         config_dict['key'] = 'key'
 
         cc = cloud_region.CloudRegion("test1", "region-xx", config_dict)
-        (verify, cert) = cc.get_requests_verify_args()
+        _, cert = cc.get_requests_verify_args()
         self.assertEqual(("cert", "key"), cert)
 
     def test_ipv6(self):

@@ -63,7 +63,7 @@ class TestLoader(base.TestCase):
                     fp.write(value)
                 tested_files.append(fn)
 
-            path, result = loader.OpenStackConfig()._load_yaml_json_file(
+            path, _ = loader.OpenStackConfig()._load_yaml_json_file(
                 tested_files
             )
             # NOTE(hberaud): Prefer to test path rather than file because
@@ -82,7 +82,7 @@ class TestLoader(base.TestCase):
                     fp.write(value)
                 tested_files.append(fn)
 
-            path, result = loader.OpenStackConfig()._load_yaml_json_file(
+            path, _ = loader.OpenStackConfig()._load_yaml_json_file(
                 tested_files
             )
             # NOTE(hberaud): Prefer to test path rather than file because
@@ -98,7 +98,7 @@ class TestLoader(base.TestCase):
                 fp.write(FILES['txt'])
             tested_files.append(fn)
 
-            path, result = loader.OpenStackConfig()._load_yaml_json_file(
+            path, _ = loader.OpenStackConfig()._load_yaml_json_file(
                 tested_files
             )
             self.assertEqual(fn, path)
@@ -109,10 +109,10 @@ class TestLoader(base.TestCase):
             fn = os.path.join(tmpdir, 'file.txt')
             with open(fn, 'w+') as fp:
                 fp.write(FILES['txt'])
-            os.chmod(fn, 222)
+            os.chmod(fn, 0o222)
             tested_files.append(fn)
 
-            path, result = loader.OpenStackConfig()._load_yaml_json_file(
+            path, _ = loader.OpenStackConfig()._load_yaml_json_file(
                 tested_files
             )
             self.assertEqual(None, path)
@@ -122,9 +122,7 @@ class TestLoader(base.TestCase):
         fn = os.path.join('/fake', 'file.txt')
         tested_files.append(fn)
 
-        path, result = loader.OpenStackConfig()._load_yaml_json_file(
-            tested_files
-        )
+        path, _ = loader.OpenStackConfig()._load_yaml_json_file(tested_files)
         self.assertEqual(None, path)
 
 
