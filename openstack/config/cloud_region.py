@@ -367,6 +367,21 @@ class CloudRegion:
         self._statsd_client = None
         self._influxdb_config = influxdb_config
         self._influxdb_client = None
+
+        if influxdb_config is not None:
+            # NOTE(stephenfin): If you are a user and care about InfluxDB,
+            # please propose patches to migrate this to the influxdb3-python
+            # library [1]. Any migration should include tests.
+            #
+            # [1] https://github.com/InfluxCommunity/influxdb3-python
+            warnings.warn(
+                'Support for InfluxDB requires the influxdb library which '
+                'only supports InfluxDB 1.x and is deprecated. As a result, '
+                'influxdb is also deprecated and will be removed in a future '
+                'release.',
+                os_warnings.RemovedInSDK60Warning,
+            )
+
         self._collector_registry = collector_registry
 
         self._service_type_manager = os_service_types.ServiceTypes()
@@ -1430,10 +1445,18 @@ class CloudRegion:
     def get_influxdb_client(
         self,
     ) -> ty.Optional['influxdb_client.InfluxDBClient']:
-        # TODO(stephenfin): We could do with a typed dict here.
         influx_args: dict[str, ty.Any] = {}
         if not self._influxdb_config:
             return None
+
+        warnings.warn(
+            'Support for InfluxDB requires the influxdb library which '
+            'only supports InfluxDB 1.x and is deprecated. As a result, '
+            'influxdb is also deprecated and will be removed in a future '
+            'release.',
+            os_warnings.RemovedInSDK60Warning,
+        )
+
         use_udp = bool(self._influxdb_config.get('use_udp', False))
         port = self._influxdb_config.get('port')
         if use_udp:

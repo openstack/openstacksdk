@@ -373,6 +373,16 @@ class OpenStackConfig:
                 influxdb_config.update(influxdb_cfg)
 
         if influxdb_config:
+            # NOTE(stephenfin): defer the warning to here so we catch config in
+            # both clouds.yaml and directly passed in
+            warnings.warn(
+                'Support for InfluxDB requires the influxdb library which '
+                'only supports InfluxDB 1.x and is deprecated. As a result, '
+                'influxdb is also deprecated and will be removed in a future '
+                'release.',
+                os_warnings.RemovedInSDK60Warning,
+            )
+
             config = {}
             if 'use_udp' in influxdb_config:
                 use_udp = influxdb_config['use_udp']

@@ -1,0 +1,6 @@
+---
+deprecations:
+  - |
+    Support for reporting metrics to InfluxDB has been deprecated for removal.
+    The implementation relied on an EOL Python library and only supported
+    InfluxDB v1.
