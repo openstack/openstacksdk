@@ -102,7 +102,7 @@ class HttpException(SDKException, _rex.HTTPError):
 
         # Call directly rather than via super to control parameters
         SDKException.__init__(self, message=message)
-        _rex.HTTPError.__init__(self, message, response=response)
+        _rex.HTTPError.__init__(self, message, response=response)  # type: ignore
 
         if response is not None:
             self.request_id = response.headers.get('x-openstack-request-id')

@@ -22,7 +22,7 @@ import warnings
 try:
     import keyring
 except ImportError:
-    keyring = None
+    keyring = None  # type: ignore[assignment]
 
 from keystoneauth1.access import service_catalog as ks_service_catalog
 from keystoneauth1 import discover
@@ -41,9 +41,11 @@ except ImportError:
 try:
     import prometheus_client
 except ImportError:
-    prometheus_client = None
+    prometheus_client = None  # type: ignore[assignment]
 try:
-    import influxdb as influxdb_client
+    # NOTE(stephenfin): This library is EOL so we explicitly don't have it in
+    # our dependencies
+    import influxdb as influxdb_client  # type: ignore[import-not-found]
 except ImportError:
     influxdb_client = None
 
@@ -789,6 +791,9 @@ class CloudRegion:
         try:
             state = keyring.get_password('openstacksdk', cache_id)
         except RuntimeError:  # the fail backend raises this
+            state = None
+
+        if not state:
             self.log.debug('Failed to fetch auth from keyring')
             return
 
@@ -802,10 +807,12 @@ class CloudRegion:
         assert self._auth is not None  # narrow type
 
         cache_id = self._auth.get_cache_id()
-        state = self._auth.get_auth_state()
+        # NOTE(stephenfin): The actual return type of this is a serialized JSON
+        # object
+        state = ty.cast(str, self._auth.get_auth_state())
 
         try:
-            if state:
+            if cache_id and state:
                 # NOTE: under some conditions the method may be invoked when
                 # auth is empty. This may lead to exception in the keyring lib,
                 # thus do nothing.
@@ -1393,7 +1400,7 @@ class CloudRegion:
                 ],
                 registry=registry,
             )
-            registry._openstacksdk_histogram = hist
+            setattr(registry, '_openstacksdk_histogram', hist)
         return hist
 
     def get_prometheus_counter(
@@ -1415,7 +1422,7 @@ class CloudRegion:
                 ],
                 registry=registry,
             )
-            registry._openstacksdk_counter = counter
+            setattr(registry, '_openstacksdk_counter', counter)
         return counter
 
     def has_service(self, service_type: str) -> bool:

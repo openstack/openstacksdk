@@ -41,7 +41,7 @@ from openstack import utils
 from openstack import warnings as os_warnings
 
 if ty.TYPE_CHECKING:
-    import influxdb as influxdb_client
+    import influxdb as influxdb_client  # type: ignore[import-not-found]
     from keystoneauth1 import plugin
     import prometheus_client
     import requests
