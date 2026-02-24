@@ -34,8 +34,10 @@ fake_services_dict = {
     'volume_api_version': '1',
     'auth': {'password': 'hunter2', 'username': 'AzureDiamond'},
     'connect_retries': 1,
+    'connect_retry_delay': 0.5,
     'baremetal_status_code_retries': 5,
     'baremetal_connect_retries': 3,
+    'baremetal_connect_retry_delay': 1.5,
 }
 
 
@@ -183,6 +185,8 @@ class TestCloudRegion(base.TestCase):
         self.assertEqual(5, cc.get_status_code_retries('baremetal'))
         self.assertEqual(1, cc.get_connect_retries('compute'))
         self.assertEqual(3, cc.get_connect_retries('baremetal'))
+        self.assertEqual(0.5, cc.get_connect_retry_delay('compute'))
+        self.assertEqual(1.5, cc.get_connect_retry_delay('baremetal'))
 
     def test_rackspace_workaround(self):
         # We're skipping loader here, so we have to expand relevant
