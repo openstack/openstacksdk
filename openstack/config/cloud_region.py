@@ -601,6 +601,14 @@ class CloudRegion:
             converter=int,
         )
 
+    def get_connect_retry_delay(self, service_type):
+        return self._get_config(
+            'connect_retry_delay',
+            service_type,
+            fallback_to_unprefixed=True,
+            converter=float,
+        )
+
     def get_status_code_retries(self, service_type):
         return self._get_config(
             'status_code_retries',
