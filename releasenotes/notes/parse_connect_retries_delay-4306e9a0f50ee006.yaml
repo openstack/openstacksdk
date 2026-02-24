@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    ``Session.connect_retry_delay`` is now configurable via ``clouds.yaml`` using
+    the ``<service type>_connect_retry_delay`` and ``connect_retry_delay`` options.

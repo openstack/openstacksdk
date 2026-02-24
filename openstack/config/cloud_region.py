@@ -755,6 +755,12 @@ class CloudRegion:
         )
         return int(value) if value is not None else value
 
+    def get_connect_retry_delay(self, service_type: str) -> float | None:
+        value = self._get_config(
+            'connect_retry_delay', service_type, fallback_to_unprefixed=True
+        )
+        return float(value) if value is not None else value
+
     def get_status_code_retries(self, service_type: str) -> int | None:
         value = self._get_config(
             'status_code_retries', service_type, fallback_to_unprefixed=True
