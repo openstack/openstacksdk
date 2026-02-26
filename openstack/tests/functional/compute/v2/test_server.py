@@ -22,17 +22,19 @@ class TestServerAdmin(base.BaseComputeTest):
         self.user_data = 'SSdtIGFjdHVhbGx5IGEgZ29hdC4='
 
     def _delete_server(self, server):
-        sot = self.operator_cloud.compute.delete_server(server.id)
-        self.operator_cloud.compute.wait_for_delete(
+        sot = self.admin_compute_client.delete_server(server.id)
+        self.admin_compute_client.wait_for_delete(
             server, wait=self._wait_for_timeout
         )
         self.assertIsNone(sot)
 
     def test_server(self):
         # create server with volume
-
-        volume = self.operator_cloud.create_volume(1)
-        server = self.operator_cloud.compute.create_server(
+        volume = self.admin_block_storage_client.create_volume(size=1)
+        self.admin_block_storage_client.wait_for_status(
+            volume, wait=self._wait_for_timeout
+        )
+        server = self.admin_compute_client.create_server(
             name=self.server_name,
             flavor_id=self.flavor.id,
             image_id=self.image.id,
@@ -49,7 +51,7 @@ class TestServerAdmin(base.BaseComputeTest):
                 },
             ],
         )
-        self.operator_cloud.compute.wait_for_server(
+        self.admin_compute_client.wait_for_server(
             server, wait=self._wait_for_timeout
         )
         self.assertIsInstance(server, _server.Server)
@@ -58,7 +60,7 @@ class TestServerAdmin(base.BaseComputeTest):
 
         # get server details (admin-specific fields)
 
-        server = self.operator_cloud.compute.get_server(server.id)
+        server = self.admin_compute_client.get_server(server.id)
         self.assertIsNotNone(server.reservation_id)
         self.assertIsNotNone(server.launch_index)
         self.assertIsNotNone(server.ramdisk_id)
@@ -84,10 +86,10 @@ class TestServer(base.BaseComputeTest):
         self.addCleanup(self._delete_network, self.network, self.subnet)
 
     def _delete_server(self, server):
-        sot = self.user_cloud.compute.delete_server(server.id)
+        sot = self.compute_client.delete_server(server.id)
         self.assertIsNone(sot)
         # Need to wait for the stack to go away before network delete
-        self.user_cloud.compute.wait_for_delete(
+        self.compute_client.wait_for_delete(
             server, wait=self._wait_for_timeout
         )
 
@@ -97,13 +99,13 @@ class TestServer(base.BaseComputeTest):
     def test_server(self):
         # create server
 
-        self.server = self.user_cloud.compute.create_server(
+        self.server = self.compute_client.create_server(
             name=self.server_name,
             flavor_id=self.flavor.id,
             image_id=self.image.id,
             networks=[{"uuid": self.network.id}],
         )
-        self.user_cloud.compute.wait_for_server(
+        self.compute_client.wait_for_server(
             self.server, wait=self._wait_for_timeout
         )
         self.addCleanup(self._delete_server, self.server)
@@ -112,30 +114,30 @@ class TestServer(base.BaseComputeTest):
 
         # find server by name
 
-        server = self.user_cloud.compute.find_server(self.server_name)
+        server = self.compute_client.find_server(self.server_name)
         self.assertEqual(self.server.id, server.id)
 
         # get server by ID
 
-        server = self.user_cloud.compute.get_server(self.server.id)
+        server = self.compute_client.get_server(self.server.id)
         self.assertEqual(self.server_name, server.name)
         self.assertEqual(self.server.id, server.id)
 
         # list servers
 
-        server = self.user_cloud.compute.servers()
+        server = self.compute_client.servers()
         self.assertIn(self.server_name, {x.name for x in server})
 
     def test_server_metadata(self):
         # create server
 
-        server = self.user_cloud.compute.create_server(
+        server = self.compute_client.create_server(
             name=self.server_name,
             flavor_id=self.flavor.id,
             image_id=self.image.id,
             networks=[{"uuid": self.network.id}],
         )
-        self.user_cloud.compute.wait_for_server(
+        self.compute_client.wait_for_server(
             server, wait=self._wait_for_timeout
         )
         self.assertIsInstance(server, _server.Server)
@@ -143,25 +145,25 @@ class TestServer(base.BaseComputeTest):
 
         # get metadata (should be empty initially)
 
-        server = self.user_cloud.compute.get_server_metadata(server)
+        server = self.compute_client.get_server_metadata(server)
         self.assertFalse(server.metadata)
 
         # set no metadata
 
-        self.user_cloud.compute.set_server_metadata(server)
-        server = self.user_cloud.compute.get_server_metadata(server)
+        self.compute_client.set_server_metadata(server)
+        server = self.compute_client.get_server_metadata(server)
         self.assertFalse(server.metadata)
 
         # set empty metadata
 
-        self.user_cloud.compute.set_server_metadata(server, k0='')
-        server = self.user_cloud.compute.get_server_metadata(server)
+        self.compute_client.set_server_metadata(server, k0='')
+        server = self.compute_client.get_server_metadata(server)
         self.assertTrue(server.metadata)
 
         # set metadata
 
-        self.user_cloud.compute.set_server_metadata(server, k1='v1')
-        server = self.user_cloud.compute.get_server_metadata(server)
+        self.compute_client.set_server_metadata(server, k1='v1')
+        server = self.compute_client.get_server_metadata(server)
         self.assertTrue(server.metadata)
         self.assertEqual(2, len(server.metadata))
         self.assertIn('k0', server.metadata)
@@ -171,8 +173,8 @@ class TestServer(base.BaseComputeTest):
 
         # set more metadata
 
-        self.user_cloud.compute.set_server_metadata(server, k2='v2')
-        server = self.user_cloud.compute.get_server_metadata(server)
+        self.compute_client.set_server_metadata(server, k2='v2')
+        server = self.compute_client.get_server_metadata(server)
         self.assertTrue(server.metadata)
         self.assertEqual(3, len(server.metadata))
         self.assertIn('k0', server.metadata)
@@ -184,8 +186,8 @@ class TestServer(base.BaseComputeTest):
 
         # update metadata
 
-        self.user_cloud.compute.set_server_metadata(server, k1='v1.1')
-        server = self.user_cloud.compute.get_server_metadata(server)
+        self.compute_client.set_server_metadata(server, k1='v1.1')
+        server = self.compute_client.get_server_metadata(server)
         self.assertTrue(server.metadata)
         self.assertEqual(3, len(server.metadata))
         self.assertIn('k0', server.metadata)
@@ -197,10 +199,10 @@ class TestServer(base.BaseComputeTest):
 
         # delete all metadata (cleanup)
 
-        self.user_cloud.compute.delete_server_metadata(
+        self.compute_client.delete_server_metadata(
             server, server.metadata.keys()
         )
-        server = self.user_cloud.compute.get_server_metadata(server)
+        server = self.compute_client.get_server_metadata(server)
         self.assertFalse(server.metadata)
 
     def test_server_remote_console(self):
@@ -214,13 +216,13 @@ class TestServer(base.BaseComputeTest):
 
         # create server
 
-        server = self.user_cloud.compute.create_server(
+        server = self.compute_client.create_server(
             name=self.server_name,
             flavor_id=self.flavor.id,
             image_id=self.image.id,
             networks=[{"uuid": network.id}],
         )
-        self.user_cloud.compute.wait_for_server(
+        self.compute_client.wait_for_server(
             server, wait=self._wait_for_timeout
         )
         self.assertIsInstance(server, _server.Server)
@@ -228,7 +230,7 @@ class TestServer(base.BaseComputeTest):
 
         # create remote console
 
-        console = self.user_cloud.compute.create_server_remote_console(
+        console = self.compute_client.create_server_remote_console(
             server, protocol='vnc', type='novnc'
         )
         self.assertEqual('vnc', console.protocol)

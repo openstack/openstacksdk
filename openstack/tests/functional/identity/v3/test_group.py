@@ -12,10 +12,10 @@
 
 from openstack.identity.v3 import group as _group
 from openstack.identity.v3 import user as _user
-from openstack.tests.functional import base
+from openstack.tests.functional.identity.v3 import base
 
 
-class TestGroup(base.BaseFunctionalTest):
+class TestGroup(base.BaseIdentityTest):
     def setUp(self):
         super().setUp()
 
@@ -24,24 +24,24 @@ class TestGroup(base.BaseFunctionalTest):
         self.user_name = self.getUniqueString('user')
         self.user_email = f"{self.user_name}@example.com"
 
-        self.user = self.operator_cloud.identity.create_user(
+        self.user = self.admin_identity_client.create_user(
             name=self.user_name,
             email=self.user_email,
         )
         self.addCleanup(self._delete_user, self.user)
 
     def _delete_group(self, group):
-        ret = self.operator_cloud.identity.delete_group(group)
+        ret = self.admin_identity_client.delete_group(group)
         self.assertIsNone(ret)
 
     def _delete_user(self, user):
-        ret = self.operator_cloud.identity.delete_user(user)
+        ret = self.admin_identity_client.delete_user(user)
         self.assertIsNone(ret)
 
     def test_group(self):
         # create the group
 
-        group = self.operator_cloud.identity.create_group(
+        group = self.admin_identity_client.create_group(
             name=self.group_name,
         )
         self.addCleanup(self._delete_group, group)
@@ -50,7 +50,7 @@ class TestGroup(base.BaseFunctionalTest):
 
         # update the group
 
-        group = self.operator_cloud.identity.update_group(
+        group = self.admin_identity_client.update_group(
             group, description=self.group_description
         )
         self.assertIsInstance(group, _group.Group)
@@ -58,19 +58,19 @@ class TestGroup(base.BaseFunctionalTest):
 
         # retrieve details of the (updated) group by ID
 
-        group = self.operator_cloud.identity.get_group(group.id)
+        group = self.admin_identity_client.get_group(group.id)
         self.assertIsInstance(group, _group.Group)
         self.assertEqual(self.group_description, group.description)
 
         # retrieve details of the (updated) group by name
 
-        group = self.operator_cloud.identity.find_group(group.name)
+        group = self.admin_identity_client.find_group(group.name)
         self.assertIsInstance(group, _group.Group)
         self.assertEqual(self.group_description, group.description)
 
         # list all groups
 
-        groups = list(self.operator_cloud.identity.groups())
+        groups = list(self.admin_identity_client.groups())
         self.assertIsInstance(groups[0], _group.Group)
         self.assertIn(
             self.group_name,
@@ -78,22 +78,22 @@ class TestGroup(base.BaseFunctionalTest):
         )
 
         # add user to group
-        self.operator_cloud.identity.add_user_to_group(self.user, group)
+        self.admin_identity_client.add_user_to_group(self.user, group)
 
-        is_in_group = self.operator_cloud.identity.check_user_in_group(
+        is_in_group = self.admin_identity_client.check_user_in_group(
             self.user, group
         )
         self.assertTrue(is_in_group)
 
-        group_users = list(self.operator_cloud.identity.group_users(group))
+        group_users = list(self.admin_identity_client.group_users(group))
         self.assertIsInstance(group_users[0], _user.User)
         self.assertIn(self.user_name, {x.name for x in group_users})
 
         # remove user from group
 
-        self.operator_cloud.identity.remove_user_from_group(self.user, group)
+        self.admin_identity_client.remove_user_from_group(self.user, group)
 
-        is_in_group = self.operator_cloud.identity.check_user_in_group(
+        is_in_group = self.admin_identity_client.check_user_in_group(
             self.user, group
         )
         self.assertFalse(is_in_group)

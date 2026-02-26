@@ -11,10 +11,10 @@
 # under the License.
 
 from openstack.identity.v3 import project as _project
-from openstack.tests.functional import base
+from openstack.tests.functional.identity.v3 import base
 
 
-class TestProject(base.BaseFunctionalTest):
+class TestProject(base.BaseIdentityTest):
     def setUp(self):
         super().setUp()
 
@@ -22,13 +22,13 @@ class TestProject(base.BaseFunctionalTest):
         self.project_description = self.getUniqueString('project')
 
     def _delete_project(self, project):
-        ret = self.operator_cloud.identity.delete_project(project)
+        ret = self.admin_identity_client.delete_project(project)
         self.assertIsNone(ret)
 
     def test_project(self):
         # create the project
 
-        project = self.operator_cloud.identity.create_project(
+        project = self.admin_identity_client.create_project(
             name=self.project_name,
         )
         self.assertIsInstance(project, _project.Project)
@@ -37,7 +37,7 @@ class TestProject(base.BaseFunctionalTest):
 
         # update the project
 
-        project = self.operator_cloud.identity.update_project(
+        project = self.admin_identity_client.update_project(
             project, description=self.project_description
         )
         self.assertIsInstance(project, _project.Project)
@@ -45,19 +45,19 @@ class TestProject(base.BaseFunctionalTest):
 
         # retrieve details of the (updated) project by ID
 
-        project = self.operator_cloud.identity.get_project(project.id)
+        project = self.admin_identity_client.get_project(project.id)
         self.assertIsInstance(project, _project.Project)
         self.assertEqual(self.project_description, project.description)
 
         # retrieve details of the (updated) project by name
 
-        project = self.operator_cloud.identity.find_project(project.name)
+        project = self.admin_identity_client.find_project(project.name)
         self.assertIsInstance(project, _project.Project)
         self.assertEqual(self.project_description, project.description)
 
         # list all projects
 
-        projects = list(self.operator_cloud.identity.projects())
+        projects = list(self.admin_identity_client.projects())
         self.assertIsInstance(projects[0], _project.Project)
         self.assertIn(
             self.project_name,
@@ -68,7 +68,7 @@ class TestProject(base.BaseFunctionalTest):
         # list all user projects
 
         user_projects = list(
-            self.operator_cloud.identity.user_projects(
+            self.admin_identity_client.user_projects(
                 self.operator_cloud.current_user_id
             )
         )

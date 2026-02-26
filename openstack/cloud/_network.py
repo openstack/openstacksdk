@@ -14,6 +14,7 @@ from openstack.cloud import _network_common
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack import exceptions
+from openstack import utils
 
 
 class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
@@ -617,7 +618,8 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if the resource to
             set the quota does not exist.
         """
-        proj = self.identity.find_project(name_or_id, ignore_missing=True)
+        identity = utils.ensure_service_version(self.identity, '3')
+        proj = identity.find_project(name_or_id, ignore_missing=True)
         if not proj:
             raise exceptions.SDKException(
                 f"Project {name_or_id} was requested by was not found "
@@ -636,7 +638,8 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if it's not a
             valid project
         """
-        proj = self.identity.find_project(name_or_id, ignore_missing=True)
+        identity = utils.ensure_service_version(self.identity, '3')
+        proj = identity.find_project(name_or_id, ignore_missing=True)
         if not proj:
             raise exc.OpenStackCloudException(
                 f"Project {name_or_id} was requested by was not found "
@@ -660,7 +663,8 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if it's not a
             valid project or the network client call failed
         """
-        proj = self.identity.find_project(name_or_id, ignore_missing=True)
+        identity = utils.ensure_service_version(self.identity, '3')
+        proj = identity.find_project(name_or_id, ignore_missing=True)
         if not proj:
             raise exceptions.SDKException(
                 f"Project {name_or_id} was requested by was not found "

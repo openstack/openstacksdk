@@ -72,7 +72,7 @@ class TestAttachment(base.BaseBlockStorageTest):
         super().tearDown()
 
     def test_attachment(self):
-        attachment = self.operator_cloud.block_storage.create_attachment(
+        attachment = self.admin_block_storage_client.create_attachment(
             self.VOLUME_ID,
             connector={},
             instance_id=self.server.id,
@@ -85,6 +85,6 @@ class TestAttachment(base.BaseBlockStorageTest):
         self.assertIn('detached_at', attachment)
         self.assertIn('attach_mode', attachment)
         self.assertIn('connection_info', attachment)
-        attachment = self.user_cloud.block_storage.delete_attachment(
+        attachment = self.block_storage_client.delete_attachment(
             attachment.id, ignore_missing=False
         )

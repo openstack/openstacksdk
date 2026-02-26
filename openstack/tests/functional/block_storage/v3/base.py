@@ -10,14 +10,26 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.block_storage.v3 import _proxy as _block_storage_v3
 from openstack.tests.functional import base
+from openstack import utils
 
 
 class BaseBlockStorageTest(base.BaseFunctionalTest):
     _wait_for_timeout_key = 'OPENSTACKSDK_FUNC_TEST_TIMEOUT_BLOCK_STORAGE'
+
+    admin_block_storage_client: _block_storage_v3.Proxy
+    block_storage_client: _block_storage_v3.Proxy
 
     def setUp(self):
         super().setUp()
         self._set_user_cloud(block_storage_api_version='3')
         if not self.user_cloud.has_service('block-storage', '3'):
             self.skipTest('block-storage service not supported by cloud')
+
+        self.admin_block_storage_client = utils.ensure_service_version(
+            self.operator_cloud.block_storage, '3'
+        )
+        self.block_storage_client = utils.ensure_service_version(
+            self.user_cloud.block_storage, '3'
+        )

@@ -11,10 +11,10 @@
 # under the License.
 
 from openstack import exceptions
-from openstack.tests.functional import base
+from openstack.tests.functional.identity.v3 import base
 
 
-class TestAccessRule(base.BaseFunctionalTest):
+class TestAccessRule(base.BaseIdentityTest):
     def setUp(self):
         super().setUp()
         self.user_id = self.operator_cloud.current_user_id
@@ -22,7 +22,7 @@ class TestAccessRule(base.BaseFunctionalTest):
     def _create_application_credential_with_access_rule(self):
         """create application credential with access_rule."""
 
-        app_cred = self.operator_cloud.identity.create_application_credential(
+        app_cred = self.admin_identity_client.create_application_credential(
             user=self.user_id,
             name='app_cred',
             access_rules=[
@@ -34,7 +34,7 @@ class TestAccessRule(base.BaseFunctionalTest):
             ],
         )
         self.addCleanup(
-            self.operator_cloud.identity.delete_application_credential,
+            self.admin_identity_client.delete_application_credential,
             self.user_id,
             app_cred['id'],
         )
@@ -43,7 +43,7 @@ class TestAccessRule(base.BaseFunctionalTest):
     def test_get_access_rule(self):
         app_cred = self._create_application_credential_with_access_rule()
         access_rule_id = app_cred['access_rules'][0]['id']
-        access_rule = self.operator_cloud.identity.get_access_rule(
+        access_rule = self.admin_identity_client.get_access_rule(
             user=self.user_id, access_rule=access_rule_id
         )
         self.assertEqual(access_rule['id'], access_rule_id)
@@ -52,7 +52,7 @@ class TestAccessRule(base.BaseFunctionalTest):
     def test_list_access_rules(self):
         app_cred = self._create_application_credential_with_access_rule()
         access_rule_id = app_cred['access_rules'][0]['id']
-        access_rules = self.operator_cloud.identity.access_rules(
+        access_rules = self.admin_identity_client.access_rules(
             user=self.user_id
         )
         self.assertEqual(1, len(list(access_rules)))
@@ -68,16 +68,16 @@ class TestAccessRule(base.BaseFunctionalTest):
         # in use for app_cred.
         self.assertRaises(
             exceptions.HttpException,
-            self.operator_cloud.identity.delete_access_rule,
+            self.admin_identity_client.delete_access_rule,
             user=self.user_id,
             access_rule=access_rule_id,
         )
 
         # delete application credential first to delete access rule
-        self.operator_cloud.identity.delete_application_credential(
+        self.admin_identity_client.delete_application_credential(
             user=self.user_id, application_credential=app_cred['id']
         )
         # delete orphaned access rules
-        self.operator_cloud.identity.delete_access_rule(
+        self.admin_identity_client.delete_access_rule(
             user=self.user_id, access_rule=access_rule_id
         )

@@ -16,63 +16,59 @@ from openstack.tests.functional.image.v2 import base
 
 class TestMetadefSchema(base.BaseImageTest):
     def test_get_metadef_namespace_schema(self):
-        metadef_schema = (
-            self.operator_cloud.image.get_metadef_namespace_schema()
-        )
+        metadef_schema = self.admin_image_client.get_metadef_namespace_schema()
         self.assertIsNotNone(metadef_schema)
         self.assertIsInstance(metadef_schema, _metadef_schema.MetadefSchema)
 
     def test_get_metadef_namespaces_schema(self):
         metadef_schema = (
-            self.operator_cloud.image.get_metadef_namespaces_schema()
+            self.admin_image_client.get_metadef_namespaces_schema()
         )
         self.assertIsNotNone(metadef_schema)
         self.assertIsInstance(metadef_schema, _metadef_schema.MetadefSchema)
 
     def test_get_metadef_resource_type_schema(self):
         metadef_schema = (
-            self.operator_cloud.image.get_metadef_resource_type_schema()
+            self.admin_image_client.get_metadef_resource_type_schema()
         )
         self.assertIsNotNone(metadef_schema)
         self.assertIsInstance(metadef_schema, _metadef_schema.MetadefSchema)
 
     def test_get_metadef_resource_types_schema(self):
         metadef_schema = (
-            self.operator_cloud.image.get_metadef_resource_types_schema()
+            self.admin_image_client.get_metadef_resource_types_schema()
         )
         self.assertIsNotNone(metadef_schema)
         self.assertIsInstance(metadef_schema, _metadef_schema.MetadefSchema)
 
     def test_get_metadef_object_schema(self):
-        metadef_schema = self.operator_cloud.image.get_metadef_object_schema()
+        metadef_schema = self.admin_image_client.get_metadef_object_schema()
         self.assertIsNotNone(metadef_schema)
         self.assertIsInstance(metadef_schema, _metadef_schema.MetadefSchema)
 
     def test_get_metadef_objects_schema(self):
-        metadef_schema = self.operator_cloud.image.get_metadef_objects_schema()
+        metadef_schema = self.admin_image_client.get_metadef_objects_schema()
         self.assertIsNotNone(metadef_schema)
         self.assertIsInstance(metadef_schema, _metadef_schema.MetadefSchema)
 
     def test_get_metadef_property_schema(self):
-        metadef_schema = (
-            self.operator_cloud.image.get_metadef_property_schema()
-        )
+        metadef_schema = self.admin_image_client.get_metadef_property_schema()
         self.assertIsNotNone(metadef_schema)
         self.assertIsInstance(metadef_schema, _metadef_schema.MetadefSchema)
 
     def test_get_metadef_properties_schema(self):
         metadef_schema = (
-            self.operator_cloud.image.get_metadef_properties_schema()
+            self.admin_image_client.get_metadef_properties_schema()
         )
         self.assertIsNotNone(metadef_schema)
         self.assertIsInstance(metadef_schema, _metadef_schema.MetadefSchema)
 
     def test_get_metadef_tag_schema(self):
-        metadef_schema = self.operator_cloud.image.get_metadef_tag_schema()
+        metadef_schema = self.admin_image_client.get_metadef_tag_schema()
         self.assertIsNotNone(metadef_schema)
         self.assertIsInstance(metadef_schema, _metadef_schema.MetadefSchema)
 
     def test_get_metadef_tags_schema(self):
-        metadef_schema = self.operator_cloud.image.get_metadef_tags_schema()
+        metadef_schema = self.admin_image_client.get_metadef_tags_schema()
         self.assertIsNotNone(metadef_schema)
         self.assertIsInstance(metadef_schema, _metadef_schema.MetadefSchema)

@@ -20,7 +20,7 @@ class TestImage(base.BaseComputeTest):
         super().setUp()
 
         # get a non-test image to work with
-        images = self.operator_cloud.compute.images()
+        images = self.admin_compute_client.images()
         self.image = next(images)
 
         if self.image.name == TEST_IMAGE_NAME:
@@ -29,21 +29,21 @@ class TestImage(base.BaseComputeTest):
     def test_image(self):
         # list all images
 
-        images = list(self.operator_cloud.compute.images())
+        images = list(self.admin_compute_client.images())
         self.assertGreater(len(images), 0)
         for image in images:
             self.assertIsInstance(image.id, str)
 
         # find image by name
 
-        image = self.operator_cloud.compute.find_image(self.image.name)
+        image = self.admin_compute_client.find_image(self.image.name)
         self.assertIsInstance(image, _image.Image)
         self.assertEqual(self.image.id, image.id)
         self.assertEqual(self.image.name, image.name)
 
         # get image by ID
 
-        image = self.operator_cloud.compute.get_image(self.image.id)
+        image = self.admin_compute_client.get_image(self.image.id)
         self.assertIsInstance(image, _image.Image)
         self.assertEqual(self.image.id, image.id)
         self.assertEqual(self.image.name, image.name)
@@ -51,34 +51,34 @@ class TestImage(base.BaseComputeTest):
     def test_image_metadata(self):
         # delete pre-existing metadata
 
-        self.operator_cloud.compute.delete_image_metadata(
+        self.admin_compute_client.delete_image_metadata(
             self.image, self.image.metadata.keys()
         )
-        image = self.operator_cloud.compute.get_image_metadata(self.image)
+        image = self.admin_compute_client.get_image_metadata(self.image)
         self.assertFalse(image.metadata)
 
         # get metadata (should be empty)
 
-        image = self.operator_cloud.compute.get_image_metadata(self.image)
+        image = self.admin_compute_client.get_image_metadata(self.image)
         self.assertFalse(image.metadata)
 
         # set no metadata
 
-        self.operator_cloud.compute.set_image_metadata(self.image)
-        image = self.operator_cloud.compute.get_image_metadata(self.image)
+        self.admin_compute_client.set_image_metadata(self.image)
+        image = self.admin_compute_client.get_image_metadata(self.image)
         self.assertFalse(image.metadata)
 
         # set empty metadata
 
-        self.operator_cloud.compute.set_image_metadata(self.image, k0='')
-        image = self.operator_cloud.compute.get_image_metadata(self.image)
+        self.admin_compute_client.set_image_metadata(self.image, k0='')
+        image = self.admin_compute_client.get_image_metadata(self.image)
         self.assertIn('k0', image.metadata)
         self.assertEqual('', image.metadata['k0'])
 
         # set metadata
 
-        self.operator_cloud.compute.set_image_metadata(self.image, k1='v1')
-        image = self.operator_cloud.compute.get_image_metadata(self.image)
+        self.admin_compute_client.set_image_metadata(self.image, k1='v1')
+        image = self.admin_compute_client.get_image_metadata(self.image)
         self.assertTrue(image.metadata)
         self.assertEqual(2, len(image.metadata))
         self.assertIn('k1', image.metadata)
@@ -86,8 +86,8 @@ class TestImage(base.BaseComputeTest):
 
         # set more metadata
 
-        self.operator_cloud.compute.set_image_metadata(self.image, k2='v2')
-        image = self.operator_cloud.compute.get_image_metadata(self.image)
+        self.admin_compute_client.set_image_metadata(self.image, k2='v2')
+        image = self.admin_compute_client.get_image_metadata(self.image)
         self.assertTrue(image.metadata)
         self.assertEqual(3, len(image.metadata))
         self.assertIn('k1', image.metadata)
@@ -97,8 +97,8 @@ class TestImage(base.BaseComputeTest):
 
         # update metadata
 
-        self.operator_cloud.compute.set_image_metadata(self.image, k1='v1.1')
-        image = self.operator_cloud.compute.get_image_metadata(self.image)
+        self.admin_compute_client.set_image_metadata(self.image, k1='v1.1')
+        image = self.admin_compute_client.get_image_metadata(self.image)
         self.assertTrue(image.metadata)
         self.assertEqual(3, len(image.metadata))
         self.assertIn('k1', image.metadata)
@@ -108,8 +108,8 @@ class TestImage(base.BaseComputeTest):
 
         # delete all metadata (cleanup)
 
-        self.operator_cloud.compute.delete_image_metadata(
+        self.admin_compute_client.delete_image_metadata(
             self.image, image.metadata.keys()
         )
-        image = self.operator_cloud.compute.get_image_metadata(self.image)
+        image = self.admin_compute_client.get_image_metadata(self.image)
         self.assertFalse(image.metadata)

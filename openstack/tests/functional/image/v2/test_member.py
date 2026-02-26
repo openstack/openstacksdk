@@ -26,7 +26,7 @@ class TestImageMember(base.BaseImageTest):
         super().setUp()
 
         # NOTE(jbeen): 1-byte dummy image data for sharing tests; not bootable.
-        self.image = self.operator_cloud.image.create_image(
+        self.image = self.admin_image_client.create_image(
             name=TEST_IMAGE_NAME,
             disk_format='raw',
             container_format='bare',
@@ -40,14 +40,14 @@ class TestImageMember(base.BaseImageTest):
         self.assertIsNotNone(self.member_id)
 
     def tearDown(self):
-        self.operator_cloud.image.delete_image(self.image)
-        self.operator_cloud.image.wait_for_delete(self.image)
+        self.admin_image_client.delete_image(self.image)
+        self.admin_image_client.wait_for_delete(self.image)
 
         super().tearDown()
 
     def test_image_members(self):
         # add member
-        member = self.operator_cloud.image.add_member(
+        member = self.admin_image_client.add_member(
             image=self.image, member=self.member_id
         )
         self.assertIsInstance(member, _member.Member)
@@ -55,18 +55,18 @@ class TestImageMember(base.BaseImageTest):
         self.assertEqual(MEMBER_STATUS_PENDING, member.status)
 
         # get member
-        member = self.operator_cloud.image.get_member(
+        member = self.admin_image_client.get_member(
             image=self.image, member=self.member_id
         )
         self.assertIsInstance(member, _member.Member)
         self.assertEqual(self.member_id, member.member_id)
 
         # list members
-        members = list(self.operator_cloud.image.members(image=self.image))
+        members = list(self.admin_image_client.members(image=self.image))
         self.assertIn(self.member_id, {m.id for m in members})
 
         # update member
-        member = self.user_cloud.image.update_member(
+        member = self.image_client.update_member(
             image=self.image,
             member=self.member_id,
             status=MEMBER_STATUS_ACCEPTED,
@@ -76,12 +76,12 @@ class TestImageMember(base.BaseImageTest):
         self.assertEqual(MEMBER_STATUS_ACCEPTED, member.status)
 
         # remove member
-        self.operator_cloud.image.remove_member(
+        self.admin_image_client.remove_member(
             image=self.image, member=self.member_id
         )
         self.assertRaises(
             sdk_exc.NotFoundException,
-            self.operator_cloud.image.get_member,
+            self.admin_image_client.get_member,
             image=self.image,
             member=self.member_id,
         )

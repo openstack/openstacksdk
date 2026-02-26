@@ -11,10 +11,10 @@
 #    under the License.
 
 from openstack.identity.v3 import user as _user
-from openstack.tests.functional import base
+from openstack.tests.functional.identity.v3 import base
 
 
-class TestUser(base.BaseFunctionalTest):
+class TestUser(base.BaseIdentityTest):
     def setUp(self):
         super().setUp()
 
@@ -24,12 +24,12 @@ class TestUser(base.BaseFunctionalTest):
         self.description = "Test user for functional testing"
 
     def _delete_user(self, user):
-        ret = self.operator_cloud.identity.delete_user(user)
+        ret = self.admin_identity_client.delete_user(user)
         self.assertIsNone(ret)
 
     def test_user(self):
         # Create user
-        user = self.operator_cloud.identity.create_user(
+        user = self.admin_identity_client.create_user(
             name=self.username,
             password=self.password,
             email=self.email,
@@ -46,7 +46,7 @@ class TestUser(base.BaseFunctionalTest):
         new_email = f"updated_{self.username}@example.com"
         new_description = "Updated description for test user"
 
-        updated_user = self.operator_cloud.identity.update_user(
+        updated_user = self.admin_identity_client.update_user(
             user.id, email=new_email, description=new_description
         )
         self.assertIsInstance(updated_user, _user.User)
@@ -57,13 +57,13 @@ class TestUser(base.BaseFunctionalTest):
         )  # Name should remain unchanged
 
         # Read user list
-        users = list(self.operator_cloud.identity.users())
+        users = list(self.admin_identity_client.users())
         self.assertIsInstance(users[0], _user.User)
         user_ids = {ep.id for ep in users}
         self.assertIn(user.id, user_ids)
 
         # Read user by ID
-        user = self.operator_cloud.identity.get_user(user.id)
+        user = self.admin_identity_client.get_user(user.id)
         self.assertIsInstance(user, _user.User)
         self.assertEqual(user.id, user.id)
         self.assertEqual(self.username, user.name)

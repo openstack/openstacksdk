@@ -11,29 +11,29 @@
 # under the License.
 
 from openstack.identity.v3 import registered_limit as _registered_limit
-from openstack.tests.functional import base
+from openstack.tests.functional.identity.v3 import base
 
 
-class TestRegisteredLimit(base.BaseFunctionalTest):
+class TestRegisteredLimit(base.BaseIdentityTest):
     def setUp(self):
         super().setUp()
 
         self.region_name = self.getUniqueString('region')
-        self.region = self.system_admin_cloud.identity.create_region(
+        self.region = self.system_admin_identity_client.create_region(
             name=self.region_name
         )
         self.addCleanup(
-            self.system_admin_cloud.identity.delete_region, self.region
+            self.system_admin_identity_client.delete_region, self.region
         )
 
         self.service_name = self.getUniqueString('service')
         self.service_type = self.getUniqueString('type')
-        self.service = self.system_admin_cloud.identity.create_service(
+        self.service = self.system_admin_identity_client.create_service(
             name=self.service_name,
             type=self.service_type,
         )
         self.addCleanup(
-            self.system_admin_cloud.identity.delete_service, self.service
+            self.system_admin_identity_client.delete_service, self.service
         )
 
         self.resource_name = self.getUniqueString('resource')
@@ -42,7 +42,7 @@ class TestRegisteredLimit(base.BaseFunctionalTest):
         )
 
     def _delete_registered_limit(self, registered_limit):
-        ret = self.system_admin_cloud.identity.delete_registered_limit(
+        ret = self.system_admin_identity_client.delete_registered_limit(
             registered_limit
         )
         self.assertIsNone(ret)
@@ -51,7 +51,7 @@ class TestRegisteredLimit(base.BaseFunctionalTest):
         # create the registered limit
 
         registered_limit = (
-            self.system_admin_cloud.identity.create_registered_limit(
+            self.system_admin_identity_client.create_registered_limit(
                 resource_name=self.resource_name,
                 service_id=self.service.id,
                 region_id=self.region.id,
@@ -70,7 +70,7 @@ class TestRegisteredLimit(base.BaseFunctionalTest):
         # update the registered limit
 
         registered_limit = (
-            self.system_admin_cloud.identity.update_registered_limit(
+            self.system_admin_identity_client.update_registered_limit(
                 registered_limit, description=self.registered_limit_description
             )
         )
@@ -84,7 +84,7 @@ class TestRegisteredLimit(base.BaseFunctionalTest):
         # retrieve details of the (updated) registered limit by ID
 
         registered_limit = (
-            self.system_admin_cloud.identity.get_registered_limit(
+            self.system_admin_identity_client.get_registered_limit(
                 registered_limit.id
             )
         )
@@ -100,7 +100,7 @@ class TestRegisteredLimit(base.BaseFunctionalTest):
         # list all registered limits
 
         registered_limits = list(
-            self.system_admin_cloud.identity.registered_limits()
+            self.system_admin_identity_client.registered_limits()
         )
         self.assertIsInstance(
             registered_limits[0], _registered_limit.RegisteredLimit

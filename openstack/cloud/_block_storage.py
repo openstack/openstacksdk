@@ -16,6 +16,7 @@ from openstack.cloud import _utils
 from openstack.cloud import openstackcloud
 from openstack import exceptions
 from openstack import resource
+from openstack import utils
 from openstack import warnings as os_warnings
 
 
@@ -205,7 +206,8 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         if not volume:
             raise exceptions.SDKException(f"Volume {name_or_id} not found.")
 
-        volume = self.block_storage.update_volume(volume, **kwargs)
+        block_storage = utils.ensure_service_version(self.block_storage, '3')
+        volume = block_storage.update_volume(volume, **kwargs)
 
         return volume
 
@@ -306,9 +308,8 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         params = {}
         if name_or_id:
-            project = self.identity.find_project(
-                name_or_id, ignore_missing=False
-            )
+            identity = utils.ensure_service_version(self.identity, '3')
+            project = identity.find_project(name_or_id, ignore_missing=False)
             params['project'] = project
         return self.block_storage.get_limits(**params)
 
@@ -901,7 +902,8 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if the resource to
             set the quota does not exist.
         """
-        project = self.identity.find_project(name_or_id, ignore_missing=False)
+        identity = utils.ensure_service_version(self.identity, '3')
+        project = identity.find_project(name_or_id, ignore_missing=False)
 
         self.block_storage.update_quota_set(project=project, **kwargs)
 
@@ -914,7 +916,8 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if it's not a
             valid project
         """
-        proj = self.identity.find_project(name_or_id, ignore_missing=False)
+        identity = utils.ensure_service_version(self.identity, '3')
+        proj = identity.find_project(name_or_id, ignore_missing=False)
 
         return self.block_storage.get_quota_set(proj)
 
@@ -927,6 +930,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if it's not a
             valid project or the call failed
         """
-        proj = self.identity.find_project(name_or_id, ignore_missing=False)
+        identity = utils.ensure_service_version(self.identity, '3')
+        proj = identity.find_project(name_or_id, ignore_missing=False)
 
         return self.block_storage.revert_quota_set(proj)

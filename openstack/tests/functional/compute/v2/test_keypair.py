@@ -22,13 +22,13 @@ class TestKeypair(base.BaseComputeTest):
         self.keypair_name = self.getUniqueString().split('.')[-1]
 
     def _delete_keypair(self, keypair):
-        ret = self.user_cloud.compute.delete_keypair(keypair)
+        ret = self.compute_client.delete_keypair(keypair)
         self.assertIsNone(ret)
 
     def test_keypair(self):
         # create the keypair
 
-        keypair = self.user_cloud.compute.create_keypair(
+        keypair = self.compute_client.create_keypair(
             name=self.keypair_name, type='ssh'
         )
         self.assertIsInstance(keypair, _keypair.Keypair)
@@ -37,7 +37,7 @@ class TestKeypair(base.BaseComputeTest):
 
         # retrieve details of the keypair by ID
 
-        keypair = self.user_cloud.compute.get_keypair(self.keypair_name)
+        keypair = self.compute_client.get_keypair(self.keypair_name)
         self.assertIsInstance(keypair, _keypair.Keypair)
         self.assertEqual(self.keypair_name, keypair.name)
         self.assertEqual(self.keypair_name, keypair.id)
@@ -45,14 +45,14 @@ class TestKeypair(base.BaseComputeTest):
 
         # retrieve details of the keypair by name
 
-        keypair = self.user_cloud.compute.find_keypair(self.keypair_name)
+        keypair = self.compute_client.find_keypair(self.keypair_name)
         self.assertIsInstance(keypair, _keypair.Keypair)
         self.assertEqual(self.keypair_name, keypair.name)
         self.assertEqual(self.keypair_name, keypair.id)
 
         # list all keypairs
 
-        keypairs = list(self.user_cloud.compute.keypairs())
+        keypairs = list(self.compute_client.keypairs())
         self.assertIsInstance(keypair, _keypair.Keypair)
         self.assertIn(self.keypair_name, {x.name for x in keypairs})
 
@@ -65,12 +65,12 @@ class TestKeypairAdmin(base.BaseComputeTest):
         self.user = self.operator_cloud.list_users()[0]
 
     def _delete_keypair(self, keypair):
-        ret = self.user_cloud.compute.delete_keypair(keypair)
+        ret = self.compute_client.delete_keypair(keypair)
         self.assertIsNone(ret)
 
     def test_keypair(self):
         # create the keypair (for another user)
-        keypair = self.operator_cloud.compute.create_keypair(
+        keypair = self.admin_compute_client.create_keypair(
             name=self.keypair_name, user_id=self.user.id
         )
         self.assertIsInstance(keypair, _keypair.Keypair)
@@ -79,7 +79,7 @@ class TestKeypairAdmin(base.BaseComputeTest):
 
         # retrieve details of the keypair by ID (for another user)
 
-        keypair = self.operator_cloud.compute.get_keypair(
+        keypair = self.admin_compute_client.get_keypair(
             self.keypair_name, user_id=self.user.id
         )
         self.assertEqual(self.keypair_name, keypair.name)

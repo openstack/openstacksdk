@@ -15,7 +15,7 @@ from openstack.tests.functional.compute.v2 import base
 
 class TestExtension(base.BaseComputeTest):
     def test_list(self):
-        extensions = list(self.operator_cloud.compute.extensions())
+        extensions = list(self.admin_compute_client.extensions())
         self.assertGreater(len(extensions), 0)
 
         for ext in extensions:

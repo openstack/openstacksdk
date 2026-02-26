@@ -11,54 +11,54 @@
 # under the License.
 
 from openstack.identity.v3 import limit as _limit
-from openstack.tests.functional import base
+from openstack.tests.functional.identity.v3 import base
 
 
-class TestLimit(base.BaseFunctionalTest):
+class TestLimit(base.BaseIdentityTest):
     def setUp(self):
         super().setUp()
 
         self.service_name = self.getUniqueString('service')
         self.service_type = self.getUniqueString('type')
-        self.service = self.system_admin_cloud.identity.create_service(
+        self.service = self.system_admin_identity_client.create_service(
             name=self.service_name,
             type=self.service_type,
         )
         self.addCleanup(
-            self.system_admin_cloud.identity.delete_service, self.service
+            self.system_admin_identity_client.delete_service, self.service
         )
 
         self.resource_name = self.getUniqueString('resource')
         self.registered_limit = (
-            self.system_admin_cloud.identity.create_registered_limit(
+            self.system_admin_identity_client.create_registered_limit(
                 resource_name=self.resource_name,
                 service_id=self.service.id,
                 default_limit=10,
             )
         )
         self.addCleanup(
-            self.system_admin_cloud.identity.delete_registered_limit,
+            self.system_admin_identity_client.delete_registered_limit,
             self.registered_limit,
         )
 
         self.project_name = self.getUniqueString('project')
-        self.project = self.system_admin_cloud.identity.create_project(
+        self.project = self.system_admin_identity_client.create_project(
             name=self.project_name,
         )
         self.addCleanup(
-            self.system_admin_cloud.identity.delete_project, self.project
+            self.system_admin_identity_client.delete_project, self.project
         )
 
         self.limit_description = self.getUniqueString('limit')
 
     def _delete_limit(self, limit):
-        ret = self.system_admin_cloud.identity.delete_limit(limit)
+        ret = self.system_admin_identity_client.delete_limit(limit)
         self.assertIsNone(ret)
 
     def test_limit(self):
         # create the limit
 
-        limit = self.system_admin_cloud.identity.create_limit(
+        limit = self.system_admin_identity_client.create_limit(
             resource_name=self.resource_name,
             service_id=self.service.id,
             project_id=self.project.id,
@@ -74,7 +74,7 @@ class TestLimit(base.BaseFunctionalTest):
 
         # update the limit
 
-        limit = self.system_admin_cloud.identity.update_limit(
+        limit = self.system_admin_identity_client.update_limit(
             limit, description=self.limit_description
         )
         self.assertIsInstance(limit, _limit.Limit)
@@ -82,7 +82,7 @@ class TestLimit(base.BaseFunctionalTest):
 
         # retrieve details of the (updated) limit by ID
 
-        limit = self.system_admin_cloud.identity.get_limit(limit.id)
+        limit = self.system_admin_identity_client.get_limit(limit.id)
         self.assertIsInstance(limit, _limit.Limit)
         self.assertEqual(self.limit_description, limit.description)
 
@@ -90,7 +90,7 @@ class TestLimit(base.BaseFunctionalTest):
 
         # list all limits
 
-        limits = list(self.system_admin_cloud.identity.limits())
+        limits = list(self.system_admin_identity_client.limits())
         self.assertIsInstance(limits[0], _limit.Limit)
         self.assertIn(
             self.resource_name,

@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack import exceptions as sdk_exc
+from openstack.identity.v3 import _proxy as _identity_v3
 from openstack.key_manager.v1 import project_quota as _project_quota
 from openstack.tests.functional import base
 
@@ -20,31 +21,31 @@ ADMIN_ROLE_NAME = 'key-manager:service-admin'
 
 
 class TestProjectQuota(base.BaseFunctionalTest):
+    _identity: _identity_v3.Proxy
+
     def setUp(self):
         super().setUp()
         self.require_service('key-manager')
 
+        identity = self.system_admin_cloud.identity
+        assert identity.api_version == '3'
+        self._identity = identity
+
         self.project_name = self.getUniqueString('project')
-        self.project = self.system_admin_cloud.identity.create_project(
+        self.project = self._identity.create_project(
             name=self.project_name,
         )
-        self.addCleanup(
-            self.system_admin_cloud.identity.delete_project, self.project
-        )
+        self.addCleanup(self._identity.delete_project, self.project)
 
-        self.role = self.system_admin_cloud.identity.create_role(
-            name=ADMIN_ROLE_NAME
-        )
-        self.addCleanup(
-            self.system_admin_cloud.identity.delete_role, self.role.id
-        )
+        self.role = self._identity.create_role(name=ADMIN_ROLE_NAME)
+        self.addCleanup(self._identity.delete_role, self.role.id)
 
         self.user_id = self.system_admin_cloud.current_user_id
-        self.system_admin_cloud.identity.assign_project_role_to_user(
+        self._identity.assign_project_role_to_user(
             project=self.project, user=self.user_id, role=self.role
         )
         self.addCleanup(
-            self.system_admin_cloud.identity.unassign_project_role_from_user,
+            self._identity.unassign_project_role_from_user,
             project=self.project,
             user=self.user_id,
             role=self.role,
