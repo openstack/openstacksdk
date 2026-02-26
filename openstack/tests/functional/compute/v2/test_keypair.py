@@ -10,12 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
 from openstack.compute.v2 import keypair as _keypair
-from openstack.tests.functional import base
+from openstack.tests.functional.compute.v2 import base
 
 
-class TestKeypair(base.BaseFunctionalTest):
+class TestKeypair(base.BaseComputeTest):
     def setUp(self):
         super().setUp()
 
@@ -58,7 +57,7 @@ class TestKeypair(base.BaseFunctionalTest):
         self.assertIn(self.keypair_name, {x.name for x in keypairs})
 
 
-class TestKeypairAdmin(base.BaseFunctionalTest):
+class TestKeypairAdmin(base.BaseComputeTest):
     def setUp(self):
         super().setUp()
 

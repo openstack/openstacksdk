@@ -11,10 +11,10 @@
 # under the License.
 
 from openstack.compute.v2 import quota_set as _quota_set
-from openstack.tests.functional import base
+from openstack.tests.functional.compute.v2 import base
 
 
-class TestQuotaSet(base.BaseFunctionalTest):
+class TestQuotaSet(base.BaseComputeTest):
     def setUp(self):
         super().setUp()
 

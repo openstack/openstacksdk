@@ -10,10 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests.functional import base
+from openstack.tests.functional.compute.v2 import base
 
 
-class TestService(base.BaseFunctionalTest):
+class TestService(base.BaseComputeTest):
     def test_service(self):
         # list all services
         services = list(self.operator_cloud.compute.services())

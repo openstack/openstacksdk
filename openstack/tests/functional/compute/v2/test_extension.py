@@ -10,11 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.tests.functional.compute.v2 import base
 
-from openstack.tests.functional import base
 
-
-class TestExtension(base.BaseFunctionalTest):
+class TestExtension(base.BaseComputeTest):
     def test_list(self):
         extensions = list(self.operator_cloud.compute.extensions())
         self.assertGreater(len(extensions), 0)

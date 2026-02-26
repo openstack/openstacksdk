@@ -13,7 +13,7 @@
 from openstack.block_storage.v3 import volume as _volume
 from openstack.compute.v2 import server as _server
 from openstack.compute.v2 import volume_attachment as _volume_attachment
-from openstack.tests.functional.compute import base
+from openstack.tests.functional.compute.v2 import base
 
 
 class TestServerVolumeAttachment(base.BaseComputeTest):
