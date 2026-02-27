@@ -1264,7 +1264,7 @@ class Resource(dict):
                 self._body.clean()
                 if self.commit_jsonpatch or self.allow_patch:
                     # We need the original body to compare against
-                    self._original_body = body_attrs.copy()
+                    self._original_body = self._body.attributes.copy()
             except ValueError:
                 # Server returned not parse-able response (202, 204, etc)
                 # Do simply nothing
