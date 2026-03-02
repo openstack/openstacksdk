@@ -113,6 +113,21 @@ class Proxy(proxy.Proxy):
 
     # ====== IMAGES ======
 
+    def _make_v2_image_params(self, meta, properties):
+        ret: dict = {}
+        for k, v in iter(properties.items()):
+            if k in _INT_PROPERTIES:
+                ret[k] = int(v)
+            elif k in _RAW_PROPERTIES:
+                ret[k] = v
+            else:
+                if v is None:
+                    ret[k] = None
+                else:
+                    ret[k] = str(v)
+        ret.update(meta)
+        return ret
+
     def create_image(
         self,
         name,
@@ -642,21 +657,6 @@ class Proxy(proxy.Proxy):
             raise exceptions.SDKException(
                 f"Image creation failed: {e!s}"
             ) from e
-
-    def _make_v2_image_params(self, meta, properties):
-        ret: dict = {}
-        for k, v in iter(properties.items()):
-            if k in _INT_PROPERTIES:
-                ret[k] = int(v)
-            elif k in _RAW_PROPERTIES:
-                ret[k] = v
-            else:
-                if v is None:
-                    ret[k] = None
-                else:
-                    ret[k] = str(v)
-        ret.update(meta)
-        return ret
 
     def _upload_image_put(
         self,
