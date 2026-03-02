@@ -22,6 +22,15 @@ class Attachment(resource.Resource):
     resources_key = "attachments"
     base_path = "/attachments"
 
+    _query_mapping = resource.QueryParameters(
+        'id',
+        'status',
+        'project_id',
+        'volume_id',
+        'instance_id',
+        all_projects='all_tenants',
+    )
+
     # capabilities
     allow_create = True
     allow_delete = True
@@ -29,7 +38,7 @@ class Attachment(resource.Resource):
     allow_list = True
     allow_fetch = True
 
-    _max_microversion = "3.54"
+    _max_microversion = "3.71"
 
     # Properties
     #: The ID of the attachment.
@@ -100,3 +109,6 @@ class Attachment(resource.Resource):
         if prepend_key and self.resource_key is not None:
             body = {self.resource_key: body}
         return body
+
+
+AttachmentDetail = Attachment
