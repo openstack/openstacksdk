@@ -22,6 +22,8 @@ from openstack import resource
 
 
 class Proxy(proxy.Proxy):
+    api_version = '1'
+
     _resource_registry = {
         "container": _container.Container,
         "order": _order.Order,

@@ -33,6 +33,8 @@ from openstack import resource
 
 
 class Proxy(proxy.Proxy):
+    api_version = '2'
+
     _resource_registry = {
         "amphora": _amphora.Amphora,
         "availability_zone": _availability_zone.AvailabilityZone,

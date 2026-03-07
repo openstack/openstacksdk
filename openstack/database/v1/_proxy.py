@@ -21,6 +21,8 @@ from openstack import resource
 
 
 class Proxy(proxy.Proxy):
+    api_version = '1'
+
     _resource_registry = {
         "database": _database.Database,
         "flavor": _flavor.Flavor,

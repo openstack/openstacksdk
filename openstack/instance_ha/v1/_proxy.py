@@ -24,10 +24,7 @@ from openstack import resource
 
 
 class Proxy(proxy.Proxy):
-    """Proxy class for ha resource handling.
-
-    Create method for each action of each API.
-    """
+    api_version = '1'
 
     _resource_registry = {
         "host": _host.Host,

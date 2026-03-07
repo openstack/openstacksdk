@@ -23,6 +23,8 @@ from openstack import resource
 
 
 class Proxy(proxy.Proxy):
+    api_version = '1'
+
     _resource_registry = {
         "resource_class": _resource_class.ResourceClass,
         "resource_provider": _resource_provider.ResourceProvider,

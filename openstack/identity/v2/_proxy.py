@@ -21,6 +21,8 @@ from openstack import resource
 
 
 class Proxy(proxy.Proxy):
+    api_version = '2'
+
     def extensions(self):
         """Retrieve a generator of extensions
 

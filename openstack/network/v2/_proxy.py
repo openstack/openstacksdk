@@ -109,6 +109,8 @@ from openstack import resource
 
 
 class Proxy(proxy.Proxy):
+    api_version = '2'
+
     _resource_registry = {
         "address_group": _address_group.AddressGroup,
         "address_scope": _address_scope.AddressScope,

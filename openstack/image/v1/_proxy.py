@@ -37,6 +37,8 @@ def _get_name_and_filename(name, image_format):
 
 
 class Proxy(proxy.Proxy):
+    api_version = '1'
+
     retriable_status_codes = [503]
 
     _IMAGE_MD5_KEY = 'owner_specified.openstack.md5'

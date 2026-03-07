@@ -30,6 +30,8 @@ from openstack import resource
 # TODO(rladntjr4): Some of these methods support lookup by ID, while others
 # support lookup by ID or name. We should choose one and use it consistently.
 class Proxy(proxy.Proxy):
+    api_version = '1'
+
     _resource_registry = {
         "resource": _resource.Resource,
         "software_config": _sc.SoftwareConfig,

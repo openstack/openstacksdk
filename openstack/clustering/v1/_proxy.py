@@ -30,6 +30,8 @@ from openstack import resource
 
 
 class Proxy(proxy.Proxy):
+    api_version = '1'
+
     _resource_registry = {
         "action": _action.Action,
         "build_info": build_info.BuildInfo,
