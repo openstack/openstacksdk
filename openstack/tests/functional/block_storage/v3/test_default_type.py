@@ -20,31 +20,34 @@ class TestDefaultType(base.BaseBlockStorageTest):
         if not self._operator_cloud_name:
             self.skip("Operator cloud must be set for this test")
         self._set_operator_cloud(block_storage_api_version='3.67')
+        block_storage = self.operator_cloud.block_storage
+        assert block_storage.api_version == '3'
+        self.admin_block_storage_client = block_storage
         self.PROJECT_ID = self.create_temporary_project().id
 
     def test_default_type(self):
         # Create a volume type
         type_name = self.getUniqueString()
-        volume_type_id = self.operator_cloud.block_storage.create_type(
+        volume_type_id = self.admin_block_storage_client.create_type(
             name=type_name,
         ).id
 
         # Set default type for a project
-        default_type = self.operator_cloud.block_storage.set_default_type(
+        default_type = self.admin_block_storage_client.set_default_type(
             self.PROJECT_ID,
             volume_type_id,
         )
         self.assertIsInstance(default_type, _default_type.DefaultType)
 
         # Show default type for a project
-        default_type = self.operator_cloud.block_storage.show_default_type(
+        default_type = self.admin_block_storage_client.show_default_type(
             self.PROJECT_ID
         )
         self.assertIsInstance(default_type, _default_type.DefaultType)
         self.assertEqual(volume_type_id, default_type.volume_type_id)
 
         # List all default types
-        default_types = self.operator_cloud.block_storage.default_types()
+        default_types = self.admin_block_storage_client.default_types()
         for default_type in default_types:
             self.assertIsInstance(default_type, _default_type.DefaultType)
             # There could be existing default types set in the environment
@@ -53,13 +56,13 @@ class TestDefaultType(base.BaseBlockStorageTest):
                 self.assertEqual(volume_type_id, default_type.volume_type_id)
 
         # Unset default type for a project
-        default_type = self.operator_cloud.block_storage.unset_default_type(
+        default_type = self.admin_block_storage_client.unset_default_type(
             self.PROJECT_ID
         )
         self.assertIsNone(default_type)
 
         # Delete the volume type
-        vol_type = self.operator_cloud.block_storage.delete_type(
+        vol_type = self.admin_block_storage_client.delete_type(
             volume_type_id,
             ignore_missing=False,
         )

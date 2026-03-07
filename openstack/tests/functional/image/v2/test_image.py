@@ -26,7 +26,7 @@ class TestImage(base.BaseImageTest):
             data = fh.read()
 
         # there's a limit on name length
-        self.image = self.operator_cloud.image.create_image(
+        self.image = self.admin_image_client.create_image(
             name=TEST_IMAGE_NAME,
             disk_format='raw',
             container_format='bare',
@@ -41,50 +41,50 @@ class TestImage(base.BaseImageTest):
     def tearDown(self):
         # we do this in tearDown rather than via 'addCleanup' since we want to
         # wait for the deletion of the resource to ensure it completes
-        self.operator_cloud.image.delete_image(self.image)
-        self.operator_cloud.image.wait_for_delete(self.image)
+        self.admin_image_client.delete_image(self.image)
+        self.admin_image_client.wait_for_delete(self.image)
 
         super().tearDown()
 
     def test_images(self):
         # get image
-        image = self.operator_cloud.image.get_image(self.image.id)
+        image = self.admin_image_client.get_image(self.image.id)
         self.assertEqual(self.image.name, image.name)
 
         # find image
-        image = self.operator_cloud.image.find_image(self.image.name)
+        image = self.admin_image_client.find_image(self.image.name)
         self.assertEqual(self.image.id, image.id)
 
         # list
-        images = list(self.operator_cloud.image.images())
+        images = list(self.admin_image_client.images())
         # there are many other images so we don't assert that this is the
         # *only* image present
         self.assertIn(self.image.id, {i.id for i in images})
 
         # update
         image_name = self.getUniqueString()
-        image = self.operator_cloud.image.update_image(
+        image = self.admin_image_client.update_image(
             self.image,
             name=image_name,
         )
         self.assertIsInstance(image, _image.Image)
-        image = self.operator_cloud.image.get_image(self.image.id)
+        image = self.admin_image_client.get_image(self.image.id)
         self.assertEqual(image_name, image.name)
 
     def test_tags(self):
         # add tag
-        image = self.operator_cloud.image.get_image(self.image)
-        self.operator_cloud.image.add_tag(image, 't1')
-        self.operator_cloud.image.add_tag(image, 't2')
+        image = self.admin_image_client.get_image(self.image)
+        self.admin_image_client.add_tag(image, 't1')
+        self.admin_image_client.add_tag(image, 't2')
 
         # filter image by tags
-        image = next(iter(self.operator_cloud.image.images(tag=['t1', 't2'])))
+        image = next(iter(self.admin_image_client.images(tag=['t1', 't2'])))
         self.assertEqual(image.id, image.id)
         self.assertIn('t1', image.tags)
         self.assertIn('t2', image.tags)
 
         # remove tag
-        self.operator_cloud.image.remove_tag(image, 't1')
-        image = self.operator_cloud.image.get_image(self.image)
+        self.admin_image_client.remove_tag(image, 't1')
+        image = self.admin_image_client.get_image(self.image)
         self.assertIn('t2', image.tags)
         self.assertNotIn('t1', image.tags)

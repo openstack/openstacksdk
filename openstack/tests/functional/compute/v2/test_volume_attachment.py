@@ -20,31 +20,28 @@ class TestServerVolumeAttachment(base.BaseComputeTest):
     def setUp(self):
         super().setUp()
 
-        if not self.user_cloud.has_service('block-storage'):
-            self.skipTest('block-storage service not supported by cloud')
-
         self.server_name = self.getUniqueString()
         self.volume_name = self.getUniqueString()
 
         # create the server and volume
 
-        server = self.user_cloud.compute.create_server(
+        server = self.compute_client.create_server(
             name=self.server_name,
             flavor_id=self.flavor.id,
             image_id=self.image.id,
             networks='none',
         )
-        self.user_cloud.compute.wait_for_server(
+        self.compute_client.wait_for_server(
             server, wait=self._wait_for_timeout
         )
         self.addCleanup(self._delete_server, server)
         self.assertIsInstance(server, _server.Server)
         self.assertEqual(self.server_name, server.name)
 
-        volume = self.user_cloud.block_storage.create_volume(
+        volume = self.block_storage_client.create_volume(
             name=self.volume_name, size=1
         )
-        self.user_cloud.block_storage.wait_for_status(
+        self.block_storage_client.wait_for_status(
             volume, status='available', wait=self._wait_for_timeout
         )
         self.addCleanup(self._delete_volume, volume)
@@ -55,34 +52,34 @@ class TestServerVolumeAttachment(base.BaseComputeTest):
         self.volume = volume
 
     def _delete_server(self, server):
-        self.user_cloud.compute.delete_server(server.id)
-        self.user_cloud.compute.wait_for_delete(
+        self.compute_client.delete_server(server.id)
+        self.compute_client.wait_for_delete(
             server, wait=self._wait_for_timeout
         )
 
     def _delete_volume(self, volume):
-        self.user_cloud.block_storage.delete_volume(volume.id)
-        self.user_cloud.block_storage.wait_for_delete(
+        self.block_storage_client.delete_volume(volume.id)
+        self.block_storage_client.wait_for_delete(
             volume, wait=self._wait_for_timeout
         )
 
     def test_volume_attachment(self):
         # create the volume attachment
 
-        volume_attachment = self.user_cloud.compute.create_volume_attachment(
+        volume_attachment = self.compute_client.create_volume_attachment(
             self.server, self.volume
         )
         self.assertIsInstance(
             volume_attachment, _volume_attachment.VolumeAttachment
         )
-        self.user_cloud.block_storage.wait_for_status(
+        self.block_storage_client.wait_for_status(
             self.volume, status='in-use', wait=self._wait_for_timeout
         )
 
         # list all attached volume attachments (there should only be one)
 
         volume_attachments = list(
-            self.user_cloud.compute.volume_attachments(self.server)
+            self.compute_client.volume_attachments(self.server)
         )
         self.assertEqual(1, len(volume_attachments))
         self.assertIsInstance(
@@ -91,7 +88,7 @@ class TestServerVolumeAttachment(base.BaseComputeTest):
 
         # update the volume attachment
 
-        volume_attachment = self.user_cloud.compute.update_volume_attachment(
+        volume_attachment = self.compute_client.update_volume_attachment(
             self.server, self.volume, delete_on_termination=True
         )
         self.assertIsInstance(
@@ -100,7 +97,7 @@ class TestServerVolumeAttachment(base.BaseComputeTest):
 
         # retrieve details of the (updated) volume attachment
 
-        volume_attachment = self.user_cloud.compute.get_volume_attachment(
+        volume_attachment = self.compute_client.get_volume_attachment(
             self.server, self.volume
         )
         self.assertIsInstance(
@@ -110,24 +107,24 @@ class TestServerVolumeAttachment(base.BaseComputeTest):
 
         # delete the volume attachment
 
-        result = self.user_cloud.compute.delete_volume_attachment(
+        result = self.compute_client.delete_volume_attachment(
             self.server, self.volume, ignore_missing=False
         )
         self.assertIsNone(result)
 
-        self.user_cloud.block_storage.wait_for_status(
+        self.block_storage_client.wait_for_status(
             self.volume, status='available', wait=self._wait_for_timeout
         )
 
         # Wait for the attachment to be deleted.
         # This is done to prevent a race between the BDM
         # record being deleted and we trying to delete the server.
-        self.user_cloud.compute.wait_for_delete(
+        self.compute_client.wait_for_delete(
             volume_attachment, wait=self._wait_for_timeout
         )
 
         # Verify the server doesn't have any volume attachment
         volume_attachments = list(
-            self.user_cloud.compute.volume_attachments(self.server)
+            self.compute_client.volume_attachments(self.server)
         )
         self.assertEqual(0, len(volume_attachments))

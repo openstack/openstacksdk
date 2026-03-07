@@ -16,21 +16,19 @@ from openstack.tests.functional.compute.v2 import base
 
 class TestHypervisor(base.BaseComputeTest):
     def test_hypervisors(self):
-        hypervisors = list(self.operator_cloud.compute.hypervisors())
+        hypervisors = list(self.admin_compute_client.hypervisors())
         self.assertIsNotNone(hypervisors)
 
-        hypervisors = list(
-            self.operator_cloud.compute.hypervisors(details=True)
-        )
+        hypervisors = list(self.admin_compute_client.hypervisors(details=True))
         self.assertIsNotNone(hypervisors)
 
-        hypervisor = self.operator_cloud.compute.get_hypervisor(
+        hypervisor = self.admin_compute_client.get_hypervisor(
             hypervisors[0].id
         )
         self.assertIsInstance(hypervisor, _hypervisor.Hypervisor)
         self.assertEqual(hypervisor.id, hypervisors[0].id)
 
-        hypervisor = self.operator_cloud.compute.find_hypervisor(
+        hypervisor = self.admin_compute_client.find_hypervisor(
             hypervisors[0].name, ignore_missing=False
         )
         self.assertIsInstance(hypervisor, _hypervisor.Hypervisor)

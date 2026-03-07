@@ -14,10 +14,10 @@ import uuid
 
 from openstack.identity.v3 import domain as _domain
 from openstack.identity.v3 import domain_config as _domain_config
-from openstack.tests.functional import base
+from openstack.tests.functional.identity.v3 import base
 
 
-class TestDomainConfig(base.BaseFunctionalTest):
+class TestDomainConfig(base.BaseIdentityTest):
     def setUp(self):
         super().setUp()
 
@@ -32,16 +32,16 @@ class TestDomainConfig(base.BaseFunctionalTest):
         self.addCleanup(self._delete_domain)
 
     def _delete_domain(self):
-        self.operator_cloud.identity.update_domain(
+        self.admin_identity_client.update_domain(
             self.domain,
             enabled=False,
         )
-        self.operator_cloud.identity.delete_domain(self.domain)
+        self.admin_identity_client.delete_domain(self.domain)
 
     def test_domain_config(self):
         # create the domain config
 
-        domain_config = self.operator_cloud.identity.create_domain_config(
+        domain_config = self.admin_identity_client.create_domain_config(
             self.domain,
             identity={'driver': uuid.uuid4().hex},
             ldap={'url': uuid.uuid4().hex},
@@ -54,7 +54,7 @@ class TestDomainConfig(base.BaseFunctionalTest):
         # update the domain config
 
         ldap_url = uuid.uuid4().hex
-        domain_config = self.operator_cloud.identity.update_domain_config(
+        domain_config = self.admin_identity_client.update_domain_config(
             self.domain,
             ldap={'url': ldap_url},
         )
@@ -65,7 +65,7 @@ class TestDomainConfig(base.BaseFunctionalTest):
 
         # retrieve details of the (updated) domain config
 
-        domain_config = self.operator_cloud.identity.get_domain_config(
+        domain_config = self.admin_identity_client.get_domain_config(
             self.domain,
         )
         self.assertIsInstance(
@@ -76,7 +76,7 @@ class TestDomainConfig(base.BaseFunctionalTest):
 
         # delete the domain config
 
-        result = self.operator_cloud.identity.delete_domain_config(
+        result = self.admin_identity_client.delete_domain_config(
             self.domain,
             ignore_missing=False,
         )

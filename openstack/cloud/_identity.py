@@ -85,6 +85,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         if not filters:
             filters = {}
         query = dict(**filters)
@@ -93,7 +95,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         if domain_id:
             query['domain_id'] = domain_id
 
-        return list(self.identity.projects(**query))
+        return list(identity.projects(**query))
 
     def search_projects(self, name_or_id=None, filters=None, domain_id=None):
         """Backwards compatibility method for search_projects
@@ -144,6 +146,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         if filters is not None:
             warnings.warn(
                 "the 'filters' argument is deprecated; use "
@@ -163,7 +167,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
             return entities[0]
 
-        return self.identity.find_project(
+        return identity.find_project(
             name_or_id=name_or_id, domain_id=domain_id
         )
 
@@ -181,7 +185,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :param domain_id: Domain ID to scope the retrieved project.
         :returns: An identity ``Project`` object.
         """
-        project = self.identity.find_project(
+        identity = utils.ensure_service_version(self.identity, '3')
+
+        project = identity.find_project(
             name_or_id=name_or_id,
             domain_id=domain_id,
             ignore_missing=False,
@@ -190,7 +196,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             raise exceptions.SDKException(f"Project {name_or_id} not found.")
         if enabled is not None:
             kwargs.update({'enabled': enabled})
-        project = self.identity.update_project(project, **kwargs)
+        project = identity.update_project(project, **kwargs)
         return project
 
     def create_project(
@@ -209,6 +215,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :param enabled:
         :returns: An identity ``Project`` object.
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         attrs = dict(
             name=name,
             description=description,
@@ -217,7 +225,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         )
         if kwargs:
             attrs.update(kwargs)
-        return self.identity.create_project(**attrs)
+        return identity.create_project(**attrs)
 
     def delete_project(self, name_or_id, domain_id=None):
         """Delete a project.
@@ -229,14 +237,16 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         try:
-            project = self.identity.find_project(
+            project = identity.find_project(
                 name_or_id=name_or_id, domain_id=domain_id, ignore_missing=True
             )
             if not project:
                 self.log.debug("Project %s not found for deleting", name_or_id)
                 return False
-            self.identity.delete_project(project)
+            identity.delete_project(project)
             return True
         except exceptions.SDKException:
             self.log.exception(f"Error in deleting project {name_or_id}")
@@ -253,7 +263,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
-        return list(self.identity.users(**kwargs))
+        identity = utils.ensure_service_version(self.identity, '3')
+
+        return list(identity.users(**kwargs))
 
     def search_users(self, name_or_id=None, filters=None, domain_id=None):
         """Search users.
@@ -311,6 +323,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         if filters is not None:
             warnings.warn(
                 "the 'filters' argument is deprecated; use "
@@ -328,7 +342,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
                     f"Multiple matches found for {name_or_id}",
                 )
 
-        return self.identity.find_user(name_or_id, domain_id=domain_id)
+        return identity.find_user(name_or_id, domain_id=domain_id)
 
     # TODO(stephenfin): Remove normalize since it doesn't do anything
     def get_user_by_id(self, user_id, normalize=None):
@@ -337,6 +351,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :param string user_id: user ID
         :returns: an identity ``User`` object
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         if normalize is not None:
             warnings.warn(
                 "The 'normalize' field is unnecessary and will be removed in "
@@ -344,7 +360,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
                 os_warnings.RemovedInSDK60Warning,
             )
 
-        return self.identity.get_user(user_id)
+        return identity.get_user(user_id)
 
     @_utils.valid_kwargs(
         'name',
@@ -356,6 +372,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         'default_project',
     )
     def update_user(self, name_or_id, **kwargs):
+        identity = utils.ensure_service_version(self.identity, '3')
+
         user_kwargs = {}
         if kwargs.get('domain_id'):
             user_kwargs['domain_id'] = kwargs['domain_id']
@@ -368,7 +386,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         # if None. keystoneclient drops keys with None values.
         if 'domain_id' in kwargs and kwargs['domain_id'] is None:
             del kwargs['domain_id']
-        user = self.identity.update_user(user, **kwargs)
+        user = identity.update_user(user, **kwargs)
 
         return user
 
@@ -383,6 +401,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         description=None,
     ):
         """Create a user."""
+        identity = utils.ensure_service_version(self.identity, '3')
+
         params = self._get_identity_params(domain_id, default_project)
         params.update({'name': name, 'email': email, 'enabled': enabled})
         if password is not None:
@@ -390,19 +410,21 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         if description is not None:
             params['description'] = description
 
-        user = self.identity.create_user(**params)
+        user = identity.create_user(**params)
 
         return user
 
     @_utils.valid_kwargs('domain_id')
     def delete_user(self, name_or_id, **kwargs):
+        identity = utils.ensure_service_version(self.identity, '3')
+
         try:
             user = self.get_user(name_or_id, **kwargs)
             if not user:
                 self.log.debug(f"User {name_or_id} not found for deleting")
                 return False
 
-            self.identity.delete_user(user)
+            identity.delete_user(user)
             return True
 
         except exceptions.SDKException:
@@ -431,9 +453,11 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         user, group = self._get_user_and_group(name_or_id, group_name_or_id)
 
-        self.identity.add_user_to_group(user, group)
+        identity.add_user_to_group(user, group)
 
     def is_user_in_group(self, name_or_id, group_name_or_id):
         """Check to see if a user is in a group.
@@ -445,9 +469,11 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         user, group = self._get_user_and_group(name_or_id, group_name_or_id)
 
-        return self.identity.check_user_in_group(user, group)
+        return identity.check_user_in_group(user, group)
 
     def remove_user_from_group(self, name_or_id, group_name_or_id):
         """Remove a user from a group.
@@ -458,9 +484,11 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         user, group = self._get_user_and_group(name_or_id, group_name_or_id)
 
-        self.identity.remove_user_from_group(user, group)
+        identity.remove_user_from_group(user, group)
 
     @_utils.valid_kwargs('type', 'service_type', 'description')
     def create_service(self, name, enabled=True, **kwargs):
@@ -476,6 +504,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         type_ = kwargs.pop('type', None)
         service_type = kwargs.pop('service_type', None)
 
@@ -485,12 +515,14 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         kwargs['is_enabled'] = enabled
         kwargs['name'] = name
 
-        return self.identity.create_service(**kwargs)
+        return identity.create_service(**kwargs)
 
     @_utils.valid_kwargs(
         'name', 'enabled', 'type', 'service_type', 'description'
     )
     def update_service(self, name_or_id, **kwargs):
+        identity = utils.ensure_service_version(self.identity, '3')
+
         # NOTE(SamYaple): Keystone v3 only accepts 'type' but shade accepts
         #                 both 'type' and 'service_type' with a preference
         #                 towards 'type'
@@ -500,7 +532,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             kwargs['type'] = type_ or service_type
 
         service = self.get_service(name_or_id)
-        return self.identity.update_service(service, **kwargs)
+        return identity.update_service(service, **kwargs)
 
     def list_services(self):
         """List all Keystone services.
@@ -509,7 +541,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
-        return list(self.identity.services())
+        identity = utils.ensure_service_version(self.identity, '3')
+
+        return list(identity.services())
 
     def search_services(self, name_or_id=None, filters=None):
         """Search Keystone services.
@@ -546,6 +580,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             wrong during the OpenStack API call or if multiple matches are
             found.
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         if filters is not None:
             warnings.warn(
                 "the 'filters' argument is deprecated; use "
@@ -563,7 +599,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
             return entities[0]
 
-        return self.identity.find_service(name_or_id=name_or_id)
+        return identity.find_service(name_or_id=name_or_id)
 
     def delete_service(self, name_or_id):
         """Delete a Keystone service.
@@ -574,13 +610,15 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         service = self.get_service(name_or_id=name_or_id)
         if service is None:
             self.log.debug("Service %s not found for deleting", name_or_id)
             return False
 
         try:
-            self.identity.delete_service(service)
+            identity.delete_service(service)
             return True
         except exceptions.SDKException:
             self.log.exception(
@@ -614,6 +652,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             cannot be found or if something goes wrong during the OpenStack API
             call.
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         public_url = kwargs.pop('public_url', None)
         internal_url = kwargs.pop('internal_url', None)
         admin_url = kwargs.pop('admin_url', None)
@@ -666,20 +706,22 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         endpoints = []
         for args in endpoints_args:
-            endpoints.append(self.identity.create_endpoint(**args))
+            endpoints.append(identity.create_endpoint(**args))
         return endpoints
 
     @_utils.valid_kwargs(
         'enabled', 'service_name_or_id', 'url', 'interface', 'region'
     )
     def update_endpoint(self, endpoint_id, **kwargs):
+        identity = utils.ensure_service_version(self.identity, '3')
+
         service_name_or_id = kwargs.pop('service_name_or_id', None)
         if service_name_or_id is not None:
             kwargs['service_id'] = service_name_or_id
         if 'region' in kwargs:
             kwargs['region_id'] = kwargs.pop('region')
 
-        return self.identity.update_endpoint(endpoint_id, **kwargs)
+        return identity.update_endpoint(endpoint_id, **kwargs)
 
     def list_endpoints(self):
         """List Keystone endpoints.
@@ -688,7 +730,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
-        return list(self.identity.endpoints())
+        identity = utils.ensure_service_version(self.identity, '3')
+
+        return list(identity.endpoints())
 
     def search_endpoints(self, id=None, filters=None):
         """List Keystone endpoints.
@@ -725,6 +769,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :param id: ID of endpoint.
         :returns: An identity ``Endpoint`` object
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         if filters is not None:
             warnings.warn(
                 "the 'filters' argument is deprecated; use "
@@ -742,7 +788,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
             return entities[0]
 
-        return self.identity.find_endpoint(name_or_id=id)
+        return identity.find_endpoint(name_or_id=id)
 
     def delete_endpoint(self, id):
         """Delete a Keystone endpoint.
@@ -753,13 +799,15 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         endpoint = self.get_endpoint(id=id)
         if endpoint is None:
             self.log.debug("Endpoint %s not found for deleting", id)
             return False
 
         try:
-            self.identity.delete_endpoint(id)
+            identity.delete_endpoint(id)
             return True
         except exceptions.SDKException:
             self.log.exception(f"Failed to delete endpoint {id}")
@@ -775,10 +823,12 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if the domain
             cannot be created.
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         domain_ref = {'name': name, 'enabled': enabled}
         if description is not None:
             domain_ref['description'] = description
-        return self.identity.create_domain(**domain_ref)
+        return identity.create_domain(**domain_ref)
 
     # TODO(stephenfin): domain_id and name_or_id are the same thing now;
     # deprecate one of them
@@ -801,6 +851,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if the domain
             cannot be updated
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         if domain_id is None:
             if name_or_id is None:
                 raise exceptions.SDKException(
@@ -817,7 +869,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         domain_ref.update({'name': name} if name else {})
         domain_ref.update({'description': description} if description else {})
         domain_ref.update({'enabled': enabled} if enabled is not None else {})
-        return self.identity.update_domain(domain_id, **domain_ref)
+        return identity.update_domain(domain_id, **domain_ref)
 
     # TODO(stephenfin): domain_id and name_or_id are the same thing now;
     # deprecate one of them
@@ -831,6 +883,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         try:
             if domain_id is None:
                 if name_or_id is None:
@@ -846,8 +900,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
                 domain_id = dom['id']
 
             # A domain must be disabled before deleting
-            self.identity.update_domain(domain_id, is_enabled=False)
-            self.identity.delete_domain(domain_id, ignore_missing=False)
+            identity.update_domain(domain_id, is_enabled=False)
+            identity.delete_domain(domain_id, ignore_missing=False)
 
             return True
         except exceptions.SDKException:
@@ -861,7 +915,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
-        return list(self.identity.domains(**filters))
+        identity = utils.ensure_service_version(self.identity, '3')
+
+        return list(identity.domains(**filters))
 
     # TODO(stephenfin): These arguments are backwards from everything else.
     def search_domains(self, filters=None, name_or_id=None):
@@ -918,6 +974,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         if filters is not None:
             warnings.warn(
                 "The 'filters' argument is deprecated for removal. It is a "
@@ -926,9 +984,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             )
 
         if domain_id is None:
-            return self.identity.find_domain(name_or_id, ignore_missing=True)
+            return identity.find_domain(name_or_id, ignore_missing=True)
         else:
-            return self.identity.get_domain(domain_id)
+            return identity.get_domain(domain_id)
 
     @_utils.valid_kwargs('domain_id')
     def list_groups(self, **kwargs):
@@ -940,7 +998,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
-        return list(self.identity.groups(**kwargs))
+        identity = utils.ensure_service_version(self.identity, '3')
+
+        return list(identity.groups(**kwargs))
 
     def search_groups(self, name_or_id=None, filters=None, domain_id=None):
         """Search Keystone groups.
@@ -978,6 +1038,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         if filters is not None:
             warnings.warn(
                 "the 'filters' argument is deprecated; use "
@@ -997,9 +1059,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
             return entities[0]
 
-        return self.identity.find_group(
-            name_or_id=name_or_id, domain_id=domain_id
-        )
+        return identity.find_group(name_or_id=name_or_id, domain_id=domain_id)
 
     def create_group(self, name, description, domain=None):
         """Create a group.
@@ -1012,6 +1072,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         group_ref = {'name': name}
         if description:
             group_ref['description'] = description
@@ -1023,7 +1085,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
                 )
             group_ref['domain_id'] = dom['id']
 
-        group = self.identity.create_group(**group_ref)
+        group = identity.create_group(**group_ref)
 
         return group
 
@@ -1044,9 +1106,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
-        group = self.identity.find_group(
-            name_or_id, ignore_missing=False, **kwargs
-        )
+        identity = utils.ensure_service_version(self.identity, '3')
+
+        group = identity.find_group(name_or_id, ignore_missing=False, **kwargs)
 
         group_ref = {}
         if name:
@@ -1054,7 +1116,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         if description:
             group_ref['description'] = description
 
-        group = self.identity.update_group(group, **group_ref)
+        group = identity.update_group(group, **group_ref)
 
         return group
 
@@ -1067,13 +1129,15 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         try:
-            group = self.identity.find_group(name_or_id, ignore_missing=True)
+            group = identity.find_group(name_or_id, ignore_missing=True)
             if group is None:
                 self.log.debug("Group %s not found for deleting", name_or_id)
                 return False
 
-            self.identity.delete_group(group)
+            identity.delete_group(group)
 
             return True
 
@@ -1088,7 +1152,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
-        return list(self.identity.roles(**kwargs))
+        identity = utils.ensure_service_version(self.identity, '3')
+
+        return list(identity.roles(**kwargs))
 
     def search_roles(self, name_or_id=None, filters=None, domain_id=None):
         """Seach Keystone roles.
@@ -1126,6 +1192,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         if filters is not None:
             warnings.warn(
                 "the 'filters' argument is deprecated; use "
@@ -1145,11 +1213,11 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
             return entities[0]
 
-        return self.identity.find_role(
-            name_or_id=name_or_id, domain_id=domain_id
-        )
+        return identity.find_role(name_or_id=name_or_id, domain_id=domain_id)
 
     def _keystone_v3_role_assignments(self, **filters):
+        identity = utils.ensure_service_version(self.identity, '3')
+
         # NOTE(samueldmq): different parameters have different representation
         # patterns as query parameters in the call to the list role assignments
         # API. The code below handles each set of patterns separately and
@@ -1186,7 +1254,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             ]
             del filters['os_inherit_extension_inherited_to']
 
-        return list(self.identity.role_assignments(**filters))
+        return list(identity.role_assignments(**filters))
 
     def list_role_assignments(self, filters=None):
         """List Keystone role assignments
@@ -1215,6 +1283,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         # NOTE(samueldmq): although 'include_names' is a valid query parameter
         # in the keystone v3 list role assignments API, it would have NO effect
         # on shade due to normalization. It is not documented as an acceptable
@@ -1255,7 +1325,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
                 'os_inherit_extension_inherited_to'
             )
 
-        return list(self.identity.role_assignments(**filters))
+        return list(identity.role_assignments(**filters))
 
     @_utils.valid_kwargs('domain_id')
     def create_role(self, name, **kwargs):
@@ -1267,8 +1337,10 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if the role cannot
             be created
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         kwargs['name'] = name
-        return self.identity.create_role(**kwargs)
+        return identity.create_role(**kwargs)
 
     @_utils.valid_kwargs('domain_id')
     def update_role(self, name_or_id, name, **kwargs):
@@ -1281,12 +1353,14 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if the role cannot
             be created
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         role = self.get_role(name_or_id, **kwargs)
         if role is None:
             self.log.debug("Role %s not found for updating", name_or_id)
             return False
 
-        return self.identity.update_role(role, name=name, **kwargs)
+        return identity.update_role(role, name=name, **kwargs)
 
     @_utils.valid_kwargs('domain_id')
     def delete_role(self, name_or_id, **kwargs):
@@ -1299,13 +1373,15 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         role = self.get_role(name_or_id, **kwargs)
         if role is None:
             self.log.debug("Role %s not found for deleting", name_or_id)
             return False
 
         try:
-            self.identity.delete_role(role)
+            identity.delete_role(role)
             return True
         except exceptions.SDKException:
             self.log.exception(f"Unable to delete role {name_or_id}")
@@ -1320,17 +1396,17 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         domain=None,
         system=None,
     ):
+        identity = utils.ensure_service_version(self.identity, '3')
+
         data = {}
         search_args = {}
         if domain:
-            data['domain'] = self.identity.find_domain(
-                domain, ignore_missing=False
-            )
+            data['domain'] = identity.find_domain(domain, ignore_missing=False)
             # We have domain. We should use it for further searching user,
             # group, role, project
             search_args['domain_id'] = data['domain'].id
 
-        data['role'] = self.identity.find_role(role, ignore_missing=False)
+        data['role'] = identity.find_role(role, ignore_missing=False)
 
         if user and group:
             raise exceptions.SDKException(
@@ -1346,15 +1422,15 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             )
 
         if user:
-            data['user'] = self.identity.find_user(
+            data['user'] = identity.find_user(
                 user, ignore_missing=False, **search_args
             )
         if group:
-            data['group'] = self.identity.find_group(
+            data['group'] = identity.find_group(
                 group, ignore_missing=False, **search_args
             )
         if project:
-            data['project'] = self.identity.find_project(
+            data['project'] = identity.find_project(
                 project, ignore_missing=False, **search_args
             )
 
@@ -1398,6 +1474,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if the role cannot
             be granted
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         data = self._get_grant_revoke_params(
             name_or_id,
             user=user,
@@ -1416,45 +1494,45 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         if project:
             # Proceed with project - precedence over domain and system
             if user:
-                has_role = self.identity.validate_user_has_project_role(
+                has_role = identity.validate_user_has_project_role(
                     project, user, role, inherited=inherited
                 )
                 if has_role:
                     self.log.debug('Assignment already exists')
                     return False
-                self.identity.assign_project_role_to_user(
+                identity.assign_project_role_to_user(
                     project, user, role, inherited=inherited
                 )
             else:
-                has_role = self.identity.validate_group_has_project_role(
+                has_role = identity.validate_group_has_project_role(
                     project, group, role, inherited=inherited
                 )
                 if has_role:
                     self.log.debug('Assignment already exists')
                     return False
-                self.identity.assign_project_role_to_group(
+                identity.assign_project_role_to_group(
                     project, group, role, inherited=inherited
                 )
         elif domain:
             # Proceed with domain - precedence over system
             if user:
-                has_role = self.identity.validate_user_has_domain_role(
+                has_role = identity.validate_user_has_domain_role(
                     domain, user, role, inherited=inherited
                 )
                 if has_role:
                     self.log.debug('Assignment already exists')
                     return False
-                self.identity.assign_domain_role_to_user(
+                identity.assign_domain_role_to_user(
                     domain, user, role, inherited=inherited
                 )
             else:
-                has_role = self.identity.validate_group_has_domain_role(
+                has_role = identity.validate_group_has_domain_role(
                     domain, group, role, inherited=inherited
                 )
                 if has_role:
                     self.log.debug('Assignment already exists')
                     return False
-                self.identity.assign_domain_role_to_group(
+                identity.assign_domain_role_to_group(
                     domain, group, role, inherited=inherited
                 )
         else:
@@ -1462,21 +1540,21 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             # System name must be 'all' due to checks performed in
             # _get_grant_revoke_params
             if user:
-                has_role = self.identity.validate_user_has_system_role(
+                has_role = identity.validate_user_has_system_role(
                     user, role, system
                 )
                 if has_role:
                     self.log.debug('Assignment already exists')
                     return False
-                self.identity.assign_system_role_to_user(user, role, system)
+                identity.assign_system_role_to_user(user, role, system)
             else:
-                has_role = self.identity.validate_group_has_system_role(
+                has_role = identity.validate_group_has_system_role(
                     group, role, system
                 )
                 if has_role:
                     self.log.debug('Assignment already exists')
                     return False
-                self.identity.assign_system_role_to_group(group, role, system)
+                identity.assign_system_role_to_group(group, role, system)
         return True
 
     def revoke_role(
@@ -1514,6 +1592,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if the role cannot
             be removed
         """
+        identity = utils.ensure_service_version(self.identity, '3')
+
         data = self._get_grant_revoke_params(
             name_or_id,
             user=user,
@@ -1532,45 +1612,45 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         if project:
             # Proceed with project - precedence over domain and system
             if user:
-                has_role = self.identity.validate_user_has_project_role(
+                has_role = identity.validate_user_has_project_role(
                     project, user, role, inherited=inherited
                 )
                 if not has_role:
                     self.log.debug('Assignment does not exists')
                     return False
-                self.identity.unassign_project_role_from_user(
+                identity.unassign_project_role_from_user(
                     project, user, role, inherited=inherited
                 )
             else:
-                has_role = self.identity.validate_group_has_project_role(
+                has_role = identity.validate_group_has_project_role(
                     project, group, role, inherited=inherited
                 )
                 if not has_role:
                     self.log.debug('Assignment does not exists')
                     return False
-                self.identity.unassign_project_role_from_group(
+                identity.unassign_project_role_from_group(
                     project, group, role, inherited=inherited
                 )
         elif domain:
             # Proceed with domain - precedence over system
             if user:
-                has_role = self.identity.validate_user_has_domain_role(
+                has_role = identity.validate_user_has_domain_role(
                     domain, user, role, inherited=inherited
                 )
                 if not has_role:
                     self.log.debug('Assignment does not exists')
                     return False
-                self.identity.unassign_domain_role_from_user(
+                identity.unassign_domain_role_from_user(
                     domain, user, role, inherited=inherited
                 )
             else:
-                has_role = self.identity.validate_group_has_domain_role(
+                has_role = identity.validate_group_has_domain_role(
                     domain, group, role, inherited=inherited
                 )
                 if not has_role:
                     self.log.debug('Assignment does not exists')
                     return False
-                self.identity.unassign_domain_role_from_group(
+                identity.unassign_domain_role_from_group(
                     domain, group, role, inherited=inherited
                 )
         else:
@@ -1578,23 +1658,19 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             # System name must be 'all' due to checks performed in
             # _get_grant_revoke_params
             if user:
-                has_role = self.identity.validate_user_has_system_role(
+                has_role = identity.validate_user_has_system_role(
                     user, role, system
                 )
                 if not has_role:
                     self.log.debug('Assignment does not exist')
                     return False
-                self.identity.unassign_system_role_from_user(
-                    user, role, system
-                )
+                identity.unassign_system_role_from_user(user, role, system)
             else:
-                has_role = self.identity.validate_group_has_system_role(
+                has_role = identity.validate_group_has_system_role(
                     group, role, system
                 )
                 if not has_role:
                     self.log.debug('Assignment does not exist')
                     return False
-                self.identity.unassign_system_role_from_group(
-                    group, role, system
-                )
+                identity.unassign_system_role_from_group(group, role, system)
         return True

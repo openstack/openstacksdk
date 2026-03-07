@@ -11,42 +11,40 @@
 # under the License.
 
 from openstack.identity.v3 import endpoint as _endpoint
-from openstack.tests.functional import base
+from openstack.tests.functional.identity.v3 import base
 
 
-class TestEndpoint(base.BaseFunctionalTest):
+class TestEndpoint(base.BaseIdentityTest):
     def setUp(self):
         super().setUp()
 
         self.service_name = self.getUniqueString('service')
         self.service_type = self.getUniqueString('type')
-        self.service = self.operator_cloud.identity.create_service(
+        self.service = self.admin_identity_client.create_service(
             name=self.service_name,
             type=self.service_type,
         )
         self.addCleanup(
-            self.operator_cloud.identity.delete_service, self.service
+            self.admin_identity_client.delete_service, self.service
         )
 
         self.region_name = self.getUniqueString('region')
-        self.region = self.operator_cloud.identity.create_region(
+        self.region = self.admin_identity_client.create_region(
             name=self.region_name
         )
-        self.addCleanup(
-            self.operator_cloud.identity.delete_region, self.region
-        )
+        self.addCleanup(self.admin_identity_client.delete_region, self.region)
 
         unique_base = self.getUniqueString('endpoint')
         self.test_url = f'https://{unique_base}.example.com/v1'
         self.updated_url = f'https://{unique_base}.example.com/v2'
 
     def _delete_endpoint(self, endpoint):
-        ret = self.operator_cloud.identity.delete_endpoint(endpoint)
+        ret = self.admin_identity_client.delete_endpoint(endpoint)
         self.assertIsNone(ret)
 
     def test_endpoint(self):
         # Create public endpoint
-        public_endpoint = self.operator_cloud.identity.create_endpoint(
+        public_endpoint = self.admin_identity_client.create_endpoint(
             service_id=self.service.id,
             interface='public',
             url=self.test_url,
@@ -63,7 +61,7 @@ class TestEndpoint(base.BaseFunctionalTest):
         self.assertTrue(public_endpoint.is_enabled)
 
         # Create internal endpoint for filter testing
-        internal_endpoint = self.operator_cloud.identity.create_endpoint(
+        internal_endpoint = self.admin_identity_client.create_endpoint(
             service_id=self.service.id,
             interface='internal',
             url=self.test_url,
@@ -75,7 +73,7 @@ class TestEndpoint(base.BaseFunctionalTest):
         self.assertEqual('internal', internal_endpoint.interface)
 
         # Update public endpoint
-        public_endpoint = self.operator_cloud.identity.update_endpoint(
+        public_endpoint = self.admin_identity_client.update_endpoint(
             public_endpoint,
             url=self.updated_url,
             is_enabled=False,
@@ -85,7 +83,7 @@ class TestEndpoint(base.BaseFunctionalTest):
         self.assertFalse(public_endpoint.is_enabled)
 
         # Get endpoint by ID
-        public_endpoint = self.operator_cloud.identity.get_endpoint(
+        public_endpoint = self.admin_identity_client.get_endpoint(
             public_endpoint.id
         )
         self.assertIsInstance(public_endpoint, _endpoint.Endpoint)
@@ -93,14 +91,14 @@ class TestEndpoint(base.BaseFunctionalTest):
         self.assertFalse(public_endpoint.is_enabled)
 
         # Find endpoint
-        found_endpoint = self.operator_cloud.identity.find_endpoint(
+        found_endpoint = self.admin_identity_client.find_endpoint(
             public_endpoint.id
         )
         self.assertIsInstance(found_endpoint, _endpoint.Endpoint)
         self.assertEqual(public_endpoint.id, found_endpoint.id)
 
         # List endpoints
-        endpoints = list(self.operator_cloud.identity.endpoints())
+        endpoints = list(self.admin_identity_client.endpoints())
         self.assertIsInstance(endpoints[0], _endpoint.Endpoint)
         endpoint_ids = {ep.id for ep in endpoints}
         self.assertIn(public_endpoint.id, endpoint_ids)
@@ -108,7 +106,7 @@ class TestEndpoint(base.BaseFunctionalTest):
 
         # Test service filter
         service_endpoints = list(
-            self.operator_cloud.identity.endpoints(service_id=self.service.id)
+            self.admin_identity_client.endpoints(service_id=self.service.id)
         )
         service_endpoint_ids = {ep.id for ep in service_endpoints}
         self.assertIn(public_endpoint.id, service_endpoint_ids)
@@ -116,20 +114,20 @@ class TestEndpoint(base.BaseFunctionalTest):
 
         # Test interface filter
         public_endpoints = list(
-            self.operator_cloud.identity.endpoints(interface='public')
+            self.admin_identity_client.endpoints(interface='public')
         )
         public_endpoint_ids = {ep.id for ep in public_endpoints}
         self.assertIn(public_endpoint.id, public_endpoint_ids)
 
         internal_endpoints = list(
-            self.operator_cloud.identity.endpoints(interface='internal')
+            self.admin_identity_client.endpoints(interface='internal')
         )
         internal_endpoint_ids = {ep.id for ep in internal_endpoints}
         self.assertIn(internal_endpoint.id, internal_endpoint_ids)
 
         # Test region filter
         region_endpoints = list(
-            self.operator_cloud.identity.endpoints(region_id=self.region.id)
+            self.admin_identity_client.endpoints(region_id=self.region.id)
         )
         region_endpoint_ids = {ep.id for ep in region_endpoints}
         self.assertIn(public_endpoint.id, region_endpoint_ids)

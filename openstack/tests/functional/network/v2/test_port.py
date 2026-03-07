@@ -81,6 +81,7 @@ class TestPort(common.TestTagNeutron):
         self.assertIn(self.PORT_ID, ids)
 
     def test_update(self):
+        assert self.PORT_ID is not None
         sot = self.user_cloud.network.update_port(
             self.PORT_ID, name=self.UPDATE_NAME
         )

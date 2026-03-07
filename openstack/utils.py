@@ -26,6 +26,16 @@ from keystoneauth1 import discover
 from openstack import _log
 from openstack import exceptions
 
+_ProxyT = ty.TypeVar('_ProxyT')
+
+if ty.TYPE_CHECKING:
+    from openstack.block_storage.v2 import _proxy as _block_storage_v2
+    from openstack.block_storage.v3 import _proxy as _block_storage_v3
+    from openstack.identity.v2 import _proxy as _identity_v2
+    from openstack.identity.v3 import _proxy as _identity_v3
+    from openstack.image.v1 import _proxy as _image_v1
+    from openstack.image.v2 import _proxy as _image_v2
+
 
 def urljoin(*args: str | None) -> str:
     """A custom version of urljoin that simply joins strings into a path.
@@ -159,6 +169,71 @@ def supports_version(
         )
 
     return supported
+
+
+@ty.overload
+def ensure_service_version(
+    proxy: '_identity_v2.Proxy | _identity_v3.Proxy',
+    version: ty.Literal['2'],
+) -> '_identity_v2.Proxy': ...
+
+
+@ty.overload
+def ensure_service_version(
+    proxy: '_identity_v2.Proxy | _identity_v3.Proxy',
+    version: ty.Literal['3'],
+) -> '_identity_v3.Proxy': ...
+
+
+@ty.overload
+def ensure_service_version(
+    proxy: '_block_storage_v2.Proxy | _block_storage_v3.Proxy',
+    version: ty.Literal['2'],
+) -> '_block_storage_v2.Proxy': ...
+
+
+@ty.overload
+def ensure_service_version(
+    proxy: '_block_storage_v2.Proxy | _block_storage_v3.Proxy',
+    version: ty.Literal['3'],
+) -> '_block_storage_v3.Proxy': ...
+
+
+@ty.overload
+def ensure_service_version(
+    proxy: '_image_v1.Proxy | _image_v2.Proxy',
+    version: ty.Literal['1'],
+) -> '_image_v1.Proxy': ...
+
+
+@ty.overload
+def ensure_service_version(
+    proxy: '_image_v1.Proxy | _image_v2.Proxy',
+    version: ty.Literal['2'],
+) -> '_image_v2.Proxy': ...
+
+
+@ty.overload
+def ensure_service_version(proxy: _ProxyT, version: str) -> _ProxyT: ...
+
+
+def ensure_service_version(proxy: ty.Any, version: str) -> ty.Any:
+    """Ensure the provided proxy is for a given version.
+
+    This is intended for type narrowing.
+
+    :param proxy: A versioned service proxy.
+    :param version: The required API version string.
+    :returns: The proxy, typed as the specific version requested.
+    :raises: :class:`~openstack.exceptions.SDKException` if the proxy is not
+        the requested version.
+    """
+    if proxy.api_version != version:
+        raise exceptions.SDKException(
+            f"Service requires API version {version!r} but the configured "
+            f"version is {proxy.api_version!r}"
+        )
+    return proxy
 
 
 def supports_microversion(

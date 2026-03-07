@@ -22,7 +22,7 @@ class TestMetadefResourceType(base.BaseImageTest):
         # there's a limit on namespace length
         namespace = self.getUniqueString().split('.')[-1]
         self.metadef_namespace = (
-            self.operator_cloud.image.create_metadef_namespace(
+            self.admin_image_client.create_metadef_namespace(
                 namespace=namespace,
             )
         )
@@ -35,7 +35,7 @@ class TestMetadefResourceType(base.BaseImageTest):
         resource_type_name = 'test-resource-type'
         resource_type = {'name': resource_type_name}
         self.metadef_resource_type = (
-            self.operator_cloud.image.create_metadef_resource_type_association(
+            self.admin_image_client.create_metadef_resource_type_association(
                 metadef_namespace=namespace, **resource_type
             )
         )
@@ -48,17 +48,17 @@ class TestMetadefResourceType(base.BaseImageTest):
     def tearDown(self):
         # we do this in tearDown rather than via 'addCleanup' since we want to
         # wait for the deletion of the resource to ensure it completes
-        self.operator_cloud.image.delete_metadef_namespace(
+        self.admin_image_client.delete_metadef_namespace(
             self.metadef_namespace
         )
-        self.operator_cloud.image.wait_for_delete(self.metadef_namespace)
+        self.admin_image_client.wait_for_delete(self.metadef_namespace)
 
         super().tearDown()
 
     def test_metadef_resource_types(self):
         # list resource type associations
         associations = list(
-            self.operator_cloud.image.metadef_resource_type_associations(
+            self.admin_image_client.metadef_resource_type_associations(
                 metadef_namespace=self.metadef_namespace
             )
         )
@@ -70,16 +70,14 @@ class TestMetadefResourceType(base.BaseImageTest):
         # (no find_metadef_resource_type_association method)
 
         # list resource types
-        resource_types = list(
-            self.operator_cloud.image.metadef_resource_types()
-        )
+        resource_types = list(self.admin_image_client.metadef_resource_types())
 
         self.assertIn(
             self.metadef_resource_type.name, {t.name for t in resource_types}
         )
 
         # delete
-        self.operator_cloud.image.delete_metadef_resource_type_association(
+        self.admin_image_client.delete_metadef_resource_type_association(
             self.metadef_resource_type,
             metadef_namespace=self.metadef_namespace,
         )

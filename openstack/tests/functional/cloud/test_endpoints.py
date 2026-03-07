@@ -24,6 +24,7 @@ import string
 
 from openstack import exceptions
 from openstack.tests.functional import base
+from openstack import utils
 
 
 class TestEndpoints(base.KeystoneBaseFunctionalTest):
@@ -87,7 +88,10 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
     def test_create_endpoint(self):
         service_name = self.new_item_name + '_create'
 
-        region = next(iter(self.operator_cloud.identity.regions())).id
+        identity = utils.ensure_service_version(
+            self.operator_cloud.identity, '3'
+        )
+        region = next(iter(identity.regions())).id
 
         service = self.operator_cloud.create_service(
             name=service_name,
@@ -119,7 +123,10 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
     def test_update_endpoint(self):
         # service operations require existing region. Do not test updating
         # region for now
-        region = next(iter(self.operator_cloud.identity.regions())).id
+        identity = utils.ensure_service_version(
+            self.operator_cloud.identity, '3'
+        )
+        region = next(iter(identity.regions())).id
 
         service = self.operator_cloud.create_service(
             name='service1', type='test_type'
@@ -153,7 +160,10 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
     def test_list_endpoints(self):
         service_name = self.new_item_name + '_list'
 
-        region = next(iter(self.operator_cloud.identity.regions())).id
+        identity = utils.ensure_service_version(
+            self.operator_cloud.identity, '3'
+        )
+        region = next(iter(identity.regions())).id
 
         service = self.operator_cloud.create_service(
             name=service_name,
@@ -193,7 +203,10 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
     def test_delete_endpoint(self):
         service_name = self.new_item_name + '_delete'
 
-        region = next(iter(self.operator_cloud.identity.regions())).id
+        identity = utils.ensure_service_version(
+            self.operator_cloud.identity, '3'
+        )
+        region = next(iter(identity.regions())).id
 
         service = self.operator_cloud.create_service(
             name=service_name,

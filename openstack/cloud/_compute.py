@@ -415,9 +415,8 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         """
         params = {}
         if name_or_id:
-            project = self.identity.find_project(
-                name_or_id, ignore_missing=False
-            )
+            identity = utils.ensure_service_version(self.identity, '3')
+            project = identity.find_project(name_or_id, ignore_missing=False)
             params['tenant_id'] = project.id
         return self.compute.get_limits(**params).absolute
 
@@ -1372,7 +1371,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         admin_pass = server.get('adminPass') or admin_pass
         server = self.compute.wait_for_server(server, wait=timeout)
         if server['status'] == 'ACTIVE':
-            server.adminPass = admin_pass
+            server.admin_password = admin_pass
 
         return self._expand_server(server, detailed=detailed, bare=bare)
 
@@ -1889,7 +1888,8 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if the resource to
             set the quota does not exist.
         """
-        project = self.identity.find_project(name_or_id, ignore_missing=False)
+        identity = utils.ensure_service_version(self.identity, '3')
+        project = identity.find_project(name_or_id, ignore_missing=False)
         kwargs['force'] = True
         self.compute.update_quota_set(project=project, **kwargs)
 
@@ -1902,7 +1902,8 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if it's not a
             valid project
         """
-        proj = self.identity.find_project(name_or_id, ignore_missing=False)
+        identity = utils.ensure_service_version(self.identity, '3')
+        proj = identity.find_project(name_or_id, ignore_missing=False)
         return self.compute.get_quota_set(proj)
 
     def delete_compute_quotas(self, name_or_id):
@@ -1913,7 +1914,8 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if it's not a
             valid project or the nova client call failed
         """
-        proj = self.identity.find_project(name_or_id, ignore_missing=False)
+        identity = utils.ensure_service_version(self.identity, '3')
+        proj = identity.find_project(name_or_id, ignore_missing=False)
         self.compute.revert_quota_set(proj)
 
     def get_compute_usage(self, name_or_id, start=None, end=None):
@@ -1948,7 +1950,8 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         if isinstance(end, str):
             end = parse_date(end)
 
-        project = self.identity.find_project(name_or_id, ignore_missing=False)
+        identity = utils.ensure_service_version(self.identity, '3')
+        project = identity.find_project(name_or_id, ignore_missing=False)
 
         return self.compute.get_usage(project, start, end)
 

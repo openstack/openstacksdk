@@ -65,6 +65,7 @@ class TestAddressGroup(base.BaseFunctionalTest):
         self.assertIn(self.ADDRESS_GROUP_NAME, names)
 
     def test_update(self):
+        assert self.ADDRESS_GROUP_ID is not None
         sot = self.user_cloud.network.update_address_group(
             self.ADDRESS_GROUP_ID,
             name=self.ADDRESS_GROUP_NAME_UPDATED,

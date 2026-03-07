@@ -10,15 +10,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
 from openstack.tests.functional import base
+from openstack import utils
 
 
 class TestAvailabilityZone(base.BaseFunctionalTest):
     def test_list(self):
-        availability_zones = list(
-            self.operator_cloud.block_storage.availability_zones()
+        block_storage = utils.ensure_service_version(
+            self.operator_cloud.block_storage, '3'
         )
+        availability_zones = list(block_storage.availability_zones())
         self.assertGreater(len(availability_zones), 0)
 
         for az in availability_zones:

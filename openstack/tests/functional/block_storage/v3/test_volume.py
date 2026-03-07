@@ -23,11 +23,11 @@ class TestVolume(base.BaseBlockStorageTest):
 
         volume_name = self.getUniqueString()
 
-        self.volume = self.user_cloud.block_storage.create_volume(
+        self.volume = self.block_storage_client.create_volume(
             name=volume_name,
             size=1,
         )
-        self.user_cloud.block_storage.wait_for_status(
+        self.block_storage_client.wait_for_status(
             self.volume,
             status='available',
             failures=['error'],
@@ -38,20 +38,20 @@ class TestVolume(base.BaseBlockStorageTest):
         self.assertEqual(volume_name, self.volume.name)
 
     def tearDown(self):
-        self.user_cloud.block_storage.delete_volume(self.volume)
+        self.block_storage_client.delete_volume(self.volume)
         super().tearDown()
 
     def test_volume(self):
         # get
-        volume = self.user_cloud.block_storage.get_volume(self.volume.id)
+        volume = self.block_storage_client.get_volume(self.volume.id)
         self.assertEqual(self.volume.name, volume.name)
 
         # find
-        volume = self.user_cloud.block_storage.find_volume(self.volume.name)
+        volume = self.block_storage_client.find_volume(self.volume.name)
         self.assertEqual(self.volume.id, volume.id)
 
         # list
-        volumes = self.user_cloud.block_storage.volumes()
+        volumes = self.block_storage_client.volumes()
         # other tests may have created volumes so we don't assert that this is
         # the *only* volume present
         self.assertIn(self.volume.id, {v.id for v in volumes})
@@ -59,12 +59,12 @@ class TestVolume(base.BaseBlockStorageTest):
         # update
         volume_name = self.getUniqueString()
         volume_description = self.getUniqueString()
-        volume = self.user_cloud.block_storage.update_volume(
+        volume = self.block_storage_client.update_volume(
             self.volume,
             name=volume_name,
             description=volume_description,
         )
         self.assertIsInstance(volume, _volume.Volume)
-        volume = self.user_cloud.block_storage.get_volume(self.volume.id)
+        volume = self.block_storage_client.get_volume(self.volume.id)
         self.assertEqual(volume_name, volume.name)
         self.assertEqual(volume_description, volume.description)

@@ -18,15 +18,12 @@ class TestQuotaSet(base.BaseComputeTest):
     def setUp(self):
         super().setUp()
 
-        if not self.operator_cloud:
-            self.skipTest("Operator cloud required for this test")
-
         self.project = self.create_temporary_project()
 
     def test_quota_set(self):
         # update quota
 
-        quota_set = self.operator_cloud.compute.update_quota_set(
+        quota_set = self.admin_compute_client.update_quota_set(
             self.project.id, key_pairs=123
         )
         self.assertIsInstance(quota_set, _quota_set.QuotaSet)
@@ -34,13 +31,13 @@ class TestQuotaSet(base.BaseComputeTest):
 
         # retrieve details of the (updated) quota
 
-        quota_set = self.operator_cloud.compute.get_quota_set(self.project.id)
+        quota_set = self.admin_compute_client.get_quota_set(self.project.id)
         self.assertIsInstance(quota_set, _quota_set.QuotaSet)
         self.assertEqual(quota_set.key_pairs, 123)
 
         # retrieve quota defaults
 
-        defaults = self.operator_cloud.compute.get_quota_set_defaults(
+        defaults = self.admin_compute_client.get_quota_set_defaults(
             self.project.id
         )
         self.assertIsInstance(defaults, _quota_set.QuotaSet)
@@ -48,4 +45,4 @@ class TestQuotaSet(base.BaseComputeTest):
 
         # revert quota
 
-        self.operator_cloud.compute.revert_quota_set(self.project.id)
+        self.admin_compute_client.revert_quota_set(self.project.id)

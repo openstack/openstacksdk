@@ -17,7 +17,7 @@ from openstack.tests.functional.block_storage.v3 import base
 class ResourceFilters(base.BaseBlockStorageTest):
     def test_get(self):
         resource_filters = list(
-            self.operator_cloud.block_storage.resource_filters()
+            self.admin_block_storage_client.resource_filters()
         )
 
         for rf in resource_filters:

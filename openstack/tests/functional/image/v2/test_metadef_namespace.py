@@ -22,7 +22,7 @@ class TestMetadefNamespace(base.BaseImageTest):
         # there's a limit on namespace length
         namespace = self.getUniqueString().split('.')[-1]
         self.metadef_namespace = (
-            self.operator_cloud.image.create_metadef_namespace(
+            self.admin_image_client.create_metadef_namespace(
                 namespace=namespace,
             )
         )
@@ -35,16 +35,16 @@ class TestMetadefNamespace(base.BaseImageTest):
     def tearDown(self):
         # we do this in tearDown rather than via 'addCleanup' since we want to
         # wait for the deletion of the resource to ensure it completes
-        self.operator_cloud.image.delete_metadef_namespace(
+        self.admin_image_client.delete_metadef_namespace(
             self.metadef_namespace
         )
-        self.operator_cloud.image.wait_for_delete(self.metadef_namespace)
+        self.admin_image_client.wait_for_delete(self.metadef_namespace)
 
         super().tearDown()
 
     def test_metadef_namespace(self):
         # get
-        metadef_namespace = self.operator_cloud.image.get_metadef_namespace(
+        metadef_namespace = self.admin_image_client.get_metadef_namespace(
             self.metadef_namespace.namespace
         )
         self.assertEqual(
@@ -55,9 +55,7 @@ class TestMetadefNamespace(base.BaseImageTest):
         # (no find_metadef_namespace method)
 
         # list
-        metadef_namespaces = list(
-            self.operator_cloud.image.metadef_namespaces()
-        )
+        metadef_namespaces = list(self.admin_image_client.metadef_namespaces())
         # there are a load of default metadef namespaces so we don't assert
         # that this is the *only* metadef namespace present
         self.assertIn(
@@ -70,7 +68,7 @@ class TestMetadefNamespace(base.BaseImageTest):
         # inherent need for randomness so we use fixed strings
         metadef_namespace_display_name = 'A display name'
         metadef_namespace_description = 'A description'
-        metadef_namespace = self.operator_cloud.image.update_metadef_namespace(
+        metadef_namespace = self.admin_image_client.update_metadef_namespace(
             self.metadef_namespace,
             display_name=metadef_namespace_display_name,
             description=metadef_namespace_description,
@@ -79,7 +77,7 @@ class TestMetadefNamespace(base.BaseImageTest):
             metadef_namespace,
             _metadef_namespace.MetadefNamespace,
         )
-        metadef_namespace = self.operator_cloud.image.get_metadef_namespace(
+        metadef_namespace = self.admin_image_client.get_metadef_namespace(
             self.metadef_namespace.namespace
         )
         self.assertEqual(
@@ -93,21 +91,21 @@ class TestMetadefNamespace(base.BaseImageTest):
 
     def test_tags(self):
         # add tag
-        metadef_namespace = self.operator_cloud.image.get_metadef_namespace(
+        metadef_namespace = self.admin_image_client.get_metadef_namespace(
             self.metadef_namespace.namespace
         )
-        metadef_namespace.add_tag(self.operator_cloud.image, 't1')
-        metadef_namespace.add_tag(self.operator_cloud.image, 't2')
+        metadef_namespace.add_tag(self.admin_image_client, 't1')
+        metadef_namespace.add_tag(self.admin_image_client, 't2')
 
         # list tags
-        metadef_namespace.fetch_tags(self.operator_cloud.image)
+        metadef_namespace.fetch_tags(self.admin_image_client)
         md_tags = [tag['name'] for tag in metadef_namespace.tags]
         self.assertIn('t1', md_tags)
         self.assertIn('t2', md_tags)
 
         # remove tag
-        metadef_namespace.remove_tag(self.operator_cloud.image, 't1')
-        metadef_namespace = self.operator_cloud.image.get_metadef_namespace(
+        metadef_namespace.remove_tag(self.admin_image_client, 't1')
+        metadef_namespace = self.admin_image_client.get_metadef_namespace(
             self.metadef_namespace.namespace
         )
         md_tags = [tag['name'] for tag in metadef_namespace.tags]
@@ -115,17 +113,17 @@ class TestMetadefNamespace(base.BaseImageTest):
         self.assertNotIn('t1', md_tags)
 
         # add tags without append
-        metadef_namespace.set_tags(self.operator_cloud.image, ["t1", "t2"])
-        metadef_namespace.fetch_tags(self.operator_cloud.image)
+        metadef_namespace.set_tags(self.admin_image_client, ["t1", "t2"])
+        metadef_namespace.fetch_tags(self.admin_image_client)
         md_tags = [tag['name'] for tag in metadef_namespace.tags]
         self.assertIn('t1', md_tags)
         self.assertIn('t2', md_tags)
 
         # add tags with append
         metadef_namespace.set_tags(
-            self.operator_cloud.image, ["t3", "t4"], append=True
+            self.admin_image_client, ["t3", "t4"], append=True
         )
-        metadef_namespace.fetch_tags(self.operator_cloud.image)
+        metadef_namespace.fetch_tags(self.admin_image_client)
         md_tags = [tag['name'] for tag in metadef_namespace.tags]
         self.assertIn('t1', md_tags)
         self.assertIn('t2', md_tags)
@@ -133,5 +131,5 @@ class TestMetadefNamespace(base.BaseImageTest):
         self.assertIn('t4', md_tags)
 
         # remove all tags
-        metadef_namespace.remove_all_tags(self.operator_cloud.image)
+        metadef_namespace.remove_all_tags(self.admin_image_client)
         self.assertEqual([], metadef_namespace.tags)
