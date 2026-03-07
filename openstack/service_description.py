@@ -87,31 +87,40 @@ class ServiceDescription:
     def __get__(self, instance, owner):
         if instance is None:
             return self
-        if self.service_type not in instance._proxies:
-            proxy = self._make_proxy(instance)
-            if not isinstance(proxy, _ServiceDisabledProxyShim):
-                # The keystone proxy has a method called get_endpoint
-                # that is about managing keystone endpoints. This is
-                # unfortunate.
-                try:
-                    endpoint = proxy_mod.Proxy.get_endpoint(proxy)
-                except IndexError:
-                    # It's best not to look to closely here. This is
-                    # to support old placement.
-                    # There was a time when it had no status entry
-                    # in its version discovery doc (OY) In this case,
-                    # no endpoints get through version discovery
-                    # filtering. In order to deal with that, catch
-                    # the IndexError thrown by keystoneauth and
-                    # set an endpoint_override for the user to the
-                    # url in the catalog and try again.
-                    self._set_override_from_catalog(instance.config)
-                    proxy = self._make_proxy(instance)
-                    endpoint = proxy_mod.Proxy.get_endpoint(proxy)
-                if instance._strict_proxies:
-                    self._validate_proxy(proxy, endpoint)
-                proxy._connection = instance
+
+        if self.service_type in instance._proxies:
+            return instance._proxies[self.service_type]
+
+        proxy = self._make_proxy(instance)
+        if isinstance(proxy, _ServiceDisabledProxyShim):
             instance._proxies[self.service_type] = proxy
+            return instance._proxies[self.service_type]
+
+        # The keystone proxy has a method called get_endpoint
+        # that is about managing keystone endpoints. This is
+        # unfortunate.
+        try:
+            endpoint = proxy_mod.Proxy.get_endpoint(proxy)
+        except IndexError:
+            # It's best not to look to closely here. This is
+            # to support old placement.
+            # There was a time when it had no status entry
+            # in its version discovery doc (OY) In this case,
+            # no endpoints get through version discovery
+            # filtering. In order to deal with that, catch
+            # the IndexError thrown by keystoneauth and
+            # set an endpoint_override for the user to the
+            # url in the catalog and try again.
+            self._set_override_from_catalog(instance.config)
+            proxy = self._make_proxy(instance)
+            endpoint = proxy_mod.Proxy.get_endpoint(proxy)
+
+        if instance._strict_proxies:
+            self._validate_proxy(proxy, endpoint)
+
+        proxy._connection = instance
+
+        instance._proxies[self.service_type] = proxy
         return instance._proxies[self.service_type]
 
     def _set_override_from_catalog(self, config):
@@ -146,19 +155,20 @@ class ServiceDescription:
     def _make_proxy(self, instance):
         """Create a Proxy for the service in question.
 
-        :param instance:
-          The `openstack.connection.Connection` we're working with.
+        :param instance: The `openstack.connection.Connection` we're working
+            with.
         """
         config = instance.config
 
+        # This is not a valid service.
         if not config.has_service(self.service_type):
             return _ServiceDisabledProxyShim(
                 self.service_type,
                 config.get_disabled_reason(self.service_type),
             )
 
-        # We don't know anything about this service, so the user is
-        # explicitly just using us for a passthrough REST adapter.
+        # This is a valid service type, but we don't know anything about it so
+        # the user is explicitly just using us for a passthrough REST adapter.
         # Skip all the lower logic.
         if not self.supported_versions:
             temp_client = config.get_session_client(
@@ -167,8 +177,8 @@ class ServiceDescription:
             )
             return temp_client
 
-        # Check to see if we've got config that matches what we
-        # understand in the SDK.
+        # Check to see if we've got config that matches what we understand in
+        # the SDK.
         version_string = config.get_api_version(self.service_type)
         endpoint_override = config.get_endpoint(self.service_type)
 
@@ -179,8 +189,8 @@ class ServiceDescription:
 
         proxy_obj = None
         if endpoint_override and version_string:
-            # Both endpoint override and version_string are set, we don't
-            # need to do discovery - just trust the user.
+            # Both endpoint override and version_string are set. We therefore
+            # don't need to do discovery: just trust the user.
             proxy_class = self.supported_versions.get(version_string[0])
             if proxy_class:
                 proxy_obj = config.get_session_client(
@@ -271,11 +281,11 @@ class ServiceDescription:
 
                 return config.get_session_client(
                     self.service_type,
-                    allow_version_hack=True,
+                    version=version_string,
                     constructor=self.supported_versions[
                         str(supported_versions[0])
                     ],
-                    version=version_string,
+                    allow_version_hack=True,
                 )
         else:
             version_kwargs['min_version'] = str(supported_versions[0])
@@ -284,7 +294,9 @@ class ServiceDescription:
             )
 
         temp_adapter = config.get_session_client(
-            self.service_type, allow_version_hack=True, **version_kwargs
+            self.service_type,
+            allow_version_hack=True,
+            **version_kwargs,
         )
         found_version = temp_adapter.get_api_major_version()
         if found_version is None:
@@ -305,8 +317,8 @@ class ServiceDescription:
         if proxy_class:
             return config.get_session_client(
                 self.service_type,
-                allow_version_hack=True,
                 constructor=proxy_class,
+                allow_version_hack=True,
                 **version_kwargs,
             )
 
@@ -332,8 +344,8 @@ class ServiceDescription:
         # downstream we need to allow overriding default implementation by
         # deleting service_type attribute of the connection and then
         # "add_service" with new implementation.
-        # This is implemented explicitely not very comfortable to use
-        # to show how bad it is not to contribute changes back
+        # This is intentionally designed to be hard to use to show how bad it
+        # is not to contribute changes back
         for service_type in self.all_types:
             if service_type in instance._proxies:
                 del instance._proxies[service_type]
