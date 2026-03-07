@@ -271,10 +271,8 @@ class ServiceDescription:
             return proxy_obj
 
         # Make an adapter to let discovery take over
-        version_kwargs = {}
         supported_versions = sorted([int(f) for f in self.supported_versions])
         if version_string:
-            version_kwargs['version'] = version_string
             if getattr(
                 self.supported_versions[str(supported_versions[0])],
                 'skip_discovery',
@@ -301,39 +299,45 @@ class ServiceDescription:
                     ],
                     allow_version_hack=True,
                 )
+
+            temp_adapter = config.get_session_client(
+                self.service_type,
+                allow_version_hack=True,
+                version=version_string,
+            )
         else:
-            version_kwargs['min_version'] = str(supported_versions[0])
-            version_kwargs['max_version'] = (
-                f'{supported_versions[-1]!s}.latest'
+            temp_adapter = config.get_session_client(
+                self.service_type,
+                allow_version_hack=True,
+                max_version=f'{supported_versions[-1]!s}.latest',
+                min_version=f'{supported_versions[0]!s}',
             )
 
-        temp_adapter = config.get_session_client(
-            self.service_type,
-            allow_version_hack=True,
-            **version_kwargs,
-        )
         found_version = temp_adapter.get_api_major_version()
         if found_version is None:
             region_name = instance.config.get_region_name(self.service_type)
-            if version_kwargs:
-                raise exceptions.NotSupported(
-                    f"The {self.service_type} service for "
-                    f"{instance.name}:{region_name} exists but does not have "
-                    f"any supported versions."
-                )
-            else:
-                raise exceptions.NotSupported(
-                    f"The {self.service_type} service for "
-                    f"{instance.name}:{region_name} exists but no version "
-                    f"was discoverable."
-                )
+            raise exceptions.NotSupported(
+                f"The {self.service_type} service for "
+                f"{instance.name}:{region_name} exists but does not have "
+                f"any supported versions."
+            )
+
         proxy_class = self.supported_versions.get(str(found_version[0]))
         if proxy_class:
+            if version_string:
+                return config.get_session_client(
+                    self.service_type,
+                    constructor=proxy_class,
+                    allow_version_hack=True,
+                    version=version_string,
+                )
+
             return config.get_session_client(
                 self.service_type,
                 constructor=proxy_class,
                 allow_version_hack=True,
-                **version_kwargs,
+                max_version=f'{supported_versions[-1]!s}.latest',
+                min_version=f'{supported_versions[0]!s}',
             )
 
         # No proxy_class
