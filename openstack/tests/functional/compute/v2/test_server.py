@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.compute.v2 import server as _server
-from openstack.tests.functional.compute import base as base
+from openstack.tests.functional.compute.v2 import base
 from openstack.tests.functional.network.v2 import test_network
 
 

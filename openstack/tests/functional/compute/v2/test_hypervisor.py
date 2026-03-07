@@ -11,10 +11,10 @@
 # under the License.
 
 from openstack.compute.v2 import hypervisor as _hypervisor
-from openstack.tests.functional import base
+from openstack.tests.functional.compute.v2 import base
 
 
-class TestHypervisor(base.BaseFunctionalTest):
+class TestHypervisor(base.BaseComputeTest):
     def test_hypervisors(self):
         hypervisors = list(self.operator_cloud.compute.hypervisors())
         self.assertIsNotNone(hypervisors)

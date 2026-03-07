@@ -10,13 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
 from openstack.compute.v2 import image as _image
-from openstack.tests.functional import base
+from openstack.tests.functional.compute.v2 import base
 from openstack.tests.functional.image.v2.test_image import TEST_IMAGE_NAME
 
 
-class TestImage(base.BaseFunctionalTest):
+class TestImage(base.BaseComputeTest):
     def setUp(self):
         super().setUp()
 

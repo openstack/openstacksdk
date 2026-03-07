@@ -10,14 +10,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests.functional.compute.v2 import base
+from openstack.tests.functional.shared_file_system.v2 import base
 
 
-class TestLimits(base.BaseComputeTest):
-    def test_limits(self):
-        sot = self.operator_cloud.compute.get_limits()
-        self.assertIsNotNone(sot.absolute['instances'])
-        self.assertIsNotNone(sot.absolute['total_ram'])
-        self.assertIsNotNone(sot.absolute['keypairs'])
-        self.assertIsNotNone(sot.absolute['security_groups'])
-        self.assertIsNotNone(sot.absolute['security_group_rules'])
+class AvailabilityZoneTest(base.BaseSharedFileSystemTest):
+    min_microversion = '2.7'
+
+    def test_availability_zones(self):
+        azs = self.user_cloud.shared_file_system.availability_zones()
+        self.assertGreater(len(list(azs)), 0)
+        for az in azs:
+            for attribute in ('id', 'name', 'created_at', 'updated_at'):
+                self.assertTrue(hasattr(az, attribute))
+                self.assertIsInstance(getattr(az, attribute), 'str')
