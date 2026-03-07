@@ -14,7 +14,9 @@ from openstack import service_description
 from openstack.shared_file_system.v2 import _proxy
 
 
-class SharedFilesystemService(service_description.ServiceDescription):
+class SharedFilesystemService(
+    service_description.ServiceDescription[_proxy.Proxy]
+):
     """The shared file systems service."""
 
     supported_versions = {

@@ -670,11 +670,12 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
 
         # User used string notation. Try to find proper
         # resource
-        (service_name, resource_name) = resource_type.split('.')
+        service_name, resource_name = resource_type.split('.')
         if not hasattr(self, service_name):
             raise exceptions.SDKException(
                 f"service {service_name} is not existing/enabled"
             )
+
         service_proxy = getattr(self, service_name)
         try:
             resource_type = service_proxy._resource_registry[resource_name]

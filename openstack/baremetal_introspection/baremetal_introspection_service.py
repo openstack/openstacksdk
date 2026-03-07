@@ -14,7 +14,9 @@ from openstack.baremetal_introspection.v1 import _proxy
 from openstack import service_description
 
 
-class BaremetalIntrospectionService(service_description.ServiceDescription):
+class BaremetalIntrospectionService(
+    service_description.ServiceDescription[_proxy.Proxy]
+):
     """The bare metal introspection service."""
 
     supported_versions = {

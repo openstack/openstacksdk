@@ -14,7 +14,9 @@ from openstack import service_description
 from openstack.workflow.v2 import _proxy
 
 
-class WorkflowService(service_description.ServiceDescription):
+class WorkflowService(
+    service_description.ServiceDescription[_proxy.Proxy],
+):
     """The workflow service."""
 
     supported_versions = {

@@ -16,7 +16,7 @@ from openstack.instance_ha.v1 import _proxy
 from openstack import service_description
 
 
-class InstanceHaService(service_description.ServiceDescription):
+class InstanceHaService(service_description.ServiceDescription[_proxy.Proxy]):
     """The HA service."""
 
     supported_versions = {

@@ -14,7 +14,7 @@ from openstack.dns.v2 import _proxy
 from openstack import service_description
 
 
-class DnsService(service_description.ServiceDescription):
+class DnsService(service_description.ServiceDescription[_proxy.Proxy]):
     """The DNS service."""
 
     supported_versions = {

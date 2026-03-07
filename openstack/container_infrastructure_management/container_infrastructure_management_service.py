@@ -15,7 +15,7 @@ from openstack import service_description
 
 
 class ContainerInfrastructureManagementService(
-    service_description.ServiceDescription,
+    service_description.ServiceDescription[_proxy.Proxy],
 ):
     """The container infrastructure management service."""
 

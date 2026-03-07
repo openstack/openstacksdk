@@ -14,7 +14,7 @@ from openstack.object_store.v1 import _proxy
 from openstack import service_description
 
 
-class ObjectStoreService(service_description.ServiceDescription):
+class ObjectStoreService(service_description.ServiceDescription[_proxy.Proxy]):
     """The object store service."""
 
     supported_versions = {

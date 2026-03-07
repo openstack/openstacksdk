@@ -14,7 +14,7 @@ from openstack.baremetal.v1 import _proxy
 from openstack import service_description
 
 
-class BaremetalService(service_description.ServiceDescription):
+class BaremetalService(service_description.ServiceDescription[_proxy.Proxy]):
     """The bare metal service."""
 
     supported_versions = {

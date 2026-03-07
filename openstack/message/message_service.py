@@ -14,7 +14,7 @@ from openstack.message.v2 import _proxy
 from openstack import service_description
 
 
-class MessageService(service_description.ServiceDescription):
+class MessageService(service_description.ServiceDescription[_proxy.Proxy]):
     """The message service."""
 
     supported_versions = {

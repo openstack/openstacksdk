@@ -15,7 +15,9 @@ from openstack.image.v2 import _proxy as _proxy_v2
 from openstack import service_description
 
 
-class ImageService(service_description.ServiceDescription):
+class ImageService(
+    service_description.ServiceDescription[_proxy_v1.Proxy | _proxy_v2.Proxy]
+):
     """The image service."""
 
     supported_versions = {

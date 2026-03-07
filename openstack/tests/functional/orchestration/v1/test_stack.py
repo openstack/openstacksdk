@@ -20,10 +20,7 @@ from openstack.tests.functional.network.v2 import test_network
 
 class TestStack(base.BaseFunctionalTest):
     NAME = 'test_stack'
-    stack = None
-    network = None
-    subnet = None
-    cidr = '10.99.99.0/16'
+    CIDR = '10.99.99.0/16'
 
     _wait_for_timeout_key = 'OPENSTACKSDK_FUNC_TEST_TIMEOUT_ORCHESTRATION'
 
@@ -41,7 +38,7 @@ class TestStack(base.BaseFunctionalTest):
         # the shade layer.
         template['heat_template_version'] = '2013-05-23'
         self.network, self.subnet = test_network.create_network(
-            self.operator_cloud, self.NAME, self.cidr
+            self.operator_cloud, self.NAME, self.CIDR
         )
         parameters = {
             'image': image.id,
@@ -53,10 +50,10 @@ class TestStack(base.BaseFunctionalTest):
             parameters=parameters,
             template=template,
         )
-        assert isinstance(sot, stack.Stack)
-        self.assertEqual(True, (sot.id is not None))
-        self.stack = sot
+        self.assertIsInstance(sot, stack.Stack)
+        self.assertIsNotNone(sot.id)
         self.assertEqual(self.NAME, sot.name)
+        self.stack = sot
         self.operator_cloud.orchestration.wait_for_status(
             sot,
             status='CREATE_COMPLETE',
@@ -92,18 +89,18 @@ class TestStack(base.BaseFunctionalTest):
 
         # when
         self.operator_cloud.orchestration.suspend_stack(self.stack)
-        sot = self.operator_cloud.orchestration.wait_for_status(
+        self.stack = self.operator_cloud.orchestration.wait_for_status(
             self.stack, suspend_status, wait=self._wait_for_timeout
         )
 
         # then
-        self.assertEqual(suspend_status, sot.status)
+        self.assertEqual(suspend_status, self.stack.status)
 
         # when
         self.operator_cloud.orchestration.resume_stack(self.stack)
-        sot = self.operator_cloud.orchestration.wait_for_status(
+        self.stack = self.operator_cloud.orchestration.wait_for_status(
             self.stack, resume_status, wait=self._wait_for_timeout
         )
 
         # then
-        self.assertEqual(resume_status, sot.status)
+        self.assertEqual(resume_status, self.stack.status)

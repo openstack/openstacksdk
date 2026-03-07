@@ -11,6 +11,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import typing as ty
 import warnings
 
 import os_service_types
@@ -24,16 +25,19 @@ __all__ = [
     'ServiceDescription',
 ]
 
+if ty.TYPE_CHECKING:
+    from openstack import connection
+
 _logger = _log.setup_logging('openstack')
 _service_type_manager = os_service_types.ServiceTypes()
 
 
 class _ServiceDisabledProxyShim:
-    def __init__(self, service_type, reason):
+    def __init__(self, service_type: str, reason: str | None) -> None:
         self.service_type = service_type
         self.reason = reason
 
-    def __getattr__(self, item):
+    def __getattr__(self, item: ty.Any) -> ty.Any:
         raise exceptions.ServiceDisabledException(
             "Service '{service_type}' is disabled because its configuration "
             "could not be loaded. {reason}".format(
@@ -42,7 +46,7 @@ class _ServiceDisabledProxyShim:
         )
 
 
-class ServiceDescription:
+class ServiceDescription(ty.Generic[proxy_mod.ProxyT]):
     #: Dictionary of supported versions and proxy classes for that version
     supported_versions: dict[str, type[proxy_mod.Proxy]] = {}
     #: main service_type to use to find this service in the catalog
@@ -84,17 +88,40 @@ class ServiceDescription:
         self.aliases = aliases or self.aliases
         self.all_types = [service_type, *self.aliases]
 
-    def __get__(self, instance, owner):
+    @ty.overload
+    def __get__(self, instance: None, owner: None) -> 'ServiceDescription': ...
+
+    # NOTE(stephenfin): We would like to type instance as
+    # connection.Connection, but due to how we construct that object, we can't
+    # do so yet.
+    @ty.overload
+    def __get__(
+        self,
+        instance: ty.Any,
+        owner: type[object],
+    ) -> proxy_mod.ProxyT: ...
+
+    def __get__(
+        self,
+        instance: ty.Any,
+        owner: type[object] | None,
+    ) -> 'ServiceDescription | proxy_mod.ProxyT':
         if instance is None:
             return self
 
         if self.service_type in instance._proxies:
-            return instance._proxies[self.service_type]
+            return ty.cast(
+                proxy_mod.ProxyT, instance._proxies[self.service_type]
+            )
 
         proxy = self._make_proxy(instance)
+
         if isinstance(proxy, _ServiceDisabledProxyShim):
             instance._proxies[self.service_type] = proxy
-            return instance._proxies[self.service_type]
+            return ty.cast(
+                proxy_mod.ProxyT,
+                instance._proxies[self.service_type],
+            )
 
         # The keystone proxy has a method called get_endpoint
         # that is about managing keystone endpoints. This is
@@ -152,7 +179,10 @@ class ServiceDescription:
                 )
             )
 
-    def _make_proxy(self, instance):
+    def _make_proxy(
+        self,
+        instance: 'connection.Connection',
+    ) -> proxy_mod.ProxyT | proxy_mod.Proxy:
         """Create a Proxy for the service in question.
 
         :param instance: The `openstack.connection.Connection` we're working
@@ -162,9 +192,14 @@ class ServiceDescription:
 
         # This is not a valid service.
         if not config.has_service(self.service_type):
-            return _ServiceDisabledProxyShim(
-                self.service_type,
-                config.get_disabled_reason(self.service_type),
+            # NOTE(stephenfin): Yes, we are lying here. But that's okay: they
+            # should behave identically in a typing context
+            return ty.cast(
+                proxy_mod.ProxyT,
+                _ServiceDisabledProxyShim(
+                    self.service_type,
+                    config.get_disabled_reason(self.service_type),
+                ),
             )
 
         # This is a valid service type, but we don't know anything about it so
@@ -246,11 +281,14 @@ class ServiceDescription:
                 return proxy_obj
 
             data = proxy_obj.get_endpoint_data()
-            if not data and instance._strict_proxies:
-                raise exceptions.ServiceDiscoveryException(
-                    f"Failed to create a working proxy for service "
-                    f"{self.service_type}: No endpoint data found."
-                )
+            if not data:
+                if instance._strict_proxies:
+                    raise exceptions.ServiceDiscoveryException(
+                        f"Failed to create a working proxy for service "
+                        f"{self.service_type}: No endpoint data found."
+                    )
+                else:
+                    return proxy_obj
 
             # If we've gotten here with a proxy object it means we have
             # an endpoint_override in place. If the catalog_url and
@@ -334,6 +372,7 @@ class ServiceDescription:
 
             return config.get_session_client(
                 self.service_type,
+                version=version_string,
                 constructor=proxy_class,
                 allow_version_hack=True,
                 max_version=f'{supported_versions[-1]!s}.latest',

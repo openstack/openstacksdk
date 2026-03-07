@@ -14,7 +14,7 @@ from openstack.compute.v2 import _proxy
 from openstack import service_description
 
 
-class ComputeService(service_description.ServiceDescription):
+class ComputeService(service_description.ServiceDescription[_proxy.Proxy]):
     """The compute service."""
 
     supported_versions = {
