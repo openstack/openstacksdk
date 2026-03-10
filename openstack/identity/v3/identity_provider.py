@@ -43,6 +43,8 @@ class IdentityProvider(resource.Resource):
     is_enabled = resource.Body('enabled', type=bool)
     #: Remote IDs associated with the identity provider. *Type: list*
     remote_ids = resource.Body('remote_ids', type=list)
+    #: The length of validity in minutes for group memberships. *Type: int*
+    authorization_ttl = resource.Body('authorization_ttl', type=int)
 
     #: The identifier of the identity provider (read only). *Type: string*
     name = resource.Body('id')
