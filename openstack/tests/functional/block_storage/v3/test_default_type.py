@@ -18,7 +18,7 @@ class TestDefaultType(base.BaseBlockStorageTest):
     def setUp(self):
         super().setUp()
         if not self._operator_cloud_name:
-            self.skip("Operator cloud must be set for this test")
+            self.skipTest("Operator cloud must be set for this test")
         self._set_operator_cloud(block_storage_api_version='3.67')
         self.PROJECT_ID = self.create_temporary_project().id
 
