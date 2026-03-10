@@ -849,45 +849,48 @@ class CloudRegion:
 
     def get_session(self) -> ks_session.Session:
         """Return a keystoneauth session based on the auth credentials."""
-        if self._keystone_session is None:
-            if not self._auth:
-                raise exceptions.ConfigException(
-                    "Problem with auth parameters"
-                )
-            verify, cert = self.get_requests_verify_args()
+        if self._keystone_session is not None:
+            return self._keystone_session
 
+        if not self._auth:
+            raise exceptions.ConfigException("Problem with auth parameters")
+
+        verify, cert = self.get_requests_verify_args()
+
+        warnings.filterwarnings(
+            'ignore', category=urllib3.exceptions.InsecurePlatformWarning
+        )
+        # Turn off urllib3 warnings about insecure certs if we have
+        # explicitly configured requests to tell it we do not want
+        # cert verification
+        if not verify:
+            self.log.debug(
+                f"Turning off SSL warnings for {self.full_name} "
+                f"since verify=False"
+            )
             warnings.filterwarnings(
-                'ignore', category=urllib3.exceptions.InsecurePlatformWarning
+                'ignore',
+                category=urllib3.exceptions.InsecureRequestWarning,
             )
-            # Turn off urllib3 warnings about insecure certs if we have
-            # explicitly configured requests to tell it we do not want
-            # cert verification
-            if not verify:
-                self.log.debug(
-                    f"Turning off SSL warnings for {self.full_name} "
-                    f"since verify=False"
-                )
-                warnings.filterwarnings(
-                    'ignore',
-                    category=urllib3.exceptions.InsecureRequestWarning,
-                )
-            self._keystone_session = self._session_constructor(
-                auth=self._auth,
-                verify=verify,
-                cert=cert,
-                timeout=self.config.get('api_timeout'),
-                collect_timing=bool(self.config.get('timing')),
-                discovery_cache=self._discovery_cache,
-            )
-            self.insert_user_agent()
-            # Using old keystoneauth with new os-client-config fails if
-            # we pass in app_name and app_version. Those are not essential,
-            # nor a reason to bump our minimum, so just test for the session
-            # having the attribute post creation and set them then.
-            if hasattr(self._keystone_session, 'app_name'):
-                self._keystone_session.app_name = self._app_name
-            if hasattr(self._keystone_session, 'app_version'):
-                self._keystone_session.app_version = self._app_version
+
+        self._keystone_session = self._session_constructor(
+            auth=self._auth,
+            verify=verify,
+            cert=cert,
+            timeout=self.config.get('api_timeout'),
+            collect_timing=bool(self.config.get('timing')),
+            discovery_cache=self._discovery_cache,
+        )
+        self.insert_user_agent()
+        # Using old keystoneauth with new os-client-config fails if
+        # we pass in app_name and app_version. Those are not essential,
+        # nor a reason to bump our minimum, so just test for the session
+        # having the attribute post creation and set them then.
+        if hasattr(self._keystone_session, 'app_name'):
+            self._keystone_session.app_name = self._app_name
+        if hasattr(self._keystone_session, 'app_version'):
+            self._keystone_session.app_version = self._app_version
+
         return self._keystone_session
 
     def get_service_catalog(
