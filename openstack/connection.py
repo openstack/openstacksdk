@@ -280,11 +280,9 @@ import concurrent.futures
 import copy
 import importlib.metadata as importlib_metadata
 import typing as ty
-import warnings
 
 import keystoneauth1.exceptions
 from keystoneauth1 import session as ks_session
-import requestsexceptions
 import typing_extensions as ty_ext
 
 from openstack import _log
@@ -315,11 +313,6 @@ __all__ = [
     'Connection',
     'from_config',
 ]
-
-if requestsexceptions.SubjectAltNameWarning:
-    warnings.filterwarnings(
-        'ignore', category=requestsexceptions.SubjectAltNameWarning
-    )
 
 _logger = _log.setup_logging('openstack')
 
