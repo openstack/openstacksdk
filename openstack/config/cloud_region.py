@@ -32,7 +32,7 @@ from keystoneauth1.loading import adapter as ks_load_adap
 from keystoneauth1 import plugin
 from keystoneauth1 import session as ks_session
 import os_service_types
-import requestsexceptions
+import urllib3.exceptions
 
 try:
     import statsd as statsd_client
@@ -855,6 +855,10 @@ class CloudRegion:
                     "Problem with auth parameters"
                 )
             verify, cert = self.get_requests_verify_args()
+
+            warnings.filterwarnings(
+                'ignore', category=urllib3.exceptions.InsecurePlatformWarning
+            )
             # Turn off urllib3 warnings about insecure certs if we have
             # explicitly configured requests to tell it we do not want
             # cert verification
@@ -863,7 +867,10 @@ class CloudRegion:
                     f"Turning off SSL warnings for {self.full_name} "
                     f"since verify=False"
                 )
-            requestsexceptions.squelch_warnings(insecure_requests=not verify)
+                warnings.filterwarnings(
+                    'ignore',
+                    category=urllib3.exceptions.InsecureRequestWarning,
+                )
             self._keystone_session = self._session_constructor(
                 auth=self._auth,
                 verify=verify,

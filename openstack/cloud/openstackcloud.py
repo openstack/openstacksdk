@@ -24,8 +24,8 @@ import dogpile.cache
 import keystoneauth1.exceptions
 from keystoneauth1.identity import base as ks_plugin_base
 import requests.models
-import requestsexceptions
 import typing_extensions as ty_ext
+import urllib3.exceptions
 
 from openstack import _log
 from openstack import _services_mixin
@@ -244,10 +244,9 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
             self.log.debug(
                 "Turning off Insecure SSL warnings since verify=False"
             )
-            category = requestsexceptions.InsecureRequestWarning
-            if category:
-                # InsecureRequestWarning references a Warning class or is None
-                warnings.filterwarnings('ignore', category=category)
+            warnings.filterwarnings(
+                'ignore', category=urllib3.exceptions.InsecureRequestWarning
+            )
 
         self._disable_warnings: dict[str, bool] = {}
 
