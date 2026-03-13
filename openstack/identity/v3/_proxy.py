@@ -1136,6 +1136,18 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_user.User, user, **attrs)
 
+    def update_password(self, user, current_password, password):
+        """Update the password for the user the token belongs to.
+
+        :param user: Either the ID of a user or a
+            :class:`~openstack.identity.v3.user.User` instance.
+        :param str current_password: The user's current password.
+        :param str password: The user's new password.
+        :returns: ``None``
+        """
+        user_obj = self._get_resource(_user.User, user)
+        user_obj.update_password(self, current_password, password)
+
     # ========== Tokens ==========
 
     def validate_token(

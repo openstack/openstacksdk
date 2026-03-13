@@ -10,7 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import exceptions
 from openstack import resource
+from openstack import utils
 
 
 class User(resource.Resource):
@@ -73,3 +75,20 @@ class User(resource.Resource):
     password_expires_at = resource.Body('password_expires_at')
     #: A dictionary of users extra options.
     options = resource.Body('options', type=dict, default={})
+
+    def update_password(self, session, current_password, password):
+        """Update the password for this user.
+
+        :param session: The session to use for the request.
+        :param str current_password: The user's current password.
+        :param str password: The user's new password.
+        """
+        url = utils.urljoin(self.base_path, self.id, 'password')
+        body = {
+            'user': {
+                'password': password,
+                'original_password': current_password,
+            }
+        }
+        resp = session.post(url, json=body)
+        exceptions.raise_from_response(resp)

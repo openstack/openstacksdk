@@ -385,6 +385,14 @@ class TestIdentityProxyUser(TestIdentityProxyBase):
     def test_user_update(self):
         self.verify_update(self.proxy.update_user, user.User)
 
+    def test_user_update_password(self):
+        self._verify(
+            "openstack.identity.v3.user.User.update_password",
+            self.proxy.update_password,
+            method_args=[USER_ID, "orig", "new"],
+            expected_args=[self.proxy, "orig", "new"],
+        )
+
     def test_user_groups(self):
         self.verify_list(
             self.proxy.user_groups,

@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from unittest import mock
+
+from keystoneauth1 import adapter
+
 from openstack.identity.v3 import user
 from openstack.tests.unit import base
 
@@ -30,6 +34,16 @@ EXAMPLE = {
 
 
 class TestUser(base.TestCase):
+    def setUp(self):
+        super().setUp()
+        self.sess = mock.Mock(spec=adapter.Adapter)
+        self.sess.default_microversion = 1
+        self.sess._get_connection = mock.Mock(return_value=self.cloud)
+        self.good_resp = mock.Mock()
+        self.good_resp.body = None
+        self.good_resp.json = mock.Mock(return_value=self.good_resp.body)
+        self.good_resp.status_code = 204
+
     def test_basic(self):
         sot = user.User()
         self.assertEqual('user', sot.resource_key)
@@ -67,4 +81,18 @@ class TestUser(base.TestCase):
         self.assertEqual(EXAMPLE['password'], sot.password)
         self.assertEqual(
             EXAMPLE['password_expires_at'], sot.password_expires_at
+        )
+
+    def test_update_password(self):
+        sot = user.User(**EXAMPLE)
+        resp = self.good_resp
+        self.sess.post = mock.Mock(return_value=resp)
+
+        sot.update_password(self.sess, current_password="orig", password="new")
+
+        self.sess.post.assert_called_with(
+            "users/IDENTIFIER/password",
+            json={
+                "user": {"password": "new", "original_password": "orig"},
+            },
         )
