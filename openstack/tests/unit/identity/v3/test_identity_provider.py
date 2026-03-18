@@ -21,6 +21,7 @@ EXAMPLE = {
     'description': 'An example description',
     'is_enabled': True,
     'remote_ids': ['https://auth.example.com/auth/realms/ExampleRealm'],
+    'authorization_ttl': 7,
 }
 
 
@@ -57,3 +58,4 @@ class TestIdentityProvider(base.TestCase):
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['is_enabled'], sot.is_enabled)
         self.assertEqual(EXAMPLE['remote_ids'], sot.remote_ids)
+        self.assertEqual(EXAMPLE['authorization_ttl'], sot.authorization_ttl)
