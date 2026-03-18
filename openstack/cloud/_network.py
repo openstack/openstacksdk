@@ -2488,8 +2488,6 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         'admin_state_up',
         'mac_address',
         'fixed_ips',
-        'subnet_id',
-        'ip_address',
         'security_groups',
         'allowed_address_pairs',
         'extra_dhcp_opts',
@@ -2527,13 +2525,13 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
                   ...,
               ]
 
-        :param subnet_id: If you specify only a subnet ID, OpenStack Networking
-            allocates an available IP from that subnet to the port. (Optional)
-            If you specify both a subnet ID and an IP address, OpenStack
-            Networking tries to allocate the specified address to the port.
-        :param ip_address: If you specify both a subnet ID and an IP address,
-            OpenStack Networking tries to allocate the specified address to
-            the port.
+            where
+              subnet_id: If you specify only a subnet ID,
+                OpenStack Networking allocates an available IP
+                from that subnet to the port.
+              ip_address:  (Optional) If you specify both a subnet ID and
+                an IP address, OpenStack Networking tries to allocate
+                the specified address to the port.
         :param security_groups: List of security group UUIDs. (Optional)
         :param allowed_address_pairs: Allowed address pairs list (Optional)
             For example::
