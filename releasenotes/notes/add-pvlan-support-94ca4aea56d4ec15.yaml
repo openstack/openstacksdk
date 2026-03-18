@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Adds support for Private VLAN (PVLAN) attributes to the networking service
+    Users can now specify whether ``pvlan`` is enabled in a network, and set
+    ``pvlan_type`` and ``pvlan_community`` properties in a port when managing
+    these Neutron objects.

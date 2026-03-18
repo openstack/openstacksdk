@@ -142,6 +142,10 @@ class Port(_base.NetworkResource, _base.TagMixinNetwork):
     propagate_uplink_status = resource.Body(
         'propagate_uplink_status', type=bool
     )
+    #: The PVLAN type of the port. Can be Promiscuous, Isolated or Community.
+    pvlan_type = resource.Body('pvlan_type')
+    #: The PVLAN community name. Only needed if pvlan_type is Community.
+    pvlan_community = resource.Body('pvlan_community')
     #: Read-only. The ID of the QoS policy attached to the network where the
     # port is bound.
     qos_network_policy_id = resource.Body('qos_network_policy_id')
