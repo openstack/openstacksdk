@@ -18,6 +18,7 @@ IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
     'id': IDENTIFIER,
     'rules': [{'local': [], 'remote': []}],
+    'schema_version': '2.0',
 }
 
 
@@ -47,3 +48,4 @@ class TestMapping(base.TestCase):
         sot = mapping.Mapping(**EXAMPLE)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['rules'], sot.rules)
+        self.assertEqual(EXAMPLE['schema_version'], sot.schema_version)
