@@ -19,7 +19,7 @@ class TestQuotaSet(base.BaseFunctionalTest):
         super().setUp()
 
         if not self.operator_cloud:
-            self.skipTest("Operator cloud required for this test")
+            self.skipTest("Operator cloud must be set for this test")
 
         self.project = self.create_temporary_project()
 
