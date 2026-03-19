@@ -141,3 +141,23 @@ class TestGroups(base.TestCase):
         self.cloud.update_group(
             group_data.group_id, 'new_name', 'new_description'
         )
+
+    def test_list_user_groups(self):
+        user_data = self._get_user_data()
+        group_data = self._get_group_data()
+        self.register_uris(
+            [
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        resource='users',
+                        append=[user_data.user_id, 'groups'],
+                    ),
+                    status_code=200,
+                    json={'groups': [group_data.json_response['group']]},
+                )
+            ]
+        )
+        groups = list(self.cloud.identity.user_groups(user_data.user_id))
+        self.assertEqual(1, len(groups))
+        self.assertEqual(group_data.group_id, groups[0].id)

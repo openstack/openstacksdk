@@ -77,7 +77,7 @@ class Group(resource.Resource):
 
 
 class UserGroup(Group):
-    base_path = '/users/%(user_id)%/groups'
+    base_path = '/users/%(user_id)s/groups'
 
     #: The ID for the user from the URI of the resource
     user_id = resource.URI('user_id')

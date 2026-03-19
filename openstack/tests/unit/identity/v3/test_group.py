@@ -94,3 +94,16 @@ class TestGroup(base.TestCase):
         self.assertTrue(sot.check_user(self.sess, user.User(id='1')))
 
         self.sess.head.assert_called_with('groups/IDENTIFIER/users/1')
+
+
+class TestUserGroup(base.TestCase):
+    def test_basic(self):
+        sot = group.UserGroup()
+        self.assertEqual('group', sot.resource_key)
+        self.assertEqual('groups', sot.resources_key)
+        self.assertEqual('/users/%(user_id)s/groups', sot.base_path)
+        self.assertFalse(sot.allow_create)
+        self.assertFalse(sot.allow_fetch)
+        self.assertFalse(sot.allow_commit)
+        self.assertFalse(sot.allow_delete)
+        self.assertTrue(sot.allow_list)
