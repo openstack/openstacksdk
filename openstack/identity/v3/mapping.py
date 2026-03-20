@@ -32,6 +32,8 @@ class Mapping(resource.Resource):
     # Properties
     #: The rules of this mapping. *Type: list*
     rules = resource.Body('rules', type=list)
+    #: The attribute mapping schema version. *Type: string*
+    schema_version = resource.Body('schema_version', type=str)
 
     #: The identifier of the mapping. *Type: string*
     name = resource.Body('id')
