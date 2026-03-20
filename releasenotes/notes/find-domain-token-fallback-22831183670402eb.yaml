@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    ``find_domain`` can now resolve domains referenced by the cached
+    authentication token when policy prevents listing domains. This allows
+    non-admin users to resolve their user, project, or scoped domain without
+    an additional API request.
+    [`bug 2145017 <https://bugs.launchpad.net/openstacksdk/+bug/2145017>`_]

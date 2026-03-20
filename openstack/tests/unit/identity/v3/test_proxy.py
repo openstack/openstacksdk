@@ -10,8 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from unittest import mock
 import uuid
 
+from openstack import exceptions
 from openstack.identity.v3 import _proxy
 from openstack.identity.v3 import access_rule
 from openstack.identity.v3 import credential
@@ -96,6 +98,162 @@ class TestIdentityProxyDomain(TestIdentityProxyBase):
 
     def test_domain_update(self):
         self.verify_update(self.proxy.update_domain, domain.Domain)
+
+
+class TestIdentityProxyDomainFindFallback(TestIdentityProxyBase):
+    """Tests for find_domain() fallback to auth token on ForbiddenException."""
+
+    def setUp(self):
+        super().setUp()
+        self.addCleanup(mock.patch.stopall)
+
+    def _mock_access_info(self, **kwargs):
+        """Create a mock AccessInfo with the given domain attributes."""
+        access_info = mock.Mock()
+        access_info.user_domain_id = kwargs.get('user_domain_id')
+        access_info.user_domain_name = kwargs.get('user_domain_name')
+        access_info.project_domain_id = kwargs.get('project_domain_id')
+        access_info.project_domain_name = kwargs.get('project_domain_name')
+        access_info.domain_id = kwargs.get('domain_id')
+        access_info.domain_name = kwargs.get('domain_name')
+        return access_info
+
+    def _setup_forbidden_with_token(self, access_info):
+        """Set up _find to raise Forbidden and mock the auth token."""
+        mock.patch.object(
+            self.proxy,
+            '_find',
+            side_effect=exceptions.ForbiddenException,
+        ).start()
+        auth_plugin = mock.Mock()
+        auth_plugin.get_access.return_value = access_info
+        self.proxy.session = mock.Mock()
+        self.proxy.session.auth = auth_plugin
+        self.proxy.auth = None
+
+    def test_find_domain_normal_path(self):
+        """find_domain delegates to _find when it succeeds."""
+        expected = domain.Domain(id='domain-id', name='mydomain')
+        mock_find = mock.patch.object(
+            self.proxy, '_find', return_value=expected
+        ).start()
+        result = self.proxy.find_domain('mydomain')
+        self.assertEqual(expected, result)
+        mock_find.assert_called_once_with(
+            domain.Domain, 'mydomain', ignore_missing=True
+        )
+
+    def test_find_domain_forbidden_falls_back_to_token_by_name(self):
+        """On ForbiddenException, resolve domain name from token."""
+        access_info = self._mock_access_info(
+            user_domain_id='ud-id',
+            user_domain_name='user-domain',
+            project_domain_id='pd-id',
+            project_domain_name='project-domain',
+        )
+        self._setup_forbidden_with_token(access_info)
+
+        result = self.proxy.find_domain('project-domain')
+        assert isinstance(result, domain.Domain)
+        self.assertEqual('pd-id', result.id)
+        self.assertEqual('project-domain', result.name)
+
+    def test_find_domain_forbidden_falls_back_to_token_by_id(self):
+        """On ForbiddenException, resolve domain ID from token."""
+        access_info = self._mock_access_info(
+            user_domain_id='ud-id',
+            user_domain_name='user-domain',
+            project_domain_id=None,
+            project_domain_name=None,
+        )
+        self._setup_forbidden_with_token(access_info)
+
+        result = self.proxy.find_domain('ud-id')
+        assert isinstance(result, domain.Domain)
+        self.assertEqual('ud-id', result.id)
+        self.assertEqual('user-domain', result.name)
+
+    def test_find_domain_forbidden_domain_scoped_token(self):
+        """On ForbiddenException, resolve from domain-scoped token."""
+        access_info = self._mock_access_info(
+            user_domain_id='ud-id',
+            user_domain_name='user-domain',
+            project_domain_id=None,
+            project_domain_name=None,
+            domain_id='ds-id',
+            domain_name='domain-scoped',
+        )
+        self._setup_forbidden_with_token(access_info)
+
+        result = self.proxy.find_domain('domain-scoped')
+        assert isinstance(result, domain.Domain)
+        self.assertEqual('ds-id', result.id)
+
+    def test_find_domain_forbidden_no_match_ignore_missing(self):
+        """On ForbiddenException with no token match, return None."""
+        access_info = self._mock_access_info(
+            user_domain_id='ud-id',
+            user_domain_name='user-domain',
+            project_domain_id=None,
+            project_domain_name=None,
+        )
+        self._setup_forbidden_with_token(access_info)
+
+        result = self.proxy.find_domain('unknown-domain', ignore_missing=True)
+        self.assertIsNone(result)
+
+    def test_find_domain_forbidden_no_match_raises(self):
+        """On ForbiddenException with no token match, raise."""
+        access_info = self._mock_access_info(
+            user_domain_id='ud-id',
+            user_domain_name='user-domain',
+            project_domain_id=None,
+            project_domain_name=None,
+        )
+        self._setup_forbidden_with_token(access_info)
+
+        self.assertRaises(
+            exceptions.NotFoundException,
+            self.proxy.find_domain,
+            'unknown-domain',
+            ignore_missing=False,
+        )
+
+    def test_find_domain_forbidden_token_error_ignore_missing(self):
+        """If token access also fails, return None with ignore_missing."""
+        mock.patch.object(
+            self.proxy,
+            '_find',
+            side_effect=exceptions.ForbiddenException,
+        ).start()
+        self.proxy.session = mock.Mock()
+        self.proxy.session.auth = mock.Mock(
+            get_access=mock.Mock(side_effect=Exception('token error'))
+        )
+        self.proxy.auth = None
+
+        result = self.proxy.find_domain('mydomain', ignore_missing=True)
+        self.assertIsNone(result)
+
+    def test_find_domain_forbidden_token_error_raises(self):
+        """If token access also fails, raise with ignore_missing=False."""
+        mock.patch.object(
+            self.proxy,
+            '_find',
+            side_effect=exceptions.ForbiddenException,
+        ).start()
+        self.proxy.session = mock.Mock()
+        self.proxy.session.auth = mock.Mock(
+            get_access=mock.Mock(side_effect=Exception('token error'))
+        )
+        self.proxy.auth = None
+
+        self.assertRaises(
+            exceptions.NotFoundException,
+            self.proxy.find_domain,
+            'mydomain',
+            ignore_missing=False,
+        )
 
 
 class TestIdentityProxyDomainConfig(TestIdentityProxyBase):

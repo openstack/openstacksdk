@@ -271,9 +271,65 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.domain.Domain` or None
         """
-        return self._find(
-            _domain.Domain, name_or_id, ignore_missing=ignore_missing
-        )
+        try:
+            return self._find(
+                _domain.Domain, name_or_id, ignore_missing=ignore_missing
+            )
+        except exception.ForbiddenException:
+            pass
+
+        # Fallback: resolve from the cached auth token.
+        # This handles the common case where the user is trying to
+        # resolve a domain that is referenced in their token (the
+        # user's domain, the project's domain, or the scoped domain),
+        # but lacks permission to list domains (identity:list_domains).
+        result = self._find_domain_in_token(name_or_id)
+        if result is not None:
+            return result
+
+        if ignore_missing:
+            return None
+        raise exception.NotFoundException(f"No Domain found for {name_or_id}")
+
+    def _find_domain_in_token(self, name_or_id: str) -> _domain.Domain | None:
+        """Try to resolve a domain name or ID from the auth token.
+
+        When a user lacks permission to list domains, we can still
+        resolve domains that appear in their authentication token:
+        the user's domain, the project's domain, or the scoped domain.
+
+        :param name_or_id: The name or ID of a domain.
+        :returns: One :class:`~openstack.identity.v3.domain.Domain` or None
+        """
+        try:
+            auth_plugin: Any = self.auth or self.session.auth
+            if auth_plugin is None or not hasattr(auth_plugin, 'get_access'):
+                return None
+            access_info = auth_plugin.get_access(self.session)
+        except Exception:
+            return None
+
+        # Collect domain name/ID pairs from the token, deduplicating.
+        candidates: dict[str, str | None] = {}
+        for domain_id, domain_name in [
+            (access_info.user_domain_id, access_info.user_domain_name),
+            (
+                access_info.project_domain_id,
+                access_info.project_domain_name,
+            ),
+            (access_info.domain_id, access_info.domain_name),
+        ]:
+            if domain_id and domain_id not in candidates:
+                candidates[domain_id] = domain_name
+
+        for domain_id, domain_name in candidates.items():
+            if name_or_id in (domain_id, domain_name):
+                return _domain.Domain.existing(
+                    id=domain_id,
+                    name=domain_name,
+                    connection=self._get_connection(),
+                )
+        return None
 
     def get_domain(self, domain: str | _domain.Domain) -> _domain.Domain:
         """Get a single domain
