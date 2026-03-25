@@ -3057,25 +3057,22 @@ class Proxy(proxy.Proxy):
     def activate_port_binding(
         self,
         port,
-        **attrs,
+        host,
     ):
         """Activate a port binding
 
         :param port: The value can be the ID of a port or a
             :class:`~openstack.network.v2.port.Port` instance.
-        :param attrs: Keyword arguments which will be used to create
-            a :class:`~openstack.network.v2.port.Port`,
-            comprised of the properties on the Port class.
+        :param host: The hostname of the system where the port is bound.
 
-        :returns: The results of port binding creation
+        :returns: The results of port binding activation
         :rtype: :class:`~openstack.network.v2.port_binding.PortBinding`
         """
         port_id = self._get(_port.Port, port).id
-        host = attrs['host']
         bindings_on_host = self.port_bindings(port=port_id, host=host)
         # There can be only 1 binding on a host at a time
         for binding in bindings_on_host:
-            return binding.activate_port_binding(self, **attrs)
+            return binding.activate_port_binding(self, host)
 
     def port_bindings(self, port, **query):
         """Get a single port binding
@@ -3118,7 +3115,7 @@ class Proxy(proxy.Proxy):
         bindings_on_host = self.port_bindings(port=port_id, host=host)
         # There can be only 1 binding on a host at a time
         for binding in bindings_on_host:
-            return binding.delete_port_binding(self, host=host)
+            return binding.delete_port_binding(self, host)
 
     def create_qos_bandwidth_limit_rule(self, qos_policy, **attrs):
         """Create a new bandwidth limit rule
