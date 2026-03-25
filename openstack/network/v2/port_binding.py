@@ -42,6 +42,9 @@ class PortBinding(resource.Resource):
     #  the specific host to pass and receive vif port information
     #  specific to the networking back-end.
     profile = resource.Body('profile', type=dict)
+    #: The status of the port binding. Can be one of the following values:
+    # ACTIVE and INACTIVE.
+    status = resource.Body('status')
     #: A dictionary which contains additional information on the
     #  port. The following fields are defined: port_filter and
     #  ovs_hybrid_plug, both are booleans.
@@ -56,12 +59,11 @@ class PortBinding(resource.Resource):
     #  direct-physical, virtio-forwarder, smart-nic and remote-managed.
     vnic_type = resource.Body('vnic_type')
 
-    def activate_port_binding(self, session, **attrs):
-        host = attrs['host']
+    def activate_port_binding(self, session, host):
         url = utils.urljoin(
             '/ports', self.port_id, 'bindings', host, 'activate'
         )
-        resp = session.put(url, json={'binding': attrs})
+        resp = session.put(url)
         exceptions.raise_from_response(resp)
         self._body.attributes.update(resp.json())
         return self

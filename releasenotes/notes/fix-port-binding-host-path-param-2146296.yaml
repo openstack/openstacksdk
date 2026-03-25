@@ -1,0 +1,18 @@
+---
+fixes:
+  - |
+    Fixed port binding activation and deletion methods to correctly pass
+    the ``host`` parameter as a path parameter instead of in the request
+    body. The Neutron API expects the host in the URL path for these
+    endpoints:
+
+    * ``PUT /v2.0/ports/{port_id}/bindings/{host}/activate``
+    * ``DELETE /v2.0/ports/{port_id}/bindings/{host}``
+
+    Previously, the SDK was incorrectly sending the host parameter in both
+    the URL path and the request body, which caused a TypeError in Neutron.
+    The methods now correctly pass only the host identifier as a positional
+    parameter, matching the Neutron API specification.
+
+    For more information see bug
+    `2146296 <https://bugs.launchpad.net/openstacksdk/+bug/2146296>`_
