@@ -35,8 +35,7 @@ and then returned to the caller.
 from __future__ import annotations
 
 import builtins
-import collections
-import collections.abc
+from collections.abc import MutableMapping, Iterable
 import inspect
 import itertools
 import operator
@@ -172,7 +171,7 @@ def Computed(
     )
 
 
-class _ComponentManager(collections.abc.MutableMapping):
+class _ComponentManager(MutableMapping):
     """Storage of a component type"""
 
     attributes: dict[str, ty.Any]
@@ -211,7 +210,7 @@ class _ComponentManager(collections.abc.MutableMapping):
         """Return a dict of modified attributes"""
         return {key: self.attributes.get(key, None) for key in self._dirty}
 
-    def clean(self, only: collections.abc.Iterable[str] | None = None) -> None:
+    def clean(self, only: Iterable[str] | None = None) -> None:
         """Signal that the resource no longer has modified attributes.
 
         :param only: an optional set of attributes to no longer consider
@@ -770,36 +769,36 @@ class Resource(dict):
         return {}
 
     def _consume_body_attrs(
-        self, attrs: collections.abc.MutableMapping[str, ty.Any]
+        self, attrs: MutableMapping[str, ty.Any]
     ) -> dict[str, ty.Any]:
         return self._consume_mapped_attrs(fields.Body, attrs)
 
     def _consume_header_attrs(
-        self, attrs: collections.abc.MutableMapping[str, ty.Any]
+        self, attrs: MutableMapping[str, ty.Any]
     ) -> dict[str, ty.Any]:
         return self._consume_mapped_attrs(fields.Header, attrs)
 
     def _consume_uri_attrs(
-        self, attrs: collections.abc.MutableMapping[str, ty.Any]
+        self, attrs: MutableMapping[str, ty.Any]
     ) -> dict[str, ty.Any]:
         return self._consume_mapped_attrs(fields.URI, attrs)
 
     def _update_from_body_attrs(
-        self, attrs: collections.abc.MutableMapping[str, ty.Any]
+        self, attrs: MutableMapping[str, ty.Any]
     ) -> None:
         body = self._consume_body_attrs(attrs)
         self._body.attributes.update(body)
         self._body.clean()
 
     def _update_from_header_attrs(
-        self, attrs: collections.abc.MutableMapping[str, ty.Any]
+        self, attrs: MutableMapping[str, ty.Any]
     ) -> None:
         headers = self._consume_header_attrs(attrs)
         self._header.attributes.update(headers)
         self._header.clean()
 
     def _update_uri_from_attrs(
-        self, attrs: collections.abc.MutableMapping[str, ty.Any]
+        self, attrs: MutableMapping[str, ty.Any]
     ) -> None:
         uri = self._consume_uri_attrs(attrs)
         self._uri.attributes.update(uri)
@@ -808,15 +807,15 @@ class Resource(dict):
     def _consume_mapped_attrs(
         self,
         mapping_cls: type[fields._BaseComponent],
-        attrs: collections.abc.MutableMapping[str, ty.Any],
+        attrs: MutableMapping[str, ty.Any],
     ) -> dict[str, ty.Any]:
         mapping = self._get_mapping(mapping_cls)
         return self._consume_attrs(mapping, attrs)
 
     def _consume_attrs(
         self,
-        mapping: collections.abc.MutableMapping[str, ty.Any],
-        attrs: collections.abc.MutableMapping[str, ty.Any],
+        mapping: MutableMapping[str, ty.Any],
+        attrs: MutableMapping[str, ty.Any],
     ) -> dict[str, ty.Any]:
         """Given a mapping and attributes, return relevant matches
 

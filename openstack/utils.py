@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import collections.abc
+from collections.abc import Mapping
 import hashlib
 import io
 import queue
@@ -654,7 +654,7 @@ class Munch(dict[str, ty.Any]):
             return post_munchify(partial, obj)
 
         def pre_munchify(obj: ty.Any) -> ty.Any:
-            if isinstance(obj, collections.abc.Mapping):
+            if isinstance(obj, Mapping):
                 return cls({})
             elif isinstance(obj, list):
                 return type(obj)()
@@ -665,7 +665,7 @@ class Munch(dict[str, ty.Any]):
                 return obj
 
         def post_munchify(partial: ty.Any, obj: ty.Any) -> ty.Any:
-            if isinstance(obj, collections.abc.Mapping):
+            if isinstance(obj, Mapping):
                 partial.update(
                     (k, munchify_cycles(obj[k])) for k in obj.keys()
                 )
@@ -728,7 +728,7 @@ def unmunchify(x: Munch) -> dict[str, ty.Any]:
         return post_unmunchify(partial, obj)
 
     def pre_unmunchify(obj: ty.Any) -> ty.Any:
-        if isinstance(obj, collections.abc.Mapping):
+        if isinstance(obj, Mapping):
             return dict()
         elif isinstance(obj, list):
             return type(obj)()
@@ -739,7 +739,7 @@ def unmunchify(x: Munch) -> dict[str, ty.Any]:
             return obj
 
     def post_unmunchify(partial: ty.Any, obj: ty.Any) -> ty.Any:
-        if isinstance(obj, collections.abc.Mapping):
+        if isinstance(obj, Mapping):
             partial.update((k, unmunchify_cycles(obj[k])) for k in obj.keys())
         elif isinstance(obj, list):
             partial.extend(unmunchify_cycles(v) for v in obj)
