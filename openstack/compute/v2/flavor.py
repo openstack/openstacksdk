@@ -14,7 +14,7 @@ from collections.abc import Generator
 from typing import Any
 
 from keystoneauth1 import adapter
-import typing_extensions as ty_ext
+from typing_extensions import Self
 
 from openstack import exceptions
 from openstack import resource
@@ -106,7 +106,7 @@ class Flavor(resource.Resource):
         headers: dict[str, str] | None = None,
         max_items: int | None = None,
         **params: Any,
-    ) -> Generator[ty_ext.Self, None, None]:
+    ) -> Generator[Self, None, None]:
         # Find will invoke list when name was passed. Since we want to return
         # flavor with details (same as direct get) we need to swap default here
         # and list with "/flavors" if no details explicitely requested

@@ -15,7 +15,7 @@ from collections.abc import Generator
 import urllib.parse
 
 from keystoneauth1 import adapter
-import typing_extensions as ty_ext
+from typing_extensions import Self
 
 from openstack import exceptions
 from openstack import resource
@@ -34,7 +34,7 @@ class Resource(resource.Resource):
         microversion: str | None = None,
         all_projects: bool | None = None,
         **params: Any,
-    ) -> ty_ext.Self | None: ...
+    ) -> Self | None: ...
 
     @overload
     @classmethod
@@ -48,7 +48,7 @@ class Resource(resource.Resource):
         microversion: str | None = None,
         all_projects: bool | None = None,
         **params: Any,
-    ) -> ty_ext.Self: ...
+    ) -> Self: ...
 
     # excuse the duplication here: it's mypy's fault
     # https://github.com/python/mypy/issues/14764
@@ -64,7 +64,7 @@ class Resource(resource.Resource):
         microversion: str | None = None,
         all_projects: bool | None = None,
         **params: Any,
-    ) -> ty_ext.Self | None: ...
+    ) -> Self | None: ...
 
     @classmethod
     def find(
@@ -77,7 +77,7 @@ class Resource(resource.Resource):
         microversion: str | None = None,
         all_projects: bool | None = None,
         **params: Any,
-    ) -> ty_ext.Self | None:
+    ) -> Self | None:
         """Find a resource by its name or id.
 
         :param session: The session to use for making this request.
@@ -152,7 +152,7 @@ class Resource(resource.Resource):
         project_id: str | None = None,
         all_projects: bool | None = None,
         **params: Any,
-    ) -> Generator[ty_ext.Self, None, None]:
+    ) -> Generator[Self, None, None]:
         if project_id or all_projects is not None:
             if headers is None:
                 headers = {}

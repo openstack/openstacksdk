@@ -12,7 +12,7 @@
 
 from typing import TypedDict
 
-import typing_extensions as ty_ext
+from typing_extensions import Self
 
 from openstack import exceptions
 from openstack import resource
@@ -39,7 +39,7 @@ class TagMixin(resource.ResourceMixinProtocol):
     #: *Type: list of tag strings*
     tags = resource.Body('tags', type=list, default=[])
 
-    def fetch_tags(self, session: resource.AdapterT) -> ty_ext.Self:
+    def fetch_tags(self, session: resource.AdapterT) -> Self:
         """Lists tags set on the entity.
 
         :param session: The session to use for making this request.
@@ -58,9 +58,7 @@ class TagMixin(resource.ResourceMixinProtocol):
             self._body.attributes.update({'tags': json['tags']})
         return self
 
-    def set_tags(
-        self, session: resource.AdapterT, tags: list[str]
-    ) -> ty_ext.Self:
+    def set_tags(self, session: resource.AdapterT, tags: list[str]) -> Self:
         """Sets/Replaces all tags on the resource.
 
         :param session: The session to use for making this request.
@@ -76,7 +74,7 @@ class TagMixin(resource.ResourceMixinProtocol):
         self._body.attributes.update({'tags': tags})
         return self
 
-    def remove_all_tags(self, session: resource.AdapterT) -> ty_ext.Self:
+    def remove_all_tags(self, session: resource.AdapterT) -> Self:
         """Removes all tags on the entity.
 
         :param session: The session to use for making this request.
@@ -89,7 +87,7 @@ class TagMixin(resource.ResourceMixinProtocol):
         self._body.attributes.update({'tags': []})
         return self
 
-    def check_tag(self, session: resource.AdapterT, tag: str) -> ty_ext.Self:
+    def check_tag(self, session: resource.AdapterT, tag: str) -> Self:
         """Checks if tag exists on the entity.
 
         If the tag does not exist a 404 will be returned
@@ -106,7 +104,7 @@ class TagMixin(resource.ResourceMixinProtocol):
         )
         return self
 
-    def add_tag(self, session: resource.AdapterT, tag: str) -> ty_ext.Self:
+    def add_tag(self, session: resource.AdapterT, tag: str) -> Self:
         """Adds a single tag to the resource.
 
         :param session: The session to use for making this request.
@@ -123,7 +121,7 @@ class TagMixin(resource.ResourceMixinProtocol):
         self._body.attributes.update({'tags': tags})
         return self
 
-    def remove_tag(self, session: resource.AdapterT, tag: str) -> ty_ext.Self:
+    def remove_tag(self, session: resource.AdapterT, tag: str) -> Self:
         """Removes a single tag from the specified resource.
 
         :param session: The session to use for making this request.

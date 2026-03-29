@@ -14,7 +14,7 @@ from collections.abc import Generator
 from typing import Any
 
 from keystoneauth1 import adapter
-import typing_extensions as ty_ext
+from typing_extensions import Self
 
 from openstack import resource
 
@@ -60,7 +60,7 @@ class Extension(resource.Resource):
         headers: dict[str, str] | None = None,
         max_items: int | None = None,
         **params: Any,
-    ) -> Generator[ty_ext.Self, None, None]:
+    ) -> Generator[Self, None, None]:
         if base_path is None:
             base_path = cls.base_path
 

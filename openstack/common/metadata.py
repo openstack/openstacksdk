@@ -12,7 +12,7 @@
 
 from typing import Any
 
-import typing_extensions as ty_ext
+from typing_extensions import Self
 
 from openstack import exceptions
 from openstack import resource
@@ -27,7 +27,7 @@ class MetadataMixin:
     #: *Type: list of tag strings*
     metadata = resource.Body('metadata', type=dict)
 
-    def fetch_metadata(self, session: resource.AdapterT) -> ty_ext.Self:
+    def fetch_metadata(self, session: resource.AdapterT) -> Self:
         """Lists metadata set on the entity.
 
         :param session: The session to use for making this request.
@@ -47,7 +47,7 @@ class MetadataMixin:
         session: resource.AdapterT,
         metadata: dict[str, Any] | None = None,
         replace: bool = False,
-    ) -> ty_ext.Self:
+    ) -> Self:
         """Sets/Replaces metadata key value pairs on the resource.
 
         :param session: The session to use for making this request.
@@ -70,7 +70,7 @@ class MetadataMixin:
         self,
         session: resource.AdapterT,
         metadata: dict[str, Any] | None = None,
-    ) -> ty_ext.Self:
+    ) -> Self:
         """Replaces all metadata key value pairs on the resource.
 
         :param session: The session to use for making this request.
@@ -80,7 +80,7 @@ class MetadataMixin:
         """
         return self.set_metadata(session, metadata, replace=True)
 
-    def delete_metadata(self, session: resource.AdapterT) -> ty_ext.Self:
+    def delete_metadata(self, session: resource.AdapterT) -> Self:
         """Removes all metadata on the entity.
 
         :param session: The session to use for making this request.
@@ -88,9 +88,7 @@ class MetadataMixin:
         self.set_metadata(session, None, replace=True)
         return self
 
-    def get_metadata_item(
-        self, session: resource.AdapterT, key: str
-    ) -> ty_ext.Self:
+    def get_metadata_item(self, session: resource.AdapterT, key: str) -> Self:
         """Get the single metadata item on the entity.
 
         If the metadata key does not exist a 404 will be returned
@@ -113,7 +111,7 @@ class MetadataMixin:
 
     def set_metadata_item(
         self, session: resource.AdapterT, key: str, value: Any
-    ) -> ty_ext.Self:
+    ) -> Self:
         """Create or replace single metadata item to the resource.
 
         :param session: The session to use for making this request.
@@ -131,7 +129,7 @@ class MetadataMixin:
 
     def delete_metadata_item(
         self, session: resource.AdapterT, key: str
-    ) -> ty_ext.Self:
+    ) -> Self:
         """Removes a single metadata item from the specified resource.
 
         :param session: The session to use for making this request.

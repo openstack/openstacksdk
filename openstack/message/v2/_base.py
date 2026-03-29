@@ -15,7 +15,7 @@ from typing import Any
 import uuid
 
 from keystoneauth1 import adapter
-import typing_extensions as ty_ext
+from typing_extensions import Self
 
 from openstack import resource
 
@@ -45,7 +45,7 @@ class MessageResource(resource.Resource):
         headers: dict[str, str] | None = None,
         max_items: int | None = None,
         **params: Any,
-    ) -> Generator[ty_ext.Self, None, None]:
+    ) -> Generator[Self, None, None]:
         """This method is a generator which yields resource objects.
 
         This is almost the copy of list method of resource.Resource class.

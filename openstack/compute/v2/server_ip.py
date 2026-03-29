@@ -14,7 +14,7 @@ from collections.abc import Generator
 from typing import Any
 
 from keystoneauth1 import adapter
-import typing_extensions as ty_ext
+from typing_extensions import Self
 
 from openstack import resource
 from openstack import utils
@@ -51,7 +51,7 @@ class ServerIP(resource.Resource):
         server_id: str | None = None,
         network_label: str | None = None,
         **params: Any,
-    ) -> Generator[ty_ext.Self, None, None]:
+    ) -> Generator[Self, None, None]:
         if base_path is None:
             base_path = cls.base_path
 

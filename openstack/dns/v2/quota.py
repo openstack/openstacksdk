@@ -13,7 +13,7 @@
 from typing import Any
 
 from keystoneauth1 import adapter
-import typing_extensions as ty_ext
+from typing_extensions import Self
 
 from openstack.dns.v2 import _base
 from openstack import resource
@@ -79,7 +79,7 @@ class Quota(_base.Resource):
         resource_response_key: str | None = None,
         microversion: str | None = None,
         **params: Any,
-    ) -> ty_ext.Self:
+    ) -> Self:
         request = self._prepare_request(
             requires_id=requires_id,
             base_path=base_path,
