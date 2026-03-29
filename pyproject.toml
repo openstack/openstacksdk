@@ -74,6 +74,7 @@ module = [
     "openstack.fields",
     "openstack.format",
     "openstack.proxy",
+    "openstack.resource",
     "openstack.utils",
     "openstack.version",
     "openstack.warnings",

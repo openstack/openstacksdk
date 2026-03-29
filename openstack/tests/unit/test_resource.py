@@ -1777,7 +1777,7 @@ class TestResourceActions(base.TestCase):
         )
 
         self.sot._prepare_request.assert_called_once_with(
-            prepend_key=prepend_key, base_path=base_path
+            prepend_key=prepend_key, base_path=base_path, patch=False
         )
 
         if commit_method == 'PATCH':

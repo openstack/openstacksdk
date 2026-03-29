@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any
+from typing import Any, cast
 
 from keystoneauth1 import adapter
 from typing_extensions import Self
@@ -59,10 +59,9 @@ class Quota(_base.Resource):
         _request = super()._prepare_request(
             requires_id, prepend_key, base_path=base_path
         )
-        if self.resource_key in _request.body:
-            _body = _request.body[self.resource_key]
-        else:
-            _body = _request.body
+        _body = cast(dict[str, Any], _request.body)
+        if self.resource_key in _body:
+            _body = _body[self.resource_key]
         if "id" in _body:
             del _body["id"]
         _request.headers = {'x-auth-sudo-project-id': self.id}

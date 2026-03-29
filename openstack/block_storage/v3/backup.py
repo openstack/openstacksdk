@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any, cast
 import warnings
 
 from openstack.common import metadata
@@ -147,7 +148,7 @@ class Backup(resource.Resource, metadata.MetadataMixin):
             # is called "incremental" on create, "is_incremental" on get
             # and use of "alias" or "aka" is not working for such conflict,
             # since our preferred attr name is exactly "is_incremental"
-            body = request.body
+            body = cast(dict[str, Any], request.body)
             if 'is_incremental' in body['backup']:
                 body['backup']['incremental'] = body['backup'].pop(
                     'is_incremental'

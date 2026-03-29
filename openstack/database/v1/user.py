@@ -56,4 +56,4 @@ class User(resource.Resource):
         uri = base_path % self._uri.attributes
         uri = utils.urljoin(uri, self.id)
 
-        return resource._Request(uri, body, None)
+        return resource._Request(uri, body, {})

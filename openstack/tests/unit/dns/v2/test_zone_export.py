@@ -81,6 +81,6 @@ class TestZoneExport(base.TestCase):
         self.session.post.assert_called_once_with(
             mock.ANY,
             json=None,
-            headers=None,
+            headers={},
             microversion=self.session.default_microversion,
         )

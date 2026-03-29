@@ -12,7 +12,7 @@
 
 import collections
 import enum
-from typing import Any
+from typing import Any, cast
 import warnings
 
 from keystoneauth1 import adapter
@@ -1590,7 +1590,9 @@ class Node(_common.Resource):
             )
 
             if patch:
-                request.body += self._convert_patch(patch)
+                cast(list[Any], request.body).extend(
+                    self._convert_patch(patch)
+                )
 
             return self._commit(
                 session,

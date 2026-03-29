@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any, cast
+
 from openstack import resource
 
 
@@ -69,7 +71,7 @@ class Execution(resource.Resource):
             requires_id=False, prepend_key=prepend_key, base_path=base_path
         )
 
-        request_body = request.body["execution"]
+        request_body = cast(dict[str, Any], request.body)["execution"]
         response = session.post(
             request.url, json=request_body, headers=request.headers
         )

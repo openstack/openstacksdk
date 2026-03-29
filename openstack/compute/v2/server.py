@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any
+from typing import Any, cast
 
 from openstack.common import metadata
 from openstack.common import tag
@@ -283,7 +283,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             **kwargs,
         )
 
-        server_body = request.body[self.resource_key]
+        server_body = cast(dict[str, Any], request.body)[self.resource_key]
 
         # Some names exist without prefix on requests but with a prefix
         # on responses. If we find that we've populated one of these
@@ -306,7 +306,9 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         # their own top-level scope.
         hint_key = "OS-SCH-HNT:scheduler_hints"
         if hint_key in server_body:
-            request.body[hint_key] = server_body.pop(hint_key)
+            cast(dict[str, Any], request.body)[hint_key] = server_body.pop(
+                hint_key
+            )
 
         # hostname exists with a prefix on response, but not request
         hostname_key = "OS-EXT-SRV-ATTR:hostname"

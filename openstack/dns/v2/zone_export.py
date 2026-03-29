@@ -73,7 +73,7 @@ class ZoneExport(_base.Resource):
         microversion = self._get_microversion(session)
         # Create ZoneExport requires empty body
         # skip _prepare_request completely, since we need just empty body
-        request = resource._Request(self.base_path, None, None)
+        request = resource._Request(self.base_path, None, {})
         response = session.post(
             request.url,
             json=request.body,

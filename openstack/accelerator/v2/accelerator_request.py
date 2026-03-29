@@ -56,10 +56,8 @@ class AcceleratorRequest(resource.Resource):
         # the PATCH method consumes JSON, its key is the ARQ uuid
         # and its value is an ordinary JSON patch. spec:
         # https://specs.openstack.org/openstack/cyborg-specs/specs/train/implemented/cyborg-api
-
         converted = super()._convert_patch(patch)
-        converted = {self.id: converted}
-        return converted
+        return {self.id: converted}
 
     def patch(
         self,
