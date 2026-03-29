@@ -64,7 +64,9 @@ exclude = "(?x)(doc | examples | releasenotes)"
 
 [[tool.mypy.overrides]]
 module = [
+    "openstack",
     "openstack._log",
+    "openstack._services_mixin",
     "openstack.common",
     "openstack.common.*",
     "openstack.config",
@@ -75,6 +77,8 @@ module = [
     "openstack.format",
     "openstack.proxy",
     "openstack.resource",
+    "openstack.service_description",
+    "openstack.types",
     "openstack.utils",
     "openstack.version",
     "openstack.warnings",

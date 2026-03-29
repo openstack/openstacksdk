@@ -12,6 +12,7 @@
 # under the License.
 
 from typing import Any, Generic, TYPE_CHECKING, cast, overload
+from typing_extensions import Self
 import warnings
 
 import os_service_types
@@ -26,6 +27,7 @@ __all__ = [
 ]
 
 if TYPE_CHECKING:
+    from openstack.config import cloud_region
     from openstack import connection
 
 _logger = _log.setup_logging('openstack')
@@ -89,7 +91,7 @@ class ServiceDescription(Generic[proxy_mod.ProxyT]):
         self.all_types = [service_type, *self.aliases]
 
     @overload
-    def __get__(self, instance: None, owner: None) -> 'ServiceDescription': ...
+    def __get__(self, instance: None, owner: None) -> Self: ...
 
     # NOTE(stephenfin): We would like to type instance as
     # connection.Connection, but due to how we construct that object, we can't
@@ -105,7 +107,7 @@ class ServiceDescription(Generic[proxy_mod.ProxyT]):
         self,
         instance: Any,
         owner: type[object] | None,
-    ) -> 'ServiceDescription | proxy_mod.ProxyT':
+    ) -> 'Self | proxy_mod.ProxyT':
         if instance is None:
             return self
 
@@ -146,9 +148,11 @@ class ServiceDescription(Generic[proxy_mod.ProxyT]):
         proxy._connection = instance
 
         instance._proxies[self.service_type] = proxy
-        return instance._proxies[self.service_type]
+        return cast(proxy_mod.ProxyT, instance._proxies[self.service_type])
 
-    def _set_override_from_catalog(self, config):
+    def _set_override_from_catalog(
+        self, config: 'cloud_region.CloudRegion'
+    ) -> None:
         override = config._get_endpoint_from_catalog(
             self.service_type,
             proxy_mod.Proxy,
@@ -159,13 +163,18 @@ class ServiceDescription(Generic[proxy_mod.ProxyT]):
             override,
         )
 
-    def _validate_proxy(self, proxy, endpoint):
+    def _validate_proxy(
+        self, proxy: proxy_mod.Proxy, endpoint: str | None
+    ) -> None:
         exc = None
         service_url = getattr(proxy, 'skip_discovery', None)
         try:
             # Don't go too wild for e.g. swift
             if service_url is None:
-                service_url = proxy.get_endpoint_data().service_url
+                endpoint_data = proxy.get_endpoint_data()
+                service_url = (
+                    endpoint_data.service_url if endpoint_data else None
+                )
         except Exception as e:
             exc = e
         if exc or not endpoint or not service_url:
@@ -390,10 +399,10 @@ class ServiceDescription(Generic[proxy_mod.ProxyT]):
         )
         return temp_adapter
 
-    def __set__(self, instance, value):
+    def __set__(self, instance: Any, value: Any) -> None:
         raise AttributeError('Service Descriptors cannot be set')
 
-    def __delete__(self, instance):
+    def __delete__(self, instance: Any) -> None:
         # NOTE(gtema) Some clouds are not very fast (or interested at all)
         # in bringing their changes upstream. If there are incompatible changes
         # downstream we need to allow overriding default implementation by
