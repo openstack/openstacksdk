@@ -166,9 +166,9 @@ def generate_fake_resources(
 # various proxy methods also, but doing so requires deep code introspection or
 # (better) type annotations
 def generate_fake_proxy(
-    service: type[service_description.ServiceDescription],
+    service: type[service_description.ServiceDescription[proxy.ProxyT]],
     api_version: str | None = None,
-) -> proxy.Proxy:
+) -> proxy.ProxyT:
     """Generate a fake proxy for the given service type
 
     Example usage:

@@ -14,8 +14,9 @@
 
 from collections.abc import Mapping
 import json
-from urllib import parse
-from urllib import request
+from typing import Any
+import urllib.parse
+import urllib.request
 
 from openstack import exceptions
 from openstack.orchestration.util import environment_format
@@ -39,7 +40,7 @@ def get_template_contents(
         template_url = utils.normalise_file_path_to_url(template_file)
 
     if template_url:
-        tpl = request.urlopen(template_url).read()  # noqa: S310
+        tpl = urllib.request.urlopen(template_url).read()  # noqa: S310
 
     elif template_object:
         is_object = True
@@ -145,7 +146,7 @@ def get_file_contents(
             if base_url and not base_url.endswith('/'):
                 base_url = base_url + '/'
 
-            str_url = parse.urljoin(base_url, value)
+            str_url = urllib.parse.urljoin(base_url, value)
             if str_url not in files:
                 if is_object and object_request:
                     file_content = object_request('GET', str_url)
@@ -221,7 +222,7 @@ def process_multiple_environments_and_files(
     :rtype:  tuple
     """
     merged_files: dict[str, str] = {}
-    merged_env: dict[str, dict] = {}
+    merged_env: dict[str, dict[str, Any]] = {}
 
     # If we're keeping a list of environment files separately, include the
     # contents of the files in the files dict
@@ -275,7 +276,7 @@ def process_environment_and_files(
     :rtype:  (dict, dict)
     """
     files: dict[str, str] = {}
-    env: dict[str, dict] = {}
+    env: dict[str, dict[str, Any]] = {}
 
     is_object = env_path_is_object and env_path_is_object(env_path)
 
@@ -295,7 +296,7 @@ def process_environment_and_files(
     elif env_path:
         env_url = utils.normalise_file_path_to_url(env_path)
         env_base_url = utils.base_url_for_url(env_url)
-        raw_env = request.urlopen(env_url).read()  # noqa: S310
+        raw_env = urllib.request.urlopen(env_url).read()  # noqa: S310
 
         env = environment_format.parse(raw_env)
 

@@ -36,8 +36,9 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
         session: Optional['ks_session.Session'] = None,
         app_name: str | None = None,
         app_version: str | None = None,
-        extra_services: list['service_description.ServiceDescription']
-        | None = None,
+        extra_services: (
+            'list[service_description.ServiceDescription[Any]] | None'
+        ) = None,
         strict: bool = False,
         use_direct_get: bool | None = None,
         task_manager: Any = None,

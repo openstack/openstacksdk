@@ -10,10 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from collections.abc import Callable
 import os
 import time
-from typing import ClassVar, Literal
-from collections.abc import Callable
+from typing import Any, ClassVar, Literal
 import warnings
 
 from openstack import exceptions
@@ -116,7 +116,7 @@ class Proxy(proxy.Proxy):
     # ====== IMAGES ======
 
     def _make_v2_image_params(self, meta, properties):
-        ret: dict = {}
+        ret: dict[str, Any] = {}
         for k, v in iter(properties.items()):
             if k in _INT_PROPERTIES:
                 ret[k] = int(v)

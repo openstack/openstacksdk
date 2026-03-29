@@ -208,7 +208,7 @@ class Backup(resource.Resource, metadata.MetadataMixin):
         :return: Updated backup instance
         """
         url = utils.urljoin(self.base_path, self.id, "restore")
-        body: dict[str, dict] = {'restore': {}}
+        body: dict[str, dict[str, Any]] = {'restore': {}}
         if volume_id:
             body['restore']['volume_id'] = volume_id
         if name:

@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 
 from keystoneauth1 import adapter
 import requests
@@ -161,7 +162,7 @@ class Driver(resource.Resource):
         session: adapter.Adapter,
         verb: str,
         method: str,
-        body: dict | None = None,
+        body: dict[str, Any] | None = None,
     ) -> requests.Response:
         """Call a vendor specific passthru method
 

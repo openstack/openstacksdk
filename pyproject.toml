@@ -45,20 +45,20 @@ show_column_numbers = true
 show_error_context = true
 follow_imports = "normal"
 check_untyped_defs = true
-warn_unused_ignores = true
-# many of the following are false while we incrementally add typing
-warn_return_any = false
-warn_unused_configs = true
-warn_redundant_casts = true
-strict_equality = true
-disallow_untyped_decorators = false
-disallow_any_generics = false
-disallow_subclassing_any = false
-disallow_untyped_calls = false
+disallow_any_generics = true
 disallow_incomplete_defs = true
-disallow_untyped_defs = false
-no_implicit_reexport = true
+disallow_subclassing_any = true
+# disallow_untyped_calls = true
+disallow_untyped_decorators = true
+# disallow_untyped_defs = true
 extra_checks = true
+no_implicit_reexport = true
+strict_bytes = true
+strict_equality = true
+warn_redundant_casts = true
+# warn_return_any = true
+warn_unused_configs = true
+warn_unused_ignores = true
 disable_error_code = ["import-untyped"]
 exclude = "(?x)(doc | examples | releasenotes)"
 
@@ -83,13 +83,9 @@ module = [
     "openstack.version",
     "openstack.warnings",
 ]
-warn_return_any = true
-disallow_untyped_decorators = true
-disallow_any_generics = true
-disallow_subclassing_any = true
 disallow_untyped_calls = true
 disallow_untyped_defs = true
-no_implicit_reexport = true
+warn_return_any = true
 
 [[tool.mypy.overrides]]
 module = ["openstack.tests.unit.*"]
