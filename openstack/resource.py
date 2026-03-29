@@ -257,7 +257,7 @@ class QueryParameters:
         *names: str,
         include_pagination_defaults: bool = True,
         **mappings: str | QueryMapping,
-    ):
+    ) -> None:
         """Create a dict of accepted query parameters
 
         :param names: List of strings containing client-side query parameter
@@ -281,7 +281,12 @@ class QueryParameters:
         self._mapping.update({name: name for name in names})
         self._mapping.update(mappings)
 
-    def _validate(self, query, base_path=None, allow_unknown_params=False):
+    def _validate(
+        self,
+        query: dict[str, Any],
+        base_path: str | None = None,
+        allow_unknown_params: bool = False,
+    ) -> dict[str, Any]:
         """Check that supplied query keys match known query mappings
 
         :param dict query: Collection of key-value pairs where each key is the
@@ -317,7 +322,11 @@ class QueryParameters:
                 known_keys = set(query).intersection(set(expected_params))
                 return {k: query[k] for k in known_keys}
 
-    def _transpose(self, query, resource_type):
+    def _transpose(
+        self,
+        query: dict[str, Any],
+        resource_type: type[Resource],
+    ) -> dict[str, Any]:
         """Transpose the keys in query based on the mapping
 
         If a query is supplied with its server side name, we will still use
