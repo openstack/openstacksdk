@@ -57,7 +57,7 @@ class MetadefNamespace(resource.Resource, tag.TagMixin):
         session,
         request,
         method,
-        microversion,
+        microversion=None,
         has_body=True,
         retry_on_conflict=None,
     ):

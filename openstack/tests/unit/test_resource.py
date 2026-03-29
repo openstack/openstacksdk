@@ -1391,15 +1391,12 @@ class TestResourceActions(base.TestCase):
 
         id_is_dirty = 'id' in sot._body._dirty
         self.assertEqual(id_marked_dirty, id_is_dirty)
-        prepare_kwargs = {}
-        if resource_request_key is not None:
-            prepare_kwargs['resource_request_key'] = resource_request_key
 
         sot._prepare_request.assert_called_once_with(
             requires_id=requires_id,
             prepend_key=prepend_key,
             base_path=base_path,
-            **prepare_kwargs,
+            resource_request_key=resource_request_key,
         )
         if requires_id:
             self.session.put.assert_called_once_with(

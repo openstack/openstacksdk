@@ -46,7 +46,7 @@ class Deployable(resource.Resource):
         session,
         request,
         method,
-        microversion,
+        microversion=None,
         has_body=True,
         retry_on_conflict=None,
     ):

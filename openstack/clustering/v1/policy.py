@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Literal
+
 from openstack import resource
 
 
@@ -25,7 +27,7 @@ class Policy(resource.Resource):
     allow_delete = True
     allow_commit = True
 
-    commit_method = 'PATCH'
+    commit_method: Literal['PATCH', 'PUT'] = 'PATCH'
 
     _query_mapping = resource.QueryParameters(
         'name', 'type', 'sort', 'global_project'

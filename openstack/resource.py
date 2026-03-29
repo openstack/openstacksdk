@@ -424,10 +424,10 @@ class Resource(dict):
     #: Commits happen without header or body being dirty.
     allow_empty_commit = False
 
-    #: Method for committing a resource (PUT, PATCH, POST)
-    commit_method = "PUT"
-    #: Method for creating a resource (POST, PUT)
-    create_method = "POST"
+    #: Method for committing a resource
+    commit_method: Literal['POST', 'PATCH', 'PUT'] = 'PUT'
+    #: Method for creating a resource
+    create_method: Literal['POST', 'PUT'] = 'POST'
     #: Whether commit uses JSON patch format.
     commit_jsonpatch = False
 
@@ -1163,15 +1163,15 @@ class Resource(dict):
 
     def _prepare_request(
         self,
-        requires_id=None,
-        prepend_key=False,
-        patch=False,
-        base_path=None,
-        params=None,
+        requires_id: bool | None = None,
+        prepend_key: bool = False,
+        patch: bool = False,
+        base_path: str | None = None,
+        params: Any = None,
         *,
-        resource_request_key=None,
-        **kwargs,
-    ):
+        resource_request_key: str | None = None,
+        **kwargs: Any,
+    ) -> _Request:
         """Prepare a request to be sent to the server
 
         Create operations don't require an ID, but all others do,
@@ -1189,11 +1189,11 @@ class Resource(dict):
         if requires_id is None:
             requires_id = self.requires_id
 
-        # Conditionally construct arguments for _prepare_request_body
-        request_kwargs = {"patch": patch, "prepend_key": prepend_key}
-        if resource_request_key is not None:
-            request_kwargs['resource_request_key'] = resource_request_key
-        body = self._prepare_request_body(**request_kwargs)
+        body = self._prepare_request_body(
+            patch=patch,
+            prepend_key=prepend_key,
+            resource_request_key=resource_request_key,
+        )
 
         # TODO(mordred) Ensure headers have string values better than this
         headers = {}
@@ -1420,6 +1420,11 @@ class Resource(dict):
         if not self.allow_create:
             raise exceptions.MethodNotSupported(self, 'create')
 
+        if self.create_method not in {'PUT', 'POST'}:
+            raise exceptions.ResourceFailure(
+                f"Invalid create method: {self.create_method}"
+            )
+
         session = self._get_session(session)
         if microversion is None:
             microversion = self._get_microversion(session)
@@ -1430,19 +1435,17 @@ class Resource(dict):
         )
 
         # Construct request arguments.
-        request_kwargs = {
-            "requires_id": requires_id,
-            "prepend_key": prepend_key,
-            "base_path": base_path,
-        }
-        if resource_request_key is not None:
-            request_kwargs['resource_request_key'] = resource_request_key
 
         if self.create_exclude_id_from_body:
             self._body._dirty.discard("id")
 
+        request = self._prepare_request(
+            requires_id=requires_id,
+            prepend_key=prepend_key,
+            base_path=base_path,
+            resource_request_key=resource_request_key,
+        )
         if self.create_method == 'PUT':
-            request = self._prepare_request(**request_kwargs)
             response = session.put(
                 request.url,
                 json=request.body,
@@ -1450,18 +1453,13 @@ class Resource(dict):
                 microversion=microversion,
                 params=params,
             )
-        elif self.create_method == 'POST':
-            request = self._prepare_request(**request_kwargs)
+        else:  # self.create_method == 'POST'
             response = session.post(
                 request.url,
                 json=request.body,
                 headers=request.headers,
                 microversion=microversion,
                 params=params,
-            )
-        else:
-            raise exceptions.ResourceFailure(
-                f"Invalid create method: {self.create_method}"
             )
 
         has_body = (
@@ -1516,6 +1514,11 @@ class Resource(dict):
         if not cls.allow_create:
             raise exceptions.MethodNotSupported(cls, 'create')
 
+        if cls.create_method not in {'PUT', 'POST'}:
+            raise exceptions.ResourceFailure(
+                f"Invalid create method: {cls.create_method}"
+            )
+
         if not (
             data
             and isinstance(data, list)
@@ -1531,14 +1534,6 @@ class Resource(dict):
             if cls.create_requires_id is not None
             else cls.create_method == 'PUT'
         )
-        if cls.create_method == 'PUT':
-            method = session.put
-        elif cls.create_method == 'POST':
-            method = session.post
-        else:
-            raise exceptions.ResourceFailure(
-                f"Invalid create method: {cls.create_method}"
-            )
 
         _body: list[Any] = []
         resources = []
@@ -1568,13 +1563,22 @@ class Resource(dict):
 
             body = {cls.resources_key: body}
 
-        response = method(
-            request.url,
-            json=body,
-            headers=request.headers,
-            microversion=microversion,
-            params=params,
-        )
+        if cls.create_method == 'PUT':
+            response = session.put(
+                request.url,
+                json=body,
+                headers=request.headers,
+                microversion=microversion,
+                params=params,
+            )
+        else:  # cls.create_method == 'POST'
+            response = session.post(
+                request.url,
+                json=body,
+                headers=request.headers,
+                microversion=microversion,
+                params=params,
+            )
         exceptions.raise_from_response(response)
         json = response.json()
 
@@ -1777,13 +1781,13 @@ class Resource(dict):
 
     def _commit(
         self,
-        session,
-        request,
-        method,
-        microversion,
-        has_body=True,
-        retry_on_conflict=None,
-    ):
+        session: adapter.Adapter,
+        request: _Request,
+        method: Literal['POST', 'PUT', 'PATCH'],
+        microversion: str | None = None,
+        has_body: bool = True,
+        retry_on_conflict: bool | None = None,
+    ) -> Self:
         session = self._get_session(session)
 
         kwargs = {}
@@ -1795,20 +1799,35 @@ class Resource(dict):
             # overriding it via an explicit retry_on_conflict=False.
             kwargs['retriable_status_codes'] = retriable_status_codes - {409}
 
-        try:
-            call = getattr(session, method.lower())
-        except AttributeError:
+        if method not in {'POST', 'PATCH', 'PUT'}:
             raise exceptions.ResourceFailure(
                 f"Invalid commit method: {method}"
             )
 
-        response = call(
-            request.url,
-            json=request.body,
-            headers=request.headers,
-            microversion=microversion,
-            **kwargs,
-        )
+        if method == 'POST':
+            response = session.post(
+                request.url,
+                json=request.body,
+                headers=request.headers,
+                microversion=microversion,
+                **kwargs,
+            )
+        elif method == 'PATCH':
+            response = session.patch(
+                request.url,
+                json=request.body,
+                headers=request.headers,
+                microversion=microversion,
+                **kwargs,
+            )
+        else:  # method == 'PUT'
+            response = session.put(
+                request.url,
+                json=request.body,
+                headers=request.headers,
+                microversion=microversion,
+                **kwargs,
+            )
 
         self.microversion = microversion
 
