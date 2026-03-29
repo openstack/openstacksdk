@@ -2257,20 +2257,6 @@ class Resource(dict):
         cls,
         session: adapter.Adapter,
         name_or_id: str,
-        ignore_missing: Literal[True] = True,
-        list_base_path: str | None = None,
-        *,
-        microversion: str | None = None,
-        all_projects: bool | None = None,
-        **params: Any,
-    ) -> Self | None: ...
-
-    @overload
-    @classmethod
-    def find(
-        cls,
-        session: adapter.Adapter,
-        name_or_id: str,
         ignore_missing: Literal[False],
         list_base_path: str | None = None,
         *,
@@ -2279,15 +2265,13 @@ class Resource(dict):
         **params: Any,
     ) -> Self: ...
 
-    # excuse the duplication here: it's mypy's fault
-    # https://github.com/python/mypy/issues/14764
     @overload
     @classmethod
     def find(
         cls,
         session: adapter.Adapter,
         name_or_id: str,
-        ignore_missing: bool,
+        ignore_missing: bool = True,
         list_base_path: str | None = None,
         *,
         microversion: str | None = None,

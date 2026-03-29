@@ -2145,25 +2145,15 @@ class Proxy(proxy.Proxy):
     def find_service(
         self,
         name_or_id: str,
-        ignore_missing: Literal[True] = True,
-        **query: Any,
-    ) -> _service.Service | None: ...
-
-    @overload
-    def find_service(
-        self,
-        name_or_id: str,
         ignore_missing: Literal[False],
         **query: Any,
     ) -> _service.Service: ...
 
-    # excuse the duplication here: it's mypy's fault
-    # https://github.com/python/mypy/issues/14764
     @overload
     def find_service(
         self,
         name_or_id: str,
-        ignore_missing: bool,
+        ignore_missing: bool = True,
         **query: Any,
     ) -> _service.Service | None: ...
 

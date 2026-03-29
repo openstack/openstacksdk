@@ -629,27 +629,16 @@ class Proxy(adapter.Adapter):
         self,
         resource_type: type[resource.ResourceT],
         name_or_id: str,
-        ignore_missing: Literal[True] = True,
-        **attrs: Any,
-    ) -> resource.ResourceT | None: ...
-
-    @overload
-    def _find(
-        self,
-        resource_type: type[resource.ResourceT],
-        name_or_id: str,
         ignore_missing: Literal[False],
         **attrs: Any,
     ) -> resource.ResourceT: ...
 
-    # excuse the duplication here: it's mypy's fault
-    # https://github.com/python/mypy/issues/14764
     @overload
     def _find(
         self,
         resource_type: type[resource.ResourceT],
         name_or_id: str,
-        ignore_missing: bool,
+        ignore_missing: bool = True,
         **attrs: Any,
     ) -> resource.ResourceT | None: ...
 
