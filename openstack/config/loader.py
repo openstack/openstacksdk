@@ -21,7 +21,7 @@ import json
 import os
 import re
 import sys
-import typing as ty
+from typing import Any, TYPE_CHECKING
 import warnings
 
 from keystoneauth1 import adapter
@@ -38,7 +38,7 @@ from openstack.config import vendors
 from openstack import exceptions
 from openstack import warnings as os_warnings
 
-if ty.TYPE_CHECKING:
+if TYPE_CHECKING:
     from keystoneauth1.loading._plugins.identity import v3 as v3_loaders
     from keystoneauth1.loading import opts
 
@@ -96,7 +96,7 @@ CSV_KEYS = ('auth_methods',)
 FORMAT_EXCLUSIONS = frozenset(['password'])
 
 
-def get_boolean(value: ty.Any) -> bool:
+def get_boolean(value: Any) -> bool:
     if value is None:
         return False
     if type(value) is bool:
@@ -107,8 +107,8 @@ def get_boolean(value: ty.Any) -> bool:
 
 
 def _auth_update(
-    old_dict: dict[str, ty.Any], new_dict_source: dict[str, ty.Any]
-) -> dict[str, ty.Any]:
+    old_dict: dict[str, Any], new_dict_source: dict[str, Any]
+) -> dict[str, Any]:
     """Like dict.update, except handling the nested dict called auth."""
     new_dict = copy.deepcopy(new_dict_source)
     for k, v in new_dict.items():
@@ -166,13 +166,13 @@ class OpenStackConfig:
     #: loaded from, if any.
     secure_config_filename: str | None
     #: cloud_config contains the combined loaded configuration.
-    cloud_config: dict[str, ty.Any]
+    cloud_config: dict[str, Any]
 
     def __init__(
         self,
         config_files: list[str] | None = None,
         vendor_files: list[str] | None = None,
-        override_defaults: dict[str, ty.Any] | None = None,
+        override_defaults: dict[str, Any] | None = None,
         force_ipv4: bool | None = None,
         envvar_prefix: str | None = None,
         secure_files: list[str] | None = None,
@@ -185,7 +185,7 @@ class OpenStackConfig:
         statsd_host: str | None = None,
         statsd_port: str | None = None,
         statsd_prefix: str | None = None,
-        influxdb_config: dict[str, ty.Any] | None = None,
+        influxdb_config: dict[str, Any] | None = None,
     ):
         self.log = _log.setup_logging('openstack.config')
         self._session_constructor = session_constructor
@@ -323,7 +323,7 @@ class OpenStackConfig:
         self._cache_expiration_time = 0
         self._cache_path = CACHE_PATH
         self._cache_class = 'dogpile.cache.null'
-        self._cache_arguments: dict[str, ty.Any] = {}
+        self._cache_arguments: dict[str, Any] = {}
         self._cache_expirations: dict[str, int] = {}
         self._influxdb_config = {}
         if 'cache' in self.cloud_config:
@@ -427,7 +427,7 @@ class OpenStackConfig:
 
     def _get_os_environ(
         self, envvar_prefix: str | None = None
-    ) -> dict[str, ty.Any] | None:
+    ) -> dict[str, Any] | None:
         ret = self._defaults_module.get_defaults()
         if not envvar_prefix:
             # This makes the or below be OS_ or OS_ which is a no-op
@@ -462,8 +462,8 @@ class OpenStackConfig:
         return os.environ.get(key, default)
 
     def get_extra_config(
-        self, key: str, defaults: dict[str, ty.Any] | None = None
-    ) -> dict[str, ty.Any]:
+        self, key: str, defaults: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """Fetch an arbitrary extra chunk of config, laying in defaults.
 
         :param string key: name of the config section to fetch
@@ -480,22 +480,22 @@ class OpenStackConfig:
 
     def _load_config_file(
         self,
-    ) -> tuple[str, dict[str, ty.Any]] | tuple[None, None]:
+    ) -> tuple[str, dict[str, Any]] | tuple[None, None]:
         return self._load_yaml_json_file(self._config_files)
 
     def _load_secure_file(
         self,
-    ) -> tuple[str, dict[str, ty.Any]] | tuple[None, None]:
+    ) -> tuple[str, dict[str, Any]] | tuple[None, None]:
         return self._load_yaml_json_file(self._secure_files)
 
     def _load_vendor_file(
         self,
-    ) -> tuple[str, dict[str, ty.Any]] | tuple[None, None]:
+    ) -> tuple[str, dict[str, Any]] | tuple[None, None]:
         return self._load_yaml_json_file(self._vendor_files)
 
     def _load_yaml_json_file(
         self, filelist: list[str]
-    ) -> tuple[str, dict[str, ty.Any]] | tuple[None, None]:
+    ) -> tuple[str, dict[str, Any]] | tuple[None, None]:
         for path in filelist:
             if os.path.exists(path):
                 try:
@@ -511,7 +511,7 @@ class OpenStackConfig:
                         continue
         return (None, None)
 
-    def _validate_config_file(self, path: str, data: ty.Any) -> bool:
+    def _validate_config_file(self, path: str, data: Any) -> bool:
         """Validate config file contains a clouds entry.
 
         All config files should have a 'clouds' key at a minimum.
@@ -530,12 +530,12 @@ class OpenStackConfig:
 
         return True
 
-    def _expand_region_name(self, region_name: str) -> dict[str, ty.Any]:
+    def _expand_region_name(self, region_name: str) -> dict[str, Any]:
         return {'name': region_name, 'values': {}}
 
     def _expand_regions(
-        self, regions: list[str | dict[str, ty.Any]]
-    ) -> list[dict[str, ty.Any]]:
+        self, regions: list[str | dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         ret = []
         for region in regions:
             if isinstance(region, dict):
@@ -553,7 +553,7 @@ class OpenStackConfig:
                 ret.append(self._expand_region_name(region))
         return ret
 
-    def _get_regions(self, cloud: str) -> list[dict[str, ty.Any]]:
+    def _get_regions(self, cloud: str) -> list[dict[str, Any]]:
         if cloud not in self.cloud_config['clouds']:
             return [self._expand_region_name('')]
         regions = self._get_known_regions(cloud)
@@ -562,7 +562,7 @@ class OpenStackConfig:
             regions = [self._expand_region_name('')]
         return regions
 
-    def _get_known_regions(self, cloud: str) -> list[dict[str, ty.Any]]:
+    def _get_known_regions(self, cloud: str) -> list[dict[str, Any]]:
         config = _util.normalize_keys(self.cloud_config['clouds'][cloud])
         if 'regions' in config:
             return self._expand_regions(config['regions'])
@@ -581,7 +581,7 @@ class OpenStackConfig:
             return self._expand_regions(regions)
         else:
             # crappit. we don't have a region defined.
-            new_cloud: dict[str, ty.Any] = {}
+            new_cloud: dict[str, Any] = {}
             our_cloud = self.cloud_config['clouds'].get(cloud, {})
             self._expand_vendor_profile(cloud, new_cloud, our_cloud)
             if new_cloud.get('regions'):
@@ -593,7 +593,7 @@ class OpenStackConfig:
 
     def _get_region(
         self, cloud: str | None = None, region_name: str = ''
-    ) -> dict[str, ty.Any]:
+    ) -> dict[str, Any]:
         if region_name is None:
             region_name = ''
 
@@ -626,7 +626,7 @@ class OpenStackConfig:
 
     def _get_base_cloud_config(
         self, name: str | None, profile: str | None = None
-    ) -> dict[str, ty.Any]:
+    ) -> dict[str, Any]:
         cloud = {}
 
         # Only validate cloud name if one was given
@@ -652,8 +652,8 @@ class OpenStackConfig:
     def _expand_vendor_profile(
         self,
         name: str | None,
-        cloud: dict[str, ty.Any],
-        our_cloud: dict[str, ty.Any],
+        cloud: dict[str, Any],
+        our_cloud: dict[str, Any],
     ) -> None:
         # Expand a profile if it exists. 'cloud' is an old confusing name
         # for this.
@@ -704,7 +704,7 @@ class OpenStackConfig:
                     os_warnings.ConfigurationWarning,
                 )
 
-    def _project_scoped(self, cloud: dict[str, ty.Any]) -> bool:
+    def _project_scoped(self, cloud: dict[str, Any]) -> bool:
         return (
             'project_id' in cloud
             or 'project_name' in cloud
@@ -713,7 +713,7 @@ class OpenStackConfig:
         )
 
     def _validate_networks(
-        self, networks: list[dict[str, ty.Any]], key: str
+        self, networks: list[dict[str, Any]], key: str
     ) -> None:
         value = None
         for net in networks:
@@ -727,9 +727,7 @@ class OpenStackConfig:
             if not value and net[key]:
                 value = net
 
-    def _fix_backwards_networks(
-        self, cloud: dict[str, ty.Any]
-    ) -> dict[str, ty.Any]:
+    def _fix_backwards_networks(self, cloud: dict[str, Any]) -> dict[str, Any]:
         # Leave the external_network and internal_network keys in the
         # dict because consuming code might be expecting them.
         networks = []
@@ -788,7 +786,7 @@ class OpenStackConfig:
         cloud['networks'] = networks
         return cloud
 
-    def _handle_domain_id(self, cloud: dict[str, ty.Any]) -> dict[str, ty.Any]:
+    def _handle_domain_id(self, cloud: dict[str, Any]) -> dict[str, Any]:
         # Allow people to just specify domain once if it's the same
         mappings = {
             'domain_id': ('user_domain_id', 'project_domain_id'),
@@ -806,9 +804,7 @@ class OpenStackConfig:
             cloud['auth'].pop(target_key, None)
         return cloud
 
-    def _fix_backwards_auth(
-        self, cloud: dict[str, ty.Any]
-    ) -> dict[str, ty.Any]:
+    def _fix_backwards_auth(self, cloud: dict[str, Any]) -> dict[str, Any]:
         mappings = {
             'domain_id': ('domain_id', 'domain-id'),
             'domain_name': ('domain_name', 'domain-name'),
@@ -868,8 +864,8 @@ class OpenStackConfig:
         return cloud
 
     def _fix_backwards_auth_plugin(
-        self, cloud: dict[str, ty.Any]
-    ) -> dict[str, ty.Any]:
+        self, cloud: dict[str, Any]
+    ) -> dict[str, Any]:
         # Do the lists backwards so that auth_type is the ultimate winner
         mappings = {
             'auth_type': ('auth_plugin', 'auth_type'),
@@ -1002,8 +998,8 @@ class OpenStackConfig:
         parser.add_argument('--endpoint-type', help=argparse_mod.SUPPRESS)
 
     def _fix_backwards_interface(
-        self, cloud: dict[str, ty.Any]
-    ) -> dict[str, ty.Any]:
+        self, cloud: dict[str, Any]
+    ) -> dict[str, Any]:
         new_cloud = {}
         for key in cloud.keys():
             if key.endswith('endpoint_type'):
@@ -1014,8 +1010,8 @@ class OpenStackConfig:
         return new_cloud
 
     def _fix_backwards_api_timeout(
-        self, cloud: dict[str, ty.Any]
-    ) -> dict[str, ty.Any]:
+        self, cloud: dict[str, Any]
+    ) -> dict[str, Any]:
         new_cloud = {}
         # requests can only have one timeout, which means that in a single
         # cloud there is no point in different timeout values. However,
@@ -1061,9 +1057,9 @@ class OpenStackConfig:
 
     def _fix_args(
         self,
-        args: dict[str, ty.Any] | None = None,
+        args: dict[str, Any] | None = None,
         argparse: argparse_mod.Namespace | None = None,
-    ) -> dict[str, ty.Any]:
+    ) -> dict[str, Any]:
         """Massage the passed-in options
 
         Replace - with _ and strip os_ prefixes.
@@ -1100,8 +1096,8 @@ class OpenStackConfig:
         return new_args
 
     def _find_winning_auth_value(
-        self, opt: 'opts.Opt', config: dict[str, dict[str, ty.Any]]
-    ) -> dict[str, ty.Any] | None:
+        self, opt: 'opts.Opt', config: dict[str, dict[str, Any]]
+    ) -> dict[str, Any] | None:
         opt_name = opt.name.replace('-', '_')
         if opt_name in config:
             return config[opt_name]
@@ -1116,7 +1112,7 @@ class OpenStackConfig:
 
         return None
 
-    def auth_config_hook(self, config: dict[str, ty.Any]) -> dict[str, ty.Any]:
+    def auth_config_hook(self, config: dict[str, Any]) -> dict[str, Any]:
         """Allow examination of config values before loading auth plugin
 
         OpenStackClient will override this to perform additional checks
@@ -1125,8 +1121,8 @@ class OpenStackConfig:
         return config
 
     def _get_auth_loader(
-        self, config: dict[str, ty.Any]
-    ) -> loading.BaseLoader[ty.Any]:
+        self, config: dict[str, Any]
+    ) -> loading.BaseLoader[Any]:
         # Use the 'none' plugin for variants of None specified,
         # since it does not look up endpoints or tokens but rather
         # does a passthrough. This is useful for things like Ironic
@@ -1141,7 +1137,7 @@ class OpenStackConfig:
             # doing what they want causes them sorrow.
             config['auth_type'] = 'admin_token'
 
-        loader: loading.BaseLoader[ty.Any] = loading.get_plugin_loader(
+        loader: loading.BaseLoader[Any] = loading.get_plugin_loader(
             config['auth_type']
         )
 
@@ -1156,7 +1152,7 @@ class OpenStackConfig:
         # options in keystoneauth1.loading._plugins.identity.v3.MultiAuth
         # without calling 'load_from_options'.
         if config['auth_type'] == 'v3multifactor':
-            if ty.TYPE_CHECKING:
+            if TYPE_CHECKING:
                 # narrow types
                 assert isinstance(loader, v3_loaders.MultiFactor)
             # We use '.get' since we can't be sure this key is set yet -
@@ -1166,8 +1162,8 @@ class OpenStackConfig:
         return loader
 
     def _validate_auth(
-        self, config: dict[str, ty.Any], loader: loading.BaseLoader[ty.Any]
-    ) -> dict[str, ty.Any]:
+        self, config: dict[str, Any], loader: loading.BaseLoader[Any]
+    ) -> dict[str, Any]:
         # May throw a keystoneauth1.exceptions.NoMatchingPlugin
 
         plugin_options = loader.get_options()
@@ -1208,8 +1204,8 @@ class OpenStackConfig:
         return config
 
     def _validate_auth_correctly(
-        self, config: dict[str, ty.Any], loader: loading.BaseLoader[ty.Any]
-    ) -> dict[str, ty.Any]:
+        self, config: dict[str, Any], loader: loading.BaseLoader[Any]
+    ) -> dict[str, Any]:
         # May throw a keystoneauth1.exceptions.NoMatchingPlugin
 
         plugin_options = loader.get_options()
@@ -1241,8 +1237,8 @@ class OpenStackConfig:
         return config
 
     def option_prompt(
-        self, config: dict[str, ty.Any], p_opt: 'opts.Opt'
-    ) -> dict[str, ty.Any]:
+        self, config: dict[str, Any], p_opt: 'opts.Opt'
+    ) -> dict[str, Any]:
         """Prompt user for option that requires a value"""
         if (
             getattr(p_opt, 'prompt', None) is not None
@@ -1254,10 +1250,10 @@ class OpenStackConfig:
 
     def _clean_up_after_ourselves(
         self,
-        config: dict[str, ty.Any],
+        config: dict[str, Any],
         p_opt: 'opts.Opt',
-        winning_value: ty.Any,
-    ) -> dict[str, ty.Any]:
+        winning_value: Any,
+    ) -> dict[str, Any]:
         # Clean up after ourselves
         for opt in [p_opt.name] + [o.name for o in p_opt.deprecated]:
             opt = opt.replace('-', '_')
@@ -1273,9 +1269,7 @@ class OpenStackConfig:
                 config['auth'][p_opt.dest] = winning_value
         return config
 
-    def _handle_value_types(
-        self, config: dict[str, ty.Any]
-    ) -> dict[str, ty.Any]:
+    def _handle_value_types(self, config: dict[str, Any]) -> dict[str, Any]:
         for key in BOOL_KEYS:
             if key in config:
                 if not isinstance(config[key], bool):
@@ -1287,7 +1281,7 @@ class OpenStackConfig:
                     config[key] = config[key].split(',')
         return config
 
-    def magic_fixes(self, config: dict[str, ty.Any]) -> dict[str, ty.Any]:
+    def magic_fixes(self, config: dict[str, Any]) -> dict[str, Any]:
         """Perform the set of magic argument fixups"""
 
         # These backwards compat values are only set via argparse. If it's
@@ -1315,7 +1309,7 @@ class OpenStackConfig:
         cloud: str | None = None,
         validate: bool = True,
         argparse: argparse_mod.Namespace | None = None,
-        **kwargs: ty.Any,
+        **kwargs: Any,
     ) -> cloud_region.CloudRegion:
         """Retrieve a single CloudRegion and merge additional options
 
@@ -1440,7 +1434,7 @@ class OpenStackConfig:
         cloud: str | None = None,
         validate: bool = True,
         argparse: argparse_mod.Namespace | None = None,
-        **kwargs: ty.Any,
+        **kwargs: Any,
     ) -> cloud_region.CloudRegion:
         warnings.warn(
             "The 'get_one_cloud' method is a deprecated alias for 'get_one' "
@@ -1459,7 +1453,7 @@ class OpenStackConfig:
         cloud: str | None = None,
         validate: bool = True,
         argparse: argparse_mod.Namespace | None = None,
-        **kwargs: ty.Any,
+        **kwargs: Any,
     ) -> cloud_region.CloudRegion:
         """Retrieve a single CloudRegion and merge additional options
 
@@ -1558,7 +1552,7 @@ class OpenStackConfig:
     def set_one_cloud(
         config_file: str,
         cloud: str,
-        set_config: dict[str, ty.Any] | None = None,
+        set_config: dict[str, Any] | None = None,
     ) -> None:
         """Set a single cloud configuration.
 

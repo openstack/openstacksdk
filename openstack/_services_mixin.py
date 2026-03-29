@@ -1,5 +1,5 @@
 # Generated file, to change, run tools/print-services.py
-import typing as ty
+from typing import TYPE_CHECKING
 
 from openstack import service_description
 from openstack.accelerator import accelerator_service
@@ -26,7 +26,7 @@ from openstack.placement import placement_service
 from openstack.shared_file_system import shared_file_system_service
 from openstack.workflow import workflow_service
 
-if ty.TYPE_CHECKING:
+if TYPE_CHECKING:
     # the noqa is necessary as 'proxy' is only referenced in string subscripts
     # and ruff doesn't scan for name usage since they're not in annotation
     # positions

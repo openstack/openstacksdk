@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import typing as ty
+from typing import Any
 
 from keystoneauth1 import adapter
 import typing_extensions as ty_ext
@@ -78,7 +78,7 @@ class Quota(_base.Resource):
         *,
         resource_response_key: str | None = None,
         microversion: str | None = None,
-        **params: ty.Any,
+        **params: Any,
     ) -> ty_ext.Self:
         request = self._prepare_request(
             requires_id=requires_id,

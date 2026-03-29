@@ -11,7 +11,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import typing as ty
+from typing import Any, Generic, TYPE_CHECKING, cast, overload
 import warnings
 
 import os_service_types
@@ -25,7 +25,7 @@ __all__ = [
     'ServiceDescription',
 ]
 
-if ty.TYPE_CHECKING:
+if TYPE_CHECKING:
     from openstack import connection
 
 _logger = _log.setup_logging('openstack')
@@ -37,7 +37,7 @@ class _ServiceDisabledProxyShim:
         self.service_type = service_type
         self.reason = reason
 
-    def __getattr__(self, item: ty.Any) -> ty.Any:
+    def __getattr__(self, item: Any) -> Any:
         raise exceptions.ServiceDisabledException(
             "Service '{service_type}' is disabled because its configuration "
             "could not be loaded. {reason}".format(
@@ -46,7 +46,7 @@ class _ServiceDisabledProxyShim:
         )
 
 
-class ServiceDescription(ty.Generic[proxy_mod.ProxyT]):
+class ServiceDescription(Generic[proxy_mod.ProxyT]):
     #: Dictionary of supported versions and proxy classes for that version
     supported_versions: dict[str, type[proxy_mod.Proxy]] = {}
     #: main service_type to use to find this service in the catalog
@@ -88,37 +88,35 @@ class ServiceDescription(ty.Generic[proxy_mod.ProxyT]):
         self.aliases = aliases or self.aliases
         self.all_types = [service_type, *self.aliases]
 
-    @ty.overload
+    @overload
     def __get__(self, instance: None, owner: None) -> 'ServiceDescription': ...
 
     # NOTE(stephenfin): We would like to type instance as
     # connection.Connection, but due to how we construct that object, we can't
     # do so yet.
-    @ty.overload
+    @overload
     def __get__(
         self,
-        instance: ty.Any,
+        instance: Any,
         owner: type[object],
     ) -> proxy_mod.ProxyT: ...
 
     def __get__(
         self,
-        instance: ty.Any,
+        instance: Any,
         owner: type[object] | None,
     ) -> 'ServiceDescription | proxy_mod.ProxyT':
         if instance is None:
             return self
 
         if self.service_type in instance._proxies:
-            return ty.cast(
-                proxy_mod.ProxyT, instance._proxies[self.service_type]
-            )
+            return cast(proxy_mod.ProxyT, instance._proxies[self.service_type])
 
         proxy = self._make_proxy(instance)
 
         if isinstance(proxy, _ServiceDisabledProxyShim):
             instance._proxies[self.service_type] = proxy
-            return ty.cast(
+            return cast(
                 proxy_mod.ProxyT,
                 instance._proxies[self.service_type],
             )
@@ -194,7 +192,7 @@ class ServiceDescription(ty.Generic[proxy_mod.ProxyT]):
         if not config.has_service(self.service_type):
             # NOTE(stephenfin): Yes, we are lying here. But that's okay: they
             # should behave identically in a typing context
-            return ty.cast(
+            return cast(
                 proxy_mod.ProxyT,
                 _ServiceDisabledProxyShim(
                     self.service_type,

@@ -51,7 +51,7 @@ For more information, refer to the documentation found in each submodule.
 """
 
 import argparse
-import typing as ty
+from typing import Any
 
 from openstack._log import enable_logging
 import openstack.config
@@ -70,7 +70,7 @@ def connect(
     options: argparse.ArgumentParser | None = None,
     load_yaml_config: bool = True,
     load_envvars: bool = True,
-    **kwargs: ty.Any,
+    **kwargs: Any,
 ) -> openstack.connection.Connection:
     """Create a :class:`~openstack.connection.Connection`
 

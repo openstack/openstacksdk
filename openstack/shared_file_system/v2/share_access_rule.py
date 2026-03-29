@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import typing as ty
+from typing import Any
 
 from openstack import resource
 from openstack import utils
@@ -93,7 +93,7 @@ class ShareAccessRule(resource.Resource):
         unrestrict=False,
         **kwargs,
     ):
-        body: dict[str, ty.Any] = {'deny_access': {'access_id': self.id}}
+        body: dict[str, Any] = {'deny_access': {'access_id': self.id}}
         if unrestrict:
             body['deny_access']['unrestrict'] = True
         url = utils.urljoin("/shares", self.share_id, "action")

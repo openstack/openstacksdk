@@ -10,13 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import typing as ty
+from typing import Literal
 
 
 # Workaround Python's lack of an undefined sentinel
 # https://python-patterns.guide/python/sentinel-object/
 class Unset:
-    def __bool__(self) -> ty.Literal[False]:
+    def __bool__(self) -> Literal[False]:
         return False
 
 

@@ -15,7 +15,7 @@
 import glob
 import json
 import os
-import typing as ty
+from typing import Any
 import urllib
 
 import requests
@@ -25,11 +25,11 @@ from openstack.config import _util
 from openstack import exceptions
 
 _VENDORS_PATH = os.path.dirname(os.path.realpath(__file__))
-_VENDOR_DEFAULTS: dict[str, dict[str, ty.Any]] = {}
+_VENDOR_DEFAULTS: dict[str, dict[str, Any]] = {}
 _WELL_KNOWN_PATH = "{scheme}://{netloc}/.well-known/openstack/api"
 
 
-def _get_vendor_defaults() -> dict[str, dict[str, ty.Any]]:
+def _get_vendor_defaults() -> dict[str, dict[str, Any]]:
     global _VENDOR_DEFAULTS
 
     if not _VENDOR_DEFAULTS:
@@ -46,7 +46,7 @@ def _get_vendor_defaults() -> dict[str, dict[str, ty.Any]]:
     return _VENDOR_DEFAULTS
 
 
-def get_profile(profile_name: str) -> dict[str, ty.Any] | None:
+def get_profile(profile_name: str) -> dict[str, Any] | None:
     vendor_defaults = _get_vendor_defaults()
     if profile_name in vendor_defaults:
         return vendor_defaults[profile_name].copy()

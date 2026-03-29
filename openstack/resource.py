@@ -35,11 +35,21 @@ and then returned to the caller.
 from __future__ import annotations
 
 import builtins
-from collections.abc import MutableMapping, Iterable
+from collections.abc import Callable, Generator, MutableMapping, Iterable
 import inspect
 import itertools
 import operator
-import typing as ty
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    NoReturn,
+    Protocol,
+    TypeVar,
+    TypedDict,
+    Union,
+    overload,
+)
 import urllib.parse
 import warnings
 
@@ -55,13 +65,13 @@ from openstack import fields
 from openstack import utils
 from openstack import warnings as os_warnings
 
-if ty.TYPE_CHECKING:
+if TYPE_CHECKING:
     from openstack import connection
 
 LOG = _log.setup_logging(__name__)
 
-AdapterT = ty.TypeVar('AdapterT', bound=adapter.Adapter)
-ResourceT = ty.TypeVar('ResourceT', bound='Resource')
+AdapterT = TypeVar('AdapterT', bound=adapter.Adapter)
+ResourceT = TypeVar('ResourceT', bound='Resource')
 
 
 # TODO(stephenfin): We should deprecate the 'type' and 'list_type' arguments
@@ -69,16 +79,16 @@ ResourceT = ty.TypeVar('ResourceT', bound='Resource')
 # with Any rather than generating super complex types
 def Body(
     name: str,
-    type: ty.Any | None = None,
-    default: ty.Any = None,
+    type: Any | None = None,
+    default: Any = None,
     alias: str | None = None,
     aka: str | None = None,
     alternate_id: bool = False,
-    list_type: ty.Any | None = None,
+    list_type: Any | None = None,
     coerce_to_default: bool = False,
     deprecated: bool = False,
     deprecation_reason: str | None = None,
-) -> ty.Any:
+) -> Any:
     return fields.Body(
         name,
         type=type,
@@ -95,16 +105,16 @@ def Body(
 
 def Header(
     name: str,
-    type: ty.Any | None = None,
-    default: ty.Any = None,
+    type: Any | None = None,
+    default: Any = None,
     alias: str | None = None,
     aka: str | None = None,
     alternate_id: bool = False,
-    list_type: ty.Any | None = None,
+    list_type: Any | None = None,
     coerce_to_default: bool = False,
     deprecated: bool = False,
     deprecation_reason: str | None = None,
-) -> ty.Any:
+) -> Any:
     return fields.Header(
         name,
         type=type,
@@ -121,16 +131,16 @@ def Header(
 
 def URI(
     name: str,
-    type: ty.Any | None = None,
-    default: ty.Any = None,
+    type: Any | None = None,
+    default: Any = None,
     alias: str | None = None,
     aka: str | None = None,
     alternate_id: bool = False,
-    list_type: ty.Any | None = None,
+    list_type: Any | None = None,
     coerce_to_default: bool = False,
     deprecated: bool = False,
     deprecation_reason: str | None = None,
-) -> ty.Any:
+) -> Any:
     return fields.URI(
         name,
         type=type,
@@ -147,16 +157,16 @@ def URI(
 
 def Computed(
     name: str,
-    type: ty.Any | None = None,
-    default: ty.Any = None,
+    type: Any | None = None,
+    default: Any = None,
     alias: str | None = None,
     aka: str | None = None,
     alternate_id: bool = False,
-    list_type: ty.Any | None = None,
+    list_type: Any | None = None,
     coerce_to_default: bool = False,
     deprecated: bool = False,
     deprecation_reason: str | None = None,
-) -> ty.Any:
+) -> Any:
     return fields.Computed(
         name,
         type=type,
@@ -174,7 +184,7 @@ def Computed(
 class _ComponentManager(MutableMapping):
     """Storage of a component type"""
 
-    attributes: dict[str, ty.Any]
+    attributes: dict[str, Any]
 
     def __init__(self, attributes=None, synchronized=False):
         self.attributes = dict() if attributes is None else attributes.copy()
@@ -206,7 +216,7 @@ class _ComponentManager(MutableMapping):
         return len(self.attributes)
 
     @property
-    def dirty(self) -> dict[str, ty.Any]:
+    def dirty(self) -> dict[str, Any]:
         """Return a dict of modified attributes"""
         return {key: self.attributes.get(key, None) for key in self._dirty}
 
@@ -231,9 +241,9 @@ class _Request:
         self.headers = headers
 
 
-class QueryMapping(ty.TypedDict):
+class QueryMapping(TypedDict):
     name: ty_ext.NotRequired[str]
-    type: ty_ext.NotRequired[ty.Callable[[ty.Any, type[ResourceT]], ResourceT]]
+    type: ty_ext.NotRequired[Callable[[Any, type[ResourceT]], ResourceT]]
 
 
 class QueryParameters:
@@ -348,7 +358,7 @@ class QueryParameters:
         return result
 
 
-class ResourceMixinProtocol(ty.Protocol):
+class ResourceMixinProtocol(Protocol):
     id: str
     base_path: str
 
@@ -388,7 +398,7 @@ class Resource(dict):
     #: The name of this resource.
     name: str = Body("name")
     #: The OpenStack location of this resource.
-    location: dict[str, ty.Any] = Computed('location')
+    location: dict[str, Any] = Computed('location')
 
     #: Mapping of accepted query parameter names.
     _query_mapping = QueryParameters()
@@ -442,10 +452,10 @@ class Resource(dict):
     _header: _ComponentManager
     _uri: _ComponentManager
     _computed: _ComponentManager
-    _original_body: dict[str, ty.Any] = {}
+    _original_body: dict[str, Any] = {}
     _store_unknown_attrs_as_properties = False
     _allow_unknown_attrs_in_body = False
-    _unknown_attrs_in_body: dict[str, ty.Any] = {}
+    _unknown_attrs_in_body: dict[str, Any] = {}
 
     # Placeholder for aliases as dict of {__alias__:__original}
     _attr_aliases: dict[str, str] = {}
@@ -687,7 +697,7 @@ class Resource(dict):
             res.append((attr, self[attr]))
         return res
 
-    def _update(self, **attrs: ty.Any) -> None:
+    def _update(self, **attrs: Any) -> None:
         """Given attributes, update them on this instance
 
         This is intended to be used from within the proxy
@@ -769,37 +779,33 @@ class Resource(dict):
         return {}
 
     def _consume_body_attrs(
-        self, attrs: MutableMapping[str, ty.Any]
-    ) -> dict[str, ty.Any]:
+        self, attrs: MutableMapping[str, Any]
+    ) -> dict[str, Any]:
         return self._consume_mapped_attrs(fields.Body, attrs)
 
     def _consume_header_attrs(
-        self, attrs: MutableMapping[str, ty.Any]
-    ) -> dict[str, ty.Any]:
+        self, attrs: MutableMapping[str, Any]
+    ) -> dict[str, Any]:
         return self._consume_mapped_attrs(fields.Header, attrs)
 
     def _consume_uri_attrs(
-        self, attrs: MutableMapping[str, ty.Any]
-    ) -> dict[str, ty.Any]:
+        self, attrs: MutableMapping[str, Any]
+    ) -> dict[str, Any]:
         return self._consume_mapped_attrs(fields.URI, attrs)
 
-    def _update_from_body_attrs(
-        self, attrs: MutableMapping[str, ty.Any]
-    ) -> None:
+    def _update_from_body_attrs(self, attrs: MutableMapping[str, Any]) -> None:
         body = self._consume_body_attrs(attrs)
         self._body.attributes.update(body)
         self._body.clean()
 
     def _update_from_header_attrs(
-        self, attrs: MutableMapping[str, ty.Any]
+        self, attrs: MutableMapping[str, Any]
     ) -> None:
         headers = self._consume_header_attrs(attrs)
         self._header.attributes.update(headers)
         self._header.clean()
 
-    def _update_uri_from_attrs(
-        self, attrs: MutableMapping[str, ty.Any]
-    ) -> None:
+    def _update_uri_from_attrs(self, attrs: MutableMapping[str, Any]) -> None:
         uri = self._consume_uri_attrs(attrs)
         self._uri.attributes.update(uri)
         self._uri.clean()
@@ -807,16 +813,16 @@ class Resource(dict):
     def _consume_mapped_attrs(
         self,
         mapping_cls: type[fields._BaseComponent],
-        attrs: MutableMapping[str, ty.Any],
-    ) -> dict[str, ty.Any]:
+        attrs: MutableMapping[str, Any],
+    ) -> dict[str, Any]:
         mapping = self._get_mapping(mapping_cls)
         return self._consume_attrs(mapping, attrs)
 
     def _consume_attrs(
         self,
-        mapping: MutableMapping[str, ty.Any],
-        attrs: MutableMapping[str, ty.Any],
-    ) -> dict[str, ty.Any]:
+        mapping: MutableMapping[str, Any],
+        attrs: MutableMapping[str, Any],
+    ) -> dict[str, Any]:
         """Given a mapping and attributes, return relevant matches
 
         This method finds keys in attrs that exist in the mapping, then
@@ -858,7 +864,7 @@ class Resource(dict):
     @classmethod
     def _get_mapping(
         cls, component: type[fields._BaseComponent]
-    ) -> ty.MutableMapping[str, ty.Any]:
+    ) -> MutableMapping[str, Any]:
         """Return a dict of attributes of a given component on the class"""
         mapping = component._map_cls()
         ret = component._map_cls()
@@ -923,7 +929,7 @@ class Resource(dict):
             return value
 
     @classmethod
-    def new(cls, **kwargs: ty.Any) -> ty_ext.Self:
+    def new(cls, **kwargs: Any) -> ty_ext.Self:
         """Create a new instance of this resource.
 
         When creating the instance set the ``_synchronized`` parameter
@@ -956,7 +962,7 @@ class Resource(dict):
     @classmethod
     def _from_munch(
         cls,
-        obj: dict[str, ty.Union],
+        obj: dict[str, Union],
         synchronized: bool = True,
         connection: connection.Connection | None = None,
     ) -> ty_ext.Self:
@@ -1006,7 +1012,7 @@ class Resource(dict):
         ignore_none: bool = False,
         original_names: bool = False,
         _to_munch: bool = False,
-    ) -> dict[str, ty.Any]:
+    ) -> dict[str, Any]:
         """Return a dictionary of this resource's contents
 
         :param bool body: Include the :class:`~openstack.fields.Body`
@@ -1119,8 +1125,8 @@ class Resource(dict):
         prepend_key: bool,
         *,
         resource_request_key: str | None = None,
-    ) -> dict[str, ty.Any] | builtins.list[ty.Any]:
-        body: dict[str, ty.Any] | list[ty.Any]
+    ) -> dict[str, Any] | builtins.list[Any]:
+        body: dict[str, Any] | list[Any]
         if patch:
             if not self._store_unknown_attrs_as_properties:
                 # Default case
@@ -1342,7 +1348,7 @@ class Resource(dict):
             used for the action is lower than the expected one.
         """
 
-        def _raise(message: str) -> ty.NoReturn:
+        def _raise(message: str) -> NoReturn:
             if error_message:
                 error_message.rstrip('.')
                 message = f'{error_message}. {message}'
@@ -1388,7 +1394,7 @@ class Resource(dict):
         resource_request_key: str | None = None,
         resource_response_key: str | None = None,
         microversion: str | None = None,
-        **params: ty.Any,
+        **params: Any,
     ) -> ty_ext.Self:
         """Create a remote resource based on this instance.
 
@@ -1483,13 +1489,13 @@ class Resource(dict):
     def bulk_create(
         cls,
         session: adapter.Adapter,
-        data: builtins.list[dict[str, ty.Any]],
+        data: builtins.list[dict[str, Any]],
         prepend_key: bool = True,
         base_path: str | None = None,
         *,
         microversion: str | None = None,
-        **params: ty.Any,
-    ) -> ty.Generator[ty_ext.Self, None, None]:
+        **params: Any,
+    ) -> Generator[ty_ext.Self, None, None]:
         """Create multiple remote resources based on this class and data.
 
         :param session: The session to use for making this request.
@@ -1534,7 +1540,7 @@ class Resource(dict):
                 f"Invalid create method: {cls.create_method}"
             )
 
-        _body: list[ty.Any] = []
+        _body: list[Any] = []
         resources = []
         for attrs in data:
             # NOTE(gryf): we need to create resource objects, since
@@ -1552,7 +1558,7 @@ class Resource(dict):
             )
             _body.append(request.body)
 
-        body: dict[str, ty.Any] | list[ty.Any] = _body
+        body: dict[str, Any] | list[Any] = _body
 
         if prepend_key:
             if not cls.resources_key:
@@ -1612,7 +1618,7 @@ class Resource(dict):
         *,
         resource_response_key: str | None = None,
         microversion: str | None = None,
-        **params: ty.Any,
+        **params: Any,
     ) -> ty_ext.Self:
         """Get a remote resource based on this instance.
 
@@ -1716,7 +1722,7 @@ class Resource(dict):
         base_path: str | None = None,
         *,
         microversion: str | None = None,
-        **kwargs: ty.Any,
+        **kwargs: Any,
     ) -> ty_ext.Self:
         """Commit the state of the instance to the remote resource.
 
@@ -1907,7 +1913,7 @@ class Resource(dict):
         error_message: str | None = None,
         *,
         microversion: str | None = None,
-        **kwargs: ty.Any,
+        **kwargs: Any,
     ) -> ty_ext.Self:
         """Delete the remote resource based on this instance.
 
@@ -1962,8 +1968,8 @@ class Resource(dict):
         microversion: str | None = None,
         headers: dict[str, str] | None = None,
         max_items: int | None = None,
-        **params: ty.Any,
-    ) -> ty.Generator[ty_ext.Self, None, None]:
+        **params: Any,
+    ) -> Generator[ty_ext.Self, None, None]:
         """This method is a generator which yields resource objects.
 
         This resource object list generator handles pagination and takes query
@@ -2245,37 +2251,37 @@ class Resource(dict):
 
         return the_result
 
-    @ty.overload
+    @overload
     @classmethod
     def find(
         cls,
         session: adapter.Adapter,
         name_or_id: str,
-        ignore_missing: ty.Literal[True] = True,
+        ignore_missing: Literal[True] = True,
         list_base_path: str | None = None,
         *,
         microversion: str | None = None,
         all_projects: bool | None = None,
-        **params: ty.Any,
+        **params: Any,
     ) -> ty_ext.Self | None: ...
 
-    @ty.overload
+    @overload
     @classmethod
     def find(
         cls,
         session: adapter.Adapter,
         name_or_id: str,
-        ignore_missing: ty.Literal[False],
+        ignore_missing: Literal[False],
         list_base_path: str | None = None,
         *,
         microversion: str | None = None,
         all_projects: bool | None = None,
-        **params: ty.Any,
+        **params: Any,
     ) -> ty_ext.Self: ...
 
     # excuse the duplication here: it's mypy's fault
     # https://github.com/python/mypy/issues/14764
-    @ty.overload
+    @overload
     @classmethod
     def find(
         cls,
@@ -2286,7 +2292,7 @@ class Resource(dict):
         *,
         microversion: str | None = None,
         all_projects: bool | None = None,
-        **params: ty.Any,
+        **params: Any,
     ) -> ty_ext.Self | None: ...
 
     @classmethod
@@ -2299,7 +2305,7 @@ class Resource(dict):
         *,
         microversion: str | None = None,
         all_projects: bool | None = None,
-        **params: ty.Any,
+        **params: Any,
     ) -> ty_ext.Self | None:
         """Find a resource by its name or id.
 
@@ -2391,7 +2397,7 @@ def wait_for_status(
     interval: int | float | None = 2,
     wait: int | None = None,
     attribute: str = 'status',
-    callback: ty.Callable[[int], None] | None = None,
+    callback: Callable[[int], None] | None = None,
 ) -> ResourceT:
     """Wait for the resource to be in a particular status.
 
@@ -2467,7 +2473,7 @@ def wait_for_delete(
     resource: ResourceT,
     interval: int | float | None = 2,
     wait: int | None = None,
-    callback: ty.Callable[[int], None] | None = None,
+    callback: Callable[[int], None] | None = None,
 ) -> ResourceT:
     """Wait for a resource to be deleted.
 

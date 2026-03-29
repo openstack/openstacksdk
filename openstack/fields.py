@@ -11,7 +11,8 @@
 # under the License.
 
 import abc
-import typing as ty
+from typing import Any, ClassVar, TypeVar, overload
+from collections.abc import MutableMapping
 import warnings
 
 from requests import structures
@@ -21,13 +22,13 @@ from openstack import warnings as os_warnings
 
 _SEEN_FORMAT = '{name}_seen'
 
-_T1 = ty.TypeVar('_T1')
-_T2 = ty.TypeVar('_T2')
-_T3 = ty.TypeVar('_T3', str, bool, int, float)
+_T1 = TypeVar('_T1')
+_T2 = TypeVar('_T2')
+_T3 = TypeVar('_T3', str, bool, int, float)
 
 
 # case 1: data_type is unset -> return value as-is
-@ty.overload
+@overload
 def _convert_type(
     value: _T1,
     data_type: None,
@@ -36,7 +37,7 @@ def _convert_type(
 
 
 # case 2: data_type is primitive type -> return value as said primitive type
-@ty.overload
+@overload
 def _convert_type(
     value: _T1,
     data_type: type[_T3],
@@ -46,37 +47,37 @@ def _convert_type(
 
 # case 3: data_type is list, no list_type -> return value as list of whatever
 # we got
-@ty.overload
+@overload
 def _convert_type(
     value: _T1,
-    data_type: type[list[ty.Any]],
+    data_type: type[list[Any]],
     list_type: None = None,
 ) -> list[_T1]: ...
 
 
 # case 4: data_type is list, list_type is primitive type -> return value as
 # list of said primitive type
-@ty.overload
+@overload
 def _convert_type(
-    value: ty.Any,
-    data_type: type[list[ty.Any]],
+    value: Any,
+    data_type: type[list[Any]],
     list_type: type[_T3],
 ) -> list[_T3]: ...
 
 
 # case 5: data_type is dict or Resource -> return value as dict/Resource
-@ty.overload
+@overload
 def _convert_type(
-    value: ty.Any,
-    data_type: type[dict[ty.Any, ty.Any]],
+    value: Any,
+    data_type: type[dict[Any, Any]],
     list_type: None = None,
-) -> dict[ty.Any, ty.Any]: ...
+) -> dict[Any, Any]: ...
 
 
 # case 6: data_type is a Formatter -> return value after conversion
-@ty.overload
+@overload
 def _convert_type(
-    value: ty.Any,
+    value: Any,
     data_type: type[format.Formatter[type[_T2]]],
     list_type: None = None,
 ) -> _T2: ...
@@ -84,12 +85,10 @@ def _convert_type(
 
 def _convert_type(
     value: _T1,
-    data_type: type[
-        _T3 | list[ty.Any] | dict[ty.Any, ty.Any] | format.Formatter[_T2],
-    ]
+    data_type: type[_T3 | list[Any] | dict[Any, Any] | format.Formatter[_T2],]
     | None,
     list_type: type[_T3] | None = None,
-) -> _T1 | _T3 | list[_T3] | list[_T1] | dict[ty.Any, ty.Any] | _T2:
+) -> _T1 | _T3 | list[_T3] | list[_T1] | dict[Any, Any] | _T2:
     # This should allow handling list of dicts that have their own
     # Component type directly. See openstack/compute/v2/limits.py
     # and the RateLimit type for an example.
@@ -139,17 +138,17 @@ def _convert_type(
 
 class _BaseComponent(abc.ABC):
     # The name this component is being tracked as in the Resource
-    key: ty.ClassVar[str]
+    key: ClassVar[str]
     # The class to be used for mappings
-    _map_cls: ty.ClassVar[type[ty.MutableMapping[str, ty.Any]]] = dict
+    _map_cls: ClassVar[type[MutableMapping[str, Any]]] = dict
 
     name: str
-    data_type: ty.Any | None
-    default: ty.Any
+    data_type: Any | None
+    default: Any
     alias: str | None
     aka: str | None
     alternate_id: bool
-    list_type: ty.Any | None
+    list_type: Any | None
     coerce_to_default: bool
     deprecated: bool
     deprecation_reason: str | None
@@ -157,12 +156,12 @@ class _BaseComponent(abc.ABC):
     def __init__(
         self,
         name: str,
-        type: ty.Any | None = None,
-        default: ty.Any = None,
+        type: Any | None = None,
+        default: Any = None,
         alias: str | None = None,
         aka: str | None = None,
         alternate_id: bool = False,
-        list_type: ty.Any | None = None,
+        list_type: Any | None = None,
         coerce_to_default: bool = False,
         deprecated: bool = False,
         deprecation_reason: str | None = None,
@@ -210,7 +209,7 @@ class _BaseComponent(abc.ABC):
         self,
         instance: object,
         owner: type[object] | None = None,
-    ) -> ty.Any:
+    ) -> Any:
         if instance is None:
             return self
 
@@ -256,11 +255,11 @@ class _BaseComponent(abc.ABC):
         return _convert_type(value, self.data_type, self.list_type)
 
     @property
-    def type(self) -> ty.Any | None:
+    def type(self) -> Any | None:
         # deprecated alias proxy
         return self.data_type
 
-    def warn_if_deprecated_property(self, value: ty.Any) -> None:
+    def warn_if_deprecated_property(self, value: Any) -> None:
         deprecated = object.__getattribute__(self, 'deprecated')
         deprecation_reason = object.__getattribute__(
             self,
@@ -275,7 +274,7 @@ class _BaseComponent(abc.ABC):
                 os_warnings.RemovedFieldWarning,
             )
 
-    def __set__(self, instance: object, value: ty.Any) -> None:
+    def __set__(self, instance: object, value: Any) -> None:
         if self.coerce_to_default and value is None:
             value_ = self.default
         elif value != self.default:

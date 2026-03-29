@@ -12,11 +12,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import typing as ty
+from typing import Any
 
 
-def normalize_keys(config: dict[str, ty.Any]) -> dict[str, ty.Any]:
-    new_config: dict[str, ty.Any] = {}
+def normalize_keys(config: dict[str, Any]) -> dict[str, Any]:
+    new_config: dict[str, Any] = {}
     for key, value in config.items():
         key = key.replace('-', '_')
         if isinstance(value, dict):
@@ -36,8 +36,8 @@ def normalize_keys(config: dict[str, ty.Any]) -> dict[str, ty.Any]:
 
 
 def merge_clouds(
-    old_dict: dict[str, ty.Any], new_dict: dict[str, ty.Any]
-) -> dict[str, ty.Any]:
+    old_dict: dict[str, Any], new_dict: dict[str, Any]
+) -> dict[str, Any]:
     """Like dict.update, except handling nested dicts."""
     ret = old_dict.copy()
     for k, v in new_dict.items():

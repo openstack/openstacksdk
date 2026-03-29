@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import typing as ty
+from typing import Any, Optional, TYPE_CHECKING
 import warnings
 
 from openstack.cloud import _utils
@@ -19,7 +19,7 @@ from openstack import exceptions
 from openstack import utils
 from openstack import warnings as os_warnings
 
-if ty.TYPE_CHECKING:
+if TYPE_CHECKING:
     import concurrent.futures
     from keystoneauth1 import session as ks_session
     from oslo_config import cfg
@@ -32,22 +32,22 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
     def __init__(
         self,
         cloud: str | None = None,
-        config: ty.Optional['cloud_region.CloudRegion'] = None,
-        session: ty.Optional['ks_session.Session'] = None,
+        config: Optional['cloud_region.CloudRegion'] = None,
+        session: Optional['ks_session.Session'] = None,
         app_name: str | None = None,
         app_version: str | None = None,
         extra_services: list['service_description.ServiceDescription']
         | None = None,
         strict: bool = False,
         use_direct_get: bool | None = None,
-        task_manager: ty.Any = None,
+        task_manager: Any = None,
         rate_limit: float | dict[str, float] | None = None,
-        oslo_conf: ty.Optional['cfg.ConfigOpts'] = None,
+        oslo_conf: Optional['cfg.ConfigOpts'] = None,
         service_types: list[str] | None = None,
         global_request_id: str | None = None,
         strict_proxies: bool = False,
-        pool_executor: ty.Optional['concurrent.futures.Executor'] = None,
-        **kwargs: ty.Any,
+        pool_executor: Optional['concurrent.futures.Executor'] = None,
+        **kwargs: Any,
     ):
         super().__init__(
             cloud=cloud,

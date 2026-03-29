@@ -18,7 +18,17 @@ from collections.abc import MutableMapping
 import functools
 import logging
 import queue
-import typing as ty
+from typing import (
+    Any,
+    ClassVar,
+    Literal,
+    TYPE_CHECKING,
+    TypeVar,
+    TypedDict,
+    cast,
+    overload,
+)
+from collections.abc import Callable, Generator
 import urllib
 from urllib.parse import urlparse
 import warnings
@@ -40,7 +50,7 @@ from openstack import resource
 from openstack import utils
 from openstack import warnings as os_warnings
 
-if ty.TYPE_CHECKING:
+if TYPE_CHECKING:
     import influxdb as influxdb_client  # type: ignore[import-not-found]
     from keystoneauth1 import plugin
     import prometheus_client
@@ -50,7 +60,7 @@ if ty.TYPE_CHECKING:
     from openstack import connection
 
 
-ProxyT = ty.TypeVar('ProxyT', bound='Proxy')
+ProxyT = TypeVar('ProxyT', bound='Proxy')
 
 
 def normalize_metric_name(name: str) -> str:
@@ -59,7 +69,7 @@ def normalize_metric_name(name: str) -> str:
     return name
 
 
-class CleanupDependency(ty.TypedDict):
+class CleanupDependency(TypedDict):
     before: list[str]
     after: list[str]
 
@@ -67,7 +77,7 @@ class CleanupDependency(ty.TypedDict):
 class Proxy(adapter.Adapter):
     """Represents a service."""
 
-    api_version: ty.ClassVar[str]
+    api_version: ClassVar[str]
     """The API version.
 
     This is used as a descriminating attribute for type checking.
@@ -102,7 +112,7 @@ class Proxy(adapter.Adapter):
         user_agent: str | None = None,
         connect_retries: int | None = None,
         logger: logging.Logger | None = None,
-        allow: dict[str, ty.Any] | None = None,
+        allow: dict[str, Any] | None = None,
         additional_headers: MutableMapping[str, str] | None = None,
         client_name: str | None = None,
         client_version: str | None = None,
@@ -123,7 +133,7 @@ class Proxy(adapter.Adapter):
         statsd_prefix: str | None = None,
         prometheus_counter: prometheus_client.Counter | None = None,
         prometheus_histogram: prometheus_client.Histogram | None = None,
-        influxdb_config: dict[str, ty.Any] | None = None,
+        influxdb_config: dict[str, Any] | None = None,
         influxdb_client: influxdb_client.InfluxDBClient | None = None,
     ):
         # NOTE(dtantsur): keystoneauth defaults retriable_status_codes to None,
@@ -204,8 +214,8 @@ class Proxy(adapter.Adapter):
         raise_exc: bool = False,
         connect_retries: int = 1,
         global_request_id: str | None = None,
-        *args: ty.Any,
-        **kwargs: ty.Any,
+        *args: Any,
+        **kwargs: Any,
     ) -> requests.Response:
         conn = self._get_connection()
         if not conn:
@@ -251,7 +261,7 @@ class Proxy(adapter.Adapter):
                     ),
                     expiration_time=expiration_time,
                 )
-                response = ty.cast('requests.Response', _response)
+                response = cast('requests.Response', _response)
             else:
                 # invalidate cache if we send modification request or user
                 # asked for cache bypass
@@ -556,7 +566,7 @@ class Proxy(adapter.Adapter):
         self,
         resource_type: type[resource.ResourceT],
         value: None | str | resource.ResourceT | utils.Munch,
-        **attrs: ty.Any,
+        **attrs: Any,
     ) -> resource.ResourceT:
         """Get a resource object to work on
 
@@ -614,33 +624,33 @@ class Proxy(adapter.Adapter):
 
         return resource.Resource._get_id(parent)
 
-    @ty.overload
+    @overload
     def _find(
         self,
         resource_type: type[resource.ResourceT],
         name_or_id: str,
-        ignore_missing: ty.Literal[True] = True,
-        **attrs: ty.Any,
+        ignore_missing: Literal[True] = True,
+        **attrs: Any,
     ) -> resource.ResourceT | None: ...
 
-    @ty.overload
+    @overload
     def _find(
         self,
         resource_type: type[resource.ResourceT],
         name_or_id: str,
-        ignore_missing: ty.Literal[False],
-        **attrs: ty.Any,
+        ignore_missing: Literal[False],
+        **attrs: Any,
     ) -> resource.ResourceT: ...
 
     # excuse the duplication here: it's mypy's fault
     # https://github.com/python/mypy/issues/14764
-    @ty.overload
+    @overload
     def _find(
         self,
         resource_type: type[resource.ResourceT],
         name_or_id: str,
         ignore_missing: bool,
-        **attrs: ty.Any,
+        **attrs: Any,
     ) -> resource.ResourceT | None: ...
 
     def _find(
@@ -648,7 +658,7 @@ class Proxy(adapter.Adapter):
         resource_type: type[resource.ResourceT],
         name_or_id: str,
         ignore_missing: bool = True,
-        **attrs: ty.Any,
+        **attrs: Any,
     ) -> resource.ResourceT | None:
         """Find a resource
 
@@ -675,7 +685,7 @@ class Proxy(adapter.Adapter):
         resource_type: type[resource.ResourceT],
         value: str | resource.ResourceT | None,
         ignore_missing: bool = True,
-        **attrs: ty.Any,
+        **attrs: Any,
     ) -> resource.ResourceT | None:
         """Delete a resource
 
@@ -717,7 +727,7 @@ class Proxy(adapter.Adapter):
         resource_type: type[resource.ResourceT],
         value: str | resource.ResourceT | None,
         base_path: str | None = None,
-        **attrs: ty.Any,
+        **attrs: Any,
     ) -> resource.ResourceT:
         """Update a resource
 
@@ -748,7 +758,7 @@ class Proxy(adapter.Adapter):
         self,
         resource_type: type[resource.ResourceT],
         base_path: str | None = None,
-        **attrs: ty.Any,
+        **attrs: Any,
     ) -> resource.ResourceT:
         """Create a resource from attributes
 
@@ -780,9 +790,9 @@ class Proxy(adapter.Adapter):
     def _bulk_create(
         self,
         resource_type: type[resource.ResourceT],
-        data: list[dict[str, ty.Any]],
+        data: list[dict[str, Any]],
         base_path: str | None = None,
-    ) -> ty.Generator[resource.ResourceT, None, None]:
+    ) -> Generator[resource.ResourceT, None, None]:
         """Create a resource from attributes
 
         :param resource_type: The type of resource to create. This should be a
@@ -809,7 +819,7 @@ class Proxy(adapter.Adapter):
         requires_id: bool = True,
         base_path: str | None = None,
         skip_cache: bool = False,
-        **attrs: ty.Any,
+        **attrs: Any,
     ) -> resource.ResourceT:
         """Fetch a resource
 
@@ -852,8 +862,8 @@ class Proxy(adapter.Adapter):
         paginated: bool = True,
         base_path: str | None = None,
         jmespath_filters: str | None = None,
-        **attrs: ty.Any,
-    ) -> ty.Generator[resource.ResourceT, None, None]:
+        **attrs: Any,
+    ) -> Generator[resource.ResourceT, None, None]:
         """List a resource
 
         :param resource_type: The type of resource to list. This should
@@ -906,7 +916,7 @@ class Proxy(adapter.Adapter):
         resource_type: type[resource.ResourceT],
         value: str | resource.ResourceT | None = None,
         base_path: str | None = None,
-        **attrs: ty.Any,
+        **attrs: Any,
     ) -> resource.ResourceT:
         """Retrieve a resource's header
 
@@ -942,11 +952,11 @@ class Proxy(adapter.Adapter):
         dry_run: bool = True,
         client_status_queue: queue.Queue[resource.Resource] | None = None,
         identified_resources: dict[str, resource.Resource] | None = None,
-        filters: dict[str, ty.Any] | None = None,
-        resource_evaluation_fn: ty.Callable[
+        filters: dict[str, Any] | None = None,
+        resource_evaluation_fn: Callable[
             [
                 resource.Resource,
-                dict[str, ty.Any] | None,
+                dict[str, Any] | None,
                 dict[str, resource.Resource] | None,
             ],
             bool,
@@ -958,16 +968,16 @@ class Proxy(adapter.Adapter):
 
     def _service_cleanup_del_res(
         self,
-        del_fn: ty.Callable[[resource.Resource], None],
+        del_fn: Callable[[resource.Resource], None],
         obj: resource.Resource,
         dry_run: bool = True,
         client_status_queue: queue.Queue[resource.Resource] | None = None,
         identified_resources: dict[str, resource.Resource] | None = None,
-        filters: dict[str, ty.Any] | None = None,
-        resource_evaluation_fn: ty.Callable[
+        filters: dict[str, Any] | None = None,
+        resource_evaluation_fn: Callable[
             [
                 resource.Resource,
-                dict[str, ty.Any] | None,
+                dict[str, Any] | None,
                 dict[str, resource.Resource] | None,
             ],
             bool,
@@ -1010,7 +1020,7 @@ class Proxy(adapter.Adapter):
     def _service_cleanup_resource_filters_evaluation(
         self,
         obj: resource.Resource,
-        filters: dict[str, ty.Any] | None = None,
+        filters: dict[str, Any] | None = None,
     ) -> bool:
         part_cond = []
         if filters is not None and isinstance(filters, dict):
@@ -1069,7 +1079,7 @@ class Proxy(adapter.Adapter):
 def _json_response(
     response: requests.Response,
     error_message: str | None = None,
-) -> requests.Response | ty.Any:
+) -> requests.Response | Any:
     """Temporary method to use to bridge from ShadeAdapter to SDK calls."""
     exceptions.raise_from_response(response, error_message=error_message)
 

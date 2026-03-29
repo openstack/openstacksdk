@@ -13,14 +13,14 @@
 from collections.abc import Iterable, Iterator
 import hashlib
 import io
-import typing as ty
+from typing import Any
 
 from openstack import exceptions
 from openstack import utils
 
 
 def _verify_checksum(
-    hasher: ty.Any,
+    hasher: Any,
     expected_hash: str | None,
     hash_algo: str | None = None,
 ) -> None:
@@ -42,7 +42,7 @@ def _verify_checksum(
 
 def _integrity_iter(
     iterable: Iterable[bytes],
-    hasher: ty.Any,
+    hasher: Any,
     expected_hash: str | None,
     hash_algo: str | None,
 ) -> Iterator[bytes]:

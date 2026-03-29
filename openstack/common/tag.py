@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import typing as ty
+from typing import TypedDict
 
 import typing_extensions as ty_ext
 
@@ -20,7 +20,7 @@ from openstack import utils
 
 
 # https://github.com/python/mypy/issues/11583
-class _TagQueryParameters(ty.TypedDict):
+class _TagQueryParameters(TypedDict):
     tags: str
     any_tags: str
     not_tags: str

@@ -10,7 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import typing as ty
+from typing import ClassVar, Literal
+from collections.abc import Callable
 
 import requests
 
@@ -34,7 +35,7 @@ from openstack import utils
 
 
 class Proxy(proxy.Proxy):
-    api_version: ty.ClassVar[ty.Literal['1']] = '1'
+    api_version: ClassVar[Literal['1']] = '1'
 
     retriable_status_codes = _common.RETRIABLE_STATUS_CODES
 
@@ -1980,7 +1981,7 @@ class Proxy(proxy.Proxy):
         interval: int | float | None = 2,
         wait: int | None = None,
         attribute: str = 'status',
-        callback: ty.Callable[[int], None] | None = None,
+        callback: Callable[[int], None] | None = None,
     ) -> resource.ResourceT:
         """Wait for the resource to be in a particular status.
 
@@ -2016,7 +2017,7 @@ class Proxy(proxy.Proxy):
         res: resource.ResourceT,
         interval: int = 2,
         wait: int = 120,
-        callback: ty.Callable[[int], None] | None = None,
+        callback: Callable[[int], None] | None = None,
     ) -> resource.ResourceT:
         """Wait for a resource to be deleted.
 

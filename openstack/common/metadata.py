@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import typing as ty
+from typing import Any
 
 import typing_extensions as ty_ext
 
@@ -45,7 +45,7 @@ class MetadataMixin:
     def set_metadata(
         self,
         session: resource.AdapterT,
-        metadata: dict[str, ty.Any] | None = None,
+        metadata: dict[str, Any] | None = None,
         replace: bool = False,
     ) -> ty_ext.Self:
         """Sets/Replaces metadata key value pairs on the resource.
@@ -69,7 +69,7 @@ class MetadataMixin:
     def replace_metadata(
         self,
         session: resource.AdapterT,
-        metadata: dict[str, ty.Any] | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> ty_ext.Self:
         """Replaces all metadata key value pairs on the resource.
 
@@ -112,7 +112,7 @@ class MetadataMixin:
         return self
 
     def set_metadata_item(
-        self, session: resource.AdapterT, key: str, value: ty.Any
+        self, session: resource.AdapterT, key: str, value: Any
     ) -> ty_ext.Self:
         """Create or replace single metadata item to the resource.
 
