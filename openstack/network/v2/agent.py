@@ -83,6 +83,12 @@ class Agent(resource.Resource):
     #: The HA state of the L3 agent. This is one of 'active', 'standby' or
     #: 'fault' for HA routers, or None for other types of routers.
     ha_state = resource.Body('ha_state')
+    #: The HA chassis priority for this agent in the router's
+    #: HA_Chassis_Group (OVN). Higher values indicate higher priority;
+    #: the highest priority chassis is the active gateway. None for
+    #: non-OVN backends.
+    #: *Type: int*
+    ha_chassis_priority = resource.Body('ha_chassis_priority', type=int)
 
     def add_agent_to_network(self, session, network_id):
         body = {'network_id': network_id}
@@ -97,8 +103,12 @@ class Agent(resource.Resource):
         )
         session.delete(url, json=body)
 
-    def add_router_to_agent(self, session, router):
+    def add_router_to_agent(
+        self, session, router, *, ha_chassis_priority=None
+    ):
         body = {'router_id': router}
+        if ha_chassis_priority is not None:
+            body['ha_chassis_priority'] = ha_chassis_priority
         url = utils.urljoin(self.base_path, self.id, 'l3-routers')
         resp = session.post(url, json=body)
         return resp.json()

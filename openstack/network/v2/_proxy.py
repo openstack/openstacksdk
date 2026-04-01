@@ -4417,18 +4417,22 @@ class Proxy(proxy.Proxy):
         agent = self._get_resource(_agent.Agent, agent)
         return self._list(_router.L3AgentRouter, agent_id=agent.id, **query)
 
-    def add_router_to_agent(self, agent, router):
+    def add_router_to_agent(self, agent, router, *, ha_chassis_priority=None):
         """Add router to L3 agent
 
         :param agent: Either the id of an agent
             :class:`~openstack.network.v2.agent.Agent` instance
         :param router: A router instance
+        :param ha_chassis_priority: Optional ``HA_Chassis`` priority, that
+            could be [0, 32767].
         :returns: Agent with attached router
         :rtype: :class:`~openstack.network.v2.agent.Agent`
         """
         agent = self._get_resource(_agent.Agent, agent)
         router = self._get_resource(_router.Router, router)
-        return agent.add_router_to_agent(self, router.id)
+        return agent.add_router_to_agent(
+            self, router.id, ha_chassis_priority=ha_chassis_priority
+        )
 
     def remove_router_from_agent(self, agent, router):
         """Remove router from L3 agent
