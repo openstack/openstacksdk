@@ -51,8 +51,8 @@ class BgpSpeaker(resource.Resource):
     advertise_tenant_networks = resource.Body('advertise_tenant_networks')
     #: The local Autonomous System number of the BGP Speaker.
     local_as = resource.Body('local_as')
-    #: The ID of the network to which the BGP Speaker is associated.
-    networks = resource.Body('networks')
+    #: A list of network IDs to which the BGP Speaker is associated.
+    networks = resource.Body('networks', type=list)
 
     def _put(self, session, url, body):
         resp = session.put(url, json=body)

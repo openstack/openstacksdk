@@ -56,7 +56,7 @@ class FirewallGroup(resource.Resource):
     #: The name of a firewall group
     name = resource.Body('name')
     #: A list of the IDs of the ports associated with the firewall group.
-    ports = resource.Body('ports')
+    ports = resource.Body('ports', type=list)
     #: The ID of the project that owns the resource.
     project_id = resource.Body('project_id')
     #: Indicates whether this firewall group is shared across all projects.

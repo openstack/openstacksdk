@@ -38,4 +38,4 @@ class QoSRuleType(resource.Resource):
     #: QoS rule type name.
     type = resource.Body('type', alternate_id=True)
     #: List of QoS backend drivers supporting this QoS rule type
-    drivers = resource.Body('drivers')
+    drivers = resource.Body('drivers', type=list)

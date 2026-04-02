@@ -50,13 +50,13 @@ class BgpVpn(resource.Resource):
     #: Tenant_id (deprecated attribute).
     tenant_id = resource.Body('tenant_id', deprecated=True)
     #: List of route distinguisher strings.
-    route_distinguishers = resource.Body('route_distinguishers')
+    route_distinguishers = resource.Body('route_distinguishers', type=list)
     #: Route Targets that will be both imported and used for export.
-    route_targets = resource.Body('route_targets')
+    route_targets = resource.Body('route_targets', type=list)
     #: Additional Route Targets that will be imported.
-    import_targets = resource.Body('import_targets')
+    import_targets = resource.Body('import_targets', type=list)
     #: Additional Route Targets that will be used for export.
-    export_targets = resource.Body('export_targets')
+    export_targets = resource.Body('export_targets', type=list)
     #: The default BGP LOCAL_PREF of routes that will be advertised to
     #: the BGPVPN.
     local_pref = resource.Body('local_pref')

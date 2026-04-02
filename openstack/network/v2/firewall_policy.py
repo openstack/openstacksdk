@@ -51,7 +51,7 @@ class FirewallPolicy(resource.Resource):
     id = resource.Body('id')
     #: A list of the IDs of the firewall rules associated with the
     #: firewall policy.
-    firewall_rules = resource.Body('firewall_rules')
+    firewall_rules = resource.Body('firewall_rules', type=list)
     #: The name of a firewall policy
     name = resource.Body('name')
     #: The ID of the project that owns the resource.

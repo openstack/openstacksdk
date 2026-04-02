@@ -102,7 +102,7 @@ class Port(_base.NetworkResource, _base.TagMixinNetwork):
     # device-profiles.
     device_profile = resource.Body('device_profile')
     #: DNS assignment for the port.
-    dns_assignment = resource.Body('dns_assignment')
+    dns_assignment = resource.Body('dns_assignment', type=list)
     #: DNS domain assigned to the port.
     dns_domain = resource.Body('dns_domain')
     #: DNS name for the port.

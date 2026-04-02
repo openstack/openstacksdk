@@ -28,9 +28,9 @@ EXAMPLE = {
     'name': 'bgpvpn',
     'project_id': '42',
     'route_distinguishers': ['64512:1777', '64512:1888', '64512:1999'],
-    'route_targets': '64512:1444',
-    'import_targets': '64512:1555',
-    'export_targets': '64512:1666',
+    'route_targets': ['64512:1444'],
+    'import_targets': ['64512:1555'],
+    'export_targets': ['64512:1666'],
 }
 
 
