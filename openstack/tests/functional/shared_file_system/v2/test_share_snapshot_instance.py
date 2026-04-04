@@ -29,11 +29,7 @@ class ShareSnapshotInstanceTest(base.BaseSharedFileSystemTest):
         self.create_share_snapshot(share_id=self.SHARE_ID)
 
     def test_share_snapshot_instances(self):
-        sots = (
+        sots = list(
             self.operator_cloud.shared_file_system.share_snapshot_instances()
         )
-        self.assertGreater(len(list(sots)), 0)
-        for sot in sots:
-            for attribute in ('id', 'name', 'created_at', 'updated_at'):
-                self.assertTrue(hasattr(sot, attribute))
-                self.assertIsInstance(getattr(sot, attribute), 'str')
+        self.assertGreater(len(sots), 0)

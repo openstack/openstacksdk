@@ -14,7 +14,7 @@ from openstack.tests.functional import base
 
 class TestVolume(base.BaseFunctionalTest):
     # Creating a volume backup is incredibly slow.
-    TIMEOUT_SCALING_FACTOR = 1.5
+    TIMEOUT_SCALING_FACTOR = 2
 
     def setUp(self):
         super().setUp()

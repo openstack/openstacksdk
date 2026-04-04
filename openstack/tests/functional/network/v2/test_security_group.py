@@ -16,8 +16,6 @@ from openstack.tests.functional.network.v2 import common
 
 
 class TestSecurityGroup(common.TestTagNeutron):
-    ID = None
-
     def setUp(self):
         super().setUp()
         self.NAME = self.getUniqueString()

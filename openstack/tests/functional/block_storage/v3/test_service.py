@@ -16,7 +16,7 @@ from openstack import utils
 
 class TestService(base.BaseFunctionalTest):
     # listing services is slooowwww
-    TIMEOUT_SCALING_FACTOR = 2.0
+    TIMEOUT_SCALING_FACTOR = 2
 
     def test_list(self):
         sot = list(self.operator_cloud.block_storage.services())

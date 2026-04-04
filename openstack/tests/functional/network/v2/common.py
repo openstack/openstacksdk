@@ -23,6 +23,7 @@ def _get_command(*args):
 
 class TestTagNeutron(base.BaseFunctionalTest):
     get_command = _get_command
+    ID: str
 
     def test_set_tags(self):
         sot = self.get_command(self.ID)

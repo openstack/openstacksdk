@@ -34,7 +34,7 @@ class TestCase(base.BaseTestCase):
     """Test case base class for all tests."""
 
     # A way to adjust slow test classes
-    TIMEOUT_SCALING_FACTOR = 1.0
+    TIMEOUT_SCALING_FACTOR = 1
 
     def setUp(self):
         """Run before each test method to initialize test environment."""
@@ -90,13 +90,13 @@ class TestCase(base.BaseTestCase):
         # attach-on-exception logic added
         pass
 
-    def assertEqual(self, first, second, *args, **kwargs):
+    def assertEqual(self, expected, observed, message=""):
         '''Munch aware wrapper'''
-        if isinstance(first, utils.Munch):
-            first = first.toDict()
-        if isinstance(second, utils.Munch):
-            second = second.toDict()
-        return super().assertEqual(first, second, *args, **kwargs)
+        if isinstance(expected, utils.Munch):
+            expected = expected.toDict()
+        if isinstance(observed, utils.Munch):
+            observed = observed.toDict()
+        return super().assertEqual(expected, observed, message)
 
     def printLogs(self, *args):
         self._log_stream.seek(0)

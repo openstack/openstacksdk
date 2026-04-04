@@ -105,7 +105,8 @@ def _convert_type(
         else:
             return [value]
     elif isinstance(value, data_type):
-        return value
+        # FIXME(stephenfin): Figure out what's broken here
+        return value  # type: ignore[return-value]
     elif issubclass(data_type, dict):
         if isinstance(value, dict):
             return data_type(**value)

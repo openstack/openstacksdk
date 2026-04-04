@@ -15,7 +15,7 @@ from openstack.tests.functional.block_storage.v3 import base
 
 class TestCapabilities(base.BaseBlockStorageTest):
     # getting capabilities can be slow
-    TIMEOUT_SCALING_FACTOR = 1.5
+    TIMEOUT_SCALING_FACTOR = 2
 
     def test_get(self):
         services = list(self.operator_cloud.block_storage.services())

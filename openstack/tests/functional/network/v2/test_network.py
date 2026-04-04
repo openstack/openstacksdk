@@ -36,8 +36,6 @@ def delete_network(conn, network, subnet):
 
 
 class TestNetwork(common.TestTagNeutron):
-    ID = None
-
     def setUp(self):
         super().setUp()
         self.NAME = self.getUniqueString()

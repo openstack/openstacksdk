@@ -18,8 +18,9 @@ class TestQuota(base.BaseFunctionalTest):
         super().setUp()
 
         self.require_service("dns")
+
         if not self._operator_cloud_name:
-            self.skip("Operator cloud must be set for this test")
+            self.skipTest("Operator cloud must be set for this test")
 
         self.project = self.create_temporary_project()
 

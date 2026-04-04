@@ -59,21 +59,13 @@ class TestPortForwarding(base.BaseFunctionalTest):
         # Find External Network
         for net in self.user_cloud.network.networks(is_router_external=True):
             self.EXT_NET_ID = net.id
+            break
+
+        if not self.EXT_NET_ID:
+            self.skipTest('no external net is available')
+
         # Find subnet of the chosen external net
         for sub in self.user_cloud.network.subnets(network_id=self.EXT_NET_ID):
-            self.EXT_SUB_ID = sub.id
-        if not self.EXT_NET_ID and self.operator_cloud:
-            # There is no existing external net, but operator
-            # credentials available
-            # WARNING: this external net is not dropped
-            # Create External Network
-            net = self._create_network(
-                self.EXT_NET_NAME, **{"router:external": True}
-            )
-            self.EXT_NET_ID = net.id
-            sub = self._create_subnet(
-                self.EXT_SUB_NAME, self.EXT_NET_ID, self.EXT_CIDR
-            )
             self.EXT_SUB_ID = sub.id
 
         # Create Internal Network

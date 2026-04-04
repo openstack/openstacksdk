@@ -18,7 +18,7 @@ from openstack.tests.functional import base
 
 
 class TestTrunk(base.BaseFunctionalTest):
-    TIMEOUT_SCALING_FACTOR = 2.0
+    TIMEOUT_SCALING_FACTOR = 2
 
     def setUp(self):
         super().setUp()

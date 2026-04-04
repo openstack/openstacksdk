@@ -39,6 +39,9 @@ class TestDevstack(base.BaseFunctionalTest):
         ('swift', dict(env='SWIFT', service='object-store')),
     ]
 
+    env: str
+    service: str
+
     def test_has_service(self):
         if os.environ.get(f'OPENSTACKSDK_HAS_{self.env}', '0') == '1':
             self.assertTrue(self.user_cloud.has_service(self.service))

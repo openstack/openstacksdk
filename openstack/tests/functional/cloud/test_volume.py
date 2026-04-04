@@ -27,7 +27,7 @@ from openstack import utils
 
 class TestVolume(base.BaseFunctionalTest):
     # Creating and deleting volumes is slow
-    TIMEOUT_SCALING_FACTOR = 1.5
+    TIMEOUT_SCALING_FACTOR = 2
 
     def setUp(self):
         super().setUp()
