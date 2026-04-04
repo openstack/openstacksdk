@@ -1875,6 +1875,56 @@ class TestResourceActions(base.TestCase):
 
         self.session.put.assert_not_called()
 
+    def test_commit_jsonpatch_original_body_sync(self):
+        """Test _original_body is synced with _body.attributes after commit.
+
+        After a PATCH commit, _original_body should reflect the full
+        _body.attributes (not just the fields returned by the server), so
+        that a subsequent patch only includes fields that have actually
+        changed since the last commit.
+        """
+
+        class Test(resource.Resource):
+            base_path = '/test'
+            allow_commit = True
+            allow_patch = True
+            commit_method = 'PATCH'
+
+            name = resource.Body('name')
+            description = resource.Body('description')
+
+        sot = Test(
+            id='test-id', name='initial-name', description='initial-desc'
+        )
+        sot.name = 'server-1'
+
+        # Server returns name but not description in the commit response
+        self.session.patch.return_value = FakeResponse(
+            {'id': 'test-id', 'name': 'server-1'}
+        )
+        sot.commit(self.session)
+
+        self.assertEqual(sot._original_body.get('name'), 'server-1')
+        self.assertEqual(sot._body.attributes.get('name'), 'server-1')
+        # _original_body should include description even though it was absent
+        # from the response, because it is still present in _body.attributes
+        self.assertEqual(
+            sot._original_body.get('description'),
+            sot._body.attributes.get('description'),
+        )
+
+        # After updating description, only that field should appear in patch
+        sot.description = 'updated-desc'
+        patch = sot._prepare_request_patch(prepend_key=False)
+
+        patch_paths = [op.get('path') for op in patch]
+        self.assertIn('/description', patch_paths)
+        self.assertNotIn('/name', patch_paths)
+        self.assertEqual(len(patch), 1)
+        self.assertEqual(patch[0]['path'], '/description')
+        self.assertEqual(patch[0]['op'], 'replace')
+        self.assertEqual(patch[0]['value'], 'updated-desc')
+
     def test_patch_with_sdk_names(self):
         class Test(resource.Resource):
             allow_patch = True

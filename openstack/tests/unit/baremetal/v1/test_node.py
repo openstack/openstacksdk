@@ -1307,61 +1307,6 @@ class TestNodePatch(base.TestCase):
         self.assertEqual(commit_kwargs['retry_on_conflict'], True)
         mock_patch.assert_not_called()
 
-    @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
-    @mock.patch.object(node.Node, '_get_session', lambda self, x: x)
-    def test_original_body_sync_after_commit(self, mock_patch):
-        """Test _original_body synchronization after commit()."""
-
-        self.node.name = 'server-1'
-        self.node.description = 'initial-desc'
-
-        mock_response1 = mock.Mock()
-        mock_response1.status_code = 200
-        mock_response1.headers = {}
-        mock_response1.json.return_value = {
-            'uuid': FAKE['uuid'],
-            'name': 'server-1',
-            'driver': FAKE['driver'],
-        }
-        self.session.patch.return_value = mock_response1
-
-        self.node.commit(self.session)
-
-        self.assertEqual(self.node._original_body.get('name'), 'server-1')
-        self.assertEqual(self.node._body.attributes.get('name'), 'server-1')
-
-        # NOTE(cid): _original_body should have description even though
-        # it wasn't in the response, because it exists in _body.attributes
-        self.assertEqual(
-            self.node._original_body.get('description'),
-            self.node._body.attributes.get('description'),
-            '_original_body is not in sync with _body.attributes',
-        )
-
-        self.node.description = 'updated-desc'
-        patch = self.node._prepare_request_patch(prepend_key=False)
-
-        # Verify patch only contains description change
-        patch_paths = [op.get('path') for op in patch]
-        self.assertIn(
-            '/description',
-            patch_paths,
-            'Patch should include description change',
-        )
-        self.assertNotIn(
-            '/name',
-            patch_paths,
-            'Patch should NOT include name (already committed)',
-        )
-
-        # Verify only one operation in patch
-        self.assertEqual(
-            len(patch), 1, f'Patch should only have description, got: {patch}'
-        )
-        self.assertEqual(patch[0]['path'], '/description')
-        self.assertEqual(patch[0]['op'], 'replace')
-        self.assertEqual(patch[0]['value'], 'updated-desc')
-
 
 @mock.patch('time.sleep', lambda _t: None)
 @mock.patch.object(node.Node, 'fetch', autospec=True)
