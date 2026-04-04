@@ -916,13 +916,16 @@ class Resource(dict[str, Any]):
 
         return relevant_attrs
 
-    def _clean_body_attrs(self, attrs: Iterable[str]) -> None:
+    def _clean_body(self, attrs: Iterable[str] | None = None) -> None:
         """Mark the attributes as up-to-date."""
         self._body.clean(only=attrs)
         if self.allow_patch:
-            for attr in attrs:
-                if attr in self._body:
-                    self._original_body[attr] = self._body[attr]
+            if attrs:
+                for attr in attrs:
+                    if attr in self._body:
+                        self._original_body[attr] = self._body[attr]
+            else:
+                self._original_body = self._body.attributes.copy()
 
     @classmethod
     def _get_mapping(
@@ -1343,10 +1346,7 @@ class Resource(dict[str, Any]):
                     )
 
                 self._body.attributes.update(body_attrs)
-                self._body.clean()
-                if self.allow_patch:
-                    # We need the original body to compare against
-                    self._original_body = self._body.attributes.copy()
+                self._clean_body()
             except ValueError:
                 # Server returned not parse-able response (202, 204, etc)
                 # Do simply nothing
