@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import collections.abc
+from collections.abc import Mapping
 import json
 from urllib import parse
 from urllib import request
@@ -177,7 +177,7 @@ def deep_update(old, new):
         old = {}
 
     for k, v in new.items():
-        if isinstance(v, collections.abc.Mapping):
+        if isinstance(v, Mapping):
             r = deep_update(old.get(k, {}), v)
             old[k] = r
         else:

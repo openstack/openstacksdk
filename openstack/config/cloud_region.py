@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import collections.abc
+from collections.abc import Iterator
 import copy
 import os.path
 import typing as ty
@@ -416,7 +416,7 @@ class CloudRegion:
         else:
             return None
 
-    def __iter__(self) -> collections.abc.Iterator[ty.Any]:
+    def __iter__(self) -> Iterator[ty.Any]:
         return self.config.__iter__()
 
     def __eq__(self, other: object) -> bool:

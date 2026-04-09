@@ -14,7 +14,7 @@
 # nova (and possibly others) expose
 from __future__ import annotations
 
-import collections.abc
+from collections.abc import MutableMapping
 import functools
 import logging
 import queue
@@ -103,8 +103,7 @@ class Proxy(adapter.Adapter):
         connect_retries: int | None = None,
         logger: logging.Logger | None = None,
         allow: dict[str, ty.Any] | None = None,
-        additional_headers: collections.abc.MutableMapping[str, str]
-        | None = None,
+        additional_headers: MutableMapping[str, str] | None = None,
         client_name: str | None = None,
         client_version: str | None = None,
         allow_version_hack: bool | None = None,
