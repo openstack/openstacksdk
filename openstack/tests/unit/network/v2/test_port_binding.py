@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from unittest import mock
+
 from openstack.network.v2 import port_binding
 from openstack.tests.unit import base
 
@@ -43,3 +45,31 @@ class TestPortBinding(base.TestCase):
         self.assertEqual(EXAMPLE['vif_details'], sot.vif_details)
         self.assertEqual(EXAMPLE['vif_type'], sot.vif_type)
         self.assertCountEqual(EXAMPLE['vnic_type'], sot.vnic_type)
+
+    def test_activate_port_binding(self):
+        sot = port_binding.PortBinding(port_id='test-port-id')
+        session = mock.Mock()
+        response = mock.Mock()
+        response.json.return_value = {'binding': EXAMPLE}
+        response.status_code = 200
+        session.put.return_value = response
+
+        result = sot.activate_port_binding(session, 'host1')
+
+        session.put.assert_called_once_with(
+            'ports/test-port-id/bindings/host1/activate'
+        )
+        self.assertEqual(sot, result)
+
+    def test_delete_port_binding(self):
+        sot = port_binding.PortBinding(port_id='test-port-id')
+        session = mock.Mock()
+        response = mock.Mock()
+        response.status_code = 204
+        session.delete.return_value = response
+
+        sot.delete_port_binding(session, 'host1')
+
+        session.delete.assert_called_once_with(
+            'ports/test-port-id/bindings/host1'
+        )
