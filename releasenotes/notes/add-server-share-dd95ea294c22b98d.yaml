@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The 2.97 API microversion is now supported for the compute
+    service. This adds a new API to manage shares, represented by the
+    ``openstack.compute.v2.server_share.ShareMapping`` resource.

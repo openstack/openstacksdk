@@ -35,6 +35,7 @@ from openstack.compute.v2 import server_interface as _server_interface
 from openstack.compute.v2 import server_ip
 from openstack.compute.v2 import server_migration as _server_migration
 from openstack.compute.v2 import server_remote_console as _src
+from openstack.compute.v2 import server_share as _server_share
 from openstack.compute.v2 import service as _service
 from openstack.compute.v2 import usage as _usage
 from openstack.compute.v2 import volume_attachment as _volume_attachment
@@ -73,6 +74,7 @@ class Proxy(proxy.Proxy):
         "server_ip": server_ip.ServerIP,
         "server_migration": _server_migration.ServerMigration,
         "server_remote_console": _src.ServerRemoteConsole,
+        "server_share": _server_share.ShareMapping,
         "service": _service.Service,
         "usage": _usage.Usage,
         "volume_attachment": _volume_attachment.VolumeAttachment,
@@ -2822,3 +2824,99 @@ class Proxy(proxy.Proxy):
                 filters=filters,
                 resource_evaluation_fn=resource_evaluation_fn,
             )
+
+    # ========== Server Share ==========
+
+    def create_share_attachment(self, server, share, **attrs):
+        """Create a new share attachment from attributes
+
+        :param server: The value can be either the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server` instance that the
+            share is attached to.
+        :param share: The value can be the ID of a share or a
+            :class:`~openstack.shared_file_system.v2.Share` instance.
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.compute.v2.server_share.ShareMapping`,
+            comprised of the properties on the ShareMapping class.
+
+        :returns: The results of create share
+        :rtype:
+            :class:`~openstack.compute.v2.server_share.ShareMapping`
+        """
+
+        server_id = resource.Resource._get_id(server)
+        share_id = resource.Resource._get_id(share)
+        return self._create(
+            _server_share.ShareMapping,
+            server_id=server_id,
+            share_id=share_id,
+            **attrs,
+        )
+
+    def delete_share_attachment(self, server, share, ignore_missing=False):
+        """Delete a share attachment
+
+        :param server: The value can be either the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server` instance that the
+            share is attached to.
+        :param share: The value can be the ID of a share or a
+            :class:`~openstack.shared_file_system.v2.Share` instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be
+            raised when the resource does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent resource.
+
+        :returns: ``None``
+        """
+        server_id = resource.Resource._get_id(server)
+        share_id = resource.Resource._get_id(share)
+
+        self._delete(
+            _server_share.ShareMapping,
+            None,
+            server_id=server_id,
+            id=share_id,
+            ignore_missing=ignore_missing,
+        )
+
+    def get_share_attachment(self, server, share):
+        """Get a single share attachment
+
+        :param server: The value can be either the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server` instance that the
+            share is attached to.
+        :param share: The value can be the ID of a share or a
+            :class:`~openstack.shared_file_system.v2.Share` instance.
+
+        :returns: One
+            :class:`~openstack.compute.v2.server_share.ShareMapping`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
+            when no resource can be found.
+        """
+        server_id = resource.Resource._get_id(server)
+        share_id = resource.Resource._get_id(share)
+
+        return self._get(
+            _server_share.ShareMapping,
+            server_id=server_id,
+            id=share_id,
+        )
+
+    def share_attachments(self, server, **query):
+        """Return a generator of share attachments
+
+        :param server: The server can be either the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server`.
+        :params dict query: Query parameters
+
+        :returns: A generator of ShareMapping objects
+        :rtype:
+            :class:`~openstack.compute.v2.server_share.ShareMapping`
+        """
+        server_id = resource.Resource._get_id(server)
+        return self._list(
+            _server_share.ShareMapping,
+            server_id=server_id,
+            **query,
+        )
