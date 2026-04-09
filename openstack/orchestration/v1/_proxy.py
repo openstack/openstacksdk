@@ -10,7 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import typing as ty
+from typing import Any, ClassVar, Literal
+from collections.abc import Callable
 
 from openstack import exceptions
 from openstack.orchestration.util import template_utils
@@ -30,7 +31,7 @@ from openstack import resource
 # TODO(rladntjr4): Some of these methods support lookup by ID, while others
 # support lookup by ID or name. We should choose one and use it consistently.
 class Proxy(proxy.Proxy):
-    api_version: ty.ClassVar[ty.Literal['1']] = '1'
+    api_version: ClassVar[Literal['1']] = '1'
 
     _resource_registry = {
         "resource": _resource.Resource,
@@ -110,7 +111,7 @@ class Proxy(proxy.Proxy):
         return stack_attrs
 
     def create_stack(
-        self, preview: bool = False, **attrs: ty.Any
+        self, preview: bool = False, **attrs: Any
     ) -> _stack.Stack:
         """Create a new stack from attributes
 
@@ -587,7 +588,7 @@ class Proxy(proxy.Proxy):
         interval: int | float | None = 2,
         wait: int | None = None,
         attribute: str = 'status',
-        callback: ty.Callable[[int], None] | None = None,
+        callback: Callable[[int], None] | None = None,
     ) -> resource.ResourceT:
         """Wait for the resource to be in a particular status.
 
@@ -623,7 +624,7 @@ class Proxy(proxy.Proxy):
         res: resource.ResourceT,
         interval: int = 2,
         wait: int = 120,
-        callback: ty.Callable[[int], None] | None = None,
+        callback: Callable[[int], None] | None = None,
     ) -> resource.ResourceT:
         """Wait for a resource to be deleted.
 

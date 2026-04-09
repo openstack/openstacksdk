@@ -16,7 +16,8 @@ import copy
 import functools
 import queue
 import types
-import typing as ty
+from typing import Any, Optional, TYPE_CHECKING
+from collections.abc import Callable
 import warnings
 import weakref
 
@@ -39,7 +40,7 @@ from openstack import resource
 from openstack import utils
 from openstack import warnings as os_warnings
 
-if ty.TYPE_CHECKING:
+if TYPE_CHECKING:
     from dogpile.cache import region as cache_region
     from keystoneauth1.access import service_catalog as ks_service_catalog
     from keystoneauth1 import session as ks_session
@@ -84,21 +85,21 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
         self,
         cloud: str | None = None,
         config: cloud_region.CloudRegion | None = None,
-        session: ty.Optional['ks_session.Session'] = None,
+        session: Optional['ks_session.Session'] = None,
         app_name: str | None = None,
         app_version: str | None = None,
         extra_services: list['service_description.ServiceDescription']
         | None = None,
         strict: bool = False,
         use_direct_get: bool | None = None,
-        task_manager: ty.Any = None,
+        task_manager: Any = None,
         rate_limit: float | dict[str, float] | None = None,
-        oslo_conf: ty.Optional['cfg.ConfigOpts'] = None,
+        oslo_conf: Optional['cfg.ConfigOpts'] = None,
         service_types: list[str] | None = None,
         global_request_id: str | None = None,
         strict_proxies: bool = False,
         pool_executor: concurrent.futures.Executor | None = None,
-        **kwargs: ty.Any,
+        **kwargs: Any,
     ) -> None:
         """Create a connection to a cloud.
 
@@ -371,7 +372,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
         self,
         cache_class: str,
         expiration_time: int,
-        arguments: dict[str, ty.Any] | None,
+        arguments: dict[str, Any] | None,
     ) -> 'cache_region.CacheRegion':
         return dogpile.cache.make_region(
             function_key_generator=self._make_cache_key
@@ -380,8 +381,8 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
         )
 
     def _make_cache_key(
-        self, namespace: str, fn: ty.Callable[..., ty.Any]
-    ) -> ty.Callable[..., str]:
+        self, namespace: str, fn: Callable[..., Any]
+    ) -> Callable[..., str]:
         fname = fn.__name__
         if namespace is None:
             name_key = self.name
@@ -433,7 +434,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
         return self.session.auth.get_access(self.session).service_catalog
 
     @property
-    def service_catalog(self) -> list[dict[str, ty.Any]]:
+    def service_catalog(self) -> list[dict[str, Any]]:
         return self._keystone_catalog.catalog
 
     @property

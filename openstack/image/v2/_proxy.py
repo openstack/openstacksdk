@@ -12,7 +12,8 @@
 
 import os
 import time
-import typing as ty
+from typing import ClassVar, Literal
+from collections.abc import Callable
 import warnings
 
 from openstack import exceptions
@@ -54,7 +55,7 @@ def _get_name_and_filename(name, image_format):
 
 
 class Proxy(proxy.Proxy):
-    api_version: ty.ClassVar[ty.Literal['2']] = '2'
+    api_version: ClassVar[Literal['2']] = '2'
 
     _resource_registry = {
         "cache": _cache.Cache,
@@ -2031,7 +2032,7 @@ class Proxy(proxy.Proxy):
         interval: int | float | None = 2,
         wait: int | None = None,
         attribute: str = 'status',
-        callback: ty.Callable[[int], None] | None = None,
+        callback: Callable[[int], None] | None = None,
     ) -> resource.ResourceT:
         """Wait for the resource to be in a particular status.
 
@@ -2067,7 +2068,7 @@ class Proxy(proxy.Proxy):
         res: resource.ResourceT,
         interval: int = 2,
         wait: int = 120,
-        callback: ty.Callable[[int], None] | None = None,
+        callback: Callable[[int], None] | None = None,
     ) -> resource.ResourceT:
         """Wait for a resource to be deleted.
 

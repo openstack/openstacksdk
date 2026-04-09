@@ -18,7 +18,7 @@ import logging
 import os
 import pprint
 import sys
-import typing as ty
+from typing import TextIO
 
 import fixtures
 from oslotest import base
@@ -59,7 +59,7 @@ class TestCase(base.BaseTestCase):
 
         self.warnings = self.useFixture(os_fixtures.WarningsFixture())
 
-        self._log_stream: ty.TextIO
+        self._log_stream: TextIO
 
         if os.environ.get('OS_LOG_CAPTURE') in _TRUE_VALUES:
             self._log_stream = io.StringIO()

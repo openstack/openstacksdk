@@ -14,11 +14,11 @@
 
 import argparse
 import sys
-import typing as ty
+from typing import Any, TYPE_CHECKING
 
 from openstack.config.loader import OpenStackConfig
 
-if ty.TYPE_CHECKING:
+if TYPE_CHECKING:
     from openstack.config import cloud_region
 
 
@@ -37,7 +37,7 @@ def get_cloud_region(
     app_version: str | None = None,
     load_yaml_config: bool = True,
     load_envvars: bool = True,
-    **kwargs: ty.Any,
+    **kwargs: Any,
 ) -> 'cloud_region.CloudRegion':
     """Retrieve a single CloudRegion and merge additional options
 

@@ -18,7 +18,7 @@ Exception definitions.
 
 import json
 import re
-import typing as ty
+from typing import Any, TYPE_CHECKING, Union
 import warnings
 
 import requests
@@ -26,14 +26,14 @@ from requests import exceptions as _rex
 
 from openstack import warnings as os_warnings
 
-if ty.TYPE_CHECKING:
+if TYPE_CHECKING:
     from openstack import resource
 
 
 class SDKException(Exception):
     """The base exception class for all exceptions this library raises."""
 
-    def __init__(self, message: str | None = None, extra_data: ty.Any = None):
+    def __init__(self, message: str | None = None, extra_data: Any = None):
         self.message = self.__class__.__name__ if message is None else message
         self.extra_data = extra_data
         super().__init__(self.message)
@@ -159,7 +159,7 @@ class MethodNotSupported(SDKException):
 
     def __init__(
         self,
-        resource: ty.Union['resource.Resource', type['resource.Resource']],
+        resource: Union['resource.Resource', type['resource.Resource']],
         method: str,
     ):
         # This needs to work with both classes and instances.
@@ -191,7 +191,7 @@ class InvalidResourceQuery(SDKException):
     """Invalid query params for resource."""
 
 
-def _extract_message(obj: ty.Any) -> str | None:
+def _extract_message(obj: Any) -> str | None:
     if isinstance(obj, dict):
         # Most of services: compute, network
         if obj.get('message'):

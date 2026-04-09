@@ -15,7 +15,15 @@
 from collections.abc import Iterator
 import copy
 import os.path
-import typing as ty
+from typing import (
+    Any,
+    Optional,
+    Protocol,
+    TYPE_CHECKING,
+    TypeVar,
+    cast,
+    overload,
+)
 from urllib import parse
 import warnings
 
@@ -57,13 +65,13 @@ from openstack import proxy
 from openstack import version as openstack_version
 from openstack import warnings as os_warnings
 
-if ty.TYPE_CHECKING:
+if TYPE_CHECKING:
     from oslo_config import cfg
 
     from openstack.config import loader
 
 
-_T = ty.TypeVar('_T')
+_T = TypeVar('_T')
 
 _logger = _log.setup_logging('openstack')
 
@@ -79,7 +87,7 @@ SCOPE_KEYS = {
 _ENOENT = object()
 
 
-class _PasswordCallback(ty.Protocol):
+class _PasswordCallback(Protocol):
     def __call__(self, prompt: str | None = None) -> str: ...
 
 
@@ -92,7 +100,7 @@ def _make_key(key: str, service_type: str | None) -> str:
 
 
 def _disable_service(
-    config: dict[str, ty.Any],
+    config: dict[str, Any],
     service_type: str,
     reason: str | None = None,
 ) -> None:
@@ -123,7 +131,7 @@ def from_session(
     force_ipv4: bool = False,
     app_name: str | None = None,
     app_version: str | None = None,
-    **kwargs: ty.Any,
+    **kwargs: Any,
 ) -> 'CloudRegion':
     """Construct a CloudRegion from an existing `keystoneauth1.session.Session`
 
@@ -164,7 +172,7 @@ def from_conf(
     conf: 'cfg.ConfigOpts',
     session: ks_session.Session | None = None,
     service_types: list[str] | None = None,
-    **kwargs: ty.Any,
+    **kwargs: Any,
 ) -> 'CloudRegion':
     """Create a CloudRegion from oslo.config ConfigOpts.
 
@@ -312,28 +320,28 @@ class CloudRegion:
         self,
         name: str | None = None,
         region_name: str | None = None,
-        config: dict[str, ty.Any] | None = None,
+        config: dict[str, Any] | None = None,
         force_ipv4: bool = False,
         auth_plugin: plugin.BaseAuthPlugin | None = None,
-        openstack_config: ty.Optional['loader.OpenStackConfig'] = None,
+        openstack_config: Optional['loader.OpenStackConfig'] = None,
         session_constructor: type[ks_session.Session] | None = None,
         app_name: str | None = None,
         app_version: str | None = None,
         session: ks_session.Session | None = None,
         discovery_cache: dict[str, discover.Discover] | None = None,
-        extra_config: dict[str, ty.Any] | None = None,
+        extra_config: dict[str, Any] | None = None,
         cache_expiration_time: int = 0,
         cache_expirations: dict[str, int] | None = None,
         cache_path: str | None = None,
         cache_class: str = 'dogpile.cache.null',
-        cache_arguments: dict[str, ty.Any] | None = None,
+        cache_arguments: dict[str, Any] | None = None,
         password_callback: _PasswordCallback | None = None,
         statsd_host: str | None = None,
         statsd_port: str | None = None,
         statsd_prefix: str | None = None,
         # TODO(stephenfin): Add better types
-        influxdb_config: dict[str, ty.Any] | None = None,
-        collector_registry: ty.Optional[
+        influxdb_config: dict[str, Any] | None = None,
+        collector_registry: Optional[
             'prometheus_client.CollectorRegistry'
         ] = None,
         cache_auth: bool = False,
@@ -388,7 +396,7 @@ class CloudRegion:
 
         self._service_type_manager = os_service_types.ServiceTypes()
 
-    def __getattr__(self, key: str) -> ty.Any:
+    def __getattr__(self, key: str) -> Any:
         """Return arbitrary attributes.
 
         This method accesses config via __dict__ to avoid infinite recursion
@@ -416,7 +424,7 @@ class CloudRegion:
         else:
             return None
 
-    def __iter__(self) -> Iterator[ty.Any]:
+    def __iter__(self) -> Iterator[Any]:
         return self.config.__iter__()
 
     def __eq__(self, other: object) -> bool:
@@ -466,7 +474,7 @@ class CloudRegion:
             return 'unknown'
 
     def set_service_value(
-        self, key: str, service_type: str, value: ty.Any
+        self, key: str, service_type: str, value: Any
     ) -> None:
         key = _make_key(key, service_type)
         self.config[key] = value
@@ -534,10 +542,10 @@ class CloudRegion:
 
         return services
 
-    def get_auth_args(self) -> dict[str, ty.Any]:
-        return ty.cast(dict[str, ty.Any], self.config.get('auth', {}))
+    def get_auth_args(self) -> dict[str, Any]:
+        return cast(dict[str, Any], self.config.get('auth', {}))
 
-    @ty.overload
+    @overload
     def _get_config(
         self,
         key: str,
@@ -546,14 +554,14 @@ class CloudRegion:
         fallback_to_unprefixed: bool = False,
     ) -> _T: ...
 
-    @ty.overload
+    @overload
     def _get_config(
         self,
         key: str,
         service_type: str | None,
         default: None = None,
         fallback_to_unprefixed: bool = False,
-    ) -> ty.Any | None: ...
+    ) -> Any | None: ...
 
     def _get_config(
         self,
@@ -561,7 +569,7 @@ class CloudRegion:
         service_type: str | None,
         default: _T | None = None,
         fallback_to_unprefixed: bool = False,
-    ) -> _T | ty.Any | None:
+    ) -> _T | Any | None:
         """Get a config value for a service_type.
 
         Finds the config value for a key, looking first for it prefixed by
@@ -595,9 +603,7 @@ class CloudRegion:
         else:
             return value
 
-    def _get_service_config(
-        self, key: str, service_type: str
-    ) -> ty.Any | None:
+    def _get_service_config(self, key: str, service_type: str) -> Any | None:
         config_dict = self.config.get(key)
         if not config_dict:
             return None
@@ -832,7 +838,7 @@ class CloudRegion:
         cache_id = self._auth.get_cache_id()
         # NOTE(stephenfin): The actual return type of this is a serialized JSON
         # object
-        state = ty.cast(str, self._auth.get_auth_state())
+        state = cast(str, self._auth.get_auth_state())
 
         try:
             if cache_id and state:
@@ -1037,22 +1043,22 @@ class CloudRegion:
             endpoint = parse.urljoin(endpoint, 'v2.0')
         return endpoint
 
-    @ty.overload
+    @overload
     def get_session_client(
         self,
         service_type: str,
         version: str | None = None,
         constructor: None = None,
-        **kwargs: ty.Any,
+        **kwargs: Any,
     ) -> proxy.Proxy: ...
 
-    @ty.overload
+    @overload
     def get_session_client(
         self,
         service_type: str,
         version: str | None = None,
         constructor: type[proxy.ProxyT] = ...,
-        **kwargs: ty.Any,
+        **kwargs: Any,
     ) -> proxy.ProxyT: ...
 
     def get_session_client(
@@ -1060,7 +1066,7 @@ class CloudRegion:
         service_type: str,
         version: str | None = None,
         constructor: type[proxy.Proxy] | None = None,
-        **kwargs: ty.Any,
+        **kwargs: Any,
     ) -> proxy.Proxy:
         """Return a prepped keystoneauth Adapter for a given service.
 
@@ -1239,7 +1245,7 @@ class CloudRegion:
     def get_cache_class(self) -> str:
         return self._cache_class
 
-    def get_cache_arguments(self) -> dict[str, ty.Any] | None:
+    def get_cache_arguments(self) -> dict[str, Any] | None:
         return copy.deepcopy(self._cache_arguments)
 
     def get_cache_expirations(self) -> dict[str, int]:
@@ -1347,8 +1353,8 @@ class CloudRegion:
     def _get_extra_config(
         self,
         key: str | None,
-        defaults: dict[str, ty.Any] | None = None,
-    ) -> dict[str, ty.Any]:
+        defaults: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Fetch an arbitrary extra chunk of config, laying in defaults.
 
         :param string key: name of the config section to fetch
@@ -1365,8 +1371,8 @@ class CloudRegion:
     def get_client_config(
         self,
         name: str | None = None,
-        defaults: dict[str, ty.Any] | None = None,
-    ) -> dict[str, ty.Any] | None:
+        defaults: dict[str, Any] | None = None,
+    ) -> dict[str, Any] | None:
         """Get config settings for a named client.
 
         Settings will also be looked for in a section called 'client'.
@@ -1402,7 +1408,7 @@ class CloudRegion:
 
     def get_statsd_client(
         self,
-    ) -> ty.Optional['statsd_client.StatsClientBase']:
+    ) -> Optional['statsd_client.StatsClientBase']:
         if not statsd_client:
             if self._statsd_host:
                 self.log.warning(
@@ -1429,12 +1435,12 @@ class CloudRegion:
 
     def get_prometheus_registry(
         self,
-    ) -> ty.Optional['prometheus_client.CollectorRegistry']:
+    ) -> Optional['prometheus_client.CollectorRegistry']:
         return self._collector_registry
 
     def get_prometheus_histogram(
         self,
-    ) -> ty.Optional['prometheus_client.Histogram']:
+    ) -> Optional['prometheus_client.Histogram']:
         registry = self.get_prometheus_registry()
         if not registry or not prometheus_client:
             return None
@@ -1459,7 +1465,7 @@ class CloudRegion:
 
     def get_prometheus_counter(
         self,
-    ) -> ty.Optional['prometheus_client.Counter']:
+    ) -> Optional['prometheus_client.Counter']:
         registry = self.get_prometheus_registry()
         if not registry or not prometheus_client:
             return None
@@ -1505,8 +1511,8 @@ class CloudRegion:
 
     def get_influxdb_client(
         self,
-    ) -> ty.Optional['influxdb_client.InfluxDBClient']:
-        influx_args: dict[str, ty.Any] = {}
+    ) -> Optional['influxdb_client.InfluxDBClient']:
+        influx_args: dict[str, Any] = {}
         if not self._influxdb_config:
             return None
 

@@ -14,7 +14,7 @@
 
 import logging
 import sys
-import typing as ty
+from typing import TextIO
 
 
 def setup_logging(
@@ -51,7 +51,7 @@ def enable_logging(
     debug: bool = False,
     http_debug: bool = False,
     path: str | None = None,
-    stream: ty.TextIO | None = None,
+    stream: TextIO | None = None,
     format_stream: bool = False,
     format_template: str = '%(asctime)s %(levelname)s: %(name)s %(message)s',
     handlers: list[logging.Handler] | None = None,

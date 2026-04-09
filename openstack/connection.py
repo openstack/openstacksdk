@@ -279,7 +279,7 @@ import argparse
 import concurrent.futures
 import copy
 import importlib.metadata as importlib_metadata
-import typing as ty
+from typing import Any, Optional, TYPE_CHECKING, cast
 
 import keystoneauth1.exceptions
 from keystoneauth1 import session as ks_session
@@ -303,7 +303,7 @@ import openstack.config.cloud_region
 from openstack import exceptions
 from openstack import service_description
 
-if ty.TYPE_CHECKING:
+if TYPE_CHECKING:
     from oslo_config import cfg
 
     from openstack.config import cloud_region
@@ -319,9 +319,9 @@ _logger = _log.setup_logging('openstack')
 
 def from_config(
     cloud: str | None = None,
-    config: ty.Optional['cloud_region.CloudRegion'] = None,
+    config: Optional['cloud_region.CloudRegion'] = None,
     options: argparse.Namespace | None = None,
-    **kwargs: ty.Any,
+    **kwargs: Any,
 ) -> 'Connection':
     """Create a Connection using openstack.config
 
@@ -369,23 +369,23 @@ class Connection(
     def __init__(
         self,
         cloud: str | None = None,
-        config: ty.Optional['cloud_region.CloudRegion'] = None,
+        config: Optional['cloud_region.CloudRegion'] = None,
         session: ks_session.Session | None = None,
         app_name: str | None = None,
         app_version: str | None = None,
         extra_services: (
-            list[service_description.ServiceDescription[ty.Any]] | None
+            list[service_description.ServiceDescription[Any]] | None
         ) = None,
         strict: bool = False,
         use_direct_get: bool | None = None,
-        task_manager: ty.Any = None,
+        task_manager: Any = None,
         rate_limit: float | dict[str, float] | None = None,
-        oslo_conf: ty.Optional['cfg.ConfigOpts'] = None,
+        oslo_conf: Optional['cfg.ConfigOpts'] = None,
         service_types: list[str] | None = None,
         global_request_id: str | None = None,
         strict_proxies: bool = False,
         pool_executor: concurrent.futures.Executor | None = None,
-        **kwargs: ty.Any,
+        **kwargs: Any,
     ):
         """Create a connection to a cloud.
 
@@ -578,11 +578,11 @@ class Connection(
             etc.
         """
         try:
-            return ty.cast(str, self.session.get_token())
+            return cast(str, self.session.get_token())
         except keystoneauth1.exceptions.ClientException as e:
             raise exceptions.SDKException(str(e))
 
-    def connect_as(self, **kwargs: ty.Any) -> ty_ext.Self:
+    def connect_as(self, **kwargs: Any) -> ty_ext.Self:
         """Make a new Connection object with new auth context.
 
         Take the existing settings from the current cloud and construct a new

@@ -23,7 +23,7 @@ valid attributes and methods for both :class:`~openstack.resource.Resource` and
 from collections.abc import Generator
 import inspect
 import random
-import typing as ty
+from typing import Any
 from unittest import mock
 import uuid
 
@@ -36,7 +36,7 @@ from openstack import service_description
 
 def generate_fake_resource(
     resource_type: type[resource.ResourceT],
-    **attrs: ty.Any,
+    **attrs: Any,
 ) -> resource.ResourceT:
     """Generate a fake resource
 
@@ -56,7 +56,7 @@ def generate_fake_resource(
     :raises NotImplementedError: If a resource attribute specifies a ``type``
         or ``list_type`` that cannot be automatically generated
     """
-    base_attrs: dict[str, ty.Any] = {}
+    base_attrs: dict[str, Any] = {}
     for name, value in inspect.getmembers(
         resource_type,
         predicate=lambda x: isinstance(x, fields.Body | fields.URI),
@@ -137,7 +137,7 @@ def generate_fake_resource(
 def generate_fake_resources(
     resource_type: type[resource.ResourceT],
     count: int = 1,
-    attrs: dict[str, ty.Any] | None = None,
+    attrs: dict[str, Any] | None = None,
 ) -> Generator[resource.ResourceT, None, None]:
     """Generate a given number of fake resource entities
 

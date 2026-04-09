@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import typing as ty
+from typing import Any, Literal, overload
 
 from keystoneauth1 import adapter
 import typing_extensions as ty_ext
@@ -60,37 +60,37 @@ class Service(resource.Resource):
 
     _max_microversion = '2.69'
 
-    @ty.overload
+    @overload
     @classmethod
     def find(
         cls,
         session: adapter.Adapter,
         name_or_id: str,
-        ignore_missing: ty.Literal[True] = True,
+        ignore_missing: Literal[True] = True,
         list_base_path: str | None = None,
         *,
         microversion: str | None = None,
         all_projects: bool | None = None,
-        **params: ty.Any,
+        **params: Any,
     ) -> ty_ext.Self | None: ...
 
-    @ty.overload
+    @overload
     @classmethod
     def find(
         cls,
         session: adapter.Adapter,
         name_or_id: str,
-        ignore_missing: ty.Literal[False],
+        ignore_missing: Literal[False],
         list_base_path: str | None = None,
         *,
         microversion: str | None = None,
         all_projects: bool | None = None,
-        **params: ty.Any,
+        **params: Any,
     ) -> ty_ext.Self: ...
 
     # excuse the duplication here: it's mypy's fault
     # https://github.com/python/mypy/issues/14764
-    @ty.overload
+    @overload
     @classmethod
     def find(
         cls,
@@ -101,7 +101,7 @@ class Service(resource.Resource):
         *,
         microversion: str | None = None,
         all_projects: bool | None = None,
-        **params: ty.Any,
+        **params: Any,
     ) -> ty_ext.Self | None: ...
 
     @classmethod
@@ -114,7 +114,7 @@ class Service(resource.Resource):
         *,
         microversion: str | None = None,
         all_projects: bool | None = None,
-        **params: ty.Any,
+        **params: Any,
     ) -> ty_ext.Self | None:
         # No direct request possible, thus go directly to list
         if list_base_path:

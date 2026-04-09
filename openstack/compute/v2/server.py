@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import typing as ty
+from typing import Any
 
 from openstack.common import metadata
 from openstack.common import tag
@@ -689,7 +689,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         :param locked_reason: The reason for locking the server.
         :returns: None
         """
-        body: dict[str, ty.Any] = {"lock": None}
+        body: dict[str, Any] = {"lock": None}
         if locked_reason is not None:
             body["lock"] = {
                 "locked_reason": locked_reason,
@@ -717,7 +717,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             provided, the server will use the existing image. (Optional)
         :returns: None
         """
-        body: dict[str, ty.Any] = {"rescue": {}}
+        body: dict[str, Any] = {"rescue": {}}
         if admin_pass is not None:
             body["rescue"]["adminPass"] = admin_pass
         if image_ref is not None:
@@ -754,7 +754,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             (Optional) (Only supported before microversion 2.14)
         :returns: None
         """
-        body: dict[str, ty.Any] = {"evacuate": {}}
+        body: dict[str, Any] = {"evacuate": {}}
         if host is not None:
             body["evacuate"]["host"] = host
         if admin_pass is not None:
@@ -848,7 +848,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
                 "greater."
             )
 
-        body: dict[str, ty.Any] = {"migrate": None}
+        body: dict[str, Any] = {"migrate": None}
         if host:
             body["migrate"] = {"host": host}
         self._action(session, body)
@@ -870,7 +870,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             (Optional)
         :returns: None
         """
-        body: dict[str, ty.Any] = {"os-getConsoleOutput": {}}
+        body: dict[str, Any] = {"os-getConsoleOutput": {}}
         if length is not None:
             body["os-getConsoleOutput"]["length"] = length
         resp = self._action(session, body)
@@ -983,7 +983,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         disk_over_commit,
     ):
         microversion = None
-        body: dict[str, ty.Any] = {
+        body: dict[str, Any] = {
             'host': None,
         }
         if block_migration == 'auto':

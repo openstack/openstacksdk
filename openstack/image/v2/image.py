@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import typing as ty
+from typing import Any, Literal, overload
 
 from keystoneauth1 import adapter
 import typing_extensions as ty_ext
@@ -341,7 +341,7 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
             stores = stores or []
 
         url = utils.urljoin(self.base_path, self.id, 'import')
-        data: dict[str, ty.Any] = {'method': {'name': method}}
+        data: dict[str, Any] = {'method': {'name': method}}
 
         if uri:
             if method != 'web-download':
@@ -406,37 +406,37 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
 
         return request
 
-    @ty.overload
+    @overload
     @classmethod
     def find(
         cls,
         session: adapter.Adapter,
         name_or_id: str,
-        ignore_missing: ty.Literal[True] = True,
+        ignore_missing: Literal[True] = True,
         list_base_path: str | None = None,
         *,
         microversion: str | None = None,
         all_projects: bool | None = None,
-        **params: ty.Any,
+        **params: Any,
     ) -> ty_ext.Self | None: ...
 
-    @ty.overload
+    @overload
     @classmethod
     def find(
         cls,
         session: adapter.Adapter,
         name_or_id: str,
-        ignore_missing: ty.Literal[False],
+        ignore_missing: Literal[False],
         list_base_path: str | None = None,
         *,
         microversion: str | None = None,
         all_projects: bool | None = None,
-        **params: ty.Any,
+        **params: Any,
     ) -> ty_ext.Self: ...
 
     # excuse the duplication here: it's mypy's fault
     # https://github.com/python/mypy/issues/14764
-    @ty.overload
+    @overload
     @classmethod
     def find(
         cls,
@@ -447,7 +447,7 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
         *,
         microversion: str | None = None,
         all_projects: bool | None = None,
-        **params: ty.Any,
+        **params: Any,
     ) -> ty_ext.Self | None: ...
 
     @classmethod
@@ -460,7 +460,7 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
         *,
         microversion: str | None = None,
         all_projects: bool | None = None,
-        **params: ty.Any,
+        **params: Any,
     ) -> ty_ext.Self | None:
         # Do a regular search first (ignoring missing)
         result = super().find(
