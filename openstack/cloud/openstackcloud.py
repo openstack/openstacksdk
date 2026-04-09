@@ -25,7 +25,7 @@ import dogpile.cache
 import keystoneauth1.exceptions
 from keystoneauth1.identity import base as ks_plugin_base
 import requests.models
-import typing_extensions as ty_ext
+from typing_extensions import Self
 import urllib3.exceptions
 
 from openstack import _log
@@ -304,7 +304,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
             self.__pool_executor.shutdown()
         atexit.unregister(self.close)
 
-    def __enter__(self) -> ty_ext.Self:
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(
@@ -318,7 +318,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
     def set_global_request_id(self, global_request_id: str) -> None:
         self._global_request_id = global_request_id
 
-    def global_request(self, global_request_id: str) -> ty_ext.Self:
+    def global_request(self, global_request_id: str) -> Self:
         """Make a new Connection object with a global request id set.
 
         Take the existing settings from the current Connection and construct a

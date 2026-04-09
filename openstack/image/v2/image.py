@@ -13,7 +13,7 @@
 from typing import Any, Literal, overload
 
 from keystoneauth1 import adapter
-import typing_extensions as ty_ext
+from typing_extensions import Self
 
 from openstack.common import tag
 from openstack import exceptions
@@ -418,7 +418,7 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
         microversion: str | None = None,
         all_projects: bool | None = None,
         **params: Any,
-    ) -> ty_ext.Self | None: ...
+    ) -> Self | None: ...
 
     @overload
     @classmethod
@@ -432,7 +432,7 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
         microversion: str | None = None,
         all_projects: bool | None = None,
         **params: Any,
-    ) -> ty_ext.Self: ...
+    ) -> Self: ...
 
     # excuse the duplication here: it's mypy's fault
     # https://github.com/python/mypy/issues/14764
@@ -448,7 +448,7 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
         microversion: str | None = None,
         all_projects: bool | None = None,
         **params: Any,
-    ) -> ty_ext.Self | None: ...
+    ) -> Self | None: ...
 
     @classmethod
     def find(
@@ -461,7 +461,7 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
         microversion: str | None = None,
         all_projects: bool | None = None,
         **params: Any,
-    ) -> ty_ext.Self | None:
+    ) -> Self | None:
         # Do a regular search first (ignoring missing)
         result = super().find(
             session,

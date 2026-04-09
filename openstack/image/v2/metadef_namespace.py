@@ -11,7 +11,7 @@
 # under the License.
 
 
-import typing_extensions as ty_ext
+from typing_extensions import Self
 
 from openstack.common import tag
 from openstack import exceptions
@@ -105,7 +105,7 @@ class MetadefNamespace(resource.Resource, tag.TagMixin):
 
     # NOTE(mrjoshi): This method is re-implemented as we require a ``POST``
     # call while the original method does a ``PUT`` call.
-    def add_tag(self, session: resource.AdapterT, tag: str) -> ty_ext.Self:
+    def add_tag(self, session: resource.AdapterT, tag: str) -> Self:
         """Adds a single tag to the resource.
 
         :param session: The session to use for making this request.
@@ -126,7 +126,7 @@ class MetadefNamespace(resource.Resource, tag.TagMixin):
     # standard ``PUT`` call.
     def set_tags(
         self, session: resource.AdapterT, tags: list[str], append: bool = False
-    ) -> ty_ext.Self:
+    ) -> Self:
         """Sets/Replaces all tags on the resource.
 
         :param session: The session to use for making this request.

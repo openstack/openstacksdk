@@ -13,7 +13,7 @@
 from typing import Any, Literal, overload
 
 from keystoneauth1 import adapter
-import typing_extensions as ty_ext
+from typing_extensions import Self
 
 from openstack.common import tag
 from openstack import exceptions
@@ -264,7 +264,7 @@ class Stack(resource.Resource):
         microversion: str | None = None,
         all_projects: bool | None = None,
         **params: Any,
-    ) -> ty_ext.Self | None: ...
+    ) -> Self | None: ...
 
     @overload
     @classmethod
@@ -278,7 +278,7 @@ class Stack(resource.Resource):
         microversion: str | None = None,
         all_projects: bool | None = None,
         **params: Any,
-    ) -> ty_ext.Self: ...
+    ) -> Self: ...
 
     # excuse the duplication here: it's mypy's fault
     # https://github.com/python/mypy/issues/14764
@@ -294,7 +294,7 @@ class Stack(resource.Resource):
         microversion: str | None = None,
         all_projects: bool | None = None,
         **params: Any,
-    ) -> ty_ext.Self | None: ...
+    ) -> Self | None: ...
 
     @classmethod
     def find(
@@ -307,7 +307,7 @@ class Stack(resource.Resource):
         microversion: str | None = None,
         all_projects: bool | None = None,
         **params: Any,
-    ) -> ty_ext.Self | None:
+    ) -> Self | None:
         """Find a resource by its name or id.
 
         :param session: The session to use for making this request.

@@ -283,7 +283,7 @@ from typing import Any, Optional, TYPE_CHECKING, cast
 
 import keystoneauth1.exceptions
 from keystoneauth1 import session as ks_session
-import typing_extensions as ty_ext
+from typing_extensions import Self
 
 from openstack import _log
 from openstack.cloud import _accelerator
@@ -582,7 +582,7 @@ class Connection(
         except keystoneauth1.exceptions.ClientException as e:
             raise exceptions.SDKException(str(e))
 
-    def connect_as(self, **kwargs: Any) -> ty_ext.Self:
+    def connect_as(self, **kwargs: Any) -> Self:
         """Make a new Connection object with new auth context.
 
         Take the existing settings from the current cloud and construct a new
@@ -659,7 +659,7 @@ class Connection(
         # a subclass in the case of shade wrapping sdk.
         return self.__class__(config=cloud_region)
 
-    def connect_as_project(self, project: str) -> ty_ext.Self:
+    def connect_as_project(self, project: str) -> Self:
         """Make a new Connection object with a new project.
 
         Take the existing settings from the current cloud and construct a new

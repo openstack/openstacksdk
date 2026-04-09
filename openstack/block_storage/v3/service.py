@@ -15,7 +15,7 @@ from typing import Any, Literal, overload
 from collections.abc import Generator
 
 from keystoneauth1 import adapter
-import typing_extensions as ty_ext
+from typing_extensions import Self
 
 from openstack import exceptions
 from openstack import resource
@@ -109,7 +109,7 @@ class Service(resource.Resource):
         microversion: str | None = None,
         all_projects: bool | None = None,
         **params: Any,
-    ) -> ty_ext.Self | None: ...
+    ) -> Self | None: ...
 
     @overload
     @classmethod
@@ -123,7 +123,7 @@ class Service(resource.Resource):
         microversion: str | None = None,
         all_projects: bool | None = None,
         **params: Any,
-    ) -> ty_ext.Self: ...
+    ) -> Self: ...
 
     # excuse the duplication here: it's mypy's fault
     # https://github.com/python/mypy/issues/14764
@@ -139,7 +139,7 @@ class Service(resource.Resource):
         microversion: str | None = None,
         all_projects: bool | None = None,
         **params: Any,
-    ) -> ty_ext.Self | None: ...
+    ) -> Self | None: ...
 
     @classmethod
     def find(
@@ -152,7 +152,7 @@ class Service(resource.Resource):
         microversion: str | None = None,
         all_projects: bool | None = None,
         **params: Any,
-    ) -> ty_ext.Self | None:
+    ) -> Self | None:
         # No direct request possible, thus go directly to list
         if list_base_path:
             params['base_path'] = list_base_path

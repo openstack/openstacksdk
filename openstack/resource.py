@@ -57,7 +57,7 @@ import jsonpatch
 from keystoneauth1 import adapter
 from keystoneauth1 import discover
 import requests
-import typing_extensions as ty_ext
+from typing_extensions import NotRequired, Self
 
 from openstack import _log
 from openstack import exceptions
@@ -242,8 +242,8 @@ class _Request:
 
 
 class QueryMapping(TypedDict):
-    name: ty_ext.NotRequired[str]
-    type: ty_ext.NotRequired[Callable[[Any, type[ResourceT]], ResourceT]]
+    name: NotRequired[str]
+    type: NotRequired[Callable[[Any, type[ResourceT]], ResourceT]]
 
 
 class QueryParameters:
@@ -929,7 +929,7 @@ class Resource(dict):
             return value
 
     @classmethod
-    def new(cls, **kwargs: Any) -> ty_ext.Self:
+    def new(cls, **kwargs: Any) -> Self:
         """Create a new instance of this resource.
 
         When creating the instance set the ``_synchronized`` parameter
@@ -965,7 +965,7 @@ class Resource(dict):
         obj: dict[str, Union],
         synchronized: bool = True,
         connection: connection.Connection | None = None,
-    ) -> ty_ext.Self:
+    ) -> Self:
         """Create an instance from a ``utils.Munch`` object.
 
         This is intended as a temporary measure to convert between shade-style
@@ -1395,7 +1395,7 @@ class Resource(dict):
         resource_response_key: str | None = None,
         microversion: str | None = None,
         **params: Any,
-    ) -> ty_ext.Self:
+    ) -> Self:
         """Create a remote resource based on this instance.
 
         :param session: The session to use for making this request.
@@ -1495,7 +1495,7 @@ class Resource(dict):
         *,
         microversion: str | None = None,
         **params: Any,
-    ) -> Generator[ty_ext.Self, None, None]:
+    ) -> Generator[Self, None, None]:
         """Create multiple remote resources based on this class and data.
 
         :param session: The session to use for making this request.
@@ -1619,7 +1619,7 @@ class Resource(dict):
         resource_response_key: str | None = None,
         microversion: str | None = None,
         **params: Any,
-    ) -> ty_ext.Self:
+    ) -> Self:
         """Get a remote resource based on this instance.
 
         :param session: The session to use for making this request.
@@ -1676,7 +1676,7 @@ class Resource(dict):
         base_path: str | None = None,
         *,
         microversion: str | None = None,
-    ) -> ty_ext.Self:
+    ) -> Self:
         """Get headers from a remote resource based on this instance.
 
         :param session: The session to use for making this request.
@@ -1723,7 +1723,7 @@ class Resource(dict):
         *,
         microversion: str | None = None,
         **kwargs: Any,
-    ) -> ty_ext.Self:
+    ) -> Self:
         """Commit the state of the instance to the remote resource.
 
         :param session: The session to use for making this request.
@@ -1914,7 +1914,7 @@ class Resource(dict):
         *,
         microversion: str | None = None,
         **kwargs: Any,
-    ) -> ty_ext.Self:
+    ) -> Self:
         """Delete the remote resource based on this instance.
 
         :param session: The session to use for making this request.
@@ -1969,7 +1969,7 @@ class Resource(dict):
         headers: dict[str, str] | None = None,
         max_items: int | None = None,
         **params: Any,
-    ) -> Generator[ty_ext.Self, None, None]:
+    ) -> Generator[Self, None, None]:
         """This method is a generator which yields resource objects.
 
         This resource object list generator handles pagination and takes query
@@ -2263,7 +2263,7 @@ class Resource(dict):
         microversion: str | None = None,
         all_projects: bool | None = None,
         **params: Any,
-    ) -> ty_ext.Self | None: ...
+    ) -> Self | None: ...
 
     @overload
     @classmethod
@@ -2277,7 +2277,7 @@ class Resource(dict):
         microversion: str | None = None,
         all_projects: bool | None = None,
         **params: Any,
-    ) -> ty_ext.Self: ...
+    ) -> Self: ...
 
     # excuse the duplication here: it's mypy's fault
     # https://github.com/python/mypy/issues/14764
@@ -2293,7 +2293,7 @@ class Resource(dict):
         microversion: str | None = None,
         all_projects: bool | None = None,
         **params: Any,
-    ) -> ty_ext.Self | None: ...
+    ) -> Self | None: ...
 
     @classmethod
     def find(
@@ -2306,7 +2306,7 @@ class Resource(dict):
         microversion: str | None = None,
         all_projects: bool | None = None,
         **params: Any,
-    ) -> ty_ext.Self | None:
+    ) -> Self | None:
         """Find a resource by its name or id.
 
         :param session: The session to use for making this request.

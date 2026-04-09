@@ -13,7 +13,7 @@
 from typing import Any
 
 import requests
-import typing_extensions as ty_ext
+from typing_extensions import Self
 
 from openstack import exceptions
 from openstack import resource
@@ -63,7 +63,7 @@ class QuotaSet(resource.Resource):
         resource_response_key: str | None = None,
         microversion: str | None = None,
         **params: Any,
-    ) -> ty_ext.Self:
+    ) -> Self:
         return super().fetch(
             session,
             requires_id,
