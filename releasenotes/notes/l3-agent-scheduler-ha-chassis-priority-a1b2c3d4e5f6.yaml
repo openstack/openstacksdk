@@ -6,3 +6,8 @@ features:
     ``l3-agent-scheduler-ha-priority`` API extension and indicates the
     OVN HA_Chassis failover priority for each gateway chassis hosting
     a router. The value is ``None`` for non-OVN mechanism drivers.
+  - |
+    Added ``update_router_in_agent`` method to the network proxy and
+    the ``Agent`` resource. This allows updating properties (such as
+    ``ha_chassis_priority``) of a router already associated with an
+    L3 agent, using a PUT request on the l3-agent-scheduler API.

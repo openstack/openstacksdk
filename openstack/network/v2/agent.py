@@ -113,6 +113,16 @@ class Agent(resource.Resource):
         resp = session.post(url, json=body)
         return resp.json()
 
+    def update_router_in_agent(
+        self, session, router, *, ha_chassis_priority=None
+    ):
+        body = {}
+        if ha_chassis_priority is not None:
+            body['ha_chassis_priority'] = ha_chassis_priority
+        url = utils.urljoin(self.base_path, self.id, 'l3-routers', router)
+        resp = session.put(url, json=body)
+        return resp.json()
+
     def remove_router_from_agent(self, session, router):
         body = {'router_id': router}
         url = utils.urljoin(self.base_path, self.id, 'l3-routers', router)
