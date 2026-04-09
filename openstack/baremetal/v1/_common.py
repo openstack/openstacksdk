@@ -10,6 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any, Literal, overload
+from typing_extensions import Self
+
+from keystoneauth1 import adapter
+
 from openstack import fields
 from openstack import resource
 
@@ -189,19 +194,49 @@ class Resource(resource.Resource):
             **params,
         )
 
+    @overload
     @classmethod
     def find(
         cls,
-        session,
-        name_or_id,
-        ignore_missing=True,
-        list_base_path=None,
+        session: adapter.Adapter,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        list_base_path: str | None = None,
         *,
-        microversion=None,
-        all_projects=None,
-        details=False,
-        **params,
-    ):
+        microversion: str | None = None,
+        all_projects: bool | None = None,
+        details: bool = False,
+        **params: Any,
+    ) -> Self: ...
+
+    @overload
+    @classmethod
+    def find(
+        cls,
+        session: adapter.Adapter,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        list_base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
+        details: bool = False,
+        **params: Any,
+    ) -> Self | None: ...
+
+    @classmethod
+    def find(
+        cls,
+        session: adapter.Adapter,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        list_base_path: str | None = None,
+        *,
+        microversion: str | None = None,
+        all_projects: bool | None = None,
+        details: bool = False,
+        **params: Any,
+    ) -> Self | None:
         """Find a resource by its name or id.
 
         :param session: The session to use for making this request.
