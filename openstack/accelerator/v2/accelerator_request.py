@@ -10,6 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from collections.abc import Sequence
+from typing import Any
+
+from keystoneauth1 import adapter
+from typing_extensions import Self
+
 from openstack import exceptions
 from openstack import resource
 
@@ -58,15 +64,15 @@ class AcceleratorRequest(resource.Resource):
 
     def patch(
         self,
-        session,
-        patch=None,
-        prepend_key=True,
-        has_body=True,
-        retry_on_conflict=None,
-        base_path=None,
+        session: adapter.Adapter,
+        patch: Sequence[dict[str, Any]] | None = None,
+        prepend_key: bool = True,
+        has_body: bool = True,
+        retry_on_conflict: bool | None = None,
+        base_path: str | None = None,
         *,
-        microversion=None,
-    ):
+        microversion: str | None = None,
+    ) -> Self:
         # This overrides the default behavior of patch because
         # the PATCH method consumes a dict rather than a list. spec:
         # https://specs.openstack.org/openstack/cyborg-specs/specs/train/implemented/cyborg-api

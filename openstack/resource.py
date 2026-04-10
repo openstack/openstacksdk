@@ -35,7 +35,13 @@ and then returned to the caller.
 from __future__ import annotations
 
 import builtins
-from collections.abc import Callable, Generator, MutableMapping, Iterable
+from collections.abc import (
+    Callable,
+    Generator,
+    MutableMapping,
+    Iterable,
+    Sequence,
+)
 import inspect
 import itertools
 import operator
@@ -1880,15 +1886,15 @@ class Resource(dict):
 
     def patch(
         self,
-        session,
-        patch=None,
-        prepend_key=True,
-        has_body=True,
-        retry_on_conflict=None,
-        base_path=None,
+        session: adapter.Adapter,
+        patch: Sequence[dict[str, Any]] | None = None,
+        prepend_key: bool = True,
+        has_body: bool = True,
+        retry_on_conflict: bool | None = None,
+        base_path: str | None = None,
         *,
-        microversion=None,
-    ):
+        microversion: str | None = None,
+    ) -> Self:
         """Patch the remote resource.
 
         Allows modifying the resource by providing a list of JSON patches to
