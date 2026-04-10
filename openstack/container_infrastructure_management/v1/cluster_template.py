@@ -26,7 +26,6 @@ class ClusterTemplate(resource.Resource):
     allow_patch = True
 
     commit_method = 'PATCH'
-    commit_jsonpatch = True
 
     #: The exposed port of COE API server.
     apiserver_port = resource.Body('apiserver_port', type=int)

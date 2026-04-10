@@ -86,7 +86,6 @@ class Node(_common.Resource):
     allow_list = True
     allow_patch = True
     commit_method = 'PATCH'
-    commit_jsonpatch = True
 
     _query_mapping = resource.QueryParameters(
         'associated',

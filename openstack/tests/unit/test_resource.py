@@ -959,7 +959,7 @@ class TestResource(base.TestCase):
 
     def test__prepare_request_with_patch(self):
         class Test(resource.Resource):
-            commit_jsonpatch = True
+            allow_patch = True
             base_path = "/something"
             x = resource.Body("x")
             y = resource.Body("y")
@@ -977,7 +977,7 @@ class TestResource(base.TestCase):
 
     def test__prepare_request_with_patch_not_synchronized(self):
         class Test(resource.Resource):
-            commit_jsonpatch = True
+            allow_patch = True
             base_path = "/something"
             x = resource.Body("x")
             y = resource.Body("y")
@@ -994,7 +994,7 @@ class TestResource(base.TestCase):
 
     def test__prepare_request_with_patch_params(self):
         class Test(resource.Resource):
-            commit_jsonpatch = True
+            allow_patch = True
             base_path = "/something"
             x = resource.Body("x")
             y = resource.Body("y")
@@ -1197,7 +1197,7 @@ class TestResource(base.TestCase):
         class Test(resource.Resource):
             properties = resource.Body("properties")
             _store_unknown_attrs_as_properties = True
-            commit_jsonpatch = True
+            allow_patch = True
 
         sot = Test.existing(**{'dummy': 'value', 'properties': 'a,b,c'})
 

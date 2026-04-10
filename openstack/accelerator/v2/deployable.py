@@ -41,6 +41,9 @@ class Deployable(resource.Resource):
     #: The timestamp when this deployable was updated.
     updated_at = resource.Body('updated_at')
 
+    # TODO(stephenfin): It would be better if we could simply override
+    # base_path in the .patch method, but we currently don't have support for
+    # the ID parameter
     def _commit(
         self,
         session,

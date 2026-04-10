@@ -28,7 +28,6 @@ class Allocation(resource.Resource):
     allow_list = True
     allow_patch = True
     commit_method = 'PATCH'
-    commit_jsonpatch = True
 
     _query_mapping = resource.QueryParameters(
         'node',

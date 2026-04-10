@@ -424,12 +424,11 @@ class Resource(dict):
     #: Commits happen without header or body being dirty.
     allow_empty_commit = False
 
-    #: Method for committing a resource
+    #: Method for committing a resource. This must be PATCH if
+    #: allow_patch is True.
     commit_method: Literal['POST', 'PATCH', 'PUT'] = 'PUT'
     #: Method for creating a resource
     create_method: Literal['POST', 'PUT'] = 'POST'
-    #: Whether commit uses JSON patch format.
-    commit_jsonpatch = False
 
     #: Do calls for this resource require an id
     requires_id = True
@@ -459,6 +458,22 @@ class Resource(dict):
 
     # Placeholder for aliases as dict of {__alias__:__original}
     _attr_aliases: dict[str, str] = {}
+
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        super().__init_subclass__(**kwargs)
+        # TODO(stephenfin): It doesn't make much sense for allow_commit to be
+        # False while allow_patch is True but we do have some (acelerator
+        # service) resources doing just that. We can simplify when those are
+        # fixed.
+        if (
+            cls.allow_commit
+            and cls.allow_patch
+            and cls.commit_method != 'PATCH'
+        ):
+            raise TypeError(
+                f"{cls.__name__}: 'allow_patch' is True but "
+                f"'commit_method' is {cls.commit_method!r} instead of 'PATCH'"
+            )
 
     def __init__(self, _synchronized=False, connection=None, **attrs):
         """The base resource
@@ -498,7 +513,7 @@ class Resource(dict):
         self._computed = _ComponentManager(
             attributes=computed, synchronized=_synchronized
         )
-        if self.commit_jsonpatch or self.allow_patch:
+        if self.allow_patch:
             # We need the original body to compare against
             if _synchronized:
                 self._original_body = self._body.attributes.copy()
@@ -856,7 +871,7 @@ class Resource(dict):
     def _clean_body_attrs(self, attrs):
         """Mark the attributes as up-to-date."""
         self._body.clean(only=attrs)
-        if self.commit_jsonpatch or self.allow_patch:
+        if self.allow_patch:
             for attr in attrs:
                 if attr in self._body:
                     self._original_body[attr] = self._body[attr]
@@ -1267,7 +1282,7 @@ class Resource(dict):
 
                 self._body.attributes.update(body_attrs)
                 self._body.clean()
-                if self.commit_jsonpatch or self.allow_patch:
+                if self.allow_patch:
                     # We need the original body to compare against
                     self._original_body = self._body.attributes.copy()
             except ValueError:
@@ -1759,7 +1774,7 @@ class Resource(dict):
 
         # Avoid providing patch unconditionally to avoid breaking subclasses
         # without it.
-        if self.commit_jsonpatch:
+        if self.allow_patch:
             kwargs['patch'] = True
 
         request = self._prepare_request(

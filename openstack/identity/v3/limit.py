@@ -139,7 +139,7 @@ class Limit(resource.Resource):
 
                 self._body.attributes.update(body_attrs)
                 self._body.clean()
-                if self.commit_jsonpatch or self.allow_patch:
+                if self.allow_patch:
                     # We need the original body to compare against
                     self._original_body = body_attrs.copy()
             except ValueError:
