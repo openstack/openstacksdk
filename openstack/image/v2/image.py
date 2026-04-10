@@ -32,6 +32,7 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
     allow_commit = True
     allow_delete = True
     allow_list = True
+    allow_patch = True
     commit_method = 'PATCH'
     commit_jsonpatch = True
 
