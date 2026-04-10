@@ -20,7 +20,7 @@ class ZoneImport(_base.Resource):
 
     resource_key = ''
     resources_key = 'imports'
-    base_path = '/zones/tasks/import'
+    base_path = '/zones/tasks/imports'
 
     # capabilities
     allow_create = True
