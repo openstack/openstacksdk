@@ -9,7 +9,13 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from openstack import exceptions
+
+from collections.abc import Sequence
+from typing import Any
+from typing_extensions import Self
+
+from keystoneauth1 import adapter
+
 from openstack import resource
 
 
@@ -41,43 +47,23 @@ class Deployable(resource.Resource):
     #: The timestamp when this deployable was updated.
     updated_at = resource.Body('updated_at')
 
-    # TODO(stephenfin): It would be better if we could simply override
-    # base_path in the .patch method, but we currently don't have support for
-    # the ID parameter
-    def _commit(
+    def patch(
         self,
-        session,
-        request,
-        method,
-        microversion=None,
-        has_body=True,
-        retry_on_conflict=None,
-    ):
-        session = self._get_session(session)
-        kwargs = {}
-        retriable_status_codes = set(session.retriable_status_codes or ())
-        if retry_on_conflict:
-            kwargs['retriable_status_codes'] = retriable_status_codes | {409}
-        elif retry_on_conflict is not None and retriable_status_codes:
-            # The baremetal proxy defaults to retrying on conflict, allow
-            # overriding it via an explicit retry_on_conflict=False.
-            kwargs['retriable_status_codes'] = retriable_status_codes - {409}
-
-        try:
-            call = getattr(session, method.lower())
-        except AttributeError:
-            raise exceptions.ResourceFailure(
-                f"Invalid commit method: {method}"
-            )
-
-        request.url = request.url + "/program"
-        response = call(
-            request.url,
-            json=request.body,
-            headers=request.headers,
+        session: adapter.Adapter,
+        patch: Sequence[dict[str, Any]] | None = None,
+        prepend_key: bool = True,
+        has_body: bool = True,
+        retry_on_conflict: bool | None = None,
+        base_path: str | None = '/deployables/%(id)s/program',
+        *,
+        microversion: str | None = None,
+    ) -> Self:
+        return super().patch(
+            session,
+            patch=patch,
+            prepend_key=prepend_key,
+            has_body=has_body,
+            retry_on_conflict=retry_on_conflict,
+            base_path=base_path,
             microversion=microversion,
-            **kwargs,
         )
-        self.microversion = microversion
-        self._translate_response(response, has_body=has_body)
-        return self

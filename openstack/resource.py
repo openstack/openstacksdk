@@ -1226,7 +1226,7 @@ class Resource(dict):
 
         if base_path is None:
             base_path = self.base_path
-        uri = base_path % self._uri.attributes
+        uri = base_path % {'id': self.id, **self._uri.attributes}
         if requires_id:
             if self.id is None:
                 raise exceptions.InvalidRequest(
