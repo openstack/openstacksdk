@@ -146,11 +146,10 @@ class QuotaSet(resource.Resource):
 
     def _prepare_request_body(
         self,
-        patch: bool,
-        prepend_key: bool,
         *,
+        prepend_key: bool,
         resource_request_key: str | None = None,
-    ) -> dict[str, Any] | list[Any]:
+    ) -> dict[str, Any]:
         body = self._body.dirty
         # Ensure we never try to send meta props reservation and usage
         body.pop('reservation', None)

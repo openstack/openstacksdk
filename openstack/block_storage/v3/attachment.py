@@ -96,9 +96,8 @@ class Attachment(resource.Resource):
 
     def _prepare_request_body(
         self,
-        patch,
-        prepend_key,
         *,
+        prepend_key,
         resource_request_key=None,
     ):
         body = self._body.dirty

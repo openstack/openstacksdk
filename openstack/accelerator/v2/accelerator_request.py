@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from collections.abc import Sequence
 from typing import Any
 
 from keystoneauth1 import adapter
@@ -65,7 +64,7 @@ class AcceleratorRequest(resource.Resource):
     def patch(
         self,
         session: adapter.Adapter,
-        patch: Sequence[dict[str, Any]] | None = None,
+        patch: list[dict[str, Any]] | None = None,
         prepend_key: bool = True,
         has_body: bool = True,
         retry_on_conflict: bool | None = None,

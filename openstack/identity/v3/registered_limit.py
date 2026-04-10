@@ -68,20 +68,15 @@ class RegisteredLimit(resource.Resource):
 
     def _prepare_request_body(
         self,
-        patch,
-        prepend_key,
         *,
+        prepend_key,
         resource_request_key=None,
     ):
         body = self._body.dirty
-        if prepend_key and self.resource_key is not None:
-            if patch:
-                body = {self.resource_key: body}
-            else:
-                # Keystone supports bunch create for registered limit. So the
-                # request body for creating registered_limit is a list instead
-                # of dict.
-                body = {self.resources_key: [body]}
+        # Keystone supports batch create for unified limit. So the
+        # request body for creating registered_limit is a list instead
+        # of dict.
+        body = {self.resources_key: [body]}
         return body
 
     def _translate_response(

@@ -40,7 +40,6 @@ from collections.abc import (
     Generator,
     MutableMapping,
     Iterable,
-    Sequence,
 )
 import inspect
 import itertools
@@ -1142,45 +1141,47 @@ class Resource(dict):
 
     def _prepare_request_body(
         self,
-        patch: bool,
-        prepend_key: bool,
         *,
+        prepend_key: bool,
         resource_request_key: str | None = None,
-    ) -> dict[str, Any] | builtins.list[Any]:
-        body: dict[str, Any] | list[Any]
-        if patch:
-            if not self._store_unknown_attrs_as_properties:
-                # Default case
-                new = self._body.attributes
-                original_body = self._original_body
-            else:
-                new = self._unpack_properties_to_resource_root(
-                    self._body.attributes
-                )
-                original_body = self._unpack_properties_to_resource_root(
-                    self._original_body
-                )
-
-            # NOTE(gtema) sort result, since we might need validate it in tests
-            body = sorted(
-                list(jsonpatch.make_patch(original_body, new).patch),
-                key=operator.itemgetter('path'),
-            )
+    ) -> dict[str, Any]:
+        body: dict[str, Any]
+        if not self._store_unknown_attrs_as_properties:
+            # Default case
+            body = self._body.dirty
         else:
-            if not self._store_unknown_attrs_as_properties:
-                # Default case
-                body = self._body.dirty
-            else:
-                body = self._unpack_properties_to_resource_root(
-                    self._body.dirty
-                )
+            body = self._unpack_properties_to_resource_root(self._body.dirty)
 
-            if prepend_key:
-                if resource_request_key is not None:
-                    body = {resource_request_key: body}
-                elif self.resource_key is not None:
-                    body = {self.resource_key: body}
+        if prepend_key:
+            if resource_request_key is not None:
+                body = {resource_request_key: body}
+            elif self.resource_key is not None:
+                body = {self.resource_key: body}
         return body
+
+    def _prepare_request_patch(
+        self,
+        *,
+        prepend_key: bool,
+        resource_request_key: str | None = None,
+    ) -> list[dict[str, Any]]:
+        if not self._store_unknown_attrs_as_properties:
+            # Default case
+            new = self._body.attributes
+            original_body = self._original_body
+        else:
+            new = self._unpack_properties_to_resource_root(
+                self._body.attributes
+            )
+            original_body = self._unpack_properties_to_resource_root(
+                self._original_body
+            )
+
+        # NOTE(gtema) sort result, since we might need validate it in tests
+        return sorted(
+            list(jsonpatch.make_patch(original_body, new).patch),
+            key=operator.itemgetter('path'),
+        )
 
     def _prepare_request(
         self,
@@ -1210,11 +1211,17 @@ class Resource(dict):
         if requires_id is None:
             requires_id = self.requires_id
 
-        body = self._prepare_request_body(
-            patch=patch,
-            prepend_key=prepend_key,
-            resource_request_key=resource_request_key,
-        )
+        body: list[dict[str, Any]] | dict[str, Any]
+        if patch:
+            body = self._prepare_request_patch(
+                prepend_key=prepend_key,
+                resource_request_key=resource_request_key,
+            )
+        else:
+            body = self._prepare_request_body(
+                prepend_key=prepend_key,
+                resource_request_key=resource_request_key,
+            )
 
         # TODO(mordred) Ensure headers have string values better than this
         headers = {}
@@ -1887,7 +1894,7 @@ class Resource(dict):
     def patch(
         self,
         session: adapter.Adapter,
-        patch: Sequence[dict[str, Any]] | None = None,
+        patch: list[dict[str, Any]] | None = None,
         prepend_key: bool = True,
         has_body: bool = True,
         retry_on_conflict: bool | None = None,

@@ -1339,7 +1339,7 @@ class TestNodePatch(base.TestCase):
         )
 
         self.node.description = 'updated-desc'
-        patch = self.node._prepare_request_body(patch=True, prepend_key=False)
+        patch = self.node._prepare_request_patch(prepend_key=False)
 
         # Verify patch only contains description change
         patch_paths = [op.get('path') for op in patch]

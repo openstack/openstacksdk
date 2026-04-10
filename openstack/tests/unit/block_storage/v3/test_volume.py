@@ -656,7 +656,7 @@ class TestVolume(base.TestCase):
 
     def test__prepare_request_body(self):
         sot = volume.Volume(**VOLUME)
-        body = sot._prepare_request_body(patch=False, prepend_key=True)
+        body = sot._prepare_request_body(prepend_key=True)
         original_body = copy.deepcopy(sot._body.dirty)
         # Verify that scheduler hints aren't modified after preparing request
         # but also not part of 'volume' JSON object

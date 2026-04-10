@@ -16,6 +16,7 @@ class DeviceProfile(resource.Resource):
     resource_key = 'device_profile'
     resources_key = 'device_profiles'
     base_path = '/device_profiles'
+
     # capabilities
     allow_create = True
     allow_fetch = True
@@ -40,13 +41,12 @@ class DeviceProfile(resource.Resource):
     # cannot treat multiple DeviceProfiles in list.
     def _prepare_request_body(
         self,
-        patch,
-        prepend_key,
         *,
+        prepend_key,
         resource_request_key=None,
     ):
         body = super()._prepare_request_body(
-            patch, prepend_key, resource_request_key=resource_request_key
+            prepend_key=prepend_key, resource_request_key=resource_request_key
         )
         return [body]
 

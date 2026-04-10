@@ -11,7 +11,6 @@
 # under the License.
 
 import collections
-from collections.abc import Sequence
 import enum
 from typing import Any
 import warnings
@@ -1556,7 +1555,7 @@ class Node(_common.Resource):
     def patch(
         self,
         session: adapter.Adapter,
-        patch: Sequence[dict[str, Any]] | None = None,
+        patch: list[dict[str, Any]] | None = None,
         prepend_key: bool = True,
         has_body: bool = True,
         retry_on_conflict: bool | None = None,
