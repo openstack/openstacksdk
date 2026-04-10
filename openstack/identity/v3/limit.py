@@ -26,13 +26,14 @@ class Limit(resource.Resource):
     allow_delete = True
     allow_list = True
     commit_method = 'PATCH'
-    commit_jsonpatch = True
 
     _query_mapping = resource.QueryParameters(
         'service_id', 'region_id', 'resource_name', 'project_id'
     )
 
     # Properties
+    #: The ID of the domain. *Type: string*
+    domain_id = resource.Body('domain_id')
     #: User-facing description of the registered_limit. *Type: string*
     description = resource.Body('description')
     #: The links for the registered_limit resource.
