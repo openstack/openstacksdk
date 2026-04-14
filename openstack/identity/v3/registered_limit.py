@@ -45,6 +45,11 @@ class RegisteredLimit(resource.Resource):
     #: The default limit value. *Type: int*
     default_limit = resource.Body('default_limit')
 
+    def _transform_create_request(self, request):
+        # Keystone supports batch create for unified limit. So the
+        # request body for creating limit is a list instead of dict.
+        request.body = {self.resources_key: [request.body[self.resource_key]]}
+
     def create(
         self,
         session,
@@ -65,19 +70,6 @@ class RegisteredLimit(resource.Resource):
             microversion=microversion,
             **params,
         )
-
-    def _prepare_request_body(
-        self,
-        *,
-        prepend_key,
-        resource_request_key=None,
-    ):
-        body = self._body.dirty
-        # Keystone supports batch create for unified limit. So the
-        # request body for creating registered_limit is a list instead
-        # of dict.
-        body = {self.resources_key: [body]}
-        return body
 
     def _translate_response(
         self,

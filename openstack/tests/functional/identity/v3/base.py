@@ -21,8 +21,9 @@ class BaseIdentityTest(base.BaseFunctionalTest):
 
     def setUp(self):
         super().setUp()
-        if not self.operator_cloud.has_service('identity', '3'):
-            self.skipTest('identity service not supported by cloud')
+        # FIXME(stephenfin) This is causing our tests to be skipped. Why?
+        # if not self.operator_cloud.has_service('identity', '3'):
+        #     self.skipTest('identity service not supported by cloud')
 
         self.admin_identity_client = utils.ensure_service_version(
             self.operator_cloud.identity, '3'

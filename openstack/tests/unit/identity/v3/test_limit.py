@@ -10,10 +10,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
+from unittest import mock
+
+from keystoneauth1 import adapter
+
 from openstack.identity.v3 import limit
 from openstack.tests.unit import base
 
 
+IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
     "service_id": "8ac43bb0926245cead88676a96c750d3",
     "region_id": 'RegionOne',
@@ -26,6 +32,17 @@ EXAMPLE = {
 
 
 class TestLimit(base.TestCase):
+    def setUp(self):
+        super().setUp()
+        self.resp = mock.Mock()
+        self.resp.status_code = 200
+        self.resp.headers = {}
+        self.resp.json = mock.Mock(return_value={})
+        self.sess = mock.Mock(spec=adapter.Adapter)
+        self.sess.default_microversion = None
+        self.sess.retriable_status_codes = None
+        self.sess._get_connection = mock.Mock(return_value=self.cloud)
+
     def test_basic(self):
         sot = limit.Limit()
         self.assertEqual('limits', sot.resources_key)
@@ -58,3 +75,31 @@ class TestLimit(base.TestCase):
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['links'], sot.links)
+
+    def test_create(self):
+        sot = limit.Limit(**EXAMPLE)
+        sot._translate_response = mock.Mock()
+        self.sess.post = mock.Mock(return_value=self.resp)
+
+        sot.create(self.sess)
+
+        self.sess.post.assert_called_with(
+            '/limits',
+            json={'limits': [copy.deepcopy(EXAMPLE)]},
+            microversion=None,
+            headers={},
+            params={},
+        )
+
+    def test_commit(self):
+        sot = limit.Limit(id=IDENTIFIER, resource_limit=20)
+        self.sess.patch = mock.Mock(return_value=self.resp)
+
+        sot.commit(self.sess)
+
+        self.sess.patch.assert_called_with(
+            f'limits/{IDENTIFIER}',
+            json={'limit': {'resource_limit': 20}},
+            headers={},
+            microversion=None,
+        )

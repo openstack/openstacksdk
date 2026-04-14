@@ -1462,6 +1462,12 @@ class Resource(dict[str, Any]):
 
         return actual
 
+    # TODO(stephenfin): We should have one of these for each operation. It
+    # might help cut down on the amount of repetition we have.
+    def _transform_create_request(self, request: _Request) -> None:
+        """Apply any resource-specific transformations to the request."""
+        return None
+
     def create(
         self,
         session: adapter.Adapter,
@@ -1522,6 +1528,7 @@ class Resource(dict[str, Any]):
             base_path=base_path,
             resource_request_key=resource_request_key,
         )
+        self._transform_create_request(request)
         if self.create_method == 'PUT':
             response = session.put(
                 request.url,
