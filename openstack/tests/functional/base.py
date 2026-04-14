@@ -312,8 +312,5 @@ class KeystoneBaseFunctionalTest(BaseFunctionalTest):
     def setUp(self):
         super().setUp()
 
-        # we only support v3, since v2 was deprecated in Queens (2018)
-
-        # FIXME(stephenfin) This is causing our tests to be skipped. Why?
-        # if not self.user_cloud.has_service('identity', '3'):
-        #     self.skipTest('identity service not supported by cloud')
+        if not self.user_cloud.has_service('identity', '3'):
+            self.skipTest('identity service not supported by cloud')

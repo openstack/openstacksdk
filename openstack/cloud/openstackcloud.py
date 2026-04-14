@@ -631,7 +631,14 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
             # If a specific version was requested - try it
             if version is not None:
                 kwargs['min_version'] = version
-                kwargs['max_version'] = version
+                # Derive max_version from the same major version so that any
+                # minor version within that major is accepted. Setting
+                # max_version=version would normalize e.g. '3' to (3, 0),
+                # which excludes service (like keystone) that report a non-zero
+                # minor version. Using '{major}.latest' mirrors keystoneauth's
+                # own expansion of the 'version' parameter
+                major = version.lstrip('v').split('.')[0]
+                kwargs['max_version'] = f'{major}.latest'
             endpoint = self.get_session_endpoint(service_key, **kwargs)
         except exceptions.SDKException:
             return False
