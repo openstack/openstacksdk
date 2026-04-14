@@ -61,6 +61,11 @@ class Snapshot(resource.Resource, metadata.MetadataMixin):
         exceptions.raise_from_response(resp)
         return resp
 
+    def force_delete(self, session):
+        """Force snapshot deletion."""
+        body = {'os-force_delete': None}
+        self._action(session, body)
+
     def reset_status(self, session, status):
         """Reset the status of the snapshot."""
         body = {'os-reset_status': {'status': status}}
