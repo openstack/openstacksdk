@@ -52,7 +52,9 @@ class TestImage(base.BaseImageTest):
         self.assertEqual(self.image.name, image.name)
 
         # find image
-        image = self.admin_image_client.find_image(self.image.name)
+        image = self.admin_image_client.find_image(
+            self.image.name, ignore_missing=False
+        )
         self.assertEqual(self.image.id, image.id)
 
         # list

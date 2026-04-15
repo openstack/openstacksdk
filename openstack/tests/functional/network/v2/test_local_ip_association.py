@@ -18,9 +18,9 @@ from openstack.tests.functional import base
 
 
 class TestLocalIPAssociation(base.BaseFunctionalTest):
-    LOCAL_IP_ID = None
-    FIXED_PORT_ID = None
-    FIXED_IP = None
+    LOCAL_IP_ID: str
+    FIXED_PORT_ID: str
+    FIXED_IP: str
 
     def setUp(self):
         super().setUp()
@@ -56,7 +56,7 @@ class TestLocalIPAssociation(base.BaseFunctionalTest):
 
     def test_find(self):
         sot = self.user_cloud.network.find_local_ip_association(
-            self.FIXED_PORT_ID, self.LOCAL_IP_ID
+            self.FIXED_PORT_ID, self.LOCAL_IP_ID, ignore_missing=False
         )
         self.assertEqual(self.FIXED_PORT_ID, sot.fixed_port_id)
 

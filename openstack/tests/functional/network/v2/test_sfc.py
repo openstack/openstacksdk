@@ -112,7 +112,7 @@ class TestSFCFlowClassifier(base.BaseFunctionalTest):
 
     def test_sfc_flow_classifier(self):
         sot = self.operator_cloud.network.find_sfc_flow_classifier(
-            self.FLOW_CLASSIFIER.name
+            self.FLOW_CLASSIFIER.name, ignore_missing=False
         )
         self.assertEqual(self.ETHERTYPE, sot.ethertype)
         self.assertEqual(self.SOURCE_IP, sot.source_ip_prefix)

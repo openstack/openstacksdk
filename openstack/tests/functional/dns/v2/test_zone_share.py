@@ -103,8 +103,7 @@ class TestZoneShare(base.BaseFunctionalTest):
         )
 
         zone_share = self.operator_cloud.dns.find_zone_share(
-            self.zone,
-            orig_zone_share.id,
+            self.zone, orig_zone_share.id, ignore_missing=False
         )
 
         self.assertEqual(self.zone.id, zone_share.zone_id)

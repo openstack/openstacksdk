@@ -16,7 +16,7 @@ from openstack.tests.functional import base
 
 
 class TestDVRRouter(base.BaseFunctionalTest):
-    ID = None
+    ID: str
 
     def setUp(self):
         super().setUp()
@@ -44,7 +44,9 @@ class TestDVRRouter(base.BaseFunctionalTest):
         super().tearDown()
 
     def test_find(self):
-        sot = self.operator_cloud.network.find_router(self.NAME)
+        sot = self.operator_cloud.network.find_router(
+            self.NAME, ignore_missing=False
+        )
         self.assertEqual(self.ID, sot.id)
 
     def test_get(self):

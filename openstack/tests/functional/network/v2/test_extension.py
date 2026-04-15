@@ -24,5 +24,7 @@ class TestExtension(base.BaseFunctionalTest):
             self.assertIsInstance(ext.alias, str)
 
     def test_find(self):
-        extension = self.user_cloud.network.find_extension("external-net")
+        extension = self.user_cloud.network.find_extension(
+            "external-net", ignore_missing=False
+        )
         self.assertEqual("Neutron external network", extension.name)

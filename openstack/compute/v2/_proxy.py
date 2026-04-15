@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import ClassVar, Literal
+from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable
 import warnings
 
@@ -82,7 +82,25 @@ class Proxy(proxy.Proxy):
 
     # ========== Extensions ==========
 
-    def find_extension(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_extension(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> extension.Extension: ...
+
+    @overload
+    def find_extension(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> extension.Extension | None: ...
+
+    def find_extension(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> extension.Extension | None:
         """Find a single extension
 
         :param name_or_id: The name or ID of an extension.
@@ -116,14 +134,34 @@ class Proxy(proxy.Proxy):
     # ========== Flavors ==========
 
     # TODO(stephenfin): Drop 'query' parameter or apply it consistently
+    @overload
     def find_flavor(
         self,
-        name_or_id,
-        ignore_missing=True,
+        name_or_id: str,
+        ignore_missing: Literal[False],
         *,
-        get_extra_specs=False,
-        **query,
-    ):
+        get_extra_specs: bool = False,
+        **query: Any,
+    ) -> _flavor.Flavor: ...
+
+    @overload
+    def find_flavor(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        get_extra_specs: bool = False,
+        **query: Any,
+    ) -> _flavor.Flavor | None: ...
+
+    def find_flavor(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        get_extra_specs: bool = False,
+        **query: Any,
+    ) -> _flavor.Flavor | None:
         """Find a single flavor
 
         :param name_or_id: The name or ID of a flavor.
@@ -351,7 +389,25 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_aggregate.Aggregate, aggregate)
 
-    def find_aggregate(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_aggregate(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _aggregate.Aggregate: ...
+
+    @overload
+    def find_aggregate(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _aggregate.Aggregate | None: ...
+
+    def find_aggregate(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _aggregate.Aggregate | None:
         """Find a single aggregate
 
         :param name_or_id: The name or ID of an aggregate.
@@ -501,7 +557,25 @@ class Proxy(proxy.Proxy):
 
     # NOTE(stephenfin): We haven't added 'details' support here since this
     # method is deprecated
-    def find_image(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_image(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _image.Image: ...
+
+    @overload
+    def find_image(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _image.Image | None: ...
+
+    def find_image(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _image.Image | None:
         """Find a single image
 
         :param name_or_id: The name or ID of a image.
@@ -685,7 +759,31 @@ class Proxy(proxy.Proxy):
             self, error_message=f"No Keypair found for {keypair}", **get_params
         )
 
-    def find_keypair(self, name_or_id, ignore_missing=True, *, user_id=None):
+    @overload
+    def find_keypair(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        *,
+        user_id: str | None = None,
+    ) -> _keypair.Keypair: ...
+
+    @overload
+    def find_keypair(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        user_id: str | None = None,
+    ) -> _keypair.Keypair | None: ...
+
+    def find_keypair(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        user_id: str | None = None,
+    ) -> _keypair.Keypair | None:
         """Find a single keypair
 
         :param name_or_id: The name or ID of a keypair.
@@ -767,14 +865,34 @@ class Proxy(proxy.Proxy):
         else:
             self._delete(_server.Server, server, ignore_missing=ignore_missing)
 
+    @overload
     def find_server(
         self,
-        name_or_id,
-        ignore_missing=True,
+        name_or_id: str,
+        ignore_missing: Literal[False],
         *,
-        details=True,
-        all_projects=False,
-    ):
+        details: bool = True,
+        all_projects: bool = False,
+    ) -> _server.Server: ...
+
+    @overload
+    def find_server(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+        all_projects: bool = False,
+    ) -> _server.Server | None: ...
+
+    def find_server(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+        all_projects: bool = False,
+    ) -> _server.Server | None:
         """Find a single server
 
         :param name_or_id: The name or ID of a server.
@@ -1605,13 +1723,31 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
+    @overload
     def find_server_group(
         self,
-        name_or_id,
-        ignore_missing=True,
+        name_or_id: str,
+        ignore_missing: Literal[False],
         *,
-        all_projects=False,
-    ):
+        all_projects: bool = False,
+    ) -> _server_group.ServerGroup: ...
+
+    @overload
+    def find_server_group(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        all_projects: bool = False,
+    ) -> _server_group.ServerGroup | None: ...
+
+    def find_server_group(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        all_projects: bool = False,
+    ) -> _server_group.ServerGroup | None:
         """Find a single server group
 
         :param name_or_id: The name or ID of a server group.
@@ -1694,13 +1830,31 @@ class Proxy(proxy.Proxy):
             )
         return self._list(_hypervisor.Hypervisor, base_path=base_path, **query)
 
+    @overload
     def find_hypervisor(
         self,
-        name_or_id,
-        ignore_missing=True,
+        name_or_id: str,
+        ignore_missing: Literal[False],
         *,
-        details=True,
-    ):
+        details: bool = True,
+    ) -> _hypervisor.Hypervisor: ...
+
+    @overload
+    def find_hypervisor(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+    ) -> _hypervisor.Hypervisor | None: ...
+
+    def find_hypervisor(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+    ) -> _hypervisor.Hypervisor | None:
         """Find a single hypervisor
 
         :param name_or_id: The name or ID of a hypervisor
@@ -1845,7 +1999,28 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_service.Service, **query)
 
-    def find_service(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_service(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _service.Service: ...
+
+    @overload
+    def find_service(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _service.Service | None: ...
+
+    def find_service(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _service.Service | None:
         """Find a service from name or id to get the corresponding info
 
         :param name_or_id: The name or id of a service

@@ -36,7 +36,9 @@ class TestImage(base.BaseComputeTest):
 
         # find image by name
 
-        image = self.admin_compute_client.find_image(self.image.name)
+        image = self.admin_compute_client.find_image(
+            self.image.name, ignore_missing=False
+        )
         self.assertIsInstance(image, _image.Image)
         self.assertEqual(self.image.id, image.id)
         self.assertEqual(self.image.name, image.name)

@@ -13,7 +13,7 @@
 from collections.abc import Callable
 import os
 import time
-from typing import Any, ClassVar, Literal
+from typing import Any, ClassVar, Literal, overload
 import warnings
 
 from openstack import exceptions
@@ -916,7 +916,25 @@ class Proxy(proxy.Proxy):
         else:
             self._delete(_image.Image, image, ignore_missing=ignore_missing)
 
-    def find_image(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_image(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _image.Image: ...
+
+    @overload
+    def find_image(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _image.Image | None: ...
+
+    def find_image(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _image.Image | None:
         """Find a single image
 
         :param name_or_id: The name or ID of a image.
@@ -1116,7 +1134,28 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def find_member(self, name_or_id, image, ignore_missing=True):
+    @overload
+    def find_member(
+        self,
+        name_or_id: str,
+        image: str | _image.Image,
+        ignore_missing: Literal[False],
+    ) -> _member.Member: ...
+
+    @overload
+    def find_member(
+        self,
+        name_or_id: str,
+        image: str | _image.Image,
+        ignore_missing: bool = True,
+    ) -> _member.Member | None: ...
+
+    def find_member(
+        self,
+        name_or_id: str,
+        image: str | _image.Image,
+        ignore_missing: bool = True,
+    ) -> _member.Member | None:
         """Find a single member
 
         :param name_or_id: The name or ID of a member.

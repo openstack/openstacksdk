@@ -15,9 +15,13 @@ from openstack.tests.functional.identity.v3 import base
 
 
 class TestApplicationCredentials(base.BaseIdentityTest):
+    user_id: str
+
     def setUp(self):
         super().setUp()
-        self.user_id = self.operator_cloud.current_user_id
+        user_id = self.operator_cloud.current_user_id
+        assert user_id is not None
+        self.user_id = user_id
 
     def _create_application_credentials(self):
         app_creds = self.admin_identity_client.create_application_credential(
@@ -53,7 +57,7 @@ class TestApplicationCredentials(base.BaseIdentityTest):
     def test_find_application_credential(self):
         app_creds = self._create_application_credentials()
         app_cred = self.admin_identity_client.find_application_credential(
-            user=self.user_id, name_or_id=app_creds['id']
+            user=self.user_id, name_or_id=app_creds['id'], ignore_missing=False
         )
         self.assertEqual(app_cred['id'], app_creds['id'])
         self.assertEqual(app_cred['user_id'], self.user_id)

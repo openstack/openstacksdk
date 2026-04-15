@@ -53,7 +53,9 @@ class TestBGPSpeaker(base.BaseFunctionalTest):
         super().tearDown()
 
     def test_find_bgp_speaker(self):
-        sot = self.operator_cloud.network.find_bgp_speaker(self.SPEAKER.name)
+        sot = self.operator_cloud.network.find_bgp_speaker(
+            self.SPEAKER.name, ignore_missing=False
+        )
         self.assertEqual(self.IP_VERSION, sot.ip_version)
         self.assertEqual(self.LOCAL_AS, sot.local_as)
         # Check defaults
@@ -78,7 +80,9 @@ class TestBGPSpeaker(base.BaseFunctionalTest):
         self.assertFalse(sot.advertise_floating_ip_host_routes)
 
     def test_find_bgp_peer(self):
-        sot = self.operator_cloud.network.find_bgp_peer(self.PEER.name)
+        sot = self.operator_cloud.network.find_bgp_peer(
+            self.PEER.name, ignore_missing=False
+        )
         self.assertEqual(self.PEER_IP, sot.peer_ip)
         self.assertEqual(self.REMOTE_AS, sot.remote_as)
 

@@ -19,7 +19,7 @@ from openstack.tests.functional import base
 
 
 class TestFirewallGroup(base.BaseFunctionalTest):
-    ID = None
+    ID: str
 
     def setUp(self):
         super().setUp()
@@ -39,7 +39,9 @@ class TestFirewallGroup(base.BaseFunctionalTest):
         super().tearDown()
 
     def test_find(self):
-        sot = self.user_cloud.network.find_firewall_group(self.NAME)
+        sot = self.user_cloud.network.find_firewall_group(
+            self.NAME, ignore_missing=False
+        )
         self.assertEqual(self.ID, sot.id)
 
     def test_get(self):

@@ -21,8 +21,8 @@ class TestSecurityGroupRule(base.BaseFunctionalTest):
     PROTO = "tcp"
     PORT = 22
     DIR = "ingress"
-    ID = None
-    RULE_ID = None
+    ID: str
+    RULE_ID: str
 
     def setUp(self):
         super().setUp()
@@ -55,7 +55,9 @@ class TestSecurityGroupRule(base.BaseFunctionalTest):
         super().tearDown()
 
     def test_find(self):
-        sot = self.user_cloud.network.find_security_group_rule(self.RULE_ID)
+        sot = self.user_cloud.network.find_security_group_rule(
+            self.RULE_ID, ignore_missing=False
+        )
         self.assertEqual(self.RULE_ID, sot.id)
 
     def test_get(self):

@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, ClassVar, Literal
+from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable
 
 from openstack import exceptions
@@ -129,9 +129,28 @@ class Proxy(proxy.Proxy):
         base_path = None if not preview else '/stacks/preview'
         return self._create(_stack.Stack, base_path=base_path, **attrs)
 
+    @overload
     def find_stack(
-        self, name_or_id, ignore_missing=True, resolve_outputs=True
-    ):
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        resolve_outputs: bool = True,
+    ) -> _stack.Stack: ...
+
+    @overload
+    def find_stack(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        resolve_outputs: bool = True,
+    ) -> _stack.Stack | None: ...
+
+    def find_stack(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        resolve_outputs: bool = True,
+    ) -> _stack.Stack | None:
         """Find a single stack
 
         :param name_or_id: The name or ID of a stack.

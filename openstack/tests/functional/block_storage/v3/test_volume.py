@@ -47,7 +47,9 @@ class TestVolume(base.BaseBlockStorageTest):
         self.assertEqual(self.volume.name, volume.name)
 
         # find
-        volume = self.block_storage_client.find_volume(self.volume.name)
+        volume = self.block_storage_client.find_volume(
+            self.volume.name, ignore_missing=False
+        )
         self.assertEqual(self.volume.id, volume.id)
 
         # list

@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import ClassVar, Literal
+from typing import ClassVar, Literal, overload
 from collections.abc import Callable
 
 from openstack.identity.v2 import extension as _extension
@@ -72,7 +72,25 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_role.Role, role, ignore_missing=ignore_missing)
 
-    def find_role(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_role(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _role.Role: ...
+
+    @overload
+    def find_role(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _role.Role | None: ...
+
+    def find_role(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _role.Role | None:
         """Find a single role
 
         :param name_or_id: The name or ID of a role.
@@ -150,7 +168,25 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_tenant.Tenant, tenant, ignore_missing=ignore_missing)
 
-    def find_tenant(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_tenant(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _tenant.Tenant: ...
+
+    @overload
+    def find_tenant(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _tenant.Tenant | None: ...
+
+    def find_tenant(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _tenant.Tenant | None:
         """Find a single tenant
 
         :param name_or_id: The name or ID of a tenant.
@@ -228,7 +264,25 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_user.User, user, ignore_missing=ignore_missing)
 
-    def find_user(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_user(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _user.User: ...
+
+    @overload
+    def find_user(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _user.User | None: ...
+
+    def find_user(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _user.User | None:
         """Find a single user
 
         :param name_or_id: The name or ID of a user.

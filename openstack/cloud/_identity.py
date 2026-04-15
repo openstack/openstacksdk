@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
 import warnings
 
 from openstack.cloud import _utils
@@ -1398,8 +1399,8 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
     ):
         identity = utils.ensure_service_version(self.identity, '3')
 
-        data = {}
-        search_args = {}
+        data: dict[str, Any] = {}
+        search_args: dict[str, Any] = {}
         if domain:
             data['domain'] = identity.find_domain(domain, ignore_missing=False)
             # We have domain. We should use it for further searching user,

@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import ClassVar, Literal
+from typing import ClassVar, Literal, overload
 from collections.abc import Callable
 
 from openstack.key_manager.v1 import container as _container
@@ -63,7 +63,25 @@ class Proxy(proxy.Proxy):
             _container.Container, container, ignore_missing=ignore_missing
         )
 
-    def find_container(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_container(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _container.Container: ...
+
+    @overload
+    def find_container(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _container.Container | None: ...
+
+    def find_container(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _container.Container | None:
         """Find a single container
 
         :param name_or_id: The name or ID of a container.
@@ -144,7 +162,25 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_order.Order, order, ignore_missing=ignore_missing)
 
-    def find_order(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_order(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _order.Order: ...
+
+    @overload
+    def find_order(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _order.Order | None: ...
+
+    def find_order(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _order.Order | None:
         """Find a single order
 
         :param name_or_id: The name or ID of a order.
@@ -224,7 +260,25 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_secret.Secret, secret, ignore_missing=ignore_missing)
 
-    def find_secret(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_secret(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _secret.Secret: ...
+
+    @overload
+    def find_secret(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _secret.Secret | None: ...
+
+    def find_secret(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _secret.Secret | None:
         """Find a single secret
 
         :param name_or_id: The name or ID of a secret.

@@ -114,7 +114,9 @@ class TestServer(base.BaseComputeTest):
 
         # find server by name
 
-        server = self.compute_client.find_server(self.server_name)
+        server = self.compute_client.find_server(
+            self.server_name, ignore_missing=False
+        )
         self.assertEqual(self.server.id, server.id)
 
         # get server by ID

@@ -26,18 +26,18 @@ from openstack.tests.functional import base
 
 
 class TestLoadBalancer(base.BaseFunctionalTest):
-    HM_ID = None
-    L7POLICY_ID = None
-    LB_ID = None
-    LISTENER_ID = None
-    MEMBER_ID = None
-    POOL_ID = None
-    VIP_SUBNET_ID = None
-    PROJECT_ID = None
-    FLAVOR_PROFILE_ID = None
-    FLAVOR_ID = None
-    AVAILABILITY_ZONE_PROFILE_ID = None
-    AMPHORA_ID = None
+    HM_ID: str
+    L7POLICY_ID: str
+    LB_ID: str
+    LISTENER_ID: str
+    MEMBER_ID: str
+    POOL_ID: str
+    VIP_SUBNET_ID: str
+    PROJECT_ID: str
+    FLAVOR_PROFILE_ID: str
+    FLAVOR_ID: str
+    AVAILABILITY_ZONE_PROFILE_ID: str
+    AMPHORA_ID: str
     PROTOCOL = 'HTTP'
     PROTOCOL_PORT = 80
     LB_ALGORITHM = 'ROUND_ROBIN'
@@ -81,7 +81,9 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         self.AVAILABILITY_ZONE_NAME = self.getUniqueString()
         subnets = list(self.operator_cloud.network.subnets())
         self.VIP_SUBNET_ID = subnets[0].id
-        self.PROJECT_ID = self.operator_cloud.session.get_project_id()
+        project_id = self.operator_cloud.session.get_project_id()
+        assert project_id is not None
+        self.PROJECT_ID = project_id
         test_quota = self.operator_cloud.load_balancer.update_quota(
             self.PROJECT_ID,
             **{
@@ -316,7 +318,7 @@ class TestLoadBalancer(base.BaseFunctionalTest):
 
     def test_lb_find(self):
         test_lb = self.operator_cloud.load_balancer.find_load_balancer(
-            self.LB_NAME
+            self.LB_NAME, ignore_missing=False
         )
         self.assertEqual(self.LB_ID, test_lb.id)
 
@@ -382,7 +384,7 @@ class TestLoadBalancer(base.BaseFunctionalTest):
 
     def test_listener_find(self):
         test_listener = self.operator_cloud.load_balancer.find_listener(
-            self.LISTENER_NAME
+            self.LISTENER_NAME, ignore_missing=False
         )
         self.assertEqual(self.LISTENER_ID, test_listener.id)
 
@@ -439,7 +441,9 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         self.assertEqual(self.LISTENER_NAME, test_listener.name)
 
     def test_pool_find(self):
-        test_pool = self.operator_cloud.load_balancer.find_pool(self.POOL_NAME)
+        test_pool = self.operator_cloud.load_balancer.find_pool(
+            self.POOL_NAME, ignore_missing=False
+        )
         self.assertEqual(self.POOL_ID, test_pool.id)
 
     def test_pool_get(self):
@@ -477,7 +481,7 @@ class TestLoadBalancer(base.BaseFunctionalTest):
 
     def test_member_find(self):
         test_member = self.operator_cloud.load_balancer.find_member(
-            self.MEMBER_NAME, self.POOL_ID
+            self.MEMBER_NAME, self.POOL_ID, ignore_missing=False
         )
         self.assertEqual(self.MEMBER_ID, test_member.id)
 
@@ -525,7 +529,7 @@ class TestLoadBalancer(base.BaseFunctionalTest):
 
     def test_health_monitor_find(self):
         test_hm = self.operator_cloud.load_balancer.find_health_monitor(
-            self.HM_NAME
+            self.HM_NAME, ignore_missing=False
         )
         self.assertEqual(self.HM_ID, test_hm.id)
 
@@ -574,7 +578,7 @@ class TestLoadBalancer(base.BaseFunctionalTest):
 
     def test_l7_policy_find(self):
         test_l7_policy = self.operator_cloud.load_balancer.find_l7_policy(
-            self.L7POLICY_NAME
+            self.L7POLICY_NAME, ignore_missing=False
         )
         self.assertEqual(self.L7POLICY_ID, test_l7_policy.id)
 
@@ -619,7 +623,7 @@ class TestLoadBalancer(base.BaseFunctionalTest):
 
     def test_l7_rule_find(self):
         test_l7_rule = self.operator_cloud.load_balancer.find_l7_rule(
-            self.L7RULE_ID, self.L7POLICY_ID
+            self.L7RULE_ID, self.L7POLICY_ID, ignore_missing=False
         )
         self.assertEqual(self.L7RULE_ID, test_l7_rule.id)
         self.assertEqual(self.L7RULE_TYPE, test_l7_rule.type)
@@ -717,7 +721,7 @@ class TestLoadBalancer(base.BaseFunctionalTest):
 
     def test_flavor_profile_find(self):
         test_profile = self.operator_cloud.load_balancer.find_flavor_profile(
-            self.FLAVOR_PROFILE_NAME
+            self.FLAVOR_PROFILE_NAME, ignore_missing=False
         )
         self.assertEqual(self.FLAVOR_PROFILE_ID, test_profile.id)
 
@@ -762,7 +766,7 @@ class TestLoadBalancer(base.BaseFunctionalTest):
 
     def test_flavor_find(self):
         test_flavor = self.operator_cloud.load_balancer.find_flavor(
-            self.FLAVOR_NAME
+            self.FLAVOR_NAME, ignore_missing=False
         )
         self.assertEqual(self.FLAVOR_ID, test_flavor.id)
 
@@ -804,7 +808,7 @@ class TestLoadBalancer(base.BaseFunctionalTest):
 
     def test_amphora_find(self):
         test_amphora = self.operator_cloud.load_balancer.find_amphora(
-            self.AMPHORA_ID
+            self.AMPHORA_ID, ignore_missing=False
         )
         self.assertEqual(self.AMPHORA_ID, test_amphora.id)
 
@@ -831,7 +835,7 @@ class TestLoadBalancer(base.BaseFunctionalTest):
     def test_availability_zone_profile_find(self):
         test_profile = (
             self.operator_cloud.load_balancer.find_availability_zone_profile(
-                self.AVAILABILITY_ZONE_PROFILE_NAME
+                self.AVAILABILITY_ZONE_PROFILE_NAME, ignore_missing=False
             )
         )
         self.assertEqual(self.AVAILABILITY_ZONE_PROFILE_ID, test_profile.id)
@@ -893,7 +897,7 @@ class TestLoadBalancer(base.BaseFunctionalTest):
     def test_availability_zone_find(self):
         test_availability_zone = (
             self.operator_cloud.load_balancer.find_availability_zone(
-                self.AVAILABILITY_ZONE_NAME
+                self.AVAILABILITY_ZONE_NAME, ignore_missing=False
             )
         )
         self.assertEqual(

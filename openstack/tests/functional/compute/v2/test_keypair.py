@@ -45,7 +45,9 @@ class TestKeypair(base.BaseComputeTest):
 
         # retrieve details of the keypair by name
 
-        keypair = self.compute_client.find_keypair(self.keypair_name)
+        keypair = self.compute_client.find_keypair(
+            self.keypair_name, ignore_missing=False
+        )
         self.assertIsInstance(keypair, _keypair.Keypair)
         self.assertEqual(self.keypair_name, keypair.name)
         self.assertEqual(self.keypair_name, keypair.id)

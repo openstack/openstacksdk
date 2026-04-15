@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import ClassVar, Literal
+from typing import ClassVar, Literal, overload
 from collections.abc import Callable
 
 from openstack.container_infrastructure_management.v1 import (
@@ -66,7 +66,25 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_cluster.Cluster, cluster, ignore_missing=ignore_missing)
 
-    def find_cluster(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_cluster(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _cluster.Cluster: ...
+
+    @overload
+    def find_cluster(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _cluster.Cluster | None: ...
+
+    def find_cluster(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _cluster.Cluster | None:
         """Find a single cluster
 
         :param name_or_id: The name or ID of a cluster.
@@ -160,7 +178,25 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def find_cluster_template(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_cluster_template(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _cluster_template.ClusterTemplate: ...
+
+    @overload
+    def find_cluster_template(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _cluster_template.ClusterTemplate | None: ...
+
+    def find_cluster_template(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _cluster_template.ClusterTemplate | None:
         """Find a single cluster_template
 
         :param name_or_id: The name or ID of a cluster_template.

@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import ClassVar, Literal
+from typing import ClassVar, Literal, overload
 from collections.abc import Callable
 
 from openstack.placement.v1 import resource_class as _resource_class
@@ -185,7 +185,25 @@ class Proxy(proxy.Proxy):
             resource_provider,
         )
 
-    def find_resource_provider(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_resource_provider(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _resource_provider.ResourceProvider: ...
+
+    @overload
+    def find_resource_provider(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _resource_provider.ResourceProvider | None: ...
+
+    def find_resource_provider(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _resource_provider.ResourceProvider | None:
         """Find a single resource_provider.
 
         :param name_or_id: The name or ID of a resource provider.

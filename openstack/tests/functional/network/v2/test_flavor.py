@@ -60,7 +60,9 @@ class TestFlavor(base.BaseFunctionalTest):
 
     def test_find(self):
         if self.ID:
-            flavors = self.user_cloud.network.find_flavor(self.FLAVOR_NAME)
+            flavors = self.user_cloud.network.find_flavor(
+                self.FLAVOR_NAME, ignore_missing=False
+            )
             self.assertEqual(self.ID, flavors.id)
         else:
             self.user_cloud.network.find_flavor("definitely_missing")

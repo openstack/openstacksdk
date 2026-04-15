@@ -122,14 +122,34 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_snapshot.Snapshot, snapshot)
 
+    @overload
     def find_snapshot(
         self,
-        name_or_id,
-        ignore_missing=True,
+        name_or_id: str,
+        ignore_missing: Literal[False],
         *,
-        details=True,
-        all_projects=False,
-    ):
+        details: bool = True,
+        all_projects: bool = False,
+    ) -> _snapshot.Snapshot: ...
+
+    @overload
+    def find_snapshot(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+        all_projects: bool = False,
+    ) -> _snapshot.Snapshot | None: ...
+
+    def find_snapshot(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+        all_projects: bool = False,
+    ) -> _snapshot.Snapshot | None:
         """Find a single snapshot
 
         :param snapshot: The name or ID a snapshot
@@ -353,7 +373,25 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_type.Type, type)
 
-    def find_type(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_type(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _type.Type: ...
+
+    @overload
+    def find_type(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _type.Type | None: ...
+
+    def find_type(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _type.Type | None:
         """Find a single volume type
 
         :param snapshot: The name or ID a volume type
@@ -680,14 +718,34 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_volume.Volume, volume)
 
+    @overload
     def find_volume(
         self,
-        name_or_id,
-        ignore_missing=True,
+        name_or_id: str,
+        ignore_missing: Literal[False],
         *,
-        details=True,
-        all_projects=False,
-    ):
+        details: bool = True,
+        all_projects: bool = False,
+    ) -> _volume.Volume: ...
+
+    @overload
+    def find_volume(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+        all_projects: bool = False,
+    ) -> _volume.Volume | None: ...
+
+    def find_volume(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+        all_projects: bool = False,
+    ) -> _volume.Volume | None:
         """Find a single volume
 
         :param snapshot: The name or ID a volume
@@ -1354,7 +1412,31 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_backup.Backup, backup)
 
-    def find_backup(self, name_or_id, ignore_missing=True, *, details=True):
+    @overload
+    def find_backup(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        *,
+        details: bool = True,
+    ) -> _backup.Backup: ...
+
+    @overload
+    def find_backup(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+    ) -> _backup.Backup | None: ...
+
+    def find_backup(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+    ) -> _backup.Backup | None:
         """Find a single backup
 
         :param snapshot: The name or ID a backup
@@ -1565,7 +1647,31 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_group.Group, group_id, **attrs)
 
-    def find_group(self, name_or_id, ignore_missing=True, *, details=True):
+    @overload
+    def find_group(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        *,
+        details: bool = True,
+    ) -> _group.Group: ...
+
+    @overload
+    def find_group(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+    ) -> _group.Group | None: ...
+
+    def find_group(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+    ) -> _group.Group | None:
         """Find a single group
 
         :param name_or_id: The name or ID of a group.
@@ -1752,13 +1858,31 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_group_snapshot.GroupSnapshot, group_snapshot_id)
 
+    @overload
     def find_group_snapshot(
         self,
-        name_or_id,
-        ignore_missing=True,
+        name_or_id: str,
+        ignore_missing: Literal[False],
         *,
-        details=True,
-    ):
+        details: bool = True,
+    ) -> _group_snapshot.GroupSnapshot: ...
+
+    @overload
+    def find_group_snapshot(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+    ) -> _group_snapshot.GroupSnapshot | None: ...
+
+    def find_group_snapshot(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+    ) -> _group_snapshot.GroupSnapshot | None:
         """Find a single group snapshot
 
         :param name_or_id: The name or ID of a group snapshot.
@@ -1865,7 +1989,25 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_group_type.GroupType, group_type)
 
-    def find_group_type(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_group_type(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _group_type.GroupType: ...
+
+    @overload
+    def find_group_type(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _group_type.GroupType | None: ...
+
+    def find_group_type(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _group_type.GroupType | None:
         """Find a single group type
 
         :param name_or_id: The name or ID of a group type.
@@ -2379,7 +2521,25 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def find_transfer(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_transfer(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _transfer.Transfer: ...
+
+    @overload
+    def find_transfer(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _transfer.Transfer | None: ...
+
+    def find_transfer(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _transfer.Transfer | None:
         """Find a single transfer
 
         :param name_or_id: The name or ID a transfer

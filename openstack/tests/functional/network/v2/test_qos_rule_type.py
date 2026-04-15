@@ -30,7 +30,7 @@ class TestQoSRuleType(base.BaseFunctionalTest):
 
     def test_find(self):
         sot = self.operator_cloud.network.find_qos_rule_type(
-            self.QOS_RULE_TYPE
+            self.QOS_RULE_TYPE, ignore_missing=False
         )
         self.assertEqual(self.QOS_RULE_TYPE, sot.type)
         self.assertIsInstance(sot.drivers, list)

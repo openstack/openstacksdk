@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, ClassVar, Literal
+from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable
 
 from openstack import exceptions
@@ -275,7 +275,28 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def find_address_group(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_address_group(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _address_group.AddressGroup: ...
+
+    @overload
+    def find_address_group(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _address_group.AddressGroup | None: ...
+
+    def find_address_group(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _address_group.AddressGroup | None:
         """Find a single address group
 
         :param name_or_id: The name or ID of an address group.
@@ -399,7 +420,28 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def find_address_scope(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_address_scope(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _address_scope.AddressScope: ...
+
+    @overload
+    def find_address_scope(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _address_scope.AddressScope | None: ...
+
+    def find_address_scope(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _address_scope.AddressScope | None:
         """Find a single address scope
 
         :param name_or_id: The name or ID of an address scope.
@@ -663,7 +705,28 @@ class Proxy(proxy.Proxy):
         """Delete a BGP Peer"""
         self._delete(_bgp_peer.BgpPeer, peer, ignore_missing=ignore_missing)
 
-    def find_bgp_peer(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_bgp_peer(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _bgp_peer.BgpPeer: ...
+
+    @overload
+    def find_bgp_peer(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _bgp_peer.BgpPeer | None: ...
+
+    def find_bgp_peer(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _bgp_peer.BgpPeer | None:
         """Find a single BGP Peer"""
         return self._find(
             _bgp_peer.BgpPeer,
@@ -694,7 +757,28 @@ class Proxy(proxy.Proxy):
             _bgp_speaker.BgpSpeaker, speaker, ignore_missing=ignore_missing
         )
 
-    def find_bgp_speaker(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_bgp_speaker(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _bgp_speaker.BgpSpeaker: ...
+
+    @overload
+    def find_bgp_speaker(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _bgp_speaker.BgpSpeaker | None: ...
+
+    def find_bgp_speaker(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _bgp_speaker.BgpSpeaker | None:
         """Find a single BGP Peer"""
         return self._find(
             _bgp_speaker.BgpSpeaker,
@@ -791,7 +875,28 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_bgpvpn.BgpVpn, bgpvpn, ignore_missing=ignore_missing)
 
-    def find_bgpvpn(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_bgpvpn(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _bgpvpn.BgpVpn: ...
+
+    @overload
+    def find_bgpvpn(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _bgpvpn.BgpVpn | None: ...
+
+    def find_bgpvpn(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _bgpvpn.BgpVpn | None:
         """Find a single BGPVPN
 
         :param name_or_id: The name or ID of a BGPVPN.
@@ -982,9 +1087,31 @@ class Proxy(proxy.Proxy):
             bgpvpn_id=bgpvpn_res.id,
         )
 
+    @overload
     def find_bgpvpn_port_association(
-        self, name_or_id, bgpvpn_id, ignore_missing=True, **query
-    ):
+        self,
+        name_or_id: str,
+        bgpvpn_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _bgpvpn_port_association.BgpVpnPortAssociation: ...
+
+    @overload
+    def find_bgpvpn_port_association(
+        self,
+        name_or_id: str,
+        bgpvpn_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _bgpvpn_port_association.BgpVpnPortAssociation | None: ...
+
+    def find_bgpvpn_port_association(
+        self,
+        name_or_id: str,
+        bgpvpn_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _bgpvpn_port_association.BgpVpnPortAssociation | None:
         """Find a single BGPVPN Port Association
 
         :param name_or_id: The name or ID of a BgpVpnNetworkAssociation.
@@ -1182,7 +1309,28 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def find_extension(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_extension(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> extension.Extension: ...
+
+    @overload
+    def find_extension(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> extension.Extension | None: ...
+
+    def find_extension(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> extension.Extension | None:
         """Find a single extension
 
         :param name_or_id: The name or ID of a extension.
@@ -1243,7 +1391,28 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_flavor.Flavor, flavor, ignore_missing=ignore_missing)
 
-    def find_flavor(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_flavor(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _flavor.Flavor: ...
+
+    @overload
+    def find_flavor(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _flavor.Flavor | None: ...
+
+    def find_flavor(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _flavor.Flavor | None:
         """Find a single network service flavor
 
         :param name_or_id: The name or ID of a flavor.
@@ -1380,7 +1549,28 @@ class Proxy(proxy.Proxy):
             if_revision=if_revision,
         )
 
-    def find_local_ip(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_local_ip(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _local_ip.LocalIP: ...
+
+    @overload
+    def find_local_ip(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _local_ip.LocalIP | None: ...
+
+    def find_local_ip(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _local_ip.LocalIP | None:
         """Find a local IP
 
         :param name_or_id: The name or ID of an local IP.
@@ -1504,9 +1694,31 @@ class Proxy(proxy.Proxy):
             if_revision=if_revision,
         )
 
+    @overload
     def find_local_ip_association(
-        self, name_or_id, local_ip, ignore_missing=True, **query
-    ):
+        self,
+        name_or_id: str,
+        local_ip: str | _local_ip.LocalIP,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _local_ip_association.LocalIPAssociation: ...
+
+    @overload
+    def find_local_ip_association(
+        self,
+        name_or_id: str,
+        local_ip: str | _local_ip.LocalIP,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _local_ip_association.LocalIPAssociation | None: ...
+
+    def find_local_ip_association(
+        self,
+        name_or_id: str,
+        local_ip: str | _local_ip.LocalIP,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _local_ip_association.LocalIPAssociation | None:
         """Find a local ip association
 
         :param name_or_id: The name or ID of  local ip association.
@@ -1624,7 +1836,28 @@ class Proxy(proxy.Proxy):
         """
         return _floating_ip.FloatingIP.find_available(self)
 
-    def find_ip(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_ip(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _floating_ip.FloatingIP: ...
+
+    @overload
+    def find_ip(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _floating_ip.FloatingIP | None: ...
+
+    def find_ip(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _floating_ip.FloatingIP | None:
         """Find a single IP
 
         :param name_or_id: The name or ID of an IP.
@@ -1738,9 +1971,31 @@ class Proxy(proxy.Proxy):
             floatingip_id=floating_ip.id,
         )
 
+    @overload
     def find_port_forwarding(
-        self, pf_id, floating_ip, ignore_missing=True, **query
-    ):
+        self,
+        pf_id: str,
+        floating_ip: str | _floating_ip.FloatingIP,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _port_forwarding.PortForwarding: ...
+
+    @overload
+    def find_port_forwarding(
+        self,
+        pf_id: str,
+        floating_ip: str | _floating_ip.FloatingIP,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _port_forwarding.PortForwarding | None: ...
+
+    def find_port_forwarding(
+        self,
+        pf_id: str,
+        floating_ip: str | _floating_ip.FloatingIP,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _port_forwarding.PortForwarding | None:
         """Find a single port forwarding
 
         :param pf_id: The ID of a port forwarding.
@@ -1871,7 +2126,28 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def find_health_monitor(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_health_monitor(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _health_monitor.HealthMonitor: ...
+
+    @overload
+    def find_health_monitor(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _health_monitor.HealthMonitor | None: ...
+
+    def find_health_monitor(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _health_monitor.HealthMonitor | None:
         """Find a single health monitor
 
         :param name_or_id: The name or ID of a health monitor.
@@ -1980,7 +2256,28 @@ class Proxy(proxy.Proxy):
             _listener.Listener, listener, ignore_missing=ignore_missing
         )
 
-    def find_listener(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_listener(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _listener.Listener: ...
+
+    @overload
+    def find_listener(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _listener.Listener | None: ...
+
+    def find_listener(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _listener.Listener | None:
         """Find a single listener
 
         :param name_or_id: The name or ID of a listener.
@@ -2082,7 +2379,28 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def find_load_balancer(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_load_balancer(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _load_balancer.LoadBalancer: ...
+
+    @overload
+    def find_load_balancer(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _load_balancer.LoadBalancer | None: ...
+
+    def find_load_balancer(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _load_balancer.LoadBalancer | None:
         """Find a single load balancer
 
         :param name_or_id: The name or ID of a load balancer.
@@ -2176,7 +2494,28 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def find_metering_label(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_metering_label(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _metering_label.MeteringLabel: ...
+
+    @overload
+    def find_metering_label(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _metering_label.MeteringLabel | None: ...
+
+    def find_metering_label(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _metering_label.MeteringLabel | None:
         """Find a single metering label
 
         :param name_or_id: The name or ID of a metering label.
@@ -2283,9 +2622,28 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
+    @overload
     def find_metering_label_rule(
-        self, name_or_id, ignore_missing=True, **query
-    ):
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _metering_label_rule.MeteringLabelRule: ...
+
+    @overload
+    def find_metering_label_rule(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _metering_label_rule.MeteringLabelRule | None: ...
+
+    def find_metering_label_rule(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _metering_label_rule.MeteringLabelRule | None:
         """Find a single metering label rule
 
         :param name_or_id: The name or ID of a metering label rule.
@@ -2400,7 +2758,28 @@ class Proxy(proxy.Proxy):
             if_revision=if_revision,
         )
 
-    def find_network(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_network(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _network.Network: ...
+
+    @overload
+    def find_network(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _network.Network | None: ...
+
+    def find_network(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _network.Network | None:
         """Find a single network
 
         :param name_or_id: The name or ID of a network.
@@ -2478,9 +2857,28 @@ class Proxy(proxy.Proxy):
             _network.Network, network, if_revision=if_revision, **attrs
         )
 
+    @overload
     def find_network_ip_availability(
-        self, name_or_id, ignore_missing=True, **query
-    ):
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> network_ip_availability.NetworkIPAvailability: ...
+
+    @overload
+    def find_network_ip_availability(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> network_ip_availability.NetworkIPAvailability | None: ...
+
+    def find_network_ip_availability(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> network_ip_availability.NetworkIPAvailability | None:
         """Find IP availability of a network
 
         :param name_or_id: The name or ID of a network.
@@ -2578,9 +2976,28 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
+    @overload
     def find_network_segment_range(
-        self, name_or_id, ignore_missing=True, **query
-    ):
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _network_segment_range.NetworkSegmentRange: ...
+
+    @overload
+    def find_network_segment_range(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _network_segment_range.NetworkSegmentRange | None: ...
+
+    def find_network_segment_range(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _network_segment_range.NetworkSegmentRange | None:
         """Find a single network segment range
 
         :param name_or_id: The name or ID of a network segment range.
@@ -2697,7 +3114,28 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_pool.Pool, pool, ignore_missing=ignore_missing)
 
-    def find_pool(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_pool(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _pool.Pool: ...
+
+    @overload
+    def find_pool(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _pool.Pool | None: ...
+
+    def find_pool(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _pool.Pool | None:
         """Find a single pool
 
         :param name_or_id: The name or ID of a pool.
@@ -2808,7 +3246,31 @@ class Proxy(proxy.Proxy):
             pool_id=poolobj.id,
         )
 
-    def find_pool_member(self, name_or_id, pool, ignore_missing=True, **query):
+    @overload
+    def find_pool_member(
+        self,
+        name_or_id: str,
+        pool: str | _pool.Pool,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _pool_member.PoolMember: ...
+
+    @overload
+    def find_pool_member(
+        self,
+        name_or_id: str,
+        pool: str | _pool.Pool,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _pool_member.PoolMember | None: ...
+
+    def find_pool_member(
+        self,
+        name_or_id: str,
+        pool: str | _pool.Pool,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _pool_member.PoolMember | None:
         """Find a single pool member
 
         :param str name_or_id: The name or ID of a pool member.
@@ -2946,7 +3408,28 @@ class Proxy(proxy.Proxy):
             if_revision=if_revision,
         )
 
-    def find_port(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_port(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _port.Port: ...
+
+    @overload
+    def find_port(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _port.Port | None: ...
+
+    def find_port(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _port.Port | None:
         """Find a single port
 
         :param name_or_id: The name or ID of a port.
@@ -3169,9 +3652,31 @@ class Proxy(proxy.Proxy):
             qos_policy_id=policy.id,
         )
 
+    @overload
     def find_qos_bandwidth_limit_rule(
-        self, qos_rule_id, qos_policy, ignore_missing=True, **query
-    ):
+        self,
+        qos_rule_id: str,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _qos_bandwidth_limit_rule.QoSBandwidthLimitRule: ...
+
+    @overload
+    def find_qos_bandwidth_limit_rule(
+        self,
+        qos_rule_id: str,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _qos_bandwidth_limit_rule.QoSBandwidthLimitRule | None: ...
+
+    def find_qos_bandwidth_limit_rule(
+        self,
+        qos_rule_id: str,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _qos_bandwidth_limit_rule.QoSBandwidthLimitRule | None:
         """Find a bandwidth limit rule
 
         :param qos_rule_id: The ID of a bandwidth limit rule.
@@ -3319,9 +3824,31 @@ class Proxy(proxy.Proxy):
             qos_policy_id=policy.id,
         )
 
+    @overload
     def find_qos_dscp_marking_rule(
-        self, qos_rule_id, qos_policy, ignore_missing=True, **query
-    ):
+        self,
+        qos_rule_id: str,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _qos_dscp_marking_rule.QoSDSCPMarkingRule: ...
+
+    @overload
+    def find_qos_dscp_marking_rule(
+        self,
+        qos_rule_id: str,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _qos_dscp_marking_rule.QoSDSCPMarkingRule | None: ...
+
+    def find_qos_dscp_marking_rule(
+        self,
+        qos_rule_id: str,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _qos_dscp_marking_rule.QoSDSCPMarkingRule | None:
         """Find a QoS DSCP marking rule
 
         :param qos_rule_id: The ID of a QoS DSCP marking rule.
@@ -3464,9 +3991,31 @@ class Proxy(proxy.Proxy):
             qos_policy_id=policy.id,
         )
 
+    @overload
     def find_qos_minimum_bandwidth_rule(
-        self, qos_rule_id, qos_policy, ignore_missing=True, **query
-    ):
+        self,
+        qos_rule_id: str,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule: ...
+
+    @overload
+    def find_qos_minimum_bandwidth_rule(
+        self,
+        qos_rule_id: str,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule | None: ...
+
+    def find_qos_minimum_bandwidth_rule(
+        self,
+        qos_rule_id: str,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule | None:
         """Find a minimum bandwidth rule
 
         :param qos_rule_id: The ID of a minimum bandwidth rule.
@@ -3610,9 +4159,31 @@ class Proxy(proxy.Proxy):
             qos_policy_id=policy.id,
         )
 
+    @overload
     def find_qos_minimum_packet_rate_rule(
-        self, qos_rule_id, qos_policy, ignore_missing=True, **query
-    ):
+        self,
+        qos_rule_id: str,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule: ...
+
+    @overload
+    def find_qos_minimum_packet_rate_rule(
+        self,
+        qos_rule_id: str,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule | None: ...
+
+    def find_qos_minimum_packet_rate_rule(
+        self,
+        qos_rule_id: str,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule | None:
         """Find a minimum packet rate rule
 
         :param qos_rule_id: The ID of a minimum packet rate rule.
@@ -3754,9 +4325,31 @@ class Proxy(proxy.Proxy):
             qos_policy_id=policy.id,
         )
 
+    @overload
     def find_qos_packet_rate_limit_rule(
-        self, qos_rule_id, qos_policy, ignore_missing=True, **query
-    ):
+        self,
+        qos_rule_id: str,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _qos_packet_rate_limit_rule.QoSPacketRateLimitRule: ...
+
+    @overload
+    def find_qos_packet_rate_limit_rule(
+        self,
+        qos_rule_id: str,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _qos_packet_rate_limit_rule.QoSPacketRateLimitRule | None: ...
+
+    def find_qos_packet_rate_limit_rule(
+        self,
+        qos_rule_id: str,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _qos_packet_rate_limit_rule.QoSPacketRateLimitRule | None:
         """Find a packet rate limit rule
 
         :param qos_rule_id: The ID of a packet rate limit rule.
@@ -3878,7 +4471,28 @@ class Proxy(proxy.Proxy):
             _qos_policy.QoSPolicy, qos_policy, ignore_missing=ignore_missing
         )
 
-    def find_qos_policy(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_qos_policy(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _qos_policy.QoSPolicy: ...
+
+    @overload
+    def find_qos_policy(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _qos_policy.QoSPolicy | None: ...
+
+    def find_qos_policy(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _qos_policy.QoSPolicy | None:
         """Find a single QoS policy
 
         :param name_or_id: The name or ID of a QoS policy.
@@ -3941,7 +4555,25 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_qos_policy.QoSPolicy, qos_policy, **attrs)
 
-    def find_qos_rule_type(self, rule_type_name, ignore_missing=True):
+    @overload
+    def find_qos_rule_type(
+        self,
+        rule_type_name: str,
+        ignore_missing: Literal[False],
+    ) -> _qos_rule_type.QoSRuleType: ...
+
+    @overload
+    def find_qos_rule_type(
+        self,
+        rule_type_name: str,
+        ignore_missing: bool = True,
+    ) -> _qos_rule_type.QoSRuleType | None: ...
+
+    def find_qos_rule_type(
+        self,
+        rule_type_name: str,
+        ignore_missing: bool = True,
+    ) -> _qos_rule_type.QoSRuleType | None:
         """Find a single QoS rule type details
 
         :param rule_type_name: The name of a QoS rule type.
@@ -4099,7 +4731,28 @@ class Proxy(proxy.Proxy):
             _rbac_policy.RBACPolicy, rbac_policy, ignore_missing=ignore_missing
         )
 
-    def find_rbac_policy(self, rbac_policy, ignore_missing=True, **query):
+    @overload
+    def find_rbac_policy(
+        self,
+        rbac_policy: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _rbac_policy.RBACPolicy: ...
+
+    @overload
+    def find_rbac_policy(
+        self,
+        rbac_policy: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _rbac_policy.RBACPolicy | None: ...
+
+    def find_rbac_policy(
+        self,
+        rbac_policy: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _rbac_policy.RBACPolicy | None:
         """Find a single RBAC policy
 
         :param rbac_policy: The ID of a RBAC policy.
@@ -4197,7 +4850,28 @@ class Proxy(proxy.Proxy):
             if_revision=if_revision,
         )
 
-    def find_router(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_router(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _router.Router: ...
+
+    @overload
+    def find_router(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _router.Router | None: ...
+
+    def find_router(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _router.Router | None:
         """Find a single router
 
         :param name_or_id: The name or ID of a router.
@@ -4467,7 +5141,28 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_ndp_proxy.NDPProxy, ndp_proxy)
 
-    def find_ndp_proxy(self, ndp_proxy_id, ignore_missing=True, **query):
+    @overload
+    def find_ndp_proxy(
+        self,
+        ndp_proxy_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _ndp_proxy.NDPProxy: ...
+
+    @overload
+    def find_ndp_proxy(
+        self,
+        ndp_proxy_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _ndp_proxy.NDPProxy | None: ...
+
+    def find_ndp_proxy(
+        self,
+        ndp_proxy_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _ndp_proxy.NDPProxy | None:
         """Find a single ndp proxy
 
         :param ndp_proxy_id: The ID of a ndp proxy.
@@ -4565,7 +5260,28 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def find_firewall_group(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_firewall_group(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _firewall_group.FirewallGroup: ...
+
+    @overload
+    def find_firewall_group(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _firewall_group.FirewallGroup | None: ...
+
+    def find_firewall_group(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _firewall_group.FirewallGroup | None:
         """Find a single firewall group
 
         :param name_or_id: The name or ID of a firewall group.
@@ -4673,7 +5389,28 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def find_firewall_policy(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_firewall_policy(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _firewall_policy.FirewallPolicy: ...
+
+    @overload
+    def find_firewall_policy(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _firewall_policy.FirewallPolicy | None: ...
+
+    def find_firewall_policy(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _firewall_policy.FirewallPolicy | None:
         """Find a single firewall policy
 
         :param name_or_id: The name or ID of a firewall policy.
@@ -4822,7 +5559,28 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def find_firewall_rule(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_firewall_rule(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _firewall_rule.FirewallRule: ...
+
+    @overload
+    def find_firewall_rule(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _firewall_rule.FirewallRule | None: ...
+
+    def find_firewall_rule(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _firewall_rule.FirewallRule | None:
         """Find a single firewall rule
 
         :param name_or_id: The name or ID of a firewall rule.
@@ -4942,7 +5700,28 @@ class Proxy(proxy.Proxy):
             if_revision=if_revision,
         )
 
-    def find_security_group(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_security_group(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _security_group.SecurityGroup: ...
+
+    @overload
+    def find_security_group(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _security_group.SecurityGroup | None: ...
+
+    def find_security_group(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _security_group.SecurityGroup | None:
         """Find a single security group
 
         :param name_or_id: The name or ID of a security group.
@@ -5072,9 +5851,28 @@ class Proxy(proxy.Proxy):
             if_revision=if_revision,
         )
 
+    @overload
     def find_security_group_rule(
-        self, name_or_id, ignore_missing=True, **query
-    ):
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _security_group_rule.SecurityGroupRule: ...
+
+    @overload
+    def find_security_group_rule(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _security_group_rule.SecurityGroupRule | None: ...
+
+    def find_security_group_rule(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _security_group_rule.SecurityGroupRule | None:
         """Find a single security group rule
 
         :param str name_or_id: The ID of a security group rule.
@@ -5178,9 +5976,28 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
+    @overload
     def find_default_security_group_rule(
-        self, name_or_id, ignore_missing=True, **query
-    ):
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _default_security_group_rule.DefaultSecurityGroupRule: ...
+
+    @overload
+    def find_default_security_group_rule(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _default_security_group_rule.DefaultSecurityGroupRule | None: ...
+
+    def find_default_security_group_rule(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _default_security_group_rule.DefaultSecurityGroupRule | None:
         """Find a single default security group rule
 
         :param str name_or_id: The ID of a default security group rule.
@@ -5271,7 +6088,28 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_segment.Segment, segment, ignore_missing=ignore_missing)
 
-    def find_segment(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_segment(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _segment.Segment: ...
+
+    @overload
+    def find_segment(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _segment.Segment | None: ...
+
+    def find_segment(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _segment.Segment | None:
         """Find a single segment
 
         :param name_or_id: The name or ID of a segment.
@@ -5381,7 +6219,28 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def find_service_profile(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_service_profile(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _service_profile.ServiceProfile: ...
+
+    @overload
+    def find_service_profile(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _service_profile.ServiceProfile | None: ...
+
+    def find_service_profile(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _service_profile.ServiceProfile | None:
         """Find a single network service flavor profile
 
         :param name_or_id: The name or ID of a service profile.
@@ -5483,7 +6342,28 @@ class Proxy(proxy.Proxy):
             if_revision=if_revision,
         )
 
-    def find_subnet(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_subnet(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _subnet.Subnet: ...
+
+    @overload
+    def find_subnet(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _subnet.Subnet | None: ...
+
+    def find_subnet(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _subnet.Subnet | None:
         """Find a single subnet
 
         :param name_or_id: The name or ID of a subnet.
@@ -5582,7 +6462,28 @@ class Proxy(proxy.Proxy):
             _subnet_pool.SubnetPool, subnet_pool, ignore_missing=ignore_missing
         )
 
-    def find_subnet_pool(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_subnet_pool(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _subnet_pool.SubnetPool: ...
+
+    @overload
+    def find_subnet_pool(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _subnet_pool.SubnetPool | None: ...
+
+    def find_subnet_pool(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _subnet_pool.SubnetPool | None:
         """Find a single subnet pool
 
         :param name_or_id: The name or ID of a subnet pool.
@@ -5767,7 +6668,28 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_trunk.Trunk, trunk, ignore_missing=ignore_missing)
 
-    def find_trunk(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_trunk(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _trunk.Trunk: ...
+
+    @overload
+    def find_trunk(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _trunk.Trunk | None: ...
+
+    def find_trunk(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _trunk.Trunk | None:
         """Find a single trunk
 
         :param name_or_id: The name or ID of a trunk.
@@ -5901,9 +6823,28 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
+    @overload
     def find_vpn_endpoint_group(
-        self, name_or_id, ignore_missing=True, **query
-    ):
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _vpn_endpoint_group.VpnEndpointGroup: ...
+
+    @overload
+    def find_vpn_endpoint_group(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _vpn_endpoint_group.VpnEndpointGroup | None: ...
+
+    def find_vpn_endpoint_group(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _vpn_endpoint_group.VpnEndpointGroup | None:
         """Find a single vpn service
 
         :param name_or_id: The name or ID of a vpn service.
@@ -5987,9 +6928,28 @@ class Proxy(proxy.Proxy):
             _ipsec_site_connection.VpnIPSecSiteConnection, **attrs
         )
 
+    @overload
     def find_vpn_ipsec_site_connection(
-        self, name_or_id, ignore_missing=True, **query
-    ):
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _ipsec_site_connection.VpnIPSecSiteConnection: ...
+
+    @overload
+    def find_vpn_ipsec_site_connection(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _ipsec_site_connection.VpnIPSecSiteConnection | None: ...
+
+    def find_vpn_ipsec_site_connection(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _ipsec_site_connection.VpnIPSecSiteConnection | None:
         """Find a single IPsec site connection
 
         :param name_or_id: The name or ID of an IPsec site connection.
@@ -6100,7 +7060,28 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_ike_policy.VpnIkePolicy, **attrs)
 
-    def find_vpn_ike_policy(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_vpn_ike_policy(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _ike_policy.VpnIkePolicy: ...
+
+    @overload
+    def find_vpn_ike_policy(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _ike_policy.VpnIkePolicy | None: ...
+
+    def find_vpn_ike_policy(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _ike_policy.VpnIkePolicy | None:
         """Find a single ike policy
 
         :param name_or_id: The name or ID of an IKE policy.
@@ -6193,7 +7174,28 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_ipsec_policy.VpnIpsecPolicy, **attrs)
 
-    def find_vpn_ipsec_policy(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_vpn_ipsec_policy(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _ipsec_policy.VpnIpsecPolicy: ...
+
+    @overload
+    def find_vpn_ipsec_policy(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _ipsec_policy.VpnIpsecPolicy | None: ...
+
+    def find_vpn_ipsec_policy(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _ipsec_policy.VpnIpsecPolicy | None:
         """Find a single IPsec policy
 
         :param name_or_id: The name or ID of an IPsec policy.
@@ -6310,7 +7312,28 @@ class Proxy(proxy.Proxy):
             _vpn_service.VpnService, vpn_service, ignore_missing=ignore_missing
         )
 
-    def find_vpn_service(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_vpn_service(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _vpn_service.VpnService: ...
+
+    @overload
+    def find_vpn_service(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _vpn_service.VpnService | None: ...
+
+    def find_vpn_service(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _vpn_service.VpnService | None:
         """Find a single vpn service
 
         :param name_or_id: The name or ID of a vpn service.
@@ -6417,9 +7440,31 @@ class Proxy(proxy.Proxy):
             floatingip_id=floatingip.id,
         )
 
+    @overload
     def find_floating_ip_port_forwarding(
-        self, floating_ip, port_forwarding_id, ignore_missing=True, **query
-    ):
+        self,
+        floating_ip: str | _floating_ip.FloatingIP,
+        port_forwarding_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _port_forwarding.PortForwarding: ...
+
+    @overload
+    def find_floating_ip_port_forwarding(
+        self,
+        floating_ip: str | _floating_ip.FloatingIP,
+        port_forwarding_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _port_forwarding.PortForwarding | None: ...
+
+    def find_floating_ip_port_forwarding(
+        self,
+        floating_ip: str | _floating_ip.FloatingIP,
+        port_forwarding_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _port_forwarding.PortForwarding | None:
         """Find a floating ip port forwarding
 
         :param floating_ip: The value can be the ID of the Floating IP that the
@@ -6632,7 +7677,28 @@ class Proxy(proxy.Proxy):
             _tap_flow.TapFlow, tap_flow, ignore_missing=ignore_missing
         )
 
-    def find_tap_flow(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_tap_flow(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _tap_flow.TapFlow: ...
+
+    @overload
+    def find_tap_flow(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _tap_flow.TapFlow | None: ...
+
+    def find_tap_flow(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _tap_flow.TapFlow | None:
         """Find a single Tap Service"""
         return self._find(
             _tap_flow.TapFlow,
@@ -6663,7 +7729,28 @@ class Proxy(proxy.Proxy):
             _tap_mirror.TapMirror, tap_mirror, ignore_missing=ignore_missing
         )
 
-    def find_tap_mirror(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_tap_mirror(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _tap_mirror.TapMirror: ...
+
+    @overload
+    def find_tap_mirror(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _tap_mirror.TapMirror | None: ...
+
+    def find_tap_mirror(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _tap_mirror.TapMirror | None:
         """Find a single Tap Mirror"""
         return self._find(
             _tap_mirror.TapMirror,
@@ -6694,7 +7781,28 @@ class Proxy(proxy.Proxy):
             _tap_service.TapService, tap_service, ignore_missing=ignore_missing
         )
 
-    def find_tap_service(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_tap_service(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _tap_service.TapService: ...
+
+    @overload
+    def find_tap_service(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _tap_service.TapService | None: ...
+
+    def find_tap_service(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _tap_service.TapService | None:
         """Find a single Tap Service"""
         return self._find(
             _tap_service.TapService,
@@ -6750,9 +7858,28 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
+    @overload
     def find_sfc_flow_classifier(
-        self, name_or_id, ignore_missing=True, **query
-    ):
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _sfc_flow_classifier.SfcFlowClassifier: ...
+
+    @overload
+    def find_sfc_flow_classifier(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _sfc_flow_classifier.SfcFlowClassifier | None: ...
+
+    def find_sfc_flow_classifier(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _sfc_flow_classifier.SfcFlowClassifier | None:
         """Find a single Flow Classifier
 
         :param str name_or_id: The name or ID of an SFC flow classifier.
@@ -6859,7 +7986,28 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def find_sfc_port_chain(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_sfc_port_chain(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _sfc_port_chain.SfcPortChain: ...
+
+    @overload
+    def find_sfc_port_chain(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _sfc_port_chain.SfcPortChain | None: ...
+
+    def find_sfc_port_chain(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _sfc_port_chain.SfcPortChain | None:
         """Find a single Port Chain
 
         :param str name_or_id: The name or ID of an SFC port chain.
@@ -6959,7 +8107,28 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def find_sfc_port_pair(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_sfc_port_pair(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _sfc_port_pair.SfcPortPair: ...
+
+    @overload
+    def find_sfc_port_pair(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _sfc_port_pair.SfcPortPair | None: ...
+
+    def find_sfc_port_pair(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _sfc_port_pair.SfcPortPair | None:
         """Find a single Port Pair
 
         :param str name_or_id: The name or ID of an SFC port pair.
@@ -7058,9 +8227,28 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
+    @overload
     def find_sfc_port_pair_group(
-        self, name_or_id, ignore_missing=True, **query
-    ):
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _sfc_port_pair_group.SfcPortPairGroup: ...
+
+    @overload
+    def find_sfc_port_pair_group(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _sfc_port_pair_group.SfcPortPairGroup | None: ...
+
+    def find_sfc_port_pair_group(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _sfc_port_pair_group.SfcPortPairGroup | None:
         """Find a single Port Pair Group
 
         :param str name_or_id: The name or ID of an SFC port pair group.
@@ -7165,7 +8353,28 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def find_sfc_service_graph(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_sfc_service_graph(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _sfc_sservice_graph.SfcServiceGraph: ...
+
+    @overload
+    def find_sfc_service_graph(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _sfc_sservice_graph.SfcServiceGraph | None: ...
+
+    def find_sfc_service_graph(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _sfc_sservice_graph.SfcServiceGraph | None:
         """Find a single Service Graph
 
         :param str name_or_id: The name or ID of an SFC service graph.

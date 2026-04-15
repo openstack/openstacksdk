@@ -58,7 +58,9 @@ class TestServiceProfile(base.BaseFunctionalTest):
         )
         if self.operator_cloud and self.ID:
             service_profiles = (
-                self.operator_cloud.network.find_service_profile(self.ID)
+                self.operator_cloud.network.find_service_profile(
+                    self.ID, ignore_missing=False
+                )
             )
             self.assertEqual(self.METAINFO, service_profiles.meta_info)
 

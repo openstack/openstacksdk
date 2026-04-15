@@ -54,7 +54,9 @@ class TestTrunk(base.BaseFunctionalTest):
         super().tearDown()
 
     def test_find(self):
-        sot = self.user_cloud.network.find_trunk(self.TRUNK_NAME)
+        sot = self.user_cloud.network.find_trunk(
+            self.TRUNK_NAME, ignore_missing=False
+        )
         self.assertEqual(self.TRUNK_ID, sot.id)
 
     def test_get(self):
