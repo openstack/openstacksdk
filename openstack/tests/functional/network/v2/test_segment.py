@@ -20,8 +20,8 @@ class TestSegment(base.BaseFunctionalTest):
     NETWORK_TYPE = None
     PHYSICAL_NETWORK = None
     SEGMENTATION_ID = None
-    NETWORK_ID = None
-    SEGMENT_ID = None
+    NETWORK_ID: str
+    SEGMENT_ID: str
     SEGMENT_EXTENSION = None
 
     def setUp(self):
@@ -81,7 +81,9 @@ class TestSegment(base.BaseFunctionalTest):
         self.assertIsNone(del_sot)
 
     def test_find(self):
-        sot = self.operator_cloud.network.find_segment(self.SEGMENT_ID)
+        sot = self.operator_cloud.network.find_segment(
+            self.SEGMENT_ID, ignore_missing=False
+        )
         self.assertEqual(self.SEGMENT_ID, sot.id)
 
     def test_get(self):

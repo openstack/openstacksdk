@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import ClassVar, Literal
+from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable
 
 from openstack.dns.v2 import blacklist as _blacklist
@@ -128,7 +128,25 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_zone.Zone, zone, **attrs)
 
-    def find_zone(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_zone(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _zone.Zone: ...
+
+    @overload
+    def find_zone(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _zone.Zone | None: ...
+
+    def find_zone(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _zone.Zone | None:
         """Find a single zone
 
         :param name_or_id: The name or ID of a zone
@@ -273,7 +291,31 @@ class Proxy(proxy.Proxy):
             _rs.Recordset, recordset, ignore_missing=ignore_missing
         )
 
-    def find_recordset(self, zone, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_recordset(
+        self,
+        zone: str | _zone.Zone,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _rs.Recordset: ...
+
+    @overload
+    def find_recordset(
+        self,
+        zone: str | _zone.Zone,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _rs.Recordset | None: ...
+
+    def find_recordset(
+        self,
+        zone: str | _zone.Zone,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _rs.Recordset | None:
         """Find a single recordset
 
         :param zone: The value can be the ID of a zone
@@ -628,7 +670,28 @@ class Proxy(proxy.Proxy):
             _zone_share.ZoneShare, zone_share, zone_id=zone_obj.id
         )
 
-    def find_zone_share(self, zone, zone_share_id, ignore_missing=True):
+    @overload
+    def find_zone_share(
+        self,
+        zone: str | _zone.Zone,
+        zone_share_id: str,
+        ignore_missing: Literal[False],
+    ) -> _zone_share.ZoneShare: ...
+
+    @overload
+    def find_zone_share(
+        self,
+        zone: str | _zone.Zone,
+        zone_share_id: str,
+        ignore_missing: bool = True,
+    ) -> _zone_share.ZoneShare | None: ...
+
+    def find_zone_share(
+        self,
+        zone: str | _zone.Zone,
+        zone_share_id: str,
+        ignore_missing: bool = True,
+    ) -> _zone_share.ZoneShare | None:
         """Find a single zone share
 
         :param zone: The value can be the ID of a zone
@@ -841,7 +904,25 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_tld.TLD, tld, **attrs)
 
-    def find_tld(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_tld(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _tld.TLD: ...
+
+    @overload
+    def find_tld(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _tld.TLD | None: ...
+
+    def find_tld(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _tld.TLD | None:
         """Find a single tld
 
         :param name_or_id: The name or ID of a tld
@@ -912,7 +993,25 @@ class Proxy(proxy.Proxy):
             delete_shares=delete_shares,
         )
 
-    def find_tsigkey(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_tsigkey(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _tsigkey.TSIGKey: ...
+
+    @overload
+    def find_tsigkey(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _tsigkey.TSIGKey | None: ...
+
+    def find_tsigkey(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _tsigkey.TSIGKey | None:
         """Find a single tsigkey
 
         :param name_or_id: The name or ID of a tsigkey

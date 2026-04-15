@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import ClassVar, Literal
+from typing import ClassVar, Literal, overload
 from collections.abc import Callable
 
 from openstack.database.v1 import database as _database
@@ -75,7 +75,28 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def find_database(self, name_or_id, instance, ignore_missing=True):
+    @overload
+    def find_database(
+        self,
+        name_or_id: str,
+        instance: str | _instance.Instance,
+        ignore_missing: Literal[False],
+    ) -> _database.Database: ...
+
+    @overload
+    def find_database(
+        self,
+        name_or_id: str,
+        instance: str | _instance.Instance,
+        ignore_missing: bool = True,
+    ) -> _database.Database | None: ...
+
+    def find_database(
+        self,
+        name_or_id: str,
+        instance: str | _instance.Instance,
+        ignore_missing: bool = True,
+    ) -> _database.Database | None:
         """Find a single database
 
         :param name_or_id: The name or ID of a database.
@@ -128,7 +149,25 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_database.Database, database)
 
-    def find_flavor(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_flavor(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _flavor.Flavor: ...
+
+    @overload
+    def find_flavor(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _flavor.Flavor | None: ...
+
+    def find_flavor(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _flavor.Flavor | None:
         """Find a single flavor
 
         :param name_or_id: The name or ID of a flavor.
@@ -195,7 +234,25 @@ class Proxy(proxy.Proxy):
             _instance.Instance, instance, ignore_missing=ignore_missing
         )
 
-    def find_instance(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_instance(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _instance.Instance: ...
+
+    @overload
+    def find_instance(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _instance.Instance | None: ...
+
+    def find_instance(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _instance.Instance | None:
         """Find a single instance
 
         :param name_or_id: The name or ID of a instance.
@@ -287,7 +344,28 @@ class Proxy(proxy.Proxy):
             instance_id=instance.id,
         )
 
-    def find_user(self, name_or_id, instance, ignore_missing=True):
+    @overload
+    def find_user(
+        self,
+        name_or_id: str,
+        instance: str | _instance.Instance,
+        ignore_missing: Literal[False],
+    ) -> _user.User: ...
+
+    @overload
+    def find_user(
+        self,
+        name_or_id: str,
+        instance: str | _instance.Instance,
+        ignore_missing: bool = True,
+    ) -> _user.User | None: ...
+
+    def find_user(
+        self,
+        name_or_id: str,
+        instance: str | _instance.Instance,
+        ignore_missing: bool = True,
+    ) -> _user.User | None:
         """Find a single user
 
         :param name_or_id: The name or ID of a user.

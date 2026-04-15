@@ -60,7 +60,9 @@ class TestTapMirror(base.BaseFunctionalTest):
         super().tearDown()
 
     def test_find_tap_mirror(self):
-        sot = self.user_cloud.network.find_tap_mirror(self.TAP_MIRROR.name)
+        sot = self.user_cloud.network.find_tap_mirror(
+            self.TAP_MIRROR.name, ignore_missing=False
+        )
         self.assertEqual(self.MIRROR_PORT_ID, sot.port_id)
         self.assertEqual(self.TAP_M_NAME, sot.name)
 

@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import ClassVar, Literal
+from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable
 
 from openstack import exceptions
@@ -125,7 +125,28 @@ class Proxy(proxy.Proxy):
         base_path = '/shares/detail' if details else None
         return self._list(_share.Share, base_path=base_path, **query)
 
-    def find_share(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_share(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _share.Share: ...
+
+    @overload
+    def find_share(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _share.Share | None: ...
+
+    def find_share(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _share.Share | None:
         """Find a single share
 
         :param name_or_id: The name or ID of a share.
@@ -313,7 +334,25 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_share_group.ShareGroup, share_group_id)
 
-    def find_share_group(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_share_group(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _share_group.ShareGroup: ...
+
+    @overload
+    def find_share_group(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _share_group.ShareGroup | None: ...
+
+    def find_share_group(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _share_group.ShareGroup | None:
         """Finds a single share group
 
         :param name_or_id: The name or ID of a share group.

@@ -106,14 +106,34 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_snapshot.Snapshot, snapshot)
 
+    @overload
     def find_snapshot(
         self,
-        name_or_id,
-        ignore_missing=True,
+        name_or_id: str,
+        ignore_missing: Literal[False],
         *,
-        details=True,
-        all_projects=False,
-    ):
+        details: bool = True,
+        all_projects: bool = False,
+    ) -> _snapshot.Snapshot: ...
+
+    @overload
+    def find_snapshot(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+        all_projects: bool = False,
+    ) -> _snapshot.Snapshot | None: ...
+
+    def find_snapshot(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+        all_projects: bool = False,
+    ) -> _snapshot.Snapshot | None:
         """Find a single snapshot
 
         :param snapshot: The name or ID a snapshot
@@ -277,7 +297,25 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_type.Type, type)
 
-    def find_type(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_type(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _type.Type: ...
+
+    @overload
+    def find_type(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _type.Type | None: ...
+
+    def find_type(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _type.Type | None:
         """Find a single volume type
 
         :param snapshot: The name or ID a volume type
@@ -383,14 +421,34 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_volume.Volume, volume)
 
+    @overload
     def find_volume(
         self,
-        name_or_id,
-        ignore_missing=True,
+        name_or_id: str,
+        ignore_missing: Literal[False],
         *,
-        details=True,
-        all_projects=False,
-    ):
+        details: bool = True,
+        all_projects: bool = False,
+    ) -> _volume.Volume: ...
+
+    @overload
+    def find_volume(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+        all_projects: bool = False,
+    ) -> _volume.Volume | None: ...
+
+    def find_volume(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+        all_projects: bool = False,
+    ) -> _volume.Volume | None:
         """Find a single volume
 
         :param volume: The name or ID a volume
@@ -731,7 +789,31 @@ class Proxy(proxy.Proxy):
         backup = self._get_resource(_backup.Backup, backup)
         return backup.export(self)
 
-    def find_backup(self, name_or_id, ignore_missing=True, *, details=True):
+    @overload
+    def find_backup(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        *,
+        details: bool = True,
+    ) -> _backup.Backup: ...
+
+    @overload
+    def find_backup(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+    ) -> _backup.Backup | None: ...
+
+    def find_backup(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+    ) -> _backup.Backup | None:
         """Find a single backup
 
         :param snapshot: The name or ID a backup
@@ -1263,7 +1345,25 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def find_transfer(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_transfer(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _transfer.Transfer: ...
+
+    @overload
+    def find_transfer(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _transfer.Transfer | None: ...
+
+    def find_transfer(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _transfer.Transfer | None:
         """Find a single transfer
 
         :param name_or_id: The name or ID a transfer

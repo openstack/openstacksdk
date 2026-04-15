@@ -20,8 +20,8 @@ class TestRBACPolicy(base.BaseFunctionalTest):
     ACTION = "access_as_shared"
     OBJ_TYPE = "network"
     TARGET_TENANT_ID = "*"
-    NET_ID = None
-    ID = None
+    NET_ID: str
+    ID: str
 
     def setUp(self):
         super().setUp()
@@ -72,9 +72,13 @@ class TestRBACPolicy(base.BaseFunctionalTest):
 
     def test_find(self):
         if self.operator_cloud:
-            sot = self.operator_cloud.network.find_rbac_policy(self.ID)
+            sot = self.operator_cloud.network.find_rbac_policy(
+                self.ID, ignore_missing=False
+            )
         else:
-            sot = self.user_cloud.network.find_rbac_policy(self.ID)
+            sot = self.user_cloud.network.find_rbac_policy(
+                self.ID, ignore_missing=False
+            )
         self.assertEqual(self.ID, sot.id)
 
     def test_get(self):

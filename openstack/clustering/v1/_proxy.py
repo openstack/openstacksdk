@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import ClassVar, Literal
+from typing import ClassVar, Literal, overload
 from collections.abc import Callable
 
 from openstack.clustering.v1 import action as _action
@@ -126,7 +126,25 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_profile.Profile, profile, ignore_missing=ignore_missing)
 
-    def find_profile(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_profile(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _profile.Profile: ...
+
+    @overload
+    def find_profile(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _profile.Profile | None: ...
+
+    def find_profile(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _profile.Profile | None:
         """Find a single profile.
 
         :param str name_or_id: The name or ID of a profile.
@@ -243,7 +261,25 @@ class Proxy(proxy.Proxy):
                 _cluster.Cluster, cluster, ignore_missing=ignore_missing
             )
 
-    def find_cluster(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_cluster(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _cluster.Cluster: ...
+
+    @overload
+    def find_cluster(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _cluster.Cluster | None: ...
+
+    def find_cluster(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _cluster.Cluster | None:
         """Find a single cluster.
 
         :param str name_or_id: The name or ID of a cluster.
@@ -585,7 +621,25 @@ class Proxy(proxy.Proxy):
                 _node.Node, node, ignore_missing=ignore_missing
             )
 
-    def find_node(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_node(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _node.Node: ...
+
+    @overload
+    def find_node(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _node.Node | None: ...
+
+    def find_node(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _node.Node | None:
         """Find a single node.
 
         :param str name_or_id: The name or ID of a node.
@@ -758,7 +812,25 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_policy.Policy, policy, ignore_missing=ignore_missing)
 
-    def find_policy(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_policy(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _policy.Policy: ...
+
+    @overload
+    def find_policy(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _policy.Policy | None: ...
+
+    def find_policy(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _policy.Policy | None:
         """Find a single policy.
 
         :param str name_or_id: The name or ID of a policy.
@@ -913,7 +985,25 @@ class Proxy(proxy.Proxy):
             _receiver.Receiver, receiver, ignore_missing=ignore_missing
         )
 
-    def find_receiver(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_receiver(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _receiver.Receiver: ...
+
+    @overload
+    def find_receiver(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _receiver.Receiver | None: ...
+
+    def find_receiver(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _receiver.Receiver | None:
         """Find a single receiver.
 
         :param str name_or_id: The name or ID of a receiver.

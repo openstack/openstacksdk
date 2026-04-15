@@ -78,7 +78,9 @@ class TestTapService(base.BaseFunctionalTest):
         super().tearDown()
 
     def test_find_tap_service(self):
-        sot = self.user_cloud.network.find_tap_service(self.TAP_SERVICE.name)
+        sot = self.user_cloud.network.find_tap_service(
+            self.TAP_SERVICE.name, ignore_missing=False
+        )
         self.assertEqual(self.SERVICE_PORT_ID, sot.port_id)
         self.assertEqual(self.TAP_S_NAME, sot.name)
 
@@ -101,7 +103,9 @@ class TestTapService(base.BaseFunctionalTest):
         self.assertEqual(description, sot.description)
 
     def test_find_tap_flow(self):
-        sot = self.user_cloud.network.find_tap_flow(self.TAP_FLOW.name)
+        sot = self.user_cloud.network.find_tap_flow(
+            self.TAP_FLOW.name, ignore_missing=False
+        )
         self.assertEqual(self.FLOW_PORT_ID, sot.source_port)
         self.assertEqual(self.TAP_SERVICE.id, sot.tap_service_id)
         self.assertEqual('BOTH', sot.direction)

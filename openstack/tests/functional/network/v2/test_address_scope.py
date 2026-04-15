@@ -16,7 +16,7 @@ from openstack.tests.functional import base
 
 
 class TestAddressScope(base.BaseFunctionalTest):
-    ADDRESS_SCOPE_ID = None
+    ADDRESS_SCOPE_ID: str
     IS_SHARED = False
     IP_VERSION = 4
 
@@ -42,7 +42,7 @@ class TestAddressScope(base.BaseFunctionalTest):
 
     def test_find(self):
         sot = self.user_cloud.network.find_address_scope(
-            self.ADDRESS_SCOPE_NAME
+            self.ADDRESS_SCOPE_NAME, ignore_missing=False
         )
         self.assertEqual(self.ADDRESS_SCOPE_ID, sot.id)
 

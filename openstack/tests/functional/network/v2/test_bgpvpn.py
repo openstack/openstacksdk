@@ -135,7 +135,9 @@ class TestBGPVPN(base.BaseFunctionalTest):
         super().tearDown()
 
     def test_find_bgpvpn(self):
-        sot = self.operator_cloud.network.find_bgpvpn(self.BGPVPN.name)
+        sot = self.operator_cloud.network.find_bgpvpn(
+            self.BGPVPN.name, ignore_missing=False
+        )
         self.assertEqual(list(self.ROUTE_TARGETS), sot.route_targets)
         self.assertEqual(list(self.IMPORT_TARGETS), sot.import_targets)
         # Check defaults

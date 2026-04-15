@@ -18,7 +18,8 @@ from openstack.tests.functional import base
 
 
 class TestQoSDSCPMarkingRule(base.BaseFunctionalTest):
-    QOS_POLICY_ID = None
+    QOS_POLICY_ID: str
+    RULE_ID: str
     QOS_IS_SHARED = False
     QOS_POLICY_DESCRIPTION = "QoS policy description"
     RULE_DSCP_MARK = 36
@@ -63,7 +64,7 @@ class TestQoSDSCPMarkingRule(base.BaseFunctionalTest):
 
     def test_find(self):
         sot = self.operator_cloud.network.find_qos_dscp_marking_rule(
-            self.RULE_ID, self.QOS_POLICY_ID
+            self.RULE_ID, self.QOS_POLICY_ID, ignore_missing=False
         )
         self.assertEqual(self.RULE_ID, sot.id)
         self.assertEqual(self.RULE_DSCP_MARK, sot.dscp_mark)

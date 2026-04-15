@@ -62,7 +62,7 @@ class TestResourceProvider(base.BaseFunctionalTest):
 
         resource_provider = (
             self.operator_cloud.placement.find_resource_provider(
-                self.resource_provider.name,
+                self.resource_provider.name, ignore_missing=False
             )
         )
         self.assertEqual(self.resource_provider_name, resource_provider.name)

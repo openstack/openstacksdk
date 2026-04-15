@@ -67,7 +67,9 @@ class TestPort(common.TestTagNeutron):
         super().tearDown()
 
     def test_find(self):
-        sot = self.user_cloud.network.find_port(self.PORT_NAME)
+        sot = self.user_cloud.network.find_port(
+            self.PORT_NAME, ignore_missing=False
+        )
         self.assertEqual(self.PORT_ID, sot.id)
 
     def test_get(self):

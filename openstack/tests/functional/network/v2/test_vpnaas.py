@@ -43,7 +43,7 @@ class TestVpnIkePolicy(base.BaseFunctionalTest):
 
     def test_find(self):
         policy = self.user_cloud.network.find_vpn_ike_policy(
-            self.IKEPOLICY_NAME
+            self.IKEPOLICY_NAME, ignore_missing=False
         )
         self.assertEqual(self.ID, policy.id)
 

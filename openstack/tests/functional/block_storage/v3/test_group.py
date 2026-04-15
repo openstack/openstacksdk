@@ -65,7 +65,7 @@ class TestGroup(base.BaseBlockStorageTest):
 
         # find
         group_type = self.admin_block_storage_client.find_group_type(
-            self.group_type.name,
+            self.group_type.name, ignore_missing=False
         )
         self.assertEqual(self.group_type.id, group_type.id)
 
@@ -143,7 +143,9 @@ class TestGroup(base.BaseBlockStorageTest):
         self.assertEqual(self.group.name, group.name)
 
         # find
-        group = self.admin_block_storage_client.find_group(self.group.name)
+        group = self.admin_block_storage_client.find_group(
+            self.group.name, ignore_missing=False
+        )
         self.assertEqual(self.group.id, group.id)
 
         # list
@@ -213,7 +215,7 @@ class TestGroup(base.BaseBlockStorageTest):
 
         # find
         group_snapshot = self.admin_block_storage_client.find_group_snapshot(
-            self.group_snapshot.name,
+            self.group_snapshot.name, ignore_missing=False
         )
         self.assertEqual(self.group_snapshot.id, group_snapshot.id)
 

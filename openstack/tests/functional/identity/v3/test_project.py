@@ -51,7 +51,9 @@ class TestProject(base.BaseIdentityTest):
 
         # retrieve details of the (updated) project by name
 
-        project = self.admin_identity_client.find_project(project.name)
+        project = self.admin_identity_client.find_project(
+            project.name, ignore_missing=False
+        )
         self.assertIsInstance(project, _project.Project)
         self.assertEqual(self.project_description, project.description)
 

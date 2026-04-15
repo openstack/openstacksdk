@@ -18,10 +18,10 @@ from openstack.tests.functional import base
 
 
 class TestQoSMinimumPacketRateRule(base.BaseFunctionalTest):
-    QOS_POLICY_ID = None
+    QOS_POLICY_ID: str
     QOS_IS_SHARED = False
     QOS_POLICY_DESCRIPTION = "QoS policy description"
-    RULE_ID = None
+    RULE_ID: str
     RULE_MIN_KPPS = 1200
     RULE_MIN_KPPS_NEW = 1800
     RULE_DIRECTION = "egress"
@@ -72,7 +72,7 @@ class TestQoSMinimumPacketRateRule(base.BaseFunctionalTest):
 
     def test_find(self):
         sot = self.operator_cloud.network.find_qos_minimum_packet_rate_rule(
-            self.RULE_ID, self.QOS_POLICY_ID
+            self.RULE_ID, self.QOS_POLICY_ID, ignore_missing=False
         )
         self.assertEqual(self.RULE_ID, sot.id)
         self.assertEqual(self.RULE_DIRECTION, sot.direction)

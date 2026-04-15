@@ -18,7 +18,8 @@ from openstack.tests.functional import base
 
 
 class TestQoSPacketRateLimitRule(base.BaseFunctionalTest):
-    QOS_POLICY_ID = None
+    QOS_POLICY_ID: str
+    RULE_ID: str
     QOS_IS_SHARED = False
     QOS_POLICY_DESCRIPTION = 'QoS policy description'
     RULE_MAX_KPPS = 1500
@@ -76,7 +77,7 @@ class TestQoSPacketRateLimitRule(base.BaseFunctionalTest):
 
     def test_find(self):
         sot = self.operator_cloud.network.find_qos_packet_rate_limit_rule(
-            self.RULE_ID, self.QOS_POLICY_ID
+            self.RULE_ID, self.QOS_POLICY_ID, ignore_missing=False
         )
         self.assertEqual(self.RULE_ID, sot.id)
         self.assertEqual(self.RULE_MAX_KPPS, sot.max_kpps)

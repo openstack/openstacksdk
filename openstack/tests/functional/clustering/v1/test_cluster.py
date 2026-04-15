@@ -83,7 +83,9 @@ class TestCluster(base.BaseFunctionalTest):
         super().tearDown()
 
     def test_find(self):
-        sot = self.operator_cloud.clustering.find_cluster(self.cluster.id)
+        sot = self.operator_cloud.clustering.find_cluster(
+            self.cluster.id, ignore_missing=False
+        )
         self.assertEqual(self.cluster.id, sot.id)
 
     def test_get(self):

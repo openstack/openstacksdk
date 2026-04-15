@@ -49,7 +49,9 @@ class TestSubnetPool(common.TestTagNeutron):
         super().tearDown()
 
     def test_find(self):
-        sot = self.user_cloud.network.find_subnet_pool(self.SUBNET_POOL_NAME)
+        sot = self.user_cloud.network.find_subnet_pool(
+            self.SUBNET_POOL_NAME, ignore_missing=False
+        )
         self.assertEqual(self.SUBNET_POOL_ID, sot.id)
 
     def test_get(self):

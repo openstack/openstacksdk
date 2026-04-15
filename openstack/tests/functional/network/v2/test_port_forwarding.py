@@ -22,17 +22,17 @@ from openstack.tests.functional import base
 
 class TestPortForwarding(base.BaseFunctionalTest):
     IPV4 = 4
-    FIP_ID = None
+    FIP_ID: str
     EXT_CIDR = "10.100.0.0/24"
     INT_CIDR = "10.101.0.0/24"
-    EXT_NET_ID = None
-    INT_NET_ID = None
-    EXT_SUB_ID = None
-    INT_SUB_ID = None
-    ROT_ID = None
+    EXT_NET_ID: str
+    INT_NET_ID: str
+    EXT_SUB_ID: str
+    INT_SUB_ID: str
+    ROT_ID: str
 
-    INTERNAL_PORT_ID = None
-    INTERNAL_IP_ADDRESS = None
+    INTERNAL_PORT_ID: str
+    INTERNAL_IP_ADDRESS: str
     INTERNAL_PORT = 8080
     EXTERNAL_PORT = 80
     PROTOCOL = "tcp"
@@ -53,16 +53,16 @@ class TestPortForwarding(base.BaseFunctionalTest):
         self.ROT_NAME = self.getUniqueString()
         self.INT_NET_NAME = self.getUniqueString()
         self.INT_SUB_NAME = self.getUniqueString()
-        self.EXT_NET_ID = None
-        self.EXT_SUB_ID = None
 
         # Find External Network
+        ext_net_id = None
         for net in self.user_cloud.network.networks(is_router_external=True):
-            self.EXT_NET_ID = net.id
+            ext_net_id = net.id
             break
 
-        if not self.EXT_NET_ID:
+        if not ext_net_id:
             self.skipTest('no external net is available')
+        self.EXT_NET_ID = ext_net_id
 
         # Find subnet of the chosen external net
         for sub in self.user_cloud.network.subnets(network_id=self.EXT_NET_ID):
@@ -167,7 +167,7 @@ class TestPortForwarding(base.BaseFunctionalTest):
 
     def test_find(self):
         sot = self.user_cloud.network.find_port_forwarding(
-            self.PF.id, self.FIP_ID
+            self.PF.id, self.FIP_ID, ignore_missing=False
         )
         self.assertEqual(self.INTERNAL_PORT_ID, sot.internal_port_id)
         self.assertEqual(self.INTERNAL_IP_ADDRESS, sot.internal_ip_address)

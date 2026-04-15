@@ -57,7 +57,7 @@ class TestDefaultSecurityGroupRule(base.BaseFunctionalTest):
 
     def test_find(self):
         sot = self.operator_cloud.network.find_default_security_group_rule(
-            self.RULE_ID
+            self.RULE_ID, ignore_missing=False
         )
         self.assertEqual(self.RULE_ID, sot.id)
 

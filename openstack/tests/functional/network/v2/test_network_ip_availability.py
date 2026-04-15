@@ -20,9 +20,9 @@ from openstack.tests.functional import base
 class TestNetworkIPAvailability(base.BaseFunctionalTest):
     IPV4 = 4
     CIDR = "10.100.0.0/24"
-    NET_ID = None
-    SUB_ID = None
-    PORT_ID = None
+    NET_ID: str
+    SUB_ID: str
+    PORT_ID: str
 
     def setUp(self):
         super().setUp()
@@ -71,7 +71,7 @@ class TestNetworkIPAvailability(base.BaseFunctionalTest):
 
     def test_find(self):
         sot = self.operator_cloud.network.find_network_ip_availability(
-            self.NET_ID
+            self.NET_ID, ignore_missing=False
         )
         self.assertEqual(self.NET_ID, sot.network_id)
 

@@ -151,11 +151,15 @@ class TestFloatingIP(common.TestTagNeutron):
         return sub
 
     def test_find_by_id(self):
-        sot = self.user_cloud.network.find_ip(self.FIP.id)
+        sot = self.user_cloud.network.find_ip(
+            self.FIP.id, ignore_missing=False
+        )
         self.assertEqual(self.FIP.id, sot.id)
 
     def test_find_by_ip_address(self):
-        sot = self.user_cloud.network.find_ip(self.FIP.floating_ip_address)
+        sot = self.user_cloud.network.find_ip(
+            self.FIP.floating_ip_address, ignore_missing=False
+        )
         self.assertEqual(self.FIP.floating_ip_address, sot.floating_ip_address)
         self.assertEqual(self.FIP.floating_ip_address, sot.name)
 

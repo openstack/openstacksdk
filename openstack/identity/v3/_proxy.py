@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import ClassVar, Literal
+from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable
 import warnings
 
@@ -128,7 +128,25 @@ class Proxy(proxy.Proxy):
             _credential.Credential, credential, ignore_missing=ignore_missing
         )
 
-    def find_credential(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_credential(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _credential.Credential: ...
+
+    @overload
+    def find_credential(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _credential.Credential | None: ...
+
+    def find_credential(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _credential.Credential | None:
         """Find a single credential
 
         :param name_or_id: The name or ID of a credential.
@@ -210,7 +228,25 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_domain.Domain, domain, ignore_missing=ignore_missing)
 
-    def find_domain(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_domain(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _domain.Domain: ...
+
+    @overload
+    def find_domain(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _domain.Domain | None: ...
+
+    def find_domain(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _domain.Domain | None:
         """Find a single domain
 
         :param name_or_id: The name or ID of a domain.
@@ -372,7 +408,25 @@ class Proxy(proxy.Proxy):
             _endpoint.Endpoint, endpoint, ignore_missing=ignore_missing
         )
 
-    def find_endpoint(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_endpoint(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _endpoint.Endpoint: ...
+
+    @overload
+    def find_endpoint(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _endpoint.Endpoint | None: ...
+
+    def find_endpoint(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _endpoint.Endpoint | None:
         """Find a single endpoint
 
         :param name_or_id: The name or ID of a endpoint.
@@ -500,7 +554,28 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_group.Group, group, ignore_missing=ignore_missing)
 
-    def find_group(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_group(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _group.Group: ...
+
+    @overload
+    def find_group(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _group.Group | None: ...
+
+    def find_group(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _group.Group | None:
         """Find a single group
 
         :param name_or_id: The name or ID of a group.
@@ -638,7 +713,25 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_policy.Policy, policy, ignore_missing=ignore_missing)
 
-    def find_policy(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_policy(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _policy.Policy: ...
+
+    @overload
+    def find_policy(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _policy.Policy | None: ...
+
+    def find_policy(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _policy.Policy | None:
         """Find a single policy
 
         :param name_or_id: The name or ID of a policy.
@@ -719,7 +812,28 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_project.Project, project, ignore_missing=ignore_missing)
 
-    def find_project(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_project(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _project.Project: ...
+
+    @overload
+    def find_project(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _project.Project | None: ...
+
+    def find_project(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _project.Project | None:
         """Find a single project
 
         :param name_or_id: The name or ID of a project.
@@ -835,7 +949,25 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_service.Service, service, ignore_missing=ignore_missing)
 
-    def find_service(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_service(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _service.Service: ...
+
+    @overload
+    def find_service(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _service.Service | None: ...
+
+    def find_service(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _service.Service | None:
         """Find a single service
 
         :param name_or_id: The name or ID of a service.
@@ -916,7 +1048,28 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_user.User, user, ignore_missing=ignore_missing)
 
-    def find_user(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_user(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _user.User: ...
+
+    @overload
+    def find_user(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _user.User | None: ...
+
+    def find_user(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _user.User | None:
         """Find a single user
 
         :param name_or_id: The name or ID of a user.
@@ -1049,7 +1202,25 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_trust.Trust, trust, ignore_missing=ignore_missing)
 
-    def find_trust(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_trust(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _trust.Trust: ...
+
+    @overload
+    def find_trust(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _trust.Trust | None: ...
+
+    def find_trust(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _trust.Trust | None:
         """Find a single trust
 
         :param name_or_id: The name or ID of a trust.
@@ -1117,7 +1288,25 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_region.Region, region, ignore_missing=ignore_missing)
 
-    def find_region(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_region(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _region.Region: ...
+
+    @overload
+    def find_region(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _region.Region | None: ...
+
+    def find_region(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _region.Region | None:
         """Find a single region
 
         :param name_or_id: The name or ID of a region.
@@ -1203,7 +1392,28 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_role.Role, role, ignore_missing=ignore_missing)
 
-    def find_role(self, name_or_id, ignore_missing=True, **query):
+    @overload
+    def find_role(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _role.Role: ...
+
+    @overload
+    def find_role(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _role.Role | None: ...
+
+    def find_role(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _role.Role | None:
         """Find a single role
 
         :param name_or_id: The name or ID of a role.
@@ -1895,13 +2105,31 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
+    @overload
     def find_application_credential(
         self,
-        user,
-        name_or_id,
-        ignore_missing=True,
-        **query,
-    ):
+        user: str | _user.User,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _application_credential.ApplicationCredential: ...
+
+    @overload
+    def find_application_credential(
+        self,
+        user: str | _user.User,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _application_credential.ApplicationCredential | None: ...
+
+    def find_application_credential(
+        self,
+        user: str | _user.User,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _application_credential.ApplicationCredential | None:
         """Find a single application credential
 
         :param user: Either the ID of a user or a
@@ -2011,7 +2239,28 @@ class Proxy(proxy.Proxy):
             cls, protocol, ignore_missing=ignore_missing, idp_id=idp_id
         )
 
-    def find_federation_protocol(self, idp_id, protocol, ignore_missing=True):
+    @overload
+    def find_federation_protocol(
+        self,
+        idp_id: str | _identity_provider.IdentityProvider,
+        protocol: str,
+        ignore_missing: Literal[False],
+    ) -> _federation_protocol.FederationProtocol: ...
+
+    @overload
+    def find_federation_protocol(
+        self,
+        idp_id: str | _identity_provider.IdentityProvider,
+        protocol: str,
+        ignore_missing: bool = True,
+    ) -> _federation_protocol.FederationProtocol | None: ...
+
+    def find_federation_protocol(
+        self,
+        idp_id: str | _identity_provider.IdentityProvider,
+        protocol: str,
+        ignore_missing: bool = True,
+    ) -> _federation_protocol.FederationProtocol | None:
         """Find a single federation protocol
 
         :param idp_id: The ID of the identity provider or a
@@ -2138,7 +2387,25 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_mapping.Mapping, mapping, ignore_missing=ignore_missing)
 
-    def find_mapping(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_mapping(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _mapping.Mapping: ...
+
+    @overload
+    def find_mapping(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _mapping.Mapping | None: ...
+
+    def find_mapping(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _mapping.Mapping | None:
         """Find a single mapping
 
         :param name_or_id: The name or ID of a mapping.
@@ -2230,7 +2497,25 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def find_identity_provider(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_identity_provider(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _identity_provider.IdentityProvider: ...
+
+    @overload
+    def find_identity_provider(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _identity_provider.IdentityProvider | None: ...
+
+    def find_identity_provider(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _identity_provider.IdentityProvider | None:
         """Find a single identity provider
 
         :param name_or_id: The name or ID of an identity provider
@@ -2389,7 +2674,25 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def find_service_provider(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_service_provider(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _service_provider.ServiceProvider: ...
+
+    @overload
+    def find_service_provider(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _service_provider.ServiceProvider | None: ...
+
+    def find_service_provider(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _service_provider.ServiceProvider | None:
         """Find a single service provider
 
         :param name_or_id: The name or ID of a service provider

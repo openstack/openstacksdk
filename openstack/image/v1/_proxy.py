@@ -11,7 +11,7 @@
 # under the License.
 
 import os
-from typing import ClassVar, Literal
+from typing import ClassVar, Literal, overload
 from collections.abc import Callable
 import warnings
 
@@ -336,7 +336,25 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_image.Image, image, ignore_missing=ignore_missing)
 
-    def find_image(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_image(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _image.Image: ...
+
+    @overload
+    def find_image(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _image.Image | None: ...
+
+    def find_image(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _image.Image | None:
         """Find a single image
 
         :param name_or_id: The name or ID of a image.

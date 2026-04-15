@@ -33,7 +33,9 @@ class TestSecurityGroup(common.TestTagNeutron):
         super().tearDown()
 
     def test_find(self):
-        sot = self.user_cloud.network.find_security_group(self.NAME)
+        sot = self.user_cloud.network.find_security_group(
+            self.NAME, ignore_missing=False
+        )
         self.assertEqual(self.ID, sot.id)
 
     def test_get(self):

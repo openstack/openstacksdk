@@ -49,7 +49,7 @@ class TestTLD(base.BaseFunctionalTest):
 
         # retrieve details of the (updated) tld by name
 
-        tld = self.operator_cloud.dns.find_tld(tld.name)
+        tld = self.operator_cloud.dns.find_tld(tld.name, ignore_missing=False)
         self.assertIsInstance(tld, _tld.TLD)
         self.assertEqual(self.tld_description, tld.description)
 

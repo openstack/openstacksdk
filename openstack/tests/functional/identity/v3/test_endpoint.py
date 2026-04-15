@@ -92,7 +92,7 @@ class TestEndpoint(base.BaseIdentityTest):
 
         # Find endpoint
         found_endpoint = self.admin_identity_client.find_endpoint(
-            public_endpoint.id
+            public_endpoint.id, ignore_missing=False
         )
         self.assertIsInstance(found_endpoint, _endpoint.Endpoint)
         self.assertEqual(public_endpoint.id, found_endpoint.id)

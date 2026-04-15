@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import ClassVar, Literal
+from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable
 
 from openstack import proxy
@@ -103,7 +103,25 @@ class Proxy(proxy.Proxy):
             _workflow.Workflow, value, ignore_missing=ignore_missing
         )
 
-    def find_workflow(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_workflow(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _workflow.Workflow: ...
+
+    @overload
+    def find_workflow(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _workflow.Workflow | None: ...
+
+    def find_workflow(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _workflow.Workflow | None:
         """Find a single workflow
 
         :param name_or_id: The name or ID of an workflow.
@@ -181,7 +199,25 @@ class Proxy(proxy.Proxy):
             _execution.Execution, value, ignore_missing=ignore_missing
         )
 
-    def find_execution(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_execution(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _execution.Execution: ...
+
+    @overload
+    def find_execution(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _execution.Execution | None: ...
+
+    def find_execution(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _execution.Execution | None:
         """Find a single execution
 
         :param name_or_id: The name or ID of an execution.
@@ -262,14 +298,34 @@ class Proxy(proxy.Proxy):
         )
 
     # TODO(stephenfin): Drop 'query' parameter or apply it consistently
+    @overload
     def find_cron_trigger(
         self,
-        name_or_id,
-        ignore_missing=True,
+        name_or_id: str,
+        ignore_missing: Literal[False],
         *,
-        all_projects=False,
-        **query,
-    ):
+        all_projects: bool = False,
+        **query: Any,
+    ) -> _cron_trigger.CronTrigger: ...
+
+    @overload
+    def find_cron_trigger(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        all_projects: bool = False,
+        **query: Any,
+    ) -> _cron_trigger.CronTrigger | None: ...
+
+    def find_cron_trigger(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        all_projects: bool = False,
+        **query: Any,
+    ) -> _cron_trigger.CronTrigger | None:
         """Find a single cron trigger
 
         :param name_or_id: The name or ID of a cron trigger.

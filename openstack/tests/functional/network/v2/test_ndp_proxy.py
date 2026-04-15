@@ -139,7 +139,9 @@ class TestNDPProxy(base.BaseFunctionalTest):
         return sub
 
     def test_find(self):
-        sot = self.user_cloud.network.find_ndp_proxy(self.NP.id)
+        sot = self.user_cloud.network.find_ndp_proxy(
+            self.NP.id, ignore_missing=False
+        )
         self.assertEqual(self.ROT_ID, sot.router_id)
         self.assertEqual(self.INTERNAL_PORT_ID, sot.port_id)
         self.assertEqual(self.INTERNAL_IP_ADDRESS, sot.ip_address)

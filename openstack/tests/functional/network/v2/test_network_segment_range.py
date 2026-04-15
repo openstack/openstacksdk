@@ -18,7 +18,7 @@ from openstack.tests.functional import base
 
 
 class TestNetworkSegmentRange(base.BaseFunctionalTest):
-    NETWORK_SEGMENT_RANGE_ID = None
+    NETWORK_SEGMENT_RANGE_ID: str
     NAME = "test_name"
     DEFAULT = False
     SHARED = False
@@ -82,7 +82,7 @@ class TestNetworkSegmentRange(base.BaseFunctionalTest):
     def test_find(self):
         test_seg_range = (
             self.operator_cloud.network.find_network_segment_range(
-                self.NETWORK_SEGMENT_RANGE_ID
+                self.NETWORK_SEGMENT_RANGE_ID, ignore_missing=False
             )
         )
         self.assertEqual(self.NETWORK_SEGMENT_RANGE_ID, test_seg_range.id)

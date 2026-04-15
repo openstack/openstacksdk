@@ -18,7 +18,7 @@ from openstack.tests.functional import base
 
 
 class TestLocalIP(base.BaseFunctionalTest):
-    LOCAL_IP_ID = None
+    LOCAL_IP_ID: str
 
     def setUp(self):
         super().setUp()
@@ -45,7 +45,9 @@ class TestLocalIP(base.BaseFunctionalTest):
         super().tearDown()
 
     def test_find(self):
-        sot = self.user_cloud.network.find_local_ip(self.LOCAL_IP_NAME)
+        sot = self.user_cloud.network.find_local_ip(
+            self.LOCAL_IP_NAME, ignore_missing=False
+        )
         self.assertEqual(self.LOCAL_IP_ID, sot.id)
 
     def test_get(self):

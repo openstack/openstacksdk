@@ -32,7 +32,9 @@ class TestBareMetalNode(base.BaseBaremetalTest):
             self.assertEqual(node.id, found.id)
             self.assertEqual(node.name, found.name)
 
-            found = self.operator_cloud.baremetal.find_node(ident)
+            found = self.operator_cloud.baremetal.find_node(
+                ident, ignore_missing=False
+            )
             self.assertEqual(node.id, found.id)
             self.assertEqual(node.name, found.name)
 

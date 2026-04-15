@@ -50,7 +50,9 @@ class TestQoSPolicy(base.BaseFunctionalTest):
         super().tearDown()
 
     def test_find(self):
-        sot = self.operator_cloud.network.find_qos_policy(self.QOS_POLICY_NAME)
+        sot = self.operator_cloud.network.find_qos_policy(
+            self.QOS_POLICY_NAME, ignore_missing=False
+        )
         self.assertEqual(self.QOS_POLICY_ID, sot.id)
 
     def test_get(self):

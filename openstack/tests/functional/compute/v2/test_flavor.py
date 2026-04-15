@@ -68,7 +68,9 @@ class TestFlavor(base.BaseComputeTest):
 
         # find flavor by name
 
-        flavor = self.admin_compute_client.find_flavor(public_flavor.name)
+        flavor = self.admin_compute_client.find_flavor(
+            public_flavor.name, ignore_missing=False
+        )
         self.assertEqual(flavor.name, public_flavor.name)
 
         # update a flavor
@@ -103,9 +105,8 @@ class TestFlavor(base.BaseComputeTest):
         # validate we can see the new flavor ourselves
 
         flavor = self.admin_compute_client.find_flavor(
-            flavor_name, ignore_missing=True
+            flavor_name, ignore_missing=False
         )
-        self.assertIsNotNone(flavor)
         self.assertEqual(flavor_name, flavor.name)
 
         # get demo project for access control
@@ -122,9 +123,8 @@ class TestFlavor(base.BaseComputeTest):
         # verify that the 'demo' user now has access to it
 
         flavor = self.compute_client.find_flavor(
-            flavor_name, ignore_missing=True
+            flavor_name, ignore_missing=False
         )
-        self.assertIsNotNone(flavor)
 
         # remove 'demo' access and check we can't find it anymore
 

@@ -18,10 +18,10 @@ from openstack.tests.functional import base
 
 
 class TestQoSMinimumBandwidthRule(base.BaseFunctionalTest):
-    QOS_POLICY_ID = None
+    QOS_POLICY_ID: str
     QOS_IS_SHARED = False
     QOS_POLICY_DESCRIPTION = "QoS policy description"
-    RULE_ID = None
+    RULE_ID: str
     RULE_MIN_KBPS = 1200
     RULE_MIN_KBPS_NEW = 1800
     RULE_DIRECTION = "egress"
@@ -73,7 +73,7 @@ class TestQoSMinimumBandwidthRule(base.BaseFunctionalTest):
 
     def test_find(self):
         sot = self.operator_cloud.network.find_qos_minimum_bandwidth_rule(
-            self.RULE_ID, self.QOS_POLICY_ID
+            self.RULE_ID, self.QOS_POLICY_ID, ignore_missing=False
         )
         self.assertEqual(self.RULE_ID, sot.id)
         self.assertEqual(self.RULE_DIRECTION, sot.direction)

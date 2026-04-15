@@ -53,7 +53,9 @@ class TestNetwork(common.TestTagNeutron):
         super().tearDown()
 
     def test_find(self):
-        sot = self.user_cloud.network.find_network(self.NAME)
+        sot = self.user_cloud.network.find_network(
+            self.NAME, ignore_missing=False
+        )
         self.assertEqual(self.ID, sot.id)
 
     def test_find_with_filter(self):
@@ -68,7 +70,7 @@ class TestNetwork(common.TestTagNeutron):
             name=self.NAME, project_id=project_id_2
         )
         sot = self.operator_cloud.network.find_network(
-            self.NAME, project_id=project_id_1
+            self.NAME, project_id=project_id_1, ignore_missing=False
         )
         self.assertEqual(project_id_1, sot.project_id)
         self.operator_cloud.network.delete_network(sot1.id)

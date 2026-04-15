@@ -26,7 +26,7 @@ class TestFirewallRule(base.BaseFunctionalTest):
     PROTOCOL = "tcp"
     SOUR_IP = "10.0.1.0/24"
     SOUR_PORT = "8000"
-    ID = None
+    ID: str
 
     def setUp(self):
         super().setUp()
@@ -55,7 +55,9 @@ class TestFirewallRule(base.BaseFunctionalTest):
         super().tearDown()
 
     def test_find(self):
-        sot = self.user_cloud.network.find_firewall_rule(self.NAME)
+        sot = self.user_cloud.network.find_firewall_rule(
+            self.NAME, ignore_missing=False
+        )
         self.assertEqual(self.ID, sot.id)
 
     def test_get(self):

@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import ClassVar, Literal
+from typing import ClassVar, Literal, overload
 from collections.abc import Callable
 
 from openstack.load_balancer.v2 import amphora as _amphora
@@ -122,7 +122,25 @@ class Proxy(proxy.Proxy):
             _lb.LoadBalancer, load_balancer, ignore_missing=ignore_missing
         )
 
-    def find_load_balancer(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_load_balancer(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _lb.LoadBalancer: ...
+
+    @overload
+    def find_load_balancer(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _lb.LoadBalancer | None: ...
+
+    def find_load_balancer(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _lb.LoadBalancer | None:
         """Find a single load balancer
 
         :param name_or_id: The name or ID of a load balancer
@@ -233,7 +251,25 @@ class Proxy(proxy.Proxy):
             _listener.Listener, listener, ignore_missing=ignore_missing
         )
 
-    def find_listener(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_listener(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _listener.Listener: ...
+
+    @overload
+    def find_listener(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _listener.Listener | None: ...
+
+    def find_listener(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _listener.Listener | None:
         """Find a single listener
 
         :param name_or_id: The name or ID of a listener.
@@ -349,7 +385,25 @@ class Proxy(proxy.Proxy):
         """
         return self._delete(_pool.Pool, pool, ignore_missing=ignore_missing)
 
-    def find_pool(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_pool(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _pool.Pool: ...
+
+    @overload
+    def find_pool(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _pool.Pool | None: ...
+
+    def find_pool(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _pool.Pool | None:
         """Find a single pool
 
         :param name_or_id: The name or ID of a pool
@@ -420,7 +474,28 @@ class Proxy(proxy.Proxy):
             pool_id=poolobj.id,
         )
 
-    def find_member(self, name_or_id, pool, ignore_missing=True):
+    @overload
+    def find_member(
+        self,
+        name_or_id: str,
+        pool: str | _pool.Pool,
+        ignore_missing: Literal[False],
+    ) -> _member.Member: ...
+
+    @overload
+    def find_member(
+        self,
+        name_or_id: str,
+        pool: str | _pool.Pool,
+        ignore_missing: bool = True,
+    ) -> _member.Member | None: ...
+
+    def find_member(
+        self,
+        name_or_id: str,
+        pool: str | _pool.Pool,
+        ignore_missing: bool = True,
+    ) -> _member.Member | None:
         """Find a single member
 
         :param str name_or_id: The name or ID of a member.
@@ -496,7 +571,25 @@ class Proxy(proxy.Proxy):
             _member.Member, member, pool_id=poolobj.id, **attrs
         )
 
-    def find_health_monitor(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_health_monitor(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _hm.HealthMonitor: ...
+
+    @overload
+    def find_health_monitor(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _hm.HealthMonitor | None: ...
+
+    def find_health_monitor(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _hm.HealthMonitor | None:
         """Find a single health monitor
 
         :param name_or_id: The name or ID of a health monitor
@@ -626,7 +719,25 @@ class Proxy(proxy.Proxy):
             _l7policy.L7Policy, l7_policy, ignore_missing=ignore_missing
         )
 
-    def find_l7_policy(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_l7_policy(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _l7policy.L7Policy: ...
+
+    @overload
+    def find_l7_policy(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _l7policy.L7Policy | None: ...
+
+    def find_l7_policy(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _l7policy.L7Policy | None:
         """Find a single l7policy
 
         :param name_or_id: The name or ID of a l7policy.
@@ -723,7 +834,28 @@ class Proxy(proxy.Proxy):
             l7policy_id=l7policyobj.id,
         )
 
-    def find_l7_rule(self, name_or_id, l7_policy, ignore_missing=True):
+    @overload
+    def find_l7_rule(
+        self,
+        name_or_id: str,
+        l7_policy: str | _l7policy.L7Policy,
+        ignore_missing: Literal[False],
+    ) -> _l7rule.L7Rule: ...
+
+    @overload
+    def find_l7_rule(
+        self,
+        name_or_id: str,
+        l7_policy: str | _l7policy.L7Policy,
+        ignore_missing: bool = True,
+    ) -> _l7rule.L7Rule | None: ...
+
+    def find_l7_rule(
+        self,
+        name_or_id: str,
+        l7_policy: str | _l7policy.L7Policy,
+        ignore_missing: bool = True,
+    ) -> _l7rule.L7Rule | None:
         """Find a single l7rule
 
         :param str name_or_id: The name or ID of a l7rule.
@@ -932,7 +1064,25 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def find_flavor_profile(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_flavor_profile(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _flavor_profile.FlavorProfile: ...
+
+    @overload
+    def find_flavor_profile(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _flavor_profile.FlavorProfile | None: ...
+
+    def find_flavor_profile(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _flavor_profile.FlavorProfile | None:
         """Find a single flavor profile
 
         :param name_or_id: The name or ID of a flavor profile
@@ -1011,7 +1161,25 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_flavor.Flavor, flavor, ignore_missing=ignore_missing)
 
-    def find_flavor(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_flavor(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _flavor.Flavor: ...
+
+    @overload
+    def find_flavor(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _flavor.Flavor | None: ...
+
+    def find_flavor(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _flavor.Flavor | None:
         """Find a single flavor
 
         :param name_or_id: The name or ID of a flavor
@@ -1058,7 +1226,25 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_amphora.Amphora, *attrs)
 
-    def find_amphora(self, amphora_id, ignore_missing=True):
+    @overload
+    def find_amphora(
+        self,
+        amphora_id: str,
+        ignore_missing: Literal[False],
+    ) -> _amphora.Amphora: ...
+
+    @overload
+    def find_amphora(
+        self,
+        amphora_id: str,
+        ignore_missing: bool = True,
+    ) -> _amphora.Amphora | None: ...
+
+    def find_amphora(
+        self,
+        amphora_id: str,
+        ignore_missing: bool = True,
+    ) -> _amphora.Amphora | None:
         """Find a single amphora
 
         :param amphora_id: The ID of a amphora
@@ -1157,7 +1343,25 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def find_availability_zone_profile(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_availability_zone_profile(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _availability_zone_profile.AvailabilityZoneProfile: ...
+
+    @overload
+    def find_availability_zone_profile(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _availability_zone_profile.AvailabilityZoneProfile | None: ...
+
+    def find_availability_zone_profile(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _availability_zone_profile.AvailabilityZoneProfile | None:
         """Find a single availability zone profile
 
         :param name_or_id: The name or ID of a availability zone profile
@@ -1251,7 +1455,25 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def find_availability_zone(self, name_or_id, ignore_missing=True):
+    @overload
+    def find_availability_zone(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _availability_zone.AvailabilityZone: ...
+
+    @overload
+    def find_availability_zone(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _availability_zone.AvailabilityZone | None: ...
+
+    def find_availability_zone(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _availability_zone.AvailabilityZone | None:
         """Find a single availability zone
 
         :param name_or_id: The name or ID of a availability zone

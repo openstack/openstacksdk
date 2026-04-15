@@ -64,7 +64,9 @@ class TestGroup(base.BaseIdentityTest):
 
         # retrieve details of the (updated) group by name
 
-        group = self.admin_identity_client.find_group(group.name)
+        group = self.admin_identity_client.find_group(
+            group.name, ignore_missing=False
+        )
         self.assertIsInstance(group, _group.Group)
         self.assertEqual(self.group_description, group.description)
 

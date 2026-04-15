@@ -16,7 +16,7 @@ from openstack.tests.functional import base
 
 
 class TestAddressGroup(base.BaseFunctionalTest):
-    ADDRESS_GROUP_ID = None
+    ADDRESS_GROUP_ID: str
     ADDRESSES = ["10.0.0.1/32", "2001:db8::/32"]
 
     def setUp(self):
@@ -52,7 +52,7 @@ class TestAddressGroup(base.BaseFunctionalTest):
 
     def test_find(self):
         sot = self.user_cloud.network.find_address_group(
-            self.ADDRESS_GROUP_NAME
+            self.ADDRESS_GROUP_NAME, ignore_missing=False
         )
         self.assertEqual(self.ADDRESS_GROUP_ID, sot.id)
 
@@ -65,7 +65,6 @@ class TestAddressGroup(base.BaseFunctionalTest):
         self.assertIn(self.ADDRESS_GROUP_NAME, names)
 
     def test_update(self):
-        assert self.ADDRESS_GROUP_ID is not None
         sot = self.user_cloud.network.update_address_group(
             self.ADDRESS_GROUP_ID,
             name=self.ADDRESS_GROUP_NAME_UPDATED,
