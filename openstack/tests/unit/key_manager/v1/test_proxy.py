@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from unittest import mock
+
 from openstack.key_manager.v1 import _proxy
 from openstack.key_manager.v1 import container
 from openstack.key_manager.v1 import order
@@ -242,3 +244,106 @@ class TestKeyManagerSecretConsumer(TestKeyManagerProxy):
             },
             expected_args=[self.proxy],
         )
+
+
+class TestProjectCleanup(test_proxy_base.TestProxyBase):
+    def setUp(self):
+        super().setUp()
+        self.proxy = _proxy.Proxy(self.session, service_type='key-manager')
+
+    def test_get_cleanup_dependencies(self):
+        deps = self.proxy._get_cleanup_dependencies()
+        self.assertIn('key_manager', deps)
+        self.assertEqual([], deps['key_manager']['before'])
+
+    @mock.patch.object(_proxy.Proxy, 'containers', autospec=True)
+    @mock.patch.object(_proxy.Proxy, 'delete_container', autospec=True)
+    @mock.patch.object(_proxy.Proxy, 'secrets', autospec=True)
+    @mock.patch.object(_proxy.Proxy, 'delete_secret', autospec=True)
+    def test_service_cleanup(
+        self,
+        mock_del_secret,
+        mock_secrets,
+        mock_del_container,
+        mock_containers,
+    ):
+        c = container.Container(id='c-1', name='test-container')
+        s = secret.Secret(id='s-1', name='test-secret')
+        mock_containers.return_value = [c]
+        mock_secrets.return_value = [s]
+
+        self.proxy._service_cleanup(
+            dry_run=False,
+            client_status_queue=None,
+            identified_resources=None,
+            filters=None,
+            resource_evaluation_fn=None,
+            skip_resources=None,
+        )
+
+        mock_del_container.assert_called_once_with(self.proxy, c)
+        mock_del_secret.assert_called_once_with(self.proxy, s)
+
+    @mock.patch.object(_proxy.Proxy, 'containers', autospec=True)
+    @mock.patch.object(_proxy.Proxy, 'delete_container', autospec=True)
+    @mock.patch.object(_proxy.Proxy, 'secrets', autospec=True)
+    @mock.patch.object(_proxy.Proxy, 'delete_secret', autospec=True)
+    def test_service_cleanup_dry_run(
+        self,
+        mock_del_secret,
+        mock_secrets,
+        mock_del_container,
+        mock_containers,
+    ):
+        c = container.Container(id='c-1', name='test-container')
+        s = secret.Secret(id='s-1', name='test-secret')
+        mock_containers.return_value = [c]
+        mock_secrets.return_value = [s]
+
+        self.proxy._service_cleanup(
+            dry_run=True,
+            client_status_queue=None,
+            identified_resources=None,
+            filters=None,
+            resource_evaluation_fn=None,
+            skip_resources=None,
+        )
+
+        mock_del_container.assert_not_called()
+        mock_del_secret.assert_not_called()
+
+    @mock.patch.object(_proxy.Proxy, 'containers', autospec=True)
+    @mock.patch.object(_proxy.Proxy, 'secrets', autospec=True)
+    def test_service_cleanup_skip_secret(self, mock_secrets, mock_containers):
+        mock_containers.return_value = []
+
+        self.proxy._service_cleanup(
+            dry_run=False,
+            client_status_queue=None,
+            identified_resources=None,
+            filters=None,
+            resource_evaluation_fn=None,
+            skip_resources=['key_manager.secret'],
+        )
+
+        mock_secrets.assert_not_called()
+        mock_containers.assert_called_once_with(self.proxy)
+
+    @mock.patch.object(_proxy.Proxy, 'containers', autospec=True)
+    @mock.patch.object(_proxy.Proxy, 'secrets', autospec=True)
+    def test_service_cleanup_skip_container(
+        self, mock_secrets, mock_containers
+    ):
+        mock_secrets.return_value = []
+
+        self.proxy._service_cleanup(
+            dry_run=False,
+            client_status_queue=None,
+            identified_resources=None,
+            filters=None,
+            resource_evaluation_fn=None,
+            skip_resources=['key_manager.container'],
+        )
+
+        mock_containers.assert_not_called()
+        mock_secrets.assert_called_once_with(self.proxy)

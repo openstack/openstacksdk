@@ -10,8 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from collections.abc import Callable, Generator, Sequence
+import queue
 from typing import Any, ClassVar, Literal, overload
-from collections.abc import Callable, Generator
 
 from openstack._utils import renamed_param
 from openstack import exceptions
@@ -666,3 +667,47 @@ class Proxy(proxy.Proxy):
             to delete failed to occur in the specified seconds.
         """
         return resource.wait_for_delete(self, res, interval, wait, callback)
+
+    def _get_cleanup_dependencies(self) -> dict[str, Any]:
+        return {'key_manager': {'before': []}}
+
+    def _service_cleanup(
+        self,
+        dry_run: bool = True,
+        client_status_queue: queue.Queue[resource.Resource] | None = None,
+        identified_resources: dict[str, resource.Resource] | None = None,
+        filters: dict[str, Any] | None = None,
+        resource_evaluation_fn: Callable[
+            [
+                resource.Resource,
+                dict[str, Any] | None,
+                dict[str, resource.Resource] | None,
+            ],
+            bool,
+        ]
+        | None = None,
+        skip_resources: Sequence[str] | None = None,
+    ) -> None:
+        if not self.should_skip_resource_cleanup("container", skip_resources):
+            for container in self.containers():
+                self._service_cleanup_del_res(
+                    self.delete_container,
+                    container,
+                    dry_run=dry_run,
+                    client_status_queue=client_status_queue,
+                    identified_resources=identified_resources,
+                    filters=filters,
+                    resource_evaluation_fn=resource_evaluation_fn,
+                )
+
+        if not self.should_skip_resource_cleanup("secret", skip_resources):
+            for secret in self.secrets():
+                self._service_cleanup_del_res(
+                    self.delete_secret,
+                    secret,
+                    dry_run=dry_run,
+                    client_status_queue=client_status_queue,
+                    identified_resources=identified_resources,
+                    filters=filters,
+                    resource_evaluation_fn=resource_evaluation_fn,
+                )
