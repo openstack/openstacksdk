@@ -358,7 +358,7 @@ class Node(_common.Resource):
             microversion = None  # use the base negotiation
 
         # Ironic cannot set provision_state itself, so marking it as unchanged
-        self._clean_body_attrs({'provision_state'})
+        self._clean_body({'provision_state'})
 
         super().create(session, *args, microversion=microversion, **kwargs)
 
@@ -401,7 +401,7 @@ class Node(_common.Resource):
                 # maintenance_reason=None in the same request.
                 self._do_maintenance_action(session, 'delete')
 
-            self._clean_body_attrs({'maintenance', 'maintenance_reason'})
+            self._clean_body({'maintenance', 'maintenance_reason'})
             if not self.requires_commit:
                 # Other fields are not updated, re-fetch the node to reflect
                 # the new status.
