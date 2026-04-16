@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Added ``ha_chassis_priority`` attribute to the network ``Agent``
+    resource. This field is populated by the Neutron
+    ``l3-agent-scheduler-ha-priority`` API extension and indicates the
+    OVN HA_Chassis failover priority for each gateway chassis hosting
+    a router. The value is ``None`` for non-OVN mechanism drivers.

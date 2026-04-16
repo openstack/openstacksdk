@@ -33,6 +33,7 @@ EXAMPLE = {
     'started_at': '2016-07-09T12:14:57.233772',
     'topic': 'test-topic',
     'ha_state': 'active',
+    'ha_chassis_priority': 5,
 }
 
 
@@ -65,6 +66,9 @@ class TestAgent(base.TestCase):
         self.assertEqual(EXAMPLE['started_at'], sot.started_at)
         self.assertEqual(EXAMPLE['topic'], sot.topic)
         self.assertEqual(EXAMPLE['ha_state'], sot.ha_state)
+        self.assertEqual(
+            EXAMPLE['ha_chassis_priority'], sot.ha_chassis_priority
+        )
 
     def test_add_agent_to_network(self):
         # Add agent to network
@@ -93,7 +97,6 @@ class TestAgent(base.TestCase):
         )
 
     def test_add_router_to_agent(self):
-        # Add router to agent
         sot = agent.Agent(**EXAMPLE)
         response = mock.Mock()
         response.body = {'router_id': '1'}
@@ -105,6 +108,28 @@ class TestAgent(base.TestCase):
             response.body, sot.add_router_to_agent(sess, router_id)
         )
         body = {'router_id': router_id}
+        url = 'agents/IDENTIFIER/l3-routers'
+        sess.post.assert_called_with(url, json=body)
+
+    def test_add_router_to_agent_with_ha_chassis_priority(self):
+        sot = agent.Agent(**EXAMPLE)
+        response = mock.Mock()
+        response.body = {'router_id': '1'}
+        response.json = mock.Mock(return_value=response.body)
+        sess = mock.Mock()
+        sess.post = mock.Mock(return_value=response)
+        router_id = '1'
+        ha_chassis_priority = 100
+        self.assertEqual(
+            response.body,
+            sot.add_router_to_agent(
+                sess, router_id, ha_chassis_priority=ha_chassis_priority
+            ),
+        )
+        body = {
+            'router_id': router_id,
+            'ha_chassis_priority': ha_chassis_priority,
+        }
         url = 'agents/IDENTIFIER/l3-routers'
         sess.post.assert_called_with(url, json=body)
 
