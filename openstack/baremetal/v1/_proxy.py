@@ -10,8 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import ClassVar, Literal, overload
 from collections.abc import Callable
+from typing import ClassVar, Literal, overload
+import warnings
 
 import requests
 
@@ -32,6 +33,7 @@ from openstack import exceptions
 from openstack import proxy
 from openstack import resource
 from openstack import utils
+from openstack import warnings as os_warnings
 
 
 class Proxy(proxy.Proxy):
@@ -165,6 +167,12 @@ class Proxy(proxy.Proxy):
         :returns: One :class:`~openstack.baremetal.v1.chassis.Chassis` object
             or None.
         """
+        warnings.warn(
+            "The 'find_chassis' method is deprecated; use 'get_chassis' "
+            "instead.",
+            os_warnings.RemovedInSDK60Warning,
+        )
+
         return self._find(
             _chassis.Chassis,
             name_or_id,
@@ -998,6 +1006,11 @@ class Proxy(proxy.Proxy):
         :returns: One :class:`~openstack.baremetal.v1.port.Port` object
             or None.
         """
+        warnings.warn(
+            "The 'find_port' method is deprecated; use 'get_port' instead.",
+            os_warnings.RemovedInSDK60Warning,
+        )
+
         return self._find(
             _port.Port,
             name_or_id,
@@ -1570,6 +1583,12 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.baremetal.v1.volumeconnector.VolumeConnector`
             object or None.
         """
+        warnings.warn(
+            "The 'find_volume_connector' method is deprecated; use "
+            "'get_volume_connector' instead.",
+            os_warnings.RemovedInSDK60Warning,
+        )
+
         return self._find(
             _volumeconnector.VolumeConnector,
             vc_id,
@@ -1748,6 +1767,12 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.baremetal.v1.volumetarget.VolumeTarget`
             object or None.
         """
+        warnings.warn(
+            "The 'find_volume_target' method is deprecated; use "
+            "'get_volume_target' instead.",
+            os_warnings.RemovedInSDK60Warning,
+        )
+
         return self._find(
             _volumetarget.VolumeTarget,
             vt_id,
