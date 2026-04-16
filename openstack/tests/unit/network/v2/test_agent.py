@@ -133,8 +133,41 @@ class TestAgent(base.TestCase):
         url = 'agents/IDENTIFIER/l3-routers'
         sess.post.assert_called_with(url, json=body)
 
+    def test_update_router_in_agent(self):
+        sot = agent.Agent(**EXAMPLE)
+        response = mock.Mock()
+        response.body = {}
+        response.json = mock.Mock(return_value=response.body)
+        sess = mock.Mock()
+        sess.put = mock.Mock(return_value=response)
+        router_id = '1'
+        self.assertEqual(
+            response.body,
+            sot.update_router_in_agent(sess, router_id),
+        )
+        url = 'agents/IDENTIFIER/l3-routers/1'
+        sess.put.assert_called_with(url, json={})
+
+    def test_update_router_in_agent_with_ha_chassis_priority(self):
+        sot = agent.Agent(**EXAMPLE)
+        response = mock.Mock()
+        response.body = {'ha_chassis_priority': 200}
+        response.json = mock.Mock(return_value=response.body)
+        sess = mock.Mock()
+        sess.put = mock.Mock(return_value=response)
+        router_id = '1'
+        ha_chassis_priority = 200
+        self.assertEqual(
+            response.body,
+            sot.update_router_in_agent(
+                sess, router_id, ha_chassis_priority=ha_chassis_priority
+            ),
+        )
+        body = {'ha_chassis_priority': ha_chassis_priority}
+        url = 'agents/IDENTIFIER/l3-routers/1'
+        sess.put.assert_called_with(url, json=body)
+
     def test_remove_router_from_agent(self):
-        # Remove router from agent
         sot = agent.Agent(**EXAMPLE)
         sess = mock.Mock()
         router_id = {}
