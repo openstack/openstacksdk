@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fixed the ``ZoneImport`` resource ``base_path`` from
+    ``/zones/tasks/import`` to ``/zones/tasks/imports`` to match
+    the Designate API endpoint.

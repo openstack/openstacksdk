@@ -39,7 +39,7 @@ class TestZoneImport(base.TestCase):
         sot = zone_import.ZoneImport()
         self.assertEqual('', sot.resource_key)
         self.assertEqual('imports', sot.resources_key)
-        self.assertEqual('/zones/tasks/import', sot.base_path)
+        self.assertEqual('/zones/tasks/imports', sot.base_path)
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
