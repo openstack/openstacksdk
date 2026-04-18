@@ -117,7 +117,7 @@ class DownloadMixin:
                 expected_hash = meta_hash_value
                 hash_algo = meta_hash_algo
             except ValueError as ve:
-                if not str(ve).startswith('unsupported hash type'):
+                if str(meta_hash_algo) not in str(ve):
                     raise exceptions.SDKException(
                         f"Unsupported hash algorithm '{meta_hash_algo}': {ve}"
                     )
