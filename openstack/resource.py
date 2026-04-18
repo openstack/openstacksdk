@@ -2430,6 +2430,16 @@ class Resource(dict[str, Any]):
         :raises: :class:`openstack.exceptions.NotFoundException` if nothing is
             found and ignore_missing is ``False``.
         """
+        if ignore_missing is True:
+            warnings.warn(
+                "The ignore_missing parameter of all find_* proxy methods is "
+                "deprecated for removal and will change its default value to "
+                "False in the 6.0.0 release. All calls should be updated to "
+                "use False and should be wrapped in try-except if the ignore "
+                "missing behavior is intended.",
+                os_warnings.RemovedInSDK60Warning,
+            )
+
         session = cls._get_session(session)
 
         # Try to short-circuit by looking directly for a matching ID.

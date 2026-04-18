@@ -1,0 +1,9 @@
+---
+deprecations:
+  - |
+    The ``ignore_missing`` option provided to all ``find_*`` proxy methods has
+    been deprecated for removal. This option, and its default value of
+    ``True``, has been the source of many bugs and its use is almost always
+    unintentional. Users are requested to explicitly pass ``False`` and to
+    catch the ``openstack.exceptions.NotFoundException`` if the ignore missing
+    behavior was indeed intentional.
