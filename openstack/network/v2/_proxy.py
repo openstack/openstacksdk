@@ -11,7 +11,7 @@
 # under the License.
 
 from typing import Any, ClassVar, Literal, overload
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 
 from openstack import exceptions
 from openstack.network.v2 import _base
@@ -248,7 +248,9 @@ class Proxy(proxy.Proxy):
 
         return rv
 
-    def create_address_group(self, **attrs):
+    def create_address_group(
+        self, **attrs: Any
+    ) -> _address_group.AddressGroup:
         """Create a new address group from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -393,7 +395,9 @@ class Proxy(proxy.Proxy):
         ag = self._get_resource(_address_group.AddressGroup, address_group)
         return ag.remove_addresses(self, addresses)
 
-    def create_address_scope(self, **attrs):
+    def create_address_scope(
+        self, **attrs: Any
+    ) -> _address_scope.AddressScope:
         """Create a new address scope from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -703,7 +707,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(availability_zone.AvailabilityZone)
 
-    def create_bgp_peer(self, **attrs):
+    def create_bgp_peer(self, **attrs: Any) -> _bgp_peer.BgpPeer:
         """Create a new BGP Peer from attributes"""
         return self._create(_bgp_peer.BgpPeer, **attrs)
 
@@ -753,7 +757,7 @@ class Proxy(proxy.Proxy):
         """Return a generator of BGP Peers"""
         return self._list(_bgp_peer.BgpPeer, **query)
 
-    def create_bgp_speaker(self, **attrs):
+    def create_bgp_speaker(self, **attrs: Any) -> _bgp_speaker.BgpSpeaker:
         """Create a new BGP Speaker"""
         return self._create(_bgp_speaker.BgpSpeaker, **attrs)
 
@@ -853,7 +857,7 @@ class Proxy(proxy.Proxy):
         speaker = self._get_resource(_bgp_speaker.BgpSpeaker, bgp_speaker_id)
         speaker.remove_bgp_speaker_from_dragent(self, bgp_agent)
 
-    def create_bgpvpn(self, **attrs):
+    def create_bgpvpn(self, **attrs: Any) -> _bgpvpn.BgpVpn:
         """Create a new BGPVPN
 
         :param attrs: Keyword arguments which will be used to create a
@@ -956,7 +960,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_bgpvpn.BgpVpn, **query)
 
-    def create_bgpvpn_network_association(self, bgpvpn, **attrs):
+    def create_bgpvpn_network_association(
+        self, bgpvpn: str | _bgpvpn.BgpVpn, **attrs: Any
+    ) -> _bgpvpn_network_association.BgpVpnNetworkAssociation:
         """Create a new BGPVPN Network Association
 
         :param bgpvpn: The value can be either the ID of a bgpvpn or
@@ -1045,7 +1051,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def create_bgpvpn_port_association(self, bgpvpn, **attrs):
+    def create_bgpvpn_port_association(
+        self, bgpvpn: str | _bgpvpn.BgpVpn, **attrs: Any
+    ) -> _bgpvpn_port_association.BgpVpnPortAssociation:
         """Create a new BGPVPN Port Association
 
         :param bgpvpn: The value can be either the ID of a bgpvpn or
@@ -1206,7 +1214,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def create_bgpvpn_router_association(self, bgpvpn, **attrs):
+    def create_bgpvpn_router_association(
+        self, bgpvpn: str | _bgpvpn.BgpVpn, **attrs: Any
+    ) -> _bgpvpn_router_association.BgpVpnRouterAssociation:
         """Create a new BGPVPN Router Association
 
         :param bgpvpn: The value can be either the ID of a bgpvpn or
@@ -1369,7 +1379,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(extension.Extension, **query)
 
-    def create_flavor(self, **attrs):
+    def create_flavor(self, **attrs: Any) -> _flavor.Flavor:
         """Create a new network service flavor from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -1520,7 +1530,7 @@ class Proxy(proxy.Proxy):
             self, service_profile.id
         )
 
-    def create_local_ip(self, **attrs):
+    def create_local_ip(self, **attrs: Any) -> _local_ip.LocalIP:
         """Create a new local ip from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -1647,7 +1657,9 @@ class Proxy(proxy.Proxy):
             _local_ip.LocalIP, local_ip, if_revision=if_revision, **attrs
         )
 
-    def create_local_ip_association(self, local_ip, **attrs):
+    def create_local_ip_association(
+        self, local_ip: str | _local_ip.LocalIP, **attrs: Any
+    ) -> _local_ip_association.LocalIPAssociation:
         """Create a new local ip association from attributes
 
         :param local_ip: The value can be the ID of a Local IP or a
@@ -1799,7 +1811,7 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def create_ip(self, **attrs):
+    def create_ip(self, **attrs: Any) -> _floating_ip.FloatingIP:
         """Create a new floating ip from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -1943,7 +1955,9 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def create_port_forwarding(self, **attrs):
+    def create_port_forwarding(
+        self, **attrs: Any
+    ) -> _port_forwarding.PortForwarding:
         """Create a new floating ip port forwarding from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -2099,7 +2113,9 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def create_health_monitor(self, **attrs):
+    def create_health_monitor(
+        self, **attrs: Any
+    ) -> _health_monitor.HealthMonitor:
         """Create a new health monitor from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -2233,7 +2249,7 @@ class Proxy(proxy.Proxy):
             _health_monitor.HealthMonitor, health_monitor, **attrs
         )
 
-    def create_listener(self, **attrs):
+    def create_listener(self, **attrs: Any) -> _listener.Listener:
         """Create a new listener from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -2353,7 +2369,9 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_listener.Listener, listener, **attrs)
 
-    def create_load_balancer(self, **attrs):
+    def create_load_balancer(
+        self, **attrs: Any
+    ) -> _load_balancer.LoadBalancer:
         """Create a new load balancer from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -2467,7 +2485,9 @@ class Proxy(proxy.Proxy):
             _load_balancer.LoadBalancer, load_balancer, **attrs
         )
 
-    def create_metering_label(self, **attrs):
+    def create_metering_label(
+        self, **attrs: Any
+    ) -> _metering_label.MeteringLabel:
         """Create a new metering label from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -2591,7 +2611,9 @@ class Proxy(proxy.Proxy):
             _metering_label.MeteringLabel, metering_label, **attrs
         )
 
-    def create_metering_label_rule(self, **attrs):
+    def create_metering_label_rule(
+        self, **attrs: Any
+    ) -> _metering_label_rule.MeteringLabelRule:
         """Create a new metering label rule from attributes
 
         :param attrs: Keyword arguments which will be used to create a
@@ -2729,7 +2751,7 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def create_network(self, **attrs):
+    def create_network(self, **attrs: Any) -> _network.Network:
         """Create a new network from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -2943,7 +2965,9 @@ class Proxy(proxy.Proxy):
             network_ip_availability.NetworkIPAvailability, **query
         )
 
-    def create_network_segment_range(self, **attrs):
+    def create_network_segment_range(
+        self, **attrs: Any
+    ) -> _network_segment_range.NetworkSegmentRange:
         """Create a new network segment range from attributes
 
         :param attrs: Keyword arguments which will be used to create a
@@ -3093,7 +3117,7 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def create_pool(self, **attrs):
+    def create_pool(self, **attrs: Any) -> _pool.Pool:
         """Create a new pool from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -3209,7 +3233,9 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_pool.Pool, pool, **attrs)
 
-    def create_pool_member(self, pool, **attrs):
+    def create_pool_member(
+        self, pool: str | _pool.Pool, **attrs: Any
+    ) -> _pool_member.PoolMember:
         """Create a new pool member from attributes
 
         :param pool: The pool can be either the ID of a pool or a
@@ -3368,7 +3394,7 @@ class Proxy(proxy.Proxy):
             _pool_member.PoolMember, pool_member, pool_id=poolobj.id, **attrs
         )
 
-    def create_port(self, **attrs):
+    def create_port(self, **attrs: Any) -> _port.Port:
         """Create a new port from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -3380,7 +3406,9 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_port.Port, **attrs)
 
-    def create_ports(self, data):
+    def create_ports(
+        self, data: list[dict[str, Any]]
+    ) -> Generator[_port.Port, None, None]:
         """Create ports from the list of attributes
 
         :param list data: List of dicts of attributes which will be used to
@@ -3525,7 +3553,9 @@ class Proxy(proxy.Proxy):
                     result.append(puerta)
         return result
 
-    def create_port_binding(self, port, **attrs):
+    def create_port_binding(
+        self, port: str | _port.Port, **attrs: Any
+    ) -> _port_binding.PortBinding:
         """Create a port binding
 
         :param port: The value can be the ID of a port or a
@@ -3607,7 +3637,9 @@ class Proxy(proxy.Proxy):
         for binding in bindings_on_host:
             return binding.delete_port_binding(self, host)
 
-    def create_qos_bandwidth_limit_rule(self, qos_policy, **attrs):
+    def create_qos_bandwidth_limit_rule(
+        self, qos_policy: str | _qos_policy.QoSPolicy, **attrs: Any
+    ) -> _qos_bandwidth_limit_rule.QoSBandwidthLimitRule:
         """Create a new bandwidth limit rule
 
         :param attrs: Keyword arguments which will be used to create
@@ -3779,7 +3811,9 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def create_qos_dscp_marking_rule(self, qos_policy, **attrs):
+    def create_qos_dscp_marking_rule(
+        self, qos_policy: str | _qos_policy.QoSPolicy, **attrs: Any
+    ) -> _qos_dscp_marking_rule.QoSDSCPMarkingRule:
         """Create a new QoS DSCP marking rule
 
         :param attrs: Keyword arguments which will be used to create
@@ -3946,7 +3980,9 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def create_qos_minimum_bandwidth_rule(self, qos_policy, **attrs):
+    def create_qos_minimum_bandwidth_rule(
+        self, qos_policy: str | _qos_policy.QoSPolicy, **attrs: Any
+    ) -> _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule:
         """Create a new minimum bandwidth rule
 
         :param attrs: Keyword arguments which will be used to create
@@ -4116,7 +4152,9 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def create_qos_minimum_packet_rate_rule(self, qos_policy, **attrs):
+    def create_qos_minimum_packet_rate_rule(
+        self, qos_policy: str | _qos_policy.QoSPolicy, **attrs: Any
+    ) -> _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule:
         """Create a new minimum packet rate rule
 
         :param attrs: Keyword arguments which will be used to create a
@@ -4282,7 +4320,9 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def create_qos_packet_rate_limit_rule(self, qos_policy, **attrs):
+    def create_qos_packet_rate_limit_rule(
+        self, qos_policy: str | _qos_policy.QoSPolicy, **attrs: Any
+    ) -> _qos_packet_rate_limit_rule.QoSPacketRateLimitRule:
         """Create a new packet rate limit rule
 
         :param attrs: Keyword arguments which will be used to create a
@@ -4446,7 +4486,7 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def create_qos_policy(self, **attrs):
+    def create_qos_policy(self, **attrs: Any) -> _qos_policy.QoSPolicy:
         """Create a new QoS policy from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -4708,7 +4748,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_quota.Quota, quota, **attrs)
 
-    def create_rbac_policy(self, **attrs):
+    def create_rbac_policy(self, **attrs: Any) -> _rbac_policy.RBACPolicy:
         """Create a new RBAC policy from attributes
 
         :param attrs: Keyword arguments which will be used to create a
@@ -4822,7 +4862,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_rbac_policy.RBACPolicy, rbac_policy, **attrs)
 
-    def create_router(self, **attrs):
+    def create_router(self, **attrs: Any) -> _router.Router:
         """Create a new router from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -5144,7 +5184,7 @@ class Proxy(proxy.Proxy):
         router = self._get_resource(_router.Router, router)
         return agent.remove_router_from_agent(self, router.id)
 
-    def create_ndp_proxy(self, **attrs):
+    def create_ndp_proxy(self, **attrs: Any) -> _ndp_proxy.NDPProxy:
         """Create a new ndp proxy from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -5256,7 +5296,9 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_ndp_proxy.NDPProxy, ndp_proxy, **attrs)
 
-    def create_firewall_group(self, **attrs):
+    def create_firewall_group(
+        self, **attrs: Any
+    ) -> _firewall_group.FirewallGroup:
         """Create a new firewall group from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -5385,7 +5427,9 @@ class Proxy(proxy.Proxy):
             _firewall_group.FirewallGroup, firewall_group, **attrs
         )
 
-    def create_firewall_policy(self, **attrs):
+    def create_firewall_policy(
+        self, **attrs: Any
+    ) -> _firewall_policy.FirewallPolicy:
         """Create a new firewall policy from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -5555,7 +5599,9 @@ class Proxy(proxy.Proxy):
         )
         return policy.remove_rule(self, **body)
 
-    def create_firewall_rule(self, **attrs):
+    def create_firewall_rule(
+        self, **attrs: Any
+    ) -> _firewall_rule.FirewallRule:
         """Create a new firewall rule from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -5691,7 +5737,9 @@ class Proxy(proxy.Proxy):
             _firewall_rule.FirewallRule, firewall_rule, **attrs
         )
 
-    def create_security_group(self, **attrs):
+    def create_security_group(
+        self, **attrs: Any
+    ) -> _security_group.SecurityGroup:
         """Create a new security group from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -5824,7 +5872,9 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def create_security_group_rule(self, **attrs):
+    def create_security_group_rule(
+        self, **attrs: Any
+    ) -> _security_group_rule.SecurityGroupRule:
         """Create a new security group rule from attributes
 
         :param attrs: Keyword arguments which will be used to create a
@@ -5838,7 +5888,9 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_security_group_rule.SecurityGroupRule, **attrs)
 
-    def create_security_group_rules(self, data):
+    def create_security_group_rules(
+        self, data: list[dict[str, Any]]
+    ) -> Generator[_security_group_rule.SecurityGroupRule, None, None]:
         """Create new security group rules from the list of attributes
 
         :param list data: List of dicts of attributes which will be used to
@@ -5962,7 +6014,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_security_group_rule.SecurityGroupRule, **query)
 
-    def create_default_security_group_rule(self, **attrs):
+    def create_default_security_group_rule(
+        self, **attrs: Any
+    ) -> _default_security_group_rule.DefaultSecurityGroupRule:
         """Create a new default security group rule from attributes
 
         :param attrs: Keyword arguments which will be used to create a
@@ -6091,7 +6145,9 @@ class Proxy(proxy.Proxy):
 
     # ========== Security Groups Default Statefulness ==========
 
-    def create_security_groups_default_statefulness(self, **attrs):
+    def create_security_groups_default_statefulness(
+        self, **attrs: Any
+    ) -> _sg_default_statefulness.SecurityGroupsDefaultStatefulness:
         """Create a new default statefulness setting from attributes
 
         :param attrs: Keyword arguments which will be used to create a
@@ -6242,7 +6298,7 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def create_segment(self, **attrs):
+    def create_segment(self, **attrs: Any) -> _segment.Segment:
         """Create a new segment from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -6367,7 +6423,9 @@ class Proxy(proxy.Proxy):
 
         return self._list(_service_provider.ServiceProvider, **query)
 
-    def create_service_profile(self, **attrs):
+    def create_service_profile(
+        self, **attrs: Any
+    ) -> _service_profile.ServiceProfile:
         """Create a new network service flavor profile from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -6490,7 +6548,7 @@ class Proxy(proxy.Proxy):
             _service_profile.ServiceProfile, service_profile, **attrs
         )
 
-    def create_subnet(self, **attrs):
+    def create_subnet(self, **attrs: Any) -> _subnet.Subnet:
         """Create a new subnet from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -6615,7 +6673,7 @@ class Proxy(proxy.Proxy):
             _subnet.Subnet, subnet, if_revision=if_revision, **attrs
         )
 
-    def create_subnet_pool(self, **attrs):
+    def create_subnet_pool(self, **attrs: Any) -> _subnet_pool.SubnetPool:
         """Create a new subnet pool from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -6828,7 +6886,7 @@ class Proxy(proxy.Proxy):
         self._check_tag_support(resource)
         return resource.check_tag(self, tag)
 
-    def create_trunk(self, **attrs):
+    def create_trunk(self, **attrs: Any) -> _trunk.Trunk:
         """Create a new trunk from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -6969,7 +7027,9 @@ class Proxy(proxy.Proxy):
     # ========== VPNaas ==========
     # ========== VPN Endpoint group ==========
 
-    def create_vpn_endpoint_group(self, **attrs):
+    def create_vpn_endpoint_group(
+        self, **attrs: Any
+    ) -> _vpn_endpoint_group.VpnEndpointGroup:
         """Create a new vpn endpoint group from attributes
 
         :param attrs: Keyword arguments which will be used to create a
@@ -7095,7 +7155,9 @@ class Proxy(proxy.Proxy):
         )
 
     # ========== IPsec Site Connection ==========
-    def create_vpn_ipsec_site_connection(self, **attrs):
+    def create_vpn_ipsec_site_connection(
+        self, **attrs: Any
+    ) -> _ipsec_site_connection.VpnIPSecSiteConnection:
         """Create a new IPsec site connection from attributes
 
         :param attrs: Keyword arguments which will be used to create a
@@ -7230,7 +7292,7 @@ class Proxy(proxy.Proxy):
         )
 
     # ========== IKEPolicy ==========
-    def create_vpn_ike_policy(self, **attrs):
+    def create_vpn_ike_policy(self, **attrs: Any) -> _ike_policy.VpnIkePolicy:
         """Create a new ike policy from attributes
 
         :param attrs: Keyword arguments which will be used to create a
@@ -7344,7 +7406,9 @@ class Proxy(proxy.Proxy):
         )
 
     # ========== IPSecPolicy ==========
-    def create_vpn_ipsec_policy(self, **attrs):
+    def create_vpn_ipsec_policy(
+        self, **attrs: Any
+    ) -> _ipsec_policy.VpnIpsecPolicy:
         """Create a new IPsec policy from attributes
 
         :param attrs: Keyword arguments which will be used to create a
@@ -7464,7 +7528,7 @@ class Proxy(proxy.Proxy):
         )
 
     # ========== VPN Service ==========
-    def create_vpn_service(self, **attrs):
+    def create_vpn_service(self, **attrs: Any) -> _vpn_service.VpnService:
         """Create a new vpn service from attributes
 
         :param attrs: Keyword arguments which will be used to create
@@ -7574,7 +7638,9 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_vpn_service.VpnService, vpn_service, **attrs)
 
-    def create_floating_ip_port_forwarding(self, floating_ip, **attrs):
+    def create_floating_ip_port_forwarding(
+        self, floating_ip: str | _floating_ip.FloatingIP, **attrs: Any
+    ) -> _port_forwarding.PortForwarding:
         """Create a new floating ip port forwarding from attributes
 
         :param floating_ip: The value can be either the ID of a floating ip
@@ -7741,7 +7807,9 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def create_conntrack_helper(self, router, **attrs):
+    def create_conntrack_helper(
+        self, router: str | _router.Router, **attrs: Any
+    ) -> _l3_conntrack_helper.ConntrackHelper:
         """Create a new L3 conntrack helper from attributes
 
         :param router: Either the router ID or an instance of
@@ -7849,7 +7917,7 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def create_tap_flow(self, **attrs):
+    def create_tap_flow(self, **attrs: Any) -> _tap_flow.TapFlow:
         """Create a new Tap Flow from attributes"""
         return self._create(_tap_flow.TapFlow, **attrs)
 
@@ -7901,7 +7969,7 @@ class Proxy(proxy.Proxy):
         """Return a generator of Tap Flows"""
         return self._list(_tap_flow.TapFlow, **query)
 
-    def create_tap_mirror(self, **attrs):
+    def create_tap_mirror(self, **attrs: Any) -> _tap_mirror.TapMirror:
         """Create a new Tap Mirror from attributes"""
         return self._create(_tap_mirror.TapMirror, **attrs)
 
@@ -7953,7 +8021,7 @@ class Proxy(proxy.Proxy):
         """Return a generator of Tap Mirrors"""
         return self._list(_tap_mirror.TapMirror, **query)
 
-    def create_tap_service(self, **attrs):
+    def create_tap_service(self, **attrs: Any) -> _tap_service.TapService:
         """Create a new Tap Service from attributes"""
         return self._create(_tap_service.TapService, **attrs)
 
@@ -8005,7 +8073,9 @@ class Proxy(proxy.Proxy):
         """Return a generator of Tap Services"""
         return self._list(_tap_service.TapService, **query)
 
-    def create_sfc_flow_classifier(self, **attrs):
+    def create_sfc_flow_classifier(
+        self, **attrs: Any
+    ) -> _sfc_flow_classifier.SfcFlowClassifier:
         """Create a new Flow Classifier from attributes
 
         :param attrs: Keyword arguments which will be used to create a
@@ -8134,7 +8204,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_sfc_flow_classifier.SfcFlowClassifier, **query)
 
-    def create_sfc_port_chain(self, **attrs):
+    def create_sfc_port_chain(
+        self, **attrs: Any
+    ) -> _sfc_port_chain.SfcPortChain:
         """Create a new Port Chain from attributes
 
         :param attrs: Keyword arguments which will be used to create a
@@ -8255,7 +8327,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_sfc_port_chain.SfcPortChain, **query)
 
-    def create_sfc_port_pair(self, **attrs):
+    def create_sfc_port_pair(self, **attrs: Any) -> _sfc_port_pair.SfcPortPair:
         """Create a new Port Pair from attributes
 
         :param attrs: Keyword arguments which will be used to create a
@@ -8375,7 +8447,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_sfc_port_pair.SfcPortPair, **query)
 
-    def create_sfc_port_pair_group(self, **attrs):
+    def create_sfc_port_pair_group(
+        self, **attrs: Any
+    ) -> _sfc_port_pair_group.SfcPortPairGroup:
         """Create a new Port Pair Group from attributes
 
         :param attrs: Keyword arguments which will be used to create a
@@ -8501,7 +8575,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_sfc_port_pair_group.SfcPortPairGroup, **query)
 
-    def create_sfc_service_graph(self, **attrs):
+    def create_sfc_service_graph(
+        self, **attrs: Any
+    ) -> _sfc_sservice_graph.SfcServiceGraph:
         """Create a new Service Graph from attributes
 
         :param attrs: Keyword arguments which will be used to create a

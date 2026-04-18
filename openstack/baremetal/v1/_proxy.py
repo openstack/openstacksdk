@@ -11,7 +11,7 @@
 # under the License.
 
 from collections.abc import Callable
-from typing import ClassVar, Literal, overload
+from typing import Any, ClassVar, Literal, overload
 import warnings
 
 import requests
@@ -116,7 +116,7 @@ class Proxy(proxy.Proxy):
         """
         return _chassis.Chassis.list(self, details=details, **query)
 
-    def create_chassis(self, **attrs):
+    def create_chassis(self, **attrs: Any) -> _chassis.Chassis:
         """Create a new chassis from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
@@ -352,7 +352,7 @@ class Proxy(proxy.Proxy):
         """
         return _node.Node.list(self, details=details, **query)
 
-    def create_node(self, **attrs):
+    def create_node(self, **attrs: Any) -> _node.Node:
         """Create a new node from attributes.
 
         See :meth:`~openstack.baremetal.v1.node.Node.create` for an explanation
@@ -956,7 +956,7 @@ class Proxy(proxy.Proxy):
         """
         return _port.Port.list(self, details=details, **query)
 
-    def create_port(self, **attrs):
+    def create_port(self, **attrs: Any) -> _port.Port:
         """Create a new port from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
@@ -1113,7 +1113,7 @@ class Proxy(proxy.Proxy):
         """
         return _portgroup.PortGroup.list(self, details=details, **query)
 
-    def create_port_group(self, **attrs):
+    def create_port_group(self, **attrs: Any) -> _portgroup.PortGroup:
         """Create a new portgroup from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
@@ -1395,7 +1395,7 @@ class Proxy(proxy.Proxy):
         """
         return _allocation.Allocation.list(self, **query)
 
-    def create_allocation(self, **attrs):
+    def create_allocation(self, **attrs: Any) -> _allocation.Allocation:
         """Create a new allocation from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
@@ -1529,7 +1529,9 @@ class Proxy(proxy.Proxy):
             query['detail'] = True
         return _volumeconnector.VolumeConnector.list(self, **query)
 
-    def create_volume_connector(self, **attrs):
+    def create_volume_connector(
+        self, **attrs: Any
+    ) -> _volumeconnector.VolumeConnector:
         """Create a new volume_connector from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
@@ -1713,7 +1715,7 @@ class Proxy(proxy.Proxy):
             query['detail'] = True
         return _volumetarget.VolumeTarget.list(self, **query)
 
-    def create_volume_target(self, **attrs):
+    def create_volume_target(self, **attrs: Any) -> _volumetarget.VolumeTarget:
         """Create a new volume_target from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
@@ -1869,7 +1871,9 @@ class Proxy(proxy.Proxy):
             query['detail'] = True
         return _deploytemplates.DeployTemplate.list(self, **query)
 
-    def create_deploy_template(self, **attrs):
+    def create_deploy_template(
+        self, **attrs: Any
+    ) -> _deploytemplates.DeployTemplate:
         """Create a new deploy_template from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
@@ -2028,7 +2032,7 @@ class Proxy(proxy.Proxy):
             query['detail'] = True
         return _runbooks.Runbook.list(self, **query)
 
-    def create_runbook(self, **attrs):
+    def create_runbook(self, **attrs: Any) -> _runbooks.Runbook:
         """Create a new runbook from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
@@ -2223,7 +2227,9 @@ class Proxy(proxy.Proxy):
             query['details'] = True
         return _inspectionrules.InspectionRule.list(self, **query)
 
-    def create_inspection_rule(self, **attrs):
+    def create_inspection_rule(
+        self, **attrs: Any
+    ) -> _inspectionrules.InspectionRule:
         """Create a new inspection rule from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a

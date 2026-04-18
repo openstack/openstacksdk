@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import ClassVar, Literal, overload
+from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable
 
 from openstack.key_manager.v1 import container as _container
@@ -33,7 +33,7 @@ class Proxy(proxy.Proxy):
         "secret_store": _secret_store.SecretStore,
     }
 
-    def create_container(self, **attrs):
+    def create_container(self, **attrs: Any) -> _container.Container:
         """Create a new container from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -134,7 +134,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_container.Container, container, **attrs)
 
-    def create_order(self, **attrs):
+    def create_order(self, **attrs: Any) -> _order.Order:
         """Create a new order from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -232,7 +232,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_order.Order, order, **attrs)
 
-    def create_secret(self, **attrs):
+    def create_secret(self, **attrs: Any) -> _secret.Secret:
         """Create a new secret from attributes
 
         :param dict attrs: Keyword arguments which will be used to create a

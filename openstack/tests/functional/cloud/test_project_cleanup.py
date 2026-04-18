@@ -225,7 +225,7 @@ class TestProjectCleanup(base.BaseFunctionalTest):
         self.user_cloud_alt.object_store.create_container('test_cleanup')
         for i in range(1, 10):
             self.user_cloud_alt.object_store.create_object(
-                "test_cleanup", f"test{i}", data="test{i}"
+                "test_cleanup", f"test{i}", data=b"test{i}"
             )
 
         # First round - check no resources are old enough

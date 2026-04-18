@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import ClassVar, Literal
+from typing import Any, ClassVar, Literal
 from collections.abc import Callable
 
 from openstack import _log
@@ -165,7 +165,9 @@ class Proxy(proxy.Proxy):
 
     # ========== Introspection ruless ==========
 
-    def create_introspection_rule(self, **attrs):
+    def create_introspection_rule(
+        self, **attrs: Any
+    ) -> _introspection_rule.IntrospectionRule:
         """Create a new introspection rules from attributes.
 
         :param dict attrs: Keyword arguments which will be used to create

@@ -122,7 +122,8 @@ class TestCluster(base.BaseFunctionalTest):
         self.assertEqual(action.action, 'CLUSTER_DELETE')
         self.assertEqual(action.status, 'SUCCEEDED')
 
-        self.cluster = None
+        # avoid duplicate teardown
+        self.cluster = None  # type: ignore
 
     def test_force_delete(self):
         cluster_delete_action = self.operator_cloud.clustering.delete_cluster(
@@ -140,4 +141,5 @@ class TestCluster(base.BaseFunctionalTest):
         self.assertEqual(action.action, 'CLUSTER_DELETE')
         self.assertEqual(action.status, 'SUCCEEDED')
 
-        self.cluster = None
+        # avoid duplicate teardown
+        self.cluster = None  # type: ignore

@@ -42,6 +42,7 @@ from openstack.compute.v2 import volume_attachment as _volume_attachment
 from openstack import exceptions
 from openstack.identity.v3 import project as _project
 from openstack.identity.v3 import user as _user
+from openstack.image.v2 import image as _image_v2
 from openstack.network.v2 import security_group as _sg
 from openstack import proxy
 from openstack import resource
@@ -191,7 +192,7 @@ class Proxy(proxy.Proxy):
             flavor = flavor.fetch_extra_specs(self)
         return flavor
 
-    def create_flavor(self, **attrs):
+    def create_flavor(self, **attrs: Any) -> _flavor.Flavor:
         """Create a new flavor from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -315,7 +316,11 @@ class Proxy(proxy.Proxy):
         flavor = self._get_resource(_flavor.Flavor, flavor)
         return flavor.fetch_extra_specs(self)
 
-    def create_flavor_extra_specs(self, flavor, extra_specs):
+    def create_flavor_extra_specs(
+        self,
+        flavor: str | _flavor.Flavor,
+        extra_specs: dict[str, Any],
+    ) -> _flavor.Flavor:
         """Lists Extra Specs of a flavor
 
         :param flavor: Either the ID of a flavor or a
@@ -429,7 +434,7 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def create_aggregate(self, **attrs):
+    def create_aggregate(self, **attrs: Any) -> _aggregate.Aggregate:
         """Create a new host aggregate from attributes
 
         :param dict attrs: Keyword arguments which will be used to create a
@@ -701,7 +706,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Keypairs ==========
 
-    def create_keypair(self, **attrs):
+    def create_keypair(self, **attrs: Any) -> _keypair.Keypair:
         """Create a new keypair from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -832,7 +837,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Servers ==========
 
-    def create_server(self, **attrs):
+    def create_server(self, **attrs: Any) -> _server.Server:
         """Create a new server from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -1095,12 +1100,12 @@ class Proxy(proxy.Proxy):
 
     def create_server_image(
         self,
-        server,
-        name,
-        metadata=None,
-        wait=False,
-        timeout=120,
-    ):
+        server: str | _server.Server,
+        name: str,
+        metadata: dict[str, str] | None = None,
+        wait: bool = False,
+        timeout: int = 120,
+    ) -> _image_v2.Image | None:
         """Create an image from a server
 
         :param server: Either the ID of a server or a
@@ -1492,7 +1497,11 @@ class Proxy(proxy.Proxy):
 
     # ========== Server Interfaces ==========
 
-    def create_server_interface(self, server, **attrs):
+    def create_server_interface(
+        self,
+        server: str | _server.Server,
+        **attrs: Any,
+    ) -> _server_interface.ServerInterface:
         """Create a new server interface from attributes
 
         :param server: The server can be either the ID of a server or a
@@ -1691,7 +1700,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Server Groups ==========
 
-    def create_server_group(self, **attrs):
+    def create_server_group(self, **attrs: Any) -> _server_group.ServerGroup:
         """Create a new server group from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -2081,7 +2090,12 @@ class Proxy(proxy.Proxy):
     # ========== Volume Attachments ==========
 
     # TODO(stephenfin): Make the volume argument required in 2.0
-    def create_volume_attachment(self, server, volume=None, **attrs):
+    def create_volume_attachment(
+        self,
+        server: str | _server.Server,
+        volume: str | _volume.Volume | None = None,
+        **attrs: Any,
+    ) -> _volume_attachment.VolumeAttachment:
         """Create a new volume attachment from attributes
 
         :param server: The value can be either the ID of a server or a
@@ -2545,7 +2559,11 @@ class Proxy(proxy.Proxy):
 
     # ========== Server consoles ==========
 
-    def create_server_remote_console(self, server, **attrs):
+    def create_server_remote_console(
+        self,
+        server: str | _server.Server,
+        **attrs: Any,
+    ) -> _src.ServerRemoteConsole:
         """Create a remote console on the server.
 
         :param server: Either the ID of a server or a
@@ -2593,7 +2611,12 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         return server.get_console_output(self, length=length)
 
-    def create_console(self, server, console_type, console_protocol=None):
+    def create_console(
+        self,
+        server: str | _server.Server,
+        console_type: str,
+        console_protocol: str | None = None,
+    ) -> dict[str, Any]:
         """Create a remote console on the server.
 
         When microversion supported is higher then 2.6 remote console is
@@ -3002,7 +3025,12 @@ class Proxy(proxy.Proxy):
 
     # ========== Server Share ==========
 
-    def create_share_attachment(self, server, share, **attrs):
+    def create_share_attachment(
+        self,
+        server: str | _server.Server,
+        share: str | resource.Resource,
+        **attrs: Any,
+    ) -> _server_share.ShareMapping:
         """Create a new share attachment from attributes
 
         :param server: The value can be either the ID of a server or a

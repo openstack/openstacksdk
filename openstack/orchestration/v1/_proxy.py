@@ -377,7 +377,7 @@ class Proxy(proxy.Proxy):
             _resource.Resource, stack_name=obj.name, stack_id=obj.id, **query
         )
 
-    def create_software_config(self, **attrs):
+    def create_software_config(self, **attrs: Any) -> _sc.SoftwareConfig:
         """Create a new software config from attributes
 
         :param dict attrs: Keyword arguments which will be used to create a
@@ -430,7 +430,9 @@ class Proxy(proxy.Proxy):
             _sc.SoftwareConfig, software_config, ignore_missing=ignore_missing
         )
 
-    def create_software_deployment(self, **attrs):
+    def create_software_deployment(
+        self, **attrs: Any
+    ) -> _sd.SoftwareDeployment:
         """Create a new software deployment from attributes
 
         :param dict attrs: Keyword arguments which will be used to create a

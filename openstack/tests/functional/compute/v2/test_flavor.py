@@ -86,6 +86,8 @@ class TestFlavor(base.BaseComputeTest):
         self.assertEqual(flavor.description, "updated description")
 
     def test_flavor_access(self):
+        flavor: _flavor.Flavor | None
+
         # create private flavor
 
         flavor_name = uuid.uuid4().hex

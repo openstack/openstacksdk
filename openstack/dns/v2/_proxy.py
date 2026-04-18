@@ -70,7 +70,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_zone.Zone, **query)
 
-    def create_zone(self, **attrs):
+    def create_zone(self, **attrs: Any) -> _zone.Zone:
         """Create a new zone from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -229,7 +229,11 @@ class Proxy(proxy.Proxy):
             query.update({'zone_id': zone.id})
         return self._list(_rs.Recordset, base_path=base_path, **query)
 
-    def create_recordset(self, zone, **attrs):
+    def create_recordset(
+        self,
+        zone: str | _zone.Zone,
+        **attrs: Any,
+    ) -> _rs.Recordset:
         """Create a new recordset in the zone
 
         :param zone: The value can be the ID of a zone
@@ -354,7 +358,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_zone_import.ZoneImport, **query)
 
-    def create_zone_import(self, **attrs):
+    def create_zone_import(self, **attrs: Any) -> _zone_import.ZoneImport:
         """Create a new zone import from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -409,7 +413,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_zone_export.ZoneExport, **query)
 
-    def create_zone_export(self, zone, **attrs):
+    def create_zone_export(
+        self,
+        zone: str | _zone.Zone,
+        **attrs: Any,
+    ) -> _zone_export.ZoneExport:
         """Create a new zone export from attributes
 
         :param zone: The value can be the ID of a zone to be exported
@@ -547,7 +555,11 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_zone_transfer.ZoneTransferRequest, request)
 
-    def create_zone_transfer_request(self, zone, **attrs):
+    def create_zone_transfer_request(
+        self,
+        zone: str | _zone.Zone,
+        **attrs: Any,
+    ) -> _zone_transfer.ZoneTransferRequest:
         """Create a new ZoneTransfer Request from attributes
 
         :param zone: The value can be the ID of a zone to be transferred
@@ -625,7 +637,9 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_zone_transfer.ZoneTransferAccept, accept)
 
-    def create_zone_transfer_accept(self, **attrs):
+    def create_zone_transfer_accept(
+        self, **attrs: Any
+    ) -> _zone_transfer.ZoneTransferAccept:
         """Create a new ZoneTransfer Accept from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -713,7 +727,11 @@ class Proxy(proxy.Proxy):
             zone_id=zone_obj.id,
         )
 
-    def create_zone_share(self, zone, **attrs):
+    def create_zone_share(
+        self,
+        zone: str | _zone.Zone,
+        **attrs: Any,
+    ) -> _zone_share.ZoneShare:
         """Create a new zone share from attributes
 
         :param zone: The zone ID or a
@@ -852,7 +870,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_tld.TLD, **query)
 
-    def create_tld(self, **attrs):
+    def create_tld(self, **attrs: Any) -> _tld.TLD:
         """Create a new tld from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -948,7 +966,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_tsigkey.TSIGKey, **query)
 
-    def create_tsigkey(self, **attrs):
+    def create_tsigkey(self, **attrs: Any) -> _tsigkey.TSIGKey:
         """Create a new tsigkey from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -1047,7 +1065,7 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_blacklist.Blacklist, blacklist)
 
-    def create_blacklist(self, **attrs):
+    def create_blacklist(self, **attrs: Any) -> _blacklist.Blacklist:
         """Create a new blacklist
 
         :param attrs: Keyword arguments which will be used to create

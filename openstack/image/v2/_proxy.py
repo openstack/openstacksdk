@@ -132,33 +132,33 @@ class Proxy(proxy.Proxy):
 
     def create_image(
         self,
-        name,
+        name: str,
         *,
-        filename=None,
-        data=None,
-        container=None,
-        md5=None,
-        sha256=None,
-        disk_format=None,
-        container_format=None,
-        tags=None,
-        disable_vendor_agent=True,
-        allow_duplicates=False,
-        meta=None,
-        wait=False,
-        timeout=3600,
-        validate_checksum=False,
-        use_import=False,
-        import_method=None,
-        uri=None,
-        remote_region=None,
-        remote_image_id=None,
-        remote_service_interface=None,
-        stores=None,
-        all_stores=None,
-        all_stores_must_succeed=None,
-        **kwargs,
-    ):
+        filename: str | None = None,
+        data: bytes | None = None,
+        container: str | None = None,
+        md5: str | None = None,
+        sha256: str | None = None,
+        disk_format: str | None = None,
+        container_format: str | None = None,
+        tags: list[str] | None = None,
+        disable_vendor_agent: bool = True,
+        allow_duplicates: bool = False,
+        meta: dict[str, Any] | None = None,
+        wait: bool = False,
+        timeout: int = 3600,
+        validate_checksum: bool = False,
+        use_import: bool = False,
+        import_method: str | None = None,
+        uri: str | None = None,
+        remote_region: str | None = None,
+        remote_image_id: str | None = None,
+        remote_service_interface: str | None = None,
+        stores: list[str] | None = None,
+        all_stores: bool | None = None,
+        all_stores_must_succeed: bool | None = None,
+        **kwargs: Any,
+    ) -> _image.Image:
         """Create an image and optionally upload data
 
         Create a new image. If ``filename`` or ``data`` are provided, it will
@@ -351,7 +351,7 @@ class Proxy(proxy.Proxy):
         properties[self._IMAGE_SHA256_KEY] = sha256 or ''
         properties[self._IMAGE_OBJECT_KEY] = '/'.join([container, name])
         kwargs.update(properties)
-        image_kwargs = {'properties': kwargs}
+        image_kwargs: dict[str, Any] = {'properties': kwargs}
         if disk_format:
             image_kwargs['disk_format'] = disk_format
         if container_format:
@@ -383,7 +383,7 @@ class Proxy(proxy.Proxy):
             properties = image_kwargs.pop('properties', {})
             image_kwargs.update(self._make_v2_image_params(meta, properties))
             image_kwargs['name'] = name
-            image = self._create(_image.Image, **image_kwargs)  # type: ignore[arg-type]
+            image = self._create(_image.Image, **image_kwargs)
 
         return image
 
@@ -1239,7 +1239,9 @@ class Proxy(proxy.Proxy):
         )
 
     # ====== METADEF NAMESPACES ======
-    def create_metadef_namespace(self, **attrs):
+    def create_metadef_namespace(
+        self, **attrs: Any
+    ) -> _metadef_namespace.MetadefNamespace:
         """Create a new metadef namespace from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -1368,7 +1370,11 @@ class Proxy(proxy.Proxy):
         namespace.remove_all_tags(self)
 
     # ====== METADEF OBJECT ======
-    def create_metadef_object(self, namespace, **attrs):
+    def create_metadef_object(
+        self,
+        namespace: str | _metadef_namespace.MetadefNamespace,
+        **attrs: Any,
+    ) -> _metadef_object.MetadefObject:
         """Create a new object from namespace
 
         :param namespace: The value can be either the name of a metadef
@@ -1510,9 +1516,9 @@ class Proxy(proxy.Proxy):
     # ====== METADEF RESOURCE TYPES ASSOCIATION======
     def create_metadef_resource_type_association(
         self,
-        metadef_namespace,
-        **attrs,
-    ):
+        metadef_namespace: str | _metadef_namespace.MetadefNamespace,
+        **attrs: Any,
+    ) -> _metadef_resource_type.MetadefResourceTypeAssociation:
         """Creates a resource type association between a namespace
             and the resource type specified in the body of the request.
 
@@ -1582,7 +1588,11 @@ class Proxy(proxy.Proxy):
         )
 
     # ====== METADEF PROPERTY ======
-    def create_metadef_property(self, metadef_namespace, **attrs):
+    def create_metadef_property(
+        self,
+        metadef_namespace: str | _metadef_namespace.MetadefNamespace,
+        **attrs: Any,
+    ) -> _metadef_property.MetadefProperty:
         """Create a metadef property
 
         :param metadef_namespace: The value can be either the name of metadef
@@ -1957,7 +1967,7 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_task.Task, task)
 
-    def create_task(self, **attrs):
+    def create_task(self, **attrs: Any) -> _task.Task:
         """Create a new task from attributes
 
         :param dict attrs: Keyword arguments which will be used to create

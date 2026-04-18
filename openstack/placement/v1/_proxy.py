@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import ClassVar, Literal, overload
+from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable
 
 from openstack.placement.v1 import resource_class as _resource_class
@@ -33,7 +33,9 @@ class Proxy(proxy.Proxy):
 
     # resource classes
 
-    def create_resource_class(self, **attrs):
+    def create_resource_class(
+        self, **attrs: Any
+    ) -> _resource_class.ResourceClass:
         """Create a new resource class from attributes.
 
         :param attrs: Keyword arguments which will be used to create a
@@ -115,7 +117,9 @@ class Proxy(proxy.Proxy):
 
     # resource providers
 
-    def create_resource_provider(self, **attrs):
+    def create_resource_provider(
+        self, **attrs: Any
+    ) -> _resource_provider.ResourceProvider:
         """Create a new resource provider from attributes.
 
         :param attrs: Keyword arguments which will be used to create a
@@ -281,16 +285,20 @@ class Proxy(proxy.Proxy):
 
     def create_resource_provider_inventory(
         self,
-        resource_provider,
-        resource_class,
+        resource_provider: str | _resource_provider.ResourceProvider,
+        resource_class: str | _resource_class.ResourceClass,
         *,
-        total,
-        **attrs,
-    ):
+        total: int,
+        **attrs: Any,
+    ) -> _resource_provider_inventory.ResourceProviderInventory:
         """Create a new resource provider inventory from attributes
 
         :param resource_provider: Either the ID of a resource provider or a
             :class:`~openstack.placement.v1.resource_provider.ResourceProvider`
+            instance.
+        :param resource_class: The value can be either the ID of a resource
+            class or an
+            :class:`~openstack.placement.v1.resource_class.ResourceClass`,
             instance.
         :param total: The actual amount of the resource that the provider can
             accommodate.
@@ -436,7 +444,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Traits ==========
 
-    def create_trait(self, name):
+    def create_trait(self, name: str) -> _trait.Trait:
         """Create a new trait
 
         :param name: The name of the new trait

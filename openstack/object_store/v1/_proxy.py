@@ -18,7 +18,7 @@ import hmac
 import json
 import os
 import time
-from typing import ClassVar, Literal
+from typing import Any, ClassVar, Literal
 from collections.abc import Callable
 from urllib import parse
 
@@ -144,7 +144,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_container.Container, paginated=True, **query)
 
-    def create_container(self, name, **attrs):
+    def create_container(
+        self, name: str, **attrs: Any
+    ) -> _container.Container:
         """Create a new container from attributes
 
         :param container: Name of the container to create.
@@ -359,18 +361,18 @@ class Proxy(proxy.Proxy):
 
     def create_object(
         self,
-        container,
-        name,
-        filename=None,
-        md5=None,
-        sha256=None,
-        segment_size=None,
-        use_slo=True,
-        metadata=None,
-        generate_checksums=None,
-        data=None,
-        **headers,
-    ):
+        container: str | _container.Container,
+        name: str,
+        filename: str | None = None,
+        md5: str | None = None,
+        sha256: str | None = None,
+        segment_size: int | None = None,
+        use_slo: bool = True,
+        metadata: dict[str, Any] | None = None,
+        generate_checksums: bool | None = None,
+        data: bytes | None = None,
+        **headers: Any,
+    ) -> _obj.Object | None:
         """Create a file object.
 
         Automatically uses large-object segments if needed.
@@ -409,30 +411,23 @@ class Proxy(proxy.Proxy):
             raise ValueError(
                 "Both filename and data given. Please choose one."
             )
+
         if data is not None and not name:
             raise ValueError("name is a required parameter when data is given")
+
         if data is not None and generate_checksums:
             raise ValueError(
                 "checksums cannot be generated with data parameter"
             )
+
         if generate_checksums is None:
-            if data is not None:
-                generate_checksums = False
-            else:
-                generate_checksums = True
+            generate_checksums = data is None
 
         if not metadata:
             metadata = {}
 
         if not filename and data is None:
             filename = name
-
-        if generate_checksums and (md5 is None or sha256 is None):
-            (md5, sha256) = utils._get_file_hashes(filename)
-        if md5:
-            metadata[self._connection._OBJECT_MD5_KEY] = md5
-        if sha256:
-            metadata[self._connection._OBJECT_SHA256_KEY] = sha256
 
         container_name = self._get_container_name(container=container)
         endpoint = f'{container_name}/{name}'
@@ -449,6 +444,16 @@ class Proxy(proxy.Proxy):
                 metadata=metadata,
                 **headers,
             )
+
+        # we know this will be set since we check it earlier on
+        assert filename is not None  # narrow type
+
+        if generate_checksums and (md5 is None or sha256 is None):
+            md5, sha256 = utils._get_file_hashes(filename)
+        if md5:
+            metadata[self._connection._OBJECT_MD5_KEY] = md5
+        if sha256:
+            metadata[self._connection._OBJECT_SHA256_KEY] = sha256
 
         # segment_size gets used as a step value in a range call, so needs
         # to be an int
@@ -480,6 +485,8 @@ class Proxy(proxy.Proxy):
                     segment_size,
                     use_slo,
                 )
+
+        return None
 
     # Backwards compat
     upload_object = create_object

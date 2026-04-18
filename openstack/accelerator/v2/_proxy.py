@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import ClassVar, Literal
+from typing import Any, ClassVar, Literal
 from collections.abc import Callable
 
 from openstack.accelerator.v2 import accelerator_request as _arq
@@ -103,7 +103,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_device_profile.DeviceProfile, **query)
 
-    def create_device_profile(self, **attrs):
+    def create_device_profile(
+        self, **attrs: Any
+    ) -> _device_profile.DeviceProfile:
         """Create a device_profile.
 
         :param kwargs attrs: a list of device_profiles.
@@ -153,7 +155,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_arq.AcceleratorRequest, **query)
 
-    def create_accelerator_request(self, **attrs):
+    def create_accelerator_request(
+        self, **attrs: Any
+    ) -> _arq.AcceleratorRequest:
         """Create an ARQs for a single device profile.
 
         :param kwargs attrs: request body.
@@ -219,7 +223,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_attribute.Attribute, **query)
 
-    def create_attribute(self, **attrs):
+    def create_attribute(self, **attrs: Any) -> _attribute.Attribute:
         """Create a attribute.
 
         :param kwargs attrs: a list of attributes.

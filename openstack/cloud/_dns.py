@@ -202,7 +202,7 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         """
-        if isinstance(zone, resource.Resource):
+        if isinstance(zone, _zone.Zone):
             zone_obj = zone
         else:
             zone_obj = self.get_zone(zone)

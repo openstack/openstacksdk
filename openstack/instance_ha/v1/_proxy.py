@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import ClassVar, Literal
+from typing import Any, ClassVar, Literal
 from collections.abc import Callable
 
 from openstack import exceptions
@@ -56,7 +56,7 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_notification.Notification, notification)
 
-    def create_notification(self, **attrs):
+    def create_notification(self, **attrs: Any) -> _notification.Notification:
         """Create a new notification.
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -87,7 +87,7 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_segment.Segment, segment)
 
-    def create_segment(self, **attrs):
+    def create_segment(self, **attrs: Any) -> _segment.Segment:
         """Create a new segment.
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -139,7 +139,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_host.Host, segment_id=segment_id, **query)
 
-    def create_host(self, segment_id, **attrs):
+    def create_host(
+        self,
+        segment_id: str,
+        **attrs: Any,
+    ) -> _host.Host:
         """Create a new host.
 
         :param segment_id: The ID of a failover segment.

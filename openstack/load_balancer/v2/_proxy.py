@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import ClassVar, Literal, overload
+from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable
 
 from openstack.load_balancer.v2 import amphora as _amphora
@@ -52,7 +52,7 @@ class Proxy(proxy.Proxy):
         "quota": _quota.Quota,
     }
 
-    def create_load_balancer(self, **attrs):
+    def create_load_balancer(self, **attrs: Any) -> _lb.LoadBalancer:
         """Create a new load balancer from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -222,7 +222,7 @@ class Proxy(proxy.Proxy):
         lb = self._get_resource(_lb.LoadBalancer, load_balancer)
         lb.failover(self)
 
-    def create_listener(self, **attrs):
+    def create_listener(self, **attrs: Any) -> _listener.Listener:
         """Create a new listener from attributes
 
         :param dict attrs: Keyword arguments which will be used to create a
@@ -339,7 +339,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_listener.Listener, listener, **attrs)
 
-    def create_pool(self, **attrs):
+    def create_pool(self, **attrs: Any) -> _pool.Pool:
         """Create a new pool from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -433,7 +433,9 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_pool.Pool, pool, **attrs)
 
-    def create_member(self, pool, **attrs):
+    def create_member(
+        self, pool: str | _pool.Pool, **attrs: Any
+    ) -> _member.Member:
         """Create a new member from attributes
 
         :param pool: The pool can be either the ID of a pool or a
@@ -612,7 +614,7 @@ class Proxy(proxy.Proxy):
             _hm.HealthMonitor, name_or_id, ignore_missing=ignore_missing
         )
 
-    def create_health_monitor(self, **attrs):
+    def create_health_monitor(self, **attrs: Any) -> _hm.HealthMonitor:
         """Create a new health monitor from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -690,7 +692,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_hm.HealthMonitor, healthmonitor, **attrs)
 
-    def create_l7_policy(self, **attrs):
+    def create_l7_policy(self, **attrs: Any) -> _l7policy.L7Policy:
         """Create a new l7policy from attributes
 
         :param dict attrs: Keyword arguments which will be used to create a
@@ -792,7 +794,9 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_l7policy.L7Policy, l7_policy, **attrs)
 
-    def create_l7_rule(self, l7_policy, **attrs):
+    def create_l7_rule(
+        self, l7_policy: str | _l7policy.L7Policy, **attrs: Any
+    ) -> _l7rule.L7Rule:
         """Create a new l7rule from attributes
 
         :param l7_policy: The l7_policy can be either the ID of a l7policy or
@@ -1012,7 +1016,9 @@ class Proxy(proxy.Proxy):
             _provider.ProviderFlavorCapabilities, provider=provider, **query
         )
 
-    def create_flavor_profile(self, **attrs):
+    def create_flavor_profile(
+        self, **attrs: Any
+    ) -> _flavor_profile.FlavorProfile:
         """Create a new flavor profile from attributes
 
         :param dict attrs: Keyword arguments which will be used to create a
@@ -1117,7 +1123,7 @@ class Proxy(proxy.Proxy):
             _flavor_profile.FlavorProfile, flavor_profile, **attrs
         )
 
-    def create_flavor(self, **attrs):
+    def create_flavor(self, **attrs: Any) -> _flavor.Flavor:
         """Create a new flavor from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -1280,7 +1286,9 @@ class Proxy(proxy.Proxy):
         lb = self._get_resource(_amphora.Amphora, amphora_id)
         lb.failover(self)
 
-    def create_availability_zone_profile(self, **attrs):
+    def create_availability_zone_profile(
+        self, **attrs: Any
+    ) -> _availability_zone_profile.AvailabilityZoneProfile:
         """Create a new availability zone profile from attributes
 
         :param dict attrs: Keyword arguments which will be used to create a
@@ -1401,7 +1409,9 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def create_availability_zone(self, **attrs):
+    def create_availability_zone(
+        self, **attrs: Any
+    ) -> _availability_zone.AvailabilityZone:
         """Create a new availability zone from attributes
 
         :param dict attrs: Keyword arguments which will be used to create a

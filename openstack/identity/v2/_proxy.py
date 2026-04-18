@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import ClassVar, Literal, overload
+from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable
 
 from openstack.identity.v2 import extension as _extension
@@ -45,7 +45,7 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_extension.Extension, extension)
 
-    def create_role(self, **attrs):
+    def create_role(self, **attrs: Any) -> _role.Role:
         """Create a new role from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -141,7 +141,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_role.Role, role, **attrs)
 
-    def create_tenant(self, **attrs):
+    def create_tenant(self, **attrs: Any) -> _tenant.Tenant:
         """Create a new tenant from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -237,7 +237,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_tenant.Tenant, tenant, **attrs)
 
-    def create_user(self, **attrs):
+    def create_user(self, **attrs: Any) -> _user.User:
         """Create a new user from attributes
 
         :param dict attrs: Keyword arguments which will be used to create

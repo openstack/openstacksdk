@@ -17,11 +17,16 @@ from openstack.tests.functional.identity.v3 import base
 class TestAccessRule(base.BaseIdentityTest):
     def setUp(self):
         super().setUp()
+
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+
         self.user_id = self.operator_cloud.current_user_id
 
     def _create_application_credential_with_access_rule(self):
         """create application credential with access_rule."""
 
+        assert self.user_id is not None
         app_cred = self.admin_identity_client.create_application_credential(
             user=self.user_id,
             name='app_cred',

@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import ClassVar, Literal
+from typing import Any, ClassVar, Literal
 from collections.abc import Callable
 
 from openstack.message.v2 import claim as _claim
@@ -31,7 +31,7 @@ class Proxy(proxy.Proxy):
         "subscription": _subscription.Subscription,
     }
 
-    def create_queue(self, **attrs):
+    def create_queue(self, **attrs: Any) -> _queue.Queue:
         """Create a new queue from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -168,7 +168,9 @@ class Proxy(proxy.Proxy):
             _message.Message, message, ignore_missing=ignore_missing
         )
 
-    def create_subscription(self, queue_name, **attrs):
+    def create_subscription(
+        self, queue_name: str, **attrs: Any
+    ) -> _subscription.Subscription:
         """Create a new subscription from attributes
 
         :param queue_name: The name of target queue to subscribe on.
@@ -244,7 +246,7 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def create_claim(self, queue_name, **attrs):
+    def create_claim(self, queue_name: str, **attrs: Any) -> _claim.Claim:
         """Create a new claim from attributes
 
         :param queue_name: The name of target queue to claim message from.

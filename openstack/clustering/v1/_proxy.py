@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import ClassVar, Literal, overload
+from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable
 
 from openstack.clustering.v1 import action as _action
@@ -99,7 +99,7 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_policy_type.PolicyType, policy_type)
 
-    def create_profile(self, **attrs):
+    def create_profile(self, **attrs: Any) -> _profile.Profile:
         """Create a new profile from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
@@ -225,7 +225,7 @@ class Proxy(proxy.Proxy):
         return self._create(_profile.ProfileValidate, **attrs)
 
     # ====== CLUSTERS ======
-    def create_cluster(self, **attrs):
+    def create_cluster(self, **attrs: Any) -> _cluster.Cluster:
         """Create a new cluster from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
@@ -585,7 +585,7 @@ class Proxy(proxy.Proxy):
         obj = self._get_resource(_cluster.Cluster, cluster)
         return obj.op(self, operation, **params)
 
-    def create_node(self, **attrs):
+    def create_node(self, **attrs: Any) -> _node.Node:
         """Create a new node from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
@@ -785,7 +785,7 @@ class Proxy(proxy.Proxy):
         obj = self._get_resource(_node.Node, node)
         return obj.op(self, operation, **params)
 
-    def create_policy(self, **attrs):
+    def create_policy(self, **attrs: Any) -> _policy.Policy:
         """Create a new policy from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
@@ -944,7 +944,7 @@ class Proxy(proxy.Proxy):
             _cluster_policy.ClusterPolicy, cluster_policy, cluster_id=cluster
         )
 
-    def create_receiver(self, **attrs):
+    def create_receiver(self, **attrs: Any) -> _receiver.Receiver:
         """Create a new receiver from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a

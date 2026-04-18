@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import ClassVar, Literal, overload
+from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable
 
 from openstack.container_infrastructure_management.v1 import (
@@ -40,7 +40,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Clusters ==========
 
-    def create_cluster(self, **attrs):
+    def create_cluster(self, **attrs: Any) -> _cluster.Cluster:
         """Create a new cluster from attributes
 
         :param dict attrs: Keyword arguments which will be used to create a
@@ -146,7 +146,9 @@ class Proxy(proxy.Proxy):
 
     # ============== Cluster Templates ==============
 
-    def create_cluster_template(self, **attrs):
+    def create_cluster_template(
+        self, **attrs: Any
+    ) -> _cluster_template.ClusterTemplate:
         """Create a new cluster_template from attributes
 
         :param dict attrs: Keyword arguments which will be used to create a
@@ -261,7 +263,9 @@ class Proxy(proxy.Proxy):
 
     # ============== Cluster Certificates ==============
 
-    def create_cluster_certificate(self, **attrs):
+    def create_cluster_certificate(
+        self, **attrs: Any
+    ) -> _cluster_cert.ClusterCertificate:
         """Create a new cluster_certificate from CSR
 
         :param dict attrs: Keyword arguments which will be used to create a

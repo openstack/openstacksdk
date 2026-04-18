@@ -348,17 +348,7 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if there are
             problems uploading
         """
-        if volume:
-            image = self.block_storage.create_image(
-                name=name,
-                volume=volume,
-                allow_duplicates=allow_duplicates,
-                container_format=container_format,
-                disk_format=disk_format,
-                wait=wait,
-                timeout=timeout,
-            )
-        else:
+        if not volume:
             image = self.image.create_image(
                 name,
                 filename=filename,
@@ -374,6 +364,16 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
                 allow_duplicates=allow_duplicates,
                 meta=meta,
                 **kwargs,
+            )
+        else:
+            image = self.block_storage.create_image(
+                name=name,
+                volume=volume,
+                allow_duplicates=allow_duplicates,
+                container_format=container_format,
+                disk_format=disk_format,
+                wait=wait,
+                timeout=timeout,
             )
 
         if not wait:

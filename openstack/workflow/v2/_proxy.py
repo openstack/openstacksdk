@@ -28,7 +28,7 @@ class Proxy(proxy.Proxy):
         "workflow": _workflow.Workflow,
     }
 
-    def create_workflow(self, **attrs):
+    def create_workflow(self, **attrs: Any) -> _workflow.Workflow:
         """Create a new workflow from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -137,7 +137,7 @@ class Proxy(proxy.Proxy):
             _workflow.Workflow, name_or_id, ignore_missing=ignore_missing
         )
 
-    def create_execution(self, **attrs):
+    def create_execution(self, **attrs: Any) -> _execution.Execution:
         """Create a new execution from attributes
 
         :param workflow_name: The name of target workflow to execute.
@@ -233,7 +233,7 @@ class Proxy(proxy.Proxy):
             _execution.Execution, name_or_id, ignore_missing=ignore_missing
         )
 
-    def create_cron_trigger(self, **attrs):
+    def create_cron_trigger(self, **attrs: Any) -> _cron_trigger.CronTrigger:
         """Create a new cron trigger from attributes
 
         :param dict attrs: Keyword arguments which will be used to create

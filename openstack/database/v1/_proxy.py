@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import ClassVar, Literal, overload
+from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable
 
 from openstack.database.v1 import database as _database
@@ -31,7 +31,11 @@ class Proxy(proxy.Proxy):
         "user": _user.User,
     }
 
-    def create_database(self, instance, **attrs):
+    def create_database(
+        self,
+        instance: str | _instance.Instance,
+        **attrs: Any,
+    ) -> _database.Database:
         """Create a new database from attributes
 
         :param instance: This can be either the ID of an instance
@@ -205,7 +209,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_flavor.Flavor, **query)
 
-    def create_instance(self, **attrs):
+    def create_instance(self, **attrs: Any) -> _instance.Instance:
         """Create a new instance from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -304,7 +308,11 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_instance.Instance, instance, **attrs)
 
-    def create_user(self, instance, **attrs):
+    def create_user(
+        self,
+        instance: str | _instance.Instance,
+        **attrs: Any,
+    ) -> _user.User:
         """Create a new user from attributes
 
         :param instance: This can be either the ID of an instance

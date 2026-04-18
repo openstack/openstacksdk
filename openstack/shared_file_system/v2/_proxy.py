@@ -194,7 +194,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_share.Share, share_id, **attrs)
 
-    def create_share(self, **attrs):
+    def create_share(self, **attrs: Any) -> _share.Share:
         """Creates a share from attributes
 
         :returns: Details of the new share
@@ -369,7 +369,7 @@ class Proxy(proxy.Proxy):
             _share_group.ShareGroup, name_or_id, ignore_missing=ignore_missing
         )
 
-    def create_share_group(self, **attrs):
+    def create_share_group(self, **attrs: Any) -> _share_group.ShareGroup:
         """Creates a share group from attributes
 
         :returns: Details of the new share group
@@ -514,7 +514,9 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_share_snapshot.ShareSnapshot, snapshot_id)
 
-    def create_share_snapshot(self, **attrs):
+    def create_share_snapshot(
+        self, **attrs: Any
+    ) -> _share_snapshot.ShareSnapshot:
         """Creates a share snapshot from attributes
 
         :returns: Details of the new share snapshot
@@ -586,7 +588,9 @@ class Proxy(proxy.Proxy):
             share_network_id=share_network_id,
         )
 
-    def create_share_network_subnet(self, share_network_id, **attrs):
+    def create_share_network_subnet(
+        self, share_network_id: str, **attrs: Any
+    ) -> _share_network_subnet.ShareNetworkSubnet:
         """Creates a share network subnet from attributes
 
         :param share_network_id: The id of the share network wthin which the
@@ -719,7 +723,9 @@ class Proxy(proxy.Proxy):
             _share_network.ShareNetwork, share_network_id, **attrs
         )
 
-    def create_share_network(self, **attrs):
+    def create_share_network(
+        self, **attrs: Any
+    ) -> _share_network.ShareNetwork:
         """Creates a share network from attributes
 
         :returns: Details of the new share network
@@ -836,7 +842,9 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_share_access_rule.ShareAccessRule, access_id)
 
-    def create_access_rule(self, share_id, **attrs):
+    def create_access_rule(
+        self, share_id: str, **attrs: Any
+    ) -> _share_access_rule.ShareAccessRule:
         """Creates an access rule from attributes
 
         :returns: Details of the new access rule
@@ -937,7 +945,9 @@ class Proxy(proxy.Proxy):
             _share_group_snapshot.ShareGroupSnapshot, group_snapshot_id
         )
 
-    def create_share_group_snapshot(self, share_group_id, **attrs):
+    def create_share_group_snapshot(
+        self, share_group_id: str, **attrs: Any
+    ) -> _share_group_snapshot.ShareGroupSnapshot:
         """Creates a point-in-time snapshot copy of a share group.
 
         :returns: Details of the new snapshot
@@ -1026,7 +1036,9 @@ class Proxy(proxy.Proxy):
         share = self._get_resource(_share.Share, share_id)
         return share.get_metadata_item(self, key)
 
-    def create_share_metadata(self, share_id, **metadata):
+    def create_share_metadata(
+        self, share_id: str, **metadata: Any
+    ) -> _share.Share:
         """Creates share metadata as key-value pairs.
 
         :param share_id: The ID of the share
@@ -1177,7 +1189,9 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def create_resource_lock(self, **attrs):
+    def create_resource_lock(
+        self, **attrs: Any
+    ) -> _resource_locks.ResourceLock:
         """Locks a resource.
 
         :param dict attrs: Attributes which will be used to create

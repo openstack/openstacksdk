@@ -11,7 +11,7 @@
 # under the License.
 
 import os
-from typing import ClassVar, Literal, overload
+from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable
 import warnings
 
@@ -56,21 +56,21 @@ class Proxy(proxy.Proxy):
     # ====== IMAGES ======
     def create_image(
         self,
-        name,
-        filename=None,
-        container=None,
-        md5=None,
-        sha256=None,
-        disk_format=None,
-        container_format=None,
-        disable_vendor_agent=True,
-        allow_duplicates=False,
-        meta=None,
-        data=None,
-        validate_checksum=False,
-        tags=None,
-        **kwargs,
-    ):
+        name: str,
+        filename: str | None = None,
+        container: str | None = None,
+        md5: str | None = None,
+        sha256: str | None = None,
+        disk_format: str | None = None,
+        container_format: str | None = None,
+        disable_vendor_agent: bool = True,
+        allow_duplicates: bool = False,
+        meta: dict[str, Any] | None = None,
+        data: bytes | None = None,
+        validate_checksum: bool = False,
+        tags: list[str] | None = None,
+        **kwargs: Any,
+    ) -> _image.Image:
         """Create an image and optionally upload data.
 
         Create a new image. If ``filename`` or ``data`` are provided, it will
@@ -224,7 +224,7 @@ class Proxy(proxy.Proxy):
         properties[self._IMAGE_SHA256_KEY] = sha256 or ''
         properties[self._IMAGE_OBJECT_KEY] = '/'.join([container, name])
         kwargs.update(properties)
-        image_kwargs = {'properties': kwargs}
+        image_kwargs: dict[str, Any] = {'properties': kwargs}
         if disk_format:
             image_kwargs['disk_format'] = disk_format
         if container_format:

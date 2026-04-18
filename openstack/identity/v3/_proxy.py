@@ -99,7 +99,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Credentials ==========
 
-    def create_credential(self, **attrs):
+    def create_credential(self, **attrs: Any) -> _credential.Credential:
         """Create a new credential from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -201,7 +201,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Domains ==========
 
-    def create_domain(self, **attrs):
+    def create_domain(self, **attrs: Any) -> _domain.Domain:
         """Create a new domain from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -300,7 +300,11 @@ class Proxy(proxy.Proxy):
 
     # ========== Domain configs ==========
 
-    def create_domain_config(self, domain, **attrs):
+    def create_domain_config(
+        self,
+        domain: str | _domain.Domain,
+        **attrs: Any,
+    ) -> _domain_config.DomainConfig:
         """Create a new config for a domain from attributes.
 
         :param domain: The value can be the ID of a domain or
@@ -379,7 +383,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Endpoints ==========
 
-    def create_endpoint(self, **attrs):
+    def create_endpoint(self, **attrs: Any) -> _endpoint.Endpoint:
         """Create a new endpoint from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -527,7 +531,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Groups ==========
 
-    def create_group(self, **attrs):
+    def create_group(self, **attrs: Any) -> _group.Group:
         """Create a new group from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -686,7 +690,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Policies ==========
 
-    def create_policy(self, **attrs):
+    def create_policy(self, **attrs: Any) -> _policy.Policy:
         """Create a new policy from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -785,7 +789,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Project ==========
 
-    def create_project(self, **attrs):
+    def create_project(self, **attrs: Any) -> _project.Project:
         """Create a new project from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -922,7 +926,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Services ==========
 
-    def create_service(self, **attrs):
+    def create_service(self, **attrs: Any) -> _service.Service:
         """Create a new service from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -1021,7 +1025,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Users ==========
 
-    def create_user(self, **attrs):
+    def create_user(self, **attrs: Any) -> _user.User:
         """Create a new user from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -1187,7 +1191,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Trusts ==========
 
-    def create_trust(self, **attrs):
+    def create_trust(self, **attrs: Any) -> _trust.Trust:
         """Create a new trust from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -1273,7 +1277,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Regions ==========
 
-    def create_region(self, **attrs):
+    def create_region(self, **attrs: Any) -> _region.Region:
         """Create a new region from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -1377,7 +1381,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Roles ==========
 
-    def create_role(self, **attrs):
+    def create_role(self, **attrs: Any) -> _role.Role:
         """Create a new role from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -1932,7 +1936,9 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_registered_limit.RegisteredLimit, registered_limit)
 
-    def create_registered_limit(self, **attrs):
+    def create_registered_limit(
+        self, **attrs: Any
+    ) -> _registered_limit.RegisteredLimit:
         """Create a new registered_limit from attributes
 
         :param dict attrs: Keyword arguments which will be used to create a
@@ -2008,7 +2014,7 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_limit.Limit, limit)
 
-    def create_limit(self, **attrs):
+    def create_limit(self, **attrs: Any) -> _limit.Limit:
         """Create a new limit from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -2092,7 +2098,12 @@ class Proxy(proxy.Proxy):
             user_id=user.id,
         )
 
-    def create_application_credential(self, user, name, **attrs):
+    def create_application_credential(
+        self,
+        user: str | _user.User,
+        name: str,
+        **attrs: Any,
+    ) -> _application_credential.ApplicationCredential:
         """Create a new application credential from attributes
 
         :param user: Either the ID of a user or a
@@ -2195,7 +2206,11 @@ class Proxy(proxy.Proxy):
 
     # ========== Federation protocols ==========
 
-    def create_federation_protocol(self, idp_id, **attrs):
+    def create_federation_protocol(
+        self,
+        idp_id: str | _identity_provider.IdentityProvider,
+        **attrs: Any,
+    ) -> _federation_protocol.FederationProtocol:
         """Create a new federation protocol from attributes
 
         :param idp_id: The ID of the identity provider or a
@@ -2371,7 +2386,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Mappings ==========
 
-    def create_mapping(self, **attrs):
+    def create_mapping(self, **attrs: Any) -> _mapping.Mapping:
         """Create a new mapping from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
@@ -2476,7 +2491,9 @@ class Proxy(proxy.Proxy):
 
     # ========== Identity providers ==========
 
-    def create_identity_provider(self, **attrs):
+    def create_identity_provider(
+        self, **attrs: Any
+    ) -> _identity_provider.IdentityProvider:
         """Create a new identity provider from attributes
 
         :param dict attrs: Keyword arguments which will be used to create a
@@ -2653,7 +2670,9 @@ class Proxy(proxy.Proxy):
 
     # ========== Service providers ==========
 
-    def create_service_provider(self, **attrs):
+    def create_service_provider(
+        self, **attrs: Any
+    ) -> _service_provider.ServiceProvider:
         """Create a new service provider from attributes
 
         :param dict attrs: Keyword arguments which will be used to create a
