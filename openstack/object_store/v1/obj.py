@@ -12,6 +12,10 @@
 # under the License.
 
 import copy
+from typing import Any
+
+from keystoneauth1 import adapter
+from typing_extensions import Self
 
 from openstack import exceptions
 from openstack.object_store.v1 import _base
@@ -321,7 +325,17 @@ class Object(_base.BaseResource):
         )
         return response.iter_content(chunk_size, decode_unicode=False)
 
-    def create(self, session, prepend_key=True, base_path=None, **kwargs):
+    def create(
+        self,
+        session: adapter.Adapter,
+        prepend_key: bool = True,
+        base_path: str | None = None,
+        *,
+        resource_request_key: str | None = None,
+        resource_response_key: str | None = None,
+        microversion: str | None = None,
+        **params: Any,
+    ) -> Self:
         request = self._prepare_request(base_path=base_path)
 
         response = session.put(

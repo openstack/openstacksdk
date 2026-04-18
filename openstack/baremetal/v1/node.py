@@ -293,7 +293,17 @@ class Node(_common.Resource):
             attrs['provision_state'] = 'available'
         return super()._consume_body_attrs(attrs)
 
-    def create(self, session, *args, **kwargs):
+    def create(
+        self,
+        session: adapter.Adapter,
+        prepend_key: bool = True,
+        base_path: str | None = None,
+        *,
+        resource_request_key: str | None = None,
+        resource_response_key: str | None = None,
+        microversion: str | None = None,
+        **params: Any,
+    ) -> Self:
         """Create a remote resource based on this instance.
 
         The overridden version is capable of handling the populated
@@ -360,7 +370,15 @@ class Node(_common.Resource):
         # Ironic cannot set provision_state itself, so marking it as unchanged
         self._clean_body({'provision_state'})
 
-        super().create(session, *args, microversion=microversion, **kwargs)
+        super().create(
+            session,
+            prepend_key=prepend_key,
+            base_path=base_path,
+            resource_request_key=resource_request_key,
+            resource_response_key=resource_response_key,
+            microversion=microversion,
+            **params,
+        )
 
         if (
             expected_provision_state == 'manageable'

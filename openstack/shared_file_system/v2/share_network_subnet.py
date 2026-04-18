@@ -10,6 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
+from keystoneauth1 import adapter
+from typing_extensions import Self
+
 from openstack import resource
 
 
@@ -57,11 +62,21 @@ class ShareNetworkSubnet(resource.Resource):
 
     def create(
         self,
-        session,
-        *args,
-        resource_request_key='share-network-subnet',
-        **kwargs,
-    ):
+        session: adapter.Adapter,
+        prepend_key: bool = True,
+        base_path: str | None = None,
+        *,
+        resource_request_key: str | None = 'share-network-subnet',
+        resource_response_key: str | None = None,
+        microversion: str | None = None,
+        **params: Any,
+    ) -> Self:
         return super().create(
-            session, resource_request_key=resource_request_key, *args, **kwargs
+            session,
+            prepend_key=prepend_key,
+            base_path=base_path,
+            resource_request_key=resource_request_key,
+            resource_response_key=resource_response_key,
+            microversion=microversion,
+            **params,
         )

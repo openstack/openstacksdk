@@ -10,6 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
+from keystoneauth1 import adapter
+from typing_extensions import Self
+
 from openstack import resource
 
 
@@ -49,10 +54,28 @@ class SoftwareDeployment(resource.Resource):
     #: The date and time when the software deployment resource was created.
     updated_at = resource.Body('updated_time')
 
-    def create(self, session, prepend_key=False, *args, **kwargs):
+    def create(
+        self,
+        session: adapter.Adapter,
+        prepend_key: bool = False,
+        base_path: str | None = None,
+        *,
+        resource_request_key: str | None = None,
+        resource_response_key: str | None = None,
+        microversion: str | None = None,
+        **params: Any,
+    ) -> Self:
         # This overrides the default behavior of resource creation because
         # heat doesn't accept resource_key in its request.
-        return super().create(session, prepend_key, *args, **kwargs)
+        return super().create(
+            session,
+            prepend_key=prepend_key,
+            base_path=base_path,
+            resource_request_key=resource_request_key,
+            resource_response_key=resource_response_key,
+            microversion=microversion,
+            **params,
+        )
 
     def commit(self, session, prepend_key=False, *args, **kwargs):
         # This overrides the default behavior of resource creation because

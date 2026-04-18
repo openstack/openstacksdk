@@ -10,6 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
+from keystoneauth1 import adapter
+from typing_extensions import Self
+
 from openstack import resource
 from openstack import utils
 
@@ -46,9 +51,20 @@ class ServerRemoteConsole(resource.Resource):
     #: The ID for the server.
     server_id = resource.URI('server_id')
 
-    def create(self, session, prepend_key=True, base_path=None, **params):
+    def create(
+        self,
+        session: adapter.Adapter,
+        prepend_key: bool = True,
+        base_path: str | None = None,
+        *,
+        resource_request_key: str | None = None,
+        resource_response_key: str | None = None,
+        microversion: str | None = None,
+        **params: Any,
+    ) -> Self:
         if not self.protocol:
             self.protocol = CONSOLE_TYPE_PROTOCOL_MAPPING.get(self.type)
+
         if (
             not utils.supports_microversion(session, '2.8')
             and self.type == 'webmks'
@@ -56,6 +72,7 @@ class ServerRemoteConsole(resource.Resource):
             raise ValueError(
                 'Console type webmks is not supported on server side'
             )
+
         if (
             not utils.supports_microversion(session, '2.99')
             and self.type == 'spice-direct'
@@ -63,6 +80,13 @@ class ServerRemoteConsole(resource.Resource):
             raise ValueError(
                 'Console type spice-direct is not supported on server side'
             )
+
         return super().create(
-            session, prepend_key=prepend_key, base_path=base_path, **params
+            session,
+            prepend_key=prepend_key,
+            base_path=base_path,
+            resource_request_key=resource_request_key,
+            resource_response_key=resource_response_key,
+            microversion=microversion,
+            **params,
         )

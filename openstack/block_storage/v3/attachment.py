@@ -11,6 +11,10 @@
 # under the License.
 
 import os
+from typing import Any
+
+from keystoneauth1 import adapter
+from typing_extensions import Self
 
 from openstack import exceptions
 from openstack import resource
@@ -63,15 +67,15 @@ class Attachment(resource.Resource):
 
     def create(
         self,
-        session,
-        prepend_key=True,
-        base_path=None,
+        session: adapter.Adapter,
+        prepend_key: bool = True,
+        base_path: str | None = None,
         *,
-        resource_request_key=None,
-        resource_response_key=None,
-        microversion=None,
-        **params,
-    ):
+        resource_request_key: str | None = None,
+        resource_response_key: str | None = None,
+        microversion: str | None = None,
+        **params: Any,
+    ) -> Self:
         if utils.supports_microversion(session, '3.54'):
             if not self.attach_mode:
                 self._body.clean(only={'mode'})

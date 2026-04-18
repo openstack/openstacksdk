@@ -10,6 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
+from keystoneauth1 import adapter
+from typing_extensions import Self
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -57,7 +62,17 @@ class ServerGroup(resource.Resource):
     # TODO(stephenfin): It would be nice to have a hookpoint to do this
     # microversion-based request manipulation, but we don't have anything like
     # that right now
-    def create(self, session, prepend_key=True, base_path=None, **params):
+    def create(
+        self,
+        session: adapter.Adapter,
+        prepend_key: bool = True,
+        base_path: str | None = None,
+        *,
+        resource_request_key: str | None = None,
+        resource_response_key: str | None = None,
+        microversion: str | None = None,
+        **params: Any,
+    ) -> Self:
         """Create a remote resource based on this instance.
 
         :param session: The session to use for making this request.
@@ -76,7 +91,8 @@ class ServerGroup(resource.Resource):
             raise exceptions.MethodNotSupported(self, 'create')
 
         session = self._get_session(session)
-        microversion = self._get_microversion(session)
+        if microversion is None:
+            microversion = self._get_microversion(session)
         requires_id = (
             self.create_requires_id
             if self.create_requires_id is not None

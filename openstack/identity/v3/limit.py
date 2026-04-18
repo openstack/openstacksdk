@@ -10,6 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
+from keystoneauth1 import adapter
+from typing_extensions import Self
+
 from openstack import exceptions
 from openstack import resource
 
@@ -56,15 +61,15 @@ class Limit(resource.Resource):
 
     def create(
         self,
-        session,
-        prepend_key=True,
-        base_path=None,
+        session: adapter.Adapter,
+        prepend_key: bool = True,
+        base_path: str | None = None,
         *,
-        resource_request_key=None,
-        resource_response_key='limits',
-        microversion=None,
-        **params,
-    ):
+        resource_request_key: str | None = None,
+        resource_response_key: str | None = 'limits',
+        microversion: str | None = None,
+        **params: Any,
+    ) -> Self:
         return super().create(
             session,
             prepend_key=prepend_key,

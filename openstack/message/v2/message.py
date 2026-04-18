@@ -10,7 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 import uuid
+
+from keystoneauth1 import adapter
+from typing_extensions import Self
 
 from openstack.message.v2 import _base
 from openstack import resource
@@ -49,9 +53,9 @@ class Message(_base.MessageResource):
 
     def post(self, session, messages):
         request = self._prepare_request(requires_id=False, prepend_key=True)
-        headers = {
+        headers: dict[str, str] = {
             "Client-ID": self.client_id or str(uuid.uuid4()),
-            "X-PROJECT-ID": self.project_id or session.get_project_id(),
+            "X-PROJECT-ID": self.project_id or session.get_project_id() or "",
         }
         request.headers.update(headers)
         request.body = {'messages': messages}
@@ -61,13 +65,23 @@ class Message(_base.MessageResource):
 
         return response.json()['resources']
 
-    def create(self, session, prepend_key=False, base_path=None, **kwargs):
+    def create(
+        self,
+        session: adapter.Adapter,
+        prepend_key: bool = False,
+        base_path: str | None = None,
+        *,
+        resource_request_key: str | None = None,
+        resource_response_key: str | None = None,
+        microversion: str | None = None,
+        **params: Any,
+    ) -> Self:
         request = self._prepare_request(
             requires_id=False, prepend_key=prepend_key, base_path=base_path
         )
-        headers = {
+        headers: dict[str, str] = {
             "Client-ID": self.client_id or str(uuid.uuid4()),
-            "X-PROJECT-ID": self.project_id or session.get_project_id(),
+            "X-PROJECT-ID": self.project_id or session.get_project_id() or "",
         }
         request.headers.update(headers)
         response = session.post(
@@ -86,9 +100,9 @@ class Message(_base.MessageResource):
         self, session, error_message=None, *, microversion=None, **kwargs
     ):
         request = self._prepare_request()
-        headers = {
+        headers: dict[str, str] = {
             "Client-ID": self.client_id or str(uuid.uuid4()),
-            "X-PROJECT-ID": self.project_id or session.get_project_id(),
+            "X-PROJECT-ID": self.project_id or session.get_project_id() or "",
         }
 
         request.headers.update(headers)

@@ -12,6 +12,9 @@
 
 from typing import Any
 
+from keystoneauth1 import adapter
+from typing_extensions import Self
+
 from openstack import resource
 from openstack import utils
 
@@ -75,13 +78,25 @@ class ShareAccessRule(resource.Resource):
             url, json=body, headers=headers, microversion=microversion
         )
 
-    def create(self, session, *args, **kwargs):
+    def create(
+        self,
+        session: adapter.Adapter,
+        prepend_key: bool = True,
+        base_path: str | None = None,
+        *,
+        resource_request_key: str | None = 'allow_access',
+        resource_response_key: str | None = 'access',
+        microversion: str | None = None,
+        **params: Any,
+    ) -> Self:
         return super().create(
             session,
-            *args,
-            resource_request_key='allow_access',
-            resource_response_key='access',
-            **kwargs,
+            prepend_key=prepend_key,
+            base_path=base_path,
+            resource_request_key=resource_request_key,
+            resource_response_key=resource_response_key,
+            microversion=microversion,
+            **params,
         )
 
     def delete(

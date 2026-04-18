@@ -13,6 +13,9 @@
 from typing import Any, cast
 import warnings
 
+from keystoneauth1 import adapter
+from typing_extensions import Self
+
 from openstack.common import metadata
 from openstack import exceptions
 from openstack import resource
@@ -108,7 +111,17 @@ class Backup(resource.Resource, metadata.MetadataMixin):
 
     _max_microversion = "3.64"
 
-    def create(self, session, prepend_key=True, base_path=None, **params):
+    def create(
+        self,
+        session: adapter.Adapter,
+        prepend_key: bool = True,
+        base_path: str | None = None,
+        *,
+        resource_request_key: str | None = None,
+        resource_response_key: str | None = None,
+        microversion: str | None = None,
+        **params: Any,
+    ) -> Self:
         """Create a remote resource based on this instance.
 
         :param session: The session to use for making this request.

@@ -11,6 +11,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
+from keystoneauth1 import adapter
+from typing_extensions import Self
+
 from openstack.object_store.v1 import _base
 from openstack import resource
 
@@ -123,7 +128,17 @@ class Container(_base.BaseResource):
             kwargs.setdefault('name', name)
         return cls(_synchronized=False, **kwargs)
 
-    def create(self, session, prepend_key=True, base_path=None, **kwargs):
+    def create(
+        self,
+        session: adapter.Adapter,
+        prepend_key: bool = True,
+        base_path: str | None = None,
+        *,
+        resource_request_key: str | None = None,
+        resource_response_key: str | None = None,
+        microversion: str | None = None,
+        **params: Any,
+    ) -> Self:
         """Create a remote resource based on this instance.
 
         :param session: The session to use for making this request.

@@ -183,7 +183,14 @@ class TestStack(base.TestCase):
 
         res = sot.create(sess)
 
-        mock_create.assert_called_once_with(sess, False)
+        mock_create.assert_called_once_with(
+            sess,
+            prepend_key=False,
+            base_path=None,
+            resource_request_key=None,
+            resource_response_key=None,
+            microversion=None,
+        )
         self.assertEqual(mock_create.return_value, res)
 
     def test_check(self):

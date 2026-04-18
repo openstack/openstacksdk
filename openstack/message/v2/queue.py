@@ -10,7 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 import uuid
+
+from keystoneauth1 import adapter
+from typing_extensions import Self
 
 from openstack.message.v2 import _base
 from openstack import resource
@@ -40,13 +44,23 @@ class Queue(_base.MessageResource):
     #: letters, digits, underscores, and hyphens.
     name = resource.Body("name", alternate_id=True)
 
-    def create(self, session, prepend_key=False, base_path=None, **kwargs):
+    def create(
+        self,
+        session: adapter.Adapter,
+        prepend_key: bool = False,
+        base_path: str | None = None,
+        *,
+        resource_request_key: str | None = None,
+        resource_response_key: str | None = None,
+        microversion: str | None = None,
+        **params: Any,
+    ) -> Self:
         request = self._prepare_request(
             requires_id=True, prepend_key=prepend_key, base_path=None
         )
-        headers = {
+        headers: dict[str, str] = {
             "Client-ID": self.client_id or str(uuid.uuid4()),
-            "X-PROJECT-ID": self.project_id or session.get_project_id(),
+            "X-PROJECT-ID": self.project_id or session.get_project_id() or "",
         }
         request.headers.update(headers)
         response = session.put(
