@@ -352,12 +352,7 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(
-            _secret_store.SecretStore,
-            None,
-            requires_id=False,
-            base_path='/secret-stores/global-default',
-        )
+        return self._get(_secret_store.SecretStore, 'global-default')
 
     def get_preferred_secret_store(self):
         """Get the preferred secret store for the current project
@@ -367,12 +362,7 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(
-            _secret_store.SecretStore,
-            None,
-            requires_id=False,
-            base_path='/secret-stores/preferred',
-        )
+        return self._get(_secret_store.SecretStore, 'preferred')
 
     def delete_project_quota(self, project_id, ignore_missing=True):
         """Delete a project quota
