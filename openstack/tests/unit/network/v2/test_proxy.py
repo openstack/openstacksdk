@@ -61,6 +61,7 @@ from openstack.network.v2 import rbac_policy
 from openstack.network.v2 import router
 from openstack.network.v2 import security_group
 from openstack.network.v2 import security_group_rule
+from openstack.network.v2 import security_groups_default_statefulness
 from openstack.network.v2 import segment
 from openstack.network.v2 import service_profile
 from openstack.network.v2 import service_provider
@@ -1929,6 +1930,52 @@ class TestNetworkSecurityGroup(TestNetworkProxy):
         self.proxy.create_security_group_rules(data)
 
         bc.assert_called_once_with(security_group_rule.SecurityGroupRule, data)
+
+
+class TestNetworkSecurityGroupsDefaultStatefulness(TestNetworkProxy):
+    def test_create(self):
+        self.verify_create(
+            self.proxy.create_security_groups_default_statefulness,
+            security_groups_default_statefulness.SecurityGroupsDefaultStatefulness,
+        )
+
+    def test_delete(self):
+        self.verify_delete(
+            self.proxy.delete_security_groups_default_statefulness,
+            security_groups_default_statefulness.SecurityGroupsDefaultStatefulness,
+            False,
+        )
+
+    def test_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_security_groups_default_statefulness,
+            security_groups_default_statefulness.SecurityGroupsDefaultStatefulness,
+            True,
+        )
+
+    def test_find(self):
+        self.verify_find(
+            self.proxy.find_security_groups_default_statefulness,
+            security_groups_default_statefulness.SecurityGroupsDefaultStatefulness,
+        )
+
+    def test_get(self):
+        self.verify_get(
+            self.proxy.get_security_groups_default_statefulness,
+            security_groups_default_statefulness.SecurityGroupsDefaultStatefulness,
+        )
+
+    def test_list(self):
+        self.verify_list(
+            self.proxy.security_groups_default_statefulness,
+            security_groups_default_statefulness.SecurityGroupsDefaultStatefulness,
+        )
+
+    def test_update(self):
+        self.verify_update(
+            self.proxy.update_security_groups_default_statefulness,
+            security_groups_default_statefulness.SecurityGroupsDefaultStatefulness,
+        )
 
 
 class TestNetworkSegment(TestNetworkProxy):

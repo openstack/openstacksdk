@@ -84,6 +84,9 @@ from openstack.network.v2 import rbac_policy as _rbac_policy
 from openstack.network.v2 import router as _router
 from openstack.network.v2 import security_group as _security_group
 from openstack.network.v2 import security_group_rule as _security_group_rule
+from openstack.network.v2 import (
+    security_groups_default_statefulness as _sg_default_statefulness,
+)
 from openstack.network.v2 import segment as _segment
 from openstack.network.v2 import service_profile as _service_profile
 from openstack.network.v2 import service_provider as _service_provider
@@ -176,6 +179,9 @@ class Proxy(proxy.Proxy):
         "router": _router.Router,
         "security_group": _security_group.SecurityGroup,
         "security_group_rule": _security_group_rule.SecurityGroupRule,
+        "security_groups_default_statefulness": (
+            _sg_default_statefulness.SecurityGroupsDefaultStatefulness
+        ),
         "segment": _segment.Segment,
         "service_profile": _service_profile.ServiceProfile,
         "service_provider": _service_provider.ServiceProvider,
@@ -6081,6 +6087,159 @@ class Proxy(proxy.Proxy):
         """
         return self._list(
             _default_security_group_rule.DefaultSecurityGroupRule, **query
+        )
+
+    # ========== Security Groups Default Statefulness ==========
+
+    def create_security_groups_default_statefulness(self, **attrs):
+        """Create a new default statefulness setting from attributes
+
+        :param attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.network.v2.security_groups_default_statefulness.
+            SecurityGroupsDefaultStatefulness`,
+            comprised of the properties on the
+            SecurityGroupsDefaultStatefulness class.
+
+        :returns: The results of default statefulness setting creation
+        :rtype:
+            :class:`~openstack.network.v2.security_groups_default_statefulness.
+            SecurityGroupsDefaultStatefulness`
+        """
+        return self._create(
+            _sg_default_statefulness.SecurityGroupsDefaultStatefulness,
+            **attrs,
+        )
+
+    def delete_security_groups_default_statefulness(
+        self,
+        security_groups_default_statefulness,
+        ignore_missing=True,
+    ):
+        """Delete a default statefulness setting
+
+        :param security_groups_default_statefulness:
+            The value can be either the ID of a default statefulness setting
+            or a
+            :class:`~openstack.network.v2.security_groups_default_statefulness.
+            SecurityGroupsDefaultStatefulness` instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be
+            raised when the resource does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent default statefulness setting.
+
+        :returns: ``None``
+        """
+        self._delete(
+            _sg_default_statefulness.SecurityGroupsDefaultStatefulness,
+            security_groups_default_statefulness,
+            ignore_missing=ignore_missing,
+        )
+
+    @overload
+    def find_security_groups_default_statefulness(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _sg_default_statefulness.SecurityGroupsDefaultStatefulness: ...
+
+    @overload
+    def find_security_groups_default_statefulness(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _sg_default_statefulness.SecurityGroupsDefaultStatefulness | None: ...
+
+    def find_security_groups_default_statefulness(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _sg_default_statefulness.SecurityGroupsDefaultStatefulness | None:
+        """Find a single default statefulness setting
+
+        :param str name_or_id: The ID of a default statefulness setting.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :param dict query: Any additional parameters to be passed into
+            underlying methods, such as query filters.
+        :returns: One
+            :class:`~openstack.network.v2.security_groups_default_statefulness.
+            SecurityGroupsDefaultStatefulness` or None
+        """
+        return self._find(
+            _sg_default_statefulness.SecurityGroupsDefaultStatefulness,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
+
+    def get_security_groups_default_statefulness(
+        self,
+        security_groups_default_statefulness,
+    ):
+        """Get a single default statefulness setting
+
+        :param security_groups_default_statefulness:
+            The value can be the ID of a default statefulness setting or a
+            :class:`~openstack.network.v2.security_groups_default_statefulness.
+            SecurityGroupsDefaultStatefulness` instance.
+
+        :returns:
+            :class:`~openstack.network.v2.security_groups_default_statefulness.
+            SecurityGroupsDefaultStatefulness`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
+            when no resource can be found.
+        """
+        return self._get(
+            _sg_default_statefulness.SecurityGroupsDefaultStatefulness,
+            security_groups_default_statefulness,
+        )
+
+    def security_groups_default_statefulness(self, **query):
+        """Return a generator of default statefulness settings
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the resources being returned.
+
+        :returns: A generator of default statefulness setting objects
+        :rtype:
+            :class:`~openstack.network.v2.security_groups_default_statefulness.
+            SecurityGroupsDefaultStatefulness`
+        """
+        return self._list(
+            _sg_default_statefulness.SecurityGroupsDefaultStatefulness,
+            **query,
+        )
+
+    def update_security_groups_default_statefulness(
+        self,
+        security_groups_default_statefulness,
+        **attrs,
+    ):
+        """Update a default statefulness setting
+
+        :param security_groups_default_statefulness:
+            Either the id of a default statefulness setting or a
+            :class:`~openstack.network.v2.security_groups_default_statefulness.
+            SecurityGroupsDefaultStatefulness` instance.
+        :param attrs: The attributes to update on the default statefulness
+            setting represented by ``security_groups_default_statefulness``.
+
+        :returns: The updated default statefulness setting
+        :rtype:
+            :class:`~openstack.network.v2.security_groups_default_statefulness.
+            SecurityGroupsDefaultStatefulness`
+        """
+        return self._update(
+            _sg_default_statefulness.SecurityGroupsDefaultStatefulness,
+            security_groups_default_statefulness,
+            **attrs,
         )
 
     def create_segment(self, **attrs):
