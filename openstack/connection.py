@@ -659,7 +659,7 @@ class Connection(
         # a subclass in the case of shade wrapping sdk.
         return self.__class__(config=cloud_region)
 
-    def connect_as_project(self, project: str) -> Self:
+    def connect_as_project(self, project: str | dict[str, Any]) -> Self:
         """Make a new Connection object with a new project.
 
         Take the existing settings from the current cloud and construct a new
