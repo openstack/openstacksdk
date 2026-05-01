@@ -33,6 +33,8 @@ class Stack(resource.Resource):
     allow_commit = True
     allow_delete = True
 
+    create_opts = resource.CreateOpts(request_key=None)
+
     _query_mapping = resource.QueryParameters(
         'action',
         'name',
@@ -116,29 +118,6 @@ class Stack(resource.Resource):
     updated_at = resource.Body('updated_time')
     #: The ID of the user project created for this stack.
     user_project_id = resource.Body('stack_user_project_id')
-
-    def create(
-        self,
-        session: adapter.Adapter,
-        prepend_key: bool = False,
-        base_path: str | None = None,
-        *,
-        resource_request_key: str | None = None,
-        resource_response_key: str | None = None,
-        microversion: str | None = None,
-        **params: Any,
-    ) -> Self:
-        # This overrides the default behavior of resource creation because
-        # heat doesn't accept resource_key in its request.
-        return super().create(
-            session,
-            prepend_key=prepend_key,
-            base_path=base_path,
-            resource_request_key=resource_request_key,
-            resource_response_key=resource_response_key,
-            microversion=microversion,
-            **params,
-        )
 
     def commit(
         self,

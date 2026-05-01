@@ -14,7 +14,6 @@ from unittest import mock
 
 from openstack import exceptions
 from openstack.orchestration.v1 import stack
-from openstack import resource
 from openstack.tests.unit import base
 from openstack.tests.unit import test_resource
 
@@ -175,23 +174,6 @@ class TestStack(base.TestCase):
         self.assertEqual(FAKE['template_url'], sot.template_url)
         self.assertEqual(FAKE['timeout_mins'], sot.timeout_mins)
         self.assertEqual(FAKE['updated_time'], sot.updated_at)
-
-    @mock.patch.object(resource.Resource, 'create')
-    def test_create(self, mock_create):
-        sess = mock.Mock()
-        sot = stack.Stack()
-
-        res = sot.create(sess)
-
-        mock_create.assert_called_once_with(
-            sess,
-            prepend_key=False,
-            base_path=None,
-            resource_request_key=None,
-            resource_response_key=None,
-            microversion=None,
-        )
-        self.assertEqual(mock_create.return_value, res)
 
     def test_check(self):
         sess = mock.Mock()

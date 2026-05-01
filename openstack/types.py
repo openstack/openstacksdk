@@ -10,14 +10,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Literal
+import enum
 
 
-# Workaround Python's lack of an undefined sentinel
-# https://python-patterns.guide/python/sentinel-object/
-class Unset:
-    def __bool__(self) -> Literal[False]:
+class Unset(enum.Enum):
+    """Sentinel for values that have not been explicitly set."""
+
+    UNSET = 'UNSET'
+
+    def __bool__(self) -> bool:
         return False
 
 
-UNSET: Unset = Unset()
+UNSET = Unset.UNSET

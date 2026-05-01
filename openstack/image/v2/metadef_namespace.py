@@ -66,8 +66,8 @@ class MetadefNamespace(resource.Resource, tag.TagMixin):
         # argument, even if we're not changing it. We need to add this here
         # since it won't be included if Resource.commit thinks its unchanged
         # TODO(stephenfin): Eventually we could indicate attributes that are
-        # required in the body on update, like the 'requires_id' and
-        # 'create_requires_id' do for the ID in the URL
+        # required in the body on update, like 'CreateOpts.requires_id' does
+        # for the ID in the URL
         cast(dict[str, Any], request.body)['namespace'] = self.namespace
 
         return super()._commit(

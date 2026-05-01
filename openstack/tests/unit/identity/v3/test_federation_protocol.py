@@ -37,7 +37,7 @@ class TestFederationProtocol(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
         self.assertEqual('PATCH', sot.commit_method)
-        self.assertEqual('PUT', sot.create_method)
+        self.assertEqual('PUT', sot.create_opts.method)
 
         self.assertDictEqual(
             {

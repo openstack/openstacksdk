@@ -30,7 +30,7 @@ class Trait(resource.Resource):
     allow_delete = True
     allow_list = True
 
-    create_method = 'PUT'
+    create_opts = resource.CreateOpts(method='PUT')
 
     # Added in 1.6
     _max_microversion = '1.6'

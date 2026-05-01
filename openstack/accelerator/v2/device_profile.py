@@ -10,9 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, Self
-
-from keystoneauth1 import adapter
+from typing import Any
 
 from openstack import resource
 
@@ -42,6 +40,8 @@ class DeviceProfile(resource.Resource):
     #: The uuid of the device profile
     uuid = resource.Body('uuid', alternate_id=True)
 
+    create_opts = resource.CreateOpts(request_key=None)
+
     # TODO(s_shogo): This implementation only treat [ DeviceProfile ], and
     # cannot treat multiple DeviceProfiles in list.
     def _prepare_request_body(  # type: ignore[override]
@@ -54,26 +54,3 @@ class DeviceProfile(resource.Resource):
             prepend_key=prepend_key, resource_request_key=resource_request_key
         )
         return [body]
-
-    def create(
-        self,
-        session: adapter.Adapter,
-        prepend_key: bool = False,
-        base_path: str | None = None,
-        *,
-        resource_request_key: str | None = None,
-        resource_response_key: str | None = None,
-        microversion: str | None = None,
-        **params: Any,
-    ) -> Self:
-        # This overrides the default behavior of resource creation because
-        # cyborg doesn't accept resource_key in its request.
-        return super().create(
-            session,
-            prepend_key=prepend_key,
-            base_path=base_path,
-            resource_request_key=resource_request_key,
-            resource_response_key=resource_response_key,
-            microversion=microversion,
-            **params,
-        )

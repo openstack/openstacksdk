@@ -27,7 +27,7 @@ class IdentityProvider(resource.Resource):
     allow_delete = True
     allow_list = True
 
-    create_method = 'PUT'
+    create_opts = resource.CreateOpts(method='PUT')
     commit_method = 'PATCH'
 
     _query_mapping = resource.QueryParameters(

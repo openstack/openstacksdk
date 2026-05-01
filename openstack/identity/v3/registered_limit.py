@@ -10,11 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, Self
-
-import requests
-
 from keystoneauth1 import adapter
+import requests
 
 from openstack import exceptions
 from openstack import resource
@@ -32,6 +29,8 @@ class RegisteredLimit(resource.Resource):
     allow_delete = True
     allow_list = True
     commit_method = 'PATCH'
+
+    create_opts = resource.CreateOpts(response_key='registered_limits')
 
     _query_mapping = resource.QueryParameters(
         'service_id', 'region_id', 'resource_name'
@@ -64,27 +63,6 @@ class RegisteredLimit(resource.Resource):
         # request body for creating limit is a list instead of dict.
         request.body = {cls.resources_key: [request.body[cls.resource_key]]}
         return request
-
-    def create(
-        self,
-        session: adapter.Adapter,
-        prepend_key: bool = True,
-        base_path: str | None = None,
-        *,
-        resource_request_key: str | None = None,
-        resource_response_key: str | None = 'registered_limits',
-        microversion: str | None = None,
-        **params: Any,
-    ) -> Self:
-        return super().create(
-            session,
-            prepend_key=prepend_key,
-            base_path=base_path,
-            resource_request_key=resource_request_key,
-            resource_response_key=resource_response_key,
-            microversion=microversion,
-            **params,
-        )
 
     def _translate_response(
         self,

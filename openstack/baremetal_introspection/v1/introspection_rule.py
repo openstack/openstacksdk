@@ -24,9 +24,7 @@ class IntrospectionRule(resource.Resource):
     allow_delete = True
     allow_list = True
 
-    # created via POST with ID
-    create_method = 'POST'
-    create_requires_id = True
+    create_opts = resource.CreateOpts(requires_id=True)
 
     #: The UUID of the resource.
     id = resource.Body('uuid', alternate_id=True)

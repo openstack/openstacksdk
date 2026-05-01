@@ -10,10 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, Self
-
-from keystoneauth1 import adapter
-
 from openstack import resource
 
 
@@ -28,6 +24,8 @@ class ShareNetworkSubnet(resource.Resource):
     allow_commit = False
     allow_delete = True
     allow_list = True
+
+    create_opts = resource.CreateOpts(request_key='share-network-subnet')
 
     #: Properties
     #: The share nerwork ID, part of the URI for share network subnets.
@@ -58,24 +56,3 @@ class ShareNetworkSubnet(resource.Resource):
     share_network_name = resource.Body("share_network_name", type=str)
     #: Date and time the share network subnet was last updated at.
     updated_at = resource.Body("updated_at", type=str)
-
-    def create(
-        self,
-        session: adapter.Adapter,
-        prepend_key: bool = True,
-        base_path: str | None = None,
-        *,
-        resource_request_key: str | None = 'share-network-subnet',
-        resource_response_key: str | None = None,
-        microversion: str | None = None,
-        **params: Any,
-    ) -> Self:
-        return super().create(
-            session,
-            prepend_key=prepend_key,
-            base_path=base_path,
-            resource_request_key=resource_request_key,
-            resource_response_key=resource_response_key,
-            microversion=microversion,
-            **params,
-        )

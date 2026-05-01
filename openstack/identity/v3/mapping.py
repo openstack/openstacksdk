@@ -24,7 +24,7 @@ class Mapping(resource.Resource):
     allow_commit = True
     allow_delete = True
     allow_list = True
-    create_method = 'PUT'
+    create_opts = resource.CreateOpts(method='PUT')
     commit_method = 'PATCH'
 
     _query_mapping = resource.QueryParameters()
