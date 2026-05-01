@@ -1432,18 +1432,6 @@ class TestResourceActions(base.TestCase):
 
         self._test_create(Test, requires_id=True, prepend_key=True)
 
-    def test_put_create_exclude_id(self):
-        class Test(resource.Resource):
-            service = self.service_name
-            base_path = self.base_path
-            allow_create = True
-            create_method = 'PUT'
-            create_exclude_id_from_body = True
-
-        self._test_create(
-            Test, requires_id=True, prepend_key=True, id_marked_dirty=False
-        )
-
     def test_put_create_with_microversion(self):
         class Test(resource.Resource):
             service = self.service_name

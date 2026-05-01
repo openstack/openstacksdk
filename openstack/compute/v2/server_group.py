@@ -98,9 +98,6 @@ class ServerGroup(resource.Resource):
             else self.create_method == 'PUT'
         )
 
-        if self.create_exclude_id_from_body:
-            self._body._dirty.discard("id")
-
         # `policy` and `rules` are added with mv=2.64. In it also
         # `policies` are removed.
         if utils.supports_microversion(session, '2.64'):
