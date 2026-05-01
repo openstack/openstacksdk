@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, Self, cast
+from typing import Any, Self
 import warnings
 
 import requests
@@ -112,83 +112,22 @@ class Backup(resource.Resource, metadata.MetadataMixin):
 
     _max_microversion = "3.64"
 
-    def create(
-        self,
+    @classmethod
+    def _transform_create_request(
+        cls,
         session: adapter.Adapter,
-        prepend_key: bool = True,
-        base_path: str | None = None,
+        request: resource._Request,
         *,
-        resource_request_key: str | None = None,
-        resource_response_key: str | None = None,
-        microversion: str | None = None,
-        **params: Any,
-    ) -> Self:
-        """Create a remote resource based on this instance.
-
-        :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
-        :param prepend_key: A boolean indicating whether the resource_key
-                            should be prepended in a resource creation
-                            request. Default to True.
-        :param str base_path: Base part of the URI for creating resources, if
-                              different from
-                              :data:`~openstack.resource.Resource.base_path`.
-        :param dict params: Additional params to pass.
-        :return: This :class:`Resource` instance.
-        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
-                 :data:`Resource.allow_create` is not set to ``True``.
-        """
-        if not self.allow_create:
-            raise exceptions.MethodNotSupported(self, "create")
-
-        session = self._get_session(session)
-        microversion = self._get_microversion(session)
-        requires_id = (
-            self.create_requires_id
-            if self.create_requires_id is not None
-            else self.create_method == 'PUT'
-        )
-
-        if self.create_method == 'POST':
-            request = self._prepare_request(
-                requires_id=requires_id,
-                prepend_key=prepend_key,
-                base_path=base_path,
-            )
-            # NOTE(gtema) this is a funny example of when attribute
-            # is called "incremental" on create, "is_incremental" on get
-            # and use of "alias" or "aka" is not working for such conflict,
-            # since our preferred attr name is exactly "is_incremental"
-            body = cast(dict[str, Any], request.body)
-            if 'is_incremental' in body['backup']:
-                body['backup']['incremental'] = body['backup'].pop(
-                    'is_incremental'
-                )
-            response = session.post(
-                request.url,
-                json=request.body,
-                headers=request.headers,
-                microversion=microversion,
-                params=params,
-            )
-        else:
-            # Just for safety of the implementation (since PUT removed)
-            raise exceptions.ResourceFailure(
-                f"Invalid create method: {self.create_method}"
-            )
-
-        has_body = (
-            self.has_body
-            if self.create_returns_body is None
-            else self.create_returns_body
-        )
-        self.microversion = microversion
-        self._translate_response(response, has_body=has_body)
-        # direct comparision to False since we need to rule out None
-        if self.has_body and self.create_returns_body is False:
-            # fetch the body if it's required but not returned by create
-            return self.fetch(session)
-        return self
+        microversion: str | None,
+    ) -> resource._Request:
+        # The attribute is called "incremental" on create but "is_incremental"
+        # on get; alias doesn't work here since our canonical name is the
+        # get-side one.
+        if isinstance(request.body, dict) and 'backup' in request.body:
+            backup = request.body['backup']
+            if 'is_incremental' in backup:
+                backup['incremental'] = backup.pop('is_incremental')
+        return request
 
     def _action(
         self,
