@@ -23,6 +23,8 @@ class Claim(_base.MessageResource):
     resources_key = 'claims'
     base_path = '/queues/%(queue_name)s/claims'
 
+    create_opts = resource.CreateOpts(request_key=None)
+
     # capabilities
     allow_create = True
     allow_fetch = True
@@ -71,37 +73,6 @@ class Claim(_base.MessageResource):
         if has_body and self.location:
             # Extract claim ID from location
             self.id = self.location.split("claims/")[1]
-
-    def create(
-        self,
-        session: adapter.Adapter,
-        prepend_key: bool = False,
-        base_path: str | None = None,
-        *,
-        resource_request_key: str | None = None,
-        resource_response_key: str | None = None,
-        microversion: str | None = None,
-        **params: Any,
-    ) -> Self:
-        request = self._prepare_request(
-            requires_id=False, prepend_key=prepend_key, base_path=base_path
-        )
-        headers: dict[str, str] = {
-            "Client-ID": self.client_id or str(uuid.uuid4()),
-            "X-PROJECT-ID": self.project_id or session.get_project_id() or "",
-        }
-        request.headers.update(headers)
-        response = session.post(
-            request.url, json=request.body, headers=request.headers
-        )
-
-        # For case no message was claimed successfully, 204 No Content
-        # message will be returned. In other cases, we translate response
-        # body which has `messages` field(list) included.
-        if response.status_code != 204:
-            self._translate_response(response)
-
-        return self
 
     def commit(
         self,

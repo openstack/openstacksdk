@@ -81,4 +81,5 @@ class TestZoneImport(base.TestCase):
             json=None,
             headers={'content-type': 'text/dns'},
             microversion=self.session.default_microversion,
+            params={},
         )

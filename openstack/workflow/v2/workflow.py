@@ -72,15 +72,15 @@ class Workflow(resource.Resource):
         request.headers.update(headers)
         return dict(url=uri, json=None, headers=request.headers, **kwargs)
 
+    # TODO(stephenfin): Migrate to _transform_create_request once _Request
+    # gains a 'data' field for non-JSON request bodies. Currently the override
+    # sends the workflow definition as text/plain via data=self.definition with
+    # json=None, which cannot be expressed through the standard request object.
     def create(
         self,
         session: adapter.Adapter,
         prepend_key: bool = True,
         base_path: str | None = None,
-        *,
-        resource_request_key: str | None = None,
-        resource_response_key: str | None = None,
-        microversion: str | None = None,
         **params: Any,
     ) -> Self:
         kwargs = self._request_kwargs(

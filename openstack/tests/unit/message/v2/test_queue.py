@@ -13,6 +13,8 @@
 from unittest import mock
 import uuid
 
+from keystoneauth1 import adapter
+
 from openstack.message.v2 import queue
 from openstack.tests.unit import base
 
@@ -60,7 +62,8 @@ class TestQueue(base.TestCase):
 
     @mock.patch.object(uuid, 'uuid4')
     def test_create(self, mock_uuid):
-        sess = mock.Mock()
+        sess = mock.Mock(spec=adapter.Adapter)
+        sess.default_microversion = None
         resp = mock.Mock()
         sess.put.return_value = resp
         sess.get_project_id.return_value = 'NEW_PROJECT_ID'
@@ -75,13 +78,18 @@ class TestQueue(base.TestCase):
             'Client-ID': 'NEW_CLIENT_ID',
             'X-PROJECT-ID': 'NEW_PROJECT_ID',
         }
-        sess.put.assert_called_with(url, headers=headers, json=FAKE1)
+        sess.put.assert_called_with(
+            url, headers=headers, json=mock.ANY, microversion=None, params={}
+        )
         sess.get_project_id.assert_called_once_with()
-        sot._translate_response.assert_called_once_with(resp, has_body=False)
+        sot._translate_response.assert_called_once_with(
+            resp, has_body=True, resource_response_key=None
+        )
         self.assertEqual(sot, res)
 
     def test_create_client_id_project_id_exist(self):
-        sess = mock.Mock()
+        sess = mock.Mock(spec=adapter.Adapter)
+        sess.default_microversion = None
         resp = mock.Mock()
         sess.put.return_value = resp
 
@@ -94,8 +102,12 @@ class TestQueue(base.TestCase):
             'Client-ID': 'OLD_CLIENT_ID',
             'X-PROJECT-ID': 'OLD_PROJECT_ID',
         }
-        sess.put.assert_called_with(url, headers=headers, json=FAKE1)
-        sot._translate_response.assert_called_once_with(resp, has_body=False)
+        sess.put.assert_called_with(
+            url, headers=headers, json=mock.ANY, microversion=None, params={}
+        )
+        sot._translate_response.assert_called_once_with(
+            resp, has_body=True, resource_response_key=None
+        )
         self.assertEqual(sot, res)
 
     @mock.patch.object(uuid, 'uuid4')

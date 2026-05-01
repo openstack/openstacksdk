@@ -114,6 +114,20 @@ class MessageResource(resource.Resource):
 
         return self
 
+    @classmethod
+    def _transform_create_request(
+        cls,
+        session: adapter.Adapter,
+        request: resource._Request,
+        *,
+        microversion: str | None,
+    ) -> resource._Request:
+        if not request.headers.get('Client-ID'):
+            request.headers['Client-ID'] = str(uuid.uuid4())
+        if not request.headers.get('X-PROJECT-ID'):
+            request.headers['X-PROJECT-ID'] = session.get_project_id() or ""
+        return request
+
     def delete(
         self,
         session: adapter.Adapter,
