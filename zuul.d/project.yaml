@@ -17,7 +17,10 @@
         - openstack-tox-py312
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-networking
-        - openstacksdk-functional-devstack-networking-ext
+        # FIXME(stephenfin): Make this voting again once [1] (and a similar fix for vpnaas) merges
+        # https://review.opendev.org/c/openstack/neutron-lib/+/987372
+        - openstacksdk-functional-devstack-networking-ext:
+            voting: false
         - openstacksdk-functional-devstack-magnum:
             voting: false
         - openstacksdk-functional-devstack-manila
@@ -32,5 +35,4 @@
       jobs:
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-networking
-        - openstacksdk-functional-devstack-networking-ext
         - openstacksdk-functional-devstack-ironic
