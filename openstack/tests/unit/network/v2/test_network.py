@@ -36,7 +36,7 @@ EXAMPLE = {
     'qos_policy_id': '14',
     'revision_number': 15,
     'router:external': True,
-    'segments': '16',
+    'segments': ['16'],
     'shared': True,
     'status': '17',
     'subnets': ['18', '19'],

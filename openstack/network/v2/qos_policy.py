@@ -58,7 +58,7 @@ class QoSPolicy(resource.Resource, tag.TagMixin):
     #: *Type: bool*
     is_shared = resource.Body('shared', type=bool)
     #: List of QoS rules applied to this QoS policy.
-    rules = resource.Body('rules')
+    rules = resource.Body('rules', type=list)
 
     def set_tags(self, session, tags):
         url = utils.urljoin('/policies', self.id, 'tags')

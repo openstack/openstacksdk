@@ -46,4 +46,4 @@ class BgpVpnPortAssociation(resource.Resource):
     #: in the prefix key.
     #: For the bgpvpn type, the bgpvpn_id key specifies the BGPVPN from which
     #: routes will be readvertised
-    routes = resource.Body('routes')
+    routes = resource.Body('routes', type=list)

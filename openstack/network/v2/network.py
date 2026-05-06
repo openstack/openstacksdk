@@ -50,10 +50,12 @@ class Network(_base.NetworkResource, _base.TagMixinNetwork):
     # Properties
     #: Availability zone hints to use when scheduling the network.
     #: *Type: list of availability zone names*
-    availability_zone_hints = resource.Body('availability_zone_hints')
+    availability_zone_hints = resource.Body(
+        'availability_zone_hints', type=list
+    )
     #: Availability zones for the network.
     #: *Type: list of availability zone names*
-    availability_zones = resource.Body('availability_zones')
+    availability_zones = resource.Body('availability_zones', type=list)
     #: Timestamp when the network was created.
     created_at = resource.Body('created_at')
     #: The network description.
@@ -106,7 +108,7 @@ class Network(_base.NetworkResource, _base.TagMixinNetwork):
     qos_policy_id = resource.Body('qos_policy_id')
     #: A list of provider segment objects.
     #: Available for multiple provider extensions.
-    segments = resource.Body('segments')
+    segments = resource.Body('segments', type=list)
     #: The network status.
     status = resource.Body('status')
     #: The associated subnet IDs.
