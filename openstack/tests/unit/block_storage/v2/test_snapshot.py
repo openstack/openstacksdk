@@ -94,6 +94,15 @@ class TestSnapshotActions(base.TestCase):
         self.sess.get = mock.Mock()
         self.sess.post = mock.Mock(return_value=self.resp)
 
+    def test_force_delete(self):
+        sot = snapshot.Snapshot(**SNAPSHOT)
+
+        self.assertIsNone(sot.force_delete(self.sess))
+
+        url = f'snapshots/{FAKE_ID}/action'
+        body = {'os-force_delete': None}
+        self.sess.post.assert_called_with(url, json=body)
+
     def test_reset_status(self):
         sot = snapshot.Snapshot(**SNAPSHOT)
 

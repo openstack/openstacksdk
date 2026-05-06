@@ -205,7 +205,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_snapshot.Snapshot, snapshot, **attrs)
 
-    def delete_snapshot(self, snapshot, ignore_missing=True):
+    def delete_snapshot(self, snapshot, ignore_missing=True, force=False):
         """Delete a snapshot
 
         :param snapshot: The value can be either the ID of a snapshot or a
@@ -216,12 +216,17 @@ class Proxy(proxy.Proxy):
             raised when the snapshot does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent snapshot.
+        :param bool force: Whether to try forcing snapshot deletion.
 
         :returns: ``None``
         """
-        self._delete(
-            _snapshot.Snapshot, snapshot, ignore_missing=ignore_missing
-        )
+        if not force:
+            self._delete(
+                _snapshot.Snapshot, snapshot, ignore_missing=ignore_missing
+            )
+        else:
+            snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
+            snapshot.force_delete(self)
 
     # ========== Snapshot actions ==========
 
