@@ -10,6 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
+from keystoneauth1 import adapter
 
 from openstack.common import metadata
 from openstack import exceptions
@@ -327,14 +330,15 @@ class Volume(resource.Resource, metadata.MetadataMixin):
 
     def upload_to_image(
         self,
-        session,
-        image_name,
-        force=False,
-        disk_format=None,
-        container_format=None,
-        visibility=None,
-        protected=None,
-    ):
+        session: adapter.Adapter,
+        image_name: str,
+        *,
+        force: bool = False,
+        disk_format: str | None = None,
+        container_format: str | None = None,
+        visibility: str | None = None,
+        protected: bool | None = None,
+    ) -> dict[str, Any]:
         """Upload the volume to image service"""
         req = dict(image_name=image_name, force=force)
         if disk_format is not None:

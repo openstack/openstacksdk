@@ -215,5 +215,27 @@ class Volume(resource.Resource, metadata.MetadataMixin):
 
         self._action(session, body)
 
+    def upload_to_image(
+        self,
+        session,
+        image_name,
+        *,
+        force=False,
+        disk_format=None,
+        container_format=None,
+    ):
+        """Upload the volume to image service"""
+        body = {
+            'os-volume_upload_image': {
+                'image_name': image_name,
+                'force': force,
+                'disk_format': disk_format,
+                'container_format': container_format,
+            },
+        }
+
+        resp = self._action(session, body).json()
+        return resp['os-volume_upload_image']
+
 
 VolumeDetail = Volume

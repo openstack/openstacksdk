@@ -36,6 +36,7 @@ from openstack.block_storage.v3 import type as _type
 from openstack.block_storage.v3 import volume as _volume
 from openstack import exceptions
 from openstack.identity.v3 import project as _project
+from openstack.image.v2 import image as _image
 from openstack import proxy
 from openstack import resource
 from openstack import utils
@@ -66,47 +67,32 @@ class Proxy(proxy.Proxy):
     }
 
     # ====== IMAGES ======
-    # TODO(stephenfin): Convert to use resources/proxy rather than direct calls
+
+    # TODO(stephenfin): Deprecate the unused wait, timeout parameters
     def create_image(
         self,
-        name,
-        volume,
-        allow_duplicates,
-        container_format,
-        disk_format,
-        wait,
-        timeout,
-    ):
+        name: str,
+        volume: str,
+        allow_duplicates: bool,
+        container_format: str | None,
+        disk_format: str | None,
+        wait: bool,
+        timeout: int,
+    ) -> _image.Image:
         if not disk_format:
             disk_format = self._connection.config.config['image_format']
         if not container_format:
             # https://docs.openstack.org/image-guide/image-formats.html
             container_format = 'bare'
 
-        if 'id' in volume:
-            volume_id = volume['id']
-        else:
-            volume_obj = self.get_volume(volume)
-            if not volume_obj:
-                raise exceptions.SDKException(
-                    f"Volume {volume} given to create_image could not be found"
-                )
-            volume_id = volume_obj['id']
-        data = self.post(
-            f'/volumes/{volume_id}/action',
-            json={
-                'os-volume_upload_image': {
-                    'force': allow_duplicates,
-                    'image_name': name,
-                    'container_format': container_format,
-                    'disk_format': disk_format,
-                }
-            },
+        data = self._get_resource(_volume.Volume, volume).upload_to_image(
+            self,
+            name,
+            force=allow_duplicates,
+            disk_format=disk_format,
+            container_format=container_format,
         )
-        response = self._connection._get_and_munchify(
-            'os-volume_upload_image', data
-        )
-        return self._connection.image._existing_image(id=response['image_id'])
+        return self._connection.image._existing_image(id=data['image_id'])
 
     # ====== SNAPSHOTS ======
     def get_snapshot(self, snapshot):
