@@ -1091,6 +1091,9 @@ class CloudRegion:
             'connect_retries', self.get_connect_retries(service_type)
         )
         kwargs.setdefault(
+            'connect_retry_delay', self.get_connect_retry_delay(service_type)
+        )
+        kwargs.setdefault(
             'status_code_retries', self.get_status_code_retries(service_type)
         )
         kwargs.setdefault('statsd_prefix', self.get_statsd_prefix())
