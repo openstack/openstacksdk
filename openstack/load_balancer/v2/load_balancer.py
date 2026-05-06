@@ -83,6 +83,8 @@ class LoadBalancer(resource.Resource, tag.TagMixin):
     vip_subnet_id = resource.Body('vip_subnet_id')
     # VIP qos policy id
     vip_qos_policy_id = resource.Body('vip_qos_policy_id')
+    #: List of security group IDs for the VIP port
+    vip_sg_ids = resource.Body('vip_sg_ids', type=list)
     #: Additional VIPs
     additional_vips = resource.Body('additional_vips', type=list)
 

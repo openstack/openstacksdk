@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``vip_sg_ids`` attribute to the load balancer resource, which
+    contains a list of security group IDs for the VIP port.

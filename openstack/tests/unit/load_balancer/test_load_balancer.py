@@ -37,6 +37,7 @@ EXAMPLE = {
     'vip_port_id': uuid.uuid4(),
     'vip_subnet_id': uuid.uuid4(),
     'vip_qos_policy_id': uuid.uuid4(),
+    'vip_sg_ids': [str(uuid.uuid4()), str(uuid.uuid4())],
     'additional_vips': [
         {'subnet_id': uuid.uuid4(), 'ip_address': '192.0.2.6'},
         {'subnet_id': uuid.uuid4(), 'ip_address': '192.0.2.7'},
@@ -104,6 +105,7 @@ class TestLoadBalancer(base.TestCase):
         self.assertEqual(
             EXAMPLE['vip_qos_policy_id'], test_load_balancer.vip_qos_policy_id
         )
+        self.assertEqual(EXAMPLE['vip_sg_ids'], test_load_balancer.vip_sg_ids)
         self.assertEqual(
             EXAMPLE['additional_vips'], test_load_balancer.additional_vips
         )
