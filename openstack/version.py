@@ -10,7 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import warnings
 
 import pbr.version
+
+warnings.warn(
+    f'The {__name__} module is deprecated. Prefer use of importlib.metadata '
+    f'to inspect version information for packages.',
+    DeprecationWarning,
+)
 
 __version__ = pbr.version.VersionInfo('openstacksdk').version_string()

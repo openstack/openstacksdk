@@ -1,0 +1,6 @@
+---
+deprecations:
+  - |
+    The ``openstack.version`` module and associated objects has been deprecated
+    for removal. Prefer use of ``importlib.metadata`` to inspect version
+    information for installed packages.
