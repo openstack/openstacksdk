@@ -26,7 +26,7 @@ class TestSecurityGroupsDefaultStatefulness(base.TestCase):
     def test_basic(self):
         sot = sgds.SecurityGroupsDefaultStatefulness()
         self.assertEqual(
-            'security_groups_default_statefulness', sot.resource_key
+            'security_group_default_statefulness', sot.resource_key
         )
         self.assertEqual(
             'security_groups_default_statefulness', sot.resources_key

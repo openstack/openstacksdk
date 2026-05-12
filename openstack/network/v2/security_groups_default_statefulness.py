@@ -14,7 +14,7 @@ from openstack import resource
 
 
 class SecurityGroupsDefaultStatefulness(_base.NetworkResource):
-    resource_key = 'security_groups_default_statefulness'
+    resource_key = 'security_group_default_statefulness'
     resources_key = 'security_groups_default_statefulness'
     base_path = '/security-groups-default-statefulness'
 
