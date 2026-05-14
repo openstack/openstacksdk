@@ -8744,8 +8744,8 @@ class Proxy(proxy.Proxy):
     def wait_for_delete(
         self,
         res: resource.ResourceT,
-        interval: int = 2,
-        wait: int = 120,
+        interval: int | float | None = 2,
+        wait: int | None = 120,
         callback: Callable[[int], None] | None = None,
     ) -> resource.ResourceT:
         """Wait for a resource to be deleted.
