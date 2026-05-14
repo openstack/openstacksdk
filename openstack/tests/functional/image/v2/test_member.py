@@ -36,8 +36,10 @@ class TestImageMember(base.BaseImageTest):
         self.assertIsInstance(self.image, _image.Image)
         self.assertEqual(TEST_IMAGE_NAME, self.image.name)
 
-        self.member_id = self.user_cloud.session.get_project_id()
-        self.assertIsNotNone(self.member_id)
+        member_id = self.user_cloud.session.get_project_id()
+        self.assertIsNotNone(member_id)
+        assert member_id is not None
+        self.member_id = member_id
 
     def tearDown(self):
         self.admin_image_client.delete_image(self.image)

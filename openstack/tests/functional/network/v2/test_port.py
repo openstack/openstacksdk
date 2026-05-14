@@ -20,9 +20,9 @@ from openstack.tests.functional.network.v2 import common
 class TestPort(common.TestTagNeutron):
     IPV4 = 4
     CIDR = "10.100.0.0/24"
-    NET_ID = None
-    SUB_ID = None
-    PORT_ID = None
+    NET_ID: str
+    SUB_ID: str
+    PORT_ID: str
 
     def setUp(self):
         super().setUp()

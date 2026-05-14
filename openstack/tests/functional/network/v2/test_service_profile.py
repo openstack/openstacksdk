@@ -18,7 +18,7 @@ class TestServiceProfile(base.BaseFunctionalTest):
     SERVICE_PROFILE_DESCRIPTION = "DESCRIPTION"
     UPDATE_DESCRIPTION = "UPDATED-DESCRIPTION"
     METAINFO = "FlAVOR_PROFILE_METAINFO"
-    ID = None
+    ID: str | None = None
 
     def setUp(self):
         super().setUp()

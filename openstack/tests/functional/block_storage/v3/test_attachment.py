@@ -85,6 +85,6 @@ class TestAttachment(base.BaseBlockStorageTest):
         self.assertIn('detached_at', attachment)
         self.assertIn('attach_mode', attachment)
         self.assertIn('connection_info', attachment)
-        attachment = self.block_storage_client.delete_attachment(
+        self.block_storage_client.delete_attachment(
             attachment.id, ignore_missing=False
         )

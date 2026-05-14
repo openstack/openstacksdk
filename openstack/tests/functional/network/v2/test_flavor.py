@@ -17,7 +17,7 @@ from openstack.tests.functional import base
 class TestFlavor(base.BaseFunctionalTest):
     UPDATE_NAME = "UPDATED-NAME"
     SERVICE_TYPE = "FLAVORS"
-    ID = None
+    ID: str | None = None
 
     SERVICE_PROFILE_DESCRIPTION = "DESCRIPTION"
     METAINFO = "FlAVOR_PROFILE_METAINFO"

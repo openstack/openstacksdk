@@ -24,9 +24,9 @@ class TestFirewallPolicyRuleAssociations(base.BaseFunctionalTest):
     POLICY_NAME = uuid.uuid4().hex
     RULE1_NAME = uuid.uuid4().hex
     RULE2_NAME = uuid.uuid4().hex
-    POLICY_ID = None
-    RULE1_ID = None
-    RULE2_ID = None
+    POLICY_ID: str
+    RULE1_ID: str
+    RULE2_ID: str
 
     def setUp(self):
         super().setUp()

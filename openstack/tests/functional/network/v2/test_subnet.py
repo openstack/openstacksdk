@@ -22,8 +22,8 @@ class TestSubnet(common.TestTagNeutron):
     DNS_SERVERS = ["8.8.4.4", "8.8.8.8"]
     POOL = [{"start": "10.100.0.2", "end": "10.100.0.253"}]
     ROUTES = [{"destination": "10.101.0.0/24", "nexthop": "10.100.0.254"}]
-    NET_ID = None
-    SUB_ID = None
+    NET_ID: str
+    SUB_ID: str
 
     def setUp(self):
         super().setUp()

@@ -20,7 +20,6 @@ class TestType(base.BaseBlockStorageTest):
         super().setUp()
 
         self.TYPE_NAME = self.getUniqueString()
-        self.TYPE_ID = None
 
         sot = self.operator_cloud.block_storage.create_type(
             name=self.TYPE_NAME

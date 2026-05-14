@@ -16,7 +16,7 @@ from openstack.tests.functional import base
 
 
 class TestQoSPolicy(base.BaseFunctionalTest):
-    QOS_POLICY_ID = None
+    QOS_POLICY_ID: str
     IS_SHARED = False
     IS_DEFAULT = False
     RULES: list[str] = []

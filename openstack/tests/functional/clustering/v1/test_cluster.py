@@ -107,17 +107,12 @@ class TestCluster(base.BaseFunctionalTest):
         self.assertEqual(new_cluster_name, sot.name)
 
     def test_delete(self):
-        cluster_delete_action = self.operator_cloud.clustering.delete_cluster(
-            self.cluster.id
-        )
-
+        self.operator_cloud.clustering.delete_cluster(self.cluster.id)
         self.operator_cloud.clustering.wait_for_delete(
             self.cluster, wait=self._wait_for_timeout
         )
 
-        action = self.operator_cloud.clustering.get_action(
-            cluster_delete_action.id
-        )
+        action = self.operator_cloud.clustering.get_action(self.cluster.id)
         self.assertEqual(action.target_id, self.cluster.id)
         self.assertEqual(action.action, 'CLUSTER_DELETE')
         self.assertEqual(action.status, 'SUCCEEDED')
@@ -126,17 +121,14 @@ class TestCluster(base.BaseFunctionalTest):
         self.cluster = None  # type: ignore
 
     def test_force_delete(self):
-        cluster_delete_action = self.operator_cloud.clustering.delete_cluster(
+        self.operator_cloud.clustering.delete_cluster(
             self.cluster.id, False, True
         )
-
         self.operator_cloud.clustering.wait_for_delete(
             self.cluster, wait=self._wait_for_timeout
         )
 
-        action = self.operator_cloud.clustering.get_action(
-            cluster_delete_action.id
-        )
+        action = self.operator_cloud.clustering.get_action(self.cluster.id)
         self.assertEqual(action.target_id, self.cluster.id)
         self.assertEqual(action.action, 'CLUSTER_DELETE')
         self.assertEqual(action.status, 'SUCCEEDED')
