@@ -43,7 +43,7 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_queue.Queue, **attrs)
 
-    def get_queue(self, queue):
+    def get_queue(self, queue: str | _queue.Queue) -> _queue.Queue:
         """Get a queue
 
         :param queue: The value can be the name of a queue or a
@@ -127,7 +127,9 @@ class Proxy(proxy.Proxy):
         query["queue_name"] = queue_name
         return self._list(_message.Message, **query)
 
-    def get_message(self, queue_name, message):
+    def get_message(
+        self, queue_name: str, message: str | _message.Message
+    ) -> _message.Message:
         """Get a message
 
         :param queue_name: The name of target queue to get message from.
@@ -210,7 +212,9 @@ class Proxy(proxy.Proxy):
         query["queue_name"] = queue_name
         return self._list(_subscription.Subscription, **query)
 
-    def get_subscription(self, queue_name, subscription):
+    def get_subscription(
+        self, queue_name: str, subscription: str | _subscription.Subscription
+    ) -> _subscription.Subscription:
         """Get a subscription
 
         :param queue_name: The name of target queue of subscription.
@@ -270,7 +274,9 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_claim.Claim, queue_name=queue_name, **attrs)
 
-    def get_claim(self, queue_name, claim):
+    def get_claim(
+        self, queue_name: str, claim: str | _claim.Claim
+    ) -> _claim.Claim:
         """Get a claim
 
         :param queue_name: The name of target queue to claim message from.

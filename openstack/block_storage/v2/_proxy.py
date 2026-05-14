@@ -80,7 +80,9 @@ class Proxy(proxy.Proxy):
 
     # ========== Snapshots ==========
 
-    def get_snapshot(self, snapshot):
+    def get_snapshot(
+        self, snapshot: str | _snapshot.Snapshot
+    ) -> _snapshot.Snapshot:
         """Get a single snapshot
 
         :param snapshot: The value can be the ID of a snapshot or a
@@ -282,7 +284,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Types ==========
 
-    def get_type(self, type):
+    def get_type(self, type: str | _type.Type) -> _type.Type:
         """Get a single type
 
         :param type: The value can be the ID of a type or a
@@ -368,7 +370,7 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_type.Type, type, ignore_missing=ignore_missing)
 
-    def get_type_access(self, type):
+    def get_type_access(self, type: str | _type.Type) -> list[dict[str, Any]]:
         """Lists project IDs that have access to private volume type.
 
         :param type: The value can be either the ID of a type or a
@@ -414,7 +416,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Volumes ==========
 
-    def get_volume(self, volume):
+    def get_volume(self, volume: str | _volume.Volume) -> _volume.Volume:
         """Get a single volume
 
         :param volume: The value can be the ID of a volume or a
@@ -778,7 +780,7 @@ class Proxy(proxy.Proxy):
         base_path = '/backups/detail' if details else None
         return self._list(_backup.Backup, base_path=base_path, **query)
 
-    def get_backup(self, backup):
+    def get_backup(self, backup: str | _backup.Backup) -> _backup.Backup:
         """Get a backup
 
         :param backup: The value can be the ID of a backup
@@ -786,7 +788,6 @@ class Proxy(proxy.Proxy):
             instance.
 
         :returns: Backup instance
-        :rtype: :class:`~openstack.block_storage.v2.backup.Backup`
         """
         return self._get(_backup.Backup, backup)
 
@@ -930,7 +931,9 @@ class Proxy(proxy.Proxy):
 
     # ========== Limits ==========
 
-    def get_limits(self, project=None):
+    def get_limits(
+        self, project: str | _project.Project | None = None
+    ) -> _limits.Limits:
         """Retrieves limits
 
         :param project: A project to get limits for. The value can be either
@@ -939,7 +942,6 @@ class Proxy(proxy.Proxy):
         :returns: A Limits object, including both
             :class:`~openstack.block_storage.v2.limits.AbsoluteLimit` and
             :class:`~openstack.block_storage.v2.limits.RateLimit`
-        :rtype: :class:`~openstack.block_storage.v2.limits.Limits`
         """
         if project:
             return self._get(
@@ -951,7 +953,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Capabilities ==========
 
-    def get_capabilities(self, host):
+    def get_capabilities(self, host: str) -> _capabilities.Capabilities:
         """Get a backend's capabilites
 
         :param host: Specified backend to obtain volume stats and properties.
@@ -965,7 +967,10 @@ class Proxy(proxy.Proxy):
 
     # ========== Quota class sets ==========
 
-    def get_quota_class_set(self, quota_class_set='default'):
+    def get_quota_class_set(
+        self,
+        quota_class_set: str | _quota_class_set.QuotaClassSet = 'default',
+    ) -> _quota_class_set.QuotaClassSet:
         """Get a single quota class set
 
         Only one quota class is permitted, ``default``.
@@ -1003,15 +1008,20 @@ class Proxy(proxy.Proxy):
 
     # ========== Quota sets ==========
 
-    def get_quota_set(self, project, usage=False, **query):
+    def get_quota_set(
+        self,
+        project: str | _project.Project,
+        usage: bool = False,
+        **query: Any,
+    ) -> _quota_set.QuotaSet:
         """Show QuotaSet information for the project
 
         :param project: ID or instance of
             :class:`~openstack.identity.project.Project` of the project for
             which the quota should be retrieved
-        :param bool usage: When set to ``True`` quota usage and reservations
+        :param usage: When set to ``True`` quota usage and reservations
             would be filled.
-        :param dict query: Additional query parameters to use.
+        :param query: Additional query parameters to use.
 
         :returns: One :class:`~openstack.block_storage.v2.quota_set.QuotaSet`
         :raises: :class:`~openstack.exceptions.NotFoundException`
@@ -1023,7 +1033,9 @@ class Proxy(proxy.Proxy):
         )
         return res.fetch(self, usage=usage, **query)
 
-    def get_quota_set_defaults(self, project):
+    def get_quota_set_defaults(
+        self, project: str | _project.Project
+    ) -> _quota_set.QuotaSet:
         """Show QuotaSet defaults for the project
 
         :param project: ID or instance of
@@ -1238,7 +1250,10 @@ class Proxy(proxy.Proxy):
 
     # ========== Volume metadata ==========
 
-    def get_volume_metadata(self, volume):
+    # TODO(stephenfin): Rename to fetch_volume_metadata
+    def get_volume_metadata(
+        self, volume: str | _volume.Volume
+    ) -> _volume.Volume:
         """Return a dictionary of metadata for a volume
 
         :param volume: Either the ID of a volume or a
@@ -1246,7 +1261,6 @@ class Proxy(proxy.Proxy):
 
         :returns: A :class:`~openstack.block_storage.v2.volume.Volume` with the
             volume's metadata. All keys and values are Unicode text.
-        :rtype: :class:`~openstack.block_storage.v2.volume.Volume`
         """
         volume = self._get_resource(_volume.Volume, volume)
         return volume.fetch_metadata(self)
@@ -1289,7 +1303,10 @@ class Proxy(proxy.Proxy):
 
     # ========== Snapshot metadata ==========
 
-    def get_snapshot_metadata(self, snapshot):
+    # TODO(stephenfin): Rename to fetch_snapshot_metadata
+    def get_snapshot_metadata(
+        self, snapshot: str | _snapshot.Snapshot
+    ) -> _snapshot.Snapshot:
         """Return a dictionary of metadata for a snapshot
 
         :param snapshot: Either the ID of a snapshot or a
@@ -1298,7 +1315,6 @@ class Proxy(proxy.Proxy):
         :returns: A
             :class:`~openstack.block_storage.v2.snapshot.Snapshot` with the
             snapshot's metadata. All keys and values are Unicode text.
-        :rtype: :class:`~openstack.block_storage.v2.snapshot.Snapshot`
         """
         snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
         return snapshot.fetch_metadata(self)
@@ -1414,7 +1430,9 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def get_transfer(self, transfer):
+    def get_transfer(
+        self, transfer: str | _transfer.Transfer
+    ) -> _transfer.Transfer:
         """Get a single transfer
 
         :param transfer: The value can be the ID of a transfer or a

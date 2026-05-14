@@ -141,7 +141,11 @@ class Proxy(proxy.Proxy):
         instance = self._get_resource(_instance.Instance, instance)
         return self._list(_database.Database, instance_id=instance.id, **query)
 
-    def get_database(self, database, instance=None):
+    def get_database(
+        self,
+        database: str | _database.Database,
+        instance: str | _instance.Instance | None = None,
+    ) -> _database.Database:
         """Get a single database
 
         :param instance: This parameter needs to be specified when
@@ -191,7 +195,7 @@ class Proxy(proxy.Proxy):
             _flavor.Flavor, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_flavor(self, flavor):
+    def get_flavor(self, flavor: str | _flavor.Flavor) -> _flavor.Flavor:
         """Get a single flavor
 
         :param flavor: The value can be the ID of a flavor or a
@@ -278,7 +282,9 @@ class Proxy(proxy.Proxy):
             _instance.Instance, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_instance(self, instance):
+    def get_instance(
+        self, instance: str | _instance.Instance
+    ) -> _instance.Instance:
         """Get a single instance
 
         :param instance: The value can be the ID of an instance or a
@@ -420,7 +426,11 @@ class Proxy(proxy.Proxy):
         instance = self._get_resource(_instance.Instance, instance)
         return self._list(_user.User, instance_id=instance.id, **query)
 
-    def get_user(self, user, instance=None):
+    def get_user(
+        self,
+        user: str | _user.User,
+        instance: str | _instance.Instance | None = None,
+    ) -> _user.User:
         """Get a single user
 
         :param user: The value can be the ID of a user or a

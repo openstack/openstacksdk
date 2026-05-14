@@ -371,7 +371,7 @@ class Proxy(proxy.Proxy):
             _image.Image, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_image(self, image):
+    def get_image(self, image: str | _image.Image) -> _image.Image:
         """Get a single image
 
         :param image: The value can be the ID of an image or a

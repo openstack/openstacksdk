@@ -330,7 +330,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_address_group(self, address_group):
+    def get_address_group(
+        self, address_group: str | _address_group.AddressGroup
+    ) -> _address_group.AddressGroup:
         """Get a single address group
 
         :param address_group: The value can be the ID of an address group or a
@@ -481,7 +483,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_address_scope(self, address_scope):
+    def get_address_scope(
+        self, address_scope: str | _address_scope.AddressScope
+    ) -> _address_scope.AddressScope:
         """Get a single address scope
 
         :param address_scope: The value can be the ID of an address scope or a
@@ -562,14 +566,13 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_agent.Agent, agent, ignore_missing=ignore_missing)
 
-    def get_agent(self, agent):
+    def get_agent(self, agent: str | _agent.Agent) -> _agent.Agent:
         """Get a single network agent
 
         :param agent: The value can be the ID of a agent or a
             :class:`~openstack.network.v2.agent.Agent` instance.
 
         :returns: One :class:`~openstack.network.v2.agent.Agent`
-        :rtype: :class:`~openstack.network.v2.agent.Agent`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
@@ -640,15 +643,15 @@ class Proxy(proxy.Proxy):
             _agent.NetworkHostingDHCPAgent, network_id=net.id, **query
         )
 
-    def get_auto_allocated_topology(self, project=None):
+    def get_auto_allocated_topology(
+        self, project: str | None = None
+    ) -> _auto_allocated_topology.AutoAllocatedTopology:
         """Get the auto-allocated topology of a given tenant
 
         :param project:
             The value is the ID or name of a project
 
         :returns: The auto-allocated topology
-        :rtype:
-            :class:`~openstack.network.v2.auto_allocated_topology.AutoAllocatedTopology`
         """
 
         # If project option is not given, grab project id from session
@@ -758,7 +761,7 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_bgp_peer(self, peer):
+    def get_bgp_peer(self, peer: str | _bgp_peer.BgpPeer) -> _bgp_peer.BgpPeer:
         """Get a signle BGP Peer"""
         return self._get(_bgp_peer.BgpPeer, peer)
 
@@ -814,7 +817,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_bgp_speaker(self, speaker):
+    def get_bgp_speaker(
+        self, speaker: str | _bgp_speaker.BgpSpeaker
+    ) -> _bgp_speaker.BgpSpeaker:
         """Get a signle BGP Speaker"""
         return self._get(_bgp_speaker.BgpSpeaker, speaker)
 
@@ -854,12 +859,16 @@ class Proxy(proxy.Proxy):
             self, resource.Resource._get_id(network)
         )
 
-    def get_advertised_routes_of_speaker(self, speaker):
+    def get_advertised_routes_of_speaker(
+        self, speaker: str | _bgp_speaker.BgpSpeaker
+    ) -> dict[str, Any]:
         """List all routes advertised by the specified BGP Speaker."""
         speaker = self._get_resource(_bgp_speaker.BgpSpeaker, speaker)
         return speaker.get_advertised_routes(self)
 
-    def get_bgp_dragents_hosting_speaker(self, speaker):
+    def get_bgp_dragents_hosting_speaker(
+        self, speaker: str | _bgp_speaker.BgpSpeaker
+    ) -> list[_agent.Agent]:
         """List all BGP dynamic agents which are hosting the
         specified BGP Speaker."""
         speaker = self._get_resource(_bgp_speaker.BgpSpeaker, speaker)
@@ -871,7 +880,9 @@ class Proxy(proxy.Proxy):
         speaker = self._get_resource(_bgp_speaker.BgpSpeaker, bgp_speaker)
         speaker.add_bgp_speaker_to_dragent(self, bgp_agent)
 
-    def get_bgp_speakers_hosted_by_dragent(self, bgp_agent):
+    def get_bgp_speakers_hosted_by_dragent(
+        self, bgp_agent: str | _agent.Agent
+    ) -> list[_bgp_speaker.BgpSpeaker]:
         """List all BGP Seakers hosted on the specified dynamic routing
         agent."""
         agent = self._get_resource(_agent.Agent, bgp_agent)
@@ -953,7 +964,7 @@ class Proxy(proxy.Proxy):
             _bgpvpn.BgpVpn, name_or_id, ignore_missing=ignore_missing, **query
         )
 
-    def get_bgpvpn(self, bgpvpn):
+    def get_bgpvpn(self, bgpvpn: str | _bgpvpn.BgpVpn) -> _bgpvpn.BgpVpn:
         """Get a signle BGPVPN
 
         :param bgpvpn: The value can be the ID of a BGPVPN or a
@@ -1043,7 +1054,12 @@ class Proxy(proxy.Proxy):
             bgpvpn_id=bgpvpn_res.id,
         )
 
-    def get_bgpvpn_network_association(self, bgpvpn, net_association):
+    def get_bgpvpn_network_association(
+        self,
+        bgpvpn: str | _bgpvpn.BgpVpn,
+        net_association: str
+        | _bgpvpn_network_association.BgpVpnNetworkAssociation,
+    ) -> _bgpvpn_network_association.BgpVpnNetworkAssociation:
         """Get a signle BGPVPN Network Association
 
         :param bgpvpn: The value can be the ID of a BGPVPN or a
@@ -1184,7 +1200,11 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_bgpvpn_port_association(self, bgpvpn, port_association):
+    def get_bgpvpn_port_association(
+        self,
+        bgpvpn: str | _bgpvpn.BgpVpn,
+        port_association: str | _bgpvpn_port_association.BgpVpnPortAssociation,
+    ) -> _bgpvpn_port_association.BgpVpnPortAssociation:
         """Get a signle BGPVPN Port Association
 
         :param bgpvpn: The value can be the ID of a BGPVPN or a
@@ -1304,7 +1324,12 @@ class Proxy(proxy.Proxy):
             bgpvpn_id=bgpvpn_res.id,
         )
 
-    def get_bgpvpn_router_association(self, bgpvpn, router_association):
+    def get_bgpvpn_router_association(
+        self,
+        bgpvpn: str | _bgpvpn.BgpVpn,
+        router_association: str
+        | _bgpvpn_router_association.BgpVpnRouterAssociation,
+    ) -> _bgpvpn_router_association.BgpVpnRouterAssociation:
         """Get a signle BGPVPN Router Association
 
         :param bgpvpn: The value can be the ID of a BGPVPN or a
@@ -1487,7 +1512,7 @@ class Proxy(proxy.Proxy):
             _flavor.Flavor, name_or_id, ignore_missing=ignore_missing, **query
         )
 
-    def get_flavor(self, flavor):
+    def get_flavor(self, flavor: str | _flavor.Flavor) -> _flavor.Flavor:
         """Get a single network service flavor
 
         :param flavor:
@@ -1654,7 +1679,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_local_ip(self, local_ip):
+    def get_local_ip(
+        self, local_ip: str | _local_ip.LocalIP
+    ) -> _local_ip.LocalIP:
         """Get a single local ip
 
         :param local_ip: The value can be the ID of a local ip or a
@@ -1814,7 +1841,11 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_local_ip_association(self, local_ip_association, local_ip):
+    def get_local_ip_association(
+        self,
+        local_ip_association: str | _local_ip_association.LocalIPAssociation,
+        local_ip: str | _local_ip.LocalIP,
+    ) -> _local_ip_association.LocalIPAssociation:
         """Get a single local ip association
 
         :param local_ip: The value can be the ID of a Local IP or a
@@ -1952,7 +1983,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_ip(self, floating_ip):
+    def get_ip(
+        self, floating_ip: str | _floating_ip.FloatingIP
+    ) -> _floating_ip.FloatingIP:
         """Get a single floating ip
 
         :param floating_ip: The value can be the ID of a floating ip or a
@@ -2025,7 +2058,11 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_port_forwarding.PortForwarding, **attrs)
 
-    def get_port_forwarding(self, port_forwarding, floating_ip):
+    def get_port_forwarding(
+        self,
+        port_forwarding: str | _port_forwarding.PortForwarding,
+        floating_ip: str | _floating_ip.FloatingIP,
+    ) -> _port_forwarding.PortForwarding:
         """Get a single port forwarding
 
         :param port_forwarding: The value can be the ID of a port forwarding
@@ -2254,7 +2291,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_health_monitor(self, health_monitor):
+    def get_health_monitor(
+        self, health_monitor: str | _health_monitor.HealthMonitor
+    ) -> _health_monitor.HealthMonitor:
         """Get a single health monitor
 
         :param health_monitor: The value can be the ID of a health monitor or a
@@ -2384,7 +2423,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_listener(self, listener):
+    def get_listener(
+        self, listener: str | _listener.Listener
+    ) -> _listener.Listener:
         """Get a single listener
 
         :param listener: The value can be the ID of a listener or a
@@ -2514,7 +2555,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_load_balancer(self, load_balancer):
+    def get_load_balancer(
+        self, load_balancer: str | _load_balancer.LoadBalancer
+    ) -> _load_balancer.LoadBalancer:
         """Get a single load balancer
 
         :param load_balancer: The value can be the ID of a load balancer or a
@@ -2636,7 +2679,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_metering_label(self, metering_label):
+    def get_metering_label(
+        self, metering_label: str | _metering_label.MeteringLabel
+    ) -> _metering_label.MeteringLabel:
         """Get a single metering label
 
         :param metering_label: The value can be the ID of a metering label or a
@@ -2768,7 +2813,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_metering_label_rule(self, metering_label_rule):
+    def get_metering_label_rule(
+        self, metering_label_rule: str | _metering_label_rule.MeteringLabelRule
+    ) -> _metering_label_rule.MeteringLabelRule:
         """Get a single metering label rule
 
         :param metering_label_rule:
@@ -2907,7 +2954,7 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_network(self, network):
+    def get_network(self, network: str | _network.Network) -> _network.Network:
         """Get a single network
 
         :param network:
@@ -3008,7 +3055,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_network_ip_availability(self, network):
+    def get_network_ip_availability(
+        self, network: str | network_ip_availability.NetworkIPAvailability
+    ) -> network_ip_availability.NetworkIPAvailability:
         """Get IP availability of a network
 
         :param network:
@@ -3132,7 +3181,11 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_network_segment_range(self, network_segment_range):
+    def get_network_segment_range(
+        self,
+        network_segment_range: str
+        | _network_segment_range.NetworkSegmentRange,
+    ) -> _network_segment_range.NetworkSegmentRange:
         """Get a single network segment range
 
         :param network_segment_range: The value can be the ID of a network
@@ -3267,7 +3320,7 @@ class Proxy(proxy.Proxy):
             _pool.Pool, name_or_id, ignore_missing=ignore_missing, **query
         )
 
-    def get_pool(self, pool):
+    def get_pool(self, pool: str | _pool.Pool) -> _pool.Pool:
         """Get a single pool
 
         :param pool: The value can be the ID of a pool or a
@@ -3418,7 +3471,11 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_pool_member(self, pool_member, pool):
+    def get_pool_member(
+        self,
+        pool_member: str | _pool_member.PoolMember,
+        pool: str | _pool.Pool,
+    ) -> _pool_member.PoolMember:
         """Get a single pool member
 
         :param pool_member: The member can be the ID of a pool member or a
@@ -3575,7 +3632,7 @@ class Proxy(proxy.Proxy):
             _port.Port, name_or_id, ignore_missing=ignore_missing, **query
         )
 
-    def get_port(self, port):
+    def get_port(self, port: str | _port.Port) -> _port.Port:
         """Get a single port
 
         :param port: The value can be the ID of a port or a
@@ -3640,8 +3697,10 @@ class Proxy(proxy.Proxy):
         return ip.commit(self)
 
     @renamed_param('subnet_id', 'subnet')
-    def get_subnet_ports(self, subnet):
-        subnet_id = resource.Resource._get_id(subnet)
+    def get_subnet_ports(
+        self, subnet: str | _subnet.Subnet
+    ) -> list[_port.Port]:
+        subnet_id = _subnet.Subnet._get_id(subnet)
         result = []
         ports = self.ports()
         for puerta in ports:
@@ -3857,7 +3916,11 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_qos_bandwidth_limit_rule(self, qos_rule, qos_policy):
+    def get_qos_bandwidth_limit_rule(
+        self,
+        qos_rule: str | _qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
+        qos_policy: str | _qos_policy.QoSPolicy,
+    ) -> _qos_bandwidth_limit_rule.QoSBandwidthLimitRule:
         """Get a single bandwidth limit rule
 
         :param qos_rule: The value can be the ID of a minimum bandwidth rule or
@@ -4034,7 +4097,11 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_qos_dscp_marking_rule(self, qos_rule, qos_policy):
+    def get_qos_dscp_marking_rule(
+        self,
+        qos_rule: str | _qos_dscp_marking_rule.QoSDSCPMarkingRule,
+        qos_policy: str | _qos_policy.QoSPolicy,
+    ) -> _qos_dscp_marking_rule.QoSDSCPMarkingRule:
         """Get a single QoS DSCP marking rule
 
         :param qos_rule: The value can be the ID of a minimum bandwidth rule or
@@ -4206,7 +4273,11 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_qos_minimum_bandwidth_rule(self, qos_rule, qos_policy):
+    def get_qos_minimum_bandwidth_rule(
+        self,
+        qos_rule: str | _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
+        qos_policy: str | _qos_policy.QoSPolicy,
+    ) -> _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule:
         """Get a single minimum bandwidth rule
 
         :param qos_rule: The value can be the ID of a minimum bandwidth rule or
@@ -4378,7 +4449,11 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_qos_minimum_packet_rate_rule(self, qos_rule, qos_policy):
+    def get_qos_minimum_packet_rate_rule(
+        self,
+        qos_rule: str | _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
+        qos_policy: str | _qos_policy.QoSPolicy,
+    ) -> _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule:
         """Get a single minimum packet rate rule
 
         :param qos_rule: The value can be the ID of a minimum packet rate rule
@@ -4549,7 +4624,11 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_qos_packet_rate_limit_rule(self, qos_rule, qos_policy):
+    def get_qos_packet_rate_limit_rule(
+        self,
+        qos_rule: str | _qos_packet_rate_limit_rule.QoSPacketRateLimitRule,
+        qos_policy: str | _qos_policy.QoSPolicy,
+    ) -> _qos_packet_rate_limit_rule.QoSPacketRateLimitRule:
         """Get a single packet rate limit rule
 
         :param qos_rule: The value can be the ID of a packet rate limit rule
@@ -4691,7 +4770,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_qos_policy(self, qos_policy):
+    def get_qos_policy(
+        self, qos_policy: str | _qos_policy.QoSPolicy
+    ) -> _qos_policy.QoSPolicy:
         """Get a single QoS policy
 
         :param qos_policy: The value can be the ID of a QoS policy or a
@@ -4769,7 +4850,9 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def get_qos_rule_type(self, qos_rule_type):
+    def get_qos_rule_type(
+        self, qos_rule_type: str | _qos_rule_type.QoSRuleType
+    ) -> _qos_rule_type.QoSRuleType:
         """Get details about single QoS rule type
 
         :param qos_rule_type: The value can be the name of a QoS policy
@@ -4815,7 +4898,11 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_quota.Quota, quota, ignore_missing=ignore_missing)
 
-    def get_quota(self, quota, details=False):
+    def get_quota(
+        self,
+        quota: str | _quota.Quota,
+        details: bool = False,
+    ) -> _quota.Quota | _quota.QuotaDetails:
         """Get a quota
 
         :param quota: The value can be the ID of a quota or a
@@ -4838,7 +4925,9 @@ class Proxy(proxy.Proxy):
             quota = self._get(_quota.Quota, quota)
         return quota
 
-    def get_quota_default(self, quota):
+    def get_quota_default(
+        self, quota: str | _quota.Quota
+    ) -> _quota.QuotaDefault:
         """Get a default quota
 
         :param quota: The value can be the ID of a default quota or a
@@ -4957,7 +5046,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_rbac_policy(self, rbac_policy):
+    def get_rbac_policy(
+        self, rbac_policy: str | _rbac_policy.RBACPolicy
+    ) -> _rbac_policy.RBACPolicy:
         """Get a single RBAC policy
 
         :param rbac_policy: The value can be the ID of a RBAC policy or a
@@ -5077,7 +5168,7 @@ class Proxy(proxy.Proxy):
             _router.Router, name_or_id, ignore_missing=ignore_missing, **query
         )
 
-    def get_router(self, router):
+    def get_router(self, router: str | _router.Router) -> _router.Router:
         """Get a single router
 
         :param router: The value can be the ID of a router or a
@@ -5346,7 +5437,9 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_ndp_proxy.NDPProxy, **attrs)
 
-    def get_ndp_proxy(self, ndp_proxy):
+    def get_ndp_proxy(
+        self, ndp_proxy: str | _ndp_proxy.NDPProxy
+    ) -> _ndp_proxy.NDPProxy:
         """Get a single ndp proxy
 
         :param ndp_proxy: The value can be the ID of a ndp proxy
@@ -5529,7 +5622,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_firewall_group(self, firewall_group):
+    def get_firewall_group(
+        self, firewall_group: str | _firewall_group.FirewallGroup
+    ) -> _firewall_group.FirewallGroup:
         """Get a single firewall group
 
         :param firewall_group: The value can be the ID of a firewall group or a
@@ -5665,7 +5760,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_firewall_policy(self, firewall_policy):
+    def get_firewall_policy(
+        self, firewall_policy: str | _firewall_policy.FirewallPolicy
+    ) -> _firewall_policy.FirewallPolicy:
         """Get a single firewall policy
 
         :param firewall_policy: The value can be the ID of a firewall policy
@@ -5851,7 +5948,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_firewall_rule(self, firewall_rule):
+    def get_firewall_rule(
+        self, firewall_rule: str | _firewall_rule.FirewallRule
+    ) -> _firewall_rule.FirewallRule:
         """Get a single firewall rule
 
         :param firewall_rule: The value can be the ID of a firewall rule or a
@@ -5997,7 +6096,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_security_group(self, security_group):
+    def get_security_group(
+        self, security_group: str | _security_group.SecurityGroup
+    ) -> _security_group.SecurityGroup:
         """Get a single security group
 
         :param security_group: The value can be the ID of a security group or a
@@ -6155,7 +6256,10 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_security_group_rule(self, security_group_rule):
+    def get_security_group_rule(
+        self,
+        security_group_rule: str | _security_group_rule.SecurityGroupRule,
+    ) -> _security_group_rule.SecurityGroupRule:
         """Get a single security group rule
 
         :param security_group_rule:
@@ -6283,7 +6387,11 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_default_security_group_rule(self, default_security_group_rule):
+    def get_default_security_group_rule(
+        self,
+        default_security_group_rule: str
+        | _default_security_group_rule.DefaultSecurityGroupRule,
+    ) -> _default_security_group_rule.DefaultSecurityGroupRule:
         """Get a single default security group rule
 
         :param default_security_group_rule:
@@ -6419,8 +6527,9 @@ class Proxy(proxy.Proxy):
 
     def get_security_groups_default_statefulness(
         self,
-        security_groups_default_statefulness,
-    ):
+        security_groups_default_statefulness: str
+        | _sg_default_statefulness.SecurityGroupsDefaultStatefulness,
+    ) -> _sg_default_statefulness.SecurityGroupsDefaultStatefulness:
         """Get a single default statefulness setting
 
         :param security_groups_default_statefulness:
@@ -6551,7 +6660,7 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_segment(self, segment):
+    def get_segment(self, segment: str | _segment.Segment) -> _segment.Segment:
         """Get a single segment
 
         :param segment: The value can be the ID of a segment or a
@@ -6690,7 +6799,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_service_profile(self, service_profile):
+    def get_service_profile(
+        self, service_profile: str | _service_profile.ServiceProfile
+    ) -> _service_profile.ServiceProfile:
         """Get a single network service flavor profile
 
         :param service_profile: The value can be the ID of a service_profile or
@@ -6813,7 +6924,7 @@ class Proxy(proxy.Proxy):
             _subnet.Subnet, name_or_id, ignore_missing=ignore_missing, **query
         )
 
-    def get_subnet(self, subnet):
+    def get_subnet(self, subnet: str | _subnet.Subnet) -> _subnet.Subnet:
         """Get a single subnet
 
         :param subnet: The value can be the ID of a subnet or a
@@ -6941,7 +7052,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_subnet_pool(self, subnet_pool):
+    def get_subnet_pool(
+        self, subnet_pool: str | _subnet_pool.SubnetPool
+    ) -> _subnet_pool.SubnetPool:
         """Get a single subnet pool
 
         :param subnet_pool: The value can be the ID of a subnet pool or a
@@ -6995,13 +7108,13 @@ class Proxy(proxy.Proxy):
                 f'{resource.__class__.__name__} resource does not support tag'
             )
 
-    def get_tags(self, resource):
+    # TODO(stephenfin): Rename to fetch_tags
+    def get_tags(self, resource: resource.Resource) -> list[str]:
         """Retrieve the tags of a specified resource
 
         :param resource: :class:`~openstack.resource.Resource` instance.
 
         :returns: The resource tags list
-        :rtype: "list"
         """
         self._check_tag_support(resource)
         return resource.fetch_tags(self).tags
@@ -7150,7 +7263,7 @@ class Proxy(proxy.Proxy):
             _trunk.Trunk, name_or_id, ignore_missing=ignore_missing, **query
         )
 
-    def get_trunk(self, trunk):
+    def get_trunk(self, trunk: str | _trunk.Trunk) -> _trunk.Trunk:
         """Get a single trunk
 
         :param trunk: The value can be the ID of a trunk or a
@@ -7216,14 +7329,13 @@ class Proxy(proxy.Proxy):
         trunk = self._get_resource(_trunk.Trunk, trunk)
         return trunk.delete_subports(self, subports)
 
-    def get_trunk_subports(self, trunk):
+    def get_trunk_subports(self, trunk: str | _trunk.Trunk) -> dict[str, Any]:
         """Get sub_ports configured on trunk
 
         :param trunk: The value can be the ID of a trunk or a
             :class:`~openstack.network.v2.trunk.Trunk` instance.
 
         :returns: Trunk sub_ports
-        :rtype: "list"
         """
         trunk = self._get_resource(_trunk.Trunk, trunk)
         return trunk.get_subports(self)
@@ -7314,7 +7426,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_vpn_endpoint_group(self, vpn_endpoint_group):
+    def get_vpn_endpoint_group(
+        self, vpn_endpoint_group: str | _vpn_endpoint_group.VpnEndpointGroup
+    ) -> _vpn_endpoint_group.VpnEndpointGroup:
         """Get a single vpn service
 
         :param vpn_endpoint_group: The value can be the ID of a vpn service
@@ -7421,7 +7535,11 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_vpn_ipsec_site_connection(self, ipsec_site_connection):
+    def get_vpn_ipsec_site_connection(
+        self,
+        ipsec_site_connection: str
+        | _ipsec_site_connection.VpnIPSecSiteConnection,
+    ) -> _ipsec_site_connection.VpnIPSecSiteConnection:
         """Get a single IPsec site connection
 
         :param ipsec_site_connection: The value can be the ID of an IPsec site
@@ -7555,7 +7673,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_vpn_ike_policy(self, ike_policy):
+    def get_vpn_ike_policy(
+        self, ike_policy: str | _ike_policy.VpnIkePolicy
+    ) -> _ike_policy.VpnIkePolicy:
         """Get a single ike policy
 
         :param ike_policy: The value can be the ID of an IKE policy or a
@@ -7564,7 +7684,6 @@ class Proxy(proxy.Proxy):
 
         :returns: One
             :class:`~openstack.network.v2.vpn_ike_policy.VpnIkePolicy`
-        :rtype: :class:`~openstack.network.v2.ike_policy.VpnIkePolicy`
         :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         """
@@ -7676,7 +7795,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_vpn_ipsec_policy(self, ipsec_policy):
+    def get_vpn_ipsec_policy(
+        self, ipsec_policy: str | _ipsec_policy.VpnIpsecPolicy
+    ) -> _ipsec_policy.VpnIpsecPolicy:
         """Get a single IPsec policy
 
         :param ipsec_policy: The value can be the ID of an IPcec policy or a
@@ -7685,7 +7806,6 @@ class Proxy(proxy.Proxy):
 
         :returns: One
             :class:`~openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy`
-        :rtype: :class:`~openstack.network.v2.ipsec_policy.VpnIpsecPolicy`
         :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         """
@@ -7821,7 +7941,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_vpn_service(self, vpn_service):
+    def get_vpn_service(
+        self, vpn_service: str | _vpn_service.VpnService
+    ) -> _vpn_service.VpnService:
         """Get a single vpn service
 
         :param vpn_service: The value can be the ID of a vpn service or a
@@ -7963,7 +8085,11 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_floating_ip_port_forwarding(self, floating_ip, port_forwarding):
+    def get_floating_ip_port_forwarding(
+        self,
+        floating_ip: str | _floating_ip.FloatingIP,
+        port_forwarding: str | _port_forwarding.PortForwarding,
+    ) -> _port_forwarding.PortForwarding:
         """Get a floating ip port forwarding
 
         :param floating_ip: The value can be the ID of the Floating IP that the
@@ -8067,7 +8193,11 @@ class Proxy(proxy.Proxy):
             _l3_conntrack_helper.ConntrackHelper, router_id=router.id, **query
         )
 
-    def get_conntrack_helper(self, conntrack_helper, router):
+    def get_conntrack_helper(
+        self,
+        conntrack_helper: str | _l3_conntrack_helper.ConntrackHelper,
+        router: str | _router.Router,
+    ) -> _l3_conntrack_helper.ConntrackHelper:
         """Get a single L3 conntrack helper
 
         :param conntrack_helper: The value can be the ID of a L3 conntrack
@@ -8186,7 +8316,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_tap_flow(self, tap_flow):
+    def get_tap_flow(
+        self, tap_flow: str | _tap_flow.TapFlow
+    ) -> _tap_flow.TapFlow:
         """Get a signle Tap Flow"""
         return self._get(_tap_flow.TapFlow, tap_flow)
 
@@ -8242,7 +8374,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_tap_mirror(self, tap_mirror):
+    def get_tap_mirror(
+        self, tap_mirror: str | _tap_mirror.TapMirror
+    ) -> _tap_mirror.TapMirror:
         """Get a signle Tap Mirror"""
         return self._get(_tap_mirror.TapMirror, tap_mirror)
 
@@ -8298,7 +8432,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_tap_service(self, tap_service):
+    def get_tap_service(
+        self, tap_service: str | _tap_service.TapService
+    ) -> _tap_service.TapService:
         """Get a signle Tap Service"""
         return self._get(_tap_service.TapService, tap_service)
 
@@ -8394,7 +8530,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_sfc_flow_classifier(self, flow_classifier):
+    def get_sfc_flow_classifier(
+        self, flow_classifier: str | _sfc_flow_classifier.SfcFlowClassifier
+    ) -> _sfc_flow_classifier.SfcFlowClassifier:
         """Get a single Flow Classifier
 
         :param flow_classifier:
@@ -8528,7 +8666,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_sfc_port_chain(self, port_chain):
+    def get_sfc_port_chain(
+        self, port_chain: str | _sfc_port_chain.SfcPortChain
+    ) -> _sfc_port_chain.SfcPortChain:
         """Get a signle Port Chain
 
         :param port_chain:
@@ -8652,7 +8792,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_sfc_port_pair(self, port_pair):
+    def get_sfc_port_pair(
+        self, port_pair: str | _sfc_port_pair.SfcPortPair
+    ) -> _sfc_port_pair.SfcPortPair:
         """Get a signle Port Pair
 
         :param port_pair:
@@ -8779,7 +8921,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_sfc_port_pair_group(self, port_pair_group):
+    def get_sfc_port_pair_group(
+        self, port_pair_group: str | _sfc_port_pair_group.SfcPortPairGroup
+    ) -> _sfc_port_pair_group.SfcPortPairGroup:
         """Get a signle Port Pair Group
 
         :param port_pair_group:
@@ -8911,7 +9055,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_sfc_service_graph(self, service_graph):
+    def get_sfc_service_graph(
+        self, service_graph: str | _sfc_sservice_graph.SfcServiceGraph
+    ) -> _sfc_sservice_graph.SfcServiceGraph:
         """Get a signle Service Graph
 
         :param service_graph:

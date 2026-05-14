@@ -103,7 +103,9 @@ class Proxy(proxy.Proxy):
             _container.Container, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_container(self, container):
+    def get_container(
+        self, container: str | _container.Container
+    ) -> _container.Container:
         """Get a single container
 
         :param container: The value can be the ID of a container or a
@@ -203,7 +205,7 @@ class Proxy(proxy.Proxy):
             _order.Order, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_order(self, order):
+    def get_order(self, order: str | _order.Order) -> _order.Order:
         """Get a single order
 
         :param order: The value can be the ID of an order or a
@@ -304,7 +306,7 @@ class Proxy(proxy.Proxy):
             _secret.Secret, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_secret(self, secret):
+    def get_secret(self, secret: str | _secret.Secret) -> _secret.Secret:
         """Get a single secret
 
         :param secret: The value can be the ID of a secret or a
@@ -354,7 +356,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_secret_store.SecretStore, **query)
 
-    def get_global_default_secret_store(self):
+    def get_global_default_secret_store(self) -> _secret_store.SecretStore:
         """Get the global default secret store
 
         :returns: One
@@ -364,7 +366,7 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_secret_store.SecretStore, 'global-default')
 
-    def get_preferred_secret_store(self):
+    def get_preferred_secret_store(self) -> _secret_store.SecretStore:
         """Get the preferred secret store for the current project
 
         :returns: One
@@ -399,7 +401,9 @@ class Proxy(proxy.Proxy):
         )
 
     @renamed_param('project_id', 'project')
-    def get_project_quota(self, project):
+    def get_project_quota(
+        self, project: str | _project.Project
+    ) -> _project_quota.ProjectQuota:
         """Get a single project quota
 
         :param project: A project ID or

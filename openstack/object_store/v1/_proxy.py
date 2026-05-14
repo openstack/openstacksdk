@@ -108,12 +108,8 @@ class Proxy(proxy.Proxy):
         else:
             return ['object']
 
-    def get_account_metadata(self):
-        """Get metadata for this account.
-
-        :rtype:
-            :class:`~openstack.object_store.v1.account.Account`
-        """
+    def get_account_metadata(self) -> _account.Account:
+        """Get metadata for this account."""
         return self._head(_account.Account)
 
     def set_account_metadata(self, **metadata):
@@ -181,7 +177,9 @@ class Proxy(proxy.Proxy):
             _container.Container, container, ignore_missing=ignore_missing
         )
 
-    def get_container_metadata(self, container):
+    def get_container_metadata(
+        self, container: str | _container.Container
+    ) -> _container.Container:
         """Get metadata for a container
 
         :param container: The value can be the name of a container or a
@@ -270,26 +268,26 @@ class Proxy(proxy.Proxy):
 
     def get_object(
         self,
-        obj,
-        container=None,
-        resp_chunk_size=1024,
-        outfile=None,
-        remember_content=False,
-    ):
+        obj: str | _obj.Object,
+        container: str | _container.Container | None = None,
+        resp_chunk_size: int = 1024,
+        outfile: str | None = None,
+        remember_content: bool = False,
+    ) -> _obj.Object:
         """Get the data associated with an object
 
         :param obj: The value can be the name of an object or a
             :class:`~openstack.object_store.v1.obj.Object` instance.
         :param container: The value can be the name of a container or a
             :class:`~openstack.object_store.v1.container.Container` instance.
-        :param int resp_chunk_size: chunk size of data to read. Only used if
+        :param resp_chunk_size: chunk size of data to read. Only used if
             the results are being written to a file or stream is True.
             (optional, defaults to 1k)
         :param outfile: Write the object to a file instead of returning the
             contents. If this option is given, body in the return tuple will be
             None. outfile can either be a file path given as a string, or a
             File like object.
-        :param bool remember_content: Flag whether object data should be saved
+        :param remember_content: Flag whether object data should be saved
             as `data` property of the Object. When left as `false` and
             `outfile` is not defined data will not be saved and need to be
             fetched separately.
@@ -467,7 +465,7 @@ class Proxy(proxy.Proxy):
         # to be an int
         if segment_size:
             segment_size = int(segment_size)
-        segment_size = self.get_object_segment_size(segment_size)
+        segment_size = self.get_object_segment_size(segment_size)  # type: ignore[assignment]
         file_size = os.path.getsize(filename)
 
         if self.is_object_stale(container_name, name, filename, md5, sha256):
@@ -481,7 +479,7 @@ class Proxy(proxy.Proxy):
                 meta_headers = _obj.Object()._calculate_headers(metadata)
                 headers.update(meta_headers)
 
-            if file_size <= segment_size:
+            if file_size <= segment_size:  # type: ignore[operator]
                 self._upload_object(endpoint, filename, headers)
 
             else:
@@ -531,7 +529,11 @@ class Proxy(proxy.Proxy):
             container=container_name,
         )
 
-    def get_object_metadata(self, obj, container=None):
+    def get_object_metadata(
+        self,
+        obj: str | _obj.Object,
+        container: str | _container.Container | None = None,
+    ) -> _obj.Object:
         """Get metadata for an object.
 
         :param obj: The value can be the name of an object or a
@@ -787,7 +789,7 @@ class Proxy(proxy.Proxy):
             segments[name] = segment
         return segments
 
-    def get_object_segment_size(self, segment_size):
+    def get_object_segment_size(self, segment_size: int | None) -> int | float:
         """Get a segment size that will work given capabilities"""
         if segment_size is None:
             segment_size = DEFAULT_OBJECT_SEGMENT_SIZE
@@ -836,7 +838,7 @@ class Proxy(proxy.Proxy):
                 if entry['path'] == f'/{parse.unquote(name)}':
                     entry['etag'] = result.headers['Etag']
 
-    def get_info(self):
+    def get_info(self) -> _info.Info:
         """Get infomation about the object-storage service
 
         The object-storage service publishes a set of capabilities that
@@ -866,7 +868,9 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_container.Container, container)
         res.set_temp_url_key(self, key, secondary)
 
-    def get_temp_url_key(self, container=None):
+    def get_temp_url_key(
+        self, container: str | _container.Container | None = None
+    ) -> bytes | None:
         """Get the best temporary url key for a given container.
 
         Will first try to return Temp-URL-Key-2 then Temp-URL-Key for the

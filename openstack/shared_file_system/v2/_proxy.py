@@ -174,10 +174,11 @@ class Proxy(proxy.Proxy):
         )
 
     @renamed_param('share_id', 'share')
-    def get_share(self, share):
+    def get_share(self, share: str | _share.Share) -> _share.Share:
         """Lists details of a single share
 
-        :param share: The ID of the share to get
+        :param share: The value can be the ID of a share or a
+            :class:`~openstack.shared_file_system.v2.share.Share` instance.
         :returns: Details of the identified share
         """
         return self._get(_share.Share, share)
@@ -340,10 +341,14 @@ class Proxy(proxy.Proxy):
         return self._list(_share_group.ShareGroup, **query)
 
     @renamed_param('share_group_id', 'share_group')
-    def get_share_group(self, share_group):
+    def get_share_group(
+        self, share_group: str | _share_group.ShareGroup
+    ) -> _share_group.ShareGroup:
         """Lists details for a share group.
 
-        :param share: The ID of the share group to get
+        :param share_group: The value can be the ID of a share group or a
+            :class:`~openstack.shared_file_system.v2.share_group.ShareGroup`
+            instance.
         :returns: Details of the identified share group
         """
         return self._get(_share_group.ShareGroup, share_group)
@@ -471,10 +476,14 @@ class Proxy(proxy.Proxy):
         return self._list(_user_message.UserMessage, **query)
 
     @renamed_param('message_id', 'message')
-    def get_user_message(self, message):
+    def get_user_message(
+        self, message: str | _user_message.UserMessage
+    ) -> _user_message.UserMessage:
         """List details of a single user message
 
-        :param message: The ID of the user message
+        :param message: The value can be the ID of a user message or a
+            :class:`~openstack.shared_file_system.v2.user_message.UserMessage`
+            instance.
         :returns: Details of the identified user message
         """
         return self._get(_user_message.UserMessage, message)
@@ -531,10 +540,14 @@ class Proxy(proxy.Proxy):
         )
 
     @renamed_param('snapshot_id', 'snapshot')
-    def get_share_snapshot(self, snapshot):
+    def get_share_snapshot(
+        self, snapshot: str | _share_snapshot.ShareSnapshot
+    ) -> _share_snapshot.ShareSnapshot:
         """Lists details of a single share snapshot
 
-        :param snapshot: The ID of the snapshot to get
+        :param snapshot: The value can be the ID of a share snapshot or a
+            :class:`~openstack.shared_file_system.v2.share_snapshot.ShareSnapshot`
+            instance.
         :returns: Details of the identified share snapshot
         """
         return self._get(_share_snapshot.ShareSnapshot, snapshot)
@@ -603,15 +616,18 @@ class Proxy(proxy.Proxy):
     @renamed_param('share_network_subnet_id', 'share_network_subnet')
     def get_share_network_subnet(
         self,
-        share_network,
-        share_network_subnet,
-    ):
+        share_network: str | _share_network.ShareNetwork,
+        share_network_subnet: (str | _share_network_subnet.ShareNetworkSubnet),
+    ) -> _share_network_subnet.ShareNetworkSubnet:
         """Lists details of a single share network subnet.
 
-        :param share_network: The id of the share network associated
-            with the Share Network Subnet.
-        :param share_network_subnet: The id of the Share Network Subnet
-            to retrieve.
+        :param share_network: The value can be the ID of a share network or a
+            :class:`~openstack.shared_file_system.v2.share_network.ShareNetwork`
+            instance.
+        :param share_network_subnet: The value can be the ID of a share network
+            subnet or a
+            :class:`~openstack.shared_file_system.v2.share_network_subnet.ShareNetworkSubnet`
+            instance.
         :returns: Details of the identified share network subnet
         """
         share_network_id = resource.Resource._get_id(share_network)
@@ -697,15 +713,23 @@ class Proxy(proxy.Proxy):
         )
 
     @renamed_param('snapshot_instance_id', 'snapshot_instance')
-    def get_share_snapshot_instance(self, snapshot_instance):
+    def get_share_snapshot_instance(
+        self,
+        share_snapshot_instance: (
+            str | _share_snapshot_instance.ShareSnapshotInstance
+        ),
+    ) -> _share_snapshot_instance.ShareSnapshotInstance:
         """Lists details of a single share snapshot instance
 
-        :param snapshot_instance: The ID of the snapshot instance to get
+        :param share_snapshot_instance: The value can be the ID of a share
+            snapshot instance or a
+            :class:`~openstack.shared_file_system.v2.share_snapshot_instance.ShareSnapshotInstance`
+            instance.
         :returns: Details of the identified snapshot instance
         """
         return self._get(
             _share_snapshot_instance.ShareSnapshotInstance,
-            snapshot_instance,
+            share_snapshot_instance,
         )
 
     def share_networks(self, details=True, **query):
@@ -730,10 +754,14 @@ class Proxy(proxy.Proxy):
         )
 
     @renamed_param('share_network_id', 'share_network')
-    def get_share_network(self, share_network):
+    def get_share_network(
+        self, share_network: str | _share_network.ShareNetwork
+    ) -> _share_network.ShareNetwork:
         """Lists details of a single share network
 
-        :param share_network: The ID of the share network to get
+        :param share_network: The value can be the ID of a share network or a
+            :class:`~openstack.shared_file_system.v2.share_network.ShareNetwork`
+            instance.
         :returns: Details of the identified share network
         """
         return self._get(_share_network.ShareNetwork, share_network)
@@ -805,10 +833,15 @@ class Proxy(proxy.Proxy):
         return self._list(_share_instance.ShareInstance, **query)
 
     @renamed_param('share_instance_id', 'share_instance')
-    def get_share_instance(self, share_instance):
+    def get_share_instance(
+        self, share_instance: str | _share_instance.ShareInstance
+    ) -> _share_instance.ShareInstance:
         """Shows details for a single share instance
 
-        :param share_instance: The UUID of the share instance to get
+        :param share_instance: The value can be the UUID of a share instance
+            or a
+            :class:`~openstack.shared_file_system.v2.share_instance.ShareInstance`
+            instance.
 
         :returns: Details of the identified share instance
         """
@@ -866,7 +899,11 @@ class Proxy(proxy.Proxy):
         )
 
     @renamed_param('share_id', 'share')
-    def get_export_location(self, export_location, share):
+    def get_export_location(
+        self,
+        export_location: str | _share_export_locations.ShareExportLocation,
+        share: str | _share.Share,
+    ) -> _share_export_locations.ShareExportLocation:
         """List details of export location
 
         :param export_location: The export location resource to get
@@ -892,13 +929,17 @@ class Proxy(proxy.Proxy):
         )
 
     @renamed_param('access_id', 'access')
-    def get_access_rule(self, access):
+    def get_access_rule(
+        self, access_rule: str | _share_access_rule.ShareAccessRule
+    ) -> _share_access_rule.ShareAccessRule:
         """List details of an access rule.
 
-        :param access: The id of the access rule to get
+        :param access_rule: The value can be the ID of an access rule or a
+            :class:`~openstack.shared_file_system.v2.share_access_rule.ShareAccessRule`
+            instance.
         :returns: Details of the identified access rule.
         """
-        return self._get(_share_access_rule.ShareAccessRule, access)
+        return self._get(_share_access_rule.ShareAccessRule, access_rule)
 
     @renamed_param('share_id', 'share')
     def create_access_rule(
@@ -1011,10 +1052,16 @@ class Proxy(proxy.Proxy):
         return response
 
     @renamed_param('group_snapshot_id', 'group_snapshot')
-    def get_share_group_snapshot(self, group_snapshot):
+    def get_share_group_snapshot(
+        self,
+        group_snapshot: str | _share_group_snapshot.ShareGroupSnapshot,
+    ) -> _share_group_snapshot.ShareGroupSnapshot:
         """Show share group snapshot details
 
-        :param group_snapshot: The ID of the group snapshot to get
+        :param group_snapshot: The value can be the ID of a share group
+            snapshot or a
+            :class:`~openstack.shared_file_system.v2.share_group_snapshot.ShareGroupSnapshot`
+            instance.
         :returns: Details of the group snapshot
         """
         return self._get(
@@ -1097,11 +1144,13 @@ class Proxy(proxy.Proxy):
 
     # ========= Share Metadata ==========
 
+    # TODO(stephenfin): Rename to fetch_share_metadata
     @renamed_param('share_id', 'share')
-    def get_share_metadata(self, share):
+    def get_share_metadata(self, share: str | _share.Share) -> _share.Share:
         """Lists all metadata for a share.
 
-        :param share: The ID of the share
+        :param share: The value can be the ID of a share or a
+            :class:`~openstack.shared_file_system.v2.share.Share` instance.
 
         :returns: A :class:`~openstack.shared_file_system.v2.share.Share`
             with the share's metadata.
@@ -1109,11 +1158,15 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_share.Share, share)
         return res.fetch_metadata(self)
 
+    # TODO(stephenfin): Rename to fetch_share_metadata_item
     @renamed_param('share_id', 'share')
-    def get_share_metadata_item(self, share, key):
+    def get_share_metadata_item(
+        self, share: str | _share.Share, key: str
+    ) -> _share.Share:
         """Retrieves a specific metadata item from a share by its key.
 
-        :param share: The ID of the share
+        :param share: The value can be the ID of a share or a
+            :class:`~openstack.shared_file_system.v2.share.Share` instance.
         :param key: The key of the share metadata
 
         :returns: A :class:`~openstack.shared_file_system.v2.share.Share`
@@ -1236,7 +1289,9 @@ class Proxy(proxy.Proxy):
             query.pop('resource_type')
         return self._list(_resource_locks.ResourceLock, **query)
 
-    def get_resource_lock(self, resource_lock):
+    def get_resource_lock(
+        self, resource_lock: str | _resource_locks.ResourceLock
+    ) -> _resource_locks.ResourceLock:
         """Show details of a resource lock.
 
         :param resource_lock: The ID of a resource lock or a
@@ -1313,10 +1368,14 @@ class Proxy(proxy.Proxy):
         return self._create(_resource_locks.ResourceLock, **attrs)
 
     @renamed_param('quota_class_name', 'quota_class_set')
-    def get_quota_class_set(self, quota_class_set):
+    def get_quota_class_set(
+        self, quota_class_set: str | _quota_class_set.QuotaClassSet
+    ) -> _quota_class_set.QuotaClassSet:
         """Get quota class set.
 
-        :param quota_class_set: The name of the quota class
+        :param quota_class_set: The name of the quota class or a
+            :class:`~openstack.shared_file_system.v2.quota_class_set.QuotaClassSet`
+            instance.
         :returns: A :class:`~openstack.shared_file_system.v2
             .quota_class_set.QuotaClassSet`
         """

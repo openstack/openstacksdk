@@ -55,7 +55,9 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_workflow.Workflow, workflow, **attrs)
 
-    def get_workflow(self, *attrs):
+    def get_workflow(
+        self, workflow: str | _workflow.Workflow
+    ) -> _workflow.Workflow:
         """Get a workflow
 
         :param workflow: The value can be the name of a workflow or
@@ -65,7 +67,7 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.NotFoundException` when no
             workflow matching the name could be found.
         """
-        return self._get(_workflow.Workflow, *attrs)
+        return self._get(_workflow.Workflow, workflow)
 
     def workflows(self, **query):
         """Retrieve a generator of workflows
@@ -153,10 +155,11 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_execution.Execution, **attrs)
 
-    def get_execution(self, *attrs):
+    def get_execution(
+        self, execution: str | _execution.Execution
+    ) -> _execution.Execution:
         """Get a execution
 
-        :param workflow_name: The name of target workflow to execute.
         :param execution: The value can be either the ID of a execution or a
             :class:`~openstack.workflow.v2.execution.Execution` instance.
 
@@ -164,7 +167,7 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.NotFoundException` when no
             execution matching the criteria could be found.
         """
-        return self._get(_execution.Execution, *attrs)
+        return self._get(_execution.Execution, execution)
 
     def executions(self, **query):
         """Retrieve a generator of executions
@@ -251,7 +254,9 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_cron_trigger.CronTrigger, **attrs)
 
-    def get_cron_trigger(self, cron_trigger):
+    def get_cron_trigger(
+        self, cron_trigger: str | _cron_trigger.CronTrigger
+    ) -> _cron_trigger.CronTrigger:
         """Get a cron trigger
 
         :param cron_trigger: The value can be the name of a cron_trigger or

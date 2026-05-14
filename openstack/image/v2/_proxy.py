@@ -85,7 +85,7 @@ class Proxy(proxy.Proxy):
     _SHADE_IMAGE_OBJECT_KEY = 'owner_specified.shade.object'
 
     # ====== CACHE MANAGEMENT======
-    def get_image_cache(self):
+    def get_image_cache(self) -> _cache.Cache:
         return self._get(_cache.Cache, requires_id=False)
 
     def cache_delete_image(self, image, ignore_missing=True):
@@ -959,7 +959,7 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def get_image(self, image):
+    def get_image(self, image: str | _image.Image) -> _image.Image:
         """Get a single image
 
         :param image: The value can be the ID of a image or a
@@ -1185,7 +1185,11 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def get_member(self, member, image):
+    def get_member(
+        self,
+        member: str | _member.Member,
+        image: str | _image.Image,
+    ) -> _member.Member:
         """Get a single member on an image
 
         :param member: The value can be the ID of a member or a
@@ -1287,7 +1291,10 @@ class Proxy(proxy.Proxy):
     # are identified by the namespace name, not an arbitrary UUID, meaning
     # 'find_metadef_namespace' would be identical to 'get_metadef_namespace'
 
-    def get_metadef_namespace(self, metadef_namespace):
+    def get_metadef_namespace(
+        self,
+        metadef_namespace: str | _metadef_namespace.MetadefNamespace,
+    ) -> _metadef_namespace.MetadefNamespace:
         """Get a single metadef namespace
 
         :param metadef_namespace: Either the name of a metadef namespace or an
@@ -1407,7 +1414,11 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def get_metadef_object(self, metadef_object, namespace):
+    def get_metadef_object(
+        self,
+        metadef_object: str | _metadef_object.MetadefObject,
+        namespace: str | _metadef_namespace.MetadefNamespace,
+    ) -> _metadef_object.MetadefObject:
         """Get a single metadef object
 
         :param metadef_object: The value can be the ID of a metadef_object
@@ -1716,8 +1727,11 @@ class Proxy(proxy.Proxy):
         )
 
     def get_metadef_property(
-        self, metadef_property, metadef_namespace, **query
-    ):
+        self,
+        metadef_property: str | _metadef_property.MetadefProperty,
+        metadef_namespace: str | _metadef_namespace.MetadefNamespace,
+        **query: Any,
+    ) -> _metadef_property.MetadefProperty:
         """Get a single metadef property
 
         :param metadef_property: The value can be either the name of metadef
@@ -1762,7 +1776,7 @@ class Proxy(proxy.Proxy):
         namespace.delete_all_properties(self)
 
     # ====== SCHEMAS ======
-    def get_images_schema(self):
+    def get_images_schema(self) -> _schema.Schema:
         """Get images schema
 
         :returns: One :class:`~openstack.image.v2.schema.Schema`
@@ -1775,7 +1789,7 @@ class Proxy(proxy.Proxy):
             base_path='/schemas/images',
         )
 
-    def get_image_schema(self):
+    def get_image_schema(self) -> _schema.Schema:
         """Get single image schema
 
         :returns: One :class:`~openstack.image.v2.schema.Schema`
@@ -1788,7 +1802,7 @@ class Proxy(proxy.Proxy):
             base_path='/schemas/image',
         )
 
-    def get_members_schema(self):
+    def get_members_schema(self) -> _schema.Schema:
         """Get image members schema
 
         :returns: One :class:`~openstack.image.v2.schema.Schema`
@@ -1801,7 +1815,7 @@ class Proxy(proxy.Proxy):
             base_path='/schemas/members',
         )
 
-    def get_member_schema(self):
+    def get_member_schema(self) -> _schema.Schema:
         """Get image member schema
 
         :returns: One :class:`~openstack.image.v2.schema.Schema`
@@ -1814,7 +1828,7 @@ class Proxy(proxy.Proxy):
             base_path='/schemas/member',
         )
 
-    def get_tasks_schema(self):
+    def get_tasks_schema(self) -> _schema.Schema:
         """Get image tasks schema
 
         :returns: One :class:`~openstack.image.v2.schema.Schema`
@@ -1827,7 +1841,7 @@ class Proxy(proxy.Proxy):
             base_path='/schemas/tasks',
         )
 
-    def get_task_schema(self):
+    def get_task_schema(self) -> _schema.Schema:
         """Get image task schema
 
         :returns: One :class:`~openstack.image.v2.schema.Schema`
@@ -1840,7 +1854,7 @@ class Proxy(proxy.Proxy):
             base_path='/schemas/task',
         )
 
-    def get_metadef_namespace_schema(self):
+    def get_metadef_namespace_schema(self) -> _metadef_schema.MetadefSchema:
         """Get metadata definition namespace schema
 
         :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
@@ -1853,7 +1867,7 @@ class Proxy(proxy.Proxy):
             base_path='/schemas/metadefs/namespace',
         )
 
-    def get_metadef_namespaces_schema(self):
+    def get_metadef_namespaces_schema(self) -> _metadef_schema.MetadefSchema:
         """Get metadata definition namespaces schema
 
         :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
@@ -1866,7 +1880,9 @@ class Proxy(proxy.Proxy):
             base_path='/schemas/metadefs/namespaces',
         )
 
-    def get_metadef_resource_type_schema(self):
+    def get_metadef_resource_type_schema(
+        self,
+    ) -> _metadef_schema.MetadefSchema:
         """Get metadata definition resource type association schema
 
         :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
@@ -1879,7 +1895,9 @@ class Proxy(proxy.Proxy):
             base_path='/schemas/metadefs/resource_type',
         )
 
-    def get_metadef_resource_types_schema(self):
+    def get_metadef_resource_types_schema(
+        self,
+    ) -> _metadef_schema.MetadefSchema:
         """Get metadata definition resource type associations schema
 
         :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
@@ -1892,7 +1910,7 @@ class Proxy(proxy.Proxy):
             base_path='/schemas/metadefs/resource_types',
         )
 
-    def get_metadef_object_schema(self):
+    def get_metadef_object_schema(self) -> _metadef_schema.MetadefSchema:
         """Get metadata definition object schema
 
         :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
@@ -1905,7 +1923,7 @@ class Proxy(proxy.Proxy):
             base_path='/schemas/metadefs/object',
         )
 
-    def get_metadef_objects_schema(self):
+    def get_metadef_objects_schema(self) -> _metadef_schema.MetadefSchema:
         """Get metadata definition objects schema
 
         :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
@@ -1918,7 +1936,7 @@ class Proxy(proxy.Proxy):
             base_path='/schemas/metadefs/objects',
         )
 
-    def get_metadef_property_schema(self):
+    def get_metadef_property_schema(self) -> _metadef_schema.MetadefSchema:
         """Get metadata definition property schema
 
         :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
@@ -1931,7 +1949,7 @@ class Proxy(proxy.Proxy):
             base_path='/schemas/metadefs/property',
         )
 
-    def get_metadef_properties_schema(self):
+    def get_metadef_properties_schema(self) -> _metadef_schema.MetadefSchema:
         """Get metadata definition properties schema
 
         :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
@@ -1944,7 +1962,7 @@ class Proxy(proxy.Proxy):
             base_path='/schemas/metadefs/properties',
         )
 
-    def get_metadef_tag_schema(self):
+    def get_metadef_tag_schema(self) -> _metadef_schema.MetadefSchema:
         """Get metadata definition tag schema
 
         :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
@@ -1957,7 +1975,7 @@ class Proxy(proxy.Proxy):
             base_path='/schemas/metadefs/tag',
         )
 
-    def get_metadef_tags_schema(self):
+    def get_metadef_tags_schema(self) -> _metadef_schema.MetadefSchema:
         """Get metadata definition tags schema
 
         :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
@@ -1982,7 +2000,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_task.Task, **query)
 
-    def get_task(self, task):
+    def get_task(self, task: str | _task.Task) -> _task.Task:
         """Get task details
 
         :param task: The value can be the ID of a task or a
@@ -2089,7 +2107,7 @@ class Proxy(proxy.Proxy):
         return self._list(_si.Store, **query)
 
     # ====== IMPORTS ======
-    def get_import_info(self):
+    def get_import_info(self) -> _si.Import:
         """Get a info about image constraints
 
         :returns: One :class:`~openstack.image.v2.service_info.Import`

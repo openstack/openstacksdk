@@ -80,7 +80,7 @@ class TestProjectQuota(base.BaseFunctionalTest):
         self.assertIsInstance(project_quota, _project_quota.ProjectQuota)
 
         # delete project quota
-        self.operator_cloud.key_manager.delete_project_quota(project_quota)
+        self.operator_cloud.key_manager.delete_project_quota(self.project.id)
         self.assertRaises(
             sdk_exc.NotFoundException,
             self.operator_cloud.key_manager.get_project_quota,

@@ -84,13 +84,12 @@ class Proxy(proxy.Proxy):
             attrs.pop('ttl', None)
         return self._create(_zone.Zone, prepend_key=False, **attrs)
 
-    def get_zone(self, zone):
+    def get_zone(self, zone: str | _zone.Zone) -> _zone.Zone:
         """Get a zone
 
         :param zone: The value can be the ID of a zone
             or a :class:`~openstack.dns.v2.zone.Zone` instance.
         :returns: Zone instance.
-        :rtype: :class:`~openstack.dns.v2.zone.Zone`
         """
         return self._get(_zone.Zone, zone)
 
@@ -264,7 +263,11 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_rs.Recordset, recordset, **attrs)
 
-    def get_recordset(self, recordset, zone):
+    def get_recordset(
+        self,
+        recordset: str | _rs.Recordset,
+        zone: str | _zone.Zone,
+    ) -> _rs.Recordset:
         """Get a recordset
 
         :param zone: The value can be the ID of a zone
@@ -272,7 +275,6 @@ class Proxy(proxy.Proxy):
         :param recordset: The value can be the ID of a recordset
             or a :class:`~openstack.dns.v2.recordset.Recordset` instance.
         :returns: Recordset instance
-        :rtype: :class:`~openstack.dns.v2.recordset.Recordset`
         """
         zone = self._get_resource(_zone.Zone, zone)
         return self._get(_rs.Recordset, recordset, zone_id=zone.id)
@@ -381,13 +383,14 @@ class Proxy(proxy.Proxy):
             _zone_import.ZoneImport, prepend_key=False, **attrs
         )
 
-    def get_zone_import(self, zone_import):
+    def get_zone_import(
+        self, zone_import: str | _zone_import.ZoneImport
+    ) -> _zone_import.ZoneImport:
         """Get a zone import record
 
         :param zone: The value can be the ID of a zone import
             or a :class:`~openstack.dns.v2.zone_import.ZoneImport` instance.
         :returns: ZoneImport instance.
-        :rtype: :class:`~openstack.dns.v2.zone_import.ZoneImport`
         """
         return self._get(_zone_import.ZoneImport, zone_import)
 
@@ -452,23 +455,25 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def get_zone_export(self, zone_export):
+    def get_zone_export(
+        self, zone_export: str | _zone_export.ZoneExport
+    ) -> _zone_export.ZoneExport:
         """Get a zone export record
 
         :param zone: The value can be the ID of a zone import
             or a :class:`~openstack.dns.v2.zone_export.ZoneExport` instance.
         :returns: ZoneExport instance.
-        :rtype: :class:`~openstack.dns.v2.zone_export.ZoneExport`
         """
         return self._get(_zone_export.ZoneExport, zone_export)
 
-    def get_zone_export_text(self, zone_export):
+    def get_zone_export_text(
+        self, zone_export: str | _zone_export.ZoneExport
+    ) -> _zone_export.ZoneExport:
         """Get a zone export record as text
 
         :param zone: The value can be the ID of a zone import
             or a :class:`~openstack.dns.v2.zone_export.ZoneExport` instance.
         :returns: ZoneExport instance.
-        :rtype: :class:`~openstack.dns.v2.zone_export.ZoneExport`
         """
         return self._get(
             _zone_export.ZoneExport,
@@ -515,14 +520,15 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_fip.FloatingIP, **query)
 
-    def get_floating_ip(self, floating_ip):
+    def get_floating_ip(
+        self, floating_ip: str | _fip.FloatingIP
+    ) -> _fip.FloatingIP:
         """Get a Floating IP
 
         :param floating_ip: The value can be the ID of a floating ip
             or a :class:`~openstack.dns.v2.floating_ip.FloatingIP` instance.
             The ID is in format "region_name:floatingip_id"
         :returns: FloatingIP instance.
-        :rtype: :class:`~openstack.dns.v2.floating_ip.FloatingIP`
         """
         return self._get(_fip.FloatingIP, floating_ip)
 
@@ -564,14 +570,15 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_zone_transfer.ZoneTransferRequest, **query)
 
-    def get_zone_transfer_request(self, request):
+    def get_zone_transfer_request(
+        self, request: str | _zone_transfer.ZoneTransferRequest
+    ) -> _zone_transfer.ZoneTransferRequest:
         """Get a ZoneTransfer Request info
 
         :param request: The value can be the ID of a transfer request
             or a :class:`~openstack.dns.v2.zone_transfer.ZoneTransferRequest`
             instance.
         :returns: Zone transfer request instance.
-        :rtype: :class:`~openstack.dns.v2.zone_transfer.ZoneTransferRequest`
         """
         return self._get(_zone_transfer.ZoneTransferRequest, request)
 
@@ -651,14 +658,15 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_zone_transfer.ZoneTransferAccept, **query)
 
-    def get_zone_transfer_accept(self, accept):
+    def get_zone_transfer_accept(
+        self, accept: str | _zone_transfer.ZoneTransferAccept
+    ) -> _zone_transfer.ZoneTransferAccept:
         """Get a ZoneTransfer Accept info
 
         :param request: The value can be the ID of a transfer accept
             or a :class:`~openstack.dns.v2.zone_transfer.ZoneTransferAccept`
             instance.
         :returns: Zone transfer request instance.
-        :rtype: :class:`~openstack.dns.v2.zone_transfer.ZoneTransferAccept`
         """
         return self._get(_zone_transfer.ZoneTransferAccept, accept)
 
@@ -692,7 +700,11 @@ class Proxy(proxy.Proxy):
         zone_obj = self._get_resource(_zone.Zone, zone)
         return self._list(_zone_share.ZoneShare, zone_id=zone_obj.id, **query)
 
-    def get_zone_share(self, zone, zone_share):
+    def get_zone_share(
+        self,
+        zone: str | _zone.Zone,
+        zone_share: str | _zone_share.ZoneShare,
+    ) -> _zone_share.ZoneShare:
         """Get a zone share
 
         :param zone: The value can be the ID of a zone
@@ -702,7 +714,6 @@ class Proxy(proxy.Proxy):
             that the zone share belongs to.
 
         :returns: ZoneShare instance.
-        :rtype: :class:`~openstack.dns.v2.zone_share.ZoneShare`
         """
         zone_obj = self._get_resource(_zone.Zone, zone)
         return self._get(
@@ -823,7 +834,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_quota.Quota, **query)
 
-    def get_quota(self, quota):
+    def get_quota(self, quota: str | _quota.Quota) -> _quota.Quota:
         """Get a quota
 
         :param quota: The value can be the ID of a quota or a
@@ -877,7 +888,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_svc_status.ServiceStatus)
 
-    def get_service_status(self, service):
+    def get_service_status(
+        self, service: str | _svc_status.ServiceStatus
+    ) -> _svc_status.ServiceStatus:
         """Get a status of a service in the Designate system
 
         :param service: The value can be the ID of a service
@@ -885,7 +898,6 @@ class Proxy(proxy.Proxy):
             instance.
 
         :returns: ServiceStatus instance.
-        :rtype: :class:`~openstack.dns.v2.service_status.ServiceStatus`
         """
         return self._get(_svc_status.ServiceStatus, service)
 
@@ -914,13 +926,12 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_tld.TLD, prepend_key=False, **attrs)
 
-    def get_tld(self, tld):
+    def get_tld(self, tld: str | _tld.TLD) -> _tld.TLD:
         """Get a tld
 
         :param tld: The value can be the ID of a tld
             or a :class:`~openstack.dns.v2.tld.TLD` instance.
         :returns: tld instance.
-        :rtype: :class:`~openstack.dns.v2.tld.TLD`
         """
         return self._get(_tld.TLD, tld)
 
@@ -1012,7 +1023,7 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_tsigkey.TSIGKey, prepend_key=False, **attrs)
 
-    def get_tsigkey(self, tsigkey):
+    def get_tsigkey(self, tsigkey: str | _tsigkey.TSIGKey) -> _tsigkey.TSIGKey:
         """Get a zone
 
         :param tsigkey: The value can be the ID of a tsigkey
@@ -1092,14 +1103,15 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_blacklist.Blacklist, **query)
 
-    def get_blacklist(self, blacklist):
+    def get_blacklist(
+        self, blacklist: str | _blacklist.Blacklist
+    ) -> _blacklist.Blacklist:
         """Get a blacklist
 
         :param blacklist: The value can be the ID of a blacklist
             or a :class:`~openstack.dns.v2.blacklist.Blacklist` instance.
 
         :returns: Blacklist instance.
-        :rtype: :class:`~openstack.dns.v2.blacklist.Blacklist`
         """
         return self._get(_blacklist.Blacklist, blacklist)
 

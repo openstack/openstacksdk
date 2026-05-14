@@ -66,7 +66,9 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_lb.LoadBalancer, **attrs)
 
-    def get_load_balancer(self, *attrs):
+    def get_load_balancer(
+        self, load_balancer: str | _lb.LoadBalancer
+    ) -> _lb.LoadBalancer:
         """Get a load balancer
 
         :param load_balancer: The value can be the ID of a load balancer
@@ -76,9 +78,11 @@ class Proxy(proxy.Proxy):
         :returns: One
             :class:`~openstack.load_balancer.v2.load_balancer.LoadBalancer`
         """
-        return self._get(_lb.LoadBalancer, *attrs)
+        return self._get(_lb.LoadBalancer, load_balancer)
 
-    def get_load_balancer_statistics(self, load_balancer):
+    def get_load_balancer_statistics(
+        self, load_balancer: str | _lb.LoadBalancer
+    ) -> _lb.LoadBalancerStats:
         """Get the load balancer statistics
 
         :param load_balancer: The value can be the ID of a load balancer
@@ -292,7 +296,9 @@ class Proxy(proxy.Proxy):
             _listener.Listener, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_listener(self, listener):
+    def get_listener(
+        self, listener: str | _listener.Listener
+    ) -> _listener.Listener:
         """Get a single listener
 
         :param listener: The value can be the ID of a listener or a
@@ -305,7 +311,9 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_listener.Listener, listener)
 
-    def get_listener_statistics(self, listener):
+    def get_listener_statistics(
+        self, listener: str | _listener.Listener
+    ) -> _listener.ListenerStats:
         """Get the listener statistics
 
         :param listener: The value can be the ID of a listener or a
@@ -357,7 +365,7 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_pool.Pool, **attrs)
 
-    def get_pool(self, *attrs):
+    def get_pool(self, pool: str | _pool.Pool) -> _pool.Pool:
         """Get a pool
 
         :param pool: Value is either a pool ID or a
@@ -367,7 +375,7 @@ class Proxy(proxy.Proxy):
         :returns: One
             :class:`~openstack.load_balancer.v2.pool.Pool`
         """
-        return self._get(_pool.Pool, *attrs)
+        return self._get(_pool.Pool, pool)
 
     def pools(self, **query):
         """Retrieve a generator of pools
@@ -535,7 +543,11 @@ class Proxy(proxy.Proxy):
             pool_id=poolobj.id,
         )
 
-    def get_member(self, member, pool):
+    def get_member(
+        self,
+        member: str | _member.Member,
+        pool: str | _pool.Pool,
+    ) -> _member.Member:
         """Get a single member
 
         :param member: The member can be the ID of a member or a
@@ -642,7 +654,9 @@ class Proxy(proxy.Proxy):
 
         return self._create(_hm.HealthMonitor, **attrs)
 
-    def get_health_monitor(self, healthmonitor):
+    def get_health_monitor(
+        self, healthmonitor: str | _hm.HealthMonitor
+    ) -> _hm.HealthMonitor:
         """Get a health monitor
 
         :param healthmonitor: The value can be the ID of a health monitor or
@@ -650,8 +664,6 @@ class Proxy(proxy.Proxy):
             instance.
 
         :returns: One health monitor
-        :rtype:
-            :class:`~openstack.load_balancer.v2.healthmonitor.HealthMonitor`
         """
         return self._get(_hm.HealthMonitor, healthmonitor)
 
@@ -777,7 +789,9 @@ class Proxy(proxy.Proxy):
             _l7policy.L7Policy, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_l7_policy(self, l7_policy):
+    def get_l7_policy(
+        self, l7_policy: str | _l7policy.L7Policy
+    ) -> _l7policy.L7Policy:
         """Get a single l7policy
 
         :param l7_policy: The value can be the ID of a l7policy or a
@@ -909,7 +923,11 @@ class Proxy(proxy.Proxy):
             l7policy_id=l7policyobj.id,
         )
 
-    def get_l7_rule(self, l7rule, l7_policy):
+    def get_l7_rule(
+        self,
+        l7rule: str | _l7rule.L7Rule,
+        l7_policy: str | _l7policy.L7Policy,
+    ) -> _l7rule.L7Rule:
         """Get a single l7rule
 
         :param l7rule: The l7rule can be the ID of a l7rule or a
@@ -973,7 +991,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_quota.Quota, **query)
 
-    def get_quota(self, quota):
+    def get_quota(self, quota: str | _quota.Quota) -> _quota.Quota:
         """Get a quota
 
         :param quota: The value can be the ID of a quota or a
@@ -1002,7 +1020,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_quota.Quota, quota, **attrs)
 
-    def get_quota_default(self):
+    def get_quota_default(self) -> _quota.QuotaDefault:
         """Get a default quota
 
         :returns: One :class:`~openstack.load_balancer.v2.quota.QuotaDefault`
@@ -1059,7 +1077,9 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_flavor_profile.FlavorProfile, **attrs)
 
-    def get_flavor_profile(self, *attrs):
+    def get_flavor_profile(
+        self, flavor_profile: str | _flavor_profile.FlavorProfile
+    ) -> _flavor_profile.FlavorProfile:
         """Get a flavor profile
 
         :param flavor_profile: The value can be the name of a flavor profile or
@@ -1069,7 +1089,7 @@ class Proxy(proxy.Proxy):
         :returns: One
             :class:`~openstack.load_balancer.v2.flavor_profile.FlavorProfile`
         """
-        return self._get(_flavor_profile.FlavorProfile, *attrs)
+        return self._get(_flavor_profile.FlavorProfile, flavor_profile)
 
     def flavor_profiles(self, **query):
         """Retrieve a generator of flavor profiles
@@ -1167,7 +1187,7 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_flavor.Flavor, **attrs)
 
-    def get_flavor(self, *attrs):
+    def get_flavor(self, flavor: str | _flavor.Flavor) -> _flavor.Flavor:
         """Get a flavor
 
         :param flavor: The value can be the ID of a flavor
@@ -1176,7 +1196,7 @@ class Proxy(proxy.Proxy):
         :returns: One
             :class:`~openstack.load_balancer.v2.flavor.Flavor`
         """
-        return self._get(_flavor.Flavor, *attrs)
+        return self._get(_flavor.Flavor, flavor)
 
     def flavors(self, **query):
         """Retrieve a generator of flavors
@@ -1255,7 +1275,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_amphora.Amphora, **query)
 
-    def get_amphora(self, *attrs):
+    def get_amphora(self, amphora: str | _amphora.Amphora) -> _amphora.Amphora:
         """Get a amphora
 
         :param amphora: The value can be the ID of an amphora
@@ -1264,7 +1284,7 @@ class Proxy(proxy.Proxy):
         :returns: One
             :class:`~openstack.load_balancer.v2.amphora.Amphora`
         """
-        return self._get(_amphora.Amphora, *attrs)
+        return self._get(_amphora.Amphora, amphora)
 
     @overload
     def find_amphora(
@@ -1342,7 +1362,11 @@ class Proxy(proxy.Proxy):
             _availability_zone_profile.AvailabilityZoneProfile, **attrs
         )
 
-    def get_availability_zone_profile(self, *attrs):
+    def get_availability_zone_profile(
+        self,
+        availability_zone_profile: str
+        | _availability_zone_profile.AvailabilityZoneProfile,
+    ) -> _availability_zone_profile.AvailabilityZoneProfile:
         """Get an availability zone profile
 
         :param availability_zone_profile: The value can be the ID of an
@@ -1354,7 +1378,8 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.load_balancer.v2.availability_zone_profile.AvailabilityZoneProfile`
         """
         return self._get(
-            _availability_zone_profile.AvailabilityZoneProfile, *attrs
+            _availability_zone_profile.AvailabilityZoneProfile,
+            availability_zone_profile,
         )
 
     def availability_zone_profiles(self, **query):
@@ -1465,7 +1490,10 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_availability_zone.AvailabilityZone, **attrs)
 
-    def get_availability_zone(self, *attrs):
+    def get_availability_zone(
+        self,
+        availability_zone: str | _availability_zone.AvailabilityZone,
+    ) -> _availability_zone.AvailabilityZone:
         """Get an availability zone
 
         :param availability_zone: The value can be the ID of a
@@ -1476,7 +1504,9 @@ class Proxy(proxy.Proxy):
         :returns: One
             :class:`~openstack.load_balancer.v2.availability_zone.AvailabilityZone`
         """
-        return self._get(_availability_zone.AvailabilityZone, *attrs)
+        return self._get(
+            _availability_zone.AvailabilityZone, availability_zone
+        )
 
     def availability_zones(self, **query):
         """Retrieve a generator of availability zones

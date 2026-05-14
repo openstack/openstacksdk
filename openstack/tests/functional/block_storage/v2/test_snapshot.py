@@ -10,10 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
 from openstack.block_storage.v2 import snapshot as _snapshot
 from openstack.block_storage.v2 import volume as _volume
 from openstack.tests.functional.block_storage.v2 import base
+from openstack import utils as sdk_utils
 
 
 class TestSnapshot(base.BaseBlockStorageTest):
@@ -51,15 +51,18 @@ class TestSnapshot(base.BaseBlockStorageTest):
         self.SNAPSHOT_ID = snapshot.id
 
     def tearDown(self):
-        snapshot = self.user_cloud.block_storage.get_snapshot(self.SNAPSHOT_ID)
-        sot = self.user_cloud.block_storage.delete_snapshot(
+        block_storage_client = sdk_utils.ensure_service_version(
+            self.user_cloud.block_storage, '2'
+        )
+        snapshot = block_storage_client.get_snapshot(self.SNAPSHOT_ID)
+        sot = block_storage_client.delete_snapshot(
             snapshot, ignore_missing=False
         )
-        self.user_cloud.block_storage.wait_for_delete(
+        block_storage_client.wait_for_delete(
             snapshot, interval=2, wait=self._wait_for_timeout
         )
         self.assertIsNone(sot)
-        sot = self.user_cloud.block_storage.delete_volume(
+        sot = block_storage_client.delete_volume(
             self.VOLUME_ID, ignore_missing=False
         )
         self.assertIsNone(sot)

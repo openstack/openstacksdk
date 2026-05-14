@@ -105,7 +105,7 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def get_cluster(self, cluster):
+    def get_cluster(self, cluster: str | _cluster.Cluster) -> _cluster.Cluster:
         """Get a single cluster
 
         :param cluster: The value can be the ID of a cluster or a
@@ -223,7 +223,9 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def get_cluster_template(self, cluster_template):
+    def get_cluster_template(
+        self, cluster_template: str | _cluster_template.ClusterTemplate
+    ) -> _cluster_template.ClusterTemplate:
         """Get a single cluster_template
 
         :param cluster_template: The value can be the ID of a cluster_template
@@ -283,7 +285,10 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_cluster_cert.ClusterCertificate, **attrs)
 
-    def get_cluster_certificate(self, cluster_certificate):
+    def get_cluster_certificate(
+        self,
+        cluster_certificate: str | _cluster_cert.ClusterCertificate,
+    ) -> _cluster_cert.ClusterCertificate:
         """Get a single cluster_certificate
 
         :param cluster_certificate: The value can be the ID of a

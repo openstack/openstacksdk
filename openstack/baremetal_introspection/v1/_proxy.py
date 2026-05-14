@@ -90,7 +90,10 @@ class Proxy(proxy.Proxy):
             kwargs['manage_boot'] = manage_boot
         return res.create(self, **kwargs)
 
-    def get_introspection(self, introspection):
+    def get_introspection(
+        self,
+        introspection: str | _introspect.Introspection,
+    ) -> _introspect.Introspection:
         """Get a specific introspection.
 
         :param introspection: The value can be the name or ID of an
@@ -102,7 +105,11 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_introspect.Introspection, introspection)
 
-    def get_introspection_data(self, introspection, processed=True):
+    def get_introspection_data(
+        self,
+        introspection: str | _introspect.Introspection,
+        processed: bool = True,
+    ) -> dict[str, Any]:
         """Get introspection data.
 
         :param introspection: The value can be the name or ID of an
@@ -111,7 +118,6 @@ class Proxy(proxy.Proxy):
         :param processed: Whether to fetch the final processed data (the
             default) or the raw unprocessed data as received from the ramdisk.
         :returns: introspection data from the most recent successful run.
-        :rtype: dict
         """
         res = self._get_resource(_introspect.Introspection, introspection)
         return res.get_data(self, processed=processed)
@@ -202,7 +208,10 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def get_introspection_rule(self, introspection_rule):
+    def get_introspection_rule(
+        self,
+        introspection_rule: str | _introspection_rule.IntrospectionRule,
+    ) -> _introspection_rule.IntrospectionRule:
         """Get a specific introspection rule.
 
         :param introspection_rule: The value can be the name or ID of an

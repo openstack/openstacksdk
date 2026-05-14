@@ -179,7 +179,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_stack.Stack, **query)
 
-    def get_stack(self, stack, resolve_outputs=True):
+    def get_stack(
+        self,
+        stack: str | _stack.Stack,
+        resolve_outputs: bool = True,
+    ) -> _stack.Stack:
         """Get a single stack
 
         :param stack: The value can be the ID of a stack or a
@@ -288,7 +292,9 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_stack.Stack, stack)
         res.resume(self)
 
-    def get_stack_template(self, stack):
+    def get_stack_template(
+        self, stack: str | _stack.Stack
+    ) -> _stack_template.StackTemplate:
         """Get template used by a stack
 
         :param stack: The value can be the ID of a stack or an instance of
@@ -311,7 +317,9 @@ class Proxy(proxy.Proxy):
             stack_id=obj.id,
         )
 
-    def get_stack_environment(self, stack):
+    def get_stack_environment(
+        self, stack: str | _stack.Stack
+    ) -> _stack_environment.StackEnvironment:
         """Get environment used by a stack
 
         :param stack: The value can be the ID of a stack or an instance of
@@ -334,7 +342,7 @@ class Proxy(proxy.Proxy):
             stack_id=obj.id,
         )
 
-    def get_stack_files(self, stack):
+    def get_stack_files(self, stack: str | _stack.Stack) -> dict[str, Any]:
         """Get files used by a stack
 
         :param stack: The value can be the ID of a stack or an instance of
@@ -403,7 +411,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_sc.SoftwareConfig, **query)
 
-    def get_software_config(self, software_config):
+    def get_software_config(
+        self, software_config: str | _sc.SoftwareConfig
+    ) -> _sc.SoftwareConfig:
         """Get details about a specific software config.
 
         :param software_config: The value can be the ID of a software config
@@ -462,7 +472,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_sd.SoftwareDeployment, **query)
 
-    def get_software_deployment(self, software_deployment):
+    def get_software_deployment(
+        self, software_deployment: str | _sd.SoftwareDeployment
+    ) -> _sd.SoftwareDeployment:
         """Get details about a specific software deployment resource
 
         :param software_deployment: The value can be the ID of a software
@@ -551,11 +563,11 @@ class Proxy(proxy.Proxy):
 
     def get_template_contents(
         self,
-        template_file=None,
-        template_url=None,
-        template_object=None,
-        files=None,
-    ):
+        template_file: str | None = None,
+        template_url: str | None = None,
+        template_object: str | None = None,
+        files: dict[str, Any] | None = None,
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
         try:
             return template_utils.get_template_contents(
                 template_file=template_file,

@@ -44,7 +44,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_notification.Notification, **query)
 
-    def get_notification(self, notification):
+    def get_notification(
+        self, notification: str | _notification.Notification
+    ) -> _notification.Notification:
         """Get a single notification.
 
         :param notification: The value can be the ID of a notification or a
@@ -77,7 +79,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_segment.Segment, **query)
 
-    def get_segment(self, segment):
+    def get_segment(self, segment: str | _segment.Segment) -> _segment.Segment:
         """Get a single segment.
 
         :param segment: The value can be the ID of a segment or a
@@ -168,7 +170,9 @@ class Proxy(proxy.Proxy):
         )
 
     @renamed_param('segment_id', 'segment')
-    def get_host(self, host, segment=None):
+    def get_host(
+        self, host: str | _host.Host, segment: str | None = None
+    ) -> _host.Host:
         """Get a single host.
 
         :param segment: The ID or a
@@ -275,7 +279,11 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_vmove(self, vmove, notification):
+    def get_vmove(
+        self,
+        vmove: str | _vmove.VMove,
+        notification: str | _notification.Notification,
+    ) -> _vmove.VMove:
         """Get a single vmove.
 
         :param vmove: The value can be the UUID of one vmove or

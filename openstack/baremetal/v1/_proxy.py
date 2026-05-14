@@ -61,14 +61,12 @@ class Proxy(proxy.Proxy):
         """Fetch a bare metal resource.
 
         :param resource_type: The type of resource to get.
-        :type resource_type: :class:`~openstack.resource.Resource`
         :param value: The value to get. Can be either the ID of a
             resource or a :class:`~openstack.resource.Resource`
             subclass.
         :param fields: Limit the resource fields to fetch.
 
         :returns: The result of the ``fetch``
-        :rtype: :class:`~openstack.resource.Resource`
         """
         res = self._get_resource(resource_type, value)
         kwargs = {}
@@ -180,7 +178,11 @@ class Proxy(proxy.Proxy):
             details=details,
         )
 
-    def get_chassis(self, chassis, fields=None):
+    def get_chassis(
+        self,
+        chassis: str | _chassis.Chassis,
+        fields: list[str] | None = None,
+    ) -> _chassis.Chassis:
         """Get a specific chassis.
 
         :param chassis: The value can be the ID of a chassis or a
@@ -255,7 +257,7 @@ class Proxy(proxy.Proxy):
             query['details'] = True
         return self._list(_driver.Driver, **query)
 
-    def get_driver(self, driver):
+    def get_driver(self, driver: str | _driver.Driver) -> _driver.Driver:
         """Get a specific driver.
 
         :param driver: The value can be the name of a driver or a
@@ -285,7 +287,7 @@ class Proxy(proxy.Proxy):
         driver: str | _driver.Driver,
         verb: str,
         method: str,
-        body: object = None,
+        body: dict[str, Any] | None = None,
     ) -> requests.Response:
         """Call driver's vendor_passthru method.
 
@@ -411,7 +413,11 @@ class Proxy(proxy.Proxy):
             details=details,
         )
 
-    def get_node(self, node, fields=None):
+    def get_node(
+        self,
+        node: str | _node.Node,
+        fields: list[str] | None = None,
+    ) -> _node.Node:
         """Get a specific node.
 
         :param node: The value can be the name or ID of a node or a
@@ -424,7 +430,7 @@ class Proxy(proxy.Proxy):
         """
         return self._get_with_fields(_node.Node, node, fields=fields)
 
-    def get_node_inventory(self, node):
+    def get_node_inventory(self, node: str | _node.Node) -> dict[str, Any]:
         """Get a specific node's hardware inventory.
 
         :param node: The value can be the name or ID of a node or a
@@ -539,7 +545,7 @@ class Proxy(proxy.Proxy):
             deploy_steps=deploy_steps,
         )
 
-    def get_node_boot_device(self, node):
+    def get_node_boot_device(self, node: str | _node.Node) -> dict[str, Any]:
         """Get node boot device
 
         :param node: The value can be the name or ID of a node or a
@@ -562,7 +568,9 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.set_boot_device(self, boot_device, persistent=persistent)
 
-    def get_node_supported_boot_devices(self, node):
+    def get_node_supported_boot_devices(
+        self, node: str | _node.Node
+    ) -> dict[str, Any]:
         """Get supported boot devices for node
 
         :param node: The value can be the name or ID of a node or a
@@ -856,7 +864,7 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.list_vendor_passthru(self)
 
-    def get_node_console(self, node):
+    def get_node_console(self, node: str | _node.Node) -> dict[str, Any]:
         """Get the console for a node.
 
         :param node: The value can be the name or ID of a node or a
@@ -1020,7 +1028,11 @@ class Proxy(proxy.Proxy):
             details=details,
         )
 
-    def get_port(self, port, fields=None):
+    def get_port(
+        self,
+        port: str | _port.Port,
+        fields: list[str] | None = None,
+    ) -> _port.Port:
         """Get a specific port.
 
         :param port: The value can be the ID of a port or a
@@ -1171,7 +1183,11 @@ class Proxy(proxy.Proxy):
             details=details,
         )
 
-    def get_port_group(self, port_group, fields=None):
+    def get_port_group(
+        self,
+        port_group: str | _portgroup.PortGroup,
+        fields: list[str] | None = None,
+    ) -> _portgroup.PortGroup:
         """Get a specific port group.
 
         :param port_group: The value can be the name or ID of a chassis or a
@@ -1419,7 +1435,11 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_allocation.Allocation, **attrs)
 
-    def get_allocation(self, allocation, fields=None):
+    def get_allocation(
+        self,
+        allocation: str | _allocation.Allocation,
+        fields: list[str] | None = None,
+    ) -> _allocation.Allocation:
         """Get a specific allocation.
 
         :param allocation: The value can be the name or ID of an allocation or
@@ -1613,7 +1633,11 @@ class Proxy(proxy.Proxy):
             details=details,
         )
 
-    def get_volume_connector(self, volume_connector, fields=None):
+    def get_volume_connector(
+        self,
+        volume_connector: str | _volumeconnector.VolumeConnector,
+        fields: list[str] | None = None,
+    ) -> _volumeconnector.VolumeConnector:
         """Get a specific volume_connector.
 
         :param volume_connector: The value can be the ID of a
@@ -1798,7 +1822,11 @@ class Proxy(proxy.Proxy):
             details=details,
         )
 
-    def get_volume_target(self, volume_target, fields=None):
+    def get_volume_target(
+        self,
+        volume_target: str | _volumetarget.VolumeTarget,
+        fields: list[str] | None = None,
+    ) -> _volumetarget.VolumeTarget:
         """Get a specific volume_target.
 
         :param volume_target: The value can be the ID of a
@@ -1950,7 +1978,11 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def get_deploy_template(self, deploy_template, fields=None):
+    def get_deploy_template(
+        self,
+        deploy_template: str | _deploytemplates.DeployTemplate,
+        fields: list[str] | None = None,
+    ) -> _deploytemplates.DeployTemplate:
         """Get a specific deployment template.
 
         :param deploy_template: The value can be the name or ID
@@ -2100,7 +2132,11 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def get_runbook(self, runbook, fields=None):
+    def get_runbook(
+        self,
+        runbook: str | _runbooks.Runbook,
+        fields: list[str] | None = None,
+    ) -> _runbooks.Runbook:
         """Get a specific runbook.
 
         :param runbook: The value can be the name or ID
@@ -2153,7 +2189,11 @@ class Proxy(proxy.Proxy):
     # identified by the host name, not an arbitrary UUID, meaning
     # 'find_conductor' would be identical to 'get_conductor'
 
-    def get_conductor(self, conductor, fields=None):
+    def get_conductor(
+        self,
+        conductor: str | _conductor.Conductor,
+        fields: list[str] | None = None,
+    ) -> _conductor.Conductor:
         """Get a specific conductor.
 
         :param conductor: The value can be the name of a conductor or a
@@ -2257,7 +2297,11 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_inspectionrules.InspectionRule, **attrs)
 
-    def get_inspection_rule(self, inspection_rule, fields=None):
+    def get_inspection_rule(
+        self,
+        inspection_rule: str | _inspectionrules.InspectionRule,
+        fields: list[str] | None = None,
+    ) -> _inspectionrules.InspectionRule:
         """Get a specific inspection rule.
 
         :param inspection_rule: The ID of an inspection rule

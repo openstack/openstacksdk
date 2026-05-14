@@ -171,7 +171,7 @@ class Flavor(resource.Resource):
         exceptions.raise_from_response(response)
         return response.json().get('flavor_access', [])
 
-    def fetch_extra_specs(self, session):
+    def fetch_extra_specs(self, session: adapter.Adapter) -> Self:
         """Fetch extra specs of the flavor
 
         Starting with 2.61 extra specs are returned with the flavor details,

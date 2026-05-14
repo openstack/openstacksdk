@@ -167,7 +167,9 @@ class Proxy(proxy.Proxy):
             _credential.Credential, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_credential(self, credential):
+    def get_credential(
+        self, credential: str | _credential.Credential
+    ) -> _credential.Credential:
         """Get a single credential
 
         :param credential: The value can be the ID of a credential or a
@@ -268,7 +270,7 @@ class Proxy(proxy.Proxy):
             _domain.Domain, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_domain(self, domain):
+    def get_domain(self, domain: str | _domain.Domain) -> _domain.Domain:
         """Get a single domain
 
         :param domain: The value can be the ID of a domain or a
@@ -353,7 +355,9 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def get_domain_config(self, domain):
+    def get_domain_config(
+        self, domain: str | _domain.Domain
+    ) -> _domain_config.DomainConfig:
         """Get a single config for a domain
 
         :param domain_id: The value can be the ID of a domain or a
@@ -457,7 +461,9 @@ class Proxy(proxy.Proxy):
         )
 
     # TODO(stephenfin): This conflicts with Adapter.get_endpoint
-    def get_endpoint(self, endpoint):  # type: ignore[override]
+    def get_endpoint(  # type: ignore[override]
+        self, endpoint: str | _endpoint.Endpoint
+    ) -> _endpoint.Endpoint:
         """Get a single endpoint
 
         :param endpoint: The value can be the ID of an endpoint or a
@@ -610,7 +616,7 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_group(self, group):
+    def get_group(self, group: str | _group.Group) -> _group.Group:
         """Get a single group
 
         :param group: The value can be the ID of a group or a
@@ -765,7 +771,7 @@ class Proxy(proxy.Proxy):
             _policy.Policy, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_policy(self, policy):
+    def get_policy(self, policy: str | _policy.Policy) -> _policy.Policy:
         """Get a single policy
 
         :param policy: The value can be the ID of a policy or a
@@ -872,7 +878,7 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_project(self, project):
+    def get_project(self, project: str | _project.Project) -> _project.Project:
         """Get a single project
 
         :param project: The value can be the ID of a project or a
@@ -1005,7 +1011,7 @@ class Proxy(proxy.Proxy):
             _service.Service, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_service(self, service):
+    def get_service(self, service: str | _service.Service) -> _service.Service:
         """Get a single service
 
         :param service: The value can be the ID of a service or a
@@ -1112,7 +1118,7 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_user(self, user):
+    def get_user(self, user: str | _user.User) -> _user.User:
         """Get a single user
 
         :param user: The value can be the ID of a user or a
@@ -1274,7 +1280,7 @@ class Proxy(proxy.Proxy):
             _trust.Trust, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_trust(self, trust):
+    def get_trust(self, trust: str | _trust.Trust) -> _trust.Trust:
         """Get a single trust
 
         :param trust: The value can be the ID of a trust or a
@@ -1367,7 +1373,7 @@ class Proxy(proxy.Proxy):
             _region.Region, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_region(self, region):
+    def get_region(self, region: str | _region.Region) -> _region.Region:
         """Get a single region
 
         :param region: The value can be the ID of a region or a
@@ -1474,7 +1480,7 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_role(self, role):
+    def get_role(self, role: str | _role.Role) -> _role.Role:
         """Get a single role
 
         :param role: The value can be the ID of a role or a
@@ -1948,7 +1954,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_registered_limit.RegisteredLimit, **query)
 
-    def get_registered_limit(self, registered_limit):
+    def get_registered_limit(
+        self, registered_limit: str | _registered_limit.RegisteredLimit
+    ) -> _registered_limit.RegisteredLimit:
         """Get a single registered_limit
 
         :param registered_limit: The value can be the ID of a registered_limit
@@ -2033,7 +2041,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_limit.Limit, **query)
 
-    def get_limit(self, limit):
+    def get_limit(self, limit: str | _limit.Limit) -> _limit.Limit:
         """Get a single limit
 
         :param limit: The value can be the ID of a limit
@@ -2108,7 +2116,12 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_application_credential(self, user, application_credential):
+    def get_application_credential(
+        self,
+        user: str | _user.User,
+        application_credential: str
+        | _application_credential.ApplicationCredential,
+    ) -> _application_credential.ApplicationCredential:
         """Get a single application credential
 
         :param user: Either the ID of a user or a
@@ -2344,7 +2357,11 @@ class Proxy(proxy.Proxy):
         )
 
     @renamed_param('idp_id', 'idp')
-    def get_federation_protocol(self, idp, protocol):
+    def get_federation_protocol(
+        self,
+        idp: str | _identity_provider.IdentityProvider | None,
+        protocol: str | _federation_protocol.FederationProtocol,
+    ) -> _federation_protocol.FederationProtocol:
         """Get a single federation protocol
 
         :param idp: The ID or a
@@ -2361,12 +2378,13 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        cls = _federation_protocol.FederationProtocol
-        if idp is None and isinstance(protocol, cls):
-            idp_id = protocol.idp_id
-        else:
+        if idp:
             idp_id = resource.Resource._get_id(idp)
-        return self._get(cls, protocol, idp_id=idp_id)
+        elif isinstance(protocol, _federation_protocol.FederationProtocol):
+            idp_id = protocol.idp_id
+        return self._get(
+            _federation_protocol.FederationProtocol, protocol, idp_id=idp_id
+        )
 
     @renamed_param('idp_id', 'idp')
     def federation_protocols(self, idp, **query):
@@ -2481,7 +2499,7 @@ class Proxy(proxy.Proxy):
             _mapping.Mapping, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_mapping(self, mapping):
+    def get_mapping(self, mapping: str | _mapping.Mapping) -> _mapping.Mapping:
         """Get a single mapping
 
         :param mapping: The value can be the ID of a mapping or a
@@ -2599,7 +2617,9 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def get_identity_provider(self, identity_provider):
+    def get_identity_provider(
+        self, identity_provider: str | _identity_provider.IdentityProvider
+    ) -> _identity_provider.IdentityProvider:
         """Get a single mapping
 
         :param mapping: The value can be the ID of an identity provider or a
@@ -2607,8 +2627,6 @@ class Proxy(proxy.Proxy):
             instance.
 
         :returns: The details of an identity provider.
-        :rtype:
-            :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
@@ -2661,7 +2679,11 @@ class Proxy(proxy.Proxy):
         user = self._get_resource(_user.User, user)
         return self._list(_access_rule.AccessRule, user_id=user.id, **query)
 
-    def get_access_rule(self, user, access_rule):
+    def get_access_rule(
+        self,
+        user: str | _user.User,
+        access_rule: str | _access_rule.AccessRule,
+    ) -> _access_rule.AccessRule:
         """Get a single access rule
 
         :param user: Either the ID of a user or a
@@ -2781,7 +2803,9 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def get_service_provider(self, service_provider):
+    def get_service_provider(
+        self, service_provider: str | _service_provider.ServiceProvider
+    ) -> _service_provider.ServiceProvider:
         """Get a single service provider
 
         :param service_provider: The value can be the ID of a service provider
@@ -2790,8 +2814,6 @@ class Proxy(proxy.Proxy):
             instance.
 
         :returns: The details of an service provider.
-        :rtype:
-            :class:`~openstack.identity.v3.service_provider.ServiceProvider`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """

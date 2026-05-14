@@ -91,7 +91,10 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def get_resource_class(self, resource_class):
+    def get_resource_class(
+        self,
+        resource_class: str | _resource_class.ResourceClass,
+    ) -> _resource_class.ResourceClass:
         """Get a single resource_class.
 
         :param resource_class: The value can be either the ID of a resource
@@ -179,7 +182,10 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def get_resource_provider(self, resource_provider):
+    def get_resource_provider(
+        self,
+        resource_provider: str | _resource_provider.ResourceProvider,
+    ) -> _resource_provider.ResourceProvider:
         """Get a single resource_provider.
 
         :param resource_provider: The value can be either the ID of a resource
@@ -247,7 +253,11 @@ class Proxy(proxy.Proxy):
 
     # resource provider aggregates
 
-    def get_resource_provider_aggregates(self, resource_provider):
+    # TODO(stephenfin): Rename to fetch_resource_provider_aggregates
+    def get_resource_provider_aggregates(
+        self,
+        resource_provider: str | _resource_provider.ResourceProvider,
+    ) -> _resource_provider.ResourceProvider:
         """Get a list of aggregates for a resource provider.
 
         :param resource_provider: The value can be either the ID of a resource
@@ -405,9 +415,13 @@ class Proxy(proxy.Proxy):
 
     def get_resource_provider_inventory(
         self,
-        resource_provider_inventory,
-        resource_provider=None,
-    ):
+        resource_provider_inventory: (
+            str | _resource_provider_inventory.ResourceProviderInventory
+        ),
+        resource_provider: (
+            str | _resource_provider.ResourceProvider | None
+        ) = None,
+    ) -> _resource_provider_inventory.ResourceProviderInventory:
         """Get a single resource_provider_inventory
 
         :param resource_provider_inventory: The value can be either the ID of a
@@ -482,7 +496,7 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_trait.Trait, trait, ignore_missing=ignore_missing)
 
-    def get_trait(self, trait):
+    def get_trait(self, trait: str | _trait.Trait) -> _trait.Trait:
         """Get a single trait
 
         :param trait: The value can be either the ID of a trait or an

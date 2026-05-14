@@ -96,7 +96,9 @@ class Proxy(proxy.Proxy):
         return self._connection.image._existing_image(id=data['image_id'])
 
     # ====== SNAPSHOTS ======
-    def get_snapshot(self, snapshot):
+    def get_snapshot(
+        self, snapshot: str | _snapshot.Snapshot
+    ) -> _snapshot.Snapshot:
         """Get a single snapshot
 
         :param snapshot: The value can be the ID of a snapshot or a
@@ -246,7 +248,10 @@ class Proxy(proxy.Proxy):
             snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
             snapshot.force_delete(self)
 
-    def get_snapshot_metadata(self, snapshot):
+    # TODO(stephenfin): Rename to fetch_snapshot_metadata
+    def get_snapshot_metadata(
+        self, snapshot: str | _snapshot.Snapshot
+    ) -> _snapshot.Snapshot:
         """Return a dictionary of metadata for a snapshot
 
         :param snapshot: Either the ID of a snapshot or a
@@ -255,7 +260,6 @@ class Proxy(proxy.Proxy):
         :returns: A
             :class:`~openstack.block_storage.v3.snapshot.Snapshot` with the
             snapshot's metadata. All keys and values are Unicode text.
-        :rtype: :class:`~openstack.block_storage.v3.snapshot.Snapshot`
         """
         snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
         return snapshot.fetch_metadata(self)
@@ -356,7 +360,7 @@ class Proxy(proxy.Proxy):
         snapshot_obj.unmanage(self)
 
     # ====== TYPES ======
-    def get_type(self, type):
+    def get_type(self, type: str | _type.Type) -> _type.Type:
         """Get a single type
 
         :param type: The value can be the ID of a type or a
@@ -486,7 +490,7 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_type.Type, type)
         return res.delete_extra_specs(self, keys)
 
-    def get_type_access(self, type):
+    def get_type_access(self, type: str | _type.Type) -> list[dict[str, Any]]:
         """Lists project IDs that have access to private volume type.
 
         :param type: The value can be either the ID of a type or a
@@ -531,7 +535,9 @@ class Proxy(proxy.Proxy):
         return res.remove_private_access(self, project_id)
 
     @renamed_param('volume_type_id', 'volume_type')
-    def get_type_encryption(self, volume_type):
+    def get_type_encryption(
+        self, volume_type: str | _type.Type
+    ) -> _type.TypeEncryption:
         """Get the encryption details of a volume type
 
         :param volume_type: The value can be the ID of a type or a
@@ -713,7 +719,7 @@ class Proxy(proxy.Proxy):
         self._delete(_default_type.DefaultType, project_id)
 
     # ====== VOLUMES ======
-    def get_volume(self, volume):
+    def get_volume(self, volume: str | _volume.Volume) -> _volume.Volume:
         """Get a single volume
 
         :param volume: The value can be the ID of a volume or a
@@ -869,7 +875,10 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_volume.Volume, volume, **attrs)
 
-    def get_volume_metadata(self, volume):
+    # TODO(stephenfin): Rename to fetch_volume_metadata
+    def get_volume_metadata(
+        self, volume: str | _volume.Volume
+    ) -> _volume.Volume:
         """Return a dictionary of metadata for a volume
 
         :param volume: Either the ID of a volume or a
@@ -877,7 +886,6 @@ class Proxy(proxy.Proxy):
 
         :returns: A :class:`~openstack.block_storage.v3.volume.Volume` with the
             volume's metadata. All keys and values are Unicode text.
-        :rtype: :class:`~openstack.block_storage.v3.volume.Volume`
         """
         volume = self._get_resource(_volume.Volume, volume)
         return volume.fetch_metadata(self)
@@ -1297,7 +1305,9 @@ class Proxy(proxy.Proxy):
             _attachment.Attachment, volume_id=volume_id, **attrs
         )
 
-    def get_attachment(self, attachment):
+    def get_attachment(
+        self, attachment: str | _attachment.Attachment
+    ) -> _attachment.Attachment:
         """Get a single volume
 
         This is an internal API and should only be called by services
@@ -1424,7 +1434,7 @@ class Proxy(proxy.Proxy):
         base_path = '/backups/detail' if details else None
         return self._list(_backup.Backup, base_path=base_path, **query)
 
-    def get_backup(self, backup):
+    def get_backup(self, backup: str | _backup.Backup) -> _backup.Backup:
         """Get a backup
 
         :param backup: The value can be the ID of a backup
@@ -1432,7 +1442,6 @@ class Proxy(proxy.Proxy):
             instance.
 
         :returns: Backup instance
-        :rtype: :class:`~openstack.block_storage.v3.backup.Backup`
         """
         return self._get(_backup.Backup, backup)
 
@@ -1533,7 +1542,10 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_backup.Backup, backup, **attrs)
 
-    def get_backup_metadata(self, backup):
+    # TODO(stephenfin): Rename to fetch_backup_metadata
+    def get_backup_metadata(
+        self, backup: str | _backup.Backup
+    ) -> _backup.Backup:
         """Return a dictionary of metadata for a backup
 
         :param backup: Either the ID of a backup or a
@@ -1541,7 +1553,6 @@ class Proxy(proxy.Proxy):
 
         :returns: A :class:`~openstack.block_storage.v3.backup.Backup` with the
             backup's metadata.
-        :rtype: :class:`~openstack.block_storage.v3.backup.Backup`
         """
         backup = self._get_resource(_backup.Backup, backup)
         return backup.fetch_metadata(self)
@@ -1634,7 +1645,9 @@ class Proxy(proxy.Proxy):
         return self.reset_backup_status(backup, status)
 
     # ====== LIMITS ======
-    def get_limits(self, project=None):
+    def get_limits(
+        self, project: str | _project.Project | None = None
+    ) -> _limits.Limits:
         """Retrieves limits
 
         :param project: A project to get limits for. The value can be either
@@ -1643,7 +1656,6 @@ class Proxy(proxy.Proxy):
         :returns: A Limits object, including both
             :class:`~openstack.block_storage.v3.limits.AbsoluteLimit` and
             :class:`~openstack.block_storage.v3.limits.RateLimit`
-        :rtype: :class:`~openstack.block_storage.v3.limits.Limits`
         """
         project_id = resource.Resource._get_id(project) if project else None
 
@@ -1657,7 +1669,9 @@ class Proxy(proxy.Proxy):
         )
 
     # ====== CAPABILITIES ======
-    def get_capabilities(self, host):
+    def get_capabilities(
+        self, host: str | _capabilities.Capabilities
+    ) -> _capabilities.Capabilities:
         """Get a backend's capabilites
 
         :param host: Specified backend to obtain volume stats and properties.
@@ -1673,7 +1687,9 @@ class Proxy(proxy.Proxy):
 
     # TODO(stephenfin): Remove **attrs in 5.0
     @renamed_param('group_id', 'group')
-    def get_group(self, group, **attrs):
+    def get_group(
+        self, group: str | _group.Group, **attrs: Any
+    ) -> _group.Group:
         """Get a group
 
         :param group: The value can be the ID of a group or a
@@ -1907,7 +1923,9 @@ class Proxy(proxy.Proxy):
     # ====== GROUP SNAPSHOT ======
 
     @renamed_param('group_snapshot_id', 'group_snapshot')
-    def get_group_snapshot(self, group_snapshot):
+    def get_group_snapshot(
+        self, group_snapshot: str | _group_snapshot.GroupSnapshot
+    ) -> _group_snapshot.GroupSnapshot:
         """Get a group snapshot
 
         :param group_snapshot: The value can be the ID of a group snapshot or a
@@ -2046,7 +2064,9 @@ class Proxy(proxy.Proxy):
         )
 
     # ====== GROUP TYPE ======
-    def get_group_type(self, group_type):
+    def get_group_type(
+        self, group_type: str | _group_type.GroupType
+    ) -> _group_type.GroupType:
         """Get a specific group type
 
         :param group_type: The value can be the ID of a group type
@@ -2194,12 +2214,14 @@ class Proxy(proxy.Proxy):
         group_type = self._get_resource(_group_type.GroupType, group_type)
         return group_type.create_group_specs(self, specs=group_specs)
 
-    def get_group_type_group_specs_property(self, group_type, prop):
+    def get_group_type_group_specs_property(
+        self, group_type: str | _group_type.GroupType, prop: str
+    ) -> str:
         """Retrieve a group spec property for a group type.
 
         :param group_type: Either the ID of a group type or a
             :class:`~openstack.block_storage.v3.group_type.GroupType` instance.
-        :param str prop: Property name.
+        :param prop: Property name.
 
         :returns: String value of the requested property.
         """
@@ -2247,7 +2269,10 @@ class Proxy(proxy.Proxy):
 
     # ====== QUOTA CLASS SETS ======
 
-    def get_quota_class_set(self, quota_class_set='default'):
+    def get_quota_class_set(
+        self,
+        quota_class_set: str | _quota_class_set.QuotaClassSet = 'default',
+    ) -> _quota_class_set.QuotaClassSet:
         """Get a single quota class set
 
         Only one quota class is permitted, ``default``.
@@ -2283,15 +2308,20 @@ class Proxy(proxy.Proxy):
 
     # ====== QUOTA SETS ======
 
-    def get_quota_set(self, project, usage=False, **query):
+    def get_quota_set(
+        self,
+        project: str | _project.Project,
+        usage: bool = False,
+        **query: Any,
+    ) -> _quota_set.QuotaSet:
         """Show QuotaSet information for the project
 
         :param project: ID or instance of
             :class:`~openstack.identity.project.Project` of the project for
             which the quota should be retrieved
-        :param bool usage: When set to ``True`` quota usage and reservations
+        :param usage: When set to ``True`` quota usage and reservations
             would be filled.
-        :param dict query: Additional query parameters to use.
+        :param query: Additional query parameters to use.
 
         :returns: One :class:`~openstack.block_storage.v3.quota_set.QuotaSet`
         :raises: :class:`~openstack.exceptions.NotFoundException`
@@ -2303,7 +2333,9 @@ class Proxy(proxy.Proxy):
         )
         return res.fetch(self, usage=usage, **query)
 
-    def get_quota_set_defaults(self, project):
+    def get_quota_set_defaults(
+        self, project: str | _project.Project
+    ) -> _quota_set.QuotaSet:
         """Show QuotaSet defaults for the project
 
         :param project: ID or instance of
@@ -2654,7 +2686,9 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def get_transfer(self, transfer):
+    def get_transfer(
+        self, transfer: str | _transfer.Transfer
+    ) -> _transfer.Transfer:
         """Get a single transfer
 
         :param transfer: The value can be the ID of a transfer or a

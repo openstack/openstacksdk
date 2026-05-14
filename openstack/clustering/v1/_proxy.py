@@ -49,7 +49,7 @@ class Proxy(proxy.Proxy):
         "service": _service.Service,
     }
 
-    def get_build_info(self):
+    def get_build_info(self) -> build_info.BuildInfo:
         """Get build info for service engine and API
 
         :returns: A dictionary containing the API and engine revision string.
@@ -64,7 +64,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_profile_type.ProfileType, **query)
 
-    def get_profile_type(self, profile_type):
+    def get_profile_type(
+        self, profile_type: str | _profile_type.ProfileType
+    ) -> _profile_type.ProfileType:
         """Get the details about a profile type.
 
         :param profile_type: The name of the profile_type to retrieve or an
@@ -86,7 +88,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_policy_type.PolicyType, **query)
 
-    def get_policy_type(self, policy_type):
+    def get_policy_type(
+        self, policy_type: str | _policy_type.PolicyType
+    ) -> _policy_type.PolicyType:
         """Get the details about a policy type.
 
         :param policy_type: The name of a poicy_type or an object of
@@ -162,7 +166,7 @@ class Proxy(proxy.Proxy):
             _profile.Profile, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_profile(self, profile):
+    def get_profile(self, profile: str | _profile.Profile) -> _profile.Profile:
         """Get a single profile.
 
         :param profile: The value can be the name or ID of a profile or a
@@ -301,7 +305,7 @@ class Proxy(proxy.Proxy):
             _cluster.Cluster, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_cluster(self, cluster):
+    def get_cluster(self, cluster: str | _cluster.Cluster) -> _cluster.Cluster:
         """Get a single cluster.
 
         :param cluster: The value can be the name or ID of a cluster or a
@@ -351,7 +355,10 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_cluster.Cluster, cluster, **attrs)
 
-    def get_cluster_metadata(self, cluster):
+    # TODO(stephenfin): Rename to fetch_cluster_metadata
+    def get_cluster_metadata(
+        self, cluster: str | _cluster.Cluster
+    ) -> _cluster.Cluster:
         """Return a dictionary of metadata for a cluster
 
         :param cluster: Either the ID of a cluster or a
@@ -359,7 +366,6 @@ class Proxy(proxy.Proxy):
 
         :returns: A :class:`~openstack.clustering.v3.cluster.Cluster` with the
             cluster's metadata. All keys and values are Unicode text.
-        :rtype: :class:`~openstack.clustering.v3.cluster.Cluster`
         """
         cluster = self._get_resource(_cluster.Cluster, cluster)
         return cluster.fetch_metadata(self)
@@ -666,7 +672,11 @@ class Proxy(proxy.Proxy):
             _node.Node, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_node(self, node, details=False):
+    def get_node(
+        self,
+        node: str | _node.Node,
+        details: bool = False,
+    ) -> _node.Node:
         """Get a single node.
 
         :param node: The value can be the name or ID of a node or a
@@ -858,14 +868,13 @@ class Proxy(proxy.Proxy):
             _policy.Policy, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_policy(self, policy):
+    def get_policy(self, policy: str | _policy.Policy) -> _policy.Policy:
         """Get a single policy.
 
         :param policy: The value can be the name or ID of a policy or a
             :class:`~openstack.clustering.v1.policy.Policy` instance.
 
         :returns: A policy object.
-        :rtype: :class:`~openstack.clustering.v1.policy.Policy`
         :raises: :class:`~openstack.exceptions.NotFoundException` when no
             policy matching the criteria could be found.
         """
@@ -938,7 +947,11 @@ class Proxy(proxy.Proxy):
             _cluster_policy.ClusterPolicy, cluster_id=cluster_id, **query
         )
 
-    def get_cluster_policy(self, cluster_policy, cluster):
+    def get_cluster_policy(
+        self,
+        cluster_policy: str | _cluster_policy.ClusterPolicy,
+        cluster: str | _cluster.Cluster,
+    ) -> _cluster_policy.ClusterPolicy:
         """Get a cluster-policy binding.
 
         :param cluster_policy:
@@ -948,7 +961,6 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.clustering.v1.cluster.Cluster` instance.
 
         :returns: a cluster-policy binding object.
-        :rtype: :class:`~openstack.clustering.v1.cluster_policy.CLusterPolicy`
         :raises: :class:`~openstack.exceptions.NotFoundException` when no
             cluster-policy binding matching the criteria could be found.
         """
@@ -1032,14 +1044,15 @@ class Proxy(proxy.Proxy):
             _receiver.Receiver, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_receiver(self, receiver):
+    def get_receiver(
+        self, receiver: str | _receiver.Receiver
+    ) -> _receiver.Receiver:
         """Get a single receiver.
 
         :param receiver: The value can be the name or ID of a receiver or a
             :class:`~openstack.clustering.v1.receiver.Receiver` instance.
 
         :returns: A receiver object.
-        :rtype: :class:`~openstack.clustering.v1.receiver.Receiver`
         :raises: :class:`~openstack.exceptions.NotFoundException` when no
             receiver matching the criteria could be found.
         """
@@ -1065,14 +1078,13 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_receiver.Receiver, **query)
 
-    def get_action(self, action):
+    def get_action(self, action: str | _action.Action) -> _action.Action:
         """Get a single action.
 
         :param action: The value can be the name or ID of an action or a
             :class:`~openstack.clustering.v1.action.Action` instance.
 
         :returns: an action object.
-        :rtype: :class:`~openstack.clustering.v1.action.Action`
         :raises: :class:`~openstack.exceptions.NotFoundException` when no
             action matching the criteria could be found.
         """
@@ -1116,14 +1128,13 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_action.Action, action, **attrs)
 
-    def get_event(self, event):
+    def get_event(self, event: str | _event.Event) -> _event.Event:
         """Get a single event.
 
         :param event: The value can be the name or ID of an event or a
             :class:`~openstack.clustering.v1.event.Event` instance.
 
         :returns: an event object.
-        :rtype: :class:`~openstack.clustering.v1.event.Event`
         :raises: :class:`~openstack.exceptions.NotFoundException` when no
             event matching the criteria could be found.
         """

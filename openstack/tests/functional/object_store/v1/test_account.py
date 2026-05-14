@@ -21,7 +21,7 @@ class TestAccount(base.BaseFunctionalTest):
     def tearDown(self):
         account = self.operator_cloud.object_store.get_account_metadata()
         self.operator_cloud.object_store.delete_account_metadata(
-            account.metadata.keys()
+            list(account.metadata.keys())
         )
         super().tearDown()
 

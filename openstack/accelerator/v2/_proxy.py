@@ -10,8 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, ClassVar, Literal
 from collections.abc import Callable
+from typing import Any, ClassVar, Literal
+import warnings
 
 from openstack.accelerator.v2 import accelerator_request as _arq
 from openstack.accelerator.v2 import attribute as _attribute
@@ -20,6 +21,7 @@ from openstack.accelerator.v2 import device as _device
 from openstack.accelerator.v2 import device_profile as _device_profile
 from openstack import proxy
 from openstack import resource
+from openstack import warnings as os_warnings
 
 
 class Proxy(proxy.Proxy):
@@ -36,15 +38,27 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_deployable.Deployable, **query)
 
-    def get_deployable(self, uuid, fields=None):
+    def get_deployable(
+        self,
+        deployable: str | _deployable.Deployable,
+        fields: list[str] | None = None,
+    ) -> _deployable.Deployable:
         """Get a single deployable.
 
-        :param uuid: The value can be the UUID of a deployable.
+        :param deployable: The value can be the ID of a deployable or a
+            ::class:`~openstack.accelerator.v2.deployable.Deployable` instance.
         :returns: One :class:`~openstack.accelerator.v2.deployable.Deployable`
         :raises: :class:`~openstack.exceptions.NotFoundException` when no
             deployable matching the criteria could be found.
         """
-        return self._get(_deployable.Deployable, uuid)
+        if fields is not None:
+            warnings.warn(
+                'The fields argument is a no-op and will be removed in a '
+                'future release',
+                os_warnings.RemovedInSDK50Warning,
+            )
+
+        return self._get(_deployable.Deployable, deployable)
 
     def update_deployable(self, uuid, patch):
         """Reconfig the FPGA with new bitstream.
@@ -82,15 +96,25 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_device.Device, **query)
 
-    def get_device(self, uuid, fields=None):
+    def get_device(
+        self, device: str | _device.Device, fields: list[str] | None = None
+    ) -> _device.Device:
         """Get a single device.
 
-        :param uuid: The value can be the UUID of a device.
+        :param device: The value can be the ID of a device or a
+            :class:`~openstack.accelerator.v2.device.Device` instance.
         :returns: One :class:`~openstack.accelerator.v2.device.Device`
         :raises: :class:`~openstack.exceptions.NotFoundException` when no
             device matching the criteria could be found.
         """
-        return self._get(_device.Device, uuid)
+        if fields is not None:
+            warnings.warn(
+                'The fields argument is a no-op and will be removed in a '
+                'future release',
+                os_warnings.RemovedInSDK50Warning,
+            )
+
+        return self._get(_device.Device, device)
 
     # ========== Device profiles ==========
 
@@ -138,16 +162,28 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def get_device_profile(self, uuid, fields=None):
+    def get_device_profile(
+        self,
+        device_profile: str | _device_profile.DeviceProfile,
+        fields: list[str] | None = None,
+    ) -> _device_profile.DeviceProfile:
         """Get a single device profile.
 
-        :param uuid: The value can be the UUID of a device profile.
+        :param device_profile: The value can be the ID of a device profile or a
+            `~openstack.accelerator.v2.device_profile.DeviceProfile` instance.
         :returns: One :class:
             `~openstack.accelerator.v2.device_profile.DeviceProfile`
         :raises: :class:`~openstack.exceptions.NotFoundException` when no
             device profile matching the criteria could be found.
         """
-        return self._get(_device_profile.DeviceProfile, uuid)
+        if fields is not None:
+            warnings.warn(
+                'The fields argument is a no-op and will be removed in a '
+                'future release',
+                os_warnings.RemovedInSDK50Warning,
+            )
+
+        return self._get(_device_profile.DeviceProfile, device_profile)
 
     # ========== Accelerator requests ==========
 
@@ -194,16 +230,30 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def get_accelerator_request(self, uuid, fields=None):
+    def get_accelerator_request(
+        self,
+        accelerator_request: str | _arq.AcceleratorRequest,
+        fields: list[str] | None = None,
+    ) -> _arq.AcceleratorRequest:
         """Get a single accelerator request.
 
-        :param uuid: The value can be the UUID of a accelerator request.
+        :param accelerator_request: The value can be the ID of a accelerator
+            request or a
+            `~openstack.accelerator.v2.accelerator_request.AcceleratorRequest`
+            instance.
         :returns: One :class:
             `~openstack.accelerator.v2.accelerator_request.AcceleratorRequest`
         :raises: :class:`~openstack.exceptions.NotFoundException` when no
             accelerator request matching the criteria could be found.
         """
-        return self._get(_arq.AcceleratorRequest, uuid)
+        if fields is not None:
+            warnings.warn(
+                'The fields argument is a no-op and will be removed in a '
+                'future release',
+                os_warnings.RemovedInSDK50Warning,
+            )
+
+        return self._get(_arq.AcceleratorRequest, accelerator_request)
 
     def update_accelerator_request(self, uuid, properties):
         """Bind/Unbind an accelerator to VM.
@@ -260,16 +310,28 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def get_attribute(self, uuid, fields=None):
+    def get_attribute(
+        self,
+        attribute: str | _attribute.Attribute,
+        fields: list[str] | None = None,
+    ) -> _attribute.Attribute:
         """Get a single device profile.
 
-        :param uuid: The value can be the UUID of a attribute.
+        :param attribute: The value can be the ID of a attribute or a.
+            `~openstack.accelerator.v2.attribute.Attribute` instance.
         :returns: One :class:
             `~openstack.accelerator.v2.attribute.Attribute`
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             device profile matching the criteria could be found.
         """
-        return self._get(_attribute.Attribute, uuid)
+        if fields is not None:
+            warnings.warn(
+                'The fields argument is a no-op and will be removed in a '
+                'future release',
+                os_warnings.RemovedInSDK50Warning,
+            )
+
+        return self._get(_attribute.Attribute, attribute)
 
     # ========== Utilities ==========
 

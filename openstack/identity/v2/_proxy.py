@@ -32,7 +32,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_extension.Extension)
 
-    def get_extension(self, extension):
+    def get_extension(
+        self, extension: str | _extension.Extension
+    ) -> _extension.Extension:
         """Get a single extension
 
         :param extension: The value can be the ID of an extension or a
@@ -107,7 +109,7 @@ class Proxy(proxy.Proxy):
             _role.Role, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_role(self, role):
+    def get_role(self, role: str | _role.Role) -> _role.Role:
         """Get a single role
 
         :param role: The value can be the ID of a role or a
@@ -205,7 +207,7 @@ class Proxy(proxy.Proxy):
             _tenant.Tenant, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_tenant(self, tenant):
+    def get_tenant(self, tenant: str | _tenant.Tenant) -> _tenant.Tenant:
         """Get a single tenant
 
         :param tenant: The value can be the ID of a tenant or a
@@ -303,7 +305,7 @@ class Proxy(proxy.Proxy):
             _user.User, name_or_id, ignore_missing=ignore_missing
         )
 
-    def get_user(self, user):
+    def get_user(self, user: str | _user.User) -> _user.User:
         """Get a single user
 
         :param user: The value can be the ID of a user or a
