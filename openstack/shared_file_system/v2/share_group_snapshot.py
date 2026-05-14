@@ -40,6 +40,9 @@ class ShareGroupSnapshot(resource.Resource):
         'sort_dir',
     )
 
+    # The share group snapshot API is experimental until 2.55.
+    _max_microversion = "2.55"
+
     #: Properties
     #: The ID of the project that owns the resource.
     project_id = resource.Body("project_id", type=str)
