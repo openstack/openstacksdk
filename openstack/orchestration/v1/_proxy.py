@@ -208,13 +208,15 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_stack.Stack, stack, **attrs)
         return res.commit(self, preview)
 
-    def delete_stack(self, stack, ignore_missing=True):
+    def delete_stack(
+        self, stack: str | _stack.Stack, ignore_missing: bool = True
+    ) -> None:
         """Delete a stack
 
         :param stack: The value can be either the ID of a stack or a
             :class:`~openstack.orchestration.v1.stack.Stack`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the stack does not exist.
             When set to ``True``, no exception will be set when
@@ -413,13 +415,17 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_sc.SoftwareConfig, software_config)
 
-    def delete_software_config(self, software_config, ignore_missing=True):
+    def delete_software_config(
+        self,
+        software_config: str | _sc.SoftwareConfig,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a software config
 
         :param software_config: The value can be either the ID of a software
             config or an instance of
             :class:`~openstack.orchestration.v1.software_config.SoftwareConfig`
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the software config does not exist.
             When set to ``True``, no exception will be set when
@@ -469,14 +475,16 @@ class Proxy(proxy.Proxy):
         return self._get(_sd.SoftwareDeployment, software_deployment)
 
     def delete_software_deployment(
-        self, software_deployment, ignore_missing=True
-    ):
+        self,
+        software_deployment: str | _sd.SoftwareDeployment,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a software deployment
 
         :param software_deployment: The value can be either the ID of a
             software deployment or an instance of
             :class:`~openstack.orchestration.v1.software_deployment.SoftwareDeployment`
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the software deployment does not exist.
             When set to ``True``, no exception will be set when

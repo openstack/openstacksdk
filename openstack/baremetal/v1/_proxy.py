@@ -218,19 +218,21 @@ class Proxy(proxy.Proxy):
         """
         return self._get_resource(_chassis.Chassis, chassis).patch(self, patch)
 
-    def delete_chassis(self, chassis, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_chassis(
+        self, chassis: str | _chassis.Chassis, ignore_missing: bool = True
+    ) -> _chassis.Chassis | None:
         """Delete a chassis.
 
         :param chassis: The value can be either the ID of a chassis or
             a :class:`~openstack.baremetal.v1.chassis.Chassis` instance.
-        :param bool ignore_missing: When set to ``False``, an exception
+        :param ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the chassis could not be found. When set to ``True``, no
             exception will be raised when attempting to delete a non-existent
             chassis.
 
         :returns: The instance of the chassis which was deleted.
-        :rtype: :class:`~openstack.baremetal.v1.chassis.Chassis`.
         """
         return self._delete(
             _chassis.Chassis, chassis, ignore_missing=ignore_missing
@@ -784,19 +786,21 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.unset_maintenance(self)
 
-    def delete_node(self, node, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_node(
+        self, node: str | _node.Node, ignore_missing: bool = True
+    ) -> _node.Node | None:
         """Delete a node.
 
         :param node: The value can be either the name or ID of a node or
             a :class:`~openstack.baremetal.v1.node.Node` instance.
-        :param bool ignore_missing: When set to ``False``, an exception
+        :param ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the node could not be found. When set to ``True``, no
             exception will be raised when attempting to delete a non-existent
             node.
 
         :returns: The instance of the node which was deleted.
-        :rtype: :class:`~openstack.baremetal.v1.node.Node`.
         """
         return self._delete(_node.Node, node, ignore_missing=ignore_missing)
 
@@ -1054,19 +1058,21 @@ class Proxy(proxy.Proxy):
         """
         return self._get_resource(_port.Port, port).patch(self, patch)
 
-    def delete_port(self, port, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_port(
+        self, port: str | _port.Port, ignore_missing: bool = True
+    ) -> _port.Port | None:
         """Delete a port.
 
         :param port: The value can be either the ID of a port or
             a :class:`~openstack.baremetal.v1.port.Port` instance.
-        :param bool ignore_missing: When set to ``False``, an exception
+        :param ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the port could not be found. When set to ``True``, no
             exception will be raised when attempting to delete a non-existent
             port.
 
         :returns: The instance of the port which was deleted.
-        :rtype: :class:`~openstack.baremetal.v1.port.Port`.
         """
         return self._delete(_port.Port, port, ignore_missing=ignore_missing)
 
@@ -1207,21 +1213,24 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_portgroup.PortGroup, port_group)
         return res.patch(self, patch)
 
-    def delete_port_group(self, port_group, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_port_group(
+        self,
+        port_group: str | _portgroup.PortGroup,
+        ignore_missing: bool = True,
+    ) -> _portgroup.PortGroup | None:
         """Delete a port group.
 
-        :param port_group: The value can be either the name or ID of
-            a port group or a
-            :class:`~openstack.baremetal.v1.port_group.PortGroup`
+        :param port_group: The value can be either the name or ID of a port
+            group or a :class:`~openstack.baremetal.v1.port_group.PortGroup`
             instance.
-        :param bool ignore_missing: When set to ``False``, an exception
+        :param ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the port group could not be found. When set to ``True``, no
             exception will be raised when attempting to delete a non-existent
             port group.
 
         :returns: The instance of the port group which was deleted.
-        :rtype: :class:`~openstack.baremetal.v1.port_group.PortGroup`.
         """
         return self._delete(
             _portgroup.PortGroup, port_group, ignore_missing=ignore_missing
@@ -1452,19 +1461,23 @@ class Proxy(proxy.Proxy):
             self, patch
         )
 
-    def delete_allocation(self, allocation, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_allocation(
+        self,
+        allocation: str | _allocation.Allocation,
+        ignore_missing: bool = True,
+    ) -> _allocation.Allocation | None:
         """Delete an allocation.
 
         :param allocation: The value can be the name or ID of an allocation or
             a :class:`~openstack.baremetal.v1.allocation.Allocation` instance.
-        :param bool ignore_missing: When set to ``False``, an exception
+        :param ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the allocation could not be found. When set to ``True``, no
             exception will be raised when attempting to delete a non-existent
             allocation.
 
         :returns: The instance of the allocation which was deleted.
-        :rtype: :class:`~openstack.baremetal.v1.allocation.Allocation`.
         """
         return self._delete(
             _allocation.Allocation, allocation, ignore_missing=ignore_missing
@@ -1653,22 +1666,25 @@ class Proxy(proxy.Proxy):
             _volumeconnector.VolumeConnector, volume_connector
         ).patch(self, patch)
 
-    def delete_volume_connector(self, volume_connector, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_volume_connector(
+        self,
+        volume_connector: str | _volumeconnector.VolumeConnector,
+        ignore_missing: bool = True,
+    ) -> _volumeconnector.VolumeConnector | None:
         """Delete an volume_connector.
 
-        :param volume_connector: The value can be either the ID of a
-            volume_connector.VolumeConnector or a
+        :param volume_connector: The value can be either the ID of a volume
+            connector or a
             :class:`~openstack.baremetal.v1.volume_connector.VolumeConnector`
             instance.
-        :param bool ignore_missing: When set to ``False``, an exception
+        :param ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the volume_connector could not be found.
             When set to ``True``, no exception will be raised when
             attempting to delete a non-existent volume_connector.
 
         :returns: The instance of the volume_connector which was deleted.
-        :rtype:
-            :class:`~openstack.baremetal.v1.volume_connector.VolumeConnector`.
         """
         return self._delete(
             _volumeconnector.VolumeConnector,
@@ -1832,22 +1848,25 @@ class Proxy(proxy.Proxy):
             _volumetarget.VolumeTarget, volume_target
         ).patch(self, patch)
 
-    def delete_volume_target(self, volume_target, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_volume_target(
+        self,
+        volume_target: str | _volumetarget.VolumeTarget,
+        ignore_missing: bool = True,
+    ) -> _volumetarget.VolumeTarget | None:
         """Delete an volume_target.
 
-        :param volume_target: The value can be either the ID of a
-            volume_target.VolumeTarget or a
+        :param volume_target: The value can be either the ID of a volume target
+            or a
             :class:`~openstack.baremetal.v1.volume_target.VolumeTarget`
             instance.
-        :param bool ignore_missing: When set to ``False``, an exception
+        :param ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the volume_target could not be found.
             When set to ``True``, no exception will be raised when
             attempting to delete a non-existent volume_target.
 
         :returns: The instance of the volume_target which was deleted.
-        :rtype:
-            :class:`~openstack.baremetal.v1.volume_target.VolumeTarget`.
         """
         return self._delete(
             _volumetarget.VolumeTarget,
@@ -1901,15 +1920,19 @@ class Proxy(proxy.Proxy):
             _deploytemplates.DeployTemplate, deploy_template, **attrs
         )
 
-    def delete_deploy_template(self, deploy_template, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_deploy_template(
+        self,
+        deploy_template: str | _deploytemplates.DeployTemplate,
+        ignore_missing: bool = True,
+    ) -> _deploytemplates.DeployTemplate | None:
         """Delete a deploy_template.
 
-        :param deploy_template:The value can be
+        :param deploy_template: The value can be
             either the ID of a deploy_template or a
             :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`
             instance.
-
-        :param bool ignore_missing: When set to ``False``,
+        :param ignore_missing: When set to ``False``,
             an exception:class:`~openstack.exceptions.NotFoundException`
             will be raised when the deploy_template
             could not be found.
@@ -1919,8 +1942,6 @@ class Proxy(proxy.Proxy):
             deploy_template.
 
         :returns: The instance of the deploy_template which was deleted.
-        :rtype:
-            :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`.
         """
 
         return self._delete(
@@ -2055,22 +2076,22 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_runbooks.Runbook, runbook, **attrs)
 
-    def delete_runbook(self, runbook, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_runbook(
+        self, runbook: str | _runbooks.Runbook, ignore_missing: bool = True
+    ) -> _runbooks.Runbook | None:
         """Delete a runbook.
 
-        :param runbook:The value can be
-            either the ID of a runbook or a
+        :param runbook: The value can be either the ID of a runbook or a
             :class:`~openstack.baremetal.v1.runbooks.Runbook`
             instance.
-
-        :param bool ignore_missing: When set to ``False``,
+        :param ignore_missing: When set to ``False``,
             an exception:class:`~openstack.exceptions.NotFoundException`
             will be raised when the runbook could not be found.
             When set to ``True``, no exception will be raised when attempting
             to delete a non-existent runbook.
 
         :returns: The instance of the runbook which was deleted.
-        :rtype: :class:`~openstack.baremetal.v1.runbooks.Runbook`.
         """
 
         return self._delete(
@@ -2271,22 +2292,25 @@ class Proxy(proxy.Proxy):
             _inspectionrules.InspectionRule, inspection_rule, **attrs
         )
 
-    def delete_inspection_rule(self, inspection_rule, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_inspection_rule(
+        self,
+        inspection_rule: str | _inspectionrules.InspectionRule,
+        ignore_missing: bool = True,
+    ) -> _inspectionrules.InspectionRule | None:
         """Delete an inspection rule.
 
-        :param inspection_rule: The value can be either the ID of a
-            inspection_rule or a
+        :param inspection_rule: The value can be either the ID of an
+            inspection rule or a
             :class:`~openstack.baremetal.v1.inspection_rules.InspectionRule`
             instance.
-        :param bool ignore_missing: When set to ``False``, an exception
+        :param ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the inspection rule could not be found.
             When set to ``True``, no exception will be raised when
             attempting to delete a non-existent inspection rule.
 
         :returns: The instance of the inspection rule which was deleted.
-        :rtype:
-            :class:`~openstack.baremetal.v1.inspection_rules.InspectionRule`.
         """
         return self._delete(
             _inspectionrules.InspectionRule,

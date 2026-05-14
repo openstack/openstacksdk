@@ -951,9 +951,12 @@ class Proxy(adapter.Adapter):
     ) -> None:
         return None
 
+    # TODO(stephenfin): We should type del_fn better to indicate that it takes
+    # at least one required argument, but how to do that when the argument can
+    # have different names?
     def _service_cleanup_del_res(
         self,
-        del_fn: Callable[[resource.Resource], None],
+        del_fn: Callable[..., Any],
         obj: resource.Resource,
         dry_run: bool = True,
         client_status_queue: queue.Queue[resource.Resource] | None = None,

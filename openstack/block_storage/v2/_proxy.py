@@ -10,8 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from collections.abc import Callable, Generator, Iterable
 from typing import Any, ClassVar, Literal, overload
-from collections.abc import Callable, Generator
 import warnings
 
 from openstack._utils import renamed_param
@@ -206,18 +206,23 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_snapshot.Snapshot, snapshot, **attrs)
 
-    def delete_snapshot(self, snapshot, ignore_missing=True, force=False):
+    def delete_snapshot(
+        self,
+        snapshot: str | _snapshot.Snapshot,
+        ignore_missing: bool = True,
+        force: bool = False,
+    ) -> None:
         """Delete a snapshot
 
         :param snapshot: The value can be either the ID of a snapshot or a
             :class:`~openstack.block_storage.v2.snapshot.Snapshot`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the snapshot does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent snapshot.
-        :param bool force: Whether to try forcing snapshot deletion.
+        :param force: Whether to try forcing snapshot deletion.
 
         :returns: ``None``
         """
@@ -346,12 +351,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_type.Type, **attrs)
 
-    def delete_type(self, type, ignore_missing=True):
+    def delete_type(
+        self, type: str | _type.Type, ignore_missing: bool = True
+    ) -> None:
         """Delete a type
 
         :param type: The value can be either the ID of a type or a
             :class:`~openstack.block_storage.v2.type.Type` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the type does not exist.
             When set to ``True``, no exception will be set when
@@ -514,19 +521,24 @@ class Proxy(proxy.Proxy):
         return self._create(_volume.Volume, **attrs)
 
     def delete_volume(
-        self, volume, ignore_missing=True, *, force=False, cascade=False
-    ):
+        self,
+        volume: str | _volume.Volume,
+        ignore_missing: bool = True,
+        *,
+        force: bool = False,
+        cascade: bool = False,
+    ) -> None:
         """Delete a volume
 
         :param volume: The value can be either the ID of a volume or a
             :class:`~openstack.block_storage.v2.volume.Volume` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the volume does not exist.  When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
             volume.
-        :param bool force: Whether to try forcing volume deletion.
-        :param bool cascade: Whether to remove any snapshots along with the
+        :param force: Whether to try forcing volume deletion.
+        :param cascade: Whether to remove any snapshots along with the
             volume.
 
         :returns: ``None``
@@ -613,13 +625,16 @@ class Proxy(proxy.Proxy):
         volume = self._get_resource(_volume.Volume, volume)
         return volume.set_image_metadata(self, metadata=metadata)
 
-    def delete_volume_image_metadata(self, volume, keys=None):
+    def delete_volume_image_metadata(
+        self,
+        volume: str | _volume.Volume,
+        keys: Iterable[str] | None = None,
+    ) -> None:
         """Delete metadata for a volume
 
         :param volume: Either the ID of a volume or a
             :class:`~openstack.block_storage.v2.volume.Volume`.
-        :param list keys: The keys to delete. If left empty complete
-            metadata will be removed.
+        :param keys: The keys to delete. If omitted, all metadata is removed.
 
         :returns: None
         """
@@ -848,16 +863,21 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_backup.Backup, **attrs)
 
-    def delete_backup(self, backup, ignore_missing=True, force=False):
+    def delete_backup(
+        self,
+        backup: str | _backup.Backup,
+        ignore_missing: bool = True,
+        force: bool = False,
+    ) -> None:
         """Delete a CloudBackup
 
         :param backup: The value can be the ID of a backup or a
             :class:`~openstack.block_storage.v2.backup.Backup` instance
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the zone does not exist. When set to ``True``, no exception
             will be set when attempting to delete a nonexistent zone.
-        :param bool force: Whether to try forcing backup deletion
+        :param force: Whether to try forcing backup deletion
 
         :returns: ``None``
         """
@@ -1247,15 +1267,18 @@ class Proxy(proxy.Proxy):
         volume = self._get_resource(_volume.Volume, volume)
         return volume.set_metadata(self, metadata=metadata)
 
-    def delete_volume_metadata(self, volume, keys=None):
+    def delete_volume_metadata(
+        self,
+        volume: str | _volume.Volume,
+        keys: Iterable[str] | None = None,
+    ) -> None:
         """Delete metadata for a volume
 
         :param volume: Either the ID of a volume or a
             :class:`~openstack.block_storage.v2.volume.Volume`.
-        :param list keys: The keys to delete. If left empty complete
-            metadata will be removed.
+        :param keys: The keys to delete. If omitted, all metadata is removed.
 
-        :rtype: ``None``
+        :returns: ``None``
         """
         volume = self._get_resource(_volume.Volume, volume)
         if keys is not None:
@@ -1297,15 +1320,18 @@ class Proxy(proxy.Proxy):
         snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
         return snapshot.set_metadata(self, metadata=metadata)
 
-    def delete_snapshot_metadata(self, snapshot, keys=None):
+    def delete_snapshot_metadata(
+        self,
+        snapshot: str | _snapshot.Snapshot,
+        keys: Iterable[str] | None = None,
+    ) -> None:
         """Delete metadata for a snapshot
 
         :param snapshot: Either the ID of a snapshot or a
             :class:`~openstack.block_storage.v2.snapshot.Snapshot`.
-        :param list keys: The keys to delete. If left empty complete
-            metadata will be removed.
+        :param keys: The keys to delete. If omitted, all metadata is removed.
 
-        :rtype: ``None``
+        :returns: ``None``
         """
         snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
         if keys is not None:
@@ -1329,12 +1355,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_transfer.Transfer, **attrs)
 
-    def delete_transfer(self, transfer, ignore_missing=True):
+    def delete_transfer(
+        self, transfer: str | _transfer.Transfer, ignore_missing: bool = True
+    ) -> None:
         """Delete a volume transfer
 
         :param transfer: The value can be either the ID of a transfer or a
             :class:`~openstack.block_storage.v2.transfer.Transfer`` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the transfer does not exist.
             When set to ``True``, no exception will be set when

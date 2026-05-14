@@ -180,15 +180,15 @@ class Proxy(proxy.Proxy):
 
     def delete_introspection_rule(
         self,
-        introspection_rule,
-        ignore_missing=True,
-    ):
+        introspection_rule: str | _introspection_rule.IntrospectionRule,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete an introspection rule.
 
         :param introspection_rule: The value can be either the ID of an
             introspection rule or a
             :class:`~.introspection_rule.IntrospectionRule` instance.
-        :param bool ignore_missing: When set to ``False``, an
+        :param ignore_missing: When set to ``False``, an
             exception:class:`~openstack.exceptions.NotFoundException` will be
             raised when the introspection rule could not be found. When set to
             ``True``, no exception will be raised when attempting to delete a

@@ -85,19 +85,22 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_workflow.Workflow, **query)
 
-    def delete_workflow(self, value, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_workflow(
+        self, value: str | _workflow.Workflow, ignore_missing: bool = True
+    ) -> _workflow.Workflow | None:
         """Delete a workflow
 
         :param value: The value can be either the name of a workflow or a
             :class:`~openstack.workflow.v2.workflow.Workflow`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will
             be raised when the workflow does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent workflow.
 
-        :returns: ``None``
+        :returns: The deleted workflow.
         """
         return self._delete(
             _workflow.Workflow, value, ignore_missing=ignore_missing
@@ -181,19 +184,22 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_execution.Execution, **query)
 
-    def delete_execution(self, value, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_execution(
+        self, value: str | _execution.Execution, ignore_missing: bool = True
+    ) -> _execution.Execution | None:
         """Delete an execution
 
         :param value: The value can be either the name of a execution or a
             :class:`~openstack.workflow.v2.execute.Execution`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the execution does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent execution.
 
-        :returns: ``None``
+        :returns: The deleted execution.
         """
         return self._delete(
             _execution.Execution, value, ignore_missing=ignore_missing
@@ -279,19 +285,24 @@ class Proxy(proxy.Proxy):
             query['all_projects'] = True
         return self._list(_cron_trigger.CronTrigger, **query)
 
-    def delete_cron_trigger(self, value, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_cron_trigger(
+        self,
+        value: str | _cron_trigger.CronTrigger,
+        ignore_missing: bool = True,
+    ) -> _cron_trigger.CronTrigger | None:
         """Delete a cron trigger
 
         :param value: The value can be either the name of a cron trigger or a
             :class:`~openstack.workflow.v2.cron_trigger.CronTrigger`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the cron trigger does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent cron trigger.
 
-        :returns: ``None``
+        :returns: The deleted cron trigger.
         """
         return self._delete(
             _cron_trigger.CronTrigger, value, ignore_missing=ignore_missing

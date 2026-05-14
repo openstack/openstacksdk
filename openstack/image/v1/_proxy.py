@@ -321,12 +321,14 @@ class Proxy(proxy.Proxy):
     def _existing_image(self, **kwargs):
         return _image.Image.existing(connection=self._connection, **kwargs)
 
-    def delete_image(self, image, ignore_missing=True):
+    def delete_image(
+        self, image: str | _image.Image, ignore_missing: bool = True
+    ) -> None:
         """Delete an image
 
         :param image: The value can be either the ID of an image or a
             :class:`~openstack.image.v1.image.Image` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the image does not exist.
             When set to ``True``, no exception will be set when

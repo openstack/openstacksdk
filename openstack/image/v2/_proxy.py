@@ -895,7 +895,13 @@ class Proxy(proxy.Proxy):
             chunk_size=chunk_size,
         )
 
-    def delete_image(self, image, *, store=None, ignore_missing=True):
+    def delete_image(
+        self,
+        image: str | _image.Image,
+        *,
+        store: str | _si.Store | None = None,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete an image
 
         :param image: The value can be either the ID of an image or a
@@ -904,7 +910,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.image.v2.service_info.Store` instance that the
             image is associated with. If specified, the image will only be
             deleted from the specified store.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the image does not exist.
             When set to ``True``, no exception will be set when
@@ -1255,14 +1261,18 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_metadef_namespace.MetadefNamespace, **attrs)
 
-    def delete_metadef_namespace(self, metadef_namespace, ignore_missing=True):
+    def delete_metadef_namespace(
+        self,
+        metadef_namespace: str | _metadef_namespace.MetadefNamespace,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a metadef namespace
 
         :param metadef_namespace: The value can be either the name of a metadef
             namespace or a
             :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
             instance.
-        :param bool ignore_missing: When set to ``False``,
+        :param ignore_missing: When set to ``False``,
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the metadef namespace does not exist.
         :returns: ``None``
@@ -1463,7 +1473,13 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def delete_metadef_object(self, metadef_object, namespace, **attrs):
+    # TODO(stephenfin): This method should return None
+    def delete_metadef_object(
+        self,
+        metadef_object: str | _metadef_object.MetadefObject,
+        namespace: str | _metadef_namespace.MetadefNamespace,
+        **attrs: Any,
+    ) -> _metadef_object.MetadefObject | None:
         """Removes a single metadef object
 
         :param metadef_object: The value can be the ID of a metadef_object or a
@@ -1472,10 +1488,10 @@ class Proxy(proxy.Proxy):
             namespace or a
             :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
             instance.
-        :param dict attrs: Keyword arguments which will be used to update
+        :param attrs: Keyword arguments which will be used to update
             a :class:`~openstack.image.v2.metadef_object.MetadefObject`
 
-        :returns: ``None``
+        :returns: The deleted metadef object.
         :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         """
@@ -1487,14 +1503,17 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def delete_all_metadef_objects(self, namespace):
+    # TODO(stephenfin): This method should return None
+    def delete_all_metadef_objects(
+        self, namespace: str | _metadef_namespace.MetadefNamespace
+    ) -> _metadef_namespace.MetadefNamespace:
         """Delete all objects
 
         :param namespace: The value can be either the name of a metadef
             namespace or a
             :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
             instance.
-        :returns: ``None``
+        :returns: The namespace whose objects were deleted.
         :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         """
@@ -1542,10 +1561,11 @@ class Proxy(proxy.Proxy):
 
     def delete_metadef_resource_type_association(
         self,
-        metadef_resource_type,
-        metadef_namespace,
-        ignore_missing=True,
-    ):
+        metadef_resource_type: str
+        | _metadef_resource_type.MetadefResourceTypeAssociation,
+        metadef_namespace: str | _metadef_namespace.MetadefNamespace,
+        ignore_missing: bool = True,
+    ) -> None:
         """Removes a resource type association in a namespace.
 
         :param metadef_resource_type: The value can be either the name of
@@ -1556,7 +1576,7 @@ class Proxy(proxy.Proxy):
             namespace or an
             :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
             instance
-        :param bool ignore_missing: When set to ``False``,
+        :param ignore_missing: When set to ``False``,
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the metadef resource type association does not exist.
         :returns: ``None``
@@ -1643,8 +1663,11 @@ class Proxy(proxy.Proxy):
         )
 
     def delete_metadef_property(
-        self, metadef_property, metadef_namespace, ignore_missing=True
-    ):
+        self,
+        metadef_property: str | _metadef_property.MetadefProperty,
+        metadef_namespace: str | _metadef_namespace.MetadefNamespace,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a metadef property
 
         :param metadef_property: The value can be either the name of metadef
@@ -1655,7 +1678,7 @@ class Proxy(proxy.Proxy):
             namespace or an
             :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
             instance
-        :param bool ignore_missing: When set to
+        :param ignore_missing: When set to
             ``False`` :class:`~openstack.exceptions.NotFoundException` will be
             raised when the instance does not exist. When set to ``True``,
             no exception will be set when attempting to delete a nonexistent
@@ -1665,7 +1688,7 @@ class Proxy(proxy.Proxy):
         """
         namespace_name = resource.Resource._get_id(metadef_namespace)
         metadef_property = resource.Resource._get_id(metadef_property)
-        return self._delete(
+        self._delete(
             _metadef_property.MetadefProperty,
             metadef_property,
             namespace_name=namespace_name,
@@ -1719,7 +1742,9 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def delete_all_metadef_properties(self, metadef_namespace):
+    def delete_all_metadef_properties(
+        self, metadef_namespace: str | _metadef_namespace.MetadefNamespace
+    ) -> None:
         """Delete all metadata definitions property inside a namespace.
 
         :param metadef_namespace: The value can be either the name of a metadef
@@ -1734,7 +1759,7 @@ class Proxy(proxy.Proxy):
         namespace = self._get_resource(
             _metadef_namespace.MetadefNamespace, metadef_namespace
         )
-        return namespace.delete_all_properties(self)
+        namespace.delete_all_properties(self)
 
     # ====== SCHEMAS ======
     def get_images_schema(self):

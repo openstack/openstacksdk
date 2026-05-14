@@ -10,8 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from collections.abc import Callable, Iterable
 from typing import Any, ClassVar, Literal, overload
-from collections.abc import Callable
 import warnings
 
 from openstack._utils import renamed_param
@@ -205,12 +205,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_flavor.Flavor, **attrs)
 
-    def delete_flavor(self, flavor, ignore_missing=True):
+    def delete_flavor(
+        self, flavor: str | _flavor.Flavor, ignore_missing: bool = True
+    ) -> None:
         """Delete a flavor
 
         :param flavor: The value can be either the ID of a flavor or a
             :class:`~openstack.compute.v2.flavor.Flavor` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the flavor does not exist.
             When set to ``True``, no exception will be set when
@@ -358,17 +360,31 @@ class Proxy(proxy.Proxy):
         flavor = self._get_resource(_flavor.Flavor, flavor)
         return flavor.update_extra_specs_property(self, prop, val)
 
-    def delete_flavor_extra_specs_property(self, flavor, prop):
+    def delete_flavor_extra_specs_property(
+        self,
+        flavor: str | _flavor.Flavor,
+        prop: str,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete specific Extra Spec property of a flavor
 
         :param flavor: Either the ID of a flavor or a
             :class:`~openstack.compute.v2.flavor.Flavor` instance.
-        :param str prop: Property name.
+        :param prop: Property name.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the flavor or extra spec does not exist. When set to ``True``,
+            no exception will be set when attempting to delete a nonexistent
+            flavor extra spec.
 
         :returns: None
         """
         flavor = self._get_resource(_flavor.Flavor, flavor)
-        return flavor.delete_extra_specs_property(self, prop)
+        try:
+            flavor.delete_extra_specs_property(self, prop)
+        except exceptions.NotFoundException:
+            if not ignore_missing:
+                raise
 
     # ========== Aggregates ==========
 
@@ -460,13 +476,17 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_aggregate.Aggregate, aggregate, **attrs)
 
-    def delete_aggregate(self, aggregate, ignore_missing=True):
+    def delete_aggregate(
+        self,
+        aggregate: str | _aggregate.Aggregate,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a host aggregate
 
-        :param keypair: The value can be either the ID of an aggregate or a
+        :param aggregate: The value can be either the ID of an aggregate or a
             :class:`~openstack.compute.v2.aggregate.Aggregate`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the aggregate does not exist.
             When set to ``True``, no exception will be set when
@@ -541,12 +561,14 @@ class Proxy(proxy.Proxy):
 
     # ========== Images ==========
 
-    def delete_image(self, image, ignore_missing=True):
+    def delete_image(
+        self, image: str | _image.Image, ignore_missing: bool = True
+    ) -> None:
         """Delete an image
 
         :param image: The value can be either the ID of an image or a
             :class:`~openstack.compute.v2.image.Image` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the image does not exist.
             When set to ``True``, no exception will be set when
@@ -684,22 +706,24 @@ class Proxy(proxy.Proxy):
         res = self._get_base_resource(image, _image.Image)
         return res.set_metadata(self, metadata=metadata)
 
-    def delete_image_metadata(self, image, keys=None):
+    def delete_image_metadata(
+        self,
+        image: str | _image.Image,
+        keys: Iterable[str] | None = None,
+    ) -> None:
         """Delete metadata for an image
 
         Note: This method will do a HTTP DELETE request for every key in keys.
 
         :param image: Either the ID of an image or a
             :class:`~openstack.compute.v2.image.Image` instance.
-        :param list keys: The keys to delete. If left empty complete metadata
-            will be removed.
+        :param keys: The keys to delete. If omitted, all metadata is removed.
 
-        :rtype: ``None``
+        :returns: ``None``
         """
         res = self._get_base_resource(image, _image.Image)
         if keys is not None:
-            # Create a set as a snapshot of keys to avoid "changed during
-            # iteration"
+            # Use a set snapshot to avoid "changed during iteration" errors
             for key in set(keys):
                 res.delete_metadata_item(self, key)
         else:
@@ -719,17 +743,22 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_keypair.Keypair, **attrs)
 
-    def delete_keypair(self, keypair, ignore_missing=True, user_id=None):
+    def delete_keypair(
+        self,
+        keypair: str | _keypair.Keypair,
+        ignore_missing: bool = True,
+        user_id: str | None = None,
+    ) -> None:
         """Delete a keypair
 
         :param keypair: The value can be either the ID of a keypair or a
             :class:`~openstack.compute.v2.keypair.Keypair` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the keypair does not exist.  When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
             keypair.
-        :param str user_id: Optional user_id owning the keypair
+        :param user_id: Optional user_id owning the keypair
 
         :returns: ``None``
         """
@@ -850,17 +879,22 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_server.Server, **attrs)
 
-    def delete_server(self, server, ignore_missing=True, force=False):
+    def delete_server(
+        self,
+        server: str | _server.Server,
+        ignore_missing: bool = True,
+        force: bool = False,
+    ) -> None:
         """Delete a server
 
         :param server: The value can be either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the server does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent server
-        :param bool force: When set to ``True``, the server deletion will be
+        :param force: When set to ``True``, the server deletion will be
             forced immediately.
 
         :returns: ``None``
@@ -1526,10 +1560,10 @@ class Proxy(proxy.Proxy):
 
     def delete_server_interface(
         self,
-        server_interface,
-        server=None,
-        ignore_missing=True,
-    ):
+        server_interface: str | _server_interface.ServerInterface,
+        server: str | _server.Server | None = None,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a server interface
 
         :param server_interface:
@@ -1540,7 +1574,7 @@ class Proxy(proxy.Proxy):
             ID is given as value. It can be either the ID of a
             server or a :class:`~openstack.compute.v2.server.Server`
             instance that the interface belongs to.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the server interface does not exist.
             When set to ``True``, no exception will be set when
@@ -1680,22 +1714,24 @@ class Proxy(proxy.Proxy):
         res = self._get_base_resource(server, _server.Server)
         return res.set_metadata(self, metadata=metadata)
 
-    def delete_server_metadata(self, server, keys=None):
+    def delete_server_metadata(
+        self,
+        server: str | _server.Server,
+        keys: Iterable[str] | None = None,
+    ) -> None:
         """Delete metadata for a server
 
         Note: This method will do a HTTP DELETE request for every key in keys.
 
         :param server: Either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server` instance.
-        :param list keys: The keys to delete. If left empty complete
-            metadata will be removed.
+        :param keys: The keys to delete. If omitted, all metadata is removed.
 
-        :rtype: ``None``
+        :returns: ``None``
         """
         res = self._get_base_resource(server, _server.Server)
         if keys is not None:
-            # Create a set as a snapshot of keys to avoid "changed during
-            # iteration"
+            # Use a set snapshot to avoid "changed during iteration" errors
             for key in set(keys):
                 res.delete_metadata_item(self, key)
         else:
@@ -1715,13 +1751,17 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_server_group.ServerGroup, **attrs)
 
-    def delete_server_group(self, server_group, ignore_missing=True):
+    def delete_server_group(
+        self,
+        server_group: str | _server_group.ServerGroup,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a server group
 
         :param server_group: The value can be either the ID of a server group
             or a :class:`~openstack.compute.v2.server_group.ServerGroup`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the server group does not exist.
             When set to ``True``, no exception will be set when
@@ -2056,13 +2096,15 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def delete_service(self, service, ignore_missing=True):
+    def delete_service(
+        self, service: str | _service.Service, ignore_missing: bool = True
+    ) -> None:
         """Delete a service
 
         :param service:
             The value can be either the ID of a service or a
             :class:`~openstack.compute.v2.service.Service` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the service does not exist.  When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
@@ -2236,7 +2278,12 @@ class Proxy(proxy.Proxy):
             )
             return volume, server
 
-    def delete_volume_attachment(self, server, volume, ignore_missing=True):
+    def delete_volume_attachment(
+        self,
+        server: str | _server.Server,
+        volume: str | _volume.Volume,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a volume attachment
 
         Note that the underlying API expects a volume ID, not a volume
@@ -2248,7 +2295,7 @@ class Proxy(proxy.Proxy):
             volume is attached to.
         :param volume: The value can be the ID of a volume or a
             :class:`~openstack.block_storage.v3.volume.Volume` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the volume attachment does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
@@ -3059,7 +3106,12 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def delete_share_attachment(self, server, share, ignore_missing=False):
+    def delete_share_attachment(
+        self,
+        server: str | _server.Server,
+        share: str | _server_share.ShareMapping,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a share attachment
 
         :param server: The value can be either the ID of a server or a
@@ -3067,7 +3119,7 @@ class Proxy(proxy.Proxy):
             share is attached to.
         :param share: The value can be the ID of a share or a
             :class:`~openstack.shared_file_system.v2.Share` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, no exception will be set when

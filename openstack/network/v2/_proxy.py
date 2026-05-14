@@ -10,8 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from collections.abc import Callable, Generator, Iterable
 from typing import Any, ClassVar, Literal, overload
-from collections.abc import Callable, Generator
 
 from openstack._utils import renamed_param
 from openstack import exceptions
@@ -263,14 +263,18 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_address_group.AddressGroup, **attrs)
 
-    def delete_address_group(self, address_group, ignore_missing=True):
+    def delete_address_group(
+        self,
+        address_group: str | _address_group.AddressGroup,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete an address group
 
         :param address_group: The value can be either the ID of an
             address group or
             a :class:`~openstack.network.v2.address_group.AddressGroup`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will
             be raised when the address group does not exist.
             When set to ``True``, no exception will be set when
@@ -410,14 +414,18 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_address_scope.AddressScope, **attrs)
 
-    def delete_address_scope(self, address_scope, ignore_missing=True):
+    def delete_address_scope(
+        self,
+        address_scope: str | _address_scope.AddressScope,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete an address scope
 
         :param address_scope: The value can be either the ID of an
             address scope or
             a :class:`~openstack.network.v2.address_scope.AddressScope`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the address scope does not exist.
             When set to ``True``, no exception will be set when
@@ -537,12 +545,14 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_agent.Agent, **query)
 
-    def delete_agent(self, agent, ignore_missing=True):
+    def delete_agent(
+        self, agent: str | _agent.Agent, ignore_missing: bool = True
+    ) -> None:
         """Delete a network agent
 
         :param agent: The value can be the ID of a agent or a
             :class:`~openstack.network.v2.agent.Agent` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the agent does not exist.
             When set to ``True``, no exception will be set when
@@ -649,8 +659,8 @@ class Proxy(proxy.Proxy):
         )
 
     def delete_auto_allocated_topology(
-        self, project=None, ignore_missing=False
-    ):
+        self, project: str | None = None, ignore_missing: bool = False
+    ) -> None:
         """Delete auto-allocated topology
 
         :param project:
@@ -712,7 +722,9 @@ class Proxy(proxy.Proxy):
         """Create a new BGP Peer from attributes"""
         return self._create(_bgp_peer.BgpPeer, **attrs)
 
-    def delete_bgp_peer(self, peer, ignore_missing=True):
+    def delete_bgp_peer(
+        self, peer: str | _bgp_peer.BgpPeer, ignore_missing: bool = True
+    ) -> None:
         """Delete a BGP Peer"""
         self._delete(_bgp_peer.BgpPeer, peer, ignore_missing=ignore_missing)
 
@@ -762,7 +774,11 @@ class Proxy(proxy.Proxy):
         """Create a new BGP Speaker"""
         return self._create(_bgp_speaker.BgpSpeaker, **attrs)
 
-    def delete_bgp_speaker(self, speaker, ignore_missing=True):
+    def delete_bgp_speaker(
+        self,
+        speaker: str | _bgp_speaker.BgpSpeaker,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a BGP Speaker"""
         self._delete(
             _bgp_speaker.BgpSpeaker, speaker, ignore_missing=ignore_missing
@@ -881,12 +897,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_bgpvpn.BgpVpn, **attrs)
 
-    def delete_bgpvpn(self, bgpvpn, ignore_missing=True):
+    def delete_bgpvpn(
+        self, bgpvpn: str | _bgpvpn.BgpVpn, ignore_missing: bool = True
+    ) -> None:
         """Delete a BGPVPN
 
         :param bgpvpn: The value can be either the ID of a bgpvpn or
             a :class:`~openstack.network.v2.bgpvpn.BgpVpn`  instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the BGPVPN does not exist.
             When set to ``True``, no exception will be set when
@@ -995,8 +1013,12 @@ class Proxy(proxy.Proxy):
         )
 
     def delete_bgpvpn_network_association(
-        self, bgpvpn, net_association, ignore_missing=True
-    ):
+        self,
+        bgpvpn: str | _bgpvpn.BgpVpn,
+        net_association: str
+        | _bgpvpn_network_association.BgpVpnNetworkAssociation,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a BGPVPN Network Association
 
         :param bgpvpn: The value can be either the ID of a bgpvpn or
@@ -1005,7 +1027,7 @@ class Proxy(proxy.Proxy):
             bgpvpn_network_association or
             a :class:`~openstack.network.v2.bgpvpn_network_association.
             BgpVpnNetworkAssociation` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the BgpVpnNetworkAssociation does not exist.
             When set to ``True``, no exception will be set when
@@ -1086,8 +1108,11 @@ class Proxy(proxy.Proxy):
         )
 
     def delete_bgpvpn_port_association(
-        self, bgpvpn, port_association, ignore_missing=True
-    ):
+        self,
+        bgpvpn: str | _bgpvpn.BgpVpn,
+        port_association: str | _bgpvpn_port_association.BgpVpnPortAssociation,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a BGPVPN Port Association
 
         :param bgpvpn: The value can be either the ID of a bgpvpn or
@@ -1096,7 +1121,7 @@ class Proxy(proxy.Proxy):
             bgpvpn_port_association or
             a :class:`~openstack.network.v2.bgpvpn_port_association.
             BgpVpnPortAssociation` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the BgpVpnPortAssociation does not exist.
             When set to ``True``, no exception will be set when
@@ -1249,17 +1274,21 @@ class Proxy(proxy.Proxy):
         )
 
     def delete_bgpvpn_router_association(
-        self, bgpvpn, router_association, ignore_missing=True
-    ):
+        self,
+        bgpvpn: str | _bgpvpn.BgpVpn,
+        router_association: str
+        | _bgpvpn_router_association.BgpVpnRouterAssociation,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a BGPVPN Router Association
 
         :param bgpvpn: The value can be either the ID of a bgpvpn or
             a :class:`~openstack.network.v2.bgpvpn.BgpVpn` instance.
-        :param port_association: The value can be either the ID of a
+        :param router_association: The value can be either the ID of a
             bgpvpn_router_association or
             a :class:`~openstack.network.v2.bgpvpn_router_association.
             BgpVpnRouterAssociation` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the BgpVpnRouterAssociation does not exist.
             When set to ``True``, no exception will be set when
@@ -1402,13 +1431,15 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_flavor.Flavor, **attrs)
 
-    def delete_flavor(self, flavor, ignore_missing=True):
+    def delete_flavor(
+        self, flavor: str | _flavor.Flavor, ignore_missing: bool = True
+    ) -> None:
         """Delete a network service flavor
 
         :param flavor:
             The value can be either the ID of a flavor or a
             :class:`~openstack.network.v2.flavor.Flavor` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the flavor does not exist.
             When set to ``True``, no exception will be set when
@@ -1553,18 +1584,23 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_local_ip.LocalIP, **attrs)
 
-    def delete_local_ip(self, local_ip, ignore_missing=True, if_revision=None):
+    def delete_local_ip(
+        self,
+        local_ip: str | _local_ip.LocalIP,
+        ignore_missing: bool = True,
+        if_revision: int | None = None,
+    ) -> None:
         """Delete a local ip
 
         :param local_ip: The value can be either the ID of a local ip or a
             :class:`~openstack.network.v2.local_ip.LocalIP`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the local ip does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent ip.
-        :param int if_revision: Revision to put in If-Match header of update
+        :param if_revision: Revision to put in If-Match header of update
             request to perform compare-and-swap update.
 
         :returns: ``None``
@@ -1693,8 +1729,12 @@ class Proxy(proxy.Proxy):
         )
 
     def delete_local_ip_association(
-        self, local_ip, fixed_port_id, ignore_missing=True, if_revision=None
-    ):
+        self,
+        local_ip: str | _local_ip.LocalIP,
+        fixed_port_id: str,
+        ignore_missing: bool = True,
+        if_revision: int | None = None,
+    ) -> None:
         """Delete a local ip association
 
         :param local_ip: The value can be the ID of a Local IP or a
@@ -1704,12 +1744,12 @@ class Proxy(proxy.Proxy):
             or a :class:
             `~openstack.network.v2.local_ip_association.LocalIPAssociation`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the local ip association does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent ip.
-        :param int if_revision: Revision to put in If-Match header of update
+        :param if_revision: Revision to put in If-Match header of update
             request to perform compare-and-swap update.
 
         :returns: ``None``
@@ -1834,18 +1874,23 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_floating_ip.FloatingIP, **attrs)
 
-    def delete_ip(self, floating_ip, ignore_missing=True, if_revision=None):
+    def delete_ip(
+        self,
+        floating_ip: str | _floating_ip.FloatingIP,
+        ignore_missing: bool = True,
+        if_revision: int | None = None,
+    ) -> None:
         """Delete a floating ip
 
         :param floating_ip: The value can be either the ID of a floating ip
             or a :class:`~openstack.network.v2.floating_ip.FloatingIP`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the floating ip does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent ip.
-        :param int if_revision: Revision to put in If-Match header of update
+        :param if_revision: Revision to put in If-Match header of update
             request to perform compare-and-swap update.
 
         :returns: ``None``
@@ -2054,8 +2099,11 @@ class Proxy(proxy.Proxy):
         )
 
     def delete_port_forwarding(
-        self, port_forwarding, floating_ip, ignore_missing=True
-    ):
+        self,
+        port_forwarding: str | _port_forwarding.PortForwarding,
+        floating_ip: str | _floating_ip.FloatingIP,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a port forwarding
 
         :param port_forwarding: The value can be the ID of a port forwarding
@@ -2064,7 +2112,7 @@ class Proxy(proxy.Proxy):
         :param floating_ip: The value can be the ID of a Floating IP or a
             :class:`~openstack.network.v2.floating_ip.FloatingIP`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the floating ip does not exist.
             When set to ``True``, no exception will be set when
@@ -2138,14 +2186,18 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_health_monitor.HealthMonitor, **attrs)
 
-    def delete_health_monitor(self, health_monitor, ignore_missing=True):
+    def delete_health_monitor(
+        self,
+        health_monitor: str | _health_monitor.HealthMonitor,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a health monitor
 
         :param health_monitor: The value can be either the ID of a
             health monitor or a
             :class:`~openstack.network.v2.health_monitor.HealthMonitor`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the health monitor does not exist.
             When set to ``True``, no exception will be set when
@@ -2272,12 +2324,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_listener.Listener, **attrs)
 
-    def delete_listener(self, listener, ignore_missing=True):
+    def delete_listener(
+        self, listener: str | _listener.Listener, ignore_missing: bool = True
+    ) -> None:
         """Delete a listener
 
         :param listener: The value can be either the ID of a listner or a
             :class:`~openstack.network.v2.listener.Listener` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the listner does not exist.
             When set to ``True``, no exception will be set when
@@ -2394,13 +2448,17 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_load_balancer.LoadBalancer, **attrs)
 
-    def delete_load_balancer(self, load_balancer, ignore_missing=True):
+    def delete_load_balancer(
+        self,
+        load_balancer: str | _load_balancer.LoadBalancer,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a load balancer
 
         :param load_balancer: The value can be the ID of a load balancer or a
             :class:`~openstack.network.v2.load_balancer.LoadBalancer`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the load balancer does not exist.
             When set to ``True``, no exception will be set when
@@ -2510,14 +2568,18 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_metering_label.MeteringLabel, **attrs)
 
-    def delete_metering_label(self, metering_label, ignore_missing=True):
+    def delete_metering_label(
+        self,
+        metering_label: str | _metering_label.MeteringLabel,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a metering label
 
         :param metering_label:
             The value can be either the ID of a metering label or a
             :class:`~openstack.network.v2.metering_label.MeteringLabel`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the metering label does not exist.
             When set to ``True``, no exception will be set when
@@ -2638,8 +2700,10 @@ class Proxy(proxy.Proxy):
         return self._create(_metering_label_rule.MeteringLabelRule, **attrs)
 
     def delete_metering_label_rule(
-        self, metering_label_rule, ignore_missing=True
-    ):
+        self,
+        metering_label_rule: str | _metering_label_rule.MeteringLabelRule,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a metering label rule
 
         :param metering_label_rule:
@@ -2647,7 +2711,7 @@ class Proxy(proxy.Proxy):
             or a
             :class:`~openstack.network.v2.metering_label_rule.MeteringLabelRule`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the metering label rule does not exist.  When set to ``True``,
             no exception will be set when attempting to delete a nonexistent
@@ -2774,18 +2838,23 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_network.Network, **attrs)
 
-    def delete_network(self, network, ignore_missing=True, if_revision=None):
+    def delete_network(
+        self,
+        network: str | _network.Network,
+        ignore_missing: bool = True,
+        if_revision: int | None = None,
+    ) -> None:
         """Delete a network
 
         :param network:
             The value can be either the ID of a network or a
             :class:`~openstack.network.v2.network.Network` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the network does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent network.
-        :param int if_revision: Revision to put in If-Match header of update
+        :param if_revision: Revision to put in If-Match header of update
             request to perform compare-and-swap update.
 
         :returns: ``None``
@@ -2995,15 +3064,18 @@ class Proxy(proxy.Proxy):
         )
 
     def delete_network_segment_range(
-        self, network_segment_range, ignore_missing=True
-    ):
+        self,
+        network_segment_range: str
+        | _network_segment_range.NetworkSegmentRange,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a network segment range
 
         :param network_segment_range: The value can be either the ID of a
             network segment range or a
             :class:`~openstack.network.v2.network_segment_range.NetworkSegmentRange`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the network segment range does not exist.
             When set to ``True``, no exception will be set when
@@ -3140,12 +3212,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_pool.Pool, **attrs)
 
-    def delete_pool(self, pool, ignore_missing=True):
+    def delete_pool(
+        self, pool: str | _pool.Pool, ignore_missing: bool = True
+    ) -> None:
         """Delete a pool
 
         :param pool: The value can be either the ID of a pool or a
             :class:`~openstack.network.v2.pool.Pool` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the pool does not exist.
             When set to ``True``, no exception will be set when
@@ -3264,7 +3338,12 @@ class Proxy(proxy.Proxy):
             _pool_member.PoolMember, pool_id=poolobj.id, **attrs
         )
 
-    def delete_pool_member(self, pool_member, pool, ignore_missing=True):
+    def delete_pool_member(
+        self,
+        pool_member: str | _pool_member.PoolMember,
+        pool: str | _pool.Pool,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a pool member
 
         :param pool_member:
@@ -3273,7 +3352,7 @@ class Proxy(proxy.Proxy):
         :param pool: The pool can be either the ID of a pool or a
             :class:`~openstack.network.v2.pool.Pool` instance that
             the member belongs to.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the pool member does not exist.
             When set to ``True``, no exception will be set when
@@ -3431,17 +3510,22 @@ class Proxy(proxy.Proxy):
         """
         return self._bulk_create(_port.Port, data)
 
-    def delete_port(self, port, ignore_missing=True, if_revision=None):
+    def delete_port(
+        self,
+        port: str | _port.Port,
+        ignore_missing: bool = True,
+        if_revision: int | None = None,
+    ) -> None:
         """Delete a port
 
         :param port: The value can be either the ID of a port or a
             :class:`~openstack.network.v2.port.Port` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the port does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent port.
-        :param int if_revision: Revision to put in If-Match header of update
+        :param if_revision: Revision to put in If-Match header of update
             request to perform compare-and-swap update.
 
         :returns: ``None``
@@ -3630,25 +3714,41 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def delete_port_binding(self, port, host):
+    def delete_port_binding(
+        self,
+        port: str | _port.Port,
+        host: str,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a Port Binding
 
         :param port: The value can be either the ID of a port or a
             :class:`~openstack.network.v2.port.Port` instance.
         :param host: The host on which the port is bound.
-        :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
-            raised when the port does not exist.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be
+            raised when the port or port binding does not exist.
             When set to ``True``, no exception will be set when
-            attempting to delete a nonexistent port.
+            attempting to delete a nonexistent port binding.
 
         :returns: ``None``
         """
-        port_id = self._get(_port.Port, port).id
-        bindings_on_host = self.port_bindings(port=port_id, host=host)
+        try:
+            port_id = self._get(_port.Port, port).id
+        except exceptions.NotFoundException:
+            if not ignore_missing:
+                raise
+            return
+        bindings_on_host = list(self.port_bindings(port=port_id, host=host))
+        if not bindings_on_host:
+            if not ignore_missing:
+                raise exceptions.NotFoundException(
+                    f"No binding for port {port_id} on host {host}"
+                )
+            return
         # There can be only 1 binding on a host at a time
         for binding in bindings_on_host:
-            return binding.delete_port_binding(self, host)
+            binding.delete_port_binding(self, host)
 
     def create_qos_bandwidth_limit_rule(
         self, qos_policy: str | _qos_policy.QoSPolicy, **attrs: Any
@@ -3676,8 +3776,11 @@ class Proxy(proxy.Proxy):
         )
 
     def delete_qos_bandwidth_limit_rule(
-        self, qos_rule, qos_policy, ignore_missing=True
-    ):
+        self,
+        qos_rule: str | _qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a bandwidth limit rule
 
         :param qos_rule: The value can be either the ID of a bandwidth limit
@@ -3687,7 +3790,7 @@ class Proxy(proxy.Proxy):
         :param qos_policy: The value can be the ID of the QoS policy that the
             rule belongs or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, no exception will be set when
@@ -3850,8 +3953,11 @@ class Proxy(proxy.Proxy):
         )
 
     def delete_qos_dscp_marking_rule(
-        self, qos_rule, qos_policy, ignore_missing=True
-    ):
+        self,
+        qos_rule: str | _qos_dscp_marking_rule.QoSDSCPMarkingRule,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a QoS DSCP marking rule
 
         :param qos_rule: The value can be either the ID of a minimum bandwidth
@@ -3861,7 +3967,7 @@ class Proxy(proxy.Proxy):
         :param qos_policy: The value can be the ID of the QoS policy that the
             rule belongs or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, no exception will be set when
@@ -4019,8 +4125,11 @@ class Proxy(proxy.Proxy):
         )
 
     def delete_qos_minimum_bandwidth_rule(
-        self, qos_rule, qos_policy, ignore_missing=True
-    ):
+        self,
+        qos_rule: str | _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a minimum bandwidth rule
 
         :param qos_rule: The value can be either the ID of a minimum bandwidth
@@ -4030,7 +4139,7 @@ class Proxy(proxy.Proxy):
         :param qos_policy: The value can be the ID of the QoS policy that the
             rule belongs or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, no exception will be set when
@@ -4189,8 +4298,11 @@ class Proxy(proxy.Proxy):
         )
 
     def delete_qos_minimum_packet_rate_rule(
-        self, qos_rule, qos_policy, ignore_missing=True
-    ):
+        self,
+        qos_rule: str | _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a minimum packet rate rule
 
         :param qos_rule: The value can be either the ID of a minimum packet
@@ -4200,7 +4312,7 @@ class Proxy(proxy.Proxy):
         :param qos_policy: The value can be the ID of the QoS policy that the
             rule belongs or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the resource does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
@@ -4357,8 +4469,11 @@ class Proxy(proxy.Proxy):
         )
 
     def delete_qos_packet_rate_limit_rule(
-        self, qos_rule, qos_policy, ignore_missing=True
-    ):
+        self,
+        qos_rule: str | _qos_packet_rate_limit_rule.QoSPacketRateLimitRule,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a packet rate limit rule
 
         :param qos_rule: The value can be either the ID of a packet rate limit
@@ -4368,7 +4483,7 @@ class Proxy(proxy.Proxy):
         :param qos_policy: The value can be the ID of the QoS policy that the
             rule belongs or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the resource does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
@@ -4512,13 +4627,17 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_qos_policy.QoSPolicy, **attrs)
 
-    def delete_qos_policy(self, qos_policy, ignore_missing=True):
+    def delete_qos_policy(
+        self,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a QoS policy
 
         :param qos_policy: The value can be either the ID of a QoS policy or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the QoS policy does not exist.
             When set to ``True``, no exception will be set when
@@ -4677,14 +4796,16 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_qos_rule_type.QoSRuleType, **query)
 
-    def delete_quota(self, quota, ignore_missing=True):
+    def delete_quota(
+        self, quota: str | _quota.Quota, ignore_missing: bool = True
+    ) -> None:
         """Delete a quota (i.e. reset to the default quota)
 
         :param quota: The value can be either the ID of a quota or a
             :class:`~openstack.network.v2.quota.Quota` instance.
             The ID of a quota is the same as the project ID
             for the quota.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when quota does not exist.
             When set to ``True``, no exception will be set when
@@ -4773,12 +4894,16 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_rbac_policy.RBACPolicy, **attrs)
 
-    def delete_rbac_policy(self, rbac_policy, ignore_missing=True):
+    def delete_rbac_policy(
+        self,
+        rbac_policy: str | _rbac_policy.RBACPolicy,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a RBAC policy
 
         :param rbac_policy: The value can be either the ID of a RBAC policy or
             a :class:`~openstack.network.v2.rbac_policy.RBACPolicy` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the RBAC policy does not exist.
             When set to ``True``, no exception will be set when
@@ -4887,17 +5012,22 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_router.Router, **attrs)
 
-    def delete_router(self, router, ignore_missing=True, if_revision=None):
+    def delete_router(
+        self,
+        router: str | _router.Router,
+        ignore_missing: bool = True,
+        if_revision: int | None = None,
+    ) -> None:
         """Delete a router
 
         :param router: The value can be either the ID of a router or a
             :class:`~openstack.network.v2.router.Router` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the router does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent router.
-        :param int if_revision: Revision to put in If-Match header of update
+        :param if_revision: Revision to put in If-Match header of update
             request to perform compare-and-swap update.
 
         :returns: ``None``
@@ -5271,13 +5401,15 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def delete_ndp_proxy(self, ndp_proxy, ignore_missing=True):
+    def delete_ndp_proxy(
+        self, ndp_proxy: str | _ndp_proxy.NDPProxy, ignore_missing: bool = True
+    ) -> None:
         """Delete a ndp proxy
 
         :param ndp_proxy: The value can be the ID of a ndp proxy
             or a :class:`~openstack.network.v2.ndp_proxy.NDPProxy`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the router does not exist.  When set to ``True``, no exception
             will be set when attempting to delete a nonexistent ndp proxy.
@@ -5330,14 +5462,18 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_firewall_group.FirewallGroup, **attrs)
 
-    def delete_firewall_group(self, firewall_group, ignore_missing=True):
+    def delete_firewall_group(
+        self,
+        firewall_group: str | _firewall_group.FirewallGroup,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a firewall group
 
         :param firewall_group:
             The value can be either the ID of a firewall group or a
             :class:`~openstack.network.v2.firewall_group.FirewallGroup`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the firewall group does not exist.
             When set to ``True``, no exception will be set when
@@ -5461,14 +5597,18 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_firewall_policy.FirewallPolicy, **attrs)
 
-    def delete_firewall_policy(self, firewall_policy, ignore_missing=True):
+    def delete_firewall_policy(
+        self,
+        firewall_policy: str | _firewall_policy.FirewallPolicy,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a firewall policy
 
         :param firewall_policy:
             The value can be either the ID of a firewall policy or a
             :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the firewall policy does not exist.
             When set to ``True``, no exception will be set when
@@ -5643,14 +5783,18 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_firewall_rule.FirewallRule, **attrs)
 
-    def delete_firewall_rule(self, firewall_rule, ignore_missing=True):
+    def delete_firewall_rule(
+        self,
+        firewall_rule: str | _firewall_rule.FirewallRule,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a firewall rule
 
         :param firewall_rule:
             The value can be either the ID of a firewall rule or a
             :class:`~openstack.network.v2.firewall_rule.FirewallRule`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the firewall rule does not exist.
             When set to ``True``, no exception will be set when
@@ -5782,20 +5926,23 @@ class Proxy(proxy.Proxy):
         return self._create(_security_group.SecurityGroup, **attrs)
 
     def delete_security_group(
-        self, security_group, ignore_missing=True, if_revision=None
-    ):
+        self,
+        security_group: str | _security_group.SecurityGroup,
+        ignore_missing: bool = True,
+        if_revision: int | None = None,
+    ) -> None:
         """Delete a security group
 
         :param security_group:
             The value can be either the ID of a security group or a
             :class:`~openstack.network.v2.security_group.SecurityGroup`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the security group does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent security group.
-        :param int if_revision: Revision to put in If-Match header of update
+        :param if_revision: Revision to put in If-Match header of update
             request to perform compare-and-swap update.
 
         :returns: ``None``
@@ -5936,8 +6083,11 @@ class Proxy(proxy.Proxy):
         return self._bulk_create(_security_group_rule.SecurityGroupRule, data)
 
     def delete_security_group_rule(
-        self, security_group_rule, ignore_missing=True, if_revision=None
-    ):
+        self,
+        security_group_rule: str | _security_group_rule.SecurityGroupRule,
+        ignore_missing: bool = True,
+        if_revision: int | None = None,
+    ) -> None:
         """Delete a security group rule
 
         :param security_group_rule:
@@ -5945,12 +6095,12 @@ class Proxy(proxy.Proxy):
             or a
             :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the security group rule does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent security group rule.
-        :param int if_revision: Revision to put in If-Match header of update
+        :param if_revision: Revision to put in If-Match header of update
             request to perform compare-and-swap update.
 
         :returns: ``None``
@@ -6065,9 +6215,10 @@ class Proxy(proxy.Proxy):
 
     def delete_default_security_group_rule(
         self,
-        default_security_group_rule,
-        ignore_missing=True,
-    ):
+        default_security_group_rule: str
+        | _default_security_group_rule.DefaultSecurityGroupRule,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a default security group rule
 
         :param default_security_group_rule:
@@ -6075,7 +6226,7 @@ class Proxy(proxy.Proxy):
             or a
             :class:`~openstack.network.v2.default_security_group_rule.
             DefaultSecurityGroupRule` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the defaul security group rule does not exist.
             When set to ``True``, no exception will be set when
@@ -6198,9 +6349,10 @@ class Proxy(proxy.Proxy):
 
     def delete_security_groups_default_statefulness(
         self,
-        security_groups_default_statefulness,
-        ignore_missing=True,
-    ):
+        security_groups_default_statefulness: str
+        | _sg_default_statefulness.SecurityGroupsDefaultStatefulness,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a default statefulness setting
 
         :param security_groups_default_statefulness:
@@ -6208,7 +6360,7 @@ class Proxy(proxy.Proxy):
             or a
             :class:`~openstack.network.v2.security_groups_default_statefulness.
             SecurityGroupsDefaultStatefulness` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, no exception will be set when
@@ -6340,13 +6492,15 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_segment.Segment, **attrs)
 
-    def delete_segment(self, segment, ignore_missing=True):
+    def delete_segment(
+        self, segment: str | _segment.Segment, ignore_missing: bool = True
+    ) -> None:
         """Delete a segment
 
         :param segment: The value can be either the ID of a segment or a
             :class:`~openstack.network.v2.segment.Segment`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the segment does not exist.
             When set to ``True``, no exception will be set when
@@ -6468,14 +6622,18 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_service_profile.ServiceProfile, **attrs)
 
-    def delete_service_profile(self, service_profile, ignore_missing=True):
+    def delete_service_profile(
+        self,
+        service_profile: str | _service_profile.ServiceProfile,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a network service flavor profile
 
         :param service_profile: The value can be either the ID of a service
             profile or a
             :class:`~openstack.network.v2.service_profile.ServiceProfile`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the service profile does not exist.
             When set to ``True``, no exception will be set when
@@ -6590,17 +6748,22 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_subnet.Subnet, **attrs)
 
-    def delete_subnet(self, subnet, ignore_missing=True, if_revision=None):
+    def delete_subnet(
+        self,
+        subnet: str | _subnet.Subnet,
+        ignore_missing: bool = True,
+        if_revision: int | None = None,
+    ) -> None:
         """Delete a subnet
 
         :param subnet: The value can be either the ID of a subnet or a
             :class:`~openstack.network.v2.subnet.Subnet` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the subnet does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent subnet.
-        :param int if_revision: Revision to put in If-Match header of update
+        :param if_revision: Revision to put in If-Match header of update
             request to perform compare-and-swap update.
 
         :returns: ``None``
@@ -6715,12 +6878,16 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_subnet_pool.SubnetPool, **attrs)
 
-    def delete_subnet_pool(self, subnet_pool, ignore_missing=True):
+    def delete_subnet_pool(
+        self,
+        subnet_pool: str | _subnet_pool.SubnetPool,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a subnet pool
 
         :param subnet_pool: The value can be either the ID of a subnet pool or
             a :class:`~openstack.network.v2.subnet_pool.SubnetPool` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the subnet pool does not exist.
             When set to ``True``, no exception will be set when
@@ -6928,11 +7095,17 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_trunk.Trunk, **attrs)
 
-    def delete_trunk(self, trunk, ignore_missing=True):
+    def delete_trunk(
+        self, trunk: str | _trunk.Trunk, ignore_missing: bool = True
+    ) -> None:
         """Delete a trunk
 
         :param trunk: The value can be either the ID of trunk or a
             :class:`openstack.network.v2.trunk.Trunk` instance
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the trunk does not exist. When set to ``True``, no exception
+            will be set when attempting to delete a nonexistent trunk.
 
         :returns: ``None``
         """
@@ -7028,16 +7201,17 @@ class Proxy(proxy.Proxy):
         trunk = self._get_resource(_trunk.Trunk, trunk)
         return trunk.add_subports(self, subports)
 
-    def delete_trunk_subports(self, trunk, subports):
+    # TODO(stephenfin): This method should return None
+    def delete_trunk_subports(
+        self, trunk: str | _trunk.Trunk, subports: Iterable[dict[str, Any]]
+    ) -> _trunk.Trunk:
         """Remove sub_ports from trunk
 
         :param trunk: The value can be the ID of a trunk or a
             :class:`~openstack.network.v2.trunk.Trunk` instance.
         :param subports: Subports to be removed.
-        :type subports: "list"
 
         :returns: The updated trunk
-        :rtype: :class:`~openstack.network.v2.trunk.Trunk`
         """
         trunk = self._get_resource(_trunk.Trunk, trunk)
         return trunk.delete_subports(self, subports)
@@ -7073,15 +7247,17 @@ class Proxy(proxy.Proxy):
         return self._create(_vpn_endpoint_group.VpnEndpointGroup, **attrs)
 
     def delete_vpn_endpoint_group(
-        self, vpn_endpoint_group, ignore_missing=True
-    ):
+        self,
+        vpn_endpoint_group: str | _vpn_endpoint_group.VpnEndpointGroup,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a vpn service
 
         :param vpn_endpoint_group:
             The value can be either the ID of a vpn service or a
             :class:`~openstack.network.v2.vpn_endpoint_group.VpnEndpointGroup`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the vpn service does not exist.
             When set to ``True``, no exception will be set when
@@ -7298,15 +7474,18 @@ class Proxy(proxy.Proxy):
         )
 
     def delete_vpn_ipsec_site_connection(
-        self, ipsec_site_connection, ignore_missing=True
-    ):
+        self,
+        ipsec_site_connection: str
+        | _ipsec_site_connection.VpnIPSecSiteConnection,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a IPsec site connection
 
         :param ipsec_site_connection: The value can be either the ID of an
             IPsec site connection, or a
             :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
             instance.
-        :param bool ignore_missing:
+        :param ignore_missing:
             When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the IPsec site connection does not exist. When set to
@@ -7416,13 +7595,17 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_ike_policy.VpnIkePolicy, ike_policy, **attrs)
 
-    def delete_vpn_ike_policy(self, ike_policy, ignore_missing=True):
+    def delete_vpn_ike_policy(
+        self,
+        ike_policy: str | _ike_policy.VpnIkePolicy,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete an IKE policy
 
         :param ike_policy: The value can be either the ID of an ike policy, or
             a :class:`~openstack.network.v2.vpn_ike_policy.VpnIkePolicy`
             instance.
-        :param bool ignore_missing:
+        :param ignore_missing:
             When set to ``False``
             :class:`~openstack.exceptions.NotFoundException`
             will be raised when the ike policy does not exist.
@@ -7535,14 +7718,18 @@ class Proxy(proxy.Proxy):
             _ipsec_policy.VpnIpsecPolicy, ipsec_policy, **attrs
         )
 
-    def delete_vpn_ipsec_policy(self, ipsec_policy, ignore_missing=True):
+    def delete_vpn_ipsec_policy(
+        self,
+        ipsec_policy: str | _ipsec_policy.VpnIpsecPolicy,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete an IPsec policy
 
         :param ipsec_policy: The value can be either the ID of an IPsec policy,
             or a
             :class:`~openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy`
             instance.
-        :param bool ignore_missing:
+        :param ignore_missing:
             When set to ``False``
             :class:`~openstack.exceptions.NotFoundException`
             will be raised when the IPsec policy does not exist.  When set to
@@ -7570,13 +7757,17 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_vpn_service.VpnService, **attrs)
 
-    def delete_vpn_service(self, vpn_service, ignore_missing=True):
+    def delete_vpn_service(
+        self,
+        vpn_service: str | _vpn_service.VpnService,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a vpn service
 
         :param vpn_service:
             The value can be either the ID of a vpn service or a
             :class:`~openstack.network.v2.vpn_service.VpnService` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the vpn service does not exist.
             When set to ``True``, no exception will be set when
@@ -7691,8 +7882,11 @@ class Proxy(proxy.Proxy):
         )
 
     def delete_floating_ip_port_forwarding(
-        self, floating_ip, port_forwarding, ignore_missing=True
-    ):
+        self,
+        floating_ip: str | _floating_ip.FloatingIP,
+        port_forwarding: str | _port_forwarding.PortForwarding,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a floating IP port forwarding.
 
         :param floating_ip: The value can be either the ID of a floating ip
@@ -7702,7 +7896,7 @@ class Proxy(proxy.Proxy):
             forwarding or a
             :class:`~openstack.network.v2.port_forwarding.PortForwarding`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the floating ip does not exist.
             When set to ``True``, no exception will be set when
@@ -7921,8 +8115,11 @@ class Proxy(proxy.Proxy):
         )
 
     def delete_conntrack_helper(
-        self, conntrack_helper, router, ignore_missing=True
-    ):
+        self,
+        conntrack_helper: str | _l3_conntrack_helper.ConntrackHelper,
+        router: str | _router.Router,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a L3 conntrack_helper
 
         :param conntrack_helper: The value can be the ID of a L3 conntrack
@@ -7931,7 +8128,7 @@ class Proxy(proxy.Proxy):
             instance.
         :param router: The value can be the ID of a Router or a
             :class:`~openstack.network.v2.router.Router` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the floating ip does not exist.
             When set to ``True``, no exception will be set when
@@ -7951,7 +8148,9 @@ class Proxy(proxy.Proxy):
         """Create a new Tap Flow from attributes"""
         return self._create(_tap_flow.TapFlow, **attrs)
 
-    def delete_tap_flow(self, tap_flow, ignore_missing=True):
+    def delete_tap_flow(
+        self, tap_flow: str | _tap_flow.TapFlow, ignore_missing: bool = True
+    ) -> None:
         """Delete a Tap Flow"""
         self._delete(
             _tap_flow.TapFlow, tap_flow, ignore_missing=ignore_missing
@@ -8003,7 +8202,11 @@ class Proxy(proxy.Proxy):
         """Create a new Tap Mirror from attributes"""
         return self._create(_tap_mirror.TapMirror, **attrs)
 
-    def delete_tap_mirror(self, tap_mirror, ignore_missing=True):
+    def delete_tap_mirror(
+        self,
+        tap_mirror: str | _tap_mirror.TapMirror,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a Tap Mirror"""
         self._delete(
             _tap_mirror.TapMirror, tap_mirror, ignore_missing=ignore_missing
@@ -8055,7 +8258,11 @@ class Proxy(proxy.Proxy):
         """Create a new Tap Service from attributes"""
         return self._create(_tap_service.TapService, **attrs)
 
-    def delete_tap_service(self, tap_service, ignore_missing=True):
+    def delete_tap_service(
+        self,
+        tap_service: str | _tap_service.TapService,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a Tap Service"""
         self._delete(
             _tap_service.TapService, tap_service, ignore_missing=ignore_missing
@@ -8119,14 +8326,18 @@ class Proxy(proxy.Proxy):
 
         return self._create(_sfc_flow_classifier.SfcFlowClassifier, **attrs)
 
-    def delete_sfc_flow_classifier(self, flow_classifier, ignore_missing=True):
+    def delete_sfc_flow_classifier(
+        self,
+        flow_classifier: str | _sfc_flow_classifier.SfcFlowClassifier,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a Flow Classifier
 
         :param flow_classifier:
             The value can be either the ID of a flow classifier or a
             :class:`~openstack.network.v2.sfc_flow_classifier.SfcFlowClassifier`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the  flow classifier does not exist.
             When set to ``True``, no exception will be set when
@@ -8249,14 +8460,18 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_sfc_port_chain.SfcPortChain, **attrs)
 
-    def delete_sfc_port_chain(self, port_chain, ignore_missing=True):
+    def delete_sfc_port_chain(
+        self,
+        port_chain: str | _sfc_port_chain.SfcPortChain,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a Port Chain
 
         :param port_chain:
             The value can be either the ID of a port chain or a
             :class:`~openstack.network.v2.sfc_port_chain.SfcPortChain`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the port chain does not exist.
             When set to ``True``, no exception will be set when
@@ -8370,14 +8585,18 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_sfc_port_pair.SfcPortPair, **attrs)
 
-    def delete_sfc_port_pair(self, port_pair, ignore_missing=True):
+    def delete_sfc_port_pair(
+        self,
+        port_pair: str | _sfc_port_pair.SfcPortPair,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a Port Pair
 
         :param port_pair:
             The value can be either the ID of a port pair or a
             :class:`~openstack.network.v2.sfc_port_pair.SfcPortPair`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the port pair does not exist.
             When set to ``True``, no exception will be set when
@@ -8492,14 +8711,18 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_sfc_port_pair_group.SfcPortPairGroup, **attrs)
 
-    def delete_sfc_port_pair_group(self, port_pair_group, ignore_missing=True):
+    def delete_sfc_port_pair_group(
+        self,
+        port_pair_group: str | _sfc_port_pair_group.SfcPortPairGroup,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a Port Pair Group
 
         :param port_pair_group:
             The value can be either the ID of a port pair group or a
             :class:`~openstack.network.v2.sfc_port_pair_group.
             SfcPortPairGroup` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the port pair group does not exist.
             When set to ``True``, no exception will be set when
@@ -8620,14 +8843,18 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_sfc_sservice_graph.SfcServiceGraph, **attrs)
 
-    def delete_sfc_service_graph(self, service_graph, ignore_missing=True):
+    def delete_sfc_service_graph(
+        self,
+        service_graph: str | _sfc_sservice_graph.SfcServiceGraph,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a Service Graph
 
         :param service_graph:
             The value can be either the ID of a service graph or a
             :class:`~openstack.network.v2.sfc_service_graph.SfcServiceGraph`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the service graph does not exist.
             When set to ``True``, no exception will be set when

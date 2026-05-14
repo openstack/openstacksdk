@@ -47,14 +47,18 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_resource_class.ResourceClass, **attrs)
 
-    def delete_resource_class(self, resource_class, ignore_missing=True):
+    def delete_resource_class(
+        self,
+        resource_class: str | _resource_class.ResourceClass,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a resource class
 
         :param resource_class: The value can be either the ID of a resource
             class or an
             :class:`~openstack.placement.v1.resource_class.ResourceClass`,
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the resource class does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
@@ -131,14 +135,18 @@ class Proxy(proxy.Proxy):
         """  # noqa: E501
         return self._create(_resource_provider.ResourceProvider, **attrs)
 
-    def delete_resource_provider(self, resource_provider, ignore_missing=True):
+    def delete_resource_provider(
+        self,
+        resource_provider: str | _resource_provider.ResourceProvider,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a resource provider
 
         :param resource_provider: The value can be either the ID of a resource
             provider or an
             :class:`~openstack.placement.v1.resource_provider.ResourceProvider`,
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the resource provider does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
@@ -321,10 +329,13 @@ class Proxy(proxy.Proxy):
 
     def delete_resource_provider_inventory(
         self,
-        resource_provider_inventory,
-        resource_provider=None,
-        ignore_missing=True,
-    ):
+        resource_provider_inventory: str
+        | _resource_provider_inventory.ResourceProviderInventory,
+        resource_provider: str
+        | _resource_provider.ResourceProvider
+        | None = None,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a resource provider inventory
 
         :param resource_provider_inventory: The value can be either the ID of a
@@ -335,7 +346,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.placement.v1.resource_provider.ResourceProvider`
             instance. This value must be specified when
             ``resource_provider_inventory`` is an ID.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the resource provider inventory does not exist. When set to
             ``True``, no exception will be set when attempting to delete a
@@ -454,12 +465,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_trait.Trait, name=name)
 
-    def delete_trait(self, trait, ignore_missing=True):
+    def delete_trait(
+        self, trait: str | _trait.Trait, ignore_missing: bool = True
+    ) -> None:
         """Delete a trait
 
         :param trait: The value can be either the ID of a trait or an
             :class:`~openstack.placement.v1.trait.Trait`, instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the resource provider inventory does not exist. When set to
             ``True``, no exception will be set when attempting to delete a

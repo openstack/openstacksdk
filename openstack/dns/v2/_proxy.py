@@ -94,20 +94,25 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_zone.Zone, zone)
 
-    def delete_zone(self, zone, ignore_missing=True, delete_shares=False):
+    # TODO(stephenfin): This method should return None
+    def delete_zone(
+        self,
+        zone: str | _zone.Zone,
+        ignore_missing: bool = True,
+        delete_shares: bool = False,
+    ) -> _zone.Zone | None:
         """Delete a zone
 
         :param zone: The value can be the ID of a zone
             or a :class:`~openstack.dns.v2.zone.Zone` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the zone does not exist. When set to ``True``, no exception
             will be set when attempting to delete a nonexistent zone.
-        :param bool delete_shares: When True, delete the zone shares along with
+        :param delete_shares: When True, delete the zone shares along with
                                    the zone.
 
         :returns: Zone been deleted
-        :rtype: :class:`~openstack.dns.v2.zone.Zone`
         """
         return self._delete(
             _zone.Zone,
@@ -272,7 +277,13 @@ class Proxy(proxy.Proxy):
         zone = self._get_resource(_zone.Zone, zone)
         return self._get(_rs.Recordset, recordset, zone_id=zone.id)
 
-    def delete_recordset(self, recordset, zone=None, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_recordset(
+        self,
+        recordset: str | _rs.Recordset,
+        zone: str | _zone.Zone | None = None,
+        ignore_missing: bool = True,
+    ) -> _rs.Recordset | None:
         """Delete a zone
 
         :param recordset: The value can be the ID of a recordset
@@ -280,13 +291,12 @@ class Proxy(proxy.Proxy):
             instance.
         :param zone: The value can be the ID of a zone
             or a :class:`~openstack.dns.v2.zone.Zone` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the zone does not exist. When set to ``True``, no exception
             will be set when attempting to delete a nonexistent zone.
 
         :returns: Recordset instance been deleted
-        :rtype: :class:`~openstack.dns.v2.recordset.Recordset`
         """
         if zone:
             zone = self._get_resource(_zone.Zone, zone)
@@ -381,17 +391,22 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_zone_import.ZoneImport, zone_import)
 
-    def delete_zone_import(self, zone_import, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_zone_import(
+        self,
+        zone_import: str | _zone_import.ZoneImport,
+        ignore_missing: bool = True,
+    ) -> _zone_import.ZoneImport | None:
         """Delete a zone import
 
         :param zone_import: The value can be the ID of a zone import
             or a :class:`~openstack.dns.v2.zone_import.ZoneImport` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the zone does not exist. When set to ``True``, no exception
             will be set when attempting to delete a nonexistent zone.
 
-        :returns: None
+        :returns: The deleted zone import.
         """
         return self._delete(
             _zone_import.ZoneImport, zone_import, ignore_missing=ignore_missing
@@ -461,17 +476,22 @@ class Proxy(proxy.Proxy):
             base_path='/zones/tasks/export/%(id)s/export',
         )
 
-    def delete_zone_export(self, zone_export, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_zone_export(
+        self,
+        zone_export: str | _zone_export.ZoneExport,
+        ignore_missing: bool = True,
+    ) -> _zone_export.ZoneExport | None:
         """Delete a zone export
 
         :param zone_export: The value can be the ID of a zone import
             or a :class:`~openstack.dns.v2.zone_export.ZoneExport` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the zone does not exist. When set to ``True``, no exception
             will be set when attempting to delete a nonexistent zone.
 
-        :returns: None
+        :returns: The deleted zone export.
         """
         return self._delete(
             _zone_export.ZoneExport, zone_export, ignore_missing=ignore_missing
@@ -593,18 +613,23 @@ class Proxy(proxy.Proxy):
             _zone_transfer.ZoneTransferRequest, request, **attrs
         )
 
-    def delete_zone_transfer_request(self, request, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_zone_transfer_request(
+        self,
+        request: str | _zone_transfer.ZoneTransferRequest,
+        ignore_missing: bool = True,
+    ) -> _zone_transfer.ZoneTransferRequest | None:
         """Delete a ZoneTransfer Request
 
         :param request: The value can be the ID of a zone transfer request
             or a :class:`~openstack.dns.v2.zone_transfer.ZoneTransferRequest`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the zone does not exist. When set to ``True``, no exception
             will be set when attempting to delete a nonexistent zone.
 
-        :returns: None
+        :returns: The deleted zone transfer request.
         """
         return self._delete(
             _zone_transfer.ZoneTransferRequest,
@@ -748,7 +773,12 @@ class Proxy(proxy.Proxy):
             _zone_share.ZoneShare, zone_id=zone_obj.id, **attrs
         )
 
-    def delete_zone_share(self, zone, zone_share, ignore_missing=True):
+    def delete_zone_share(
+        self,
+        zone: str | _zone.Zone,
+        zone_share: str | _zone_share.ZoneShare,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a zone share
 
         :param zone: The zone ID or a
@@ -756,7 +786,7 @@ class Proxy(proxy.Proxy):
         :param zone_share: The zone_share can be either the ID of the zone
             share or a :class:`~openstack.dns.v2.zone_share.ZoneShare` instance
             that the zone share belongs to.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the zone share does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent zone
@@ -819,19 +849,22 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_quota.Quota, quota, **attrs)
 
-    def delete_quota(self, quota, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_quota(
+        self, quota: str | _quota.Quota, ignore_missing: bool = True
+    ) -> _quota.Quota | None:
         """Delete a quota (i.e. reset to the default quota)
 
         :param quota: The value can be the ID of a quota or a
             :class:`~openstack.dns.v2.quota.Quota` instance.
             The ID of a quota is the same as the project ID for the quota.
-        :param bool ignore_missing: When set to ``False``,
+        :param ignore_missing: When set to ``False``,
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
             the quota does not exist.
             When set to ``True``, no exception will be set when attempting to
             delete a nonexistent quota.
 
-        :returns: ``None``
+        :returns: The deleted quota.
         """
         return self._delete(_quota.Quota, quota, ignore_missing=ignore_missing)
 
@@ -891,18 +924,20 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_tld.TLD, tld)
 
-    def delete_tld(self, tld, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_tld(
+        self, tld: str | _tld.TLD, ignore_missing: bool = True
+    ) -> _tld.TLD | None:
         """Delete a tld
 
         :param tld: The value can be the ID of a tld
             or a :class:`~openstack.dns.v2.tld.TLD` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the tld does not exist. When set to ``True``, no exception
             will be set when attempting to delete a nonexistent tld.
 
         :returns: TLD been deleted
-        :rtype: :class:`~openstack.dns.v2.tld.TLD`
         """
         return self._delete(
             _tld.TLD,
@@ -988,23 +1023,26 @@ class Proxy(proxy.Proxy):
         return self._get(_tsigkey.TSIGKey, tsigkey)
 
     def delete_tsigkey(
-        self, tsigkey, ignore_missing=True, delete_shares=False
-    ):
+        self,
+        tsigkey: str | _tsigkey.TSIGKey,
+        ignore_missing: bool = True,
+        delete_shares: bool = False,
+    ) -> None:
         """Delete a TSIG key
 
         :param tsigkey: The value can be the ID of a TSIG key
             or a :class:`~openstack.dns.v2.tsigkey.TSIGKey` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
             the TSIG key does not exist.
             When set to ``True``, no exception will be set when attempting to
             delete a nonexistent TSIG key.
+        :param delete_shares: Whether to delete associated shares.
 
         :returns: TSIG Key that has been deleted
-        :rtype: :class:`~openstack.dns.v2.tsigkey.TSIGKey`
         """
 
-        return self._delete(
+        self._delete(
             _tsigkey.TSIGKey,
             tsigkey,
             ignore_missing=ignore_missing,
@@ -1089,14 +1127,23 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_blacklist.Blacklist, blacklist, **attrs)
 
-    def delete_blacklist(self, blacklist, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_blacklist(
+        self,
+        blacklist: str | _blacklist.Blacklist,
+        ignore_missing: bool = True,
+    ) -> _blacklist.Blacklist | None:
         """Delete a blacklist
 
         :param blacklist: The id or an instance of
             :class: `~openstack.dns.v2.blacklist.Blacklist`.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the blacklist does not exist. When set to ``True``, no
+            exception will be set when attempting to delete a nonexistent
+            blacklist.
 
         :returns: Blacklist been deleted
-        :rtype: :class:`~openstack.dns.v2.blacklist.Blacklist`
         """
         return self._delete(
             _blacklist.Blacklist, blacklist, ignore_missing=ignore_missing

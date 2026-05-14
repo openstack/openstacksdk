@@ -52,7 +52,12 @@ class Proxy(proxy.Proxy):
             _database.Database, instance_id=instance.id, **attrs
         )
 
-    def delete_database(self, database, instance=None, ignore_missing=True):
+    def delete_database(
+        self,
+        database: str | _database.Database,
+        instance: str | _instance.Instance | None = None,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a database
 
         :param database: The value can be either the ID of a database or a
@@ -61,7 +66,7 @@ class Proxy(proxy.Proxy):
             an ID is given as `database`.
             It can be either the ID of an instance
             or a :class:`~openstack.database.v1.instance.Instance`
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the database does not exist.
             When set to ``True``, no exception will be set when
@@ -221,12 +226,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_instance.Instance, **attrs)
 
-    def delete_instance(self, instance, ignore_missing=True):
+    def delete_instance(
+        self, instance: str | _instance.Instance, ignore_missing: bool = True
+    ) -> None:
         """Delete an instance
 
         :param instance: The value can be either the ID of an instance or a
             :class:`~openstack.database.v1.instance.Instance` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the instance does not exist.
             When set to ``True``, no exception will be set when
@@ -327,7 +334,12 @@ class Proxy(proxy.Proxy):
         instance = self._get_resource(_instance.Instance, instance)
         return self._create(_user.User, instance_id=instance.id, **attrs)
 
-    def delete_user(self, user, instance=None, ignore_missing=True):
+    def delete_user(
+        self,
+        user: str | _user.User,
+        instance: str | _instance.Instance | None = None,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a user
 
         :param user: The value can be either the ID of a user or a
@@ -336,7 +348,7 @@ class Proxy(proxy.Proxy):
             an ID is given as `user`.
             It can be either the ID of an instance
             or a :class:`~openstack.database.v1.instance.Instance`
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the user does not exist.
             When set to ``True``, no exception will be set when

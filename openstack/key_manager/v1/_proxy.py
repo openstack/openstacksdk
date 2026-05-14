@@ -14,6 +14,7 @@ from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable
 
 from openstack._utils import renamed_param
+from openstack.identity.v3 import project as _project
 from openstack.key_manager.v1 import container as _container
 from openstack.key_manager.v1 import order as _order
 from openstack.key_manager.v1 import project_quota as _project_quota
@@ -46,13 +47,17 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_container.Container, **attrs)
 
-    def delete_container(self, container, ignore_missing=True):
+    def delete_container(
+        self,
+        container: str | _container.Container,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a container
 
         :param container: The value can be either the ID of a container or a
             :class:`~openstack.key_manager.v1.container.Container`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the container does not exist.
             When set to ``True``, no exception will be set when
@@ -147,13 +152,15 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_order.Order, **attrs)
 
-    def delete_order(self, order, ignore_missing=True):
+    def delete_order(
+        self, order: str | _order.Order, ignore_missing: bool = True
+    ) -> None:
         """Delete an order
 
         :param order: The value can be either the ID of a order or a
             :class:`~openstack.key_manager.v1.order.Order`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the order does not exist.
             When set to ``True``, no exception will be set when
@@ -245,13 +252,15 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_secret.Secret, **attrs)
 
-    def delete_secret(self, secret, ignore_missing=True):
+    def delete_secret(
+        self, secret: str | _secret.Secret, ignore_missing: bool = True
+    ) -> None:
         """Delete a secret
 
         :param secret: The value can be either the ID of a secret or a
             :class:`~openstack.key_manager.v1.secret.Secret`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the secret does not exist.
             When set to ``True``, no exception will be set when
@@ -366,7 +375,11 @@ class Proxy(proxy.Proxy):
         return self._get(_secret_store.SecretStore, 'preferred')
 
     @renamed_param('project_id', 'project')
-    def delete_project_quota(self, project, ignore_missing=True):
+    def delete_project_quota(
+        self,
+        project: str | _project.Project,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a project quota
 
         :param project: A project ID or

@@ -10,8 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from collections.abc import Callable, Iterable
 from typing import Any, ClassVar, Literal, overload
-from collections.abc import Callable
 
 from openstack.clustering.v1 import action as _action
 from openstack.clustering.v1 import build_info
@@ -111,12 +111,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_profile.Profile, **attrs)
 
-    def delete_profile(self, profile, ignore_missing=True):
+    def delete_profile(
+        self, profile: str | _profile.Profile, ignore_missing: bool = True
+    ) -> None:
         """Delete a profile.
 
         :param profile: The value can be either the name or ID of a profile or
             a :class:`~openstack.clustering.v1.profile.Profile` instance.
-        :param bool ignore_missing: When set to ``False``, an exception
+        :param ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the profile could not be found. When set to ``True``, no
             exception will be raised when attempting to delete a non-existent
@@ -237,29 +239,33 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_cluster.Cluster, **attrs)
 
-    def delete_cluster(self, cluster, ignore_missing=True, force_delete=False):
+    # TODO(stephenfin): This method should return None
+    def delete_cluster(
+        self,
+        cluster: str | _cluster.Cluster,
+        ignore_missing: bool = True,
+        force_delete: bool = False,
+    ) -> _cluster.Cluster | _action.Action | None:
         """Delete a cluster.
 
         :param cluster: The value can be either the name or ID of a cluster or
             a :class:`~openstack.cluster.v1.cluster.Cluster` instance.
-        :param bool ignore_missing: When set to ``False``, an exception
+        :param ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the cluster could not be found. When set to ``True``, no
             exception will be raised when attempting to delete a non-existent
             cluster.
-        :param bool force_delete: When set to ``True``, the cluster deletion
+        :param force_delete: When set to ``True``, the cluster deletion
             will be forced immediately.
 
         :returns: The instance of the Cluster which was deleted.
-        :rtype: :class:`~openstack.cluster.v1.cluster.Cluster`.
         """
         if force_delete:
             server = self._get_resource(_cluster.Cluster, cluster)
             return server.force_delete(self)
-        else:
-            return self._delete(
-                _cluster.Cluster, cluster, ignore_missing=ignore_missing
-            )
+        return self._delete(
+            _cluster.Cluster, cluster, ignore_missing=ignore_missing
+        )
 
     @overload
     def find_cluster(
@@ -375,7 +381,11 @@ class Proxy(proxy.Proxy):
         cluster = self._get_resource(_cluster.Cluster, cluster)
         return cluster.set_metadata(self, metadata=metadata)
 
-    def delete_cluster_metadata(self, cluster, keys=None):
+    def delete_cluster_metadata(
+        self,
+        cluster: str | _cluster.Cluster,
+        keys: Iterable[str] | None = None,
+    ) -> None:
         """Delete metadata for a cluster
 
         :param cluster: Either the ID of a cluster or a
@@ -383,7 +393,6 @@ class Proxy(proxy.Proxy):
         :param list keys: The keys to delete. If left empty complete
             metadata will be removed.
 
-        :rtype: ``None``
         """
         cluster = self._get_resource(_cluster.Cluster, cluster)
         if keys is not None:
@@ -597,29 +606,31 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_node.Node, **attrs)
 
-    def delete_node(self, node, ignore_missing=True, force_delete=False):
+    # TODO(stephenfin): This method should return None
+    def delete_node(
+        self,
+        node: str | _node.Node,
+        ignore_missing: bool = True,
+        force_delete: bool = False,
+    ) -> _node.Node | _action.Action | None:
         """Delete a node.
 
         :param node: The value can be either the name or ID of a node or a
             :class:`~openstack.cluster.v1.node.Node` instance.
-        :param bool ignore_missing: When set to ``False``, an exception
+        :param ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the node could not be found. When set to ``True``, no
             exception will be raised when attempting to delete a non-existent
             node.
-        :param bool force_delete: When set to ``True``, the node deletion
+        :param force_delete: When set to ``True``, the node deletion
             will be forced immediately.
 
         :returns: The instance of the Node which was deleted.
-        :rtype: :class:`~openstack.cluster.v1.node.Node`.
         """
         if force_delete:
             server = self._get_resource(_node.Node, node)
             return server.force_delete(self)
-        else:
-            return self._delete(
-                _node.Node, node, ignore_missing=ignore_missing
-            )
+        return self._delete(_node.Node, node, ignore_missing=ignore_missing)
 
     @overload
     def find_node(
@@ -797,12 +808,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_policy.Policy, **attrs)
 
-    def delete_policy(self, policy, ignore_missing=True):
+    def delete_policy(
+        self, policy: str | _policy.Policy, ignore_missing: bool = True
+    ) -> None:
         """Delete a policy.
 
         :param policy: The value can be either the name or ID of a policy or a
             :class:`~openstack.clustering.v1.policy.Policy` instance.
-        :param bool ignore_missing: When set to ``False``, an exception
+        :param ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the policy could not be found. When set to ``True``, no
             exception will be raised when attempting to delete a non-existent
@@ -967,12 +980,14 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_receiver.Receiver, receiver, **attrs)
 
-    def delete_receiver(self, receiver, ignore_missing=True):
+    def delete_receiver(
+        self, receiver: str | _receiver.Receiver, ignore_missing: bool = True
+    ) -> None:
         """Delete a receiver.
 
         :param receiver: The value can be either the name or ID of a receiver
             or a :class:`~openstack.clustering.v1.receiver.Receiver` instance.
-        :param bool ignore_missing: When set to ``False``, an exception
+        :param ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the receiver could not be found. When set to ``True``, no
             exception will be raised when attempting to delete a non-existent

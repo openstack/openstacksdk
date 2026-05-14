@@ -112,12 +112,16 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_credential.Credential, **attrs)
 
-    def delete_credential(self, credential, ignore_missing=True):
+    def delete_credential(
+        self,
+        credential: str | _credential.Credential,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a credential
 
         :param credential: The value can be either the ID of a credential or a
             :class:`~openstack.identity.v3.credential.Credential` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the credential does not exist.
             When set to ``True``, no exception will be set when
@@ -214,12 +218,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_domain.Domain, **attrs)
 
-    def delete_domain(self, domain, ignore_missing=True):
+    def delete_domain(
+        self, domain: str | _domain.Domain, ignore_missing: bool = True
+    ) -> None:
         """Delete a domain
 
         :param domain: The value can be either the ID of a domain or a
             :class:`~openstack.identity.v3.domain.Domain` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the domain does not exist.
             When set to ``True``, no exception will be set when
@@ -324,12 +330,14 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def delete_domain_config(self, domain, ignore_missing=True):
+    def delete_domain_config(
+        self, domain: str | _domain.Domain, ignore_missing: bool = True
+    ) -> None:
         """Delete a config for a domain
 
         :param domain: The value can be the ID of a domain or a
             a :class:`~openstack.identity.v3.domain.Domain` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the identity provider does not exist.
             When set to ``True``, no exception will be set when
@@ -396,12 +404,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_endpoint.Endpoint, **attrs)
 
-    def delete_endpoint(self, endpoint, ignore_missing=True):
+    def delete_endpoint(
+        self, endpoint: str | _endpoint.Endpoint, ignore_missing: bool = True
+    ) -> None:
         """Delete an endpoint
 
         :param endpoint: The value can be either the ID of an endpoint or a
             :class:`~openstack.identity.v3.endpoint.Endpoint` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the endpoint does not exist.
             When set to ``True``, no exception will be set when
@@ -544,12 +554,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_group.Group, **attrs)
 
-    def delete_group(self, group, ignore_missing=True):
+    def delete_group(
+        self, group: str | _group.Group, ignore_missing: bool = True
+    ) -> None:
         """Delete a group
 
         :param group: The value can be either the ID of a group or a
             :class:`~openstack.identity.v3.group.Group` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the group does not exist.
             When set to ``True``, no exception will be set when
@@ -703,12 +715,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_policy.Policy, **attrs)
 
-    def delete_policy(self, policy, ignore_missing=True):
+    def delete_policy(
+        self, policy: str | _policy.Policy, ignore_missing: bool = True
+    ) -> None:
         """Delete a policy
 
         :param policy: The value can be either the ID of a policy or a
             :class:`~openstack.identity.v3.policy.Policy` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the policy does not exist.
             When set to ``True``, no exception will be set when
@@ -802,12 +816,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_project.Project, **attrs)
 
-    def delete_project(self, project, ignore_missing=True):
+    def delete_project(
+        self, project: str | _project.Project, ignore_missing: bool = True
+    ) -> None:
         """Delete a project
 
         :param project: The value can be either the ID of a project or a
             :class:`~openstack.identity.v3.project.Project` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the project does not exist.
             When set to ``True``, no exception will be set when
@@ -939,12 +955,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_service.Service, **attrs)
 
-    def delete_service(self, service, ignore_missing=True):
+    def delete_service(
+        self, service: str | _service.Service, ignore_missing: bool = True
+    ) -> None:
         """Delete a service
 
         :param service: The value can be either the ID of a service or a
             :class:`~openstack.identity.v3.service.Service` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the service does not exist.
             When set to ``True``, no exception will be set when
@@ -1038,12 +1056,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_user.User, **attrs)
 
-    def delete_user(self, user, ignore_missing=True):
+    def delete_user(
+        self, user: str | _user.User, ignore_missing: bool = True
+    ) -> None:
         """Delete a user
 
         :param user: The value can be either the ID of a user or a
             :class:`~openstack.identity.v3.user.User` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the user does not exist.
             When set to ``True``, no exception will be set when
@@ -1204,12 +1224,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_trust.Trust, **attrs)
 
-    def delete_trust(self, trust, ignore_missing=True):
+    def delete_trust(
+        self, trust: str | _trust.Trust, ignore_missing: bool = True
+    ) -> None:
         """Delete a trust
 
         :param trust: The value can be either the ID of a trust or a
             :class:`~openstack.identity.v3.trust.Trust` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the credential does not exist.
             When set to ``True``, no exception will be set when
@@ -1290,12 +1312,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_region.Region, **attrs)
 
-    def delete_region(self, region, ignore_missing=True):
+    def delete_region(
+        self, region: str | _region.Region, ignore_missing: bool = True
+    ) -> None:
         """Delete a region
 
         :param region: The value can be either the ID of a region or a
             :class:`~openstack.identity.v3.region.Region` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the region does not exist.
             When set to ``True``, no exception will be thrown when
@@ -1394,12 +1418,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_role.Role, **attrs)
 
-    def delete_role(self, role, ignore_missing=True):
+    def delete_role(
+        self, role: str | _role.Role, ignore_missing: bool = True
+    ) -> None:
         """Delete a role
 
         :param role: The value can be either the ID of a role or a
             :class:`~openstack.identity.v3.role.Role` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the role does not exist.
             When set to ``True``, no exception will be thrown when
@@ -1969,14 +1995,18 @@ class Proxy(proxy.Proxy):
             _registered_limit.RegisteredLimit, registered_limit, **attrs
         )
 
-    def delete_registered_limit(self, registered_limit, ignore_missing=True):
+    def delete_registered_limit(
+        self,
+        registered_limit: str | _registered_limit.RegisteredLimit,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a registered_limit
 
         :param registered_limit: The value can be either the ID of a
             registered_limit or a
             :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the registered_limit does not exist. When set to ``True``, no
             exception will be thrown when attempting to delete a nonexistent
@@ -2040,12 +2070,14 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_limit.Limit, limit, **attrs)
 
-    def delete_limit(self, limit, ignore_missing=True):
+    def delete_limit(
+        self, limit: str | _limit.Limit, ignore_missing: bool = True
+    ) -> None:
         """Delete a limit
 
         :param limit: The value can be either the ID of a limit or a
             :class:`~openstack.identity.v3.limit.Limit` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the limit does not exist. When set to ``True``, no exception
             will be thrown when attempting to delete a nonexistent limit.
@@ -2179,17 +2211,21 @@ class Proxy(proxy.Proxy):
         )
 
     def delete_application_credential(
-        self, user, application_credential, ignore_missing=True
-    ):
+        self,
+        user: str | _user.User,
+        application_credential: str
+        | _application_credential.ApplicationCredential,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete an application credential
 
         :param user: Either the ID of a user or a
             :class:`~openstack.identity.v3.user.User` instance.
-        :param application credential: The value can be either the ID of an
+        :param application_credential: The value can be either the ID of an
             application credential or a
             :class:`~openstack.identity.v3.application_credential.ApplicationCredential`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the application credential does not exist. When set to
             ``True``, no exception will be thrown when attempting to delete
@@ -2231,7 +2267,12 @@ class Proxy(proxy.Proxy):
         )
 
     @renamed_param('idp_id', 'idp')
-    def delete_federation_protocol(self, idp, protocol, ignore_missing=True):
+    def delete_federation_protocol(
+        self,
+        idp: str | _identity_provider.IdentityProvider | None,
+        protocol: str | _federation_protocol.FederationProtocol,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a federation protocol
 
         :param idp: The ID or a
@@ -2252,10 +2293,10 @@ class Proxy(proxy.Proxy):
         :returns: ``None``
         """
         cls = _federation_protocol.FederationProtocol
-        if idp is None and isinstance(protocol, cls):
-            idp_id = protocol.idp_id
-        else:
+        if idp:
             idp_id = resource.Resource._get_id(idp)
+        elif isinstance(protocol, cls):
+            idp_id = protocol.idp_id
         self._delete(
             cls, protocol, ignore_missing=ignore_missing, idp_id=idp_id
         )
@@ -2384,13 +2425,15 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_mapping.Mapping, **attrs)
 
-    def delete_mapping(self, mapping, ignore_missing=True):
+    def delete_mapping(
+        self, mapping: str | _mapping.Mapping, ignore_missing: bool = True
+    ) -> None:
         """Delete a mapping
 
         :param mapping: The ID of a mapping or a
             :class:`~openstack.identity.v3.mapping.Mapping`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the mapping does not exist.
             When set to ``True``, no exception will be set when
@@ -2492,13 +2535,17 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_identity_provider.IdentityProvider, **attrs)
 
-    def delete_identity_provider(self, identity_provider, ignore_missing=True):
+    def delete_identity_provider(
+        self,
+        identity_provider: str | _identity_provider.IdentityProvider,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete an identity provider
 
-        :param mapping: The ID of an identity provoder or a
+        :param identity_provider: The ID of an identity provider or a
             :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the identity provider does not exist.
             When set to ``True``, no exception will be set when
@@ -2629,14 +2676,20 @@ class Proxy(proxy.Proxy):
         user = self._get_resource(_user.User, user)
         return self._get(_access_rule.AccessRule, access_rule, user_id=user.id)
 
-    def delete_access_rule(self, user, access_rule, ignore_missing=True):
+    def delete_access_rule(
+        self,
+        user: str | _user.User,
+        access_rule: str | _access_rule.AccessRule,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete an access rule
 
         :param user: Either the ID of a user or a
             :class:`~openstack.identity.v3.user.User` instance.
-        :param access rule: The value can be either the ID of an
-            access rule or a :class:`~.access_rule.AccessRule` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param access_rule: The value can be either the ID of an access rule
+            or a :class:`~openstack.identity.v3.access_rule.AccessRule`
+            instance.
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the access rule does not exist. When set to ``True``, no
             exception will be thrown when attempting to delete a nonexistent
@@ -2669,13 +2722,17 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_service_provider.ServiceProvider, **attrs)
 
-    def delete_service_provider(self, service_provider, ignore_missing=True):
+    def delete_service_provider(
+        self,
+        service_provider: str | _service_provider.ServiceProvider,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a service provider
 
         :param service_provider: The ID of a service provider or a
             :class:`~openstack.identity.v3.service_provider.ServiceProvider`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the service provider does not exist.
             When set to ``True``, no exception will be set when

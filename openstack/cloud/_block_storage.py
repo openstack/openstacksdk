@@ -236,11 +236,11 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def delete_volume(
         self,
-        name_or_id=None,
-        wait=True,
-        timeout=None,
-        force=False,
-    ):
+        name_or_id: str,
+        wait: bool = True,
+        timeout: int | None = None,
+        force: bool = False,
+    ) -> bool:
         """Delete a volume.
 
         :param name_or_id: Name or unique ID of the volume.
@@ -266,7 +266,10 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
             )
             return False
         try:
-            self.block_storage.delete_volume(volume, force=force)
+            # mypy is not clever enough to realise that if we were using a v2
+            # proxy above (and got a v2 Volume object) then we are still using
+            # a v2 proxy here
+            self.block_storage.delete_volume(volume, force=force)  # type: ignore
         except exceptions.SDKException:
             self.log.exception("error in deleting volume")
             raise

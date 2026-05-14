@@ -57,12 +57,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_role.Role, **attrs)
 
-    def delete_role(self, role, ignore_missing=True):
+    def delete_role(
+        self, role: str | _role.Role, ignore_missing: bool = True
+    ) -> None:
         """Delete a role
 
         :param role: The value can be either the ID of a role or a
             :class:`~openstack.identity.v2.role.Role` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the role does not exist.
             When set to ``True``, no exception will be set when
@@ -153,12 +155,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_tenant.Tenant, **attrs)
 
-    def delete_tenant(self, tenant, ignore_missing=True):
+    def delete_tenant(
+        self, tenant: str | _tenant.Tenant, ignore_missing: bool = True
+    ) -> None:
         """Delete a tenant
 
         :param tenant: The value can be either the ID of a tenant or a
             :class:`~openstack.identity.v2.tenant.Tenant` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the tenant does not exist.
             When set to ``True``, no exception will be set when
@@ -249,12 +253,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_user.User, **attrs)
 
-    def delete_user(self, user, ignore_missing=True):
+    def delete_user(
+        self, user: str | _user.User, ignore_missing: bool = True
+    ) -> None:
         """Delete a user
 
         :param user: The value can be either the ID of a user or a
             :class:`~openstack.identity.v2.user.User` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the user does not exist.
             When set to ``True``, no exception will be set when

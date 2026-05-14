@@ -52,13 +52,15 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_cluster.Cluster, **attrs)
 
-    def delete_cluster(self, cluster, ignore_missing=True):
+    def delete_cluster(
+        self, cluster: str | _cluster.Cluster, ignore_missing: bool = True
+    ) -> None:
         """Delete a cluster
 
         :param cluster: The value can be either the ID of a cluster or a
             :class:`~openstack.container_infrastructure_management.v1.cluster.Cluster`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the cluster does not exist. When set to ``True``, no exception
             will be set when attempting to delete a nonexistent cluster.
@@ -160,14 +162,18 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_cluster_template.ClusterTemplate, **attrs)
 
-    def delete_cluster_template(self, cluster_template, ignore_missing=True):
+    def delete_cluster_template(
+        self,
+        cluster_template: str | _cluster_template.ClusterTemplate,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a cluster_template
 
         :param cluster_template: The value can be either the ID of a
             cluster_template or a
             :class:`~openstack.container_infrastructure_management.v1.cluster_template.ClusterTemplate`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the cluster_template does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent

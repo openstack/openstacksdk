@@ -12,6 +12,7 @@
 
 from calendar import timegm
 import collections
+from collections.abc import Iterable
 import functools
 from hashlib import sha1
 import hmac
@@ -125,7 +126,7 @@ class Proxy(proxy.Proxy):
         account = self._get_resource(_account.Account, None)
         account.set_metadata(self, metadata)
 
-    def delete_account_metadata(self, keys):
+    def delete_account_metadata(self, keys: Iterable[str]) -> None:
         """Delete metadata for this account.
 
         :param keys: The keys of metadata to be deleted.
@@ -159,12 +160,16 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_container.Container, name=name, **attrs)
 
-    def delete_container(self, container, ignore_missing=True):
+    def delete_container(
+        self,
+        container: str | _container.Container,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a container
 
         :param container: The value can be either the name of a container or a
             :class:`~openstack.object_store.v1.container.Container` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the container does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
@@ -213,7 +218,11 @@ class Proxy(proxy.Proxy):
         res.set_metadata(self, metadata, refresh=refresh)
         return res
 
-    def delete_container_metadata(self, container, keys):
+    def delete_container_metadata(
+        self,
+        container: str | _container.Container,
+        keys: Iterable[str],
+    ) -> None:
         """Delete metadata for a container.
 
         :param container: The value can be the ID of a container or a
@@ -222,7 +231,6 @@ class Proxy(proxy.Proxy):
         """
         res = self._get_resource(_container.Container, container)
         res.delete_metadata(self, keys)
-        return res
 
     def objects(self, container, **query):
         """Return a generator that yields the Container's objects.
@@ -495,14 +503,19 @@ class Proxy(proxy.Proxy):
         """Copy an object."""
         raise NotImplementedError
 
-    def delete_object(self, obj, ignore_missing=True, container=None):
+    def delete_object(
+        self,
+        obj: str | _obj.Object,
+        ignore_missing: bool = True,
+        container: str | _container.Container | None = None,
+    ) -> None:
         """Delete an object
 
         :param obj: The value can be either the name of an object or a
             :class:`~openstack.object_store.v1.container.Container` instance.
         :param container: The value can be the ID of a container or a
             :class:`~openstack.object_store.v1.container.Container` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the object does not exist.  When set to ``True``, no exception
             will be set when attempting to delete a nonexistent server.
@@ -561,7 +574,12 @@ class Proxy(proxy.Proxy):
         res.set_metadata(self, metadata)
         return res
 
-    def delete_object_metadata(self, obj, container=None, keys=None):
+    def delete_object_metadata(
+        self,
+        obj: str | _obj.Object,
+        container: str | _container.Container | None = None,
+        keys: Iterable[str] | None = None,
+    ) -> None:
         """Delete metadata for an object.
 
         :param obj: The value can be the name of an object or a
@@ -573,7 +591,6 @@ class Proxy(proxy.Proxy):
         container_name = self._get_container_name(obj, container)
         res = self._get_resource(_obj.Object, obj, container=container_name)
         res.delete_metadata(self, keys)
-        return res
 
     def is_object_stale(
         self, container, name, filename, file_md5=None, file_sha256=None

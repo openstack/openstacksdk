@@ -112,18 +112,21 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_segment.Segment, segment, **attrs)
 
-    def delete_segment(self, segment, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_segment(
+        self, segment: str | _segment.Segment, ignore_missing: bool = True
+    ) -> _segment.Segment | None:
         """Delete a segment.
 
         :param segment:
             The value can be either the ID of a segment or a
             :class:`~openstack.instance_ha.v1.segment.Segment` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the segment does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent segment.
-        :returns: ``None``
+        :returns: The deleted segment.
         """
         return self._delete(
             _segment.Segment, segment, ignore_missing=ignore_missing
@@ -215,8 +218,14 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
+    # TODO(stephenfin): This method should return None
     @renamed_param('segment_id', 'segment')
-    def delete_host(self, host, segment=None, ignore_missing=True):
+    def delete_host(
+        self,
+        host: str | _host.Host,
+        segment: str | _segment.Segment | None = None,
+        ignore_missing: bool = True,
+    ) -> _host.Host | None:
         """Delete the host.
 
         :param segment: The ID or a
@@ -230,7 +239,7 @@ class Proxy(proxy.Proxy):
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent host.
 
-        :returns: ``None``
+        :returns: The deleted host.
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.InvalidRequest`

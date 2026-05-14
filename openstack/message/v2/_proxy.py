@@ -72,18 +72,21 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_queue.Queue, **query)
 
-    def delete_queue(self, value, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_queue(
+        self, value: str | _queue.Queue, ignore_missing: bool = True
+    ) -> _queue.Queue | None:
         """Delete a queue
 
         :param value: The value can be either the name of a queue or a
             :class:`~openstack.message.v2.queue.Queue` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the queue does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent queue.
 
-        :returns: ``None``
+        :returns: The deleted queue.
         """
         return self._delete(_queue.Queue, value, ignore_missing=ignore_missing)
 
@@ -141,8 +144,12 @@ class Proxy(proxy.Proxy):
         return self._get(_message.Message, message)
 
     def delete_message(
-        self, queue_name, value, claim=None, ignore_missing=True
-    ):
+        self,
+        queue_name: str,
+        value: str | _message.Message,
+        claim: str | None = None,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a message
 
         :param queue_name: The name of target queue to delete message from.
@@ -152,7 +159,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.message.v2.claim.Claim` instance of
             the claim seizing the message. If None, the message has
             not been claimed.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the message does not exist.
             When set to ``True``, no exception will be set when
@@ -163,10 +170,8 @@ class Proxy(proxy.Proxy):
         message = self._get_resource(
             _message.Message, value, queue_name=queue_name
         )
-        message.claim_id = resource.Resource._get_id(claim)
-        return self._delete(
-            _message.Message, message, ignore_missing=ignore_missing
-        )
+        message.claim_id = resource.Resource._get_id(claim)  # type: ignore[arg-type]
+        self._delete(_message.Message, message, ignore_missing=ignore_missing)
 
     def create_subscription(
         self, queue_name: str, **attrs: Any
@@ -221,7 +226,13 @@ class Proxy(proxy.Proxy):
         )
         return self._get(_subscription.Subscription, subscription)
 
-    def delete_subscription(self, queue_name, value, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_subscription(
+        self,
+        queue_name: str,
+        value: str | _subscription.Subscription,
+        ignore_missing: bool = True,
+    ) -> _subscription.Subscription | None:
         """Delete a subscription
 
         :param queue_name: The name of target queue to delete subscription
@@ -229,13 +240,13 @@ class Proxy(proxy.Proxy):
         :param value: The value can be either the name of a subscription or a
             :class:`~openstack.message.v2.subscription.Subscription`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the subscription does not exist.
             When set to ``True``, no exception will be thrown when
             attempting to delete a nonexistent subscription.
 
-        :returns: ``None``
+        :returns: The deleted subscription.
         """
         subscription = self._get_resource(
             _subscription.Subscription, value, queue_name=queue_name
@@ -289,19 +300,25 @@ class Proxy(proxy.Proxy):
             _claim.Claim, claim, queue_name=queue_name, **attrs
         )
 
-    def delete_claim(self, queue_name, claim, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_claim(
+        self,
+        queue_name: str,
+        claim: str | _claim.Claim,
+        ignore_missing: bool = True,
+    ) -> _claim.Claim | None:
         """Delete a claim
 
         :param queue_name: The name of target queue to claim messages from.
         :param claim: The value can be either the ID of a claim or a
             :class:`~openstack.message.v2.claim.Claim` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the claim does not exist.
             When set to ``True``, no exception will be thrown when
             attempting to delete a nonexistent claim.
 
-        :returns: ``None``
+        :returns: The deleted claim.
         """
         return self._delete(
             _claim.Claim,

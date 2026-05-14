@@ -10,8 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from collections.abc import Callable
-from typing import Any, ClassVar, Literal, overload
+from collections.abc import Callable, Iterable
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Literal,
+    overload,
+)
 
 from openstack._utils import renamed_param
 from openstack import exceptions
@@ -45,6 +51,9 @@ from openstack.shared_file_system.v2 import (
 )
 from openstack.shared_file_system.v2 import storage_pool as _storage_pool
 from openstack.shared_file_system.v2 import user_message as _user_message
+
+if TYPE_CHECKING:
+    import requests
 
 
 class Proxy(proxy.Proxy):
@@ -173,11 +182,19 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_share.Share, share)
 
-    def delete_share(self, share, ignore_missing=True):
+    def delete_share(
+        self, share: str | _share.Share, ignore_missing: bool = True
+    ) -> None:
         """Deletes a single share
 
-        :param share: The ID of the share to delete
-        :returns: Result of the ``delete``
+        :param share: The value can be either the ID of a share or a
+            :class:`~openstack.shared_file_system.v2.share.Share` instance.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the share does not exist. When set to ``True``, no exception
+            will be set when attempting to delete a nonexistent share.
+
+        :returns: ``None``
         """
         self._delete(_share.Share, share, ignore_missing=ignore_missing)
 
@@ -383,11 +400,23 @@ class Proxy(proxy.Proxy):
         return self._update(_share_group.ShareGroup, share_group, **attrs)
 
     @renamed_param('share_group_id', 'share_group')
-    def delete_share_group(self, share_group, ignore_missing=True):
+    def delete_share_group(
+        self,
+        share_group: str | _share_group.ShareGroup,
+        ignore_missing: bool = True,
+    ) -> _share_group.ShareGroup | None:
         """Deletes a single share group
 
-        :param share_group: The ID of the share group
-        :returns: Result of the "delete" on share group
+        :param share_group: The value can be either the ID of a share group or
+            a :class:`~openstack.shared_file_system.v2.share_group.ShareGroup`
+            instance.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the share group does not exist. When set to ``True``, no
+            exception will be set when attempting to delete a nonexistent
+            share group.
+
+        :returns: The deleted share group.
         """
         return self._delete(
             _share_group.ShareGroup,
@@ -450,12 +479,25 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_user_message.UserMessage, message)
 
+    # TODO(stephenfin): This method should return None
     @renamed_param('message_id', 'message')
-    def delete_user_message(self, message, ignore_missing=True):
+    def delete_user_message(
+        self,
+        message: str | _user_message.UserMessage,
+        ignore_missing: bool = True,
+    ) -> _user_message.UserMessage | None:
         """Deletes a single user message
 
-        :param message: The ID of the user message
-        :returns: Result of the "delete" on the user message
+        :param message: The value can be either the ID of a user message or a
+            :class:`~openstack.shared_file_system.v2.user_message.UserMessage`
+            instance.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the user message does not exist. When set to ``True``, no
+            exception will be set when attempting to delete a nonexistent user
+            message.
+
+        :returns: The deleted user message.
         """
         return self._delete(
             _user_message.UserMessage,
@@ -517,11 +559,24 @@ class Proxy(proxy.Proxy):
         return self._update(_share_snapshot.ShareSnapshot, snapshot, **attrs)
 
     @renamed_param('snapshot_id', 'snapshot')
-    def delete_share_snapshot(self, snapshot, ignore_missing=True):
+    def delete_share_snapshot(
+        self,
+        snapshot: str | _share_snapshot.ShareSnapshot,
+        ignore_missing: bool = True,
+    ) -> None:
         """Deletes a single share snapshot
 
-        :param snapshot: The ID of the snapshot to delete
-        :returns: Result of the ``delete``
+        :param snapshot: The value can be either the ID of a share snapshot or
+            a
+            :class:`~openstack.shared_file_system.v2.share_snapshot.ShareSnapshot`
+            instance.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the share snapshot does not exist. When set to ``True``, no
+            exception will be set when attempting to delete a nonexistent share
+            snapshot.
+
+        :returns: ``None``
         """
         self._delete(
             _share_snapshot.ShareSnapshot,
@@ -587,15 +642,28 @@ class Proxy(proxy.Proxy):
 
     @renamed_param('share_network_id', 'share_network')
     def delete_share_network_subnet(
-        self, share_network, share_network_subnet, ignore_missing=True
-    ):
+        self,
+        share_network: str | _share_network.ShareNetwork,
+        share_network_subnet: str | _share_network_subnet.ShareNetworkSubnet,
+        ignore_missing: bool = True,
+    ) -> None:
         """Deletes a share network subnet.
 
-        :param share_network: The id of the Share Network associated with
-            the Share Network Subnet.
-        :param share_network_subnet: The id of the Share Network Subnet
-            which should be deleted.
-        :returns: Result of the ``delete``
+        :param share_network: The value can be either the ID of a share network
+            or a
+            :class:`~openstack.shared_file_system.v2.share_network.ShareNetwork`
+            instance.
+        :param share_network_subnet: The value can be either the ID of a share
+            network subnet or a
+            :class:`~openstack.shared_file_system.v2.share_network_subnet.ShareNetworkSubnet`
+            instance.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the share network subnet does not exist. When set to ``True``,
+            no exception will be set when attempting to delete a nonexistent
+            share network subnet.
+
+        :returns: ``None``
         """
         share_network_id = resource.Resource._get_id(share_network)
         self._delete(
@@ -671,10 +739,24 @@ class Proxy(proxy.Proxy):
         return self._get(_share_network.ShareNetwork, share_network)
 
     @renamed_param('share_network_id', 'share_network')
-    def delete_share_network(self, share_network, ignore_missing=True):
+    def delete_share_network(
+        self,
+        share_network: str | _share_network.ShareNetwork,
+        ignore_missing: bool = True,
+    ) -> None:
         """Deletes a single share network
 
-        :param share_network: The ID of the share network to delete
+        :param share_network: The value can be either the ID of a share network
+            or a
+            :class:`~openstack.shared_file_system.v2.share_network.ShareNetwork`
+            instance.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the share network does not exist. When set to ``True``, no
+            exception will be set when attempting to delete a nonexistent share
+            network.
+
+        :returns: ``None``
         """
         self._delete(
             _share_network.ShareNetwork,
@@ -745,15 +827,31 @@ class Proxy(proxy.Proxy):
         res.reset_status(self, status)
 
     @renamed_param('share_instance_id', 'share_instance')
-    def delete_share_instance(self, share_instance):
+    def delete_share_instance(
+        self,
+        share_instance: str | _share_instance.ShareInstance,
+        ignore_missing: bool = True,
+    ) -> None:
         """Force-deletes a share instance
 
-        :param share_instance: The ID of the share instance to delete
+        :param share_instance: The value can be either the ID of a share
+            instance or a
+            :class:`~openstack.shared_file_system.v2.share_instance.ShareInstance`
+            instance.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the share instance does not exist. When set to ``True``, no
+            exception will be set when attempting to delete a nonexistent share
+            instance.
 
         :returns: ``None``
         """
         res = self._get_resource(_share_instance.ShareInstance, share_instance)
-        res.force_delete(self)
+        try:
+            res.force_delete(self)
+        except exceptions.NotFoundException:
+            if not ignore_missing:
+                raise
 
     @renamed_param('share_id', 'share')
     def export_locations(self, share):
@@ -822,23 +920,40 @@ class Proxy(proxy.Proxy):
             _share_access_rule.ShareAccessRule, base_path=base_path, **attrs
         )
 
+    # TODO(stephenfin): This method should return None
     @renamed_param('access_id', 'access')
     @renamed_param('share_id', 'share')
     def delete_access_rule(
-        self, access, share, ignore_missing=True, *, unrestrict=False
-    ):
+        self,
+        access_rule: str | _share_access_rule.ShareAccessRule,
+        share: str | _share.Share,
+        ignore_missing: bool = True,
+        *,
+        unrestrict: bool = False,
+    ) -> 'requests.Response | None':
         """Deletes an access rule
 
-        :param access: The id of the access rule to get
-        :param share: The ID of the share
-        :param unrestrict: If Manila must attempt removing locks while deleting
+        :param access_rule: The value can be either the ID of an access rule
+            or a
+            :class:`~openstack.shared_file_system.v2.share_access_rule.ShareAccessRule`
+            instance.
+        :param share: The ID of the share.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the access rule does not exist. When set to ``True``, no
+            exception will be set when attempting to delete a nonexistent
+            access rule.
+        :param unrestrict: If Manila must attempt removing locks while
+            deleting.
 
         :returns: ``requests.models.Response`` HTTP response from internal
             requests client
         """
         share_id = resource.Resource._get_id(share)
         res = self._get_resource(
-            _share_access_rule.ShareAccessRule, access, share_id=share_id
+            _share_access_rule.ShareAccessRule,
+            access_rule,
+            share_id=share_id,
         )
         try:
             return res.delete(
@@ -955,10 +1070,24 @@ class Proxy(proxy.Proxy):
         )
 
     @renamed_param('group_snapshot_id', 'group_snapshot')
-    def delete_share_group_snapshot(self, group_snapshot, ignore_missing=True):
+    def delete_share_group_snapshot(
+        self,
+        group_snapshot: str | _share_group_snapshot.ShareGroupSnapshot,
+        ignore_missing: bool = True,
+    ) -> None:
         """Deletes a share group snapshot.
 
-        :param group_snapshot: The ID of the share group snapshot to delete
+        :param group_snapshot: The value can be either the ID of a share group
+            snapshot or a
+            :class:`~openstack.shared_file_system.v2.share_group_snapshot.ShareGroupSnapshot`
+            instance.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the share group snapshot does not exist. When set to ``True``,
+            no exception will be set when attempting to delete a nonexistent
+            share group snapshot.
+
+        :returns: ``None``
         """
         self._delete(
             _share_group_snapshot.ShareGroupSnapshot,
@@ -1024,13 +1153,20 @@ class Proxy(proxy.Proxy):
         return res.set_metadata(self, metadata=metadata, replace=replace)
 
     @renamed_param('share_id', 'share')
-    def delete_share_metadata(self, share, keys, ignore_missing=True):
-        """Deletes a single metadata item on a share, idetified by its key.
+    def delete_share_metadata(
+        self,
+        share: str | _share.Share,
+        keys: Iterable[str],
+        ignore_missing: bool = True,
+    ) -> None:
+        """Deletes metadata for a share.
 
-        :param share: The ID of the share
-        :param keys: The list of share metadata keys to be deleted
-        :param ignore_missing: Boolean indicating if missing keys should be
-            ignored.
+        :param share: The value can be either the ID of a share or a
+            :class:`~openstack.shared_file_system.v2.share.Share` instance.
+        :param keys: The list of share metadata keys to be deleted.
+        :param ignore_missing: When set to ``True``, missing keys will be
+            logged but not cause a failure. When set to ``False``, missing keys
+            will be included in the failure list.
 
         :returns: None
         """
@@ -1123,13 +1259,24 @@ class Proxy(proxy.Proxy):
             _resource_locks.ResourceLock, resource_lock, **attrs
         )
 
-    def delete_resource_lock(self, resource_lock, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_resource_lock(
+        self,
+        resource_lock: str | _resource_locks.ResourceLock,
+        ignore_missing: bool = True,
+    ) -> _resource_locks.ResourceLock | None:
         """Deletes a single resource lock
 
         :param resource_lock: The ID of a resource lock or a
             :class:`~openstack.shared_file_system.v2.
             resource_locks.ResourceLock` instance.
-        :returns: Result of the ``delete``
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource lock does not exist. When set to ``True``, no
+            exception will be set when attempting to delete a nonexistent
+            resource lock.
+
+        :returns: The deleted resource lock.
         """
         return self._delete(
             _resource_locks.ResourceLock,

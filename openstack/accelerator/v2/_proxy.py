@@ -113,19 +113,24 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_device_profile.DeviceProfile, **attrs)
 
-    def delete_device_profile(self, device_profile, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_device_profile(
+        self,
+        device_profile: str | _device_profile.DeviceProfile,
+        ignore_missing: bool = True,
+    ) -> _device_profile.DeviceProfile | None:
         """Delete a device profile
 
         :param device_profile: The value can be either the ID of a device
             profile or a
             :class:`~openstack.accelerator.v2.device_profile.DeviceProfile`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the device profile does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent device profile.
-        :returns: ``None``
+        :returns: The deleted device profile.
         """
         return self._delete(
             _device_profile.DeviceProfile,
@@ -167,23 +172,23 @@ class Proxy(proxy.Proxy):
 
     def delete_accelerator_request(
         self,
-        accelerator_request,
-        ignore_missing=True,
-    ):
-        """Delete a device profile
+        accelerator_request: str | _arq.AcceleratorRequest,
+        ignore_missing: bool = True,
+    ) -> None:
+        """Delete an accelerator request
 
-        :param device_profile: The value can be either the ID of a device
-            profile or a
-            :class:`~openstack.accelerator.v2.device_profile.DeviceProfile`
+        :param accelerator_request: The value can be either the ID of an
+            accelerator request or a
+            :class:`~openstack.accelerator.v2.accelerator_request.AcceleratorRequest`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
-            when the device profile does not exist. When set to ``True``, no
-            exception will be set when attempting to delete a nonexistent
+            when the accelerator request does not exist. When set to ``True``,
+            no exception will be set when attempting to delete a nonexistent
             accelerator request.
         :returns: ``None``
         """
-        return self._delete(
+        self._delete(
             _arq.AcceleratorRequest,
             accelerator_request,
             ignore_missing=ignore_missing,
@@ -231,18 +236,23 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_attribute.Attribute, **attrs)
 
-    def delete_attribute(self, attribute, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_attribute(
+        self,
+        attribute: str | _attribute.Attribute,
+        ignore_missing: bool = True,
+    ) -> _attribute.Attribute | None:
         """Delete a attribute
 
         :param attribute: The value can be either the ID of a attributes or a
             :class:`~openstack.accelerator.v2.attribute.Attributes`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be
             raised when the device profile does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent device profile.
-        :returns: ``None``
+        :returns: The deleted attribute.
         """
         return self._delete(
             _attribute.Attribute,

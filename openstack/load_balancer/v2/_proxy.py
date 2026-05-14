@@ -100,26 +100,29 @@ class Proxy(proxy.Proxy):
         return self._list(_lb.LoadBalancer, **query)
 
     def delete_load_balancer(
-        self, load_balancer, ignore_missing=True, cascade=False
-    ):
+        self,
+        load_balancer: str | _lb.LoadBalancer,
+        ignore_missing: bool = True,
+        cascade: bool = False,
+    ) -> None:
         """Delete a load balancer
 
         :param load_balancer: The load_balancer can be either the ID or a
             :class:`~openstack.load_balancer.v2.load_balancer.LoadBalancer`
             instance
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the load balancer does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent load
             balancer.
-        :param bool cascade: If true will delete all child objects of
+        :param cascade: If true will delete all child objects of
             the load balancer.
 
         :returns: ``None``
         """
         load_balancer = self._get_resource(_lb.LoadBalancer, load_balancer)
-        load_balancer.cascade = cascade
-        return self._delete(
+        load_balancer.cascade = cascade  # type: ignore[attr-defined]
+        self._delete(
             _lb.LoadBalancer, load_balancer, ignore_missing=ignore_missing
         )
 
@@ -235,12 +238,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_listener.Listener, **attrs)
 
-    def delete_listener(self, listener, ignore_missing=True):
+    def delete_listener(
+        self, listener: str | _listener.Listener, ignore_missing: bool = True
+    ) -> None:
         """Delete a listener
 
         :param listener: The value can be either the ID of a listener or a
             :class:`~openstack.load_balancer.v2.listener.Listener` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the listner does not exist.
             When set to ``True``, no exception will be set when
@@ -371,18 +376,21 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_pool.Pool, **query)
 
-    def delete_pool(self, pool, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_pool(
+        self, pool: str | _pool.Pool, ignore_missing: bool = True
+    ) -> _pool.Pool | None:
         """Delete a pool
 
         :param pool: The pool is either a pool ID or a
             :class:`~openstack.load_balancer.v2.pool.Pool`
             instance
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the pool does not exist. When set to ``True``, no exception
             will be set when attempting to delete a nonexistent pool.
 
-        :returns: ``None``
+        :returns: The deleted pool.
         """
         return self._delete(_pool.Pool, pool, ignore_missing=ignore_missing)
 
@@ -452,7 +460,12 @@ class Proxy(proxy.Proxy):
         poolobj = self._get_resource(_pool.Pool, pool)
         return self._create(_member.Member, pool_id=poolobj.id, **attrs)
 
-    def delete_member(self, member, pool, ignore_missing=True):
+    def delete_member(
+        self,
+        member: str | _member.Member,
+        pool: str | _pool.Pool,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a member
 
         :param member:
@@ -461,7 +474,7 @@ class Proxy(proxy.Proxy):
         :param pool: The pool can be either the ID of a pool or a
             :class:`~openstack.load_balancer.v2.pool.Pool` instance
             that the member belongs to.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the member does not exist.
             When set to ``True``, no exception will be set when
@@ -658,20 +671,25 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_hm.HealthMonitor, **query)
 
-    def delete_health_monitor(self, healthmonitor, ignore_missing=True):
+    # TODO(stephenfin): This method should return None
+    def delete_health_monitor(
+        self,
+        healthmonitor: str | _hm.HealthMonitor,
+        ignore_missing: bool = True,
+    ) -> _hm.HealthMonitor | None:
         """Delete a health monitor
 
         :param healthmonitor: The healthmonitor can be either the ID of the
             health monitor or a
             :class:`~openstack.load_balancer.v2.healthmonitor.HealthMonitor`
             instance
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the healthmonitor does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
             healthmonitor.
 
-        :returns: ``None``
+        :returns: The deleted health monitor.
         """
         return self._delete(
             _hm.HealthMonitor, healthmonitor, ignore_missing=ignore_missing
@@ -705,12 +723,14 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_l7policy.L7Policy, **attrs)
 
-    def delete_l7_policy(self, l7_policy, ignore_missing=True):
+    def delete_l7_policy(
+        self, l7_policy: str | _l7policy.L7Policy, ignore_missing: bool = True
+    ) -> None:
         """Delete a l7policy
 
         :param l7_policy: The value can be either the ID of a l7policy or a
             :class:`~openstack.load_balancer.v2.l7_policy.L7Policy` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the l7policy does not exist.
             When set to ``True``, no exception will be set when
@@ -815,7 +835,12 @@ class Proxy(proxy.Proxy):
             _l7rule.L7Rule, l7policy_id=l7policyobj.id, **attrs
         )
 
-    def delete_l7_rule(self, l7rule, l7_policy, ignore_missing=True):
+    def delete_l7_rule(
+        self,
+        l7rule: str | _l7rule.L7Rule,
+        l7_policy: str | _l7policy.L7Policy,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a l7rule
 
         :param l7rule: The l7rule can be either the ID of a l7rule or a
@@ -823,7 +848,7 @@ class Proxy(proxy.Proxy):
         :param l7_policy: The l7_policy can be either the ID of a l7policy or
             :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
             instance that the l7rule belongs to.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the l7rule does not exist.
             When set to ``True``, no exception will be set when
@@ -984,14 +1009,16 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_quota.QuotaDefault, requires_id=False)
 
-    def delete_quota(self, quota, ignore_missing=True):
+    def delete_quota(
+        self, quota: str | _quota.Quota, ignore_missing: bool = True
+    ) -> None:
         """Delete a quota (i.e. reset to the default quota)
 
         :param quota: The value can be either the ID of a quota or a
             :class:`~openstack.load_balancer.v2.quota.Quota`
             instance. The ID of a quota is the same as the
             project ID for the quota.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when quota does not exist.
             When set to ``True``, no exception will be set when
@@ -1051,13 +1078,17 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_flavor_profile.FlavorProfile, **query)
 
-    def delete_flavor_profile(self, flavor_profile, ignore_missing=True):
+    def delete_flavor_profile(
+        self,
+        flavor_profile: str | _flavor_profile.FlavorProfile,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a flavor profile
 
         :param flavor_profile: The flavor_profile can be either the ID or a
             :class:`~openstack.load_balancer.v2.flavor_profile.FlavorProfile`
             instance
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the flavor profile does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
@@ -1154,12 +1185,14 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_flavor.Flavor, **query)
 
-    def delete_flavor(self, flavor, ignore_missing=True):
+    def delete_flavor(
+        self, flavor: str | _flavor.Flavor, ignore_missing: bool = True
+    ) -> None:
         """Delete a flavor
 
         :param flavor: The flavorcan be either the ID or a
             :class:`~openstack.load_balancer.v2.flavor.Flavor` instance
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the flavor does not exist. When set to ``True``, no exception
             will be set when attempting to delete a nonexistent flavor.
@@ -1334,15 +1367,18 @@ class Proxy(proxy.Proxy):
         )
 
     def delete_availability_zone_profile(
-        self, availability_zone_profile, ignore_missing=True
-    ):
+        self,
+        availability_zone_profile: str
+        | _availability_zone_profile.AvailabilityZoneProfile,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete an availability zone profile
 
         :param availability_zone_profile: The availability_zone_profile can be
             either the ID or a
             :class:`~openstack.load_balancer.v2.availability_zone_profile.AvailabilityZoneProfile`
             instance
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the availability zone profile does not exist. When set to
             ``True``, no exception will be set when attempting to delete a
@@ -1449,14 +1485,18 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_availability_zone.AvailabilityZone, **query)
 
-    def delete_availability_zone(self, availability_zone, ignore_missing=True):
+    def delete_availability_zone(
+        self,
+        availability_zone: str | _availability_zone.AvailabilityZone,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete an availability_zone
 
         :param availability_zone: The availability_zone can be either the ID
             or a
             :class:`~openstack.load_balancer.v2.availability_zone.AvailabilityZone`
             instance
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the availability zone does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
