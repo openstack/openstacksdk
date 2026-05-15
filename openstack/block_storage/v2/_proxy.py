@@ -196,15 +196,16 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_snapshot.Snapshot, **attrs)
 
-    def update_snapshot(self, snapshot, **attrs):
+    def update_snapshot(
+        self, snapshot: str | _snapshot.Snapshot, **attrs: Any
+    ) -> _snapshot.Snapshot:
         """Update a snapshot
 
         :param snapshot: Either the ID of a snapshot or a
             :class:`~openstack.block_storage.v2.snapshot.Snapshot` instance.
-        :param dict attrs: The attributes to update on the snapshot.
+        :param attrs: The attributes to update on the snapshot.
 
         :returns: The updated snapshot
-        :rtype: :class:`~openstack.block_storage.v2.snapshot.Snapshot`
         """
         return self._update(_snapshot.Snapshot, snapshot, **attrs)
 
@@ -987,7 +988,11 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_quota_class_set.QuotaClassSet, quota_class_set)
 
-    def update_quota_class_set(self, quota_class_set, **attrs):
+    def update_quota_class_set(
+        self,
+        quota_class_set: str | _quota_class_set.QuotaClassSet,
+        **attrs: Any,
+    ) -> _quota_class_set.QuotaClassSet:
         """Update a QuotaClassSet.
 
         Only one quota class is permitted, ``default``.
@@ -1000,7 +1005,6 @@ class Proxy(proxy.Proxy):
             by ``quota_class_set``.
 
         :returns: The updated QuotaSet
-        :rtype: :class:`~openstack.block_storage.v2.quota_set.QuotaSet`
         """
         return self._update(
             _quota_class_set.QuotaClassSet, quota_class_set, **attrs
@@ -1071,7 +1075,12 @@ class Proxy(proxy.Proxy):
             query = {}
         return res.delete(self, **query)
 
-    def update_quota_set(self, project, **attrs):
+    # TODO(stephenfin): Drop the QuotaSet fallback in 5.0
+    def update_quota_set(
+        self,
+        project: str | _project.Project | _quota_set.QuotaSet,
+        **attrs: Any,
+    ) -> _quota_set.QuotaSet:
         """Update a QuotaSet.
 
         :param project: ID or instance of
@@ -1081,7 +1090,6 @@ class Proxy(proxy.Proxy):
             by ``quota_set``.
 
         :returns: The updated QuotaSet
-        :rtype: :class:`~openstack.block_storage.v2.quota_set.QuotaSet`
         """
         if 'project_id' in attrs or isinstance(project, _quota_set.QuotaSet):
             warnings.warn(
@@ -1099,6 +1107,9 @@ class Proxy(proxy.Proxy):
                     os_warnings.RemovedInSDK50Warning,
                 )
                 attrs.pop('query')
+
+            # we know it'll be one of the two above in this case, per above
+            assert isinstance(project, str | _quota_set.QuotaSet)
 
             res = self._get_resource(_quota_set.QuotaSet, project, **attrs)
             return res.commit(self)

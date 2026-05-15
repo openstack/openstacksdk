@@ -108,7 +108,7 @@ class GroupType(resource.Resource):
             url, json={prop: val}, microversion=microversion
         )
         exceptions.raise_from_response(response)
-        val = response.json().get(prop)
+        val = response.json()[prop]
         return val
 
     def delete_group_specs_property(self, session, prop):

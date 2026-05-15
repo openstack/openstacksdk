@@ -12,7 +12,7 @@
 
 from collections.abc import Callable, Iterable
 import datetime
-from typing import Any, ClassVar, Literal, overload
+from typing import Any, ClassVar, Literal, cast, overload
 import warnings
 
 from openstack._utils import renamed_param
@@ -223,7 +223,11 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_flavor.Flavor, flavor, ignore_missing=ignore_missing)
 
-    def update_flavor(self, flavor, **attrs):
+    def update_flavor(
+        self,
+        flavor: str | _flavor.Flavor,
+        **attrs: Any,
+    ) -> _flavor.Flavor:
         """Update a flavor
 
         :param flavor: Either the ID of a flavor or a
@@ -232,7 +236,6 @@ class Proxy(proxy.Proxy):
             by ``flavor``.
 
         :returns: The updated flavor
-        :rtype: :class:`~openstack.compute.v2.flavor.Flavor`
         """
         return self._update(_flavor.Flavor, flavor, **attrs)
 
@@ -356,13 +359,18 @@ class Proxy(proxy.Proxy):
         flavor = self._get_resource(_flavor.Flavor, flavor)
         return flavor.get_extra_specs_property(self, prop)
 
-    def update_flavor_extra_specs_property(self, flavor, prop, val):
+    def update_flavor_extra_specs_property(
+        self,
+        flavor: str | _flavor.Flavor,
+        prop: str,
+        val: str,
+    ) -> str | None:
         """Update specific Extra Spec property of a flavor
 
         :param flavor: Either the ID of a flavor or a
             :class:`~openstack.compute.v2.flavor.Flavor` instance.
-        :param str prop: Property name.
-        :param str val: Property value.
+        :param prop: Property name.
+        :param val: Property value.
 
         :returns: String value of the requested property.
         """
@@ -474,7 +482,11 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_aggregate.Aggregate, **attrs)
 
-    def update_aggregate(self, aggregate, **attrs):
+    def update_aggregate(
+        self,
+        aggregate: str | _aggregate.Aggregate,
+        **attrs: Any,
+    ) -> _aggregate.Aggregate:
         """Update a host aggregate
 
         :param server: Either the ID of a host aggregate or a
@@ -483,7 +495,6 @@ class Proxy(proxy.Proxy):
             by ``aggregate``.
 
         :returns: The updated aggregate
-        :rtype: :class:`~openstack.compute.v2.aggregate.Aggregate`
         """
         return self._update(_aggregate.Aggregate, aggregate, **attrs)
 
@@ -1032,7 +1043,11 @@ class Proxy(proxy.Proxy):
         base_path = '/servers/detail' if details else None
         return self._list(_server.Server, base_path=base_path, **query)
 
-    def update_server(self, server, **attrs):
+    def update_server(
+        self,
+        server: str | _server.Server,
+        **attrs: Any,
+    ) -> _server.Server:
         """Update a server
 
         :param server: Either the ID of a server or a
@@ -1041,7 +1056,6 @@ class Proxy(proxy.Proxy):
             by ``server``.
 
         :returns: The updated server
-        :rtype: :class:`~openstack.compute.v2.server.Server`
         """
         return self._update(_server.Server, server, **attrs)
 
@@ -2026,22 +2040,21 @@ class Proxy(proxy.Proxy):
 
     def update_service_forced_down(
         self,
-        service,
-        host=None,
-        binary=None,
-        forced=True,
-    ):
+        service: str | _service.Service,
+        host: str | None = None,
+        binary: str | None = None,
+        forced: bool = True,
+    ) -> _service.Service | None:
         """Update service forced_down information
 
         :param service: Either the ID of a service or a
             :class:`~openstack.compute.v2.service.Service` instance.
-        :param str host: The host where service runs.
-        :param str binary: The name of service.
-        :param bool forced: Whether or not this service was forced down
+        :param host: The host where service runs.
+        :param binary: The name of service.
+        :param forced: Whether or not this service was forced down
             manually by an administrator after the service was fenced.
 
         :returns: Updated service instance
-        :rtype: class: `~openstack.compute.v2.service.Service`
         """
         if utils.supports_microversion(self, '2.53'):
             return self.update_service(service, forced_down=forced)
@@ -2055,6 +2068,7 @@ class Proxy(proxy.Proxy):
                 'or they should be passed'
             )
         service.set_forced_down(self, host, binary, forced)
+        return None
 
     force_service_down = update_service_forced_down
 
@@ -2174,7 +2188,11 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_service.Service, service, ignore_missing=ignore_missing)
 
-    def update_service(self, service, **attrs):
+    def update_service(
+        self,
+        service: str | _service.Service,
+        **attrs: Any,
+    ) -> _service.Service:
         """Update a service
 
         :param service: Either the ID of a service or a
@@ -2183,7 +2201,6 @@ class Proxy(proxy.Proxy):
             by ``service``.
 
         :returns: The updated service
-        :rtype: :class:`~openstack.compute.v2.service.Service`
         """
         if utils.supports_microversion(self, '2.53'):
             return self._update(_service.Service, service, **attrs)
@@ -2261,11 +2278,11 @@ class Proxy(proxy.Proxy):
 
     def update_volume_attachment(
         self,
-        server,
-        volume,
-        volume_id=None,
-        **attrs,
-    ):
+        server: str | _server.Server,
+        volume: str | _volume.Volume,
+        volume_id: str | None = None,
+        **attrs: Any,
+    ) -> _volume_attachment.VolumeAttachment:
         """Update a volume attachment
 
         Note that the underlying API expects a volume ID, not a volume
@@ -2801,7 +2818,11 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_quota_class_set.QuotaClassSet, quota_class_set)
 
-    def update_quota_class_set(self, quota_class_set, **attrs):
+    def update_quota_class_set(
+        self,
+        quota_class_set: str | _quota_class_set.QuotaClassSet,
+        **attrs: Any,
+    ) -> _quota_class_set.QuotaClassSet:
         """Update a QuotaClassSet.
 
         Only one quota class is permitted, ``default``.
@@ -2814,7 +2835,6 @@ class Proxy(proxy.Proxy):
             by ``quota_class_set``.
 
         :returns: The updated QuotaSet
-        :rtype: :class:`~openstack.compute.v2.quota_set.QuotaSet`
         """
         return self._update(
             _quota_class_set.QuotaClassSet, quota_class_set, **attrs
@@ -2892,7 +2912,13 @@ class Proxy(proxy.Proxy):
             query = {}
         return res.delete(self, **query)
 
-    def update_quota_set(self, project, *, user=None, **attrs):
+    def update_quota_set(
+        self,
+        project: str | _project.Project | _quota_set.QuotaSet,
+        *,
+        user: str | _user.User | None = None,
+        **attrs: Any,
+    ) -> _quota_set.QuotaSet:
         """Update a QuotaSet.
 
         :param project: ID or instance of
@@ -2903,7 +2929,6 @@ class Proxy(proxy.Proxy):
             by ``quota_set``.
 
         :returns: The updated QuotaSet
-        :rtype: :class:`~openstack.compute.v2.quota_set.QuotaSet`
         """
         if 'project_id' in attrs or isinstance(project, _quota_set.QuotaSet):
             warnings.warn(
@@ -2928,7 +2953,11 @@ class Proxy(proxy.Proxy):
             else:
                 query = {}
 
-            res = self._get_resource(_quota_set.QuotaSet, project, **attrs)
+            res = self._get_resource(
+                _quota_set.QuotaSet,
+                cast('str | _quota_set.QuotaSet | None', project),
+                **attrs,
+            )
             return res.commit(self, **query)
         else:
             project = self._get_resource(_project.Project, project)

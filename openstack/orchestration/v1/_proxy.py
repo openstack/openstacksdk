@@ -196,16 +196,17 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_stack.Stack, stack, resolve_outputs=resolve_outputs)
 
-    def update_stack(self, stack, *, preview=False, **attrs):
+    def update_stack(
+        self, stack: str | _stack.Stack, *, preview: bool = False, **attrs: Any
+    ) -> _stack.Stack:
         """Update a stack
 
         :param stack: The value can be the ID of a stack or a
             :class:`~openstack.orchestration.v1.stack.Stack` instance.
-        :param kwargs attrs: The attributes to update on the stack
+        :param attrs: The attributes to update on the stack
             represented by ``value``.
 
         :returns: The updated stack
-        :rtype: :class:`~openstack.orchestration.v1.stack.Stack`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
@@ -509,17 +510,17 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def update_software_deployment(self, software_deployment, **attrs):
+    def update_software_deployment(
+        self, software_deployment: str | _sd.SoftwareDeployment, **attrs: Any
+    ) -> _sd.SoftwareDeployment:
         """Update a software deployment
 
         :param server: Either the ID of a software deployment or an instance of
             :class:`~openstack.orchestration.v1.software_deployment.SoftwareDeployment`
-        :param dict attrs: The attributes to update on the software deployment
+        :param attrs: The attributes to update on the software deployment
             represented by ``software_deployment``.
 
         :returns: The updated software deployment
-        :rtype:
-            :class:`~openstack.orchestration.v1.software_deployment.SoftwareDeployment`
         """
         return self._update(
             _sd.SoftwareDeployment, software_deployment, **attrs

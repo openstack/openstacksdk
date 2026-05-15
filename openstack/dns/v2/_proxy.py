@@ -120,15 +120,14 @@ class Proxy(proxy.Proxy):
             delete_shares=delete_shares,
         )
 
-    def update_zone(self, zone, **attrs):
+    def update_zone(self, zone: str | _zone.Zone, **attrs: Any) -> _zone.Zone:
         """Update zone attributes
 
         :param zone: The id or an instance of
             :class:`~openstack.dns.v2.zone.Zone`.
-        :param dict attrs: attributes for update on
+        :param attrs: attributes for update on
             :class:`~openstack.dns.v2.zone.Zone`.
 
-        :rtype: :class:`~openstack.dns.v2.zone.Zone`
         """
         return self._update(_zone.Zone, zone, **attrs)
 
@@ -252,14 +251,15 @@ class Proxy(proxy.Proxy):
         attrs.update({'zone_id': zone.id})
         return self._create(_rs.Recordset, prepend_key=False, **attrs)
 
-    def update_recordset(self, recordset, **attrs):
+    def update_recordset(
+        self, recordset: str | _rs.Recordset, **attrs: Any
+    ) -> _rs.Recordset:
         """Update Recordset attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.dns.v2.recordset.Recordset`,
             comprised of the properties on the Recordset class.
         :returns: The results of zone creation
-        :rtype: :class:`~openstack.dns.v2.recordset.Recordset`
         """
         return self._update(_rs.Recordset, recordset, **attrs)
 
@@ -532,15 +532,16 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_fip.FloatingIP, floating_ip)
 
-    def update_floating_ip(self, floating_ip, **attrs):
+    def update_floating_ip(
+        self, floating_ip: str | _fip.FloatingIP, **attrs: Any
+    ) -> _fip.FloatingIP:
         """Update floating ip attributes
 
         :param floating_ip: The id or an instance of
             :class:`~openstack.dns.v2.fip.FloatingIP`.
-        :param dict attrs: attributes for update on
+        :param attrs: attributes for update on
             :class:`~openstack.dns.v2.fip.FloatingIP`.
 
-        :rtype: :class:`~openstack.dns.v2.fip.FloatingIP`
         """
         return self._update(_fip.FloatingIP, floating_ip, **attrs)
 
@@ -606,15 +607,16 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def update_zone_transfer_request(self, request, **attrs):
+    def update_zone_transfer_request(
+        self, request: str | _zone_transfer.ZoneTransferRequest, **attrs: Any
+    ) -> _zone_transfer.ZoneTransferRequest:
         """Update ZoneTransfer Request attributes
 
         :param floating_ip: The id or an instance of
             :class:`~openstack.dns.v2.zone_transfer.ZoneTransferRequest`.
-        :param dict attrs: attributes for update on
+        :param attrs: attributes for update on
             :class:`~openstack.dns.v2.zone_transfer.ZoneTransferRequest`.
 
-        :rtype: :class:`~openstack.dns.v2.zone_transfer.ZoneTransferRequest`
         """
         return self._update(
             _zone_transfer.ZoneTransferRequest, request, **attrs
@@ -846,17 +848,18 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_quota.Quota, quota)
 
-    def update_quota(self, quota, **attrs):
+    def update_quota(
+        self, quota: str | _quota.Quota, **attrs: Any
+    ) -> _quota.Quota:
         """Update a quota
 
         :param quota: Either the ID of a quota or a
             :class:`~openstack.dns.v2.quota.Quota` instance. The ID of a quota
             is the same as the project ID for the quota.
-        :param dict attrs: The attributes to update on the quota represented
+        :param attrs: The attributes to update on the quota represented
             by ``quota``.
 
         :returns: The updated quota
-        :rtype: :class:`~openstack.dns.v2.quota.Quota`
         """
         return self._update(_quota.Quota, quota, **attrs)
 
@@ -956,15 +959,14 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def update_tld(self, tld, **attrs):
+    def update_tld(self, tld: str | _tld.TLD, **attrs: Any) -> _tld.TLD:
         """Update tld attributes
 
         :param tld: The id or an instance of
             :class:`~openstack.dns.v2.tld.TLD`.
-        :param dict attrs: attributes for update on
+        :param attrs: attributes for update on
             :class:`~openstack.dns.v2.tld.TLD`.
 
-        :rtype: :class:`~openstack.dns.v2.tld.TLD`
         """
         return self._update(_tld.TLD, tld, **attrs)
 
@@ -1127,7 +1129,9 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_blacklist.Blacklist, prepend_key=False, **attrs)
 
-    def update_blacklist(self, blacklist, **attrs):
+    def update_blacklist(
+        self, blacklist: str | _blacklist.Blacklist, **attrs: Any
+    ) -> _blacklist.Blacklist:
         """Update blacklist attributes
 
         :param blacklist: The id or an instance of
@@ -1135,7 +1139,6 @@ class Proxy(proxy.Proxy):
         :param attrs: attributes for update on
             :class: `~openstack.dns.v2.blacklist.Blacklist`.
 
-        :rtype: :class: `~openstack.dns.v2.blacklist.Blacklist`.
         """
         return self._update(_blacklist.Blacklist, blacklist, **attrs)
 

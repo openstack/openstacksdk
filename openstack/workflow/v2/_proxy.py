@@ -40,18 +40,19 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_workflow.Workflow, **attrs)
 
-    def update_workflow(self, workflow, **attrs):
+    def update_workflow(
+        self, workflow: str | _workflow.Workflow, **attrs: Any
+    ) -> _workflow.Workflow:
         """Update workflow from attributes
 
         :param workflow: The value can be either the name of a workflow or a
             :class:`~openstack.workflow.v2.workflow.Workflow`
             instance.
-        :param dict attrs: Keyword arguments which will be used to update
+        :param attrs: Keyword arguments which will be used to update
             a :class:`~openstack.workflow.v2.workflow.Workflow`,
             comprised of the properties on the Workflow class.
 
         :returns: The results of workflow update
-        :rtype: :class:`~openstack.workflow.v2.workflow.Workflow`
         """
         return self._update(_workflow.Workflow, workflow, **attrs)
 

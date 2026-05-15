@@ -317,7 +317,6 @@ class Proxy(proxy.Proxy):
             by ``instance``.
 
         :returns: The updated instance
-        :rtype: :class:`~openstack.database.v1.instance.Instance`
         """
         return self._update(_instance.Instance, instance, **attrs)
 

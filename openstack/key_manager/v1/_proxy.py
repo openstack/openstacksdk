@@ -129,7 +129,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_container.Container, **query)
 
-    def update_container(self, container, **attrs):
+    def update_container(
+        self, container: str | _container.Container, **attrs: Any
+    ) -> _container.Container:
         """Update a container
 
         :param container: Either the id of a container or a
@@ -138,7 +140,6 @@ class Proxy(proxy.Proxy):
             by ``container``.
 
         :returns: The updated container
-        :rtype: :class:`~openstack.key_manager.v1.container.Container`
         """
         return self._update(_container.Container, container, **attrs)
 
@@ -229,7 +230,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_order.Order, **query)
 
-    def update_order(self, order, **attrs):
+    def update_order(
+        self, order: str | _order.Order, **attrs: Any
+    ) -> _order.Order:
         """Update a order
 
         :param order: Either the id of a order or a
@@ -238,7 +241,6 @@ class Proxy(proxy.Proxy):
             by ``order``.
 
         :returns: The updated order
-        :rtype: :class:`~openstack.key_manager.v1.order.Order`
         """
         return self._update(_order.Order, order, **attrs)
 
@@ -330,7 +332,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_secret.Secret, **query)
 
-    def update_secret(self, secret, **attrs):
+    def update_secret(
+        self, secret: str | _secret.Secret, **attrs: Any
+    ) -> _secret.Secret:
         """Update a secret
 
         :param secret: Either the id of a secret or a
@@ -339,7 +343,6 @@ class Proxy(proxy.Proxy):
             by ``secret``.
 
         :returns: The updated secret
-        :rtype: :class:`~openstack.key_manager.v1.secret.Secret`
         """
         return self._update(_secret.Secret, secret, **attrs)
 
@@ -419,7 +422,9 @@ class Proxy(proxy.Proxy):
         )
 
     @renamed_param('project_id', 'project')
-    def update_project_quota(self, project, **attrs):
+    def update_project_quota(
+        self, project: str | _project.Project, **attrs: Any
+    ) -> _project_quota.ProjectQuota:
         """Update a project quota
 
         :param project: A project ID or

@@ -403,7 +403,6 @@ class Proxy(proxy.Proxy):
             by ``image``.
 
         :returns: The updated image
-        :rtype: :class:`~openstack.image.v1.image.Image`
         """
         return self._update(_image.Image, image, **attrs)
 

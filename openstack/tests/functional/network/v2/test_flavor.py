@@ -69,28 +69,32 @@ class TestFlavor(base.BaseFunctionalTest):
 
     def test_get(self):
         if not self.ID:
-            self.skipTest("Operator cloud required for this test")
+            raise self.skipException("Operator cloud required for this test")
 
         flavors = self.user_cloud.network.get_flavor(self.ID)
         self.assertEqual(self.FLAVOR_NAME, flavors.name)
         self.assertEqual(self.ID, flavors.id)
 
     def test_list(self):
+        if not self.ID:
+            raise self.skipException("Operator cloud required for this test")
+
         names = [f.name for f in self.user_cloud.network.flavors()]
-        if self.ID:
-            self.assertIn(self.FLAVOR_NAME, names)
+        self.assertIn(self.FLAVOR_NAME, names)
 
     def test_update(self):
-        if not self.operator_cloud:
-            self.skipTest("Operator cloud required for this test")
+        if not self.ID:
+            raise self.skipException("Operator cloud required for this test")
+
         flavor = self.operator_cloud.network.update_flavor(
             self.ID, name=self.UPDATE_NAME
         )
         self.assertEqual(self.UPDATE_NAME, flavor.name)
 
     def test_associate_disassociate_flavor_with_service_profile(self):
-        if not self.operator_cloud:
-            self.skipTest("Operator cloud required for this test")
+        if not self.ID:
+            raise self.skipException("Operator cloud required for this test")
+
         response = (
             self.operator_cloud.network.associate_flavor_with_service_profile(
                 self.ID, self.service_profiles.id

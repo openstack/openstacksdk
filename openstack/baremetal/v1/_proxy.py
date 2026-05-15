@@ -195,16 +195,17 @@ class Proxy(proxy.Proxy):
         """
         return self._get_with_fields(_chassis.Chassis, chassis, fields=fields)
 
-    def update_chassis(self, chassis, **attrs):
+    def update_chassis(
+        self, chassis: str | _chassis.Chassis, **attrs: Any
+    ) -> _chassis.Chassis:
         """Update a chassis.
 
         :param chassis: Either the ID of a chassis, or an instance
             of :class:`~openstack.baremetal.v1.chassis.Chassis`.
-        :param dict attrs: The attributes to update on the chassis represented
+        :param attrs: The attributes to update on the chassis represented
             by the ``chassis`` parameter.
 
         :returns: The updated chassis.
-        :rtype: :class:`~openstack.baremetal.v1.chassis.Chassis`
         """
         return self._update(_chassis.Chassis, chassis, **attrs)
 
@@ -443,20 +444,24 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.get_node_inventory(self, node)
 
-    def update_node(self, node, retry_on_conflict=True, **attrs):
+    def update_node(
+        self,
+        node: str | _node.Node,
+        retry_on_conflict: bool = True,
+        **attrs: Any,
+    ) -> _node.Node:
         """Update a node.
 
         :param node: The value can be the name or ID of a node or a
             :class:`~openstack.baremetal.v1.node.Node` instance.
-        :param bool retry_on_conflict: Whether to retry HTTP CONFLICT error.
+        :param retry_on_conflict: Whether to retry HTTP CONFLICT error.
             Most of the time it can be retried, since it is caused by the node
             being locked. However, when setting ``instance_id``, this is
             a normal code and should not be retried.
-        :param dict attrs: The attributes to update on the node represented
+        :param attrs: The attributes to update on the node represented
             by the ``node`` parameter.
 
         :returns: The updated node.
-        :rtype: :class:`~openstack.baremetal.v1.node.Node`
         """
         res = self._get_resource(_node.Node, node, **attrs)
         return res.commit(self, retry_on_conflict=retry_on_conflict)
@@ -1045,16 +1050,15 @@ class Proxy(proxy.Proxy):
         """
         return self._get_with_fields(_port.Port, port, fields=fields)
 
-    def update_port(self, port, **attrs):
+    def update_port(self, port: str | _port.Port, **attrs: Any) -> _port.Port:
         """Update a port.
 
         :param port: Either the ID of a port or an instance
             of :class:`~openstack.baremetal.v1.port.Port`.
-        :param dict attrs: The attributes to update on the port represented
+        :param attrs: The attributes to update on the port represented
             by the ``port`` parameter.
 
         :returns: The updated port.
-        :rtype: :class:`~openstack.baremetal.v1.port.Port`
         """
         return self._update(_port.Port, port, **attrs)
 
@@ -1202,17 +1206,18 @@ class Proxy(proxy.Proxy):
             _portgroup.PortGroup, port_group, fields=fields
         )
 
-    def update_port_group(self, port_group, **attrs):
+    def update_port_group(
+        self, port_group: str | _portgroup.PortGroup, **attrs: Any
+    ) -> _portgroup.PortGroup:
         """Update a port group.
 
         :param port_group: Either the name or the ID of a port group or
             an instance of
             :class:`~openstack.baremetal.v1.port_group.PortGroup`.
-        :param dict attrs: The attributes to update on the port group
+        :param attrs: The attributes to update on the port group
             represented by the ``port_group`` parameter.
 
         :returns: The updated port group.
-        :rtype: :class:`~openstack.baremetal.v1.port_group.PortGroup`
         """
         return self._update(_portgroup.PortGroup, port_group, **attrs)
 
@@ -1454,16 +1459,17 @@ class Proxy(proxy.Proxy):
             _allocation.Allocation, allocation, fields=fields
         )
 
-    def update_allocation(self, allocation, **attrs):
+    def update_allocation(
+        self, allocation: str | _allocation.Allocation, **attrs: Any
+    ) -> _allocation.Allocation:
         """Update an allocation.
 
         :param allocation: The value can be the name or ID of an allocation or
             a :class:`~openstack.baremetal.v1.allocation.Allocation` instance.
-        :param dict attrs: The attributes to update on the allocation
+        :param attrs: The attributes to update on the allocation
             represented by the ``allocation`` parameter.
 
         :returns: The updated allocation.
-        :rtype: :class:`~openstack.baremetal.v1.allocation.Allocation`
         """
         return self._update(_allocation.Allocation, allocation, **attrs)
 
@@ -1655,19 +1661,21 @@ class Proxy(proxy.Proxy):
             _volumeconnector.VolumeConnector, volume_connector, fields=fields
         )
 
-    def update_volume_connector(self, volume_connector, **attrs):
+    def update_volume_connector(
+        self,
+        volume_connector: str | _volumeconnector.VolumeConnector,
+        **attrs: Any,
+    ) -> _volumeconnector.VolumeConnector:
         """Update a volume_connector.
 
         :param volume_connector: Either the ID of a volume_connector
             or an instance of
             :class:`~openstack.baremetal.v1.volume_connector.VolumeConnector`.
-        :param dict attrs: The attributes to update on the
+        :param attrs: The attributes to update on the
             volume_connector represented by the ``volume_connector``
             parameter.
 
         :returns: The updated volume_connector.
-        :rtype:
-            :class:`~openstack.baremetal.v1.volume_connector.VolumeConnector`
         """
         return self._update(
             _volumeconnector.VolumeConnector, volume_connector, **attrs
@@ -1844,18 +1852,18 @@ class Proxy(proxy.Proxy):
             _volumetarget.VolumeTarget, volume_target, fields=fields
         )
 
-    def update_volume_target(self, volume_target, **attrs):
+    def update_volume_target(
+        self, volume_target: str | _volumetarget.VolumeTarget, **attrs: Any
+    ) -> _volumetarget.VolumeTarget:
         """Update a volume_target.
 
         :param volume_target: Either the ID of a volume_target
             or an instance of
             :class:`~openstack.baremetal.v1.volume_target.VolumeTarget`.
-        :param dict attrs: The attributes to update on the
+        :param attrs: The attributes to update on the
             volume_target represented by the ``volume_target`` parameter.
 
         :returns: The updated volume_target.
-        :rtype:
-            :class:`~openstack.baremetal.v1.volume_target.VolumeTarget`
         """
         return self._update(_volumetarget.VolumeTarget, volume_target, **attrs)
 
@@ -1930,19 +1938,20 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_deploytemplates.DeployTemplate, **attrs)
 
-    def update_deploy_template(self, deploy_template, **attrs):
+    def update_deploy_template(
+        self,
+        deploy_template: str | _deploytemplates.DeployTemplate,
+        **attrs: Any,
+    ) -> _deploytemplates.DeployTemplate:
         """Update a deploy_template.
 
         :param deploy_template: Either the ID of a deploy_template,
             or an instance of
             :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`.
-        :param dict attrs: The attributes to update on
-            the deploy_template represented
-            by the ``deploy_template`` parameter.
+        :param attrs: The attributes to update on the deploy_template
+            represented by the ``deploy_template`` parameter.
 
         :returns: The updated deploy_template.
-        :rtype:
-            :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`
         """
         return self._update(
             _deploytemplates.DeployTemplate, deploy_template, **attrs
@@ -2093,18 +2102,18 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_runbooks.Runbook, **attrs)
 
-    def update_runbook(self, runbook, **attrs):
+    def update_runbook(
+        self, runbook: str | _runbooks.Runbook, **attrs: Any
+    ) -> _runbooks.Runbook:
         """Update a runbook.
 
         :param runbook: Either the ID of a runbook,
             or an instance of
             :class:`~openstack.baremetal.v1.runbooks.Runbook`.
-        :param dict attrs: The attributes to update on
-            the runbook represented
-            by the ``runbook`` parameter.
+        :param attrs: The attributes to update on the runbook represented by
+            the ``runbook`` parameter.
 
         :returns: The updated runbook.
-        :rtype: :class:`~openstack.baremetal.v1.runbooks.Runbook`
         """
         return self._update(_runbooks.Runbook, runbook, **attrs)
 
@@ -2319,18 +2328,20 @@ class Proxy(proxy.Proxy):
             _inspectionrules.InspectionRule, inspection_rule, fields=fields
         )
 
-    def update_inspection_rule(self, inspection_rule, **attrs):
+    def update_inspection_rule(
+        self,
+        inspection_rule: str | _inspectionrules.InspectionRule,
+        **attrs: Any,
+    ) -> _inspectionrules.InspectionRule:
         """Update an inspection rule.
 
         :param inspection_rule: Either the ID of an inspection rule
             or an instance of
             :class:`~openstack.baremetal.v1.inspection_rules.InspectionRule`.
-        :param dict attrs: The attributes to update on the
+        :param attrs: The attributes to update on the
             inspection rule represented by the ``inspection_rule`` parameter.
 
         :returns: The updated inspection rule.
-        :rtype:
-            :class:`~openstack.baremetal.v1.inspection_rules.InspectionRule`
         """
         return self._update(
             _inspectionrules.InspectionRule, inspection_rule, **attrs

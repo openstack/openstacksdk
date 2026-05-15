@@ -74,7 +74,9 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def update_resource_class(self, resource_class, **attrs):
+    def update_resource_class(
+        self, resource_class: str | _resource_class.ResourceClass, **attrs: Any
+    ) -> _resource_class.ResourceClass:
         """Update a resource class
 
         :param resource_class: The value can be either the ID of a resource
@@ -85,7 +87,6 @@ class Proxy(proxy.Proxy):
             represented by ``resource_class``.
 
         :returns: The updated resource class
-        :rtype: :class:`~openstack.placement.v1.resource_class.ResourceClass`
         """
         return self._update(
             _resource_class.ResourceClass,
@@ -165,7 +166,11 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def update_resource_provider(self, resource_provider, **attrs):
+    def update_resource_provider(
+        self,
+        resource_provider: str | _resource_provider.ResourceProvider,
+        **attrs: Any,
+    ) -> _resource_provider.ResourceProvider:
         """Update a resource provider
 
         :param resource_provider: The value can be either the ID of a resource
@@ -176,8 +181,7 @@ class Proxy(proxy.Proxy):
             represented by ``resource_provider``.
 
         :returns: The updated resource provider
-        :rtype: :class:`~openstack.placement.v1.resource_provider.ResourceProvider`
-        """  # noqa: E501
+        """
         return self._update(
             _resource_provider.ResourceProvider,
             resource_provider,
@@ -396,12 +400,15 @@ class Proxy(proxy.Proxy):
 
     def update_resource_provider_inventory(
         self,
-        resource_provider_inventory,
-        resource_provider=None,
+        resource_provider_inventory: str
+        | _resource_provider_inventory.ResourceProviderInventory,
+        resource_provider: str
+        | _resource_provider.ResourceProvider
+        | None = None,
         *,
-        resource_provider_generation=None,
-        **attrs,
-    ):
+        resource_provider_generation: int | None = None,
+        **attrs: Any,
+    ) -> _resource_provider_inventory.ResourceProviderInventory:
         """Update a resource provider's inventory
 
         :param resource_provider_inventory: The value can be either the ID of a resource
@@ -416,7 +423,6 @@ class Proxy(proxy.Proxy):
             represented by ``resource_provider_inventory``.
 
         :returns: The updated resource provider inventory
-        :rtype: :class:`~openstack.placement.v1.resource_provider_inventory.ResourceProviderInventory`
         """  # noqa: E501
         resource_provider_id = self._get_uri_attribute(
             resource_provider_inventory,

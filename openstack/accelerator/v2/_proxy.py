@@ -60,7 +60,12 @@ class Proxy(proxy.Proxy):
 
         return self._get(_deployable.Deployable, deployable)
 
-    def update_deployable(self, uuid, patch):
+    # TODO(stephenfin): Rename to patch_deployable
+    def update_deployable(
+        self,
+        uuid: str | _deployable.Deployable,
+        patch: list[dict[str, Any]],
+    ) -> _deployable.Deployable:
         """Reconfig the FPGA with new bitstream.
 
         :param uuid: The value can be the UUID of a deployable
@@ -255,7 +260,12 @@ class Proxy(proxy.Proxy):
 
         return self._get(_arq.AcceleratorRequest, accelerator_request)
 
-    def update_accelerator_request(self, uuid, properties):
+    # TODO(stephenfin): Rename to patch_accelerator_request
+    def update_accelerator_request(
+        self,
+        uuid: str | _arq.AcceleratorRequest,
+        properties: list[dict[str, Any]],
+    ) -> _arq.AcceleratorRequest:
         """Bind/Unbind an accelerator to VM.
 
         :param uuid: The uuid of the accelerator_request to be bound/unbound.

@@ -11,7 +11,7 @@
 # under the License.
 
 from collections.abc import Callable, Generator, Iterable
-from typing import Any, ClassVar, Literal, overload
+from typing import Any, ClassVar, Literal, cast, overload
 import warnings
 
 from openstack._utils import renamed_param
@@ -209,15 +209,18 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_snapshot.Snapshot, **attrs)
 
-    def update_snapshot(self, snapshot, **attrs):
+    def update_snapshot(
+        self,
+        snapshot: str | _snapshot.Snapshot,
+        **attrs: Any,
+    ) -> _snapshot.Snapshot:
         """Update a snapshot
 
         :param snapshot: Either the ID of a snapshot or a
             :class:`~openstack.block_storage.v3.snapshot.Snapshot` instance.
-        :param dict attrs: The attributes to update on the snapshot.
+        :param attrs: The attributes to update on the snapshot.
 
         :returns: The updated snapshot
-        :rtype: :class:`~openstack.block_storage.v3.snapshot.Snapshot`
         """
         return self._update(_snapshot.Snapshot, snapshot, **attrs)
 
@@ -461,24 +464,31 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_type.Type, type, ignore_missing=ignore_missing)
 
-    def update_type(self, type, **attrs):
+    def update_type(
+        self,
+        type: str | _type.Type,
+        **attrs: Any,
+    ) -> _type.Type:
         """Update a type
 
         :param type: The value can be either the ID of a type or a
             :class:`~openstack.block_storage.v3.type.Type` instance.
-        :param dict attrs: The attributes to update on the type
+        :param attrs: The attributes to update on the type
 
         :returns: The updated type
-        :rtype: :class:`~openstack.block_storage.v3.type.Type`
         """
         return self._update(_type.Type, type, **attrs)
 
-    def update_type_extra_specs(self, type, **attrs):
+    def update_type_extra_specs(
+        self,
+        type: str | _type.Type,
+        **attrs: Any,
+    ) -> _type.Type:
         """Update the extra_specs for a type
 
         :param type: The value can be either the ID of a type or a
             :class:`~openstack.block_storage.v3.type.Type` instance.
-        :param dict attrs: The extra spec attributes to update on the type
+        :param attrs: The extra spec attributes to update on the type
 
         :returns: A dict containing updated extra_specs
         """
@@ -627,10 +637,10 @@ class Proxy(proxy.Proxy):
 
     def update_type_encryption(
         self,
-        encryption=None,
-        volume_type=None,
-        **attrs,
-    ):
+        encryption: str | _type.TypeEncryption | None = None,
+        volume_type: str | _type.Type | None = None,
+        **attrs: Any,
+    ) -> _type.TypeEncryption:
         """Update a type
 
         :param encryption: The value can be None or a
@@ -640,10 +650,9 @@ class Proxy(proxy.Proxy):
         :param volume_type: The value can be the ID of a type or a
             :class:`~openstack.block_storage.v3.type.Type` instance.
             Required if ``encryption`` is None.
-        :param dict attrs: The attributes to update on the type encryption.
+        :param attrs: The attributes to update on the type encryption.
 
         :returns: The updated type encryption
-        :rtype: :class:`~openstack.block_storage.v3.type.TypeEncryption`
         """
 
         if volume_type:
@@ -878,15 +887,18 @@ class Proxy(proxy.Proxy):
                 return None
             raise
 
-    def update_volume(self, volume, **attrs):
+    def update_volume(
+        self,
+        volume: str | _volume.Volume,
+        **attrs: Any,
+    ) -> _volume.Volume:
         """Update a volume
 
         :param volume: Either the ID of a volume or a
             :class:`~openstack.block_storage.v3.volume.Volume` instance.
-        :param dict attrs: The attributes to update on the volume.
+        :param attrs: The attributes to update on the volume.
 
         :returns: The updated volume
-        :rtype: :class:`~openstack.block_storage.v3.volume.Volume`
         """
         return self._update(_volume.Volume, volume, **attrs)
 
@@ -1392,7 +1404,11 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def update_attachment(self, attachment, **attrs):
+    def update_attachment(
+        self,
+        attachment: str | _attachment.Attachment,
+        **attrs: Any,
+    ) -> _attachment.Attachment:
         """Update an attachment
 
         This is an internal API and should only be called by services
@@ -1401,12 +1417,11 @@ class Proxy(proxy.Proxy):
         :param attachment: The value can be the ID of an attachment or a
             :class:`~openstack.block_storage.v3.attachment.Attachment`
             instance.
-        :param dict attrs: Keyword arguments which will be used to update
+        :param attrs: Keyword arguments which will be used to update
             a :class:`~openstack.block_storage.v3.attachment.Attachment`
             comprised of the properties on the Attachment class
 
         :returns: The updated attachment
-        :rtype: :class:`~openstack.volume.v3.attachment.Attachment`
         """
         return self._update(_attachment.Attachment, attachment, **attrs)
 
@@ -1560,15 +1575,18 @@ class Proxy(proxy.Proxy):
             backup = self._get_resource(_backup.Backup, backup)
             backup.force_delete(self)
 
-    def update_backup(self, backup, **attrs):
+    def update_backup(
+        self,
+        backup: str | _backup.Backup,
+        **attrs: Any,
+    ) -> _backup.Backup:
         """Update a backup
 
         :param backup: Either the ID of a backup or a
             :class:`~openstack.block_storage.v3.backup.Backup`.
-        :param dict attrs: The attributes to update on the volume.
+        :param attrs: The attributes to update on the volume.
 
         :returns: The updated backup
-        :rtype: :class:`~openstack.block_storage.v3.backup.Backup`
         """
         return self._update(_backup.Backup, backup, **attrs)
 
@@ -1876,15 +1894,18 @@ class Proxy(proxy.Proxy):
             if not ignore_missing:
                 raise
 
-    def update_group(self, group, **attrs):
+    def update_group(
+        self,
+        group: str | _group.Group,
+        **attrs: Any,
+    ) -> _group.Group:
         """Update a group
 
         :param group: The value can be the ID of a group or a
             :class:`~openstack.block_storage.v3.group.Group` instance.
-        :param dict attrs: The attributes to update on the group.
+        :param attrs: The attributes to update on the group.
 
         :returns: The updated group
-        :rtype: :class:`~openstack.volume.v3.group.Group`
         """
         return self._update(_group.Group, group, **attrs)
 
@@ -2219,16 +2240,19 @@ class Proxy(proxy.Proxy):
             _group_type.GroupType, group_type, ignore_missing=ignore_missing
         )
 
-    def update_group_type(self, group_type, **attrs):
+    def update_group_type(
+        self,
+        group_type: str | _group_type.GroupType,
+        **attrs: Any,
+    ) -> _group_type.GroupType:
         """Update a group_type
 
         :param group_type: The value can be the ID of a group type or a
             :class:`~openstack.block_storage.v3.group_type.GroupType`
             instance.
-        :param dict attrs: The attributes to update on the group type.
+        :param attrs: The attributes to update on the group type.
 
         :returns: The updated group type.
-        :rtype: :class:`~openstack.block_storage.v3.group_type.GroupType`
         """
         return self._update(_group_type.GroupType, group_type, **attrs)
 
@@ -2273,13 +2297,18 @@ class Proxy(proxy.Proxy):
         group_type = self._get_resource(_group_type.GroupType, group_type)
         return group_type.get_group_specs_property(self, prop)
 
-    def update_group_type_group_specs_property(self, group_type, prop, val):
+    def update_group_type_group_specs_property(
+        self,
+        group_type: str | _group_type.GroupType,
+        prop: str,
+        val: str,
+    ) -> str:
         """Update a group spec property for a group type.
 
         :param group_type: Either the ID of a group type or a
             :class:`~openstack.block_storage.v3.group_type.GroupType` instance.
-        :param str prop: Property name.
-        :param str val: Property value.
+        :param prop: Property name.
+        :param val: Property value.
 
         :returns: String value of the requested property.
         """
@@ -2334,7 +2363,11 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_quota_class_set.QuotaClassSet, quota_class_set)
 
-    def update_quota_class_set(self, quota_class_set, **attrs):
+    def update_quota_class_set(
+        self,
+        quota_class_set: str | _quota_class_set.QuotaClassSet,
+        **attrs: Any,
+    ) -> _quota_class_set.QuotaClassSet:
         """Update a QuotaClassSet.
 
         Only one quota class is permitted, ``default``.
@@ -2345,7 +2378,6 @@ class Proxy(proxy.Proxy):
             by ``quota_class_set``.
 
         :returns: The updated QuotaSet
-        :rtype: :class:`~openstack.block_storage.v3.quota_set.QuotaSet`
         """
         return self._update(
             _quota_class_set.QuotaClassSet, quota_class_set, **attrs
@@ -2416,7 +2448,12 @@ class Proxy(proxy.Proxy):
 
         return res.delete(self, **query)
 
-    def update_quota_set(self, project, **attrs):
+    # TODO(stephenfin): Drop the QuotaSet fallback in 5.0
+    def update_quota_set(
+        self,
+        project: str | _project.Project | _quota_set.QuotaSet,
+        **attrs: Any,
+    ) -> _quota_set.QuotaSet:
         """Update a QuotaSet.
 
         :param project: ID or instance of
@@ -2426,7 +2463,6 @@ class Proxy(proxy.Proxy):
             by ``quota_set``.
 
         :returns: The updated QuotaSet
-        :rtype: :class:`~openstack.block_storage.v3.quota_set.QuotaSet`
         """
         if 'project_id' in attrs or isinstance(project, _quota_set.QuotaSet):
             warnings.warn(
@@ -2445,7 +2481,11 @@ class Proxy(proxy.Proxy):
                 )
                 attrs.pop('query')
 
-            res = self._get_resource(_quota_set.QuotaSet, project, **attrs)
+            res = self._get_resource(
+                _quota_set.QuotaSet,
+                cast('str | _quota_set.QuotaSet | None', project),
+                **attrs,
+            )
             return res.commit(self)
         else:
             project = self._get_resource(_project.Project, project)

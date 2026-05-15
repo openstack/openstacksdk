@@ -207,7 +207,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_profile.Profile, **query)
 
-    def update_profile(self, profile, **attrs):
+    def update_profile(
+        self,
+        profile: str | _profile.Profile,
+        **attrs: Any,
+    ) -> _profile.Profile:
         """Update a profile.
 
         :param profile: Either the name or the ID of the profile, or an
@@ -216,7 +220,6 @@ class Proxy(proxy.Proxy):
             the ``value`` parameter.
 
         :returns: The updated profile.
-        :rtype: :class:`~openstack.clustering.v1.profile.Profile`
         """
         return self._update(_profile.Profile, profile, **attrs)
 
@@ -344,7 +347,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_cluster.Cluster, **query)
 
-    def update_cluster(self, cluster, **attrs):
+    def update_cluster(
+        self,
+        cluster: str | _cluster.Cluster,
+        **attrs: Any,
+    ) -> _cluster.Cluster:
         """Update a cluster.
 
         :param cluster: Either the name or the ID of the cluster, or an
@@ -353,7 +360,6 @@ class Proxy(proxy.Proxy):
             the ``cluster`` parameter.
 
         :returns: The updated cluster.
-        :rtype: :class:`~openstack.clustering.v1.cluster.Cluster`
         """
         return self._update(_cluster.Cluster, cluster, **attrs)
 
@@ -546,13 +552,18 @@ class Proxy(proxy.Proxy):
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
         return obj.policy_detach(self, policy)
 
-    def update_cluster_policy(self, cluster, policy, **params):
+    def update_cluster_policy(
+        self,
+        cluster: str | _cluster.Cluster,
+        policy: str,
+        **attrs: Any,
+    ) -> dict[str, Any]:
         """Change properties of a policy which is bound to the cluster.
 
         :param cluster: Either the name or the ID of the cluster, or an
             instance of :class:`~openstack.clustering.v1.cluster.Cluster`.
         :param policy: Either the name or the ID of a policy.
-        :param dict params: A dictionary containing the new properties for
+        :param attrs: A dictionary containing the new properties for
             the policy.
         :returns: A dict containing the action initiated by this operation.
         """
@@ -560,7 +571,7 @@ class Proxy(proxy.Proxy):
             obj = cluster
         else:
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
-        return obj.policy_update(self, policy, **params)
+        return obj.policy_update(self, policy, **attrs)
 
     def collect_cluster_attrs(self, cluster, path, **query):
         """Collect attribute values across a cluster.
@@ -739,7 +750,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_node.Node, **query)
 
-    def update_node(self, node, **attrs):
+    def update_node(
+        self,
+        node: str | _node.Node,
+        **attrs: Any,
+    ) -> _node.Node:
         """Update a node.
 
         :param node: Either the name or the ID of the node, or an instance
@@ -748,7 +763,6 @@ class Proxy(proxy.Proxy):
             the ``node`` parameter.
 
         :returns: The updated node.
-        :rtype: :class:`~openstack.clustering.v1.node.Node`
         """
         return self._update(_node.Node, node, **attrs)
 
@@ -922,7 +936,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_policy.Policy, **query)
 
-    def update_policy(self, policy, **attrs):
+    def update_policy(
+        self,
+        policy: str | _policy.Policy,
+        **attrs: Any,
+    ) -> _policy.Policy:
         """Update a policy.
 
         :param policy: Either the name or the ID of a policy, or an instance
@@ -931,7 +949,6 @@ class Proxy(proxy.Proxy):
             the ``value`` parameter.
 
         :returns: The updated policy.
-        :rtype: :class:`~openstack.clustering.v1.policy.Policy`
         """
         return self._update(_policy.Policy, policy, **attrs)
 
@@ -997,7 +1014,11 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_receiver.Receiver, **attrs)
 
-    def update_receiver(self, receiver, **attrs):
+    def update_receiver(
+        self,
+        receiver: str | _receiver.Receiver,
+        **attrs: Any,
+    ) -> _receiver.Receiver:
         """Update a receiver.
 
         :param receiver: The value can be either the name or ID of a receiver
@@ -1005,7 +1026,6 @@ class Proxy(proxy.Proxy):
         :param attrs: The attributes to update on the receiver parameter.
             Valid attribute names include ``name``, ``action`` and ``params``.
         :returns: The updated receiver.
-        :rtype: :class:`~openstack.clustering.v1.receiver.Receiver`
         """
         return self._update(_receiver.Receiver, receiver, **attrs)
 
@@ -1132,7 +1152,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_action.Action, **query)
 
-    def update_action(self, action, **attrs):
+    def update_action(
+        self,
+        action: str | _action.Action,
+        **attrs: Any,
+    ) -> _action.Action:
         """Update a profile.
 
         :param action: Either the ID of the action, or an
@@ -1141,7 +1165,6 @@ class Proxy(proxy.Proxy):
             the ``value`` parameter.
 
         :returns: The updated action.
-        :rtype: :class:`~openstack.clustering.v1.action.Action`
         """
         return self._update(_action.Action, action, **attrs)
 

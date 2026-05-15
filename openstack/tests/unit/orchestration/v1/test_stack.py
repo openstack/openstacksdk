@@ -291,6 +291,7 @@ class TestStack(base.TestCase):
         sess.put = mock.Mock(return_value=mock_response)
         sot = stack.Stack(**FAKE)
         body = sot._body.dirty.copy()
+        body.pop('id', None)
 
         sot.commit(sess)
 
@@ -312,6 +313,7 @@ class TestStack(base.TestCase):
         sess.put = mock.Mock(return_value=mock_response)
         sot = stack.Stack(**FAKE)
         body = sot._body.dirty.copy()
+        body.pop('id', None)
 
         ret = sot.commit(sess, preview=True)
 

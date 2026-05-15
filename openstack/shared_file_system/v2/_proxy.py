@@ -202,12 +202,14 @@ class Proxy(proxy.Proxy):
         self._delete(_share.Share, share, ignore_missing=ignore_missing)
 
     @renamed_param('share_id', 'share')
-    def update_share(self, share, **attrs):
+    def update_share(
+        self, share: str | _share.Share, **attrs: Any
+    ) -> _share.Share:
         """Updates details of a single share.
 
         :param share: The ID of the share to update
         :param attrs: The attributes to update on the share
-        :returns: the updated share
+        :returns: The updated share
         """
         return self._update(_share.Share, share, **attrs)
 
@@ -398,7 +400,9 @@ class Proxy(proxy.Proxy):
         return self._create(_share_group.ShareGroup, **attrs)
 
     @renamed_param('share_group_id', 'share_group')
-    def update_share_group(self, share_group, **attrs):
+    def update_share_group(
+        self, share_group: str | _share_group.ShareGroup, **attrs: Any
+    ) -> _share_group.ShareGroup:
         """Updates details of a single share group
 
         :param share_group: The ID of the share group
@@ -564,7 +568,9 @@ class Proxy(proxy.Proxy):
         return self._create(_share_snapshot.ShareSnapshot, **attrs)
 
     @renamed_param('snapshot_id', 'snapshot')
-    def update_share_snapshot(self, snapshot, **attrs):
+    def update_share_snapshot(
+        self, snapshot: str | _share_snapshot.ShareSnapshot, **attrs: Any
+    ) -> _share_snapshot.ShareSnapshot:
         """Updates details of a single share.
 
         :param snapshot: The ID of the snapshot to update
@@ -795,7 +801,9 @@ class Proxy(proxy.Proxy):
         )
 
     @renamed_param('share_network_id', 'share_network')
-    def update_share_network(self, share_network, **attrs):
+    def update_share_network(
+        self, share_network: str | _share_network.ShareNetwork, **attrs: Any
+    ) -> _share_network.ShareNetwork:
         """Updates details of a single share network.
 
         :param share_network: The ID of the share network to update
@@ -1105,7 +1113,11 @@ class Proxy(proxy.Proxy):
         res.reset_status(self, status)
 
     @renamed_param('group_snapshot_id', 'group_snapshot')
-    def update_share_group_snapshot(self, group_snapshot, **attrs):
+    def update_share_group_snapshot(
+        self,
+        group_snapshot: str | _share_group_snapshot.ShareGroupSnapshot,
+        **attrs: Any,
+    ) -> _share_group_snapshot.ShareGroupSnapshot:
         """Updates a share group snapshot.
 
         :param group_snapshot: The ID of the share group snapshot to update
@@ -1351,7 +1363,9 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_resource_locks.ResourceLock, resource_lock)
 
-    def update_resource_lock(self, resource_lock, **attrs):
+    def update_resource_lock(
+        self, resource_lock: str | _resource_locks.ResourceLock, **attrs: Any
+    ) -> _resource_locks.ResourceLock:
         """Updates details of a single resource lock.
 
         :param resource_lock: The ID of a resource lock or a
@@ -1432,7 +1446,11 @@ class Proxy(proxy.Proxy):
         return self._get(_quota_class_set.QuotaClassSet, quota_class_set)
 
     @renamed_param('quota_class_name', 'quota_class_set')
-    def update_quota_class_set(self, quota_class_set, **attrs):
+    def update_quota_class_set(
+        self,
+        quota_class_set: str | _quota_class_set.QuotaClassSet,
+        **attrs: Any,
+    ) -> _quota_class_set.QuotaClassSet:
         """Update quota class set.
 
         :param quota_class_set: The name of the quota class

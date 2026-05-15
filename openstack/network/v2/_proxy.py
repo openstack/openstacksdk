@@ -372,7 +372,6 @@ class Proxy(proxy.Proxy):
             represented by ``value``.
 
         :returns: The updated address group
-        :rtype: :class:`~openstack.network.v2.address_group.AddressGroup`
         """
         return self._update(
             _address_group.AddressGroup, address_group, **attrs
@@ -513,7 +512,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_address_scope.AddressScope, **query)
 
-    def update_address_scope(self, address_scope, **attrs):
+    def update_address_scope(
+        self,
+        address_scope: str | _address_scope.AddressScope,
+        **attrs: Any,
+    ) -> _address_scope.AddressScope:
         """Update an address scope
 
         :param address_scope: Either the ID of an address scope or a
@@ -522,7 +525,6 @@ class Proxy(proxy.Proxy):
             represented by ``value``.
 
         :returns: The updated address scope
-        :rtype: :class:`~openstack.network.v2.address_scope.AddressScope`
         """
         return self._update(
             _address_scope.AddressScope, address_scope, **attrs
@@ -578,7 +580,11 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_agent.Agent, agent)
 
-    def update_agent(self, agent, **attrs):
+    def update_agent(
+        self,
+        agent: str | _agent.Agent,
+        **attrs: Any,
+    ) -> _agent.Agent:
         """Update a network agent
 
         :param agent: The value can be the ID of a agent or a
@@ -587,7 +593,6 @@ class Proxy(proxy.Proxy):
             by ``value``.
 
         :returns: One :class:`~openstack.network.v2.agent.Agent`
-        :rtype: :class:`~openstack.network.v2.agent.Agent`
         """
         return self._update(_agent.Agent, agent, **attrs)
 
@@ -765,7 +770,11 @@ class Proxy(proxy.Proxy):
         """Get a signle BGP Peer"""
         return self._get(_bgp_peer.BgpPeer, peer)
 
-    def update_bgp_peer(self, peer, **attrs):
+    def update_bgp_peer(
+        self,
+        peer: str | _bgp_peer.BgpPeer,
+        **attrs: Any,
+    ) -> _bgp_peer.BgpPeer:
         """Update a BGP Peer"""
         return self._update(_bgp_peer.BgpPeer, peer, **attrs)
 
@@ -823,7 +832,11 @@ class Proxy(proxy.Proxy):
         """Get a signle BGP Speaker"""
         return self._get(_bgp_speaker.BgpSpeaker, speaker)
 
-    def update_bgp_speaker(self, speaker, **attrs):
+    def update_bgp_speaker(
+        self,
+        speaker: str | _bgp_speaker.BgpSpeaker,
+        **attrs: Any,
+    ) -> _bgp_speaker.BgpSpeaker:
         """Update a BGP Speaker"""
         return self._update(_bgp_speaker.BgpSpeaker, speaker, **attrs)
 
@@ -976,7 +989,11 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_bgpvpn.BgpVpn, bgpvpn)
 
-    def update_bgpvpn(self, bgppvpn, **attrs):
+    def update_bgpvpn(
+        self,
+        bgppvpn: str | _bgpvpn.BgpVpn,
+        **attrs: Any,
+    ) -> _bgpvpn.BgpVpn:
         """Update a BGPVPN
 
         :param bgpvpn: Either the ID of a BGPVPN or a
@@ -985,7 +1002,6 @@ class Proxy(proxy.Proxy):
             by ``value``.
 
         :returns: The updated BGPVPN
-        :rtype: :class:`~openstack.network.v2.bgpvpn.BgpVpn`
         """
         return self._update(_bgpvpn.BgpVpn, bgppvpn, **attrs)
 
@@ -1227,8 +1243,11 @@ class Proxy(proxy.Proxy):
         )
 
     def update_bgpvpn_port_association(
-        self, bgpvpn, port_association, **attrs
-    ):
+        self,
+        bgpvpn: str | _bgpvpn.BgpVpn,
+        port_association: str | _bgpvpn_port_association.BgpVpnPortAssociation,
+        **attrs: Any,
+    ) -> _bgpvpn_port_association.BgpVpnPortAssociation:
         """Update a BPGPN Port Association
 
         :param bgpvpn: Either the ID of a BGPVPN or a
@@ -1241,7 +1260,6 @@ class Proxy(proxy.Proxy):
             by ``value``.
 
         :returns: The updated BgpVpnPortAssociation.
-        :rtype: :class:`~openstack.network.v2.bgpvpn.BgpVpn`
         """
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
         return self._update(
@@ -1352,16 +1370,18 @@ class Proxy(proxy.Proxy):
         )
 
     def update_bgpvpn_router_association(
-        self, bgpvpn, router_association, **attrs
-    ):
+        self,
+        bgpvpn: str | _bgpvpn.BgpVpn,
+        router_association: str
+        | _bgpvpn_router_association.BgpVpnRouterAssociation,
+        **attrs: Any,
+    ) -> _bgpvpn_router_association.BgpVpnRouterAssociation:
         """Update a BPGPN Router Association
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of BgpVpnNetworkAssociation objects
-        :rtype: :class:`~openstack.network.v2.bgpvpn_network_association.
-            BgpVpnNetworkAssociation`
         """
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
         return self._update(
@@ -1525,7 +1545,11 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_flavor.Flavor, flavor)
 
-    def update_flavor(self, flavor, **attrs):
+    def update_flavor(
+        self,
+        flavor: str | _flavor.Flavor,
+        **attrs: Any,
+    ) -> _flavor.Flavor:
         """Update a network service flavor
 
         :param flavor: Either the id of a flavor or a
@@ -1534,7 +1558,6 @@ class Proxy(proxy.Proxy):
             by ``flavor``.
 
         :returns: The updated flavor
-        :rtype: :class:`~openstack.network.v2.flavor.Flavor`
         """
         return self._update(_flavor.Flavor, flavor, **attrs)
 
@@ -1713,19 +1736,23 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_local_ip.LocalIP, **query)
 
-    def update_local_ip(self, local_ip, if_revision=None, **attrs):
+    def update_local_ip(
+        self,
+        local_ip: str | _local_ip.LocalIP,
+        if_revision: int | None = None,
+        **attrs: Any,
+    ) -> _local_ip.LocalIP:
         """Update a local ip
 
         :param local_ip: Either the id of a local ip or a
             :class:`~openstack.network.v2.local_ip.LocalIP`
             instance.
-        :param int if_revision: Revision to put in If-Match header of update
+        :param if_revision: Revision to put in If-Match header of update
             request to perform compare-and-swap update.
         :param attrs: The attributes to update on the ip represented
             by ``value``.
 
         :returns: The updated ip
-        :rtype: :class:`~openstack.network.v2.local_ip.LocalIP`
         """
         return self._update(
             _local_ip.LocalIP, local_ip, if_revision=if_revision, **attrs
@@ -2023,19 +2050,23 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_floating_ip.FloatingIP, **query)
 
-    def update_ip(self, floating_ip, if_revision=None, **attrs):
+    def update_ip(
+        self,
+        floating_ip: str | _floating_ip.FloatingIP,
+        if_revision: int | None = None,
+        **attrs: Any,
+    ) -> _floating_ip.FloatingIP:
         """Update a ip
 
         :param floating_ip: Either the id of a ip or a
             :class:`~openstack.network.v2.floating_ip.FloatingIP`
             instance.
-        :param int if_revision: Revision to put in If-Match header of update
+        :param if_revision: Revision to put in If-Match header of update
             request to perform compare-and-swap update.
         :param attrs: The attributes to update on the ip represented
             by ``value``.
 
         :returns: The updated ip
-        :rtype: :class:`~openstack.network.v2.floating_ip.FloatingIP`
         """
         return self._update(
             _floating_ip.FloatingIP,
@@ -2186,7 +2217,12 @@ class Proxy(proxy.Proxy):
             _port_forwarding.PortForwarding, floatingip_id=fip.id, **query
         )
 
-    def update_port_forwarding(self, port_forwarding, floating_ip, **attrs):
+    def update_port_forwarding(
+        self,
+        port_forwarding: str | _port_forwarding.PortForwarding,
+        floating_ip: str | _floating_ip.FloatingIP,
+        **attrs: Any,
+    ) -> _port_forwarding.PortForwarding:
         """Update a port forwarding
 
         :param port_forwarding: The value can be the ID of a port forwarding
@@ -2199,7 +2235,6 @@ class Proxy(proxy.Proxy):
             by ``value``.
 
         :returns: The updated port_forwarding
-        :rtype: :class:`~openstack.network.v2.port_forwarding.PortForwarding`
         """
         fip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
         return self._update(
@@ -2335,7 +2370,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_health_monitor.HealthMonitor, **query)
 
-    def update_health_monitor(self, health_monitor, **attrs):
+    def update_health_monitor(
+        self,
+        health_monitor: str | _health_monitor.HealthMonitor,
+        **attrs: Any,
+    ) -> _health_monitor.HealthMonitor:
         """Update a health monitor
 
         :param health_monitor: Either the id of a health monitor or a
@@ -2345,7 +2384,6 @@ class Proxy(proxy.Proxy):
             represented by ``value``.
 
         :returns: The updated health monitor
-        :rtype: :class:`~openstack.network.v2.health_monitor.HealthMonitor`
         """
         return self._update(
             _health_monitor.HealthMonitor, health_monitor, **attrs
@@ -2461,7 +2499,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_listener.Listener, **query)
 
-    def update_listener(self, listener, **attrs):
+    def update_listener(
+        self,
+        listener: str | _listener.Listener,
+        **attrs: Any,
+    ) -> _listener.Listener:
         """Update a listener
 
         :param listener: Either the id of a listener or a
@@ -2471,7 +2513,6 @@ class Proxy(proxy.Proxy):
             represented by ``listener``.
 
         :returns: The updated listener
-        :rtype: :class:`~openstack.network.v2.listener.Listener`
         """
         return self._update(_listener.Listener, listener, **attrs)
 
@@ -2581,7 +2622,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_load_balancer.LoadBalancer, **query)
 
-    def update_load_balancer(self, load_balancer, **attrs):
+    def update_load_balancer(
+        self,
+        load_balancer: str | _load_balancer.LoadBalancer,
+        **attrs: Any,
+    ) -> _load_balancer.LoadBalancer:
         """Update a load balancer
 
         :param load_balancer: Either the id of a load balancer or a
@@ -2591,7 +2636,6 @@ class Proxy(proxy.Proxy):
             represented by ``load_balancer``.
 
         :returns: The updated load balancer
-        :rtype: :class:`~openstack.network.v2.load_balancer.LoadBalancer`
         """
         return self._update(
             _load_balancer.LoadBalancer, load_balancer, **attrs
@@ -2713,7 +2757,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_metering_label.MeteringLabel, **query)
 
-    def update_metering_label(self, metering_label, **attrs):
+    def update_metering_label(
+        self,
+        metering_label: str | _metering_label.MeteringLabel,
+        **attrs: Any,
+    ) -> _metering_label.MeteringLabel:
         """Update a metering label
 
         :param metering_label: Either the id of a metering label or a
@@ -2723,7 +2771,6 @@ class Proxy(proxy.Proxy):
             represented by ``metering_label``.
 
         :returns: The updated metering label
-        :rtype: :class:`~openstack.network.v2.metering_label.MeteringLabel`
         """
         return self._update(
             _metering_label.MeteringLabel, metering_label, **attrs
@@ -2853,7 +2900,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_metering_label_rule.MeteringLabelRule, **query)
 
-    def update_metering_label_rule(self, metering_label_rule, **attrs):
+    def update_metering_label_rule(
+        self,
+        metering_label_rule: str | _metering_label_rule.MeteringLabelRule,
+        **attrs: Any,
+    ) -> _metering_label_rule.MeteringLabelRule:
         """Update a metering label rule
 
         :param metering_label_rule:
@@ -2864,8 +2915,6 @@ class Proxy(proxy.Proxy):
             represented by ``metering_label_rule``.
 
         :returns: The updated metering label rule
-        :rtype:
-            :class:`~openstack.network.v2.metering_label_rule.MeteringLabelRule`
         """
         return self._update(
             _metering_label_rule.MeteringLabelRule,
@@ -2995,18 +3044,22 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_network.Network, **query)
 
-    def update_network(self, network, if_revision=None, **attrs):
+    def update_network(
+        self,
+        network: str | _network.Network,
+        if_revision: int | None = None,
+        **attrs: Any,
+    ) -> _network.Network:
         """Update a network
 
         :param network: Either the id of a network or an instance of type
             :class:`~openstack.network.v2.network.Network`.
-        :param int if_revision: Revision to put in If-Match header of update
+        :param if_revision: Revision to put in If-Match header of update
             request to perform compare-and-swap update.
         :param attrs: The attributes to update on the network represented
             by ``network``.
 
         :returns: The updated network
-        :rtype: :class:`~openstack.network.v2.network.Network`
         """
         return self._update(
             _network.Network, network, if_revision=if_revision, **attrs
@@ -3233,7 +3286,12 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_network_segment_range.NetworkSegmentRange, **query)
 
-    def update_network_segment_range(self, network_segment_range, **attrs):
+    def update_network_segment_range(
+        self,
+        network_segment_range: str
+        | _network_segment_range.NetworkSegmentRange,
+        **attrs: Any,
+    ) -> _network_segment_range.NetworkSegmentRange:
         """Update a network segment range
 
         :param network_segment_range: Either the ID of a network segment range
@@ -3244,8 +3302,6 @@ class Proxy(proxy.Proxy):
             represented by ``network_segment_range``.
 
         :returns: The updated network segment range
-        :rtype:
-            :class:`~openstack.network.v2._network_segment_range.NetworkSegmentRange`
         """
         return self._update(
             _network_segment_range.NetworkSegmentRange,
@@ -3358,7 +3414,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_pool.Pool, **query)
 
-    def update_pool(self, pool, **attrs):
+    def update_pool(
+        self,
+        pool: str | _pool.Pool,
+        **attrs: Any,
+    ) -> _pool.Pool:
         """Update a pool
 
         :param pool: Either the id of a pool or a
@@ -3367,7 +3427,6 @@ class Proxy(proxy.Proxy):
             by ``pool``.
 
         :returns: The updated pool
-        :rtype: :class:`~openstack.network.v2.pool.Pool`
         """
         return self._update(_pool.Pool, pool, **attrs)
 
@@ -3521,7 +3580,12 @@ class Proxy(proxy.Proxy):
         poolobj = self._get_resource(_pool.Pool, pool)
         return self._list(_pool_member.PoolMember, pool_id=poolobj.id, **query)
 
-    def update_pool_member(self, pool_member, pool, **attrs):
+    def update_pool_member(
+        self,
+        pool_member: str | _pool_member.PoolMember,
+        pool: str | _pool.Pool,
+        **attrs: Any,
+    ) -> _pool_member.PoolMember:
         """Update a pool member
 
         :param pool_member: Either the ID of a pool member or a
@@ -3534,7 +3598,6 @@ class Proxy(proxy.Proxy):
             represented by ``pool_member``.
 
         :returns: The updated pool member
-        :rtype: :class:`~openstack.network.v2.pool_member.PoolMember`
         """
         poolobj = self._get_resource(_pool.Pool, pool)
         return self._update(
@@ -3678,13 +3741,12 @@ class Proxy(proxy.Proxy):
 
         :param port: Either the id of a port or a
             :class:`~openstack.network.v2.port.Port` instance.
-        :param int if_revision: Revision to put in If-Match header of update
+        :param if_revision: Revision to put in If-Match header of update
             request to perform compare-and-swap update.
         :param attrs: The attributes to update on the port represented
             by ``port``.
 
         :returns: The updated port
-        :rtype: :class:`~openstack.network.v2.port.Port`
         """
         return self._update(_port.Port, port, if_revision=if_revision, **attrs)
 
@@ -3963,10 +4025,10 @@ class Proxy(proxy.Proxy):
 
     def update_qos_bandwidth_limit_rule(
         self,
-        qos_rule,
-        qos_policy,
-        **attrs,
-    ):
+        qos_rule: str | _qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        **attrs: Any,
+    ) -> _qos_bandwidth_limit_rule.QoSBandwidthLimitRule:
         """Update a bandwidth limit rule
 
         :param qos_rule: Either the id of a bandwidth limit rule or a
@@ -3979,8 +4041,6 @@ class Proxy(proxy.Proxy):
             represented by ``qos_rule``.
 
         :returns: The updated minimum bandwidth rule
-        :rtype:
-            :class:`~openstack.network.v2.qos_bandwidth_limit_rule.QoSBandwidthLimitRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
         return self._update(
@@ -4142,7 +4202,12 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def update_qos_dscp_marking_rule(self, qos_rule, qos_policy, **attrs):
+    def update_qos_dscp_marking_rule(
+        self,
+        qos_rule: str | _qos_dscp_marking_rule.QoSDSCPMarkingRule,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        **attrs: Any,
+    ) -> _qos_dscp_marking_rule.QoSDSCPMarkingRule:
         """Update a QoS DSCP marking rule
 
         :param qos_rule: Either the id of a minimum bandwidth rule or a
@@ -4155,8 +4220,6 @@ class Proxy(proxy.Proxy):
             represented by ``qos_rule``.
 
         :returns: The updated QoS DSCP marking rule
-        :rtype:
-            :class:`~openstack.network.v2.qos_dscp_marking_rule.QoSDSCPMarkingRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
         return self._update(
@@ -4320,7 +4383,12 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def update_qos_minimum_bandwidth_rule(self, qos_rule, qos_policy, **attrs):
+    def update_qos_minimum_bandwidth_rule(
+        self,
+        qos_rule: str | _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        **attrs: Any,
+    ) -> _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule:
         """Update a minimum bandwidth rule
 
         :param qos_rule: Either the id of a minimum bandwidth rule or a
@@ -4334,8 +4402,6 @@ class Proxy(proxy.Proxy):
             represented by ``qos_rule``.
 
         :returns: The updated minimum bandwidth rule
-        :rtype:
-            :class:`~openstack.network.v2.qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
         return self._update(
@@ -4495,8 +4561,11 @@ class Proxy(proxy.Proxy):
         )
 
     def update_qos_minimum_packet_rate_rule(
-        self, qos_rule, qos_policy, **attrs
-    ):
+        self,
+        qos_rule: str | _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        **attrs: Any,
+    ) -> _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule:
         """Update a minimum packet rate rule
 
         :param qos_rule: Either the id of a minimum packet rate rule or a
@@ -4509,8 +4578,6 @@ class Proxy(proxy.Proxy):
             represented by ``qos_rule``.
 
         :returns: The updated minimum packet rate rule
-        :rtype:
-            :class:`~openstack.network.v2.qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
         return self._update(
@@ -4669,7 +4736,12 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def update_qos_packet_rate_limit_rule(self, qos_rule, qos_policy, **attrs):
+    def update_qos_packet_rate_limit_rule(
+        self,
+        qos_rule: str | _qos_packet_rate_limit_rule.QoSPacketRateLimitRule,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        **attrs: Any,
+    ) -> _qos_packet_rate_limit_rule.QoSPacketRateLimitRule:
         """Update a minimum packet rate rule
 
         :param qos_rule: Either the id of a minimum packet rate rule or a
@@ -4682,8 +4754,6 @@ class Proxy(proxy.Proxy):
             represented by ``qos_rule``.
 
         :returns: The updated minimum packet rate rule
-        :rtype:
-            :class:`~openstack.network.v2.qos_packet_rate_limit_rule.QoSPacketRateLimitRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
         return self._update(
@@ -4801,7 +4871,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_qos_policy.QoSPolicy, **query)
 
-    def update_qos_policy(self, qos_policy, **attrs):
+    def update_qos_policy(
+        self,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        **attrs: Any,
+    ) -> _qos_policy.QoSPolicy:
         """Update a QoS policy
 
         :param qos_policy: Either the id of a QoS policy or a
@@ -4810,7 +4884,6 @@ class Proxy(proxy.Proxy):
             by ``qos_policy``.
 
         :returns: The updated QoS policy
-        :rtype: :class:`~openstack.network.v2.qos_policy.QoSPolicy`
         """
         return self._update(_qos_policy.QoSPolicy, qos_policy, **attrs)
 
@@ -4956,7 +5029,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_quota.Quota, **query)
 
-    def update_quota(self, quota, **attrs):
+    def update_quota(
+        self,
+        quota: str | _quota.Quota,
+        **attrs: Any,
+    ) -> _quota.Quota:
         """Update a quota
 
         :param quota: Either the ID of a quota or a
@@ -4967,7 +5044,6 @@ class Proxy(proxy.Proxy):
             by ``quota``.
 
         :returns: The updated quota
-        :rtype: :class:`~openstack.network.v2.quota.Quota`
         """
         return self._update(_quota.Quota, quota, **attrs)
 
@@ -5078,7 +5154,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_rbac_policy.RBACPolicy, **query)
 
-    def update_rbac_policy(self, rbac_policy, **attrs):
+    def update_rbac_policy(
+        self,
+        rbac_policy: str | _rbac_policy.RBACPolicy,
+        **attrs: Any,
+    ) -> _rbac_policy.RBACPolicy:
         """Update a RBAC policy
 
         :param rbac_policy: Either the id of a RBAC policy or a
@@ -5087,7 +5167,6 @@ class Proxy(proxy.Proxy):
             represented by ``rbac_policy``.
 
         :returns: The updated RBAC policy
-        :rtype: :class:`~openstack.network.v2.rbac_policy.RBACPolicy`
         """
         return self._update(_rbac_policy.RBACPolicy, rbac_policy, **attrs)
 
@@ -5201,18 +5280,22 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_router.Router, **query)
 
-    def update_router(self, router, if_revision=None, **attrs):
+    def update_router(
+        self,
+        router: str | _router.Router,
+        if_revision: int | None = None,
+        **attrs: Any,
+    ) -> _router.Router:
         """Update a router
 
         :param router: Either the id of a router or a
             :class:`~openstack.network.v2.router.Router` instance.
-        :param int if_revision: Revision to put in If-Match header of update
+        :param if_revision: Revision to put in If-Match header of update
             request to perform compare-and-swap update.
         :param attrs: The attributes to update on the router represented
             by ``router``.
 
         :returns: The updated router
-        :rtype: :class:`~openstack.network.v2.router.Router`
         """
         return self._update(
             _router.Router, router, if_revision=if_revision, **attrs
@@ -5324,14 +5407,17 @@ class Proxy(proxy.Proxy):
         router = self._get_resource(_router.Router, router)
         return router.add_external_gateways(self, body)
 
-    def update_external_gateways(self, router, body):
+    def update_external_gateways(
+        self,
+        router: str | _router.Router,
+        body: dict[str, Any],
+    ) -> _router.Router:
         """Update router external gateways
 
         :param router: Either the router ID or an instance of
             :class:`~openstack.network.v2.router.Router`
         :param body: Body containing the external_gateways parameter.
         :returns: Router with updated gateways
-        :rtype: :class:`~openstack.network.v2.router.Router`
         """
         router = self._get_resource(_router.Router, router)
         return router.update_external_gateways(self, body)
@@ -5394,8 +5480,12 @@ class Proxy(proxy.Proxy):
         )
 
     def update_router_in_agent(
-        self, agent, router, *, ha_chassis_priority=None
-    ):
+        self,
+        agent: str | _agent.Agent,
+        router: str | _router.Router,
+        *,
+        ha_chassis_priority: int | None = None,
+    ) -> dict[str, Any]:
         """Update a router associated to a L3 agent
 
         :param agent: Either the id of an agent
@@ -5404,7 +5494,6 @@ class Proxy(proxy.Proxy):
         :param ha_chassis_priority: Optional ``HA_Chassis`` priority, that
             could be [0, 32767].
         :returns: Agent with attached router
-        :rtype: :class:`~openstack.network.v2.agent.Agent`
         """
         agent = self._get_resource(_agent.Agent, agent)
         router = self._get_resource(_router.Router, router)
@@ -5528,7 +5617,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_ndp_proxy.NDPProxy, paginated=False, **query)
 
-    def update_ndp_proxy(self, ndp_proxy, **attrs):
+    def update_ndp_proxy(
+        self,
+        ndp_proxy: str | _ndp_proxy.NDPProxy,
+        **attrs: Any,
+    ) -> _ndp_proxy.NDPProxy:
         """Update a ndp proxy
 
         :param ndp_proxy: The value can be the ID of a ndp proxy or a
@@ -5537,7 +5630,6 @@ class Proxy(proxy.Proxy):
             by ``value``.
 
         :returns: The updated ndp_proxy
-        :rtype: :class:`~openstack.network.v2.ndp_proxy.NDPProxy`
         """
         return self._update(_ndp_proxy.NDPProxy, ndp_proxy, **attrs)
 
@@ -5662,7 +5754,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_firewall_group.FirewallGroup, **query)
 
-    def update_firewall_group(self, firewall_group, **attrs):
+    def update_firewall_group(
+        self,
+        firewall_group: str | _firewall_group.FirewallGroup,
+        **attrs: Any,
+    ) -> _firewall_group.FirewallGroup:
         """Update a firewall group
 
         :param firewall_group: Either the id of a firewall group or a
@@ -5672,7 +5768,6 @@ class Proxy(proxy.Proxy):
             represented by ``firewall_group``.
 
         :returns: The updated firewall group
-        :rtype: :class:`~openstack.network.v2.firewall_group.FirewallGroup`
         """
         return self._update(
             _firewall_group.FirewallGroup, firewall_group, **attrs
@@ -5795,7 +5890,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_firewall_policy.FirewallPolicy, **query)
 
-    def update_firewall_policy(self, firewall_policy, **attrs):
+    def update_firewall_policy(
+        self,
+        firewall_policy: str | _firewall_policy.FirewallPolicy,
+        **attrs: Any,
+    ) -> _firewall_policy.FirewallPolicy:
         """Update a firewall policy
 
         :param firewall_policy: Either the id of a firewall policy or a
@@ -5805,7 +5904,6 @@ class Proxy(proxy.Proxy):
             represented by ``firewall_policy``.
 
         :returns: The updated firewall policy
-        :rtype: :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`
         """
         return self._update(
             _firewall_policy.FirewallPolicy, firewall_policy, **attrs
@@ -5994,7 +6092,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_firewall_rule.FirewallRule, **query)
 
-    def update_firewall_rule(self, firewall_rule, **attrs):
+    def update_firewall_rule(
+        self,
+        firewall_rule: str | _firewall_rule.FirewallRule,
+        **attrs: Any,
+    ) -> _firewall_rule.FirewallRule:
         """Update a firewall rule
 
         :param firewall_rule: Either the id of a firewall rule or a
@@ -6004,7 +6106,6 @@ class Proxy(proxy.Proxy):
             represented by ``firewall_rule``.
 
         :returns: The updated firewall rule
-        :rtype: :class:`~openstack.network.v2.firewall_rule.FirewallRule`
         """
         return self._update(
             _firewall_rule.FirewallRule, firewall_rule, **attrs
@@ -6129,19 +6230,23 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_security_group.SecurityGroup, **query)
 
-    def update_security_group(self, security_group, if_revision=None, **attrs):
+    def update_security_group(
+        self,
+        security_group: str | _security_group.SecurityGroup,
+        if_revision: int | None = None,
+        **attrs: Any,
+    ) -> _security_group.SecurityGroup:
         """Update a security group
 
         :param security_group: Either the id of a security group or a
             :class:`~openstack.network.v2.security_group.SecurityGroup`
             instance.
-        :param int if_revision: Revision to put in If-Match header of update
+        :param if_revision: Revision to put in If-Match header of update
             request to perform compare-and-swap update.
         :param attrs: The attributes to update on the security group
             represented by ``security_group``.
 
         :returns: The updated security group
-        :rtype: :class:`~openstack.network.v2.security_group.SecurityGroup`
         """
         return self._update(
             _security_group.SecurityGroup,
@@ -6566,9 +6671,10 @@ class Proxy(proxy.Proxy):
 
     def update_security_groups_default_statefulness(
         self,
-        security_groups_default_statefulness,
-        **attrs,
-    ):
+        security_groups_default_statefulness: str
+        | _sg_default_statefulness.SecurityGroupsDefaultStatefulness,
+        **attrs: Any,
+    ) -> _sg_default_statefulness.SecurityGroupsDefaultStatefulness:
         """Update a default statefulness setting
 
         :param security_groups_default_statefulness:
@@ -6579,9 +6685,6 @@ class Proxy(proxy.Proxy):
             setting represented by ``security_groups_default_statefulness``.
 
         :returns: The updated default statefulness setting
-        :rtype:
-            :class:`~openstack.network.v2.security_groups_default_statefulness.
-            SecurityGroupsDefaultStatefulness`
         """
         return self._update(
             _sg_default_statefulness.SecurityGroupsDefaultStatefulness,
@@ -6691,7 +6794,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_segment.Segment, **query)
 
-    def update_segment(self, segment, **attrs):
+    def update_segment(
+        self,
+        segment: str | _segment.Segment,
+        **attrs: Any,
+    ) -> _segment.Segment:
         """Update a segment
 
         :param segment: Either the id of a segment or a
@@ -6700,7 +6807,6 @@ class Proxy(proxy.Proxy):
             by ``segment``.
 
         :returns: The update segment
-        :rtype: :class:`~openstack.network.v2.segment.Segment`
         """
         return self._update(_segment.Segment, segment, **attrs)
 
@@ -6831,7 +6937,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_service_profile.ServiceProfile, **query)
 
-    def update_service_profile(self, service_profile, **attrs):
+    def update_service_profile(
+        self,
+        service_profile: str | _service_profile.ServiceProfile,
+        **attrs: Any,
+    ) -> _service_profile.ServiceProfile:
         """Update a network flavor service profile
 
         :param service_profile: Either the id of a service profile or a
@@ -6841,7 +6951,6 @@ class Proxy(proxy.Proxy):
             represented by ``service_profile``.
 
         :returns: The updated service profile
-        :rtype: :class:`~openstack.network.v2.service_profile.ServiceProfile`
         """
         return self._update(
             _service_profile.ServiceProfile, service_profile, **attrs
@@ -6960,18 +7069,22 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_subnet.Subnet, **query)
 
-    def update_subnet(self, subnet, if_revision=None, **attrs):
+    def update_subnet(
+        self,
+        subnet: str | _subnet.Subnet,
+        if_revision: int | None = None,
+        **attrs: Any,
+    ) -> _subnet.Subnet:
         """Update a subnet
 
         :param subnet: Either the id of a subnet or a
             :class:`~openstack.network.v2.subnet.Subnet` instance.
-        :param int if_revision: Revision to put in If-Match header of update
+        :param if_revision: Revision to put in If-Match header of update
             request to perform compare-and-swap update.
         :param attrs: The attributes to update on the subnet represented
             by ``subnet``.
 
         :returns: The updated subnet
-        :rtype: :class:`~openstack.network.v2.subnet.Subnet`
         """
         return self._update(
             _subnet.Subnet, subnet, if_revision=if_revision, **attrs
@@ -7085,7 +7198,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_subnet_pool.SubnetPool, **query)
 
-    def update_subnet_pool(self, subnet_pool, **attrs):
+    def update_subnet_pool(
+        self,
+        subnet_pool: str | _subnet_pool.SubnetPool,
+        **attrs: Any,
+    ) -> _subnet_pool.SubnetPool:
         """Update a subnet pool
 
         :param subnet_pool: Either the ID of a subnet pool or a
@@ -7094,7 +7211,6 @@ class Proxy(proxy.Proxy):
             represented by ``subnet_pool``.
 
         :returns: The updated subnet pool
-        :rtype: :class:`~openstack.network.v2.subnet_pool.SubnetPool`
         """
         return self._update(_subnet_pool.SubnetPool, subnet_pool, **attrs)
 
@@ -7287,7 +7403,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_trunk.Trunk, **query)
 
-    def update_trunk(self, trunk, **attrs):
+    def update_trunk(
+        self,
+        trunk: str | _trunk.Trunk,
+        **attrs: Any,
+    ) -> _trunk.Trunk:
         """Update a trunk
 
         :param trunk: Either the id of a trunk or a
@@ -7296,7 +7416,6 @@ class Proxy(proxy.Proxy):
             represented by ``trunk``.
 
         :returns: The updated trunk
-        :rtype: :class:`~openstack.network.v2.trunk.Trunk`
         """
         return self._update(_trunk.Trunk, trunk, **attrs)
 
@@ -7457,7 +7576,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_vpn_endpoint_group.VpnEndpointGroup, **query)
 
-    def update_vpn_endpoint_group(self, vpn_endpoint_group, **attrs):
+    def update_vpn_endpoint_group(
+        self,
+        vpn_endpoint_group: str | _vpn_endpoint_group.VpnEndpointGroup,
+        **attrs: Any,
+    ) -> _vpn_endpoint_group.VpnEndpointGroup:
         """Update a vpn service
 
         :param vpn_endpoint_group: Either the id of a vpn service or a
@@ -7467,8 +7590,6 @@ class Proxy(proxy.Proxy):
             represented by ``vpn_endpoint_group``.
 
         :returns: The updated vpnservice
-        :rtype:
-            :class:`~openstack.network.v2.vpn_endpoint_group.VpnEndpointGroup`
         """
         return self._update(
             _vpn_endpoint_group.VpnEndpointGroup, vpn_endpoint_group, **attrs
@@ -7571,7 +7692,12 @@ class Proxy(proxy.Proxy):
             _ipsec_site_connection.VpnIPSecSiteConnection, **query
         )
 
-    def update_vpn_ipsec_site_connection(self, ipsec_site_connection, **attrs):
+    def update_vpn_ipsec_site_connection(
+        self,
+        ipsec_site_connection: str
+        | _ipsec_site_connection.VpnIPSecSiteConnection,
+        **attrs: Any,
+    ) -> _ipsec_site_connection.VpnIPSecSiteConnection:
         """Update a IPsec site connection
 
         :ipsec_site_connection: Either the id of an IPsec site connection or
@@ -7582,8 +7708,6 @@ class Proxy(proxy.Proxy):
             connection represented by ``ipsec_site_connection``.
 
         :returns: The updated IPsec site connection
-        :rtype:
-            :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
         """
         return self._update(
             _ipsec_site_connection.VpnIPSecSiteConnection,
@@ -7700,7 +7824,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_ike_policy.VpnIkePolicy, **query)
 
-    def update_vpn_ike_policy(self, ike_policy, **attrs):
+    def update_vpn_ike_policy(
+        self,
+        ike_policy: str | _ike_policy.VpnIkePolicy,
+        **attrs: Any,
+    ) -> _ike_policy.VpnIkePolicy:
         """Update an IKE policy
 
         :ike_policy: Either the IK of an IKE policy or a
@@ -7710,7 +7838,6 @@ class Proxy(proxy.Proxy):
             represented by ``ike_policy``.
 
         :returns: The updated ike policy
-        :rtype: :class:`~openstack.network.v2.vpn_ike_policy.VpnIkePolicy`
         """
         return self._update(_ike_policy.VpnIkePolicy, ike_policy, **attrs)
 
@@ -7822,7 +7949,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_ipsec_policy.VpnIpsecPolicy, **query)
 
-    def update_vpn_ipsec_policy(self, ipsec_policy, **attrs):
+    def update_vpn_ipsec_policy(
+        self,
+        ipsec_policy: str | _ipsec_policy.VpnIpsecPolicy,
+        **attrs: Any,
+    ) -> _ipsec_policy.VpnIpsecPolicy:
         """Update an IPsec policy
 
         :ipsec_policy: Either the id of an IPsec policy or a
@@ -7832,7 +7963,6 @@ class Proxy(proxy.Proxy):
             represented by ``ipsec_policy``.
 
         :returns: The updated IPsec policy
-        :rtype: :class:`~openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy`
         """
         return self._update(
             _ipsec_policy.VpnIpsecPolicy, ipsec_policy, **attrs
@@ -7968,7 +8098,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_vpn_service.VpnService, **query)
 
-    def update_vpn_service(self, vpn_service, **attrs):
+    def update_vpn_service(
+        self,
+        vpn_service: str | _vpn_service.VpnService,
+        **attrs: Any,
+    ) -> _vpn_service.VpnService:
         """Update a vpn service
 
         :param vpn_service: Either the id of a vpn service or a
@@ -7977,7 +8111,6 @@ class Proxy(proxy.Proxy):
             represented by ``vpn_service``.
 
         :returns: The updated vpnservice
-        :rtype: :class:`~openstack.network.v2.vpn_service.VpnService`
         """
         return self._update(_vpn_service.VpnService, vpn_service, **attrs)
 
@@ -8131,9 +8264,16 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
+    # TODO(stephenfin): The argument order here is wrong; the child resource
+    # (port_forwarding) should come first, followed by the parent resource
+    # (floating_ip), matching the convention used by other nested-resource
+    # update methods (e.g. update_pool_member, update_l7_rule).
     def update_floating_ip_port_forwarding(
-        self, floating_ip, port_forwarding, **attrs
-    ):
+        self,
+        floating_ip: str | _floating_ip.FloatingIP,
+        port_forwarding: str | _port_forwarding.PortForwarding,
+        **attrs: Any,
+    ) -> _port_forwarding.PortForwarding:
         """Update a floating ip port forwarding
 
         :param floating_ip: The value can be the ID of the Floating IP that the
@@ -8147,7 +8287,6 @@ class Proxy(proxy.Proxy):
             forwarding represented by ``floating_ip``.
 
         :returns: The updated floating ip port forwarding
-        :rtype: :class:`~openstack.network.v2.port_forwarding.PortForwarding`
         """
         floatingip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
         return self._update(
@@ -8219,7 +8358,16 @@ class Proxy(proxy.Proxy):
             router_id=router.id,
         )
 
-    def update_conntrack_helper(self, conntrack_helper, router, **attrs):
+    # TODO(stephenfin): The argument order here is wrong; the child resource
+    # (conntrack_helper) should come first, followed by the parent resource
+    # (router), matching the convention used by other nested-resource update
+    # methods (e.g. update_pool_member, update_l7_rule).
+    def update_conntrack_helper(
+        self,
+        conntrack_helper: str | _l3_conntrack_helper.ConntrackHelper,
+        router: str | _router.Router,
+        **attrs: Any,
+    ) -> _l3_conntrack_helper.ConntrackHelper:
         """Update a L3 conntrack_helper
 
         :param conntrack_helper: The value can be the ID of a L3 conntrack
@@ -8232,9 +8380,6 @@ class Proxy(proxy.Proxy):
             represented by ``conntrack_helper``.
 
         :returns: The updated conntrack helper
-        :rtype:
-            :class:`~openstack.network.v2.l3_conntrack_helper.ConntrackHelper`
-
         """
         router = self._get_resource(_router.Router, router)
         return self._update(
@@ -8322,7 +8467,11 @@ class Proxy(proxy.Proxy):
         """Get a signle Tap Flow"""
         return self._get(_tap_flow.TapFlow, tap_flow)
 
-    def update_tap_flow(self, tap_flow, **attrs):
+    def update_tap_flow(
+        self,
+        tap_flow: str | _tap_flow.TapFlow,
+        **attrs: Any,
+    ) -> _tap_flow.TapFlow:
         """Update a Tap Flow"""
         return self._update(_tap_flow.TapFlow, tap_flow, **attrs)
 
@@ -8380,7 +8529,11 @@ class Proxy(proxy.Proxy):
         """Get a signle Tap Mirror"""
         return self._get(_tap_mirror.TapMirror, tap_mirror)
 
-    def update_tap_mirror(self, tap_mirror, **attrs):
+    def update_tap_mirror(
+        self,
+        tap_mirror: str | _tap_mirror.TapMirror,
+        **attrs: Any,
+    ) -> _tap_mirror.TapMirror:
         """Update a Tap Mirror"""
         return self._update(_tap_mirror.TapMirror, tap_mirror, **attrs)
 
@@ -8438,7 +8591,11 @@ class Proxy(proxy.Proxy):
         """Get a signle Tap Service"""
         return self._get(_tap_service.TapService, tap_service)
 
-    def update_tap_service(self, tap_service, **attrs):
+    def update_tap_service(
+        self,
+        tap_service: str | _tap_service.TapService,
+        **attrs: Any,
+    ) -> _tap_service.TapService:
         """Update a Tap Service"""
         return self._update(_tap_service.TapService, tap_service, **attrs)
 
@@ -8549,7 +8706,11 @@ class Proxy(proxy.Proxy):
             _sfc_flow_classifier.SfcFlowClassifier, flow_classifier
         )
 
-    def update_sfc_flow_classifier(self, flow_classifier, **attrs):
+    def update_sfc_flow_classifier(
+        self,
+        flow_classifier: str | _sfc_flow_classifier.SfcFlowClassifier,
+        **attrs: Any,
+    ) -> _sfc_flow_classifier.SfcFlowClassifier:
         """Update a Flow Classifier
 
         :param flow_classifier: The value can be the ID of a Flow Classifier
@@ -8558,8 +8719,6 @@ class Proxy(proxy.Proxy):
         :param attrs: The attributes to update on the Flow Classifier
 
         :returns: The updated Flow Classifier.
-        :rtype:
-            :class:`~openstack.network.v2.sfc_flow_classifier.SfcFlowClassifier`
         """
         return self._update(
             _sfc_flow_classifier.SfcFlowClassifier, flow_classifier, **attrs
@@ -8683,17 +8842,19 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_sfc_port_chain.SfcPortChain, port_chain)
 
-    def update_sfc_port_chain(self, port_chain, **attrs):
+    def update_sfc_port_chain(
+        self,
+        port_chain: str | _sfc_port_chain.SfcPortChain,
+        **attrs: Any,
+    ) -> _sfc_port_chain.SfcPortChain:
         """Update a Port Chain
 
-        :param flow_classifier: The value can be the ID of a Flow Classifier
-            :class:`~openstack.network.v2.sfc_flow_classifier.SfcFlowClassifier`,
+        :param port_chain: The value can be the ID of a Port Chain
+            :class:`~openstack.network.v2.sfc_port_chain.SfcPortChain`,
             instance.
-        :param attrs: The attributes to update on the Flow Classifier
+        :param attrs: The attributes to update on the Port Chain
 
-        :returns: The updated Flow Classifier.
-        :rtype:
-            :class:`~openstack.network.v2.sfc_flow_classifier.SfcFlowClassifier`
+        :returns: The updated Port Chain.
         """
         return self._update(_sfc_port_chain.SfcPortChain, port_chain, **attrs)
 
@@ -8809,7 +8970,11 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_sfc_port_pair.SfcPortPair, port_pair)
 
-    def update_sfc_port_pair(self, port_pair, **attrs):
+    def update_sfc_port_pair(
+        self,
+        port_pair: str | _sfc_port_pair.SfcPortPair,
+        **attrs: Any,
+    ) -> _sfc_port_pair.SfcPortPair:
         """Update a Port Pair
 
         :param port_pair: The value can be the ID of a Port Pair
@@ -8818,8 +8983,6 @@ class Proxy(proxy.Proxy):
         :param attrs: The attributes to update on the Port Pair
 
         :returns: The updated Port Pair.
-        :rtype:
-            :class:`~openstack.network.v2.sfc_port_pair.SfcPortPair`
         """
         return self._update(_sfc_port_pair.SfcPortPair, port_pair, **attrs)
 
@@ -8940,17 +9103,19 @@ class Proxy(proxy.Proxy):
             _sfc_port_pair_group.SfcPortPairGroup, port_pair_group
         )
 
-    def update_sfc_port_pair_group(self, port_pair_group, **attrs):
+    def update_sfc_port_pair_group(
+        self,
+        port_pair_group: str | _sfc_port_pair_group.SfcPortPairGroup,
+        **attrs: Any,
+    ) -> _sfc_port_pair_group.SfcPortPairGroup:
         """Update a Port Pair Group
 
         :param port_pair_group: The value can be the ID of a Port Pair Group
-            :class:`~openstack.network.v2.sfc_port_pair.SfcPortPairGroup`,
+            :class:`~openstack.network.v2.sfc_port_pair_group.SfcPortPairGroup`,
             instance.
         :param attrs: The attributes to update on the Port Pair Group
 
         :returns: The updated Port Pair Group.
-        :rtype:
-            :class:`~openstack.network.v2.sfc_port_pair_group.SfcPortPairGroup`
         """
         return self._update(
             _sfc_port_pair_group.SfcPortPairGroup, port_pair_group, **attrs
@@ -9072,7 +9237,11 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_sfc_sservice_graph.SfcServiceGraph, service_graph)
 
-    def update_sfc_service_graph(self, service_graph, **attrs):
+    def update_sfc_service_graph(
+        self,
+        service_graph: str | _sfc_sservice_graph.SfcServiceGraph,
+        **attrs: Any,
+    ) -> _sfc_sservice_graph.SfcServiceGraph:
         """Update a Service Graph
 
         :param service_graph: The value can be the ID of a Service Graph
@@ -9081,8 +9250,6 @@ class Proxy(proxy.Proxy):
         :param attrs: The attributes to update on the Service Graph
 
         :returns: The updated Service Graph.
-        :rtype:
-            :class:`~openstack.network.v2.sfc_service_graph.SfcServiceGraph`
         """
         return self._update(
             _sfc_sservice_graph.SfcServiceGraph, service_graph, **attrs

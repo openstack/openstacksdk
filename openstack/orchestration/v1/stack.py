@@ -154,6 +154,7 @@ class Stack(resource.Resource):
     ):
         # This overrides the default behavior of resource update because
         # we need to use other endpoint for update preview.
+        self._body._dirty.discard("id")
         base_path = None
         if self.name and self.id:
             base_path = f'/stacks/{self.name}/{self.id}'

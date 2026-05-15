@@ -982,7 +982,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_image.Image, **query)
 
-    def update_image(self, image, **attrs):
+    def update_image(
+        self, image: str | _image.Image, **attrs: Any
+    ) -> _image.Image:
         """Update a image
 
         :param image: Either the ID of a image or a
@@ -991,7 +993,6 @@ class Proxy(proxy.Proxy):
             by ``image``.
 
         :returns: The updated image
-        :rtype: :class:`~openstack.image.v2.image.Image`
         """
         return self._update(_image.Image, image, **attrs)
 
@@ -1019,10 +1020,10 @@ class Proxy(proxy.Proxy):
 
     def update_image_properties(
         self,
-        image=None,
-        meta=None,
-        **kwargs,
-    ):
+        image: str | _image.Image | None = None,
+        meta: dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> bool:
         """Update the properties of an existing image
 
         :param image: The value can be the ID of a image or a
@@ -1222,7 +1223,12 @@ class Proxy(proxy.Proxy):
         image_id = resource.Resource._get_id(image)
         return self._list(_member.Member, image_id=image_id)
 
-    def update_member(self, member, image, **attrs):
+    def update_member(
+        self,
+        member: str | _member.Member,
+        image: str | _image.Image,
+        **attrs: Any,
+    ) -> _member.Member:
         """Update the member of an image
 
         :param member: Either the ID of a member or a
@@ -1238,7 +1244,6 @@ class Proxy(proxy.Proxy):
         for details.
 
         :returns: The updated member
-        :rtype: :class:`~openstack.image.v2.member.Member`
         """
         member_id = resource.Resource._get_id(member)
         image_id = resource.Resource._get_id(image)
@@ -1321,7 +1326,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_metadef_namespace.MetadefNamespace, **query)
 
-    def update_metadef_namespace(self, metadef_namespace, **attrs):
+    def update_metadef_namespace(
+        self,
+        metadef_namespace: str | _metadef_namespace.MetadefNamespace,
+        **attrs: Any,
+    ) -> _metadef_namespace.MetadefNamespace:
         """Update a server
 
         :param metadef_namespace: Either the name of a metadef namespace or an
@@ -1331,7 +1340,6 @@ class Proxy(proxy.Proxy):
             represented by ``metadef_namespace``.
 
         :returns: The updated metadef namespace
-        :rtype: :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
         """
         # rather annoyingly, Glance insists on us providing the 'namespace'
         # argument, even if we're not changing it...
@@ -1459,7 +1467,12 @@ class Proxy(proxy.Proxy):
             namespace_name=namespace_name,
         )
 
-    def update_metadef_object(self, metadef_object, namespace, **attrs):
+    def update_metadef_object(
+        self,
+        metadef_object: str | _metadef_object.MetadefObject,
+        namespace: str | _metadef_namespace.MetadefNamespace,
+        **attrs: Any,
+    ) -> _metadef_object.MetadefObject:
         """Update a single metadef object
 
         :param metadef_object: The value can be the ID of a metadef_object or a
@@ -1468,7 +1481,7 @@ class Proxy(proxy.Proxy):
             namespace or a
             :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
             instance.
-        :param dict attrs: Keyword arguments which will be used to update
+        :param attrs: Keyword arguments which will be used to update
             a :class:`~openstack.image.v2.metadef_object.MetadefObject`
 
         :returns: One :class:`~openstack.image.v2.metadef_object.MetadefObject`
@@ -1646,8 +1659,11 @@ class Proxy(proxy.Proxy):
         )
 
     def update_metadef_property(
-        self, metadef_property, metadef_namespace, **attrs
-    ):
+        self,
+        metadef_property: str | _metadef_property.MetadefProperty,
+        metadef_namespace: str | _metadef_namespace.MetadefNamespace,
+        **attrs: Any,
+    ) -> _metadef_property.MetadefProperty:
         """Update a metadef property
 
         :param metadef_property: The value can be either the name of metadef
@@ -1662,7 +1678,6 @@ class Proxy(proxy.Proxy):
             represented by ``metadef_property``.
 
         :returns: The updated metadef property
-        :rtype: :class:`~openstack.image.v2.metadef_property.MetadefProperty`
         """
         namespace_name = resource.Resource._get_id(metadef_namespace)
         metadef_property = resource.Resource._get_id(metadef_property)

@@ -141,7 +141,6 @@ class Proxy(proxy.Proxy):
             by ``role``.
 
         :returns: The updated role
-        :rtype: :class:`~openstack.identity.v2.role.Role`
         """
         return self._update(_role.Role, role, **attrs)
 
@@ -239,7 +238,6 @@ class Proxy(proxy.Proxy):
             by ``tenant``.
 
         :returns: The updated tenant
-        :rtype: :class:`~openstack.identity.v2.tenant.Tenant`
         """
         return self._update(_tenant.Tenant, tenant, **attrs)
 
@@ -337,7 +335,6 @@ class Proxy(proxy.Proxy):
             by ``user``.
 
         :returns: The updated user
-        :rtype: :class:`~openstack.identity.v2.user.User`
         """
         return self._update(_user.User, user, **attrs)
 

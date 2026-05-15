@@ -146,8 +146,7 @@ class OrchestrationCloudMixin(openstackcloud._OpenStackCloudMixin):
             )
             marker = events[0].id if events else None
 
-        # Not to cause update of ID field pass stack as dict
-        self.orchestration.update_stack(stack={'id': name_or_id}, **params)
+        self.orchestration.update_stack(name_or_id, **params)
 
         if wait:
             event_utils.poll_for_events(

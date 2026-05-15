@@ -101,16 +101,19 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_segment.Segment, **attrs)
 
-    def update_segment(self, segment, **attrs):
+    def update_segment(
+        self,
+        segment: str | _segment.Segment,
+        **attrs: Any,
+    ) -> _segment.Segment:
         """Update a segment.
 
         :param segment: The value can be the ID of a segment or a
             :class:`~openstack.instance_ha.v1.segment.Segment` instance.
-        :param dict attrs: Keyword arguments which will be used to update
+        :param attrs: Keyword arguments which will be used to update
             a :class:`openstack.instance_ha.v1.segment.Segment`,
-            comprised of the propoerties on the Segment class.
+            comprised of the properties on the Segment class.
         :returns: The updated segment.
-        :rtype: :class:`openstack.instance_ha.v1.segment.Segment`
         """
         return self._update(_segment.Segment, segment, **attrs)
 
@@ -198,7 +201,9 @@ class Proxy(proxy.Proxy):
         )
 
     @renamed_param('segment_id', 'segment')
-    def update_host(self, host, segment, **attrs):
+    def update_host(
+        self, host: str | _host.Host, segment: str, **attrs: Any
+    ) -> _host.Host:
         """Update the host.
 
         :param segment: The ID or a

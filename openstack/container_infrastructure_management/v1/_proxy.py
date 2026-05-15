@@ -131,7 +131,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_cluster.Cluster, **query)
 
-    def update_cluster(self, cluster, **attrs):
+    def update_cluster(
+        self, cluster: str | _cluster.Cluster, **attrs: Any
+    ) -> _cluster.Cluster:
         """Update a cluster
 
         :param cluster: Either the id of a cluster or a
@@ -141,8 +143,6 @@ class Proxy(proxy.Proxy):
             by ``cluster``.
 
         :returns: The updated cluster
-        :rtype:
-            :class:`~openstack.container_infrastructure_management.v1.cluster.Cluster`
         """
         return self._update(_cluster.Cluster, cluster, **attrs)
 
@@ -252,7 +252,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_cluster_template.ClusterTemplate, **query)
 
-    def update_cluster_template(self, cluster_template, **attrs):
+    def update_cluster_template(
+        self,
+        cluster_template: str | _cluster_template.ClusterTemplate,
+        **attrs: Any,
+    ) -> _cluster_template.ClusterTemplate:
         """Update a cluster_template
 
         :param cluster_template: Either the id of a cluster_template or a
@@ -262,8 +266,6 @@ class Proxy(proxy.Proxy):
             represented by ``cluster_template``.
 
         :returns: The updated cluster_template
-        :rtype:
-            :class:`~openstack.container_infrastructure_management.v1.cluster_template.ClusterTemplate`
         """
         return self._update(
             _cluster_template.ClusterTemplate, cluster_template, **attrs

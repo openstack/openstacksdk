@@ -193,7 +193,11 @@ class Proxy(proxy.Proxy):
         # TODO(briancurtin): This is paginated but requires base list changes.
         return self._list(_credential.Credential, **query)
 
-    def update_credential(self, credential, **attrs):
+    def update_credential(
+        self,
+        credential: str | _credential.Credential,
+        **attrs: Any,
+    ) -> _credential.Credential:
         """Update a credential
 
         :param credential: Either the ID of a credential or a
@@ -202,7 +206,6 @@ class Proxy(proxy.Proxy):
             by ``credential``.
 
         :returns: The updated credential
-        :rtype: :class:`~openstack.identity.v3.credential.Credential`
         """
         return self._update(_credential.Credential, credential, **attrs)
 
@@ -294,7 +297,9 @@ class Proxy(proxy.Proxy):
         # TODO(briancurtin): This is paginated but requires base list changes.
         return self._list(_domain.Domain, **query)
 
-    def update_domain(self, domain, **attrs):
+    def update_domain(
+        self, domain: str | _domain.Domain, **attrs: Any
+    ) -> _domain.Domain:
         """Update a domain
 
         :param domain: Either the ID of a domain or a
@@ -303,7 +308,6 @@ class Proxy(proxy.Proxy):
             by ``domain``.
 
         :returns: The updated domain
-        :rtype: :class:`~openstack.identity.v3.domain.Domain`
         """
         return self._update(_domain.Domain, domain, **attrs)
 
@@ -375,7 +379,9 @@ class Proxy(proxy.Proxy):
             requires_id=False,
         )
 
-    def update_domain_config(self, domain, **attrs):
+    def update_domain_config(
+        self, domain: str | _domain.Domain, **attrs: Any
+    ) -> _domain_config.DomainConfig:
         """Update a config for a domain
 
         :param domain_id: The value can be the ID of a domain or a
@@ -384,7 +390,6 @@ class Proxy(proxy.Proxy):
             represented by ``domain_id``.
 
         :returns: The updated config for a domain
-        :rtype: :class:`~openstack.identity.v3.domain_config.DomainConfig`
         """
         domain_id = resource.Resource._get_id(domain)
         return self._update(
@@ -488,7 +493,9 @@ class Proxy(proxy.Proxy):
         # TODO(briancurtin): This is paginated but requires base list changes.
         return self._list(_endpoint.Endpoint, **query)
 
-    def update_endpoint(self, endpoint, **attrs):
+    def update_endpoint(
+        self, endpoint: str | _endpoint.Endpoint, **attrs: Any
+    ) -> _endpoint.Endpoint:
         """Update a endpoint
 
         :param endpoint: Either the ID of an endpoint or a
@@ -497,7 +504,6 @@ class Proxy(proxy.Proxy):
             by ``endpoint``.
 
         :returns: The updated endpoint
-        :rtype: :class:`~openstack.identity.v3.endpoint.Endpoint`
         """
         return self._update(_endpoint.Endpoint, endpoint, **attrs)
 
@@ -641,7 +647,9 @@ class Proxy(proxy.Proxy):
         # TODO(briancurtin): This is paginated but requires base list changes.
         return self._list(_group.Group, **query)
 
-    def update_group(self, group, **attrs):
+    def update_group(
+        self, group: str | _group.Group, **attrs: Any
+    ) -> _group.Group:
         """Update a group
 
         :param group: Either the ID of a group or a
@@ -650,7 +658,6 @@ class Proxy(proxy.Proxy):
             by ``group``.
 
         :returns: The updated group
-        :rtype: :class:`~openstack.identity.v3.group.Group`
         """
         return self._update(_group.Group, group, **attrs)
 
@@ -795,7 +802,9 @@ class Proxy(proxy.Proxy):
         # TODO(briancurtin): This is paginated but requires base list changes.
         return self._list(_policy.Policy, **query)
 
-    def update_policy(self, policy, **attrs):
+    def update_policy(
+        self, policy: str | _policy.Policy, **attrs: Any
+    ) -> _policy.Policy:
         """Update a policy
 
         :param policy: Either the ID of a policy or a
@@ -804,7 +813,6 @@ class Proxy(proxy.Proxy):
             by ``policy``.
 
         :returns: The updated policy
-        :rtype: :class:`~openstack.identity.v3.policy.Policy`
         """
         return self._update(_policy.Policy, policy, **attrs)
 
@@ -934,7 +942,9 @@ class Proxy(proxy.Proxy):
             _project.EndpointProject, endpoint_id=endpoint_id, **query
         )
 
-    def update_project(self, project, **attrs):
+    def update_project(
+        self, project: str | _project.Project, **attrs: Any
+    ) -> _project.Project:
         """Update a project
 
         :param project: Either the ID of a project or a
@@ -943,7 +953,6 @@ class Proxy(proxy.Proxy):
             by ``project``.
 
         :returns: The updated project
-        :rtype: :class:`~openstack.identity.v3.project.Project`
         """
         return self._update(_project.Project, project, **attrs)
 
@@ -1035,7 +1044,9 @@ class Proxy(proxy.Proxy):
         # TODO(briancurtin): This is paginated but requires base list changes.
         return self._list(_service.Service, **query)
 
-    def update_service(self, service, **attrs):
+    def update_service(
+        self, service: str | _service.Service, **attrs: Any
+    ) -> _service.Service:
         """Update a service
 
         :param service: Either the ID of a service or a
@@ -1044,7 +1055,6 @@ class Proxy(proxy.Proxy):
             by ``service``.
 
         :returns: The updated service
-        :rtype: :class:`~openstack.identity.v3.service.Service`
         """
         return self._update(_service.Service, service, **attrs)
 
@@ -1154,7 +1164,7 @@ class Proxy(proxy.Proxy):
         # TODO(briancurtin): This is paginated but requires base list changes.
         return self._list(_user.User, **query)
 
-    def update_user(self, user, **attrs):
+    def update_user(self, user: str | _user.User, **attrs: Any) -> _user.User:
         """Update a user
 
         :param user: Either the ID of a user or a
@@ -1163,17 +1173,21 @@ class Proxy(proxy.Proxy):
             by ``attrs``.
 
         :returns: The updated user
-        :rtype: :class:`~openstack.identity.v3.user.User`
         """
         return self._update(_user.User, user, **attrs)
 
-    def update_password(self, user, current_password, password):
+    def update_password(
+        self,
+        user: str | _user.User,
+        current_password: str,
+        password: str,
+    ) -> None:
         """Update the password for the user the token belongs to.
 
         :param user: Either the ID of a user or a
             :class:`~openstack.identity.v3.user.User` instance.
-        :param str current_password: The user's current password.
-        :param str password: The user's new password.
+        :param current_password: The user's current password.
+        :param password: The user's new password.
         :returns: ``None``
         """
         user_obj = self._get_resource(_user.User, user)
@@ -1397,7 +1411,9 @@ class Proxy(proxy.Proxy):
         # TODO(briancurtin): This is paginated but requires base list changes.
         return self._list(_region.Region, **query)
 
-    def update_region(self, region, **attrs):
+    def update_region(
+        self, region: str | _region.Region, **attrs: Any
+    ) -> _region.Region:
         """Update a region
 
         :param region: Either the ID of a region or a
@@ -1406,7 +1422,6 @@ class Proxy(proxy.Proxy):
             by ``region``.
 
         :returns: The updated region.
-        :rtype: :class:`~openstack.identity.v3.region.Region`
         """
         return self._update(_region.Region, region, **attrs)
 
@@ -1503,16 +1518,15 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_role.Role, **query)
 
-    def update_role(self, role, **attrs):
+    def update_role(self, role: str | _role.Role, **attrs: Any) -> _role.Role:
         """Update a role
 
         :param role: Either the ID of a role or a
             :class:`~openstack.identity.v3.role.Role` instance.
-        :param dict kwargs: The attributes to update on the role represented
+        :param kwargs: The attributes to update on the role represented
             by ``value``. Only name can be updated
 
         :returns: The updated role.
-        :rtype: :class:`~openstack.identity.v3.role.Role`
         """
         return self._update(_role.Role, role, **attrs)
 
@@ -1986,18 +2000,20 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_registered_limit.RegisteredLimit, **attrs)
 
-    def update_registered_limit(self, registered_limit, **attrs):
+    def update_registered_limit(
+        self,
+        registered_limit: str | _registered_limit.RegisteredLimit,
+        **attrs: Any,
+    ) -> _registered_limit.RegisteredLimit:
         """Update a registered_limit
 
         :param registered_limit: Either the ID of a registered_limit. or a
             :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
             instance.
-        :param dict kwargs: The attributes to update on the registered_limit
+        :param kwargs: The attributes to update on the registered_limit
             represented by ``value``.
 
         :returns: The updated registered_limit.
-        :rtype:
-            :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
         """
         return self._update(
             _registered_limit.RegisteredLimit, registered_limit, **attrs
@@ -2065,16 +2081,17 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_limit.Limit, **attrs)
 
-    def update_limit(self, limit, **attrs):
+    def update_limit(
+        self, limit: str | _limit.Limit, **attrs: Any
+    ) -> _limit.Limit:
         """Update a limit
 
         :param limit: Either the ID of a limit. or a
             :class:`~openstack.identity.v3.limit.Limit` instance.
-        :param dict kwargs: The attributes to update on the limit represented
+        :param kwargs: The attributes to update on the limit represented
             by ``value``.
 
         :returns: The updated limit.
-        :rtype: :class:`~openstack.identity.v3.limit.Limit`
         """
         return self._update(_limit.Limit, limit, **attrs)
 
@@ -2405,7 +2422,12 @@ class Proxy(proxy.Proxy):
         )
 
     @renamed_param('idp_id', 'idp')
-    def update_federation_protocol(self, idp, protocol, **attrs):
+    def update_federation_protocol(
+        self,
+        idp: str | _identity_provider.IdentityProvider | None,
+        protocol: str | _federation_protocol.FederationProtocol,
+        **attrs: Any,
+    ) -> _federation_protocol.FederationProtocol:
         """Update a federation protocol
 
         :param idp: The ID or a
@@ -2422,12 +2444,16 @@ class Proxy(proxy.Proxy):
 
         :returns: The updated federation protocol
         """
-        cls = _federation_protocol.FederationProtocol
-        if idp is None and isinstance(protocol, cls):
-            idp_id = protocol.idp_id
-        else:
+        if idp:
             idp_id = resource.Resource._get_id(idp)
-        return self._update(cls, protocol, idp_id=idp_id, **attrs)
+        elif isinstance(protocol, _federation_protocol.FederationProtocol):
+            idp_id = protocol.idp_id
+        return self._update(
+            _federation_protocol.FederationProtocol,
+            protocol,
+            idp_id=idp_id,
+            **attrs,
+        )
 
     # ========== Mappings ==========
 
@@ -2523,7 +2549,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_mapping.Mapping, **query)
 
-    def update_mapping(self, mapping, **attrs):
+    def update_mapping(
+        self, mapping: str | _mapping.Mapping, **attrs: Any
+    ) -> _mapping.Mapping:
         """Update a mapping
 
         :param mapping: Either the ID of a mapping or a
@@ -2532,7 +2560,6 @@ class Proxy(proxy.Proxy):
             by ``mapping``.
 
         :returns: The updated mapping
-        :rtype: :class:`~openstack.identity.v3.mapping.Mapping`
         """
         return self._update(_mapping.Mapping, mapping, **attrs)
 
@@ -2646,7 +2673,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_identity_provider.IdentityProvider, **query)
 
-    def update_identity_provider(self, identity_provider, **attrs):
+    def update_identity_provider(
+        self,
+        identity_provider: str | _identity_provider.IdentityProvider,
+        **attrs: Any,
+    ) -> _identity_provider.IdentityProvider:
         """Update a mapping
 
         :param mapping: Either the ID of an identity provider or a
@@ -2656,8 +2687,6 @@ class Proxy(proxy.Proxy):
             represented by ``identity_provider``.
 
         :returns: The updated identity provider.
-        :rtype:
-            :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
         """
         return self._update(
             _identity_provider.IdentityProvider, identity_provider, **attrs
@@ -2831,7 +2860,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_service_provider.ServiceProvider, **query)
 
-    def update_service_provider(self, service_provider, **attrs):
+    def update_service_provider(
+        self,
+        service_provider: str | _service_provider.ServiceProvider,
+        **attrs: Any,
+    ) -> _service_provider.ServiceProvider:
         """Update a service provider
 
         :param service_provider: Either the ID of an service provider or a
@@ -2841,8 +2874,6 @@ class Proxy(proxy.Proxy):
             represented by ``service_provider``.
 
         :returns: The updated service provider.
-        :rtype:
-            :class:`~openstack.identity.v3.service_provider.ServiceProvider`
         """
         return self._update(
             _service_provider.ServiceProvider, service_provider, **attrs

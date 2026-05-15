@@ -164,17 +164,20 @@ class Proxy(proxy.Proxy):
             _lb.LoadBalancer, name_or_id, ignore_missing=ignore_missing
         )
 
-    def update_load_balancer(self, load_balancer, **attrs):
+    def update_load_balancer(
+        self,
+        load_balancer: str | _lb.LoadBalancer,
+        **attrs: Any,
+    ) -> _lb.LoadBalancer:
         """Update a load balancer
 
         :param load_balancer: The load_balancer can be either the ID or a
             :class:`~openstack.load_balancer.v2.load_balancer.LoadBalancer`
             instance
-        :param dict attrs: The attributes to update on the load balancer
+        :param attrs: The attributes to update on the load balancer
             represented by ``load_balancer``.
 
         :returns: The updated load_balancer
-        :rtype: :class:`~openstack.load_balancer.v2.load_balancer.LoadBalancer`
         """
         return self._update(_lb.LoadBalancer, load_balancer, **attrs)
 
@@ -339,17 +342,20 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_listener.Listener, **query)
 
-    def update_listener(self, listener, **attrs):
+    def update_listener(
+        self,
+        listener: str | _listener.Listener,
+        **attrs: Any,
+    ) -> _listener.Listener:
         """Update a listener
 
         :param listener: Either the id of a listener or a
             :class:`~openstack.load_balancer.v2.listener.Listener`
             instance.
-        :param dict attrs: The attributes to update on the listener
+        :param attrs: The attributes to update on the listener
             represented by ``listener``.
 
         :returns: The updated listener
-        :rtype: :class:`~openstack.load_balancer.v2.listener.Listener`
         """
         return self._update(_listener.Listener, listener, **attrs)
 
@@ -436,17 +442,20 @@ class Proxy(proxy.Proxy):
             _pool.Pool, name_or_id, ignore_missing=ignore_missing
         )
 
-    def update_pool(self, pool, **attrs):
+    def update_pool(
+        self,
+        pool: str | _pool.Pool,
+        **attrs: Any,
+    ) -> _pool.Pool:
         """Update a pool
 
         :param pool: Either the id of a pool or a
             :class:`~openstack.load_balancer.v2.pool.Pool`
             instance.
-        :param dict attrs: The attributes to update on the pool
+        :param attrs: The attributes to update on the pool
             represented by ``pool``.
 
         :returns: The updated pool
-        :rtype: :class:`~openstack.load_balancer.v2.pool.Pool`
         """
         return self._update(_pool.Pool, pool, **attrs)
 
@@ -579,7 +588,12 @@ class Proxy(proxy.Proxy):
         poolobj = self._get_resource(_pool.Pool, pool)
         return self._list(_member.Member, pool_id=poolobj.id, **query)
 
-    def update_member(self, member, pool, **attrs):
+    def update_member(
+        self,
+        member: str | _member.Member,
+        pool: str | _pool.Pool,
+        **attrs: Any,
+    ) -> _member.Member:
         """Update a member
 
         :param member: Either the ID of a member or a
@@ -588,11 +602,10 @@ class Proxy(proxy.Proxy):
         :param pool: The pool can be either the ID of a pool or a
             :class:`~openstack.load_balancer.v2.pool.Pool` instance
             that the member belongs to.
-        :param dict attrs: The attributes to update on the member
+        :param attrs: The attributes to update on the member
             represented by ``member``.
 
         :returns: The updated member
-        :rtype: :class:`~openstack.load_balancer.v2.member.Member`
         """
         poolobj = self._get_resource(_pool.Pool, pool)
         return self._update(
@@ -707,19 +720,21 @@ class Proxy(proxy.Proxy):
             _hm.HealthMonitor, healthmonitor, ignore_missing=ignore_missing
         )
 
-    def update_health_monitor(self, healthmonitor, **attrs):
+    def update_health_monitor(
+        self,
+        healthmonitor: str | _hm.HealthMonitor,
+        **attrs: Any,
+    ) -> _hm.HealthMonitor:
         """Update a health monitor
 
         :param healthmonitor: The healthmonitor can be either the ID of the
             health monitor or a
             :class:`~openstack.load_balancer.v2.healthmonitor.HealthMonitor`
             instance
-        :param dict attrs: The attributes to update on the health monitor
+        :param attrs: The attributes to update on the health monitor
             represented by ``healthmonitor``.
 
         :returns: The updated health monitor
-        :rtype:
-            :class:`~openstack.load_balancer.v2.healthmonitor.HealthMonitor`
         """
         return self._update(_hm.HealthMonitor, healthmonitor, **attrs)
 
@@ -815,17 +830,20 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_l7policy.L7Policy, **query)
 
-    def update_l7_policy(self, l7_policy, **attrs):
+    def update_l7_policy(
+        self,
+        l7_policy: str | _l7policy.L7Policy,
+        **attrs: Any,
+    ) -> _l7policy.L7Policy:
         """Update a l7policy
 
         :param l7_policy: Either the id of a l7policy or a
             :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
             instance.
-        :param dict attrs: The attributes to update on the l7policy
+        :param attrs: The attributes to update on the l7policy
             represented by ``l7policy``.
 
         :returns: The updated l7policy
-        :rtype: :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
         """
         return self._update(_l7policy.L7Policy, l7_policy, **attrs)
 
@@ -959,7 +977,12 @@ class Proxy(proxy.Proxy):
         l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
         return self._list(_l7rule.L7Rule, l7policy_id=l7policyobj.id, **query)
 
-    def update_l7_rule(self, l7rule, l7_policy, **attrs):
+    def update_l7_rule(
+        self,
+        l7rule: str | _l7rule.L7Rule,
+        l7_policy: str | _l7policy.L7Policy,
+        **attrs: Any,
+    ) -> _l7rule.L7Rule:
         """Update a l7rule
 
         :param l7rule: Either the ID of a l7rule or a
@@ -968,11 +991,10 @@ class Proxy(proxy.Proxy):
         :param l7_policy: The l7_policy can be either the ID of a l7policy or
             :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
             instance that the l7rule belongs to.
-        :param dict attrs: The attributes to update on the l7rule
+        :param attrs: The attributes to update on the l7rule
             represented by ``l7rule``.
 
         :returns: The updated l7rule
-        :rtype: :class:`~openstack.load_balancer.v2.l7_rule.L7Rule`
         """
         l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
         return self._update(
@@ -1005,18 +1027,21 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_quota.Quota, quota)
 
-    def update_quota(self, quota, **attrs):
+    def update_quota(
+        self,
+        quota: str | _quota.Quota,
+        **attrs: Any,
+    ) -> _quota.Quota:
         """Update a quota
 
         :param quota: Either the ID of a quota or a
             :class:`~openstack.load_balancer.v2.quota.Quota`
             instance. The ID of a quota is the same as the
             project ID for the quota.
-        :param dict attrs: The attributes to update on the quota represented
+        :param attrs: The attributes to update on the quota represented
             by ``quota``.
 
         :returns: The updated quota
-        :rtype: :class:`~openstack.load_balancer.v2.quota.Quota`
         """
         return self._update(_quota.Quota, quota, **attrs)
 
@@ -1158,18 +1183,20 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def update_flavor_profile(self, flavor_profile, **attrs):
+    def update_flavor_profile(
+        self,
+        flavor_profile: str | _flavor_profile.FlavorProfile,
+        **attrs: Any,
+    ) -> _flavor_profile.FlavorProfile:
         """Update a flavor profile
 
         :param flavor_profile: The flavor_profile can be either the ID or a
             :class:`~openstack.load_balancer.v2.flavor_profile.FlavorProfile`
             instance
-        :param dict attrs: The attributes to update on the flavor profile
+        :param attrs: The attributes to update on the flavor profile
             represented by ``flavor_profile``.
 
         :returns: The updated flavor profile
-        :rtype:
-            :class:`~openstack.load_balancer.v2.flavor_profile.FlavorProfile`
         """
         return self._update(
             _flavor_profile.FlavorProfile, flavor_profile, **attrs
@@ -1255,16 +1282,19 @@ class Proxy(proxy.Proxy):
             _flavor.Flavor, name_or_id, ignore_missing=ignore_missing
         )
 
-    def update_flavor(self, flavor, **attrs):
+    def update_flavor(
+        self,
+        flavor: str | _flavor.Flavor,
+        **attrs: Any,
+    ) -> _flavor.Flavor:
         """Update a flavor
 
         :param flavor: The flavor can be either the ID or a
             :class:`~openstack.load_balancer.v2.flavor.Flavor` instance
-        :param dict attrs: The attributes to update on the flavor
+        :param attrs: The attributes to update on the flavor
             represented by ``flavor``.
 
         :returns: The updated flavor
-        :rtype: :class:`~openstack.load_balancer.v2.flavor.Flavor`
         """
         return self._update(_flavor.Flavor, flavor, **attrs)
 
@@ -1454,20 +1484,21 @@ class Proxy(proxy.Proxy):
         )
 
     def update_availability_zone_profile(
-        self, availability_zone_profile, **attrs
-    ):
+        self,
+        availability_zone_profile: str
+        | _availability_zone_profile.AvailabilityZoneProfile,
+        **attrs: Any,
+    ) -> _availability_zone_profile.AvailabilityZoneProfile:
         """Update an availability zone profile
 
         :param availability_zone_profile: The availability_zone_profile can be
             either the ID or a
             :class:`~openstack.load_balancer.v2.availability_zone_profile.AvailabilityZoneProfile`
             instance
-        :param dict attrs: The attributes to update on the availability_zone
+        :param attrs: The attributes to update on the availability_zone
             profile represented by ``availability_zone_profile``.
 
         :returns: The updated availability zone profile
-        :rtype:
-            :class:`~openstack.load_balancer.v2.availability_zone_profile.AvailabilityZoneProfile`
         """
         return self._update(
             _availability_zone_profile.AvailabilityZoneProfile,
@@ -1576,19 +1607,21 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def update_availability_zone(self, availability_zone, **attrs):
+    def update_availability_zone(
+        self,
+        availability_zone: str | _availability_zone.AvailabilityZone,
+        **attrs: Any,
+    ) -> _availability_zone.AvailabilityZone:
         """Update an availability zone
 
         :param availability_zone: The availability_zone can be either the ID
             or a
             :class:`~openstack.load_balancer.v2.availability_zone.AvailabilityZone`
             instance
-        :param dict attrs: The attributes to update on the availability_zone
+        :param attrs: The attributes to update on the availability_zone
             represented by ``availability_zone``.
 
         :returns: The updated availability_zone
-        :rtype:
-            :class:`~openstack.load_balancer.v2.availability_zone.AvailabilityZone`
         """
         return self._update(
             _availability_zone.AvailabilityZone, availability_zone, **attrs
