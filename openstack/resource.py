@@ -40,6 +40,8 @@ from collections.abc import (
     Generator,
     Iterable,
     Iterator,
+    Sequence,
+    Mapping,
     MutableMapping,
 )
 import inspect
@@ -1572,7 +1574,7 @@ class Resource(dict[str, Any]):
     def bulk_create(
         cls,
         session: adapter.Adapter,
-        data: builtins.list[dict[str, Any]],
+        data: Sequence[Mapping[str, Any]],
         prepend_key: bool = True,
         base_path: str | None = None,
         *,
@@ -1606,8 +1608,8 @@ class Resource(dict[str, Any]):
 
         if not (
             data
-            and isinstance(data, list)
-            and all([isinstance(x, dict) for x in data])
+            and isinstance(data, Sequence)
+            and all([isinstance(x, Mapping) for x in data])
         ):
             raise ValueError(f'Invalid data passed: {data}')
 
