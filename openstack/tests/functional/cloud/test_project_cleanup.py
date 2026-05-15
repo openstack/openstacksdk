@@ -48,7 +48,7 @@ class TestProjectCleanup(base.BaseFunctionalTest):
             name=self.getUniqueString('router')
         )
         self.user_cloud_alt.network.add_interface_to_router(
-            self.router.id, subnet_id=self.subnet.id
+            self.router.id, subnet=self.subnet.id
         )
 
     def test_cleanup(self):
@@ -299,7 +299,7 @@ class TestProjectCleanup(base.BaseFunctionalTest):
             name="router_left"
         )
         self.user_cloud_alt.network.add_interface_to_router(
-            router=router_left.id, subnet_id=subnet_left.id
+            router=router_left.id, subnet=subnet_left.id
         )
         router_left = self.user_cloud_alt.network.update_router(
             router_left,
@@ -320,7 +320,7 @@ class TestProjectCleanup(base.BaseFunctionalTest):
             name="router_right"
         )
         self.user_cloud_alt.network.add_interface_to_router(
-            router=router_right.id, subnet_id=subnet_right.id
+            router=router_right.id, subnet=subnet_right.id
         )
         router_right = self.user_cloud_alt.network.update_router(
             router_right,

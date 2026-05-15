@@ -14,6 +14,7 @@ from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable
 import warnings
 
+from openstack._utils import renamed_param
 from openstack.block_storage.v3 import volume as _volume
 from openstack.compute.v2 import aggregate as _aggregate
 from openstack.compute.v2 import availability_zone
@@ -1445,17 +1446,19 @@ class Proxy(proxy.Proxy):
 
     # ========== Server IPs ==========
 
-    def add_fixed_ip_to_server(self, server, network_id):
+    @renamed_param('network_id', 'network')
+    def add_fixed_ip_to_server(self, server, network):
         """Adds a fixed IP address to a server instance.
 
         :param server: Either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server` instance.
-        :param network_id: The ID of the network from which a fixed IP address
-            is about to be allocated.
+        :param network: The ID or a
+            :class:`~openstack.network.v2.network.Network` instance of the
+            network from which a fixed IP address is about to be allocated.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.add_fixed_ip(self, network_id)
+        server.add_fixed_ip(self, resource.Resource._get_id(network))
 
     def remove_fixed_ip_from_server(self, server, address):
         """Removes a fixed IP address from a server instance.

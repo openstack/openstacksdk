@@ -1,0 +1,7 @@
+---
+upgrade:
+  - |
+    A number of proxy APIs used parameters with ``_id`` suffixes despite
+    accepting resources instances. These have now been renamed to drop this
+    suffix. Backwards-compatible shims have been provided but these will be
+    removed in the next major release.

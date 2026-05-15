@@ -49,7 +49,7 @@ class TestHost(base.BaseFunctionalTest):
         # Create valid host
         self.NAME = HYPERVISORS[0].name
         self.host = self.operator_cloud.ha.create_host(
-            segment_id=self.segment.uuid,
+            segment=self.segment.uuid,
             name=self.NAME,
             type='COMPUTE',
             control_attributes='SSH',
@@ -80,7 +80,7 @@ class TestHost(base.BaseFunctionalTest):
     def test_update(self):
         updated_host = self.operator_cloud.ha.update_host(
             self.host['uuid'],
-            segment_id=self.segment.uuid,
+            segment=self.segment.uuid,
             on_maintenance='True',
         )
         get_host = self.operator_cloud.ha.get_host(

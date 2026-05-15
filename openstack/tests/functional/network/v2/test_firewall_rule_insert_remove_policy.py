@@ -68,12 +68,12 @@ class TestFirewallPolicyRuleAssociations(base.BaseFunctionalTest):
 
     def test_insert_rule_into_policy(self):
         policy = self.user_cloud.network.insert_rule_into_policy(
-            self.POLICY_ID, firewall_rule_id=self.RULE1_ID
+            self.POLICY_ID, firewall_rule=self.RULE1_ID
         )
         self.assertIn(self.RULE1_ID, policy["firewall_rules"])
         policy = self.user_cloud.network.insert_rule_into_policy(
             self.POLICY_ID,
-            firewall_rule_id=self.RULE2_ID,
+            firewall_rule=self.RULE2_ID,
             insert_before=self.RULE1_ID,
         )
         self.assertEqual(self.RULE1_ID, policy["firewall_rules"][1])
@@ -82,21 +82,21 @@ class TestFirewallPolicyRuleAssociations(base.BaseFunctionalTest):
     def test_remove_rule_from_policy(self):
         # insert rules into policy before we remove it again
         policy = self.user_cloud.network.insert_rule_into_policy(
-            self.POLICY_ID, firewall_rule_id=self.RULE1_ID
+            self.POLICY_ID, firewall_rule=self.RULE1_ID
         )
         self.assertIn(self.RULE1_ID, policy["firewall_rules"])
 
         policy = self.user_cloud.network.insert_rule_into_policy(
-            self.POLICY_ID, firewall_rule_id=self.RULE2_ID
+            self.POLICY_ID, firewall_rule=self.RULE2_ID
         )
         self.assertIn(self.RULE2_ID, policy["firewall_rules"])
 
         policy = self.user_cloud.network.remove_rule_from_policy(
-            self.POLICY_ID, firewall_rule_id=self.RULE1_ID
+            self.POLICY_ID, firewall_rule=self.RULE1_ID
         )
         self.assertNotIn(self.RULE1_ID, policy["firewall_rules"])
 
         policy = self.user_cloud.network.remove_rule_from_policy(
-            self.POLICY_ID, firewall_rule_id=self.RULE2_ID
+            self.POLICY_ID, firewall_rule=self.RULE2_ID
         )
         self.assertNotIn(self.RULE2_ID, policy["firewall_rules"])

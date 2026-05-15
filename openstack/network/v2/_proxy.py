@@ -13,6 +13,7 @@
 from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable, Generator
 
+from openstack._utils import renamed_param
 from openstack import exceptions
 from openstack.network.v2 import _base
 from openstack.network.v2 import address_group as _address_group
@@ -809,25 +810,33 @@ class Proxy(proxy.Proxy):
         """Return a generator of BGP Peers"""
         return self._list(_bgp_speaker.BgpSpeaker, **query)
 
-    def add_bgp_peer_to_speaker(self, speaker, peer_id):
+    @renamed_param('peer_id', 'peer')
+    def add_bgp_peer_to_speaker(self, speaker, peer):
         """Bind the BGP peer to the specified BGP Speaker."""
         speaker = self._get_resource(_bgp_speaker.BgpSpeaker, speaker)
-        return speaker.add_bgp_peer(self, peer_id)
+        return speaker.add_bgp_peer(self, resource.Resource._get_id(peer))
 
-    def remove_bgp_peer_from_speaker(self, speaker, peer_id):
+    @renamed_param('peer_id', 'peer')
+    def remove_bgp_peer_from_speaker(self, speaker, peer):
         """Unbind the BGP peer from a BGP Speaker."""
         speaker = self._get_resource(_bgp_speaker.BgpSpeaker, speaker)
-        return speaker.remove_bgp_peer(self, peer_id)
+        return speaker.remove_bgp_peer(self, resource.Resource._get_id(peer))
 
-    def add_gateway_network_to_speaker(self, speaker, network_id):
+    @renamed_param('network_id', 'network')
+    def add_gateway_network_to_speaker(self, speaker, network):
         """Add a network to the specified BGP speaker."""
         speaker = self._get_resource(_bgp_speaker.BgpSpeaker, speaker)
-        return speaker.add_gateway_network(self, network_id)
+        return speaker.add_gateway_network(
+            self, resource.Resource._get_id(network)
+        )
 
-    def remove_gateway_network_from_speaker(self, speaker, network_id):
+    @renamed_param('network_id', 'network')
+    def remove_gateway_network_from_speaker(self, speaker, network):
         """Remove a network from the specified BGP speaker."""
         speaker = self._get_resource(_bgp_speaker.BgpSpeaker, speaker)
-        return speaker.remove_gateway_network(self, network_id)
+        return speaker.remove_gateway_network(
+            self, resource.Resource._get_id(network)
+        )
 
     def get_advertised_routes_of_speaker(self, speaker):
         """List all routes advertised by the specified BGP Speaker."""
@@ -840,9 +849,10 @@ class Proxy(proxy.Proxy):
         speaker = self._get_resource(_bgp_speaker.BgpSpeaker, speaker)
         return speaker.get_bgp_dragents(self)
 
-    def add_bgp_speaker_to_dragent(self, bgp_agent, bgp_speaker_id):
+    @renamed_param('bgp_speaker_id', 'bgp_speaker')
+    def add_bgp_speaker_to_dragent(self, bgp_agent, bgp_speaker):
         """Add a BGP Speaker to the specified dynamic routing agent."""
-        speaker = self._get_resource(_bgp_speaker.BgpSpeaker, bgp_speaker_id)
+        speaker = self._get_resource(_bgp_speaker.BgpSpeaker, bgp_speaker)
         speaker.add_bgp_speaker_to_dragent(self, bgp_agent)
 
     def get_bgp_speakers_hosted_by_dragent(self, bgp_agent):
@@ -851,10 +861,11 @@ class Proxy(proxy.Proxy):
         agent = self._get_resource(_agent.Agent, bgp_agent)
         return agent.get_bgp_speakers_hosted_by_dragent(self)
 
-    def remove_bgp_speaker_from_dragent(self, bgp_agent, bgp_speaker_id):
+    @renamed_param('bgp_speaker_id', 'bgp_speaker')
+    def remove_bgp_speaker_from_dragent(self, bgp_agent, bgp_speaker):
         """Delete the BGP Speaker hosted by the specified dynamic
         routing agent."""
-        speaker = self._get_resource(_bgp_speaker.BgpSpeaker, bgp_speaker_id)
+        speaker = self._get_resource(_bgp_speaker.BgpSpeaker, bgp_speaker)
         speaker.remove_bgp_speaker_from_dragent(self, bgp_agent)
 
     def create_bgpvpn(self, **attrs: Any) -> _bgpvpn.BgpVpn:
@@ -3544,7 +3555,9 @@ class Proxy(proxy.Proxy):
         ip.port_id = None
         return ip.commit(self)
 
-    def get_subnet_ports(self, subnet_id):
+    @renamed_param('subnet_id', 'subnet')
+    def get_subnet_ports(self, subnet):
+        subnet_id = resource.Resource._get_id(subnet)
         result = []
         ports = self.ports()
         for puerta in ports:
@@ -4984,42 +4997,49 @@ class Proxy(proxy.Proxy):
             _router.Router, router, if_revision=if_revision, **attrs
         )
 
-    def add_interface_to_router(self, router, subnet_id=None, port_id=None):
+    @renamed_param('subnet_id', 'subnet')
+    @renamed_param('port_id', 'port')
+    def add_interface_to_router(self, router, subnet=None, port=None):
         """Add Interface to a router
 
         :param router: Either the router ID or an instance of
             :class:`~openstack.network.v2.router.Router`
-        :param subnet_id: ID of the subnet
-        :param port_id: ID of the port
+        :param subnet: The ID or a
+            :class:`~openstack.network.v2.subnet.Subnet` instance of the
+            subnet to add.
+        :param port: The ID or a
+            :class:`~openstack.network.v2.port.Port` instance of the port
+            to add.
         :returns: Router with updated interface
-        :rtype: :class:`~openstack.network.v2.router.Router`
         """
         body = {}
-        if port_id:
-            body = {'port_id': port_id}
+        if port:
+            body = {'port_id': resource.Resource._get_id(port)}
         else:
-            body = {'subnet_id': subnet_id}
+            body = {'subnet_id': resource.Resource._get_id(subnet)}
         router = self._get_resource(_router.Router, router)
         return router.add_interface(self, **body)
 
-    def remove_interface_from_router(
-        self, router, subnet_id=None, port_id=None
-    ):
+    @renamed_param('subnet_id', 'subnet')
+    @renamed_param('port_id', 'port')
+    def remove_interface_from_router(self, router, subnet=None, port=None):
         """Remove Interface from a router
 
         :param router: Either the router ID or an instance of
             :class:`~openstack.network.v2.router.Router`
-        :param subnet: ID of the subnet
-        :param port: ID of the port
+        :param subnet: The ID or a
+            :class:`~openstack.network.v2.subnet.Subnet` instance of the
+            subnet to remove.
+        :param port: The ID or a
+            :class:`~openstack.network.v2.port.Port` instance of the port
+            to remove.
         :returns: Router with updated interface
-        :rtype: :class:`~openstack.network.v2.router.Router`
         """
-
         body = {}
-        if port_id:
-            body = {'port_id': port_id}
+        if port:
+            body = {'port_id': resource.Resource._get_id(port)}
         else:
-            body = {'subnet_id': subnet_id}
+            body = {'subnet_id': resource.Resource._get_id(subnet)}
         router = self._get_resource(_router.Router, router)
         return router.remove_interface(self, **body)
 
@@ -5554,17 +5574,23 @@ class Proxy(proxy.Proxy):
             _firewall_policy.FirewallPolicy, firewall_policy, **attrs
         )
 
+    @renamed_param('firewall_policy_id', 'firewall_policy')
+    @renamed_param('firewall_rule_id', 'firewall_rule')
     def insert_rule_into_policy(
         self,
-        firewall_policy_id,
-        firewall_rule_id,
+        firewall_policy,
+        firewall_rule,
         insert_after=None,
         insert_before=None,
     ):
         """Insert a firewall_rule into a firewall_policy in order
 
-        :param firewall_policy_id: The ID of the firewall policy.
-        :param firewall_rule_id: The ID of the firewall rule.
+        :param firewall_policy: The ID or a
+            :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`
+            instance of the firewall policy.
+        :param firewall_rule: The ID or a
+            :class:`~openstack.network.v2.firewall_rule.FirewallRule`
+            instance of the firewall rule.
         :param insert_after: The ID of the firewall rule to insert the new
             rule after. It will be worked only when
             insert_before is none.
@@ -5572,30 +5598,34 @@ class Proxy(proxy.Proxy):
             rule before.
 
         :returns: The updated firewall policy
-        :rtype: :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`
         """
         body = {
-            'firewall_rule_id': firewall_rule_id,
+            'firewall_rule_id': resource.Resource._get_id(firewall_rule),
             'insert_after': insert_after,
             'insert_before': insert_before,
         }
         policy = self._get_resource(
-            _firewall_policy.FirewallPolicy, firewall_policy_id
+            _firewall_policy.FirewallPolicy, firewall_policy
         )
         return policy.insert_rule(self, **body)
 
-    def remove_rule_from_policy(self, firewall_policy_id, firewall_rule_id):
+    @renamed_param('firewall_policy_id', 'firewall_policy')
+    @renamed_param('firewall_rule_id', 'firewall_rule')
+    def remove_rule_from_policy(self, firewall_policy, firewall_rule):
         """Remove a firewall_rule from a firewall_policy.
 
-        :param firewall_policy_id: The ID of the firewall policy.
-        :param firewall_rule_id: The ID of the firewall rule.
+        :param firewall_policy: The ID or a
+            :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`
+            instance of the firewall policy.
+        :param firewall_rule: The ID or a
+            :class:`~openstack.network.v2.firewall_rule.FirewallRule`
+            instance of the firewall rule.
 
         :returns: The updated firewall policy
-        :rtype: :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`
         """
-        body = {'firewall_rule_id': firewall_rule_id}
+        body = {'firewall_rule_id': resource.Resource._get_id(firewall_rule)}
         policy = self._get_resource(
-            _firewall_policy.FirewallPolicy, firewall_policy_id
+            _firewall_policy.FirewallPolicy, firewall_policy
         )
         return policy.remove_rule(self, **body)
 
@@ -8959,7 +8989,7 @@ class Proxy(proxy.Proxy):
 
                         try:
                             self.remove_interface_from_router(
-                                router=port.device_id, port_id=port.id
+                                router=port.device_id, port=port.id
                             )
                         except exceptions.SDKException:
                             self.log.error(f'Cannot delete object {obj}')

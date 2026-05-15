@@ -14,6 +14,7 @@ from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable, Generator
 import warnings
 
+from openstack._utils import renamed_param
 from openstack.block_storage.v2 import backup as _backup
 from openstack.block_storage.v2 import capabilities as _capabilities
 from openstack.block_storage.v2 import extension as _extension
@@ -372,29 +373,35 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_type.Type, type)
         return res.get_private_access(self)
 
-    def add_type_access(self, type, project_id):
+    @renamed_param('project_id', 'project')
+    def add_type_access(self, type, project):
         """Adds private volume type access to a project.
 
         :param type: The value can be either the ID of a type or a
             :class:`~openstack.block_storage.v2.type.Type` instance.
-        :param str project_id: The ID of the project. Volume Type access to
-            be added to this project ID.
+        :param project: An ID or
+            :class:`~openstack.identity.v3.identity.Project` instance of the
+            project to add access for.
 
         :returns: ``None``
         """
+        project_id = resource.Resource._get_id(project)
         res = self._get_resource(_type.Type, type)
         return res.add_private_access(self, project_id)
 
-    def remove_type_access(self, type, project_id):
+    @renamed_param('project_id', 'project')
+    def remove_type_access(self, type, project):
         """Remove private volume type access from a project.
 
         :param type: The value can be either the ID of a type or a
             :class:`~openstack.block_storage.v2.type.Type` instance.
-        :param str project_id: The ID of the project. Volume Type access to
-            be removed to this project ID.
+        :param project: An ID or
+            :class:`~openstack.identity.v3.identity.Project` instance of the
+            project to remove access for.
 
         :returns: ``None``
         """
+        project_id = resource.Resource._get_id(project)
         res = self._get_resource(_type.Type, type)
         return res.remove_private_access(self, project_id)
 
@@ -862,19 +869,24 @@ class Proxy(proxy.Proxy):
 
     # ========== Backup actions ==========
 
-    def restore_backup(self, backup, volume_id, name):
+    @renamed_param('volume_id', 'volume')
+    def restore_backup(self, backup, volume, name):
         """Restore a Backup to volume
 
         :param backup: The value can be the ID of a backup or a
             :class:`~openstack.block_storage.v2.backup.Backup` instance
-        :param volume_id: The ID of the volume to restore the backup to.
+        :param volume: An ID or
+            :class:`~openstack.volume.v3.volume.Volume` instance of the
+            volume to restore the backup to.
         :param name: The name for new volume creation to restore.
 
         :returns: Updated backup instance
         :rtype: :class:`~openstack.block_storage.v2.backup.Backup`
         """
-        backup = self._get_resource(_backup.Backup, backup)
-        return backup.restore(self, volume_id=volume_id, name=name)
+        volume_id = resource.Resource._get_id(volume)
+        return self._get_resource(_backup.Backup, backup).restore(
+            self, volume_id=volume_id, name=name
+        )
 
     def reset_backup_status(self, backup, status):
         """Reset status of the backup
@@ -1407,10 +1419,11 @@ class Proxy(proxy.Proxy):
             base_path = utils.urljoin(base_path, 'detail')
         return self._list(_transfer.Transfer, base_path=base_path, **query)
 
-    def accept_transfer(self, transfer_id, auth_key):
+    @renamed_param('transfer_id', 'transfer')
+    def accept_transfer(self, transfer, auth_key):
         """Accept a Transfer
 
-        :param transfer_id: The value can be the ID of a transfer or a
+        :param transfer: The value can be the ID of a transfer or a
             :class:`~openstack.block_storage.v2.transfer.Transfer`
             instance.
         :param auth_key: The key to authenticate volume transfer.
@@ -1418,7 +1431,7 @@ class Proxy(proxy.Proxy):
         :returns: The results of Transfer creation
         :rtype: :class:`~openstack.block_storage.v2.transfer.Transfer`
         """
-        transfer = self._get_resource(_transfer.Transfer, transfer_id)
+        transfer = self._get_resource(_transfer.Transfer, transfer)
         return transfer.accept(self, auth_key=auth_key)
 
     # ========== Utilities ==========
