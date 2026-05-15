@@ -49,7 +49,7 @@ class ShareMetadataTest(base.BaseSharedFileSystemTest):
             )
         )
         returned_share = (
-            self.user_cloud.shared_file_system.get_share_metadata_item(
+            self.user_cloud.shared_file_system.fetch_share_metadata_item(
                 self.SHARE_ID, "foo"
             )
         )
@@ -64,8 +64,10 @@ class ShareMetadataTest(base.BaseSharedFileSystemTest):
                 self.SHARE_ID, **meta
             )
         )
-        returned_share = self.user_cloud.shared_file_system.get_share_metadata(
-            self.SHARE_ID
+        returned_share = (
+            self.user_cloud.shared_file_system.fetch_share_metadata(
+                self.SHARE_ID
+            )
         )
         self.assertEqual(
             created_share['metadata']['foo'], returned_share['metadata']['foo']
@@ -90,9 +92,11 @@ class ShareMetadataTest(base.BaseSharedFileSystemTest):
         )
         self.assertEqual(updated_share['metadata'], new_meta)
 
-        full_metadata = self.user_cloud.shared_file_system.get_share_metadata(
-            created_share
-        )['metadata']
+        full_metadata = (
+            self.user_cloud.shared_file_system.fetch_share_metadata(
+                created_share
+            )['metadata']
+        )
         self.assertEqual(full_metadata, full_meta)
 
         share_with_deleted_metadata = (
@@ -114,8 +118,10 @@ class ShareMetadataTest(base.BaseSharedFileSystemTest):
             created_share, ["foo", "invalidKey"]
         )
 
-        deleted_share = self.user_cloud.shared_file_system.get_share_metadata(
-            self.SHARE_ID
+        deleted_share = (
+            self.user_cloud.shared_file_system.fetch_share_metadata(
+                self.SHARE_ID
+            )
         )
 
         self.assertEqual(deleted_share['metadata'], {"newFoo": "newBar"})

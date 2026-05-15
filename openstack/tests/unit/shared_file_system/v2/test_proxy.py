@@ -157,10 +157,10 @@ class TestSharedFileSystemStoragePool(TestSharedFileSystemProxy):
 
 
 class TestSharedFileSystemShareMetadata(TestSharedFileSystemProxy):
-    def test_get_share_metadata(self):
+    def test_fetch_share_metadata(self):
         self._verify(
             "openstack.shared_file_system.v2.share.Share.fetch_metadata",
-            self.proxy.get_share_metadata,
+            self.proxy.fetch_share_metadata,
             method_args=["share_id"],
             expected_args=[self.proxy],
             expected_result=share.Share(
@@ -168,10 +168,10 @@ class TestSharedFileSystemShareMetadata(TestSharedFileSystemProxy):
             ),
         )
 
-    def test_get_share_metadata_item(self):
+    def test_fetch_share_metadata_item(self):
         self._verify(
             "openstack.shared_file_system.v2.share.Share.get_metadata_item",
-            self.proxy.get_share_metadata_item,
+            self.proxy.fetch_share_metadata_item,
             method_args=["share_id", "key"],
             expected_args=[self.proxy, "key"],
             expected_result=share.Share(
@@ -187,7 +187,7 @@ class TestSharedFileSystemShareMetadata(TestSharedFileSystemProxy):
             method_args=["share_id"],
             method_kwargs=metadata,
             expected_args=[self.proxy],
-            expected_kwargs={"metadata": metadata},
+            expected_kwargs={"metadata": metadata, "replace": False},
             expected_result=share.Share(id="share_id", metadata=metadata),
         )
 

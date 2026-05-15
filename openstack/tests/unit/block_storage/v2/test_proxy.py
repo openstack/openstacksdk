@@ -91,10 +91,10 @@ class TestVolume(TestVolumeProxy):
             expected_args=[self.proxy],
         )
 
-    def test_get_volume_metadata(self):
+    def test_fetch_volume_metadata(self):
         self._verify(
             "openstack.block_storage.v2.volume.Volume.fetch_metadata",
-            self.proxy.get_volume_metadata,
+            self.proxy.fetch_volume_metadata,
             method_args=["value"],
             expected_args=[self.proxy],
             expected_result=volume.Volume(id="value", metadata={}),
@@ -445,10 +445,10 @@ class TestSnapshot(TestVolumeProxy):
             expected_result=None,
         )
 
-    def test_get_snapshot_metadata(self):
+    def test_fetch_snapshot_metadata(self):
         self._verify(
             "openstack.block_storage.v2.snapshot.Snapshot.fetch_metadata",
-            self.proxy.get_snapshot_metadata,
+            self.proxy.fetch_snapshot_metadata,
             method_args=["value"],
             expected_args=[self.proxy],
             expected_result=snapshot.Snapshot(id="value", metadata={}),

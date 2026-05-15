@@ -457,7 +457,8 @@ class TestAggregate(TestComputeProxy):
             "openstack.compute.v2.aggregate.Aggregate.set_metadata",
             self.proxy.set_aggregate_metadata,
             method_args=["value", {'a': 'b'}],
-            expected_args=[self.proxy, {'a': 'b'}],
+            expected_args=[self.proxy],
+            expected_kwargs={"metadata": {'a': 'b'}},
         )
 
     def test_aggregate_precache_image(self):

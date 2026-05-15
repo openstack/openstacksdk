@@ -147,25 +147,25 @@ class TestServer(base.BaseComputeTest):
 
         # get metadata (should be empty initially)
 
-        server = self.compute_client.get_server_metadata(server)
+        server = self.compute_client.fetch_server_metadata(server)
         self.assertFalse(server.metadata)
 
         # set no metadata
 
         self.compute_client.set_server_metadata(server)
-        server = self.compute_client.get_server_metadata(server)
+        server = self.compute_client.fetch_server_metadata(server)
         self.assertFalse(server.metadata)
 
         # set empty metadata
 
         self.compute_client.set_server_metadata(server, k0='')
-        server = self.compute_client.get_server_metadata(server)
+        server = self.compute_client.fetch_server_metadata(server)
         self.assertTrue(server.metadata)
 
         # set metadata
 
         self.compute_client.set_server_metadata(server, k1='v1')
-        server = self.compute_client.get_server_metadata(server)
+        server = self.compute_client.fetch_server_metadata(server)
         self.assertTrue(server.metadata)
         self.assertEqual(2, len(server.metadata))
         self.assertIn('k0', server.metadata)
@@ -176,7 +176,7 @@ class TestServer(base.BaseComputeTest):
         # set more metadata
 
         self.compute_client.set_server_metadata(server, k2='v2')
-        server = self.compute_client.get_server_metadata(server)
+        server = self.compute_client.fetch_server_metadata(server)
         self.assertTrue(server.metadata)
         self.assertEqual(3, len(server.metadata))
         self.assertIn('k0', server.metadata)
@@ -189,7 +189,7 @@ class TestServer(base.BaseComputeTest):
         # update metadata
 
         self.compute_client.set_server_metadata(server, k1='v1.1')
-        server = self.compute_client.get_server_metadata(server)
+        server = self.compute_client.fetch_server_metadata(server)
         self.assertTrue(server.metadata)
         self.assertEqual(3, len(server.metadata))
         self.assertIn('k0', server.metadata)
@@ -204,7 +204,7 @@ class TestServer(base.BaseComputeTest):
         self.compute_client.delete_server_metadata(
             server, server.metadata.keys()
         )
-        server = self.compute_client.get_server_metadata(server)
+        server = self.compute_client.fetch_server_metadata(server)
         self.assertFalse(server.metadata)
 
     def test_server_remote_console(self):

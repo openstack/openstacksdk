@@ -10,8 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable
+from typing import Any, ClassVar, Literal, overload
+import warnings
 
 from openstack.placement.v1 import resource_class as _resource_class
 from openstack.placement.v1 import resource_provider as _resource_provider
@@ -21,6 +22,7 @@ from openstack.placement.v1 import (
 from openstack.placement.v1 import trait as _trait
 from openstack import proxy
 from openstack import resource
+from openstack import warnings as os_warnings
 
 
 class Proxy(proxy.Proxy):
@@ -253,8 +255,7 @@ class Proxy(proxy.Proxy):
 
     # resource provider aggregates
 
-    # TODO(stephenfin): Rename to fetch_resource_provider_aggregates
-    def get_resource_provider_aggregates(
+    def fetch_resource_provider_aggregates(
         self,
         resource_provider: str | _resource_provider.ResourceProvider,
     ) -> _resource_provider.ResourceProvider:
@@ -276,6 +277,23 @@ class Proxy(proxy.Proxy):
             resource_provider,
         )
         return res.fetch_aggregates(self)
+
+    # TODO(stephenfin): Remove in 5.0
+    def get_resource_provider_aggregates(
+        self,
+        resource_provider: str | _resource_provider.ResourceProvider,
+    ) -> _resource_provider.ResourceProvider:
+        """Get a list of aggregates for a resource provider.
+
+        .. deprecated:: 4.14.0
+            Use :meth:`fetch_resource_provider_aggregates` instead.
+        """
+        warnings.warn(
+            "The 'get_resource_provider_aggregates' method is deprecated; "
+            "use 'fetch_resource_provider_aggregates' instead.",
+            os_warnings.RemovedInSDK50Warning,
+        )
+        return self.fetch_resource_provider_aggregates(resource_provider)
 
     def set_resource_provider_aggregates(self, resource_provider, *aggregates):
         """Update aggregates for a resource provider.

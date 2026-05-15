@@ -112,7 +112,7 @@ class TestResourceProvider(base.BaseFunctionalTest):
         # retrieve details of resource provider aggregates
 
         resource_provider = (
-            self.operator_cloud.placement.get_resource_provider_aggregates(
+            self.operator_cloud.placement.fetch_resource_provider_aggregates(
                 self.resource_provider,
             )
         )

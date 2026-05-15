@@ -56,31 +56,31 @@ class TestImage(base.BaseComputeTest):
         self.admin_compute_client.delete_image_metadata(
             self.image, self.image.metadata.keys()
         )
-        image = self.admin_compute_client.get_image_metadata(self.image)
+        image = self.admin_compute_client.fetch_image_metadata(self.image)
         self.assertFalse(image.metadata)
 
         # get metadata (should be empty)
 
-        image = self.admin_compute_client.get_image_metadata(self.image)
+        image = self.admin_compute_client.fetch_image_metadata(self.image)
         self.assertFalse(image.metadata)
 
         # set no metadata
 
         self.admin_compute_client.set_image_metadata(self.image)
-        image = self.admin_compute_client.get_image_metadata(self.image)
+        image = self.admin_compute_client.fetch_image_metadata(self.image)
         self.assertFalse(image.metadata)
 
         # set empty metadata
 
         self.admin_compute_client.set_image_metadata(self.image, k0='')
-        image = self.admin_compute_client.get_image_metadata(self.image)
+        image = self.admin_compute_client.fetch_image_metadata(self.image)
         self.assertIn('k0', image.metadata)
         self.assertEqual('', image.metadata['k0'])
 
         # set metadata
 
         self.admin_compute_client.set_image_metadata(self.image, k1='v1')
-        image = self.admin_compute_client.get_image_metadata(self.image)
+        image = self.admin_compute_client.fetch_image_metadata(self.image)
         self.assertTrue(image.metadata)
         self.assertEqual(2, len(image.metadata))
         self.assertIn('k1', image.metadata)
@@ -89,7 +89,7 @@ class TestImage(base.BaseComputeTest):
         # set more metadata
 
         self.admin_compute_client.set_image_metadata(self.image, k2='v2')
-        image = self.admin_compute_client.get_image_metadata(self.image)
+        image = self.admin_compute_client.fetch_image_metadata(self.image)
         self.assertTrue(image.metadata)
         self.assertEqual(3, len(image.metadata))
         self.assertIn('k1', image.metadata)
@@ -100,7 +100,7 @@ class TestImage(base.BaseComputeTest):
         # update metadata
 
         self.admin_compute_client.set_image_metadata(self.image, k1='v1.1')
-        image = self.admin_compute_client.get_image_metadata(self.image)
+        image = self.admin_compute_client.fetch_image_metadata(self.image)
         self.assertTrue(image.metadata)
         self.assertEqual(3, len(image.metadata))
         self.assertIn('k1', image.metadata)
@@ -113,5 +113,5 @@ class TestImage(base.BaseComputeTest):
         self.admin_compute_client.delete_image_metadata(
             self.image, image.metadata.keys()
         )
-        image = self.admin_compute_client.get_image_metadata(self.image)
+        image = self.admin_compute_client.fetch_image_metadata(self.image)
         self.assertFalse(image.metadata)

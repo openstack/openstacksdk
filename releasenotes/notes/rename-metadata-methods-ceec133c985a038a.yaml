@@ -1,0 +1,43 @@
+---
+upgrade:
+  - |
+    The folllowing metadata-related proxy methods have been renamed:
+
+    .. rubric:: Block Storage (v2)
+
+    - ``get_snapshot_metadata`` (to ``fetch_snapshot_metadata``)
+    - ``get_volume_metadata`` (to ``fetch_volume_metadata``)
+
+    .. rubric:: Block Storage (v3)
+
+    - ``get_backup_metadata`` (to ``fetch_backup_metadata``)
+    - ``get_snapshot_metadata`` (to ``fetch_snapshot_metadata``)
+    - ``get_volume_metadata`` (to ``fetch_volume_metadata``)
+
+    .. rubric:: Clustering (v1)
+
+    - ``get_cluster_metadata`` (to ``fetch_cluster_metadata``)
+
+    .. rubric:: Compute (v2)
+
+    - ``set_image_metadata`` (to ``fetch_image_metadata``)
+    - ``set_server_metadata`` (to ``fetch_server_metadata``)
+
+    .. rubric:: Placement (v1)
+
+    - ``get_resource_provider_aggregates`` (to
+      ``fetch_resource_provider_aggregates``)
+
+    .. rubric:: Shared File System (v2)
+
+    - ``get_share_metadata`` (to ``fetch_share_metadata``)
+    - ``get_share_metadata_item`` (to ``fetch_share_metadata_item``)
+    - ``create_share_metadata`` (to ``set_share_metadata``)
+    - ``update_share_metadata`` (to ``set_share_metadata``)
+
+    Backwards-compatible shims are provided for all methods, but these are
+    deprecated and will be removed in the next major release.
+
+    In addition, the ``set_aggregate_metadata`` compute API proxy method
+    now expects metadata to be provided as keyword arguments. A backwards
+    compatible shim is also provided for this.

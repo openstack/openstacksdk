@@ -537,20 +537,32 @@ class Proxy(proxy.Proxy):
         aggregate = self._get_resource(_aggregate.Aggregate, aggregate)
         return aggregate.remove_host(self, host)
 
-    def set_aggregate_metadata(self, aggregate, metadata):
+    # TODO(stephenfin): Drop metadata and rename kwargs to metadata in 5.0
+    def set_aggregate_metadata(self, aggregate, metadata=None, **kwargs):
         """Creates or replaces metadata for an aggregate
 
         :param aggregate: Either the ID of a aggregate or a
             :class:`~openstack.compute.v2.aggregate.Aggregate`
             instance.
-        :param dict metadata: Metadata key and value pairs. The maximum
-            size for each metadata key and value pair
-            is 255 bytes.
+        :param metadata: Metadata key and value pairs. The maximum size for
+            each metadata key and value pair is 255 bytes.
 
         :returns: One :class:`~openstack.compute.v2.aggregate.Aggregate`
         """
+        if metadata:
+            if kwargs:
+                raise ValueError(
+                    'metadata can only be passed via args or kwargs: not both'
+                )
+            warnings.warn(
+                "Passing metadata as a mapping is deprecated; pass them as "
+                "kwargs instead.",
+                os_warnings.RemovedInSDK50Warning,
+            )
+        else:
+            metadata = kwargs
         aggregate = self._get_resource(_aggregate.Aggregate, aggregate)
-        return aggregate.set_metadata(self, metadata)
+        return aggregate.set_metadata(self, metadata=metadata)
 
     def aggregate_precache_images(self, aggregate, images):
         """Requests image precaching on an aggregate
@@ -687,32 +699,42 @@ class Proxy(proxy.Proxy):
         else:
             return base(id=res)
 
-    # TODO(stephenfin): Rename to fetch_image_metadata
-    def get_image_metadata(self, image: str | _image.Image) -> _image.Image:
+    def fetch_image_metadata(self, image: str | _image.Image) -> _image.Image:
         """Return a dictionary of metadata for an image
 
         :param image: Either the ID of an image or a
             :class:`~openstack.compute.v2.image.Image` instance.
 
         :returns: A :class:`~openstack.compute.v2.image.Image` with only the
-            image's metadata. All keys and values are Unicode text.
+            image's metadata.
         """
         res = self._get_base_resource(image, _image.Image)
         return res.fetch_metadata(self)
+
+    # TODO(stephenfin): Remove in 5.0
+    def get_image_metadata(self, image: str | _image.Image) -> _image.Image:
+        """Return a dictionary of metadata for an image
+
+        .. deprecated:: 4.14.0
+            Use :meth:`fetch_image_metadata` instead.
+        """
+        warnings.warn(
+            "The 'get_image_metadata' method is deprecated; use "
+            "'fetch_image_metadata' instead.",
+            os_warnings.RemovedInSDK50Warning,
+        )
+        return self.fetch_image_metadata(image)
 
     def set_image_metadata(self, image, **metadata):
         """Update metadata for an image
 
         :param image: Either the ID of an image or a
             :class:`~openstack.compute.v2.image.Image` instance.
-        :param kwargs metadata: Key/value pairs to be updated in the image's
-            metadata. No other metadata is modified
-            by this call. All keys and values are stored
-            as Unicode.
+        :param metadata: Key/value pairs to be updated in the image's metadata.
+            No other metadata is modified by this call.
 
         :returns: A :class:`~openstack.compute.v2.image.Image` with only the
-            image's metadata. All keys and values are Unicode text.
-        :rtype: :class:`~openstack.compute.v2.image.Image`
+            image's metadata.
         """
         res = self._get_base_resource(image, _image.Image)
         return res.set_metadata(self, metadata=metadata)
@@ -1700,8 +1722,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Server Metadata ==========
 
-    # TODO(stephenfin): Rename to fetch_server_metadata
-    def get_server_metadata(
+    def fetch_server_metadata(
         self, server: str | _server.Server
     ) -> _server.Server:
         """Return a dictionary of metadata for a server
@@ -1717,19 +1738,32 @@ class Proxy(proxy.Proxy):
         res = self._get_base_resource(server, _server.Server)
         return res.fetch_metadata(self)
 
+    # TODO(stephenfin): Remove in 5.0
+    def get_server_metadata(
+        self, server: str | _server.Server
+    ) -> _server.Server:
+        """Return a dictionary of metadata for a server
+
+        .. deprecated:: 4.14.0
+            Use :meth:`fetch_server_metadata` instead.
+        """
+        warnings.warn(
+            "The 'get_server_metadata' method is deprecated; use "
+            "'fetch_server_metadata' instead.",
+            os_warnings.RemovedInSDK50Warning,
+        )
+        return self.fetch_server_metadata(server)
+
     def set_server_metadata(self, server, **metadata):
         """Update metadata for a server
 
         :param server: Either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server` instance.
-        :param kwargs metadata: Key/value pairs to be updated in the server's
-            metadata. No other metadata is modified
-            by this call. All keys and values are stored
-            as Unicode.
+        :param metadata: Key/value pairs to be updated in the server's
+            metadata. No other metadata is modified by this call.
 
         :returns: A :class:`~openstack.compute.v2.server.Server` with only the
-            server's metadata. All keys and values are Unicode text.
-        :rtype: :class:`~openstack.compute.v2.server.Server`
+            server's metadata.
         """
         res = self._get_base_resource(server, _server.Server)
         return res.set_metadata(self, metadata=metadata)

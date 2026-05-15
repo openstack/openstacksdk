@@ -453,10 +453,10 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
             self.proxy, mock_resource, 1, 2, None
         )
 
-    def test_get_cluster_metadata(self):
+    def test_fetch_cluster_metadata(self):
         self._verify(
             "openstack.clustering.v1.cluster.Cluster.fetch_metadata",
-            self.proxy.get_cluster_metadata,
+            self.proxy.fetch_cluster_metadata,
             method_args=["value"],
             expected_args=[self.proxy],
             expected_result=cluster.Cluster(id="value", metadata={}),

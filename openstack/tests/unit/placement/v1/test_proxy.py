@@ -99,10 +99,10 @@ class TestPlacementResourceProvider(TestPlacementProxy):
             expected_kwargs={'aggregates': ('a', 'b')},
         )
 
-    def test_resource_provider_get_aggregates(self):
+    def test_resource_provider_fetch_aggregates(self):
         self._verify(
             'openstack.placement.v1.resource_provider.ResourceProvider.fetch_aggregates',
-            self.proxy.get_resource_provider_aggregates,
+            self.proxy.fetch_resource_provider_aggregates,
             method_args=['value'],
             expected_args=[self.proxy],
         )

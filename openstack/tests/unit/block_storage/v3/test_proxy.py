@@ -121,10 +121,10 @@ class TestVolume(TestVolumeProxy):
     def test_volume_update(self):
         self.verify_update(self.proxy.update_volume, volume.Volume)
 
-    def test_get_volume_metadata(self):
+    def test_fetch_volume_metadata(self):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.fetch_metadata",
-            self.proxy.get_volume_metadata,
+            self.proxy.fetch_volume_metadata,
             method_args=["value"],
             expected_args=[self.proxy],
             expected_result=volume.Volume(id="value", metadata={}),
@@ -823,10 +823,10 @@ class TestBackup(TestVolumeProxy):
             expected_args=[self.proxy, "new_status"],
         )
 
-    def test_backup_get_metadata(self):
+    def test_backup_fetch_metadata(self):
         self._verify(
             "openstack.block_storage.v3.backup.Backup.fetch_metadata",
-            self.proxy.get_backup_metadata,
+            self.proxy.fetch_backup_metadata,
             method_args=["value"],
             expected_args=[self.proxy],
             expected_result=volume.Volume(id="value", metadata={}),
@@ -961,10 +961,10 @@ class TestSnapshot(TestVolumeProxy):
             expected_result=None,
         )
 
-    def test_get_snapshot_metadata(self):
+    def test_fetch_snapshot_metadata(self):
         self._verify(
             "openstack.block_storage.v3.snapshot.Snapshot.fetch_metadata",
-            self.proxy.get_snapshot_metadata,
+            self.proxy.fetch_snapshot_metadata,
             method_args=["value"],
             expected_args=[self.proxy],
             expected_result=snapshot.Snapshot(id="value", metadata={}),

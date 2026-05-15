@@ -1250,8 +1250,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Volume metadata ==========
 
-    # TODO(stephenfin): Rename to fetch_volume_metadata
-    def get_volume_metadata(
+    def fetch_volume_metadata(
         self, volume: str | _volume.Volume
     ) -> _volume.Volume:
         """Return a dictionary of metadata for a volume
@@ -1264,6 +1263,22 @@ class Proxy(proxy.Proxy):
         """
         volume = self._get_resource(_volume.Volume, volume)
         return volume.fetch_metadata(self)
+
+    # TODO(stephenfin): Remove in 5.0
+    def get_volume_metadata(
+        self, volume: str | _volume.Volume
+    ) -> _volume.Volume:
+        """Return a dictionary of metadata for a volume
+
+        .. deprecated:: 4.14.0
+            Use :meth:`fetch_volume_metadata` instead.
+        """
+        warnings.warn(
+            "The 'get_volume_metadata' method is deprecated; use "
+            "'fetch_volume_metadata' instead.",
+            os_warnings.RemovedInSDK50Warning,
+        )
+        return self.fetch_volume_metadata(volume)
 
     def set_volume_metadata(self, volume, **metadata):
         """Update metadata for a volume
@@ -1303,8 +1318,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Snapshot metadata ==========
 
-    # TODO(stephenfin): Rename to fetch_snapshot_metadata
-    def get_snapshot_metadata(
+    def fetch_snapshot_metadata(
         self, snapshot: str | _snapshot.Snapshot
     ) -> _snapshot.Snapshot:
         """Return a dictionary of metadata for a snapshot
@@ -1318,6 +1332,22 @@ class Proxy(proxy.Proxy):
         """
         snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
         return snapshot.fetch_metadata(self)
+
+    # TODO(stephenfin): Remove in 5.0
+    def get_snapshot_metadata(
+        self, snapshot: str | _snapshot.Snapshot
+    ) -> _snapshot.Snapshot:
+        """Return a dictionary of metadata for a snapshot
+
+        .. deprecated:: 4.14.0
+            Use :meth:`fetch_snapshot_metadata` instead.
+        """
+        warnings.warn(
+            "The 'get_snapshot_metadata' method is deprecated; use "
+            "'fetch_snapshot_metadata' instead.",
+            os_warnings.RemovedInSDK50Warning,
+        )
+        return self.fetch_snapshot_metadata(snapshot)
 
     def set_snapshot_metadata(self, snapshot, **metadata):
         """Update metadata for a snapshot

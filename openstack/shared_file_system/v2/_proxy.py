@@ -18,6 +18,7 @@ from typing import (
     Literal,
     overload,
 )
+import warnings
 
 from openstack._utils import renamed_param
 from openstack import exceptions
@@ -51,6 +52,7 @@ from openstack.shared_file_system.v2 import (
 )
 from openstack.shared_file_system.v2 import storage_pool as _storage_pool
 from openstack.shared_file_system.v2 import user_message as _user_message
+from openstack import warnings as os_warnings
 
 if TYPE_CHECKING:
     import requests
@@ -1144,9 +1146,7 @@ class Proxy(proxy.Proxy):
 
     # ========= Share Metadata ==========
 
-    # TODO(stephenfin): Rename to fetch_share_metadata
-    @renamed_param('share_id', 'share')
-    def get_share_metadata(self, share: str | _share.Share) -> _share.Share:
+    def fetch_share_metadata(self, share: str | _share.Share) -> _share.Share:
         """Lists all metadata for a share.
 
         :param share: The value can be the ID of a share or a
@@ -1158,9 +1158,22 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_share.Share, share)
         return res.fetch_metadata(self)
 
-    # TODO(stephenfin): Rename to fetch_share_metadata_item
+    # TODO(stephenfin): Remove in 5.0
     @renamed_param('share_id', 'share')
-    def get_share_metadata_item(
+    def get_share_metadata(self, share: str | _share.Share) -> _share.Share:
+        """Lists all metadata for a share.
+
+        .. deprecated:: 4.14.0
+            Use :meth:`fetch_share_metadata` instead.
+        """
+        warnings.warn(
+            "The 'get_share_metadata' method is deprecated; use "
+            "'fetch_share_metadata' instead.",
+            os_warnings.RemovedInSDK50Warning,
+        )
+        return self.fetch_share_metadata(share)
+
+    def fetch_share_metadata_item(
         self, share: str | _share.Share, key: str
     ) -> _share.Share:
         """Retrieves a specific metadata item from a share by its key.
@@ -1175,35 +1188,72 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_share.Share, share)
         return res.get_metadata_item(self, key)
 
+    # TODO(stephenfin): Remove in 5.0
     @renamed_param('share_id', 'share')
-    def create_share_metadata(
-        self, share: str | _share.Share, **metadata: Any
+    def get_share_metadata_item(
+        self, share: str | _share.Share, key: str
     ) -> _share.Share:
-        """Creates share metadata as key-value pairs.
+        """Retrieves a specific metadata item from a share by its key.
 
-        :param share: The ID of the share
-        :param metadata: The metadata to be created
-
-        :returns: A :class:`~openstack.shared_file_system.v2.share.Share`
-            with the share's metadata.
+        .. deprecated:: 4.14.0
+            Use :meth:`fetch_share_metadata_item` instead.
         """
-        res = self._get_resource(_share.Share, share)
-        return res.set_metadata(self, metadata=metadata)
+        warnings.warn(
+            "The 'get_share_metadata_item' method is deprecated; use "
+            "'fetch_share_metadata_item' instead.",
+            os_warnings.RemovedInSDK50Warning,
+        )
+        return self.fetch_share_metadata_item(share, key)
 
-    @renamed_param('share_id', 'share')
-    def update_share_metadata(self, share, metadata, replace=False):
+    def set_share_metadata(
+        self,
+        share: str | _share.Share,
+        *,
+        replace: bool = False,
+        **metadata: Any,
+    ) -> _share.Share:
         """Updates metadata of given share.
 
         :param share: The ID of the share
-        :param metadata: The metadata to be created
         :param replace: Boolean for whether the preexisting metadata
             should be replaced
+        :param metadata: The metadata to be created
 
         :returns: A :class:`~openstack.shared_file_system.v2.share.Share`
             with the share's updated metadata.
         """
         res = self._get_resource(_share.Share, share)
         return res.set_metadata(self, metadata=metadata, replace=replace)
+
+    @renamed_param('share_id', 'share')
+    def create_share_metadata(
+        self, share: str | _share.Share, **metadata: Any
+    ) -> _share.Share:
+        """Creates share metadata as key-value pairs.
+
+        .. deprecated:: 4.14.0
+            Use :meth:`set_share_metadata` instead.
+        """
+        warnings.warn(
+            "The 'create_share_metadata' method is deprecated; use "
+            "'set_share_metadata' instead.",
+            os_warnings.RemovedInSDK50Warning,
+        )
+        return self.set_share_metadata(share, **metadata)
+
+    @renamed_param('share_id', 'share')
+    def update_share_metadata(self, share, metadata, replace=False):
+        """Updates metadata of given share.
+
+        .. deprecated:: 4.14.0
+            Use :meth:`set_share_metadata` instead.
+        """
+        warnings.warn(
+            "The 'update_share_metadata' method is deprecated; use "
+            "'set_share_metadata' instead.",
+            os_warnings.RemovedInSDK50Warning,
+        )
+        return self.set_share_metadata(share, replace=replace, **metadata)
 
     @renamed_param('share_id', 'share')
     def delete_share_metadata(

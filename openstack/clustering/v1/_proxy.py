@@ -12,6 +12,7 @@
 
 from collections.abc import Callable, Iterable
 from typing import Any, ClassVar, Literal, overload
+import warnings
 
 from openstack.clustering.v1 import action as _action
 from openstack.clustering.v1 import build_info
@@ -28,6 +29,7 @@ from openstack.clustering.v1 import receiver as _receiver
 from openstack.clustering.v1 import service as _service
 from openstack import proxy
 from openstack import resource
+from openstack import warnings as os_warnings
 
 
 class Proxy(proxy.Proxy):
@@ -355,8 +357,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_cluster.Cluster, cluster, **attrs)
 
-    # TODO(stephenfin): Rename to fetch_cluster_metadata
-    def get_cluster_metadata(
+    def fetch_cluster_metadata(
         self, cluster: str | _cluster.Cluster
     ) -> _cluster.Cluster:
         """Return a dictionary of metadata for a cluster
@@ -369,6 +370,22 @@ class Proxy(proxy.Proxy):
         """
         cluster = self._get_resource(_cluster.Cluster, cluster)
         return cluster.fetch_metadata(self)
+
+    # TODO(stephenfin): Remove in 5.0
+    def get_cluster_metadata(
+        self, cluster: str | _cluster.Cluster
+    ) -> _cluster.Cluster:
+        """Return a dictionary of metadata for a cluster
+
+        .. deprecated:: 4.14.0
+            Use :meth:`fetch_cluster_metadata` instead.
+        """
+        warnings.warn(
+            "The 'get_cluster_metadata' method is deprecated; use "
+            "'fetch_cluster_metadata' instead.",
+            os_warnings.RemovedInSDK50Warning,
+        )
+        return self.fetch_cluster_metadata(cluster)
 
     def set_cluster_metadata(self, cluster, **metadata):
         """Update metadata for a cluster
