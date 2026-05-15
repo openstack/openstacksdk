@@ -11,7 +11,7 @@
 # under the License.
 
 from typing import Any, ClassVar, Literal, overload
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 
 from openstack.database.v1 import database as _database
 from openstack.database.v1 import flavor as _flavor
@@ -126,17 +126,20 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def databases(self, instance, **query):
+    def databases(
+        self,
+        instance: str | _instance.Instance,
+        **query: Any,
+    ) -> Generator[_database.Database, None, None]:
         """Return a generator of databases
 
         :param instance: This can be either the ID of an instance
             or a :class:`~openstack.database.v1.instance.Instance`
             instance that the interface belongs to.
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of database objects
-        :rtype: :class:`~openstack.database.v1.database.Database`
         """
         instance = self._get_resource(_instance.Instance, instance)
         return self._list(_database.Database, instance_id=instance.id, **query)
@@ -207,14 +210,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_flavor.Flavor, flavor)
 
-    def flavors(self, **query):
+    def flavors(self, **query: Any) -> Generator[_flavor.Flavor, None, None]:
         """Return a generator of flavors
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of flavor objects
-        :rtype: :class:`~openstack.database.v1.flavor.Flavor`
         """
         return self._list(_flavor.Flavor, **query)
 
@@ -297,14 +299,16 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_instance.Instance, instance)
 
-    def instances(self, **query):
+    def instances(
+        self,
+        **query: Any,
+    ) -> Generator[_instance.Instance, None, None]:
         """Return a generator of instances
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of instance objects
-        :rtype: :class:`~openstack.database.v1.instance.Instance`
         """
         return self._list(_instance.Instance, **query)
 
@@ -411,16 +415,19 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def users(self, instance, **query):
+    def users(
+        self,
+        instance: str | _instance.Instance,
+        **query: Any,
+    ) -> Generator[_user.User, None, None]:
         """Return a generator of users
 
         :param instance: This can be either the ID of an instance
             or a :class:`~openstack.database.v1.instance.Instance`
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of user objects
-        :rtype: :class:`~openstack.database.v1.user.User`
         """
         instance = self._get_resource(_instance.Instance, instance)
         return self._list(_user.User, instance_id=instance.id, **query)

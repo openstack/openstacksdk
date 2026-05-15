@@ -11,7 +11,7 @@
 # under the License.
 
 from typing import Any, ClassVar, Literal
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 
 from openstack import _log
 from openstack.baremetal.v1 import node as _node
@@ -37,10 +37,13 @@ class Proxy(proxy.Proxy):
 
     # ========== Introspections ==========
 
-    def introspections(self, **query):
+    def introspections(
+        self,
+        **query: Any,
+    ) -> Generator[_introspect.Introspection, None, None]:
         """Retrieve a generator of introspection records.
 
-        :param dict query: Optional query parameters to be sent to restrict
+        :param query: Optional query parameters to be sent to restrict
             the records to be returned. Available parameters include:
 
             * ``fields``: A list containing one or more fields to be returned
@@ -227,10 +230,13 @@ class Proxy(proxy.Proxy):
             introspection_rule,
         )
 
-    def introspection_rules(self, **query):
+    def introspection_rules(
+        self,
+        **query: Any,
+    ) -> Generator[_introspection_rule.IntrospectionRule, None, None]:
         """Retrieve a generator of introspection rules.
 
-        :param dict query: Optional query parameters to be sent to restrict
+        :param query: Optional query parameters to be sent to restrict
             the records to be returned. Available parameters include:
 
             * ``uuid``: The UUID of the Ironic Inspector rule.

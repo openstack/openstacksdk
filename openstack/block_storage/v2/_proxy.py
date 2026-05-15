@@ -41,11 +41,10 @@ class Proxy(proxy.Proxy):
 
     # ========== Extensions ==========
 
-    def extensions(self):
+    def extensions(self) -> Generator[_extension.Extension, None, None]:
         """Return a generator of extensions
 
         :returns: A generator of extension
-        :rtype: :class:`~openstack.block_storage.v2.extension.Extension`
         """
         return self._list(_extension.Extension)
 
@@ -159,17 +158,23 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def snapshots(self, *, details=True, all_projects=False, **query):
+    def snapshots(
+        self,
+        *,
+        details: bool = True,
+        all_projects: bool = False,
+        **query: Any,
+    ) -> Generator[_snapshot.Snapshot, None, None]:
         """Retrieve a generator of snapshots
 
-        :param bool details: When set to ``False``
+        :param details: When set to ``False``
             :class:`~openstack.block_storage.v2.snapshot.Snapshot`
             objects will be returned. The default, ``True``, will cause
             :class:`~openstack.block_storage.v2.snapshot.SnapshotDetail`
             objects to be returned.
-        :param bool all_projects: When set to ``True``, list snapshots from all
+        :param all_projects: When set to ``True``, list snapshots from all
             projects. Admin-only by default.
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the snapshots being returned.  Available parameters include:
 
             * name: Name of the snapshot as a string.
@@ -335,7 +340,7 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def types(self, **query):
+    def types(self, **query: Any) -> Generator[_type.Type, None, None]:
         """Retrieve a generator of volume types
 
         :returns: A generator of volume type objects.
@@ -489,15 +494,21 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def volumes(self, *, details=True, all_projects=False, **query):
+    def volumes(
+        self,
+        *,
+        details: bool = True,
+        all_projects: bool = False,
+        **query: Any,
+    ) -> Generator[_volume.Volume, None, None]:
         """Retrieve a generator of volumes
 
-        :param bool details: When set to ``False`` no extended attributes
+        :param details: When set to ``False`` no extended attributes
             will be returned. The default, ``True``, will cause objects with
             additional attributes to be returned.
-        :param bool all_projects: When set to ``True``, list volumes from all
+        :param all_projects: When set to ``True``, list volumes from all
             projects. Admin-only by default.
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the volumes being returned.  Available parameters include:
 
             * name: Name of the volume as a string.
@@ -744,10 +755,13 @@ class Proxy(proxy.Proxy):
 
     # ========== Backend pools ==========
 
-    def backend_pools(self, **query):
+    def backend_pools(
+        self,
+        **query: Any,
+    ) -> Generator[_stats.Pools, None, None]:
         """Returns a generator of cinder Back-end storage pools
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns A generator of cinder Back-end storage pools objects
@@ -756,13 +770,17 @@ class Proxy(proxy.Proxy):
 
     # ========== Backups ==========
 
-    def backups(self, details=True, **query):
+    def backups(
+        self,
+        details: bool = True,
+        **query: Any,
+    ) -> Generator[_backup.Backup, None, None]:
         """Retrieve a generator of backups
 
-        :param bool details: When set to ``False`` no additional details will
+        :param details: When set to ``False`` no additional details will
             be returned. The default, ``True``, will cause objects with
             additional attributes to be returned.
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             resources being returned:
 
             * offset: pagination marker
@@ -1170,10 +1188,9 @@ class Proxy(proxy.Proxy):
     ) -> Generator[_service.Service, None, None]:
         """Return a generator of service
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
         :returns: A generator of Service objects
-        :rtype: class: `~openstack.block_storage.v2.service.Service`
         """
         return self._list(_service.Service, **query)
 
@@ -1486,15 +1503,21 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_transfer.Transfer, transfer)
 
-    def transfers(self, *, details=True, all_projects=False, **query):
+    def transfers(
+        self,
+        *,
+        details: bool = True,
+        all_projects: bool = False,
+        **query: Any,
+    ) -> Generator[_transfer.Transfer, None, None]:
         """Retrieve a generator of transfers
 
-        :param bool details: When set to ``False`` no extended attributes
+        :param details: When set to ``False`` no extended attributes
             will be returned. The default, ``True``, will cause objects with
             additional attributes to be returned.
-        :param bool all_projects: When set to ``True``, list transfers from
+        :param all_projects: When set to ``True``, list transfers from
             all projects. Admin-only by default.
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the transfers being returned.
 
         :returns: A generator of transfer objects.

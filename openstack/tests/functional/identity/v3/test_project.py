@@ -69,6 +69,7 @@ class TestProject(base.BaseIdentityTest):
     def test_user_project(self):
         # list all user projects
 
+        assert self.operator_cloud.current_user_id is not None
         user_projects = list(
             self.admin_identity_client.user_projects(
                 self.operator_cloud.current_user_id

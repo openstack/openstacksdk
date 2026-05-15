@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 from typing import Any, ClassVar, Literal
 import warnings
 
@@ -29,10 +29,13 @@ class Proxy(proxy.Proxy):
 
     # ========== Deployables ==========
 
-    def deployables(self, **query):
+    def deployables(
+        self,
+        **query: Any,
+    ) -> Generator[_deployable.Deployable, None, None]:
         """Retrieve a generator of deployables.
 
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the deployables to be returned.
         :returns: A generator of deployable instances.
         """
@@ -78,10 +81,10 @@ class Proxy(proxy.Proxy):
 
     # ========== Devices ==========
 
-    def devices(self, **query):
+    def devices(self, **query: Any) -> Generator[_device.Device, None, None]:
         """Retrieve a generator of devices.
 
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the devices to be returned. Available parameters include:
 
             * hostname: The hostname of the device.
@@ -123,10 +126,13 @@ class Proxy(proxy.Proxy):
 
     # ========== Device profiles ==========
 
-    def device_profiles(self, **query):
+    def device_profiles(
+        self,
+        **query: Any,
+    ) -> Generator[_device_profile.DeviceProfile, None, None]:
         """Retrieve a generator of device profiles.
 
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the device profiles to be returned.
         :returns: A generator of device profile instances.
         """
@@ -192,10 +198,13 @@ class Proxy(proxy.Proxy):
 
     # ========== Accelerator requests ==========
 
-    def accelerator_requests(self, **query):
+    def accelerator_requests(
+        self,
+        **query: Any,
+    ) -> Generator[_arq.AcceleratorRequest, None, None]:
         """Retrieve a generator of accelerator requests.
 
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the accelerator requests to be returned.
         :returns: A generator of accelerator request instances.
         """
@@ -279,10 +288,13 @@ class Proxy(proxy.Proxy):
 
     # ========== Attributes ==========
 
-    def attributes(self, **query):
+    def attributes(
+        self,
+        **query: Any,
+    ) -> Generator[_attribute.Attribute, None, None]:
         """Retrieve a generator of attributes.
 
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the attributes to be returned.
         :returns: A generator of attribute instances.
         """

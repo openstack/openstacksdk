@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Generator, Iterable
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -80,14 +80,20 @@ class Proxy(proxy.Proxy):
         "quota_class_set": _quota_class_set.QuotaClassSet,
     }
 
-    def availability_zones(self):
+    def availability_zones(
+        self,
+    ) -> Generator[_availability_zone.AvailabilityZone, None, None]:
         """Retrieve shared file system availability zones
 
         :returns: A generator of availability zone resources
         """
         return self._list(_availability_zone.AvailabilityZone)
 
-    def shares(self, details=True, **query):
+    def shares(
+        self,
+        details: bool = True,
+        **query: Any,
+    ) -> Generator[_share.Share, None, None]:
         """Lists all shares with details
 
         :param query: Optional query parameters to be sent to limit
@@ -306,7 +312,10 @@ class Proxy(proxy.Proxy):
         elif new_size < res.size and no_shrink is not True:
             res.shrink_share(self, new_size)
 
-    def share_groups(self, **query):
+    def share_groups(
+        self,
+        **query: Any,
+    ) -> Generator[_share_group.ShareGroup, None, None]:
         """Lists all share groups.
 
         :param query: Optional query parameters to be sent to limit
@@ -435,7 +444,11 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def storage_pools(self, details=True, **query):
+    def storage_pools(
+        self,
+        details: bool = True,
+        **query: Any,
+    ) -> Generator[_storage_pool.StoragePool, None, None]:
         """Lists all back-end storage pools with details
 
         :param query: Optional query parameters to be sent to limit
@@ -453,7 +466,10 @@ class Proxy(proxy.Proxy):
             _storage_pool.StoragePool, base_path=base_path, **query
         )
 
-    def user_messages(self, **query):
+    def user_messages(
+        self,
+        **query: Any,
+    ) -> Generator[_user_message.UserMessage, None, None]:
         """List shared file system user messages
 
         :param query: Optional query parameters to be sent to limit
@@ -520,7 +536,7 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def limits(self, **query):
+    def limits(self, **query: Any) -> Generator[_limit.Limit, None, None]:
         """Lists all share limits.
 
         :param query: Optional query parameters to be sent to limit
@@ -530,7 +546,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_limit.Limit, **query)
 
-    def share_snapshots(self, details=True, **query):
+    def share_snapshots(
+        self,
+        details: bool = True,
+        **query: Any,
+    ) -> Generator[_share_snapshot.ShareSnapshot, None, None]:
         """Lists all share snapshots with details.
 
         :param query: Optional query parameters to be sent to limit
@@ -607,7 +627,10 @@ class Proxy(proxy.Proxy):
 
     # ========= Network Subnets ==========
     @renamed_param('share_network_id', 'share_network')
-    def share_network_subnets(self, share_network):
+    def share_network_subnets(
+        self,
+        share_network: str | _share_network.ShareNetwork,
+    ) -> Generator[_share_network_subnet.ShareNetworkSubnet, None, None]:
         """Lists all share network subnets with details.
 
         :param share_network: The id of the share network for which
@@ -697,7 +720,11 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def share_snapshot_instances(self, details=True, **query):
+    def share_snapshot_instances(
+        self,
+        details: bool = True,
+        **query: Any,
+    ) -> Generator[_share_snapshot_instance.ShareSnapshotInstance, None, None]:
         """Lists all share snapshot instances with details.
 
         :param details: Whether to fetch detailed resource
@@ -740,7 +767,11 @@ class Proxy(proxy.Proxy):
             share_snapshot_instance,
         )
 
-    def share_networks(self, details=True, **query):
+    def share_networks(
+        self,
+        details: bool = True,
+        **query: Any,
+    ) -> Generator[_share_network.ShareNetwork, None, None]:
         """Lists all share networks with details.
 
         :param query: Optional query parameters to be sent to limit the
@@ -827,7 +858,10 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_share_network.ShareNetwork, **attrs)
 
-    def share_instances(self, **query):
+    def share_instances(
+        self,
+        **query: Any,
+    ) -> Generator[_share_instance.ShareInstance, None, None]:
         """Lists all share instances.
 
         :param query: Optional query parameters to be sent to limit
@@ -897,7 +931,10 @@ class Proxy(proxy.Proxy):
                 raise
 
     @renamed_param('share_id', 'share')
-    def export_locations(self, share):
+    def export_locations(
+        self,
+        share: str | _share.Share,
+    ) -> Generator[_share_export_locations.ShareExportLocation, None, None]:
         """List all export locations with details
 
         :param share: The ID of the share to list export locations from
@@ -928,7 +965,11 @@ class Proxy(proxy.Proxy):
             share_id=share_id,
         )
 
-    def access_rules(self, share, **query):
+    def access_rules(
+        self,
+        share: str | _share.Share,
+        **query: Any,
+    ) -> Generator[_share_access_rule.ShareAccessRule, None, None]:
         """Lists the access rules on a share.
 
         :returns: A generator of the share access rules.
@@ -1016,7 +1057,11 @@ class Proxy(proxy.Proxy):
                 return None
             raise
 
-    def share_group_snapshots(self, details=True, **query):
+    def share_group_snapshots(
+        self,
+        details: bool = True,
+        **query: Any,
+    ) -> Generator[_share_group_snapshot.ShareGroupSnapshot, None, None]:
         """Lists all share group snapshots.
 
         :param query: Optional query parameters to be sent
@@ -1305,7 +1350,10 @@ class Proxy(proxy.Proxy):
                 f"Some keys failed to be deleted {keys_failed_to_delete}"
             )
 
-    def resource_locks(self, **query):
+    def resource_locks(
+        self,
+        **query: Any,
+    ) -> Generator[_resource_locks.ResourceLock, None, None]:
         """Lists all resource locks.
 
         :param query: Optional query parameters to be sent to limit

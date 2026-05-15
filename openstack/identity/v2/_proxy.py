@@ -11,7 +11,7 @@
 # under the License.
 
 from typing import Any, ClassVar, Literal, overload
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 
 from openstack.identity.v2 import extension as _extension
 from openstack.identity.v2 import role as _role
@@ -24,11 +24,10 @@ from openstack import resource
 class Proxy(proxy.Proxy):
     api_version: ClassVar[Literal['2']] = '2'
 
-    def extensions(self):
+    def extensions(self) -> Generator[_extension.Extension, None, None]:
         """Retrieve a generator of extensions
 
         :returns: A generator of extension instances.
-        :rtype: :class:`~openstack.identity.v2.extension.Extension`
         """
         return self._list(_extension.Extension)
 
@@ -121,14 +120,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_role.Role, role)
 
-    def roles(self, **query):
+    def roles(self, **query: Any) -> Generator[_role.Role, None, None]:
         """Retrieve a generator of roles
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of role instances.
-        :rtype: :class:`~openstack.identity.v2.role.Role`
         """
         return self._list(_role.Role, **query)
 
@@ -218,14 +216,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_tenant.Tenant, tenant)
 
-    def tenants(self, **query):
+    def tenants(self, **query: Any) -> Generator[_tenant.Tenant, None, None]:
         """Retrieve a generator of tenants
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of tenant instances.
-        :rtype: :class:`~openstack.identity.v2.tenant.Tenant`
         """
         return self._list(_tenant.Tenant, **query)
 
@@ -315,14 +312,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_user.User, user)
 
-    def users(self, **query):
+    def users(self, **query: Any) -> Generator[_user.User, None, None]:
         """Retrieve a generator of users
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of user instances.
-        :rtype: :class:`~openstack.identity.v2.user.User`
         """
         return self._list(_user.User, **query)
 

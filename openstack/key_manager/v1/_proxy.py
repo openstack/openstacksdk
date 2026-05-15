@@ -11,7 +11,7 @@
 # under the License.
 
 from typing import Any, ClassVar, Literal, overload
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 
 from openstack._utils import renamed_param
 from openstack.identity.v3 import project as _project
@@ -118,14 +118,16 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_container.Container, container)
 
-    def containers(self, **query):
+    def containers(
+        self,
+        **query: Any,
+    ) -> Generator[_container.Container, None, None]:
         """Return a generator of containers
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of container objects
-        :rtype: :class:`~openstack.key_manager.v1.container.Container`
         """
         return self._list(_container.Container, **query)
 
@@ -219,14 +221,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_order.Order, order)
 
-    def orders(self, **query):
+    def orders(self, **query: Any) -> Generator[_order.Order, None, None]:
         """Return a generator of orders
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of order objects
-        :rtype: :class:`~openstack.key_manager.v1.order.Order`
         """
         return self._list(_order.Order, **query)
 
@@ -321,14 +322,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_secret.Secret, secret)
 
-    def secrets(self, **query):
+    def secrets(self, **query: Any) -> Generator[_secret.Secret, None, None]:
         """Return a generator of secrets
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of secret objects
-        :rtype: :class:`~openstack.key_manager.v1.secret.Secret`
         """
         return self._list(_secret.Secret, **query)
 
@@ -348,14 +348,16 @@ class Proxy(proxy.Proxy):
 
     # ========== Secret Store Operations ==========
 
-    def secret_stores(self, **query):
+    def secret_stores(
+        self,
+        **query: Any,
+    ) -> Generator[_secret_store.SecretStore, None, None]:
         """Return a generator of secret stores
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of secret store objects
-        :rtype: :class:`~openstack.key_manager.v1.secret_store.SecretStore`
         """
         return self._list(_secret_store.SecretStore, **query)
 

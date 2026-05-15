@@ -12,7 +12,7 @@
 
 import os
 from typing import Any, ClassVar, Literal, overload
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 import warnings
 
 from openstack import exceptions as exc
@@ -383,14 +383,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_image.Image, image)
 
-    def images(self, **query):
+    def images(self, **query: Any) -> Generator[_image.Image, None, None]:
         """Return a generator of images
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of image objects
-        :rtype: :class:`~openstack.image.v1.image.Image`
         """
         return self._list(_image.Image, base_path='/images/detail', **query)
 

@@ -11,7 +11,7 @@
 # under the License.
 
 from typing import Any, ClassVar, Literal, overload
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 
 from openstack import proxy
 from openstack import resource
@@ -70,10 +70,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_workflow.Workflow, workflow)
 
-    def workflows(self, **query):
+    def workflows(
+        self,
+        **query: Any,
+    ) -> Generator[_workflow.Workflow, None, None]:
         """Retrieve a generator of workflows
 
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the workflows to be returned. Available parameters
             include:
 
@@ -170,10 +173,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_execution.Execution, execution)
 
-    def executions(self, **query):
+    def executions(
+        self,
+        **query: Any,
+    ) -> Generator[_execution.Execution, None, None]:
         """Retrieve a generator of executions
 
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the executions to be returned. Available parameters
             include:
 
@@ -269,12 +275,17 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_cron_trigger.CronTrigger, cron_trigger)
 
-    def cron_triggers(self, *, all_projects=False, **query):
+    def cron_triggers(
+        self,
+        *,
+        all_projects: bool = False,
+        **query: Any,
+    ) -> Generator[_cron_trigger.CronTrigger, None, None]:
         """Retrieve a generator of cron triggers
 
-        :param bool all_projects: When set to ``True``, list cron triggers from
+        :param all_projects: When set to ``True``, list cron triggers from
             all projects. Admin-only by default.
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the cron triggers to be returned. Available parameters
             include:
 

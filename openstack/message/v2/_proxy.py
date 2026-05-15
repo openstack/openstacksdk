@@ -11,7 +11,7 @@
 # under the License.
 
 from typing import Any, ClassVar, Literal
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 
 from openstack.message.v2 import claim as _claim
 from openstack.message.v2 import message as _message
@@ -55,10 +55,10 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_queue.Queue, queue)
 
-    def queues(self, **query):
+    def queues(self, **query: Any) -> Generator[_queue.Queue, None, None]:
         """Retrieve a generator of queues
 
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the queues to be returned. Available parameters include:
 
             * limit: Requests at most the specified number of items be
@@ -104,11 +104,15 @@ class Proxy(proxy.Proxy):
         )
         return message.post(self, messages)
 
-    def messages(self, queue_name, **query):
+    def messages(
+        self,
+        queue_name: str,
+        **query: Any,
+    ) -> Generator[_message.Message, None, None]:
         """Retrieve a generator of messages
 
         :param queue_name: The name of target queue to query messages from.
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the messages to be returned. Available parameters include:
 
             * limit: Requests at most the specified number of items be
@@ -192,11 +196,15 @@ class Proxy(proxy.Proxy):
             _subscription.Subscription, queue_name=queue_name, **attrs
         )
 
-    def subscriptions(self, queue_name, **query):
+    def subscriptions(
+        self,
+        queue_name: str,
+        **query: Any,
+    ) -> Generator[_subscription.Subscription, None, None]:
         """Retrieve a generator of subscriptions
 
         :param queue_name: The name of target queue to subscribe on.
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the subscriptions to be returned. Available parameters
             include:
 

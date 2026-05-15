@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Generator, Iterable
 import datetime
 from typing import Any, ClassVar, Literal, cast, overload
 import warnings
@@ -126,11 +126,10 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def extensions(self):
+    def extensions(self) -> Generator[extension.Extension, None, None]:
         """Retrieve a generator of extensions
 
         :returns: A generator of extension instances.
-        :rtype: :class:`~openstack.compute.v2.extension.Extension`
         """
         return self._list(extension.Extension)
 
@@ -261,16 +260,21 @@ class Proxy(proxy.Proxy):
             flavor = flavor.fetch_extra_specs(self)
         return flavor
 
-    def flavors(self, details=True, get_extra_specs=False, **query):
+    def flavors(
+        self,
+        details: bool = True,
+        get_extra_specs: bool = False,
+        **query: Any,
+    ) -> Generator[_flavor.Flavor, None, None]:
         """Return a generator of flavors
 
-        :param bool details: When ``True``, returns
+        :param details: When ``True``, returns
             :class:`~openstack.compute.v2.flavor.Flavor` objects,
             with additional attributes filled.
-        :param bool get_extra_specs: When set to ``True`` and extra_specs not
+        :param get_extra_specs: When set to ``True`` and extra_specs not
             present in the response will invoke additional API call to fetch
             extra_specs.
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the flavors being returned.
 
         :returns: A generator of flavor objects
@@ -318,7 +322,9 @@ class Proxy(proxy.Proxy):
         flavor = self._get_resource(_flavor.Flavor, flavor)
         return flavor.get_access(self)
 
-    def fetch_flavor_extra_specs(self, flavor):
+    def fetch_flavor_extra_specs(
+        self, flavor: str | _flavor.Flavor
+    ) -> _flavor.Flavor:
         """Lists Extra Specs of a flavor
 
         :param flavor: Either the ID of a flavor or a
@@ -405,14 +411,16 @@ class Proxy(proxy.Proxy):
 
     # ========== Aggregates ==========
 
-    def aggregates(self, **query):
+    def aggregates(
+        self,
+        **query: Any,
+    ) -> Generator[_aggregate.Aggregate, None, None]:
         """Return a generator of aggregate
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the aggregates being returned.
 
         :returns: A generator of aggregate
-        :rtype: class: `~openstack.compute.v2.aggregate.Aggregate`
         """
         return self._list(_aggregate.Aggregate, **query)
 
@@ -681,14 +689,18 @@ class Proxy(proxy.Proxy):
         )
         return self._get(_image.Image, image)
 
-    def images(self, details=True, **query):
+    def images(
+        self,
+        details: bool = True,
+        **query: Any,
+    ) -> Generator[_image.Image, None, None]:
         """Return a generator of images
 
-        :param bool details: When ``True``, returns
+        :param details: When ``True``, returns
             :class:`~openstack.compute.v2.image.Image` objects with all
             available properties, otherwise only basic properties are returned.
             *Default: ``True``*
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of image objects
@@ -890,13 +902,15 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def keypairs(self, **query):
+    def keypairs(
+        self,
+        **query: Any,
+    ) -> Generator[_keypair.Keypair, None, None]:
         """Return a generator of keypairs
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
         :returns: A generator of keypair objects
-        :rtype: :class:`~openstack.compute.v2.keypair.Keypair`
         """
         return self._list(_keypair.Keypair, **query)
 
@@ -1024,15 +1038,20 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_server.Server, server)
 
-    def servers(self, details=True, all_projects=False, **query):
+    def servers(
+        self,
+        details: bool = True,
+        all_projects: bool = False,
+        **query: Any,
+    ) -> Generator[_server.Server, None, None]:
         """Retrieve a generator of servers
 
-        :param bool details: When set to ``False``
+        :param details: When set to ``False``
             instances with only basic data will be returned. The default,
             ``True``, will cause instances with full data to be returned.
-        :param bool all_projects: When set to ``True``, lists servers from all
+        :param all_projects: When set to ``True``, lists servers from all
             projects. Admin-only by default.
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the servers being returned. Available parameters can be seen
             under https://docs.openstack.org/api-ref/compute/#list-servers
 
@@ -1680,7 +1699,11 @@ class Proxy(proxy.Proxy):
             port_id=server_interface,
         )
 
-    def server_interfaces(self, server, **query):
+    def server_interfaces(
+        self,
+        server: str | _server.Server,
+        **query: Any,
+    ) -> Generator[_server_interface.ServerInterface, None, None]:
         """Return a generator of server interfaces
 
         :param server: The server can be either the ID of a server or a
@@ -1689,7 +1712,6 @@ class Proxy(proxy.Proxy):
             resources being returned.
 
         :returns: A generator of ServerInterface objects
-        :rtype: :class:`~openstack.compute.v2.server_interface.ServerInterface`
         """
         server_id = resource.Resource._get_id(server)
         return self._list(
@@ -1698,7 +1720,11 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def server_ips(self, server, network_label=None):
+    def server_ips(
+        self,
+        server: str | _server.Server,
+        network_label: str | None = None,
+    ) -> Generator[server_ip.ServerIP, None, None]:
         """Return a generator of server IPs
 
         :param server: The server can be either the ID of a server or a
@@ -1707,7 +1733,6 @@ class Proxy(proxy.Proxy):
             IP addresses from.
 
         :returns: A generator of ServerIP objects
-        :rtype: :class:`~openstack.compute.v2.server_ip.ServerIP`
         """
         server_id = resource.Resource._get_id(server)
         return self._list(
@@ -1716,15 +1741,17 @@ class Proxy(proxy.Proxy):
             network_label=network_label,
         )
 
-    def availability_zones(self, details=False):
+    def availability_zones(
+        self,
+        details: bool = False,
+    ) -> Generator[availability_zone.AvailabilityZone, None, None]:
         """Return a generator of availability zones
 
-        :param bool details: Return extra details about the availability
+        :param details: Return extra details about the availability
             zones. This defaults to `False` as it generally
             requires extra permission.
 
         :returns: A generator of availability zone
-        :rtype:
             :class:`~openstack.compute.v2.availability_zone.AvailabilityZone`
         """
         base_path = '/os-availability-zone/detail' if details else None
@@ -1912,16 +1939,20 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_server_group.ServerGroup, server_group)
 
-    def server_groups(self, *, all_projects=False, **query):
+    def server_groups(
+        self,
+        *,
+        all_projects: bool = False,
+        **query: Any,
+    ) -> Generator[_server_group.ServerGroup, None, None]:
         """Return a generator of server groups
 
-        :param bool all_projects: When set to ``True``, lists servers groups
+        :param all_projects: When set to ``True``, lists servers groups
             from all projects. Admin-only by default.
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of ServerGroup objects
-        :rtype: :class:`~openstack.compute.v2.server_group.ServerGroup`
         """
         if all_projects:
             query['all_projects'] = True
@@ -1929,17 +1960,20 @@ class Proxy(proxy.Proxy):
 
     # ========== Hypervisors ==========
 
-    def hypervisors(self, details=False, **query):
+    def hypervisors(
+        self,
+        details: bool = False,
+        **query: Any,
+    ) -> Generator[_hypervisor.Hypervisor, None, None]:
         """Return a generator of hypervisors
 
-        :param bool details: When set to the default, ``False``,
+        :param details: When set to the default, ``False``,
             :class:`~openstack.compute.v2.hypervisor.Hypervisor`
             instances will be returned with only basic information populated.
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of hypervisor
-        :rtype: class: `~openstack.compute.v2.hypervisor.Hypervisor`
         """
         base_path = '/os-hypervisors/detail' if details else None
         if (
@@ -2116,12 +2150,14 @@ class Proxy(proxy.Proxy):
         service = self._get_resource(_service.Service, service)
         return service.enable(self, host, binary)
 
-    def services(self, **query):
+    def services(
+        self,
+        **query: Any,
+    ) -> Generator[_service.Service, None, None]:
         """Return a generator of service
 
         :params dict query: Query parameters
         :returns: A generator of service
-        :rtype: class: `~openstack.compute.v2.service.Service`
         """
         return self._list(_service.Service, **query)
 
@@ -2211,7 +2247,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Volume Attachments ==========
 
-    # TODO(stephenfin): Make the volume argument required in 2.0
+    # TODO(stephenfin): Make the volume argument required in 5.0
     def create_volume_attachment(
         self,
         server: str | _server.Server,
@@ -2318,7 +2354,7 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    # TODO(stephenfin): Remove this hack in openstacksdk 2.0
+    # TODO(stephenfin): Remove this hack in openstacksdk 5.0
     def _verify_server_volume_args(self, server, volume):
         deprecation_msg = (
             'The server and volume arguments to this function appear to '
@@ -2424,7 +2460,11 @@ class Proxy(proxy.Proxy):
             server_id=server_id,
         )
 
-    def volume_attachments(self, server, **query):
+    def volume_attachments(
+        self,
+        server: str | _server.Server,
+        **query: Any,
+    ) -> Generator[_volume_attachment.VolumeAttachment, None, None]:
         """Return a generator of volume attachments
 
         :param server: The server can be either the ID of a server or a
@@ -2432,7 +2472,6 @@ class Proxy(proxy.Proxy):
         :params dict query: Query parameters
 
         :returns: A generator of VolumeAttachment objects
-        :rtype:
             :class:`~openstack.compute.v2.volume_attachment.VolumeAttachment`
         """
         server_id = resource.Resource._get_id(server)
@@ -2598,14 +2637,16 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def server_migrations(self, server):
+    def server_migrations(
+        self,
+        server: str | _server.Server,
+    ) -> Generator[_server_migration.ServerMigration, None, None]:
         """Return a generator of migrations for a server.
 
         :param server: The server can be either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server`.
 
         :returns: A generator of ServerMigration objects
-        :rtype:
             :class:`~openstack.compute.v2.server_migration.ServerMigration`
         """
         server_id = resource.Resource._get_id(server)
@@ -2616,13 +2657,15 @@ class Proxy(proxy.Proxy):
 
     # ========== Migrations ==========
 
-    def migrations(self, **query):
+    def migrations(
+        self,
+        **query: Any,
+    ) -> Generator[_migration.Migration, None, None]:
         """Return a generator of migrations for all servers.
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the migrations being returned.
         :returns: A generator of Migration objects
-        :rtype: :class:`~openstack.compute.v2.migration.Migration`
         """
         return self._list(_migration.Migration, **query)
 
@@ -2652,12 +2695,17 @@ class Proxy(proxy.Proxy):
 
     # ========== Project usage ============
 
-    def usages(self, start=None, end=None, **query):
+    def usages(
+        self,
+        start: datetime.datetime | None = None,
+        end: datetime.datetime | None = None,
+        **query: Any,
+    ) -> Generator[_usage.Usage, None, None]:
         """Get project usages.
 
-        :param datetime.datetime start: Usage range start date.
-        :param datetime.datetime end: Usage range end date.
-        :param dict query: Additional query parameters to use.
+        :param start: Usage range start date.
+        :param end: Usage range end date.
+        :param query: Additional query parameters to use.
         :returns: A list of compute ``Usage`` objects.
         """
         if start is not None:
@@ -3010,16 +3058,19 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def server_actions(self, server, **query):
+    def server_actions(
+        self,
+        server: str | _server.Server,
+        **query: Any,
+    ) -> Generator[_server_action.ServerAction, None, None]:
         """Return a generator of server actions
 
         :param server: The server can be either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server`.
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the actions being returned.
 
         :returns: A generator of ServerAction objects
-        :rtype: :class:`~openstack.compute.v2.server_action.ServerAction`
         """
         server_id = resource.Resource._get_id(server)
         return self._list(
@@ -3180,14 +3231,14 @@ class Proxy(proxy.Proxy):
         for server in servers:
             self.wait_for_delete(server)
 
-        for obj in self.server_groups():
+        for sg_obj in self.server_groups():
             # Do not delete server groups that still have members
-            if obj.member_ids:
+            if sg_obj.member_ids:
                 continue
 
             self._service_cleanup_del_res(
                 self.delete_server_group,
-                obj,
+                sg_obj,
                 dry_run=dry_run,
                 client_status_queue=client_status_queue,
                 identified_resources=identified_resources,
@@ -3287,7 +3338,11 @@ class Proxy(proxy.Proxy):
             id=share_id,
         )
 
-    def share_attachments(self, server, **query):
+    def share_attachments(
+        self,
+        server: str | _server.Server,
+        **query: Any,
+    ) -> Generator[_server_share.ShareMapping, None, None]:
         """Return a generator of share attachments
 
         :param server: The server can be either the ID of a server or a
@@ -3295,7 +3350,6 @@ class Proxy(proxy.Proxy):
         :params dict query: Query parameters
 
         :returns: A generator of ShareMapping objects
-        :rtype:
             :class:`~openstack.compute.v2.server_share.ShareMapping`
         """
         server_id = resource.Resource._get_id(server)

@@ -172,16 +172,22 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def snapshots(self, *, details=True, all_projects=False, **query):
+    def snapshots(
+        self,
+        *,
+        details: bool = True,
+        all_projects: bool = False,
+        **query: Any,
+    ) -> Generator[_snapshot.Snapshot, None, None]:
         """Retrieve a generator of snapshots
 
-        :param bool details: When set to ``False`` :class:
+        :param details: When set to ``False`` :class:
             `~openstack.block_storage.v3.snapshot.Snapshot`
             objects will be returned. The default, ``True``, will cause
             more attributes to be returned.
-        :param bool all_projects: When set to ``True``, list snapshots from all
+        :param all_projects: When set to ``True``, list snapshots from all
             projects. Admin-only by default.
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the snapshots being returned.  Available parameters include:
 
             * name: Name of the snapshot as a string.
@@ -428,7 +434,7 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def types(self, **query):
+    def types(self, **query: Any) -> Generator[_type.Type, None, None]:
         """Retrieve a generator of volume types
 
         :returns: A generator of volume type objects.
@@ -667,7 +673,9 @@ class Proxy(proxy.Proxy):
 
     # ====== DEFAULT TYPES ======
 
-    def default_types(self):
+    def default_types(
+        self,
+    ) -> Generator[_default_type.DefaultType, None, None]:
         """Lists default types.
 
         :returns: List of default types associated to projects.
@@ -814,15 +822,21 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def volumes(self, *, details=True, all_projects=False, **query):
+    def volumes(
+        self,
+        *,
+        details: bool = True,
+        all_projects: bool = False,
+        **query: Any,
+    ) -> Generator[_volume.Volume, None, None]:
         """Retrieve a generator of volumes
 
-        :param bool details: When set to ``False`` no extended attributes
+        :param details: When set to ``False`` no extended attributes
             will be returned. The default, ``True``, will cause objects with
             additional attributes to be returned.
-        :param bool all_projects: When set to ``True``, list volumes from all
+        :param all_projects: When set to ``True``, list volumes from all
             projects. Admin-only by default.
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the volumes being returned.  Available parameters include:
 
             * name: Name of the volume as a string.
@@ -1364,13 +1378,16 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_attachment.Attachment, attachment)
 
-    def attachments(self, **query):
+    def attachments(
+        self,
+        **query: Any,
+    ) -> Generator[_attachment.Attachment, None, None]:
         """Returns a generator of attachments.
 
         This is an internal API and should only be called by services
         consuming volume attachments like nova, glance, ironic etc.
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of attachment objects.
@@ -1442,10 +1459,13 @@ class Proxy(proxy.Proxy):
         return attachment_obj.complete(self)
 
     # ====== BACKEND POOLS ======
-    def backend_pools(self, **query):
+    def backend_pools(
+        self,
+        **query: Any,
+    ) -> Generator[_stats.Pools, None, None]:
         """Returns a generator of cinder Back-end storage pools
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns A generator of cinder Back-end storage pools objects
@@ -1453,13 +1473,18 @@ class Proxy(proxy.Proxy):
         return self._list(_stats.Pools, **query)
 
     # ====== BACKUPS ======
-    def backups(self, *, details=True, **query):
+    def backups(
+        self,
+        *,
+        details: bool = True,
+        **query: Any,
+    ) -> Generator[_backup.Backup, None, None]:
         """Retrieve a generator of backups
 
-        :param bool details: When set to ``False``
+        :param details: When set to ``False``
             no additional details will be returned. The default, ``True``,
             will cause objects with additional attributes to be returned.
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             resources being returned:
 
             * offset: pagination marker
@@ -1819,13 +1844,18 @@ class Proxy(proxy.Proxy):
             list_base_path=list_base_path,
         )
 
-    def groups(self, *, details=True, **query):
+    def groups(
+        self,
+        *,
+        details: bool = True,
+        **query: Any,
+    ) -> Generator[_group.Group, None, None]:
         """Retrieve a generator of groups
 
-        :param bool details: When set to ``False``, no additional details will
+        :param details: When set to ``False``, no additional details will
             be returned. The default, ``True``, will cause additional details
             to be returned.
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             resources being returned:
 
             * all_tenants: Shows details for all project.
@@ -1976,11 +2006,12 @@ class Proxy(proxy.Proxy):
         )
 
     # ====== AVAILABILITY ZONES ======
-    def availability_zones(self):
+    def availability_zones(
+        self,
+    ) -> Generator[availability_zone.AvailabilityZone, None, None]:
         """Return a generator of availability zones
 
         :returns: A generator of availability zone
-        :rtype:
             :class:`~openstack.block_storage.v3.availability_zone.AvailabilityZone`
         """
 
@@ -2051,13 +2082,18 @@ class Proxy(proxy.Proxy):
             list_base_path=list_base_path,
         )
 
-    def group_snapshots(self, *, details=True, **query):
+    def group_snapshots(
+        self,
+        *,
+        details: bool = True,
+        **query: Any,
+    ) -> Generator[_group_snapshot.GroupSnapshot, None, None]:
         """Retrieve a generator of group snapshots
 
-        :param bool details: When ``True``, returns
+        :param details: When ``True``, returns
             :class:`~openstack.block_storage.v3.group_snapshot.GroupSnapshot`
             objects with additional attributes filled.
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the group snapshots being returned.
         :returns: A generator of group snapshtos.
         """
@@ -2185,10 +2221,13 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def group_types(self, **query):
+    def group_types(
+        self,
+        **query: Any,
+    ) -> Generator[_group_type.GroupType, None, None]:
         """Retrive a generator of group types
 
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             resources being returned:
 
             * sort: Comma-separated list of sort keys and optional sort
@@ -2544,10 +2583,9 @@ class Proxy(proxy.Proxy):
     ) -> Generator[_service.Service, None, None]:
         """Return a generator of service
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
         :returns: A generator of Service objects
-        :rtype: class: `~openstack.block_storage.v3.service.Service`
         """
         return self._list(_service.Service, **query)
 
@@ -2681,7 +2719,10 @@ class Proxy(proxy.Proxy):
         )
 
     # ====== RESOURCE FILTERS ======
-    def resource_filters(self, **query):
+    def resource_filters(
+        self,
+        **query: Any,
+    ) -> Generator[_resource_filter.ResourceFilter, None, None]:
         """Retrieve a generator of resource filters
 
         :returns: A generator of resource filters.
@@ -2689,11 +2730,10 @@ class Proxy(proxy.Proxy):
         return self._list(_resource_filter.ResourceFilter, **query)
 
     # ====== EXTENSIONS ======
-    def extensions(self):
+    def extensions(self) -> Generator[_extension.Extension, None, None]:
         """Return a generator of extensions
 
         :returns: A generator of extension
-        :rtype: :class:`~openstack.block_storage.v3.extension.Extension`
         """
         return self._list(_extension.Extension)
 
@@ -2786,15 +2826,21 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_transfer.Transfer, transfer)
 
-    def transfers(self, *, details=True, all_projects=False, **query):
+    def transfers(
+        self,
+        *,
+        details: bool = True,
+        all_projects: bool = False,
+        **query: Any,
+    ) -> Generator[_transfer.Transfer, None, None]:
         """Retrieve a generator of transfers
 
-        :param bool details: When set to ``False`` no extended attributes
+        :param details: When set to ``False`` no extended attributes
             will be returned. The default, ``True``, will cause objects with
             additional attributes to be returned.
-        :param bool all_projects: When set to ``True``, list transfers from
+        :param all_projects: When set to ``True``, list transfers from
             all projects. Admin-only by default.
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the transfers being returned.
 
         :returns: A generator of transfer objects.
@@ -2961,10 +3007,10 @@ class Proxy(proxy.Proxy):
 
         if not self.should_skip_resource_cleanup("snapshot", skip_resources):
             snapshots = []
-            for obj in self.snapshots(details=False):
+            for snap_obj in self.snapshots(details=False):
                 need_delete = self._service_cleanup_del_res(
                     self.delete_snapshot,
-                    obj,
+                    snap_obj,
                     dry_run=dry_run,
                     client_status_queue=client_status_queue,
                     identified_resources=identified_resources,
@@ -2972,21 +3018,21 @@ class Proxy(proxy.Proxy):
                     resource_evaluation_fn=resource_evaluation_fn,
                 )
                 if not dry_run and need_delete:
-                    snapshots.append(obj)
+                    snapshots.append(snap_obj)
 
             # Before deleting volumes need to wait for snapshots to be deleted
-            for obj in snapshots:
+            for snap_obj in snapshots:
                 try:
-                    self.wait_for_delete(obj)
+                    self.wait_for_delete(snap_obj)
                 except exceptions.SDKException:
                     # Well, did our best, still try further
                     pass
 
         if not self.should_skip_resource_cleanup("volume", skip_resources):
-            for obj in self.volumes(details=True):
+            for vol_obj in self.volumes(details=True):
                 self._service_cleanup_del_res(
                     self.delete_volume,
-                    obj,
+                    vol_obj,
                     dry_run=dry_run,
                     client_status_queue=client_status_queue,
                     identified_resources=identified_resources,

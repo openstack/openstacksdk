@@ -11,7 +11,7 @@
 # under the License.
 
 from typing import Any, ClassVar, Literal, overload
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 
 from openstack import exceptions
 from openstack.orchestration.util import template_utils
@@ -168,14 +168,13 @@ class Proxy(proxy.Proxy):
             resolve_outputs=resolve_outputs,
         )
 
-    def stacks(self, **query):
+    def stacks(self, **query: Any) -> Generator[_stack.Stack, None, None]:
         """Return a generator of stacks
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of stack objects
-        :rtype: :class:`~openstack.orchestration.v1.stack.Stack`
         """
         return self._list(_stack.Stack, **query)
 
@@ -362,18 +361,21 @@ class Proxy(proxy.Proxy):
         obj = _stack_files.StackFiles(stack_name=stk.name, stack_id=stk.id)
         return obj.fetch(self)
 
-    def resources(self, stack, **query):
+    def resources(
+        self,
+        stack: str | _stack.Stack,
+        **query: Any,
+    ) -> Generator[_resource.Resource, None, None]:
         """Return a generator of resources
 
         :param stack: This can be a stack object, or the name of a stack
             for which the resources are to be listed.
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of resource objects if the stack exists and
             there are resources in it. If the stack cannot be found,
             an exception is thrown.
-        :rtype: A generator of
             :class:`~openstack.orchestration.v1.resource.Resource`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when the stack cannot be found.
@@ -401,13 +403,15 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_sc.SoftwareConfig, **attrs)
 
-    def software_configs(self, **query):
+    def software_configs(
+        self,
+        **query: Any,
+    ) -> Generator[_sc.SoftwareConfig, None, None]:
         """Returns a generator of software configs
 
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             software configs returned.
         :returns: A generator of software config objects.
-        :rtype:
             :class:`~openstack.orchestration.v1.software_config.SoftwareConfig`
         """
         return self._list(_sc.SoftwareConfig, **query)
@@ -462,13 +466,15 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_sd.SoftwareDeployment, **attrs)
 
-    def software_deployments(self, **query):
+    def software_deployments(
+        self,
+        **query: Any,
+    ) -> Generator[_sd.SoftwareDeployment, None, None]:
         """Returns a generator of software deployments
 
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             software deployments returned.
         :returns: A generator of software deployment objects.
-        :rtype:
             :class:`~openstack.orchestration.v1.software_deployment.SoftwareDeployment`
         """
         return self._list(_sd.SoftwareDeployment, **query)
@@ -583,7 +589,12 @@ class Proxy(proxy.Proxy):
 
     # ========== Stack events ==========
 
-    def stack_events(self, stack, resource_name=None, **attr):
+    def stack_events(
+        self,
+        stack: str | _stack.Stack,
+        resource_name: str | None = None,
+        **attr: Any,
+    ) -> Generator[_stack_event.StackEvent, None, None]:
         """Get a stack events
 
         :param stack: The value can be the ID of a stack or an instance of
@@ -592,7 +603,6 @@ class Proxy(proxy.Proxy):
             None, the base_path changes.
 
         :returns: A generator of stack_events objects
-        :rtype: :class:`~openstack.orchestration.v1.stack_event.StackEvent`
         """
 
         if isinstance(stack, _stack.Stack):

@@ -344,10 +344,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_address_group.AddressGroup, address_group)
 
-    def address_groups(self, **query):
+    def address_groups(
+        self,
+        **query: Any,
+    ) -> Generator[_address_group.AddressGroup, None, None]:
         """Return a generator of address groups
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
             * ``name``: Address group name
@@ -355,7 +358,6 @@ class Proxy(proxy.Proxy):
             * ``project_id``: Owner project ID
 
         :returns: A generator of address group objects
-        :rtype: :class:`~openstack.network.v2.address_group.AddressGroup`
         """
         return self._list(_address_group.AddressGroup, **query)
 
@@ -496,10 +498,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_address_scope.AddressScope, address_scope)
 
-    def address_scopes(self, **query):
+    def address_scopes(
+        self,
+        **query: Any,
+    ) -> Generator[_address_scope.AddressScope, None, None]:
         """Return a generator of address scopes
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
             * ``name``: Address scope name
@@ -508,7 +513,6 @@ class Proxy(proxy.Proxy):
             * ``shared``: Address scope is shared (boolean)
 
         :returns: A generator of address scope objects
-        :rtype: :class:`~openstack.network.v2.address_scope.AddressScope`
         """
         return self._list(_address_scope.AddressScope, **query)
 
@@ -530,10 +534,10 @@ class Proxy(proxy.Proxy):
             _address_scope.AddressScope, address_scope, **attrs
         )
 
-    def agents(self, **query):
+    def agents(self, **query: Any) -> Generator[_agent.Agent, None, None]:
         """Return a generator of network agents
 
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             resources being returned.
 
             * ``agent_type``: Agent type.
@@ -547,7 +551,6 @@ class Proxy(proxy.Proxy):
             * ``is_alive``: Whether the agent is alive.
 
         :returns: A generator of agents
-        :rtype: :class:`~openstack.network.v2.agent.Agent`
         """
         return self._list(_agent.Agent, **query)
 
@@ -596,7 +599,11 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_agent.Agent, agent, **attrs)
 
-    def dhcp_agent_hosting_networks(self, agent, **query):
+    def dhcp_agent_hosting_networks(
+        self,
+        agent: str | _agent.Agent,
+        **query: Any,
+    ) -> Generator[_network.DHCPAgentHostingNetwork, None, None]:
         """A generator of networks hosted by a DHCP agent.
 
         :param agent: Either the agent id of an instance of
@@ -634,12 +641,16 @@ class Proxy(proxy.Proxy):
         agent = self._get_resource(_agent.Agent, agent)
         return agent.remove_agent_from_network(self, network.id)
 
-    def network_hosting_dhcp_agents(self, network, **query):
+    def network_hosting_dhcp_agents(
+        self,
+        network: str | _network.Network,
+        **query: Any,
+    ) -> Generator[_agent.NetworkHostingDHCPAgent, None, None]:
         """A generator of DHCP agents hosted on a network.
 
         :param network: The instance of
             :class:`~openstack.network.v2.network.Network`
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             resources returned.
         :return: A generator of hosted DHCP agents
         """
@@ -711,17 +722,19 @@ class Proxy(proxy.Proxy):
             requires_id=False,
         )
 
-    def availability_zones(self, **query):
+    def availability_zones(
+        self,
+        **query: Any,
+    ) -> Generator[availability_zone.AvailabilityZone, None, None]:
         """Return a generator of availability zones
 
-        :param dict query: optional query parameters to be set to limit the
+        :param query: optional query parameters to be set to limit the
             returned resources. Valid parameters include:
 
             * ``name``: The name of an availability zone.
             * ``resource``: The type of resource for the availability zone.
 
         :returns: A generator of availability zone objects
-        :rtype:
             :class:`~openstack.network.v2.availability_zone.AvailabilityZone`
         """
         return self._list(availability_zone.AvailabilityZone)
@@ -778,7 +791,10 @@ class Proxy(proxy.Proxy):
         """Update a BGP Peer"""
         return self._update(_bgp_peer.BgpPeer, peer, **attrs)
 
-    def bgp_peers(self, **query):
+    def bgp_peers(
+        self,
+        **query: Any,
+    ) -> Generator[_bgp_peer.BgpPeer, None, None]:
         """Return a generator of BGP Peers"""
         return self._list(_bgp_peer.BgpPeer, **query)
 
@@ -840,7 +856,10 @@ class Proxy(proxy.Proxy):
         """Update a BGP Speaker"""
         return self._update(_bgp_speaker.BgpSpeaker, speaker, **attrs)
 
-    def bgp_speakers(self, **query):
+    def bgp_speakers(
+        self,
+        **query: Any,
+    ) -> Generator[_bgp_speaker.BgpSpeaker, None, None]:
         """Return a generator of BGP Peers"""
         return self._list(_bgp_speaker.BgpSpeaker, **query)
 
@@ -1005,14 +1024,13 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_bgpvpn.BgpVpn, bgppvpn, **attrs)
 
-    def bgpvpns(self, **query):
+    def bgpvpns(self, **query: Any) -> Generator[_bgpvpn.BgpVpn, None, None]:
         """Return a generator of BGP VPNs
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of BgpVPN objects
-        :rtype: :class:`~openstack.network.v2.bgpvpn.BgpVpn`
         """
         return self._list(_bgpvpn.BgpVpn, **query)
 
@@ -1097,17 +1115,21 @@ class Proxy(proxy.Proxy):
             bgpvpn_id=bgpvpn_res.id,
         )
 
-    def bgpvpn_network_associations(self, bgpvpn, **query):
+    def bgpvpn_network_associations(
+        self,
+        bgpvpn: str | _bgpvpn.BgpVpn,
+        **query: Any,
+    ) -> Generator[
+        _bgpvpn_network_association.BgpVpnNetworkAssociation, None, None
+    ]:
         """Return a generator of BGP VPN Network Associations
 
         :param: bgpvpn: The value can be the ID of a BGPVPN or a
             :class:`~openstack.network.v2.bgpvpn.BgpVpn` instance.
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of BgpVpnNetworkAssociation objects
-        :rtype: :class:`~openstack.network.v2.bgpvpn_network_association.
-            BgpVpnNetworkAssociation`
         """
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
         return self._list(
@@ -1269,17 +1291,19 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def bgpvpn_port_associations(self, bgpvpn, **query):
+    def bgpvpn_port_associations(
+        self,
+        bgpvpn: str | _bgpvpn.BgpVpn,
+        **query: Any,
+    ) -> Generator[_bgpvpn_port_association.BgpVpnPortAssociation, None, None]:
         """Return a generator of BGP VPN Port Associations
 
         :param: bgpvpn: The value can be the ID of a BGPVPN or a
             :class:`~openstack.network.v2.bgpvpn.BgpVpn` instance.
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of BgpVpnNetworkAssociation objects
-        :rtype: :class:`~openstack.network.v2.bgpvpn_network_association.
-            BgpVpnNetworkAssociation`
         """
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
         return self._list(
@@ -1391,17 +1415,21 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def bgpvpn_router_associations(self, bgpvpn, **query):
+    def bgpvpn_router_associations(
+        self,
+        bgpvpn: str | _bgpvpn.BgpVpn,
+        **query: Any,
+    ) -> Generator[
+        _bgpvpn_router_association.BgpVpnRouterAssociation, None, None
+    ]:
         """Return a generator of BGP VPN router Associations
 
         :param: bgpvpn: The value can be the ID of a BGPVPN or a
             :class:`~openstack.network.v2.bgpvpn.BgpVpn` instance.
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of BgpVpnRouterAssociation objects
-        :rtype: :class:`~openstack.network.v2.bgpvpn_router_association.
-            BgpVpnRouterAssociation`
         """
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
         return self._list(
@@ -1452,15 +1480,17 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def extensions(self, **query):
+    def extensions(
+        self,
+        **query: Any,
+    ) -> Generator[extension.Extension, None, None]:
         """Return a generator of extensions
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Currently no
             parameter is supported.
 
         :returns: A generator of extension objects
-        :rtype: :class:`~openstack.network.v2.extension.Extension`
         """
         return self._list(extension.Extension, **query)
 
@@ -1561,10 +1591,10 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_flavor.Flavor, flavor, **attrs)
 
-    def flavors(self, **query):
+    def flavors(self, **query: Any) -> Generator[_flavor.Flavor, None, None]:
         """Return a generator of network service flavors
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Valid parameters
             include:
 
@@ -1574,7 +1604,6 @@ class Proxy(proxy.Proxy):
             * ``service_type``: The service type to which a falvor applies.
 
         :returns: A generator of flavor objects
-        :rtype: :class:`~openstack.network.v2.flavor.Flavor`
         """
         return self._list(_flavor.Flavor, **query)
 
@@ -1717,10 +1746,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_local_ip.LocalIP, local_ip)
 
-    def local_ips(self, **query):
+    def local_ips(
+        self,
+        **query: Any,
+    ) -> Generator[_local_ip.LocalIP, None, None]:
         """Return a generator of local ips
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
             * ``name``: Local IP name
@@ -1732,7 +1764,6 @@ class Proxy(proxy.Proxy):
             * ``ip_mode``: The Local IP mode
 
         :returns: A generator of local ip objects
-        :rtype: :class:`~openstack.network.v2.local_ip.LocalIP`
         """
         return self._list(_local_ip.LocalIP, **query)
 
@@ -1895,12 +1926,16 @@ class Proxy(proxy.Proxy):
             local_ip_id=local_ip.id,
         )
 
-    def local_ip_associations(self, local_ip, **query):
+    def local_ip_associations(
+        self,
+        local_ip: str | _local_ip.LocalIP,
+        **query: Any,
+    ) -> Generator[_local_ip_association.LocalIPAssociation, None, None]:
         """Return a generator of local ip associations
 
         :param local_ip: The value can be the ID of a Local IP or a
             :class:`~openstack.network.v2.local_ip.LocalIP` instance.
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
             * ``fixed_port_id``: The ID of the port to which a local IP
@@ -1910,7 +1945,6 @@ class Proxy(proxy.Proxy):
             * ``host``: Host where local ip is associated
 
         :returns: A generator of local ip association objects
-        :rtype:
             :class:`~openstack.network.v2.local_ip_association.LocalIPAssociation`
         """
         local_ip = self._get_resource(_local_ip.LocalIP, local_ip)
@@ -2025,10 +2059,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_floating_ip.FloatingIP, floating_ip)
 
-    def ips(self, **query):
+    def ips(
+        self,
+        **query: Any,
+    ) -> Generator[_floating_ip.FloatingIP, None, None]:
         """Return a generator of ips
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Valid parameters are:
 
             * ``description``: The description of a floating IP.
@@ -2046,7 +2083,6 @@ class Proxy(proxy.Proxy):
               or ``DOWN``.
 
         :returns: A generator of floating IP objects
-        :rtype: :class:`~openstack.network.v2.floating_ip.FloatingIP`
         """
         return self._list(_floating_ip.FloatingIP, **query)
 
@@ -2196,13 +2232,17 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def port_forwardings(self, floating_ip, **query):
+    def port_forwardings(
+        self,
+        floating_ip: str | _floating_ip.FloatingIP,
+        **query: Any,
+    ) -> Generator[_port_forwarding.PortForwarding, None, None]:
         """Return a generator of port forwardings
 
         :param floating_ip: The value can be the ID of a Floating IP or a
             :class:`~openstack.network.v2.floating_ip.FloatingIP`
             instance.
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Valid parameters are:
 
             * ``internal_port_id``: The ID of internal port.
@@ -2210,7 +2250,6 @@ class Proxy(proxy.Proxy):
             * ``protocol``: TCP/UDP/other protocol
 
         :returns: A generator of port forwarding objects
-        :rtype: :class:`~openstack.network.v2.port_forwarding.PortForwarding`
         """
         fip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
         return self._list(
@@ -2342,10 +2381,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_health_monitor.HealthMonitor, health_monitor)
 
-    def health_monitors(self, **query):
+    def health_monitors(
+        self,
+        **query: Any,
+    ) -> Generator[_health_monitor.HealthMonitor, None, None]:
         """Return a generator of health monitors
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Valid parameters are:
 
             * ``delay``: the time in milliseconds between sending probes.
@@ -2366,7 +2408,6 @@ class Proxy(proxy.Proxy):
             * ``url_path``: The path portion of a URI that will be probed.
 
         :returns: A generator of health monitor objects
-        :rtype: :class:`~openstack.network.v2.health_monitor.HealthMonitor`
         """
         return self._list(_health_monitor.HealthMonitor, **query)
 
@@ -2476,10 +2517,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_listener.Listener, listener)
 
-    def listeners(self, **query):
+    def listeners(
+        self,
+        **query: Any,
+    ) -> Generator[_listener.Listener, None, None]:
         """Return a generator of listeners
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Valid parameters are:
 
             * ``connection_limit``: The maximum number of connections
@@ -2495,7 +2539,6 @@ class Proxy(proxy.Proxy):
             * ``protocol_port``: Port the listener will listen to.
 
         :returns: A generator of listener objects
-        :rtype: :class:`~openstack.network.v2.listener.Listener`
         """
         return self._list(_listener.Listener, **query)
 
@@ -2611,14 +2654,16 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_load_balancer.LoadBalancer, load_balancer)
 
-    def load_balancers(self, **query):
+    def load_balancers(
+        self,
+        **query: Any,
+    ) -> Generator[_load_balancer.LoadBalancer, None, None]:
         """Return a generator of load balancers
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of load balancer objects
-        :rtype: :class:`~openstack.network.v2.load_balancer.LoadBalancer`
         """
         return self._list(_load_balancer.LoadBalancer, **query)
 
@@ -2739,10 +2784,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_metering_label.MeteringLabel, metering_label)
 
-    def metering_labels(self, **query):
+    def metering_labels(
+        self,
+        **query: Any,
+    ) -> Generator[_metering_label.MeteringLabel, None, None]:
         """Return a generator of metering labels
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Valid parameters are:
 
             * ``description``: Description of a metering label.
@@ -2753,7 +2801,6 @@ class Proxy(proxy.Proxy):
               associated with.
 
         :returns: A generator of metering label objects
-        :rtype: :class:`~openstack.network.v2.metering_label.MeteringLabel`
         """
         return self._list(_metering_label.MeteringLabel, **query)
 
@@ -2879,10 +2926,13 @@ class Proxy(proxy.Proxy):
             _metering_label_rule.MeteringLabelRule, metering_label_rule
         )
 
-    def metering_label_rules(self, **query):
+    def metering_label_rules(
+        self,
+        **query: Any,
+    ) -> Generator[_metering_label_rule.MeteringLabelRule, None, None]:
         """Return a generator of metering label rules
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Valid parameters are:
 
             * ``direction``: The direction in which metering label rule is
@@ -2895,7 +2945,6 @@ class Proxy(proxy.Proxy):
               this metering label rule.
 
         :returns: A generator of metering label rule objects
-        :rtype:
             :class:`~openstack.network.v2.metering_label_rule.MeteringLabelRule`
         """
         return self._list(_metering_label_rule.MeteringLabelRule, **query)
@@ -3016,10 +3065,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_network.Network, network)
 
-    def networks(self, **query):
+    def networks(
+        self,
+        **query: Any,
+    ) -> Generator[_network.Network, None, None]:
         """Return a generator of networks
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
             * ``description``: The network description.
@@ -3040,7 +3092,6 @@ class Proxy(proxy.Proxy):
               ID for GENEVE/GRE/VXLAN networks
 
         :returns: A generator of network objects
-        :rtype: :class:`~openstack.network.v2.network.Network`
         """
         return self._list(_network.Network, **query)
 
@@ -3126,10 +3177,13 @@ class Proxy(proxy.Proxy):
             network_ip_availability.NetworkIPAvailability, network
         )
 
-    def network_ip_availabilities(self, **query):
+    def network_ip_availabilities(
+        self,
+        **query: Any,
+    ) -> Generator[network_ip_availability.NetworkIPAvailability, None, None]:
         """Return a generator of network ip availabilities
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
             * ``ip_version``: IP version of the network
@@ -3140,7 +3194,6 @@ class Proxy(proxy.Proxy):
             * ``project_id``: Owner tenant ID
 
         :returns: A generator of network ip availability objects
-        :rtype:
             :class:`~openstack.network.v2.network_ip_availability.NetworkIPAvailability`
         """
         return self._list(
@@ -3255,10 +3308,13 @@ class Proxy(proxy.Proxy):
             _network_segment_range.NetworkSegmentRange, network_segment_range
         )
 
-    def network_segment_ranges(self, **query):
+    def network_segment_ranges(
+        self,
+        **query: Any,
+    ) -> Generator[_network_segment_range.NetworkSegmentRange, None, None]:
         """Return a generator of network segment ranges
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
             * ``name``: Name of the segments
@@ -3281,7 +3337,6 @@ class Proxy(proxy.Proxy):
               network segment range
 
         :returns: A generator of network segment range objects
-        :rtype:
             :class:`~openstack.network.v2._network_segment_range.NetworkSegmentRange`
         """
         return self._list(_network_segment_range.NetworkSegmentRange, **query)
@@ -3388,10 +3443,10 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_pool.Pool, pool)
 
-    def pools(self, **query):
+    def pools(self, **query: Any) -> Generator[_pool.Pool, None, None]:
         """Return a generator of pools
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Valid parameters are:
 
             * ``description``: The description for the pool.
@@ -3410,7 +3465,6 @@ class Proxy(proxy.Proxy):
             * ``virtual_ip_id``: The ID of the virtual IP used.
 
         :returns: A generator of pool objects
-        :rtype: :class:`~openstack.network.v2.pool.Pool`
         """
         return self._list(_pool.Pool, **query)
 
@@ -3553,13 +3607,17 @@ class Proxy(proxy.Proxy):
             _pool_member.PoolMember, pool_member, pool_id=poolobj.id
         )
 
-    def pool_members(self, pool, **query):
+    def pool_members(
+        self,
+        pool: str | _pool.Pool,
+        **query: Any,
+    ) -> Generator[_pool_member.PoolMember, None, None]:
         """Return a generator of pool members
 
         :param pool: The pool can be either the ID of a pool or a
             :class:`~openstack.network.v2.pool.Pool` instance that
             the member belongs to.
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Valid parameters are:
 
             * ``address``: The IP address of the pool member.
@@ -3575,7 +3633,6 @@ class Proxy(proxy.Proxy):
               pool.
 
         :returns: A generator of pool member objects
-        :rtype: :class:`~openstack.network.v2.pool_member.PoolMember`
         """
         poolobj = self._get_resource(_pool.Pool, pool)
         return self._list(_pool_member.PoolMember, pool_id=poolobj.id, **query)
@@ -3707,10 +3764,10 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_port.Port, port)
 
-    def ports(self, **query):
+    def ports(self, **query: Any) -> Generator[_port.Port, None, None]:
         """Return a generator of ports
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
             * ``description``: The port description.
@@ -3727,7 +3784,6 @@ class Proxy(proxy.Proxy):
             * ``subnet_id``: The ID of the subnet.
 
         :returns: A generator of port objects
-        :rtype: :class:`~openstack.network.v2.port.Port`
         """
         return self._list(_port.Port, **query)
 
@@ -3812,12 +3868,16 @@ class Proxy(proxy.Proxy):
         for binding in bindings_on_host:
             return binding.activate_port_binding(self, host)
 
-    def port_bindings(self, port, **query):
+    def port_bindings(
+        self,
+        port: str | _port.Port,
+        **query: Any,
+    ) -> Generator[_port_binding.PortBinding, None, None]:
         """Get a single port binding
 
         :param port: The value can be the ID of a port or a
             :class:`~openstack.network.v2.port.Port` instance.
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
             * ``host``: The host on which the port is bound.
@@ -3826,7 +3886,6 @@ class Proxy(proxy.Proxy):
             * ``status``: The port status. Value is ``ACTIVE`` or ``DOWN``.
 
         :returns: A generator of PortBinding objects
-        :rtype: :class:`~openstack.network.v2.port_binding.PortBinding`
         """
         port_id = self._get(_port.Port, port).id
         return self._list(
@@ -4004,16 +4063,21 @@ class Proxy(proxy.Proxy):
             qos_policy_id=policy.id,
         )
 
-    def qos_bandwidth_limit_rules(self, qos_policy, **query):
+    def qos_bandwidth_limit_rules(
+        self,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        **query: Any,
+    ) -> Generator[
+        _qos_bandwidth_limit_rule.QoSBandwidthLimitRule, None, None
+    ]:
         """Return a generator of bandwidth limit rules
 
         :param qos_policy: The value can be the ID of the QoS policy that the
             rule belongs or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
         :returns: A generator of bandwidth limit rule objects
-        :rtype:
             :class:`~openstack.network.v2.qos_bandwidth_limit_rule.QoSBandwidthLimitRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
@@ -4183,16 +4247,19 @@ class Proxy(proxy.Proxy):
             qos_policy_id=policy.id,
         )
 
-    def qos_dscp_marking_rules(self, qos_policy, **query):
+    def qos_dscp_marking_rules(
+        self,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        **query: Any,
+    ) -> Generator[_qos_dscp_marking_rule.QoSDSCPMarkingRule, None, None]:
         """Return a generator of QoS DSCP marking rules
 
         :param qos_policy: The value can be the ID of the QoS policy that the
             rule belongs or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
         :returns: A generator of QoS DSCP marking rule objects
-        :rtype:
             :class:`~openstack.network.v2.qos_dscp_marking_rule.QoSDSCPMarkingRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
@@ -4364,16 +4431,21 @@ class Proxy(proxy.Proxy):
             qos_policy_id=policy.id,
         )
 
-    def qos_minimum_bandwidth_rules(self, qos_policy, **query):
+    def qos_minimum_bandwidth_rules(
+        self,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        **query: Any,
+    ) -> Generator[
+        _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule, None, None
+    ]:
         """Return a generator of minimum bandwidth rules
 
         :param qos_policy: The value can be the ID of the QoS policy that the
             rule belongs or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
         :returns: A generator of minimum bandwidth rule objects
-        :rtype:
             :class:`~openstack.network.v2.qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
@@ -4541,16 +4613,21 @@ class Proxy(proxy.Proxy):
             qos_policy_id=policy.id,
         )
 
-    def qos_minimum_packet_rate_rules(self, qos_policy, **query):
+    def qos_minimum_packet_rate_rules(
+        self,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        **query: Any,
+    ) -> Generator[
+        _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule, None, None
+    ]:
         """Return a generator of minimum packet rate rules
 
         :param qos_policy: The value can be the ID of the QoS policy that the
             rule belongs or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
-        :param kwargs query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             resources being returned.
         :returns: A generator of minimum packet rate rule objects
-        :rtype:
             :class:`~openstack.network.v2.qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
@@ -4717,16 +4794,21 @@ class Proxy(proxy.Proxy):
             qos_policy_id=policy.id,
         )
 
-    def qos_packet_rate_limit_rules(self, qos_policy, **query):
+    def qos_packet_rate_limit_rules(
+        self,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        **query: Any,
+    ) -> Generator[
+        _qos_packet_rate_limit_rule.QoSPacketRateLimitRule, None, None
+    ]:
         """Return a generator of packet rate limit rules
 
         :param qos_policy: The value can be the ID of the QoS policy that the
             rule belongs or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
-        :param kwargs query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             resources being returned.
         :returns: A generator of minimum packet rate rule objects
-        :rtype:
             :class:`~openstack.network.v2.qos_packet_rate_limit_rule.QoSPacketRateLimitRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
@@ -4855,10 +4937,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_qos_policy.QoSPolicy, qos_policy)
 
-    def qos_policies(self, **query):
+    def qos_policies(
+        self,
+        **query: Any,
+    ) -> Generator[_qos_policy.QoSPolicy, None, None]:
         """Return a generator of QoS policies
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Valid parameters are:
 
             * ``description``: The description of a QoS policy.
@@ -4867,7 +4952,6 @@ class Proxy(proxy.Proxy):
             * ``project_id``: The ID of the project who owns the network.
 
         :returns: A generator of QoS policy objects
-        :rtype: :class:`~openstack.network.v2.qos_policy.QoSPolicy`
         """
         return self._list(_qos_policy.QoSPolicy, **query)
 
@@ -4939,16 +5023,18 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_qos_rule_type.QoSRuleType, qos_rule_type)
 
-    def qos_rule_types(self, **query):
+    def qos_rule_types(
+        self,
+        **query: Any,
+    ) -> Generator[_qos_rule_type.QoSRuleType, None, None]:
         """Return a generator of QoS rule types
 
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             resources returned. Valid parameters include:
 
             * ``type``: The type of the QoS rule type.
 
         :returns: A generator of QoS rule type objects
-        :rtype: :class:`~openstack.network.v2.qos_rule_type.QoSRuleType`
         """
         return self._list(_qos_rule_type.QoSRuleType, **query)
 
@@ -5017,15 +5103,14 @@ class Proxy(proxy.Proxy):
             _quota.QuotaDefault, project=quota_obj.id, requires_id=False
         )
 
-    def quotas(self, **query):
+    def quotas(self, **query: Any) -> Generator[_quota.Quota, None, None]:
         """Return a generator of quotas
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Currently no query
             parameter is supported.
 
         :returns: A generator of quota objects
-        :rtype: :class:`~openstack.network.v2.quota.Quota`
         """
         return self._list(_quota.Quota, **query)
 
@@ -5136,10 +5221,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_rbac_policy.RBACPolicy, rbac_policy)
 
-    def rbac_policies(self, **query):
+    def rbac_policies(
+        self,
+        **query: Any,
+    ) -> Generator[_rbac_policy.RBACPolicy, None, None]:
         """Return a generator of RBAC policies
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters
             include:
 
@@ -5150,7 +5238,6 @@ class Proxy(proxy.Proxy):
             * ``project_id``: Owner tenant ID
 
         :returns: A generator of rbac objects
-        :rtype: :class:`~openstack.network.v2.rbac_policy.RBACPolicy`
         """
         return self._list(_rbac_policy.RBACPolicy, **query)
 
@@ -5259,10 +5346,10 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_router.Router, router)
 
-    def routers(self, **query):
+    def routers(self, **query: Any) -> Generator[_router.Router, None, None]:
         """Return a generator of routers
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Valid parameters are:
 
             * ``description``: The description of a router.
@@ -5276,7 +5363,6 @@ class Proxy(proxy.Proxy):
             * ``status``: The status of the router.
 
         :returns: A generator of router objects
-        :rtype: :class:`~openstack.network.v2.router.Router`
         """
         return self._list(_router.Router, **query)
 
@@ -5434,30 +5520,36 @@ class Proxy(proxy.Proxy):
         router = self._get_resource(_router.Router, router)
         return router.remove_external_gateways(self, body)
 
-    def routers_hosting_l3_agents(self, router, **query):
+    def routers_hosting_l3_agents(
+        self,
+        router: str | _router.Router,
+        **query: Any,
+    ) -> Generator[_agent.RouterL3Agent, None, None]:
         """Return a generator of L3 agent hosting a router
 
         :param router: Either the router id or an instance of
             :class:`~openstack.network.v2.router.Router`
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources returned
 
         :returns: A generator of Router L3 Agents
-        :rtype: :class:`~openstack.network.v2.router.RouterL3Agents`
         """
         router = self._get_resource(_router.Router, router)
         return self._list(_agent.RouterL3Agent, router_id=router.id, **query)
 
-    def agent_hosted_routers(self, agent, **query):
+    def agent_hosted_routers(
+        self,
+        agent: str | _agent.Agent,
+        **query: Any,
+    ) -> Generator[_router.L3AgentRouter, None, None]:
         """Return a generator of routers hosted by a L3 agent
 
         :param agent: Either the agent id of an instance of
             :class:`~openstack.network.v2.network_agent.Agent`
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources returned
 
         :returns: A generator of routers
-        :rtype: :class:`~openstack.network.v2.agent.L3AgentRouters`
         """
         agent = self._get_resource(_agent.Agent, agent)
         return self._list(_router.L3AgentRouter, agent_id=agent.id, **query)
@@ -5602,10 +5694,13 @@ class Proxy(proxy.Proxy):
             _ndp_proxy.NDPProxy, ndp_proxy, ignore_missing=ignore_missing
         )
 
-    def ndp_proxies(self, **query):
+    def ndp_proxies(
+        self,
+        **query: Any,
+    ) -> Generator[_ndp_proxy.NDPProxy, None, None]:
         """Return a generator of ndp proxies
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Valid parameters are:
 
             * ``router_id``: The ID fo the router
@@ -5613,7 +5708,6 @@ class Proxy(proxy.Proxy):
             * ``ip_address``: The internal IP address
 
         :returns: A generator of port forwarding objects
-        :rtype: :class:`~openstack.network.v2.port_forwarding.PortForwarding`
         """
         return self._list(_ndp_proxy.NDPProxy, paginated=False, **query)
 
@@ -5730,10 +5824,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_firewall_group.FirewallGroup, firewall_group)
 
-    def firewall_groups(self, **query):
+    def firewall_groups(
+        self,
+        **query: Any,
+    ) -> Generator[_firewall_group.FirewallGroup, None, None]:
         """Return a generator of firewall_groups
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Valid parameters are:
 
             * ``description``: Firewall group description
@@ -5872,10 +5969,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_firewall_policy.FirewallPolicy, firewall_policy)
 
-    def firewall_policies(self, **query):
+    def firewall_policies(
+        self,
+        **query: Any,
+    ) -> Generator[_firewall_policy.FirewallPolicy, None, None]:
         """Return a generator of firewall_policies
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Valid parameters are:
 
             * ``description``: Firewall policy description
@@ -6062,10 +6162,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_firewall_rule.FirewallRule, firewall_rule)
 
-    def firewall_rules(self, **query):
+    def firewall_rules(
+        self,
+        **query: Any,
+    ) -> Generator[_firewall_rule.FirewallRule, None, None]:
         """Return a generator of firewall_rules
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Valid parameters are:
 
             * ``action``: The action that the API performs on traffic that
@@ -6213,10 +6316,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_security_group.SecurityGroup, security_group)
 
-    def security_groups(self, **query):
+    def security_groups(
+        self,
+        **query: Any,
+    ) -> Generator[_security_group.SecurityGroup, None, None]:
         """Return a generator of security groups
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Valid parameters are:
 
             * ``description``: Security group description
@@ -6226,7 +6332,6 @@ class Proxy(proxy.Proxy):
               associated with.
 
         :returns: A generator of security group objects
-        :rtype: :class:`~openstack.network.v2.security_group.SecurityGroup`
         """
         return self._list(_security_group.SecurityGroup, **query)
 
@@ -6381,10 +6486,13 @@ class Proxy(proxy.Proxy):
             _security_group_rule.SecurityGroupRule, security_group_rule
         )
 
-    def security_group_rules(self, **query):
+    def security_group_rules(
+        self,
+        **query: Any,
+    ) -> Generator[_security_group_rule.SecurityGroupRule, None, None]:
         """Return a generator of security group rules
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
             * ``description``: The security group rule description
@@ -6398,7 +6506,6 @@ class Proxy(proxy.Proxy):
             * ``security_group_id``: ID of security group that owns the rules
 
         :returns: A generator of security group rule objects
-        :rtype:
             :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`
         """
         return self._list(_security_group_rule.SecurityGroupRule, **query)
@@ -6515,10 +6622,15 @@ class Proxy(proxy.Proxy):
             default_security_group_rule,
         )
 
-    def default_security_group_rules(self, **query):
+    def default_security_group_rules(
+        self,
+        **query: Any,
+    ) -> Generator[
+        _default_security_group_rule.DefaultSecurityGroupRule, None, None
+    ]:
         """Return a generator of default security group rules
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
             * ``description``: The default security group rule description
@@ -6529,7 +6641,6 @@ class Proxy(proxy.Proxy):
             * ``remote_group_id``: ID of a remote security group
 
         :returns: A generator of default security group rule objects
-        :rtype:
             :class:`~openstack.network.v2.default_security_group_rule.
             DefaultSecurityGroupRule`
         """
@@ -6653,14 +6764,18 @@ class Proxy(proxy.Proxy):
             security_groups_default_statefulness,
         )
 
-    def security_groups_default_statefulness(self, **query):
+    def security_groups_default_statefulness(
+        self,
+        **query: Any,
+    ) -> Generator[
+        _sg_default_statefulness.SecurityGroupsDefaultStatefulness, None, None
+    ]:
         """Return a generator of default statefulness settings
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of default statefulness setting objects
-        :rtype:
             :class:`~openstack.network.v2.security_groups_default_statefulness.
             SecurityGroupsDefaultStatefulness`
         """
@@ -6776,10 +6891,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_segment.Segment, segment)
 
-    def segments(self, **query):
+    def segments(
+        self,
+        **query: Any,
+    ) -> Generator[_segment.Segment, None, None]:
         """Return a generator of segments
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
             * ``description``: The segment description
@@ -6790,7 +6908,6 @@ class Proxy(proxy.Proxy):
             * ``segmentation_id``: Segmentation ID for the segments
 
         :returns: A generator of segment objects
-        :rtype: :class:`~openstack.network.v2.segment.Segment`
         """
         return self._list(_segment.Segment, **query)
 
@@ -6810,14 +6927,16 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_segment.Segment, segment, **attrs)
 
-    def service_providers(self, **query):
+    def service_providers(
+        self,
+        **query: Any,
+    ) -> Generator[_service_provider.ServiceProvider, None, None]:
         """Return a generator of service providers
 
-        :param kwargs  query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of service provider objects
-        :rtype: :class:`~openstack.network.v2.service_provider.ServiceProvider`
         """
 
         return self._list(_service_provider.ServiceProvider, **query)
@@ -6921,10 +7040,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_service_profile.ServiceProfile, service_profile)
 
-    def service_profiles(self, **query):
+    def service_profiles(
+        self,
+        **query: Any,
+    ) -> Generator[_service_profile.ServiceProfile, None, None]:
         """Return a generator of network service flavor profiles
 
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             resources returned. Available parameters inclue:
 
             * ``description``: The description of  the service flavor profile
@@ -6933,7 +7055,6 @@ class Proxy(proxy.Proxy):
             * ``project_id``: The owner project ID
 
         :returns: A generator of service profile objects
-        :rtype: :class:`~openstack.network.v2.service_profile.ServiceProfile`
         """
         return self._list(_service_profile.ServiceProfile, **query)
 
@@ -7045,10 +7166,10 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_subnet.Subnet, subnet)
 
-    def subnets(self, **query):
+    def subnets(self, **query: Any) -> Generator[_subnet.Subnet, None, None]:
         """Return a generator of subnets
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
             * ``cidr``: Subnet CIDR
@@ -7065,7 +7186,6 @@ class Proxy(proxy.Proxy):
               CIDR.
 
         :returns: A generator of subnet objects
-        :rtype: :class:`~openstack.network.v2.subnet.Subnet`
         """
         return self._list(_subnet.Subnet, **query)
 
@@ -7179,10 +7299,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_subnet_pool.SubnetPool, subnet_pool)
 
-    def subnet_pools(self, **query):
+    def subnet_pools(
+        self,
+        **query: Any,
+    ) -> Generator[_subnet_pool.SubnetPool, None, None]:
         """Return a generator of subnet pools
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
             * ``address_scope_id``: Subnet pool address scope ID
@@ -7194,7 +7317,6 @@ class Proxy(proxy.Proxy):
             * ``project_id``: Owner tenant ID
 
         :returns: A generator of subnet pool objects
-        :rtype: :class:`~openstack.network.v2.subnet_pool.SubnetPool`
         """
         return self._list(_subnet_pool.SubnetPool, **query)
 
@@ -7392,14 +7514,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_trunk.Trunk, trunk)
 
-    def trunks(self, **query):
+    def trunks(self, **query: Any) -> Generator[_trunk.Trunk, None, None]:
         """Return a generator of trunks
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of trunk objects
-        :rtype: :class:`~openstack.network.v2.trunk.trunk`
         """
         return self._list(_trunk.Trunk, **query)
 
@@ -7564,14 +7685,16 @@ class Proxy(proxy.Proxy):
             _vpn_endpoint_group.VpnEndpointGroup, vpn_endpoint_group
         )
 
-    def vpn_endpoint_groups(self, **query):
+    def vpn_endpoint_groups(
+        self,
+        **query: Any,
+    ) -> Generator[_vpn_endpoint_group.VpnEndpointGroup, None, None]:
         """Return a generator of vpn services
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of vpn service objects
-        :rtype:
             :class:`~openstack.network.v2.vpn_endpoint_group.VpnEndpointGroup`
         """
         return self._list(_vpn_endpoint_group.VpnEndpointGroup, **query)
@@ -7678,14 +7801,16 @@ class Proxy(proxy.Proxy):
             ipsec_site_connection,
         )
 
-    def vpn_ipsec_site_connections(self, **query):
+    def vpn_ipsec_site_connections(
+        self,
+        **query: Any,
+    ) -> Generator[_ipsec_site_connection.VpnIPSecSiteConnection, None, None]:
         """Return a generator of IPsec site connections
 
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             resources being returned.
 
         :returns: A generator of IPsec site connection objects
-        :rtype:
             :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
         """
         return self._list(
@@ -7813,14 +7938,16 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_ike_policy.VpnIkePolicy, ike_policy)
 
-    def vpn_ike_policies(self, **query):
+    def vpn_ike_policies(
+        self,
+        **query: Any,
+    ) -> Generator[_ike_policy.VpnIkePolicy, None, None]:
         """Return a generator of IKE policies
 
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             resources being returned.
 
         :returns: A generator of ike policy objects
-        :rtype: :class:`~openstack.network.v2.vpn_ike_policy.VpnIkePolicy`
         """
         return self._list(_ike_policy.VpnIkePolicy, **query)
 
@@ -7938,14 +8065,16 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_ipsec_policy.VpnIpsecPolicy, ipsec_policy)
 
-    def vpn_ipsec_policies(self, **query):
+    def vpn_ipsec_policies(
+        self,
+        **query: Any,
+    ) -> Generator[_ipsec_policy.VpnIpsecPolicy, None, None]:
         """Return a generator of IPsec policies
 
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             resources being returned.
 
         :returns: A generator of IPsec policy objects
-        :rtype: :class:`~openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy`
         """
         return self._list(_ipsec_policy.VpnIpsecPolicy, **query)
 
@@ -8087,14 +8216,16 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_vpn_service.VpnService, vpn_service)
 
-    def vpn_services(self, **query):
+    def vpn_services(
+        self,
+        **query: Any,
+    ) -> Generator[_vpn_service.VpnService, None, None]:
         """Return a generator of vpn services
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of vpn service objects
-        :rtype: :class:`~openstack.network.v2.vpn_service.VpnService`
         """
         return self._list(_vpn_service.VpnService, **query)
 
@@ -8244,7 +8375,11 @@ class Proxy(proxy.Proxy):
             floatingip_id=floatingip.id,
         )
 
-    def floating_ip_port_forwardings(self, floating_ip, **query):
+    def floating_ip_port_forwardings(
+        self,
+        floating_ip: str | _floating_ip.FloatingIP,
+        **query: Any,
+    ) -> Generator[_port_forwarding.PortForwarding, None, None]:
         """Return a generator of floating ip port forwarding
 
         :param floating_ip: The value can be the ID of the Floating IP that the
@@ -8254,7 +8389,6 @@ class Proxy(proxy.Proxy):
         :param kwargs **query: Optional query parameters to be sent to limit
             the resources being returned.
         :returns: A generator of floating ip port forwarding objects
-        :rtype:
             :class:`~openstack.network.v2.port_forwarding.PortForwarding`
         """
         floatingip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
@@ -8316,15 +8450,18 @@ class Proxy(proxy.Proxy):
             _l3_conntrack_helper.ConntrackHelper, router_id=router.id, **attrs
         )
 
-    def conntrack_helpers(self, router, **query):
+    def conntrack_helpers(
+        self,
+        router: str | _router.Router,
+        **query: Any,
+    ) -> Generator[_l3_conntrack_helper.ConntrackHelper, None, None]:
         """Return a generator of conntrack helpers
 
         :param router: Either the router ID or an instance of
             :class:`~openstack.network.v2.router.Router`
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
         :returns: A generator of conntrack helper objects
-        :rtype:
             :class:`~openstack.network.v2.l3_conntrack_helper.ConntrackHelper`
         """
         router = self._get_resource(_router.Router, router)
@@ -8475,7 +8612,10 @@ class Proxy(proxy.Proxy):
         """Update a Tap Flow"""
         return self._update(_tap_flow.TapFlow, tap_flow, **attrs)
 
-    def tap_flows(self, **query):
+    def tap_flows(
+        self,
+        **query: Any,
+    ) -> Generator[_tap_flow.TapFlow, None, None]:
         """Return a generator of Tap Flows"""
         return self._list(_tap_flow.TapFlow, **query)
 
@@ -8537,7 +8677,10 @@ class Proxy(proxy.Proxy):
         """Update a Tap Mirror"""
         return self._update(_tap_mirror.TapMirror, tap_mirror, **attrs)
 
-    def tap_mirrors(self, **query):
+    def tap_mirrors(
+        self,
+        **query: Any,
+    ) -> Generator[_tap_mirror.TapMirror, None, None]:
         """Return a generator of Tap Mirrors"""
         return self._list(_tap_mirror.TapMirror, **query)
 
@@ -8599,7 +8742,10 @@ class Proxy(proxy.Proxy):
         """Update a Tap Service"""
         return self._update(_tap_service.TapService, tap_service, **attrs)
 
-    def tap_services(self, **query):
+    def tap_services(
+        self,
+        **query: Any,
+    ) -> Generator[_tap_service.TapService, None, None]:
         """Return a generator of Tap Services"""
         return self._list(_tap_service.TapService, **query)
 
@@ -8724,10 +8870,13 @@ class Proxy(proxy.Proxy):
             _sfc_flow_classifier.SfcFlowClassifier, flow_classifier, **attrs
         )
 
-    def sfc_flow_classifiers(self, **query):
+    def sfc_flow_classifiers(
+        self,
+        **query: Any,
+    ) -> Generator[_sfc_flow_classifier.SfcFlowClassifier, None, None]:
         """Return a generator of Flow Classifiers
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
             * ``name``: The name of the flow classifier.
@@ -8736,7 +8885,6 @@ class Proxy(proxy.Proxy):
             * ``protocol``: Flow classifier protocol
 
         :returns: A generator of SFC Flow classifier objects
-        :rtype:
             :class:`~openstack.network.v2.sfc_flow_classifier.
             SfcFlowClassifier`
         """
@@ -8858,17 +9006,19 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_sfc_port_chain.SfcPortChain, port_chain, **attrs)
 
-    def sfc_port_chains(self, **query):
+    def sfc_port_chains(
+        self,
+        **query: Any,
+    ) -> Generator[_sfc_port_chain.SfcPortChain, None, None]:
         """Return a generator of Port Chains
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
             * ``name``: The name of the port chain
             * ``description``: The port chain description
 
         :returns: A generator of SFC port chain objects
-        :rtype:
             :class:`~openstack.network.v2.sfc_port_chain.SfcPortChain`
         """
         return self._list(_sfc_port_chain.SfcPortChain, **query)
@@ -8986,17 +9136,19 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_sfc_port_pair.SfcPortPair, port_pair, **attrs)
 
-    def sfc_port_pairs(self, **query):
+    def sfc_port_pairs(
+        self,
+        **query: Any,
+    ) -> Generator[_sfc_port_pair.SfcPortPair, None, None]:
         """Return a generator of Port Pairs
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
             * ``name``: The name of the port pair.
             * ``description``: The port pair description.
 
         :returns: A generator of SFC port pair objects
-        :rtype:
             :class:`~openstack.network.v2.sfc_port_pair.SfcPortPair`
         """
         return self._list(_sfc_port_pair.SfcPortPair, **query)
@@ -9121,17 +9273,19 @@ class Proxy(proxy.Proxy):
             _sfc_port_pair_group.SfcPortPairGroup, port_pair_group, **attrs
         )
 
-    def sfc_port_pair_groups(self, **query):
+    def sfc_port_pair_groups(
+        self,
+        **query: Any,
+    ) -> Generator[_sfc_port_pair_group.SfcPortPairGroup, None, None]:
         """Return a generator of Port Pair Groups
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
             * ``name``: The name of the port pair.
             * ``description``: The port pair description.
 
         :returns: A generator of SFC port pair group objects
-        :rtype:
             :class:`~openstack.network.v2.sfc_port_pair_group.
             SfcPortPairGroup`
         """
@@ -9255,17 +9409,19 @@ class Proxy(proxy.Proxy):
             _sfc_sservice_graph.SfcServiceGraph, service_graph, **attrs
         )
 
-    def sfc_service_graphs(self, **query):
+    def sfc_service_graphs(
+        self,
+        **query: Any,
+    ) -> Generator[_sfc_sservice_graph.SfcServiceGraph, None, None]:
         """Return a generator of Service Graphs
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
             * ``name``: The name of the port pair.
             * ``description``: The port pair description.
 
         :returns: A generator of SFC service graph objects
-        :rtype:
             :class:`~openstack.network.v2.sfc_service_graph.SfcServiceGraph`
         """
         return self._list(_sfc_sservice_graph.SfcServiceGraph, **query)
@@ -9367,10 +9523,10 @@ class Proxy(proxy.Proxy):
             if not self.should_skip_resource_cleanup(
                 "vpn_service", skip_resources
             ):
-                for obj in self.vpn_services():
+                for vpn_svc in self.vpn_services():
                     self._service_cleanup_del_res(
                         self.delete_vpn_service,
-                        obj,
+                        vpn_svc,
                         dry_run=dry_run,
                         client_status_queue=client_status_queue,
                         identified_resources=identified_resources,
@@ -9381,10 +9537,10 @@ class Proxy(proxy.Proxy):
             if not self.should_skip_resource_cleanup(
                 "vpn_endpoint_group", skip_resources
             ):
-                for obj in self.vpn_endpoint_groups():
+                for vpn_eg in self.vpn_endpoint_groups():
                     self._service_cleanup_del_res(
                         self.delete_vpn_endpoint_group,
-                        obj,
+                        vpn_eg,
                         dry_run=dry_run,
                         client_status_queue=client_status_queue,
                         identified_resources=identified_resources,
@@ -9395,10 +9551,10 @@ class Proxy(proxy.Proxy):
             if not self.should_skip_resource_cleanup(
                 "vpn_ike_policy", skip_resources
             ):
-                for obj in self.vpn_ike_policies():
+                for vpn_ike in self.vpn_ike_policies():
                     self._service_cleanup_del_res(
                         self.delete_vpn_ike_policy,
-                        obj,
+                        vpn_ike,
                         dry_run=dry_run,
                         client_status_queue=client_status_queue,
                         identified_resources=identified_resources,
@@ -9409,10 +9565,10 @@ class Proxy(proxy.Proxy):
             if not self.should_skip_resource_cleanup(
                 "vpn_ipsec_policy", skip_resources
             ):
-                for obj in self.vpn_ipsec_policies():
+                for vpn_ipsec in self.vpn_ipsec_policies():
                     self._service_cleanup_del_res(
                         self.delete_vpn_ipsec_policy,
-                        obj,
+                        vpn_ipsec,
                         dry_run=dry_run,
                         client_status_queue=client_status_queue,
                         identified_resources=identified_resources,
@@ -9425,10 +9581,10 @@ class Proxy(proxy.Proxy):
         ):
             # Delete floating_ips in the project if no filters defined OR all
             # filters are matching and port_id is empty
-            for obj in self.ips(project_id=project_id):
+            for fip_obj in self.ips(project_id=project_id):
                 self._service_cleanup_del_res(
                     self.delete_ip,
-                    obj,
+                    fip_obj,
                     dry_run=dry_run,
                     client_status_queue=client_status_queue,
                     identified_resources=identified_resources,
@@ -9441,11 +9597,11 @@ class Proxy(proxy.Proxy):
         ):
             # Delete (try to delete) all security groups in the project
             # Let's hope we can't drop SG in use
-            for obj in self.security_groups(project_id=project_id):
-                if obj.name != 'default':
+            for sg_obj in self.security_groups(project_id=project_id):
+                if sg_obj.name != 'default':
                     self._service_cleanup_del_res(
                         self.delete_security_group,
-                        obj,
+                        sg_obj,
                         dry_run=dry_run,
                         client_status_queue=client_status_queue,
                         identified_resources=identified_resources,
@@ -9559,12 +9715,12 @@ class Proxy(proxy.Proxy):
                         )
 
                 # Drop all subnets in the net (no further conditions)
-                for obj in self.subnets(
+                for sub_obj in self.subnets(
                     project_id=project_id, network_id=net.id
                 ):
                     self._service_cleanup_del_res(
                         self.delete_subnet,
-                        obj,
+                        sub_obj,
                         dry_run=dry_run,
                         client_status_queue=client_status_queue,
                         identified_resources=identified_resources,
@@ -9592,12 +9748,12 @@ class Proxy(proxy.Proxy):
 
         if not self.should_skip_resource_cleanup("router", skip_resources):
             # It might happen, that we have routers not attached to anything
-            for obj in self.routers():
-                ports = list(self.ports(device_id=obj.id))
+            for rtr_obj in self.routers():
+                ports = list(self.ports(device_id=rtr_obj.id))
                 if len(ports) == 0:
                     self._service_cleanup_del_res(
                         self.delete_router,
-                        obj,
+                        rtr_obj,
                         dry_run=dry_run,
                         client_status_queue=client_status_queue,
                         identified_resources=identified_resources,

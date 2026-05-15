@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 from typing import Any, ClassVar, Literal, overload
 import warnings
 
@@ -115,10 +115,13 @@ class Proxy(proxy.Proxy):
             resource_class,
         )
 
-    def resource_classes(self, **query):
+    def resource_classes(
+        self,
+        **query: Any,
+    ) -> Generator[_resource_class.ResourceClass, None, None]:
         """Retrieve a generator of resource classs.
 
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the resource classs to be returned.
 
         :returns: A generator of resource class instances.
@@ -247,10 +250,13 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def resource_providers(self, **query):
+    def resource_providers(
+        self,
+        **query: Any,
+    ) -> Generator[_resource_provider.ResourceProvider, None, None]:
         """Retrieve a generator of resource providers.
 
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the resource providers to be returned.
 
         :returns: A generator of resource provider instances.
@@ -473,7 +479,13 @@ class Proxy(proxy.Proxy):
             resource_provider_id=resource_provider_id,
         )
 
-    def resource_provider_inventories(self, resource_provider, **query):
+    def resource_provider_inventories(
+        self,
+        resource_provider: str | _resource_provider.ResourceProvider,
+        **query: Any,
+    ) -> Generator[
+        _resource_provider_inventory.ResourceProviderInventory, None, None
+    ]:
         """Retrieve a generator of resource provider inventories
 
         :param resource_provider: Either the ID of a resource provider or a
@@ -533,7 +545,7 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_trait.Trait, trait)
 
-    def traits(self, **query):
+    def traits(self, **query: Any) -> Generator[_trait.Trait, None, None]:
         """Retrieve a generator of traits
 
         :param query: Optional query parameters to be sent to limit

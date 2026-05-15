@@ -11,7 +11,7 @@
 # under the License.
 
 from typing import Any, ClassVar, Literal, overload
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 
 from openstack.container_infrastructure_management.v1 import (
     cluster as _cluster,
@@ -119,14 +119,16 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_cluster.Cluster, cluster)
 
-    def clusters(self, **query):
+    def clusters(
+        self,
+        **query: Any,
+    ) -> Generator[_cluster.Cluster, None, None]:
         """Return a generator of clusters
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of cluster objects
-        :rtype:
             :class:`~openstack.container_infrastructure_management.v1.cluster.Cluster`
         """
         return self._list(_cluster.Cluster, **query)
@@ -240,14 +242,16 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_cluster_template.ClusterTemplate, cluster_template)
 
-    def cluster_templates(self, **query):
+    def cluster_templates(
+        self,
+        **query: Any,
+    ) -> Generator[_cluster_template.ClusterTemplate, None, None]:
         """Return a generator of cluster_templates
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of cluster_template objects
-        :rtype:
             :class:`~openstack.container_infrastructure_management.v1.cluster_template.ClusterTemplate`
         """
         return self._list(_cluster_template.ClusterTemplate, **query)
@@ -307,11 +311,10 @@ class Proxy(proxy.Proxy):
 
     # ============== Services ==============
 
-    def services(self):
+    def services(self) -> Generator[_service.Service, None, None]:
         """Return a generator of services
 
         :returns: A generator of service objects
-        :rtype:
             :class:`~openstack.container_infrastructure_management.v1.service.Service`
         """
         return self._list(_service.Service)

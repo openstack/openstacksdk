@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 from typing import Any, ClassVar, Literal, overload
 import warnings
 
@@ -80,12 +80,16 @@ class Proxy(proxy.Proxy):
 
     # ========== Chassis ==========
 
-    def chassis(self, details=False, **query):
+    def chassis(
+        self,
+        details: bool = False,
+        **query: Any,
+    ) -> Generator[_chassis.Chassis, None, None]:
         """Retrieve a generator of chassis.
 
         :param details: A boolean indicating whether the detailed information
             for every chassis should be returned.
-        :param dict query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the chassis to be returned. Available parameters include:
 
             * ``fields``: A list containing one or more fields to be returned
@@ -243,12 +247,16 @@ class Proxy(proxy.Proxy):
 
     # ========== Drivers ==========
 
-    def drivers(self, details=False, **query):
+    def drivers(
+        self,
+        details: bool = False,
+        **query: Any,
+    ) -> Generator[_driver.Driver, None, None]:
         """Retrieve a generator of drivers.
 
-        :param bool details: A boolean indicating whether the detailed
+        :param details: A boolean indicating whether the detailed
             information for every driver should be returned.
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
         :returns: A generator of driver instances.
         """
@@ -307,12 +315,16 @@ class Proxy(proxy.Proxy):
 
     # ========== Nodes ==========
 
-    def nodes(self, details=False, **query):
+    def nodes(
+        self,
+        details: bool = False,
+        **query: Any,
+    ) -> Generator[_node.Node, None, None]:
         """Retrieve a generator of nodes.
 
         :param details: A boolean indicating whether the detailed information
             for every node should be returned.
-        :param dict query: Optional query parameters to be sent to restrict
+        :param query: Optional query parameters to be sent to restrict
             the nodes returned. Available parameters include:
 
             * ``associated``: Only return those which are, or are not,
@@ -925,12 +937,16 @@ class Proxy(proxy.Proxy):
 
     # ========== Ports ==========
 
-    def ports(self, details=False, **query):
+    def ports(
+        self,
+        details: bool = False,
+        **query: Any,
+    ) -> Generator[_port.Port, None, None]:
         """Retrieve a generator of ports.
 
         :param details: A boolean indicating whether the detailed information
             for every port should be returned.
-        :param dict query: Optional query parameters to be sent to restrict
+        :param query: Optional query parameters to be sent to restrict
             the ports returned. Available parameters include:
 
             * ``address``: Only return ports with the specified physical
@@ -1094,12 +1110,16 @@ class Proxy(proxy.Proxy):
 
     # ========== Port groups ==========
 
-    def port_groups(self, details=False, **query):
+    def port_groups(
+        self,
+        details: bool = False,
+        **query: Any,
+    ) -> Generator[_portgroup.PortGroup, None, None]:
         """Retrieve a generator of port groups.
 
         :param details: A boolean indicating whether the detailed information
             for every port group should be returned.
-        :param dict query: Optional query parameters to be sent to restrict
+        :param query: Optional query parameters to be sent to restrict
             the port groups returned. Available parameters include:
 
             * ``address``: Only return portgroups with the specified physical
@@ -1397,10 +1417,13 @@ class Proxy(proxy.Proxy):
 
     # ========== Allocations ==========
 
-    def allocations(self, **query):
+    def allocations(
+        self,
+        **query: Any,
+    ) -> Generator[_allocation.Allocation, None, None]:
         """Retrieve a generator of allocations.
 
-        :param dict query: Optional query parameters to be sent to restrict
+        :param query: Optional query parameters to be sent to restrict
             the allocation to be returned. Available parameters include:
 
             * ``fields``: A list containing one or more fields to be returned
@@ -1533,12 +1556,16 @@ class Proxy(proxy.Proxy):
 
     # ========== Volume connectors ==========
 
-    def volume_connectors(self, details=False, **query):
+    def volume_connectors(
+        self,
+        details: bool = False,
+        **query: Any,
+    ) -> Generator[_volumeconnector.VolumeConnector, None, None]:
         """Retrieve a generator of volume_connector.
 
         :param details: A boolean indicating whether the detailed information
             for every volume_connector should be returned.
-        :param dict query: Optional query parameters to be sent to restrict
+        :param query: Optional query parameters to be sent to restrict
             the volume_connectors returned. Available parameters include:
 
             * ``fields``: A list containing one or more fields to be returned
@@ -1726,12 +1753,16 @@ class Proxy(proxy.Proxy):
 
     # ========== Volume targets ==========
 
-    def volume_targets(self, details=False, **query):
+    def volume_targets(
+        self,
+        details: bool = False,
+        **query: Any,
+    ) -> Generator[_volumetarget.VolumeTarget, None, None]:
         """Retrieve a generator of volume_target.
 
         :param details: A boolean indicating whether the detailed information
             for every volume_target should be returned.
-        :param dict query: Optional query parameters to be sent to restrict
+        :param query: Optional query parameters to be sent to restrict
             the volume_targets returned. Available parameters include:
 
             * ``fields``: A list containing one or more fields to be returned
@@ -1912,12 +1943,16 @@ class Proxy(proxy.Proxy):
 
     # ========== Deploy templates ==========
 
-    def deploy_templates(self, details=False, **query):
+    def deploy_templates(
+        self,
+        details: bool = False,
+        **query: Any,
+    ) -> Generator[_deploytemplates.DeployTemplate, None, None]:
         """Retrieve a generator of deploy_templates.
 
         :param details: A boolean indicating whether the detailed information
             for every deploy_templates should be returned.
-        :param dict query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the deploy_templates to be returned.
 
         :returns: A generator of Deploy templates instances.
@@ -2078,12 +2113,16 @@ class Proxy(proxy.Proxy):
 
     # ========== Runbooks ==========
 
-    def runbooks(self, details=False, **query):
+    def runbooks(
+        self,
+        details: bool = False,
+        **query: Any,
+    ) -> Generator[_runbooks.Runbook, None, None]:
         """Retrieve a generator of runbooks.
 
         :param details: A boolean indicating whether the detailed information
             for every runbook should be returned.
-        :param dict query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the runbooks to be returned.
 
         :returns: A generator of Runbooks instances.
@@ -2181,7 +2220,11 @@ class Proxy(proxy.Proxy):
 
     # ========== Conductors ==========
 
-    def conductors(self, details=False, **query):
+    def conductors(
+        self,
+        details: bool = False,
+        **query: Any,
+    ) -> Generator[_conductor.Conductor, None, None]:
         """Retrieve a generator of conductors.
 
         :param details: A boolean indicating whether the detailed
@@ -2282,10 +2325,14 @@ class Proxy(proxy.Proxy):
 
     # ========== Inspection Rules ==========
 
-    def inspection_rules(self, details=False, **query):
+    def inspection_rules(
+        self,
+        details: bool = False,
+        **query: Any,
+    ) -> Generator[_inspectionrules.InspectionRule, None, None]:
         """Retrieve a generator of inspection rules.
 
-        :param dict query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the inspection rules to be returned.
 
         :returns: A generator of InspectionRule instances.

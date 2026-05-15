@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from typing import Any, ClassVar, Literal
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 
 from openstack._utils import renamed_param
 from openstack import exceptions
@@ -35,10 +35,13 @@ class Proxy(proxy.Proxy):
         "vmove": _vmove.VMove,
     }
 
-    def notifications(self, **query):
+    def notifications(
+        self,
+        **query: Any,
+    ) -> Generator[_notification.Notification, None, None]:
         """Return a generator of notifications.
 
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             limit the notifications being returned.
         :returns: A generator of notifications
         """
@@ -70,10 +73,13 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_notification.Notification, **attrs)
 
-    def segments(self, **query):
+    def segments(
+        self,
+        **query: Any,
+    ) -> Generator[_segment.Segment, None, None]:
         """Return a generator of segments.
 
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             limit the segments being returned.
         :returns: A generator of segments
         """
@@ -138,7 +144,11 @@ class Proxy(proxy.Proxy):
         )
 
     @renamed_param('segment_id', 'segment')
-    def hosts(self, segment, **query):
+    def hosts(
+        self,
+        segment: str | _segment.Segment,
+        **query: Any,
+    ) -> Generator[_host.Host, None, None]:
         """Return a generator of hosts.
 
         :param segment: The ID or a
@@ -266,13 +276,17 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def vmoves(self, notification, **query):
+    def vmoves(
+        self,
+        notification: str | _notification.Notification,
+        **query: Any,
+    ) -> Generator[_vmove.VMove, None, None]:
         """Return a generator of vmoves.
 
         :param notification: The value can be the UUID of a notification or
             :class:`~openstack.instance_ha.v1.notification.Notification`
             instance.
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             limit the vmoves being returned.
 
         :returns: A generator of vmoves

@@ -11,7 +11,7 @@
 # under the License.
 
 from typing import Any, ClassVar, Literal, overload
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 
 from openstack._utils import renamed_param
 from openstack.load_balancer.v2 import amphora as _amphora
@@ -96,7 +96,10 @@ class Proxy(proxy.Proxy):
             _lb.LoadBalancerStats, lb_id=load_balancer, requires_id=False
         )
 
-    def load_balancers(self, **query):
+    def load_balancers(
+        self,
+        **query: Any,
+    ) -> Generator[_lb.LoadBalancer, None, None]:
         """Retrieve a generator of load balancers
 
         :returns: A generator of load balancer instances
@@ -332,13 +335,15 @@ class Proxy(proxy.Proxy):
             _listener.ListenerStats, listener_id=listener, requires_id=False
         )
 
-    def listeners(self, **query):
+    def listeners(
+        self,
+        **query: Any,
+    ) -> Generator[_listener.Listener, None, None]:
         """Return a generator of listeners
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Valid parameters are:
         :returns: A generator of listener objects
-        :rtype: :class:`~openstack.load_balancer.v2.listener.Listener`
         """
         return self._list(_listener.Listener, **query)
 
@@ -383,7 +388,7 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_pool.Pool, pool)
 
-    def pools(self, **query):
+    def pools(self, **query: Any) -> Generator[_pool.Pool, None, None]:
         """Retrieve a generator of pools
 
         :returns: A generator of Pool instances
@@ -573,17 +578,20 @@ class Proxy(proxy.Proxy):
         poolobj = self._get_resource(_pool.Pool, pool)
         return self._get(_member.Member, member, pool_id=poolobj.id)
 
-    def members(self, pool, **query):
+    def members(
+        self,
+        pool: str | _pool.Pool,
+        **query: Any,
+    ) -> Generator[_member.Member, None, None]:
         """Return a generator of members
 
         :param pool: The pool can be either the ID of a pool or a
             :class:`~openstack.load_balancer.v2.pool.Pool` instance
             that the member belongs to.
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Valid parameters are:
 
         :returns: A generator of member objects
-        :rtype: :class:`~openstack.load_balancer.v2.member.Member`
         """
         poolobj = self._get_resource(_pool.Pool, pool)
         return self._list(_member.Member, pool_id=poolobj.id, **query)
@@ -680,10 +688,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_hm.HealthMonitor, healthmonitor)
 
-    def health_monitors(self, **query):
+    def health_monitors(
+        self,
+        **query: Any,
+    ) -> Generator[_hm.HealthMonitor, None, None]:
         """Retrieve a generator of health monitors
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Valid parameters are:
             'name', 'created_at', 'updated_at', 'delay',
             'expected_codes', 'http_method', 'max_retries',
@@ -819,14 +830,16 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_l7policy.L7Policy, l7_policy)
 
-    def l7_policies(self, **query):
+    def l7_policies(
+        self,
+        **query: Any,
+    ) -> Generator[_l7policy.L7Policy, None, None]:
         """Return a generator of l7policies
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Valid parameters are:
 
         :returns: A generator of l7policy objects
-        :rtype: :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
         """
         return self._list(_l7policy.L7Policy, **query)
 
@@ -962,17 +975,20 @@ class Proxy(proxy.Proxy):
         l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
         return self._get(_l7rule.L7Rule, l7rule, l7policy_id=l7policyobj.id)
 
-    def l7_rules(self, l7_policy, **query):
+    def l7_rules(
+        self,
+        l7_policy: str | _l7policy.L7Policy,
+        **query: Any,
+    ) -> Generator[_l7rule.L7Rule, None, None]:
         """Return a generator of l7rules
 
         :param l7_policy: The l7_policy can be either the ID of a l7_policy or
             :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
             instance that the l7rule belongs to.
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Valid parameters are:
 
         :returns: A generator of l7rule objects
-        :rtype: :class:`~openstack.load_balancer.v2.l7_rule.L7Rule`
         """
         l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
         return self._list(_l7rule.L7Rule, l7policy_id=l7policyobj.id, **query)
@@ -1001,15 +1017,14 @@ class Proxy(proxy.Proxy):
             _l7rule.L7Rule, l7rule, l7policy_id=l7policyobj.id, **attrs
         )
 
-    def quotas(self, **query):
+    def quotas(self, **query: Any) -> Generator[_quota.Quota, None, None]:
         """Return a generator of quotas
 
-        :param dict query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. Currently no query
             parameter is supported.
 
         :returns: A generator of quota objects
-        :rtype: :class:`~openstack.load_balancer.v2.quota.Quota`
         """
         return self._list(_quota.Quota, **query)
 
@@ -1071,14 +1086,21 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_quota.Quota, quota, ignore_missing=ignore_missing)
 
-    def providers(self, **query):
+    def providers(
+        self,
+        **query: Any,
+    ) -> Generator[_provider.Provider, None, None]:
         """Retrieve a generator of providers
 
         :returns: A generator of providers instances
         """
         return self._list(_provider.Provider, **query)
 
-    def provider_flavor_capabilities(self, provider, **query):
+    def provider_flavor_capabilities(
+        self,
+        provider: str,
+        **query: Any,
+    ) -> Generator[_provider.ProviderFlavorCapabilities, None, None]:
         """Retrieve a generator of provider flavor capabilities
 
         :returns: A generator of provider flavor capabilities instances
@@ -1116,7 +1138,10 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_flavor_profile.FlavorProfile, flavor_profile)
 
-    def flavor_profiles(self, **query):
+    def flavor_profiles(
+        self,
+        **query: Any,
+    ) -> Generator[_flavor_profile.FlavorProfile, None, None]:
         """Retrieve a generator of flavor profiles
 
         :returns: A generator of flavor profiles instances
@@ -1225,7 +1250,7 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_flavor.Flavor, flavor)
 
-    def flavors(self, **query):
+    def flavors(self, **query: Any) -> Generator[_flavor.Flavor, None, None]:
         """Retrieve a generator of flavors
 
         :returns: A generator of flavor instances
@@ -1298,7 +1323,10 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_flavor.Flavor, flavor, **attrs)
 
-    def amphorae(self, **query):
+    def amphorae(
+        self,
+        **query: Any,
+    ) -> Generator[_amphora.Amphora, None, None]:
         """Retrieve a generator of amphorae
 
         :returns: A generator of amphora instances
@@ -1412,7 +1440,12 @@ class Proxy(proxy.Proxy):
             availability_zone_profile,
         )
 
-    def availability_zone_profiles(self, **query):
+    def availability_zone_profiles(
+        self,
+        **query: Any,
+    ) -> Generator[
+        _availability_zone_profile.AvailabilityZoneProfile, None, None
+    ]:
         """Retrieve a generator of availability zone profiles
 
         :returns: A generator of availability zone profiles instances
@@ -1539,7 +1572,10 @@ class Proxy(proxy.Proxy):
             _availability_zone.AvailabilityZone, availability_zone
         )
 
-    def availability_zones(self, **query):
+    def availability_zones(
+        self,
+        **query: Any,
+    ) -> Generator[_availability_zone.AvailabilityZone, None, None]:
         """Retrieve a generator of availability zones
 
         :returns: A generator of availability zone instances

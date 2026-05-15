@@ -127,8 +127,8 @@ class TestServer(base.BaseComputeTest):
 
         # list servers
 
-        server = self.compute_client.servers()
-        self.assertIn(self.server_name, {x.name for x in server})
+        servers = self.compute_client.servers()
+        self.assertIn(self.server_name, {x.name for x in servers})
 
     def test_server_metadata(self):
         # create server

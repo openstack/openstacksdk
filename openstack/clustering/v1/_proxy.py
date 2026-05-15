@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Generator, Iterable
 from typing import Any, ClassVar, Literal, overload
 import warnings
 
@@ -58,7 +58,10 @@ class Proxy(proxy.Proxy):
         """
         return self._get(build_info.BuildInfo, requires_id=False)
 
-    def profile_types(self, **query):
+    def profile_types(
+        self,
+        **query: Any,
+    ) -> Generator[_profile_type.ProfileType, None, None]:
         """Get a generator of profile types.
 
         :returns: A generator of objects that are of type
@@ -82,7 +85,10 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_profile_type.ProfileType, profile_type)
 
-    def policy_types(self, **query):
+    def policy_types(
+        self,
+        **query: Any,
+    ) -> Generator[_policy_type.PolicyType, None, None]:
         """Get a generator of policy types.
 
         :returns: A generator of objects that are of type
@@ -180,10 +186,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_profile.Profile, profile)
 
-    def profiles(self, **query):
+    def profiles(
+        self,
+        **query: Any,
+    ) -> Generator[_profile.Profile, None, None]:
         """Retrieve a generator of profiles.
 
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the profiles to be returned. Available parameters include:
 
             * name: The name of a profile.
@@ -322,10 +331,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_cluster.Cluster, cluster)
 
-    def clusters(self, **query):
+    def clusters(
+        self,
+        **query: Any,
+    ) -> Generator[_cluster.Cluster, None, None]:
         """Retrieve a generator of clusters.
 
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the clusters to be returned. Available parameters include:
 
             * name: The name of a cluster.
@@ -573,7 +585,12 @@ class Proxy(proxy.Proxy):
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
         return obj.policy_update(self, policy, **attrs)
 
-    def collect_cluster_attrs(self, cluster, path, **query):
+    def collect_cluster_attrs(
+        self,
+        cluster: str | _cluster.Cluster,
+        path: str,
+        **query: Any,
+    ) -> Generator[_cluster_attr.ClusterAttr, None, None]:
         """Collect attribute values across a cluster.
 
         :param cluster: The value can be either the ID of a cluster or a
@@ -724,10 +741,10 @@ class Proxy(proxy.Proxy):
             return self._get(_node.NodeDetail, requires_id=False, node_id=node)
         return self._get(_node.Node, node)
 
-    def nodes(self, **query):
+    def nodes(self, **query: Any) -> Generator[_node.Node, None, None]:
         """Retrieve a generator of nodes.
 
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the nodes to be returned. Available parameters include:
 
             * cluster_id: A string including the name or ID of a cluster to
@@ -911,10 +928,10 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_policy.Policy, policy)
 
-    def policies(self, **query):
+    def policies(self, **query: Any) -> Generator[_policy.Policy, None, None]:
         """Retrieve a generator of policies.
 
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the policies to be returned. Available parameters include:
 
             * name: The name of a policy.
@@ -964,12 +981,16 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_policy.PolicyValidate, **attrs)
 
-    def cluster_policies(self, cluster, **query):
+    def cluster_policies(
+        self,
+        cluster: str | _cluster.Cluster,
+        **query: Any,
+    ) -> Generator[_cluster_policy.ClusterPolicy, None, None]:
         """Retrieve a generator of cluster-policy bindings.
 
         :param cluster: The value can be the name or ID of a cluster or a
             :class:`~openstack.clustering.v1.cluster.Cluster` instance.
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the policies to be returned. Available parameters include:
 
             * enabled: A boolean value indicating whether the policy is
@@ -1095,10 +1116,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_receiver.Receiver, receiver)
 
-    def receivers(self, **query):
+    def receivers(
+        self,
+        **query: Any,
+    ) -> Generator[_receiver.Receiver, None, None]:
         """Retrieve a generator of receivers.
 
-        :param kwargs query: Optional query parameters for restricting the
+        :param query: Optional query parameters for restricting the
             receivers to be returned. Available parameters include:
 
             * name: The name of a receiver object.
@@ -1127,10 +1151,10 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_action.Action, action)
 
-    def actions(self, **query):
+    def actions(self, **query: Any) -> Generator[_action.Action, None, None]:
         """Retrieve a generator of actions.
 
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the actions to be returned. Available parameters include:
 
             * name: name of action for query.
@@ -1180,10 +1204,10 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_event.Event, event)
 
-    def events(self, **query):
+    def events(self, **query: Any) -> Generator[_event.Event, None, None]:
         """Retrieve a generator of events.
 
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             restrict the events to be returned. Available parameters include:
 
             * obj_name: name string of the object associated with an event.
@@ -1210,7 +1234,10 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_event.Event, **query)
 
-    def services(self, **query):
+    def services(
+        self,
+        **query: Any,
+    ) -> Generator[_service.Service, None, None]:
         """Get a generator of services.
 
         :returns: A generator of objects that are of type

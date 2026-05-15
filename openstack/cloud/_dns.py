@@ -14,7 +14,6 @@ from openstack.cloud import _utils
 from openstack.cloud import openstackcloud
 from openstack.dns.v2 import zone as _zone
 from openstack import exceptions
-from openstack import resource
 
 
 class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
@@ -152,7 +151,7 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
         :returns: A list of recordsets.
 
         """
-        if isinstance(zone, resource.Resource):
+        if isinstance(zone, _zone.Zone):
             zone_obj = zone
         else:
             zone_obj = self.get_zone(zone)

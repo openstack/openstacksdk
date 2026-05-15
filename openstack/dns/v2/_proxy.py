@@ -11,7 +11,7 @@
 # under the License.
 
 from typing import Any, ClassVar, Literal, overload
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 
 from openstack.dns.v2 import blacklist as _blacklist
 from openstack.dns.v2 import floating_ip as _fip
@@ -52,10 +52,10 @@ class Proxy(proxy.Proxy):
     }
 
     # ======== Zones ========
-    def zones(self, **query):
+    def zones(self, **query: Any) -> Generator[_zone.Zone, None, None]:
         """Retrieve a generator of zones
 
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             resources being returned.
 
             * `name`: Zone Name field.
@@ -189,7 +189,10 @@ class Proxy(proxy.Proxy):
         return zone.xfr(self)
 
     # ======== Zone nameservers ========
-    def zone_nameservers(self, zone):
+    def zone_nameservers(
+        self,
+        zone: str | _zone.Zone,
+    ) -> Generator[_zone_nameserver.ZoneNameserver, None, None]:
         """Retrieve a generator of nameservers for a zone
 
         :param zone: The value can be the ID of a zone or a
@@ -205,14 +208,18 @@ class Proxy(proxy.Proxy):
         )
 
     # ======== Recordsets ========
-    def recordsets(self, zone=None, **query):
+    def recordsets(
+        self,
+        zone: str | _zone.Zone | None = None,
+        **query: Any,
+    ) -> Generator[_rs.Recordset, None, None]:
         """Retrieve a generator of recordsets
 
         :param zone: The optional value can be the ID of a zone
             or a :class:`~openstack.dns.v2.zone.Zone` instance. If it is not
             given all recordsets for all zones of the tenant would be
             retrieved
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             resources being returned.
 
             * `name`: Recordset Name field.
@@ -355,10 +362,13 @@ class Proxy(proxy.Proxy):
         )
 
     # ======== Zone Imports ========
-    def zone_imports(self, **query):
+    def zone_imports(
+        self,
+        **query: Any,
+    ) -> Generator[_zone_import.ZoneImport, None, None]:
         """Retrieve a generator of zone imports
 
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             resources being returned.
 
             * `zone_id`: Zone I field.
@@ -416,10 +426,13 @@ class Proxy(proxy.Proxy):
         )
 
     # ======== Zone Exports ========
-    def zone_exports(self, **query):
+    def zone_exports(
+        self,
+        **query: Any,
+    ) -> Generator[_zone_export.ZoneExport, None, None]:
         """Retrieve a generator of zone exports
 
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             resources being returned.
 
             * `zone_id`: Zone I field.
@@ -503,10 +516,13 @@ class Proxy(proxy.Proxy):
         )
 
     # ======== FloatingIPs ========
-    def floating_ips(self, **query):
+    def floating_ips(
+        self,
+        **query: Any,
+    ) -> Generator[_fip.FloatingIP, None, None]:
         """Retrieve a generator of recordsets
 
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             resources being returned.
 
             * `name`: Recordset Name field.
@@ -557,10 +573,13 @@ class Proxy(proxy.Proxy):
         return self._update(_fip.FloatingIP, floating_ip, **attrs)
 
     # ======== Zone Transfer ========
-    def zone_transfer_requests(self, **query):
+    def zone_transfer_requests(
+        self,
+        **query: Any,
+    ) -> Generator[_zone_transfer.ZoneTransferRequest, None, None]:
         """Retrieve a generator of zone transfer requests
 
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             resources being returned.
 
             * `status`: Status of the recordset.
@@ -646,10 +665,13 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def zone_transfer_accepts(self, **query):
+    def zone_transfer_accepts(
+        self,
+        **query: Any,
+    ) -> Generator[_zone_transfer.ZoneTransferAccept, None, None]:
         """Retrieve a generator of zone transfer accepts
 
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             resources being returned.
 
             * `status`: Status of the recordset.
@@ -686,12 +708,16 @@ class Proxy(proxy.Proxy):
         return self._create(_zone_transfer.ZoneTransferAccept, **attrs)
 
     # ======== Zone Shares ========
-    def zone_shares(self, zone, **query):
+    def zone_shares(
+        self,
+        zone: str | _zone.Zone,
+        **query: Any,
+    ) -> Generator[_zone_share.ZoneShare, None, None]:
         """Retrieve a generator of zone shares
 
         :param zone: The zone ID or a
             :class:`~openstack.dns.v2.zone.Zone` instance
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
                            resources being returned.
 
                            * `target_project_id`: The target project ID field.
@@ -816,7 +842,7 @@ class Proxy(proxy.Proxy):
         )
 
     # ======== Limits ========
-    def limits(self, **query):
+    def limits(self, **query: Any) -> Generator[_limit.Limit, None, None]:
         """Retrieve a generator of limits
 
         :returns: A generator of limits
@@ -825,14 +851,13 @@ class Proxy(proxy.Proxy):
         return self._list(_limit.Limit, **query)
 
     # ======== Quotas ========
-    def quotas(self, **query):
+    def quotas(self, **query: Any) -> Generator[_quota.Quota, None, None]:
         """Return a generator of quotas
 
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             resources being returned.
 
         :returns: A generator of quota objects
-        :rtype: :class:`~openstack.dns.v2.quota.Quota`
         """
         return self._list(_quota.Quota, **query)
 
@@ -883,7 +908,9 @@ class Proxy(proxy.Proxy):
         return self._delete(_quota.Quota, quota, ignore_missing=ignore_missing)
 
     # ======== Service Statuses ========
-    def service_statuses(self):
+    def service_statuses(
+        self,
+    ) -> Generator[_svc_status.ServiceStatus, None, None]:
         """Retrieve a generator of service statuses
 
         :returns: A generator of service statuses
@@ -905,10 +932,10 @@ class Proxy(proxy.Proxy):
         return self._get(_svc_status.ServiceStatus, service)
 
     # ======== TLDs ========
-    def tlds(self, **query):
+    def tlds(self, **query: Any) -> Generator[_tld.TLD, None, None]:
         """Retrieve a generator of tlds
 
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             resources being returned.
 
             * `name`: TLD Name field.
@@ -1003,10 +1030,13 @@ class Proxy(proxy.Proxy):
         return self._find(_tld.TLD, name_or_id, ignore_missing=ignore_missing)
 
     # ====== TSIG keys ======
-    def tsigkeys(self, **query):
+    def tsigkeys(
+        self,
+        **query: Any,
+    ) -> Generator[_tsigkey.TSIGKey, None, None]:
         """Retrieve a generator of zones
 
-        :param dict query: Optional query parameters to be sent to limit the
+        :param query: Optional query parameters to be sent to limit the
             resources being returned.
 
         :returns: A generator of zone
@@ -1097,7 +1127,10 @@ class Proxy(proxy.Proxy):
         )
 
     # ======== Blacklists ========
-    def blacklists(self, **query):
+    def blacklists(
+        self,
+        **query: Any,
+    ) -> Generator[_blacklist.Blacklist, None, None]:
         """Retrieve a generator of blacklists
 
         :returns: A generator of blacklist
@@ -1257,10 +1290,10 @@ class Proxy(proxy.Proxy):
         ):
             # Unset all floatingIPs
             # NOTE: FloatingIPs are not cleaned when filters are set
-            for obj in self.floating_ips():
+            for fip_obj in self.floating_ips():
                 self._service_cleanup_del_res(
                     self.unset_floating_ip,
-                    obj,
+                    fip_obj,
                     dry_run=dry_run,
                     client_status_queue=client_status_queue,
                     identified_resources=identified_resources,

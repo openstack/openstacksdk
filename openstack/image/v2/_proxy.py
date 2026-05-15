@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 import os
 import time
 from typing import Any, ClassVar, Literal, overload
@@ -971,14 +971,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_image.Image, image)
 
-    def images(self, **query):
+    def images(self, **query: Any) -> Generator[_image.Image, None, None]:
         """Return a generator of images
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of image objects
-        :rtype: :class:`~openstack.image.v2.image.Image`
         """
         return self._list(_image.Image, **query)
 
@@ -1060,13 +1059,15 @@ class Proxy(proxy.Proxy):
 
         return True
 
-    def image_tasks(self, image):
+    def image_tasks(
+        self,
+        image: str | _image.Image,
+    ) -> Generator[_image_tasks.ImageTasks, None, None]:
         """Return a generator of Image Tasks
 
         :param image: The value can be either the name of an image or a
             :class:`~openstack.image.v2.image.Image` instance.
         :return: A generator object of image tasks
-        :rtype: :class: ~openstack.image.v2.image_tasks.ImageTasks
         :raises: :class:`~openstack.exceptions.NotFoundException`
                 when no resource can be found.
         """
@@ -1208,17 +1209,20 @@ class Proxy(proxy.Proxy):
             _member.Member, member_id=member_id, image_id=image_id
         )
 
-    def members(self, image, **query):
+    def members(
+        self,
+        image: str | _image.Image,
+        **query: Any,
+    ) -> Generator[_member.Member, None, None]:
         """Return a generator of members
 
         :param image: This is the image that the member belongs to,
             the value can be the ID of a image or a
             :class:`~openstack.image.v2.image.Image` instance.
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of member objects
-        :rtype: :class:`~openstack.image.v2.member.Member`
         """
         image_id = resource.Resource._get_id(image)
         return self._list(_member.Member, image_id=image_id)
@@ -1316,11 +1320,13 @@ class Proxy(proxy.Proxy):
             metadef_namespace,
         )
 
-    def metadef_namespaces(self, **query):
+    def metadef_namespaces(
+        self,
+        **query: Any,
+    ) -> Generator[_metadef_namespace.MetadefNamespace, None, None]:
         """Return a generator of metadef namespaces
 
         :returns: A generator object of metadef namespaces
-        :rtype: :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
@@ -1449,7 +1455,10 @@ class Proxy(proxy.Proxy):
             name=object_name,
         )
 
-    def metadef_objects(self, namespace):
+    def metadef_objects(
+        self,
+        namespace: str | _metadef_namespace.MetadefNamespace,
+    ) -> Generator[_metadef_object.MetadefObject, None, None]:
         """Get metadef object list of the namespace
 
         :param namespace: The value can be either the name of a metadef
@@ -1547,11 +1556,13 @@ class Proxy(proxy.Proxy):
         return namespace.delete_all_objects(self)
 
     # ====== METADEF RESOURCE TYPES ======
-    def metadef_resource_types(self, **query):
+    def metadef_resource_types(
+        self,
+        **query: Any,
+    ) -> Generator[_metadef_resource_type.MetadefResourceType, None, None]:
         """Return a generator of metadef resource types
 
         :return: A generator object of metadef resource types
-        :rtype:
             :class:`~openstack.image.v2.metadef_resource_type.MetadefResourceType`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
@@ -1613,7 +1624,13 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def metadef_resource_type_associations(self, metadef_namespace, **query):
+    def metadef_resource_type_associations(
+        self,
+        metadef_namespace: str | _metadef_namespace.MetadefNamespace,
+        **query: Any,
+    ) -> Generator[
+        _metadef_resource_type.MetadefResourceTypeAssociation, None, None
+    ]:
         """Return a generator of metadef resource type associations
 
         :param metadef_namespace: The value can be either the name of metadef
@@ -1621,7 +1638,6 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
             instance
         :return: A generator object of metadef resource type associations
-        :rtype:
             :class:`~openstack.image.v2.metadef_resource_type.MetadefResourceTypeAssociation`
         :raises: :class:`~openstack.exceptions.NotFoundException`
                 when no resource can be found.
@@ -1721,14 +1737,18 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def metadef_properties(self, metadef_namespace, **query):
+    def metadef_properties(
+        self,
+        metadef_namespace: str | _metadef_namespace.MetadefNamespace,
+        **query: Any,
+    ) -> Generator[_metadef_property.MetadefProperty, None, None]:
         """Return a generator of metadef properties
 
         :param metadef_namespace: The value can be either the name of metadef
             namespace or an
             :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
             instance
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of property objects
@@ -2004,14 +2024,13 @@ class Proxy(proxy.Proxy):
         )
 
     # ====== TASKS ======
-    def tasks(self, **query):
+    def tasks(self, **query: Any) -> Generator[_task.Task, None, None]:
         """Return a generator of tasks
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of task objects
-        :rtype: :class:`~openstack.image.v2.task.Task`
         """
         return self._list(_task.Task, **query)
 
@@ -2111,11 +2130,14 @@ class Proxy(proxy.Proxy):
             )
 
     # ====== STORES ======
-    def stores(self, details=False, **query):
+    def stores(
+        self,
+        details: bool = False,
+        **query: Any,
+    ) -> Generator[_si.Store, None, None]:
         """Return a generator of supported image stores
 
         :returns: A generator of store objects
-        :rtype: :class:`~openstack.image.v2.service_info.Store`
         """
         if details:
             query['base_path'] = utils.urljoin(_si.Store.base_path, 'detail')

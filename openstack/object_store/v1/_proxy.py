@@ -12,7 +12,7 @@
 
 from calendar import timegm
 import collections
-from collections.abc import Iterable
+from collections.abc import Callable, Generator, Iterable
 import functools
 from hashlib import sha1
 import hmac
@@ -20,7 +20,6 @@ import json
 import os
 import time
 from typing import Any, ClassVar, Literal
-from collections.abc import Callable
 from urllib import parse
 
 from openstack import _log
@@ -130,14 +129,14 @@ class Proxy(proxy.Proxy):
         account = self._get_resource(_account.Account, None)
         account.delete_metadata(self, keys)
 
-    def containers(self, **query):
+    def containers(
+        self,
+        **query: Any,
+    ) -> Generator[_container.Container, None, None]:
         """Obtain Container objects for this account.
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
-
-        :rtype: A generator of
-            :class:`~openstack.object_store.v1.container.Container` objects.
         """
         return self._list(_container.Container, paginated=True, **query)
 
@@ -230,18 +229,17 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_container.Container, container)
         res.delete_metadata(self, keys)
 
-    def objects(self, container, **query):
+    def objects(
+        self,
+        container: str | _container.Container,
+        **query: Any,
+    ) -> Generator[_obj.Object, None, None]:
         """Return a generator that yields the Container's objects.
 
         :param container: A container object or the name of a container
             that you want to retrieve objects from.
-        :type container:
-            :class:`~openstack.object_store.v1.container.Container`
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
-
-        :rtype: A generator of
-            :class:`~openstack.object_store.v1.obj.Object` objects.
         """
         container = self._get_container_name(container=container)
 
@@ -1273,7 +1271,7 @@ class Proxy(proxy.Proxy):
                             self._bulk_delete(elements)
                             elements.clear()
                     else:
-                        self.delete_object(obj, cont)
+                        self.delete_object(obj, container=cont)
                 else:
                     objects_remaining = True
 

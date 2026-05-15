@@ -11,7 +11,7 @@
 # under the License.
 
 from typing import Any, ClassVar, Literal, overload
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 import warnings
 
 from openstack._utils import renamed_param
@@ -181,14 +181,16 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_credential.Credential, credential)
 
-    def credentials(self, **query):
+    def credentials(
+        self,
+        **query: Any,
+    ) -> Generator[_credential.Credential, None, None]:
         """Retrieve a generator of credentials
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of credentials instances.
-        :rtype: :class:`~openstack.identity.v3.credential.Credential`
         """
         # TODO(briancurtin): This is paginated but requires base list changes.
         return self._list(_credential.Credential, **query)
@@ -285,14 +287,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_domain.Domain, domain)
 
-    def domains(self, **query):
+    def domains(self, **query: Any) -> Generator[_domain.Domain, None, None]:
         """Retrieve a generator of domains
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of domain instances.
-        :rtype: :class:`~openstack.identity.v3.domain.Domain`
         """
         # TODO(briancurtin): This is paginated but requires base list changes.
         return self._list(_domain.Domain, **query)
@@ -481,14 +482,16 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_endpoint.Endpoint, endpoint)
 
-    def endpoints(self, **query):
+    def endpoints(
+        self,
+        **query: Any,
+    ) -> Generator[_endpoint.Endpoint, None, None]:
         """Retrieve a generator of endpoints
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of endpoint instances.
-        :rtype: :class:`~openstack.identity.v3.endpoint.Endpoint`
         """
         # TODO(briancurtin): This is paginated but requires base list changes.
         return self._list(_endpoint.Endpoint, **query)
@@ -509,17 +512,20 @@ class Proxy(proxy.Proxy):
 
     # ========== Project endpoints ==========
 
-    def project_endpoints(self, project, **query):
+    def project_endpoints(
+        self,
+        project: str | _project.Project,
+        **query: Any,
+    ) -> Generator[_endpoint.ProjectEndpoint, None, None]:
         """Retrieve a generator of endpoints which are associated with the
         project.
 
         :param project: Either the project ID or an instance of
             :class:`~openstack.identity.v3.project.Project`
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of endpoint instances.
-        :rtype: :class:`~openstack.identity.v3.endpoint.ProjectEndpoint`
         """
         project_id = self._get_resource(_project.Project, project).id
         return self._list(
@@ -635,14 +641,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_group.Group, group)
 
-    def groups(self, **query):
+    def groups(self, **query: Any) -> Generator[_group.Group, None, None]:
         """Retrieve a generator of groups
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of group instances.
-        :rtype: :class:`~openstack.identity.v3.group.Group`
         """
         # TODO(briancurtin): This is paginated but requires base list changes.
         return self._list(_group.Group, **query)
@@ -700,7 +705,11 @@ class Proxy(proxy.Proxy):
         group = self._get_resource(_group.Group, group)
         return group.check_user(self, user)
 
-    def group_users(self, group, **attrs):
+    def group_users(
+        self,
+        group: str | _group.Group,
+        **attrs: Any,
+    ) -> Generator[_user.User, None, None]:
         """List users in a group
 
         :param group: Either the ID of a group or a
@@ -790,14 +799,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_policy.Policy, policy)
 
-    def policies(self, **query):
+    def policies(self, **query: Any) -> Generator[_policy.Policy, None, None]:
         """Retrieve a generator of policies
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of policy instances.
-        :rtype: :class:`~openstack.identity.v3.policy.Policy`
         """
         # TODO(briancurtin): This is paginated but requires base list changes.
         return self._list(_policy.Policy, **query)
@@ -898,44 +906,52 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_project.Project, project)
 
-    def projects(self, **query):
+    def projects(
+        self,
+        **query: Any,
+    ) -> Generator[_project.Project, None, None]:
         """Retrieve a generator of projects
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of project instances.
-        :rtype: :class:`~openstack.identity.v3.project.Project`
         """
         # TODO(briancurtin): This is paginated but requires base list changes.
         return self._list(_project.Project, **query)
 
-    def user_projects(self, user, **query):
+    def user_projects(
+        self,
+        user: str | _user.User,
+        **query: Any,
+    ) -> Generator[_project.UserProject, None, None]:
         """Retrieve a generator of projects to which the user has authorization
            to access.
 
         :param user: Either the user id or an instance of
             :class:`~openstack.identity.v3.user.User`
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of project instances.
-        :rtype: :class:`~openstack.identity.v3.project.UserProject`
         """
         user = self._get_resource(_user.User, user)
         return self._list(_project.UserProject, user_id=user.id, **query)
 
-    def endpoint_projects(self, endpoint, **query):
+    def endpoint_projects(
+        self,
+        endpoint: str | _endpoint.Endpoint,
+        **query: Any,
+    ) -> Generator[_project.EndpointProject, None, None]:
         """Retrieve a generator of projects which are associated with the
         endpoint.
 
         :param endpoint: Either the endpoint ID or an instance of
             :class:`~openstack.identity.v3.endpoint.Endpoint`
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of project instances.
-        :rtype: :class:`~openstack.identity.v3.project.EndpointProject`
         """
         endpoint_id = self._get_resource(_endpoint.Endpoint, endpoint).id
         return self._list(
@@ -1032,14 +1048,16 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_service.Service, service)
 
-    def services(self, **query):
+    def services(
+        self,
+        **query: Any,
+    ) -> Generator[_service.Service, None, None]:
         """Retrieve a generator of services
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of service instances.
-        :rtype: :class:`~openstack.identity.v3.service.Service`
         """
         # TODO(briancurtin): This is paginated but requires base list changes.
         return self._list(_service.Service, **query)
@@ -1140,7 +1158,10 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_user.User, user)
 
-    def user_groups(self, user):
+    def user_groups(
+        self,
+        user: str | _user.User,
+    ) -> Generator[_group.UserGroup, None, None]:
         """List groups a user is in
 
         :param user: Either the ID of a user or a
@@ -1152,14 +1173,13 @@ class Proxy(proxy.Proxy):
         groups = self._list(_group.UserGroup, user_id=user_id)
         return groups
 
-    def users(self, **query):
+    def users(self, **query: Any) -> Generator[_user.User, None, None]:
         """Retrieve a generator of users
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of user instances.
-        :rtype: :class:`~openstack.identity.v3.user.User`
         """
         # TODO(briancurtin): This is paginated but requires base list changes.
         return self._list(_user.User, **query)
@@ -1306,14 +1326,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_trust.Trust, trust)
 
-    def trusts(self, **query):
+    def trusts(self, **query: Any) -> Generator[_trust.Trust, None, None]:
         """Retrieve a generator of trusts
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of trust instances.
-        :rtype: :class:`~openstack.identity.v3.trust.Trust`
         """
         # TODO(briancurtin): This is paginated but requires base list changes.
         return self._list(_trust.Trust, **query)
@@ -1399,14 +1418,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_region.Region, region)
 
-    def regions(self, **query):
+    def regions(self, **query: Any) -> Generator[_region.Region, None, None]:
         """Retrieve a generator of regions
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the regions being returned.
 
         :returns: A generator of region instances.
-        :rtype: :class:`~openstack.identity.v3.region.Region`
         """
         # TODO(briancurtin): This is paginated but requires base list changes.
         return self._list(_region.Region, **query)
@@ -1507,14 +1525,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_role.Role, role)
 
-    def roles(self, **query):
+    def roles(self, **query: Any) -> Generator[_role.Role, None, None]:
         """Retrieve a generator of roles
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. The options
             are: domain_id, name.
         :return: A generator of role instances.
-        :rtype: :class:`~openstack.identity.v3.role.Role`
         """
         return self._list(_role.Role, **query)
 
@@ -1533,8 +1550,13 @@ class Proxy(proxy.Proxy):
     # ========== Role assignments ==========
 
     def role_assignments_filter(
-        self, domain=None, project=None, system=None, group=None, user=None
-    ):
+        self,
+        domain: str | _domain.Domain | None = None,
+        project: str | _project.Project | None = None,
+        system: str | None = None,
+        group: str | _group.Group | None = None,
+        user: str | _user.User | None = None,
+    ) -> Generator[resource.Resource, None, None]:
         """Retrieve a generator of roles assigned to user/group
 
         :param domain: Either the ID of a domain or a
@@ -1550,7 +1572,6 @@ class Proxy(proxy.Proxy):
         :param user: Either the ID of a user or a
             :class:`~openstack.identity.v3.user.User` instance.
         :return: A generator of role instances.
-        :rtype: :class:`~openstack.identity.v3.role.Role`
         """
         if domain and project and system:
             raise exception.InvalidRequest(
@@ -1582,6 +1603,7 @@ class Proxy(proxy.Proxy):
                     group_id=group_id,
                 )
             else:
+                assert user is not None
                 user_id = resource.Resource._get_id(user)
                 return self._list(
                     _role_domain_user_assignment.RoleDomainUserAssignment,
@@ -1598,6 +1620,7 @@ class Proxy(proxy.Proxy):
                     group_id=group_id,
                 )
             else:
+                assert user is not None
                 user_id = resource.Resource._get_id(user)
                 return self._list(
                     _role_project_user_assignment.RoleProjectUserAssignment,
@@ -1605,6 +1628,7 @@ class Proxy(proxy.Proxy):
                     user_id=user_id,
                 )
         else:
+            assert system is not None
             system_id = resource.Resource._get_id(system)
             if group:
                 group_id = resource.Resource._get_id(group)
@@ -1614,6 +1638,7 @@ class Proxy(proxy.Proxy):
                     group_id=group_id,
                 )
             else:
+                assert user is not None
                 user_id = resource.Resource._get_id(user)
                 return self._list(
                     _role_system_user_assignment.RoleSystemUserAssignment,
@@ -1621,10 +1646,13 @@ class Proxy(proxy.Proxy):
                     user_id=user_id,
                 )
 
-    def role_assignments(self, **query):
+    def role_assignments(
+        self,
+        **query: Any,
+    ) -> Generator[_role_assignment.RoleAssignment, None, None]:
         """Retrieve a generator of role assignments
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned. The options
             are: group_id, role_id, scope_domain_id,
             scope_project_id, inherited_to, user_id, include_names,
@@ -1956,14 +1984,16 @@ class Proxy(proxy.Proxy):
 
     # ========== Registered limits ==========
 
-    def registered_limits(self, **query):
+    def registered_limits(
+        self,
+        **query: Any,
+    ) -> Generator[_registered_limit.RegisteredLimit, None, None]:
         """Retrieve a generator of registered_limits
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the registered_limits being returned.
 
         :returns: A generator of registered_limits instances.
-        :rtype:
             :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
         """
         return self._list(_registered_limit.RegisteredLimit, **query)
@@ -2046,14 +2076,13 @@ class Proxy(proxy.Proxy):
 
     # ========== Limits ==========
 
-    def limits(self, **query):
+    def limits(self, **query: Any) -> Generator[_limit.Limit, None, None]:
         """Retrieve a generator of limits
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the limits being returned.
 
         :returns: A generator of limits instances.
-        :rtype: :class:`~openstack.identity.v3.limit.Limit`
         """
         return self._list(_limit.Limit, **query)
 
@@ -2113,17 +2142,20 @@ class Proxy(proxy.Proxy):
 
     # ========== Application credentials ==========
 
-    def application_credentials(self, user, **query):
+    def application_credentials(
+        self,
+        user: str | _user.User,
+        **query: Any,
+    ) -> Generator[_application_credential.ApplicationCredential, None, None]:
         """Retrieve a generator of application credentials
 
         :param user: Either the ID of a user or a
             :class:`~openstack.identity.v3.user.User` instance.
 
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             limit the resources being returned.
 
         :returns: A generator of application credentials instances.
-        :rtype:
             :class:`~openstack.identity.v3.application_credential.ApplicationCredential`
         """
         user = self._get_resource(_user.User, user)
@@ -2404,7 +2436,11 @@ class Proxy(proxy.Proxy):
         )
 
     @renamed_param('idp_id', 'idp')
-    def federation_protocols(self, idp, **query):
+    def federation_protocols(
+        self,
+        idp: str,
+        **query: Any,
+    ) -> Generator[_federation_protocol.FederationProtocol, None, None]:
         """Retrieve a generator of federation protocols
 
         :param idp: The ID or a
@@ -2538,14 +2574,16 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_mapping.Mapping, mapping)
 
-    def mappings(self, **query):
+    def mappings(
+        self,
+        **query: Any,
+    ) -> Generator[_mapping.Mapping, None, None]:
         """Retrieve a generator of mappings
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of mapping instances.
-        :rtype: :class:`~openstack.identity.v3.mapping.Mapping`
         """
         return self._list(_mapping.Mapping, **query)
 
@@ -2661,14 +2699,16 @@ class Proxy(proxy.Proxy):
             _identity_provider.IdentityProvider, identity_provider
         )
 
-    def identity_providers(self, **query):
+    def identity_providers(
+        self,
+        **query: Any,
+    ) -> Generator[_identity_provider.IdentityProvider, None, None]:
         """Retrieve a generator of identity providers
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of identity provider instances.
-        :rtype:
             :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
         """
         return self._list(_identity_provider.IdentityProvider, **query)
@@ -2694,16 +2734,19 @@ class Proxy(proxy.Proxy):
 
     # ========== Access rules ==========
 
-    def access_rules(self, user, **query):
+    def access_rules(
+        self,
+        user: str | _user.User,
+        **query: Any,
+    ) -> Generator[_access_rule.AccessRule, None, None]:
         """Retrieve a generator of access rules
 
         :param user: Either the ID of a user or a
             :class:`~openstack.identity.v3.user.User` instance.
-        :param kwargs query: Optional query parameters to be sent to
+        :param query: Optional query parameters to be sent to
             limit the resources being returned.
 
         :returns: A generator of access rules instances.
-        :rtype: :class:`~openstack.identity.v3.access_rule.AccessRule`
         """
         user = self._get_resource(_user.User, user)
         return self._list(_access_rule.AccessRule, user_id=user.id, **query)
@@ -2848,14 +2891,16 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_service_provider.ServiceProvider, service_provider)
 
-    def service_providers(self, **query):
+    def service_providers(
+        self,
+        **query: Any,
+    ) -> Generator[_service_provider.ServiceProvider, None, None]:
         """Retrieve a generator of service providers
 
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of service provider instances.
-        :rtype:
             :class:`~openstack.identity.v3.service_provider.ServiceProvider`
         """
         return self._list(_service_provider.ServiceProvider, **query)
