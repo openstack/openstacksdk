@@ -150,7 +150,7 @@ class Proxy(proxy.Proxy):
         """Find a single zone
 
         :param name_or_id: The name or ID of a zone
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the zone does not exist.
             When set to ``True``, no exception will be set when attempting
@@ -325,7 +325,7 @@ class Proxy(proxy.Proxy):
         :param zone: The value can be the ID of a zone
             or a :class:`~openstack.dns.v2.zone.Zone` instance.
         :param name_or_id: The name or ID of a zone
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the zone does not exist.
             When set to ``True``, no exception will be set when attempting
@@ -711,7 +711,7 @@ class Proxy(proxy.Proxy):
         :param zone: The value can be the ID of a zone
             or a :class:`~openstack.dns.v2.zone.Zone` instance.
         :param zone_share_id: The zone share ID
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the zone share does not exist.
             When set to ``True``,  None will be returned when attempting to
@@ -944,7 +944,7 @@ class Proxy(proxy.Proxy):
         """Find a single tld
 
         :param name_or_id: The name or ID of a tld
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the tld does not exist.
             When set to ``True``, no exception will be set when attempting
@@ -1033,7 +1033,7 @@ class Proxy(proxy.Proxy):
         """Find a single tsigkey
 
         :param name_or_id: The name or ID of a tsigkey
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class: `!openstack.exceptions.ResourceNotFound` will be raised
             when the tsigkey does not exit.
             Wehn set to ``True``, no exception will be set when attempting

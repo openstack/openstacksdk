@@ -145,7 +145,7 @@ class Proxy(proxy.Proxy):
         """Find a single load balancer
 
         :param name_or_id: The name or ID of a load balancer
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the load balancer does not exist.
             When set to ``True``, no exception will be set when attempting
@@ -274,7 +274,7 @@ class Proxy(proxy.Proxy):
         """Find a single listener
 
         :param name_or_id: The name or ID of a listener.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -408,7 +408,7 @@ class Proxy(proxy.Proxy):
         """Find a single pool
 
         :param name_or_id: The name or ID of a pool
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the pool does not exist.
             When set to ``True``, no exception will be set when attempting
@@ -501,11 +501,11 @@ class Proxy(proxy.Proxy):
     ) -> _member.Member | None:
         """Find a single member
 
-        :param str name_or_id: The name or ID of a member.
+        :param name_or_id: The name or ID of a member.
         :param pool: The pool can be either the ID of a pool or a
             :class:`~openstack.load_balancer.v2.pool.Pool` instance
             that the member belongs to.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -596,7 +596,7 @@ class Proxy(proxy.Proxy):
         """Find a single health monitor
 
         :param name_or_id: The name or ID of a health monitor
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the health monitor does not exist.
             When set to ``True``, no exception will be set when attempting
@@ -744,7 +744,7 @@ class Proxy(proxy.Proxy):
         """Find a single l7policy
 
         :param name_or_id: The name or ID of a l7policy.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -863,11 +863,11 @@ class Proxy(proxy.Proxy):
     ) -> _l7rule.L7Rule | None:
         """Find a single l7rule
 
-        :param str name_or_id: The name or ID of a l7rule.
+        :param name_or_id: The name or ID of a l7rule.
         :param l7_policy: The l7_policy can be either the ID of a l7policy or
             :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
             instance that the l7rule belongs to.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -1093,7 +1093,7 @@ class Proxy(proxy.Proxy):
         """Find a single flavor profile
 
         :param name_or_id: The name or ID of a flavor profile
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the flavor profile does not exist.
             When set to ``True``, no exception will be set when attempting
@@ -1190,7 +1190,7 @@ class Proxy(proxy.Proxy):
         """Find a single flavor
 
         :param name_or_id: The name or ID of a flavor
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the flavor does not exist.
             When set to ``True``, no exception will be set when attempting
@@ -1378,7 +1378,7 @@ class Proxy(proxy.Proxy):
         """Find a single availability zone profile
 
         :param name_or_id: The name or ID of a availability zone profile
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the availability zone profile does not exist.
             When set to ``True``, no exception will be set when attempting
@@ -1492,7 +1492,7 @@ class Proxy(proxy.Proxy):
         """Find a single availability zone
 
         :param name_or_id: The name or ID of a availability zone
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the availability zone does not exist.
             When set to ``True``, no exception will be set when attempting

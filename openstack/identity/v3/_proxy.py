@@ -151,7 +151,7 @@ class Proxy(proxy.Proxy):
         """Find a single credential
 
         :param name_or_id: The name or ID of a credential.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -251,7 +251,7 @@ class Proxy(proxy.Proxy):
         """Find a single domain
 
         :param name_or_id: The name or ID of a domain.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -435,7 +435,7 @@ class Proxy(proxy.Proxy):
         """Find a single endpoint
 
         :param name_or_id: The name or ID of a endpoint.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -584,7 +584,7 @@ class Proxy(proxy.Proxy):
         """Find a single group
 
         :param name_or_id: The name or ID of a group.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -740,7 +740,7 @@ class Proxy(proxy.Proxy):
         """Find a single policy
 
         :param name_or_id: The name or ID of a policy.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -842,7 +842,7 @@ class Proxy(proxy.Proxy):
         """Find a single project
 
         :param name_or_id: The name or ID of a project.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -976,7 +976,7 @@ class Proxy(proxy.Proxy):
         """Find a single service
 
         :param name_or_id: The name or ID of a service.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -1078,7 +1078,7 @@ class Proxy(proxy.Proxy):
         """Find a single user
 
         :param name_or_id: The name or ID of a user.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -1241,7 +1241,7 @@ class Proxy(proxy.Proxy):
         """Find a single trust
 
         :param name_or_id: The name or ID of a trust.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -1327,7 +1327,7 @@ class Proxy(proxy.Proxy):
         """Find a single region
 
         :param name_or_id: The name or ID of a region.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the region does not exist.
             When set to ``True``, None will be returned when
@@ -1434,7 +1434,7 @@ class Proxy(proxy.Proxy):
         """Find a single role
 
         :param name_or_id: The name or ID of a role.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the role does not exist.
             When set to ``True``, None will be returned when
@@ -2159,7 +2159,7 @@ class Proxy(proxy.Proxy):
         :param user: Either the ID of a user or a
             :class:`~openstack.identity.v3.user.User` instance.
         :param name_or_id: The name or ID of an application credential.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -2422,7 +2422,7 @@ class Proxy(proxy.Proxy):
         """Find a single mapping
 
         :param name_or_id: The name or ID of a mapping.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -2534,14 +2534,12 @@ class Proxy(proxy.Proxy):
         """Find a single identity provider
 
         :param name_or_id: The name or ID of an identity provider
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
         :returns: The details of an identity provider or None.
-        :rtype:
-            :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
         """
         warnings.warn(
             "find_identity_provider is deprecated and will be removed in a "
@@ -2713,14 +2711,12 @@ class Proxy(proxy.Proxy):
         """Find a single service provider
 
         :param name_or_id: The name or ID of a service provider
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the resource does not exist. When set to ``True``, None will
             be returned when attempting to find a nonexistent resource.
 
         :returns: The details of an service provider or None.
-        :rtype:
-            :class:`~openstack.identity.v3.service_provider.ServiceProvider`
         """
         return self._find(
             _service_provider.ServiceProvider,

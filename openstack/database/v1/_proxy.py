@@ -106,7 +106,7 @@ class Proxy(proxy.Proxy):
         :param name_or_id: The name or ID of a database.
         :param instance: This can be either the ID of an instance
             or a :class:`~openstack.database.v1.instance.Instance`
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -175,7 +175,7 @@ class Proxy(proxy.Proxy):
         """Find a single flavor
 
         :param name_or_id: The name or ID of a flavor.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -260,7 +260,7 @@ class Proxy(proxy.Proxy):
         """Find a single instance
 
         :param name_or_id: The name or ID of a instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -379,7 +379,7 @@ class Proxy(proxy.Proxy):
         :param name_or_id: The name or ID of a user.
         :param instance: This can be either the ID of an instance
             or a :class:`~openstack.database.v1.instance.Instance`
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when

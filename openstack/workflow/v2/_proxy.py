@@ -125,7 +125,7 @@ class Proxy(proxy.Proxy):
         """Find a single workflow
 
         :param name_or_id: The name or ID of an workflow.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -221,7 +221,7 @@ class Proxy(proxy.Proxy):
         """Find a single execution
 
         :param name_or_id: The name or ID of an execution.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -329,14 +329,14 @@ class Proxy(proxy.Proxy):
         """Find a single cron trigger
 
         :param name_or_id: The name or ID of a cron trigger.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the resource does not exist. When set to ``True``, None will
             be returned when attempting to find a nonexistent resource.
-        :param bool all_projects: When set to ``True``, search for cron
+        :param all_projects: When set to ``True``, search for cron
             triggers by name across all projects. Note that this will likely
             result in a higher chance of duplicates.
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the cron triggers being returned.
 
         :returns: One :class:`~openstack.compute.v2.cron_trigger.CronTrigger`

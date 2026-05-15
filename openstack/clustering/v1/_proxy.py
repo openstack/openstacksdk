@@ -147,8 +147,8 @@ class Proxy(proxy.Proxy):
     ) -> _profile.Profile | None:
         """Find a single profile.
 
-        :param str name_or_id: The name or ID of a profile.
-        :param bool ignore_missing: When set to ``False``
+        :param name_or_id: The name or ID of a profile.
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -282,8 +282,8 @@ class Proxy(proxy.Proxy):
     ) -> _cluster.Cluster | None:
         """Find a single cluster.
 
-        :param str name_or_id: The name or ID of a cluster.
-        :param bool ignore_missing: When set to ``False``
+        :param name_or_id: The name or ID of a cluster.
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -642,8 +642,8 @@ class Proxy(proxy.Proxy):
     ) -> _node.Node | None:
         """Find a single node.
 
-        :param str name_or_id: The name or ID of a node.
-        :param bool ignore_missing: When set to "False"
+        :param name_or_id: The name or ID of a node.
+        :param ignore_missing: When set to "False"
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the specified node does not exist.
             when set to "True", None will be returned when
@@ -833,14 +833,13 @@ class Proxy(proxy.Proxy):
     ) -> _policy.Policy | None:
         """Find a single policy.
 
-        :param str name_or_id: The name or ID of a policy.
-        :param bool ignore_missing: When set to ``False``
+        :param name_or_id: The name or ID of a policy.
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the specified policy does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent policy.
         :returns: A policy object or None.
-        :rtype: :class:`~openstack.clustering.v1.policy.Policy`
         """
         return self._find(
             _policy.Policy, name_or_id, ignore_missing=ignore_missing
@@ -1006,14 +1005,13 @@ class Proxy(proxy.Proxy):
     ) -> _receiver.Receiver | None:
         """Find a single receiver.
 
-        :param str name_or_id: The name or ID of a receiver.
-        :param bool ignore_missing: When set to ``False``
+        :param name_or_id: The name or ID of a receiver.
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the specified receiver does not exist. When
             set to ``True``, None will be returned when attempting to
             find a nonexistent receiver.
         :returns: A receiver object or None.
-        :rtype: :class:`~openstack.clustering.v1.receiver.Receiver`
         """
         return self._find(
             _receiver.Receiver, name_or_id, ignore_missing=ignore_missing

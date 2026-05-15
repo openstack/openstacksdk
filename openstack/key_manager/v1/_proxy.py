@@ -86,7 +86,7 @@ class Proxy(proxy.Proxy):
         """Find a single container
 
         :param name_or_id: The name or ID of a container.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -185,7 +185,7 @@ class Proxy(proxy.Proxy):
         """Find a single order
 
         :param name_or_id: The name or ID of a order.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -283,7 +283,7 @@ class Proxy(proxy.Proxy):
         """Find a single secret
 
         :param name_or_id: The name or ID of a secret.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when

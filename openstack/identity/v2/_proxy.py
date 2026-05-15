@@ -94,7 +94,7 @@ class Proxy(proxy.Proxy):
         """Find a single role
 
         :param name_or_id: The name or ID of a role.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -190,7 +190,7 @@ class Proxy(proxy.Proxy):
         """Find a single tenant
 
         :param name_or_id: The name or ID of a tenant.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -286,7 +286,7 @@ class Proxy(proxy.Proxy):
         """Find a single user
 
         :param name_or_id: The name or ID of a user.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when

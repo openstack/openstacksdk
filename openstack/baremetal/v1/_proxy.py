@@ -157,8 +157,8 @@ class Proxy(proxy.Proxy):
     ) -> _chassis.Chassis | None:
         """Find a single chassis.
 
-        :param str name_or_id: The ID of a chassis.
-        :param bool ignore_missing: When set to ``False``, an exception of
+        :param name_or_id: The ID of a chassis.
+        :param ignore_missing: When set to ``False``, an exception of
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the chassis does not exist.  When set to `True``, None will
             be returned when attempting to find a nonexistent chassis.
@@ -394,8 +394,8 @@ class Proxy(proxy.Proxy):
     ) -> _node.Node | None:
         """Find a single node.
 
-        :param str name_or_id: The name or ID of a node.
-        :param bool ignore_missing: When set to ``False``, an exception of
+        :param name_or_id: The name or ID of a node.
+        :param ignore_missing: When set to ``False``, an exception of
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the node does not exist.  When set to `True``, None will
             be returned when attempting to find a nonexistent node.
@@ -997,8 +997,8 @@ class Proxy(proxy.Proxy):
     ) -> _port.Port | None:
         """Find a single port.
 
-        :param str name_or_id: The ID of a port.
-        :param bool ignore_missing: When set to ``False``, an exception of
+        :param name_or_id: The ID of a port.
+        :param ignore_missing: When set to ``False``, an exception of
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the port does not exist.  When set to `True``, None will
             be returned when attempting to find a nonexistent port.
@@ -1152,8 +1152,8 @@ class Proxy(proxy.Proxy):
     ) -> _portgroup.PortGroup | None:
         """Find a single port group.
 
-        :param str name_or_id: The name or ID of a portgroup.
-        :param bool ignore_missing: When set to ``False``, an exception of
+        :param name_or_id: The name or ID of a portgroup.
+        :param ignore_missing: When set to ``False``, an exception of
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the port group does not exist.  When set to `True``, None will
             be returned when attempting to find a nonexistent port group.
@@ -1581,8 +1581,8 @@ class Proxy(proxy.Proxy):
     ) -> _volumeconnector.VolumeConnector | None:
         """Find a single volume connector.
 
-        :param str vc_id: The ID of a volume connector.
-        :param bool ignore_missing: When set to ``False``, an exception of
+        :param vc_id: The ID of a volume connector.
+        :param ignore_missing: When set to ``False``, an exception of
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the volume connector does not exist.  When set to `True``,
             None will be returned when attempting to find a nonexistent
@@ -1765,8 +1765,8 @@ class Proxy(proxy.Proxy):
     ) -> _volumetarget.VolumeTarget | None:
         """Find a single volume target.
 
-        :param str vt_id: The ID of a volume target.
-        :param bool ignore_missing: When set to ``False``, an exception of
+        :param vt_id: The ID of a volume target.
+        :param ignore_missing: When set to ``False``, an exception of
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the volume connector does not exist.  When set to `True``,
             None will be returned when attempting to find a nonexistent
@@ -1987,8 +1987,8 @@ class Proxy(proxy.Proxy):
     ) -> _deploytemplates.DeployTemplate | None:
         """Find a single deployment template.
 
-        :param str name_or_id: The name or ID of a deployment template.
-        :param bool ignore_missing: When set to ``False``, an exception of
+        :param name_or_id: The name or ID of a deployment template.
+        :param ignore_missing: When set to ``False``, an exception of
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
             when the deployment template does not exist.  When set to `True``,
             None will be returned when attempting to find a nonexistent

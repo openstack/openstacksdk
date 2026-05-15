@@ -106,7 +106,7 @@ class Proxy(proxy.Proxy):
         """Find a single extension
 
         :param name_or_id: The name or ID of an extension.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -167,14 +167,14 @@ class Proxy(proxy.Proxy):
         """Find a single flavor
 
         :param name_or_id: The name or ID of a flavor.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the resource does not exist.  When set to ``True``, None will
             be returned when attempting to find a nonexistent resource.
-        :param bool get_extra_specs: When set to ``True`` and extra_specs not
+        :param get_extra_specs: When set to ``True`` and extra_specs not
             present in the response will invoke additional API call to fetch
             extra_specs.
-        :param kwargs query: Optional query parameters to be sent to limit
+        :param query: Optional query parameters to be sent to limit
             the flavors being returned.
 
         :returns: One :class:`~openstack.compute.v2.flavor.Flavor` or None
@@ -417,7 +417,7 @@ class Proxy(proxy.Proxy):
         """Find a single aggregate
 
         :param name_or_id: The name or ID of an aggregate.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the resource does not exist.  When set to ``True``, None will
             be returned when attempting to find a nonexistent resource.
@@ -585,7 +585,7 @@ class Proxy(proxy.Proxy):
         """Find a single image
 
         :param name_or_id: The name or ID of a image.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -793,11 +793,11 @@ class Proxy(proxy.Proxy):
         """Find a single keypair
 
         :param name_or_id: The name or ID of a keypair.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the resource does not exist.  When set to ``True``, None will
             be returned when attempting to find a nonexistent resource.
-        :param str user_id: Optional user_id owning the keypair
+        :param user_id: Optional user_id owning the keypair
 
         :returns: One :class:`~openstack.compute.v2.keypair.Keypair` or None
         :raises: :class:`~openstack.exceptions.NotFoundException`
@@ -902,14 +902,14 @@ class Proxy(proxy.Proxy):
         """Find a single server
 
         :param name_or_id: The name or ID of a server.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the resource does not exist. When set to ``True``, None will
             be returned when attempting to find a nonexistent resource.
-        :param bool details: When set to ``False``
+        :param details: When set to ``False``
             instances with only basic data will be returned. The default,
             ``True``, will cause instances with full data to be returned.
-        :param bool all_projects: When set to ``True``, search for server
+        :param all_projects: When set to ``True``, search for server
             by name across all projects. Note that this will likely result in a
             higher chance of duplicates. Admin-only by default.
 
@@ -1763,11 +1763,11 @@ class Proxy(proxy.Proxy):
         """Find a single server group
 
         :param name_or_id: The name or ID of a server group.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the resource does not exist. When set to ``True``, None will
             be returned when attempting to find a nonexistent resource.
-        :param bool all_projects: When set to ``True``, search for server
+        :param all_projects: When set to ``True``, search for server
             groups by name across all projects. Note that this will likely
             result in a higher chance of duplicates. Admin-only by default.
 
@@ -1870,11 +1870,11 @@ class Proxy(proxy.Proxy):
         """Find a single hypervisor
 
         :param name_or_id: The name or ID of a hypervisor
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the resource does not exist. When set to ``True``, None will
             be returned when attempting to find a nonexistent resource.
-        :param bool details: When set to ``False``
+        :param details: When set to ``False``
             instances with only basic data will be returned. The default,
             ``True``, will cause instances with full data to be returned.
 
@@ -2036,12 +2036,12 @@ class Proxy(proxy.Proxy):
         """Find a service from name or id to get the corresponding info
 
         :param name_or_id: The name or id of a service
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Additional attributes like 'host'
+        :param query: Additional attributes like 'host'
 
         :returns: One: class:`~openstack.compute.v2.service.Service` or None
         :raises: :class:`~openstack.exceptions.NotFoundException`

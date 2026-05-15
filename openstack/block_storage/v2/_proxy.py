@@ -124,16 +124,16 @@ class Proxy(proxy.Proxy):
         """Find a single snapshot
 
         :param snapshot: The name or ID a snapshot
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the snapshot does not exist. When set to ``True``, None will
             be returned when attempting to find a nonexistent resource.
-        :param bool details: When set to ``False``, an
+        :param details: When set to ``False``, an
             :class:`~openstack.block_storage.v2.snapshot.Snapshot` object will
             be returned. The default, ``True``, will cause an
             :class:`~openstack.block_storage.v2.snapshot.SnapshotDetail` object
             to be returned.
-        :param bool all_projects: When set to ``True``, search for snapshot by
+        :param all_projects: When set to ``True``, search for snapshot by
             name across all projects. Note that this will likely result in
             a higher chance of duplicates. Admin-only by default.
 
@@ -311,7 +311,7 @@ class Proxy(proxy.Proxy):
         """Find a single volume type
 
         :param snapshot: The name or ID a volume type
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
             when the volume type does not exist.
 
@@ -450,13 +450,13 @@ class Proxy(proxy.Proxy):
         """Find a single volume
 
         :param volume: The name or ID a volume
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the volume does not exist.
-        :param bool details: When set to ``False`` no extended attributes
+        :param details: When set to ``False`` no extended attributes
             will be returned. The default, ``True``, will cause an object with
             additional attributes to be returned.
-        :param bool all_projects: When set to ``True``, search for volume by
+        :param all_projects: When set to ``True``, search for volume by
             name across all projects. Note that this will likely result in
             a higher chance of duplicates. Admin-only by default.
 
@@ -815,10 +815,10 @@ class Proxy(proxy.Proxy):
         """Find a single backup
 
         :param snapshot: The name or ID a backup
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the backup does not exist.
-        :param bool details: When set to ``False`` no additional details will
+        :param details: When set to ``False`` no additional details will
             be returned. The default, ``True``, will cause objects with
             additional attributes to be returned.
 
@@ -1101,11 +1101,11 @@ class Proxy(proxy.Proxy):
         """Find a single service
 
         :param name_or_id: The name or ID of a service
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the resource does not exist. When set to ``True``, None will
             be returned when attempting to find a nonexistent resource.
-        :param dict query: Additional attributes like 'host'
+        :param query: Additional attributes like 'host'
 
         :returns: One: class:`~openstack.block_storage.v2.service.Service` or
             None
@@ -1370,7 +1370,7 @@ class Proxy(proxy.Proxy):
         """Find a single transfer
 
         :param name_or_id: The name or ID a transfer
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the volume transfer does not exist.
 

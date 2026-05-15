@@ -309,12 +309,12 @@ class Proxy(proxy.Proxy):
         """Find a single address group
 
         :param name_or_id: The name or ID of an address group.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.address_group.AddressGroup`
             or None
@@ -456,12 +456,12 @@ class Proxy(proxy.Proxy):
         """Find a single address scope
 
         :param name_or_id: The name or ID of an address scope.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.address_scope.AddressScope`
             or None
@@ -921,12 +921,12 @@ class Proxy(proxy.Proxy):
         """Find a single BGPVPN
 
         :param name_or_id: The name or ID of a BGPVPN.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.bgpvpn.BGPVPN`
             or None
@@ -1141,12 +1141,12 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a BgpVpnNetworkAssociation.
         :param bgpvpn_id: The value can be the ID of a BGPVPN.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.bgpvpn.BGPVPN`
             or None
@@ -1361,12 +1361,12 @@ class Proxy(proxy.Proxy):
         """Find a single extension
 
         :param name_or_id: The name or ID of a extension.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.extension.Extension`
             or None
@@ -1443,12 +1443,12 @@ class Proxy(proxy.Proxy):
         """Find a single network service flavor
 
         :param name_or_id: The name or ID of a flavor.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.flavor.Flavor` or None
         """
@@ -1601,12 +1601,12 @@ class Proxy(proxy.Proxy):
         """Find a local IP
 
         :param name_or_id: The name or ID of an local IP.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.local_ip.LocalIP`
             or None
@@ -1754,12 +1754,12 @@ class Proxy(proxy.Proxy):
         :param local_ip: The value can be the ID of a Local IP or a
             :class:`~openstack.network.v2.local_ip.LocalIP`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.local_ip_association.LocalIPAssociation`
@@ -1890,12 +1890,12 @@ class Proxy(proxy.Proxy):
         """Find a single IP
 
         :param name_or_id: The name or ID of an IP.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.floating_ip.FloatingIP`
             or None
@@ -2033,12 +2033,12 @@ class Proxy(proxy.Proxy):
         :param floating_ip: The value can be the ID of a Floating IP or a
             :class:`~openstack.network.v2.floating_ip.FloatingIP`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns:
             One :class:`~openstack.network.v2.port_forwarding.PortForwarding`
@@ -2184,12 +2184,12 @@ class Proxy(proxy.Proxy):
         """Find a single health monitor
 
         :param name_or_id: The name or ID of a health monitor.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.health_monitor.HealthMonitor`
@@ -2314,12 +2314,12 @@ class Proxy(proxy.Proxy):
         """Find a single listener
 
         :param name_or_id: The name or ID of a listener.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.listener.Listener` or None
         """
@@ -2439,12 +2439,12 @@ class Proxy(proxy.Proxy):
         """Find a single load balancer
 
         :param name_or_id: The name or ID of a load balancer.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.load_balancer.LoadBalancer`
             or None
@@ -2556,12 +2556,12 @@ class Proxy(proxy.Proxy):
         """Find a single metering label
 
         :param name_or_id: The name or ID of a metering label.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.metering_label.MeteringLabel`
@@ -2686,12 +2686,12 @@ class Proxy(proxy.Proxy):
         """Find a single metering label rule
 
         :param name_or_id: The name or ID of a metering label rule.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.metering_label_rule.MeteringLabelRule`
@@ -2822,12 +2822,12 @@ class Proxy(proxy.Proxy):
         """Find a single network
 
         :param name_or_id: The name or ID of a network.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.network.Network` or None
         """
@@ -2921,12 +2921,12 @@ class Proxy(proxy.Proxy):
         """Find IP availability of a network
 
         :param name_or_id: The name or ID of a network.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.network_ip_availability.NetworkIPAvailability`
@@ -3042,12 +3042,12 @@ class Proxy(proxy.Proxy):
         """Find a single network segment range
 
         :param name_or_id: The name or ID of a network segment range.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.network_segment_range.NetworkSegmentRange`
@@ -3180,12 +3180,12 @@ class Proxy(proxy.Proxy):
         """Find a single pool
 
         :param name_or_id: The name or ID of a pool.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.pool.Pool` or None
         """
@@ -3316,16 +3316,16 @@ class Proxy(proxy.Proxy):
     ) -> _pool_member.PoolMember | None:
         """Find a single pool member
 
-        :param str name_or_id: The name or ID of a pool member.
+        :param name_or_id: The name or ID of a pool member.
         :param pool: The pool can be either the ID of a pool or a
             :class:`~openstack.network.v2.pool.Pool` instance that
             the member belongs to.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.pool_member.PoolMember`
             or None
@@ -3478,12 +3478,12 @@ class Proxy(proxy.Proxy):
         """Find a single port
 
         :param name_or_id: The name or ID of a port.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.port.Port` or None
         """
@@ -3734,12 +3734,12 @@ class Proxy(proxy.Proxy):
         :param qos_policy: The value can be the ID of the QoS policy that the
             rule belongs or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.qos_bandwidth_limit_rule.QoSBandwidthLimitRule`
@@ -3908,12 +3908,12 @@ class Proxy(proxy.Proxy):
         :param qos_policy: The value can be the ID of the QoS policy that the
             rule belongs or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.qos_dscp_marking_rule.QoSDSCPMarkingRule`
@@ -4077,12 +4077,12 @@ class Proxy(proxy.Proxy):
         :param qos_policy: The value can be the ID of the QoS policy that the
             rule belongs or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule`
@@ -4247,11 +4247,11 @@ class Proxy(proxy.Proxy):
         :param qos_policy: The value can be the ID of the QoS policy that the
             rule belongs or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the resource does not exist. When set to ``True``, None will
             be returned when attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule`
@@ -4415,11 +4415,11 @@ class Proxy(proxy.Proxy):
         :param qos_policy: The value can be the ID of the QoS policy that the
             rule belongs or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the resource does not exist. When set to ``True``, None will
             be returned when attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.qos_packet_rate_limit_rule.QoSPacketRateLimitRule`
@@ -4555,12 +4555,12 @@ class Proxy(proxy.Proxy):
         """Find a single QoS policy
 
         :param name_or_id: The name or ID of a QoS policy.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.qos_policy.QoSPolicy` or
             None
@@ -4636,7 +4636,7 @@ class Proxy(proxy.Proxy):
         """Find a single QoS rule type details
 
         :param rule_type_name: The name of a QoS rule type.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -4815,12 +4815,12 @@ class Proxy(proxy.Proxy):
         """Find a single RBAC policy
 
         :param rbac_policy: The ID of a RBAC policy.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.rbac_policy.RBACPolicy` or None
@@ -4934,12 +4934,12 @@ class Proxy(proxy.Proxy):
         """Find a single router
 
         :param name_or_id: The name or ID of a router.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.router.Router` or None
         """
@@ -5255,11 +5255,11 @@ class Proxy(proxy.Proxy):
         """Find a single ndp proxy
 
         :param ndp_proxy_id: The ID of a ndp proxy.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the resource does not exist.  When set to ``True``, None will
             be returned when attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns:
             One :class:`~openstack.network.v2.ndp_proxy.NDPProxy` or None
@@ -5376,12 +5376,12 @@ class Proxy(proxy.Proxy):
         """Find a single firewall group
 
         :param name_or_id: The name or ID of a firewall group.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.firewall_group.FirewallGroup` or None
@@ -5507,12 +5507,12 @@ class Proxy(proxy.Proxy):
         """Find a single firewall policy
 
         :param name_or_id: The name or ID of a firewall policy.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`
@@ -5689,12 +5689,12 @@ class Proxy(proxy.Proxy):
         """Find a single firewall rule
 
         :param name_or_id: The name or ID of a firewall rule.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.firewall_rule.FirewallRule`
@@ -5832,12 +5832,12 @@ class Proxy(proxy.Proxy):
         """Find a single security group
 
         :param name_or_id: The name or ID of a security group.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.security_group.SecurityGroup`
@@ -5986,13 +5986,13 @@ class Proxy(proxy.Proxy):
     ) -> _security_group_rule.SecurityGroupRule | None:
         """Find a single security group rule
 
-        :param str name_or_id: The ID of a security group rule.
-        :param bool ignore_missing: When set to ``False``
+        :param name_or_id: The ID of a security group rule.
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`
@@ -6113,13 +6113,13 @@ class Proxy(proxy.Proxy):
     ) -> _default_security_group_rule.DefaultSecurityGroupRule | None:
         """Find a single default security group rule
 
-        :param str name_or_id: The ID of a default security group rule.
-        :param bool ignore_missing: When set to ``False``
+        :param name_or_id: The ID of a default security group rule.
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.default_security_group_rule.
@@ -6246,13 +6246,13 @@ class Proxy(proxy.Proxy):
     ) -> _sg_default_statefulness.SecurityGroupsDefaultStatefulness | None:
         """Find a single default statefulness setting
 
-        :param str name_or_id: The ID of a default statefulness setting.
-        :param bool ignore_missing: When set to ``False``
+        :param name_or_id: The ID of a default statefulness setting.
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods, such as query filters.
         :returns: One
             :class:`~openstack.network.v2.security_groups_default_statefulness.
@@ -6381,12 +6381,12 @@ class Proxy(proxy.Proxy):
         """Find a single segment
 
         :param name_or_id: The name or ID of a segment.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.segment.Segment` or None
         """
@@ -6514,12 +6514,12 @@ class Proxy(proxy.Proxy):
         """Find a single network service flavor profile
 
         :param name_or_id: The name or ID of a service profile.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.service_profile.ServiceProfile`
@@ -6637,12 +6637,12 @@ class Proxy(proxy.Proxy):
         """Find a single subnet
 
         :param name_or_id: The name or ID of a subnet.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.subnet.Subnet` or None
         """
@@ -6757,12 +6757,12 @@ class Proxy(proxy.Proxy):
         """Find a single subnet pool
 
         :param name_or_id: The name or ID of a subnet pool.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.subnet_pool.SubnetPool`
             or None
@@ -6963,12 +6963,12 @@ class Proxy(proxy.Proxy):
         """Find a single trunk
 
         :param name_or_id: The name or ID of a trunk.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.trunk.Trunk`
             or None
@@ -7120,12 +7120,12 @@ class Proxy(proxy.Proxy):
         """Find a single vpn service
 
         :param name_or_id: The name or ID of a vpn service.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.vpn_endpoint_group.VpnEndpointGroup`
@@ -7227,12 +7227,12 @@ class Proxy(proxy.Proxy):
         """Find a single IPsec site connection
 
         :param name_or_id: The name or ID of an IPsec site connection.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException`
             will be raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods such as query filters.
         :returns: One
             :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
@@ -7359,12 +7359,12 @@ class Proxy(proxy.Proxy):
         """Find a single ike policy
 
         :param name_or_id: The name or ID of an IKE policy.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException`
             will be raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods such as query filters.
         :returns: One
             :class:`~openstack.network.v2.vpn_ike_policy.VpnIkePolicy` or None.
@@ -7475,12 +7475,12 @@ class Proxy(proxy.Proxy):
         """Find a single IPsec policy
 
         :param name_or_id: The name or ID of an IPsec policy.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException`
             will be raised when the resource does not exist.  When set to
             ``True``, None will be returned when attempting to find a
             nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods such as query filters.
         :returns: One
             :class:`~openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy`
@@ -7613,12 +7613,12 @@ class Proxy(proxy.Proxy):
         """Find a single vpn service
 
         :param name_or_id: The name or ID of a vpn service.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.vpn_service.VpnService`
             or None
@@ -7749,12 +7749,12 @@ class Proxy(proxy.Proxy):
             port forwarding  belongs or a
             :class:`~openstack.network.v2.floating_ip.FloatingIP` instance.
         :param port_forwarding_id: The ID of a port forwarding.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.port_forwarding.PortForwarding`
@@ -8164,13 +8164,13 @@ class Proxy(proxy.Proxy):
     ) -> _sfc_flow_classifier.SfcFlowClassifier | None:
         """Find a single Flow Classifier
 
-        :param str name_or_id: The name or ID of an SFC flow classifier.
-        :param bool ignore_missing: When set to ``False``
+        :param name_or_id: The name or ID of an SFC flow classifier.
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.sfc_flow_classifier.
@@ -8294,13 +8294,13 @@ class Proxy(proxy.Proxy):
     ) -> _sfc_port_chain.SfcPortChain | None:
         """Find a single Port Chain
 
-        :param str name_or_id: The name or ID of an SFC port chain.
-        :param bool ignore_missing: When set to ``False``
+        :param name_or_id: The name or ID of an SFC port chain.
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.sfc_port_chain.
@@ -8415,13 +8415,13 @@ class Proxy(proxy.Proxy):
     ) -> _sfc_port_pair.SfcPortPair | None:
         """Find a single Port Pair
 
-        :param str name_or_id: The name or ID of an SFC port pair.
-        :param bool ignore_missing: When set to ``False``
+        :param name_or_id: The name or ID of an SFC port pair.
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.sfc_port_pair.SfcPortPair` or None
@@ -8537,13 +8537,13 @@ class Proxy(proxy.Proxy):
     ) -> _sfc_port_pair_group.SfcPortPairGroup | None:
         """Find a single Port Pair Group
 
-        :param str name_or_id: The name or ID of an SFC port pair group.
-        :param bool ignore_missing: When set to ``False``
+        :param name_or_id: The name or ID of an SFC port pair group.
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.sfc_port_pair_group.
@@ -8665,13 +8665,13 @@ class Proxy(proxy.Proxy):
     ) -> _sfc_sservice_graph.SfcServiceGraph | None:
         """Find a single Service Graph
 
-        :param str name_or_id: The name or ID of an SFC service graph.
-        :param bool ignore_missing: When set to ``False``
+        :param name_or_id: The name or ID of an SFC service graph.
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
-        :param dict query: Any additional parameters to be passed into
+        :param query: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.sfc_service_graph.

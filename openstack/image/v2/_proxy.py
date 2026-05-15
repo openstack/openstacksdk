@@ -940,7 +940,7 @@ class Proxy(proxy.Proxy):
         """Find a single image
 
         :param name_or_id: The name or ID of a image.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
@@ -1164,7 +1164,7 @@ class Proxy(proxy.Proxy):
         :param image: This is the image that the member belongs to,
             the value can be the ID of a image or a
             :class:`~openstack.image.v2.image.Image` instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
