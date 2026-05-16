@@ -120,11 +120,10 @@ class Proxy(proxy.Proxy):
     def create_chassis(self, **attrs: Any) -> _chassis.Chassis:
         """Create a new chassis from attributes.
 
-        :param dict attrs: Keyword arguments that will be used to create a
+        :param attrs: Keyword arguments that will be used to create a
             :class:`~openstack.baremetal.v1.chassis.Chassis`.
 
         :returns: The results of chassis creation.
-        :rtype: :class:`~openstack.baremetal.v1.chassis.Chassis`.
         """
         return self._create(_chassis.Chassis, **attrs)
 
@@ -359,11 +358,10 @@ class Proxy(proxy.Proxy):
         See :meth:`~openstack.baremetal.v1.node.Node.create` for an explanation
         of the initial provision state.
 
-        :param dict attrs: Keyword arguments that will be used to create a
+        :param attrs: Keyword arguments that will be used to create a
             :class:`~openstack.baremetal.v1.node.Node`.
 
         :returns: The results of node creation.
-        :rtype: :class:`~openstack.baremetal.v1.node.Node`.
         """
         return self._create(_node.Node, **attrs)
 
@@ -960,11 +958,10 @@ class Proxy(proxy.Proxy):
     def create_port(self, **attrs: Any) -> _port.Port:
         """Create a new port from attributes.
 
-        :param dict attrs: Keyword arguments that will be used to create a
+        :param attrs: Keyword arguments that will be used to create a
             :class:`~openstack.baremetal.v1.port.Port`.
 
         :returns: The results of port creation.
-        :rtype: :class:`~openstack.baremetal.v1.port.Port`.
         """
         return self._create(_port.Port, **attrs)
 
@@ -1117,11 +1114,10 @@ class Proxy(proxy.Proxy):
     def create_port_group(self, **attrs: Any) -> _portgroup.PortGroup:
         """Create a new portgroup from attributes.
 
-        :param dict attrs: Keyword arguments that will be used to create a
+        :param attrs: Keyword arguments that will be used to create a
             :class:`~openstack.baremetal.v1.port_group.PortGroup`.
 
         :returns: The results of portgroup creation.
-        :rtype: :class:`~openstack.baremetal.v1.port_group.PortGroup`.
         """
         return self._create(_portgroup.PortGroup, **attrs)
 
@@ -1407,11 +1403,10 @@ class Proxy(proxy.Proxy):
     def create_allocation(self, **attrs: Any) -> _allocation.Allocation:
         """Create a new allocation from attributes.
 
-        :param dict attrs: Keyword arguments that will be used to create a
+        :param attrs: Keyword arguments that will be used to create a
             :class:`~openstack.baremetal.v1.allocation.Allocation`.
 
         :returns: The results of allocation creation.
-        :rtype: :class:`~openstack.baremetal.v1.allocation.Allocation`.
         """
         return self._create(_allocation.Allocation, **attrs)
 
@@ -1543,12 +1538,10 @@ class Proxy(proxy.Proxy):
     ) -> _volumeconnector.VolumeConnector:
         """Create a new volume_connector from attributes.
 
-        :param dict attrs: Keyword arguments that will be used to create a
+        :param attrs: Keyword arguments that will be used to create a
             :class:`~openstack.baremetal.v1.volume_connector.VolumeConnector`.
 
         :returns: The results of volume_connector creation.
-        :rtype:
-            :class:`~openstack.baremetal.v1.volume_connector.VolumeConnector`.
         """
         return self._create(_volumeconnector.VolumeConnector, **attrs)
 
@@ -1727,12 +1720,10 @@ class Proxy(proxy.Proxy):
     def create_volume_target(self, **attrs: Any) -> _volumetarget.VolumeTarget:
         """Create a new volume_target from attributes.
 
-        :param dict attrs: Keyword arguments that will be used to create a
+        :param attrs: Keyword arguments that will be used to create a
             :class:`~openstack.baremetal.v1.volume_target.VolumeTarget`.
 
         :returns: The results of volume_target creation.
-        :rtype:
-            :class:`~openstack.baremetal.v1.volume_target.VolumeTarget`.
         """
         return self._create(_volumetarget.VolumeTarget, **attrs)
 
@@ -1885,12 +1876,10 @@ class Proxy(proxy.Proxy):
     ) -> _deploytemplates.DeployTemplate:
         """Create a new deploy_template from attributes.
 
-        :param dict attrs: Keyword arguments that will be used to create a
+        :param attrs: Keyword arguments that will be used to create a
             :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`.
 
         :returns: The results of deploy_template creation.
-        :rtype:
-            :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`.
         """
         return self._create(_deploytemplates.DeployTemplate, **attrs)
 
@@ -2044,11 +2033,10 @@ class Proxy(proxy.Proxy):
     def create_runbook(self, **attrs: Any) -> _runbooks.Runbook:
         """Create a new runbook from attributes.
 
-        :param dict attrs: Keyword arguments that will be used to create a
+        :param attrs: Keyword arguments that will be used to create a
             :class:`~openstack.baremetal.v1.runbooks.Runbook`.
 
         :returns: The results of runbook creation.
-        :rtype: :class:`~openstack.baremetal.v1.runbooks.Runbook`.
         """
         return self._create(_runbooks.Runbook, **attrs)
 
@@ -2130,7 +2118,7 @@ class Proxy(proxy.Proxy):
     def conductors(self, details=False, **query):
         """Retrieve a generator of conductors.
 
-        :param bool details: A boolean indicating whether the detailed
+        :param details: A boolean indicating whether the detailed
             information for every conductor should be returned.
 
         :returns: A generator of conductor instances.
@@ -2241,12 +2229,10 @@ class Proxy(proxy.Proxy):
     ) -> _inspectionrules.InspectionRule:
         """Create a new inspection rule from attributes.
 
-        :param dict attrs: Keyword arguments that will be used to create a
+        :param attrs: Keyword arguments that will be used to create a
             :class:`~openstack.baremetal.v1.inspection_rules.InspectionRule`.
 
         :returns: The results of inspection rule creation.
-        :rtype:
-            :class:`~openstack.baremetal.v1.inspection_rules.InspectionRule`.
         """
         return self._create(_inspectionrules.InspectionRule, **attrs)
 

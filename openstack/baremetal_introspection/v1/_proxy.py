@@ -170,7 +170,7 @@ class Proxy(proxy.Proxy):
     ) -> _introspection_rule.IntrospectionRule:
         """Create a new introspection rules from attributes.
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~.introspection_rule.IntrospectionRule`,
             comprised of the properties on the IntrospectionRule class.
 
