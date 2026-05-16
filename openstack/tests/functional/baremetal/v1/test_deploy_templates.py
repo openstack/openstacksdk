@@ -160,7 +160,8 @@ class TestBareMetalDeployTemplate(base.BaseBaremetalTest):
         deploy_template = self.create_deploy_template(name=name, steps=steps)
         deploy_template = (
             self.system_admin_cloud.baremetal.patch_deploy_template(
-                deploy_template, dict(path='/extra/answer', op='add', value=42)
+                deploy_template,
+                [{'path': '/extra/answer', 'op': 'add', 'value': 42}],
             )
         )
         self.assertEqual({'answer': 42}, deploy_template.extra)

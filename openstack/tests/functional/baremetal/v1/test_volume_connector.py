@@ -157,7 +157,7 @@ class TestBareMetalVolumeconnector(base.BaseBaremetalTest):
         volume_connector = (
             self.operator_cloud.baremetal.patch_volume_connector(
                 volume_connector,
-                dict(path='/extra/answer', op='add', value=42),
+                [{'path': '/extra/answer', 'op': 'add', 'value': 42}],
             )
         )
         self.assertEqual({'answer': 42}, volume_connector.extra)

@@ -45,7 +45,7 @@ class TestBareMetalChassis(base.BaseBaremetalTest):
         chassis = self.create_chassis()
 
         chassis = self.system_admin_cloud.baremetal.patch_chassis(
-            chassis, dict(path='/extra/answer', op='add', value=42)
+            chassis, [{'path': '/extra/answer', 'op': 'add', 'value': 42}]
         )
         self.assertEqual({'answer': 42}, chassis.extra)
 

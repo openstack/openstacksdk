@@ -175,7 +175,8 @@ class TestBareMetalVolumetarget(base.BaseBaremetalTest):
         )
 
         volume_target = self.operator_cloud.baremetal.patch_volume_target(
-            volume_target, dict(path='/extra/answer', op='add', value=42)
+            volume_target,
+            [{'path': '/extra/answer', 'op': 'add', 'value': 42}],
         )
         self.assertEqual({'answer': 42}, volume_target.extra)
         self.assertEqual(vol_targ_id, volume_target.volume_id)
