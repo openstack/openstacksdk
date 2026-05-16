@@ -213,7 +213,9 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_chassis.Chassis, chassis, **attrs)
 
-    def patch_chassis(self, chassis, patch):
+    def patch_chassis(
+        self, chassis: _chassis.Chassis, patch: list[dict[str, Any]]
+    ) -> _chassis.Chassis:
         """Apply a JSON patch to the chassis.
 
         :param chassis: The value can be the ID of a chassis or a
@@ -221,7 +223,6 @@ class Proxy(proxy.Proxy):
         :param patch: JSON patch to apply.
 
         :returns: The updated chassis.
-        :rtype: :class:`~openstack.baremetal.v1.chassis.Chassis`
         """
         return self._get_resource(_chassis.Chassis, chassis).patch(self, patch)
 
@@ -479,17 +480,21 @@ class Proxy(proxy.Proxy):
         return res.commit(self, retry_on_conflict=retry_on_conflict)
 
     def patch_node(
-        self, node, patch, reset_interfaces=None, retry_on_conflict=True
-    ):
+        self,
+        node: _node.Node,
+        patch: list[dict[str, Any]],
+        reset_interfaces: bool | None = None,
+        retry_on_conflict: bool = True,
+    ) -> _node.Node:
         """Apply a JSON patch to the node.
 
         :param node: The value can be the name or ID of a node or a
             :class:`~openstack.baremetal.v1.node.Node` instance.
         :param patch: JSON patch to apply.
-        :param bool reset_interfaces: whether to reset the node hardware
+        :param reset_interfaces: whether to reset the node hardware
             interfaces to their defaults. This works only when changing
             drivers. Added in API microversion 1.45.
-        :param bool retry_on_conflict: Whether to retry HTTP CONFLICT error.
+        :param retry_on_conflict: Whether to retry HTTP CONFLICT error.
             Most of the time it can be retried, since it is caused by the node
             being locked. However, when setting ``instance_id``, this is
             a normal code and should not be retried.
@@ -499,10 +504,8 @@ class Proxy(proxy.Proxy):
             for details.
 
         :returns: The updated node.
-        :rtype: :class:`~openstack.baremetal.v1.node.Node`
         """
-        res = self._get_resource(_node.Node, node)
-        return res.patch(
+        return self._get_resource(_node.Node, node).patch(
             self,
             patch,
             retry_on_conflict=retry_on_conflict,
@@ -1078,7 +1081,9 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_port.Port, port, **attrs)
 
-    def patch_port(self, port, patch):
+    def patch_port(
+        self, port: _port.Port, patch: list[dict[str, Any]]
+    ) -> _port.Port:
         """Apply a JSON patch to the port.
 
         :param port: The value can be the ID of a port or a
@@ -1086,7 +1091,6 @@ class Proxy(proxy.Proxy):
         :param patch: JSON patch to apply.
 
         :returns: The updated port.
-        :rtype: :class:`~openstack.baremetal.v1.port.Port`
         """
         return self._get_resource(_port.Port, port).patch(self, patch)
 
@@ -1241,7 +1245,9 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_portgroup.PortGroup, port_group, **attrs)
 
-    def patch_port_group(self, port_group, patch):
+    def patch_port_group(
+        self, port_group: _portgroup.PortGroup, patch: list[dict[str, Any]]
+    ) -> _portgroup.PortGroup:
         """Apply a JSON patch to the port_group.
 
         :param port_group: The value can be the ID of a port group or a
@@ -1249,10 +1255,10 @@ class Proxy(proxy.Proxy):
         :param patch: JSON patch to apply.
 
         :returns: The updated port group.
-        :rtype: :class:`~openstack.baremetal.v1.port_group.PortGroup`
         """
-        res = self._get_resource(_portgroup.PortGroup, port_group)
-        return res.patch(self, patch)
+        return self._get_resource(_portgroup.PortGroup, port_group).patch(
+            self, patch
+        )
 
     # TODO(stephenfin): This method should return None
     def delete_port_group(
@@ -1496,7 +1502,9 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_allocation.Allocation, allocation, **attrs)
 
-    def patch_allocation(self, allocation, patch):
+    def patch_allocation(
+        self, allocation: _allocation.Allocation, patch: list[dict[str, Any]]
+    ) -> _allocation.Allocation:
         """Apply a JSON patch to the allocation.
 
         :param allocation: The value can be the name or ID of an allocation or
@@ -1504,7 +1512,6 @@ class Proxy(proxy.Proxy):
         :param patch: JSON patch to apply.
 
         :returns: The updated allocation.
-        :rtype: :class:`~openstack.baremetal.v1.allocation.Allocation`
         """
         return self._get_resource(_allocation.Allocation, allocation).patch(
             self, patch
@@ -1708,7 +1715,11 @@ class Proxy(proxy.Proxy):
             _volumeconnector.VolumeConnector, volume_connector, **attrs
         )
 
-    def patch_volume_connector(self, volume_connector, patch):
+    def patch_volume_connector(
+        self,
+        volume_connector: _volumeconnector.VolumeConnector,
+        patch: list[dict[str, Any]],
+    ) -> _volumeconnector.VolumeConnector:
         """Apply a JSON patch to the volume_connector.
 
         :param volume_connector: The value can be the ID of a
@@ -1718,8 +1729,6 @@ class Proxy(proxy.Proxy):
         :param patch: JSON patch to apply.
 
         :returns: The updated volume_connector.
-        :rtype:
-            :class:`~openstack.baremetal.v1.volume_connector.VolumeConnector.`
         """
         return self._get_resource(
             _volumeconnector.VolumeConnector, volume_connector
@@ -1898,7 +1907,11 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_volumetarget.VolumeTarget, volume_target, **attrs)
 
-    def patch_volume_target(self, volume_target, patch):
+    def patch_volume_target(
+        self,
+        volume_target: _volumetarget.VolumeTarget,
+        patch: list[dict[str, Any]],
+    ) -> _volumetarget.VolumeTarget:
         """Apply a JSON patch to the volume_target.
 
         :param volume_target: The value can be the ID of a
@@ -1908,8 +1921,6 @@ class Proxy(proxy.Proxy):
         :param patch: JSON patch to apply.
 
         :returns: The updated volume_target.
-        :rtype:
-            :class:`~openstack.baremetal.v1.volume_target.VolumeTarget.`
         """
         return self._get_resource(
             _volumetarget.VolumeTarget, volume_target
@@ -2093,7 +2104,11 @@ class Proxy(proxy.Proxy):
             details=details,
         )
 
-    def patch_deploy_template(self, deploy_template, patch):
+    def patch_deploy_template(
+        self,
+        deploy_template: _deploytemplates.DeployTemplate,
+        patch: list[dict[str, Any]],
+    ) -> _deploytemplates.DeployTemplate:
         """Apply a JSON patch to the deploy_templates.
 
         :param deploy_templates: The value can be the ID of a
@@ -2104,8 +2119,6 @@ class Proxy(proxy.Proxy):
         :param patch: JSON patch to apply.
 
         :returns: The updated deploy_template.
-        :rtype:
-            :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`
         """
         return self._get_resource(
             _deploytemplates.DeployTemplate, deploy_template
@@ -2201,18 +2214,17 @@ class Proxy(proxy.Proxy):
         """
         return self._get_with_fields(_runbooks.Runbook, runbook, fields=fields)
 
-    def patch_runbook(self, runbook, patch):
+    def patch_runbook(
+        self, runbook: _runbooks.Runbook, patch: list[dict[str, Any]]
+    ) -> _runbooks.Runbook:
         """Apply a JSON patch to the runbook.
 
         :param runbooks: The value can be the ID of a
             runbook or a :class:`~openstack.baremetal.v1.runbooks.Runbook`
             instance.
-
         :param patch: JSON patch to apply.
 
         :returns: The updated runbook.
-        :rtype:
-            :class:`~openstack.baremetal.v1.runbooks.Runbook`
         """
         return self._get_resource(_runbooks.Runbook, runbook).patch(
             self, patch
@@ -2419,19 +2431,20 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def patch_inspection_rule(self, inspection_rule, patch):
+    def patch_inspection_rule(
+        self,
+        inspection_rule: _inspectionrules.InspectionRule,
+        patch: list[dict[str, Any]],
+    ) -> _inspectionrules.InspectionRule:
         """Apply a JSON patch to the inspection rule.
 
         :param inspection_rule: The value can be the ID of a
             inspection_rule or a
             :class:`~openstack.baremetal.v1.inspection_rules.InspectionRule`
             instance.
-
         :param patch: JSON patch to apply.
 
         :returns: The updated inspection rule.
-        :rtype:
-            :class:`~openstack.baremetal.v1.inspection_rules.InspectionRule`
         """
         return self._get_resource(
             _inspectionrules.InspectionRule, inspection_rule
