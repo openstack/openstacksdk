@@ -75,9 +75,7 @@ class Proxy(proxy.Proxy):
         :param patch: JSON patch to apply.
         :returns: The updated deployable.
         """
-        return self._get_resource(_deployable.Deployable, deployable).patch(
-            self, patch
-        )
+        return self._patch(_deployable.Deployable, deployable, patch)
 
     # TODO(stephenfin): Remove in 5.0
     def update_deployable(
@@ -303,9 +301,7 @@ class Proxy(proxy.Proxy):
         :param patch: JSON patch to apply.
         :returns: The updated accelerator request.
         """
-        return self._get_resource(
-            _arq.AcceleratorRequest, accelerator_request
-        ).patch(self, patch)
+        return self._patch(_arq.AcceleratorRequest, accelerator_request, patch)
 
     # TODO(stephenfin): Remove in 5.0
     def update_accelerator_request(

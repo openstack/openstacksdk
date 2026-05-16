@@ -745,6 +745,27 @@ class Proxy(adapter.Adapter):
         res = self._get_resource(resource_type, value, **attrs)
         return res.commit(self, base_path=base_path)
 
+    def _patch(
+        self,
+        resource_type: type[resource.ResourceT],
+        value: str | resource.ResourceT | None,
+        patch: list[dict[str, Any]] | None = None,
+    ) -> resource.ResourceT:
+        """Patch a resource
+
+        :param resource_type: The type of resource to patch. This should be a
+            :class:`~openstack.resource.Resource` subclass.
+        :param value: The resource to patch. This can be the ID of a resource,
+            a :class:`~openstack.resource.Resource` subclass instance.
+        :param patch: Additional JSON patch as a list or one patch item.
+            If provided, it is applied on top of any changes to the current
+            resource.
+
+        :returns: The patched resource
+        """
+        res = self._get_resource(resource_type, value)
+        return res.patch(self, patch)
+
     def _create(
         self,
         resource_type: type[resource.ResourceT],

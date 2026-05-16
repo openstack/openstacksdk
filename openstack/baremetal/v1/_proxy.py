@@ -224,7 +224,7 @@ class Proxy(proxy.Proxy):
 
         :returns: The updated chassis.
         """
-        return self._get_resource(_chassis.Chassis, chassis).patch(self, patch)
+        return self._patch(_chassis.Chassis, chassis, patch)
 
     # TODO(stephenfin): This method should return None
     def delete_chassis(
@@ -505,6 +505,7 @@ class Proxy(proxy.Proxy):
 
         :returns: The updated node.
         """
+        # this can't use the _patch helper since it passes custom attributes
         return self._get_resource(_node.Node, node).patch(
             self,
             patch,
@@ -1092,7 +1093,7 @@ class Proxy(proxy.Proxy):
 
         :returns: The updated port.
         """
-        return self._get_resource(_port.Port, port).patch(self, patch)
+        return self._patch(_port.Port, port, patch)
 
     # TODO(stephenfin): This method should return None
     def delete_port(
@@ -1256,9 +1257,7 @@ class Proxy(proxy.Proxy):
 
         :returns: The updated port group.
         """
-        return self._get_resource(_portgroup.PortGroup, port_group).patch(
-            self, patch
-        )
+        return self._patch(_portgroup.PortGroup, port_group, patch)
 
     # TODO(stephenfin): This method should return None
     def delete_port_group(
@@ -1513,9 +1512,7 @@ class Proxy(proxy.Proxy):
 
         :returns: The updated allocation.
         """
-        return self._get_resource(_allocation.Allocation, allocation).patch(
-            self, patch
-        )
+        return self._patch(_allocation.Allocation, allocation, patch)
 
     # TODO(stephenfin): This method should return None
     def delete_allocation(
@@ -1729,9 +1726,9 @@ class Proxy(proxy.Proxy):
 
         :returns: The updated volume_connector.
         """
-        return self._get_resource(
-            _volumeconnector.VolumeConnector, volume_connector
-        ).patch(self, patch)
+        return self._patch(
+            _volumeconnector.VolumeConnector, volume_connector, patch
+        )
 
     # TODO(stephenfin): This method should return None
     def delete_volume_connector(
@@ -1921,9 +1918,7 @@ class Proxy(proxy.Proxy):
 
         :returns: The updated volume_target.
         """
-        return self._get_resource(
-            _volumetarget.VolumeTarget, volume_target
-        ).patch(self, patch)
+        return self._patch(_volumetarget.VolumeTarget, volume_target, patch)
 
     # TODO(stephenfin): This method should return None
     def delete_volume_target(
@@ -2119,9 +2114,9 @@ class Proxy(proxy.Proxy):
 
         :returns: The updated deploy_template.
         """
-        return self._get_resource(
-            _deploytemplates.DeployTemplate, deploy_template
-        ).patch(self, patch)
+        return self._patch(
+            _deploytemplates.DeployTemplate, deploy_template, patch
+        )
 
     # ========== Runbooks ==========
 
@@ -2225,9 +2220,7 @@ class Proxy(proxy.Proxy):
 
         :returns: The updated runbook.
         """
-        return self._get_resource(_runbooks.Runbook, runbook).patch(
-            self, patch
-        )
+        return self._patch(_runbooks.Runbook, runbook, patch)
 
     # ========== Conductors ==========
 
@@ -2445,6 +2438,6 @@ class Proxy(proxy.Proxy):
 
         :returns: The updated inspection rule.
         """
-        return self._get_resource(
-            _inspectionrules.InspectionRule, inspection_rule
-        ).patch(self, patch)
+        return self._patch(
+            _inspectionrules.InspectionRule, inspection_rule, patch
+        )
