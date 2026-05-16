@@ -114,7 +114,7 @@ class Proxy(proxy.Proxy):
     def set_account_metadata(self, **metadata):
         """Set metadata for this account.
 
-        :param kwargs metadata: Key/value pairs to be set as metadata on the
+        :param metadata: Key/value pairs to be set as metadata on the
             container. Custom metadata can be set. Custom metadata are keys and
             values defined by the user.
         """
@@ -146,12 +146,11 @@ class Proxy(proxy.Proxy):
         """Create a new container from attributes
 
         :param container: Name of the container to create.
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.object_store.v1.container.Container`,
             comprised of the properties on the Container class.
 
         :returns: The results of container creation
-        :rtype: :class:`~openstack.object_store.v1.container.Container`
         """
         return self._create(_container.Container, name=name, **attrs)
 
@@ -197,7 +196,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.object_store.v1.container.Container`
             instance.
         :param refresh: Flag to trigger refresh of container object re-fetch.
-        :param kwargs metadata: Key/value pairs to be set as metadata on the
+        :param metadata: Key/value pairs to be set as metadata on the
             container. Both custom and system metadata can be set. Custom
             metadata are keys and values defined by the user. System metadata
             are keys defined by the Object Store and values defined by the
@@ -556,7 +555,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.object_store.v1.obj.Object` instance.
         :param container: The value can be the name of a container or a
             :class:`~openstack.object_store.v1.container.Container` instance.
-        :param kwargs metadata: Key/value pairs to be set as metadata
+        :param metadata: Key/value pairs to be set as metadata
             on the container. Both custom and system metadata can be set.
             Custom metadata are keys and values defined by the user. System
             metadata are keys defined by the Object Store and values defined by
@@ -848,7 +847,7 @@ class Proxy(proxy.Proxy):
         """Set the temporary URL key for the account.
 
         :param key: Text of the key to use.
-        :param bool secondary: Whether this should set the secondary key.
+        :param secondary: Whether this should set the secondary key.
             (defaults to False)
         """
         account = self._get_resource(_account.Account, None)
@@ -860,7 +859,7 @@ class Proxy(proxy.Proxy):
         :param container: The value can be the name of a container or a
             :class:`~openstack.object_store.v1.container.Container` instance.
         :param key: Text of the key to use.
-        :param bool secondary: Whether this should set the secondary key.
+        :param secondary: Whether this should set the secondary key.
             (defaults to False)
         """
         res = self._get_resource(_container.Container, container)
@@ -1006,7 +1005,7 @@ class Proxy(proxy.Proxy):
             Optional, if omitted, the key will be fetched from the container or
             the account.
         :raises ValueError: if timestamp or path is not in valid format.
-        :return: the path portion of a temporary URL
+        :returns: the path portion of a temporary URL
         """
         try:
             try:
@@ -1133,8 +1132,8 @@ class Proxy(proxy.Proxy):
         used to delete any objects that shade has created on the user's behalf
         in service of image uploads.
 
-        :param str container: Name of the container. Defaults to 'images'.
-        :param str segment_prefix: Prefix for the image segment names to
+        :param container: Name of the container. Defaults to 'images'.
+        :param segment_prefix: Prefix for the image segment names to
             delete. If not given, all image upload segments present are
             deleted.
         :returns: True if deletion was succesful, else False.
@@ -1182,7 +1181,7 @@ class Proxy(proxy.Proxy):
             value, progress. This is API specific but is generally a percentage
             value from 0-100.
 
-        :return: The updated resource.
+        :returns: The updated resource.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
             transition to status failed to occur in ``wait`` seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource

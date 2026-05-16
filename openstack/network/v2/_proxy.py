@@ -259,7 +259,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the AddressGroup class.
 
         :returns: The results of address group creation
-        :rtype: :class:`~openstack.network.v2.address_group.AddressGroup`
         """
         return self._create(_address_group.AddressGroup, **attrs)
 
@@ -384,9 +383,8 @@ class Proxy(proxy.Proxy):
 
         :param address_group: Either the ID of an address group or a
             :class:`~openstack.network.v2.address_group.AddressGroup` instance.
-        :param list addresses: List of address strings.
+        :param addresses: List of address strings.
         :returns: AddressGroup with updated addresses
-        :rtype: :class:`~openstack.network.v2.address_group.AddressGroup`
         """
         ag = self._get_resource(_address_group.AddressGroup, address_group)
         return ag.add_addresses(self, addresses)
@@ -396,9 +394,8 @@ class Proxy(proxy.Proxy):
 
         :param address_group: Either the ID of an address group or a
             :class:`~openstack.network.v2.address_group.AddressGroup` instance.
-        :param list addresses: List of address strings.
+        :param addresses: List of address strings.
         :returns: AddressGroup with updated addresses
-        :rtype: :class:`~openstack.network.v2.address_group.AddressGroup`
         """
         ag = self._get_resource(_address_group.AddressGroup, address_group)
         return ag.remove_addresses(self, addresses)
@@ -413,7 +410,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the AddressScope class.
 
         :returns: The results of address scope creation
-        :rtype: :class:`~openstack.network.v2.address_scope.AddressScope`
         """
         return self._create(_address_scope.AddressScope, **attrs)
 
@@ -610,7 +606,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.network_agent.Agent`
         :param query: kwargs query: Optional query parameters to be sent
             to limit the resources being returned.
-        :return: A generator of networks
+        :returns: A generator of networks
         """
         agent_obj = self._get_resource(_agent.Agent, agent)
         return self._list(
@@ -623,7 +619,7 @@ class Proxy(proxy.Proxy):
         :param agent: Either the agent id of an instance of
             :class:`~openstack.network.v2.network_agent.Agent`
         :param network: Network instance
-        :return:
+        :returns:
         """
         network = self._get_resource(_network.Network, network)
         agent = self._get_resource(_agent.Agent, agent)
@@ -635,7 +631,7 @@ class Proxy(proxy.Proxy):
         :param agent: Either the agent id of an instance of
             :class:`~openstack.network.v2.network_agent.Agent`
         :param network: Network instance
-        :return:
+        :returns:
         """
         network = self._get_resource(_network.Network, network)
         agent = self._get_resource(_agent.Agent, agent)
@@ -652,7 +648,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.network.Network`
         :param query: Optional query parameters to be sent to limit the
             resources returned.
-        :return: A generator of hosted DHCP agents
+        :returns: A generator of hosted DHCP agents
         """
         net = self._get_resource(_network.Network, network)
         return self._list(
@@ -709,8 +705,6 @@ class Proxy(proxy.Proxy):
             The value is the ID or name of a project
 
         :returns: Whether all resources are correctly configured or not
-        :rtype:
-            :class:`~openstack.network.v2.auto_allocated_topology.ValidateTopology`
         """
 
         # If project option is not given, grab project id from session
@@ -936,7 +930,6 @@ class Proxy(proxy.Proxy):
              api-ref.
 
         :returns: The result of BGPVPN creation
-        :rtype: :class:`~openstack.network.v2.bgpvpn.BgpVpn`
         """
         return self._create(_bgpvpn.BgpVpn, **attrs)
 
@@ -1047,8 +1040,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the BgpVpnNetworkAssociation class.
 
         :returns: The results of BgpVpnNetworkAssociation creation
-        :rtype: :class:`~openstack.network.v2.bgpvpn_network_association.
-            BgpVpnNetworkAssociation`
         """
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
         return self._create(
@@ -1151,8 +1142,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the BgpVpnPortAssociation class.
 
         :returns: The results of BgpVpnPortAssociation creation
-        :rtype: :class:`~openstack.network.v2.bgpvpn_port_association.
-            BgpVpnPortAssociation`
         """
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
         return self._create(
@@ -1325,8 +1314,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the BgpVpnRouterAssociation class.
 
         :returns: The results of BgpVpnRouterAssociation creation
-        :rtype: :class:`~openstack.network.v2.bgpvpn_router_association.
-            BgpVpnRouterAssociation`
         """
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
         return self._create(
@@ -1502,7 +1489,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the Flavor class.
 
         :returns: The results of flavor creation
-        :rtype: :class:`~openstack.network.v2.flavor.Flavor`
         """
         return self._create(_flavor.Flavor, **attrs)
 
@@ -1617,7 +1603,7 @@ class Proxy(proxy.Proxy):
             The value can be either the ID of a service profile or a
             :class:`~openstack.network.v2.service_profile.ServiceProfile`
             instance.
-        :return:
+        :returns:
         """
         flavor = self._get_resource(_flavor.Flavor, flavor)
         service_profile = self._get_resource(
@@ -1639,7 +1625,7 @@ class Proxy(proxy.Proxy):
             The value can be either the ID of a service profile or a
             :class:`~openstack.network.v2.service_profile.ServiceProfile`
             instance.
-        :return:
+        :returns:
         """
         flavor = self._get_resource(_flavor.Flavor, flavor)
         service_profile = self._get_resource(
@@ -1657,7 +1643,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the LocalIP class.
 
         :returns: The results of local ip creation
-        :rtype: :class:`~openstack.network.v2.local_ip.LocalIP`
         """
         return self._create(_local_ip.LocalIP, **attrs)
 
@@ -1803,8 +1788,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the LocalIP class.
 
         :returns: The results of local ip association creation
-        :rtype:
-            :class:`~openstack.network.v2.local_ip_association.LocalIPAssociation`
         """
         local_ip = self._get_resource(_local_ip.LocalIP, local_ip)
         return self._create(
@@ -1962,7 +1945,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the FloatingIP class.
 
         :returns: The results of floating ip creation
-        :rtype: :class:`~openstack.network.v2.floating_ip.FloatingIP`
         """
         return self._create(_floating_ip.FloatingIP, **attrs)
 
@@ -2121,7 +2103,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the PortForwarding class.
 
         :returns: The results of port forwarding creation
-        :rtype: :class:`~openstack.network.v2.port_forwarding.PortForwarding`
         """
         return self._create(_port_forwarding.PortForwarding, **attrs)
 
@@ -2293,7 +2274,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the HealthMonitor class.
 
         :returns: The results of health monitor creation
-        :rtype: :class:`~openstack.network.v2.health_monitor.HealthMonitor`
         """
         return self._create(_health_monitor.HealthMonitor, **attrs)
 
@@ -2438,7 +2418,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the Listener class.
 
         :returns: The results of listener creation
-        :rtype: :class:`~openstack.network.v2.listener.Listener`
         """
         return self._create(_listener.Listener, **attrs)
 
@@ -2569,7 +2548,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the LoadBalancer class.
 
         :returns: The results of load balancer creation
-        :rtype: :class:`~openstack.network.v2.load_balancer.LoadBalancer`
         """
         return self._create(_load_balancer.LoadBalancer, **attrs)
 
@@ -2696,7 +2674,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the MeteringLabel class.
 
         :returns: The results of metering label creation
-        :rtype: :class:`~openstack.network.v2.metering_label.MeteringLabel`
         """
         return self._create(_metering_label.MeteringLabel, **attrs)
 
@@ -2833,8 +2810,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the MeteringLabelRule class.
 
         :returns: The results of metering label rule creation
-        :rtype:
-            :class:`~openstack.network.v2.metering_label_rule.MeteringLabelRule`
         """
         return self._create(_metering_label_rule.MeteringLabelRule, **attrs)
 
@@ -2979,7 +2954,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the Network class.
 
         :returns: The results of network creation
-        :rtype: :class:`~openstack.network.v2.network.Network`
         """
         return self._create(_network.Network, **attrs)
 
@@ -3211,8 +3185,6 @@ class Proxy(proxy.Proxy):
             NetworkSegmentRange class.
 
         :returns: The results of network segment range creation
-        :rtype:
-            :class:`~openstack.network.v2.network_segment_range.NetworkSegmentRange`
         """
         return self._create(
             _network_segment_range.NetworkSegmentRange, **attrs
@@ -3372,7 +3344,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the Pool class.
 
         :returns: The results of pool creation
-        :rtype: :class:`~openstack.network.v2.pool.Pool`
         """
         return self._create(_pool.Pool, **attrs)
 
@@ -3497,7 +3468,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the PoolMember class.
 
         :returns: The results of pool member creation
-        :rtype: :class:`~openstack.network.v2.pool_member.PoolMember`
         """
         poolobj = self._get_resource(_pool.Pool, pool)
         return self._create(
@@ -3669,7 +3639,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the Port class.
 
         :returns: The results of port creation
-        :rtype: :class:`~openstack.network.v2.port.Port`
         """
         return self._create(_port.Port, **attrs)
 
@@ -3678,12 +3647,11 @@ class Proxy(proxy.Proxy):
     ) -> Generator[_port.Port, None, None]:
         """Create ports from the list of attributes
 
-        :param list data: List of dicts of attributes which will be used to
+        :param data: List of dicts of attributes which will be used to
             create a :class:`~openstack.network.v2.port.Port`,
             comprised of the properties on the Port class.
 
         :returns: A generator of port objects
-        :rtype: :class:`~openstack.network.v2.port.Port`
         """
         return self._bulk_create(_port.Port, data)
 
@@ -3839,7 +3807,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the Port class.
 
         :returns: The results of port binding creation
-        :rtype: :class:`~openstack.network.v2.port_binding.PortBinding`
         """
         port_id = self._get(_port.Port, port).id
         return self._create(
@@ -3860,7 +3827,6 @@ class Proxy(proxy.Proxy):
         :param host: The hostname of the system where the port is bound.
 
         :returns: The results of port binding activation
-        :rtype: :class:`~openstack.network.v2.port_binding.PortBinding`
         """
         port_id = self._get(_port.Port, port).id
         bindings_on_host = self.port_bindings(port=port_id, host=host)
@@ -3945,8 +3911,6 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
 
         :returns: The results of resource creation
-        :rtype:
-            :class:`~openstack.network.v2.qos_bandwidth_limit_rule.QoSBandwidthLimitRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
         return self._create(
@@ -4129,8 +4093,6 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
 
         :returns: The results of router creation
-        :rtype:
-            :class:`~openstack.network.v2.qos_dscp_marking_rule.QoSDSCPMarkingRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
         return self._create(
@@ -4311,8 +4273,6 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
 
         :returns: The results of resource creation
-        :rtype:
-            :class:`~openstack.network.v2.qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
         return self._create(
@@ -4496,8 +4456,6 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
 
         :returns: The results of resource creation
-        :rtype:
-            :class:`~openstack.network.v2.qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
         return self._create(
@@ -4677,8 +4635,6 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
 
         :returns: The results of resource creation
-        :rtype:
-            :class:`~openstack.network.v2.qos_packet_rate_limit_rule.QoSPacketRateLimitRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
         return self._create(
@@ -4854,7 +4810,6 @@ class Proxy(proxy.Proxy):
             QoSPolicy class.
 
         :returns: The results of QoS policy creation
-        :rtype: :class:`~openstack.network.v2.qos_policy.QoSPolicy`
         """
         return self._create(_qos_policy.QoSPolicy, **attrs)
 
@@ -5139,8 +5094,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.rbac_policy.RBACPolicy`,
             comprised of the properties on the RBACPolicy class.
 
-        :return: The results of RBAC policy creation
-        :rtype: :class:`~openstack.network.v2.rbac_policy.RBACPolicy`
+        :returns: The results of RBAC policy creation
         """
         return self._create(_rbac_policy.RBACPolicy, **attrs)
 
@@ -5265,7 +5219,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the Router class.
 
         :returns: The results of router creation
-        :rtype: :class:`~openstack.network.v2.router.Router`
         """
         return self._create(_router.Router, **attrs)
 
@@ -5440,7 +5393,6 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.router.Router`
         :param body: The request body as documented in the api-ref.
         :returns: Router with updated extra routes
-        :rtype: :class:`~openstack.network.v2.router.Router`
         """
         router = self._get_resource(_router.Router, router)
         return router.add_extra_routes(self, body=body)
@@ -5452,7 +5404,6 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.router.Router`
         :param body: The request body as documented in the api-ref.
         :returns: Router with updated extra routes
-        :rtype: :class:`~openstack.network.v2.router.Router`
         """
         router = self._get_resource(_router.Router, router)
         return router.remove_extra_routes(self, body=body)
@@ -5464,7 +5415,6 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.router.Router`
         :param body: Body with the gateway information
         :returns: Router with updated interface
-        :rtype: :class:`~openstack.network.v2.router.Router`
         """
         router = self._get_resource(_router.Router, router)
         return router.add_gateway(self, **body)
@@ -5476,7 +5426,6 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.router.Router`
         :param body: Body with the gateway information
         :returns: Router with updated interface
-        :rtype: :class:`~openstack.network.v2.router.Router`
         """
         router = self._get_resource(_router.Router, router)
         return router.remove_gateway(self, **body)
@@ -5488,7 +5437,6 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.router.Router`
         :param body: Body containing the external_gateways parameter.
         :returns: Router with added gateways
-        :rtype: :class:`~openstack.network.v2.router.Router`
         """
         router = self._get_resource(_router.Router, router)
         return router.add_external_gateways(self, body)
@@ -5515,7 +5463,6 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.router.Router`
         :param body: Body containing the external_gateways parameter.
         :returns: Router without the removed gateways
-        :rtype: :class:`~openstack.network.v2.router.Router`
         """
         router = self._get_resource(_router.Router, router)
         return router.remove_external_gateways(self, body)
@@ -5563,7 +5510,6 @@ class Proxy(proxy.Proxy):
         :param ha_chassis_priority: Optional ``HA_Chassis`` priority, that
             could be [0, 32767].
         :returns: Agent with attached router
-        :rtype: :class:`~openstack.network.v2.agent.Agent`
         """
         agent = self._get_resource(_agent.Agent, agent)
         router = self._get_resource(_router.Router, router)
@@ -5600,7 +5546,6 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.agent.Agent` instance
         :param router: A router instance
         :returns: Agent with removed router
-        :rtype: :class:`~openstack.network.v2.agent.Agent`
         """
         agent = self._get_resource(_agent.Agent, agent)
         router = self._get_resource(_router.Router, router)
@@ -5614,7 +5559,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the NDPProxy class.
 
         :returns: The results of ndp proxy creation
-        :rtype: :class:`~openstack.network.v2.ndp_proxy.NDPProxxy`
         """
         return self._create(_ndp_proxy.NDPProxy, **attrs)
 
@@ -5737,7 +5681,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the FirewallGroup class.
 
         :returns: The results of firewall group creation
-        :rtype: :class:`~openstack.network.v2.firewall_group.FirewallGroup`
         """
         return self._create(_firewall_group.FirewallGroup, **attrs)
 
@@ -5880,7 +5823,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the FirewallPolicy class.
 
         :returns: The results of firewall policy creation
-        :rtype: :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`
         """
         return self._create(_firewall_policy.FirewallPolicy, **attrs)
 
@@ -6074,7 +6016,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the FirewallRule class.
 
         :returns: The results of firewall rule creation
-        :rtype: :class:`~openstack.network.v2.firewall_rule.FirewallRule`
         """
         return self._create(_firewall_rule.FirewallRule, **attrs)
 
@@ -6224,7 +6165,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the SecurityGroup class.
 
         :returns: The results of security group creation
-        :rtype: :class:`~openstack.network.v2.security_group.SecurityGroup`
         """
         return self._create(_security_group.SecurityGroup, **attrs)
 
@@ -6371,8 +6311,6 @@ class Proxy(proxy.Proxy):
             SecurityGroupRule class.
 
         :returns: The results of security group rule creation
-        :rtype:
-            :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`
         """
         return self._create(_security_group_rule.SecurityGroupRule, **attrs)
 
@@ -6381,15 +6319,13 @@ class Proxy(proxy.Proxy):
     ) -> Generator[_security_group_rule.SecurityGroupRule, None, None]:
         """Create new security group rules from the list of attributes
 
-        :param list data: List of dicts of attributes which will be used to
+        :param data: List of dicts of attributes which will be used to
             create a
             :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`,
             comprised of the properties on the SecurityGroupRule
             class.
 
         :returns: A generator of security group rule objects
-        :rtype:
-            :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`
         """
         return self._bulk_create(_security_group_rule.SecurityGroupRule, data)
 
@@ -6521,9 +6457,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the DefaultSecurityGroupRule class.
 
         :returns: The results of default security group rule creation
-        :rtype:
-            :class:`~openstack.network.v2.default_security_group_rule.
-            DefaultSecurityGroupRule`
         """
         return self._create(
             _default_security_group_rule.DefaultSecurityGroupRule, **attrs
@@ -6662,9 +6595,6 @@ class Proxy(proxy.Proxy):
             SecurityGroupsDefaultStatefulness class.
 
         :returns: The results of default statefulness setting creation
-        :rtype:
-            :class:`~openstack.network.v2.security_groups_default_statefulness.
-            SecurityGroupsDefaultStatefulness`
         """
         return self._create(
             _sg_default_statefulness.SecurityGroupsDefaultStatefulness,
@@ -6815,7 +6745,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the Segment class.
 
         :returns: The results of segment creation
-        :rtype: :class:`~openstack.network.v2.segment.Segment`
         """
         return self._create(_segment.Segment, **attrs)
 
@@ -6952,7 +6881,6 @@ class Proxy(proxy.Proxy):
             class.
 
         :returns: The results of service profile creation
-        :rtype: :class:`~openstack.network.v2.service_profile.ServiceProfile`
         """
         return self._create(_service_profile.ServiceProfile, **attrs)
 
@@ -7085,7 +7013,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the Subnet class.
 
         :returns: The results of subnet creation
-        :rtype: :class:`~openstack.network.v2.subnet.Subnet`
         """
         return self._create(_subnet.Subnet, **attrs)
 
@@ -7218,7 +7145,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the SubnetPool class.
 
         :returns: The results of subnet pool creation
-        :rtype: :class:`~openstack.network.v2.subnet_pool.SubnetPool`
         """
         return self._create(_subnet_pool.SubnetPool, **attrs)
 
@@ -7366,7 +7292,6 @@ class Proxy(proxy.Proxy):
         :type tags: "list"
 
         :returns: The updated resource
-        :rtype: :class:`~openstack.resource.Resource`
         """
         self._check_tag_support(resource)
         return resource.set_tags(self, tags)
@@ -7379,7 +7304,6 @@ class Proxy(proxy.Proxy):
         :type tags: "list"
 
         :returns: The updated resource
-        :rtype: :class:`~openstack.resource.Resource`
         """
         self._check_tag_support(resource)
         return resource.add_tags(self, tags)
@@ -7392,7 +7316,6 @@ class Proxy(proxy.Proxy):
         :type tag: "str"
 
         :returns: The updated resource
-        :rtype: :class:`~openstack.resource.Resource`
         """
         self._check_tag_support(resource)
         return resource.add_tag(self, tag)
@@ -7405,7 +7328,6 @@ class Proxy(proxy.Proxy):
         :type tag: "str"
 
         :returns: The updated resource
-        :rtype: :class:`~openstack.resource.Resource`
         """
         self._check_tag_support(resource)
         return resource.remove_tag(self, tag)
@@ -7416,7 +7338,6 @@ class Proxy(proxy.Proxy):
         :param resource: :class:`~openstack.resource.Resource` instance.
 
         :returns: The updated resource
-        :rtype: :class:`~openstack.resource.Resource`
         """
         self._check_tag_support(resource)
         return resource.remove_all_tags(self)
@@ -7429,7 +7350,6 @@ class Proxy(proxy.Proxy):
         :type tags: "string"
 
         :returns: If the tag exists in the specified resource
-        :rtype: bool
         """
         self._check_tag_support(resource)
         return resource.check_tag(self, tag)
@@ -7442,7 +7362,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the Trunk class.
 
         :returns: The results of trunk creation
-        :rtype: :class:`~openstack.network.v2.trunk.Trunk`
         """
         return self._create(_trunk.Trunk, **attrs)
 
@@ -7549,7 +7468,6 @@ class Proxy(proxy.Proxy):
         :type subports: "list"
 
         :returns: The updated trunk
-        :rtype: :class:`~openstack.network.v2.trunk.Trunk`
         """
         trunk = self._get_resource(_trunk.Trunk, trunk)
         return trunk.add_subports(self, subports)
@@ -7593,8 +7511,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the VpnEndpointGroup class.
 
         :returns: The results of vpn endpoint group creation.
-        :rtype:
-            :class:`~openstack.network.v2.vpn_endpoint_group.VpnEndpointGroup`
         """
         return self._create(_vpn_endpoint_group.VpnEndpointGroup, **attrs)
 
@@ -7729,8 +7645,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the IPSecSiteConnection class.
 
         :returns: The results of IPsec site connection creation
-        :rtype:
-            :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
         """
         return self._create(
             _ipsec_site_connection.VpnIPSecSiteConnection, **attrs
@@ -7875,8 +7789,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.vpn_ike_policy.VpnIkePolicy`,
             comprised of the properties on the VpnIkePolicy class.
 
-        :returns: The results of ike policy creation :rtype:
-            :class:`~openstack.network.v2.vpn_ike_policy.VpnIkePolicy`
+        :returns: The results of ike policy creation
         """
         return self._create(_ike_policy.VpnIkePolicy, **attrs)
 
@@ -8001,8 +7914,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy`,
             comprised of the properties on the VpnIpsecPolicy class.
 
-        :returns: The results of IPsec policy creation :rtype:
-            :class:`~openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy`
+        :returns: The results of IPsec policy creation
         """
         return self._create(_ipsec_policy.VpnIpsecPolicy, **attrs)
 
@@ -8132,7 +8044,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the VpnService class.
 
         :returns: The results of vpn service creation
-        :rtype: :class:`~openstack.network.v2.vpn_service.VpnService`
         """
         return self._create(_vpn_service.VpnService, **attrs)
 
@@ -8258,7 +8169,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the PortForwarding class.
 
         :returns: The results of port forwarding creation
-        :rtype: :class:`~openstack.network.v2.port_forwarding.PortForwarding`
         """
         floatingip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
         return self._create(
@@ -8386,7 +8296,7 @@ class Proxy(proxy.Proxy):
             port forwarding  belongs or a
             :class:`~openstack.network.v2.floating_ip.FloatingIP`
             instance.
-        :param kwargs **query: Optional query parameters to be sent to limit
+        :param **query: Optional query parameters to be sent to limit
             the resources being returned.
         :returns: A generator of floating ip port forwarding objects
             :class:`~openstack.network.v2.port_forwarding.PortForwarding`
@@ -8442,8 +8352,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the ConntrackHelper class.
 
         :returns: The results of conntrack helper creation
-        :rtype:
-            :class:`~openstack.network.v2.l3_conntrack_helper.ConntrackHelper`
         """
         router = self._get_resource(_router.Router, router)
         return self._create(
@@ -8759,8 +8667,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the SfcFlowClassifier class.
 
         :returns: The results of SFC Flow Classifier creation
-        :rtype:
-            :class:`~openstack.network.v2.sfc_flow_classifier.SfcFlowClassifier`
         """
 
         return self._create(_sfc_flow_classifier.SfcFlowClassifier, **attrs)
@@ -8900,8 +8806,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the SfcPortchain class.
 
         :returns: The results of SFC Port Chain creation
-        :rtype:
-            :class:`~openstack.network.v2.sfc_port_chain.SfcPortChain`
         """
         return self._create(_sfc_port_chain.SfcPortChain, **attrs)
 
@@ -9031,8 +8935,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the SfcPortPair class.
 
         :returns: The results of SFC Port Pair creation
-        :rtype:
-            :class:`~openstack.network.v2.sfc_port_pair.SfPortPair`
         """
         return self._create(_sfc_port_pair.SfcPortPair, **attrs)
 
@@ -9163,8 +9065,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the SfcPortPairGroup class.
 
         :returns: The results of SFC Port Pair Group creation
-        :rtype:
-            :class:`~openstack.network.v2.sfc_port_pair_group.SfcPortPairGroup`
         """
         return self._create(_sfc_port_pair_group.SfcPortPairGroup, **attrs)
 
@@ -9301,8 +9201,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the SfcServiceGraph class.
 
         :returns: The results of SFC Service Graph creation
-        :rtype:
-            :class:`~openstack.network.v2.sfc_service_graph.SfcServiceGraph`
         """
         return self._create(_sfc_sservice_graph.SfcServiceGraph, **attrs)
 
@@ -9455,7 +9353,7 @@ class Proxy(proxy.Proxy):
             value, progress. This is API specific but is generally a percentage
             value from 0-100.
 
-        :return: The updated resource.
+        :returns: The updated resource.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
             transition to status failed to occur in ``wait`` seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource
@@ -9765,10 +9663,10 @@ class Proxy(proxy.Proxy):
 def fip_cleanup_evaluation(obj, identified_resources=None, filters=None):
     """Determine whether Floating IP should be deleted
 
-    :param Resource obj: Floating IP object
-    :param dict identified_resources: Optional dictionary with resources
+    :param obj: Floating IP object
+    :param identified_resources: Optional dictionary with resources
         identified by other services for deletion.
-    :param dict filters: dictionary with parameters
+    :param filters: dictionary with parameters
     """
     if filters is not None and (
         obj.port_id is not None

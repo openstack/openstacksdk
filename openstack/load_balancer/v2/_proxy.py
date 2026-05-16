@@ -56,13 +56,12 @@ class Proxy(proxy.Proxy):
     def create_load_balancer(self, **attrs: Any) -> _lb.LoadBalancer:
         """Create a new load balancer from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.load_balancer.v2.load_balancer.LoadBalancer`,
             comprised of the properties on the
             LoadBalancer class.
 
         :returns: The results of load balancer creation
-        :rtype: :class:`~openstack.load_balancer.v2.load_balancer.LoadBalancer`
         """
         return self._create(_lb.LoadBalancer, **attrs)
 
@@ -239,12 +238,11 @@ class Proxy(proxy.Proxy):
     def create_listener(self, **attrs: Any) -> _listener.Listener:
         """Create a new listener from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.load_balancer.v2.listener.Listener`,
             comprised of the properties on the Listener class.
 
         :returns: The results of listener creation
-        :rtype: :class:`~openstack.load_balancer.v2.listener.Listener`
         """
         return self._create(_listener.Listener, **attrs)
 
@@ -367,12 +365,11 @@ class Proxy(proxy.Proxy):
     def create_pool(self, **attrs: Any) -> _pool.Pool:
         """Create a new pool from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.load_balancer.v2.pool.Pool`, comprised of the
             properties on the Pool class.
 
         :returns: The results of Pool creation
-        :rtype: :class:`~openstack.load_balancer.v2.pool.Pool`
         """
         return self._create(_pool.Pool, **attrs)
 
@@ -472,12 +469,11 @@ class Proxy(proxy.Proxy):
         :param pool: The pool can be either the ID of a pool or a
             :class:`~openstack.load_balancer.v2.pool.Pool` instance
             that the member will be created in.
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.load_balancer.v2.member.Member`,
             comprised of the properties on the Member class.
 
         :returns: The results of member creation
-        :rtype: :class:`~openstack.load_balancer.v2.member.Member`
         """
         poolobj = self._get_resource(_pool.Pool, pool)
         return self._create(_member.Member, pool_id=poolobj.id, **attrs)
@@ -664,13 +660,11 @@ class Proxy(proxy.Proxy):
     def create_health_monitor(self, **attrs: Any) -> _hm.HealthMonitor:
         """Create a new health monitor from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.load_balancer.v2.healthmonitor.HealthMonitor`,
             comprised of the properties on the HealthMonitor class.
 
         :returns: The results of HealthMonitor creation
-        :rtype:
-            :class:`~openstack.load_balancer.v2.healthmonitor.HealthMonitor`
         """
 
         return self._create(_hm.HealthMonitor, **attrs)
@@ -752,12 +746,11 @@ class Proxy(proxy.Proxy):
     def create_l7_policy(self, **attrs: Any) -> _l7policy.L7Policy:
         """Create a new l7policy from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`,
             comprised of the properties on the L7Policy class.
 
         :returns: The results of l7policy creation
-        :rtype: :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
         """
         return self._create(_l7policy.L7Policy, **attrs)
 
@@ -868,12 +861,11 @@ class Proxy(proxy.Proxy):
         :param l7_policy: The l7_policy can be either the ID of a l7policy or
             :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
             instance that the l7rule will be created in.
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.load_balancer.v2.l7_rule.L7Rule`,
             comprised of the properties on the L7Rule class.
 
         :returns: The results of l7rule creation
-        :rtype: :class:`~openstack.load_balancer.v2.l7_rule.L7Rule`
         """
         l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
         return self._create(
@@ -1114,13 +1106,11 @@ class Proxy(proxy.Proxy):
     ) -> _flavor_profile.FlavorProfile:
         """Create a new flavor profile from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.load_balancer.v2.flavor_profile.FlavorProfile`,
             comprised of the properties on the FlavorProfile class.
 
         :returns: The results of profile creation creation
-        :rtype:
-            :class:`~openstack.load_balancer.v2.flavor_profile.FlavorProfile`
         """
         return self._create(_flavor_profile.FlavorProfile, **attrs)
 
@@ -1230,12 +1220,11 @@ class Proxy(proxy.Proxy):
     def create_flavor(self, **attrs: Any) -> _flavor.Flavor:
         """Create a new flavor from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.load_balancer.v2.flavor.Flavor`,
             comprised of the properties on the Flavorclass.
 
         :returns: The results of flavor creation creation
-        :rtype: :class:`~openstack.load_balancer.v2.flavor.Flavor`
         """
         return self._create(_flavor.Flavor, **attrs)
 
@@ -1544,13 +1533,11 @@ class Proxy(proxy.Proxy):
     ) -> _availability_zone.AvailabilityZone:
         """Create a new availability zone from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.load_balancer.v2.availability_zone.AvailabilityZone`
             comprised of the properties on the AvailabilityZoneclass.
 
         :returns: The results of availability_zone creation creation
-        :rtype:
-            :class:`~openstack.load_balancer.v2.availability_zone.AvailabilityZone`
         """
         return self._create(_availability_zone.AvailabilityZone, **attrs)
 
@@ -1692,7 +1679,7 @@ class Proxy(proxy.Proxy):
             value, progress. This is API specific but is generally a percentage
             value from 0-100.
 
-        :return: The updated resource.
+        :returns: The updated resource.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
             transition to status failed to occur in ``wait`` seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource

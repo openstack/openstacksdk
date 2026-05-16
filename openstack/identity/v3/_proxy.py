@@ -103,12 +103,11 @@ class Proxy(proxy.Proxy):
     def create_credential(self, **attrs: Any) -> _credential.Credential:
         """Create a new credential from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.identity.v3.credential.Credential`,
             comprised of the properties on the Credential class.
 
         :returns: The results of credential creation
-        :rtype: :class:`~openstack.identity.v3.credential.Credential`
         """
         return self._create(_credential.Credential, **attrs)
 
@@ -216,12 +215,11 @@ class Proxy(proxy.Proxy):
     def create_domain(self, **attrs: Any) -> _domain.Domain:
         """Create a new domain from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.identity.v3.domain.Domain`,
             comprised of the properties on the Domain class.
 
         :returns: The results of domain creation
-        :rtype: :class:`~openstack.identity.v3.domain.Domain`
         """
         return self._create(_domain.Domain, **attrs)
 
@@ -323,12 +321,11 @@ class Proxy(proxy.Proxy):
 
         :param domain: The value can be the ID of a domain or
             a :class:`~openstack.identity.v3.domain.Domain` instance.
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.identity.v3.domain_config.DomainConfig`
             comprised of the properties on the DomainConfig class.
 
         :returns: The results of domain config creation
-        :rtype: :class:`~openstack.identity.v3.domain_config.DomainConfig`
         """
         domain_id = resource.Resource._get_id(domain)
         return self._create(
@@ -405,12 +402,11 @@ class Proxy(proxy.Proxy):
     def create_endpoint(self, **attrs: Any) -> _endpoint.Endpoint:
         """Create a new endpoint from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.identity.v3.endpoint.Endpoint`,
             comprised of the properties on the Endpoint class.
 
         :returns: The results of endpoint creation
-        :rtype: :class:`~openstack.identity.v3.endpoint.Endpoint`
         """
         return self._create(_endpoint.Endpoint, **attrs)
 
@@ -563,12 +559,11 @@ class Proxy(proxy.Proxy):
     def create_group(self, **attrs: Any) -> _group.Group:
         """Create a new group from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.identity.v3.group.Group`,
             comprised of the properties on the Group class.
 
         :returns: The results of group creation
-        :rtype: :class:`~openstack.identity.v3.group.Group`
         """
         return self._create(_group.Group, **attrs)
 
@@ -673,7 +668,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.user.User` instance.
         :param group: Either the ID of a group or a
             :class:`~openstack.identity.v3.group.Group` instance.
-        :return: ``None``
+        :returns: ``None``
         """
         user = self._get_resource(_user.User, user)
         group = self._get_resource(_group.Group, group)
@@ -686,7 +681,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.user.User` instance.
         :param group: Either the ID of a group or a
             :class:`~openstack.identity.v3.group.Group` instance.
-        :return: ``None``
+        :returns: ``None``
         """
         user = self._get_resource(_user.User, user)
         group = self._get_resource(_group.Group, group)
@@ -699,7 +694,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.user.User` instance.
         :param group: Either the ID of a group or a
             :class:`~openstack.identity.v3.group.Group` instance.
-        :return: A boolean representing current relation
+        :returns: A boolean representing current relation
         """
         user = self._get_resource(_user.User, user)
         group = self._get_resource(_group.Group, group)
@@ -716,7 +711,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.group.Group` instance.
         :param attrs: Only password_expires_at can be filter for result.
 
-        :return: List of :class:`~openstack.identity.v3.user.User`
+        :returns: List of :class:`~openstack.identity.v3.user.User`
         """
         group = self._get_resource(_group.Group, group)
         base_path = utils.urljoin(group.base_path, group.id, 'users')
@@ -728,12 +723,11 @@ class Proxy(proxy.Proxy):
     def create_policy(self, **attrs: Any) -> _policy.Policy:
         """Create a new policy from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.identity.v3.policy.Policy`,
             comprised of the properties on the Policy class.
 
         :returns: The results of policy creation
-        :rtype: :class:`~openstack.identity.v3.policy.Policy`
         """
         return self._create(_policy.Policy, **attrs)
 
@@ -829,12 +823,11 @@ class Proxy(proxy.Proxy):
     def create_project(self, **attrs: Any) -> _project.Project:
         """Create a new project from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.identity.v3.project.Project`,
             comprised of the properties on the Project class.
 
         :returns: The results of project creation
-        :rtype: :class:`~openstack.identity.v3.project.Project`
         """
         return self._create(_project.Project, **attrs)
 
@@ -977,12 +970,11 @@ class Proxy(proxy.Proxy):
     def create_service(self, **attrs: Any) -> _service.Service:
         """Create a new service from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.identity.v3.service.Service`,
             comprised of the properties on the Service class.
 
         :returns: The results of service creation
-        :rtype: :class:`~openstack.identity.v3.service.Service`
         """
         return self._create(_service.Service, **attrs)
 
@@ -1081,12 +1073,11 @@ class Proxy(proxy.Proxy):
     def create_user(self, **attrs: Any) -> _user.User:
         """Create a new user from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.identity.v3.user.User`,
             comprised of the properties on the User class.
 
         :returns: The results of user creation
-        :rtype: :class:`~openstack.identity.v3.user.User`
         """
         return self._create(_user.User, **attrs)
 
@@ -1167,7 +1158,7 @@ class Proxy(proxy.Proxy):
         :param user: Either the ID of a user or a
             :class:`~openstack.identity.v3.user.User` instance
 
-        :return: List of :class:`~openstack.identity.v3.group.group`
+        :returns: List of :class:`~openstack.identity.v3.group.group`
         """
         user_id = self._get_resource(_user.User, user).id
         groups = self._list(_group.UserGroup, user_id=user_id)
@@ -1255,12 +1246,11 @@ class Proxy(proxy.Proxy):
     def create_trust(self, **attrs: Any) -> _trust.Trust:
         """Create a new trust from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.identity.v3.trust.Trust`,
             comprised of the properties on the Trust class.
 
         :returns: The results of trust creation
-        :rtype: :class:`~openstack.identity.v3.trust.Trust`
         """
         return self._create(_trust.Trust, **attrs)
 
@@ -1342,12 +1332,11 @@ class Proxy(proxy.Proxy):
     def create_region(self, **attrs: Any) -> _region.Region:
         """Create a new region from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.identity.v3.region.Region`,
             comprised of the properties on the Region class.
 
         :returns: The results of region creation.
-        :rtype: :class:`~openstack.identity.v3.region.Region`
         """
         return self._create(_region.Region, **attrs)
 
@@ -1448,12 +1437,11 @@ class Proxy(proxy.Proxy):
     def create_role(self, **attrs: Any) -> _role.Role:
         """Create a new role from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.identity.v3.role.Role`,
             comprised of the properties on the Role class.
 
         :returns: The results of role creation.
-        :rtype: :class:`~openstack.identity.v3.role.Role`
         """
         return self._create(_role.Role, **attrs)
 
@@ -1531,7 +1519,7 @@ class Proxy(proxy.Proxy):
         :param query: Optional query parameters to be sent to limit
             the resources being returned. The options
             are: domain_id, name.
-        :return: A generator of role instances.
+        :returns: A generator of role instances.
         """
         return self._list(_role.Role, **query)
 
@@ -1571,7 +1559,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.group.Group` instance.
         :param user: Either the ID of a user or a
             :class:`~openstack.identity.v3.user.User` instance.
-        :return: A generator of role instances.
+        :returns: A generator of role instances.
         """
         if domain and project and system:
             raise exception.InvalidRequest(
@@ -1657,7 +1645,7 @@ class Proxy(proxy.Proxy):
             are: group_id, role_id, scope_domain_id,
             scope_project_id, inherited_to, user_id, include_names,
             include_subtree.
-        :return:
+        :returns:
             :class:`~openstack.identity.v3.role_assignment.RoleAssignment`
         """
         return self._list(_role_assignment.RoleAssignment, **query)
@@ -1673,8 +1661,8 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.user.User` instance.
         :param role: Either the ID of a role or a
             :class:`~openstack.identity.v3.role.Role` instance.
-        :param bool inherited: Whether the role assignment is inherited.
-        :return: ``None``
+        :param inherited: Whether the role assignment is inherited.
+        :returns: ``None``
         """
         domain = self._get_resource(_domain.Domain, domain)
         user = self._get_resource(_user.User, user)
@@ -1692,8 +1680,8 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.user.User` instance.
         :param role: Either the ID of a role or a
             :class:`~openstack.identity.v3.role.Role` instance.
-        :param bool inherited: Whether the role assignment is inherited.
-        :return: ``None``
+        :param inherited: Whether the role assignment is inherited.
+        :returns: ``None``
         """
         domain = self._get_resource(_domain.Domain, domain)
         user = self._get_resource(_user.User, user)
@@ -1729,8 +1717,8 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.group.Group` instance.
         :param role: Either the ID of a role or a
             :class:`~openstack.identity.v3.role.Role` instance.
-        :param bool inherited: Whether the role assignment is inherited.
-        :return: ``None``
+        :param inherited: Whether the role assignment is inherited.
+        :returns: ``None``
         """
         domain = self._get_resource(_domain.Domain, domain)
         group = self._get_resource(_group.Group, group)
@@ -1748,8 +1736,8 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.group.Group` instance.
         :param role: Either the ID of a role or a
             :class:`~openstack.identity.v3.role.Role` instance.
-        :param bool inherited: Whether the role assignment is inherited.
-        :return: ``None``
+        :param inherited: Whether the role assignment is inherited.
+        :returns: ``None``
         """
         domain = self._get_resource(_domain.Domain, domain)
         group = self._get_resource(_group.Group, group)
@@ -1786,8 +1774,8 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.user.User` instance.
         :param role: Either the ID of a role or a
             :class:`~openstack.identity.v3.role.Role` instance.
-        :param bool inherited: Whether the role assignment is inherited.
-        :return: ``None``
+        :param inherited: Whether the role assignment is inherited.
+        :returns: ``None``
         """
         project = self._get_resource(_project.Project, project)
         user = self._get_resource(_user.User, user)
@@ -1806,8 +1794,8 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.user.User` instance.
         :param role: Either the ID of a role or a
             :class:`~openstack.identity.v3.role.Role` instance.
-        :param bool inherited: Whether the role assignment is inherited.
-        :return: ``None``
+        :param inherited: Whether the role assignment is inherited.
+        :returns: ``None``
         """
         project = self._get_resource(_project.Project, project)
         user = self._get_resource(_user.User, user)
@@ -1845,8 +1833,8 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.group.Group` instance.
         :param role: Either the ID of a role or a
             :class:`~openstack.identity.v3.role.Role` instance.
-        :param bool inherited: Whether the role assignment is inherited.
-        :return: ``None``
+        :param inherited: Whether the role assignment is inherited.
+        :returns: ``None``
         """
         project = self._get_resource(_project.Project, project)
         group = self._get_resource(_group.Group, group)
@@ -1865,8 +1853,8 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.group.Group` instance.
         :param role: Either the ID of a role or a
             :class:`~openstack.identity.v3.role.Role` instance.
-        :param bool inherited: Whether the role assignment is inherited.
-        :return: ``None``
+        :param inherited: Whether the role assignment is inherited.
+        :returns: ``None``
         """
         project = self._get_resource(_project.Project, project)
         group = self._get_resource(_group.Group, group)
@@ -1900,7 +1888,7 @@ class Proxy(proxy.Proxy):
         :param role: Either the ID of a role or a
             :class:`~openstack.identity.v3.role.Role` instance.
         :param system: The system name
-        :return: ``None``
+        :returns: ``None``
         """
         user = self._get_resource(_user.User, user)
         role = self._get_resource(_role.Role, role)
@@ -1915,7 +1903,7 @@ class Proxy(proxy.Proxy):
         :param role: Either the ID of a role or a
             :class:`~openstack.identity.v3.role.Role` instance.
         :param system: The system name
-        :return: ``None``
+        :returns: ``None``
         """
         user = self._get_resource(_user.User, user)
         role = self._get_resource(_role.Role, role)
@@ -1945,7 +1933,7 @@ class Proxy(proxy.Proxy):
         :param role: Either the ID of a role or a
             :class:`~openstack.identity.v3.role.Role` instance.
         :param system: The system name
-        :return: ``None``
+        :returns: ``None``
         """
         group = self._get_resource(_group.Group, group)
         role = self._get_resource(_role.Role, role)
@@ -1960,7 +1948,7 @@ class Proxy(proxy.Proxy):
         :param role: Either the ID of a role or a
             :class:`~openstack.identity.v3.role.Role` instance.
         :param system: The system name
-        :return: ``None``
+        :returns: ``None``
         """
         group = self._get_resource(_group.Group, group)
         role = self._get_resource(_role.Role, role)
@@ -2020,13 +2008,11 @@ class Proxy(proxy.Proxy):
     ) -> _registered_limit.RegisteredLimit:
         """Create a new registered_limit from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`,
             comprised of the properties on the RegisteredLimit class.
 
         :returns: The results of registered_limit creation.
-        :rtype:
-            :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
         """
         return self._create(_registered_limit.RegisteredLimit, **attrs)
 
@@ -2101,12 +2087,11 @@ class Proxy(proxy.Proxy):
     def create_limit(self, **attrs: Any) -> _limit.Limit:
         """Create a new limit from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.identity.v3.limit.Limit`, comprised of the
             properties on the Limit class.
 
         :returns: The results of limit creation.
-        :rtype: :class:`~openstack.identity.v3.limit.Limit`
         """
         return self._create(_limit.Limit, **attrs)
 
@@ -2205,14 +2190,12 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.user.User` instance.
         :param name: The name of the application credential which is
             unique to the user.
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.identity.v3.application_credential.ApplicationCredential`,
             comprised of the properties on the ApplicationCredential class.
 
 
         :returns: The results of application credential creation.
-        :rtype:
-            :class:`~openstack.identity.v3.application_credential.ApplicationCredential`
         """
 
         user = self._get_resource(_user.User, user)
@@ -2496,12 +2479,11 @@ class Proxy(proxy.Proxy):
     def create_mapping(self, **attrs: Any) -> _mapping.Mapping:
         """Create a new mapping from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.identity.v3.mapping.Mapping`,
             comprised of the properties on the Mapping class.
 
         :returns: The results of mapping creation
-        :rtype: :class:`~openstack.identity.v3.mapping.Mapping`
         """
         return self._create(_mapping.Mapping, **attrs)
 
@@ -2608,13 +2590,11 @@ class Proxy(proxy.Proxy):
     ) -> _identity_provider.IdentityProvider:
         """Create a new identity provider from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
             comprised of the properties on the IdentityProvider class.
 
         :returns: The results of identity provider creation
-        :rtype:
-            :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
         """
         return self._create(_identity_provider.IdentityProvider, **attrs)
 
@@ -2760,7 +2740,7 @@ class Proxy(proxy.Proxy):
 
         :param user: Either the ID of a user or a
             :class:`~openstack.identity.v3.user.User` instance.
-        :param access rule: The value can be the ID of an access rule or a
+        :param access_rule: The value can be the ID of an access rule or a
             :class:`~.access_rule.AccessRule` instance.
 
         :returns: One :class:`~.access_rule.AccessRule`
@@ -2806,13 +2786,11 @@ class Proxy(proxy.Proxy):
     ) -> _service_provider.ServiceProvider:
         """Create a new service provider from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.identity.v3.service_provider.ServiceProvider`,
             comprised of the properties on the ServiceProvider class.
 
         :returns: The results of service provider creation
-        :rtype:
-            :class:`~openstack.identity.v3.service_provider.ServiceProvider`
         """
         return self._create(_service_provider.ServiceProvider, **attrs)
 
@@ -2953,7 +2931,7 @@ class Proxy(proxy.Proxy):
             value, progress. This is API specific but is generally a percentage
             value from 0-100.
 
-        :return: The updated resource.
+        :returns: The updated resource.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
             transition to status failed to occur in ``wait`` seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource

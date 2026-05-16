@@ -43,12 +43,10 @@ class Proxy(proxy.Proxy):
     def create_cluster(self, **attrs: Any) -> _cluster.Cluster:
         """Create a new cluster from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.container_infrastructure_management.v1.cluster.Cluster`,
             comprised of the properties on the Cluster class.
         :returns: The results of cluster creation
-        :rtype:
-            :class:`~openstack.container_infrastructure_management.v1.cluster.Cluster`
         """
         return self._create(_cluster.Cluster, **attrs)
 
@@ -155,12 +153,10 @@ class Proxy(proxy.Proxy):
     ) -> _cluster_template.ClusterTemplate:
         """Create a new cluster_template from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.container_infrastructure_management.v1.cluster_template.ClusterTemplate`,
             comprised of the properties on the ClusterTemplate class.
         :returns: The results of cluster_template creation
-        :rtype:
-            :class:`~openstack.container_infrastructure_management.v1.cluster_template.ClusterTemplate`
         """
         return self._create(_cluster_template.ClusterTemplate, **attrs)
 
@@ -282,12 +278,10 @@ class Proxy(proxy.Proxy):
     ) -> _cluster_cert.ClusterCertificate:
         """Create a new cluster_certificate from CSR
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.container_infrastructure_management.v1.cluster_certificate.ClusterCertificate`,
             comprised of the properties on the ClusterCertificate class.
         :returns: The results of cluster_certificate creation
-        :rtype:
-            :class:`~openstack.container_infrastructure_management.v1.cluster_certificate.ClusterCertificate`
         """
         return self._create(_cluster_cert.ClusterCertificate, **attrs)
 
@@ -348,7 +342,7 @@ class Proxy(proxy.Proxy):
             value, progress. This is API specific but is generally a percentage
             value from 0-100.
 
-        :return: The updated resource.
+        :returns: The updated resource.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
             transition to status failed to occur in ``wait`` seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource

@@ -79,7 +79,7 @@ class Proxy(proxy.Proxy):
 
         :param node: The value can be either the name or ID of a node or
             a :class:`~openstack.baremetal.v1.node.Node` instance.
-        :param bool manage_boot: Whether to manage boot parameters for the
+        :param manage_boot: Whether to manage boot parameters for the
             node. Defaults to the server default (which is `True`).
 
         :returns: :class:`~.introspection.Introspection` instance.
@@ -134,7 +134,7 @@ class Proxy(proxy.Proxy):
         :param introspection: The value can be the name or ID of an
             introspection (matching bare metal node name or ID) or
             an :class:`~.introspection.Introspection` instance.
-        :param bool ignore_missing: When set to ``False``, an exception
+        :param ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the introspection could not be found. When set to ``True``, no
             exception will be raised when attempting to abort a non-existent
@@ -284,7 +284,7 @@ class Proxy(proxy.Proxy):
             value, progress. This is API specific but is generally a percentage
             value from 0-100.
 
-        :return: The updated resource.
+        :returns: The updated resource.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
             transition to status failed to occur in ``wait`` seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource

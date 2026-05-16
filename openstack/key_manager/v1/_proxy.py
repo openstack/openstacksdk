@@ -38,12 +38,11 @@ class Proxy(proxy.Proxy):
     def create_container(self, **attrs: Any) -> _container.Container:
         """Create a new container from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.key_manager.v1.container.Container`,
             comprised of the properties on the Container class.
 
         :returns: The results of container creation
-        :rtype: :class:`~openstack.key_manager.v1.container.Container`
         """
         return self._create(_container.Container, **attrs)
 
@@ -148,12 +147,11 @@ class Proxy(proxy.Proxy):
     def create_order(self, **attrs: Any) -> _order.Order:
         """Create a new order from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.key_manager.v1.order.Order`,
             comprised of the properties on the Order class.
 
         :returns: The results of order creation
-        :rtype: :class:`~openstack.key_manager.v1.order.Order`
         """
         return self._create(_order.Order, **attrs)
 
@@ -248,12 +246,11 @@ class Proxy(proxy.Proxy):
     def create_secret(self, **attrs: Any) -> _secret.Secret:
         """Create a new secret from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.key_manager.v1.secret.Secret`,
             comprised of the properties on the Order class.
 
         :returns: The results of secret creation
-        :rtype: :class:`~openstack.key_manager.v1.secret.Secret`
         """
         return self._create(_secret.Secret, **attrs)
 
@@ -471,7 +468,7 @@ class Proxy(proxy.Proxy):
             value, progress. This is API specific but is generally a percentage
             value from 0-100.
 
-        :return: The updated resource.
+        :returns: The updated resource.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
             transition to status failed to occur in ``wait`` seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource

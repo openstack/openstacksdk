@@ -45,7 +45,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the ResourceClass class.
 
         :returns: The results of resource class creation
-        :rtype: :class:`~openstack.placement.v1.resource_class.ResourceClass`
         """
         return self._create(_resource_class.ResourceClass, **attrs)
 
@@ -140,8 +139,7 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the ResourceProvider class.
 
         :returns: The results of resource provider creation
-        :rtype: :class:`~openstack.placement.v1.resource_provider.ResourceProvider`
-        """  # noqa: E501
+        """
         return self._create(_resource_provider.ResourceProvider, **attrs)
 
     def delete_resource_provider(
@@ -353,8 +351,7 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the ResourceProviderInventory class.
 
         :returns: The results of resource provider inventory creation
-        :rtype: :class:`~openstack.placement.v1.resource_provider_inventory.ResourceProviderInventory`
-        """  # noqa: E501
+        """
         resource_provider_id = resource.Resource._get_id(resource_provider)
         resource_class_name = resource.Resource._get_id(resource_class)
         return self._create(
@@ -511,7 +508,6 @@ class Proxy(proxy.Proxy):
         :param name: The name of the new trait
 
         :returns: The results of trait creation
-        :rtype: :class:`~openstack.placement.v1.trait.Trait`
         """
         return self._create(_trait.Trait, name=name)
 
@@ -584,7 +580,7 @@ class Proxy(proxy.Proxy):
             value, progress. This is API specific but is generally a percentage
             value from 0-100.
 
-        :return: The updated resource.
+        :returns: The updated resource.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
             transition to status failed to occur in ``wait`` seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource

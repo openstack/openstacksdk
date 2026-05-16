@@ -570,7 +570,7 @@ class Proxy(proxy.Proxy):
 
         :param node: The value can be the name or ID of a node or a
             :class:`~openstack.baremetal.v1.node.Node` instance.
-        :return: The node boot device
+        :returns: The node boot device
         """
         res = self._get_resource(_node.Node, node)
         return res.get_boot_device(self)
@@ -583,7 +583,7 @@ class Proxy(proxy.Proxy):
         :param boot_device: Boot device to assign to the node.
         :param persistent: If the boot device change is maintained after node
             reboot
-        :return: The updated :class:`~openstack.baremetal.v1.node.Node`
+        :returns: The updated :class:`~openstack.baremetal.v1.node.Node`
         """
         res = self._get_resource(_node.Node, node)
         return res.set_boot_device(self, boot_device, persistent=persistent)
@@ -595,7 +595,7 @@ class Proxy(proxy.Proxy):
 
         :param node: The value can be the name or ID of a node or a
             :class:`~openstack.baremetal.v1.node.Node` instance.
-        :return: The node boot device
+        :returns: The node boot device
         """
         res = self._get_resource(_node.Node, node)
         return res.get_supported_boot_devices(self)
@@ -631,7 +631,7 @@ class Proxy(proxy.Proxy):
 
         :param node: The value can be the name or ID of a node or a
             :class:`~openstack.baremetal.v1.node.Node` instance.
-        :return: None
+        :returns: None
         """
         res = self._get_resource(_node.Node, node)
         res.inject_nmi(self)
@@ -659,7 +659,7 @@ class Proxy(proxy.Proxy):
         :param fail: If set to ``False`` this call will not raise on timeouts
             and provisioning failures.
 
-        :return: If `fail` is ``True`` (the default), the list of
+        :returns: If `fail` is ``True`` (the default), the list of
             :class:`~openstack.baremetal.v1.node.Node` instances that reached
             the requested state. If `fail` is ``False``, a
             :class:`~openstack.baremetal.v1.node.WaitResult` named tuple.
@@ -785,7 +785,7 @@ class Proxy(proxy.Proxy):
             validation. The default value is the list of minimum required
             interfaces for provisioning.
 
-        :return: dict mapping interface names to
+        :returns: dict mapping interface names to
             :class:`~openstack.baremetal.v1.node.ValidationResult` objects.
         :raises: :exc:`~openstack.exceptions.ValidationException` if validation
             fails for a required interface.
@@ -799,7 +799,7 @@ class Proxy(proxy.Proxy):
         :param node: The value can be either the name or ID of a node or
             a :class:`~openstack.baremetal.v1.node.Node` instance.
         :param reason: Optional reason for maintenance.
-        :return: This :class:`Node` instance.
+        :returns: This :class:`Node` instance.
         """
         res = self._get_resource(_node.Node, node)
         return res.set_maintenance(self, reason)
@@ -809,7 +809,7 @@ class Proxy(proxy.Proxy):
 
         :param node: The value can be either the name or ID of a node or
             a :class:`~openstack.baremetal.v1.node.Node` instance.
-        :return: This :class:`Node` instance.
+        :returns: This :class:`Node` instance.
         """
         res = self._get_resource(_node.Node, node)
         return res.unset_maintenance(self)
@@ -851,7 +851,7 @@ class Proxy(proxy.Proxy):
         :param node: The value can be the name or ID of a node or a
             :class:`~openstack.baremetal.v1.node.Node` instance.
         :param trait: trait to remove from the node.
-        :param bool ignore_missing: When set to ``False``, an exception
+        :param ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the trait could not be found. When set to ``True``, no
             exception will be raised when attempting to delete a non-existent
@@ -1304,7 +1304,7 @@ class Proxy(proxy.Proxy):
             This can happen when either the virtual media is already used on
             a node or the node is locked. Since the latter happens more often,
             the default value is True.
-        :return: ``None``
+        :returns: ``None``
         :raises: :exc:`~openstack.exceptions.NotSupported` if the server
             does not support the VMEDIA API.
         """
@@ -1324,7 +1324,7 @@ class Proxy(proxy.Proxy):
             a :class:`~openstack.baremetal.v1.node.Node` instance.
         :param device_types: A list with the types of virtual media
             devices to detach.
-        :return: ``True`` if the virtual media was detached,
+        :returns: ``True`` if the virtual media was detached,
             otherwise ``False``.
         :raises: :exc:`~openstack.exceptions.NotSupported` if the server
             does not support the VMEDIA API.
@@ -1393,12 +1393,12 @@ class Proxy(proxy.Proxy):
 
         :param node: The value can be either the name or ID of a node or
             a :class:`~openstack.baremetal.v1.node.Node` instance.
-        :param string vif_id: Backend-specific VIF ID.
-        :param bool ignore_missing: When set to ``False``
+        :param vif_id: Backend-specific VIF ID.
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the VIF does not exist. Otherwise, ``False``
             is returned.
-        :return: ``True`` if the VIF was detached, otherwise ``False``.
+        :returns: ``True`` if the VIF was detached, otherwise ``False``.
         :raises: :exc:`~openstack.exceptions.NotSupported` if the server
             does not support the VIF API.
         """
@@ -1414,7 +1414,7 @@ class Proxy(proxy.Proxy):
 
         :param node: The value can be either the name or ID of a node or
             a :class:`~openstack.baremetal.v1.node.Node` instance.
-        :return: List of VIF IDs as strings.
+        :returns: List of VIF IDs as strings.
         :raises: :exc:`~openstack.exceptions.NotSupported` if the server
             does not support the VIF API.
         """
@@ -1553,7 +1553,6 @@ class Proxy(proxy.Proxy):
             state is considered successful and the call returns.
 
         :returns: The instance of the allocation.
-        :rtype: :class:`~openstack.baremetal.v1.allocation.Allocation`.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if allocation
             fails and ``ignore_error`` is ``False``.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` on timeout.
@@ -2300,7 +2299,7 @@ class Proxy(proxy.Proxy):
             value, progress. This is API specific but is generally a percentage
             value from 0-100.
 
-        :return: The updated resource.
+        :returns: The updated resource.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
             transition to status failed to occur in ``wait`` seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource

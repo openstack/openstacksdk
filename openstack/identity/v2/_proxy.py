@@ -49,12 +49,11 @@ class Proxy(proxy.Proxy):
     def create_role(self, **attrs: Any) -> _role.Role:
         """Create a new role from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.identity.v2.role.Role`,
             comprised of the properties on the Role class.
 
         :returns: The results of role creation
-        :rtype: :class:`~openstack.identity.v2.role.Role`
         """
         return self._create(_role.Role, **attrs)
 
@@ -145,12 +144,11 @@ class Proxy(proxy.Proxy):
     def create_tenant(self, **attrs: Any) -> _tenant.Tenant:
         """Create a new tenant from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.identity.v2.tenant.Tenant`,
             comprised of the properties on the Tenant class.
 
         :returns: The results of tenant creation
-        :rtype: :class:`~openstack.identity.v2.tenant.Tenant`
         """
         return self._create(_tenant.Tenant, **attrs)
 
@@ -241,12 +239,11 @@ class Proxy(proxy.Proxy):
     def create_user(self, **attrs: Any) -> _user.User:
         """Create a new user from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.identity.v2.user.User`,
             comprised of the properties on the User class.
 
         :returns: The results of user creation
-        :rtype: :class:`~openstack.identity.v2.user.User`
         """
         return self._create(_user.User, **attrs)
 
@@ -363,7 +360,7 @@ class Proxy(proxy.Proxy):
             value, progress. This is API specific but is generally a percentage
             value from 0-100.
 
-        :return: The updated resource.
+        :returns: The updated resource.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
             transition to status failed to occur in ``wait`` seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource

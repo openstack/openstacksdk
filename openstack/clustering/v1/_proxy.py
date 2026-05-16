@@ -114,12 +114,11 @@ class Proxy(proxy.Proxy):
     def create_profile(self, **attrs: Any) -> _profile.Profile:
         """Create a new profile from attributes.
 
-        :param dict attrs: Keyword arguments that will be used to create a
+        :param attrs: Keyword arguments that will be used to create a
             :class:`~openstack.clustering.v1.profile.Profile`, it is comprised
             of the properties on the Profile class.
 
         :returns: The results of profile creation.
-        :rtype: :class:`~openstack.clustering.v1.profile.Profile`.
         """
         return self._create(_profile.Profile, **attrs)
 
@@ -235,12 +234,11 @@ class Proxy(proxy.Proxy):
     def validate_profile(self, **attrs):
         """Validate a profile spec.
 
-        :param dict attrs: Keyword arguments that will be used to create a
+        :param attrs: Keyword arguments that will be used to create a
             :class:`~openstack.clustering.v1.profile.ProfileValidate`, it is
             comprised of the properties on the Profile class.
 
         :returns: The results of profile validation.
-        :rtype: :class:`~openstack.clustering.v1.profile.ProfileValidate`.
         """
         return self._create(_profile.ProfileValidate, **attrs)
 
@@ -248,12 +246,11 @@ class Proxy(proxy.Proxy):
     def create_cluster(self, **attrs: Any) -> _cluster.Cluster:
         """Create a new cluster from attributes.
 
-        :param dict attrs: Keyword arguments that will be used to create a
+        :param attrs: Keyword arguments that will be used to create a
             :class:`~openstack.clustering.v1.cluster.Cluster`, it is comprised
             of the properties on the Cluster class.
 
         :returns: The results of cluster creation.
-        :rtype: :class:`~openstack.clustering.v1.cluster.Cluster`.
         """
         return self._create(_cluster.Cluster, **attrs)
 
@@ -410,14 +407,13 @@ class Proxy(proxy.Proxy):
 
         :param cluster: Either the ID of a cluster or a
             :class:`~openstack.clustering.v3.cluster.Cluster`.
-        :param kwargs metadata: Key/value pairs to be updated in the cluster's
+        :param metadata: Key/value pairs to be updated in the cluster's
             metadata. No other metadata is modified by this call. All keys
             and values are stored as Unicode.
 
 
         :returns: A :class:`~openstack.clustering.v3.cluster.Cluster` with the
             cluster's metadata. All keys and values are Unicode text.
-        :rtype: :class:`~openstack.clustering.v3.cluster.Cluster`
         """
         cluster = self._get_resource(_cluster.Cluster, cluster)
         return cluster.set_metadata(self, metadata=metadata)
@@ -431,9 +427,8 @@ class Proxy(proxy.Proxy):
 
         :param cluster: Either the ID of a cluster or a
             :class:`~openstack.clustering.v3.cluster.Cluster`.
-        :param list keys: The keys to delete. If left empty complete
+        :param keys: The keys to delete. If left empty complete
             metadata will be removed.
-
         """
         cluster = self._get_resource(_cluster.Cluster, cluster)
         if keys is not None:
@@ -462,7 +457,7 @@ class Proxy(proxy.Proxy):
         :param cluster: Either the name or the ID of the cluster, or an
             instance of :class:`~openstack.clustering.v1.cluster.Cluster`.
         :param nodes: List of nodes to be removed from the cluster.
-        :param kwargs params: Optional query parameters to be sent to
+        :param params: Optional query parameters to be sent to
             restrict the nodes to be returned. Available parameters include:
 
             * destroy_after_deletion: A boolean value indicating whether the
@@ -524,7 +519,7 @@ class Proxy(proxy.Proxy):
 
         :param cluster: Either the name or the ID of the cluster, or an
             instance of :class:`~openstack.clustering.v1.cluster.Cluster`.
-        :param dict params: A dictionary providing the parameters for the
+        :param params: A dictionary providing the parameters for the
             resize action.
         :returns: A dict containing the action initiated by this operation.
         """
@@ -540,7 +535,7 @@ class Proxy(proxy.Proxy):
         :param cluster: Either the name or the ID of the cluster, or an
             instance of :class:`~openstack.clustering.v1.cluster.Cluster`.
         :param policy: Either the name or the ID of a policy.
-        :param dict params: A dictionary containing the properties for the
+        :param params: A dictionary containing the properties for the
             policy to be attached.
         :returns: A dict containing the action initiated by this operation.
         """
@@ -610,7 +605,7 @@ class Proxy(proxy.Proxy):
 
         :param cluster: The value can be either the ID of a cluster or a
             :class:`~openstack.clustering.v1.cluster.Cluster` instance.
-        :param dict params: A dictionary providing the parameters for the
+        :param params: A dictionary providing the parameters for the
             check action.
 
         :returns: A dictionary containing the action ID.
@@ -623,7 +618,7 @@ class Proxy(proxy.Proxy):
 
         :param cluster: The value can be either the ID of a cluster or a
             :class:`~openstack.clustering.v1.cluster.Cluster` instance.
-        :param dict params: A dictionary providing the parameters for the
+        :param params: A dictionary providing the parameters for the
             recover action.
 
         :returns: A dictionary containing the action ID.
@@ -637,7 +632,7 @@ class Proxy(proxy.Proxy):
         :param cluster: The value can be either the ID of a cluster or a
             :class:`~openstack.clustering.v1.cluster.Cluster` instance.
         :param operation: A string specifying the operation to be performed.
-        :param dict params: A dictionary providing the parameters for the
+        :param params: A dictionary providing the parameters for the
             operation.
 
         :returns: A dictionary containing the action ID.
@@ -648,12 +643,11 @@ class Proxy(proxy.Proxy):
     def create_node(self, **attrs: Any) -> _node.Node:
         """Create a new node from attributes.
 
-        :param dict attrs: Keyword arguments that will be used to create a
+        :param attrs: Keyword arguments that will be used to create a
             :class:`~openstack.clustering.v1.node.Node`, it is comprised
             of the properties on the ``Node`` class.
 
         :returns: The results of node creation.
-        :rtype: :class:`~openstack.clustering.v1.node.Node`.
         """
         return self._create(_node.Node, **attrs)
 
@@ -788,7 +782,7 @@ class Proxy(proxy.Proxy):
 
         :param node: The value can be either the ID of a node or a
             :class:`~openstack.clustering.v1.node.Node` instance.
-        :param dict params: A dictionary providing the parametes to the check
+        :param params: A dictionary providing the parametes to the check
             action.
 
         :returns: A dictionary containing the action ID.
@@ -801,7 +795,7 @@ class Proxy(proxy.Proxy):
 
         :param node: The value can be either the ID of a node or a
             :class:`~openstack.clustering.v1.node.Node` instance.
-        :param dict params: A dict supplying parameters to the recover action.
+        :param params: A dict supplying parameters to the recover action.
 
         :returns: A dictionary containing the action ID.
         """
@@ -814,7 +808,7 @@ class Proxy(proxy.Proxy):
         :param preview: A boolean indicating whether this is a "preview"
             operation which means only the profile to be used is returned
             rather than creating a node object using that profile.
-        :param dict attrs: Keyword parameters for node adoption. Valid
+        :param attrs: Keyword parameters for node adoption. Valid
             parameters include:
 
             * type: (Required) A string containing the profile type and
@@ -846,7 +840,7 @@ class Proxy(proxy.Proxy):
         :param node: The value can be either the ID of a node or a
             :class:`~openstack.clustering.v1.node.Node` instance.
         :param operation: A string specifying the operation to be performed.
-        :param dict params: A dictionary providing the parameters for the
+        :param params: A dictionary providing the parameters for the
             operation.
 
         :returns: A dictionary containing the action ID.
@@ -857,12 +851,11 @@ class Proxy(proxy.Proxy):
     def create_policy(self, **attrs: Any) -> _policy.Policy:
         """Create a new policy from attributes.
 
-        :param dict attrs: Keyword arguments that will be used to create a
+        :param attrs: Keyword arguments that will be used to create a
             :class:`~openstack.clustering.v1.policy.Policy`, it is comprised
             of the properties on the ``Policy`` class.
 
         :returns: The results of policy creation.
-        :rtype: :class:`~openstack.clustering.v1.policy.Policy`.
         """
         return self._create(_policy.Policy, **attrs)
 
@@ -972,12 +965,11 @@ class Proxy(proxy.Proxy):
     def validate_policy(self, **attrs):
         """Validate a policy spec.
 
-        :param dict attrs: Keyword arguments that will be used to create a
+        :param attrs: Keyword arguments that will be used to create a
             :class:`~openstack.clustering.v1.policy.PolicyValidate`, it is
             comprised of the properties on the Policy class.
 
         :returns: The results of Policy validation.
-        :rtype: :class:`~openstack.clustering.v1.policy.PolicyValidate`.
         """
         return self._create(_policy.PolicyValidate, **attrs)
 
@@ -1026,12 +1018,11 @@ class Proxy(proxy.Proxy):
     def create_receiver(self, **attrs: Any) -> _receiver.Receiver:
         """Create a new receiver from attributes.
 
-        :param dict attrs: Keyword arguments that will be used to create a
+        :param attrs: Keyword arguments that will be used to create a
             :class:`~openstack.clustering.v1.receiver.Receiver`, it is
             comprised of the properties on the Receiver class.
 
         :returns: The results of receiver creation.
-        :rtype: :class:`~openstack.clustering.v1.receiver.Receiver`.
         """
         return self._create(_receiver.Receiver, **attrs)
 
@@ -1289,7 +1280,7 @@ class Proxy(proxy.Proxy):
             value, progress. This is API specific but is generally a percentage
             value from 0-100.
 
-        :return: The updated resource.
+        :returns: The updated resource.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
             transition to status failed to occur in ``wait`` seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource

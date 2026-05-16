@@ -40,12 +40,11 @@ class Proxy(proxy.Proxy):
 
         :param instance: This can be either the ID of an instance
             or a :class:`~openstack.database.v1.instance.Instance`
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.database.v1.database.Database`,
             comprised of the properties on the Database class.
 
         :returns: The results of server creation
-        :rtype: :class:`~openstack.database.v1.database.Database`
         """
         instance = self._get_resource(_instance.Instance, instance)
         return self._create(
@@ -223,12 +222,11 @@ class Proxy(proxy.Proxy):
     def create_instance(self, **attrs: Any) -> _instance.Instance:
         """Create a new instance from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.database.v1.instance.Instance`,
             comprised of the properties on the Instance class.
 
         :returns: The results of server creation
-        :rtype: :class:`~openstack.database.v1.instance.Instance`
         """
         return self._create(_instance.Instance, **attrs)
 
@@ -333,12 +331,11 @@ class Proxy(proxy.Proxy):
 
         :param instance: This can be either the ID of an instance
             or a :class:`~openstack.database.v1.instance.Instance`
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.database.v1.user.User`,
             comprised of the properties on the User class.
 
         :returns: The results of server creation
-        :rtype: :class:`~openstack.database.v1.user.User`
         """
         instance = self._get_resource(_instance.Instance, instance)
         return self._create(_user.User, instance_id=instance.id, **attrs)
@@ -482,7 +479,7 @@ class Proxy(proxy.Proxy):
             value, progress. This is API specific but is generally a percentage
             value from 0-100.
 
-        :return: The updated resource.
+        :returns: The updated resource.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
             transition to status failed to occur in ``wait`` seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource

@@ -73,11 +73,10 @@ class Proxy(proxy.Proxy):
     def create_zone(self, **attrs: Any) -> _zone.Zone:
         """Create a new zone from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.dns.v2.zone.Zone`,
             comprised of the properties on the Zone class.
         :returns: The results of zone creation.
-        :rtype: :class:`~openstack.dns.v2.zone.Zone`
         """
         if attrs.get('type') == "SECONDARY":
             attrs.pop('email', None)
@@ -197,7 +196,7 @@ class Proxy(proxy.Proxy):
 
         :param zone: The value can be the ID of a zone or a
             :class:`~openstack.dns.v2.zone.Zone` instance.
-        :return: A generator of
+        :returns: A generator of
             :class:`~openstack.dns.v2.zone_nameserver.ZoneNameserver`
             instances.
         """
@@ -248,11 +247,10 @@ class Proxy(proxy.Proxy):
 
         :param zone: The value can be the ID of a zone
             or a :class:`~openstack.dns.v2.zone.Zone` instance.
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.dns.v2.recordset.Recordset`,
             comprised of the properties on the Recordset class.
         :returns: The results of zone creation
-        :rtype: :class:`~openstack.dns.v2.recordset.Recordset`
         """
         zone = self._get_resource(_zone.Zone, zone)
         attrs.update({'zone_id': zone.id})
@@ -383,11 +381,10 @@ class Proxy(proxy.Proxy):
     def create_zone_import(self, **attrs: Any) -> _zone_import.ZoneImport:
         """Create a new zone import from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.dns.v2.zone_import.ZoneImport`,
             comprised of the properties on the ZoneImport class.
         :returns: The results of zone creation.
-        :rtype: :class:`~openstack.dns.v2.zone_import.ZoneImport`
         """
         return self._create(
             _zone_import.ZoneImport, prepend_key=False, **attrs
@@ -453,11 +450,10 @@ class Proxy(proxy.Proxy):
 
         :param zone: The value can be the ID of a zone to be exported
             or a :class:`~openstack.dns.v2.zone_export.ZoneExport` instance.
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.dns.v2.zone_export.ZoneExport`,
             comprised of the properties on the ZoneExport class.
         :returns: The results of zone creation.
-        :rtype: :class:`~openstack.dns.v2.zone_export.ZoneExport`
         """
         zone = self._get_resource(_zone.Zone, zone)
         return self._create(
@@ -566,7 +562,6 @@ class Proxy(proxy.Proxy):
         :param floating_ip: ID for the floatingip associated with the
             project.
         :returns: FloatingIP PTR record.
-        :rtype: :class:`~openstack.dns.v2.fip.FloatipgIP`
         """
         # concat `region:floating_ip_id` as id
         attrs = {'ptrdname': None}
@@ -611,11 +606,10 @@ class Proxy(proxy.Proxy):
 
         :param zone: The value can be the ID of a zone to be transferred
             or a :class:`~openstack.dns.v2.zone_export.ZoneExport` instance.
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.dns.v2.zone_transfer.ZoneTransferRequest`,
             comprised of the properties on the ZoneTransferRequest class.
         :returns: The results of zone transfer request creation.
-        :rtype: :class:`~openstack.dns.v2.zone_transfer.ZoneTransferRequest`
         """
         zone = self._get_resource(_zone.Zone, zone)
         return self._create(
@@ -699,11 +693,10 @@ class Proxy(proxy.Proxy):
     ) -> _zone_transfer.ZoneTransferAccept:
         """Create a new ZoneTransfer Accept from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.dns.v2.zone_transfer.ZoneTransferAccept`,
             comprised of the properties on the ZoneTransferAccept class.
         :returns: The results of zone transfer request creation.
-        :rtype: :class:`~openstack.dns.v2.zone_transfer.ZoneTransferAccept`
         """
         return self._create(_zone_transfer.ZoneTransferAccept, **attrs)
 
@@ -800,12 +793,11 @@ class Proxy(proxy.Proxy):
 
         :param zone: The zone ID or a
             :class:`~openstack.dns.v2.zone.Zone` instance
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.dns.v2.zone_share.ZoneShare`,
             comprised of the properties on the ZoneShare class.
 
         :returns: The results of zone share creation
-        :rtype: :class:`~openstack.dns.v2.zone_share.ZoneShare`
         """
         zone_obj = self._get_resource(_zone.Zone, zone)
         return self._create(
@@ -948,11 +940,10 @@ class Proxy(proxy.Proxy):
     def create_tld(self, **attrs: Any) -> _tld.TLD:
         """Create a new tld from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.dns.v2.tld.TLD`,
             comprised of the properties on the TLD class.
         :returns: The results of TLD creation.
-        :rtype: :class:`~openstack.dns.v2.tld.TLD`
         """
         return self._create(_tld.TLD, prepend_key=False, **attrs)
 
@@ -1047,11 +1038,10 @@ class Proxy(proxy.Proxy):
     def create_tsigkey(self, **attrs: Any) -> _tsigkey.TSIGKey:
         """Create a new tsigkey from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.dns.v2.tsigkey.Tsigkey`,
             comprised of the properties on the Tsigkey class.
         :returns: The results of zone creation.
-        :rtype: :class:`~openstack.dns.v2.tsigkey.Tsigkey`
         """
         return self._create(_tsigkey.TSIGKey, prepend_key=False, **attrs)
 
@@ -1158,7 +1148,6 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the Blacklist class.
 
         :returns: The results of blacklist creation.
-        :rtype: :class:`~openstack.dns.v2.blacklist.Blacklist`
         """
         return self._create(_blacklist.Blacklist, prepend_key=False, **attrs)
 
@@ -1172,6 +1161,7 @@ class Proxy(proxy.Proxy):
         :param attrs: attributes for update on
             :class: `~openstack.dns.v2.blacklist.Blacklist`.
 
+        :returns: The updated blacklist.
         """
         return self._update(_blacklist.Blacklist, blacklist, **attrs)
 
@@ -1225,7 +1215,7 @@ class Proxy(proxy.Proxy):
             value, progress. This is API specific but is generally a percentage
             value from 0-100.
 
-        :return: The updated resource.
+        :returns: The updated resource.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
             transition to status failed to occur in ``wait`` seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource
