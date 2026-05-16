@@ -71,6 +71,7 @@ module = [
     "openstack.connection",
     "openstack.exceptions",
     "openstack.fields",
+    "openstack.fixture.*",
     "openstack.format",
     "openstack.proxy",
     "openstack.resource",

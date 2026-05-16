@@ -45,23 +45,25 @@ class ConnectionFixture(fixtures.Fixture):
         'volumev3': '/v3/{project_id}',
     }
 
-    def __init__(self, suburl=False, project_id=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self, suburl: bool = False, project_id: str | None = None
+    ) -> None:
+        super().__init__()
         self._endpoint_templates = _ENDPOINT_TEMPLATES
         if suburl:
             self.use_suburl()
         self.project_id = project_id or uuid.uuid4().hex.replace('-', '')
         self.build_tokens()
 
-    def use_suburl(self):
+    def use_suburl(self) -> None:
         self._endpoint_templates = _SUBURL_TEMPLATES
 
-    def _get_endpoint_templates(self, service_type, alias=None, v2=False):
+    def _get_endpoint_templates(
+        self, service_type: str, alias: str | None = None, v2: bool = False
+    ) -> dict[str, str]:
         templates = {}
         for k, v in self._endpoint_templates.items():
-            suffix = self._suffixes.get(
-                alias, self._suffixes.get(service_type, '')
-            )
+            suffix = self._suffixes.get(alias or service_type, '')
             # For a keystone v2 catalog, we want to list the
             # versioned endpoint in the catalog, because that's
             # more likely how those were deployed.
@@ -73,14 +75,14 @@ class ConnectionFixture(fixtures.Fixture):
             )
         return templates
 
-    def _setUp(self):
+    def _setUp(self) -> None:
         pass
 
-    def clear_tokens(self):
+    def clear_tokens(self) -> None:
         self.v2_token = v2.Token(tenant_id=self.project_id)
         self.v3_token = v3.Token(project_id=self.project_id)
 
-    def build_tokens(self):
+    def build_tokens(self) -> None:
         self.clear_tokens()
         for service in _service_type_manager.services:
             service_type = service['service_type']
@@ -101,5 +103,5 @@ class ConnectionFixture(fixtures.Fixture):
                 v3_svc.add_standard_endpoints(region='RegionOne', **ets)
                 v2_svc.add_endpoint(region='RegionOne', **ets)
 
-    def _cleanup(self):
+    def _cleanup(self) -> None:
         pass
