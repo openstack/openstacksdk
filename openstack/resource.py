@@ -303,7 +303,7 @@ class QueryParameters:
     ) -> dict[str, Any]:
         """Check that supplied query keys match known query mappings
 
-        :param dict query: Collection of key-value pairs where each key is the
+        :param query: Collection of key-value pairs where each key is the
             client-side parameter name or server side name.
         :param base_path: Formatted python string of the base url path for
             the resource.
@@ -346,9 +346,9 @@ class QueryParameters:
         If a query is supplied with its server side name, we will still use
         it, but take preference to the client-side name when both are supplied.
 
-        :param dict query: Collection of key-value pairs where each key is the
-                           client-side parameter name to be transposed to its
-                           server side name.
+        :param query: Collection of key-value pairs where each key is the
+            client-side parameter name to be transposed to its server side
+            name.
         :param resource_type: Class of a resource.
         """
         result = {}
@@ -511,15 +511,13 @@ class Resource(dict[str, Any]):
     ) -> None:
         """The base resource
 
-        :param bool _synchronized:
-            This is not intended to be used directly. See
+        :param _synchronized: This is not intended to be used directly. See
             :meth:`~openstack.resource.Resource.new` and
             :meth:`~openstack.resource.Resource.existing`.
-        :param openstack.connection.Connection connection:
-            Reference to the Connection being used. Defaults to None to allow
-            Resource objects to be used without an active Connection, such as
-            in unit tests. Use of ``self._connection`` in Resource code should
-            protect itself with a check for None.
+        :param connection: Reference to the Connection being used. Defaults to
+            None to allow Resource objects to be used without an active
+            Connection, such as in unit tests. Use of ``self._connection`` in
+            Resource code should protect itself with a check for None.
         """
         self._connection = connection
         self.microversion = attrs.pop('microversion', None)
@@ -998,37 +996,40 @@ class Resource(dict[str, Any]):
             return value
 
     @classmethod
-    def new(cls, **kwargs: Any) -> Self:
+    def new(cls, **attrs: Any) -> Self:
         """Create a new instance of this resource.
 
-        When creating the instance set the ``_synchronized`` parameter
-        of :class:`Resource` to ``False`` to indicate that the resource does
-        not yet exist on the server side. This marks all attributes passed
-        in ``**kwargs`` as "dirty" on the resource, and thusly tracked
-        as necessary in subsequent calls such as :meth:`update`.
+        When creating the instance set the ``_synchronized`` parameter of
+        :class:`Resource` to ``False`` to indicate that the resource does not
+        yet exist on the server side. This marks all attributes passed
+        in ``**attrs`` as "dirty" on the resource, and thusly tracked as
+        necessary in subsequent calls such as :meth:`update`.
 
-        :param dict kwargs: Each of the named arguments will be set as
-                            attributes on the resulting Resource object.
+        :param attrs: Each of the named arguments will be set as attributes on
+            the resulting Resource object.
+            These should correspond to either :class:`~openstack.fields.Body`
+            or :class:`~openstack.fields.Header` values on this resource.
         """
-        return cls(_synchronized=False, **kwargs)
+        return cls(_synchronized=False, **attrs)
 
     @classmethod
     def existing(
-        cls, connection: connection.Connection | None = None, **kwargs: Any
+        cls, connection: connection.Connection | None = None, **attrs: Any
     ) -> Self:
         """Create an instance of an existing remote resource.
 
         When creating the instance set the ``_synchronized`` parameter
         of :class:`Resource` to ``True`` to indicate that it represents the
         state of an existing server-side resource. As such, all attributes
-        passed in ``**kwargs`` are considered "clean", such that an immediate
+        passed in ``**attrs`` are considered "clean", such that an immediate
         :meth:`update` call would not generate a body of attributes to be
         modified on the server.
 
-        :param dict kwargs: Each of the named arguments will be set as
-            attributes on the resulting Resource object.
+        :param attrs: Each of the named arguments will be set as attributes on
+            the resulting Resource object.
+        :returns: An instance of self with the passed attributes set
         """
-        return cls(_synchronized=True, connection=connection, **kwargs)
+        return cls(_synchronized=True, connection=connection, **attrs)
 
     @classmethod
     def _from_munch(
@@ -1042,9 +1043,10 @@ class Resource(dict[str, Any]):
         This is intended as a temporary measure to convert between shade-style
         Munch objects and original openstacksdk resources.
 
-        :param obj: a ``utils.Munch`` object to convert from.
-        :param bool synchronized: whether this object already exists on server
-            Must be set to ``False`` for newly created objects.
+        :param obj: A ``utils.Munch`` object to convert from.
+        :param synchronized: Whether this object already exists on server. Must
+            be set to ``False`` for newly created objects.
+        :returns: An instance of self created from the munch.
         """
         return cls(_synchronized=synchronized, connection=connection, **obj)
 
@@ -1052,11 +1054,11 @@ class Resource(dict[str, Any]):
         """For a given attribute, convert it into a form suitable for a dict
         value.
 
-        :param bool attr: Attribute name to convert
+        :param attr: Attribute name to convert
+        :param _to_munch: Converts subresources to munch instead of dict.
 
-        :return: A dictionary of key/value pairs where keys are named
+        :returns: A dictionary of key/value pairs where keys are named
             as they exist as attributes of this class.
-        :param bool _to_munch: Converts subresources to munch instead of dict.
         """
         value = getattr(self, attr, None)
         if isinstance(value, Resource):
@@ -1086,21 +1088,21 @@ class Resource(dict[str, Any]):
     ) -> dict[str, Any]:
         """Return a dictionary of this resource's contents
 
-        :param bool body: Include the :class:`~openstack.fields.Body`
+        :param body: Include the :class:`~openstack.fields.Body` attributes in
+            the returned dictionary.
+        :param headers: Include the :class:`~openstack.fields.Header`
             attributes in the returned dictionary.
-        :param bool headers: Include the :class:`~openstack.fields.Header`
+        :param computed: Include the :class:`~openstack.fields.Computed`
             attributes in the returned dictionary.
-        :param bool computed: Include the :class:`~openstack.fields.Computed`
-            attributes in the returned dictionary.
-        :param bool ignore_none: When True, exclude key/value pairs where
-            the value is None. This will exclude attributes that the server
-            hasn't returned.
-        :param bool original_names: When True, use attribute names as they
-            were received from the server.
-        :param bool _to_munch: For internal use only. Converts to `utils.Munch`
+        :param ignore_none: When True, exclude key/value pairs where the value
+            is None. This will exclude attributes that the server hasn't
+            returned.
+        :param original_names: When True, use attribute names as they were
+            received from the server.
+        :param _to_munch: For internal use only. Converts to `utils.Munch`
             instead of dict.
 
-        :return: A dictionary of key/value pairs where keys are named
+        :returns: A dictionary of key/value pairs where keys are named
             as they exist as attributes of this class.
         """
         mapping: utils.Munch | dict[str, Any]
@@ -1247,7 +1249,7 @@ class Resource(dict[str, Any]):
         params: Any = None,
         *,
         resource_request_key: str | None = None,
-        **kwargs: Any,
+        **attrs: Any,
     ) -> _Request:
         """Prepare a request to be sent to the server
 
@@ -1397,8 +1399,7 @@ class Resource(dict[str, Any]):
         Subclasses can override this method if more complex logic is needed.
 
         :param session: The session to use for making the request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
-        :return: Microversion as string or ``None``
+        :returns: Microversion as string or ``None``
         """
         if session.default_microversion:
             return session.default_microversion
@@ -1423,7 +1424,7 @@ class Resource(dict[str, Any]):
         :param error_message: Optional error message with details. Will be
             prepended to the message generated here.
         :param maximum: Maximum microversion.
-        :return: resulting microversion as string.
+        :returns: resulting microversion as string.
         :raises: :exc:`~openstack.exceptions.NotSupported` if the version
             used for the action is lower than the expected one.
         """
@@ -1485,21 +1486,20 @@ class Resource(dict[str, Any]):
         """Create a remote resource based on this instance.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
-        :param prepend_key: A boolean indicating whether the resource_key
-            should be prepended in a resource creation request. Default to
-            True.
-        :param str base_path: Base part of the URI for creating resources, if
+        :param prepend_key: Whether the
+            :data:`~openstack.resource.Resource.resource_key` should be
+            prepended in a resource creation request. Default to True.
+        :param base_path: Base part of the URI for creating resources, if
             different from :data:`~openstack.resource.Resource.base_path`.
-        :param str resource_request_key: Overrides the usage of
-            self.resource_key when prepending a key to the request body.
-            Ignored if `prepend_key` is false.
-        :param str resource_response_key: Overrides the usage of
-            self.resource_key when processing response bodies.
-            Ignored if `prepend_key` is false.
-        :param str microversion: API version to override the negotiated one.
-        :param dict params: Additional params to pass.
-        :return: This :class:`Resource` instance.
+        :param resource_request_key: Overrides the usage of
+            :data:`~openstack.resource.Resource.resource_key` when prepending a
+            key to the request body. Ignored if `prepend_key` is false.
+        :param resource_response_key: Overrides the usage of
+            :data:`~openstack.resource.Resource.resource_key` when processing
+            response bodies. Ignored if `prepend_key` is false.
+        :param microversion: API version to override the negotiated one.
+        :param params: Additional params to pass.
+        :returns: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
             :data:`Resource.allow_create` is not set to ``True``.
         """
@@ -1584,17 +1584,16 @@ class Resource(dict[str, Any]):
         """Create multiple remote resources based on this class and data.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param data: list of dicts, which represent resources to create.
-        :param prepend_key: A boolean indicating whether the resource_key
-            should be prepended in a resource creation request. Default to
-            True.
-        :param str base_path: Base part of the URI for creating resources, if
+        :param prepend_key: Whether the
+            :data:`~openstack.resource.Resource.resource_key` should be
+            prepended in a resource creation request. Default to True.
+        :param base_path: Base part of the URI for creating resources, if
             different from :data:`~openstack.resource.Resource.base_path`.
-        :param str microversion: API version to override the negotiated one.
-        :param dict params: Additional params to pass.
+        :param microversion: API version to override the negotiated one.
+        :param params: Additional params to pass.
 
-        :return: A generator of :class:`Resource` objects.
+        :returns: A generator of :class:`Resource` objects.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
             :data:`Resource.allow_create` is not set to ``True``.
         """
@@ -1714,20 +1713,19 @@ class Resource(dict[str, Any]):
         """Get a remote resource based on this instance.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
-        :param boolean requires_id: A boolean indicating whether resource ID
-            should be part of the requested URI.
-        :param str base_path: Base part of the URI for fetching resources, if
+        :param requires_id: Whether resource ID should be part of the requested
+            URI.
+        :param base_path: Base part of the URI for fetching resources, if
             different from :data:`~openstack.resource.Resource.base_path`.
-        :param str error_message: An Error message to be returned if
+        :param error_message: An error message to be returned if
             requested object does not exist.
-        :param bool skip_cache: A boolean indicating whether optional API
+        :param skip_cache: A boolean indicating whether optional API
             cache should be skipped for this invocation.
-        :param str resource_response_key: Overrides the usage of
+        :param resource_response_key: Overrides the usage of
             self.resource_key when processing the response body.
-        :param str microversion: API version to override the negotiated one.
-        :param dict params: Additional parameters that can be consumed.
-        :return: This :class:`Resource` instance.
+        :param microversion: API version to override the negotiated one.
+        :param params: Additional parameters that can be consumed.
+        :returns: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
             :data:`Resource.allow_fetch` is not set to ``True``.
         :raises: :exc:`~openstack.exceptions.NotFoundException` if
@@ -1771,12 +1769,11 @@ class Resource(dict[str, Any]):
         """Get headers from a remote resource based on this instance.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
-        :param str base_path: Base part of the URI for fetching resources, if
+        :param base_path: Base part of the URI for fetching resources, if
             different from :data:`~openstack.resource.Resource.base_path`.
-        :param str microversion: API version to override the negotiated one.
+        :param microversion: API version to override the negotiated one.
 
-        :return: This :class:`Resource` instance.
+        :returns: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
             :data:`Resource.allow_head` is not set to ``True``.
         :raises: :exc:`~openstack.exceptions.NotFoundException` if the resource
@@ -1813,24 +1810,24 @@ class Resource(dict[str, Any]):
         base_path: str | None = None,
         *,
         microversion: str | None = None,
-        **kwargs: Any,
+        **attrs: Any,
     ) -> Self:
         """Commit the state of the instance to the remote resource.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
-        :param prepend_key: A boolean indicating whether the resource_key
-            should be prepended in a resource update request.
-            Default to True.
-        :param bool retry_on_conflict: Whether to enable retries on HTTP
+        :param prepend_key: Whether the
+            :data:`~openstack.resource.Resource.resource_key` should be
+            prepended in a resource creation request. Default to True.
+        :param retry_on_conflict: Whether to enable retries on HTTP
             CONFLICT (409). Value of ``None`` leaves the `Adapter` defaults.
-        :param str base_path: Base part of the URI for modifying resources, if
+        :param base_path: Base part of the URI for modifying resources, if
             different from :data:`~openstack.resource.Resource.base_path`.
-        :param str microversion: API version to override the negotiated one.
-        :param dict kwargs: Parameters that will be passed to
-            _prepare_request()
+        :param microversion: API version to override the negotiated one.
+        :param attrs: Attributes to pass when updating the resource.
+            These should correspond to either :class:`~openstack.fields.Body`
+            or :class:`~openstack.fields.Header` values on the resource.
 
-        :return: This :class:`Resource` instance.
+        :returns: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
             :data:`Resource.allow_commit` is not set to ``True``.
         """
@@ -1848,7 +1845,7 @@ class Resource(dict[str, Any]):
             prepend_key=prepend_key,
             base_path=base_path,
             patch=self.allow_patch,
-            **kwargs,
+            **attrs,
         )
         if microversion is None:
             microversion = self._get_microversion(session)
@@ -1966,19 +1963,19 @@ class Resource(dict[str, Any]):
         SDK field names.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param patch: Additional JSON patch as a list or one patch item.
             If provided, it is applied on top of any changes to the current
             resource.
-        :param prepend_key: A boolean indicating whether the resource_key
-            should be prepended in a resource update request. Default to True.
-        :param bool retry_on_conflict: Whether to enable retries on HTTP
+        :param prepend_key: Whether the
+            :data:`~openstack.resource.Resource.resource_key` should be
+            prepended in a resource creation request. Default to True.
+        :param retry_on_conflict: Whether to enable retries on HTTP
             CONFLICT (409). Value of ``None`` leaves the `Adapter` defaults.
-        :param str base_path: Base part of the URI for modifying resources, if
+        :param base_path: Base part of the URI for modifying resources, if
             different from :data:`~openstack.resource.Resource.base_path`.
-        :param str microversion: API version to override the negotiated one.
+        :param microversion: API version to override the negotiated one.
 
-        :return: This :class:`Resource` instance.
+        :returns: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
             :data:`Resource.allow_patch` is not set to ``True``.
         """
@@ -2017,17 +2014,16 @@ class Resource(dict[str, Any]):
         error_message: str | None = None,
         *,
         microversion: str | None = None,
-        **kwargs: Any,
+        **attrs: Any,
     ) -> Self:
         """Delete the remote resource based on this instance.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
-        :param str microversion: API version to override the negotiated one.
-        :param dict kwargs: Parameters that will be passed to
-            _prepare_request()
+        :param microversion: API version to override the negotiated one.
+        :param attrs: Attributes to be used to form the request URL such as the
+            ID of a parent resource.
 
-        :return: This :class:`Resource` instance.
+        :returns: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
             :data:`Resource.allow_commit` is not set to ``True``.
         :raises: :exc:`~openstack.exceptions.NotFoundException` if
@@ -2035,7 +2031,7 @@ class Resource(dict[str, Any]):
         """
 
         response = self._raw_delete(
-            session, microversion=microversion, **kwargs
+            session, microversion=microversion, **attrs
         )
         kwargs = {}
         if error_message:
@@ -2050,12 +2046,12 @@ class Resource(dict[str, Any]):
         self,
         session: adapter.Adapter,
         microversion: str | None = None,
-        **kwargs: Any,
+        **attrs: Any,
     ) -> requests.Response:
         if not self.allow_delete:
             raise exceptions.MethodNotSupported(self, 'delete')
 
-        request = self._prepare_request(**kwargs)
+        request = self._prepare_request(**attrs)
         session = self._get_session(session)
         if microversion is None:
             microversion = self._get_microversion(session)
@@ -2085,23 +2081,22 @@ class Resource(dict[str, Any]):
         params for response filtering.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
-        :param bool paginated: ``True`` if a GET to this resource returns
+        :param paginated: ``True`` if a GET to this resource returns
             a paginated series of responses, or ``False`` if a GET returns only
             one page of data. **When paginated is False only one page of data
             will be returned regardless of the API's support of pagination.**
-        :param str base_path: Base part of the URI for listing resources, if
+        :param base_path: Base part of the URI for listing resources, if
             different from :data:`~openstack.resource.Resource.base_path`.
-        :param bool allow_unknown_params: ``True`` to accept, but discard
+        :param allow_unknown_params: ``True`` to accept, but discard
             unknown query parameters. This allows getting list of 'filters' and
             passing everything known to the server. ``False`` will result in
             validation exception when unknown query parameters are passed.
-        :param str microversion: API version to override the negotiated one.
-        :param dict headers: Additional headers to inject into the HTTP
+        :param microversion: API version to override the negotiated one.
+        :param headers: Additional headers to inject into the HTTP
             request.
-        :param int max_items: The maximum number of items to return. Typically
+        :param max_items: The maximum number of items to return. Typically
             this must be used with ``paginated=True``.
-        :param dict params: These keyword arguments are passed through the
+        :param params: These keyword arguments are passed through the
             :meth:`~openstack.resource.QueryParamter._transpose` method
             to find if any of them match expected query parameters to be sent
             in the *params* argument to
@@ -2113,7 +2108,7 @@ class Resource(dict[str, Any]):
             the API call, remaining parameters are applied as filters to the
             retrieved results.
 
-        :return: A generator of :class:`Resource` objects.
+        :returns: A generator of :class:`Resource` objects.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
             :data:`Resource.allow_list` is not set to ``True``.
         :raises: :exc:`~openstack.exceptions.InvalidResourceQuery` if query
@@ -2414,22 +2409,21 @@ class Resource(dict[str, Any]):
         """Find a resource by its name or id.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param name_or_id: This resource's identifier, if needed by
             the request. The default is ``None``.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the resource does not exist.  When set to ``True``, None will
             be returned when attempting to find a nonexistent resource.
-        :param str list_base_path: base_path to be used when need listing
+        :param list_base_path: base_path to be used when need listing
             resources.
-        :param str microversion: API version to override the negotiated one.
-        :param dict params: Any additional parameters to be passed into
+        :param microversion: API version to override the negotiated one.
+        :param params: Any additional parameters to be passed into
             underlying methods, such as to
             :meth:`~openstack.resource.Resource.existing` in order to pass on
             URI parameters.
 
-        :return: The :class:`Resource` object matching the given name or id
+        :returns: The :class:`Resource` object matching the given name or id
             or None if nothing matches.
         :raises: :class:`openstack.exceptions.DuplicateResource` if more
             than one resource is found for this request.
@@ -2520,7 +2514,7 @@ def wait_for_status(
         value, progress. This is API specific but is generally a percentage
         value from 0-100.
 
-    :return: The updated resource.
+    :returns: The updated resource.
     :raises: :class:`~openstack.exceptions.ResourceTimeout` if the transition
         to status failed to occur in ``wait`` seconds.
     :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource
@@ -2589,7 +2583,7 @@ def wait_for_delete(
         value, progress. This is API specific but is generally a percentage
         value from 0-100.
 
-    :return: The original resource.
+    :returns: The original resource.
     :raises: :class:`~openstack.exceptions.ResourceTimeout` transition
         to status failed to occur in wait seconds.
     """
