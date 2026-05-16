@@ -72,7 +72,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of :class:`~.introspection.Introspection`
             objects
         """
-        return _introspect.Introspection.list(self, **query)
+        return self._list(_introspect.Introspection, **query)
 
     def start_introspection(self, node, manage_boot=None):
         """Create a new introspection from attributes.

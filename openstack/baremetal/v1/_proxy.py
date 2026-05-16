@@ -117,7 +117,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of chassis instances.
         """
-        return _chassis.Chassis.list(self, details=details, **query)
+        return self._list(_chassis.Chassis, details=details, **query)
 
     def create_chassis(self, **attrs: Any) -> _chassis.Chassis:
         """Create a new chassis from attributes.
@@ -367,7 +367,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of :class:`~openstack.baremetal.v1.node.Node`
         """
-        return _node.Node.list(self, details=details, **query)
+        return self._list(_node.Node, details=details, **query)
 
     def create_node(self, **attrs: Any) -> _node.Node:
         """Create a new node from attributes.
@@ -986,7 +986,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of port instances.
         """
-        return _port.Port.list(self, details=details, **query)
+        return self._list(_port.Port, details=details, **query)
 
     def create_port(self, **attrs: Any) -> _port.Port:
         """Create a new port from attributes.
@@ -1151,7 +1151,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of port group instances.
         """
-        return _portgroup.PortGroup.list(self, details=details, **query)
+        return self._list(_portgroup.PortGroup, details=details, **query)
 
     def create_port_group(self, **attrs: Any) -> _portgroup.PortGroup:
         """Create a new portgroup from attributes.
@@ -1451,7 +1451,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of allocation instances.
         """
-        return _allocation.Allocation.list(self, **query)
+        return self._list(_allocation.Allocation, **query)
 
     def create_allocation(self, **attrs: Any) -> _allocation.Allocation:
         """Create a new allocation from attributes.
@@ -1597,7 +1597,7 @@ class Proxy(proxy.Proxy):
         """
         if details:
             query['detail'] = True
-        return _volumeconnector.VolumeConnector.list(self, **query)
+        return self._list(_volumeconnector.VolumeConnector, **query)
 
     def create_volume_connector(
         self, **attrs: Any
@@ -1794,7 +1794,7 @@ class Proxy(proxy.Proxy):
         """
         if details:
             query['detail'] = True
-        return _volumetarget.VolumeTarget.list(self, **query)
+        return self._list(_volumetarget.VolumeTarget, **query)
 
     def create_volume_target(self, **attrs: Any) -> _volumetarget.VolumeTarget:
         """Create a new volume_target from attributes.
@@ -1959,7 +1959,7 @@ class Proxy(proxy.Proxy):
         """
         if details:
             query['detail'] = True
-        return _deploytemplates.DeployTemplate.list(self, **query)
+        return self._list(_deploytemplates.DeployTemplate, **query)
 
     def create_deploy_template(
         self, **attrs: Any
@@ -2129,7 +2129,7 @@ class Proxy(proxy.Proxy):
         """
         if details:
             query['detail'] = True
-        return _runbooks.Runbook.list(self, **query)
+        return self._list(_runbooks.Runbook, **query)
 
     def create_runbook(self, **attrs: Any) -> _runbooks.Runbook:
         """Create a new runbook from attributes.
@@ -2232,10 +2232,9 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of conductor instances.
         """
-
         if details:
             query['details'] = True
-        return _conductor.Conductor.list(self, **query)
+        return self._list(_conductor.Conductor, **query)
 
     # NOTE(stephenfin): There is no 'find_conductor' since conductors are
     # identified by the host name, not an arbitrary UUID, meaning
@@ -2339,7 +2338,7 @@ class Proxy(proxy.Proxy):
         """
         if details:
             query['details'] = True
-        return _inspectionrules.InspectionRule.list(self, **query)
+        return self._list(_inspectionrules.InspectionRule, **query)
 
     def create_inspection_rule(
         self, **attrs: Any

@@ -50,13 +50,17 @@ class TestChassis(TestBaremetalProxy):
     def test_chassis_detailed(self, mock_list):
         result = self.proxy.chassis(details=True, query=1)
         self.assertIs(result, mock_list.return_value)
-        mock_list.assert_called_once_with(self.proxy, details=True, query=1)
+        mock_list.assert_called_once_with(
+            self.proxy, paginated=True, base_path=None, details=True, query=1
+        )
 
     @mock.patch.object(chassis.Chassis, 'list')
     def test_chassis_not_detailed(self, mock_list):
         result = self.proxy.chassis(query=1)
         self.assertIs(result, mock_list.return_value)
-        mock_list.assert_called_once_with(self.proxy, details=False, query=1)
+        mock_list.assert_called_once_with(
+            self.proxy, paginated=True, base_path=None, details=False, query=1
+        )
 
     def test_create_chassis(self):
         self.verify_create(self.proxy.create_chassis, chassis.Chassis)
@@ -91,13 +95,17 @@ class TestNode(TestBaremetalProxy):
     def test_nodes_detailed(self, mock_list):
         result = self.proxy.nodes(details=True, query=1)
         self.assertIs(result, mock_list.return_value)
-        mock_list.assert_called_once_with(self.proxy, details=True, query=1)
+        mock_list.assert_called_once_with(
+            self.proxy, paginated=True, base_path=None, details=True, query=1
+        )
 
     @mock.patch.object(node.Node, 'list')
     def test_nodes_not_detailed(self, mock_list):
         result = self.proxy.nodes(query=1)
         self.assertIs(result, mock_list.return_value)
-        mock_list.assert_called_once_with(self.proxy, details=False, query=1)
+        mock_list.assert_called_once_with(
+            self.proxy, paginated=True, base_path=None, details=False, query=1
+        )
 
     @mock.patch.object(node.Node, 'list')
     def test_nodes_sharded(self, mock_list):
@@ -106,6 +114,8 @@ class TestNode(TestBaremetalProxy):
         self.assertIs(result, mock_list.return_value)
         mock_list.assert_called_once_with(
             self.proxy,
+            paginated=True,
+            base_path=None,
             details=False,
             fields=('uuid', 'instance_uuid'),
             shard='meow',
@@ -160,13 +170,17 @@ class TestPort(TestBaremetalProxy):
     def test_ports_detailed(self, mock_list):
         result = self.proxy.ports(details=True, query=1)
         self.assertIs(result, mock_list.return_value)
-        mock_list.assert_called_once_with(self.proxy, details=True, query=1)
+        mock_list.assert_called_once_with(
+            self.proxy, paginated=True, base_path=None, details=True, query=1
+        )
 
     @mock.patch.object(port.Port, 'list')
     def test_ports_not_detailed(self, mock_list):
         result = self.proxy.ports(query=1)
         self.assertIs(result, mock_list.return_value)
-        mock_list.assert_called_once_with(self.proxy, details=False, query=1)
+        mock_list.assert_called_once_with(
+            self.proxy, paginated=True, base_path=None, details=False, query=1
+        )
 
     def test_create_port(self):
         self.verify_create(self.proxy.create_port, port.Port)
@@ -201,13 +215,17 @@ class TestPortGroups(TestBaremetalProxy):
     def test_port_groups_detailed(self, mock_list):
         result = self.proxy.port_groups(details=True, query=1)
         self.assertIs(result, mock_list.return_value)
-        mock_list.assert_called_once_with(self.proxy, details=True, query=1)
+        mock_list.assert_called_once_with(
+            self.proxy, paginated=True, base_path=None, details=True, query=1
+        )
 
     @mock.patch.object(port_group.PortGroup, 'list')
     def test_port_groups_not_detailed(self, mock_list):
         result = self.proxy.port_groups(query=1)
         self.assertIs(result, mock_list.return_value)
-        mock_list.assert_called_once_with(self.proxy, details=False, query=1)
+        mock_list.assert_called_once_with(
+            self.proxy, paginated=True, base_path=None, details=False, query=1
+        )
 
     def test_get_port_group(self):
         self.verify_get(
@@ -283,13 +301,17 @@ class TestVolumeTarget(TestBaremetalProxy):
     def test_volume_target_detailed(self, mock_list):
         result = self.proxy.volume_targets(details=True, query=1)
         self.assertIs(result, mock_list.return_value)
-        mock_list.assert_called_once_with(self.proxy, detail=True, query=1)
+        mock_list.assert_called_once_with(
+            self.proxy, paginated=True, base_path=None, detail=True, query=1
+        )
 
     @mock.patch.object(volume_target.VolumeTarget, 'list')
     def test_volume_target_not_detailed(self, mock_list):
         result = self.proxy.volume_targets(query=1)
         self.assertIs(result, mock_list.return_value)
-        mock_list.assert_called_once_with(self.proxy, query=1)
+        mock_list.assert_called_once_with(
+            self.proxy, paginated=True, base_path=None, query=1
+        )
 
     def test_create_volume_target(self):
         self.verify_create(
@@ -327,13 +349,17 @@ class TestDeployTemplate(TestBaremetalProxy):
     def test_deploy_templates_detailed(self, mock_list):
         result = self.proxy.deploy_templates(details=True, query=1)
         self.assertIs(result, mock_list.return_value)
-        mock_list.assert_called_once_with(self.proxy, detail=True, query=1)
+        mock_list.assert_called_once_with(
+            self.proxy, paginated=True, base_path=None, detail=True, query=1
+        )
 
     @mock.patch.object(deploy_templates.DeployTemplate, 'list')
     def test_deploy_templates_not_detailed(self, mock_list):
         result = self.proxy.deploy_templates(query=1)
         self.assertIs(result, mock_list.return_value)
-        mock_list.assert_called_once_with(self.proxy, query=1)
+        mock_list.assert_called_once_with(
+            self.proxy, paginated=True, base_path=None, query=1
+        )
 
     def test_create_deploy_template(self):
         self.verify_create(
@@ -518,13 +544,17 @@ class TestInspectionRules(TestBaremetalProxy):
     def test_inspection_rules_detailed(self, mock_list):
         result = self.proxy.inspection_rules(details=True, query=1)
         self.assertIs(result, mock_list.return_value)
-        mock_list.assert_called_once_with(self.proxy, details=True, query=1)
+        mock_list.assert_called_once_with(
+            self.proxy, paginated=True, base_path=None, details=True, query=1
+        )
 
     @mock.patch.object(inspection_rules.InspectionRule, 'list')
     def test_inspection_rules_not_detailed(self, mock_list):
         result = self.proxy.inspection_rules(query=1)
         self.assertIs(result, mock_list.return_value)
-        mock_list.assert_called_once_with(self.proxy, query=1)
+        mock_list.assert_called_once_with(
+            self.proxy, paginated=True, base_path=None, query=1
+        )
 
     def test_create_inspection_rule(self):
         self.verify_create(
