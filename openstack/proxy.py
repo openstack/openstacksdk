@@ -654,14 +654,13 @@ class Proxy(adapter.Adapter):
         :param resource_type: The type of resource to find. This should be a
             :class:`~openstack.resource.Resource` subclass.
         :param name_or_id: The name or ID of a resource to find.
-        :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be
-            raised when the resource does not exist.
-            When set to ``True``, None will be returned when
-            attempting to find a nonexistent resource.
-        :param dict attrs: Attributes to be passed onto the
-            :meth:`~openstack.resource.Resource.find`
-            method, such as query parameters.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource does not exist. When set to ``True``, None will
+            be returned when attempting to find a nonexistent resource.
+        :param attrs: Attributes to be passed onto the
+            :meth:`~openstack.resource.Resource.find` method, such as query
+            parameters.
 
         :returns: An instance of ``resource_type`` or None
         """
@@ -685,18 +684,19 @@ class Proxy(adapter.Adapter):
             for resources that don't have their own identifier or have
             identifiers with multiple parts. If None, you must pass these other
             identifiers as kwargs.
-        :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be
-            raised when the resource does not exist.
-            When set to ``True``, no exception will be set when
-            attempting to delete a nonexistent resource.
-        :param dict attrs: Attributes to be used to form the request URL such
-            as the ID of a parent resource.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource does not exist. When set to ``True``, no
+            exception will be set when attempting to delete a nonexistent
+            resource.
+        :param attrs: Attributes to be used to form the request URL such as the
+            ID of a parent resource.
+
         :returns: The result of the ``delete``
         :raises: ``ValueError`` if ``value`` is a
             :class:`~openstack.resource.Resource` that doesn't match
             the ``resource_type``.
-            :class:`~openstack.exceptions.NotFoundException` when
+        :raises: :class:`~openstack.exceptions.NotFoundException` when
             ignore_missing if ``False`` and a nonexistent resource
             is attempted to be deleted.
         """
@@ -727,18 +727,20 @@ class Proxy(adapter.Adapter):
             for resources that don't have their own identifier or have
             identifiers with multiple parts. If None, you must pass these other
             identifiers as kwargs.
-        :param str base_path: Base part of the URI for updating resources, if
+        :param base_path: Base part of the URI for updating resources, if
             different from
             :data:`~openstack.resource.Resource.base_path`.
-        :param dict attrs: Attributes to be passed onto the
-            :meth:`~openstack.resource.Resource.update`
-            method to be updated. These should correspond
-            to either :class:`~openstack.resource.Body`
-            or :class:`~openstack.resource.Header`
-            values on this resource.
+        :param attrs: Attributes to be passed onto the
+            :meth:`~openstack.resource.Resource.update` method to be updated.
+            These should correspond to either :class:`~openstack.fields.Body`
+            or :class:`~openstack.fields.Header` values on this resource.
 
-        :returns: The result of the ``update``
-        :rtype: :class:`~openstack.resource.Resource`
+        :returns: The updated resource
+        :raises: ``ValueError`` if ``value`` is a
+            :class:`~openstack.resource.Resource` that doesn't match
+            the ``resource_type``.
+        :raises: :class:`~openstack.exceptions.NotFoundException` when
+            a nonexistent resource is attempted to be updated.
         """
         res = self._get_resource(resource_type, value, **attrs)
         return res.commit(self, base_path=base_path)
@@ -755,15 +757,12 @@ class Proxy(adapter.Adapter):
             :class:`~openstack.resource.Resource` subclass.
         :param base_path: Base part of the URI for creating resources, if
             different from :data:`~openstack.resource.Resource.base_path`.
-        :param dict attrs: Attributes to be passed onto the
-            :meth:`~openstack.resource.Resource.create`
-            method to be created. These should correspond
-            to either :class:`~openstack.resource.Body`
-            or :class:`~openstack.resource.Header`
-            values on this resource.
+        :param attrs: Attributes to be passed onto the
+            :meth:`~openstack.resource.Resource.create` method to be created.
+            These should correspond to either :class:`~openstack.fields.Body`
+            or :class:`~openstack.fields.Header` values on this resource.
 
-        :returns: The result of the ``create``
-        :rtype: :class:`~openstack.resource.Resource`
+        :returns: The created resource
         """
         # Check for attributes whose names conflict with the parameters
         # specified in the method.
@@ -787,17 +786,13 @@ class Proxy(adapter.Adapter):
         :param resource_type: The type of resource to create. This should be a
             :class:`~openstack.resource.Resource` subclass.
         :param data: List of attributes dicts to be passed onto the
-            :meth:`~openstack.resource.Resource.create`
-            method to be created. These should correspond
-            to either :class:`~openstack.resource.Body`
-            or :class:`~openstack.resource.Header`
-            values on this resource.
-        :param str base_path: Base part of the URI for creating resources, if
-            different from
-            :data:`~openstack.resource.Resource.base_path`.
+            :meth:`~openstack.resource.Resource.create` method to be created.
+            These should correspond to either :class:`~openstack.fields.Body`
+            or :class:`~openstack.fields.Header` values on this resource.
+        :param base_path: Base part of the URI for creating resources, if
+            different from :data:`~openstack.resource.Resource.base_path`.
 
-        :returns: A generator of Resource objects.
-        :rtype: :class:`~openstack.resource.Resource`
+        :returns: A generator of created rsources
         """
         return resource_type.bulk_create(self, data, base_path=base_path)
 
@@ -821,22 +816,22 @@ class Proxy(adapter.Adapter):
             identifiers as kwargs.
         :param requires_id: Whether the resource is identified by an ID or not.
         :param base_path: Base part of the URI for fetching resources, if
-            different from
-            :data:`~openstack.resource.Resource.base_path`.
+            different from :data:`~openstack.resource.Resource.base_path`.
         :param skip_cache: A boolean indicating whether optional API
             cache should be skipped for this invocation.
         :param attrs: Attributes to be passed onto the
-            :meth:`~openstack.resource.Resource.get`
-            method. These should correspond
-            to either :class:`~openstack.resource.Body`
-            or :class:`~openstack.resource.Header`
-            values on this resource.
+            :meth:`~openstack.resource.Resource.get` method. These should
+            correspond to either :class:`~openstack.fields.Body` or
+            :class:`~openstack.fields.Header` values on this resource.
 
-        :returns: The result of the ``fetch``
-        :rtype: :class:`~openstack.resource.Resource`
+        :returns: The fetched resource
+        :raises: ``ValueError`` if ``value`` is a
+            :class:`~openstack.resource.Resource` that doesn't match
+            the ``resource_type``.
+        :raises: :class:`~openstack.exceptions.NotFoundException` when
+            a nonexistent resource is attempted to be fetched.
         """
         res = self._get_resource(resource_type, value, **attrs)
-
         return res.fetch(
             self,
             requires_id=requires_id,
@@ -858,25 +853,22 @@ class Proxy(adapter.Adapter):
         :param resource_type: The type of resource to list. This should
             be a :class:`~openstack.resource.Resource`
             subclass with a ``from_id`` method.
-        :param bool paginated: When set to ``False``, expect all of the data
-            to be returned in one response. When set to
-            ``True``, the resource supports data being
-            returned across multiple pages.
-        :param str base_path: Base part of the URI for listing resources, if
-            different from
-            :data:`~openstack.resource.Resource.base_path`.
-        :param str jmespath_filters: A string containing a jmespath expression
-            for further filtering.
-
-        :param dict attrs: Attributes to be passed onto the
+        :param paginated: When set to ``False``, expect all of the data to be
+            returned in one response. When set to ``True``, the resource
+            supports data being returned across multiple pages.
+        :param base_path: Base part of the URI for listing resources, if
+            different from :data:`~openstack.resource.Resource.base_path`.
+        :param jmespath_filters: **DEPRECATED** A string containing a jmespath
+            expression for further filtering.
+        :param attrs: Attributes to be passed onto the
             :meth:`~openstack.resource.Resource.list` method. These should
-            correspond to either :class:`~openstack.resource.URI` values
-            or appear in :data:`~openstack.resource.Resource._query_mapping`.
+            correspond to either :class:`~openstack.fields.URI` values or
+            appear in :data:`~openstack.resource.Resource._query_mapping`.
 
-        :returns: A generator of Resource objects.
+        :returns: A generator of fetched resources
         :raises: ``ValueError`` if ``value`` is a
-            :class:`~openstack.resource.Resource` that doesn't match
-            the ``resource_type``.
+            :class:`~openstack.resource.Resource` that doesn't match the
+            ``resource_type``.
         """
         # Check for attributes whose names conflict with the parameters
         # specified in the method.
@@ -909,22 +901,26 @@ class Proxy(adapter.Adapter):
     ) -> resource.ResourceT:
         """Retrieve a resource's header
 
-        :param resource_type: The type of resource to retrieve.
-        :type resource_type: :class:`~openstack.resource.Resource`
-        :param value: The value of a specific resource to retrieve headers
-            for. Can be either the ID of a resource,
-            a :class:`~openstack.resource.Resource` subclass,
-            or ``None``.
-        :param str base_path: Base part of the URI for heading resources, if
-            different from
-            :data:`~openstack.resource.Resource.base_path`.
-        :param dict attrs: Attributes to be passed onto the
-            :meth:`~openstack.resource.Resource.head` method.
-            These should correspond to
-            :class:`~openstack.resource.URI` values.
+        :param resource_type: The type of resource to get. This should be a
+            :class:`~openstack.resource.Resource` subclass.
+        :param value: The resource to get. This can be the ID of a resource,
+            a :class:`~openstack.resource.Resource` subclass instance, or None
+            for resources that don't have their own identifier or have
+            identifiers with multiple parts. If None, you must pass these other
+            identifiers as kwargs.
+        :param base_path: Base part of the URI for heading resources, if
+            different from :data:`~openstack.resource.Resource.base_path`.
+        :param attrs: Attributes to be passed onto the
+            :meth:`~openstack.resource.Resource.head` method. These should
+            correspond to either :class:`~openstack.fields.URI` values or
+            appear in :data:`~openstack.resource.Resource._query_mapping`.
 
         :returns: The result of the ``head`` call
-        :rtype: :class:`~openstack.resource.Resource`
+        :raises: ``ValueError`` if ``value`` is a
+            :class:`~openstack.resource.Resource` that doesn't match
+            the ``resource_type``.
+        :raises: :class:`~openstack.exceptions.NotFoundException` when
+            a nonexistent resource is attempted to be headed.
         """
         res = self._get_resource(resource_type, value, **attrs)
         return res.head(self, base_path=base_path)
