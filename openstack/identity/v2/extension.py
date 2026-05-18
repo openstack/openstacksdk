@@ -11,10 +11,9 @@
 # under the License.
 
 from collections.abc import Generator
-from typing import Any
+from typing import Any, Self
 
 from keystoneauth1 import adapter
-from typing_extensions import Self
 
 from openstack import resource
 

@@ -16,7 +16,7 @@ import copy
 import functools
 import queue
 import types
-from typing import Any, Optional, TYPE_CHECKING
+from typing import Any, Optional, Self, TYPE_CHECKING
 from collections.abc import Callable
 import warnings
 import weakref
@@ -25,7 +25,6 @@ import dogpile.cache
 import keystoneauth1.exceptions
 from keystoneauth1.identity import base as ks_plugin_base
 import requests.models
-from typing_extensions import Self
 import urllib3.exceptions
 
 from openstack import _log

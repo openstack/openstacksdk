@@ -12,11 +12,10 @@
 
 import collections
 import enum
-from typing import Any, cast
+from typing import Any, Self, cast
 import warnings
 
 from keystoneauth1 import adapter
-from typing_extensions import Self
 
 from openstack.baremetal.v1 import _common
 from openstack import exceptions

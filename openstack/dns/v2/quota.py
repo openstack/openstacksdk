@@ -10,10 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, cast
+from typing import Any, Self, cast
 
 from keystoneauth1 import adapter
-from typing_extensions import Self
 
 from openstack.dns.v2 import _base
 from openstack import resource

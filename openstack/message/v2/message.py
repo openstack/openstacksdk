@@ -10,11 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any
+from typing import Any, Self
 import uuid
 
 from keystoneauth1 import adapter
-from typing_extensions import Self
 
 from openstack.message.v2 import _base
 from openstack import resource

@@ -11,10 +11,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any
+from typing import Any, Self
 
 from keystoneauth1 import adapter
-from typing_extensions import Self
 
 from openstack.object_store.v1 import _base
 from openstack import resource

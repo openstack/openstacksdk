@@ -10,9 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import TypedDict
-
-from typing_extensions import Self
+from typing import Self, TypedDict
 
 from openstack import exceptions
 from openstack import resource

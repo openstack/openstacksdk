@@ -12,10 +12,9 @@
 # under the License.
 
 import copy
-from typing import Any
+from typing import Any, Self
 
 from keystoneauth1 import adapter
-from typing_extensions import Self
 
 from openstack import exceptions
 from openstack.object_store.v1 import _base

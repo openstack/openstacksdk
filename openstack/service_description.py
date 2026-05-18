@@ -11,8 +11,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, Generic, TYPE_CHECKING, cast, overload
-from typing_extensions import Self
+from typing import Any, Generic, Self, TYPE_CHECKING, cast, overload
 import warnings
 
 import os_service_types
