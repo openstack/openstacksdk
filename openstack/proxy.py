@@ -14,7 +14,7 @@
 # nova (and possibly others) expose
 from __future__ import annotations
 
-from collections.abc import MutableMapping
+from collections.abc import MutableMapping, Sequence
 import functools
 import logging
 import queue
@@ -951,7 +951,7 @@ class Proxy(adapter.Adapter):
             bool,
         ]
         | None = None,
-        skip_resources: list[str] | None = None,
+        skip_resources: Sequence[str] | None = None,
     ) -> None:
         return None
 
@@ -1043,7 +1043,7 @@ class Proxy(adapter.Adapter):
             return False
 
     def should_skip_resource_cleanup(
-        self, resource: str, skip_resources: list[str] | None = None
+        self, resource: str, skip_resources: Sequence[str] | None = None
     ) -> bool:
         if skip_resources is None:
             return False
