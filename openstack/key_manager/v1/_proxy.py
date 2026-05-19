@@ -13,6 +13,7 @@
 from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable
 
+from openstack._utils import renamed_param
 from openstack.key_manager.v1 import container as _container
 from openstack.key_manager.v1 import order as _order
 from openstack.key_manager.v1 import project_quota as _project_quota
@@ -364,11 +365,13 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_secret_store.SecretStore, 'preferred')
 
-    def delete_project_quota(self, project_id, ignore_missing=True):
+    @renamed_param('project_id', 'project')
+    def delete_project_quota(self, project, ignore_missing=True):
         """Delete a project quota
 
-        :param project_id: A project ID.
-        :param bool ignore_missing: When set to ``False``
+        :param project: A project ID or
+            :class:`~openstack.identity.v3.project.Project` instance.
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the project quota does not exist.
             When set to ``True``, no exception will be set when
@@ -378,33 +381,42 @@ class Proxy(proxy.Proxy):
         """
         self._delete(
             _project_quota.ProjectQuota,
-            project_id,
+            resource.Resource._get_id(project),
             ignore_missing=ignore_missing,
         )
 
-    def get_project_quota(self, project_id):
+    @renamed_param('project_id', 'project')
+    def get_project_quota(self, project):
         """Get a single project quota
 
-        :param project_id: A project ID.
+        :param project: A project ID or
+            :class:`~openstack.identity.v3.project.Project` instance.
 
         :returns: One
             :class:`~openstack.key_manager.v1.project_quota.ProjectQuota`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_project_quota.ProjectQuota, project_id)
+        return self._get(
+            _project_quota.ProjectQuota, resource.Resource._get_id(project)
+        )
 
-    def update_project_quota(self, project_id, **attrs):
+    @renamed_param('project_id', 'project')
+    def update_project_quota(self, project, **attrs):
         """Update a project quota
 
-        :param project_id: A project ID.
+        :param project: A project ID or
+            :class:`~openstack.identity.v3.project.Project` instance.
         :param attrs: The attributes to update on the project quota represented
             by ``project quota``.
 
         :returns: The updated project quota
-        :rtype: :class:`~openstack.key_manager.v1.project_quota.ProjectQuota`
         """
-        return self._update(_project_quota.ProjectQuota, project_id, **attrs)
+        return self._update(
+            _project_quota.ProjectQuota,
+            resource.Resource._get_id(project),
+            **attrs,
+        )
 
     # ========== Utilities ==========
 

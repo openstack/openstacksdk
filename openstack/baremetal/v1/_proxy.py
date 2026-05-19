@@ -16,6 +16,7 @@ import warnings
 
 import requests
 
+from openstack._utils import renamed_param
 from openstack.baremetal.v1 import _common
 from openstack.baremetal.v1 import allocation as _allocation
 from openstack.baremetal.v1 import chassis as _chassis
@@ -1281,14 +1282,16 @@ class Proxy(proxy.Proxy):
 
     # ========== VIFs ==========
 
+    @renamed_param('port_group_id', 'port_group')
+    @renamed_param('port_id', 'port')
     def attach_vif_to_node(
         self,
         node: _node.Node | str,
         vif_id: str,
         retry_on_conflict: bool = True,
         *,
-        port_id: str | None = None,
-        port_group_id: str | None = None,
+        port: str | _port.Port | None = None,
+        port_group: str | _portgroup.PortGroup | None = None,
     ) -> None:
         """Attach a VIF to the node.
 
@@ -1304,18 +1307,24 @@ class Proxy(proxy.Proxy):
             This can happen when either the VIF is already used on a node or
             the node is locked. Since the latter happens more often, the
             default value is True.
-        :param port_id: The UUID of the port to attach the VIF to. Only one of
-            port_id or port_group_id can be provided.
-        :param port_group_id: The UUID of the portgroup to attach to. Only one
-            of port_group_id or port_id can be provided.
+        :param port: A UUID or :class:`~openstack.baremetal.v1.port.Port`
+            instance of the port to attach the VIF to. Only one of port or
+            port_group can be provided.
+        :param port_group: A UUID or
+            :class:`~openstack.baremetal.v1.port_group.PortGroup` instance of
+            the portgroup to attach the VIF to. Only one of port_group or port
+            can be provided.
         :return: None
         :raises: :exc:`~openstack.exceptions.NotSupported` if the server
             does not support the VIF API.
         :raises: :exc:`~openstack.exceptions.InvalidRequest` if both port_id
             and port_group_id are provided.
         """
-        res = self._get_resource(_node.Node, node)
-        res.attach_vif(
+        port_id = resource.Resource._get_id(port) if port else None
+        port_group_id = (
+            resource.Resource._get_id(port_group) if port_group else None
+        )
+        self._get_resource(_node.Node, node).attach_vif(
             self,
             vif_id=vif_id,
             retry_on_conflict=retry_on_conflict,

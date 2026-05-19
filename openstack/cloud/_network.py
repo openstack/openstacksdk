@@ -1996,7 +1996,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             error.
         """
         return self.network.add_interface_to_router(
-            router=router, subnet_id=subnet_id, port_id=port_id
+            router=router, subnet=subnet_id, port=port_id
         )
 
     def remove_router_interface(self, router, subnet_id=None, port_id=None):
@@ -2022,7 +2022,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             )
 
         self.network.remove_interface_from_router(
-            router=router, subnet_id=subnet_id, port_id=port_id
+            router=router, subnet=subnet_id, port=port_id
         )
 
     def list_router_interfaces(self, router, interface_type=None):

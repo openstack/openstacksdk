@@ -14,6 +14,7 @@ from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable, Generator
 import warnings
 
+from openstack._utils import renamed_param
 from openstack.block_storage.v3 import attachment as _attachment
 from openstack.block_storage.v3 import availability_zone
 from openstack.block_storage.v3 import backup as _backup
@@ -483,36 +484,43 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_type.Type, type)
         return res.get_private_access(self)
 
-    def add_type_access(self, type, project_id):
+    @renamed_param('project_id', 'project')
+    def add_type_access(self, type, project):
         """Adds private volume type access to a project.
 
         :param type: The value can be either the ID of a type or a
             :class:`~openstack.block_storage.v3.type.Type` instance.
-        :param str project_id: The ID of the project. Volume Type access to
-            be added to this project ID.
+        :param project: An ID or
+            :class:`~openstack.identity.v3.identity.Project` instance of the
+            project to add access for.
 
         :returns: ``None``
         """
+        project_id = resource.Resource._get_id(project)
         res = self._get_resource(_type.Type, type)
         return res.add_private_access(self, project_id)
 
-    def remove_type_access(self, type, project_id):
+    @renamed_param('project_id', 'project')
+    def remove_type_access(self, type, project):
         """Remove private volume type access from a project.
 
         :param type: The value can be either the ID of a type or a
             :class:`~openstack.block_storage.v3.type.Type` instance.
-        :param str project_id: The ID of the project. Volume Type access to
-            be removed to this project ID.
+        :param project: An ID or
+            :class:`~openstack.identity.v3.identity.Project` instance of the
+            project to remove access for.
 
         :returns: ``None``
         """
+        project_id = resource.Resource._get_id(project)
         res = self._get_resource(_type.Type, type)
         return res.remove_private_access(self, project_id)
 
-    def get_type_encryption(self, volume_type_id):
+    @renamed_param('volume_type_id', 'volume_type')
+    def get_type_encryption(self, volume_type):
         """Get the encryption details of a volume type
 
-        :param volume_type_id: The value can be the ID of a type or a
+        :param volume_type: The value can be the ID of a type or a
             :class:`~openstack.block_storage.v3.type.Type`
             instance.
 
@@ -520,11 +528,10 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        volume_type = self._get_resource(_type.Type, volume_type_id)
-
+        volume_type_id = resource.Resource._get_id(volume_type)
         return self._get(
             _type.TypeEncryption,
-            volume_type_id=volume_type.id,
+            volume_type_id=volume_type_id,
             requires_id=False,
         )
 
@@ -544,10 +551,9 @@ class Proxy(proxy.Proxy):
         :returns: The results of type encryption creation
         :rtype: :class:`~openstack.block_storage.v3.type.TypeEncryption`
         """
-        volume_type = self._get_resource(_type.Type, volume_type)
-
+        volume_type_id = resource.Resource._get_id(volume_type)
         return self._create(
-            _type.TypeEncryption, volume_type_id=volume_type.id, **attrs
+            _type.TypeEncryption, volume_type_id=volume_type_id, **attrs
         )
 
     def delete_type_encryption(
@@ -557,27 +563,23 @@ class Proxy(proxy.Proxy):
 
         :param encryption: The value can be None or a
             :class:`~openstack.block_storage.v3.type.TypeEncryption`
-            instance.  If encryption_id is None then
-            volume_type_id must be specified.
-
+            instance. If encryption is None then volume_type must be
+            specified.
         :param volume_type: The value can be the ID of a type or a
-            :class:`~openstack.block_storage.v3.type.Type`
-            instance.  Required if encryption_id is None.
-
-        :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be
-            raised when the type does not exist.
-            When set to ``True``, no exception will be set when
-            attempting to delete a nonexistent type.
+            :class:`~openstack.block_storage.v3.type.Type` instance. Required
+            if encryption is None.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the type does not exist. When set to ``True``, no exception
+            will be set when attempting to delete a nonexistent type.
 
         :returns: ``None``
         """
-
         if volume_type:
-            volume_type = self._get_resource(_type.Type, volume_type)
+            volume_type_id = resource.Resource._get_id(volume_type)
             encryption = self._get(
                 _type.TypeEncryption,
-                volume_type_id=volume_type.id,
+                volume_type_id=volume_type_id,
                 requires_id=False,
             )
 
@@ -595,11 +597,11 @@ class Proxy(proxy.Proxy):
 
         :param encryption: The value can be None or a
             :class:`~openstack.block_storage.v3.type.TypeEncryption`
-            instance. If this is ``None`` then ``volume_type_id`` must be
+            instance. If this is ``None`` then ``volume_type`` must be
             specified.
         :param volume_type: The value can be the ID of a type or a
             :class:`~openstack.block_storage.v3.type.Type` instance.
-            Required if ``encryption_id`` is None.
+            Required if ``encryption`` is None.
         :param dict attrs: The attributes to update on the type encryption.
 
         :returns: The updated type encryption
@@ -607,10 +609,10 @@ class Proxy(proxy.Proxy):
         """
 
         if volume_type:
-            volume_type = self._get_resource(_type.Type, volume_type)
+            volume_type_id = resource.Resource._get_id(volume_type)
             encryption = self._get(
                 _type.TypeEncryption,
-                volume_type_id=volume_type.id,
+                volume_type_id=volume_type_id,
                 requires_id=False,
             )
 
@@ -1552,19 +1554,24 @@ class Proxy(proxy.Proxy):
             backup.delete_metadata(self)
 
     # ====== BACKUP ACTIONS ======
-    def restore_backup(self, backup, volume_id=None, name=None):
+
+    @renamed_param('volume_id', 'volume')
+    def restore_backup(self, backup, volume=None, name=None):
         """Restore a Backup to volume
 
         :param backup: The value can be the ID of a backup or a
             :class:`~openstack.block_storage.v3.backup.Backup` instance
-        :param volume_id: The ID of the volume to restore the backup to.
+        :param volume: An ID or
+            :class:`~openstack.volume.v3.volume.Volume` instance of the
+            volume to restore the backup to.
         :param name: The name for new volume creation to restore.
 
         :returns: Updated backup instance
-        :rtype: :class:`~openstack.block_storage.v3.backup.Backup`
         """
-        backup = self._get_resource(_backup.Backup, backup)
-        return backup.restore(self, volume_id=volume_id, name=name)
+        volume_id = resource.Resource._get_id(volume) if volume else None
+        return self._get_resource(_backup.Backup, backup).restore(
+            self, volume_id=volume_id, name=name
+        )
 
     def reset_backup_status(self, backup, status):
         """Reset status of the backup
@@ -1598,9 +1605,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.block_storage.v3.limits.RateLimit`
         :rtype: :class:`~openstack.block_storage.v3.limits.Limits`
         """
-        project_id = None
-        if project:
-            project_id = resource.Resource._get_id(project)
+        project_id = resource.Resource._get_id(project) if project else None
 
         # we don't use Proxy._get since that doesn't allow passing arbitrary
         # query string parameters
@@ -1625,17 +1630,26 @@ class Proxy(proxy.Proxy):
         return self._get(_capabilities.Capabilities, host)
 
     # ====== GROUPS ======
-    def get_group(self, group_id, **attrs):
+
+    # TODO(stephenfin): Remove **attrs in 5.0
+    @renamed_param('group_id', 'group')
+    def get_group(self, group, **attrs):
         """Get a group
 
-        :param group_id: The ID of the group to get.
-        :param dict attrs:  Optional query parameters to be sent to limit the
-            resources being returned.
+        :param group: The value can be the ID of a group or a
+            :class:`~openstack.block_storage.v3.group.Group` instance.
+        :param attrs: **DEPRECATED** Optional query parameters to be sent to
+            limit the resources being returned.
 
         :returns: A Group instance.
-        :rtype: :class:`~openstack.block_storage.v3.group`
         """
-        return self._get(_group.Group, group_id, **attrs)
+        if attrs:
+            warnings.warn(
+                'Passing kwargs to get_group is deprecated and will be '
+                'removed in a future release',
+                os_warnings.RemovedInSDK50Warning,
+            )
+        return self._get(_group.Group, group, **attrs)
 
     @overload
     def find_group(
@@ -1838,15 +1852,18 @@ class Proxy(proxy.Proxy):
         return self._list(availability_zone.AvailabilityZone)
 
     # ====== GROUP SNAPSHOT ======
-    def get_group_snapshot(self, group_snapshot_id):
+
+    @renamed_param('group_snapshot_id', 'group_snapshot')
+    def get_group_snapshot(self, group_snapshot):
         """Get a group snapshot
 
-        :param group_snapshot_id: The ID of the group snapshot to get.
+        :param group_snapshot: The value can be the ID of a group snapshot or a
+            :class:`~openstack.block_storage.v3.group_snapshot.GroupSnapshot`
+            instance.
 
         :returns: A GroupSnapshot instance.
-        :rtype: :class:`~openstack.block_storage.v3.group_snapshot`
         """
-        return self._get(_group_snapshot.GroupSnapshot, group_snapshot_id)
+        return self._get(_group_snapshot.GroupSnapshot, group_snapshot)
 
     @overload
     def find_group_snapshot(
@@ -2200,9 +2217,9 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        project = self._get_resource(_project.Project, project)
+        project_id = resource.Resource._get_id(project)
         res = self._get_resource(
-            _quota_set.QuotaSet, None, project_id=project.id
+            _quota_set.QuotaSet, None, project_id=project_id
         )
         return res.fetch(self, usage=usage, **query)
 
@@ -2217,12 +2234,12 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        project = self._get_resource(_project.Project, project)
+        project_id = resource.Resource._get_id(project)
         res = self._get_resource(
-            _quota_set.QuotaSet, None, project_id=project.id
+            _quota_set.QuotaSet, None, project_id=project_id
         )
         return res.fetch(
-            self, base_path=(f'/os-quota-sets/{project.id}/defaults')
+            self, base_path=(f'/os-quota-sets/{project_id}/defaults')
         )
 
     def revert_quota_set(self, project, **query):
@@ -2235,9 +2252,9 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        project = self._get_resource(_project.Project, project)
+        project_id = resource.Resource._get_id(project)
         res = self._get_resource(
-            _quota_set.QuotaSet, None, project_id=project.id
+            _quota_set.QuotaSet, None, project_id=project_id
         )
 
         return res.delete(self, **query)
@@ -2590,18 +2607,18 @@ class Proxy(proxy.Proxy):
             base_path = utils.urljoin(base_path, 'detail')
         return self._list(_transfer.Transfer, base_path=base_path, **query)
 
-    def accept_transfer(self, transfer_id, auth_key):
+    @renamed_param('transfer_id', 'transfer')
+    def accept_transfer(self, transfer, auth_key):
         """Accept a Transfer
 
-        :param transfer_id: The value can be the ID of a transfer or a
+        :param transfer: The value can be the ID of a transfer or a
             :class:`~openstack.block_storage.v3.transfer.Transfer`
             instance.
         :param auth_key: The key to authenticate volume transfer.
 
         :returns: The results of Transfer creation
-        :rtype: :class:`~openstack.block_storage.v3.transfer.Transfer`
         """
-        transfer = self._get_resource(_transfer.Transfer, transfer_id)
+        transfer = self._get_resource(_transfer.Transfer, transfer)
         return transfer.accept(self, auth_key=auth_key)
 
     # ====== UTILS ======

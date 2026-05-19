@@ -14,6 +14,7 @@ from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable
 import warnings
 
+from openstack._utils import renamed_param
 import openstack.exceptions as exception
 from openstack.identity.v3 import (
     application_credential as _application_credential,
@@ -2206,49 +2207,43 @@ class Proxy(proxy.Proxy):
 
     # ========== Federation protocols ==========
 
+    @renamed_param('idp_id', 'idp')
     def create_federation_protocol(
-        self,
-        idp_id: str | _identity_provider.IdentityProvider,
-        **attrs: Any,
+        self, idp: str | _identity_provider.IdentityProvider, **attrs: Any
     ) -> _federation_protocol.FederationProtocol:
         """Create a new federation protocol from attributes
 
-        :param idp_id: The ID of the identity provider or a
+        :param idp: The ID or a
             :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
-            representing the identity provider the protocol is to be
-            attached to.
-        :param dict attrs: Keyword arguments which will be used to create a
+            instance of the identity provider the protocol is to be attached
+            to.
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`,
             comprised of the properties on the
             FederationProtocol class.
 
         :returns: The results of federation protocol creation
-        :rtype:
-            :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
         """
-
-        idp_cls = _identity_provider.IdentityProvider
-        if isinstance(idp_id, idp_cls):
-            idp_id = idp_id.id
         return self._create(
-            _federation_protocol.FederationProtocol, idp_id=idp_id, **attrs
+            _federation_protocol.FederationProtocol,
+            idp_id=resource.Resource._get_id(idp),
+            **attrs,
         )
 
-    def delete_federation_protocol(
-        self, idp_id, protocol, ignore_missing=True
-    ):
+    @renamed_param('idp_id', 'idp')
+    def delete_federation_protocol(self, idp, protocol, ignore_missing=True):
         """Delete a federation protocol
 
-        :param idp_id: The ID of the identity provider or a
+        :param idp: The ID or a
             :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
-            representing the identity provider the protocol is attached to.
-            Can be None if protocol is a
+            instance of the identity provider the protocol is attached to. Can
+            be None if protocol is a
             :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
             instance.
         :param protocol: The ID of a federation protocol or a
             :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
             instance.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the federation protocol does not exist.  When set to
             ``True``, no exception will be set when attempting to delete a
@@ -2257,11 +2252,10 @@ class Proxy(proxy.Proxy):
         :returns: ``None``
         """
         cls = _federation_protocol.FederationProtocol
-        if idp_id is None and isinstance(protocol, cls):
+        if idp is None and isinstance(protocol, cls):
             idp_id = protocol.idp_id
-        idp_cls = _identity_provider.IdentityProvider
-        if isinstance(idp_id, idp_cls):
-            idp_id = idp_id.id
+        else:
+            idp_id = resource.Resource._get_id(idp)
         self._delete(
             cls, protocol, ignore_missing=ignore_missing, idp_id=idp_id
         )
@@ -2269,7 +2263,7 @@ class Proxy(proxy.Proxy):
     @overload
     def find_federation_protocol(
         self,
-        idp_id: str | _identity_provider.IdentityProvider,
+        idp: str | _identity_provider.IdentityProvider,
         protocol: str,
         ignore_missing: Literal[False],
     ) -> _federation_protocol.FederationProtocol: ...
@@ -2277,95 +2271,90 @@ class Proxy(proxy.Proxy):
     @overload
     def find_federation_protocol(
         self,
-        idp_id: str | _identity_provider.IdentityProvider,
+        idp: str | _identity_provider.IdentityProvider,
         protocol: str,
         ignore_missing: bool = True,
     ) -> _federation_protocol.FederationProtocol | None: ...
 
+    @renamed_param('idp_id', 'idp')
     def find_federation_protocol(
         self,
-        idp_id: str | _identity_provider.IdentityProvider,
+        idp: str | _identity_provider.IdentityProvider,
         protocol: str,
         ignore_missing: bool = True,
     ) -> _federation_protocol.FederationProtocol | None:
         """Find a single federation protocol
 
-        :param idp_id: The ID of the identity provider or a
+        :param idp: The ID or a
             :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
-            representing the identity provider the protocol is attached to.
+            instance of the identity provider the protocol is attached to.
         :param protocol: The name or ID of a federation protocol.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the resource does not exist.  When set to ``True``, None will
             be returned when attempting to find a nonexistent resource.
         :returns: One federation protocol or None
-        :rtype:
-            :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
         """
-        idp_cls = _identity_provider.IdentityProvider
-        if isinstance(idp_id, idp_cls):
-            idp_id = idp_id.id
         return self._find(
             _federation_protocol.FederationProtocol,
             protocol,
             ignore_missing=ignore_missing,
-            idp_id=idp_id,
+            idp_id=resource.Resource._get_id(idp),
         )
 
-    def get_federation_protocol(self, idp_id, protocol):
+    @renamed_param('idp_id', 'idp')
+    def get_federation_protocol(self, idp, protocol):
         """Get a single federation protocol
 
-        :param idp_id: The ID of the identity provider or a
+        :param idp: The ID or a
             :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
-            representing the identity provider the protocol is attached to.
-            Can be None if protocol is a
+            instance of the identity provider the protocol is attached to. Can
+            be None if protocol is a
             :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
+            instance.
         :param protocol: The value can be the ID of a federation protocol or a
             :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
             instance.
 
         :returns: One federation protocol
-        :rtype:
-            :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         cls = _federation_protocol.FederationProtocol
-        if idp_id is None and isinstance(protocol, cls):
+        if idp is None and isinstance(protocol, cls):
             idp_id = protocol.idp_id
-        idp_cls = _identity_provider.IdentityProvider
-        if isinstance(idp_id, idp_cls):
-            idp_id = idp_id.id
+        else:
+            idp_id = resource.Resource._get_id(idp)
         return self._get(cls, protocol, idp_id=idp_id)
 
-    def federation_protocols(self, idp_id, **query):
+    @renamed_param('idp_id', 'idp')
+    def federation_protocols(self, idp, **query):
         """Retrieve a generator of federation protocols
 
-        :param idp_id: The ID of the identity provider or a
+        :param idp: The ID or a
             :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
-            representing the identity provider the protocol is attached to.
-        :param kwargs query: Optional query parameters to be sent to limit
+            instance of the identity provider the protocol is attached to.
+        :param query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of federation protocol instances.
-        :rtype:
-            :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
         """
-        idp_cls = _identity_provider.IdentityProvider
-        if isinstance(idp_id, idp_cls):
-            idp_id = idp_id.id
         return self._list(
-            _federation_protocol.FederationProtocol, idp_id=idp_id, **query
+            _federation_protocol.FederationProtocol,
+            idp_id=resource.Resource._get_id(idp),
+            **query,
         )
 
-    def update_federation_protocol(self, idp_id, protocol, **attrs):
+    @renamed_param('idp_id', 'idp')
+    def update_federation_protocol(self, idp, protocol, **attrs):
         """Update a federation protocol
 
-        :param idp_id: The ID of the identity provider or a
+        :param idp: The ID or a
             :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
-            representing the identity provider the protocol is attached to.
-            Can be None if protocol is a
+            instance of the identity provider the protocol is attached to. Can
+            be None if protocol is a
             :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
+            instance.
         :param protocol: Either the ID of a federation protocol or a
             :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
             instance.
@@ -2373,15 +2362,12 @@ class Proxy(proxy.Proxy):
             represented by ``protocol``.
 
         :returns: The updated federation protocol
-        :rtype:
-            :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
         """
         cls = _federation_protocol.FederationProtocol
-        if (idp_id is None) and (isinstance(protocol, cls)):
+        if idp is None and isinstance(protocol, cls):
             idp_id = protocol.idp_id
-        idp_cls = _identity_provider.IdentityProvider
-        if isinstance(idp_id, idp_cls):
-            idp_id = idp_id.id
+        else:
+            idp_id = resource.Resource._get_id(idp)
         return self._update(cls, protocol, idp_id=idp_id, **attrs)
 
     # ========== Mappings ==========

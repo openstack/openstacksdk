@@ -15,6 +15,7 @@
 from typing import Any, ClassVar, Literal
 from collections.abc import Callable
 
+from openstack._utils import renamed_param
 from openstack import exceptions
 from openstack.instance_ha.v1 import host as _host
 from openstack.instance_ha.v1 import notification as _notification
@@ -47,10 +48,10 @@ class Proxy(proxy.Proxy):
         """Get a single notification.
 
         :param notification: The value can be the ID of a notification or a
-            :class:`~masakariclient.sdk.ha.v1.notification.Notification`
+            :class:`~openstack.instance_ha.v1.notification.Notification`
             instance.
         :returns: One
-            :class:`~masakariclient.sdk.ha.v1.notification.Notification`
+            :class:`~openstack.instance_ha.v1.notification.Notification`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
@@ -60,10 +61,10 @@ class Proxy(proxy.Proxy):
         """Create a new notification.
 
         :param dict attrs: Keyword arguments which will be used to create
-            a :class:`masakariclient.sdk.ha.v1.notification.Notification`,
+            a :class:`openstack.instance_ha.v1.notification.Notification`,
             comprised of the propoerties on the Notification class.
         :returns: The result of notification creation
-        :rtype: :class:`masakariclient.sdk.ha.v1.notification.Notification`
+        :rtype: :class:`openstack.instance_ha.v1.notification.Notification`
         """
         return self._create(_notification.Notification, **attrs)
 
@@ -80,8 +81,8 @@ class Proxy(proxy.Proxy):
         """Get a single segment.
 
         :param segment: The value can be the ID of a segment or a
-            :class:`~masakariclient.sdk.ha.v1.segment.Segment` instance.
-        :returns: One :class:`~masakariclient.sdk.ha.v1.segment.Segment`
+            :class:`~openstack.instance_ha.v1.segment.Segment` instance.
+        :returns: One :class:`~openstack.instance_ha.v1.segment.Segment`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
@@ -91,10 +92,10 @@ class Proxy(proxy.Proxy):
         """Create a new segment.
 
         :param dict attrs: Keyword arguments which will be used to create
-            a :class:`masakariclient.sdk.ha.v1.segment.Segment`,
+            a :class:`openstack.instance_ha.v1.segment.Segment`,
             comprised of the propoerties on the Segment class.
         :returns: The result of segment creation
-        :rtype: :class:`masakariclient.sdk.ha.v1.segment.Segment`
+        :rtype: :class:`openstack.instance_ha.v1.segment.Segment`
         """
         return self._create(_segment.Segment, **attrs)
 
@@ -102,12 +103,12 @@ class Proxy(proxy.Proxy):
         """Update a segment.
 
         :param segment: The value can be the ID of a segment or a
-            :class:`~masakariclient.sdk.ha.v1.segment.Segment` instance.
+            :class:`~openstack.instance_ha.v1.segment.Segment` instance.
         :param dict attrs: Keyword arguments which will be used to update
-            a :class:`masakariclient.sdk.ha.v1.segment.Segment`,
+            a :class:`openstack.instance_ha.v1.segment.Segment`,
             comprised of the propoerties on the Segment class.
         :returns: The updated segment.
-        :rtype: :class:`masakariclient.sdk.ha.v1.segment.Segment`
+        :rtype: :class:`openstack.instance_ha.v1.segment.Segment`
         """
         return self._update(_segment.Segment, segment, **attrs)
 
@@ -116,7 +117,7 @@ class Proxy(proxy.Proxy):
 
         :param segment:
             The value can be either the ID of a segment or a
-            :class:`~masakariclient.sdk.ha.v1.segment.Segment` instance.
+            :class:`~openstack.instance_ha.v1.segment.Segment` instance.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the segment does not exist.
@@ -128,78 +129,102 @@ class Proxy(proxy.Proxy):
             _segment.Segment, segment, ignore_missing=ignore_missing
         )
 
-    def hosts(self, segment_id, **query):
+    @renamed_param('segment_id', 'segment')
+    def hosts(self, segment, **query):
         """Return a generator of hosts.
 
-        :param segment_id: The ID of a failover segment.
-        :param kwargs query: Optional query parameters to be sent to
+        :param segment: The ID or a
+            :class:`~openstack.instance_ha.v1.segment.Segment` instance of
+            the failover segment.
+        :param query: Optional query parameters to be sent to
             limit the hosts being returned.
 
         :returns: A generator of hosts
         """
-        return self._list(_host.Host, segment_id=segment_id, **query)
+        return self._list(
+            _host.Host, segment_id=resource.Resource._get_id(segment), **query
+        )
 
+    @renamed_param('segment_id', 'segment')
     def create_host(
-        self,
-        segment_id: str,
-        **attrs: Any,
+        self, segment: str | _segment.Segment, **attrs: Any
     ) -> _host.Host:
         """Create a new host.
 
-        :param segment_id: The ID of a failover segment.
-        :param dict attrs: Keyword arguments which will be used to create
-            a :class:`masakariclient.sdk.ha.v1.host.Host`,
+        :param segment: The ID or a
+            :class:`~openstack.instance_ha.v1.segment.Segment` instance of
+            the failover segment.
+        :param attrs: Keyword arguments which will be used to create
+            a :class:`openstack.instance_ha.v1.host.Host`,
             comprised of the propoerties on the Host class.
 
         :returns: The results of host creation
         """
-        return self._create(_host.Host, segment_id=segment_id, **attrs)
+        return self._create(
+            _host.Host, segment_id=resource.Resource._get_id(segment), **attrs
+        )
 
-    def get_host(self, host, segment_id=None):
+    @renamed_param('segment_id', 'segment')
+    def get_host(self, host, segment=None):
         """Get a single host.
 
-        :param segment_id: The ID of a failover segment.
+        :param segment: The ID or a
+            :class:`~openstack.instance_ha.v1.segment.Segment` instance of
+            the failover segment.
         :param host: The value can be the ID of a host or a :class:
-            `~masakariclient.sdk.ha.v1.host.Host` instance.
+            `~openstack.instance_ha.v1.host.Host` instance.
 
-        :returns: One :class:`~masakariclient.sdk.ha.v1.host.Host`
+        :returns: One :class:`~openstack.instance_ha.v1.host.Host`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.InvalidRequest`
-            when segment_id is None.
+            when segment is None.
         """
-        if segment_id is None:
-            raise exceptions.InvalidRequest("'segment_id' must be specified.")
+        if segment is None:
+            raise exceptions.InvalidRequest("'segment' must be specified.")
 
         host_id = resource.Resource._get_id(host)
-        return self._get(_host.Host, host_id, segment_id=segment_id)
+        return self._get(
+            _host.Host,
+            host_id,
+            segment_id=resource.Resource._get_id(segment),
+        )
 
-    def update_host(self, host, segment_id, **attrs):
+    @renamed_param('segment_id', 'segment')
+    def update_host(self, host, segment, **attrs):
         """Update the host.
 
-        :param segment_id: The ID of a failover segment.
-        :param host: The value can be the ID of a host or a :class:
-            `~masakariclient.sdk.ha.v1.host.Host` instance.
-        :param dict attrs: The attributes to update on the host represented.
+        :param segment: The ID or a
+            :class:`~openstack.instance_ha.v1.segment.Segment` instance of
+            the failover segment.
+        :param host: The value can be the ID of a host or a
+            :class:`~openstack.instance_ha.v1.host.Host` instance.
+        :param attrs: The attributes to update on the host represented.
 
         :returns: The updated host
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.InvalidRequest`
-            when segment_id is None.
+            when segment is None.
         """
         host_id = resource.Resource._get_id(host)
         return self._update(
-            _host.Host, host_id, segment_id=segment_id, **attrs
+            _host.Host,
+            host_id,
+            segment_id=resource.Resource._get_id(segment),
+            **attrs,
         )
 
-    def delete_host(self, host, segment_id=None, ignore_missing=True):
+    @renamed_param('segment_id', 'segment')
+    def delete_host(self, host, segment=None, ignore_missing=True):
         """Delete the host.
 
-        :param segment_id: The ID of a failover segment.
+        :param segment: The ID or a
+            :class:`~openstack.instance_ha.v1.segment.Segment` instance of
+            the failover segment.
         :param host: The value can be the ID of a host or a :class:
-            `~masakariclient.sdk.ha.v1.host.Host` instance.
-        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.instance_ha.v1.host.Host` instance.
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be
             raised when the host does not exist.
             When set to ``True``, no exception will be set when
@@ -209,17 +234,17 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.InvalidRequest`
-            when segment_id is None.
+            when segment is None.
 
         """
-        if segment_id is None:
-            raise exceptions.InvalidRequest("'segment_id' must be specified.")
+        if segment is None:
+            raise exceptions.InvalidRequest("'segment' must be specified.")
 
         host_id = resource.Resource._get_id(host)
         return self._delete(
             _host.Host,
             host_id,
-            segment_id=segment_id,
+            segment_id=resource.Resource._get_id(segment),
             ignore_missing=ignore_missing,
         )
 
@@ -227,7 +252,7 @@ class Proxy(proxy.Proxy):
         """Return a generator of vmoves.
 
         :param notification: The value can be the UUID of a notification or
-            a :class: `~masakariclient.sdk.ha.v1.notification.Notification`
+            :class:`~openstack.instance_ha.v1.notification.Notification`
             instance.
         :param kwargs query: Optional query parameters to be sent to
             limit the vmoves being returned.
@@ -245,9 +270,9 @@ class Proxy(proxy.Proxy):
         """Get a single vmove.
 
         :param vmove: The value can be the UUID of one vmove or
-            a :class: `~masakariclient.sdk.ha.v1.vmove.VMove` instance.
+            a :class:`~openstack.instance_ha.v1.vmove.VMove` instance.
         :param notification: The value can be the UUID of a notification or
-            a :class: `~masakariclient.sdk.ha.v1.notification.Notification`
+            a :class:`~openstack.instance_ha.v1.notification.Notification`
             instance.
         :returns: one 'VMove' resource class.
         :raises: :class:`~openstack.exceptions.NotFoundException`

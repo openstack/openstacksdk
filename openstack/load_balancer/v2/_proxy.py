@@ -13,6 +13,7 @@
 from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable
 
+from openstack._utils import renamed_param
 from openstack.load_balancer.v2 import amphora as _amphora
 from openstack.load_balancer.v2 import availability_zone as _availability_zone
 from openstack.load_balancer.v2 import (
@@ -1235,26 +1236,28 @@ class Proxy(proxy.Proxy):
     @overload
     def find_amphora(
         self,
-        amphora_id: str,
+        amphora: str,
         ignore_missing: Literal[False],
     ) -> _amphora.Amphora: ...
 
     @overload
     def find_amphora(
         self,
-        amphora_id: str,
+        amphora: str,
         ignore_missing: bool = True,
     ) -> _amphora.Amphora | None: ...
 
+    @renamed_param('amphora_id', 'amphora')
     def find_amphora(
         self,
-        amphora_id: str,
+        amphora: str,
         ignore_missing: bool = True,
     ) -> _amphora.Amphora | None:
         """Find a single amphora
 
-        :param amphora_id: The ID of a amphora
-        :param bool ignore_missing: When set to ``False``
+        :param amphora: The ID or a
+            :class:`~openstack.load_balancer.v2.amphora.Amphora` instance.
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the amphora does not exist.
             When set to ``True``, no exception will be set when attempting
@@ -1263,27 +1266,31 @@ class Proxy(proxy.Proxy):
         :returns: ``None``
         """
         return self._find(
-            _amphora.Amphora, amphora_id, ignore_missing=ignore_missing
+            _amphora.Amphora, amphora, ignore_missing=ignore_missing
         )
 
-    def configure_amphora(self, amphora_id):
+    @renamed_param('amphora_id', 'amphora')
+    def configure_amphora(self, amphora):
         """Update the configuration of an amphora agent
 
-        :param amphora_id: The ID of an amphora
+        :param amphora: The ID or a
+            :class:`~openstack.load_balancer.v2.amphora.Amphora` instance.
 
         :returns: ``None``
         """
-        lb = self._get_resource(_amphora.Amphora, amphora_id)
+        lb = self._get_resource(_amphora.Amphora, amphora)
         lb.configure(self)
 
-    def failover_amphora(self, amphora_id):
+    @renamed_param('amphora_id', 'amphora')
+    def failover_amphora(self, amphora):
         """Failover an amphora
 
-        :param amphora_id: The ID of an amphora
+        :param amphora: The ID or a
+            :class:`~openstack.load_balancer.v2.amphora.Amphora` instance.
 
         :returns: ``None``
         """
-        lb = self._get_resource(_amphora.Amphora, amphora_id)
+        lb = self._get_resource(_amphora.Amphora, amphora)
         lb.failover(self)
 
     def create_availability_zone_profile(
@@ -1291,14 +1298,12 @@ class Proxy(proxy.Proxy):
     ) -> _availability_zone_profile.AvailabilityZoneProfile:
         """Create a new availability zone profile from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.load_balancer.v2.availability_zone_profile.AvailabilityZoneProfile`
             comprised of the properties on the AvailabilityZoneProfile
             class.
 
         :returns: The results of profile creation
-        :rtype:
-            :class:`~openstack.load_balancer.v2.availability_zone_profile.AvailabilityZoneProfile`
         """
         return self._create(
             _availability_zone_profile.AvailabilityZoneProfile, **attrs

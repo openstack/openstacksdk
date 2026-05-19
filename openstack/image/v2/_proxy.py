@@ -16,6 +16,7 @@ import time
 from typing import Any, ClassVar, Literal, overload
 import warnings
 
+from openstack._utils import renamed_param
 from openstack import exceptions
 from openstack.image.v2 import cache as _cache
 from openstack.image.v2 import image as _image
@@ -99,10 +100,11 @@ class Proxy(proxy.Proxy):
         """
         return self._delete(_cache.Cache, image, ignore_missing=ignore_missing)
 
-    def queue_image(self, image_id):
+    @renamed_param('image_id', 'image')
+    def queue_image(self, image):
         """Queue image(s) for caching."""
         cache = self._get_resource(_cache.Cache, None)
-        return cache.queue(self, image_id)
+        return cache.queue(self, resource.Resource._get_id(image))
 
     def clear_cache(self, target='both'):
         """Clear all images from cache, queue or both
