@@ -10,4 +10,3 @@ pbr!=2.1.0,>=2.0.0 # Apache-2.0
 platformdirs>=3 # MIT License
 psutil>=3.2.2 # BSD
 PyYAML>=3.13 # MIT
-typing-extensions>=4.12.0 # PSF

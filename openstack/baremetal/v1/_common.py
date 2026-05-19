@@ -10,8 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, Literal, overload
-from typing_extensions import Self
+from typing import Any, Literal, Self, overload
 
 from keystoneauth1 import adapter
 

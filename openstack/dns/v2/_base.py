@@ -10,12 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, Literal, overload
+from typing import Any, Literal, Self, overload
 from collections.abc import Generator
 import urllib.parse
 
 from keystoneauth1 import adapter
-from typing_extensions import Self
 
 from openstack import exceptions
 from openstack import resource

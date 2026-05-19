@@ -50,7 +50,9 @@ from typing import (
     Any,
     Literal,
     NoReturn,
+    NotRequired,
     Protocol,
+    Self,
     TypeVar,
     TypedDict,
     Union,
@@ -64,7 +66,6 @@ import jsonpatch
 from keystoneauth1 import adapter
 from keystoneauth1 import discover
 import requests
-from typing_extensions import NotRequired, Self
 
 from openstack import _log
 from openstack import exceptions

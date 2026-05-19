@@ -279,11 +279,10 @@ import argparse
 import concurrent.futures
 import copy
 import importlib.metadata as importlib_metadata
-from typing import Any, Optional, TYPE_CHECKING, cast
+from typing import Any, Optional, Self, TYPE_CHECKING, cast
 
 import keystoneauth1.exceptions
 from keystoneauth1 import session as ks_session
-from typing_extensions import Self
 
 from openstack import _log
 from openstack.cloud import _accelerator

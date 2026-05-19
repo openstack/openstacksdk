@@ -1640,7 +1640,7 @@ class TestCompute(TestComputeProxy):
         self.verify_list(self.proxy.usages, usage.Usage)
 
     def test_usages__with_kwargs(self):
-        now = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+        now = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
         start = now - datetime.timedelta(weeks=4)
         end = end = now + datetime.timedelta(days=1)
         self.verify_list(
@@ -1664,7 +1664,7 @@ class TestCompute(TestComputeProxy):
         )
 
     def test_get_usage__with_kwargs(self):
-        now = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+        now = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
         start = now - datetime.timedelta(weeks=4)
         end = end = now + datetime.timedelta(days=1)
         self._verify(
