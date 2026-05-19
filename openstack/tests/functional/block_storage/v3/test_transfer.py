@@ -55,6 +55,6 @@ class TestTransfer(base.BaseBlockStorageTest):
         self.assertIn('name', sot)
         self.assertIn('volume_id', sot)
 
-        sot = self.user_cloud.block_storage.delete_transfer(
+        self.user_cloud.block_storage.delete_transfer(
             sot.id, ignore_missing=False
         )

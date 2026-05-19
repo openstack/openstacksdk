@@ -22,12 +22,12 @@ class TestNDPProxy(base.BaseFunctionalTest):
     IPV6 = 6
     EXT_CIDR = "2002::1:0/112"
     INT_CIDR = "2002::2:0/112"
-    EXT_NET_ID = None
-    INT_NET_ID = None
-    EXT_SUB_ID = None
-    INT_SUB_ID = None
-    ROT_ID = None
-    INTERNAL_PORT_ID = None
+    EXT_NET_ID: str
+    INT_NET_ID: str
+    EXT_SUB_ID: str
+    INT_SUB_ID: str
+    ROT_ID: str
+    INTERNAL_PORT_ID: str
 
     def setUp(self):
         super().setUp()

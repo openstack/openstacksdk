@@ -32,10 +32,12 @@ class ShareInstanceTest(base.BaseSharedFileSystemTest):
         )
         self.SHARE_ID = my_share.id
         instances_list = self.operator_cloud.share.share_instances()
-        self.SHARE_INSTANCE_ID = None
         for i in instances_list:
             if i.share_id == self.SHARE_ID:
                 self.SHARE_INSTANCE_ID = i.id
+                break
+        else:
+            raise self.fail('could not find instance ID for share')
 
     def test_get(self):
         sot = self.operator_cloud.share.get_share_instance(

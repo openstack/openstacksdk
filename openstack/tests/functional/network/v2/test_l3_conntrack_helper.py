@@ -20,8 +20,7 @@ class TestL3ConntrackHelper(base.BaseFunctionalTest):
     PROTOCOL = "udp"
     HELPER = "tftp"
     PORT = 69
-
-    ROT_ID = None
+    ROT_ID: str
 
     def setUp(self):
         super().setUp()

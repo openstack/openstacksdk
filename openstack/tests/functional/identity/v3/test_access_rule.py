@@ -21,7 +21,10 @@ class TestAccessRule(base.BaseIdentityTest):
         if not self.operator_cloud:
             self.skipTest("Operator cloud is required for this test")
 
-        self.user_id = self.operator_cloud.current_user_id
+        user_id = self.operator_cloud.current_user_id
+        self.assertIsNotNone(user_id)
+        assert user_id is not None
+        self.user_id = user_id
 
     def _create_application_credential_with_access_rule(self):
         """create application credential with access_rule."""

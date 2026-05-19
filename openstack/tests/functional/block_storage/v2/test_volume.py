@@ -22,7 +22,6 @@ class TestVolume(base.BaseBlockStorageTest):
             self.skipTest('block-storage service not supported by cloud')
 
         self.VOLUME_NAME = self.getUniqueString()
-        self.VOLUME_ID = None
 
         volume = self.user_cloud.block_storage.create_volume(
             name=self.VOLUME_NAME, size=1

@@ -26,9 +26,9 @@ class TestSubnetFromSubnetPool(base.BaseFunctionalTest):
     SUBNET_PREFIX_LENGTH = 28
     IP_VERSION = 4
     PREFIXES = ["10.100.0.0/24"]
-    NET_ID = None
-    SUB_ID = None
-    SUB_POOL_ID = None
+    NET_ID: str
+    SUB_ID: str
+    SUB_POOL_ID: str
 
     def setUp(self):
         super().setUp()

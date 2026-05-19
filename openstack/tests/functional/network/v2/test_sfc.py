@@ -18,7 +18,7 @@ from openstack.tests.functional import base
 
 
 class TestSFCFlowClassifier(base.BaseFunctionalTest):
-    FC_ID = None
+    FC_ID: str
 
     def setUp(self):
         super().setUp()

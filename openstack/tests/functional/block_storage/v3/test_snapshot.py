@@ -21,9 +21,7 @@ class TestSnapshot(base.BaseBlockStorageTest):
         super().setUp()
 
         self.SNAPSHOT_NAME = self.getUniqueString()
-        self.SNAPSHOT_ID = None
         self.VOLUME_NAME = self.getUniqueString()
-        self.VOLUME_ID = None
 
         volume = self.user_cloud.block_storage.create_volume(
             name=self.VOLUME_NAME, size=1

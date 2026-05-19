@@ -16,7 +16,7 @@ from openstack.tests.functional.network.v2 import common
 
 
 class TestSubnetPool(common.TestTagNeutron):
-    SUBNET_POOL_ID = None
+    SUBNET_POOL_ID: str
     MINIMUM_PREFIX_LENGTH = 8
     DEFAULT_PREFIX_LENGTH = 24
     MAXIMUM_PREFIX_LENGTH = 32
