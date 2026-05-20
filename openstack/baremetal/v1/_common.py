@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from collections.abc import Generator, Iterable
 from typing import Any, Literal, Self, overload
 
 from keystoneauth1 import adapter
@@ -133,35 +134,34 @@ class Resource(resource.Resource):
     @classmethod
     def list(
         cls,
-        session,
-        paginated=True,
-        base_path=None,
-        allow_unknown_params=False,
+        session: adapter.Adapter,
+        paginated: bool = True,
+        base_path: str | None = None,
+        allow_unknown_params: bool = False,
         *,
-        microversion=None,
-        details=False,
-        **params,
-    ):
+        microversion: str | None = None,
+        details: bool = False,
+        **params: Any,
+    ) -> Generator[Self, None, None]:
         """This method is a generator which yields resource objects.
 
         This resource object list generator handles pagination and takes query
         params for response filtering.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
-        :param bool paginated: ``True`` if a GET to this resource returns
+        :param paginated: ``True`` if a GET to this resource returns
             a paginated series of responses, or ``False`` if a GET returns only
             one page of data. **When paginated is False only one page of data
             will be returned regardless of the API's support of pagination.**
-        :param str base_path: Base part of the URI for listing resources, if
+        :param base_path: Base part of the URI for listing resources, if
             different from :data:`~openstack.resource.Resource.base_path`.
-        :param bool allow_unknown_params: ``True`` to accept, but discard
+        :param allow_unknown_params: ``True`` to accept, but discard
             unknown query parameters. This allows getting list of 'filters' and
             passing everything known to the server. ``False`` will result in
             validation exception when unknown query parameters are passed.
-        :param str microversion: API version to override the negotiated one.
-        :param bool details: Whether to return detailed resource records.
-        :param dict params: These keyword arguments are passed through the
+        :param microversion: API version to override the negotiated one.
+        :param details: Whether to return detailed resource records.
+        :param params: These keyword arguments are passed through the
             :meth:`~openstack.resource.QueryParamter._transpose` method
             to find if any of them match expected query parameters to be sent
             in the *params* argument to
@@ -239,18 +239,17 @@ class Resource(resource.Resource):
         """Find a resource by its name or id.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param name_or_id: This resource's identifier, if needed by
             the request. The default is ``None``.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
             the resource does not exist.  When set to ``True``, None will be
             returned when attempting to find a nonexistent resource.
-        :param str list_base_path: base_path to be used when need listing
+        :param list_base_path: base_path to be used when need listing
             resources.
-        :param str microversion: API version to override the negotiated one.
-        :param bool details: Whether to return detailed resource records.
-        :param dict params: Any additional parameters to be passed into
+        :param microversion: API version to override the negotiated one.
+        :param details: Whether to return detailed resource records.
+        :param params: Any additional parameters to be passed into
             underlying methods, such as to
             :meth:`~openstack.resource.Resource.existing` in order to pass on
             URI parameters.
@@ -278,14 +277,17 @@ class Resource(resource.Resource):
         )
 
 
-def comma_separated_list(value):
+def comma_separated_list(value: Iterable[str] | None) -> str | None:
     if value is None:
         return None
     else:
         return ','.join(value)
 
 
-def fields_type(value, resource_type):
+def fields_type(
+    value: Iterable[str] | None,
+    resource_type: type[resource.Resource],
+) -> str | None:
     if value is None:
         return None
 

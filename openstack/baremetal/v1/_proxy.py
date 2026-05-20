@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from collections.abc import Callable, Generator
+from collections.abc import Callable, Generator, Iterable
 from typing import Any, ClassVar, Literal, overload
 import warnings
 
@@ -57,7 +57,12 @@ class Proxy(proxy.Proxy):
         "inspection_rules": _inspectionrules.InspectionRule,
     }
 
-    def _get_with_fields(self, resource_type, value, fields=None):
+    def _get_with_fields(
+        self,
+        resource_type: type[resource.ResourceT],
+        value: resource.ResourceT | str,
+        fields: list[str] | None = None,
+    ) -> resource.ResourceT:
         """Fetch a bare metal resource.
 
         :param resource_type: The type of resource to get.
@@ -69,14 +74,14 @@ class Proxy(proxy.Proxy):
         :returns: The result of the ``fetch``
         """
         res = self._get_resource(resource_type, value)
-        kwargs = {}
+        err_msg = f"No {resource_type.__name__} found for {value}"
         if fields:
-            kwargs['fields'] = _common.fields_type(fields, resource_type)
-        return res.fetch(
-            self,
-            error_message=f"No {resource_type.__name__} found for {value}",
-            **kwargs,
-        )
+            return res.fetch(
+                self,
+                error_message=err_msg,
+                fields=_common.fields_type(fields, resource_type),
+            )
+        return res.fetch(self, error_message=err_msg)
 
     # ========== Chassis ==========
 
@@ -279,7 +284,9 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_driver.Driver, driver)
 
-    def list_driver_vendor_passthru(self, driver):
+    def list_driver_vendor_passthru(
+        self, driver: str | _driver.Driver
+    ) -> dict[str, object]:
         """Get driver's vendor_passthru methods.
 
         :param driver: The value can be the name of a driver or a
@@ -297,7 +304,7 @@ class Proxy(proxy.Proxy):
         driver: str | _driver.Driver,
         verb: str,
         method: str,
-        body: dict[str, Any] | None = None,
+        body: dict[str, object] | None = None,
     ) -> requests.Response:
         """Call driver's vendor_passthru method.
 
@@ -444,7 +451,7 @@ class Proxy(proxy.Proxy):
         """
         return self._get_with_fields(_node.Node, node, fields=fields)
 
-    def get_node_inventory(self, node: str | _node.Node) -> dict[str, Any]:
+    def get_node_inventory(self, node: str | _node.Node) -> dict[str, object]:
         """Get a specific node's hardware inventory.
 
         :param node: The value can be the name or ID of a node or a
@@ -455,7 +462,7 @@ class Proxy(proxy.Proxy):
             inventory could be found.
         """
         res = self._get_resource(_node.Node, node)
-        return res.get_node_inventory(self, node)
+        return res.get_node_inventory(self)
 
     def update_node(
         self,
@@ -515,15 +522,15 @@ class Proxy(proxy.Proxy):
 
     def set_node_provision_state(
         self,
-        node,
-        target,
-        config_drive=None,
-        clean_steps=None,
-        rescue_password=None,
-        wait=False,
-        timeout=None,
-        deploy_steps=None,
-    ):
+        node: str | _node.Node,
+        target: str,
+        config_drive: str | bytes | dict[str, object] | None = None,
+        clean_steps: list[dict[str, object]] | None = None,
+        rescue_password: str | None = None,
+        wait: bool = False,
+        timeout: float | None = None,
+        deploy_steps: list[dict[str, object]] | None = None,
+    ) -> _node.Node:
         """Run an action modifying node's provision state.
 
         This call is asynchronous, it will return success as soon as the Bare
@@ -566,7 +573,9 @@ class Proxy(proxy.Proxy):
             deploy_steps=deploy_steps,
         )
 
-    def get_node_boot_device(self, node: str | _node.Node) -> dict[str, Any]:
+    def get_node_boot_device(
+        self, node: str | _node.Node
+    ) -> dict[str, object]:
         """Get node boot device
 
         :param node: The value can be the name or ID of a node or a
@@ -576,7 +585,12 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.get_boot_device(self)
 
-    def set_node_boot_device(self, node, boot_device, persistent=False):
+    def set_node_boot_device(
+        self,
+        node: str | _node.Node,
+        boot_device: str,
+        persistent: bool = False,
+    ) -> None:
         """Set node boot device
 
         :param node: The value can be the name or ID of a node or a
@@ -591,7 +605,7 @@ class Proxy(proxy.Proxy):
 
     def get_node_supported_boot_devices(
         self, node: str | _node.Node
-    ) -> dict[str, Any]:
+    ) -> dict[str, object]:
         """Get supported boot devices for node
 
         :param node: The value can be the name or ID of a node or a
@@ -601,7 +615,7 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.get_supported_boot_devices(self)
 
-    def set_node_boot_mode(self, node, target):
+    def set_node_boot_mode(self, node: str | _node.Node, target: str) -> None:
         """Make a request to change node's boot mode
 
         :param node: The value can be the name or ID of a node or a
@@ -611,7 +625,9 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.set_boot_mode(self, target)
 
-    def set_node_secure_boot(self, node, target):
+    def set_node_secure_boot(
+        self, node: str | _node.Node, target: bool
+    ) -> None:
         """Make a request to change node's secure boot state
 
         :param node: The value can be the name or ID of a node or a
@@ -622,7 +638,7 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.set_secure_boot(self, target)
 
-    def inject_nmi_to_node(self, node):
+    def inject_nmi_to_node(self, node: str | _node.Node) -> None:
         """Inject NMI to node.
 
         Injects a non-maskable interrupt (NMI) message to the node. This is
@@ -639,12 +655,12 @@ class Proxy(proxy.Proxy):
 
     def wait_for_nodes_provision_state(
         self,
-        nodes,
-        expected_state,
-        timeout=None,
-        abort_on_failed_state=True,
-        fail=True,
-    ):
+        nodes: list[str | _node.Node],
+        expected_state: str,
+        timeout: float | None = None,
+        abort_on_failed_state: bool = True,
+        fail: bool = True,
+    ) -> list[_node.Node] | _node.WaitResult:
         """Wait for the nodes to reach the expected state.
 
         :param nodes: List of nodes - name, ID or
@@ -672,18 +688,20 @@ class Proxy(proxy.Proxy):
             n.id if isinstance(n, _node.Node) else n for n in nodes
         )
 
-        finished = []
-        failed = []
-        remaining = nodes
+        finished: list[_node.Node] = []
+        failed: list[_node.Node] = []
+        remaining: list[_node.Node] = []
+        # Use an Iterable so that list[Node] (from subsequent iterations) can
+        # be assigned back without a variance error on list[str | Node].
+        node_refs: Iterable[str | _node.Node] = nodes
         try:
             for count in utils.iterate_timeout(
                 timeout,
                 f"Timeout waiting for nodes {log_nodes} to reach "
                 f"target state '{expected_state}'",
             ):
-                nodes = [self.get_node(n) for n in remaining]
                 remaining = []
-                for n in nodes:
+                for n in [self.get_node(n) for n in node_refs]:
                     try:
                         if n._check_state_reached(
                             self, expected_state, abort_on_failed_state
@@ -697,6 +715,7 @@ class Proxy(proxy.Proxy):
                         else:
                             failed.append(n)
 
+                node_refs = remaining
                 if not remaining:
                     if fail:
                         return finished
@@ -717,7 +736,15 @@ class Proxy(proxy.Proxy):
             else:
                 return _node.WaitResult(finished, failed, remaining)
 
-    def set_node_power_state(self, node, target, wait=False, timeout=None):
+        assert False, "unreachable"
+
+    def set_node_power_state(
+        self,
+        node: str | _node.Node,
+        target: str | _node.PowerAction,
+        wait: bool = False,
+        timeout: float | None = None,
+    ) -> None:
         """Run an action modifying node's power state.
 
         This call is asynchronous, it will return success as soon as the Bare
@@ -737,7 +764,12 @@ class Proxy(proxy.Proxy):
             self, target, wait=wait, timeout=timeout
         )
 
-    def wait_for_node_power_state(self, node, expected_state, timeout=None):
+    def wait_for_node_power_state(
+        self,
+        node: str | _node.Node,
+        expected_state: str,
+        timeout: float | None = None,
+    ) -> _node.Node:
         """Wait for the node to reach the power state.
 
         :param node: The value can be the name or ID of a node or a
@@ -751,7 +783,11 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.wait_for_power_state(self, expected_state, timeout=timeout)
 
-    def wait_for_node_reservation(self, node, timeout=None):
+    def wait_for_node_reservation(
+        self,
+        node: str | _node.Node,
+        timeout: float | None = None,
+    ) -> _node.Node:
         """Wait for a lock on the node to be released.
 
         Bare metal nodes in ironic have a reservation lock that
@@ -777,7 +813,11 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.wait_for_reservation(self, timeout=timeout)
 
-    def validate_node(self, node, required=('boot', 'deploy', 'power')):
+    def validate_node(
+        self,
+        node: str | _node.Node,
+        required: tuple[str, ...] | list[str] = ('boot', 'deploy', 'power'),
+    ) -> dict[str, _node.ValidationResult]:
         """Validate required information on a node.
 
         :param node: The value can be either the name or ID of a node or
@@ -794,7 +834,9 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.validate(self, required=required)
 
-    def set_node_maintenance(self, node, reason=None):
+    def set_node_maintenance(
+        self, node: str | _node.Node, reason: str | None = None
+    ) -> _node.Node:
         """Enable maintenance mode on the node.
 
         :param node: The value can be either the name or ID of a node or
@@ -805,7 +847,7 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.set_maintenance(self, reason)
 
-    def unset_node_maintenance(self, node):
+    def unset_node_maintenance(self, node: str | _node.Node) -> _node.Node:
         """Disable maintenance mode on the node.
 
         :param node: The value can be either the name or ID of a node or
@@ -835,7 +877,7 @@ class Proxy(proxy.Proxy):
 
     # ========== Node actions ==========
 
-    def add_node_trait(self, node, trait):
+    def add_node_trait(self, node: str | _node.Node, trait: str) -> None:
         """Add a trait to a node.
 
         :param node: The value can be the name or ID of a node or a
@@ -846,7 +888,12 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.add_trait(self, trait)
 
-    def remove_node_trait(self, node, trait, ignore_missing=True):
+    def remove_node_trait(
+        self,
+        node: str | _node.Node,
+        trait: str,
+        ignore_missing: bool = True,
+    ) -> bool:
         """Remove a trait from a node.
 
         :param node: The value can be the name or ID of a node or a
@@ -862,7 +909,13 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.remove_trait(self, trait, ignore_missing=ignore_missing)
 
-    def call_node_vendor_passthru(self, node, verb, method, body=None):
+    def call_node_vendor_passthru(
+        self,
+        node: str | _node.Node,
+        verb: str,
+        method: str,
+        body: dict[str, object] | None = None,
+    ) -> requests.Response:
         """Calls vendor_passthru for a node.
 
         :param node: The value can be the name or ID of a node or a
@@ -875,7 +928,9 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.call_vendor_passthru(self, verb, method, body)
 
-    def list_node_vendor_passthru(self, node):
+    def list_node_vendor_passthru(
+        self, node: str | _node.Node
+    ) -> dict[str, object]:
         """Lists vendor_passthru for a node.
 
         :param node: The value can be the name or ID of a node or a
@@ -885,7 +940,7 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.list_vendor_passthru(self)
 
-    def get_node_console(self, node: str | _node.Node) -> dict[str, Any]:
+    def get_node_console(self, node: str | _node.Node) -> dict[str, object]:
         """Get the console for a node.
 
         :param node: The value can be the name or ID of a node or a
@@ -895,7 +950,7 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.get_console(self)
 
-    def enable_node_console(self, node):
+    def enable_node_console(self, node: str | _node.Node) -> None:
         """Enable the console for a node.
 
         :param node: The value can be the name or ID of a node or a
@@ -905,7 +960,7 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.set_console_mode(self, True)
 
-    def disable_node_console(self, node):
+    def disable_node_console(self, node: str | _node.Node) -> None:
         """Disable the console for a node.
 
         :param node: The value can be the name or ID of a node or a
@@ -915,7 +970,9 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.set_console_mode(self, False)
 
-    def set_node_traits(self, node, traits):
+    def set_node_traits(
+        self, node: str | _node.Node, traits: list[str]
+    ) -> None:
         """Set traits for a node.
 
         Removes any existing traits and adds the traits passed in to this
@@ -929,7 +986,9 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.set_traits(self, traits)
 
-    def list_node_firmware(self, node):
+    def list_node_firmware(
+        self, node: str | _node.Node
+    ) -> list[dict[str, object]]:
         """Lists firmware components for a node.
 
         :param node: The value can be the name or ID of a node or a
@@ -1286,12 +1345,12 @@ class Proxy(proxy.Proxy):
 
     def attach_vmedia_to_node(
         self,
-        node,
-        device_type,
-        image_url,
-        image_download_source=None,
-        retry_on_conflict=True,
-    ):
+        node: str | _node.Node,
+        device_type: str,
+        image_url: str,
+        image_download_source: str | None = None,
+        retry_on_conflict: bool = True,
+    ) -> None:
         """Attach virtual media device to a node.
 
         :param node: The value can be either the name or ID of a node or
@@ -1316,7 +1375,11 @@ class Proxy(proxy.Proxy):
             retry_on_conflict=retry_on_conflict,
         )
 
-    def detach_vmedia_from_node(self, node, device_types=None):
+    def detach_vmedia_from_node(
+        self,
+        node: str | _node.Node,
+        device_types: list[str] | None = None,
+    ) -> None:
         """Detach virtual media from the node.
 
         :param node: The value can be either the name or ID of a node or
@@ -1383,7 +1446,12 @@ class Proxy(proxy.Proxy):
             port_group_id=port_group_id,
         )
 
-    def detach_vif_from_node(self, node, vif_id, ignore_missing=True):
+    def detach_vif_from_node(
+        self,
+        node: str | _node.Node,
+        vif_id: str,
+        ignore_missing: bool = True,
+    ) -> bool:
         """Detach a VIF from the node.
 
         The exact form of the VIF ID depends on the network interface used by
@@ -1404,7 +1472,7 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.detach_vif(self, vif_id, ignore_missing=ignore_missing)
 
-    def list_node_vifs(self, node):
+    def list_node_vifs(self, node: str | _node.Node) -> list[str]:
         """List IDs of VIFs attached to the node.
 
         The exact form of the VIF ID depends on the network interface used by
@@ -1537,8 +1605,11 @@ class Proxy(proxy.Proxy):
         )
 
     def wait_for_allocation(
-        self, allocation, timeout=None, ignore_error=False
-    ):
+        self,
+        allocation: str | _allocation.Allocation,
+        timeout: float | None = None,
+        ignore_error: bool = False,
+    ) -> _allocation.Allocation:
         """Wait for the allocation to become active.
 
         :param allocation: The value can be the name or ID of an allocation or
