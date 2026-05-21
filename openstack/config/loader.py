@@ -195,18 +195,21 @@ class OpenStackConfig:
 
         if load_yaml_config:
             # "if config_files" is not sufficient to process empty list
+            # Use list() to copy rather than reference the module-level
+            # constants, preventing mutation of those shared lists when
+            # OS_CLIENT_CONFIG_FILE / OS_CLIENT_SECURE_FILE are prepended.
             if config_files is not None:
-                self._config_files = config_files
+                self._config_files = list(config_files)
             else:
-                self._config_files = CONFIG_FILES
+                self._config_files = list(CONFIG_FILES)
             if secure_files is not None:
-                self._secure_files = secure_files
+                self._secure_files = list(secure_files)
             else:
-                self._secure_files = SECURE_FILES
+                self._secure_files = list(SECURE_FILES)
             if vendor_files is not None:
-                self._vendor_files = vendor_files
+                self._vendor_files = list(vendor_files)
             else:
-                self._vendor_files = VENDOR_FILES
+                self._vendor_files = list(VENDOR_FILES)
         else:
             self._config_files = []
             self._secure_files = []
@@ -509,6 +512,9 @@ class OpenStackConfig:
                         # Can't access file so let's continue to the next
                         # file
                         continue
+                except (ValueError, yaml.YAMLError) as e:
+                    self.log.warning('Skipping config file %s: %s', path, e)
+                    continue
         return (None, None)
 
     def _validate_config_file(self, path: str, data: Any) -> bool:
