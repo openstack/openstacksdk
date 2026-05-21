@@ -13,7 +13,11 @@
 from collections.abc import Iterable, Iterator
 import hashlib
 import io
-from typing import Any
+from typing import Any, Self
+
+import requests as req_lib
+
+from keystoneauth1 import adapter
 
 from openstack import exceptions
 from openstack import utils
@@ -73,20 +77,25 @@ class DownloadMixin:
 
     def fetch(
         self,
-        session,
-        requires_id=True,
-        base_path=None,
-        error_message=None,
-        skip_cache=False,
+        session: adapter.Adapter,
+        requires_id: bool = True,
+        base_path: str | None = None,
+        error_message: str | None = None,
+        skip_cache: bool = False,
         *,
-        resource_response_key=None,
-        microversion=None,
-        **params,
-    ): ...
+        resource_response_key: str | None = None,
+        microversion: str | None = None,
+        **params: Any,
+    ) -> Self:
+        raise NotImplementedError
 
     def download(
-        self, session, stream=False, output=None, chunk_size=1024 * 1024
-    ):
+        self,
+        session: adapter.Adapter,
+        stream: bool = False,
+        output: str | io.IOBase | None = None,
+        chunk_size: int = 1024 * 1024,
+    ) -> req_lib.Response:
         """Download the data contained in an image.
 
         Checksum validation uses the hash algorithm metadata fields
@@ -131,7 +140,7 @@ class DownloadMixin:
                 hash_algo = 'md5'
 
         if hasher is None:
-            session.log.warning(
+            session.log.warning(  # type: ignore[attr-defined]
                 "Unable to verify the integrity of image %s "
                 "- no hash available",
                 self.id,

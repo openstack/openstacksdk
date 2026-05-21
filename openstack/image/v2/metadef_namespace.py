@@ -10,7 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Self
+from typing import Any, Literal, Self, cast
+
+from keystoneauth1 import adapter
 
 from openstack.common import tag
 from openstack import exceptions
@@ -53,20 +55,20 @@ class MetadefNamespace(resource.Resource, tag.TagMixin):
 
     def _commit(
         self,
-        session,
-        request,
-        method,
-        microversion=None,
-        has_body=True,
-        retry_on_conflict=None,
-    ):
+        session: adapter.Adapter,
+        request: resource._Request,
+        method: Literal['POST', 'PUT', 'PATCH'],
+        microversion: str | None = None,
+        has_body: bool = True,
+        retry_on_conflict: bool | None = None,
+    ) -> Self:
         # Rather annoyingly, Glance insists on us providing the 'namespace'
         # argument, even if we're not changing it. We need to add this here
         # since it won't be included if Resource.commit thinks its unchanged
         # TODO(stephenfin): Eventually we could indicate attributes that are
         # required in the body on update, like the 'requires_id' and
         # 'create_requires_id' do for the ID in the URL
-        request.body['namespace'] = self.namespace
+        cast(dict[str, Any], request.body)['namespace'] = self.namespace
 
         return super()._commit(
             session,
@@ -77,13 +79,13 @@ class MetadefNamespace(resource.Resource, tag.TagMixin):
             retry_on_conflict=None,
         )
 
-    def _delete_all(self, session, url):
+    def _delete_all(self, session: adapter.Adapter, url: str) -> Self:
         response = session.delete(url)
         exceptions.raise_from_response(response)
         self._translate_response(response, has_body=False)
         return self
 
-    def delete_all_properties(self, session):
+    def delete_all_properties(self, session: adapter.Adapter) -> Self:
         """Delete all properties in a namespace.
 
         :param session: The session to use for making this request
@@ -93,7 +95,7 @@ class MetadefNamespace(resource.Resource, tag.TagMixin):
         url = utils.urljoin(self.base_path, self.id, 'properties')
         return self._delete_all(session, url)
 
-    def delete_all_objects(self, session):
+    def delete_all_objects(self, session: adapter.Adapter) -> Self:
         """Delete all objects in a namespace.
 
         :param session: The session to use for making this request

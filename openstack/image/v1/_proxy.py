@@ -10,10 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import io
 import os
 from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable, Generator
 import warnings
+
+import requests
 
 from openstack import exceptions as exc
 from openstack.image.v1 import image as _image
@@ -23,7 +26,9 @@ from openstack import utils
 from openstack import warnings as os_warnings
 
 
-def _get_name_and_filename(name, image_format):
+def _get_name_and_filename(
+    name: str, image_format: str
+) -> tuple[str, str | None]:
     # See if name points to an existing file
     if os.path.exists(name):
         # Neat. Easy enough
@@ -243,9 +248,9 @@ class Proxy(proxy.Proxy):
         else:
             image = self._create(_image.Image, name=name, **kwargs)
 
-        return image
+        return image  # type: ignore[no-any-return]
 
-    def upload_image(self, **attrs):
+    def upload_image(self, **attrs: Any) -> _image.Image:
         """Upload a new image from attributes
 
         .. warning:
@@ -267,12 +272,12 @@ class Proxy(proxy.Proxy):
 
     def _upload_image(
         self,
-        name,
-        filename,
-        data,
-        meta,
-        **image_kwargs,
-    ):
+        name: str,
+        filename: str | None,
+        data: Any,
+        meta: dict[str, Any] | None,
+        **image_kwargs: Any,
+    ) -> Any:
         if filename and not data:
             image_data = open(filename, 'rb')
         else:
@@ -281,7 +286,7 @@ class Proxy(proxy.Proxy):
         image_kwargs['name'] = name
 
         # TODO(mordred) Convert this to use image Resource
-        image = self._connection._get_and_munchify(
+        image = self._connection._get_and_munchify(  # type: ignore[no-untyped-call]
             'image', self.post('/images', json=image_kwargs)
         )
         checksum = image_kwargs['properties'].get(self._IMAGE_MD5_KEY, '')
@@ -295,7 +300,7 @@ class Proxy(proxy.Proxy):
             if checksum:
                 headers['x-image-meta-checksum'] = checksum
 
-            image = self._connection._get_and_munchify(
+            image = self._connection._get_and_munchify(  # type: ignore[no-untyped-call]
                 'image',
                 self.put(
                     f'/images/{image.id}',
@@ -391,7 +396,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_image.Image, base_path='/images/detail', **query)
 
-    def update_image(self, image, **attrs):
+    def update_image(
+        self, image: str | _image.Image, **attrs: Any
+    ) -> _image.Image:
         """Update a image
 
         :param image: Either the ID of a image or a
@@ -405,11 +412,11 @@ class Proxy(proxy.Proxy):
 
     def download_image(
         self,
-        image,
-        stream=False,
-        output=None,
-        chunk_size=1024 * 1024,
-    ):
+        image: str | _image.Image,
+        stream: bool = False,
+        output: str | io.IOBase | None = None,
+        chunk_size: int = 1024 * 1024,
+    ) -> requests.Response:
         """Download an image
 
         This will download an image to memory when ``stream=False``, or allow
@@ -450,7 +457,12 @@ class Proxy(proxy.Proxy):
             chunk_size=chunk_size,
         )
 
-    def _update_image_properties(self, image, meta, properties):
+    def _update_image_properties(
+        self,
+        image: _image.Image,
+        meta: dict[str, Any],
+        properties: dict[str, Any],
+    ) -> bool:
         properties.update(meta)
         img_props = {}
         for k, v in iter(properties.items()):
@@ -463,10 +475,10 @@ class Proxy(proxy.Proxy):
 
     def update_image_properties(
         self,
-        image=None,
-        meta=None,
-        **kwargs,
-    ):
+        image: str | _image.Image | None = None,
+        meta: dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> bool:
         """
         Update the properties of an existing image.
 
@@ -481,7 +493,7 @@ class Proxy(proxy.Proxy):
         """
 
         if isinstance(image, str):
-            image = self._connection.get_image(image)
+            image = self._connection.get_image(image)  # type: ignore[no-untyped-call]
 
         if not meta:
             meta = {}
@@ -489,11 +501,11 @@ class Proxy(proxy.Proxy):
         img_props = {}
         for k, v in iter(kwargs.items()):
             if v and k in ['ramdisk', 'kernel']:
-                v = self._connection.get_image_id(v)
+                v = self._connection.get_image_id(v)  # type: ignore[no-untyped-call]
                 k = f'{k}_id'
             img_props[k] = v
 
-        return self._update_image_properties(image, meta, img_props)
+        return self._update_image_properties(image, meta, img_props)  # type: ignore[arg-type]
 
     # ========== Utilities ==========
 

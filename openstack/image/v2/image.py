@@ -10,7 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from collections.abc import MutableMapping
 from typing import Any, Literal, Self, overload
+
+import requests
 
 from keystoneauth1 import adapter
 
@@ -253,12 +256,14 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
     #: The URL for the schema describing a virtual machine image.
     schema = resource.Body('schema')
 
-    def _action(self, session, action):
+    def _action(
+        self, session: adapter.Adapter, action: str
+    ) -> requests.Response:
         """Call an action on an image ID."""
         url = utils.urljoin(self.base_path, self.id, 'actions', action)
         return session.post(url)
 
-    def deactivate(self, session):
+    def deactivate(self, session: adapter.Adapter) -> None:
         """Deactivate an image
 
         Note: Only administrative users can view image locations
@@ -266,14 +271,16 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
         """
         self._action(session, "deactivate")
 
-    def reactivate(self, session):
+    def reactivate(self, session: adapter.Adapter) -> None:
         """Reactivate an image
 
         Note: The image must exist in order to be reactivated.
         """
         self._action(session, "reactivate")
 
-    def upload(self, session, *, data=None):
+    def upload(
+        self, session: adapter.Adapter, *, data: Any = None
+    ) -> requests.Response:
         """Upload data into an existing image
 
         :param session: The session to use for making this request
@@ -290,7 +297,7 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
             headers={"Content-Type": "application/octet-stream", "Accept": ""},
         )
 
-    def stage(self, session, *, data=None):
+    def stage(self, session: adapter.Adapter, *, data: Any = None) -> Self:
         """Stage binary image data into an existing image
 
         :param session: The session to use for making this request
@@ -312,18 +319,18 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
 
     def import_image(
         self,
-        session,
-        method='glance-direct',
+        session: adapter.Adapter,
+        method: str = 'glance-direct',
         *,
-        uri=None,
-        remote_region=None,
-        remote_image_id=None,
-        remote_service_interface=None,
-        store=None,
-        stores=None,
-        all_stores=None,
-        all_stores_must_succeed=None,
-    ):
+        uri: str | None = None,
+        remote_region: str | None = None,
+        remote_image_id: str | None = None,
+        remote_service_interface: str | None = None,
+        store: Any = None,
+        stores: list[Any] | None = None,
+        all_stores: bool | None = None,
+        all_stores_must_succeed: bool | None = None,
+    ) -> requests.Response:
         """Import Image via interoperable image import process"""
         if all_stores and (store or stores):
             raise exceptions.InvalidRequest(
@@ -371,7 +378,9 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
 
         return session.post(url, json=data, headers=headers)
 
-    def _consume_header_attrs(self, attrs):
+    def _consume_header_attrs(
+        self, attrs: MutableMapping[str, Any]
+    ) -> dict[str, Any]:
         self.image_import_methods = []
         _image_import_methods = attrs.pop('OpenStack-image-import-methods', '')
         if _image_import_methods:
@@ -381,13 +390,13 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
 
     def _prepare_request(
         self,
-        requires_id=None,
-        prepend_key=False,
-        patch=False,
-        base_path=None,
-        params=None,
-        **kwargs,
-    ):
+        requires_id: bool | None = None,
+        prepend_key: bool = False,
+        patch: bool = False,
+        base_path: str | None = None,
+        params: Any = None,
+        **kwargs: Any,
+    ) -> resource._Request:
         request = super()._prepare_request(
             requires_id=requires_id,
             prepend_key=prepend_key,

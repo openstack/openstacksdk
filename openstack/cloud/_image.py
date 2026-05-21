@@ -192,7 +192,7 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
         image = self.image.find_image(name_or_id, ignore_missing=False)
 
         return self.image.download_image(
-            image,
+            image,  # type: ignore[arg-type]
             output=output_file or output_path,
             chunk_size=chunk_size,
             stream=stream,

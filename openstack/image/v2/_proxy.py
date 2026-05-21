@@ -10,11 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from collections.abc import Callable, Generator
+from collections.abc import Callable, Generator, Sequence
+import io
 import os
+import queue
 import time
 from typing import Any, ClassVar, Literal, overload
 import warnings
+
+import requests
 
 from openstack._utils import renamed_param
 from openstack import exceptions
@@ -31,6 +35,7 @@ from openstack.image.v2 import schema as _schema
 from openstack.image.v2 import service_info as _si
 from openstack.image.v2 import task as _task
 from openstack import proxy
+from openstack.proxy import CleanupDependency
 from openstack import resource
 from openstack import utils
 from openstack import warnings as os_warnings
@@ -41,7 +46,9 @@ _INT_PROPERTIES = ('min_disk', 'min_ram', 'size', 'virtual_size')
 _RAW_PROPERTIES = ('is_protected', 'protected', 'tags')
 
 
-def _get_name_and_filename(name, image_format):
+def _get_name_and_filename(
+    name: str, image_format: str
+) -> tuple[str, str | None]:
     # See if name points to an existing file
     if os.path.exists(name) and os.path.isfile(name):
         # Neat. Easy enough
@@ -88,7 +95,11 @@ class Proxy(proxy.Proxy):
     def get_image_cache(self) -> _cache.Cache:
         return self._get(_cache.Cache, requires_id=False)
 
-    def cache_delete_image(self, image, ignore_missing=True):
+    def cache_delete_image(
+        self,
+        image: str | _image.Image,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete an image from cache.
 
         :param image: The value can be either the ID of an image or a
@@ -98,26 +109,30 @@ class Proxy(proxy.Proxy):
             when the image or cache entry does not exist.
         :returns: ``None``
         """
-        return self._delete(_cache.Cache, image, ignore_missing=ignore_missing)
+        self._delete(_cache.Cache, image, ignore_missing=ignore_missing)
 
     @renamed_param('image_id', 'image')
-    def queue_image(self, image):
+    def queue_image(self, image: str | _image.Image) -> None:
         """Queue image(s) for caching."""
         cache = self._get_resource(_cache.Cache, None)
-        return cache.queue(self, resource.Resource._get_id(image))
+        cache.queue(self, resource.Resource._get_id(image))
 
-    def clear_cache(self, target='both'):
+    def clear_cache(self, target: str = 'both') -> None:
         """Clear all images from cache, queue or both
 
         :param target: Specify which target you want to clear
             One of: ``both``(default), ``cache``, ``queue``.
         """
         cache = self._get_resource(_cache.Cache, None)
-        return cache.clear(self, target)
+        cache.clear(self, target)
 
     # ====== IMAGES ======
 
-    def _make_v2_image_params(self, meta, properties):
+    def _make_v2_image_params(
+        self,
+        meta: dict[str, Any],
+        properties: dict[str, Any],
+    ) -> dict[str, Any]:
         ret: dict[str, Any] = {}
         for k, v in iter(properties.items()):
             if k in _INT_PROPERTIES:
@@ -390,18 +405,18 @@ class Proxy(proxy.Proxy):
 
     def import_image(
         self,
-        image,
-        method='glance-direct',
+        image: str | _image.Image,
+        method: str = 'glance-direct',
         *,
-        uri=None,
-        remote_region=None,
-        remote_image_id=None,
-        remote_service_interface=None,
-        store=None,
-        stores=None,
-        all_stores=None,
-        all_stores_must_succeed=None,
-    ):
+        uri: str | None = None,
+        remote_region: str | None = None,
+        remote_image_id: str | None = None,
+        remote_service_interface: str | None = None,
+        store: str | _si.Store | None = None,
+        stores: list[str | _si.Store] | None = None,
+        all_stores: bool | None = None,
+        all_stores_must_succeed: bool | None = None,
+    ) -> requests.Response:
         """Import data to an existing image
 
         Interoperable image import process are introduced in the Image API
@@ -460,7 +475,7 @@ class Proxy(proxy.Proxy):
             store = self._get_resource(_si.Store, store)
 
         stores = stores or []
-        new_stores = []
+        new_stores: list[str | _si.Store] = []
         for s in stores:
             new_stores.append(self._get_resource(_si.Store, s))
         stores = new_stores
@@ -486,7 +501,13 @@ class Proxy(proxy.Proxy):
             all_stores_must_succeed=all_stores_must_succeed,
         )
 
-    def stage_image(self, image, *, filename=None, data=None):
+    def stage_image(
+        self,
+        image: str | _image.Image,
+        *,
+        filename: str | None = None,
+        data: Any = None,
+    ) -> _image.Image:
         """Stage binary image data
 
         :param image: The value can be the ID of a image or a
@@ -522,11 +543,11 @@ class Proxy(proxy.Proxy):
 
     def upload_image(
         self,
-        container_format=None,
-        disk_format=None,
-        data=None,
-        **attrs,
-    ):
+        container_format: str | None = None,
+        disk_format: str | None = None,
+        data: Any = None,
+        **attrs: Any,
+    ) -> _image.Image:
         """Create and upload a new image from attributes
 
         .. warning:
@@ -579,25 +600,25 @@ class Proxy(proxy.Proxy):
 
     def _upload_image(
         self,
-        name,
+        name: str,
         *,
-        filename=None,
-        data=None,
-        meta=None,
-        wait=False,
-        timeout=None,
-        validate_checksum=True,
-        use_import=False,
-        import_method=None,
-        uri=None,
-        remote_region=None,
-        remote_image_id=None,
-        remote_service_interface=None,
-        stores=None,
-        all_stores=None,
-        all_stores_must_succeed=None,
-        **kwargs,
-    ):
+        filename: str | None = None,
+        data: Any = None,
+        meta: dict[str, Any] | None = None,
+        wait: bool = False,
+        timeout: int | None = None,
+        validate_checksum: bool = True,
+        use_import: bool = False,
+        import_method: str | None = None,
+        uri: str | None = None,
+        remote_region: str | None = None,
+        remote_image_id: str | None = None,
+        remote_service_interface: str | None = None,
+        stores: list[Any] | None = None,
+        all_stores: bool | None = None,
+        all_stores_must_succeed: bool | None = None,
+        **kwargs: Any,
+    ) -> _image.Image:
         # We can never have nice things. Glance v1 took "is_public" as a
         # boolean. Glance v2 takes "visibility". If the user gives us
         # is_public, we know what they mean. If they give us visibility, they
@@ -624,7 +645,7 @@ class Proxy(proxy.Proxy):
                         "exclusive. Either disable image_api_use_tasks in "
                         "config, or do not request using import"
                     )
-                return self._upload_image_task(
+                return self._upload_image_task(  # type: ignore[return-value]
                     name,
                     filename,
                     data=data,
@@ -661,22 +682,22 @@ class Proxy(proxy.Proxy):
 
     def _upload_image_put(
         self,
-        name,
-        filename,
-        data,
-        meta,
-        validate_checksum,
-        use_import=False,
-        import_method=None,
-        uri=None,
-        remote_region=None,
-        remote_image_id=None,
-        remote_service_interface=None,
-        stores=None,
-        all_stores=None,
-        all_stores_must_succeed=None,
-        **image_kwargs,
-    ):
+        name: str,
+        filename: str | None,
+        data: Any,
+        meta: dict[str, Any] | None,
+        validate_checksum: bool,
+        use_import: bool = False,
+        import_method: str | None = None,
+        uri: str | None = None,
+        remote_region: str | None = None,
+        remote_image_id: str | None = None,
+        remote_service_interface: str | None = None,
+        stores: list[Any] | None = None,
+        all_stores: bool | None = None,
+        all_stores_must_succeed: bool | None = None,
+        **image_kwargs: Any,
+    ) -> _image.Image:
         if all_stores and stores:
             raise exceptions.InvalidRequest(
                 "all_stores is mutually exclusive with stores"
@@ -696,7 +717,7 @@ class Proxy(proxy.Proxy):
 
         properties = image_kwargs.pop('properties', {})
 
-        image_kwargs.update(self._make_v2_image_params(meta, properties))
+        image_kwargs.update(self._make_v2_image_params(meta or {}, properties))
         image_kwargs['name'] = name
 
         image = self._create(_image.Image, **image_kwargs)
@@ -717,7 +738,7 @@ class Proxy(proxy.Proxy):
                 response = image.upload(self)
                 exceptions.raise_from_response(response)
             if use_import:
-                kwargs = {}
+                kwargs: dict[str, Any] = {}
                 if stores is not None:
                     kwargs['stores'] = stores
                 else:
@@ -733,6 +754,7 @@ class Proxy(proxy.Proxy):
                         remote_image_id=remote_image_id,
                         remote_service_interface=remote_service_interface,
                     )
+                assert import_method is not None
                 self.import_image(image, method=import_method, **kwargs)
 
             # image_kwargs are flat here
@@ -756,14 +778,14 @@ class Proxy(proxy.Proxy):
 
     def _upload_image_task(
         self,
-        name,
-        filename,
-        data,
-        wait,
-        timeout,
-        meta,
-        **image_kwargs,
-    ):
+        name: str,
+        filename: str | None,
+        data: Any,
+        wait: bool,
+        timeout: int | None,
+        meta: dict[str, Any] | None,
+        **image_kwargs: Any,
+    ) -> _image.Image | _task.Task:
         if not self._connection.has_service('object-store'):
             raise exceptions.SDKException(
                 f"The cloud {self._connection.config.name} is configured to "
@@ -778,8 +800,8 @@ class Proxy(proxy.Proxy):
         image_kwargs.pop('disk_format', None)
         image_kwargs.pop('container_format', None)
 
-        self._connection.create_container(container)
-        self._connection.create_object(
+        self._connection.create_container(container)  # type: ignore[no-untyped-call]
+        self._connection.create_object(  # type: ignore[no-untyped-call]
             container,
             name,
             filename,
@@ -837,7 +859,7 @@ class Proxy(proxy.Proxy):
             finally:
                 # Clean up after ourselves. The object we created is not
                 # needed after the import is done.
-                self._connection.delete_object(container, name)
+                self._connection.delete_object(container, name)  # type: ignore[no-untyped-call]
             return image
         else:
             return glance_task
@@ -847,12 +869,12 @@ class Proxy(proxy.Proxy):
 
     def download_image(
         self,
-        image,
+        image: str | _image.Image,
         *,
-        stream=False,
-        output=None,
-        chunk_size=1024 * 1024,
-    ):
+        stream: bool = False,
+        output: str | io.IOBase | None = None,
+        chunk_size: int = 1024 * 1024,
+    ) -> requests.Response:
         """Download an image
 
         This will download an image to memory when ``stream=False``, or allow
@@ -992,7 +1014,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_image.Image, image, **attrs)
 
-    def deactivate_image(self, image):
+    def deactivate_image(self, image: str | _image.Image) -> None:
         """Deactivate an image
 
         :param image: Either the ID of a image or a
@@ -1003,7 +1025,7 @@ class Proxy(proxy.Proxy):
         image = self._get_resource(_image.Image, image)
         image.deactivate(self)
 
-    def reactivate_image(self, image):
+    def reactivate_image(self, image: str | _image.Image) -> None:
         """Reactivate an image
 
         :param image: Either the ID of a image or a
@@ -1040,7 +1062,7 @@ class Proxy(proxy.Proxy):
         properties = {}
         for k, v in iter(kwargs.items()):
             if v and k in ['ramdisk', 'kernel']:
-                v = self._connection.get_image_id(v)
+                v = self._connection.get_image_id(v)  # type: ignore[no-untyped-call]
                 k = f'{k}_id'
             properties[k] = v
 
@@ -1071,7 +1093,7 @@ class Proxy(proxy.Proxy):
         image_id = resource.Resource._get_id(image)
         return self._list(_image_tasks.ImageTasks, image_id=image_id)
 
-    def add_tag(self, image, tag):
+    def add_tag(self, image: str | _image.Image, tag: str) -> None:
         """Add a tag to an image
 
         :param image: The value can be the ID of a image or a
@@ -1083,7 +1105,7 @@ class Proxy(proxy.Proxy):
         image = self._get_resource(_image.Image, image)
         image.add_tag(self, tag)
 
-    def remove_tag(self, image, tag):
+    def remove_tag(self, image: str | _image.Image, tag: str) -> None:
         """Remove a tag from an image
 
         :param image: The value can be the ID of a image or a
@@ -1096,7 +1118,9 @@ class Proxy(proxy.Proxy):
         image.remove_tag(self, tag)
 
     # ====== IMAGE MEMBERS ======
-    def add_member(self, image, **attrs):
+    def add_member(
+        self, image: str | _image.Image, **attrs: Any
+    ) -> _member.Member:
         """Create a new member from attributes
 
         :param image: The value can be the ID of a image or a
@@ -1115,7 +1139,12 @@ class Proxy(proxy.Proxy):
         image_id = resource.Resource._get_id(image)
         return self._create(_member.Member, image_id=image_id, **attrs)
 
-    def remove_member(self, member, image=None, ignore_missing=True):
+    def remove_member(
+        self,
+        member: str | _member.Member,
+        image: str | _image.Image | None = None,
+        ignore_missing: bool = True,
+    ) -> None:
         """Delete a member
 
         :param member: The value can be either the ID of a member or a
@@ -1130,7 +1159,7 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        image_id = resource.Resource._get_id(image)
+        image_id = resource.Resource._get_id(image)  # type: ignore[arg-type]
         member_id = resource.Resource._get_id(member)
         self._delete(
             _member.Member,
@@ -1353,7 +1382,11 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def add_tag_to_metadef_namespace(self, namespace, tag):
+    def add_tag_to_metadef_namespace(
+        self,
+        namespace: str | _metadef_namespace.MetadefNamespace,
+        tag: str,
+    ) -> None:
         """Add a tag to a metadef namespace
 
         :param metadef_namespace: Either the name of a metadef namespace or an
@@ -1368,7 +1401,11 @@ class Proxy(proxy.Proxy):
         )
         namespace.add_tag(self, tag)
 
-    def remove_tag_from_metadef_namespace(self, namespace, tag):
+    def remove_tag_from_metadef_namespace(
+        self,
+        namespace: str | _metadef_namespace.MetadefNamespace,
+        tag: str,
+    ) -> None:
         """Remove a tag from a metadef namespace
 
         :param metadef_namespace: Either the name of a metadef namespace or an
@@ -1383,7 +1420,9 @@ class Proxy(proxy.Proxy):
         )
         namespace.remove_tag(self, tag)
 
-    def remove_tags_from_metadef_namespace(self, namespace):
+    def remove_tags_from_metadef_namespace(
+        self, namespace: str | _metadef_namespace.MetadefNamespace
+    ) -> None:
         """Remove all tags from a metadef namespace
 
         :param metadef_namespace: Either the name of a metadef namespace or an
@@ -2050,12 +2089,12 @@ class Proxy(proxy.Proxy):
 
     def wait_for_task(
         self,
-        task,
-        status='success',
-        failures=None,
-        interval=2,
-        wait=120,
-    ):
+        task: _task.Task,
+        status: str = 'success',
+        failures: list[str] | None = None,
+        interval: int | float = 2,
+        wait: int | None = 120,
+    ) -> _task.Task:
         """Wait for a task to be in a particular status.
 
         :param task: The resource to wait on to reach the specified status.
@@ -2118,6 +2157,8 @@ class Proxy(proxy.Proxy):
                 status,
                 new_status,
             )
+
+        return task
 
     # ====== STORES ======
     def stores(
@@ -2206,18 +2247,28 @@ class Proxy(proxy.Proxy):
         """
         return resource.wait_for_delete(self, res, interval, wait, callback)
 
-    def _get_cleanup_dependencies(self):
-        return {'image': {'before': ['identity']}}
+    def _get_cleanup_dependencies(
+        self,
+    ) -> dict[str, CleanupDependency] | None:
+        return {'image': {'before': ['identity']}}  # type: ignore[typeddict-item]
 
     def _service_cleanup(
         self,
-        dry_run=True,
-        client_status_queue=None,
-        identified_resources=None,
-        filters=None,
-        resource_evaluation_fn=None,
-        skip_resources=None,
-    ):
+        dry_run: bool = True,
+        client_status_queue: queue.Queue[resource.Resource] | None = None,
+        identified_resources: dict[str, resource.Resource] | None = None,
+        filters: dict[str, Any] | None = None,
+        resource_evaluation_fn: Callable[
+            [
+                resource.Resource,
+                dict[str, Any] | None,
+                dict[str, resource.Resource] | None,
+            ],
+            bool,
+        ]
+        | None = None,
+        skip_resources: Sequence[str] | None = None,
+    ) -> None:
         if self.should_skip_resource_cleanup("image", skip_resources):
             return
 

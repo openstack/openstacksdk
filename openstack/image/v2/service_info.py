@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import requests
+
+from keystoneauth1 import adapter
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -39,7 +43,13 @@ class Store(resource.Resource):
     #: properties
     properties = resource.Body('properties', type=dict)
 
-    def delete_image(self, session, image, *, ignore_missing=False):
+    def delete_image(
+        self,
+        session: adapter.Adapter,
+        image: str | resource.Resource,
+        *,
+        ignore_missing: bool = False,
+    ) -> requests.Response | None:
         """Delete image from store
 
         :param session: The session to use for making this request.
