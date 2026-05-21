@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from collections.abc import MutableMapping
 from typing import Any, Self
 
 from keystoneauth1 import adapter
@@ -50,7 +51,9 @@ class AcceleratorRequest(resource.Resource):
     #: The UUID of the ARQ
     uuid = resource.Body('uuid', alternate_id=True)
 
-    def _convert_patch(self, patch):
+    def _convert_patch(  # type: ignore[override]
+        self, patch: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         # This overrides the default behavior of _convert_patch because
         # the PATCH method consumes JSON, its key is the ARQ uuid
         # and its value is an ordinary JSON patch. spec:
@@ -99,7 +102,11 @@ class AcceleratorRequest(resource.Resource):
             retry_on_conflict=retry_on_conflict,
         )
 
-    def _consume_attrs(self, mapping, attrs):
+    def _consume_attrs(
+        self,
+        mapping: MutableMapping[str, Any],
+        attrs: MutableMapping[str, Any],
+    ) -> dict[str, Any]:
         # This overrides the default behavior of _consume_attrs because
         # cyborg api returns an ARQ as list. spec:
         # https://specs.openstack.org/openstack/cyborg-specs/specs/train/implemented/cyborg-api

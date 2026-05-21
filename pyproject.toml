@@ -80,6 +80,8 @@ module = [
     "openstack.utils",
     "openstack.version",
     "openstack.warnings",
+    # services
+    "openstack.accelerator.*",
 ]
 disallow_untyped_calls = true
 disallow_untyped_defs = true

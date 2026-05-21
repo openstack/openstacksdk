@@ -44,12 +44,12 @@ class DeviceProfile(resource.Resource):
 
     # TODO(s_shogo): This implementation only treat [ DeviceProfile ], and
     # cannot treat multiple DeviceProfiles in list.
-    def _prepare_request_body(
+    def _prepare_request_body(  # type: ignore[override]
         self,
         *,
-        prepend_key,
-        resource_request_key=None,
-    ):
+        prepend_key: bool,
+        resource_request_key: str | None = None,
+    ) -> list[dict[str, Any]]:
         body = super()._prepare_request_body(
             prepend_key=prepend_key, resource_request_key=resource_request_key
         )
