@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any, cast
+
+from keystoneauth1 import adapter
+
 from openstack import resource
 from openstack import utils
 
@@ -51,7 +55,7 @@ class Instance(resource.Resource):
     #: The timestamp when this instance was updated
     updated_at = resource.Body('updated')
 
-    def enable_root_user(self, session):
+    def enable_root_user(self, session: adapter.Adapter) -> dict[str, Any]:
         """Enable login for the root user.
 
         This operation enables login from any host for the root user
@@ -63,12 +67,10 @@ class Instance(resource.Resource):
             the login credentials.
         """
         url = utils.urljoin(self.base_path, self.id, 'root')
-        resp = session.post(
-            url,
-        )
-        return resp.json()['user']
+        resp = session.post(url)
+        return cast(dict[str, Any], resp.json()['user'])
 
-    def is_root_enabled(self, session):
+    def is_root_enabled(self, session: adapter.Adapter) -> bool:
         """Determine if root is enabled on an instance.
 
         Determine if root is enabled on this particular instance.
@@ -79,12 +81,10 @@ class Instance(resource.Resource):
             instance or ``False`` otherwise.
         """
         url = utils.urljoin(self.base_path, self.id, 'root')
-        resp = session.get(
-            url,
-        )
-        return resp.json()['rootEnabled']
+        resp = session.get(url)
+        return cast(bool, resp.json()['rootEnabled'])
 
-    def restart(self, session):
+    def restart(self, session: adapter.Adapter) -> None:
         """Restart the database instance
 
         :returns: ``None``
@@ -93,7 +93,7 @@ class Instance(resource.Resource):
         url = utils.urljoin(self.base_path, self.id, 'action')
         session.post(url, json=body)
 
-    def resize(self, session, flavor_reference):
+    def resize(self, session: adapter.Adapter, flavor_reference: str) -> None:
         """Resize the database instance
 
         :returns: ``None``
@@ -102,7 +102,9 @@ class Instance(resource.Resource):
         url = utils.urljoin(self.base_path, self.id, 'action')
         session.post(url, json=body)
 
-    def resize_volume(self, session, volume_size):
+    def resize_volume(
+        self, session: adapter.Adapter, volume_size: int
+    ) -> None:
         """Resize the volume attached to the instance
 
         :returns: ``None``

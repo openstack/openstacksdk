@@ -10,6 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
+
 from openstack import resource
 from openstack import utils
 
@@ -36,13 +39,15 @@ class User(resource.Resource):
 
     def _prepare_request(
         self,
-        requires_id=True,
-        prepend_key=True,
-        patch=False,
-        base_path=None,
-        *args,
-        **kwargs,
-    ):
+        requires_id: bool | None = True,
+        prepend_key: bool = True,
+        patch: bool = False,
+        base_path: str | None = None,
+        params: Any = None,
+        *,
+        resource_request_key: str | None = None,
+        **attrs: Any,
+    ) -> resource._Request:
         """Prepare a request for the database service's create call
 
         User.create calls require the resources_key.
