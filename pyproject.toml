@@ -83,6 +83,7 @@ module = [
     # services
     "openstack.accelerator.*",
     "openstack.baremetal.*",
+    "openstack.baremetal_introspection.*",
 ]
 disallow_untyped_calls = true
 disallow_untyped_defs = true

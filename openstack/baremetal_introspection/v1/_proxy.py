@@ -74,7 +74,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_introspect.Introspection, **query)
 
-    def start_introspection(self, node, manage_boot=None):
+    def start_introspection(
+        self, node: _node.Node, manage_boot: bool | None = None
+    ) -> _introspect.Introspection:
         """Create a new introspection from attributes.
 
         :param node: The value can be either the name or ID of a node or
@@ -88,10 +90,9 @@ class Proxy(proxy.Proxy):
         res = _introspect.Introspection.new(
             connection=self._get_connection(), id=node.id
         )
-        kwargs = {}
         if manage_boot is not None:
-            kwargs['manage_boot'] = manage_boot
-        return res.create(self, **kwargs)
+            return res.create(self, manage_boot=manage_boot)
+        return res.create(self)
 
     def get_introspection(
         self,
@@ -125,11 +126,15 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_introspect.Introspection, introspection)
         return res.get_data(self, processed=processed)
 
-    def abort_introspection(self, introspection, ignore_missing=True):
+    def abort_introspection(
+        self,
+        introspection: _introspect.Introspection,
+        ignore_missing: bool = True,
+    ) -> None:
         """Abort an introspection.
 
         Note that the introspection is not aborted immediately, you may use
-        `wait_for_introspection` with `ignore_error=True`.
+        :meth:`wait_for_introspection` with ``ignore_error=True``.
 
         :param introspection: The value can be the name or ID of an
             introspection (matching bare metal node name or ID) or
@@ -150,10 +155,10 @@ class Proxy(proxy.Proxy):
 
     def wait_for_introspection(
         self,
-        introspection,
-        timeout=None,
-        ignore_error=False,
-    ):
+        introspection: _introspect.Introspection,
+        timeout: int | float | None = None,
+        ignore_error: bool = False,
+    ) -> _introspect.Introspection:
         """Wait for the introspection to finish.
 
         :param introspection: The value can be the name or ID of an
