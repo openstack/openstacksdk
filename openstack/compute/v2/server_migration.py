@@ -10,6 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
+import requests
+
+from keystoneauth1 import adapter
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -71,7 +77,9 @@ class ServerMigration(resource.Resource):
 
     _max_microversion = '2.80'
 
-    def _action(self, session, body):
+    def _action(
+        self, session: adapter.Adapter, body: dict[str, Any]
+    ) -> requests.Response:
         """Preform server migration actions given the message body."""
         session = self._get_session(session)
         microversion = self._get_microversion(session)
@@ -85,7 +93,7 @@ class ServerMigration(resource.Resource):
         exceptions.raise_from_response(response)
         return response
 
-    def force_complete(self, session):
+    def force_complete(self, session: adapter.Adapter) -> None:
         """Force on-going live migration to complete."""
         body = {'force_complete': None}
         self._action(session, body)

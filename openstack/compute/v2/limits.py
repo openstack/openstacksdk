@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any, Self
+
+from keystoneauth1 import adapter
+
 from openstack import resource
 
 
@@ -119,13 +123,13 @@ class Limits(resource.Resource):
 
     def fetch(
         self,
-        session,
-        requires_id=False,
-        base_path=None,
-        error_message=None,
-        skip_cache=False,
-        **params,
-    ):
+        session: adapter.Adapter,
+        requires_id: bool = False,
+        base_path: str | None = None,
+        error_message: str | None = None,
+        skip_cache: bool = False,
+        **params: Any,
+    ) -> Self:
         """Get the Limits resource.
 
         :param session: The session to use for making this request.

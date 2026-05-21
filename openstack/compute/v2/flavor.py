@@ -10,10 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from __future__ import annotations
+
+import builtins
 from collections.abc import Generator
-from typing import Any, Self
+from typing import Any, Self, cast
 
 from keystoneauth1 import adapter
+import requests
 
 from openstack import exceptions
 from openstack import resource
@@ -74,7 +78,7 @@ class Flavor(resource.Resource):
     #: A dictionary of the flavor's extra-specs key-and-value pairs.
     extra_specs = resource.Body('extra_specs', type=dict, default={})
 
-    def __getattribute__(self, name):
+    def __getattribute__(self, name: str) -> Any:
         """Return an attribute on this instance
 
         This is mostly a pass-through except for a specialization on
@@ -124,7 +128,12 @@ class Flavor(resource.Resource):
             **params,
         )
 
-    def _action(self, session, body, microversion=None):
+    def _action(
+        self,
+        session: adapter.Adapter,
+        body: dict[str, Any],
+        microversion: str | None = None,
+    ) -> requests.Response:
         """Preform flavor actions given the message body."""
         url = utils.urljoin(Flavor.base_path, self.id, 'action')
         headers = {'Accept': ''}
@@ -136,7 +145,7 @@ class Flavor(resource.Resource):
         exceptions.raise_from_response(response)
         return response
 
-    def add_tenant_access(self, session, tenant):
+    def add_tenant_access(self, session: adapter.Adapter, tenant: str) -> None:
         """Adds flavor access to a tenant and flavor.
 
         :param session: The session to use for making this request.
@@ -146,7 +155,9 @@ class Flavor(resource.Resource):
         body = {'addTenantAccess': {'tenant': tenant}}
         self._action(session, body)
 
-    def remove_tenant_access(self, session, tenant):
+    def remove_tenant_access(
+        self, session: adapter.Adapter, tenant: str
+    ) -> None:
         """Removes flavor access to a tenant and flavor.
 
         :param session: The session to use for making this request.
@@ -156,7 +167,7 @@ class Flavor(resource.Resource):
         body = {'removeTenantAccess': {'tenant': tenant}}
         self._action(session, body)
 
-    def get_access(self, session):
+    def get_access(self, session: adapter.Adapter) -> builtins.list[Any]:
         """Lists tenants who have access to a private flavor
 
         By default, only administrators can manage private flavor access. A
@@ -169,7 +180,8 @@ class Flavor(resource.Resource):
         url = utils.urljoin(Flavor.base_path, self.id, 'os-flavor-access')
         response = session.get(url)
         exceptions.raise_from_response(response)
-        return response.json().get('flavor_access', [])
+        data: list[Any] = response.json().get('flavor_access', [])
+        return data
 
     def fetch_extra_specs(self, session: adapter.Adapter) -> Self:
         """Fetch extra specs of the flavor
@@ -188,7 +200,9 @@ class Flavor(resource.Resource):
         self._update(extra_specs=specs)
         return self
 
-    def create_extra_specs(self, session, specs):
+    def create_extra_specs(
+        self, session: adapter.Adapter, specs: dict[str, Any]
+    ) -> Self:
         """Creates extra specs for a flavor.
 
         :param session: The session to use for making this request.
@@ -205,7 +219,9 @@ class Flavor(resource.Resource):
         self._update(extra_specs=specs)
         return self
 
-    def get_extra_specs_property(self, session, prop):
+    def get_extra_specs_property(
+        self, session: adapter.Adapter, prop: str
+    ) -> str | None:
         """Get an individual extra spec property.
 
         :param session: The session to use for making this request.
@@ -216,10 +232,11 @@ class Flavor(resource.Resource):
         microversion = self._get_microversion(session)
         response = session.get(url, microversion=microversion)
         exceptions.raise_from_response(response)
-        val = response.json().get(prop)
-        return val
+        return cast(str | None, response.json().get(prop))
 
-    def update_extra_specs_property(self, session, prop, val):
+    def update_extra_specs_property(
+        self, session: adapter.Adapter, prop: str, val: Any
+    ) -> str | None:
         """Update an extra spec for a flavor.
 
         :param session: The session to use for making this request.
@@ -233,10 +250,11 @@ class Flavor(resource.Resource):
             url, json={prop: val}, microversion=microversion
         )
         exceptions.raise_from_response(response)
-        val = response.json().get(prop)
-        return val
+        return cast(str | None, response.json().get(prop))
 
-    def delete_extra_specs_property(self, session, prop):
+    def delete_extra_specs_property(
+        self, session: adapter.Adapter, prop: str
+    ) -> None:
         """Delete an extra spec for a flavor.
 
         :param session: The session to use for making this request.
