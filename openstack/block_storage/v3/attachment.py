@@ -88,7 +88,9 @@ class Attachment(resource.Resource):
             **params,
         )
 
-    def complete(self, session, *, microversion=None):
+    def complete(
+        self, session: adapter.Adapter, *, microversion: str | None = None
+    ) -> None:
         """Mark the attachment as completed."""
         body = {'os-complete': self.id}
         if not microversion:
@@ -100,9 +102,9 @@ class Attachment(resource.Resource):
     def _prepare_request_body(
         self,
         *,
-        prepend_key,
-        resource_request_key=None,
-    ):
+        prepend_key: bool,
+        resource_request_key: str | None = None,
+    ) -> dict[str, Any]:
         body = self._body.dirty
         if body.get('volume_id'):
             body['volume_uuid'] = body.pop('volume_id')

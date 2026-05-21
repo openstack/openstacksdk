@@ -189,7 +189,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         if wait:
             self.block_storage.wait_for_status(volume, wait=timeout)
             if bootable:
-                self.block_storage.set_volume_bootable_status(volume, True)
+                self.block_storage.set_volume_bootable_status(volume, True)  # type: ignore[arg-type]
 
         return volume
 

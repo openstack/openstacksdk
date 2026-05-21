@@ -85,7 +85,7 @@ class TestGroupAction(base.TestCase):
     def test_delete(self):
         sot = group.Group(**GROUP)
 
-        self.assertIsNone(sot.delete(self.sess))
+        self.assertIsNotNone(sot.delete(self.sess))
 
         url = f'groups/{GROUP_ID}/action'
         body = {'delete': {'delete-volumes': False}}

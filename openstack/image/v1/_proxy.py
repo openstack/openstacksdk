@@ -316,7 +316,7 @@ class Proxy(proxy.Proxy):
             raise
         return image
 
-    def _existing_image(self, **kwargs):
+    def _existing_image(self, **kwargs: Any) -> _image.Image:
         return _image.Image.existing(connection=self._connection, **kwargs)
 
     def delete_image(

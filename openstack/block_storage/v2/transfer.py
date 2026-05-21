@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Self, cast
+
+from keystoneauth1 import adapter
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -40,7 +44,9 @@ class Transfer(resource.Resource):
     #: A list of links associated with this volume. *Type: list*
     links = resource.Body("links")
 
-    def accept(self, session, *, auth_key=None):
+    def accept(
+        self, session: adapter.Adapter, *, auth_key: str | None = None
+    ) -> Self:
         """Accept a volume transfer.
 
         :param session: The session to use for making this request.
@@ -56,4 +62,4 @@ class Transfer(resource.Resource):
 
         transfer = Transfer()
         transfer._translate_response(resp)
-        return transfer
+        return cast(Self, transfer)

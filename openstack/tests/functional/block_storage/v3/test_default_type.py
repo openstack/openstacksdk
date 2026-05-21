@@ -56,10 +56,7 @@ class TestDefaultType(base.BaseBlockStorageTest):
                 self.assertEqual(volume_type_id, default_type.volume_type_id)
 
         # Unset default type for a project
-        default_type = self.admin_block_storage_client.unset_default_type(
-            self.PROJECT_ID
-        )
-        self.assertIsNone(default_type)
+        self.admin_block_storage_client.unset_default_type(self.PROJECT_ID)
 
         # Delete the volume type
         vol_type = self.admin_block_storage_client.delete_type(

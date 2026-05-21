@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any, cast
+
+from keystoneauth1 import adapter
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -34,7 +38,9 @@ class Type(resource.Resource):
     #: a private volume-type. *Type: bool*
     is_public = resource.Body('os-volume-type-access:is_public', type=bool)
 
-    def get_private_access(self, session):
+    def get_private_access(
+        self, session: adapter.Adapter
+    ) -> list[dict[str, Any]]:
         """List projects with private access to the volume type.
 
         :param session: The session to use for making this request.
@@ -45,9 +51,13 @@ class Type(resource.Resource):
 
         exceptions.raise_from_response(resp)
 
-        return resp.json().get("volume_type_access", [])
+        return cast(
+            list[dict[str, Any]], resp.json().get("volume_type_access", [])
+        )
 
-    def add_private_access(self, session, project_id):
+    def add_private_access(
+        self, session: adapter.Adapter, project_id: str
+    ) -> None:
         """Add project access from the volume type.
 
         :param session: The session to use for making this request.
@@ -60,7 +70,9 @@ class Type(resource.Resource):
 
         exceptions.raise_from_response(resp)
 
-    def remove_private_access(self, session, project_id):
+    def remove_private_access(
+        self, session: adapter.Adapter, project_id: str
+    ) -> None:
         """Remove project access from the volume type.
 
         :param session: The session to use for making this request.

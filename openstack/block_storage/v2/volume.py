@@ -11,6 +11,12 @@
 # under the License.
 
 
+from typing import Any, cast
+
+import requests
+
+from keystoneauth1 import adapter
+
 from openstack.common import metadata
 from openstack import format
 from openstack import resource
@@ -100,7 +106,9 @@ class Volume(resource.Resource, metadata.MetadataMixin):
     #: The name of the associated volume type.
     volume_type = resource.Body("volume_type")
 
-    def _action(self, session, body):
+    def _action(
+        self, session: adapter.Adapter, body: dict[str, Any]
+    ) -> requests.Response:
         """Preform volume actions given the message body."""
         # NOTE: This is using Volume.base_path instead of self.base_path
         # as both Volume and VolumeDetail instances can be acted on, but
@@ -108,40 +116,50 @@ class Volume(resource.Resource, metadata.MetadataMixin):
         url = utils.urljoin(Volume.base_path, self.id, 'action')
         return session.post(url, json=body)
 
-    def extend(self, session, size):
+    def extend(self, session: adapter.Adapter, size: int) -> None:
         """Extend a volume size."""
         body = {'os-extend': {'new_size': size}}
         self._action(session, body)
 
-    def set_bootable_status(self, session, bootable=True):
+    def set_bootable_status(
+        self, session: adapter.Adapter, bootable: bool = True
+    ) -> None:
         """Set volume bootable status flag"""
         body = {'os-set_bootable': {'bootable': bootable}}
         self._action(session, body)
 
-    def set_readonly(self, session, readonly):
+    def set_readonly(self, session: adapter.Adapter, readonly: bool) -> None:
         """Set volume readonly flag"""
         body = {'os-update_readonly_flag': {'readonly': readonly}}
         self._action(session, body)
 
-    def set_image_metadata(self, session, metadata):
+    def set_image_metadata(
+        self, session: adapter.Adapter, metadata: dict[str, str]
+    ) -> None:
         """Sets image metadata key-value pairs on the volume"""
         body = {'os-set_image_metadata': {'metadata': metadata}}
         self._action(session, body)
 
-    def delete_image_metadata(self, session):
+    def delete_image_metadata(self, session: adapter.Adapter) -> None:
         """Remove all image metadata from the volume"""
         for key in self.metadata:
             body = {'os-unset_image_metadata': key}
             self._action(session, body)
 
-    def delete_image_metadata_item(self, session, key):
+    def delete_image_metadata_item(
+        self, session: adapter.Adapter, key: str
+    ) -> None:
         """Remove a single image metadata from the volume"""
         body = {'os-unset_image_metadata': key}
         self._action(session, body)
 
     def reset_status(
-        self, session, status=None, attach_status=None, migration_status=None
-    ):
+        self,
+        session: adapter.Adapter,
+        status: str | None = None,
+        attach_status: str | None = None,
+        migration_status: str | None = None,
+    ) -> None:
         """Reset volume statuses (admin operation)"""
         body: dict[str, dict[str, str]] = {'os-reset_status': {}}
         if status:
@@ -152,10 +170,17 @@ class Volume(resource.Resource, metadata.MetadataMixin):
             body['os-reset_status']['migration_status'] = migration_status
         self._action(session, body)
 
-    def attach(self, session, mountpoint, instance=None, host_name=None):
+    def attach(
+        self,
+        session: adapter.Adapter,
+        mountpoint: str,
+        instance: str | None = None,
+        host_name: str | None = None,
+    ) -> None:
         """Attach volume to server"""
-        body = {'os-attach': {'mountpoint': mountpoint}}
-
+        body = {
+            'os-attach': {'mountpoint': mountpoint},
+        }
         if instance is not None:
             body['os-attach']['instance_uuid'] = instance
         elif host_name is not None:
@@ -167,24 +192,36 @@ class Volume(resource.Resource, metadata.MetadataMixin):
 
         self._action(session, body)
 
-    def detach(self, session, attachment, force=False, connector=None):
+    def detach(
+        self,
+        session: adapter.Adapter,
+        attachment: str,
+        force: bool = False,
+        connector: dict[str, Any] | None = None,
+    ) -> None:
         """Detach volume from server"""
         if not force:
             body = {'os-detach': {'attachment_id': attachment}}
         if force:
-            body = {'os-force_detach': {'attachment_id': attachment}}
+            inner: dict[str, Any] = {'attachment_id': attachment}
             if connector:
-                body['os-force_detach']['connector'] = connector
+                inner['connector'] = connector
+            body = {'os-force_detach': inner}
 
         self._action(session, body)
 
-    def unmanage(self, session):
+    def unmanage(self, session: adapter.Adapter) -> None:
         """Unmanage volume"""
         body = {'os-unmanage': None}
 
         self._action(session, body)
 
-    def retype(self, session, new_type, migration_policy=None):
+    def retype(
+        self,
+        session: adapter.Adapter,
+        new_type: str,
+        migration_policy: str | None = None,
+    ) -> None:
         """Change volume type"""
         body = {'os-retype': {'new_type': new_type}}
         if migration_policy:
@@ -193,10 +230,14 @@ class Volume(resource.Resource, metadata.MetadataMixin):
         self._action(session, body)
 
     def migrate(
-        self, session, host=None, force_host_copy=False, lock_volume=False
-    ):
+        self,
+        session: adapter.Adapter,
+        host: str | None = None,
+        force_host_copy: bool = False,
+        lock_volume: bool = False,
+    ) -> None:
         """Migrate volume"""
-        req = dict()
+        req: dict[str, Any] = {}
         if host is not None:
             req['host'] = host
         if force_host_copy:
@@ -207,7 +248,12 @@ class Volume(resource.Resource, metadata.MetadataMixin):
 
         self._action(session, body)
 
-    def complete_migration(self, session, new_volume_id, error=False):
+    def complete_migration(
+        self,
+        session: adapter.Adapter,
+        new_volume_id: str,
+        error: bool = False,
+    ) -> None:
         """Complete volume migration"""
         body = {
             'os-migrate_volume_completion': {
@@ -218,7 +264,7 @@ class Volume(resource.Resource, metadata.MetadataMixin):
 
         self._action(session, body)
 
-    def force_delete(self, session):
+    def force_delete(self, session: adapter.Adapter) -> None:
         """Force volume deletion"""
         body = {'os-force_delete': None}
 
@@ -226,13 +272,13 @@ class Volume(resource.Resource, metadata.MetadataMixin):
 
     def upload_to_image(
         self,
-        session,
-        image_name,
+        session: adapter.Adapter,
+        image_name: str,
         *,
-        force=False,
-        disk_format=None,
-        container_format=None,
-    ):
+        force: bool = False,
+        disk_format: str | None = None,
+        container_format: str | None = None,
+    ) -> dict[str, Any]:
         """Upload the volume to image service"""
         body = {
             'os-volume_upload_image': {
@@ -243,8 +289,8 @@ class Volume(resource.Resource, metadata.MetadataMixin):
             },
         }
 
-        resp = self._action(session, body).json()
-        return resp['os-volume_upload_image']
+        resp = cast(dict[str, Any], self._action(session, body).json())
+        return cast(dict[str, Any], resp['os-volume_upload_image'])
 
 
 VolumeDetail = Volume

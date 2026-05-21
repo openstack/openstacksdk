@@ -10,7 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from collections.abc import Callable, Generator, Iterable
+from collections.abc import Callable, Generator, Iterable, Sequence
+import queue
 from typing import Any, ClassVar, Literal, cast, overload
 import warnings
 
@@ -94,7 +95,11 @@ class Proxy(proxy.Proxy):
             disk_format=disk_format,
             container_format=container_format,
         )
-        return self._connection.image._existing_image(id=data['image_id'])
+        # we know we're realistically always working with image v2 nowadays
+        return cast(
+            _image.Image,
+            self._connection.image._existing_image(id=data['image_id']),
+        )
 
     # ====== SNAPSHOTS ======
     def get_snapshot(
@@ -288,7 +293,9 @@ class Proxy(proxy.Proxy):
         )
         return self.fetch_snapshot_metadata(snapshot)
 
-    def set_snapshot_metadata(self, snapshot, **metadata):
+    def set_snapshot_metadata(
+        self, snapshot: str | _snapshot.Snapshot, **metadata: str
+    ) -> _snapshot.Snapshot:
         """Update metadata for a snapshot
 
         :param snapshot: Either the ID of a snapshot or a
@@ -325,7 +332,9 @@ class Proxy(proxy.Proxy):
             snapshot.delete_metadata(self)
 
     # ====== SNAPSHOT ACTIONS ======
-    def reset_snapshot_status(self, snapshot, status):
+    def reset_snapshot_status(
+        self, snapshot: str | _snapshot.Snapshot, status: str
+    ) -> None:
         """Reset status of the snapshot
 
         :param snapshot: The value can be either the ID of a backup or a
@@ -337,7 +346,9 @@ class Proxy(proxy.Proxy):
         snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
         snapshot.reset_status(self, status)
 
-    def reset_snapshot(self, snapshot, status):
+    def reset_snapshot(
+        self, snapshot: str | _snapshot.Snapshot, status: str
+    ) -> None:
         warnings.warn(
             "reset_snapshot is a deprecated alias for reset_snapshot_status "
             "and will be removed in a future release.",
@@ -345,7 +356,12 @@ class Proxy(proxy.Proxy):
         )
         return self.reset_snapshot_status(snapshot, status)
 
-    def set_snapshot_status(self, snapshot, status, progress=None):
+    def set_snapshot_status(
+        self,
+        snapshot: str | _snapshot.Snapshot,
+        status: str,
+        progress: str | None = None,
+    ) -> None:
         """Update fields related to the status of a snapshot.
 
         :param snapshot: The value can be either the ID of a backup or a
@@ -358,7 +374,7 @@ class Proxy(proxy.Proxy):
         snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
         snapshot.set_status(self, status, progress)
 
-    def manage_snapshot(self, **attrs):
+    def manage_snapshot(self, **attrs: Any) -> _snapshot.Snapshot:
         """Creates a snapshot by using existing storage rather than
         allocating new storage.
 
@@ -370,7 +386,7 @@ class Proxy(proxy.Proxy):
         """
         return _snapshot.Snapshot.manage(self, **attrs)
 
-    def unmanage_snapshot(self, snapshot):
+    def unmanage_snapshot(self, snapshot: str | _snapshot.Snapshot) -> None:
         """Unmanage a snapshot from block storage provisioning.
 
         :param snapshot: Either the ID of a snapshot or a
@@ -531,7 +547,9 @@ class Proxy(proxy.Proxy):
         return res.get_private_access(self)
 
     @renamed_param('project_id', 'project')
-    def add_type_access(self, type, project):
+    def add_type_access(
+        self, type: str | _type.Type, project: str | _project.Project
+    ) -> None:
         """Adds private volume type access to a project.
 
         :param type: The value can be either the ID of a type or a
@@ -547,7 +565,9 @@ class Proxy(proxy.Proxy):
         return res.add_private_access(self, project_id)
 
     @renamed_param('project_id', 'project')
-    def remove_type_access(self, type, project):
+    def remove_type_access(
+        self, type: str | _type.Type, project: str | _project.Project
+    ) -> None:
         """Remove private volume type access from a project.
 
         :param type: The value can be either the ID of a type or a
@@ -685,7 +705,9 @@ class Proxy(proxy.Proxy):
 
         return self._list(_default_type.DefaultType)
 
-    def show_default_type(self, project):
+    def show_default_type(
+        self, project: str | _project.Project
+    ) -> _default_type.DefaultType:
         """Show default type for a project.
 
         :param project: The value can be either the ID of a project or a
@@ -703,7 +725,9 @@ class Proxy(proxy.Proxy):
         project_id = resource.Resource._get_id(project)
         return self._get(_default_type.DefaultType, project_id)
 
-    def set_default_type(self, project, type):
+    def set_default_type(
+        self, project: str | _project.Project, type: str | _type.Type
+    ) -> _default_type.DefaultType:
         """Set default type for a project.
 
         :param project: The value can be either the ID of a project or a
@@ -728,7 +752,7 @@ class Proxy(proxy.Proxy):
             volume_type_id=type_id,
         )
 
-    def unset_default_type(self, project):
+    def unset_default_type(self, project: str | _project.Project) -> None:
         """Unset default type for a project.
 
         :param project: The value can be either the ID of a project or a
@@ -941,7 +965,9 @@ class Proxy(proxy.Proxy):
         )
         return self.fetch_volume_metadata(volume)
 
-    def set_volume_metadata(self, volume, **metadata):
+    def set_volume_metadata(
+        self, volume: str | _volume.Volume, **metadata: str
+    ) -> _volume.Volume:
         """Update metadata for a volume
 
         :param volume: Either the ID of a volume or a
@@ -976,7 +1002,9 @@ class Proxy(proxy.Proxy):
         else:
             volume.delete_metadata(self)
 
-    def summary(self, all_projects, **kwargs):
+    def summary(
+        self, all_projects: bool, **kwargs: Any
+    ) -> _summary.BlockStorageSummary:
         """Get Volumes Summary
 
         This method returns the volumes summary in the deployment.
@@ -998,7 +1026,7 @@ class Proxy(proxy.Proxy):
         )
 
     # ====== VOLUME ACTIONS ======
-    def extend_volume(self, volume, size):
+    def extend_volume(self, volume: str | _volume.Volume, size: int) -> None:
         """Extend a volume
 
         :param volume: The value can be either the ID of a volume or a
@@ -1010,7 +1038,9 @@ class Proxy(proxy.Proxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.extend(self, size)
 
-    def complete_volume_extend(self, volume, error=False):
+    def complete_volume_extend(
+        self, volume: str | _volume.Volume, error: bool = False
+    ) -> None:
         """Complete a volume extend operation.
 
         :param volume: The value can be either the ID of a volume or a
@@ -1023,7 +1053,9 @@ class Proxy(proxy.Proxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.complete_extend(self, error)
 
-    def set_volume_readonly(self, volume, readonly=True):
+    def set_volume_readonly(
+        self, volume: str | _volume.Volume, readonly: bool = True
+    ) -> None:
         """Set a volume's read-only flag.
 
         :param volume: The value can be either the ID of a volume or a
@@ -1036,7 +1068,12 @@ class Proxy(proxy.Proxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.set_readonly(self, readonly)
 
-    def retype_volume(self, volume, new_type, migration_policy="never"):
+    def retype_volume(
+        self,
+        volume: str | _volume.Volume,
+        new_type: str | _type.Type,
+        migration_policy: str = "never",
+    ) -> None:
         """Retype the volume.
 
         :param volume: The value can be either the ID of a volume or a
@@ -1054,7 +1091,9 @@ class Proxy(proxy.Proxy):
         type_id = resource.Resource._get_id(new_type)
         volume.retype(self, type_id, migration_policy)
 
-    def set_volume_bootable_status(self, volume, bootable):
+    def set_volume_bootable_status(
+        self, volume: str | _volume.Volume, bootable: bool
+    ) -> None:
         """Set bootable status of the volume.
 
         :param volume: The value can be either the ID of a volume or a
@@ -1067,7 +1106,9 @@ class Proxy(proxy.Proxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.set_bootable_status(self, bootable)
 
-    def set_volume_image_metadata(self, volume, **metadata):
+    def set_volume_image_metadata(
+        self, volume: str | _volume.Volume, **metadata: str
+    ) -> None:
         """Update image metadata for a volume
 
         :param volume: Either the ID of a volume or a
@@ -1101,8 +1142,12 @@ class Proxy(proxy.Proxy):
             volume.delete_image_metadata(self)
 
     def reset_volume_status(
-        self, volume, status=None, attach_status=None, migration_status=None
-    ):
+        self,
+        volume: str | _volume.Volume,
+        status: str | None = None,
+        attach_status: str | None = None,
+        migration_status: str | None = None,
+    ) -> None:
         """Reset volume statuses.
 
         :param volume: The value can be either the ID of a volume or a
@@ -1117,7 +1162,11 @@ class Proxy(proxy.Proxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.reset_status(self, status, attach_status, migration_status)
 
-    def revert_volume_to_snapshot(self, volume, snapshot):
+    def revert_volume_to_snapshot(
+        self,
+        volume: str | _volume.Volume,
+        snapshot: str | _snapshot.Snapshot,
+    ) -> None:
         """Revert a volume to its latest snapshot.
 
         This method only support reverting a detached volume, and the
@@ -1134,7 +1183,13 @@ class Proxy(proxy.Proxy):
         snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
         volume.revert_to_snapshot(self, snapshot.id)
 
-    def attach_volume(self, volume, mountpoint, instance=None, host_name=None):
+    def attach_volume(
+        self,
+        volume: str | _volume.Volume,
+        mountpoint: str,
+        instance: str | None = None,
+        host_name: str | None = None,
+    ) -> None:
         """Attaches a volume to a server.
 
         :param volume: The value can be either the ID of a volume or a
@@ -1148,7 +1203,13 @@ class Proxy(proxy.Proxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.attach(self, mountpoint, instance, host_name)
 
-    def detach_volume(self, volume, attachment, force=False, connector=None):
+    def detach_volume(
+        self,
+        volume: str | _volume.Volume,
+        attachment: str,
+        force: bool = False,
+        connector: dict[str, Any] | None = None,
+    ) -> None:
         """Detaches a volume from a server.
 
         :param volume: The value can be either the ID of a volume or a
@@ -1163,7 +1224,7 @@ class Proxy(proxy.Proxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.detach(self, attachment, force, connector)
 
-    def manage_volume(self, **attrs):
+    def manage_volume(self, **attrs: Any) -> _volume.Volume:
         """Creates a volume by using existing storage rather than
             allocating new storage.
 
@@ -1174,7 +1235,7 @@ class Proxy(proxy.Proxy):
         """
         return _volume.Volume.manage(self, **attrs)
 
-    def unmanage_volume(self, volume):
+    def unmanage_volume(self, volume: str | _volume.Volume) -> None:
         """Removes a volume from Block Storage management without removing the
             back-end storage object that is associated with it.
 
@@ -1188,12 +1249,12 @@ class Proxy(proxy.Proxy):
 
     def migrate_volume(
         self,
-        volume,
-        host=None,
-        force_host_copy=False,
-        lock_volume=False,
-        cluster=None,
-    ):
+        volume: str | _volume.Volume,
+        host: str | None = None,
+        force_host_copy: bool = False,
+        lock_volume: bool = False,
+        cluster: str | None = None,
+    ) -> None:
         """Migrates a volume to the specified host.
 
         :param volume: The value can be either the ID of a volume or a
@@ -1218,7 +1279,12 @@ class Proxy(proxy.Proxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.migrate(self, host, force_host_copy, lock_volume, cluster)
 
-    def complete_volume_migration(self, volume, new_volume, error=False):
+    def complete_volume_migration(
+        self,
+        volume: str | _volume.Volume,
+        new_volume: str,
+        error: bool = False,
+    ) -> None:
         """Complete the migration of a volume.
 
         :param volume: The value can be either the ID of a volume or a
@@ -1234,14 +1300,14 @@ class Proxy(proxy.Proxy):
 
     def upload_volume_to_image(
         self,
-        volume,
-        image_name,
-        force=False,
-        disk_format=None,
-        container_format=None,
-        visibility=None,
-        protected=None,
-    ):
+        volume: str | _volume.Volume,
+        image_name: str,
+        force: bool = False,
+        disk_format: str | None = None,
+        container_format: str | None = None,
+        visibility: str | None = None,
+        protected: bool | None = None,
+    ) -> dict[str, Any]:
         """Uploads the specified volume to image service.
 
         :param volume: The value can be either the ID of a volume or a
@@ -1267,7 +1333,7 @@ class Proxy(proxy.Proxy):
             protected=protected,
         )
 
-    def reserve_volume(self, volume):
+    def reserve_volume(self, volume: str | _volume.Volume) -> None:
         """Mark volume as reserved.
 
         :param volume: The value can be either the ID of a volume or a
@@ -1277,7 +1343,7 @@ class Proxy(proxy.Proxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.reserve(self)
 
-    def unreserve_volume(self, volume):
+    def unreserve_volume(self, volume: str | _volume.Volume) -> None:
         """Unmark volume as reserved.
 
         :param volume: The value can be either the ID of a volume or a
@@ -1287,7 +1353,7 @@ class Proxy(proxy.Proxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.unreserve(self)
 
-    def begin_volume_detaching(self, volume):
+    def begin_volume_detaching(self, volume: str | _volume.Volume) -> None:
         """Update volume status to 'detaching'.
 
         :param volume: The value can be either the ID of a volume or a
@@ -1297,7 +1363,7 @@ class Proxy(proxy.Proxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.begin_detaching(self)
 
-    def abort_volume_detaching(self, volume):
+    def abort_volume_detaching(self, volume: str | _volume.Volume) -> None:
         """Update volume status to 'in-use'.
 
         :param volume: The value can be either the ID of a volume or a
@@ -1307,7 +1373,11 @@ class Proxy(proxy.Proxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.abort_detaching(self)
 
-    def init_volume_attachment(self, volume, connector):
+    def init_volume_attachment(
+        self,
+        volume: str | _volume.Volume,
+        connector: dict[str, Any],
+    ) -> dict[str, Any]:
         """Initialize volume attachment.
 
         :param volume: The value can be either the ID of a volume or a
@@ -1318,7 +1388,11 @@ class Proxy(proxy.Proxy):
         volume = self._get_resource(_volume.Volume, volume)
         return volume.init_attachment(self, connector)
 
-    def terminate_volume_attachment(self, volume, connector):
+    def terminate_volume_attachment(
+        self,
+        volume: str | _volume.Volume,
+        connector: dict[str, Any],
+    ) -> None:
         """Update volume status to 'in-use'.
 
         :param volume: The value can be either the ID of a volume or a
@@ -1434,7 +1508,9 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_attachment.Attachment, attachment, **attrs)
 
-    def complete_attachment(self, attachment):
+    def complete_attachment(
+        self, attachment: str | _attachment.Attachment
+    ) -> None:
         """Complete an attachment
 
         This is an internal API and should only be called by services
@@ -1635,7 +1711,7 @@ class Proxy(proxy.Proxy):
         )
         return self.fetch_backup_metadata(backup)
 
-    def export_record(self, backup):
+    def export_record(self, backup: str | _backup.Backup) -> Any:
         """Get a backup meatadata to export
 
         :param backup: The value can be the ID of a backup
@@ -1647,7 +1723,9 @@ class Proxy(proxy.Proxy):
         backup = self._get_resource(_backup.Backup, backup)
         return backup.export(self)
 
-    def set_backup_metadata(self, backup, **metadata):
+    def set_backup_metadata(
+        self, backup: str | _backup.Backup, **metadata: str
+    ) -> _backup.Backup:
         """Update metadata for a backup
 
         :param backup: Either the ID of a backup or a
@@ -1684,7 +1762,12 @@ class Proxy(proxy.Proxy):
     # ====== BACKUP ACTIONS ======
 
     @renamed_param('volume_id', 'volume')
-    def restore_backup(self, backup, volume=None, name=None):
+    def restore_backup(
+        self,
+        backup: str | _backup.Backup,
+        volume: str | _volume.Volume | None = None,
+        name: str | None = None,
+    ) -> _backup.Backup:
         """Restore a Backup to volume
 
         :param backup: The value can be the ID of a backup or a
@@ -1701,7 +1784,9 @@ class Proxy(proxy.Proxy):
             self, volume_id=volume_id, name=name
         )
 
-    def reset_backup_status(self, backup, status):
+    def reset_backup_status(
+        self, backup: str | _backup.Backup, status: str
+    ) -> None:
         """Reset status of the backup
 
         :param backup: The value can be either the ID of a backup or a
@@ -1713,7 +1798,7 @@ class Proxy(proxy.Proxy):
         backup = self._get_resource(_backup.Backup, backup)
         backup.reset_status(self, status)
 
-    def reset_backup(self, backup, status):
+    def reset_backup(self, backup: str | _backup.Backup, status: str) -> None:
         warnings.warn(
             "reset_backup is a deprecated alias for reset_backup_status "
             "and will be removed in a future release.",
@@ -1926,7 +2011,9 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_group.Group, group, **attrs)
 
-    def reset_group_status(self, group, status):
+    def reset_group_status(
+        self, group: str | _group.Group, status: str
+    ) -> None:
         """Reset group status
 
         :param group: The :class:`~openstack.block_storage.v3.group.Group`
@@ -1938,7 +2025,9 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_group.Group, group)
         return res.reset_status(self, status)
 
-    def reset_group_state(self, group, status):
+    def reset_group_state(
+        self, group: str | _group.Group, status: str
+    ) -> None:
         warnings.warn(
             "reset_group_state is a deprecated alias for reset_group_status "
             "and will be removed in a future release.",
@@ -1946,7 +2035,7 @@ class Proxy(proxy.Proxy):
         )
         return self.reset_group_status(group, status)
 
-    def enable_group_replication(self, group):
+    def enable_group_replication(self, group: str | _group.Group) -> None:
         """Enable replication for a group
 
         :param group: The :class:`~openstack.block_storage.v3.group.Group`
@@ -1957,7 +2046,7 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_group.Group, group)
         return res.enable_replication(self)
 
-    def disable_group_replication(self, group):
+    def disable_group_replication(self, group: str | _group.Group) -> None:
         """Disable replication for a group
 
         :param group: The :class:`~openstack.block_storage.v3.group.Group`
@@ -1970,11 +2059,11 @@ class Proxy(proxy.Proxy):
 
     def failover_group_replication(
         self,
-        group,
+        group: str | _group.Group,
         *,
-        allowed_attached_volume=False,
-        secondary_backend_id=None,
-    ):
+        allowed_attached_volume: bool = False,
+        secondary_backend_id: str | None = None,
+    ) -> None:
         """Failover replication for a group
 
         :param group: The :class:`~openstack.block_storage.v3.group.Group`
@@ -2104,7 +2193,11 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_group_snapshot.GroupSnapshot, **attrs)
 
-    def reset_group_snapshot_status(self, group_snapshot, status):
+    def reset_group_snapshot_status(
+        self,
+        group_snapshot: str | _group_snapshot.GroupSnapshot,
+        status: str,
+    ) -> None:
         """Reset group snapshot status
 
         :param group_snapshot: The
@@ -2114,12 +2207,14 @@ class Proxy(proxy.Proxy):
 
         :returns: None
         """
-        resource = self._get_resource(
-            _group_snapshot.GroupSnapshot, group_snapshot
-        )
-        resource.reset_state(self, status)
+        res = self._get_resource(_group_snapshot.GroupSnapshot, group_snapshot)
+        res.reset_state(self, status)
 
-    def reset_group_snapshot_state(self, group_snapshot, state):
+    def reset_group_snapshot_state(
+        self,
+        group_snapshot: str | _group_snapshot.GroupSnapshot,
+        state: str,
+    ) -> None:
         warnings.warn(
             "reset_group_snapshot_state is a deprecated alias for "
             "reset_group_snapshot_status and will be removed in a future "
@@ -2280,7 +2375,9 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_group_type.GroupType, group_type, **attrs)
 
-    def fetch_group_type_group_specs(self, group_type):
+    def fetch_group_type_group_specs(
+        self, group_type: str | _group_type.GroupType
+    ) -> _group_type.GroupType:
         """Lists group specs of a group type.
 
         :param group_type: Either the ID of a group type or a
@@ -2309,7 +2406,7 @@ class Proxy(proxy.Proxy):
 
     def get_group_type_group_specs_property(
         self, group_type: str | _group_type.GroupType, prop: str
-    ) -> str:
+    ) -> str | None:
         """Retrieve a group spec property for a group type.
 
         :param group_type: Either the ID of a group type or a
@@ -2515,7 +2612,9 @@ class Proxy(proxy.Proxy):
             self, base_path=(f'/os-quota-sets/{project_id}/defaults')
         )
 
-    def revert_quota_set(self, project, **query):
+    def revert_quota_set(
+        self, project: str | _project.Project, **query: Any
+    ) -> None:
         """Reset Quota for the project/user.
 
         :param project: ID or instance of
@@ -2530,7 +2629,7 @@ class Proxy(proxy.Proxy):
             _quota_set.QuotaSet, None, project_id=project_id
         )
 
-        return res.delete(self, **query)
+        res.delete(self, **query)
 
     # TODO(stephenfin): Drop the QuotaSet fallback in 5.0
     def update_quota_set(
@@ -2894,7 +2993,11 @@ class Proxy(proxy.Proxy):
         return self._list(_transfer.Transfer, base_path=base_path, **query)
 
     @renamed_param('transfer_id', 'transfer')
-    def accept_transfer(self, transfer, auth_key):
+    def accept_transfer(
+        self,
+        transfer: str | _transfer.Transfer,
+        auth_key: str,
+    ) -> _transfer.Transfer:
         """Accept a Transfer
 
         :param transfer: The value can be the ID of a transfer or a
@@ -2972,18 +3075,28 @@ class Proxy(proxy.Proxy):
         """
         return resource.wait_for_delete(self, res, interval, wait, callback)
 
-    def _get_cleanup_dependencies(self):
-        return {'block_storage': {'before': []}}
+    def _get_cleanup_dependencies(
+        self,
+    ) -> dict[str, proxy.CleanupDependency] | None:
+        return {'block_storage': {'before': [], 'after': []}}
 
     def _service_cleanup(
         self,
-        dry_run=True,
-        client_status_queue=None,
-        identified_resources=None,
-        filters=None,
-        resource_evaluation_fn=None,
-        skip_resources=None,
-    ):
+        dry_run: bool = True,
+        client_status_queue: queue.Queue[resource.Resource] | None = None,
+        identified_resources: dict[str, resource.Resource] | None = None,
+        filters: dict[str, Any] | None = None,
+        resource_evaluation_fn: Callable[
+            [
+                resource.Resource,
+                dict[str, Any] | None,
+                dict[str, resource.Resource] | None,
+            ],
+            bool,
+        ]
+        | None = None,
+        skip_resources: Sequence[str] | None = None,
+    ) -> None:
         # It is not possible to delete backup if there are dependent backups.
         # In order to be able to do cleanup those is required to have multiple
         # iterations (first clean up backups with has no dependent backups, and

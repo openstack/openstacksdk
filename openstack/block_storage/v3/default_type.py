@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack import resource
 
 
@@ -39,9 +41,9 @@ class DefaultType(resource.Resource):
     def _prepare_request_body(
         self,
         *,
-        prepend_key,
-        resource_request_key=None,
-    ):
+        prepend_key: bool,
+        resource_request_key: str | None = None,
+    ) -> dict[str, Any]:
         body = self._body.dirty
         # Set operation expects volume_type instead of
         # volume_type_id

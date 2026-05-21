@@ -842,7 +842,7 @@ class Proxy(proxy.Proxy):
         else:
             return glance_task
 
-    def _existing_image(self, **kwargs):
+    def _existing_image(self, **kwargs: Any) -> _image.Image:
         return _image.Image.existing(connection=self._connection, **kwargs)
 
     def download_image(

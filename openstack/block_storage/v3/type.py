@@ -10,6 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from collections.abc import Callable, Iterable
+from typing import Any, cast
+
+import requests
+
+from keystoneauth1 import adapter
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -46,7 +53,13 @@ class Type(resource.Resource):
     #: a private volume-type. *Type: bool*
     is_public = resource.Body('os-volume-type-access:is_public', type=bool)
 
-    def _extra_specs(self, method, key=None, delete=False, extra_specs=None):
+    def _extra_specs(
+        self,
+        method: Callable[..., requests.Response],
+        key: str | None = None,
+        delete: bool = False,
+        extra_specs: dict[str, str] | None = None,
+    ) -> dict[str, Any] | None:
         extra_specs = extra_specs or {}
         for k, v in extra_specs.items():
             if not isinstance(v, str):
@@ -70,7 +83,9 @@ class Type(resource.Resource):
         # DELETE doesn't return a JSON body while everything else does.
         return response.json() if not delete else None
 
-    def set_extra_specs(self, session, **extra_specs):
+    def set_extra_specs(
+        self, session: adapter.Adapter, **extra_specs: str
+    ) -> dict[str, Any]:
         """Update extra specs.
 
         This call will replace only the extra_specs with the same keys
@@ -85,9 +100,12 @@ class Type(resource.Resource):
             return dict()
 
         result = self._extra_specs(session.post, extra_specs=extra_specs)
-        return result["extra_specs"]
+        assert result is not None
+        return cast(dict[str, Any], result["extra_specs"])
 
-    def delete_extra_specs(self, session, keys):
+    def delete_extra_specs(
+        self, session: adapter.Adapter, keys: Iterable[str]
+    ) -> None:
         """Delete extra specs.
 
         .. note::
@@ -101,7 +119,9 @@ class Type(resource.Resource):
         for key in keys:
             self._extra_specs(session.delete, key=key, delete=True)
 
-    def get_private_access(self, session):
+    def get_private_access(
+        self, session: adapter.Adapter
+    ) -> list[dict[str, Any]]:
         """List projects with private access to the volume type.
 
         :param session: The session to use for making this request.
@@ -112,9 +132,13 @@ class Type(resource.Resource):
 
         exceptions.raise_from_response(resp)
 
-        return resp.json().get("volume_type_access", [])
+        return cast(
+            list[dict[str, Any]], resp.json().get("volume_type_access", [])
+        )
 
-    def add_private_access(self, session, project_id):
+    def add_private_access(
+        self, session: adapter.Adapter, project_id: str
+    ) -> None:
         """Add project access from the volume type.
 
         :param session: The session to use for making this request.
@@ -127,7 +151,9 @@ class Type(resource.Resource):
 
         exceptions.raise_from_response(resp)
 
-    def remove_private_access(self, session, project_id):
+    def remove_private_access(
+        self, session: adapter.Adapter, project_id: str
+    ) -> None:
         """Remove project access from the volume type.
 
         :param session: The session to use for making this request.

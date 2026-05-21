@@ -10,7 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 import warnings
+
+import requests
+
+from keystoneauth1 import adapter
 
 from openstack import exceptions
 from openstack import resource
@@ -61,7 +66,12 @@ class GroupSnapshot(resource.Resource):
     # Pagination support was added in microversion 3.29
     _max_microversion = '3.29'
 
-    def _action(self, session, body, microversion=None):
+    def _action(
+        self,
+        session: adapter.Adapter,
+        body: dict[str, Any],
+        microversion: str | None = None,
+    ) -> requests.Response:
         """Preform aggregate actions given the message body."""
         url = utils.urljoin(self.base_path, self.id, 'action')
         headers = {'Accept': ''}
@@ -83,12 +93,14 @@ class GroupSnapshot(resource.Resource):
         exceptions.raise_from_response(response)
         return response
 
-    def reset_status(self, session, state):
+    def reset_status(
+        self, session: adapter.Adapter, state: str
+    ) -> requests.Response:
         """Resets the status for a group snapshot."""
         body = {'reset_status': {'status': state}}
         return self._action(session, body)
 
-    def reset_state(self, session, status):
+    def reset_state(self, session: adapter.Adapter, status: str) -> None:
         warnings.warn(
             "reset_state is a deprecated alias for reset_status and will be "
             "removed in a future release.",

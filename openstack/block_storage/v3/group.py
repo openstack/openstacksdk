@@ -11,6 +11,11 @@
 # under the License.
 
 import warnings
+from typing import Any, Self
+
+import requests
+
+from keystoneauth1 import adapter
 
 from openstack import exceptions
 from openstack import resource
@@ -55,7 +60,9 @@ class Group(resource.Resource):
 
     _max_microversion = "3.38"
 
-    def _action(self, session, body):
+    def _action(
+        self, session: adapter.Adapter, body: dict[str, Any]
+    ) -> requests.Response:
         """Preform group actions given the message body."""
         session = self._get_session(session)
         microversion = self._get_microversion(session)
@@ -64,12 +71,21 @@ class Group(resource.Resource):
         exceptions.raise_from_response(response)
         return response
 
-    def delete(self, session, *args, delete_volumes=False, **kwargs):
+    def delete(
+        self,
+        session: adapter.Adapter,
+        error_message: str | None = None,
+        *,
+        microversion: str | None = None,
+        delete_volumes: bool = False,
+        **attrs: Any,
+    ) -> Self:
         """Delete a group."""
         body = {'delete': {'delete-volumes': delete_volumes}}
         self._action(session, body)
+        return self
 
-    def fetch_replication_targets(self, session):
+    def fetch_replication_targets(self, session: adapter.Adapter) -> Self:
         """Fetch replication targets for the group.
 
         :param session: The session to use for making this request.
@@ -82,7 +98,7 @@ class Group(resource.Resource):
         )
         return self
 
-    def enable_replication(self, session):
+    def enable_replication(self, session: adapter.Adapter) -> None:
         """Enable replication for the group.
 
         :param session: The session to use for making this request.
@@ -90,7 +106,7 @@ class Group(resource.Resource):
         body = {'enable_replication': None}
         self._action(session, body)
 
-    def disable_replication(self, session):
+    def disable_replication(self, session: adapter.Adapter) -> None:
         """Disable replication for the group.
 
         :param session: The session to use for making this request.
@@ -100,11 +116,11 @@ class Group(resource.Resource):
 
     def failover_replication(
         self,
-        session,
+        session: adapter.Adapter,
         *,
-        allowed_attached_volume=False,
-        secondary_backend_id=None,
-    ):
+        allowed_attached_volume: bool = False,
+        secondary_backend_id: str | None = None,
+    ) -> None:
         """Failover replication for the group.
 
         :param session: The session to use for making this request.
@@ -121,7 +137,7 @@ class Group(resource.Resource):
         }
         self._action(session, body)
 
-    def reset_status(self, session, status):
+    def reset_status(self, session: adapter.Adapter, status: str) -> None:
         """Resets the status for a group.
 
         :param session: The session to use for making this request.
@@ -130,7 +146,7 @@ class Group(resource.Resource):
         body = {'reset_status': {'status': status}}
         self._action(session, body)
 
-    def reset(self, session, status):
+    def reset(self, session: adapter.Adapter, status: str) -> None:
         warnings.warn(
             "reset is a deprecated alias for reset_status and will be "
             "removed in a future release.",
@@ -141,12 +157,12 @@ class Group(resource.Resource):
     @classmethod
     def create_from_source(
         cls,
-        session,
-        group_snapshot_id,
-        source_group_id,
-        name=None,
-        description=None,
-    ):
+        session: adapter.Adapter,
+        group_snapshot_id: str | None,
+        source_group_id: str | None,
+        name: str | None = None,
+        description: str | None = None,
+    ) -> Self:
         """Creates a new group from source."""
         session = cls._get_session(session)
         microversion = cls._get_microversion(session)
@@ -162,6 +178,6 @@ class Group(resource.Resource):
         response = session.post(url, json=body, microversion=microversion)
         exceptions.raise_from_response(response)
 
-        group = Group()
+        group = cls()
         group._translate_response(response)
         return group

@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Self, cast
+
+from keystoneauth1 import adapter
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -37,7 +41,7 @@ class GroupType(resource.Resource):
     #: Whether the group type is publicly visible.
     is_public = resource.Body("is_public", type=bool)
 
-    def fetch_group_specs(self, session):
+    def fetch_group_specs(self, session: adapter.Adapter) -> Self:
         """Fetch group_specs of the group type.
 
         These are returned by default if the user has suitable permissions
@@ -58,7 +62,9 @@ class GroupType(resource.Resource):
         self._update(group_specs=specs)
         return self
 
-    def create_group_specs(self, session, specs):
+    def create_group_specs(
+        self, session: adapter.Adapter, specs: dict[str, str]
+    ) -> Self:
         """Creates group specs for the group type.
 
         This will override whatever specs are already present on the group
@@ -80,7 +86,9 @@ class GroupType(resource.Resource):
         self._update(group_specs=specs)
         return self
 
-    def get_group_specs_property(self, session, prop):
+    def get_group_specs_property(
+        self, session: adapter.Adapter, prop: str
+    ) -> str | None:
         """Retrieve a group spec property of the group type.
 
         :param session: The session to use for making this request.
@@ -91,10 +99,11 @@ class GroupType(resource.Resource):
         microversion = self._get_microversion(session)
         response = session.get(url, microversion=microversion)
         exceptions.raise_from_response(response)
-        val = response.json().get(prop)
-        return val
+        return cast('str | None', response.json().get(prop))
 
-    def update_group_specs_property(self, session, prop, val):
+    def update_group_specs_property(
+        self, session: adapter.Adapter, prop: str, val: str
+    ) -> str:
         """Update a group spec property of the group type.
 
         :param session: The session to use for making this request.
@@ -111,7 +120,9 @@ class GroupType(resource.Resource):
         val = response.json()[prop]
         return val
 
-    def delete_group_specs_property(self, session, prop):
+    def delete_group_specs_property(
+        self, session: adapter.Adapter, prop: str
+    ) -> None:
         """Delete a group spec property from the group type.
 
         :param session: The session to use for making this request.
