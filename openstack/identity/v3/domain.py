@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystoneauth1 import adapter
+
 from openstack.common import tag
 from openstack import resource
 from openstack import utils
@@ -51,7 +53,13 @@ class Domain(resource.Resource, tag.TagMixin):
     #: The links related to the domain resource.
     links = resource.Body('links')
 
-    def assign_role_to_user(self, session, user, role, inherited):
+    def assign_role_to_user(
+        self,
+        session: adapter.Adapter,
+        user: resource.Resource,
+        role: resource.Resource,
+        inherited: bool,
+    ) -> bool:
         """Assign role to user on domain"""
         url = utils.urljoin(
             self.base_path,
@@ -70,7 +78,13 @@ class Domain(resource.Resource, tag.TagMixin):
             return True
         return False
 
-    def validate_user_has_role(self, session, user, role, inherited):
+    def validate_user_has_role(
+        self,
+        session: adapter.Adapter,
+        user: resource.Resource,
+        role: resource.Resource,
+        inherited: bool,
+    ) -> bool:
         """Validates that a user has a role on a domain"""
         url = utils.urljoin(
             self.base_path, self.id, 'users', user.id, 'roles', role.id
@@ -84,7 +98,13 @@ class Domain(resource.Resource, tag.TagMixin):
             return True
         return False
 
-    def unassign_role_from_user(self, session, user, role, inherited):
+    def unassign_role_from_user(
+        self,
+        session: adapter.Adapter,
+        user: resource.Resource,
+        role: resource.Resource,
+        inherited: bool,
+    ) -> bool:
         """Unassigns a role from a user on a domain"""
         url = utils.urljoin(
             self.base_path, self.id, 'users', user.id, 'roles', role.id
@@ -98,7 +118,13 @@ class Domain(resource.Resource, tag.TagMixin):
             return True
         return False
 
-    def assign_role_to_group(self, session, group, role, inherited):
+    def assign_role_to_group(
+        self,
+        session: adapter.Adapter,
+        group: resource.Resource,
+        role: resource.Resource,
+        inherited: bool,
+    ) -> bool:
         """Assign role to group on domain"""
         url = utils.urljoin(
             self.base_path,
@@ -117,7 +143,13 @@ class Domain(resource.Resource, tag.TagMixin):
             return True
         return False
 
-    def validate_group_has_role(self, session, group, role, inherited):
+    def validate_group_has_role(
+        self,
+        session: adapter.Adapter,
+        group: resource.Resource,
+        role: resource.Resource,
+        inherited: bool,
+    ) -> bool:
         """Validates that a group has a role on a domain"""
         url = utils.urljoin(
             self.base_path, self.id, 'groups', group.id, 'roles', role.id
@@ -131,7 +163,13 @@ class Domain(resource.Resource, tag.TagMixin):
             return True
         return False
 
-    def unassign_role_from_group(self, session, group, role, inherited):
+    def unassign_role_from_group(
+        self,
+        session: adapter.Adapter,
+        group: resource.Resource,
+        role: resource.Resource,
+        inherited: bool,
+    ) -> bool:
         """Unassigns a role from a group on a domain"""
         url = utils.urljoin(
             self.base_path, self.id, 'groups', group.id, 'roles', role.id

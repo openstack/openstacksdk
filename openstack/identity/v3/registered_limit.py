@@ -10,7 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, Self
+from typing import Any, Self, cast
+
+import requests
 
 from keystoneauth1 import adapter
 
@@ -49,10 +51,11 @@ class RegisteredLimit(resource.Resource):
     #: The default limit value. *Type: int*
     default_limit = resource.Body('default_limit')
 
-    def _transform_create_request(self, request):
+    def _transform_create_request(self, request: resource._Request) -> None:
         # Keystone supports batch create for unified limit. So the
         # request body for creating limit is a list instead of dict.
-        request.body = {self.resources_key: [request.body[self.resource_key]]}
+        body = cast(dict[str, Any], request.body)
+        request.body = {self.resources_key: [body[self.resource_key]]}
 
     def create(
         self,
@@ -77,12 +80,12 @@ class RegisteredLimit(resource.Resource):
 
     def _translate_response(
         self,
-        response,
-        has_body=None,
-        error_message=None,
+        response: requests.Response,
+        has_body: bool | None = None,
+        error_message: str | None = None,
         *,
-        resource_response_key=None,
-    ):
+        resource_response_key: str | None = None,
+    ) -> None:
         """Given a KSA response, inflate this instance with its data
 
         DELETE operations don't return a body, so only try to work

@@ -41,6 +41,7 @@ class TestProjectQuota(base.BaseFunctionalTest):
         self.addCleanup(self._identity.delete_role, self.role.id)
 
         self.user_id = self.system_admin_cloud.current_user_id
+        assert self.user_id is not None
         self._identity.assign_project_role_to_user(
             project=self.project, user=self.user_id, role=self.role
         )

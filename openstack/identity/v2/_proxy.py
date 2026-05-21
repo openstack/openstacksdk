@@ -129,7 +129,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_role.Role, **query)
 
-    def update_role(self, role, **attrs):
+    def update_role(self, role: str | _role.Role, **attrs: Any) -> _role.Role:
         """Update a role
 
         :param role: Either the ID of a role or a
@@ -224,7 +224,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_tenant.Tenant, **query)
 
-    def update_tenant(self, tenant, **attrs):
+    def update_tenant(
+        self, tenant: str | _tenant.Tenant, **attrs: Any
+    ) -> _tenant.Tenant:
         """Update a tenant
 
         :param tenant: Either the ID of a tenant or a
@@ -319,7 +321,7 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_user.User, **query)
 
-    def update_user(self, user, **attrs):
+    def update_user(self, user: str | _user.User, **attrs: Any) -> _user.User:
         """Update a user
 
         :param user: Either the ID of a user or a

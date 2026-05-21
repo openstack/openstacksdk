@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystoneauth1 import adapter
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -76,7 +78,12 @@ class User(resource.Resource):
     #: A dictionary of users extra options.
     options = resource.Body('options', type=dict, default={})
 
-    def update_password(self, session, current_password, password):
+    def update_password(
+        self,
+        session: adapter.Adapter,
+        current_password: str,
+        password: str,
+    ) -> None:
         """Update the password for this user.
 
         :param session: The session to use for the request.
