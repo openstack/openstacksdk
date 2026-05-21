@@ -152,20 +152,29 @@ class Volume(resource.Resource, metadata.MetadataMixin):
             body['os-reset_status']['migration_status'] = migration_status
         self._action(session, body)
 
-    def attach(self, session, mountpoint, instance):
+    def attach(self, session, mountpoint, instance=None, host_name=None):
         """Attach volume to server"""
-        body = {
-            'os-attach': {'mountpoint': mountpoint, 'instance_uuid': instance}
-        }
+        body = {'os-attach': {'mountpoint': mountpoint}}
+
+        if instance is not None:
+            body['os-attach']['instance_uuid'] = instance
+        elif host_name is not None:
+            body['os-attach']['host_name'] = host_name
+        else:
+            raise ValueError(
+                'Either instance_uuid or host_name must be specified'
+            )
 
         self._action(session, body)
 
-    def detach(self, session, attachment, force=False):
+    def detach(self, session, attachment, force=False, connector=None):
         """Detach volume from server"""
         if not force:
             body = {'os-detach': {'attachment_id': attachment}}
         if force:
             body = {'os-force_detach': {'attachment_id': attachment}}
+            if connector:
+                body['os-force_detach']['connector'] = connector
 
         self._action(session, body)
 
