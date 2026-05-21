@@ -10,6 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from __future__ import annotations
+
+from typing import Any, cast
+
+from keystoneauth1 import adapter
+
 from openstack.clustering.v1 import _async_resource
 from openstack import resource
 from openstack import utils
@@ -87,7 +93,9 @@ class Node(_async_resource.AsyncResource):
     #: Whether the node is tainted. *Type: bool*
     tainted = resource.Body('tainted', type=bool)
 
-    def _action(self, session, body):
+    def _action(
+        self, session: adapter.Adapter, body: dict[str, Any]
+    ) -> dict[str, Any]:
         """Procedure the invoke an action API.
 
         :param session: A session object used for sending request.
@@ -95,9 +103,9 @@ class Node(_async_resource.AsyncResource):
         """
         url = utils.urljoin(self.base_path, self.id, 'actions')
         resp = session.post(url, json=body)
-        return resp.json()
+        return cast(dict[str, Any], resp.json())
 
-    def check(self, session, **params):
+    def check(self, session: adapter.Adapter, **params: Any) -> dict[str, Any]:
         """An action procedure for the node to check its health status.
 
         :param session: A session object used for sending request.
@@ -106,7 +114,9 @@ class Node(_async_resource.AsyncResource):
         body = {'check': params}
         return self._action(session, body)
 
-    def recover(self, session, **params):
+    def recover(
+        self, session: adapter.Adapter, **params: Any
+    ) -> dict[str, Any]:
         """An action procedure for the node to recover.
 
         :param session: A session object used for sending request.
@@ -115,7 +125,9 @@ class Node(_async_resource.AsyncResource):
         body = {'recover': params}
         return self._action(session, body)
 
-    def op(self, session, operation, **params):
+    def op(
+        self, session: adapter.Adapter, operation: str, **params: Any
+    ) -> dict[str, Any]:
         """Perform an operation on the specified node.
 
         :param session: A session object used for sending request.
@@ -126,9 +138,14 @@ class Node(_async_resource.AsyncResource):
         """
         url = utils.urljoin(self.base_path, self.id, 'ops')
         resp = session.post(url, json={operation: params})
-        return resp.json()
+        return cast(dict[str, Any], resp.json())
 
-    def adopt(self, session, preview=False, **params):
+    def adopt(
+        self,
+        session: adapter.Adapter,
+        preview: bool = False,
+        **params: Any,
+    ) -> dict[str, Any] | Node:
         """Adopt a node for management.
 
         :param session: A session object used for sending request.
@@ -139,7 +156,7 @@ class Node(_async_resource.AsyncResource):
         """
         if preview:
             path = 'adopt-preview'
-            attrs = {
+            attrs: dict[str, Any] = {
                 'identity': params.get('identity'),
                 'overrides': params.get('overrides'),
                 'type': params.get('type'),
@@ -152,17 +169,10 @@ class Node(_async_resource.AsyncResource):
         url = utils.urljoin(self.base_path, path)
         resp = session.post(url, json=attrs)
         if preview:
-            return resp.json()
+            return cast(dict[str, Any], resp.json())
 
         self._translate_response(resp)
         return self
-
-    def force_delete(self, session):
-        """Force delete a node."""
-        body = {'force': True}
-        url = utils.urljoin(self.base_path, self.id)
-        response = session.delete(url, json=body)
-        return self._delete_response(response)
 
 
 class NodeDetail(Node):

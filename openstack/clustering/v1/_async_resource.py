@@ -10,13 +10,27 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
+import requests
+
+from keystoneauth1 import adapter
+
 from openstack.clustering.v1 import action as _action
 from openstack import exceptions
 from openstack import resource
+from openstack import utils
 
 
 class AsyncResource(resource.Resource):
-    def delete(self, session, error_message=None, **kwargs):
+    def delete(  # type: ignore[override]
+        self,
+        session: adapter.Adapter,
+        error_message: str | None = None,
+        *,
+        microversion: str | None = None,
+        **kwargs: Any,
+    ) -> _action.Action:
         """Delete the remote resource based on this instance.
 
         :param session: The session to use for making this request.
@@ -33,7 +47,11 @@ class AsyncResource(resource.Resource):
         response = self._raw_delete(session)
         return self._delete_response(response, error_message)
 
-    def _delete_response(self, response, error_message=None):
+    def _delete_response(
+        self,
+        response: requests.Response,
+        error_message: str | None = None,
+    ) -> _action.Action:
         exceptions.raise_from_response(response, error_message=error_message)
         location = response.headers['Location']
         action_id = location.split('/')[-1]
@@ -41,3 +59,10 @@ class AsyncResource(resource.Resource):
             id=action_id, connection=self._connection
         )
         return action
+
+    def force_delete(self, session: adapter.Adapter) -> _action.Action:
+        """Force delete the remote resource."""
+        body = {'force': True}
+        url = utils.urljoin(self.base_path, self.id)
+        response = session.delete(url, json=body)
+        return self._delete_response(response)
