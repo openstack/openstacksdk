@@ -2284,7 +2284,9 @@ class Resource(dict[str, Any]):
         marker: str | None,
         limit: str | None,
         total_yielded: int,
-    ) -> tuple[str | None, dict[str, str | builtins.list[str] | int | None]]:
+    ) -> tuple[
+        str | None, Mapping[str, str | builtins.list[str] | int | None]
+    ]:
         next_link: str | None = None
         params: dict[str, str | list[str] | int | None] = {}
 

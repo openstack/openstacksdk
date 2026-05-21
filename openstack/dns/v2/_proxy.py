@@ -11,7 +11,8 @@
 # under the License.
 
 from typing import Any, ClassVar, Literal, overload
-from collections.abc import Callable, Generator
+from collections.abc import Callable, Generator, Sequence
+import queue
 
 from openstack.dns.v2 import blacklist as _blacklist
 from openstack.dns.v2 import floating_ip as _fip
@@ -164,7 +165,7 @@ class Proxy(proxy.Proxy):
             _zone.Zone, name_or_id, ignore_missing=ignore_missing
         )
 
-    def abandon_zone(self, zone, **attrs):
+    def abandon_zone(self, zone: str | _zone.Zone, **attrs: Any) -> None:
         """Abandon Zone
 
         :param zone: The value can be the ID of a zone to be abandoned
@@ -174,9 +175,9 @@ class Proxy(proxy.Proxy):
         """
         zone = self._get_resource(_zone.Zone, zone)
 
-        return zone.abandon(self)
+        zone.abandon(self)
 
-    def xfr_zone(self, zone, **attrs):
+    def xfr_zone(self, zone: str | _zone.Zone, **attrs: Any) -> None:
         """Trigger update of secondary Zone
 
         :param zone: The value can be the ID of a zone to be abandoned
@@ -185,7 +186,7 @@ class Proxy(proxy.Proxy):
         :returns: None
         """
         zone = self._get_resource(_zone.Zone, zone)
-        return zone.xfr(self)
+        zone.xfr(self)
 
     # ======== Zone nameservers ========
     def zone_nameservers(
@@ -557,7 +558,9 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_fip.FloatingIP, floating_ip, **attrs)
 
-    def unset_floating_ip(self, floating_ip):
+    def unset_floating_ip(
+        self, floating_ip: str | _fip.FloatingIP
+    ) -> _fip.FloatingIP:
         """Unset a Floating IP PTR record
         :param floating_ip: ID for the floatingip associated with the
             project.
@@ -1249,19 +1252,29 @@ class Proxy(proxy.Proxy):
         """
         return resource.wait_for_delete(self, res, interval, wait, callback)
 
-    def _get_cleanup_dependencies(self):
+    def _get_cleanup_dependencies(
+        self,
+    ) -> dict[str, proxy.CleanupDependency] | None:
         # DNS may depend on floating ip
-        return {'dns': {'before': ['network']}}
+        return {'dns': {'before': ['network']}}  # type: ignore[typeddict-item]
 
     def _service_cleanup(
         self,
-        dry_run=True,
-        client_status_queue=False,
-        identified_resources=None,
-        filters=None,
-        resource_evaluation_fn=None,
-        skip_resources=None,
-    ):
+        dry_run: bool = True,
+        client_status_queue: queue.Queue[resource.Resource] | None = None,
+        identified_resources: dict[str, resource.Resource] | None = None,
+        filters: dict[str, Any] | None = None,
+        resource_evaluation_fn: Callable[
+            [
+                resource.Resource,
+                dict[str, Any] | None,
+                dict[str, resource.Resource] | None,
+            ],
+            bool,
+        ]
+        | None = None,
+        skip_resources: Sequence[str] | None = None,
+    ) -> None:
         if not self.should_skip_resource_cleanup("zone", skip_resources):
             # Delete all zones
             for obj in self.zones():

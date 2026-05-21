@@ -46,15 +46,15 @@ class Quota(_base.Resource):
 
     def _prepare_request(
         self,
-        requires_id=True,
-        prepend_key=False,
-        patch=False,
-        base_path=None,
-        params=None,
+        requires_id: bool | None = True,
+        prepend_key: bool = False,
+        patch: bool = False,
+        base_path: str | None = None,
+        params: Any = None,
         *,
-        resource_request_key=None,
-        **kwargs,
-    ):
+        resource_request_key: str | None = None,
+        **kwargs: Any,
+    ) -> resource._Request:
         _request = super()._prepare_request(
             requires_id, prepend_key, base_path=base_path
         )

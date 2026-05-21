@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import requests
+
+from keystoneauth1 import adapter
+
 from openstack.dns.v2 import _base
 from openstack import exceptions
 from openstack import resource
@@ -94,15 +98,17 @@ class Zone(_base.Resource):
     #: If true, delete any existing zone shares along with the zone
     delete_shares = resource.Header('x-designate-delete-shares', type=bool)
 
-    def _action(self, session, action, body):
+    def _action(
+        self, session: adapter.Adapter, action: str, body: None
+    ) -> requests.Response:
         """Preform actions given the message body."""
         url = utils.urljoin(self.base_path, self.id, 'tasks', action)
         response = session.post(url, json=body)
         exceptions.raise_from_response(response)
         return response
 
-    def abandon(self, session):
+    def abandon(self, session: adapter.Adapter) -> None:
         self._action(session, 'abandon', None)
 
-    def xfr(self, session):
+    def xfr(self, session: adapter.Adapter) -> None:
         self._action(session, 'xfr', None)
