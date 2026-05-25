@@ -14,6 +14,7 @@ from openstack.key_manager.v1 import _proxy
 from openstack.key_manager.v1 import container
 from openstack.key_manager.v1 import order
 from openstack.key_manager.v1 import project_quota
+from openstack.key_manager.v1 import quota
 from openstack.key_manager.v1 import secret
 from openstack.key_manager.v1 import secret_store
 from openstack.tests.unit import test_proxy_base
@@ -99,6 +100,17 @@ class TestKeyManagerSecret(TestKeyManagerProxy):
 
     def test_secret_update(self):
         self.verify_update(self.proxy.update_secret, secret.Secret)
+
+
+class TestKeyManagerQuota(TestKeyManagerProxy):
+    def test_quota_get(self):
+        self.verify_get(
+            self.proxy.get_quota,
+            quota.Quota,
+            requires_id=False,
+            method_args=[],
+            expected_kwargs={'requires_id': False},
+        )
 
 
 class TestKeyManagerSecretStore(TestKeyManagerProxy):
