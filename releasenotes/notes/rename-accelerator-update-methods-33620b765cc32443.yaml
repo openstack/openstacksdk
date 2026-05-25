@@ -1,0 +1,10 @@
+---
+upgrade:
+  - |
+    The following accelerator proxy API methods have been renamed:
+
+    - ``update_accelerator_request`` (to ``patch_accelerator_request``)
+    - ``update_deployable`` (to ``patch_deployable``)
+
+    Backwards-compatible shims are provided for all methods, but these are
+    deprecated and will be removed in the next major release.

@@ -63,7 +63,23 @@ class Proxy(proxy.Proxy):
 
         return self._get(_deployable.Deployable, deployable)
 
-    # TODO(stephenfin): Rename to patch_deployable
+    def patch_deployable(
+        self,
+        deployable: str | _deployable.Deployable,
+        patch: list[dict[str, Any]],
+    ) -> _deployable.Deployable:
+        """Apply a JSON patch to the deployable.
+
+        :param deployable: The value can be the ID of a deployable or a
+            :class:`~openstack.accelerator.v1.deployable.Deployable` instance.
+        :param patch: JSON patch to apply.
+        :returns: The updated deployable.
+        """
+        return self._get_resource(_deployable.Deployable, deployable).patch(
+            self, patch
+        )
+
+    # TODO(stephenfin): Remove in 5.0
     def update_deployable(
         self,
         uuid: str | _deployable.Deployable,
@@ -75,9 +91,12 @@ class Proxy(proxy.Proxy):
         :param patch: The information to reconfig.
         :returns: The results of FPGA reconfig.
         """
-        return self._get_resource(_deployable.Deployable, uuid).patch(
-            self, patch
+        warnings.warn(
+            "The 'update_deployable' method is deprecated; use "
+            "'patch_deployable' instead.",
+            os_warnings.RemovedInSDK50Warning,
         )
+        return self.update_deployable(uuid, patch)
 
     # ========== Devices ==========
 
@@ -270,6 +289,25 @@ class Proxy(proxy.Proxy):
         return self._get(_arq.AcceleratorRequest, accelerator_request)
 
     # TODO(stephenfin): Rename to patch_accelerator_request
+    def patch_accelerator_request(
+        self,
+        accelerator_request: str | _arq.AcceleratorRequest,
+        patch: list[dict[str, Any]],
+    ) -> _arq.AcceleratorRequest:
+        """Apply a JSON patch to the accelerator request.
+
+        :param accelerator_request: The value can be the ID of an accelerator
+            request or an
+            :class:`~openstack.accelerator.v1.accelerator_request.AcceleratorRequest`
+            instance.
+        :param patch: JSON patch to apply.
+        :returns: The updated accelerator request.
+        """
+        return self._get_resource(
+            _arq.AcceleratorRequest, accelerator_request
+        ).patch(self, patch)
+
+    # TODO(stephenfin): Remove in 5.0
     def update_accelerator_request(
         self,
         uuid: str | _arq.AcceleratorRequest,
@@ -282,9 +320,12 @@ class Proxy(proxy.Proxy):
             that will bind/unbind the accelerator.
         :returns: True if bind/unbind succeeded, False otherwise.
         """
-        return self._get_resource(_arq.AcceleratorRequest, uuid).patch(
-            self, properties
+        warnings.warn(
+            "The 'update_accelerator_request' method is deprecated; use "
+            "'patch_accelerator_request' instead.",
+            os_warnings.RemovedInSDK50Warning,
         )
+        return self.patch_accelerator_request(uuid, properties)
 
     # ========== Attributes ==========
 
