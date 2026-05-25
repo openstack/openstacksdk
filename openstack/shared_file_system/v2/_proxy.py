@@ -50,6 +50,7 @@ from openstack.shared_file_system.v2 import share_snapshot as _share_snapshot
 from openstack.shared_file_system.v2 import (
     share_snapshot_instance as _share_snapshot_instance,
 )
+from openstack.shared_file_system.v2 import share_transfer as _share_transfer
 from openstack.shared_file_system.v2 import storage_pool as _storage_pool
 from openstack.shared_file_system.v2 import user_message as _user_message
 from openstack import warnings as os_warnings
@@ -78,6 +79,7 @@ class Proxy(proxy.Proxy):
         "share_group_snapshot": _share_group_snapshot.ShareGroupSnapshot,
         "resource_locks": _resource_locks.ResourceLock,
         "quota_class_set": _quota_class_set.QuotaClassSet,
+        "share_transfer": _share_transfer.ShareTransfer,
     }
 
     def availability_zones(
@@ -1508,6 +1510,136 @@ class Proxy(proxy.Proxy):
 
         return self._update(
             _quota_class_set.QuotaClassSet, quota_class_set, **attrs
+        )
+
+    def create_share_transfer(
+        self, **attrs: Any
+    ) -> _share_transfer.ShareTransfer:
+        """Initiates a share transfer from a source project namespace to a
+        destination project namespace.
+
+        :param attrs: Attributes which will be used to create
+            Expected attributes include:
+
+             - share_id (str): ID of the share to be transferred.
+             - name (str, optional): The name of the share transfer.
+
+
+        :returns: `ShareTransfer` object
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            share_transfer.ShareTransfer`
+        """
+        return self._create(_share_transfer.ShareTransfer, **attrs)
+
+    def accept_share_transfer(
+        self,
+        share_transfer: str | _share_transfer.ShareTransfer,
+        *,
+        auth_key: str,
+        clear_access_rules: bool = False,
+    ) -> _share_transfer.ShareTransfer:
+        """Accept a share transfer in the destination project namespace
+
+        :param transfer: The ID of the share transfer to accept
+        :param auth_key: The authorization key for the share transfer
+        :param clear_access_rules: Whether to clear access rules on the share
+
+        :returns: `ShareTransfer` object
+        """
+        return self._get_resource(
+            _share_transfer.ShareTransfer, share_transfer
+        ).accept(
+            self, auth_key=auth_key, clear_access_rules=clear_access_rules
+        )
+
+    def share_transfers(
+        self, details: bool = False, **query: Any
+    ) -> Generator[_share_transfer.ShareTransfer, None, None]:
+        """List share transfers and details
+
+        :param details: Whether to fetch detailed resource descriptions.
+        :param query: Optional query parameters to be sent to limit the
+            resources being returned. Available parameters include:
+
+            * all_tenants:  Defines whether to list the requested resources
+              for all projects.
+            * limit: The maximum number of share groups members to return.
+            * offset: The offset to define start point of resource listing.
+            * sort_key: The key to sort a list of transfers. A valid value is:
+
+                - id
+                - name
+                - resource_type
+                - resource_id
+                - source_project_id,
+                - destination_project_id
+                - created_at
+                - expires_at
+
+            * sort_dir: The direction to sort a list of resources (asc or
+              desc).
+        :returns: A list of share transfers
+        """
+        base_path = "/share-transfers/detail" if details else None
+        return self._list(
+            _share_transfer.ShareTransfer, base_path=base_path, **query
+        )
+
+    def get_share_transfer(
+        self, share_transfer: str | _share_transfer.ShareTransfer
+    ) -> _share_transfer.ShareTransfer:
+        """Show share transfer detail
+
+        :param id: The unique identifier for a transfer.
+
+        :returns: Details of the identified share transfer
+        """
+        return self._get(_share_transfer.ShareTransfer, share_transfer)
+
+    @overload
+    def find_share_transfer(
+        self, name_or_id: str, ignore_missing: Literal[False]
+    ) -> _share_transfer.ShareTransfer: ...
+
+    @overload
+    def find_share_transfer(
+        self, name_or_id: str, ignore_missing: bool = True
+    ) -> _share_transfer.ShareTransfer | None: ...
+
+    def find_share_transfer(
+        self, name_or_id: str, ignore_missing: bool = True
+    ) -> _share_transfer.ShareTransfer | None:
+        """Find a single share transfer
+
+        :param name_or_id: The name or ID of a share transfer.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the share transfer does not exist.
+            When set to ``True``, ``None`` will be returned when attempting to
+            find a nonexistent share transfer.
+
+        :returns: A share transfer object or None
+        """
+        return self._find(
+            _share_transfer.ShareTransfer,
+            name_or_id,
+            ignore_missing=ignore_missing,
+        )
+
+    def delete_share_transfers(
+        self,
+        share_transfer: _share_transfer.ShareTransfer,
+        ignore_missing: bool = True,
+    ) -> None:
+        """Delete a share transfer
+
+        :param id: The unique identifier for a transfer.
+        :returns: None
+        """
+        self._delete(
+            _share_transfer.ShareTransfer,
+            share_transfer,
+            ignore_missing=ignore_missing,
         )
 
     # ========== Utilities ==========
