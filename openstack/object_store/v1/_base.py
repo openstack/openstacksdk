@@ -11,7 +11,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any
+from collections.abc import Iterable
+from typing import Any, Self
+
+from keystoneauth1 import adapter
 
 from openstack import exceptions
 from openstack import resource
@@ -28,7 +31,9 @@ class BaseResource(resource.Resource):
     _system_metadata: dict[str, Any] = {}
     _last_headers: dict[str, Any] = {}
 
-    def __init__(self, metadata=None, **attrs):
+    def __init__(
+        self, metadata: dict[str, Any] | None = None, **attrs: Any
+    ) -> None:
         """Process and save metadata known at creation stage"""
         super().__init__(**attrs)
         if metadata is not None:
@@ -40,13 +45,13 @@ class BaseResource(resource.Resource):
                 else:
                     self.metadata[k] = v
 
-    def _prepare_request(self, *args, **kwargs):
+    def _prepare_request(self, *args: Any, **kwargs: Any) -> resource._Request:
         request = super()._prepare_request(*args, **kwargs)
         request.headers.update(self._calculate_headers(self.metadata))
         return request
 
-    def _calculate_headers(self, metadata):
-        headers = {}
+    def _calculate_headers(self, metadata: dict[str, Any]) -> dict[str, str]:
+        headers: dict[str, str] = {}
         for key in metadata:
             if key in self._system_metadata.keys():
                 header = self._system_metadata[key]
@@ -60,7 +65,12 @@ class BaseResource(resource.Resource):
             headers[header] = str(metadata[key])
         return headers
 
-    def set_metadata(self, session, metadata, refresh=True):
+    def set_metadata(
+        self,
+        session: adapter.Adapter,
+        metadata: dict[str, Any],
+        refresh: bool = True,
+    ) -> Self:
         request = self._prepare_request()
         response = session.post(
             request.url, headers=self._calculate_headers(metadata)
@@ -71,7 +81,11 @@ class BaseResource(resource.Resource):
             self._translate_response(response, has_body=False)
         return self
 
-    def delete_metadata(self, session, keys):
+    def delete_metadata(
+        self,
+        session: adapter.Adapter,
+        keys: Iterable[str],
+    ) -> Self:
         request = self._prepare_request()
         headers = {key: '' for key in keys}
         response = session.post(
@@ -82,7 +96,7 @@ class BaseResource(resource.Resource):
         )
         return self
 
-    def _set_metadata(self, headers):
+    def _set_metadata(self, headers: dict[str, Any]) -> None:
         self.metadata = dict()
 
         for header in headers:
@@ -93,12 +107,12 @@ class BaseResource(resource.Resource):
 
     def _translate_response(
         self,
-        response,
-        has_body=None,
-        error_message=None,
+        response: Any,
+        has_body: bool | None = None,
+        error_message: str | None = None,
         *,
-        resource_response_key=None,
-    ):
+        resource_response_key: str | None = None,
+    ) -> None:
         # Save headers of the last operation for potential use (get_object of
         # cloud layer).
         # This must happen before invoking parent _translate_response, cause it

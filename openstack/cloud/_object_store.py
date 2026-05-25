@@ -10,7 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections.abc import Iterable
 import concurrent.futures
+from typing import Any
 import urllib.parse
 import warnings
 
@@ -491,7 +493,11 @@ class ObjectStoreCloudMixin(openstackcloud._OpenStackCloudMixin):
         except exceptions.NotFoundException:
             return None
 
-    def _wait_for_futures(self, futures, raise_on_error=True):
+    def _wait_for_futures(
+        self,
+        futures: Iterable[concurrent.futures.Future[Any]],
+        raise_on_error: bool = True,
+    ) -> tuple[list[Any], list[Any]]:
         """Collect results or failures from a list of running future tasks."""
         results = []
         retries = []

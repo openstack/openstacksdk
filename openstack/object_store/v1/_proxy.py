@@ -12,12 +12,13 @@
 
 from calendar import timegm
 import collections
-from collections.abc import Callable, Generator, Iterable
+from collections.abc import Callable, Generator, Iterable, Sequence
 import functools
 from hashlib import sha1
 import hmac
 import json
 import os
+import queue
 import time
 from typing import Any, ClassVar, Literal
 from urllib import parse
@@ -30,6 +31,7 @@ from openstack.object_store.v1 import container as _container
 from openstack.object_store.v1 import info as _info
 from openstack.object_store.v1 import obj as _obj
 from openstack import proxy
+from openstack.proxy import CleanupDependency
 from openstack import resource
 from openstack import utils
 
@@ -39,7 +41,7 @@ EXPIRES_ISO8601_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 SHORT_EXPIRES_ISO8601_FORMAT = '%Y-%m-%d'
 
 
-def _get_expiration(expiration):
+def _get_expiration(expiration: float) -> int:
     return int(time.time() + expiration)
 
 
@@ -62,7 +64,12 @@ class Proxy(proxy.Proxy):
     log = _log.setup_logging('openstack')
 
     @functools.lru_cache(maxsize=256)
-    def _extract_name(self, url, service_type=None, project_id=None):
+    def _extract_name(
+        self,
+        url: str,
+        service_type: str | None = None,
+        project_id: str | None = None,
+    ) -> list[str]:
         url_path = parse.urlparse(url).path.strip()
         # Remove / from the beginning to keep the list indexes of interesting
         # things consistent
@@ -111,7 +118,7 @@ class Proxy(proxy.Proxy):
         """Get metadata for this account."""
         return self._head(_account.Account)
 
-    def set_account_metadata(self, **metadata):
+    def set_account_metadata(self, **metadata: Any) -> None:
         """Set metadata for this account.
 
         :param metadata: Key/value pairs to be set as metadata on the
@@ -189,7 +196,12 @@ class Proxy(proxy.Proxy):
         """
         return self._head(_container.Container, container)
 
-    def set_container_metadata(self, container, refresh=True, **metadata):
+    def set_container_metadata(
+        self,
+        container: str | _container.Container,
+        refresh: bool = True,
+        **metadata: Any,
+    ) -> _container.Container:
         """Set metadata for a container.
 
         :param container: The value can be the name of a container or a
@@ -252,14 +264,18 @@ class Proxy(proxy.Proxy):
             obj.container = container
             yield obj
 
-    def _get_container_name(self, obj=None, container=None):
+    def _get_container_name(
+        self,
+        obj: str | _obj.Object | None = None,
+        container: str | _container.Container | None = None,
+    ) -> str:
         if obj is not None:
             obj = self._get_resource(_obj.Object, obj)
             if obj.container is not None:
-                return obj.container
+                return str(obj.container)
         if container is not None:
             container = self._get_resource(_container.Container, container)
-            return container.name
+            return str(container.name)
 
         raise ValueError("container must be specified")
 
@@ -327,7 +343,12 @@ class Proxy(proxy.Proxy):
 
         return _object
 
-    def download_object(self, obj, container=None, **attrs):
+    def download_object(
+        self,
+        obj: str | _obj.Object,
+        container: str | _container.Container | None = None,
+        **attrs: Any,
+    ) -> bytes:
         """Download the data contained inside an object.
 
         :param obj: The value can be the name of an object or a
@@ -344,7 +365,13 @@ class Proxy(proxy.Proxy):
         )
         return obj.download(self)
 
-    def stream_object(self, obj, container=None, chunk_size=1024, **attrs):
+    def stream_object(
+        self,
+        obj: str | _obj.Object,
+        container: str | _container.Container | None = None,
+        chunk_size: int = 1024,
+        **attrs: Any,
+    ) -> Any:
         """Stream the data contained inside an object.
 
         :param obj: The value can be the name of an object or a
@@ -460,9 +487,10 @@ class Proxy(proxy.Proxy):
 
         # segment_size gets used as a step value in a range call, so needs
         # to be an int
-        if segment_size:
-            segment_size = int(segment_size)
-        segment_size = self.get_object_segment_size(segment_size)  # type: ignore[assignment]
+        _segment_size: int | float = int(segment_size) if segment_size else 0
+        _segment_size = self.get_object_segment_size(
+            int(_segment_size) if _segment_size else None
+        )
         file_size = os.path.getsize(filename)
 
         if self.is_object_stale(container_name, name, filename, md5, sha256):
@@ -476,7 +504,7 @@ class Proxy(proxy.Proxy):
                 meta_headers = _obj.Object()._calculate_headers(metadata)
                 headers.update(meta_headers)
 
-            if file_size <= segment_size:  # type: ignore[operator]
+            if file_size <= _segment_size:
                 self._upload_object(endpoint, filename, headers)
 
             else:
@@ -485,7 +513,7 @@ class Proxy(proxy.Proxy):
                     filename,
                     headers,
                     file_size,
-                    segment_size,
+                    _segment_size,
                     use_slo,
                 )
 
@@ -494,7 +522,7 @@ class Proxy(proxy.Proxy):
     # Backwards compat
     upload_object = create_object
 
-    def copy_object(self):
+    def copy_object(self) -> None:
         """Copy an object."""
         raise NotImplementedError
 
@@ -546,7 +574,12 @@ class Proxy(proxy.Proxy):
 
         return self._head(_obj.Object, obj, container=container_name)
 
-    def set_object_metadata(self, obj, container=None, **metadata):
+    def set_object_metadata(
+        self,
+        obj: str | _obj.Object,
+        container: str | _container.Container | None = None,
+        **metadata: Any,
+    ) -> _obj.Object:
         """Set metadata for an object.
 
         Note: This method will do an extra HEAD call.
@@ -589,11 +622,17 @@ class Proxy(proxy.Proxy):
         """
         container_name = self._get_container_name(obj, container)
         res = self._get_resource(_obj.Object, obj, container=container_name)
-        res.delete_metadata(self, keys)
+        if keys is not None:
+            res.delete_metadata(self, keys)
 
     def is_object_stale(
-        self, container, name, filename, file_md5=None, file_sha256=None
-    ):
+        self,
+        container: str,
+        name: str,
+        filename: str,
+        file_md5: str | None = None,
+        file_sha256: str | None = None,
+    ) -> bool:
         """Check to see if an object matches the hashes of a file.
 
         :param container: Name of the container.
@@ -644,18 +683,24 @@ class Proxy(proxy.Proxy):
         return False
 
     def _upload_large_object(
-        self, endpoint, filename, headers, file_size, segment_size, use_slo
-    ):
+        self,
+        endpoint: str,
+        filename: str,
+        headers: dict[str, str],
+        file_size: int,
+        segment_size: int | float,
+        use_slo: bool,
+    ) -> None:
         # If the object is big, we need to break it up into segments that
         # are no larger than segment_size, upload each of them individually
         # and then upload a manifest object. The segments can be uploaded in
         # parallel, so we'll use the async feature of the TaskManager.
 
-        segment_futures = []
-        segment_results = []
-        retry_results = []
-        retry_futures = []
-        manifest = []
+        segment_futures: list[Any] = []
+        segment_results: list[Any] = []
+        retry_results: list[Any] = []
+        retry_futures: list[Any] = []
+        manifest: list[dict[str, Any]] = []
 
         # Get an OrderedDict with keys being the swift location for the
         # segment, the value a FileSegment file-like object that is a
@@ -734,7 +779,12 @@ class Proxy(proxy.Proxy):
                 )
             raise
 
-    def _finish_large_object_slo(self, endpoint, headers, manifest):
+    def _finish_large_object_slo(
+        self,
+        endpoint: str,
+        headers: dict[str, str],
+        manifest: list[dict[str, Any]],
+    ) -> None:
         # TODO(mordred) send an etag of the manifest, which is the md5sum
         # of the concatenation of the etags of the results
         headers = headers.copy()
@@ -754,7 +804,11 @@ class Proxy(proxy.Proxy):
                 if retries == 0:
                     raise
 
-    def _finish_large_object_dlo(self, endpoint, headers):
+    def _finish_large_object_dlo(
+        self,
+        endpoint: str,
+        headers: dict[str, str],
+    ) -> None:
         headers = headers.copy()
         headers['X-Object-Manifest'] = endpoint
         retries = 3
@@ -768,19 +822,30 @@ class Proxy(proxy.Proxy):
                 if retries == 0:
                     raise
 
-    def _upload_object(self, endpoint, filename, headers):
+    def _upload_object(
+        self, endpoint: str, filename: str, headers: dict[str, str]
+    ) -> Any:
         with open(filename, 'rb') as dt:
             return self.put(endpoint, headers=headers, data=dt)
 
-    def _get_file_segments(self, endpoint, filename, file_size, segment_size):
+    def _get_file_segments(
+        self,
+        endpoint: str,
+        filename: str,
+        file_size: int,
+        segment_size: int | float,
+    ) -> collections.OrderedDict[str, Any]:
         # Use an ordered dict here so that testing can replicate things
         segments = collections.OrderedDict()
-        for index, offset in enumerate(range(0, file_size, segment_size)):
-            remaining = file_size - (index * segment_size)
-            segment = _utils.FileSegment(
+        int_segment_size = int(segment_size)
+        for index, offset in enumerate(range(0, file_size, int_segment_size)):
+            remaining = file_size - (index * int_segment_size)
+            segment = _utils.FileSegment(  # type: ignore[no-untyped-call]
                 filename,
                 offset,
-                segment_size if segment_size < remaining else remaining,
+                int_segment_size
+                if int_segment_size < remaining
+                else remaining,
             )
             name = f'{endpoint}/{index:0>6}'
             segments[name] = segment
@@ -815,18 +880,20 @@ class Proxy(proxy.Proxy):
             return min_segment_size
         return segment_size
 
-    def _object_name_from_url(self, url):
+    def _object_name_from_url(self, url: str) -> str:
         '''Get container_name/object_name from the full URL called.
 
         Remove the Swift endpoint from the front of the URL, and remove
         the leaving / that will leave behind.'''
-        endpoint = self.get_endpoint()
+        endpoint = self.get_endpoint() or ''
         object_name = url.replace(endpoint, '')
         if object_name.startswith('/'):
             object_name = object_name[1:]
         return object_name
 
-    def _add_etag_to_manifest(self, segment_results, manifest):
+    def _add_etag_to_manifest(
+        self, segment_results: list[Any], manifest: list[dict[str, Any]]
+    ) -> None:
         for result in segment_results:
             if 'Etag' not in result.headers:
                 continue
@@ -843,7 +910,9 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_info.Info)
 
-    def set_account_temp_url_key(self, key, secondary=False):
+    def set_account_temp_url_key(
+        self, key: str, secondary: bool = False
+    ) -> None:
         """Set the temporary URL key for the account.
 
         :param key: Text of the key to use.
@@ -853,7 +922,12 @@ class Proxy(proxy.Proxy):
         account = self._get_resource(_account.Account, None)
         account.set_temp_url_key(self, key, secondary)
 
-    def set_container_temp_url_key(self, container, key, secondary=False):
+    def set_container_temp_url_key(
+        self,
+        container: str | _container.Container,
+        key: str,
+        secondary: bool = False,
+    ) -> None:
         """Set the temporary URL key for a container.
 
         :param container: The value can be the name of a container or a
@@ -891,10 +965,14 @@ class Proxy(proxy.Proxy):
                 or account_meta.meta_temp_url_key
             )
         if temp_url_key and not isinstance(temp_url_key, bytes):
-            temp_url_key = temp_url_key.encode('utf8')
+            temp_url_key = str(temp_url_key).encode('utf8')
         return temp_url_key
 
-    def _check_temp_url_key(self, container=None, temp_url_key=None):
+    def _check_temp_url_key(
+        self,
+        container: str | _container.Container | None = None,
+        temp_url_key: str | bytes | None = None,
+    ) -> bytes:
         if temp_url_key:
             if not isinstance(temp_url_key, bytes):
                 temp_url_key = temp_url_key.encode('utf8')
@@ -909,14 +987,14 @@ class Proxy(proxy.Proxy):
 
     def generate_form_signature(
         self,
-        container,
-        object_prefix,
-        redirect_url,
-        max_file_size,
-        max_upload_count,
-        timeout,
-        temp_url_key=None,
-    ):
+        container: str | _container.Container,
+        object_prefix: str,
+        redirect_url: str,
+        max_file_size: int,
+        max_upload_count: int,
+        timeout: int | float,
+        temp_url_key: str | bytes | None = None,
+    ) -> tuple[int, str]:
         """Generate a signature for a FormPost upload.
 
         :param container: The value can be the name of a container or a
@@ -970,15 +1048,15 @@ class Proxy(proxy.Proxy):
 
     def generate_temp_url(
         self,
-        path,
-        seconds,
-        method,
-        absolute=False,
-        prefix=False,
-        iso8601=False,
-        ip_range=None,
-        temp_url_key=None,
-    ):
+        path: str | bytes,
+        seconds: int | float | str,
+        method: str,
+        absolute: bool = False,
+        prefix: bool = False,
+        iso8601: bool = False,
+        ip_range: str | bytes | None = None,
+        temp_url_key: str | bytes | None = None,
+    ) -> str | bytes:
         """Generates a temporary URL that gives unauthenticated access to the
         Swift object.
 
@@ -1018,7 +1096,7 @@ class Proxy(proxy.Proxy):
                 )
                 for f in formats:
                     try:
-                        t = time.strptime(seconds, f)
+                        t = time.strptime(str(seconds), f)
                     except ValueError:
                         continue
 
@@ -1122,8 +1200,10 @@ class Proxy(proxy.Proxy):
             return temp_url
 
     def _delete_autocreated_image_objects(
-        self, container=None, segment_prefix=None
-    ):
+        self,
+        container: str | None = None,
+        segment_prefix: str | None = None,
+    ) -> bool:
         """Delete all objects autocreated for image uploads.
 
         This method should generally not be needed, as shade should clean up
@@ -1216,18 +1296,26 @@ class Proxy(proxy.Proxy):
         return resource.wait_for_delete(self, res, interval, wait, callback)
 
     # ========== Project Cleanup ==========
-    def _get_cleanup_dependencies(self):
-        return {'object_store': {'before': []}}
+    def _get_cleanup_dependencies(self) -> dict[str, CleanupDependency]:
+        return {'object_store': {'before': [], 'after': []}}
 
     def _service_cleanup(
         self,
-        dry_run=True,
-        client_status_queue=None,
-        identified_resources=None,
-        filters=None,
-        resource_evaluation_fn=None,
-        skip_resources=None,
-    ):
+        dry_run: bool = True,
+        client_status_queue: queue.Queue[resource.Resource] | None = None,
+        identified_resources: dict[str, resource.Resource] | None = None,
+        filters: dict[str, Any] | None = None,
+        resource_evaluation_fn: Callable[
+            [
+                resource.Resource,
+                dict[str, Any] | None,
+                dict[str, resource.Resource] | None,
+            ],
+            bool,
+        ]
+        | None = None,
+        skip_resources: Sequence[str] | None = None,
+    ) -> None:
         if self.should_skip_resource_cleanup(
             "container", skip_resources
         ) or self.should_skip_resource_cleanup("object", skip_resources):
@@ -1290,7 +1378,7 @@ class Proxy(proxy.Proxy):
                     resource_evaluation_fn=resource_evaluation_fn,
                 )
 
-    def _bulk_delete(self, elements):
+    def _bulk_delete(self, elements: list[str]) -> None:
         data = "\n".join([parse.quote(x) for x in elements])
         self.delete(
             "?bulk-delete",

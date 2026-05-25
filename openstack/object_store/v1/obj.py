@@ -12,7 +12,10 @@
 # under the License.
 
 import copy
+from collections.abc import Iterable, Iterator
 from typing import Any, Self
+
+import requests as req_lib
 
 from keystoneauth1 import adapter
 
@@ -209,14 +212,19 @@ class Object(_base.BaseResource):
 
     has_body = False
 
-    def __init__(self, data=None, **attrs):
+    def __init__(self, data: Any = None, **attrs: Any) -> None:
         super().__init__(**attrs)
         self.data = data
 
     # The Object Store treats the metadata for its resources inconsistently so
     # Object.set_metadata must override the BaseResource.set_metadata to
     # account for it.
-    def set_metadata(self, session, metadata, refresh=True):
+    def set_metadata(
+        self,
+        session: adapter.Adapter,
+        metadata: dict[str, Any],
+        refresh: bool = True,
+    ) -> Self:
         # Filter out items with empty values so the create metadata behaviour
         # is the same as account and container
         filtered_metadata = {
@@ -249,9 +257,14 @@ class Object(_base.BaseResource):
     # The Object Store treats the metadata for its resources inconsistently so
     # Object.delete_metadata must override the BaseResource.delete_metadata to
     # account for it.
-    def delete_metadata(self, session, keys):
+    def delete_metadata(
+        self,
+        session: adapter.Adapter,
+        keys: Iterable[str],
+    ) -> Self:
         if not keys:
-            return
+            return self
+
         # If we have an empty object, update it from the remote side so that
         # we have a copy of the original metadata. Deleting metadata requires
         # POSTing and overwriting all of the metadata. If we already have
@@ -305,7 +318,12 @@ class Object(_base.BaseResource):
         # Just update ourselves from remote again.
         return self.head(session)
 
-    def _download(self, session, error_message=None, stream=False):
+    def _download(
+        self,
+        session: adapter.Adapter,
+        error_message: str | None = None,
+        stream: bool = False,
+    ) -> req_lib.Response:
         request = self._prepare_request()
 
         response = session.get(
@@ -314,11 +332,20 @@ class Object(_base.BaseResource):
         exceptions.raise_from_response(response, error_message=error_message)
         return response
 
-    def download(self, session, error_message=None):
+    def download(
+        self,
+        session: adapter.Adapter,
+        error_message: str | None = None,
+    ) -> bytes:
         response = self._download(session, error_message=error_message)
         return response.content
 
-    def stream(self, session, error_message=None, chunk_size=1024):
+    def stream(
+        self,
+        session: adapter.Adapter,
+        error_message: str | None = None,
+        chunk_size: int = 1024,
+    ) -> Iterator[bytes]:
         response = self._download(
             session, error_message=error_message, stream=True
         )
@@ -343,7 +370,12 @@ class Object(_base.BaseResource):
         self._translate_response(response, has_body=False)
         return self
 
-    def _raw_delete(self, session, microversion=None, **kwargs):
+    def _raw_delete(
+        self,
+        session: adapter.Adapter,
+        microversion: str | None = None,
+        **kwargs: Any,
+    ) -> req_lib.Response:
         if not self.allow_delete:
             raise exceptions.MethodNotSupported(self, 'delete')
 
