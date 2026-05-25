@@ -89,7 +89,11 @@ class Proxy(proxy.Proxy):
         """
         return self._delete(_queue.Queue, value, ignore_missing=ignore_missing)
 
-    def post_message(self, queue_name, messages):
+    def post_message(
+        self,
+        queue_name: str,
+        messages: list[Any],
+    ) -> list[Any]:
         """Post messages to given queue
 
         :param queue_name: The name of target queue to post message to.
@@ -294,7 +298,12 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_claim.Claim, claim, queue_name=queue_name)
 
-    def update_claim(self, queue_name, claim, **attrs):
+    def update_claim(
+        self,
+        queue_name: str,
+        claim: str | _claim.Claim,
+        **attrs: Any,
+    ) -> _claim.Claim:
         """Update an existing claim from attributes
 
         :param queue_name: The name of target queue to claim message from.

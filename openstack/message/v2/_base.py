@@ -92,19 +92,19 @@ class MessageResource(resource.Resource):
 
     def fetch(
         self,
-        session,
-        requires_id=True,
-        base_path=None,
-        error_message=None,
-        skip_cache=False,
-        **kwargs,
-    ):
+        session: adapter.Adapter,
+        requires_id: bool = True,
+        base_path: str | None = None,
+        error_message: str | None = None,
+        skip_cache: bool = False,
+        **kwargs: Any,
+    ) -> Self:
         request = self._prepare_request(
             requires_id=requires_id, base_path=base_path
         )
-        headers = {
+        headers: dict[str, str] = {
             "Client-ID": self.client_id or str(uuid.uuid4()),
-            "X-PROJECT-ID": self.project_id or session.get_project_id(),
+            "X-PROJECT-ID": self.project_id or session.get_project_id() or "",
         }
         request.headers.update(headers)
         response = session.get(
@@ -115,12 +115,17 @@ class MessageResource(resource.Resource):
         return self
 
     def delete(
-        self, session, error_message=None, *, microversion=None, **kwargs
-    ):
+        self,
+        session: adapter.Adapter,
+        error_message: str | None = None,
+        *,
+        microversion: str | None = None,
+        **kwargs: Any,
+    ) -> Self:
         request = self._prepare_request()
-        headers = {
+        headers: dict[str, str] = {
             "Client-ID": self.client_id or str(uuid.uuid4()),
-            "X-PROJECT-ID": self.project_id or session.get_project_id(),
+            "X-PROJECT-ID": self.project_id or session.get_project_id() or "",
         }
         request.headers.update(headers)
         response = session.delete(request.url, headers=headers)
