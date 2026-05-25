@@ -17,16 +17,21 @@ test_baremetal_ports
 Tests for baremetal port related operations
 """
 
+import uuid
+
 from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
 from openstack import exceptions
-from openstack.tests import fakes
 from openstack.tests.unit import base
+from openstack.tests.unit.cloud import test_baremetal_node as fakes
 
 
-class TestBaremetalPort(base.IronicTestCase):
+class TestBaremetalPort(base.TestCase):
     def setUp(self):
         super().setUp()
+        self.use_ironic()
+        self.uuid = str(uuid.uuid4())
+        self.name = self.getUniqueString('name')
         self.fake_baremetal_node = fakes.make_fake_machine(
             self.name, self.uuid
         )
@@ -39,6 +44,12 @@ class TestBaremetalPort(base.IronicTestCase):
         self.fake_baremetal_port2 = fakes.make_fake_port(
             '0a:0b:0c:0d:0e:0f', node_id=self.uuid
         )
+
+    def get_mock_url(self, **kwargs):
+        kwargs.setdefault('service_type', 'baremetal')
+        kwargs.setdefault('interface', 'public')
+        kwargs.setdefault('base_url_append', 'v1')
+        return super().get_mock_url(**kwargs)
 
     def test_list_nics(self):
         self.register_uris(

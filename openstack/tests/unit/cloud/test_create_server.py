@@ -24,8 +24,8 @@ import uuid
 from openstack.compute.v2 import server
 from openstack import connection
 from openstack import exceptions
-from openstack.tests import fakes
 from openstack.tests.unit import base
+from openstack.tests.unit.cloud import fakes
 
 
 class TestCreateServer(base.TestCase):

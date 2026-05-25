@@ -17,8 +17,8 @@ import testtools
 
 from openstack.config import cloud_region
 from openstack import exceptions
-from openstack.tests import fakes
 from openstack.tests.unit import base
+from openstack.tests.unit.cloud import fakes
 
 
 class TestOperatorCloud(base.TestCase):

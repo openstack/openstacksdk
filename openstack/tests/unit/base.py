@@ -14,6 +14,7 @@
 # under the License.
 
 import collections
+import json
 import os
 import tempfile
 import time
@@ -31,8 +32,6 @@ import openstack.config as occ
 import openstack.connection
 from openstack.fixture import connection as os_fixture
 from openstack.tests import base
-from openstack.tests import fakes
-
 
 _ProjectData = collections.namedtuple(
     'ProjectData',
@@ -40,13 +39,11 @@ _ProjectData = collections.namedtuple(
     'parent_id, json_response, json_request',
 )
 
-
 _UserData = collections.namedtuple(
     'UserData',
     'user_id, password, name, email, description, domain_id, enabled, '
     'json_response, json_request',
 )
-
 
 _GroupData = collections.namedtuple(
     'GroupData',
@@ -54,12 +51,10 @@ _GroupData = collections.namedtuple(
     'json_request',
 )
 
-
 _DomainData = collections.namedtuple(
     'DomainData',
     'domain_id, domain_name, description, json_response, json_request',
 )
-
 
 _ServiceData = collections.namedtuple(
     'Servicedata',
@@ -67,19 +62,97 @@ _ServiceData = collections.namedtuple(
     'json_response_v3, json_response_v2, json_request',
 )
 
-
 _EndpointDataV3 = collections.namedtuple(
     'EndpointData',
     'endpoint_id, service_id, interface, region_id, url, enabled, '
     'json_response, json_request',
 )
 
-
 # NOTE(notmorgan): Shade does not support domain-specific roles
 # This should eventually be fixed if it becomes a main-stream feature.
 _RoleData = collections.namedtuple(
     'RoleData', 'role_id, role_name, json_response, json_request'
 )
+
+PROJECT_ID = '1c36b64c840a42cd9e9b931a369337f0'
+
+
+def make_fake_server(
+    server_id,
+    name,
+    status='ACTIVE',
+    admin_pass=None,
+    addresses=None,
+    image=None,
+    flavor=None,
+):
+    if addresses is None:
+        if status == 'ACTIVE':
+            addresses = {
+                "private": [
+                    {
+                        "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:df:b0:8d",
+                        "version": 6,
+                        "addr": "fddb:b018:307:0:f816:3eff:fedf:b08d",
+                        "OS-EXT-IPS:type": "fixed",
+                    },
+                    {
+                        "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:df:b0:8d",
+                        "version": 4,
+                        "addr": "10.1.0.9",
+                        "OS-EXT-IPS:type": "fixed",
+                    },
+                    {
+                        "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:df:b0:8d",
+                        "version": 4,
+                        "addr": "172.24.5.5",
+                        "OS-EXT-IPS:type": "floating",
+                    },
+                ]
+            }
+        else:
+            addresses = {}
+
+    if image is None:
+        image = {"id": "217f3ab1-03e0-4450-bf27-63d52b421e9e", "links": []}
+
+    if flavor is None:
+        flavor = {"id": "64", "links": []}
+
+    server = {
+        "OS-EXT-STS:task_state": None,
+        "addresses": addresses,
+        "links": [],
+        "image": image,
+        "OS-EXT-STS:vm_state": "active",
+        "OS-SRV-USG:launched_at": "2017-03-23T23:57:38.000000",
+        "flavor": flavor,
+        "id": server_id,
+        "security_groups": [{"name": "default"}],
+        "user_id": "9c119f4beaaa438792ce89387362b3ad",
+        "OS-DCF:diskConfig": "MANUAL",
+        "accessIPv4": "",
+        "accessIPv6": "",
+        "progress": 0,
+        "OS-EXT-STS:power_state": 1,
+        "OS-EXT-AZ:availability_zone": "nova",
+        "metadata": {},
+        "status": status,
+        "updated": "2017-03-23T23:57:39Z",
+        "hostId": "89d165f04384e3ffa4b6536669eb49104d30d6ca832bba2684605dbc",
+        "OS-SRV-USG:terminated_at": None,
+        "key_name": None,
+        "name": name,
+        "created": "2017-03-23T23:57:12Z",
+        "tenant_id": PROJECT_ID,
+        "os-extended-volumes:volumes_attached": [],
+        "config_drive": "True",
+    }
+
+    if admin_pass:
+        server['adminPass'] = admin_pass
+
+    return json.loads(json.dumps(server))
 
 
 class TestCase(base.TestCase):
@@ -101,7 +174,7 @@ class TestCase(base.TestCase):
         )
         self.fixtures_directory = 'openstack/tests/unit/fixtures'
         self.os_fixture = self.useFixture(
-            os_fixture.ConnectionFixture(project_id=fakes.PROJECT_ID)
+            os_fixture.ConnectionFixture(project_id=PROJECT_ID)
         )
 
         # Isolate openstack.config from test environment
@@ -954,17 +1027,3 @@ class TestCase(base.TestCase):
             [resource_type(**f).to_dict(computed=False) for f in expected],
             [f.to_dict(computed=False) for f in actual],
         )
-
-
-class IronicTestCase(TestCase):
-    def setUp(self):
-        super().setUp()
-        self.use_ironic()
-        self.uuid = str(uuid.uuid4())
-        self.name = self.getUniqueString('name')
-
-    def get_mock_url(self, **kwargs):
-        kwargs.setdefault('service_type', 'baremetal')
-        kwargs.setdefault('interface', 'public')
-        kwargs.setdefault('base_url_append', 'v1')
-        return super().get_mock_url(**kwargs)

@@ -10,18 +10,41 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
 import copy
+import json
 
 import openstack.cloud
 from openstack import exceptions
-from openstack.tests import fakes
 from openstack.tests.unit import base
+from openstack.tests.unit.cloud import fakes
 
 
 # TODO(mordred): Move id and name to using a getUniqueString() value
 
-neutron_grp_dict = fakes.make_fake_neutron_security_group(
+
+def make_fake_neutron_security_group(
+    id, name, description, rules, stateful=True, project_id=None
+):
+    if not rules:
+        rules = []
+    if not project_id:
+        project_id = fakes.PROJECT_ID
+    return json.loads(
+        json.dumps(
+            {
+                'id': id,
+                'name': name,
+                'description': description,
+                'stateful': stateful,
+                'project_id': project_id,
+                'tenant_id': project_id,
+                'security_group_rules': rules,
+            }
+        )
+    )
+
+
+neutron_grp_dict = make_fake_neutron_security_group(
     id='1',
     name='neutron-sec-group',
     description='Test Neutron security group',
@@ -37,12 +60,44 @@ neutron_grp_dict = fakes.make_fake_neutron_security_group(
 )
 
 
-nova_grp_dict = fakes.make_fake_nova_security_group(
+def make_fake_nova_security_group_rule(
+    id, from_port, to_port, ip_protocol, cidr
+):
+    return json.loads(
+        json.dumps(
+            {
+                'id': id,
+                'from_port': int(from_port),
+                'to_port': int(to_port),
+                'ip_protcol': 'tcp',
+                'ip_range': {'cidr': cidr},
+            }
+        )
+    )
+
+
+def make_fake_nova_security_group(id, name, description, rules):
+    if not rules:
+        rules = []
+    return json.loads(
+        json.dumps(
+            {
+                'id': id,
+                'name': name,
+                'description': description,
+                'tenant_id': fakes.PROJECT_ID,
+                'rules': rules,
+            }
+        )
+    )
+
+
+nova_grp_dict = make_fake_nova_security_group(
     id='2',
     name='nova-sec-group',
     description='Test Nova security group #1',
     rules=[
-        fakes.make_fake_nova_security_group_rule(
+        make_fake_nova_security_group_rule(
             id='2',
             from_port=8000,
             to_port=8001,
@@ -197,7 +252,7 @@ class TestSecurityGroups(base.TestCase):
         self.cloud.secgroup_source = 'neutron'
         group_name = self.getUniqueString()
         group_desc = self.getUniqueString('description')
-        new_group = fakes.make_fake_neutron_security_group(
+        new_group = make_fake_neutron_security_group(
             id='2', name=group_name, description=group_desc, rules=[]
         )
         self.register_uris(
@@ -235,7 +290,7 @@ class TestSecurityGroups(base.TestCase):
             'security group from '
             'test_create_security_group_neutron_specific_tenant'
         )
-        new_group = fakes.make_fake_neutron_security_group(
+        new_group = make_fake_neutron_security_group(
             id='2',
             name=group_name,
             description=group_desc,
@@ -276,7 +331,7 @@ class TestSecurityGroups(base.TestCase):
         self.cloud.secgroup_source = 'neutron'
         group_name = self.getUniqueString()
         group_desc = self.getUniqueString('description')
-        new_group = fakes.make_fake_neutron_security_group(
+        new_group = make_fake_neutron_security_group(
             id='2',
             name=group_name,
             description=group_desc,
@@ -316,7 +371,7 @@ class TestSecurityGroups(base.TestCase):
         group_name = self.getUniqueString()
         self.has_neutron = False
         group_desc = self.getUniqueString('description')
-        new_group = fakes.make_fake_nova_security_group(
+        new_group = make_fake_nova_security_group(
             id='2', name=group_name, description=group_desc, rules=[]
         )
         self.register_uris(
@@ -562,7 +617,7 @@ class TestSecurityGroups(base.TestCase):
 
         nova_return = [nova_grp_dict]
 
-        new_rule = fakes.make_fake_nova_security_group_rule(
+        new_rule = make_fake_nova_security_group_rule(
             id='xyz',
             from_port=1,
             to_port=2000,
@@ -612,7 +667,7 @@ class TestSecurityGroups(base.TestCase):
         self.has_neutron = False
         self.cloud.secgroup_source = 'nova'
 
-        new_rule = fakes.make_fake_nova_security_group_rule(
+        new_rule = make_fake_nova_security_group_rule(
             id='xyz',
             from_port=1,
             to_port=65535,

@@ -19,8 +19,8 @@ test_floating_ip_pool
 Test floating IP pool resource (managed by nova)
 """
 
-from openstack.tests import fakes
 from openstack.tests.unit import base
+from openstack.tests.unit.cloud import fakes
 
 
 class TestFloatingIPPool(base.TestCase):

@@ -19,8 +19,8 @@ Tests for the `delete_volume_snapshot` command.
 
 from openstack.cloud import meta
 from openstack import exceptions
-from openstack.tests import fakes
 from openstack.tests.unit import base
+from openstack.tests.unit.cloud import fakes
 
 
 class TestDeleteVolumeSnapshot(base.TestCase):

@@ -10,15 +10,43 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests import fakes
+import datetime
+import json
+
 from openstack.tests.unit import base
+
+
+def make_fake_aggregate(
+    id, name, availability_zone='nova', metadata=None, hosts=None
+):
+    if not metadata:
+        metadata = {}
+    if not hosts:
+        hosts = []
+    return json.loads(
+        json.dumps(
+            {
+                "availability_zone": availability_zone,
+                "created_at": datetime.datetime.now().isoformat(),
+                "deleted": False,
+                "deleted_at": None,
+                "hosts": hosts,
+                "id": int(id),
+                "metadata": {
+                    "availability_zone": availability_zone,
+                },
+                "name": name,
+                "updated_at": None,
+            }
+        )
+    )
 
 
 class TestAggregate(base.TestCase):
     def setUp(self):
         super().setUp()
         self.aggregate_name = self.getUniqueString('aggregate')
-        self.fake_aggregate = fakes.make_fake_aggregate(1, self.aggregate_name)
+        self.fake_aggregate = make_fake_aggregate(1, self.aggregate_name)
         self.use_compute_discovery()
 
     def test_create_aggregate(self):
@@ -51,7 +79,7 @@ class TestAggregate(base.TestCase):
 
     def test_create_aggregate_with_az(self):
         availability_zone = 'az1'
-        az_aggregate = fakes.make_fake_aggregate(
+        az_aggregate = make_fake_aggregate(
             1, self.aggregate_name, availability_zone=availability_zone
         )
 

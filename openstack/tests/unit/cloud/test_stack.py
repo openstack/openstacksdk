@@ -11,13 +11,92 @@
 # under the License.
 
 import tempfile
+import uuid
 
 import testtools
 
 from openstack import exceptions
+from openstack.orchestration.util import template_format
 from openstack.orchestration.v1 import stack
-from openstack.tests import fakes
 from openstack.tests.unit import base
+from openstack.tests.unit.cloud import fakes
+
+ORCHESTRATION_ENDPOINT = (
+    f'https://orchestration.example.com/v1/{fakes.PROJECT_ID}'
+)
+FAKE_TEMPLATE = """heat_template_version: 2014-10-16
+
+parameters:
+  length:
+    type: number
+    default: 10
+
+resources:
+  my_rand:
+    type: OS::Heat::RandomString
+    properties:
+      length: {get_param: length}
+outputs:
+  rand:
+    value:
+      get_attr: [my_rand, value]
+"""
+FAKE_TEMPLATE_CONTENT = template_format.parse(FAKE_TEMPLATE)
+
+
+def make_fake_stack(id, name, description=None, status='CREATE_COMPLETE'):
+    return {
+        'creation_time': '2017-03-23T23:57:12Z',
+        'deletion_time': '2017-03-23T23:57:12Z',
+        'description': description,
+        'id': id,
+        'links': [],
+        'parent': None,
+        'stack_name': name,
+        'stack_owner': None,
+        'stack_status': status,
+        'stack_user_project_id': fakes.PROJECT_ID,
+        'tags': None,
+        'updated_time': '2017-03-23T23:57:12Z',
+    }
+
+
+def make_fake_stack_event(
+    id, name, status='CREATE_COMPLETED', resource_name='id'
+):
+    event_id = uuid.uuid4().hex
+    self_url = "{endpoint}/stacks/{name}/{id}/resources/{name}/events/{event}"
+    resource_url = "{endpoint}/stacks/{name}/{id}/resources/{name}"
+    return {
+        "resource_name": id if resource_name == 'id' else name,
+        "event_time": "2017-03-26T19:38:18",
+        "links": [
+            {
+                "href": self_url.format(
+                    endpoint=ORCHESTRATION_ENDPOINT,
+                    name=name,
+                    id=id,
+                    event=event_id,
+                ),
+                "rel": "self",
+            },
+            {
+                "href": resource_url.format(
+                    endpoint=ORCHESTRATION_ENDPOINT, name=name, id=id
+                ),
+                "rel": "resource",
+            },
+            {
+                "href": f"{ORCHESTRATION_ENDPOINT}/stacks/{name}/{id}",
+                "rel": "stack",
+            },
+        ],
+        "logical_resource_id": name,
+        "resource_status": status,
+        "resource_status_reason": "",
+        "physical_resource_id": id,
+        "id": event_id,
+    }
 
 
 class TestStack(base.TestCase):
@@ -26,7 +105,7 @@ class TestStack(base.TestCase):
         self.stack_id = self.getUniqueString('id')
         self.stack_name = self.getUniqueString('name')
         self.stack_tag = self.getUniqueString('tag')
-        self.stack = fakes.make_fake_stack(self.stack_id, self.stack_name)
+        self.stack = make_fake_stack(self.stack_id, self.stack_name)
 
     def _compare_stacks(self, exp, real):
         self.assertDictEqual(
@@ -37,7 +116,7 @@ class TestStack(base.TestCase):
     def test_list_stacks(self):
         fake_stacks = [
             self.stack,
-            fakes.make_fake_stack(
+            make_fake_stack(
                 self.getUniqueString('id'), self.getUniqueString('name')
             ),
         ]
@@ -45,7 +124,7 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks',
                     json={"stacks": fake_stacks},
                 ),
             ]
@@ -58,7 +137,7 @@ class TestStack(base.TestCase):
     def test_list_stacks_filters(self):
         fake_stacks = [
             self.stack,
-            fakes.make_fake_stack(
+            make_fake_stack(
                 self.getUniqueString('id'), self.getUniqueString('name')
             ),
         ]
@@ -86,7 +165,7 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks',
                     status_code=404,
                 )
             ]
@@ -98,7 +177,7 @@ class TestStack(base.TestCase):
     def test_search_stacks(self):
         fake_stacks = [
             self.stack,
-            fakes.make_fake_stack(
+            make_fake_stack(
                 self.getUniqueString('id'), self.getUniqueString('name')
             ),
         ]
@@ -106,7 +185,7 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks',
                     json={"stacks": fake_stacks},
                 ),
             ]
@@ -118,7 +197,7 @@ class TestStack(base.TestCase):
     def test_search_stacks_filters(self):
         fake_stacks = [
             self.stack,
-            fakes.make_fake_stack(
+            make_fake_stack(
                 self.getUniqueString('id'),
                 self.getUniqueString('name'),
                 status='CREATE_FAILED',
@@ -128,7 +207,7 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks',
                     json={"stacks": fake_stacks},
                 ),
             ]
@@ -143,7 +222,7 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks',
                     status_code=404,
                 )
             ]
@@ -157,20 +236,20 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}?{resolve}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}?{resolve}',
                     status_code=302,
                     headers=dict(
-                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
+                        location=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     json={"stack": self.stack},
                 ),
                 dict(
                     method='DELETE',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}',
                 ),
             ]
         )
@@ -183,7 +262,7 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/stack_name?{resolve}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/stack_name?{resolve}',
                     status_code=404,
                 ),
             ]
@@ -197,20 +276,20 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}?{resolve}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}?{resolve}',
                     status_code=302,
                     headers=dict(
-                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
+                        location=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     json={"stack": self.stack},
                 ),
                 dict(
                     method='DELETE',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}',
                     status_code=400,
                     reason="ouch",
                 ),
@@ -221,7 +300,7 @@ class TestStack(base.TestCase):
         self.assert_calls()
 
     def test_delete_stack_by_name_wait(self):
-        marker_event = fakes.make_fake_stack_event(
+        marker_event = make_fake_stack_event(
             self.stack_id,
             self.stack_name,
             status='CREATE_COMPLETE',
@@ -235,21 +314,21 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}?{resolve}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}?{resolve}',
                     status_code=302,
                     headers=dict(
-                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
+                        location=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     json={"stack": self.stack},
                 ),
                 dict(
                     method='GET',
                     uri='{endpoint}/stacks/{name}/events?{qs}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                        endpoint=ORCHESTRATION_ENDPOINT,
                         name=self.stack_name,
                         qs='limit=1&sort_dir=desc',
                     ),
@@ -258,15 +337,15 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='DELETE',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}',
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/events?{marker_qs}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/events?{marker_qs}',
                     complete_qs=True,
                     json={
                         "events": [
-                            fakes.make_fake_stack_event(
+                            make_fake_stack_event(
                                 self.stack_id,
                                 self.stack_name,
                                 status='DELETE_COMPLETE',
@@ -277,7 +356,7 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}?{resolve}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}?{resolve}',
                     status_code=404,
                 ),
             ]
@@ -287,7 +366,7 @@ class TestStack(base.TestCase):
         self.assert_calls()
 
     def test_delete_stack_by_id_wait(self):
-        marker_event = fakes.make_fake_stack_event(
+        marker_event = make_fake_stack_event(
             self.stack_id,
             self.stack_name,
             status='CREATE_COMPLETE',
@@ -301,21 +380,21 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}?{resolve}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}?{resolve}',
                     status_code=302,
                     headers=dict(
-                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
+                        location=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     json={"stack": self.stack},
                 ),
                 dict(
                     method='GET',
                     uri='{endpoint}/stacks/{id}/events?{qs}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                        endpoint=ORCHESTRATION_ENDPOINT,
                         id=self.stack_id,
                         qs='limit=1&sort_dir=desc',
                     ),
@@ -324,15 +403,15 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='DELETE',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}',
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}/events?{marker_qs}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}/events?{marker_qs}',
                     complete_qs=True,
                     json={
                         "events": [
-                            fakes.make_fake_stack_event(
+                            make_fake_stack_event(
                                 self.stack_id,
                                 self.stack_name,
                                 status='DELETE_COMPLETE',
@@ -342,7 +421,7 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}?{resolve}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}?{resolve}',
                     status_code=404,
                 ),
             ]
@@ -354,7 +433,7 @@ class TestStack(base.TestCase):
     def test_delete_stack_wait_failed(self):
         failed_stack = self.stack.copy()
         failed_stack['stack_status'] = 'DELETE_FAILED'
-        marker_event = fakes.make_fake_stack_event(
+        marker_event = make_fake_stack_event(
             self.stack_id, self.stack_name, status='CREATE_COMPLETE'
         )
         marker_qs = 'marker={e_id}&sort_dir=asc'.format(
@@ -365,21 +444,21 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}?{resolve}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}?{resolve}',
                     status_code=302,
                     headers=dict(
-                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
+                        location=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     json={"stack": self.stack},
                 ),
                 dict(
                     method='GET',
                     uri='{endpoint}/stacks/{id}/events?{qs}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                        endpoint=ORCHESTRATION_ENDPOINT,
                         id=self.stack_id,
                         qs='limit=1&sort_dir=desc',
                     ),
@@ -388,15 +467,15 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='DELETE',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}',
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}/events?{marker_qs}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}/events?{marker_qs}',
                     complete_qs=True,
                     json={
                         "events": [
-                            fakes.make_fake_stack_event(
+                            make_fake_stack_event(
                                 self.stack_id,
                                 self.stack_name,
                                 status='DELETE_COMPLETE',
@@ -406,15 +485,15 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}?resolve_outputs=False',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_id}?resolve_outputs=False',
                     status_code=302,
                     headers=dict(
-                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
+                        location=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}?{resolve}',
                     json={"stack": failed_stack},
                 ),
             ]
@@ -427,13 +506,13 @@ class TestStack(base.TestCase):
 
     def test_create_stack(self):
         test_template = tempfile.NamedTemporaryFile(delete=False)
-        test_template.write(fakes.FAKE_TEMPLATE.encode('utf-8'))
+        test_template.write(FAKE_TEMPLATE.encode('utf-8'))
         test_template.close()
         self.register_uris(
             [
                 dict(
                     method='POST',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks',
                     json={"stack": self.stack},
                     validate=dict(
                         json={
@@ -441,22 +520,22 @@ class TestStack(base.TestCase):
                             'parameters': {},
                             'stack_name': self.stack_name,
                             'tags': self.stack_tag,
-                            'template': fakes.FAKE_TEMPLATE_CONTENT,
+                            'template': FAKE_TEMPLATE_CONTENT,
                             'timeout_mins': 60,
                         }
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
                     status_code=302,
                     headers=dict(
-                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}'
+                        location=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}'
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}',
                     json={"stack": self.stack},
                 ),
             ]
@@ -472,14 +551,14 @@ class TestStack(base.TestCase):
 
     def test_create_stack_wait(self):
         test_template = tempfile.NamedTemporaryFile(delete=False)
-        test_template.write(fakes.FAKE_TEMPLATE.encode('utf-8'))
+        test_template.write(FAKE_TEMPLATE.encode('utf-8'))
         test_template.close()
 
         self.register_uris(
             [
                 dict(
                     method='POST',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks',
                     json={"stack": self.stack},
                     validate=dict(
                         json={
@@ -487,17 +566,17 @@ class TestStack(base.TestCase):
                             'parameters': {},
                             'stack_name': self.stack_name,
                             'tags': self.stack_tag,
-                            'template': fakes.FAKE_TEMPLATE_CONTENT,
+                            'template': FAKE_TEMPLATE_CONTENT,
                             'timeout_mins': 60,
                         }
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/events?sort_dir=asc',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/events?sort_dir=asc',
                     json={
                         "events": [
-                            fakes.make_fake_stack_event(
+                            make_fake_stack_event(
                                 self.stack_id,
                                 self.stack_name,
                                 status='CREATE_COMPLETE',
@@ -508,15 +587,15 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
                     status_code=302,
                     headers=dict(
-                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}'
+                        location=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}'
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}',
                     json={"stack": self.stack},
                 ),
             ]
@@ -532,20 +611,20 @@ class TestStack(base.TestCase):
 
     def test_update_stack(self):
         test_template = tempfile.NamedTemporaryFile(delete=False)
-        test_template.write(fakes.FAKE_TEMPLATE.encode('utf-8'))
+        test_template.write(FAKE_TEMPLATE.encode('utf-8'))
         test_template.close()
 
         self.register_uris(
             [
                 dict(
                     method='PUT',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
                     validate=dict(
                         json={
                             'disable_rollback': False,
                             'parameters': {},
                             'tags': self.stack_tag,
-                            'template': fakes.FAKE_TEMPLATE_CONTENT,
+                            'template': FAKE_TEMPLATE_CONTENT,
                             'timeout_mins': 60,
                         }
                     ),
@@ -553,15 +632,15 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
                     status_code=302,
                     headers=dict(
-                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}'
+                        location=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}'
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}',
                     json={"stack": self.stack},
                 ),
             ]
@@ -575,7 +654,7 @@ class TestStack(base.TestCase):
         self.assert_calls()
 
     def test_update_stack_wait(self):
-        marker_event = fakes.make_fake_stack_event(
+        marker_event = make_fake_stack_event(
             self.stack_id,
             self.stack_name,
             status='CREATE_COMPLETE',
@@ -585,7 +664,7 @@ class TestStack(base.TestCase):
             e_id=marker_event['id']
         )
         test_template = tempfile.NamedTemporaryFile(delete=False)
-        test_template.write(fakes.FAKE_TEMPLATE.encode('utf-8'))
+        test_template.write(FAKE_TEMPLATE.encode('utf-8'))
         test_template.close()
 
         self.register_uris(
@@ -593,7 +672,7 @@ class TestStack(base.TestCase):
                 dict(
                     method='GET',
                     uri='{endpoint}/stacks/{name}/events?{qs}'.format(
-                        endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                        endpoint=ORCHESTRATION_ENDPOINT,
                         name=self.stack_name,
                         qs='limit=1&sort_dir=desc',
                     ),
@@ -601,13 +680,13 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='PUT',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
                     validate=dict(
                         json={
                             'disable_rollback': False,
                             'parameters': {},
                             'tags': self.stack_tag,
-                            'template': fakes.FAKE_TEMPLATE_CONTENT,
+                            'template': FAKE_TEMPLATE_CONTENT,
                             'timeout_mins': 60,
                         }
                     ),
@@ -615,10 +694,10 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/events?{marker_qs}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/events?{marker_qs}',
                     json={
                         "events": [
-                            fakes.make_fake_stack_event(
+                            make_fake_stack_event(
                                 self.stack_id,
                                 self.stack_name,
                                 status='UPDATE_COMPLETE',
@@ -629,15 +708,15 @@ class TestStack(base.TestCase):
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
                     status_code=302,
                     headers=dict(
-                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}'
+                        location=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}'
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}',
                     json={"stack": self.stack},
                 ),
             ]
@@ -656,15 +735,15 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
                     status_code=302,
                     headers=dict(
-                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}'
+                        location=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}'
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}',
                     json={"stack": self.stack},
                 ),
             ]
@@ -685,15 +764,15 @@ class TestStack(base.TestCase):
             [
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}',
                     status_code=302,
                     headers=dict(
-                        location=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}'
+                        location=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}'
                     ),
                 ),
                 dict(
                     method='GET',
-                    uri=f'{fakes.ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}',
+                    uri=f'{ORCHESTRATION_ENDPOINT}/stacks/{self.stack_name}/{self.stack_id}',
                     json={"stack": in_progress},
                 ),
             ]

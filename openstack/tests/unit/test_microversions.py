@@ -11,7 +11,6 @@
 # under the License.
 
 from openstack import exceptions
-from openstack.tests import fakes
 from openstack.tests.unit import base
 
 
@@ -67,7 +66,7 @@ class TestMicroversions(base.TestCase):
     def test_inferred_default_microversion(self):
         self.cloud.config.config['compute_api_version'] = '2.42'
 
-        server = fakes.make_fake_server('123', 'mickey')
+        server = base.make_fake_server('123', 'mickey')
 
         self.register_uris(
             [
@@ -102,7 +101,7 @@ class TestMicroversions(base.TestCase):
     def test_default_microversion(self):
         self.cloud.config.config['compute_default_microversion'] = '2.42'
 
-        server = fakes.make_fake_server('123', 'mickey')
+        server = base.make_fake_server('123', 'mickey')
 
         self.register_uris(
             [

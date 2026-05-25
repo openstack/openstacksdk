@@ -14,8 +14,8 @@ from unittest import mock
 
 from openstack.cloud import inventory
 import openstack.config
-from openstack.tests import fakes
 from openstack.tests.unit import base
+from openstack.tests.unit.cloud import fakes
 
 
 class TestInventory(base.TestCase):

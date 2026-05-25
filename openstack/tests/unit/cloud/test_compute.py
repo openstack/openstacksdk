@@ -13,8 +13,8 @@
 import uuid
 
 from openstack import exceptions
-from openstack.tests import fakes
 from openstack.tests.unit import base
+from openstack.tests.unit.cloud import fakes
 
 
 class TestServers(base.TestCase):
