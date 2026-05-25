@@ -12,8 +12,8 @@
 
 import uuid
 
-from openstack.tests import fakes
 from openstack.tests.unit import base
+from openstack.tests.unit.cloud import fakes
 
 
 class TestServerConsole(base.TestCase):

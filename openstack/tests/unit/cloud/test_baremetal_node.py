@@ -21,27 +21,87 @@ import uuid
 
 from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
+from openstack.cloud import meta
 from openstack import exceptions
 from openstack.network.v2 import port as _port
-from openstack.tests import fakes
 from openstack.tests.unit import base
 
 
-class TestBaremetalNode(base.IronicTestCase):
+class FakeMachine:
+    def __init__(
+        self,
+        id,
+        name=None,
+        driver=None,
+        driver_info=None,
+        chassis_uuid=None,
+        instance_info=None,
+        instance_name=None,
+        instance_uuid=None,
+        properties=None,
+        reservation=None,
+        last_error=None,
+        provision_state='available',
+    ):
+        self.uuid = id
+        self.name = name
+        self.driver = driver
+        self.driver_info = driver_info
+        self.chassis_uuid = chassis_uuid
+        self.instance_info = instance_info
+        self.instance_name = instance_name
+        self.instance_uuid = instance_uuid
+        self.properties = properties
+        self.reservation = reservation
+        self.last_error = last_error
+        self.provision_state = provision_state
+
+
+class FakeMachinePort:
+    def __init__(self, id, address, node_id):
+        self.uuid = id
+        self.address = address
+        self.node_uuid = node_id
+
+
+def make_fake_machine(machine_name, machine_id=None):
+    if not machine_id:
+        machine_id = uuid.uuid4().hex
+    return meta.obj_to_munch(FakeMachine(id=machine_id, name=machine_name))
+
+
+def make_fake_port(address, node_id=None, port_id=None):
+    if not node_id:
+        node_id = uuid.uuid4().hex
+    if not port_id:
+        port_id = uuid.uuid4().hex
+    return meta.obj_to_munch(
+        FakeMachinePort(id=port_id, address=address, node_id=node_id)
+    )
+
+
+class TestBaremetalNode(base.TestCase):
     def setUp(self):
         super().setUp()
-        self.fake_baremetal_node = fakes.make_fake_machine(
-            self.name, self.uuid
-        )
+        self.use_ironic()
+        self.uuid = str(uuid.uuid4())
+        self.name = self.getUniqueString('name')
+        self.fake_baremetal_node = make_fake_machine(self.name, self.uuid)
         # TODO(TheJulia): Some tests below have fake ports,
         # since they are required in some processes. Lets refactor
         # them at some point to use self.fake_baremetal_port.
-        self.fake_baremetal_port = fakes.make_fake_port(
+        self.fake_baremetal_port = make_fake_port(
             '00:01:02:03:04:05', node_id=self.uuid
         )
 
+    def get_mock_url(self, **kwargs):
+        kwargs.setdefault('service_type', 'baremetal')
+        kwargs.setdefault('interface', 'public')
+        kwargs.setdefault('base_url_append', 'v1')
+        return super().get_mock_url(**kwargs)
+
     def test_list_machines(self):
-        fake_baremetal_two = fakes.make_fake_machine('two', str(uuid.uuid4()))
+        fake_baremetal_two = make_fake_machine('two', str(uuid.uuid4()))
         self.register_uris(
             [
                 dict(
@@ -2359,7 +2419,7 @@ class TestBaremetalNode(base.IronicTestCase):
         )
 
 
-class TestUpdateMachinePatch(base.IronicTestCase):
+class TestUpdateMachinePatch(base.TestCase):
     # NOTE(TheJulia): As appears, and mordred describes,
     # this class utilizes black magic, which ultimately
     # results in additional test runs being executed with
@@ -2368,9 +2428,16 @@ class TestUpdateMachinePatch(base.IronicTestCase):
 
     def setUp(self):
         super().setUp()
-        self.fake_baremetal_node = fakes.make_fake_machine(
-            self.name, self.uuid
-        )
+        self.use_ironic()
+        self.uuid = str(uuid.uuid4())
+        self.name = self.getUniqueString('name')
+        self.fake_baremetal_node = make_fake_machine(self.name, self.uuid)
+
+    def get_mock_url(self, **kwargs):
+        kwargs.setdefault('service_type', 'baremetal')
+        kwargs.setdefault('interface', 'public')
+        kwargs.setdefault('base_url_append', 'v1')
+        return super().get_mock_url(**kwargs)
 
     def test_update_machine_patch(self):
         # The model has evolved over time, create the field if

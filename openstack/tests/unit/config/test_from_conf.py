@@ -18,7 +18,6 @@ import requests.exceptions
 from openstack.config import cloud_region
 from openstack import connection
 from openstack import exceptions
-from openstack.tests import fakes
 from openstack.tests.unit import base
 
 
@@ -95,7 +94,7 @@ class TestFromConf(base.TestCase):
 
         server_id = str(uuid.uuid4())
         server_name = self.getUniqueString('name')
-        fake_server = fakes.make_fake_server(server_id, server_name)
+        fake_server = base.make_fake_server(server_id, server_name)
 
         self.register_uris(
             [
@@ -128,7 +127,7 @@ class TestFromConf(base.TestCase):
 
         server_id = str(uuid.uuid4())
         server_name = self.getUniqueString('name')
-        fake_server = fakes.make_fake_server(server_id, server_name)
+        fake_server = base.make_fake_server(server_id, server_name)
 
         self.register_uris(
             [

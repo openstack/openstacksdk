@@ -22,8 +22,8 @@ from openstack.cloud import meta
 from openstack import exceptions
 from openstack.image.v1 import image as image_v1
 from openstack.image.v2 import image
-from openstack.tests import fakes
 from openstack.tests.unit import base
+from openstack.tests.unit.cloud import fakes
 
 
 IMPORT_METHODS = 'glance-direct,web-download'

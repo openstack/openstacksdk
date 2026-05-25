@@ -20,10 +20,9 @@ Functional tests for stack methods.
 import tempfile
 
 from openstack import exceptions
-from openstack.tests import fakes
 from openstack.tests.functional import base
 
-simple_template = '''heat_template_version: 2014-10-16
+simple_template = """heat_template_version: 2014-10-16
 parameters:
   length:
     type: number
@@ -38,9 +37,9 @@ outputs:
   rand:
     value:
       get_attr: [my_rand, value]
-'''
+"""
 
-root_template = '''heat_template_version: 2014-10-16
+root_template = """heat_template_version: 2014-10-16
 parameters:
   length:
     type: number
@@ -62,14 +61,14 @@ outputs:
   rands:
     value:
       get_attr: [my_rands, attributes, rand]
-'''
+"""
 
-environment = '''
+environment = """
 resource_registry:
   My::Simple::Template: %s
-'''
+"""
 
-validate_template = '''heat_template_version: asdf-no-such-version '''
+validate_template = """heat_template_version: asdf-no-such-version """
 
 
 class TestStack(base.BaseFunctionalTest):
@@ -96,7 +95,7 @@ class TestStack(base.BaseFunctionalTest):
 
     def test_stack_simple(self):
         test_template = tempfile.NamedTemporaryFile(delete=False)
-        test_template.write(fakes.FAKE_TEMPLATE.encode('utf-8'))
+        test_template.write(simple_template.encode('utf-8'))
         test_template.close()
         self.stack_name = self.getUniqueString('simple_stack')
         self.addCleanup(self._cleanup_stack)
@@ -152,7 +151,7 @@ class TestStack(base.BaseFunctionalTest):
         test_template.close()
 
         simple_tmpl = tempfile.NamedTemporaryFile(suffix='.yaml', delete=False)
-        simple_tmpl.write(fakes.FAKE_TEMPLATE.encode('utf-8'))
+        simple_tmpl.write(simple_template.encode('utf-8'))
         simple_tmpl.close()
 
         env = tempfile.NamedTemporaryFile(suffix='.yaml', delete=False)

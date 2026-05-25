@@ -17,30 +17,13 @@ fakes
 Fakes used for testing
 """
 
-import datetime
 import hashlib
 import json
-import uuid
-
-from openstack.cloud import meta
-from openstack.orchestration.util import template_format
 
 PROJECT_ID = '1c36b64c840a42cd9e9b931a369337f0'
-FLAVOR_ID = '0c1d9008-f546-4608-9e8f-f8bdaec8dddd'
-CHOCOLATE_FLAVOR_ID = '0c1d9008-f546-4608-9e8f-f8bdaec8ddde'
-STRAWBERRY_FLAVOR_ID = '0c1d9008-f546-4608-9e8f-f8bdaec8dddf'
 COMPUTE_ENDPOINT = 'https://compute.example.com/v2.1'
-ORCHESTRATION_ENDPOINT = f'https://orchestration.example.com/v1/{PROJECT_ID}'
 NO_MD5 = '93b885adfe0da089cdf634904fd59f71'
 NO_SHA256 = '6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d'
-FAKE_PUBLIC_KEY = (
-    "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCkF3MX59OrlBs3dH5CU7lNmvpbrgZxSpyGj"
-    "lnE8Flkirnc/Up22lpjznoxqeoTAwTW034k7Dz6aYIrZGmQwe2TkE084yqvlj45Dkyoj95fW/"
-    "sZacm0cZNuL69EObEGHdprfGJQajrpz22NQoCD8TFB8Wv+8om9NH9Le6s+WPe98WC77KLw8qg"
-    "fQsbIey+JawPWl4O67ZdL5xrypuRjfIPWjgy/VH85IXg/Z/GONZ2nxHgSShMkwqSFECAC5L3P"
-    "HB+0+/12M/iikdatFSVGjpuHvkLOs3oe7m6HlOfluSJ85BzLWBbvva93qkGmLg4ZAc8rPh2O+"
-    "YIsBUHNLLMM/oQp Generated-by-Nova\n"
-)
 
 
 def make_fake_flavor(flavor_id, name, ram=100, disk=1600, vcpus=24):
@@ -68,32 +51,17 @@ def make_fake_flavor(flavor_id, name, ram=100, disk=1600, vcpus=24):
     }
 
 
+FLAVOR_ID = '0c1d9008-f546-4608-9e8f-f8bdaec8dddd'
 FAKE_FLAVOR = make_fake_flavor(FLAVOR_ID, 'vanilla')
+CHOCOLATE_FLAVOR_ID = '0c1d9008-f546-4608-9e8f-f8bdaec8ddde'
 FAKE_CHOCOLATE_FLAVOR = make_fake_flavor(
     CHOCOLATE_FLAVOR_ID, 'chocolate', ram=200
 )
+STRAWBERRY_FLAVOR_ID = '0c1d9008-f546-4608-9e8f-f8bdaec8dddf'
 FAKE_STRAWBERRY_FLAVOR = make_fake_flavor(
     STRAWBERRY_FLAVOR_ID, 'strawberry', ram=300
 )
 FAKE_FLAVOR_LIST = [FAKE_FLAVOR, FAKE_CHOCOLATE_FLAVOR, FAKE_STRAWBERRY_FLAVOR]
-FAKE_TEMPLATE = '''heat_template_version: 2014-10-16
-
-parameters:
-  length:
-    type: number
-    default: 10
-
-resources:
-  my_rand:
-    type: OS::Heat::RandomString
-    properties:
-      length: {get_param: length}
-outputs:
-  rand:
-    value:
-      get_attr: [my_rand, value]
-'''
-FAKE_TEMPLATE_CONTENT = template_format.parse(FAKE_TEMPLATE)
 
 
 def make_fake_server(
@@ -170,73 +138,6 @@ def make_fake_server(
     return json.loads(json.dumps(server))
 
 
-def make_fake_keypair(name):
-    # Note: this is literally taken from:
-    # https://docs.openstack.org/api-ref/compute/
-    return {
-        "fingerprint": "7e:eb:ab:24:ba:d1:e1:88:ae:9a:fb:66:53:df:d3:bd",
-        "name": name,
-        "type": "ssh",
-        "public_key": FAKE_PUBLIC_KEY,
-        "created_at": datetime.datetime.now().isoformat(),
-    }
-
-
-def make_fake_stack(id, name, description=None, status='CREATE_COMPLETE'):
-    return {
-        'creation_time': '2017-03-23T23:57:12Z',
-        'deletion_time': '2017-03-23T23:57:12Z',
-        'description': description,
-        'id': id,
-        'links': [],
-        'parent': None,
-        'stack_name': name,
-        'stack_owner': None,
-        'stack_status': status,
-        'stack_user_project_id': PROJECT_ID,
-        'tags': None,
-        'updated_time': '2017-03-23T23:57:12Z',
-    }
-
-
-def make_fake_stack_event(
-    id, name, status='CREATE_COMPLETED', resource_name='id'
-):
-    event_id = uuid.uuid4().hex
-    self_url = "{endpoint}/stacks/{name}/{id}/resources/{name}/events/{event}"
-    resource_url = "{endpoint}/stacks/{name}/{id}/resources/{name}"
-    return {
-        "resource_name": id if resource_name == 'id' else name,
-        "event_time": "2017-03-26T19:38:18",
-        "links": [
-            {
-                "href": self_url.format(
-                    endpoint=ORCHESTRATION_ENDPOINT,
-                    name=name,
-                    id=id,
-                    event=event_id,
-                ),
-                "rel": "self",
-            },
-            {
-                "href": resource_url.format(
-                    endpoint=ORCHESTRATION_ENDPOINT, name=name, id=id
-                ),
-                "rel": "resource",
-            },
-            {
-                "href": f"{ORCHESTRATION_ENDPOINT}/stacks/{name}/{id}",
-                "rel": "stack",
-            },
-        ],
-        "logical_resource_id": name,
-        "resource_status": status,
-        "resource_status_reason": "",
-        "physical_resource_id": id,
-        "id": event_id,
-    }
-
-
 def make_fake_image(
     image_id=None,
     md5=NO_MD5,
@@ -292,22 +193,6 @@ def make_fake_image(
         'os_hash_algo': 'sha512' if sha512 else None,
         'os_hash_value': sha512 if sha512 else None,
     }
-
-
-def make_fake_machine(machine_name, machine_id=None):
-    if not machine_id:
-        machine_id = uuid.uuid4().hex
-    return meta.obj_to_munch(FakeMachine(id=machine_id, name=machine_name))
-
-
-def make_fake_port(address, node_id=None, port_id=None):
-    if not node_id:
-        node_id = uuid.uuid4().hex
-    if not port_id:
-        port_id = uuid.uuid4().hex
-    return meta.obj_to_munch(
-        FakeMachinePort(id=port_id, address=address, node_id=node_id)
-    )
 
 
 def make_fake_server_group(id, name, policies):
@@ -388,120 +273,3 @@ class FakeVolumeSnapshot:
         self.volume_id = '12345'
         self.metadata = {}
         self.is_forced = False
-
-
-class FakeMachine:
-    def __init__(
-        self,
-        id,
-        name=None,
-        driver=None,
-        driver_info=None,
-        chassis_uuid=None,
-        instance_info=None,
-        instance_name=None,
-        instance_uuid=None,
-        properties=None,
-        reservation=None,
-        last_error=None,
-        provision_state='available',
-    ):
-        self.uuid = id
-        self.name = name
-        self.driver = driver
-        self.driver_info = driver_info
-        self.chassis_uuid = chassis_uuid
-        self.instance_info = instance_info
-        self.instance_name = instance_name
-        self.instance_uuid = instance_uuid
-        self.properties = properties
-        self.reservation = reservation
-        self.last_error = last_error
-        self.provision_state = provision_state
-
-
-class FakeMachinePort:
-    def __init__(self, id, address, node_id):
-        self.uuid = id
-        self.address = address
-        self.node_uuid = node_id
-
-
-def make_fake_neutron_security_group(
-    id, name, description, rules, stateful=True, project_id=None
-):
-    if not rules:
-        rules = []
-    if not project_id:
-        project_id = PROJECT_ID
-    return json.loads(
-        json.dumps(
-            {
-                'id': id,
-                'name': name,
-                'description': description,
-                'stateful': stateful,
-                'project_id': project_id,
-                'tenant_id': project_id,
-                'security_group_rules': rules,
-            }
-        )
-    )
-
-
-def make_fake_nova_security_group_rule(
-    id, from_port, to_port, ip_protocol, cidr
-):
-    return json.loads(
-        json.dumps(
-            {
-                'id': id,
-                'from_port': int(from_port),
-                'to_port': int(to_port),
-                'ip_protcol': 'tcp',
-                'ip_range': {'cidr': cidr},
-            }
-        )
-    )
-
-
-def make_fake_nova_security_group(id, name, description, rules):
-    if not rules:
-        rules = []
-    return json.loads(
-        json.dumps(
-            {
-                'id': id,
-                'name': name,
-                'description': description,
-                'tenant_id': PROJECT_ID,
-                'rules': rules,
-            }
-        )
-    )
-
-
-def make_fake_aggregate(
-    id, name, availability_zone='nova', metadata=None, hosts=None
-):
-    if not metadata:
-        metadata = {}
-    if not hosts:
-        hosts = []
-    return json.loads(
-        json.dumps(
-            {
-                "availability_zone": availability_zone,
-                "created_at": datetime.datetime.now().isoformat(),
-                "deleted": False,
-                "deleted_at": None,
-                "hosts": hosts,
-                "id": int(id),
-                "metadata": {
-                    "availability_zone": availability_zone,
-                },
-                "name": name,
-                "updated_at": None,
-            }
-        )
-    )

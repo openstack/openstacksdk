@@ -24,8 +24,8 @@ from unittest.mock import patch
 from openstack.cloud import meta
 from openstack.compute.v2 import server as _server
 from openstack import connection
-from openstack.tests import fakes
 from openstack.tests.unit import base
+from openstack.tests.unit.cloud import fakes
 
 
 class TestFloatingIP(base.TestCase):

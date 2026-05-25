@@ -21,7 +21,6 @@ import openstack.config
 from openstack import connection
 from openstack import proxy
 from openstack import service_description
-from openstack.tests import fakes
 from openstack.tests.unit import base
 from openstack.tests.unit.fake import fake_service
 
@@ -374,7 +373,7 @@ class TestNewService(base.TestCase):
         svc.add_endpoint(
             interface='public',
             region='RegionOne',
-            url=f'https://fake.example.com/v1/{fakes.PROJECT_ID}',
+            url=f'https://fake.example.com/v1/{base.PROJECT_ID}',
         )
         self.use_keystone_v3()
         conn = self.cloud
@@ -417,7 +416,7 @@ class TestNewService(base.TestCase):
         svc.add_endpoint(
             interface='public',
             region='RegionOne',
-            url=f'https://fake.example.com/v2/{fakes.PROJECT_ID}',
+            url=f'https://fake.example.com/v2/{base.PROJECT_ID}',
         )
         self.use_keystone_v3()
         conn = self.cloud
@@ -457,7 +456,7 @@ class TestNewService(base.TestCase):
         svc.add_endpoint(
             interface='public',
             region='RegionOne',
-            url=f'https://fake.example.com/v2/{fakes.PROJECT_ID}',
+            url=f'https://fake.example.com/v2/{base.PROJECT_ID}',
         )
         self.use_keystone_v3()
         conn = self.cloud

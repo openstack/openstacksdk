@@ -11,18 +11,40 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
+
 import fixtures
 
 from openstack import exceptions
-from openstack.tests import fakes
 from openstack.tests.unit import base
+
+FAKE_PUBLIC_KEY = (
+    "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCkF3MX59OrlBs3dH5CU7lNmvpbrgZxSpyGj"
+    "lnE8Flkirnc/Up22lpjznoxqeoTAwTW034k7Dz6aYIrZGmQwe2TkE084yqvlj45Dkyoj95fW/"
+    "sZacm0cZNuL69EObEGHdprfGJQajrpz22NQoCD8TFB8Wv+8om9NH9Le6s+WPe98WC77KLw8qg"
+    "fQsbIey+JawPWl4O67ZdL5xrypuRjfIPWjgy/VH85IXg/Z/GONZ2nxHgSShMkwqSFECAC5L3P"
+    "HB+0+/12M/iikdatFSVGjpuHvkLOs3oe7m6HlOfluSJ85BzLWBbvva93qkGmLg4ZAc8rPh2O+"
+    "YIsBUHNLLMM/oQp Generated-by-Nova\n"
+)
+
+
+def make_fake_keypair(name):
+    # Note: this is literally taken from:
+    # https://docs.openstack.org/api-ref/compute/
+    return {
+        "fingerprint": "7e:eb:ab:24:ba:d1:e1:88:ae:9a:fb:66:53:df:d3:bd",
+        "name": name,
+        "type": "ssh",
+        "public_key": FAKE_PUBLIC_KEY,
+        "created_at": datetime.datetime.now().isoformat(),
+    }
 
 
 class TestKeypair(base.TestCase):
     def setUp(self):
         super().setUp()
         self.keyname = self.getUniqueString('key')
-        self.key = fakes.make_fake_keypair(self.keyname)
+        self.key = make_fake_keypair(self.keyname)
         self.useFixture(
             fixtures.MonkeyPatch(
                 'openstack.utils.maximum_supported_microversion',

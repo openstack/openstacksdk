@@ -17,8 +17,8 @@ from openstack.block_storage.v3 import volume
 from openstack.cloud import meta
 from openstack.compute.v2 import volume_attachment
 from openstack import exceptions
-from openstack.tests import fakes
 from openstack.tests.unit import base
+from openstack.tests.unit.cloud import fakes
 
 
 class TestVolume(base.TestCase):

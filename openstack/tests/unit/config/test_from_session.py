@@ -17,7 +17,6 @@ from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
 from openstack.config import cloud_region
 from openstack import connection
-from openstack.tests import fakes
 from openstack.tests.unit import base
 
 
@@ -39,7 +38,7 @@ class TestFromSession(base.TestCase):
 
         server_id = str(uuid.uuid4())
         server_name = self.getUniqueString('name')
-        fake_server = fakes.make_fake_server(server_id, server_name)
+        fake_server = base.make_fake_server(server_id, server_name)
         self.register_uris(
             [
                 self.get_nova_discovery_mock_dict(),
