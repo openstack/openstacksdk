@@ -10,7 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any, Self
 from urllib import parse
+
+from keystoneauth1 import adapter
 
 from openstack import resource
 
@@ -33,15 +36,15 @@ class Template(resource.Resource):
 
     def validate(
         self,
-        session,
-        template,
-        environment=None,
-        template_url=None,
-        ignore_errors=None,
-    ):
+        session: adapter.Adapter,
+        template: dict[str, Any] | None,
+        environment: dict[str, Any] | None = None,
+        template_url: str | None = None,
+        ignore_errors: str | None = None,
+    ) -> Self:
         url = '/validate'
 
-        body = {'template': template}
+        body: dict[str, Any] = {'template': template}
         if environment is not None:
             body['environment'] = environment
         if template_url is not None:

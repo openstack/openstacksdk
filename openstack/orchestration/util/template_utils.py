@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 import json
 from typing import Any
 import urllib.parse
@@ -25,13 +25,13 @@ from openstack.orchestration.util import utils
 
 
 def get_template_contents(
-    template_file=None,
-    template_url=None,
-    template_object=None,
-    object_request=None,
-    files=None,
-    existing=False,
-):
+    template_file: str | None = None,
+    template_url: str | None = None,
+    template_object: str | None = None,
+    object_request: Callable[..., Any] | None = None,
+    files: dict[str, Any] | None = None,
+    existing: bool = False,
+) -> tuple[dict[str, Any], dict[str, Any] | None]:
     is_object = False
     tpl = None
 
@@ -78,9 +78,13 @@ def get_template_contents(
 
 
 def resolve_template_get_files(
-    template, files, template_base_url, is_object=False, object_request=None
-):
-    def ignore_if(key, value):
+    template: dict[str, Any],
+    files: dict[str, Any],
+    template_base_url: str,
+    is_object: bool = False,
+    object_request: Callable[..., Any] | None = None,
+) -> None:
+    def ignore_if(key: str, value: Any) -> bool:
         if key != 'get_file' and key != 'type':
             return True
         if not isinstance(value, str):
@@ -89,7 +93,7 @@ def resolve_template_get_files(
             return True
         return False
 
-    def recurse_if(value):
+    def recurse_if(value: Any) -> bool:
         return isinstance(value, dict | list)
 
     get_file_contents(
@@ -103,7 +107,7 @@ def resolve_template_get_files(
     )
 
 
-def is_template(file_content):
+def is_template(file_content: str | bytes) -> bool:
     try:
         if isinstance(file_content, bytes):
             file_content = file_content.decode('utf-8')
@@ -114,14 +118,14 @@ def is_template(file_content):
 
 
 def get_file_contents(
-    from_data,
-    files,
-    base_url=None,
-    ignore_if=None,
-    recurse_if=None,
-    is_object=False,
-    object_request=None,
-):
+    from_data: Any,
+    files: dict[str, Any],
+    base_url: str | None = None,
+    ignore_if: Callable[[str, Any], bool] | None = None,
+    recurse_if: Callable[[Any], bool] | None = None,
+    is_object: bool = False,
+    object_request: Callable[..., Any] | None = None,
+) -> None:
     if recurse_if and recurse_if(from_data):
         if isinstance(from_data, dict):
             recurse_data = from_data.values()
@@ -169,7 +173,9 @@ def get_file_contents(
             from_data[key] = str_url
 
 
-def deep_update(old, new):
+def deep_update(
+    old: dict[str, Any] | None, new: Mapping[str, Any]
+) -> dict[str, Any]:
     '''Merge nested dictionaries.'''
 
     # Prevents an error if in a previous iteration
@@ -187,13 +193,13 @@ def deep_update(old, new):
 
 
 def process_multiple_environments_and_files(
-    env_paths=None,
-    template=None,
-    template_url=None,
-    env_path_is_object=None,
-    object_request=None,
-    env_list_tracker=None,
-):
+    env_paths: list[str] | None = None,
+    template: dict[str, Any] | None = None,
+    template_url: str | None = None,
+    env_path_is_object: Callable[[str], bool] | None = None,
+    object_request: Callable[..., Any] | None = None,
+    env_list_tracker: list[str] | None = None,
+) -> tuple[dict[str, str], dict[str, dict[str, Any]]]:
     """Reads one or more environment files.
 
     Reads in each specified environment file and returns a dictionary
@@ -255,13 +261,13 @@ def process_multiple_environments_and_files(
 
 
 def process_environment_and_files(
-    env_path=None,
-    template=None,
-    template_url=None,
-    env_path_is_object=None,
-    object_request=None,
-    include_env_in_files=False,
-):
+    env_path: str | None = None,
+    template: dict[str, Any] | None = None,
+    template_url: str | None = None,
+    env_path_is_object: Callable[[str], bool] | None = None,
+    object_request: Callable[..., Any] | None = None,
+    include_env_in_files: bool = False,
+) -> tuple[dict[str, str], dict[str, dict[str, Any]]]:
     """Loads a single environment file.
 
     Returns an entry suitable for the files dict which maps the environment
@@ -278,12 +284,16 @@ def process_environment_and_files(
     files: dict[str, str] = {}
     env: dict[str, dict[str, Any]] = {}
 
-    is_object = env_path_is_object and env_path_is_object(env_path)
+    is_object = (
+        env_path_is_object is not None
+        and env_path is not None
+        and env_path_is_object(env_path)
+    )
 
     if is_object:
         raw_env = object_request and object_request('GET', env_path)
-        env = environment_format.parse(raw_env)
-        env_base_url = utils.base_url_for_url(env_path)
+        env = environment_format.parse(raw_env or '')
+        env_base_url = utils.base_url_for_url(env_path or '')
 
         resolve_environment_urls(
             env.get('resource_registry'),
@@ -311,12 +321,12 @@ def process_environment_and_files(
 
 
 def resolve_environment_urls(
-    resource_registry,
-    files,
-    env_base_url,
-    is_object=False,
-    object_request=None,
-):
+    resource_registry: dict[str, Any] | None,
+    files: dict[str, Any],
+    env_base_url: str,
+    is_object: bool = False,
+    object_request: Callable[..., Any] | None = None,
+) -> None:
     """Handles any resource URLs specified in an environment.
 
     :param resource_registry: mapping of type name to template filename
@@ -332,7 +342,7 @@ def resolve_environment_urls(
     rr = resource_registry
     base_url = rr.get('base_url', env_base_url)
 
-    def ignore_if(key, value):
+    def ignore_if(key: str, value: Any) -> bool:
         if key == 'base_url':
             return True
         if isinstance(value, dict):
@@ -343,6 +353,7 @@ def resolve_environment_urls(
             return True
         if key in ['hooks', 'restricted_actions']:
             return True
+        return False
 
     get_file_contents(
         rr,

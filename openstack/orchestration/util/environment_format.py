@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 import yaml
 
 from openstack.orchestration.util import template_format
@@ -32,7 +34,7 @@ SECTIONS = (
 )
 
 
-def parse(env_str):
+def parse(env_str: str | bytes) -> dict[str, Any]:
     """Takes a string and returns a dict containing the parsed structure.
 
     This includes determination of whether the string is using the
@@ -60,4 +62,4 @@ def parse(env_str):
         if param not in SECTIONS:
             raise ValueError(f'environment has wrong section "{param}"')
 
-    return env
+    return env  # type: ignore[no-any-return]

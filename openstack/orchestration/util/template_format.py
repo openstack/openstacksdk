@@ -11,6 +11,7 @@
 # under the License.
 
 import json
+from typing import Any
 
 import yaml
 
@@ -24,10 +25,10 @@ class HeatYamlLoader(yaml_loader):
     pass
 
 
-def _construct_yaml_str(self, node):
+def _construct_yaml_str(self: yaml.BaseLoader, node: yaml.Node) -> str:
     # Override the default string handling function
     # to always return unicode objects
-    return self.construct_scalar(node)
+    return self.construct_scalar(node)  # type: ignore[arg-type]
 
 
 HeatYamlLoader.add_constructor('tag:yaml.org,2002:str', _construct_yaml_str)
@@ -40,7 +41,7 @@ HeatYamlLoader.add_constructor(
 )
 
 
-def parse(tmpl_str):
+def parse(tmpl_str: str) -> dict[str, Any]:
     """Takes a string and returns a dict containing the parsed structure.
 
     This includes determination of whether the string is using the
@@ -71,4 +72,4 @@ def parse(tmpl_str):
         or 'AWSTemplateFormatVersion' in tpl
     ):
         raise ValueError("Template format version not found.")
-    return tpl
+    return tpl  # type: ignore[no-any-return]

@@ -98,6 +98,7 @@ module = [
     "openstack.message.*",
     "openstack.network.*",
     "openstack.object_store.*",
+    "openstack.orchestration.*",
 ]
 disallow_untyped_calls = true
 disallow_untyped_defs = true
