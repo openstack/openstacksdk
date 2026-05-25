@@ -114,6 +114,14 @@ QuotaSet Operations
   :members: get_quota_set, get_quota_set_defaults,
             revert_quota_set, update_quota_set
 
+QoSSpec Operations
+^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v3._proxy.Proxy
+  :noindex:
+  :members: create_qos_spec, delete_qos_spec, update_qos_spec,
+            get_qos_spec
+
 Service Operations
 ^^^^^^^^^^^^^^^^^^
 
