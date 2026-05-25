@@ -192,12 +192,11 @@ class Proxy(proxy.Proxy):
     def create_snapshot(self, **attrs: Any) -> _snapshot.Snapshot:
         """Create a new snapshot from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.block_storage.v2.snapshot.Snapshot`,
             comprised of the properties on the Snapshot class.
 
         :returns: The results of snapshot creation
-        :rtype: :class:`~openstack.block_storage.v2.snapshot.Snapshot`
         """
         return self._create(_snapshot.Snapshot, **attrs)
 
@@ -249,7 +248,7 @@ class Proxy(proxy.Proxy):
 
         :param snapshot: The value can be either the ID of a backup or a
             :class:`~openstack.block_storage.v2.snapshot.Snapshot` instance.
-        :param str status: New snapshot status
+        :param status: New snapshot status
 
         :returns: None
         """
@@ -268,12 +267,11 @@ class Proxy(proxy.Proxy):
         """Creates a snapshot by using existing storage rather than
         allocating new storage.
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.block_storage.v2.snapshot.Snapshot`,
             comprised of the properties on the Snapshot class.
 
         :returns: The results of snapshot creation
-        :rtype: :class:`~openstack.block_storage.v2.snapshot.Snapshot`
         """
         return _snapshot.Snapshot.manage(self, **attrs)
 
@@ -350,12 +348,11 @@ class Proxy(proxy.Proxy):
     def create_type(self, **attrs: Any) -> _type.Type:
         """Create a new type from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.block_storage.v2.type.Type`,
             comprised of the properties on the Type class.
 
         :returns: The results of type creation
-        :rtype: :class:`~openstack.block_storage.v2.type.Type`
         """
         return self._create(_type.Type, **attrs)
 
@@ -525,12 +522,11 @@ class Proxy(proxy.Proxy):
     def create_volume(self, **attrs: Any) -> _volume.Volume:
         """Create a new volume from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.block_storage.v2.volume.Volume`,
             comprised of the properties on the Volume class.
 
         :returns: The results of volume creation
-        :rtype: :class:`~openstack.block_storage.v2.volume.Volume`
         """
         return self._create(_volume.Volume, **attrs)
 
@@ -587,7 +583,7 @@ class Proxy(proxy.Proxy):
 
         :param volume: The value can be either the ID of a volume or a
             :class:`~openstack.block_storage.v2.volume.Volume` instance.
-        :param bool readonly: Whether the volume should be a read-only volume
+        :param readonly: Whether the volume should be a read-only volume
             or not.
 
         :returns: None
@@ -603,7 +599,7 @@ class Proxy(proxy.Proxy):
         :param new_type: The new volume type that volume is changed with.
             The value can be either the ID of the volume type or a
             :class:`~openstack.block_storage.v2.type.Type` instance.
-        :param str migration_policy: Specify if the volume should be migrated
+        :param migration_policy: Specify if the volume should be migrated
             when it is re-typed. Possible values are on-demand or never.
             Default: never.
 
@@ -618,7 +614,7 @@ class Proxy(proxy.Proxy):
 
         :param volume: The value can be either the ID of a volume or a
             :class:`~openstack.block_storage.v2.volume.Volume` instance.
-        :param bool bootable: Specifies whether the volume should be bootable
+        :param bootable: Specifies whether the volume should be bootable
             or not.
 
         :returns: None
@@ -631,7 +627,7 @@ class Proxy(proxy.Proxy):
 
         :param volume: Either the ID of a volume or a
             :class:`~openstack.block_storage.v2.volume.Volume`.
-        :param kwargs metadata: Key/value pairs to be updated in the volume's
+        :param metadata: Key/value pairs to be updated in the volume's
             image metadata. No other metadata is modified by this call.
 
         :returns: None
@@ -666,9 +662,9 @@ class Proxy(proxy.Proxy):
 
         :param volume: The value can be either the ID of a volume or a
             :class:`~openstack.block_storage.v2.volume.Volume` instance.
-        :param str status: The new volume status.
-        :param str attach_status: The new volume attach status.
-        :param str migration_status: The new volume migration status (admin
+        :param status: The new volume status.
+        :param attach_status: The new volume attach status.
+        :param migration_status: The new volume migration status (admin
             only).
 
         :returns: None
@@ -681,9 +677,9 @@ class Proxy(proxy.Proxy):
 
         :param volume: The value can be either the ID of a volume or a
             :class:`~openstack.block_storage.v2.volume.Volume` instance.
-        :param str mountpoint: The attaching mount point.
-        :param str instance: The UUID of the attaching instance.
-        :param str host_name: The name of the attaching host.
+        :param mountpoint: The attaching mount point.
+        :param instance: The UUID of the attaching instance.
+        :param host_name: The name of the attaching host.
 
         :returns: None
         """
@@ -695,10 +691,10 @@ class Proxy(proxy.Proxy):
 
         :param volume: The value can be either the ID of a volume or a
             :class:`~openstack.block_storage.v2.volume.Volume` instance.
-        :param str attachment: The ID of the attachment.
-        :param bool force: Whether to force volume detach (Rolls back an
+        :param attachment: The ID of the attachment.
+        :param force: Whether to force volume detach (Rolls back an
             unsuccessful detach operation after you disconnect the volume.)
-        :param dict connector: The connector object.
+        :param connector: The connector object.
 
         :returns: None
         """
@@ -724,13 +720,13 @@ class Proxy(proxy.Proxy):
 
         :param volume: The value can be either the ID of a volume or a
             :class:`~openstack.block_storage.v2.volume.Volume` instance.
-        :param str host: The target host for the volume migration. Host
+        :param host: The target host for the volume migration. Host
             format is host@backend.
-        :param bool force_host_copy: If false (the default), rely on the volume
+        :param force_host_copy: If false (the default), rely on the volume
             backend driver to perform the migration, which might be optimized.
             If true, or the volume driver fails to migrate the volume itself,
             a generic host-based migration is performed.
-        :param bool lock_volume: If true, migrating an available volume will
+        :param lock_volume: If true, migrating an available volume will
             change its status to maintenance preventing other operations from
             being performed on the volume such as attach, detach, retype, etc.
 
@@ -744,8 +740,8 @@ class Proxy(proxy.Proxy):
 
         :param volume: The value can be either the ID of a volume or a
             :class:`~openstack.block_storage.v2.volume.Volume` instance.
-        :param str new_volume: The UUID of the new volume.
-        :param bool error: Used to indicate if an error has occured elsewhere
+        :param new_volume: The UUID of the new volume.
+        :param error: Used to indicate if an error has occured elsewhere
             that requires clean up.
 
         :returns: None
@@ -874,12 +870,11 @@ class Proxy(proxy.Proxy):
     def create_backup(self, **attrs: Any) -> _backup.Backup:
         """Create a new Backup from attributes with native API
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.block_storage.v2.backup.Backup`
             comprised of the properties on the Backup class.
 
         :returns: The results of Backup creation
-        :rtype: :class:`~openstack.block_storage.v2.backup.Backup`
         """
         return self._create(_backup.Backup, **attrs)
 
@@ -921,7 +916,6 @@ class Proxy(proxy.Proxy):
         :param name: The name for new volume creation to restore.
 
         :returns: Updated backup instance
-        :rtype: :class:`~openstack.block_storage.v2.backup.Backup`
         """
         volume_id = resource.Resource._get_id(volume)
         return self._get_resource(_backup.Backup, backup).restore(
@@ -933,7 +927,7 @@ class Proxy(proxy.Proxy):
 
         :param backup: The value can be either the ID of a backup or a
             :class:`~openstack.block_storage.v2.backup.Backup` instance.
-        :param str status: New backup status
+        :param status: New backup status
 
         :returns: None
         """
@@ -1080,7 +1074,7 @@ class Proxy(proxy.Proxy):
         :param project: ID or instance of
             :class:`~openstack.identity.project.Project` of the project for
             which the quota should be resetted.
-        :param dict query: Additional parameters to be used.
+        :param query: Additional parameters to be used.
 
         :returns: ``None``
         """
@@ -1204,7 +1198,6 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.block_storage.v2.service.Service` instance.
 
         :returns: Updated service instance
-        :rtype: class: `~openstack.block_storage.v2.service.Service`
         """
         service_obj = self._get_resource(_service.Service, service)
         return service_obj.enable(self)
@@ -1219,10 +1212,9 @@ class Proxy(proxy.Proxy):
 
         :param service: Either the ID of a service or a
             :class:`~openstack.block_storage.v2.service.Service` instance
-        :param str reason: The reason to disable a service
+        :param reason: The reason to disable a service
 
         :returns: Updated service instance
-        :rtype: class: `~openstack.block_storage.v2.service.Service`
         """
         service_obj = self._get_resource(_service.Service, service)
         return service_obj.disable(self, reason=reason)
@@ -1237,7 +1229,6 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.block_storage.v2.service.Service` instance
 
         :returns: Updated service instance
-        :rtype: class: `~openstack.block_storage.v2.service.Service`
         """
         service_obj = self._get_resource(_service.Service, service)
         return service_obj.thaw(self)
@@ -1252,7 +1243,6 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.block_storage.v2.service.Service` instance
 
         :returns: Updated service instance
-        :rtype: class: `~openstack.block_storage.v2.service.Service`
         """
         service_obj = self._get_resource(_service.Service, service)
         return service_obj.freeze(self)
@@ -1271,7 +1261,6 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.block_storage.v2.service.Service` instance
 
         :returns: Updated service instance
-        :rtype: class: `~openstack.block_storage.v2.service.Service`
         """
         service_obj = self._get_resource(_service.Service, service)
         return service_obj.failover(self, backend_id=backend_id)
@@ -1313,13 +1302,12 @@ class Proxy(proxy.Proxy):
 
         :param volume: Either the ID of a volume or a
             :class:`~openstack.block_storage.v2.volume.Volume`.
-        :param kwargs metadata: Key/value pairs to be updated in the volume's
+        :param metadata: Key/value pairs to be updated in the volume's
             metadata. No other metadata is modified by this call. All keys
             and values are stored as Unicode.
 
         :returns: A :class:`~openstack.block_storage.v2.volume.Volume` with the
             volume's metadata. All keys and values are Unicode text.
-        :rtype: :class:`~openstack.block_storage.v2.volume.Volume`
         """
         volume = self._get_resource(_volume.Volume, volume)
         return volume.set_metadata(self, metadata=metadata)
@@ -1382,14 +1370,13 @@ class Proxy(proxy.Proxy):
 
         :param snapshot: Either the ID of a snapshot or a
             :class:`~openstack.block_storage.v2.snapshot.Snapshot`.
-        :param kwargs metadata: Key/value pairs to be updated in the snapshot's
+        :param metadata: Key/value pairs to be updated in the snapshot's
             metadata. No other metadata is modified by this call. All keys
             and values are stored as Unicode.
 
         :returns: A
             :class:`~openstack.block_storage.v2.snapshot.Snapshot` with the
             snapshot's metadata. All keys and values are Unicode text.
-        :rtype: :class:`~openstack.block_storage.v2.snapshot.Snapshot`
         """
         snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
         return snapshot.set_metadata(self, metadata=metadata)
@@ -1421,11 +1408,11 @@ class Proxy(proxy.Proxy):
 
         :param volume_id: The value is ID of the volume.
         :param name: The value is name of the transfer
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.block_storage.v2.transfer.Transfer`
             comprised of the properties on the Transfer class.
+
         :returns: The results of Transfer creation
-        :rtype: :class:`~openstack.block_storage.v2.transfer.Transfer`
         """
         return self._create(_transfer.Transfer, **attrs)
 
@@ -1539,7 +1526,6 @@ class Proxy(proxy.Proxy):
         :param auth_key: The key to authenticate volume transfer.
 
         :returns: The results of Transfer creation
-        :rtype: :class:`~openstack.block_storage.v2.transfer.Transfer`
         """
         transfer = self._get_resource(_transfer.Transfer, transfer)
         return transfer.accept(self, auth_key=auth_key)
@@ -1573,7 +1559,7 @@ class Proxy(proxy.Proxy):
             value, progress. This is API specific but is generally a percentage
             value from 0-100.
 
-        :return: The updated resource.
+        :returns: The updated resource.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
             transition to status failed to occur in ``wait`` seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource

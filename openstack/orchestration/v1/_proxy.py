@@ -75,15 +75,14 @@ class Proxy(proxy.Proxy):
         """Read templates and environment content and prepares
         corresponding stack attributes
 
-        :param string template_file: Path to the template.
-        :param string template_url: URL of template.
-        :param string template_object: URL to retrieve template object.
-        :param dict files: dict of additional file content to include.
+        :param template_file: Path to the template.
+        :param template_url: URL of template.
+        :param template_object: URL to retrieve template object.
+        :param files: Dict of additional file content to include.
         :param environment_files: Paths to environment files to apply.
 
         :returns: Attributes dict to be set on the
             :class:`~openstack.orchestration.v1.stack.Stack`
-        :rtype: dict
         """
         stack_attrs = dict()
         envfiles = dict()
@@ -115,15 +114,14 @@ class Proxy(proxy.Proxy):
     ) -> _stack.Stack:
         """Create a new stack from attributes
 
-        :param bool preview: When ``True``, a preview endpoint will be used to
+        :param preview: When ``True``, a preview endpoint will be used to
             verify the template
             *Default: ``False``*
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.orchestration.v1.stack.Stack`,
             comprised of the properties on the Stack class.
 
         :returns: The results of stack creation
-        :rtype: :class:`~openstack.orchestration.v1.stack.Stack`
         """
 
         base_path = None if not preview else '/stacks/preview'
@@ -393,12 +391,11 @@ class Proxy(proxy.Proxy):
     def create_software_config(self, **attrs: Any) -> _sc.SoftwareConfig:
         """Create a new software config from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.orchestration.v1.software_config.SoftwareConfig`,
             comprised of the properties on the SoftwareConfig class.
 
         :returns: The results of software config creation
-        :rtype:
             :class:`~openstack.orchestration.v1.software_config.SoftwareConfig`
         """
         return self._create(_sc.SoftwareConfig, **attrs)
@@ -456,13 +453,11 @@ class Proxy(proxy.Proxy):
     ) -> _sd.SoftwareDeployment:
         """Create a new software deployment from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.orchestration.v1.software_deployment.SoftwareDeployment`,
             comprised of the properties on the SoftwareDeployment class.
 
         :returns: The results of software deployment creation
-        :rtype:
-            :class:`~openstack.orchestration.v1.software_deployment.SoftwareDeployment`
         """
         return self._create(_sd.SoftwareDeployment, **attrs)
 
@@ -659,7 +654,7 @@ class Proxy(proxy.Proxy):
             value, progress. This is API specific but is generally a percentage
             value from 0-100.
 
-        :return: The updated resource.
+        :returns: The updated resource.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
             transition to status failed to occur in ``wait`` seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource

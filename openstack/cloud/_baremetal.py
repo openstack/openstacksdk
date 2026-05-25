@@ -553,7 +553,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         This is a method that sets the node power state to "on".
 
-        :params string name_or_id: A string representing the baremetal
+        :param name_or_id: A string representing the baremetal
             node to have power turned to an "on" state.
 
         :returns: None
@@ -567,7 +567,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         This is a method that sets the node power state to "off".
 
-        :params string name_or_id: A string representing the baremetal
+        :param name_or_id: A string representing the baremetal
             node to have power turned to an "off" state.
 
         :returns: None
@@ -583,7 +583,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         in essence changes the machine power state to "off", and that back
         to "on".
 
-        :params string name_or_id: A string representing the baremetal
+        :param name_or_id: A string representing the baremetal
             node to have power turned to an "off" state.
 
         :returns: None

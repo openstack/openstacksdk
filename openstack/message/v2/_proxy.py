@@ -34,12 +34,11 @@ class Proxy(proxy.Proxy):
     def create_queue(self, **attrs: Any) -> _queue.Queue:
         """Create a new queue from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.message.v2.queue.Queue`,
             comprised of the properties on the Queue class.
 
         :returns: The results of queue creation
-        :rtype: :class:`~openstack.message.v2.queue.Queue`
         """
         return self._create(_queue.Queue, **attrs)
 
@@ -185,12 +184,11 @@ class Proxy(proxy.Proxy):
         """Create a new subscription from attributes
 
         :param queue_name: The name of target queue to subscribe on.
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.message.v2.subscription.Subscription`,
             comprised of the properties on the Subscription class.
 
         :returns: The results of subscription creation
-        :rtype: :class:`~openstack.message.v2.subscription.Subscription`
         """
         return self._create(
             _subscription.Subscription, queue_name=queue_name, **attrs
@@ -273,12 +271,11 @@ class Proxy(proxy.Proxy):
         """Create a new claim from attributes
 
         :param queue_name: The name of target queue to claim message from.
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.message.v2.claim.Claim`,
             comprised of the properties on the Claim class.
 
         :returns: The results of claim creation
-        :rtype: :class:`~openstack.message.v2.claim.Claim`
         """
         return self._create(_claim.Claim, queue_name=queue_name, **attrs)
 
@@ -369,7 +366,7 @@ class Proxy(proxy.Proxy):
             value, progress. This is API specific but is generally a percentage
             value from 0-100.
 
-        :return: The updated resource.
+        :returns: The updated resource.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
             transition to status failed to occur in ``wait`` seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource

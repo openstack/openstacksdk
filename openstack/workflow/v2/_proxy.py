@@ -31,12 +31,11 @@ class Proxy(proxy.Proxy):
     def create_workflow(self, **attrs: Any) -> _workflow.Workflow:
         """Create a new workflow from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.workflow.v2.workflow.Workflow`,
             comprised of the properties on the Workflow class.
 
         :returns: The results of workflow creation
-        :rtype: :class:`~openstack.workflow.v2.workflow.Workflow`
         """
         return self._create(_workflow.Workflow, **attrs)
 
@@ -150,12 +149,11 @@ class Proxy(proxy.Proxy):
         """Create a new execution from attributes
 
         :param workflow_name: The name of target workflow to execute.
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.workflow.v2.execution.Execution`,
             comprised of the properties on the Execution class.
 
         :returns: The results of execution creation
-        :rtype: :class:`~openstack.workflow.v2.execution.Execution`
         """
         return self._create(_execution.Execution, **attrs)
 
@@ -252,12 +250,11 @@ class Proxy(proxy.Proxy):
     def create_cron_trigger(self, **attrs: Any) -> _cron_trigger.CronTrigger:
         """Create a new cron trigger from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.workflow.v2.cron_trigger.CronTrigger`,
             comprised of the properties on the CronTrigger class.
 
         :returns: The results of cron trigger creation
-        :rtype: :class:`~openstack.workflow.v2.cron_trigger.CronTrigger`
         """
         return self._create(_cron_trigger.CronTrigger, **attrs)
 
@@ -411,7 +408,7 @@ class Proxy(proxy.Proxy):
             value, progress. This is API specific but is generally a percentage
             value from 0-100.
 
-        :return: The updated resource.
+        :returns: The updated resource.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
             transition to status failed to occur in ``wait`` seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource

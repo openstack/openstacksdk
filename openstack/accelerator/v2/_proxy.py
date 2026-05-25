@@ -162,7 +162,7 @@ class Proxy(proxy.Proxy):
     ) -> _device_profile.DeviceProfile:
         """Create a device_profile.
 
-        :param kwargs attrs: a list of device_profiles.
+        :param attrs: a list of device_profiles.
         :returns: The list of created device profiles
         """
         return self._create(_device_profile.DeviceProfile, **attrs)
@@ -234,7 +234,7 @@ class Proxy(proxy.Proxy):
     ) -> _arq.AcceleratorRequest:
         """Create an ARQs for a single device profile.
 
-        :param kwargs attrs: request body.
+        :param attrs: request body.
         :returns: The created accelerator request instance.
         """
         return self._create(_arq.AcceleratorRequest, **attrs)
@@ -344,7 +344,7 @@ class Proxy(proxy.Proxy):
     def create_attribute(self, **attrs: Any) -> _attribute.Attribute:
         """Create a attribute.
 
-        :param kwargs attrs: a list of attributes.
+        :param attrs: a list of attributes.
         :returns: The list of created attributes
         """
         return self._create(_attribute.Attribute, **attrs)
@@ -425,7 +425,7 @@ class Proxy(proxy.Proxy):
             value, progress. This is API specific but is generally a percentage
             value from 0-100.
 
-        :return: The updated resource.
+        :returns: The updated resource.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
             transition to status failed to occur in ``wait`` seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource

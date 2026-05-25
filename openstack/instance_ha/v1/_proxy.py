@@ -65,11 +65,10 @@ class Proxy(proxy.Proxy):
     def create_notification(self, **attrs: Any) -> _notification.Notification:
         """Create a new notification.
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`openstack.instance_ha.v1.notification.Notification`,
             comprised of the propoerties on the Notification class.
         :returns: The result of notification creation
-        :rtype: :class:`openstack.instance_ha.v1.notification.Notification`
         """
         return self._create(_notification.Notification, **attrs)
 
@@ -99,11 +98,10 @@ class Proxy(proxy.Proxy):
     def create_segment(self, **attrs: Any) -> _segment.Segment:
         """Create a new segment.
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`openstack.instance_ha.v1.segment.Segment`,
             comprised of the propoerties on the Segment class.
         :returns: The result of segment creation
-        :rtype: :class:`openstack.instance_ha.v1.segment.Segment`
         """
         return self._create(_segment.Segment, **attrs)
 
@@ -353,7 +351,7 @@ class Proxy(proxy.Proxy):
             value, progress. This is API specific but is generally a percentage
             value from 0-100.
 
-        :return: The updated resource.
+        :returns: The updated resource.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
             transition to status failed to occur in ``wait`` seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource

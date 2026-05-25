@@ -196,12 +196,11 @@ class Proxy(proxy.Proxy):
     def create_flavor(self, **attrs: Any) -> _flavor.Flavor:
         """Create a new flavor from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.compute.v2.flavor.Flavor`,
             comprised of the properties on the Flavor class.
 
         :returns: The results of flavor creation
-        :rtype: :class:`~openstack.compute.v2.flavor.Flavor`
         """
         return self._create(_flavor.Flavor, **attrs)
 
@@ -290,7 +289,7 @@ class Proxy(proxy.Proxy):
 
         :param flavor: Either the ID of a flavor or a
             :class:`~openstack.compute.v2.flavor.Flavor` instance.
-        :param str tenant: The UUID of the tenant.
+        :param tenant: The UUID of the tenant.
 
         :returns: One :class:`~openstack.compute.v2.flavor.Flavor`
         """
@@ -302,7 +301,7 @@ class Proxy(proxy.Proxy):
 
         :param flavor: Either the ID of a flavor or a
             :class:`~openstack.compute.v2.flavor.Flavor` instance.
-        :param str tenant: The UUID of the tenant.
+        :param tenant: The UUID of the tenant.
 
         :returns: One :class:`~openstack.compute.v2.flavor.Flavor`
         """
@@ -344,7 +343,7 @@ class Proxy(proxy.Proxy):
 
         :param flavor: Either the ID of a flavor or a
             :class:`~openstack.compute.v2.flavor.Flavor` instance.
-        :param dict extra_specs: dict of extra specs
+        :param extra_specs: dict of extra specs
 
         :returns: One :class:`~openstack.compute.v2.flavor.Flavor`
         """
@@ -481,12 +480,11 @@ class Proxy(proxy.Proxy):
     def create_aggregate(self, **attrs: Any) -> _aggregate.Aggregate:
         """Create a new host aggregate from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.compute.v2.aggregate.Aggregate`,
             comprised of the properties on the Aggregate class.
 
         :returns: The results of aggregate creation
-        :rtype: :class:`~openstack.compute.v2.aggregate.Aggregate`
         """
         return self._create(_aggregate.Aggregate, **attrs)
 
@@ -536,7 +534,7 @@ class Proxy(proxy.Proxy):
         :param aggregate: Either the ID of a aggregate or a
             :class:`~openstack.compute.v2.aggregate.Aggregate`
             instance.
-        :param str host: The host to add to the aggregate
+        :param host: The host to add to the aggregate
 
         :returns: One :class:`~openstack.compute.v2.aggregate.Aggregate`
         """
@@ -549,7 +547,7 @@ class Proxy(proxy.Proxy):
         :param aggregate: Either the ID of a aggregate or a
             :class:`~openstack.compute.v2.aggregate.Aggregate`
             instance.
-        :param str host: The host to remove from the aggregate
+        :param host: The host to remove from the aggregate
 
         :returns: One :class:`~openstack.compute.v2.aggregate.Aggregate`
         """
@@ -790,12 +788,11 @@ class Proxy(proxy.Proxy):
     def create_keypair(self, **attrs: Any) -> _keypair.Keypair:
         """Create a new keypair from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.compute.v2.keypair.Keypair`,
             comprised of the properties on the Keypair class.
 
         :returns: The results of keypair creation
-        :rtype: :class:`~openstack.compute.v2.keypair.Keypair`
         """
         return self._create(_keypair.Keypair, **attrs)
 
@@ -931,12 +928,11 @@ class Proxy(proxy.Proxy):
     def create_server(self, **attrs: Any) -> _server.Server:
         """Create a new server from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.compute.v2.server.Server`,
             comprised of the properties on the Server class.
 
         :returns: The results of server creation
-        :rtype: :class:`~openstack.compute.v2.server.Server`
         """
         return self._create(_server.Server, **attrs)
 
@@ -1083,7 +1079,7 @@ class Proxy(proxy.Proxy):
 
         :param server: Either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server` instance.
-        :param str new_password: The new password to be set.
+        :param new_password: The new password to be set.
 
         :returns: None
         """
@@ -1130,7 +1126,7 @@ class Proxy(proxy.Proxy):
 
         :param server: Either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server` instance.
-        :param str reboot_type: The type of reboot to perform.
+        :param reboot_type: The type of reboot to perform.
             "HARD" and "SOFT" are the current options.
 
         :returns: None
@@ -1143,17 +1139,17 @@ class Proxy(proxy.Proxy):
 
         :param server: Either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server` instance.
-        :param str name: The name of the server
-        :param str admin_password: The administrator password
-        :param bool preserve_ephemeral: Indicates whether the server
+        :param name: The name of the server
+        :param admin_password: The administrator password
+        :param preserve_ephemeral: Indicates whether the server
             is rebuilt with the preservation of the ephemeral partition.
             *Default: False*
-        :param str image: The id of an image to rebuild with. *Default: None*
-        :param str access_ipv4: The IPv4 address to rebuild with.
+        :param image: The id of an image to rebuild with. *Default: None*
+        :param access_ipv4: The IPv4 address to rebuild with.
             *Default: None*
-        :param str access_ipv6: The IPv6 address to rebuild with.
+        :param access_ipv6: The IPv6 address to rebuild with.
             *Default: None*
-        :param dict metadata: A dictionary of metadata to rebuild with.
+        :param metadata: A dictionary of metadata to rebuild with.
             *Default: None*
         :param personality: A list of dictionaries, each including a
             **path** and **contents** key, to be injected
@@ -1214,8 +1210,8 @@ class Proxy(proxy.Proxy):
 
         :param server: Either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server` instance.
-        :param str name: The name of the image to be created.
-        :param dict metadata: A dictionary of metadata to be set on the image.
+        :param name: The name of the image to be created.
+        :param metadata: A dictionary of metadata to be set on the image.
 
         :returns: :class:`~openstack.image.v2.image.Image` object.
         """
@@ -1613,12 +1609,11 @@ class Proxy(proxy.Proxy):
         :param server: The server can be either the ID of a server or a
                        :class:`~openstack.compute.v2.server.Server` instance
                        that the interface belongs to.
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.compute.v2.server_interface.ServerInterface`,
             comprised of the properties on the ServerInterface class.
 
         :returns: The results of server interface creation
-        :rtype: :class:`~openstack.compute.v2.server_interface.ServerInterface`
         """
         server_id = resource.Resource._get_id(server)
         return self._create(
@@ -1837,12 +1832,11 @@ class Proxy(proxy.Proxy):
     def create_server_group(self, **attrs: Any) -> _server_group.ServerGroup:
         """Create a new server group from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.compute.v2.server_group.ServerGroup`,
             comprised of the properties on the ServerGroup class.
 
         :returns: The results of server group creation
-        :rtype: :class:`~openstack.compute.v2.server_group.ServerGroup`
         """
         return self._create(_server_group.ServerGroup, **attrs)
 
@@ -2117,12 +2111,11 @@ class Proxy(proxy.Proxy):
 
         :param service: Either the ID of a service or a
             :class:`~openstack.compute.v2.service.Service` instance.
-        :param str host: The host where service runs.
-        :param str binary: The name of service.
-        :param str disabled_reason: The reason of force down a service.
+        :param host: The host where service runs.
+        :param binary: The name of service.
+        :param disabled_reason: The reason of force down a service.
 
         :returns: Updated service instance
-        :rtype: class: `~openstack.compute.v2.service.Service`
         """
         if utils.supports_microversion(self, '2.53'):
             attrs = {'status': 'disabled'}
@@ -2138,11 +2131,10 @@ class Proxy(proxy.Proxy):
 
         :param service: Either the ID of a service or a
             :class:`~openstack.compute.v2.service.Service` instance.
-        :param str host: The host where service runs.
-        :param str binary: The name of service.
+        :param host: The host where service runs.
+        :param binary: The name of service.
 
         :returns: Updated service instance
-        :rtype: class: `~openstack.compute.v2.service.Service`
         """
         if utils.supports_microversion(self, '2.53'):
             return self.update_service(service, status='enabled')
@@ -2156,7 +2148,7 @@ class Proxy(proxy.Proxy):
     ) -> Generator[_service.Service, None, None]:
         """Return a generator of service
 
-        :params dict query: Query parameters
+        :param query: Query parameters
         :returns: A generator of service
         """
         return self._list(_service.Service, **query)
@@ -2261,13 +2253,11 @@ class Proxy(proxy.Proxy):
             volume is attached to.
         :param volume: The value can be either the ID of a volume or a
             :class:`~openstack.block_storage.v3.volume.Volume` instance.
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.compute.v2.volume_attachment.VolumeAttachment`,
             comprised of the properties on the VolumeAttachment class.
 
         :returns: The results of volume attachment creation
-        :rtype:
-            :class:`~openstack.compute.v2.volume_attachment.VolumeAttachment`
         """
         # if the user didn't pass the new 'volume' argument, they're probably
         # calling things using a legacy parameter
@@ -2469,7 +2459,7 @@ class Proxy(proxy.Proxy):
 
         :param server: The server can be either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server`.
-        :params dict query: Query parameters
+        :param query: Query parameters
 
         :returns: A generator of VolumeAttachment objects
             :class:`~openstack.compute.v2.volume_attachment.VolumeAttachment`
@@ -2488,7 +2478,7 @@ class Proxy(proxy.Proxy):
 
         :param server: Either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server` instance.
-        :param str host: The host to which to migrate the server.
+        :param host: The host to which to migrate the server.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
@@ -2506,12 +2496,12 @@ class Proxy(proxy.Proxy):
 
         :param server: Either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server` instance.
-        :param str host: The host to which to migrate the server. If the Nova
+        :param host: The host to which to migrate the server. If the Nova
             service is too old, the host parameter implies force=True which
             causes the Nova scheduler to be bypassed. On such clouds, a
             ``ValueError`` will be thrown if ``host`` is given without
             ``force``.
-        :param bool force: Force a live-migration by not verifying the provided
+        :param force: Force a live-migration by not verifying the provided
             destination host by the scheduler. This is unsafe and not
             recommended.
         :param block_migration: Perform a block live migration to the
@@ -2548,7 +2538,7 @@ class Proxy(proxy.Proxy):
             ServerMigration ID is given as value. It can be either the ID of a
             server or a :class:`~openstack.compute.v2.server.Server` instance
             that the migration belongs to.
-        :param bool ignore_missing: When set to ``False``
+        :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
             when the server migration does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
@@ -2947,7 +2937,7 @@ class Proxy(proxy.Proxy):
         :param project: ID or instance of
             :class:`~openstack.identity.project.Project` of the project for
             which the quota should be reset.
-        :param dict query: Additional parameters to be used.
+        :param query: Additional parameters to be used.
 
         :returns: ``None``
         """
@@ -3154,7 +3144,7 @@ class Proxy(proxy.Proxy):
             value, progress. This is API specific but is generally a percentage
             value from 0-100.
 
-        :return: The updated resource.
+        :returns: The updated resource.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if the
             transition to status failed to occur in ``wait`` seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource
@@ -3261,13 +3251,11 @@ class Proxy(proxy.Proxy):
             share is attached to.
         :param share: The value can be the ID of a share or a
             :class:`~openstack.shared_file_system.v2.Share` instance.
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.compute.v2.server_share.ShareMapping`,
             comprised of the properties on the ShareMapping class.
 
         :returns: The results of create share
-        :rtype:
-            :class:`~openstack.compute.v2.server_share.ShareMapping`
         """
 
         server_id = resource.Resource._get_id(server)
@@ -3347,7 +3335,7 @@ class Proxy(proxy.Proxy):
 
         :param server: The server can be either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server`.
-        :params dict query: Query parameters
+        :param query: Query parameters
 
         :returns: A generator of ShareMapping objects
             :class:`~openstack.compute.v2.server_share.ShareMapping`
