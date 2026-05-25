@@ -310,15 +310,6 @@ def make_fake_port(address, node_id=None, port_id=None):
     )
 
 
-class FakeFloatingIP:
-    def __init__(self, id, pool, ip, fixed_ip, instance_id):
-        self.id = id
-        self.pool = pool
-        self.ip = ip
-        self.fixed_ip = fixed_ip
-        self.instance_id = instance_id
-
-
 def make_fake_server_group(id, name, policies):
     return json.loads(
         json.dumps(
@@ -488,53 +479,6 @@ def make_fake_nova_security_group(id, name, description, rules):
             }
         )
     )
-
-
-class FakeNovaSecgroupRule:
-    def __init__(
-        self,
-        id,
-        from_port=None,
-        to_port=None,
-        ip_protocol=None,
-        cidr=None,
-        parent_group_id=None,
-    ):
-        self.id = id
-        self.from_port = from_port
-        self.to_port = to_port
-        self.ip_protocol = ip_protocol
-        if cidr:
-            self.ip_range = {'cidr': cidr}
-        self.parent_group_id = parent_group_id
-
-
-class FakeHypervisor:
-    def __init__(self, id, hostname):
-        self.id = id
-        self.hypervisor_hostname = hostname
-
-
-class FakeZone:
-    def __init__(self, id, name, type_, email, description, ttl, masters):
-        self.id = id
-        self.name = name
-        self.type_ = type_
-        self.email = email
-        self.description = description
-        self.ttl = ttl
-        self.masters = masters
-
-
-class FakeRecordset:
-    def __init__(self, zone, id, name, type_, description, ttl, records):
-        self.zone = zone
-        self.id = id
-        self.name = name
-        self.type_ = type_
-        self.description = description
-        self.ttl = ttl
-        self.records = records
 
 
 def make_fake_aggregate(
