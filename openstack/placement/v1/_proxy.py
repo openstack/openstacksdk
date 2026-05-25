@@ -303,7 +303,11 @@ class Proxy(proxy.Proxy):
         )
         return self.fetch_resource_provider_aggregates(resource_provider)
 
-    def set_resource_provider_aggregates(self, resource_provider, *aggregates):
+    def set_resource_provider_aggregates(
+        self,
+        resource_provider: str | _resource_provider.ResourceProvider,
+        *aggregates: str,
+    ) -> _resource_provider.ResourceProvider:
         """Update aggregates for a resource provider.
 
         :param resource_provider: The value can be either the ID of a resource
@@ -323,7 +327,7 @@ class Proxy(proxy.Proxy):
             _resource_provider.ResourceProvider,
             resource_provider,
         )
-        return res.set_aggregates(self, aggregates=aggregates)
+        return res.set_aggregates(self, aggregates=list(aggregates))
 
     # resource provider inventories
 

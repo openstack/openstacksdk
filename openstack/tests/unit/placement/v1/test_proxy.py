@@ -96,7 +96,7 @@ class TestPlacementResourceProvider(TestPlacementProxy):
             self.proxy.set_resource_provider_aggregates,
             method_args=['value', 'a', 'b'],
             expected_args=[self.proxy],
-            expected_kwargs={'aggregates': ('a', 'b')},
+            expected_kwargs={'aggregates': ['a', 'b']},
         )
 
     def test_resource_provider_fetch_aggregates(self):
