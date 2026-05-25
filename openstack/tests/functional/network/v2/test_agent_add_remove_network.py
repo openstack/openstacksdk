@@ -41,24 +41,24 @@ class TestAgentNetworks(base.BaseFunctionalTest):
         self.AGENT_ID = self.AGENT.id
 
     def test_add_remove_agent(self):
-        net = self.AGENT.add_agent_to_network(
+        self.AGENT.add_agent_to_network(
             self.user_cloud.network, network_id=self.NETWORK_ID
         )
-        self._verify_add(net)
+        self._verify_add()
 
-        net = self.AGENT.remove_agent_from_network(
+        self.AGENT.remove_agent_from_network(
             self.user_cloud.network, network_id=self.NETWORK_ID
         )
-        self._verify_remove(net)
+        self._verify_remove()
 
-    def _verify_add(self, network):
+    def _verify_add(self):
         net = self.user_cloud.network.dhcp_agent_hosting_networks(
             self.AGENT_ID
         )
         net_ids = [n.id for n in net]
         self.assertIn(self.NETWORK_ID, net_ids)
 
-    def _verify_remove(self, network):
+    def _verify_remove(self):
         net = self.user_cloud.network.dhcp_agent_hosting_networks(
             self.AGENT_ID
         )

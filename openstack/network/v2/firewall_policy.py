@@ -13,6 +13,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any, Self
+
+from keystoneauth1 import adapter
+
 from openstack.exceptions import HttpException
 from openstack import resource
 from openstack import utils
@@ -59,7 +63,7 @@ class FirewallPolicy(resource.Resource):
     #: Set to true to make this firewall policy visible to other projects.
     shared = resource.Body('shared')
 
-    def insert_rule(self, session, **body):
+    def insert_rule(self, session: adapter.Adapter, **body: Any) -> Self:
         """Insert a firewall_rule into a firewall_policy in order.
 
         :param session: The session to communicate through.
@@ -74,7 +78,7 @@ class FirewallPolicy(resource.Resource):
         url = utils.urljoin(self.base_path, self.id, 'insert_rule')
         return self._put_request(session, url, body)
 
-    def remove_rule(self, session, **body):
+    def remove_rule(self, session: adapter.Adapter, **body: Any) -> Self:
         """Remove a firewall_rule from a firewall_policy.
 
         :param session: The session to communicate through.
@@ -89,7 +93,9 @@ class FirewallPolicy(resource.Resource):
         url = utils.urljoin(self.base_path, self.id, 'remove_rule')
         return self._put_request(session, url, body)
 
-    def _put_request(self, session, url, json_data):
+    def _put_request(
+        self, session: adapter.Adapter, url: str, json_data: dict[str, Any]
+    ) -> Self:
         resp = session.put(url, json=json_data)
         data = resp.json()
         if not resp.ok:

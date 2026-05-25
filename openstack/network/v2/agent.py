@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
+from keystoneauth1 import adapter
+
 from openstack import exceptions
 from openstack.network.v2 import bgp_speaker as _speaker
 from openstack import resource
@@ -90,13 +94,17 @@ class Agent(resource.Resource):
     #: *Type: int*
     ha_chassis_priority = resource.Body('ha_chassis_priority', type=int)
 
-    def add_agent_to_network(self, session, network_id):
+    def add_agent_to_network(
+        self, session: adapter.Adapter, network_id: str
+    ) -> dict[str, Any]:
         body = {'network_id': network_id}
         url = utils.urljoin(self.base_path, self.id, 'dhcp-networks')
         resp = session.post(url, json=body)
-        return resp.json()
+        return resp.json()  # type: ignore[no-any-return]
 
-    def remove_agent_from_network(self, session, network_id):
+    def remove_agent_from_network(
+        self, session: adapter.Adapter, network_id: str
+    ) -> None:
         body = {'network_id': network_id}
         url = utils.urljoin(
             self.base_path, self.id, 'dhcp-networks', network_id
@@ -104,31 +112,43 @@ class Agent(resource.Resource):
         session.delete(url, json=body)
 
     def add_router_to_agent(
-        self, session, router, *, ha_chassis_priority=None
-    ):
-        body = {'router_id': router}
+        self,
+        session: adapter.Adapter,
+        router: str,
+        *,
+        ha_chassis_priority: int | None = None,
+    ) -> dict[str, Any]:
+        body: dict[str, Any] = {'router_id': router}
         if ha_chassis_priority is not None:
             body['ha_chassis_priority'] = ha_chassis_priority
         url = utils.urljoin(self.base_path, self.id, 'l3-routers')
         resp = session.post(url, json=body)
-        return resp.json()
+        return resp.json()  # type: ignore[no-any-return]
 
     def update_router_in_agent(
-        self, session, router, *, ha_chassis_priority=None
-    ):
-        body = {}
+        self,
+        session: adapter.Adapter,
+        router: str,
+        *,
+        ha_chassis_priority: int | None = None,
+    ) -> dict[str, Any]:
+        body: dict[str, Any] = {}
         if ha_chassis_priority is not None:
             body['ha_chassis_priority'] = ha_chassis_priority
         url = utils.urljoin(self.base_path, self.id, 'l3-routers', router)
         resp = session.put(url, json=body)
-        return resp.json()
+        return resp.json()  # type: ignore[no-any-return]
 
-    def remove_router_from_agent(self, session, router):
+    def remove_router_from_agent(
+        self, session: adapter.Adapter, router: str
+    ) -> None:
         body = {'router_id': router}
         url = utils.urljoin(self.base_path, self.id, 'l3-routers', router)
         session.delete(url, json=body)
 
-    def get_bgp_speakers_hosted_by_dragent(self, session):
+    def get_bgp_speakers_hosted_by_dragent(
+        self, session: adapter.Adapter
+    ) -> list[_speaker.BgpSpeaker]:
         """List BGP speakers hosted by a Dynamic Routing Agent
 
         :param session: The session to communicate through.

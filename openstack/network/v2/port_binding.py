@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Self
+
+from keystoneauth1 import adapter
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -59,7 +63,9 @@ class PortBinding(resource.Resource):
     #  direct-physical, virtio-forwarder, smart-nic and remote-managed.
     vnic_type = resource.Body('vnic_type')
 
-    def activate_port_binding(self, session, host):
+    def activate_port_binding(
+        self, session: adapter.Adapter, host: str
+    ) -> Self:
         url = utils.urljoin(
             '/ports', self.port_id, 'bindings', host, 'activate'
         )
@@ -68,7 +74,7 @@ class PortBinding(resource.Resource):
         self._body.attributes.update(resp.json())
         return self
 
-    def delete_port_binding(self, session, host):
+    def delete_port_binding(self, session: adapter.Adapter, host: str) -> None:
         url = utils.urljoin('/ports', self.port_id, 'bindings', host)
         resp = session.delete(url)
         exceptions.raise_from_response(resp)

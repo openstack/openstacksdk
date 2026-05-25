@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.network.v2 import _base
 from openstack import resource
 
@@ -95,13 +97,31 @@ class SecurityGroupRule(_base.NetworkResource, _base.TagMixinNetwork):
     #: Timestamp when the security group rule was last updated.
     updated_at = resource.Body('updated_at')
 
-    def _prepare_request(self, *args, **kwargs):
-        _request = super()._prepare_request(*args, **kwargs)
+    def _prepare_request(
+        self,
+        requires_id: bool | None = None,
+        prepend_key: bool = False,
+        patch: bool = False,
+        base_path: str | None = None,
+        params: dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> resource._Request:
+        _request = super()._prepare_request(
+            requires_id=requires_id,
+            prepend_key=prepend_key,
+            patch=patch,
+            base_path=base_path,
+            params=params,
+            **kwargs,
+        )
         # Old versions of Neutron do not handle being passed a
         # remote_address_group_id and raise and error.  Remove it from
         # the body if it is blank.
         if not self.remote_address_group_id:
-            if 'security_group_rule' in _request.body:
+            if (
+                isinstance(_request.body, dict)
+                and 'security_group_rule' in _request.body
+            ):
                 _rule = _request.body['security_group_rule']
                 _rule.pop('remote_address_group_id', None)
         return _request

@@ -75,6 +75,7 @@ class TestPortForwarding(base.BaseFunctionalTest):
             self.INT_SUB_NAME, self.INT_NET_ID, self.INT_CIDR
         )
         self.INT_SUB_ID = sub.id
+
         # Create Router
         sot = self.user_cloud.network.create_router(
             name=self.ROT_NAME,
@@ -84,22 +85,26 @@ class TestPortForwarding(base.BaseFunctionalTest):
         self.assertEqual(self.ROT_NAME, sot.name)
         self.ROT_ID = sot.id
         self.ROT = sot
+
         # Add Router's Interface to Internal Network
-        sot = self.ROT.add_interface(
+        interface = self.ROT.add_interface(
             self.user_cloud.network, subnet_id=self.INT_SUB_ID
         )
-        self.assertEqual(sot["subnet_id"], self.INT_SUB_ID)
+        self.assertEqual(interface["subnet_id"], self.INT_SUB_ID)
+
         # Create Port in Internal Network
         prt = self.user_cloud.network.create_port(network_id=self.INT_NET_ID)
         assert isinstance(prt, port.Port)
         self.INTERNAL_PORT_ID = prt.id
         self.INTERNAL_IP_ADDRESS = prt.fixed_ips[0]["ip_address"]
+
         # Create Floating IP.
         fip = self.user_cloud.network.create_ip(
             floating_network_id=self.EXT_NET_ID
         )
         assert isinstance(fip, floating_ip.FloatingIP)
         self.FIP_ID = fip.id
+
         # Create Port Forwarding
         pf = self.user_cloud.network.create_port_forwarding(
             floatingip_id=self.FIP_ID,

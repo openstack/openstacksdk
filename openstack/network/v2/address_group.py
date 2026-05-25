@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any, Self
+
+from keystoneauth1 import adapter
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -53,12 +57,16 @@ class AddressGroup(resource.Resource):
     #: The IP addresses of the address group.
     addresses = resource.Body('addresses', type=list)
 
-    def _put(self, session, url, body):
+    def _put(
+        self, session: adapter.Adapter, url: str, body: dict[str, Any]
+    ) -> Any:
         resp = session.put(url, json=body)
         exceptions.raise_from_response(resp)
         return resp
 
-    def add_addresses(self, session, addresses):
+    def add_addresses(
+        self, session: adapter.Adapter, addresses: list[str]
+    ) -> Self:
         """Add addresses into the address group.
 
         :param session: The session to communicate through.
@@ -74,7 +82,9 @@ class AddressGroup(resource.Resource):
         self._translate_response(resp)
         return self
 
-    def remove_addresses(self, session, addresses):
+    def remove_addresses(
+        self, session: adapter.Adapter, addresses: list[str]
+    ) -> Self:
         """Remove addresses from the address group.
 
         :param session: The session to communicate through.

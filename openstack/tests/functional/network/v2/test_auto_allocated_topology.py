@@ -84,11 +84,11 @@ class TestAutoAllocatedTopology(base.BaseFunctionalTest):
     def test_auto_allocated_topology(self):
         # First test validation with the 'dry-run' call
         # Dry run option will return "dry-run=pass" in the 'id' resource
-        top = self.test_cloud.network.validate_auto_allocated_topology(
+        sop = self.test_cloud.network.validate_auto_allocated_topology(
             self.PROJECT_ID
         )
-        self.assertEqual(self.PROJECT_ID, top.project)
-        self.assertEqual("dry-run=pass", top.id)
+        self.assertEqual(self.PROJECT_ID, sop.project)
+        self.assertEqual("dry-run=pass", sop.id)
 
         # test show auto_allocated_network without project id in the request
         top = self.test_cloud.network.get_auto_allocated_topology()

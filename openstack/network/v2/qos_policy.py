@@ -9,6 +9,10 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from typing import Self
+
+from keystoneauth1 import adapter
+
 from openstack.common import tag
 from openstack import resource
 from openstack import utils
@@ -60,7 +64,7 @@ class QoSPolicy(resource.Resource, tag.TagMixin):
     #: List of QoS rules applied to this QoS policy.
     rules = resource.Body('rules', type=list)
 
-    def set_tags(self, session, tags):
+    def set_tags(self, session: adapter.Adapter, tags: list[str]) -> Self:
         url = utils.urljoin('/policies', self.id, 'tags')
         session.put(url, json={'tags': tags})
         self._body.attributes.update({'tags': tags})
