@@ -102,7 +102,7 @@ class TestBareMetalPortGroup(base.BaseBaremetalTest):
         port_group = self.create_port_group()
 
         port_group = self.operator_cloud.baremetal.patch_port_group(
-            port_group, dict(path='/extra/answer', op='add', value=42)
+            port_group, [{'path': '/extra/answer', 'op': 'add', 'value': 42}]
         )
         self.assertEqual({'answer': 42}, port_group.extra)
 

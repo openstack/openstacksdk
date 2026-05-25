@@ -125,8 +125,12 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         node = self.operator_cloud.baremetal.patch_node(
             node,
             [
-                dict(path='/instance_id', op='replace', value=instance_uuid),
-                dict(path='/extra/answer', op='add', value=42),
+                {
+                    'path': '/instance_id',
+                    'op': 'replace',
+                    'value': instance_uuid,
+                },
+                {'path': '/extra/answer', 'op': 'add', 'value': 42},
             ],
         )
         self.assertEqual('new-name', node.name)
@@ -141,8 +145,8 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         node = self.operator_cloud.baremetal.patch_node(
             node,
             [
-                dict(path='/instance_id', op='remove'),
-                dict(path='/extra/answer', op='remove'),
+                {'path': '/instance_id', 'op': 'remove'},
+                {'path': '/extra/answer', 'op': 'remove'},
             ],
         )
         self.assertIsNone(node.instance_id)

@@ -1916,9 +1916,15 @@ class Resource(dict[str, Any]):
         return self
 
     def _convert_patch(
-        self, patch: list[dict[str, Any]] | dict[str, Any]
+        self, patch: list[dict[str, Any]]
     ) -> list[dict[str, Any]]:
         if not isinstance(patch, list):
+            warnings.warn(
+                'Patches should be passed as a list of patches, not an '
+                'individual patch. This fallback behavior will be removed '
+                'in a future release.',
+                os_warnings.RemovedInSDK50Warning,
+            )
             patch = [patch]
 
         converted = []

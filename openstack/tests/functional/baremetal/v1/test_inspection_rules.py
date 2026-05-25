@@ -176,7 +176,7 @@ class TestBareMetalInspectionRule(base.BaseBaremetalTest):
         inspection_rule = (
             self.system_admin_cloud.baremetal.patch_inspection_rule(
                 inspection_rule,
-                dict(path='/actions', op='add', value=updated_actions),
+                [{'path': '/actions', 'op': 'add', 'value': updated_actions}],
             )
         )
         self.assertEqual(updated_actions, inspection_rule.actions)

@@ -131,7 +131,7 @@ class TestBareMetalRunbook(base.BaseBaremetalTest):
         ]
         runbook = self.create_runbook(name=name, steps=steps)
         runbook = self.operator_cloud.baremetal.patch_runbook(
-            runbook, dict(path='/extra/answer', op='add', value=42)
+            runbook, [{'path': '/extra/answer', 'op': 'add', 'value': 42}]
         )
         self.assertEqual({'answer': 42}, runbook.extra)
         self.assertEqual(name, runbook.name)

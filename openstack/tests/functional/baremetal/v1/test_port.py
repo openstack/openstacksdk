@@ -99,7 +99,7 @@ class TestBareMetalPort(base.BaseBaremetalTest):
         port.address = '66:55:44:33:22:11'
 
         port = self.operator_cloud.baremetal.patch_port(
-            port, dict(path='/extra/answer', op='add', value=42)
+            port, [{'path': '/extra/answer', 'op': 'add', 'value': 42}]
         )
         self.assertEqual('66:55:44:33:22:11', port.address)
         self.assertEqual({'answer': 42}, port.extra)
