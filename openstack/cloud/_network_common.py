@@ -1601,10 +1601,18 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             return self._floating_ip_source in ('nova', 'neutron')
 
     def _use_neutron_floating(self):
-        return (
+        ret = (
             self.has_service('network')
             and self._floating_ip_source == 'neutron'
         )
+        if ret is False:
+            warnings.warn(
+                'Support for nova-network interactions in the cloud layer '
+                'has been deprecated and will be removed in a future '
+                'release. Use the compute proxy API instead.',
+                os_warnings.RemovedInSDK50Warning,
+            )
+        return ret
 
     def _normalize_floating_ips(self, ips):
         """Normalize the structure of floating IPs
