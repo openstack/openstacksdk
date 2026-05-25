@@ -71,11 +71,6 @@ def _pop_or_get(resource, key, default, strict):
 
 
 class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
-    @property
-    def _compute_region(self):
-        # This is only used in exception messages. Can we get rid of it?
-        return self.config.get_region_name('compute')
-
     def get_flavor_name(self, flavor_id):
         """Get the name of a flavor.
 
