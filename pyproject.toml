@@ -100,6 +100,7 @@ module = [
     "openstack.object_store.*",
     "openstack.orchestration.*",
     "openstack.placement.*",
+    "openstack.shared_file_system.*",
 ]
 disallow_untyped_calls = true
 disallow_untyped_defs = true
