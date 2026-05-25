@@ -303,7 +303,7 @@ class TestCompute(base.BaseFunctionalTest):
             self.assertEqual(volume_id, volume['id'])
         else:
             volume_id = volume['id']
-        self.assertEqual(1, len(volume['attachments']), 1)
+        self.assertEqual(1, len(volume['attachments']))
         self.assertEqual(server['id'], volume['attachments'][0]['server_id'])
         return volume_id
 

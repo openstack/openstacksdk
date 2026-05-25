@@ -29,7 +29,7 @@ from openstack import warnings as os_warnings
 class WarningsFixture(fixtures.Fixture):
     """Filters out warnings during test runs."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
 
         self._original_warning_filters = warnings.filters[:]
@@ -58,5 +58,5 @@ class WarningsFixture(fixtures.Fixture):
 
         self.addCleanup(self._reset_warning_filters)
 
-    def _reset_warning_filters(self):
+    def _reset_warning_filters(self) -> None:
         warnings.filters[:] = self._original_warning_filters  # type: ignore[index]
