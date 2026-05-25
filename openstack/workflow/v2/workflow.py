@@ -52,7 +52,11 @@ class Workflow(resource.Resource):
     #: The time at which the workflow was created
     updated_at = resource.Body("updated_at")
 
-    def _request_kwargs(self, prepend_key=True, base_path=None):
+    def _request_kwargs(
+        self,
+        prepend_key: bool = True,
+        base_path: str | None = None,
+    ) -> dict[str, Any]:
         request = self._prepare_request(
             requires_id=False, prepend_key=prepend_key, base_path=base_path
         )
@@ -88,18 +92,18 @@ class Workflow(resource.Resource):
 
     def commit(
         self,
-        session,
-        prepend_key=True,
-        has_body=True,
-        retry_on_conflict=None,
-        base_path=None,
+        session: adapter.Adapter,
+        prepend_key: bool = True,
+        has_body: bool = True,
+        retry_on_conflict: bool | None = None,
+        base_path: str | None = None,
         *,
-        microversion=None,
-        **kwargs,
-    ):
-        kwargs = self._request_kwargs(
+        microversion: str | None = None,
+        **kwargs: Any,
+    ) -> Self:
+        request_kwargs = self._request_kwargs(
             prepend_key=prepend_key, base_path=base_path
         )
-        response = session.put(**kwargs)
+        response = session.put(**request_kwargs)
         self._translate_response(response, has_body=False)
         return self
