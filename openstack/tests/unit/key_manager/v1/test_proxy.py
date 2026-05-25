@@ -16,6 +16,7 @@ from openstack.key_manager.v1 import order
 from openstack.key_manager.v1 import project_quota
 from openstack.key_manager.v1 import quota
 from openstack.key_manager.v1 import secret
+from openstack.key_manager.v1 import secret_acl
 from openstack.key_manager.v1 import secret_store
 from openstack.tests.unit import test_proxy_base
 
@@ -137,4 +138,63 @@ class TestKeyManagerProjectQuota(TestKeyManagerProxy):
     def test_project_quota_update(self):
         self.verify_update(
             self.proxy.update_project_quota, project_quota.ProjectQuota
+        )
+
+
+class TestKeyManagerSecretACL(test_proxy_base.TestProxyBase):
+    def setUp(self):
+        super().setUp()
+        self.proxy = _proxy.Proxy(self.session)
+
+    def test_get_secret_acl(self):
+        self.verify_get(
+            self.proxy.get_secret_acl,
+            secret_acl.SecretACL,
+            expected_args=[None],
+            expected_kwargs={
+                "requires_id": False,
+                "path_args": {"secret_id": "resource_id"},
+            },
+        )
+
+    def test_set_secret_acl(self):
+        self.verify_update(
+            self.proxy.set_secret_acl,
+            secret_acl.SecretACL,
+            expected_args=[None],
+            expected_kwargs={
+                "requires_id": False,
+                "path_args": {"secret_id": "resource_id"},
+                "method": "PUT",
+                "x": 1,
+                "y": 2,
+                "z": 3,
+            },
+        )
+
+    def test_update_secret_acl(self):
+        self.verify_update(
+            self.proxy.update_secret_acl,
+            secret_acl.SecretACL,
+            expected_args=[None],
+            expected_kwargs={
+                "requires_id": False,
+                "path_args": {"secret_id": "resource_id"},
+                "method": "PATCH",
+                "x": 1,
+                "y": 2,
+                "z": 3,
+            },
+        )
+
+    def test_delete_secret_acl(self):
+        self.verify_delete(
+            self.proxy.delete_secret_acl,
+            secret_acl.SecretACL,
+            False,
+            expected_args=[None],
+            expected_kwargs={
+                "requires_id": False,
+                "path_args": {"secret_id": "resource_id"},
+            },
         )
