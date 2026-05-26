@@ -13,7 +13,6 @@
 import copy
 import queue
 from requests import Response
-from unittest import expectedFailure
 from unittest import mock
 
 from keystoneauth1 import session
@@ -604,7 +603,7 @@ class TestProxyCache(base.TestCase):
         self.response.json = mock.Mock(return_value=self.response.body)
         self.session.request = mock.Mock(return_value=self.response)
 
-        self.sot = proxy.Proxy(self.session)
+        self.sot = proxy.Proxy(self.session, connect_retries=3)
         self.sot._connection = self.cloud
         self.sot.service_type = 'srv'
 
@@ -618,7 +617,7 @@ class TestProxyCache(base.TestCase):
         self.session.request.assert_called_with(
             'fake/1',
             'GET',
-            connect_retries=mock.ANY,
+            connect_retries=3,
             raise_exc=mock.ANY,
             global_request_id=mock.ANY,
             microversion=mock.ANY,
@@ -868,8 +867,6 @@ class TestConnectRetriesIgnored(base.TestCase):
         self.response.json.return_value = {'fakes': []}
         self.session.request.return_value = self.response
 
-    # expected to fail until lp 2154273 is fixed
-    @expectedFailure
     def test_connect_retries_honored_by_list(self):
         """connect_retries set on the Proxy should be used by _list."""
         expected = 5
