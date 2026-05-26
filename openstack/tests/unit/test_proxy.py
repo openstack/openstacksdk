@@ -12,6 +12,8 @@
 
 import copy
 import queue
+from requests import Response
+from unittest import expectedFailure
 from unittest import mock
 
 from keystoneauth1 import session
@@ -57,6 +59,12 @@ class FilterableResource(resource.Resource):
 
 class HeadableResource(resource.Resource):
     allow_head = True
+
+
+class FakeResource(resource.Resource):
+    base_path = '/fakes'
+    allow_list = True
+    resources_key = 'fakes'
 
 
 class TestProxyPrivate(base.TestCase):
@@ -839,4 +847,46 @@ class TestProxyCleanup(base.TestCase):
         )
         self.assertFalse(
             self.sot.should_skip_resource_cleanup("volume", excluded)
+        )
+
+
+class TestConnectRetriesIgnored(base.TestCase):
+    """Verify that connect_retries set on the Proxy is honored."""
+
+    def setUp(self, cloud_config_fixture='clouds.yaml'):
+        super().setUp(cloud_config_fixture)
+
+        self.session = mock.Mock(spec=session.Session)
+        self.session._sdk_connection = self.cloud
+        self.session.get_project_id.return_value = 'fake_project_id'
+
+        self.response = mock.Mock(spec=Response)
+        self.response.status_code = 200
+        self.response.history = []
+        self.response.headers = {}
+        self.response.links = {}
+        self.response.json.return_value = {'fakes': []}
+        self.session.request.return_value = self.response
+
+    # expected to fail until lp 2154273 is fixed
+    @expectedFailure
+    def test_connect_retries_honored_by_list(self):
+        """connect_retries set on the Proxy should be used by _list."""
+        expected = 5
+        sot = proxy.Proxy(self.session, connect_retries=expected)
+        sot._connection = self.cloud
+        sot.service_type = 'test'
+        self.assertEqual(expected, sot.connect_retries)
+
+        list(sot._list(FakeResource))
+
+        call_kwargs = self.session.request.call_args[1]
+        actual = call_kwargs.get('connect_retries')
+        self.assertEqual(
+            expected,
+            actual,
+            f'connect_retries={expected} was expected but '
+            f'connect_retries={actual} was sent to the session. '
+            'Proxy.request() default of connect_retries=1 is '
+            'shadowing the configured value.',
         )
