@@ -777,6 +777,11 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.policy.Policy` or None
         """
+        warnings.warn(
+            "find_policy is deprecated and will be removed in a future "
+            "release; please use get_policy instead.",
+            os_warnings.RemovedInSDK60Warning,
+        )
         return self._find(
             _policy.Policy, name_or_id, ignore_missing=ignore_missing
         )
