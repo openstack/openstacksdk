@@ -212,7 +212,7 @@ class Proxy(adapter.Adapter):
         method: str,
         error_message: str | None = None,
         raise_exc: bool = False,
-        connect_retries: int = 1,
+        connect_retries: int | None = None,
         global_request_id: str | None = None,
         *args: Any,
         **kwargs: Any,
@@ -239,6 +239,13 @@ class Proxy(adapter.Adapter):
             conn._api_cache_keys.add(key)
 
         try:
+            request_kwargs = {
+                'raise_exc': raise_exc,
+                'global_request_id': global_request_id,
+                **kwargs,
+            }
+            if connect_retries is not None:
+                request_kwargs["connect_retries"] = connect_retries
             if conn.cache_enabled and not skip_cache and method == 'GET':
                 assert key is not None  # type narrow
                 # Get the object expiration time from config
@@ -250,15 +257,7 @@ class Proxy(adapter.Adapter):
                 _response = conn._cache.get_or_create(
                     key=key,
                     creator=super().request,
-                    creator_args=(
-                        [url, method],
-                        {
-                            'connect_retries': connect_retries,
-                            'raise_exc': raise_exc,
-                            'global_request_id': global_request_id,
-                            **kwargs,
-                        },
-                    ),
+                    creator_args=([url, method], request_kwargs),
                     expiration_time=expiration_time,
                 )
                 response = cast('requests.Response', _response)
@@ -270,10 +269,7 @@ class Proxy(adapter.Adapter):
                 response = super().request(
                     url,
                     method,
-                    connect_retries=connect_retries,
-                    raise_exc=raise_exc,
-                    global_request_id=global_request_id,
-                    **kwargs,
+                    **request_kwargs,
                 )
 
             for h in response.history:
