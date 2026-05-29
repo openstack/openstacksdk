@@ -2591,7 +2591,7 @@ class Proxy(proxy.Proxy):
         server_migration: str | _server_migration.ServerMigration,
         server: str | _server.Server,
         ignore_missing: bool = True,
-    ) -> _server_migration.ServerMigration | None:
+    ) -> _server_migration.ServerMigration:
         """Get a single server migration
 
         :param server_migration: The value can be the ID of a server migration
@@ -3019,7 +3019,7 @@ class Proxy(proxy.Proxy):
         server_action: str | _server_action.ServerAction,
         server: str | _server.Server,
         ignore_missing: bool = True,
-    ) -> _server_action.ServerAction | None:
+    ) -> _server_action.ServerAction:
         """Get a single server action
 
         :param server_action: The value can be the ID of a server action or a
