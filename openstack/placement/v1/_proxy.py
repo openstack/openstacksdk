@@ -504,6 +504,28 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
+    def fetch_resource_provider_usages(
+        self,
+        resource_provider: str | _resource_provider.ResourceProvider,
+    ) -> _resource_provider.ResourceProvider:
+        """Fetch usages for a specific resource provider.
+
+        :param resource_provider: The value can be either the ID of a
+            resource provider or a
+            :class:`~openstack.placement.v1.resource_provider.ResourceProvider`
+            instance.
+        :returns: An instance of
+            :class:`~openstack.placement.v1.resource_provider.ResourceProvider`
+            with the ``usages`` attribute populated.
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
+            resource provider matching the criteria could be found.
+        """
+        res = self._get_resource(
+            _resource_provider.ResourceProvider,
+            resource_provider,
+        )
+        return res.fetch_usages(self)
+
     # ========== Traits ==========
 
     def create_trait(self, name: str) -> _trait.Trait:
