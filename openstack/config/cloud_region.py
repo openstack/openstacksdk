@@ -14,6 +14,7 @@
 
 from collections.abc import Iterator
 import copy
+import importlib.metadata as importlib_metadata
 import os.path
 from typing import (
     Any,
@@ -62,7 +63,6 @@ from openstack.config import _util
 from openstack.config import defaults as config_defaults
 from openstack import exceptions
 from openstack import proxy
-from openstack import version as openstack_version
 from openstack import warnings as os_warnings
 
 if TYPE_CHECKING:
@@ -867,7 +867,7 @@ class CloudRegion:
             return
 
         self._keystone_session.additional_user_agent.append(
-            ('openstacksdk', openstack_version.__version__)
+            ('openstacksdk', importlib_metadata.version('openstacksdk'))
         )
 
     def get_session(self) -> ks_session.Session:
