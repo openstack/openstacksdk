@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import builtins
+from collections.abc import Generator, Mapping
 from typing import Any, Literal, Self, overload
-from collections.abc import Generator
 import urllib.parse
 
 from keystoneauth1 import adapter
+import requests
 
 from openstack import exceptions
 from openstack import resource
@@ -64,25 +66,22 @@ class Resource(resource.Resource):
         """Find a resource by its name or id.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
-        :param name_or_id: This resource's identifier, if needed by
-                           the request. The default is ``None``.
-        :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.NotFoundException` will be
-                    raised when the resource does not exist.
-                    When set to ``True``, None will be returned when
-                    attempting to find a nonexistent resource.
-        :param dict params: Any additional parameters to be passed into
-                            underlying methods, such as to
-                            :meth:`~openstack.resource.Resource.existing`
-                            in order to pass on URI parameters.
+        :param name_or_id: This resource's identifier, if needed by the
+            request. The default is ``None``.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource does not exist. When set to ``True``, None will
+            be returned when attempting to find a nonexistent resource.
+        :param params: Any additional parameters to be passed into underlying
+            methods, such as to :meth:`~openstack.resource.Resource.existing`
+            in order to pass on URI parameters.
 
         :return: The :class:`Resource` object matching the given name or id
-                 or None if nothing matches.
-        :raises: :class:`openstack.exceptions.DuplicateResource` if more
-                 than one resource is found for this request.
-        :raises: :class:`openstack.exceptions.NotFoundException` if nothing
-                 is found and ignore_missing is ``False``.
+            or None if nothing matches.
+        :raises: :class:`openstack.exceptions.DuplicateResource` if more than
+            one resource is found for this request.
+        :raises: :class:`openstack.exceptions.NotFoundException` if nothing is
+            found and ignore_missing is ``False``.
         """
         session = cls._get_session(session)
         # Try to short-circuit by looking directly for a matching ID.
@@ -147,9 +146,19 @@ class Resource(resource.Resource):
         return super().list(session=session, headers=headers, **params)
 
     @classmethod
-    def _get_next_link(cls, uri, response, data, marker, limit, total_yielded):
+    def _get_next_link(
+        cls,
+        uri: str,
+        response: requests.Response,
+        data: dict[str, Any],
+        marker: str | None,
+        limit: str | None,
+        total_yielded: int,
+    ) -> tuple[
+        str | None, Mapping[str, str | builtins.list[str] | int | None]
+    ]:
         next_link = None
-        params: dict[str, list[str] | str] = {}
+        params: dict[str, list[str] | str | None] = {}
         if isinstance(data, dict):
             links = data.get('links')
             if links:
