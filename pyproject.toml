@@ -88,6 +88,7 @@ module = [
     "openstack.clustering.*",
     "openstack.compute.*",
     "openstack.container_infrastructure_management.*",
+    "openstack.database.*",
 ]
 disallow_untyped_calls = true
 disallow_untyped_defs = true

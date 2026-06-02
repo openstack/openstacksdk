@@ -310,7 +310,9 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_instance.Instance, **query)
 
-    def update_instance(self, instance, **attrs):
+    def update_instance(
+        self, instance: str | _instance.Instance, **attrs: Any
+    ) -> _instance.Instance:
         """Update a instance
 
         :param instance: Either the id of a instance or a
