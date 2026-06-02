@@ -134,7 +134,13 @@ class Service(resource.Resource):
             f"No {cls.__name__} found for {name_or_id}"
         )
 
-    def commit(self, session, prepend_key=False, *args, **kwargs):
+    def commit(
+        self,
+        session: adapter.Adapter,
+        prepend_key: bool = False,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Self:
         # we need to set prepend_key to false
         return super().commit(
             session,
@@ -143,18 +149,22 @@ class Service(resource.Resource):
             **kwargs,
         )
 
-    def _action(self, session, action, body):
+    def _action(
+        self, session: adapter.Adapter, action: str, body: dict[str, Any]
+    ) -> Self:
         url = utils.urljoin(Service.base_path, action)
         response = session.put(url, json=body)
         self._translate_response(response)
         return self
 
-    def enable(self, session):
+    def enable(self, session: adapter.Adapter) -> Self:
         """Enable service."""
         body = {'binary': self.binary, 'host': self.host}
         return self._action(session, 'enable', body)
 
-    def disable(self, session, *, reason=None):
+    def disable(
+        self, session: adapter.Adapter, *, reason: str | None = None
+    ) -> Self:
         """Disable service."""
         body = {'binary': self.binary, 'host': self.host}
 
@@ -166,20 +176,20 @@ class Service(resource.Resource):
 
         return self._action(session, action, body)
 
-    def thaw(self, session):
+    def thaw(self, session: adapter.Adapter) -> Self:
         body = {'host': self.host}
         return self._action(session, 'thaw', body)
 
-    def freeze(self, session):
+    def freeze(self, session: adapter.Adapter) -> Self:
         body = {'host': self.host}
         return self._action(session, 'freeze', body)
 
     def failover(
         self,
-        session,
+        session: adapter.Adapter,
         *,
-        backend_id=None,
-    ):
+        backend_id: str | None = None,
+    ) -> Self:
         """Failover a service
 
         Only applies to replicating cinder-volume services.

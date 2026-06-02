@@ -10,7 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any
+from typing import Any, Self, cast
+
+import requests
 
 from keystoneauth1 import adapter
 
@@ -143,7 +145,12 @@ class Volume(resource.Resource, metadata.MetadataMixin):
 
     _max_microversion = "3.71"
 
-    def _action(self, session, body, microversion=None):
+    def _action(
+        self,
+        session: adapter.Adapter,
+        body: dict[str, Any],
+        microversion: str | None = None,
+    ) -> requests.Response:
         """Preform volume actions given the message body."""
         # NOTE: This is using Volume.base_path instead of self.base_path
         # as both Volume and VolumeDetail instances can be acted on, but
@@ -155,45 +162,57 @@ class Volume(resource.Resource, metadata.MetadataMixin):
         exceptions.raise_from_response(resp)
         return resp
 
-    def extend(self, session, size):
+    def extend(self, session: adapter.Adapter, size: int) -> None:
         """Extend a volume size."""
         body = {'os-extend': {'new_size': size}}
         self._action(session, body)
 
-    def complete_extend(self, session, error=False):
+    def complete_extend(
+        self, session: adapter.Adapter, error: bool = False
+    ) -> None:
         """Complete volume extend operation"""
         body = {'os-extend_volume_completion': {'error': error}}
         self._action(session, body)
 
-    def set_bootable_status(self, session, bootable=True):
+    def set_bootable_status(
+        self, session: adapter.Adapter, bootable: bool = True
+    ) -> None:
         """Set volume bootable status flag"""
         body = {'os-set_bootable': {'bootable': bootable}}
         self._action(session, body)
 
-    def set_readonly(self, session, readonly):
+    def set_readonly(self, session: adapter.Adapter, readonly: bool) -> None:
         """Set volume readonly flag"""
         body = {'os-update_readonly_flag': {'readonly': readonly}}
         self._action(session, body)
 
-    def set_image_metadata(self, session, metadata):
+    def set_image_metadata(
+        self, session: adapter.Adapter, metadata: dict[str, str]
+    ) -> None:
         """Sets image metadata key-value pairs on the volume"""
         body = {'os-set_image_metadata': {'metadata': metadata}}
         self._action(session, body)
 
-    def delete_image_metadata(self, session):
+    def delete_image_metadata(self, session: adapter.Adapter) -> None:
         """Remove all image metadata from the volume"""
         for key in self.metadata:
             body = {'os-unset_image_metadata': key}
             self._action(session, body)
 
-    def delete_image_metadata_item(self, session, key):
+    def delete_image_metadata_item(
+        self, session: adapter.Adapter, key: str
+    ) -> None:
         """Remove a single image metadata from the volume"""
         body = {'os-unset_image_metadata': key}
         self._action(session, body)
 
     def reset_status(
-        self, session, status=None, attach_status=None, migration_status=None
-    ):
+        self,
+        session: adapter.Adapter,
+        status: str | None = None,
+        attach_status: str | None = None,
+        migration_status: str | None = None,
+    ) -> None:
         """Reset volume statuses (admin operation)"""
         body: dict[str, dict[str, str]] = {'os-reset_status': {}}
         if status:
@@ -204,13 +223,21 @@ class Volume(resource.Resource, metadata.MetadataMixin):
             body['os-reset_status']['migration_status'] = migration_status
         self._action(session, body)
 
-    def revert_to_snapshot(self, session, snapshot_id):
+    def revert_to_snapshot(
+        self, session: adapter.Adapter, snapshot_id: str
+    ) -> None:
         """Revert volume to its snapshot"""
         utils.require_microversion(session, "3.40")
         body = {'revert': {'snapshot_id': snapshot_id}}
         self._action(session, body)
 
-    def attach(self, session, mountpoint, instance=None, host_name=None):
+    def attach(
+        self,
+        session: adapter.Adapter,
+        mountpoint: str,
+        instance: str | None = None,
+        host_name: str | None = None,
+    ) -> None:
         """Attach volume to server"""
         body = {'os-attach': {'mountpoint': mountpoint}}
 
@@ -225,31 +252,38 @@ class Volume(resource.Resource, metadata.MetadataMixin):
 
         self._action(session, body)
 
-    def detach(self, session, attachment, force=False, connector=None):
+    def detach(
+        self,
+        session: adapter.Adapter,
+        attachment: str,
+        force: bool = False,
+        connector: dict[str, Any] | None = None,
+    ) -> None:
         """Detach volume from server"""
         if not force:
-            body = {'os-detach': {'attachment_id': attachment}}
+            body: dict[str, Any] = {'os-detach': {'attachment_id': attachment}}
         if force:
-            body = {'os-force_detach': {'attachment_id': attachment}}
+            inner: dict[str, Any] = {'attachment_id': attachment}
             if connector:
-                body['os-force_detach']['connector'] = connector
+                inner['connector'] = connector
+            body = {'os-force_detach': inner}
 
         self._action(session, body)
 
     @classmethod
     def manage(
         cls,
-        session,
-        host,
-        ref,
-        name=None,
-        description=None,
-        volume_type=None,
-        availability_zone=None,
-        metadata=None,
-        bootable=False,
-        cluster=None,
-    ):
+        session: adapter.Adapter,
+        host: str,
+        ref: dict[str, Any],
+        name: str | None = None,
+        description: str | None = None,
+        volume_type: str | None = None,
+        availability_zone: str | None = None,
+        metadata: dict[str, str] | None = None,
+        bootable: bool = False,
+        cluster: str | None = None,
+    ) -> Self:
         """Manage an existing volume."""
         url = '/manageable_volumes'
         if not utils.supports_microversion(session, '3.8'):
@@ -270,17 +304,22 @@ class Volume(resource.Resource, metadata.MetadataMixin):
             body['volume']['cluster'] = cluster
         resp = session.post(url, json=body, microversion=cls._max_microversion)
         exceptions.raise_from_response(resp)
-        volume = Volume()
+        volume = cls()
         volume._translate_response(resp)
         return volume
 
-    def unmanage(self, session):
+    def unmanage(self, session: adapter.Adapter) -> None:
         """Unmanage volume"""
         body = {'os-unmanage': None}
 
         self._action(session, body)
 
-    def retype(self, session, new_type, migration_policy=None):
+    def retype(
+        self,
+        session: adapter.Adapter,
+        new_type: str,
+        migration_policy: str | None = None,
+    ) -> None:
         """Change volume type"""
         body = {'os-retype': {'new_type': new_type}}
         if migration_policy:
@@ -290,14 +329,14 @@ class Volume(resource.Resource, metadata.MetadataMixin):
 
     def migrate(
         self,
-        session,
-        host=None,
-        force_host_copy=False,
-        lock_volume=False,
-        cluster=None,
-    ):
+        session: adapter.Adapter,
+        host: str | None = None,
+        force_host_copy: bool = False,
+        lock_volume: bool = False,
+        cluster: str | None = None,
+    ) -> None:
         """Migrate volume"""
-        req = dict()
+        req: dict[str, Any] = {}
         if host is not None:
             req['host'] = host
         if force_host_copy:
@@ -311,7 +350,12 @@ class Volume(resource.Resource, metadata.MetadataMixin):
 
         self._action(session, body)
 
-    def complete_migration(self, session, new_volume_id, error=False):
+    def complete_migration(
+        self,
+        session: adapter.Adapter,
+        new_volume_id: str,
+        error: bool = False,
+    ) -> None:
         """Complete volume migration"""
         body = {
             'os-migrate_volume_completion': {
@@ -322,7 +366,7 @@ class Volume(resource.Resource, metadata.MetadataMixin):
 
         self._action(session, body)
 
-    def force_delete(self, session):
+    def force_delete(self, session: adapter.Adapter) -> None:
         """Force volume deletion"""
         body = {'os-force_delete': None}
 
@@ -355,41 +399,45 @@ class Volume(resource.Resource, metadata.MetadataMixin):
 
         body = {'os-volume_upload_image': req}
 
-        resp = self._action(session, body).json()
-        return resp['os-volume_upload_image']
+        resp = cast(dict[str, Any], self._action(session, body).json())
+        return cast(dict[str, Any], resp['os-volume_upload_image'])
 
-    def reserve(self, session):
+    def reserve(self, session: adapter.Adapter) -> None:
         """Reserve volume"""
         body = {'os-reserve': None}
 
         self._action(session, body)
 
-    def unreserve(self, session):
+    def unreserve(self, session: adapter.Adapter) -> None:
         """Unreserve volume"""
         body = {'os-unreserve': None}
 
         self._action(session, body)
 
-    def begin_detaching(self, session):
+    def begin_detaching(self, session: adapter.Adapter) -> None:
         """Update volume status to 'detaching'"""
         body = {'os-begin_detaching': None}
 
         self._action(session, body)
 
-    def abort_detaching(self, session):
+    def abort_detaching(self, session: adapter.Adapter) -> None:
         """Roll back volume status to 'in-use'"""
         body = {'os-roll_detaching': None}
 
         self._action(session, body)
 
-    def init_attachment(self, session, connector):
+    def init_attachment(
+        self, session: adapter.Adapter, connector: dict[str, Any]
+    ) -> dict[str, Any]:
         """Initialize volume attachment"""
         body = {'os-initialize_connection': {'connector': connector}}
 
-        resp = self._action(session, body).json()
-        return resp['connection_info']
+        resp = cast(dict[str, Any], self._action(session, body).json())
+        return cast(dict[str, Any], resp['connection_info'])
 
-    def terminate_attachment(self, session, connector):
+    def terminate_attachment(
+        self, session: adapter.Adapter, connector: dict[str, Any]
+    ) -> None:
         """Terminate volume attachment"""
         body = {'os-terminate_connection': {'connector': connector}}
 
@@ -398,9 +446,9 @@ class Volume(resource.Resource, metadata.MetadataMixin):
     def _prepare_request_body(
         self,
         *,
-        prepend_key,
-        resource_request_key=None,
-    ):
+        prepend_key: bool,
+        resource_request_key: str | None = None,
+    ) -> dict[str, Any]:
         body = self._body.dirty
         # Scheduler hints is external to the standard volume request
         # so pass it separately and not under the volume JSON object.

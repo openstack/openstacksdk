@@ -11,6 +11,11 @@
 # under the License.
 
 import warnings
+from typing import Any, Self
+
+import requests
+
+from keystoneauth1 import adapter
 
 from openstack.common import metadata
 from openstack import exceptions
@@ -81,7 +86,12 @@ class Snapshot(resource.Resource, metadata.MetadataMixin):
 
     _max_microversion = '3.65'
 
-    def _action(self, session, body, microversion=None):
+    def _action(
+        self,
+        session: adapter.Adapter,
+        body: dict[str, Any],
+        microversion: str | None = None,
+    ) -> requests.Response:
         """Preform backup actions given the message body."""
         url = utils.urljoin(self.base_path, self.id, 'action')
         resp = session.post(
@@ -90,17 +100,17 @@ class Snapshot(resource.Resource, metadata.MetadataMixin):
         exceptions.raise_from_response(resp)
         return resp
 
-    def force_delete(self, session):
+    def force_delete(self, session: adapter.Adapter) -> None:
         """Force snapshot deletion."""
         body = {'os-force_delete': None}
         self._action(session, body)
 
-    def reset_status(self, session, status):
+    def reset_status(self, session: adapter.Adapter, status: str) -> None:
         """Reset the status of the snapshot."""
         body = {'os-reset_status': {'status': status}}
         self._action(session, body)
 
-    def reset(self, session, status):
+    def reset(self, session: adapter.Adapter, status: str) -> None:
         warnings.warn(
             "reset is a deprecated alias for reset_status and will be "
             "removed in a future release.",
@@ -108,7 +118,12 @@ class Snapshot(resource.Resource, metadata.MetadataMixin):
         )
         self.reset_status(session, status)
 
-    def set_status(self, session, status, progress=None):
+    def set_status(
+        self,
+        session: adapter.Adapter,
+        status: str,
+        progress: str | None = None,
+    ) -> None:
         """Update fields related to the status of a snapshot."""
         body = {'os-update_snapshot_status': {'status': status}}
         if progress is not None:
@@ -118,13 +133,13 @@ class Snapshot(resource.Resource, metadata.MetadataMixin):
     @classmethod
     def manage(
         cls,
-        session,
-        volume_id,
-        ref,
-        name=None,
-        description=None,
-        metadata=None,
-    ):
+        session: adapter.Adapter,
+        volume_id: str,
+        ref: dict[str, Any],
+        name: str | None = None,
+        description: str | None = None,
+        metadata: dict[str, str] | None = None,
+    ) -> Self:
         """Manage a snapshot under block storage provisioning."""
         url = '/manageable_snapshots'
         if not utils.supports_microversion(session, '3.8'):
@@ -140,11 +155,11 @@ class Snapshot(resource.Resource, metadata.MetadataMixin):
         }
         resp = session.post(url, json=body, microversion=cls._max_microversion)
         exceptions.raise_from_response(resp)
-        snapshot = Snapshot()
+        snapshot = cls()
         snapshot._translate_response(resp)
         return snapshot
 
-    def unmanage(self, session):
+    def unmanage(self, session: adapter.Adapter) -> None:
         """Unmanage a snapshot from block storage provisioning."""
         body = {'os-unmanage': None}
         self._action(session, body)

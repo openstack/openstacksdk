@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Self, Any
+from typing import Any, Self, cast
 
 from keystoneauth1 import adapter
 
@@ -104,16 +104,16 @@ class Transfer(resource.Resource):
 
     def fetch(
         self,
-        session,
-        requires_id=True,
-        base_path=None,
-        error_message=None,
-        skip_cache=False,
+        session: adapter.Adapter,
+        requires_id: bool = True,
+        base_path: str | None = None,
+        error_message: str | None = None,
+        skip_cache: bool = False,
         *,
-        resource_response_key=None,
-        microversion=None,
-        **params,
-    ):
+        resource_response_key: str | None = None,
+        microversion: str | None = None,
+        **params: Any,
+    ) -> Self:
         """Get volume transfer.
 
         :param session: The session to use for making this request.
@@ -152,8 +152,13 @@ class Transfer(resource.Resource):
         )
 
     def delete(
-        self, session, error_message=None, *, microversion=None, **kwargs
-    ):
+        self,
+        session: adapter.Adapter,
+        error_message: str | None = None,
+        *,
+        microversion: str | None = None,
+        **kwargs: Any,
+    ) -> Self:
         """Delete a volume transfer.
 
         :param session: The session to use for making this request.
@@ -178,7 +183,9 @@ class Transfer(resource.Resource):
             **kwargs,
         )
 
-    def accept(self, session, *, auth_key=None):
+    def accept(
+        self, session: adapter.Adapter, *, auth_key: str | None = None
+    ) -> Self:
         """Accept a volume transfer.
 
         :param session: The session to use for making this request.
@@ -203,4 +210,4 @@ class Transfer(resource.Resource):
 
         transfer = Transfer()
         transfer._translate_response(resp)
-        return transfer
+        return cast(Self, transfer)

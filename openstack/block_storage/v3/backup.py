@@ -13,6 +13,8 @@
 from typing import Any, Self, cast
 import warnings
 
+import requests
+
 from keystoneauth1 import adapter
 
 from openstack.common import metadata
@@ -191,7 +193,12 @@ class Backup(resource.Resource, metadata.MetadataMixin):
             return self.fetch(session)
         return self
 
-    def _action(self, session, body, microversion=None):
+    def _action(
+        self,
+        session: adapter.Adapter,
+        body: dict[str, Any],
+        microversion: str | None = None,
+    ) -> requests.Response:
         """Preform backup actions given the message body."""
         url = utils.urljoin(self.base_path, self.id, 'action')
         resp = session.post(
@@ -200,7 +207,7 @@ class Backup(resource.Resource, metadata.MetadataMixin):
         exceptions.raise_from_response(resp)
         return resp
 
-    def export(self, session):
+    def export(self, session: adapter.Adapter) -> requests.Response:
         """Export the current backup
 
         :param session: openstack session
@@ -211,7 +218,12 @@ class Backup(resource.Resource, metadata.MetadataMixin):
         exceptions.raise_from_response(resp)
         return resp
 
-    def restore(self, session, volume_id=None, name=None):
+    def restore(
+        self,
+        session: adapter.Adapter,
+        volume_id: str | None = None,
+        name: str | None = None,
+    ) -> Self:
         """Restore current backup to volume
 
         :param session: openstack session
@@ -233,17 +245,17 @@ class Backup(resource.Resource, metadata.MetadataMixin):
         self._translate_response(response, resource_response_key='restore')
         return self
 
-    def force_delete(self, session):
+    def force_delete(self, session: adapter.Adapter) -> None:
         """Force backup deletion"""
         body = {'os-force_delete': None}
         self._action(session, body)
 
-    def reset_status(self, session, status):
+    def reset_status(self, session: adapter.Adapter, status: str) -> None:
         """Reset the status of the backup"""
         body = {'os-reset_status': {'status': status}}
         self._action(session, body)
 
-    def reset(self, session, status):
+    def reset(self, session: adapter.Adapter, status: str) -> None:
         warnings.warn(
             "reset is a deprecated alias for reset_status and will be "
             "removed in a future release.",
