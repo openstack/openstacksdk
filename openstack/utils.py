@@ -49,7 +49,7 @@ def urljoin(*args: str | None) -> str:
 
 
 def iterate_timeout(
-    timeout: int | None,
+    timeout: int | float | None,
     message: str,
     wait: int | float | None = 2,
 ) -> Generator[int, None, None]:

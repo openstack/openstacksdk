@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Self
+
+from keystoneauth1 import adapter
+
 from openstack.baremetal.v1 import _common
 from openstack import exceptions
 from openstack import resource
@@ -72,11 +76,15 @@ class Allocation(resource.Resource):
     #: Timestamp at which the allocation was last updated.
     updated_at = resource.Body('updated_at')
 
-    def wait(self, session, timeout=None, ignore_error=False):
+    def wait(
+        self,
+        session: adapter.Adapter,
+        timeout: float | None = None,
+        ignore_error: bool = False,
+    ) -> Self:
         """Wait for the allocation to become active.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param timeout: How much (in seconds) to wait for the allocation.
             The value of ``None`` (the default) means no client-side timeout.
         :param ignore_error: If ``True``, this call will raise an exception
@@ -103,8 +111,10 @@ class Allocation(resource.Resource):
             elif self.state != 'allocating':
                 return self
 
-            session.log.debug(
+            session.log.debug(  # type: ignore[attr-defined]
                 'Still waiting for the allocation %(allocation)s '
                 'to become active, the current state is %(state)s',
                 {'allocation': self.id, 'state': self.state},
             )
+
+        assert False, "unreachable"

@@ -82,6 +82,7 @@ module = [
     "openstack.warnings",
     # services
     "openstack.accelerator.*",
+    "openstack.baremetal.*",
 ]
 disallow_untyped_calls = true
 disallow_untyped_defs = true

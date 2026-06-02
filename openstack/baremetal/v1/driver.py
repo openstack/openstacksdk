@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any
+from typing import cast
 
 from keystoneauth1 import adapter
 import requests
@@ -134,7 +134,9 @@ class Driver(resource.Resource):
     #: Introduced in API microversion 1.30.
     enabled_vendor_interfaces = resource.Body("enabled_vendor_interfaces")
 
-    def list_vendor_passthru(self, session):
+    def list_vendor_passthru(
+        self, session: adapter.Adapter
+    ) -> dict[str, object]:
         """Fetch vendor specific methods exposed by driver
 
         :param session: The session to use for making this request.
@@ -155,14 +157,14 @@ class Driver(resource.Resource):
         exceptions.raise_from_response(
             response, error_message=msg.format(driver_name=self.name)
         )
-        return response.json()
+        return cast(dict[str, object], response.json())
 
     def call_vendor_passthru(
         self,
         session: adapter.Adapter,
         verb: str,
         method: str,
-        body: dict[str, Any] | None = None,
+        body: dict[str, object] | None = None,
     ) -> requests.Response:
         """Call a vendor specific passthru method
 
@@ -172,22 +174,32 @@ class Driver(resource.Resource):
 
         :param session: The session to use for making this request.
         :param method: Vendor passthru method name.
-        :param verb: One of GET, POST, PUT, DELETE,
-            depending on the driver and method.
+        :param verb: One of GET, POST, PUT, or DELETE, depending on the driver
+            and method.
         :param body: passed to the vendor function as json body.
         :raises: :exc:`ValueError` if :data:`verb` is not one of
             GET, POST, PUT, DELETE
         :returns: response of method call.
         """
-        if verb.upper() not in ['GET', 'PUT', 'POST', 'DELETE']:
-            raise ValueError(f'Invalid verb: {verb}')
-
         session = self._get_session(session)
         request = self._prepare_request()
         request.url = utils.urljoin(
             request.url, f'vendor_passthru?method={method}'
         )
-        call = getattr(session, verb.lower())
+        match verb.lower():
+            case 'get':
+                call = session.get
+            case 'post':
+                call = session.post
+            case 'put':
+                call = session.put
+            case 'delete':
+                call = session.delete
+            case _:
+                raise ValueError(
+                    f'Invalid verb: expected one of: GET, POST, PUT, DELETE, '
+                    f'got: {verb}'
+                )
         response = call(
             request.url,
             json=body,

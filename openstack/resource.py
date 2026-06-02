@@ -262,7 +262,7 @@ class _Request:
 
 class QueryMapping(TypedDict):
     name: NotRequired[str]
-    type: NotRequired[Callable[[Any, type[ResourceT]], ResourceT]]
+    type: NotRequired[Callable[[Any, type[ResourceT]], ResourceT | str | None]]
 
 
 class QueryParameters:

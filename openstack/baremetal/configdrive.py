@@ -14,6 +14,7 @@
 
 import base64
 import contextlib
+from collections.abc import Generator, Iterable, Mapping
 import gzip
 import json
 import os
@@ -24,19 +25,19 @@ import tempfile
 
 @contextlib.contextmanager
 def populate_directory(
-    metadata,
-    user_data=None,
-    versions=None,
-    network_data=None,
-    vendor_data=None,
-):
+    metadata: Mapping[str, object],
+    user_data: bytes | None = None,
+    versions: Iterable[str] | None = None,
+    network_data: Mapping[str, object] | None = None,
+    vendor_data: Mapping[str, object] | None = None,
+) -> Generator[str, None, None]:
     """Populate a directory with configdrive files.
 
-    :param dict metadata: Metadata.
-    :param bytes user_data: Vendor-specific user data.
+    :param metadata: Metadata.
+    :param user_data: Vendor-specific user data.
     :param versions: List of metadata versions to support.
-    :param dict network_data: Networking configuration.
-    :param dict vendor_data: Extra supplied vendor data.
+    :param network_data: Networking configuration.
+    :param vendor_data: Extra supplied vendor data.
     :return: a context manager yielding a directory with files
     """
     d = tempfile.mkdtemp()
@@ -75,21 +76,21 @@ def populate_directory(
 
 
 def build(
-    metadata,
-    user_data=None,
-    versions=None,
-    network_data=None,
-    vendor_data=None,
-):
+    metadata: Mapping[str, object],
+    user_data: bytes | None = None,
+    versions: Iterable[str] | None = None,
+    network_data: Mapping[str, object] | None = None,
+    vendor_data: Mapping[str, object] | None = None,
+) -> str:
     """Make a configdrive compatible with the Bare Metal service.
 
     Requires the genisoimage utility to be available.
 
-    :param dict metadata: Metadata.
+    :param metadata: Metadata.
     :param user_data: Vendor-specific user data.
     :param versions: List of metadata versions to support.
-    :param dict network_data: Networking configuration.
-    :param dict vendor_data: Extra supplied vendor data.
+    :param network_data: Networking configuration.
+    :param vendor_data: Extra supplied vendor data.
     :return: configdrive contents as a base64-encoded string.
     """
     with populate_directory(
@@ -103,7 +104,7 @@ def pack(path: str) -> str:
 
     Creates an ISO image with the files and label "config-2".
 
-    :param str path: Path to directory with files
+    :param path: Path to directory with files
     :return: configdrive contents as a base64-encoded string.
     """
     with tempfile.NamedTemporaryFile() as tmpfile:

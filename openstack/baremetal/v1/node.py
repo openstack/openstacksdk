@@ -11,11 +11,13 @@
 # under the License.
 
 import collections
+from collections.abc import MutableMapping
 import enum
 from typing import Any, Self, cast
 import warnings
 
 from keystoneauth1 import adapter
+import requests
 
 from openstack.baremetal.v1 import _common
 from openstack import exceptions
@@ -33,7 +35,7 @@ class ValidationResult:
         the result.
     """
 
-    def __init__(self, result, reason):
+    def __init__(self, result: bool | None, reason: str | None) -> None:
         self.result = result
         self.reason = reason
 
@@ -285,7 +287,9 @@ class Node(_common.Resource):
     #: Introduced in API microversion 1.31.
     vendor_interface = resource.Body("vendor_interface")
 
-    def _consume_body_attrs(self, attrs):
+    def _consume_body_attrs(
+        self, attrs: MutableMapping[str, Any]
+    ) -> dict[str, Any]:
         if 'provision_state' in attrs and attrs['provision_state'] is None:
             # API version 1.1 uses None instead of "available". Make it
             # consistent.
@@ -323,7 +327,6 @@ class Node(_common.Resource):
             fields that appeared after 1.11.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
 
         :return: This :class:`Resource` instance.
         :raises: ValueError if the Node's ``provision_state`` is not one of
@@ -388,11 +391,12 @@ class Node(_common.Resource):
 
         return self
 
-    def commit(self, session, *args, **kwargs):
+    def commit(
+        self, session: adapter.Adapter, *args: Any, **kwargs: Any
+    ) -> Self:
         """Commit the state of the instance to the remote resource.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
 
         :return: This :class:`Node` instance.
         """
@@ -428,24 +432,23 @@ class Node(_common.Resource):
 
     def set_provision_state(
         self,
-        session,
-        target,
-        config_drive=None,
-        clean_steps=None,
-        rescue_password=None,
-        wait=False,
-        timeout=None,
-        deploy_steps=None,
-        service_steps=None,
-        runbook=None,
-    ):
+        session: adapter.Adapter,
+        target: str,
+        config_drive: str | bytes | dict[str, object] | None = None,
+        clean_steps: list[dict[str, object]] | None = None,
+        rescue_password: str | None = None,
+        wait: bool = False,
+        timeout: int | float | None = None,
+        deploy_steps: list[dict[str, object]] | None = None,
+        service_steps: list[dict[str, object]] | None = None,
+        runbook: str | None = None,
+    ) -> Self:
         """Run an action modifying this node's provision state.
 
         This call is asynchronous, it will return success as soon as the Bare
         Metal service acknowledges the request.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param target: Provisioning action, e.g. ``active``, ``provide``.
             See the Bare Metal service documentation for available actions.
         :param config_drive: Config drive to pass to the node, only valid
@@ -491,7 +494,7 @@ class Node(_common.Resource):
 
         microversion = self._assert_microversion_for(session, microversion)
 
-        body = {'target': target}
+        body: dict[str, object] = {'target': target}
         if runbook:
             microversion = self._assert_microversion_for(
                 session, _common.RUNBOOKS_VERSION
@@ -595,11 +598,15 @@ class Node(_common.Resource):
         else:
             return self.fetch(session)
 
-    def wait_for_power_state(self, session, expected_state, timeout=None):
+    def wait_for_power_state(
+        self,
+        session: adapter.Adapter,
+        expected_state: str,
+        timeout: int | float | None = None,
+    ) -> Self:
         """Wait for the node to reach the expected power state.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param expected_state: The expected power state to reach.
         :param timeout: If ``wait`` is set to ``True``, specifies how much (in
             seconds) to wait for the expected state to be reached. The value of
@@ -617,7 +624,7 @@ class Node(_common.Resource):
             if self.power_state == expected_state:
                 return self
 
-            session.log.debug(
+            session.log.debug(  # type: ignore[attr-defined]
                 'Still waiting for node %(node)s to reach power state '
                 '"%(target)s", the current state is "%(state)s"',
                 {
@@ -626,14 +633,18 @@ class Node(_common.Resource):
                     'state': self.power_state,
                 },
             )
+        assert False, "unreachable"
 
     def wait_for_provision_state(
-        self, session, expected_state, timeout=None, abort_on_failed_state=True
-    ):
+        self,
+        session: adapter.Adapter,
+        expected_state: str,
+        timeout: int | float | None = None,
+        abort_on_failed_state: bool = True,
+    ) -> Self:
         """Wait for the node to reach the expected state.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param expected_state: The expected provisioning state to reach.
         :param timeout: If ``wait`` is set to ``True``, specifies how much (in
             seconds) to wait for the expected state to be reached. The value of
@@ -659,7 +670,7 @@ class Node(_common.Resource):
             ):
                 return self
 
-            session.log.debug(
+            session.log.debug(  # type: ignore[attr-defined]
                 'Still waiting for node %(node)s to reach state '
                 '"%(target)s", the current state is "%(state)s"',
                 {
@@ -668,8 +679,13 @@ class Node(_common.Resource):
                     'state': self.provision_state,
                 },
             )
+        assert False, "unreachable"
 
-    def wait_for_reservation(self, session, timeout=None):
+    def wait_for_reservation(
+        self,
+        session: adapter.Adapter,
+        timeout: int | float | None = None,
+    ) -> Self:
         """Wait for a lock on the node to be released.
 
         Bare metal nodes in ironic have a reservation lock that
@@ -686,7 +702,6 @@ class Node(_common.Resource):
         Returns immediately if there is no reservation on the node.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param timeout: How much (in seconds) to wait for the lock to be
             released. The value of ``None`` (the default) means no timeout.
 
@@ -703,19 +718,23 @@ class Node(_common.Resource):
             if self.reservation is None:
                 return self
 
-            session.log.debug(
+            session.log.debug(  # type: ignore[attr-defined]
                 'Still waiting for the lock to be released on node '
                 '%(node)s, currently locked by conductor %(host)s',
                 {'node': self.id, 'host': self.reservation},
             )
 
+        assert False, "unreachable"
+
     def _check_state_reached(
-        self, session, expected_state, abort_on_failed_state=True
-    ):
+        self,
+        session: adapter.Adapter,
+        expected_state: str,
+        abort_on_failed_state: bool = True,
+    ) -> bool | None:
         """Wait for the node to reach the expected state.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param expected_state: The expected provisioning state to reach.
         :param abort_on_failed_state: If ``True`` (the default), abort waiting
             if the node reaches a failure state which does not match the
@@ -756,7 +775,9 @@ class Node(_common.Resource):
                 f"the last error is {self.last_error}"
             )
 
-    def inject_nmi(self, session):
+        return None
+
+    def inject_nmi(self, session: adapter.Adapter) -> None:
         """Inject NMI.
 
         :param session: The session to use for making this request.
@@ -780,14 +801,19 @@ class Node(_common.Resource):
         msg = f"Failed to inject NMI to node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
-    def set_power_state(self, session, target, wait=False, timeout=None):
+    def set_power_state(
+        self,
+        session: adapter.Adapter,
+        target: str | PowerAction,
+        wait: bool = False,
+        timeout: int | float | None = None,
+    ) -> None:
         """Run an action modifying this node's power state.
 
         This call is asynchronous, it will return success as soon as the Bare
         Metal service acknowledges the request.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param target: Target power state, as a :class:`PowerAction` or
             a string.
         :param wait: Whether to wait for the expected power state to be
@@ -839,16 +865,15 @@ class Node(_common.Resource):
 
     def attach_vmedia(
         self,
-        session,
-        device_type,
-        image_url,
-        image_download_source=None,
-        retry_on_conflict=True,
-    ):
+        session: adapter.Adapter,
+        device_type: str,
+        image_url: str,
+        image_download_source: str | None = None,
+        retry_on_conflict: bool = True,
+    ) -> None:
         """Attach virtual media device to a node.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param device_type: The type of virtual media device.
         :param image_url: The URL of the image to attach.
         :param image_download_source: The source of the image download.
@@ -887,11 +912,14 @@ class Node(_common.Resource):
         msg = f"Failed to attach Virtual Media to bare metal node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
-    def detach_vmedia(self, session, device_types=None):
+    def detach_vmedia(
+        self,
+        session: adapter.Adapter,
+        device_types: list[str] | None = None,
+    ) -> None:
         """Detach virtual media from a node
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param device_types: A list with the types of virtual media
             devices to detach.
         :return: ``True`` if the virtual media was detached,
@@ -923,7 +951,7 @@ class Node(_common.Resource):
         response = session.delete(request.url, **delete_kwargs)
 
         if response.status_code == 400:
-            session.log.debug(
+            session.log.debug(  # type: ignore[attr-defined]
                 "Virtual media doesn't exist for node %(node)s",
                 {'node': self.id},
             )
@@ -948,7 +976,6 @@ class Node(_common.Resource):
         at a time.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param vif_id: Backend-specific VIF ID.
         :param retry_on_conflict: Whether to retry HTTP CONFLICT errors.
             This can happen when either the VIF is already used on a node or
@@ -1002,7 +1029,12 @@ class Node(_common.Resource):
         msg = f"Failed to attach VIF {vif_id} to bare metal node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
-    def detach_vif(self, session, vif_id, ignore_missing=True):
+    def detach_vif(
+        self,
+        session: adapter.Adapter,
+        vif_id: str,
+        ignore_missing: bool = True,
+    ) -> bool:
         """Detach a VIF from the node.
 
         The exact form of the VIF ID depends on the network interface used by
@@ -1010,12 +1042,10 @@ class Node(_common.Resource):
         (NOT a Bare Metal port) ID.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
-        :param string vif_id: Backend-specific VIF ID.
-        :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.NotFoundException` will be
-                    raised when the VIF does not exist. Otherwise, ``False``
-                    is returned.
+        :param vif_id: Backend-specific VIF ID.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the VIF does not exist. Otherwise, ``False`` is returned.
         :return: ``True`` if the VIF was detached, otherwise ``False``.
         :raises: :exc:`~openstack.exceptions.NotSupported` if the server
             does not support the VIF API.
@@ -1037,7 +1067,7 @@ class Node(_common.Resource):
         )
 
         if ignore_missing and response.status_code == 400:
-            session.log.debug(
+            session.log.debug(  # type: ignore[attr-defined]
                 'VIF %(vif)s was already removed from node %(node)s',
                 {'vif': vif_id, 'node': self.id},
             )
@@ -1047,7 +1077,7 @@ class Node(_common.Resource):
         exceptions.raise_from_response(response, error_message=msg)
         return True
 
-    def list_vifs(self, session):
+    def list_vifs(self, session: adapter.Adapter) -> list[str]:
         """List IDs of VIFs attached to the node.
 
         The exact form of the VIF ID depends on the network interface used by
@@ -1055,7 +1085,6 @@ class Node(_common.Resource):
         (NOT a Bare Metal port) ID.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :return: List of VIF IDs as strings.
         :raises: :exc:`~openstack.exceptions.NotSupported` if the server
             does not support the VIF API.
@@ -1077,11 +1106,14 @@ class Node(_common.Resource):
         exceptions.raise_from_response(response, error_message=msg)
         return [vif['id'] for vif in response.json()['vifs']]
 
-    def validate(self, session, required=('boot', 'deploy', 'power')):
+    def validate(
+        self,
+        session: adapter.Adapter,
+        required: tuple[str, ...] | list[str] = ('boot', 'deploy', 'power'),
+    ) -> dict[str, ValidationResult]:
         """Validate required information on the node.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param required: List of interfaces that are required to pass
             validation. The default value is the list of minimum required
             interfaces for provisioning.
@@ -1124,28 +1156,33 @@ class Node(_common.Resource):
             for key, value in result.items()
         }
 
-    def set_maintenance(self, session, reason=None):
+    def set_maintenance(
+        self, session: adapter.Adapter, reason: str | None = None
+    ) -> Self:
         """Enable maintenance mode on the node.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param reason: Optional reason for maintenance.
         :return: This :class:`Node` instance.
         """
         self._do_maintenance_action(session, 'put', {'reason': reason})
         return self.fetch(session)
 
-    def unset_maintenance(self, session):
+    def unset_maintenance(self, session: adapter.Adapter) -> Self:
         """Disable maintenance mode on the node.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :return: This :class:`Node` instance.
         """
         self._do_maintenance_action(session, 'delete')
         return self.fetch(session)
 
-    def _do_maintenance_action(self, session, verb, body=None):
+    def _do_maintenance_action(
+        self,
+        session: adapter.Adapter,
+        verb: str,
+        body: dict[str, object] | None = None,
+    ) -> None:
         session = self._get_session(session)
         version = self._get_microversion(session)
         request = self._prepare_request(requires_id=True)
@@ -1159,7 +1196,7 @@ class Node(_common.Resource):
         msg = f"Failed to change maintenance mode for node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
-    def get_boot_device(self, session):
+    def get_boot_device(self, session: adapter.Adapter) -> dict[str, object]:
         """Get node boot device.
 
         :param session: The session to use for making this request.
@@ -1180,9 +1217,14 @@ class Node(_common.Resource):
         msg = f"Failed to get boot device for node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
-        return response.json()
+        return cast(dict[str, object], response.json())
 
-    def set_boot_device(self, session, boot_device, persistent=False):
+    def set_boot_device(
+        self,
+        session: adapter.Adapter,
+        boot_device: str,
+        persistent: bool = False,
+    ) -> None:
         """Set node boot device
 
         :param session: The session to use for making this request.
@@ -1209,7 +1251,9 @@ class Node(_common.Resource):
         msg = f"Failed to set boot device for node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
-    def get_supported_boot_devices(self, session):
+    def get_supported_boot_devices(
+        self, session: adapter.Adapter
+    ) -> dict[str, object]:
         """Get supported boot devices for the node.
 
         :param session: The session to use for making this request.
@@ -1235,9 +1279,9 @@ class Node(_common.Resource):
         msg = f"Failed to get supported boot devices for node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
-        return response.json()
+        return cast(dict[str, object], response.json())
 
-    def set_boot_mode(self, session, target):
+    def set_boot_mode(self, session: adapter.Adapter, target: str) -> None:
         """Make a request to change node's boot mode
 
         This call is asynchronous, it will return success as soon as the Bare
@@ -1272,14 +1316,14 @@ class Node(_common.Resource):
         msg = f"Failed to change boot mode for node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
-    def set_secure_boot(self, session, target):
+    def set_secure_boot(self, session: adapter.Adapter, target: bool) -> None:
         """Make a request to change node's secure boot state
 
         This call is asynchronous, it will return success as soon as the Bare
         Metal service acknowledges the request.
 
         :param session: The session to use for making this request.
-        :param bool target: Boolean indicating secure boot state to set.
+        :param target: Boolean indicating secure boot state to set.
             True/False corresponding to 'on'/'off' respectively.
         :returns: ``None``
         :raises: ValueError if ``target`` is not boolean.
@@ -1308,7 +1352,7 @@ class Node(_common.Resource):
         msg = f"Failed to change secure boot state for {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
-    def add_trait(self, session, trait):
+    def add_trait(self, session: adapter.Adapter, trait: str) -> None:
         """Add a trait to the node.
 
         :param session: The session to use for making this request.
@@ -1332,15 +1376,19 @@ class Node(_common.Resource):
 
         self.traits = list(set(self.traits or ()) | {trait})
 
-    def remove_trait(self, session, trait, ignore_missing=True):
+    def remove_trait(
+        self,
+        session: adapter.Adapter,
+        trait: str,
+        ignore_missing: bool = True,
+    ) -> bool:
         """Remove a trait from the node.
 
         :param session: The session to use for making this request.
         :param trait: The trait to remove from the node.
-        :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.NotFoundException` will be
-            raised when the trait does not exist.
-            Otherwise, ``False`` is returned.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the trait does not exist. Otherwise, ``False`` is returned.
         :returns bool: True on success removing the trait.
             False when the trait does not exist already.
         """
@@ -1357,7 +1405,7 @@ class Node(_common.Resource):
         )
 
         if ignore_missing and response.status_code == 400:
-            session.log.debug(
+            session.log.debug(  # type: ignore[attr-defined]
                 'Trait %(trait)s was already removed from node %(node)s',
                 {'trait': trait, 'node': self.id},
             )
@@ -1374,7 +1422,7 @@ class Node(_common.Resource):
 
         return True
 
-    def set_traits(self, session, traits):
+    def set_traits(self, session: adapter.Adapter, traits: list[str]) -> None:
         """Set traits for the node.
 
         Removes any existing traits and adds the traits passed in to this
@@ -1404,14 +1452,22 @@ class Node(_common.Resource):
 
         self.traits = traits
 
-    def call_vendor_passthru(self, session, verb, method, body=None):
+    def call_vendor_passthru(
+        self,
+        session: adapter.Adapter,
+        verb: str,
+        method: str,
+        body: dict[str, object] | None = None,
+    ) -> requests.Response:
         """Call a vendor passthru method.
 
         :param session: The session to use for making this request.
-        :param verb: The HTTP verb, one of GET, SET, POST, DELETE.
+        :param verb: The HTTP verb, one of GET, POST, PUT, DELETE.
         :param method: The method to call using vendor_passthru.
         :param body: The JSON body in the HTTP call.
         :returns: The HTTP response.
+        :raises: :exc:`ValueError` if :data:`verb` is not one of
+            GET, POST, PUT, DELETE
         """
         session = self._get_session(session)
         version = self._get_microversion(session)
@@ -1420,7 +1476,21 @@ class Node(_common.Resource):
             request.url, f'vendor_passthru?method={method}'
         )
 
-        call = getattr(session, verb.lower())
+        match verb.lower():
+            case 'get':
+                call = session.get
+            case 'post':
+                call = session.post
+            case 'put':
+                call = session.put
+            case 'delete':
+                call = session.delete
+            case _:
+                raise ValueError(
+                    f'Invalid verb: expected one of: GET, POST, PUT, DELETE, '
+                    f'got: {verb}'
+                )
+
         response = call(
             request.url,
             json=body,
@@ -1437,7 +1507,9 @@ class Node(_common.Resource):
 
         return response
 
-    def list_vendor_passthru(self, session):
+    def list_vendor_passthru(
+        self, session: adapter.Adapter
+    ) -> dict[str, object]:
         """List vendor passthru methods for the node.
 
         :param session: The session to use for making this request.
@@ -1458,9 +1530,9 @@ class Node(_common.Resource):
         msg = f"Failed to list vendor_passthru methods for node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
-        return response.json()
+        return cast(dict[str, object], response.json())
 
-    def get_console(self, session):
+    def get_console(self, session: adapter.Adapter) -> dict[str, object]:
         """Get the node console.
 
         :param session: The session to use for making this request.
@@ -1481,9 +1553,11 @@ class Node(_common.Resource):
         msg = f"Failed to get console for node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
-        return response.json()
+        return cast(dict[str, object], response.json())
 
-    def set_console_mode(self, session, enabled):
+    def set_console_mode(
+        self, session: adapter.Adapter, enabled: bool
+    ) -> None:
         """Set the node console mode.
 
         :param session: The session to use for making this request.
@@ -1512,7 +1586,9 @@ class Node(_common.Resource):
         msg = f"Failed to change console mode for {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
-    def get_node_inventory(self, session, node_id):
+    def get_node_inventory(
+        self, session: adapter.Adapter, node_id: str | None = None
+    ) -> dict[str, object]:
         """Get a node's inventory.
 
         :param session: The session to use for making this request.
@@ -1537,11 +1613,13 @@ class Node(_common.Resource):
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 
-        msg = f"Failed to get inventory for node {node_id}"
+        msg = f"Failed to get inventory for node {node_id or self.id}"
         exceptions.raise_from_response(response, error_message=msg)
-        return response.json()
+        return cast(dict[str, object], response.json())
 
-    def list_firmware(self, session):
+    def list_firmware(
+        self, session: adapter.Adapter
+    ) -> list[dict[str, object]]:
         """List firmware components associated with the node.
 
         :param session: The session to use for making this request.
@@ -1567,7 +1645,7 @@ class Node(_common.Resource):
         msg = f"Failed to list firmware components for node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
-        return response.json()
+        return cast(list[dict[str, object]], response.json())
 
     def patch(
         self,
