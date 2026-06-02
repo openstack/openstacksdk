@@ -9,6 +9,11 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
+from typing import Any, cast
+
+from keystoneauth1 import adapter
+
 from openstack.clustering.v1 import _async_resource
 from openstack.common import metadata
 from openstack import resource
@@ -81,12 +86,16 @@ class Cluster(_async_resource.AsyncResource, metadata.MetadataMixin):
     #: A dictionary with dependency information of the cluster
     dependents = resource.Body('dependents', type=dict)
 
-    def action(self, session, body):
+    def action(
+        self, session: adapter.Adapter, body: dict[str, Any]
+    ) -> dict[str, Any]:
         url = utils.urljoin(self.base_path, self._get_id(self), 'actions')
         resp = session.post(url, json=body)
-        return resp.json()
+        return cast(dict[str, Any], resp.json())
 
-    def add_nodes(self, session, nodes):
+    def add_nodes(
+        self, session: adapter.Adapter, nodes: list[str]
+    ) -> dict[str, Any]:
         body = {
             'add_nodes': {
                 'nodes': nodes,
@@ -94,13 +103,17 @@ class Cluster(_async_resource.AsyncResource, metadata.MetadataMixin):
         }
         return self.action(session, body)
 
-    def del_nodes(self, session, nodes, **params):
-        data = {'nodes': nodes}
+    def del_nodes(
+        self, session: adapter.Adapter, nodes: list[str], **params: Any
+    ) -> dict[str, Any]:
+        data: dict[str, Any] = {'nodes': nodes}
         data.update(params)
         body = {'del_nodes': data}
         return self.action(session, body)
 
-    def replace_nodes(self, session, nodes):
+    def replace_nodes(
+        self, session: adapter.Adapter, nodes: dict[str, str]
+    ) -> dict[str, Any]:
         body = {
             'replace_nodes': {
                 'nodes': nodes,
@@ -108,7 +121,9 @@ class Cluster(_async_resource.AsyncResource, metadata.MetadataMixin):
         }
         return self.action(session, body)
 
-    def scale_out(self, session, count=None):
+    def scale_out(
+        self, session: adapter.Adapter, count: int | None = None
+    ) -> dict[str, Any]:
         body = {
             'scale_out': {
                 'count': count,
@@ -116,7 +131,9 @@ class Cluster(_async_resource.AsyncResource, metadata.MetadataMixin):
         }
         return self.action(session, body)
 
-    def scale_in(self, session, count=None):
+    def scale_in(
+        self, session: adapter.Adapter, count: int | None = None
+    ) -> dict[str, Any]:
         body = {
             'scale_in': {
                 'count': count,
@@ -124,17 +141,23 @@ class Cluster(_async_resource.AsyncResource, metadata.MetadataMixin):
         }
         return self.action(session, body)
 
-    def resize(self, session, **params):
+    def resize(
+        self, session: adapter.Adapter, **params: Any
+    ) -> dict[str, Any]:
         body = {'resize': params}
         return self.action(session, body)
 
-    def policy_attach(self, session, policy_id, **params):
-        data = {'policy_id': policy_id}
+    def policy_attach(
+        self, session: adapter.Adapter, policy_id: str, **params: Any
+    ) -> dict[str, Any]:
+        data: dict[str, Any] = {'policy_id': policy_id}
         data.update(params)
         body = {'policy_attach': data}
         return self.action(session, body)
 
-    def policy_detach(self, session, policy_id):
+    def policy_detach(
+        self, session: adapter.Adapter, policy_id: str
+    ) -> dict[str, Any]:
         body = {
             'policy_detach': {
                 'policy_id': policy_id,
@@ -142,21 +165,27 @@ class Cluster(_async_resource.AsyncResource, metadata.MetadataMixin):
         }
         return self.action(session, body)
 
-    def policy_update(self, session, policy_id, **params):
-        data = {'policy_id': policy_id}
+    def policy_update(
+        self, session: adapter.Adapter, policy_id: str, **params: Any
+    ) -> dict[str, Any]:
+        data: dict[str, Any] = {'policy_id': policy_id}
         data.update(params)
         body = {'policy_update': data}
         return self.action(session, body)
 
-    def check(self, session, **params):
+    def check(self, session: adapter.Adapter, **params: Any) -> dict[str, Any]:
         body = {'check': params}
         return self.action(session, body)
 
-    def recover(self, session, **params):
+    def recover(
+        self, session: adapter.Adapter, **params: Any
+    ) -> dict[str, Any]:
         body = {'recover': params}
         return self.action(session, body)
 
-    def op(self, session, operation, **params):
+    def op(
+        self, session: adapter.Adapter, operation: str, **params: Any
+    ) -> dict[str, Any]:
         """Perform an operation on the cluster.
 
         :param session: A session object used for sending request.
@@ -167,11 +196,4 @@ class Cluster(_async_resource.AsyncResource, metadata.MetadataMixin):
         """
         url = utils.urljoin(self.base_path, self.id, 'ops')
         resp = session.post(url, json={operation: params})
-        return resp.json()
-
-    def force_delete(self, session):
-        """Force delete a cluster."""
-        body = {'force': True}
-        url = utils.urljoin(self.base_path, self.id)
-        response = session.delete(url, json=body)
-        return self._delete_response(response)
+        return cast(dict[str, Any], resp.json())

@@ -85,6 +85,7 @@ module = [
     "openstack.baremetal.*",
     "openstack.baremetal_introspection.*",
     "openstack.block_storage.*",
+    "openstack.clustering.*",
 ]
 disallow_untyped_calls = true
 disallow_untyped_defs = true

@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any, cast
+
+from keystoneauth1 import adapter
+
 from openstack import resource
 from openstack import utils
 
@@ -31,7 +35,7 @@ class ProfileType(resource.Resource):
     #: The support status of the profile type
     support_status = resource.Body('support_status')
 
-    def type_ops(self, session):
+    def type_ops(self, session: adapter.Adapter) -> dict[str, Any]:
         url = utils.urljoin(self.base_path, self.id, 'ops')
         resp = session.get(url)
-        return resp.json()
+        return cast(dict[str, Any], resp.json())

@@ -231,7 +231,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_profile.Profile, profile, **attrs)
 
-    def validate_profile(self, **attrs):
+    def validate_profile(self, **attrs: Any) -> _profile.ProfileValidate:
         """Validate a profile spec.
 
         :param attrs: Keyword arguments that will be used to create a
@@ -402,7 +402,11 @@ class Proxy(proxy.Proxy):
         )
         return self.fetch_cluster_metadata(cluster)
 
-    def set_cluster_metadata(self, cluster, **metadata):
+    def set_cluster_metadata(
+        self,
+        cluster: str | _cluster.Cluster,
+        **metadata: Any,
+    ) -> _cluster.Cluster:
         """Update metadata for a cluster
 
         :param cluster: Either the ID of a cluster or a
@@ -415,8 +419,8 @@ class Proxy(proxy.Proxy):
         :returns: A :class:`~openstack.clustering.v3.cluster.Cluster` with the
             cluster's metadata. All keys and values are Unicode text.
         """
-        cluster = self._get_resource(_cluster.Cluster, cluster)
-        return cluster.set_metadata(self, metadata=metadata)
+        cluster_obj = self._get_resource(_cluster.Cluster, cluster)
+        return cluster_obj.set_metadata(self, metadata=metadata)
 
     def delete_cluster_metadata(
         self,
@@ -437,7 +441,11 @@ class Proxy(proxy.Proxy):
         else:
             cluster.delete_metadata(self)
 
-    def add_nodes_to_cluster(self, cluster, nodes):
+    def add_nodes_to_cluster(
+        self,
+        cluster: str | _cluster.Cluster,
+        nodes: list[str],
+    ) -> dict[str, Any]:
         """Add nodes to a cluster.
 
         :param cluster: Either the name or the ID of the cluster, or an
@@ -451,7 +459,12 @@ class Proxy(proxy.Proxy):
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
         return obj.add_nodes(self, nodes)
 
-    def remove_nodes_from_cluster(self, cluster, nodes, **params):
+    def remove_nodes_from_cluster(
+        self,
+        cluster: str | _cluster.Cluster,
+        nodes: list[str],
+        **params: Any,
+    ) -> dict[str, Any]:
         """Remove nodes from a cluster.
 
         :param cluster: Either the name or the ID of the cluster, or an
@@ -470,7 +483,11 @@ class Proxy(proxy.Proxy):
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
         return obj.del_nodes(self, nodes, **params)
 
-    def replace_nodes_in_cluster(self, cluster, nodes):
+    def replace_nodes_in_cluster(
+        self,
+        cluster: str | _cluster.Cluster,
+        nodes: dict[str, str],
+    ) -> dict[str, Any]:
         """Replace the nodes in a cluster with specified nodes.
 
         :param cluster: Either the name or the ID of the cluster, or an
@@ -484,7 +501,11 @@ class Proxy(proxy.Proxy):
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
         return obj.replace_nodes(self, nodes)
 
-    def scale_out_cluster(self, cluster, count=None):
+    def scale_out_cluster(
+        self,
+        cluster: str | _cluster.Cluster,
+        count: int | None = None,
+    ) -> dict[str, Any]:
         """Inflate the size of a cluster.
 
         :param cluster: Either the name or the ID of the cluster, or an
@@ -499,7 +520,11 @@ class Proxy(proxy.Proxy):
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
         return obj.scale_out(self, count)
 
-    def scale_in_cluster(self, cluster, count=None):
+    def scale_in_cluster(
+        self,
+        cluster: str | _cluster.Cluster,
+        count: int | None = None,
+    ) -> dict[str, Any]:
         """Shrink the size of a cluster.
 
         :param cluster: Either the name or the ID of the cluster, or an
@@ -514,7 +539,11 @@ class Proxy(proxy.Proxy):
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
         return obj.scale_in(self, count)
 
-    def resize_cluster(self, cluster, **params):
+    def resize_cluster(
+        self,
+        cluster: str | _cluster.Cluster,
+        **params: Any,
+    ) -> dict[str, Any]:
         """Resize of cluster.
 
         :param cluster: Either the name or the ID of the cluster, or an
@@ -529,7 +558,12 @@ class Proxy(proxy.Proxy):
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
         return obj.resize(self, **params)
 
-    def attach_policy_to_cluster(self, cluster, policy, **params):
+    def attach_policy_to_cluster(
+        self,
+        cluster: str | _cluster.Cluster,
+        policy: str,
+        **params: Any,
+    ) -> dict[str, Any]:
         """Attach a policy to a cluster.
 
         :param cluster: Either the name or the ID of the cluster, or an
@@ -545,7 +579,11 @@ class Proxy(proxy.Proxy):
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
         return obj.policy_attach(self, policy, **params)
 
-    def detach_policy_from_cluster(self, cluster, policy):
+    def detach_policy_from_cluster(
+        self,
+        cluster: str | _cluster.Cluster,
+        policy: str,
+    ) -> dict[str, Any]:
         """Detach a policy from a cluster.
 
         :param cluster: Either the name or the ID of the cluster, or an
@@ -600,7 +638,11 @@ class Proxy(proxy.Proxy):
             _cluster_attr.ClusterAttr, cluster_id=cluster, path=path
         )
 
-    def check_cluster(self, cluster, **params):
+    def check_cluster(
+        self,
+        cluster: str | _cluster.Cluster,
+        **params: Any,
+    ) -> dict[str, Any]:
         """Check a cluster.
 
         :param cluster: The value can be either the ID of a cluster or a
@@ -613,7 +655,11 @@ class Proxy(proxy.Proxy):
         obj = self._get_resource(_cluster.Cluster, cluster)
         return obj.check(self, **params)
 
-    def recover_cluster(self, cluster, **params):
+    def recover_cluster(
+        self,
+        cluster: str | _cluster.Cluster,
+        **params: Any,
+    ) -> dict[str, Any]:
         """recover a cluster.
 
         :param cluster: The value can be either the ID of a cluster or a
@@ -626,7 +672,12 @@ class Proxy(proxy.Proxy):
         obj = self._get_resource(_cluster.Cluster, cluster)
         return obj.recover(self, **params)
 
-    def perform_operation_on_cluster(self, cluster, operation, **params):
+    def perform_operation_on_cluster(
+        self,
+        cluster: str | _cluster.Cluster,
+        operation: str,
+        **params: Any,
+    ) -> dict[str, Any]:
         """Perform an operation on the specified cluster.
 
         :param cluster: The value can be either the ID of a cluster or a
@@ -777,7 +828,11 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_node.Node, node, **attrs)
 
-    def check_node(self, node, **params):
+    def check_node(
+        self,
+        node: str | _node.Node,
+        **params: Any,
+    ) -> dict[str, Any]:
         """Check the health of the specified node.
 
         :param node: The value can be either the ID of a node or a
@@ -790,7 +845,11 @@ class Proxy(proxy.Proxy):
         obj = self._get_resource(_node.Node, node)
         return obj.check(self, **params)
 
-    def recover_node(self, node, **params):
+    def recover_node(
+        self,
+        node: str | _node.Node,
+        **params: Any,
+    ) -> dict[str, Any]:
         """Recover the specified node into healthy status.
 
         :param node: The value can be either the ID of a node or a
@@ -802,7 +861,11 @@ class Proxy(proxy.Proxy):
         obj = self._get_resource(_node.Node, node)
         return obj.recover(self, **params)
 
-    def adopt_node(self, preview=False, **attrs):
+    def adopt_node(
+        self,
+        preview: bool = False,
+        **attrs: Any,
+    ) -> dict[str, Any] | _node.Node:
         """Adopting an existing resource as a node.
 
         :param preview: A boolean indicating whether this is a "preview"
@@ -834,7 +897,12 @@ class Proxy(proxy.Proxy):
         node = self._get_resource(_node.Node, None)
         return node.adopt(self, preview=preview, **attrs)
 
-    def perform_operation_on_node(self, node, operation, **params):
+    def perform_operation_on_node(
+        self,
+        node: str | _node.Node,
+        operation: str,
+        **params: Any,
+    ) -> dict[str, Any]:
         """Perform an operation on the specified node.
 
         :param node: The value can be either the ID of a node or a
@@ -962,7 +1030,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_policy.Policy, policy, **attrs)
 
-    def validate_policy(self, **attrs):
+    def validate_policy(self, **attrs: Any) -> _policy.PolicyValidate:
         """Validate a policy spec.
 
         :param attrs: Keyword arguments that will be used to create a
@@ -1236,7 +1304,10 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_service.Service, **query)
 
-    def list_profile_type_operations(self, profile_type):
+    def list_profile_type_operations(
+        self,
+        profile_type: str | _profile_type.ProfileType,
+    ) -> dict[str, Any]:
         """Get the operation about a profile type.
 
         :param profile_type: The name of the profile_type to retrieve or an
