@@ -22,6 +22,7 @@ EXAMPLE = {
     'port': 3,
     'project_id': '4',
     'router': 5,
+    'router_route': 30,
     'subnet': 6,
     'subnetpool': 7,
     'security_group_rule': 8,
@@ -55,6 +56,7 @@ class TestQuota(base.TestCase):
         self.assertEqual(EXAMPLE['port'], sot.ports)
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['router'], sot.routers)
+        self.assertEqual(EXAMPLE['router_route'], sot.router_routes)
         self.assertEqual(EXAMPLE['subnet'], sot.subnets)
         self.assertEqual(EXAMPLE['subnetpool'], sot.subnet_pools)
         self.assertEqual(
@@ -101,6 +103,7 @@ class TestQuotaDefault(base.TestCase):
         self.assertEqual(EXAMPLE['port'], sot.ports)
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['router'], sot.routers)
+        self.assertEqual(EXAMPLE['router_route'], sot.router_routes)
         self.assertEqual(EXAMPLE['subnet'], sot.subnets)
         self.assertEqual(EXAMPLE['subnetpool'], sot.subnet_pools)
         self.assertEqual(
