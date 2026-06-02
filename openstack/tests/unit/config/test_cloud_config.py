@@ -11,6 +11,7 @@
 # under the License.
 
 import copy
+import importlib.metadata as importlib_metadata
 from unittest import mock
 
 from keystoneauth1 import exceptions as ksa_exceptions
@@ -20,7 +21,8 @@ from openstack.config import cloud_region
 from openstack.config import defaults
 from openstack import exceptions
 from openstack.tests.unit.config import base
-from openstack import version as openstack_version
+
+OPENSTACKSDK_VERSION = importlib_metadata.version('openstacksdk')
 
 fake_config_dict = {'a': 1, 'os_b': 2, 'c': 3, 'os_c': 4}
 fake_services_dict = {
@@ -324,7 +326,7 @@ class TestCloudRegion(base.TestCase):
         )
         self.assertEqual(
             fake_session.additional_user_agent,
-            [('openstacksdk', openstack_version.__version__)],
+            [('openstacksdk', OPENSTACKSDK_VERSION)],
         )
 
     @mock.patch.object(ksa_session, 'Session')
@@ -357,7 +359,7 @@ class TestCloudRegion(base.TestCase):
         self.assertEqual(fake_session.app_version, "test_version")
         self.assertEqual(
             fake_session.additional_user_agent,
-            [('openstacksdk', openstack_version.__version__)],
+            [('openstacksdk', OPENSTACKSDK_VERSION)],
         )
 
     @mock.patch.object(ksa_session, 'Session')
@@ -382,7 +384,7 @@ class TestCloudRegion(base.TestCase):
         )
         self.assertEqual(
             fake_session.additional_user_agent,
-            [('openstacksdk', openstack_version.__version__)],
+            [('openstacksdk', OPENSTACKSDK_VERSION)],
         )
 
     @mock.patch.object(ksa_session, 'Session')
@@ -407,7 +409,7 @@ class TestCloudRegion(base.TestCase):
         )
         self.assertEqual(
             fake_session.additional_user_agent,
-            [('openstacksdk', openstack_version.__version__)],
+            [('openstacksdk', OPENSTACKSDK_VERSION)],
         )
 
     @mock.patch.object(ksa_session, 'Session')
