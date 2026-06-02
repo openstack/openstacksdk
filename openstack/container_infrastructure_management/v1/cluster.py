@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import cast
+
+from keystoneauth1 import adapter
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -125,7 +129,13 @@ class Cluster(resource.Resource):
     #: The UUID of the cluster.
     uuid = resource.Body('uuid', alternate_id=True)
 
-    def resize(self, session, *, node_count, nodes_to_remove=None):
+    def resize(
+        self,
+        session: adapter.Adapter,
+        *,
+        node_count: int,
+        nodes_to_remove: list[str] | None = None,
+    ) -> str:
         """Resize the cluster.
 
         :param node_count: The number of servers that will serve as node in the
@@ -144,9 +154,15 @@ class Cluster(resource.Resource):
         }
         response = session.post(url, json=body, headers=headers)
         exceptions.raise_from_response(response)
-        return response['uuid']
+        return cast(str, response['uuid'])  # type: ignore[index]
 
-    def upgrade(self, session, *, cluster_template, max_batch_size=None):
+    def upgrade(
+        self,
+        session: adapter.Adapter,
+        *,
+        cluster_template: str,
+        max_batch_size: int | None = None,
+    ) -> str:
         """Upgrade the cluster.
 
         :param cluster_template: The UUID of the cluster template.
@@ -164,4 +180,4 @@ class Cluster(resource.Resource):
         }
         response = session.post(url, json=body, headers=headers)
         exceptions.raise_from_response(response)
-        return response['uuid']
+        return cast(str, response['uuid'])  # type: ignore[index]
