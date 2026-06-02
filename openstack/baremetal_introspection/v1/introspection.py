@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Self, cast
+
+from keystoneauth1 import adapter
+
 from openstack import _log
 from openstack.baremetal.v1 import _common
 from openstack import exceptions
@@ -51,11 +55,10 @@ class Introspection(resource.Resource):
     #: The current introspection state.
     state = resource.Body('state')
 
-    def abort(self, session):
+    def abort(self, session: adapter.Adapter) -> None:
         """Abort introspection.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
         """
         if self.is_finished:
             return
@@ -74,19 +77,20 @@ class Introspection(resource.Resource):
         msg = f"Failed to abort introspection for node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
-    def get_data(self, session, processed=True):
+    def get_data(
+        self,
+        session: adapter.Adapter,
+        processed: bool = True,
+    ) -> dict[str, object]:
         """Get introspection data.
 
         Note that the introspection data format is not stable and can vary
         from environment to environment.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param processed: Whether to fetch the final processed data (the
             default) or the raw unprocessed data as received from the ramdisk.
-        :type processed: bool
         :returns: introspection data from the most recent successful run.
-        :rtype: dict
         """
         session = self._get_session(session)
 
@@ -100,13 +104,17 @@ class Introspection(resource.Resource):
         )
         msg = f"Failed to fetch introspection data for node {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
-        return response.json()
+        return cast(dict[str, object], response.json())
 
-    def wait(self, session, timeout=None, ignore_error=False):
+    def wait(
+        self,
+        session: adapter.Adapter,
+        timeout: int | float | None = None,
+        ignore_error: bool = False,
+    ) -> Self:
         """Wait for the node to reach the expected state.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param timeout: How much (in seconds) to wait for the introspection.
             The value of ``None`` (the default) means no client-side timeout.
         :param ignore_error: If ``True``, this call will raise an exception
@@ -133,10 +141,11 @@ class Introspection(resource.Resource):
                 {'node': self.id, 'state': self.state},
             )
 
-    def _check_state(self, ignore_error):
+        assert False, 'unreachable'
+
+    def _check_state(self, ignore_error: bool) -> bool:
         if self.state == 'error' and not ignore_error:
             raise exceptions.ResourceFailure(
                 f"Introspection of node {self.id} failed: {self.error}"
             )
-        else:
-            return self.is_finished
+        return cast(bool, self.is_finished)
