@@ -1279,7 +1279,7 @@ class TestCompute(TestComputeProxy):
             self.proxy.rescue_server,
             method_args=["value"],
             expected_args=[self.proxy],
-            expected_kwargs={"admin_pass": None, "image_ref": None},
+            expected_kwargs={"admin_pass": None, "image": None},
         )
 
     def test_server_rescue_with_options(self):
@@ -1288,7 +1288,7 @@ class TestCompute(TestComputeProxy):
             self.proxy.rescue_server,
             method_args=["value", 'PASS', 'IMG'],
             expected_args=[self.proxy],
-            expected_kwargs={"admin_pass": 'PASS', "image_ref": 'IMG'},
+            expected_kwargs={"admin_pass": 'PASS', "image": 'IMG'},
         )
 
     def test_server_unrescue(self):

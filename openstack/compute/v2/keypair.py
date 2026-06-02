@@ -10,7 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from collections.abc import MutableMapping
+from typing import TYPE_CHECKING, Any, Self
+
 from openstack import resource
+
+if TYPE_CHECKING:
+    from openstack import connection as _connection
 
 
 class Keypair(resource.Resource):
@@ -55,7 +61,11 @@ class Keypair(resource.Resource):
     #: The user_id for a keypair.
     user_id = resource.Body('user_id')
 
-    def _consume_attrs(self, mapping, attrs):
+    def _consume_attrs(
+        self,
+        mapping: MutableMapping[str, Any],
+        attrs: MutableMapping[str, Any],
+    ) -> dict[str, Any]:
         # TODO(mordred) This should not be required. However, without doing
         # it **SOMETIMES** keypair picks up id and not name. This is a hammer.
         if 'id' in attrs:
@@ -63,7 +73,11 @@ class Keypair(resource.Resource):
         return super()._consume_attrs(mapping, attrs)
 
     @classmethod
-    def existing(cls, connection=None, **kwargs):
+    def existing(
+        cls,
+        connection: '_connection.Connection | None' = None,
+        **kwargs: Any,
+    ) -> Self:
         """Create an instance of an existing remote resource.
 
         When creating the instance set the ``_synchronized`` parameter

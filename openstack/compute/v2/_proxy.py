@@ -10,9 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from collections.abc import Callable, Generator, Iterable
+from collections.abc import Callable, Generator, Iterable, Sequence
 import datetime
-from typing import Any, ClassVar, Literal, cast, overload
+import queue
+from typing import Any, ClassVar, Literal, TypeVar, cast, overload
 import warnings
 
 from openstack._utils import renamed_param
@@ -45,12 +46,15 @@ from openstack import exceptions
 from openstack.identity.v3 import project as _project
 from openstack.identity.v3 import user as _user
 from openstack.image.v2 import image as _image_v2
+from openstack.network.v2 import network as _network
 from openstack.network.v2 import security_group as _sg
 from openstack import proxy
 from openstack import resource
 from openstack import types
 from openstack import utils
 from openstack import warnings as os_warnings
+
+_RT = TypeVar('_RT', bound=resource.Resource)
 
 
 class Proxy(proxy.Proxy):
@@ -284,29 +288,33 @@ class Proxy(proxy.Proxy):
                 flv = flv.fetch_extra_specs(self)
             yield flv
 
-    def flavor_add_tenant_access(self, flavor, tenant):
+    def flavor_add_tenant_access(
+        self, flavor: str | _flavor.Flavor, tenant: str
+    ) -> None:
         """Adds tenant/project access to flavor.
 
         :param flavor: Either the ID of a flavor or a
             :class:`~openstack.compute.v2.flavor.Flavor` instance.
         :param tenant: The UUID of the tenant.
 
-        :returns: One :class:`~openstack.compute.v2.flavor.Flavor`
+        :returns: None
         """
         flavor = self._get_resource(_flavor.Flavor, flavor)
-        return flavor.add_tenant_access(self, tenant)
+        flavor.add_tenant_access(self, tenant)
 
-    def flavor_remove_tenant_access(self, flavor, tenant):
+    def flavor_remove_tenant_access(
+        self, flavor: str | _flavor.Flavor, tenant: str
+    ) -> None:
         """Removes tenant/project access to flavor.
 
         :param flavor: Either the ID of a flavor or a
             :class:`~openstack.compute.v2.flavor.Flavor` instance.
         :param tenant: The UUID of the tenant.
 
-        :returns: One :class:`~openstack.compute.v2.flavor.Flavor`
+        :returns: None
         """
         flavor = self._get_resource(_flavor.Flavor, flavor)
-        return flavor.remove_tenant_access(self, tenant)
+        flavor.remove_tenant_access(self, tenant)
 
     def get_flavor_access(
         self, flavor: str | _flavor.Flavor
@@ -528,7 +536,9 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def add_host_to_aggregate(self, aggregate, host):
+    def add_host_to_aggregate(
+        self, aggregate: str | _aggregate.Aggregate, host: str
+    ) -> _aggregate.Aggregate:
         """Adds a host to an aggregate
 
         :param aggregate: Either the ID of a aggregate or a
@@ -541,7 +551,9 @@ class Proxy(proxy.Proxy):
         aggregate = self._get_resource(_aggregate.Aggregate, aggregate)
         return aggregate.add_host(self, host)
 
-    def remove_host_from_aggregate(self, aggregate, host):
+    def remove_host_from_aggregate(
+        self, aggregate: str | _aggregate.Aggregate, host: str
+    ) -> _aggregate.Aggregate:
         """Removes a host from an aggregate
 
         :param aggregate: Either the ID of a aggregate or a
@@ -555,7 +567,12 @@ class Proxy(proxy.Proxy):
         return aggregate.remove_host(self, host)
 
     # TODO(stephenfin): Drop metadata and rename kwargs to metadata in 5.0
-    def set_aggregate_metadata(self, aggregate, metadata=None, **kwargs):
+    def set_aggregate_metadata(
+        self,
+        aggregate: str | _aggregate.Aggregate,
+        metadata: dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> _aggregate.Aggregate:
         """Creates or replaces metadata for an aggregate
 
         :param aggregate: Either the ID of a aggregate or a
@@ -581,7 +598,11 @@ class Proxy(proxy.Proxy):
         aggregate = self._get_resource(_aggregate.Aggregate, aggregate)
         return aggregate.set_metadata(self, metadata=metadata)
 
-    def aggregate_precache_images(self, aggregate, images):
+    def aggregate_precache_images(
+        self,
+        aggregate: str | _aggregate.Aggregate,
+        images: str | list[str],
+    ) -> None:
         """Requests image precaching on an aggregate
 
         :param aggregate: Either the ID of a aggregate or a
@@ -597,7 +618,7 @@ class Proxy(proxy.Proxy):
         image_data = []
         for img in images:
             image_data.append({'id': img})
-        return aggregate.precache_images(self, image_data)
+        aggregate.precache_images(self, image_data)
 
     # ========== Images ==========
 
@@ -711,7 +732,7 @@ class Proxy(proxy.Proxy):
         base_path = '/images/detail' if details else None
         return self._list(_image.Image, base_path=base_path, **query)
 
-    def _get_base_resource(self, res, base):
+    def _get_base_resource(self, res: str | _RT, base: type[_RT]) -> _RT:
         # Metadata calls for Image and Server can work for both those
         # resources but also ImageDetail and ServerDetail. If we get
         # either class, use it, otherwise create an instance of the base.
@@ -746,7 +767,9 @@ class Proxy(proxy.Proxy):
         )
         return self.fetch_image_metadata(image)
 
-    def set_image_metadata(self, image, **metadata):
+    def set_image_metadata(
+        self, image: str | _image.Image, **metadata: Any
+    ) -> _image.Image:
         """Update metadata for an image
 
         :param image: Either the ID of an image or a
@@ -1074,7 +1097,9 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_server.Server, server, **attrs)
 
-    def change_server_password(self, server, new_password):
+    def change_server_password(
+        self, server: str | _server.Server, new_password: str
+    ) -> None:
         """Change the administrator password
 
         :param server: Either the ID of a server or a
@@ -1097,7 +1122,7 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         return server.get_password(self)
 
-    def clear_server_password(self, server):
+    def clear_server_password(self, server: str | _server.Server) -> None:
         """Clear the administrator password
 
         :param server: Either the ID of a server or a
@@ -1108,7 +1133,9 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.clear_password(self)
 
-    def reset_server_state(self, server, state):
+    def reset_server_state(
+        self, server: str | _server.Server, state: str
+    ) -> None:
         """Reset the state of server
 
         :param server: The server can be either the ID of a server or a
@@ -1121,7 +1148,9 @@ class Proxy(proxy.Proxy):
         res = self._get_base_resource(server, _server.Server)
         res.reset_state(self, state)
 
-    def reboot_server(self, server, reboot_type):
+    def reboot_server(
+        self, server: str | _server.Server, reboot_type: str
+    ) -> None:
         """Reboot a server
 
         :param server: Either the ID of a server or a
@@ -1134,7 +1163,12 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.reboot(self, reboot_type)
 
-    def rebuild_server(self, server, image, **attrs):
+    def rebuild_server(
+        self,
+        server: str | _server.Server,
+        image: str | _image_v2.Image,
+        **attrs: Any,
+    ) -> _server.Server:
         """Rebuild a server
 
         :param server: Either the ID of a server or a
@@ -1162,7 +1196,9 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         return server.rebuild(self, image=image, **attrs)
 
-    def resize_server(self, server, flavor):
+    def resize_server(
+        self, server: str | _server.Server, flavor: str | _flavor.Flavor
+    ) -> None:
         """Resize a server
 
         :param server: Either the ID of a server or a
@@ -1176,7 +1212,7 @@ class Proxy(proxy.Proxy):
         flavor_id = resource.Resource._get_id(flavor)
         server.resize(self, flavor_id)
 
-    def confirm_server_resize(self, server):
+    def confirm_server_resize(self, server: str | _server.Server) -> None:
         """Confirm a server resize
 
         :param server: Either the ID of a server or a
@@ -1187,7 +1223,7 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.confirm_resize(self)
 
-    def revert_server_resize(self, server):
+    def revert_server_resize(self, server: str | _server.Server) -> None:
         """Revert a server resize
 
         :param server: Either the ID of a server or a
@@ -1218,13 +1254,27 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         image_id = server.create_image(self, name, metadata)
 
-        image = self._connection.get_image(image_id)
-
+        # we need to type the cloud layer
+        image = cast(
+            _image_v2.Image | None,
+            self._connection.get_image(image_id),  # type: ignore[no-untyped-call]
+        )
         if not wait:
             return image
-        return self._connection.wait_for_image(image, timeout=timeout)
 
-    def backup_server(self, server, name, backup_type, rotation):
+        # we need to type the cloud layer
+        return cast(
+            _image_v2.Image | None,
+            self._connection.wait_for_image(image, timeout=timeout),  # type: ignore[no-untyped-call]
+        )
+
+    def backup_server(
+        self,
+        server: str | _server.Server,
+        name: str,
+        backup_type: str,
+        rotation: int,
+    ) -> None:
         """Backup a server
 
         :param server: Either the ID of a server or a
@@ -1240,7 +1290,7 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.backup(self, name, backup_type, rotation)
 
-    def pause_server(self, server):
+    def pause_server(self, server: str | _server.Server) -> None:
         """Pauses a server and changes its status to ``PAUSED``.
 
         :param server: Either the ID of a server or a
@@ -1250,7 +1300,7 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.pause(self)
 
-    def unpause_server(self, server):
+    def unpause_server(self, server: str | _server.Server) -> None:
         """Unpauses a paused server and changes its status to ``ACTIVE``.
 
         :param server: Either the ID of a server or a
@@ -1260,7 +1310,7 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.unpause(self)
 
-    def suspend_server(self, server):
+    def suspend_server(self, server: str | _server.Server) -> None:
         """Suspends a server and changes its status to ``SUSPENDED``.
 
         :param server: Either the ID of a server or a
@@ -1270,7 +1320,7 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.suspend(self)
 
-    def resume_server(self, server):
+    def resume_server(self, server: str | _server.Server) -> None:
         """Resumes a suspended server and changes its status to ``ACTIVE``.
 
         :param server: Either the ID of a server or a
@@ -1280,7 +1330,11 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.resume(self)
 
-    def lock_server(self, server, locked_reason=None):
+    def lock_server(
+        self,
+        server: str | _server.Server,
+        locked_reason: str | None = None,
+    ) -> None:
         """Locks a server.
 
         :param server: Either the ID of a server or a
@@ -1292,7 +1346,7 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.lock(self, locked_reason=locked_reason)
 
-    def unlock_server(self, server):
+    def unlock_server(self, server: str | _server.Server) -> None:
         """Unlocks a locked server.
 
         :param server: Either the ID of a server or a
@@ -1302,7 +1356,13 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.unlock(self)
 
-    def rescue_server(self, server, admin_pass=None, image_ref=None):
+    @renamed_param('image_ref', 'image')
+    def rescue_server(
+        self,
+        server: str | _server.Server,
+        admin_pass: str | None = None,
+        image: str | _image_v2.Image | None = None,
+    ) -> None:
         """Puts a server in rescue mode and changes it status to ``RESCUE``.
 
         :param server: Either the ID of a server or a
@@ -1310,16 +1370,16 @@ class Proxy(proxy.Proxy):
         :param admin_pass: The password for the rescued server. If you omit
             this parameter, the operation generates a new
             password.
-        :param image_ref: The image reference to use to rescue your server.
+        :param image: The image reference to use to rescue your server.
             This can be the image ID or its full URL. If you
             omit this parameter, the base image reference will
             be used.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.rescue(self, admin_pass=admin_pass, image_ref=image_ref)
+        server.rescue(self, admin_pass=admin_pass, image=image)
 
-    def unrescue_server(self, server):
+    def unrescue_server(self, server: str | _server.Server) -> None:
         """Unrescues a server and changes its status to ``ACTIVE``.
 
         :param server: Either the ID of a server or a
@@ -1331,13 +1391,13 @@ class Proxy(proxy.Proxy):
 
     def evacuate_server(
         self,
-        server,
-        host=None,
-        admin_pass=None,
-        force=None,
+        server: str | _server.Server,
+        host: str | None = None,
+        admin_pass: str | None = None,
+        force: bool | None = None,
         *,
-        on_shared_storage=None,
-    ):
+        on_shared_storage: bool | None = None,
+    ) -> None:
         """Evacuates a server from a failed host to a new host.
 
         :param server: Either the ID of a server or a
@@ -1362,7 +1422,7 @@ class Proxy(proxy.Proxy):
             on_shared_storage=on_shared_storage,
         )
 
-    def start_server(self, server):
+    def start_server(self, server: str | _server.Server) -> None:
         """Starts a stopped server and changes its state to ``ACTIVE``.
 
         :param server: Either the ID of a server or a
@@ -1372,7 +1432,7 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.start(self)
 
-    def stop_server(self, server):
+    def stop_server(self, server: str | _server.Server) -> None:
         """Stops a running server and changes its state to ``SHUTOFF``.
 
         :param server: Either the ID of a server or a
@@ -1382,7 +1442,7 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.stop(self)
 
-    def restore_server(self, server):
+    def restore_server(self, server: str | _server.Server) -> None:
         """Restore a soft-deleted server.
 
         :param server: Either the ID of a server or a
@@ -1392,7 +1452,7 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.restore(self)
 
-    def shelve_server(self, server):
+    def shelve_server(self, server: str | _server.Server) -> None:
         """Shelves a server.
 
         All associated data and resources are kept but anything still in
@@ -1407,7 +1467,7 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.shelve(self)
 
-    def shelve_offload_server(self, server):
+    def shelve_offload_server(self, server: str | _server.Server) -> None:
         """Shelve-offloads, or removes, a server
 
         Data and resource associations are deleted.
@@ -1427,8 +1487,12 @@ class Proxy(proxy.Proxy):
         server.shelve_offload(self)
 
     def unshelve_server(
-        self, server, *, host=None, availability_zone=types.UNSET
-    ):
+        self,
+        server: str | _server.Server,
+        *,
+        host: str | None = None,
+        availability_zone: str | None | types.Unset = types.UNSET,
+    ) -> None:
         """Unshelves or restores a shelved server.
 
         Policy defaults enable only users with administrative role or the
@@ -1444,7 +1508,7 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.unshelve(self, host=host, availability_zone=availability_zone)
 
-    def trigger_server_crash_dump(self, server):
+    def trigger_server_crash_dump(self, server: str | _server.Server) -> None:
         """Trigger a crash dump in a server.
 
         When a server starts behaving oddly at a fundamental level, it maybe be
@@ -1461,7 +1525,9 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.trigger_crash_dump(self)
 
-    def add_tag_to_server(self, server, tag):
+    def add_tag_to_server(
+        self, server: str | _server.Server, tag: str
+    ) -> None:
         """Add a tag to a server.
 
         :param server: Either the ID of a server or a
@@ -1472,7 +1538,9 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.add_tag(self, tag)
 
-    def remove_tag_from_server(self, server, tag):
+    def remove_tag_from_server(
+        self, server: str | _server.Server, tag: str
+    ) -> None:
         """Remove a tag from a server.
 
         :param server: Either the ID of a server or a
@@ -1483,7 +1551,7 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.remove_tag(self, tag)
 
-    def remove_tags_from_server(self, server):
+    def remove_tags_from_server(self, server: str | _server.Server) -> None:
         """Remove all tags from a server.
 
         :param server: Either the ID of a server or a
@@ -1496,7 +1564,9 @@ class Proxy(proxy.Proxy):
 
     # ========== Server security groups ==========
 
-    def fetch_server_security_groups(self, server):
+    def fetch_server_security_groups(
+        self, server: str | _server.Server
+    ) -> _server.Server:
         """Fetch security groups with details for a server.
 
         :param server: Either the ID of a server or a
@@ -1507,7 +1577,11 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         return server.fetch_security_groups(self)
 
-    def add_security_group_to_server(self, server, security_group):
+    def add_security_group_to_server(
+        self,
+        server: str | _server.Server,
+        security_group: str | _sg.SecurityGroup,
+    ) -> None:
         """Add a security group to a server
 
         :param server: Either the ID of a server or a
@@ -1519,13 +1593,14 @@ class Proxy(proxy.Proxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        security_group = self._get_resource(_sg.SecurityGroup, security_group)
-        server.add_security_group(
-            self,
-            security_group.name or security_group.id,
-        )
+        sec_group = self._get_resource(_sg.SecurityGroup, security_group)
+        server.add_security_group(self, sec_group.name or sec_group.id)
 
-    def remove_security_group_from_server(self, server, security_group):
+    def remove_security_group_from_server(
+        self,
+        server: str | _server.Server,
+        security_group: str | _sg.SecurityGroup,
+    ) -> None:
         """Remove a security group from a server
 
         :param server: Either the ID of a server or a
@@ -1537,16 +1612,15 @@ class Proxy(proxy.Proxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        security_group = self._get_resource(_sg.SecurityGroup, security_group)
-        server.remove_security_group(
-            self,
-            security_group.name or security_group.id,
-        )
+        sec_group = self._get_resource(_sg.SecurityGroup, security_group)
+        server.remove_security_group(self, sec_group.name or sec_group.id)
 
     # ========== Server IPs ==========
 
     @renamed_param('network_id', 'network')
-    def add_fixed_ip_to_server(self, server, network):
+    def add_fixed_ip_to_server(
+        self, server: str | _server.Server, network: str | _network.Network
+    ) -> None:
         """Adds a fixed IP address to a server instance.
 
         :param server: Either the ID of a server or a
@@ -1559,7 +1633,9 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.add_fixed_ip(self, resource.Resource._get_id(network))
 
-    def remove_fixed_ip_from_server(self, server, address):
+    def remove_fixed_ip_from_server(
+        self, server: str | _server.Server, address: str
+    ) -> None:
         """Removes a fixed IP address from a server instance.
 
         :param server: Either the ID of a server or a
@@ -1571,7 +1647,12 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.remove_fixed_ip(self, address)
 
-    def add_floating_ip_to_server(self, server, address, fixed_address=None):
+    def add_floating_ip_to_server(
+        self,
+        server: str | _server.Server,
+        address: str,
+        fixed_address: str | None = None,
+    ) -> None:
         """Adds a floating IP address to a server instance.
 
         :param server: Either the ID of a server or a
@@ -1585,7 +1666,9 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.add_floating_ip(self, address, fixed_address=fixed_address)
 
-    def remove_floating_ip_from_server(self, server, address):
+    def remove_floating_ip_from_server(
+        self, server: str | _server.Server, address: str
+    ) -> None:
         """Removes a floating IP address from a server instance.
 
         :param server: Either the ID of a server or a
@@ -1790,7 +1873,9 @@ class Proxy(proxy.Proxy):
         )
         return self.fetch_server_metadata(server)
 
-    def set_server_metadata(self, server, **metadata):
+    def set_server_metadata(
+        self, server: str | _server.Server, **metadata: Any
+    ) -> _server.Server:
         """Update metadata for a server
 
         :param server: Either the ID of a server or a
@@ -2102,11 +2187,11 @@ class Proxy(proxy.Proxy):
 
     def disable_service(
         self,
-        service,
-        host=None,
-        binary=None,
-        disabled_reason=None,
-    ):
+        service: str | _service.Service,
+        host: str | None = None,
+        binary: str | None = None,
+        disabled_reason: str | None = None,
+    ) -> _service.Service | None:
         """Disable a service
 
         :param service: Either the ID of a service or a
@@ -2126,7 +2211,12 @@ class Proxy(proxy.Proxy):
         service = self._get_resource(_service.Service, service)
         return service.disable(self, host, binary, disabled_reason)
 
-    def enable_service(self, service, host=None, binary=None):
+    def enable_service(
+        self,
+        service: str | _service.Service,
+        host: str | None = None,
+        binary: str | None = None,
+    ) -> _service.Service | None:
         """Enable a service
 
         :param service: Either the ID of a service or a
@@ -2345,7 +2435,11 @@ class Proxy(proxy.Proxy):
         )
 
     # TODO(stephenfin): Remove this hack in openstacksdk 5.0
-    def _verify_server_volume_args(self, server, volume):
+    def _verify_server_volume_args(
+        self,
+        server: str | _server.Server,
+        volume: str | _volume.Volume,
+    ) -> tuple[str | _server.Server, str | _volume.Volume]:
         deprecation_msg = (
             'The server and volume arguments to this function appear to '
             'be backwards and have been reversed. This is a breaking '
@@ -2473,7 +2567,9 @@ class Proxy(proxy.Proxy):
 
     # ========== Server Migrations ==========
 
-    def migrate_server(self, server, *, host=None):
+    def migrate_server(
+        self, server: str | _server.Server, *, host: str | None = None
+    ) -> None:
         """Migrate a server from one host to another
 
         :param server: Either the ID of a server or a
@@ -2486,12 +2582,12 @@ class Proxy(proxy.Proxy):
 
     def live_migrate_server(
         self,
-        server,
-        host=None,
-        force=False,
-        block_migration=None,
-        disk_over_commit=None,
-    ):
+        server: str | _server.Server,
+        host: str | None = None,
+        force: bool = False,
+        block_migration: bool | str | None = None,
+        disk_over_commit: bool | None = None,
+    ) -> None:
         """Live migrate a server from one host to target host
 
         :param server: Either the ID of a server or a
@@ -2524,10 +2620,10 @@ class Proxy(proxy.Proxy):
 
     def abort_server_migration(
         self,
-        server_migration,
-        server,
-        ignore_missing=True,
-    ):
+        server_migration: str | _server_migration.ServerMigration,
+        server: str | _server.Server,
+        ignore_missing: bool = True,
+    ) -> None:
         """Abort an in-progress server migration
 
         :param server_migration: The value can be either the ID of a server
@@ -2560,7 +2656,11 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def force_complete_server_migration(self, server_migration, server=None):
+    def force_complete_server_migration(
+        self,
+        server_migration: str | _server_migration.ServerMigration,
+        server: str | _server.Server | None = None,
+    ) -> None:
         """Force complete an in-progress server migration
 
         :param server_migration: The value can be either the ID of a server
@@ -2768,7 +2868,9 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         return server.get_console_url(self, console_type)
 
-    def validate_console_auth_token(self, console_token):
+    def validate_console_auth_token(
+        self, console_token: str
+    ) -> _console_auth_token.ConsoleAuthToken:
         """Lookup console connection information for a console auth token.
 
         :param console_token: The console auth token as returned in the URL
@@ -2799,7 +2901,7 @@ class Proxy(proxy.Proxy):
         server: str | _server.Server,
         console_type: str,
         console_protocol: str | None = None,
-    ) -> dict[str, Any]:
+    ) -> dict[str, Any] | None:
         """Create a remote console on the server.
 
         When microversion supported is higher then 2.6 remote console is
@@ -2931,7 +3033,11 @@ class Proxy(proxy.Proxy):
             self, base_path='/os-quota-sets/%(project_id)s/defaults'
         )
 
-    def revert_quota_set(self, project, **query):
+    def revert_quota_set(
+        self,
+        project: str | _project.Project,
+        **query: Any,
+    ) -> None:
         """Reset Quota for the project/user.
 
         :param project: ID or instance of
@@ -2948,7 +3054,7 @@ class Proxy(proxy.Proxy):
 
         if not query:
             query = {}
-        return res.delete(self, **query)
+        res.delete(self, **query)
 
     def update_quota_set(
         self,
@@ -3178,7 +3284,7 @@ class Proxy(proxy.Proxy):
         """
         return resource.wait_for_delete(self, res, interval, wait, callback)
 
-    def _get_cleanup_dependencies(self):
+    def _get_cleanup_dependencies(self) -> dict[str, Any]:
         return {
             'compute': {
                 'before': ['block_storage', 'network', 'identity', 'image']
@@ -3187,15 +3293,26 @@ class Proxy(proxy.Proxy):
 
     def _service_cleanup(
         self,
-        dry_run=True,
-        client_status_queue=None,
-        identified_resources=None,
-        filters=None,
-        resource_evaluation_fn=None,
-        skip_resources=None,
-    ):
+        dry_run: bool = True,
+        client_status_queue: queue.Queue[resource.Resource] | None = None,
+        identified_resources: dict[str, resource.Resource] | None = None,
+        filters: dict[str, Any] | None = None,
+        resource_evaluation_fn: Callable[
+            [
+                resource.Resource,
+                dict[str, Any] | None,
+                dict[str, resource.Resource] | None,
+            ],
+            bool,
+        ]
+        | None = None,
+        skip_resources: Sequence[str] | None = None,
+    ) -> None:
         if self.should_skip_resource_cleanup("server", skip_resources):
             return
+
+        if identified_resources is None:
+            identified_resources = {}
 
         servers = []
         for obj in self.servers():

@@ -10,14 +10,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, cast
+from typing import Any, Self, cast
 
+from collections.abc import Mapping
+from keystoneauth1 import adapter
+import requests
+
+from openstack._utils import renamed_param
 from openstack.common import metadata
 from openstack.common import tag
-from openstack.compute.v2 import flavor
-from openstack.compute.v2 import volume_attachment
+from openstack.compute.v2 import flavor as _flavor
+from openstack.compute.v2 import volume_attachment as _volume_attachment
 from openstack import exceptions
-from openstack.image.v2 import image
+from openstack.image.v2 import image as _image
 from openstack import resource
 from openstack import types
 from openstack import utils
@@ -112,7 +117,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         'os-extended-volumes:volumes_attached',
         aka='volumes',
         type=list,
-        list_type=volume_attachment.VolumeAttachment,
+        list_type=_volume_attachment.VolumeAttachment,
         default=[],
     )
     #: The name of the availability zone this server is a part of.
@@ -136,7 +141,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     #: this server.
     flavor_id = resource.Body('flavorRef')
     #: The flavor property as returned from server.
-    flavor = resource.Body('flavor', type=flavor.Flavor)
+    flavor = resource.Body('flavor', type=_flavor.Flavor)
     #: Indicates whether a configuration drive enables metadata injection.
     #: Not all cloud providers enable this feature.
     has_config_drive = resource.Body('config_drive')
@@ -159,7 +164,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     #: this server.
     image_id = resource.Body('imageRef')
     #: The image property as returned from server.
-    image = resource.Body('image', type=image.Image)
+    image = resource.Body('image', type=_image.Image)
     #: The instance name. The Compute API generates the instance name from the
     #: instance name template. Appears in the response for administrative users
     #: only.
@@ -267,13 +272,13 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
 
     def _prepare_request(
         self,
-        requires_id=True,
-        prepend_key=True,
-        patch=False,
-        base_path=None,
-        params=None,
-        **kwargs,
-    ):
+        requires_id: bool | None = True,
+        prepend_key: bool = True,
+        patch: bool = False,
+        base_path: str | None = None,
+        params: Any = None,
+        **kwargs: Any,
+    ) -> resource._Request:
         request = super()._prepare_request(
             requires_id=requires_id,
             prepend_key=prepend_key,
@@ -317,7 +322,12 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
 
         return request
 
-    def _action(self, session, body, microversion=None):
+    def _action(
+        self,
+        session: adapter.Adapter,
+        body: Mapping[str, object],
+        microversion: str | None = None,
+    ) -> requests.Response:
         """Preform server actions given the message body."""
         # NOTE: This is using Server.base_path instead of self.base_path
         # as both Server and ServerDetail instances can be acted on, but
@@ -339,7 +349,13 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         exceptions.raise_from_response(response)
         return response
 
-    def change_password(self, session, password, *, microversion=None):
+    def change_password(
+        self,
+        session: adapter.Adapter,
+        password: str,
+        *,
+        microversion: str | None = None,
+    ) -> None:
         """Change the administrator password to the given password.
 
         :param session: The session to use for making this request.
@@ -349,7 +365,9 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {'changePassword': {'adminPass': password}}
         self._action(session, body, microversion=microversion)
 
-    def get_password(self, session, *, microversion=None):
+    def get_password(
+        self, session: adapter.Adapter, *, microversion: str | None = None
+    ) -> str | None:
         """Get the encrypted administrator password.
 
         :param session: The session to use for making this request.
@@ -363,9 +381,11 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         exceptions.raise_from_response(response)
 
         data = response.json()
-        return data.get('password')
+        return cast(str | None, data.get('password'))
 
-    def clear_password(self, session, *, microversion=None):
+    def clear_password(
+        self, session: adapter.Adapter, *, microversion: str | None = None
+    ) -> None:
         """Clear the administrator password.
 
         This removes the password from the database. It does not actually
@@ -381,7 +401,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         response = session.delete(url, microversion=microversion)
         exceptions.raise_from_response(response)
 
-    def reboot(self, session, reboot_type):
+    def reboot(self, session: adapter.Adapter, reboot_type: str) -> None:
         """Reboot server where reboot_type might be 'SOFT' or 'HARD'.
 
         :param session: The session to use for making this request.
@@ -391,7 +411,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {'reboot': {'type': reboot_type}}
         self._action(session, body)
 
-    def force_delete(self, session):
+    def force_delete(self, session: adapter.Adapter) -> None:
         """Force delete the server.
 
         :param session: The session to use for making this request.
@@ -402,25 +422,27 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
 
     def rebuild(
         self,
-        session,
-        image,
-        name=types.UNSET,
-        admin_password=types.UNSET,
-        preserve_ephemeral=types.UNSET,
-        access_ipv4=types.UNSET,
-        access_ipv6=types.UNSET,
-        metadata=types.UNSET,
-        user_data=types.UNSET,
-        key_name=types.UNSET,
-        description=types.UNSET,
-        trusted_image_certificates=types.UNSET,
-        hostname=types.UNSET,
-    ):
+        session: adapter.Adapter,
+        image: str | _image.Image,
+        name: str | None | types.Unset = types.UNSET,
+        admin_password: str | None | types.Unset = types.UNSET,
+        preserve_ephemeral: bool | types.Unset = types.UNSET,
+        access_ipv4: str | None | types.Unset = types.UNSET,
+        access_ipv6: str | None | types.Unset = types.UNSET,
+        metadata: dict[str, object] | None | types.Unset = types.UNSET,
+        user_data: dict[str, object] | None | types.Unset = types.UNSET,
+        key_name: str | None | types.Unset = types.UNSET,
+        description: str | None | types.Unset = types.UNSET,
+        trusted_image_certificates: list[str]
+        | None
+        | types.Unset = types.UNSET,
+        hostname: str | None | types.Unset = types.UNSET,
+    ) -> Self:
         """Rebuild the server with the given arguments.
 
         :param session: The session to use for making this request.
         :param image: The image to rebuild to. Either an ID or a
-            :class:`~openstack.image.v1.image.Image` instance.
+            :class:`~openstack.image.v2.image.Image` instance.
         :param name: A name to set on the rebuilt server. (Optional)
         :param admin_password: An admin password to set on the rebuilt server.
             (Optional)
@@ -442,7 +464,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             (Requires API microversion 2.90)
         :returns: The updated server.
         """
-        action = {'imageRef': resource.Resource._get_id(image)}
+        action: dict[str, Any] = {'imageRef': resource.Resource._get_id(image)}
         if preserve_ephemeral is not types.UNSET:
             action['preserve_ephemeral'] = preserve_ephemeral
         if name is not types.UNSET:
@@ -471,7 +493,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         self._translate_response(response)
         return self
 
-    def resize(self, session, flavor):
+    def resize(self, session: adapter.Adapter, flavor: Any) -> None:
         """Resize server to flavor reference.
 
         :param session: The session to use for making this request.
@@ -481,7 +503,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {'resize': {'flavorRef': flavor}}
         self._action(session, body)
 
-    def confirm_resize(self, session):
+    def confirm_resize(self, session: adapter.Adapter) -> None:
         """Confirm the resize of the server.
 
         :param session: The session to use for making this request.
@@ -490,7 +512,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {'confirmResize': None}
         self._action(session, body)
 
-    def revert_resize(self, session):
+    def revert_resize(self, session: adapter.Adapter) -> None:
         """Revert the resize of the server.
 
         :param session: The session to use for making this request.
@@ -499,7 +521,12 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {'revertResize': None}
         self._action(session, body)
 
-    def create_image(self, session, name, metadata=None):
+    def create_image(
+        self,
+        session: adapter.Adapter,
+        name: str,
+        metadata: dict[str, str] | None = None,
+    ) -> str:
         """Create image from server.
 
         :param session: The session to use for making this request.
@@ -507,7 +534,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         :param metadata: Metadata to set on the created image. (Optional)
         :returns: None
         """
-        action = {'name': name}
+        action: dict[str, object] = {'name': name}
         if metadata is not None:
             action['metadata'] = metadata
         body = {'createImage': action}
@@ -538,13 +565,15 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         except Exception:
             response_body = None
         if response_body and 'image_id' in response_body:
-            image_id = response_body['image_id']
+            image_id: str = response_body['image_id']
         else:
             image_id = response.headers['Location'].rsplit('/', 1)[1]
 
         return image_id
 
-    def add_security_group(self, session, security_group_name):
+    def add_security_group(
+        self, session: adapter.Adapter, security_group_name: str
+    ) -> None:
         """Add a security group to the server.
 
         :param session: The session to use for making this request.
@@ -554,7 +583,9 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"addSecurityGroup": {"name": security_group_name}}
         self._action(session, body)
 
-    def remove_security_group(self, session, security_group_name):
+    def remove_security_group(
+        self, session: adapter.Adapter, security_group_name: str
+    ) -> None:
         """Remove a security group from the server.
 
         :param session: The session to use for making this request.
@@ -565,7 +596,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"removeSecurityGroup": {"name": security_group_name}}
         self._action(session, body)
 
-    def reset_state(self, session, state):
+    def reset_state(self, session: adapter.Adapter, state: str) -> None:
         """Reset server state.
 
         This is admin-only by default.
@@ -577,7 +608,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"os-resetState": {"state": state}}
         self._action(session, body)
 
-    def add_fixed_ip(self, session, network_id):
+    def add_fixed_ip(self, session: adapter.Adapter, network_id: str) -> None:
         """Add a fixed IP to the server.
 
         This is effectively an alias for adding a network.
@@ -589,7 +620,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"addFixedIp": {"networkId": network_id}}
         self._action(session, body)
 
-    def remove_fixed_ip(self, session, address):
+    def remove_fixed_ip(self, session: adapter.Adapter, address: str) -> None:
         """Remove a fixed IP from the server.
 
         This is effectively an alias from removing a port from the server.
@@ -601,7 +632,12 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"removeFixedIp": {"address": address}}
         self._action(session, body)
 
-    def add_floating_ip(self, session, address, fixed_address=None):
+    def add_floating_ip(
+        self,
+        session: adapter.Adapter,
+        address: str,
+        fixed_address: str | None = None,
+    ) -> None:
         """Add a floating IP to the server.
 
         :param session: The session to use for making this request.
@@ -615,7 +651,9 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             body['addFloatingIp']['fixed_address'] = fixed_address
         self._action(session, body)
 
-    def remove_floating_ip(self, session, address):
+    def remove_floating_ip(
+        self, session: adapter.Adapter, address: str
+    ) -> None:
         """Remove a floating IP from the server.
 
         :param session: The session to use for making this request.
@@ -626,7 +664,13 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"removeFloatingIp": {"address": address}}
         self._action(session, body)
 
-    def backup(self, session, name, backup_type, rotation):
+    def backup(
+        self,
+        session: adapter.Adapter,
+        name: str,
+        backup_type: str,
+        rotation: int,
+    ) -> None:
         """Create a backup of the server.
 
         :param session: The session to use for making this request.
@@ -648,7 +692,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         }
         self._action(session, body)
 
-    def pause(self, session):
+    def pause(self, session: adapter.Adapter) -> None:
         """Pause the server.
 
         :param session: The session to use for making this request.
@@ -657,7 +701,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"pause": None}
         self._action(session, body)
 
-    def unpause(self, session):
+    def unpause(self, session: adapter.Adapter) -> None:
         """Unpause the server.
 
         :param session: The session to use for making this request.
@@ -666,7 +710,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"unpause": None}
         self._action(session, body)
 
-    def suspend(self, session):
+    def suspend(self, session: adapter.Adapter) -> None:
         """Suspend the server.
 
         :param session: The session to use for making this request.
@@ -675,7 +719,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"suspend": None}
         self._action(session, body)
 
-    def resume(self, session):
+    def resume(self, session: adapter.Adapter) -> None:
         """Resume the server.
 
         :param session: The session to use for making this request.
@@ -684,21 +728,23 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"resume": None}
         self._action(session, body)
 
-    def lock(self, session, locked_reason=None):
+    def lock(
+        self, session: adapter.Adapter, locked_reason: str | None = None
+    ) -> None:
         """Lock the server.
 
         :param session: The session to use for making this request.
         :param locked_reason: The reason for locking the server.
         :returns: None
         """
-        body: dict[str, Any] = {"lock": None}
+        body: dict[str, object] = {"lock": None}
         if locked_reason is not None:
             body["lock"] = {
                 "locked_reason": locked_reason,
             }
         self._action(session, body)
 
-    def unlock(self, session):
+    def unlock(self, session: adapter.Adapter) -> None:
         """Unlock the server.
 
         :param session: The session to use for making this request.
@@ -707,7 +753,13 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"unlock": None}
         self._action(session, body)
 
-    def rescue(self, session, admin_pass=None, image_ref=None):
+    @renamed_param('image_ref', 'image')
+    def rescue(
+        self,
+        session: adapter.Adapter,
+        admin_pass: str | None = None,
+        image: str | _image.Image | None = None,
+    ) -> None:
         """Rescue the server.
 
         This is admin-only by default.
@@ -715,18 +767,19 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         :param session: The session to use for making this request.
         :param admin_pass: A new admin password to set on the rescued server.
             (Optional)
-        :param image_ref: The image to use when rescuing the server. If not
+        :param image: The image to use when rescuing the server. If not
             provided, the server will use the existing image. (Optional)
         :returns: None
         """
         body: dict[str, Any] = {"rescue": {}}
         if admin_pass is not None:
             body["rescue"]["adminPass"] = admin_pass
-        if image_ref is not None:
-            body["rescue"]["rescue_image_ref"] = image_ref
+        if image is not None:
+            image_id = resource.Resource._get_id(image)
+            body["rescue"]["rescue_image_ref"] = image_id
         self._action(session, body)
 
-    def unrescue(self, session):
+    def unrescue(self, session: adapter.Adapter) -> None:
         """Unrescue the server.
 
         This is admin-only by default.
@@ -739,12 +792,12 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
 
     def evacuate(
         self,
-        session,
-        host=None,
-        admin_pass=None,
-        force=None,
-        on_shared_storage=None,
-    ):
+        session: adapter.Adapter,
+        host: str | None = None,
+        admin_pass: str | None = None,
+        force: bool | None = None,
+        on_shared_storage: bool | None = None,
+    ) -> None:
         """Evacuate the server.
 
         :param session: The session to use for making this request.
@@ -767,7 +820,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             body["evacuate"]["onSharedStorage"] = on_shared_storage
         self._action(session, body)
 
-    def start(self, session):
+    def start(self, session: adapter.Adapter) -> None:
         """Start the server.
 
         :param session: The session to use for making this request.
@@ -776,7 +829,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"os-start": None}
         self._action(session, body)
 
-    def stop(self, session):
+    def stop(self, session: adapter.Adapter) -> None:
         """Stop the server.
 
         :param session: The session to use for making this request.
@@ -785,7 +838,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"os-stop": None}
         self._action(session, body)
 
-    def restore(self, session):
+    def restore(self, session: adapter.Adapter) -> None:
         """Restore the server.
 
         This is only supported if the server is soft-deleted. This is
@@ -797,7 +850,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"restore": None}
         self._action(session, body)
 
-    def shelve(self, session):
+    def shelve(self, session: adapter.Adapter) -> None:
         """Shelve the server.
 
         :param session: The session to use for making this request.
@@ -806,7 +859,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"shelve": None}
         self._action(session, body)
 
-    def shelve_offload(self, session):
+    def shelve_offload(self, session: adapter.Adapter) -> None:
         """Shelve-offload the server.
 
         :param session: The session to use for making this request.
@@ -815,7 +868,12 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"shelveOffload": None}
         self._action(session, body)
 
-    def unshelve(self, session, availability_zone=types.UNSET, host=None):
+    def unshelve(
+        self,
+        session: adapter.Adapter,
+        availability_zone: str | None | types.Unset = types.UNSET,
+        host: str | None = None,
+    ) -> None:
         """Unshelve the server.
 
         :param session: The session to use for making this request.
@@ -829,7 +887,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             (free scheduling).
         :param host: If specified the host to unshelve the instance.
         """
-        data = {}
+        data: dict[str, object] = {}
         if host:
             data["host"] = host
         if availability_zone is None or isinstance(availability_zone, str):
@@ -837,7 +895,9 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {'unshelve': data or None}
         self._action(session, body)
 
-    def migrate(self, session, *, host=None):
+    def migrate(
+        self, session: adapter.Adapter, *, host: str | None = None
+    ) -> None:
         """Migrate the server.
 
         :param session: The session to use for making this request.
@@ -850,12 +910,12 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
                 "greater."
             )
 
-        body: dict[str, Any] = {"migrate": None}
+        body: dict[str, object] = {"migrate": None}
         if host:
             body["migrate"] = {"host": host}
         self._action(session, body)
 
-    def trigger_crash_dump(self, session):
+    def trigger_crash_dump(self, session: adapter.Adapter) -> None:
         """Trigger a crash dump for the server.
 
         :param session: The session to use for making this request.
@@ -864,7 +924,9 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"trigger_crash_dump": None}
         self._action(session, body)
 
-    def get_console_output(self, session, length=None):
+    def get_console_output(
+        self, session: adapter.Adapter, length: int | None = None
+    ) -> dict[str, object]:
         """Get console output for the server.
 
         :param session: The session to use for making this request.
@@ -876,9 +938,11 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         if length is not None:
             body["os-getConsoleOutput"]["length"] = length
         resp = self._action(session, body)
-        return resp.json()
+        return cast(dict[str, object], resp.json())
 
-    def get_console_url(self, session, console_type):
+    def get_console_url(
+        self, session: adapter.Adapter, console_type: str
+    ) -> dict[str, object] | None:
         """Get the console URL for the server.
 
         :param session: The session to use for making this request.
@@ -893,16 +957,16 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             raise ValueError(f"Unsupported console type {console_type}")
         body = {action: {'type': console_type}}
         resp = self._action(session, body)
-        return resp.json().get('console')
+        return cast(dict[str, object] | None, resp.json().get('console'))
 
     def live_migrate(
         self,
-        session,
-        host,
-        force,
-        block_migration,
-        disk_over_commit=False,
-    ):
+        session: adapter.Adapter,
+        host: str | None,
+        force: bool,
+        block_migration: bool | str | None,
+        disk_over_commit: bool | None = False,
+    ) -> None:
         """Live migrate the server.
 
         :param session: The session to use for making this request.
@@ -937,9 +1001,15 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
                 disk_over_commit=disk_over_commit,
             )
 
-    def _live_migrate_30(self, session, host, force, block_migration):
+    def _live_migrate_30(
+        self,
+        session: adapter.Adapter,
+        host: str | None,
+        force: bool,
+        block_migration: bool | str | None,
+    ) -> None:
         microversion = '2.30'
-        body = {'host': None}
+        body: dict[str, object] = {'host': None}
         if block_migration is None:
             block_migration = 'auto'
         body['block_migration'] = block_migration
@@ -953,9 +1023,15 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             microversion=microversion,
         )
 
-    def _live_migrate_25(self, session, host, force, block_migration):
+    def _live_migrate_25(
+        self,
+        session: adapter.Adapter,
+        host: str | None,
+        force: bool,
+        block_migration: bool | str | None,
+    ) -> None:
         microversion = '2.25'
-        body = {'host': None}
+        body: dict[str, object] = {'host': None}
         if block_migration is None:
             block_migration = 'auto'
         body['block_migration'] = block_migration
@@ -978,14 +1054,14 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
 
     def _live_migrate(
         self,
-        session,
-        host,
-        force,
-        block_migration,
-        disk_over_commit,
-    ):
+        session: adapter.Adapter,
+        host: str | None,
+        force: bool,
+        block_migration: bool | str | None,
+        disk_over_commit: bool | None,
+    ) -> None:
         microversion = None
-        body: dict[str, Any] = {
+        body: dict[str, object] = {
             'host': None,
         }
         if block_migration == 'auto':
@@ -1012,7 +1088,9 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             microversion=microversion,
         )
 
-    def fetch_topology(self, session):
+    def fetch_topology(
+        self, session: adapter.Adapter
+    ) -> dict[str, object] | None:
         """Fetch the topology information for the server.
 
         :param session: The session to use for making this request.
@@ -1027,11 +1105,11 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         exceptions.raise_from_response(response)
 
         try:
-            return response.json()
+            return cast(dict[str, object], response.json())
         except ValueError:
-            pass
+            return None
 
-    def fetch_security_groups(self, session):
+    def fetch_security_groups(self, session: adapter.Adapter) -> Self:
         """Fetch security groups of the server.
 
         :param session: The session to use for making this request.

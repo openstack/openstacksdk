@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
+from keystoneauth1 import adapter
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -49,7 +53,12 @@ class Aggregate(resource.Resource):
     # Image pre-caching introduced in 2.81
     _max_microversion = '2.81'
 
-    def _action(self, session, body, microversion=None):
+    def _action(
+        self,
+        session: adapter.Adapter,
+        body: dict[str, Any],
+        microversion: str | None = None,
+    ) -> 'Aggregate':
         """Preform aggregate actions given the message body."""
         url = utils.urljoin(self.base_path, self.id, 'action')
         response = session.post(url, json=body, microversion=microversion)
@@ -58,22 +67,26 @@ class Aggregate(resource.Resource):
         aggregate._translate_response(response)
         return aggregate
 
-    def add_host(self, session, host):
+    def add_host(self, session: adapter.Adapter, host: str) -> 'Aggregate':
         """Adds a host to an aggregate."""
         body = {'add_host': {'host': host}}
         return self._action(session, body)
 
-    def remove_host(self, session, host):
+    def remove_host(self, session: adapter.Adapter, host: str) -> 'Aggregate':
         """Removes a host from an aggregate."""
         body = {'remove_host': {'host': host}}
         return self._action(session, body)
 
-    def set_metadata(self, session, metadata):
+    def set_metadata(
+        self, session: adapter.Adapter, metadata: dict[str, Any]
+    ) -> 'Aggregate':
         """Creates or replaces metadata for an aggregate."""
         body = {'set_metadata': {'metadata': metadata}}
         return self._action(session, body)
 
-    def precache_images(self, session, images):
+    def precache_images(
+        self, session: adapter.Adapter, images: list[Any]
+    ) -> None:
         """Requests image pre-caching"""
         body = {'cache': images}
         url = utils.urljoin(self.base_path, self.id, 'images')

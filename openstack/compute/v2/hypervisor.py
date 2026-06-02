@@ -10,7 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Self
 import warnings
+
+from keystoneauth1 import adapter
 
 from openstack import exceptions
 from openstack import resource
@@ -81,7 +84,7 @@ class Hypervisor(resource.Resource):
     #: Count of all VCPUs
     vcpus = resource.Body('vcpus', deprecated=True)
 
-    def get_uptime(self, session):
+    def get_uptime(self, session: adapter.Adapter) -> Self:
         """Get uptime information for the hypervisor
 
         Updates uptime attribute of the hypervisor object
