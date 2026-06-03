@@ -185,12 +185,12 @@ class Proxy(proxy.Proxy):
 
     def wait_for_load_balancer(
         self,
-        name_or_id,
-        status='ACTIVE',
-        failures=['ERROR'],
-        interval=2,
-        wait=300,
-    ):
+        name_or_id: str,
+        status: str = 'ACTIVE',
+        failures: list[str] = ['ERROR'],
+        interval: int = 2,
+        wait: int = 300,
+    ) -> _lb.LoadBalancer | None:
         """Wait for load balancer status
 
         :param name_or_id: The name or ID of the load balancer.
@@ -223,7 +223,10 @@ class Proxy(proxy.Proxy):
             attribute='provisioning_status',
         )
 
-    def failover_load_balancer(self, load_balancer):
+    def failover_load_balancer(
+        self,
+        load_balancer: str | _lb.LoadBalancer,
+    ) -> None:
         """Failover a load balancer
 
         :param load_balancer: The value can be the ID of a load balancer
@@ -1370,7 +1373,10 @@ class Proxy(proxy.Proxy):
         )
 
     @renamed_param('amphora_id', 'amphora')
-    def configure_amphora(self, amphora):
+    def configure_amphora(
+        self,
+        amphora: str | _amphora.Amphora,
+    ) -> None:
         """Update the configuration of an amphora agent
 
         :param amphora: The ID or a
@@ -1382,7 +1388,10 @@ class Proxy(proxy.Proxy):
         lb.configure(self)
 
     @renamed_param('amphora_id', 'amphora')
-    def failover_amphora(self, amphora):
+    def failover_amphora(
+        self,
+        amphora: str | _amphora.Amphora,
+    ) -> None:
         """Failover an amphora
 
         :param amphora: The ID or a

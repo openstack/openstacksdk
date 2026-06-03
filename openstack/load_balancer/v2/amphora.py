@@ -12,6 +12,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any, Self
+
+from keystoneauth1 import adapter
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -95,7 +99,7 @@ class Amphora(resource.Resource):
     #: The ID of the compute flavor used for the amphora.
     compute_flavor = resource.Body('compute_flavor')
 
-    def configure(self, session):
+    def configure(self, session: resource.AdapterT) -> None:
         """Configure load balancer.
 
         Update the amphora agent configuration. This will push the new
@@ -119,7 +123,7 @@ class Amphora(resource.Resource):
         msg = f"Failed to configure load balancer {self.id}"
         exceptions.raise_from_response(response, error_message=msg)
 
-    def failover(self, session):
+    def failover(self, session: resource.AdapterT) -> None:
         """Failover load balancer.
 
         :param session: The session to use for making this request.
@@ -161,9 +165,14 @@ class AmphoraConfig(resource.Resource):
     # The default _update code path also has no way to pass has_body into this
     # function, so overriding the method here.
     def commit(
-        self, session, prepend_key=True, has_body=False, *args, **kwargs
-    ):
-        return super().commit(session, prepend_key, has_body, *args, *kwargs)
+        self,
+        session: adapter.Adapter,
+        prepend_key: bool = True,
+        has_body: bool = False,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Self:
+        return super().commit(session, prepend_key, has_body, *args, **kwargs)
 
 
 # TODO(stephenfin): Delete this: it's useless
@@ -187,6 +196,11 @@ class AmphoraFailover(resource.Resource):
     # The default _update code path also has no way to pass has_body into this
     # function, so overriding the method here.
     def commit(
-        self, session, prepend_key=True, has_body=False, *args, **kwargs
-    ):
-        return super().commit(session, prepend_key, has_body, *args, *kwargs)
+        self,
+        session: adapter.Adapter,
+        prepend_key: bool = True,
+        has_body: bool = False,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Self:
+        return super().commit(session, prepend_key, has_body, *args, **kwargs)
