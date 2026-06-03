@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Self
+
+from keystoneauth1 import adapter
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -64,7 +68,7 @@ class ResourceProvider(resource.Resource):
     #: Read-only UUID of the top-most provider in this provider tree.
     root_provider_id = resource.Body('root_provider_uuid')
 
-    def fetch_aggregates(self, session):
+    def fetch_aggregates(self, session: adapter.Adapter) -> Self:
         """List aggregates set on the resource provider
 
         :param session: The session to use for making this request
@@ -84,7 +88,11 @@ class ResourceProvider(resource.Resource):
 
         return self
 
-    def set_aggregates(self, session, aggregates=None):
+    def set_aggregates(
+        self,
+        session: adapter.Adapter,
+        aggregates: list[str] | None = None,
+    ) -> Self:
         """Replaces aggregates on the resource provider
 
         :param session: The session to use for making this request

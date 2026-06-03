@@ -10,6 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from collections.abc import Generator
+from typing import Any, Self
+
+from keystoneauth1 import adapter
+
 from openstack import exceptions
 from openstack import fields
 from openstack import resource
@@ -63,15 +68,15 @@ class ResourceProviderInventory(resource.Resource):
 
     def commit(
         self,
-        session,
-        prepend_key=True,
-        has_body=True,
-        retry_on_conflict=None,
-        base_path=None,
+        session: adapter.Adapter,
+        prepend_key: bool = True,
+        has_body: bool = True,
+        retry_on_conflict: bool | None = None,
+        base_path: str | None = None,
         *,
-        microversion=None,
-        **kwargs,
-    ):
+        microversion: str | None = None,
+        **kwargs: Any,
+    ) -> Self:
         # resource_provider_generation must always be provided on update, but
         # it will appear to be identical (by design) so we strip it. Prevent
         # tihs happening.
@@ -93,14 +98,14 @@ class ResourceProviderInventory(resource.Resource):
     @classmethod
     def list(
         cls,
-        session,
-        paginated=True,
-        base_path=None,
-        allow_unknown_params=False,
+        session: resource.AdapterT,
+        paginated: bool = True,
+        base_path: str | None = None,
+        allow_unknown_params: bool = False,
         *,
-        microversion=None,
-        **params,
-    ):
+        microversion: str | None = None,
+        **params: Any,
+    ) -> Generator['ResourceProviderInventory', None, None]:
         """This method is a generator which yields resource objects.
 
         A re-implementation of :meth:`~openstack.resource.Resource.list` that
@@ -140,7 +145,7 @@ class ResourceProviderInventory(resource.Resource):
             if hasattr(cls, k) and isinstance(getattr(cls, k), fields.URI):
                 uri_params[k] = v
 
-        def _dict_filter(f, d):
+        def _dict_filter(f: dict[str, Any], d: dict[str, Any] | None) -> bool:
             """Dict param based filtering"""
             if not d:
                 return False
@@ -172,7 +177,7 @@ class ResourceProviderInventory(resource.Resource):
             }
             value = cls.existing(
                 microversion=microversion,
-                connection=session._get_connection(),
+                connection=session._get_connection(),  # type: ignore[attr-defined]
                 **resource_inventory,
             )
 
