@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any, Self
+
+from keystoneauth1 import adapter
+
 from openstack.key_manager.v1 import _format
 from openstack import resource
 from openstack import utils
@@ -86,13 +90,16 @@ class Secret(resource.Resource):
 
     def fetch(
         self,
-        session,
-        requires_id=True,
-        base_path=None,
-        error_message=None,
-        skip_cache=False,
-        **kwargs,
-    ):
+        session: adapter.Adapter,
+        requires_id: bool = True,
+        base_path: str | None = None,
+        error_message: str | None = None,
+        skip_cache: bool = False,
+        *,
+        resource_response_key: str | None = None,
+        microversion: str | None = None,
+        **params: Any,
+    ) -> Self:
         request = self._prepare_request(
             requires_id=requires_id, base_path=base_path
         )

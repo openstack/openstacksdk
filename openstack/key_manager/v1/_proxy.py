@@ -453,7 +453,9 @@ class Proxy(proxy.Proxy):
 
     # ========== Secret ACL Operations ==========
 
-    def get_secret_acl(self, secret):
+    def get_secret_acl(
+        self, secret: str | _secret.Secret
+    ) -> _secret_acl.SecretACL:
         """Get the ACL of a secret.
 
         :param secret: Secret ID or a
@@ -471,11 +473,13 @@ class Proxy(proxy.Proxy):
             path_args={"secret_id": sid},
         )
 
-    def set_secret_acl(self, secret, **attrs):
+    def set_secret_acl(
+        self, secret: str | _secret.Secret, **attrs: Any
+    ) -> _secret_acl.SecretACL:
         """Set (replace) the ACL of a secret (PUT).
 
         :param secret: Secret ID or Secret instance.
-        :param dict attrs: ACL body, typically a ``read`` dict.
+        :param attrs: ACL body, typically a ``read`` dict.
         :returns: :class:`~openstack.key_manager.v1.secret_acl.SecretACL`
             whose ``acl_ref`` references the ACL URL.
         """
@@ -489,11 +493,13 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def update_secret_acl(self, secret, **attrs):
+    def update_secret_acl(
+        self, secret: str | _secret.Secret, **attrs: Any
+    ) -> _secret_acl.SecretACL:
         """Partially update the ACL of a secret (PATCH).
 
         :param secret: Secret ID or Secret instance.
-        :param dict attrs: Partial ACL body, typically a ``read`` dict.
+        :param attrs: Partial ACL body, typically a ``read`` dict.
         :returns: :class:`~openstack.key_manager.v1.secret_acl.SecretACL`
             whose ``acl_ref`` references the ACL URL.
         """
@@ -507,11 +513,13 @@ class Proxy(proxy.Proxy):
             **attrs,
         )
 
-    def delete_secret_acl(self, secret, ignore_missing=True):
+    def delete_secret_acl(
+        self, secret: _secret.Secret, ignore_missing: bool = True
+    ) -> _secret_acl.SecretACL | None:
         """Delete the ACL of a secret.
 
         :param secret: Secret ID or Secret instance.
-        :param bool ignore_missing: When set to False, raise if not found.
+        :param ignore_missing: When set to False, raise if not found.
         :returns: ``None``
         :raises: :class:`~openstack.exceptions.NotFoundException`
         """

@@ -92,6 +92,8 @@ module = [
     "openstack.dns.*",
     "openstack.identity.*",
     "openstack.image.*",
+    "openstack.instance_ha.*",
+    "openstack.key_manager.*",
 ]
 disallow_untyped_calls = true
 disallow_untyped_defs = true
