@@ -45,15 +45,15 @@ check_untyped_defs = true
 disallow_any_generics = true
 disallow_incomplete_defs = true
 disallow_subclassing_any = true
-# disallow_untyped_calls = true
+disallow_untyped_calls = true
 disallow_untyped_decorators = true
-# disallow_untyped_defs = true
+disallow_untyped_defs = true
 extra_checks = true
 no_implicit_reexport = true
 strict_bytes = true
 strict_equality = true
 warn_redundant_casts = true
-# warn_return_any = true
+warn_return_any = true
 warn_unused_configs = true
 warn_unused_ignores = true
 disable_error_code = ["import-untyped"]
@@ -61,55 +61,15 @@ exclude = "(?x)(doc | examples | releasenotes)"
 
 [[tool.mypy.overrides]]
 module = [
-    "openstack",
-    "openstack._log",
-    "openstack._services_mixin",
-    "openstack.common",
-    "openstack.common.*",
-    "openstack.config",
-    "openstack.config.*",
-    "openstack.connection",
-    "openstack.exceptions",
-    "openstack.fields",
-    "openstack.fixture.*",
-    "openstack.format",
-    "openstack.proxy",
-    "openstack.resource",
-    "openstack.service_description",
-    "openstack.types",
-    "openstack.utils",
-    "openstack.version",
-    "openstack.warnings",
-    # services
-    "openstack.accelerator.*",
-    "openstack.baremetal.*",
-    "openstack.baremetal_introspection.*",
-    "openstack.block_storage.*",
-    "openstack.clustering.*",
-    "openstack.compute.*",
-    "openstack.container_infrastructure_management.*",
-    "openstack.database.*",
-    "openstack.dns.*",
-    "openstack.identity.*",
-    "openstack.image.*",
-    "openstack.instance_ha.*",
-    "openstack.key_manager.*",
-    "openstack.load_balancer.*",
-    "openstack.message.*",
-    "openstack.network.*",
-    "openstack.object_store.*",
-    "openstack.orchestration.*",
-    "openstack.placement.*",
-    "openstack.shared_file_system.*",
-    "openstack.workflow.*",
+    "openstack._hacking.*",
+    "openstack.cloud.*",
+    "openstack.tests.fakes",
+    "openstack.tests.functional.*",
 ]
-disallow_untyped_calls = true
-disallow_untyped_defs = true
-warn_return_any = true
-
-[[tool.mypy.overrides]]
-module = ["openstack.tests.functional.*"]
 disable_error_code = ["import-untyped", "func-returns-value"]
+disallow_untyped_calls = false
+disallow_untyped_defs = false
+warn_return_any = false
 
 [[tool.mypy.overrides]]
 module = ["openstack.tests.unit.*"]

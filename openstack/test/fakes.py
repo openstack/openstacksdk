@@ -23,7 +23,7 @@ valid attributes and methods for both :class:`~openstack.resource.Resource` and
 from collections.abc import Generator
 import inspect
 import random
-from typing import Any
+from typing import Any, cast
 from unittest import mock
 import uuid
 
@@ -237,4 +237,6 @@ def generate_fake_proxy(
             f"Supported API versions are: {', '.join(supported_versions)}"
         )
 
-    return mock.create_autospec(supported_versions[api_version])
+    return cast(
+        proxy.ProxyT, mock.create_autospec(supported_versions[api_version])
+    )

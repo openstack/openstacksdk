@@ -15,18 +15,15 @@
 import argparse
 import sys
 
-import pbr.version
+import importlib.metadata
 
 
-def show_version(args):
-    print(
-        "OpenstackSDK Version {}".format(
-            pbr.version.VersionInfo('openstacksdk').version_string_with_vcs()
-        )
-    )
+def show_version(args: argparse.Namespace) -> None:
+    version = importlib.metadata.version('openstacksdk')
+    print(f'OpenstackSDK Version {version}')
 
 
-parser = argparse.ArgumentParser(description="Openstack SDK")
+parser = argparse.ArgumentParser(description='Openstack SDK')
 subparsers = parser.add_subparsers(title='commands', dest='command')
 
 cmd_version = subparsers.add_parser(

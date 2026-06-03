@@ -13,12 +13,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from collections.abc import Generator
 import io
 import logging
 import os
 import pprint
 import sys
-from typing import TextIO
+from typing import Any, TextIO
 
 import fixtures
 from oslotest import base
@@ -36,7 +37,7 @@ class TestCase(base.BaseTestCase):
     # A way to adjust slow test classes
     TIMEOUT_SCALING_FACTOR = 1
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Run before each test method to initialize test environment."""
         # No openstacksdk unit tests should EVER run longer than a second.
         # Set this to 5 by default just to give us some fudge.
@@ -85,25 +86,27 @@ class TestCase(base.BaseTestCase):
         logger.addHandler(handler)
         logger.propagate = False
 
-    def _fake_logs(self):
+    def _fake_logs(self) -> None:
         # Override _fake_logs in oslotest until we can get our
         # attach-on-exception logic added
         pass
 
-    def assertEqual(self, expected, observed, message=""):
-        '''Munch aware wrapper'''
+    def assertEqual(
+        self, expected: object, observed: object, message: str = ""
+    ) -> None:
+        """Munch aware wrapper"""
         if isinstance(expected, utils.Munch):
             expected = expected.toDict()
         if isinstance(observed, utils.Munch):
             observed = observed.toDict()
         return super().assertEqual(expected, observed, message)
 
-    def printLogs(self, *args):
+    def printLogs(self, *args: Any) -> None:
         self._log_stream.seek(0)
         print(self._log_stream.read())
 
-    def attachLogs(self, *args):
-        def reader():
+    def attachLogs(self, *args: Any) -> None:
+        def reader() -> Generator[bytes, None, None]:
             self._log_stream.seek(0)
             while True:
                 x = self._log_stream.read(4096)
@@ -116,15 +119,17 @@ class TestCase(base.BaseTestCase):
         )
         self.addDetail('logging', content)
 
-    def add_info_on_exception(self, name, text):
-        def add_content(unused):
+    def add_info_on_exception(self, name: str, text: object) -> None:
+        def add_content(unused: Any) -> None:
             self.addDetail(
                 name, testtools.content.text_content(pprint.pformat(text))
             )
 
         self.addOnException(add_content)
 
-    def assertSubdict(self, part, whole):
+    def assertSubdict(
+        self, part: dict[str, object], whole: dict[str, object]
+    ) -> None:
         missing_keys = []
         for key in part:
             # In the resource we have virtual access by not existing keys. To
