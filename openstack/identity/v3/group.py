@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystoneauth1 import adapter
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -44,7 +46,9 @@ class Group(resource.Resource):
     #: Unique group name, within the owning domain. *Type: string*
     name = resource.Body('name')
 
-    def add_user(self, session, user):
+    def add_user(
+        self, session: adapter.Adapter, user: resource.Resource
+    ) -> None:
         """Add user to the group"""
         url = utils.urljoin(self.base_path, self.id, 'users', user.id)
         resp = session.put(
@@ -52,7 +56,9 @@ class Group(resource.Resource):
         )
         exceptions.raise_from_response(resp)
 
-    def remove_user(self, session, user):
+    def remove_user(
+        self, session: adapter.Adapter, user: resource.Resource
+    ) -> None:
         """Remove user from the group"""
         url = utils.urljoin(self.base_path, self.id, 'users', user.id)
         resp = session.delete(
@@ -60,7 +66,9 @@ class Group(resource.Resource):
         )
         exceptions.raise_from_response(resp)
 
-    def check_user(self, session, user):
+    def check_user(
+        self, session: adapter.Adapter, user: resource.Resource
+    ) -> bool:
         """Check whether user belongs to group"""
         url = utils.urljoin(self.base_path, self.id, 'users', user.id)
         resp = session.head(

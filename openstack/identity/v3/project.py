@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystoneauth1 import adapter
+
 from openstack.common import tag
 from openstack import exceptions
 from openstack import resource
@@ -66,7 +68,13 @@ class Project(resource.Resource, tag.TagMixin):
     #: The links related to the project resource.
     links = resource.Body('links')
 
-    def assign_role_to_user(self, session, user, role, inherited):
+    def assign_role_to_user(
+        self,
+        session: adapter.Adapter,
+        user: resource.Resource,
+        role: resource.Resource,
+        inherited: bool,
+    ) -> bool:
         """Assign role to user on project"""
         url = utils.urljoin(
             self.base_path,
@@ -85,7 +93,13 @@ class Project(resource.Resource, tag.TagMixin):
             return True
         return False
 
-    def validate_user_has_role(self, session, user, role, inherited):
+    def validate_user_has_role(
+        self,
+        session: adapter.Adapter,
+        user: resource.Resource,
+        role: resource.Resource,
+        inherited: bool,
+    ) -> bool:
         """Validates that a user has a role on a project"""
         url = utils.urljoin(
             self.base_path, self.id, 'users', user.id, 'roles', role.id
@@ -99,7 +113,13 @@ class Project(resource.Resource, tag.TagMixin):
             return True
         return False
 
-    def unassign_role_from_user(self, session, user, role, inherited):
+    def unassign_role_from_user(
+        self,
+        session: adapter.Adapter,
+        user: resource.Resource,
+        role: resource.Resource,
+        inherited: bool,
+    ) -> bool:
         """Unassigns a role from a user on a project"""
         url = utils.urljoin(
             self.base_path, self.id, 'users', user.id, 'roles', role.id
@@ -113,7 +133,13 @@ class Project(resource.Resource, tag.TagMixin):
             return True
         return False
 
-    def assign_role_to_group(self, session, group, role, inherited):
+    def assign_role_to_group(
+        self,
+        session: adapter.Adapter,
+        group: resource.Resource,
+        role: resource.Resource,
+        inherited: bool,
+    ) -> bool:
         """Assign role to group on project"""
         url = utils.urljoin(
             self.base_path,
@@ -132,7 +158,13 @@ class Project(resource.Resource, tag.TagMixin):
             return True
         return False
 
-    def validate_group_has_role(self, session, group, role, inherited):
+    def validate_group_has_role(
+        self,
+        session: adapter.Adapter,
+        group: resource.Resource,
+        role: resource.Resource,
+        inherited: bool,
+    ) -> bool:
         """Validates that a group has a role on a project"""
         url = utils.urljoin(
             self.base_path, self.id, 'groups', group.id, 'roles', role.id
@@ -146,7 +178,13 @@ class Project(resource.Resource, tag.TagMixin):
             return True
         return False
 
-    def unassign_role_from_group(self, session, group, role, inherited):
+    def unassign_role_from_group(
+        self,
+        session: adapter.Adapter,
+        group: resource.Resource,
+        role: resource.Resource,
+        inherited: bool,
+    ) -> bool:
         """Unassigns a role from a group on a project"""
         url = utils.urljoin(
             self.base_path, self.id, 'groups', group.id, 'roles', role.id
@@ -160,7 +198,9 @@ class Project(resource.Resource, tag.TagMixin):
             return True
         return False
 
-    def associate_endpoint(self, session, endpoint_id):
+    def associate_endpoint(
+        self, session: adapter.Adapter, endpoint_id: str
+    ) -> None:
         """Associate endpoint with project.
 
         :param session: The session to use for making this request.
@@ -176,7 +216,9 @@ class Project(resource.Resource, tag.TagMixin):
         response = session.put(url)
         exceptions.raise_from_response(response)
 
-    def disassociate_endpoint(self, session, endpoint_id):
+    def disassociate_endpoint(
+        self, session: adapter.Adapter, endpoint_id: str
+    ) -> None:
         """Disassociate endpoint from project.
 
         :param session: The session to use for making this request.

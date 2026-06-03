@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystoneauth1 import adapter
+
 from openstack import resource
 from openstack import utils
 
@@ -20,7 +22,12 @@ class System(resource.Resource):
 
     # capabilities
 
-    def assign_role_to_user(self, session, user, role):
+    def assign_role_to_user(
+        self,
+        session: adapter.Adapter,
+        user: resource.Resource,
+        role: resource.Resource,
+    ) -> bool:
         """Assign role to user on system"""
         url = utils.urljoin(self.base_path, 'users', user.id, 'roles', role.id)
         resp = session.put(
@@ -30,7 +37,12 @@ class System(resource.Resource):
             return True
         return False
 
-    def validate_user_has_role(self, session, user, role):
+    def validate_user_has_role(
+        self,
+        session: adapter.Adapter,
+        user: resource.Resource,
+        role: resource.Resource,
+    ) -> bool:
         """Validates that a user has a role on a system"""
         url = utils.urljoin(self.base_path, 'users', user.id, 'roles', role.id)
         resp = session.head(
@@ -40,7 +52,12 @@ class System(resource.Resource):
             return True
         return False
 
-    def unassign_role_from_user(self, session, user, role):
+    def unassign_role_from_user(
+        self,
+        session: adapter.Adapter,
+        user: resource.Resource,
+        role: resource.Resource,
+    ) -> bool:
         """Unassigns a role from a user on a system"""
         url = utils.urljoin(self.base_path, 'users', user.id, 'roles', role.id)
         resp = session.delete(
@@ -50,7 +67,12 @@ class System(resource.Resource):
             return True
         return False
 
-    def assign_role_to_group(self, session, group, role):
+    def assign_role_to_group(
+        self,
+        session: adapter.Adapter,
+        group: resource.Resource,
+        role: resource.Resource,
+    ) -> bool:
         """Assign role to group on system"""
         url = utils.urljoin(
             self.base_path, 'groups', group.id, 'roles', role.id
@@ -62,7 +84,12 @@ class System(resource.Resource):
             return True
         return False
 
-    def validate_group_has_role(self, session, group, role):
+    def validate_group_has_role(
+        self,
+        session: adapter.Adapter,
+        group: resource.Resource,
+        role: resource.Resource,
+    ) -> bool:
         """Validates that a group has a role on a system"""
         url = utils.urljoin(
             self.base_path, 'groups', group.id, 'roles', role.id
@@ -74,7 +101,12 @@ class System(resource.Resource):
             return True
         return False
 
-    def unassign_role_from_group(self, session, group, role):
+    def unassign_role_from_group(
+        self,
+        session: adapter.Adapter,
+        group: resource.Resource,
+        role: resource.Resource,
+    ) -> bool:
         """Unassigns a role from a group on a system"""
         url = utils.urljoin(
             self.base_path, 'groups', group.id, 'roles', role.id

@@ -528,7 +528,11 @@ class Proxy(proxy.Proxy):
             _endpoint.ProjectEndpoint, project_id=project_id, **query
         )
 
-    def associate_endpoint_with_project(self, project, endpoint):
+    def associate_endpoint_with_project(
+        self,
+        project: str | _project.Project,
+        endpoint: str | _endpoint.Endpoint,
+    ) -> None:
         """Creates a direct association between project and endpoint
 
         :param project: Either the ID of a project or a
@@ -541,7 +545,11 @@ class Proxy(proxy.Proxy):
         endpoint = self._get_resource(_endpoint.Endpoint, endpoint)
         project.associate_endpoint(self, endpoint.id)
 
-    def disassociate_endpoint_from_project(self, project, endpoint):
+    def disassociate_endpoint_from_project(
+        self,
+        project: str | _project.Project,
+        endpoint: str | _endpoint.Endpoint,
+    ) -> None:
         """Removes a direct association between project and endpoint
 
         :param project: Either the ID of a project or a
@@ -661,7 +669,11 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_group.Group, group, **attrs)
 
-    def add_user_to_group(self, user, group):
+    def add_user_to_group(
+        self,
+        user: str | _user.User,
+        group: str | _group.Group,
+    ) -> None:
         """Add user to group
 
         :param user: Either the ID of a user or a
@@ -674,7 +686,11 @@ class Proxy(proxy.Proxy):
         group = self._get_resource(_group.Group, group)
         group.add_user(self, user)
 
-    def remove_user_from_group(self, user, group):
+    def remove_user_from_group(
+        self,
+        user: str | _user.User,
+        group: str | _group.Group,
+    ) -> None:
         """Remove user to group
 
         :param user: Either the ID of a user or a
@@ -687,7 +703,11 @@ class Proxy(proxy.Proxy):
         group = self._get_resource(_group.Group, group)
         group.remove_user(self, user)
 
-    def check_user_in_group(self, user, group):
+    def check_user_in_group(
+        self,
+        user: str | _user.User,
+        group: str | _group.Group,
+    ) -> bool:
         """Check whether user belongsto group
 
         :param user: Either the ID of a user or a
@@ -1656,8 +1676,13 @@ class Proxy(proxy.Proxy):
         return self._list(_role_assignment.RoleAssignment, **query)
 
     def assign_domain_role_to_user(
-        self, domain, user, role, *, inherited=False
-    ):
+        self,
+        domain: str | _domain.Domain,
+        user: str | _user.User,
+        role: str | _role.Role,
+        *,
+        inherited: bool = False,
+    ) -> None:
         """Assign role to user on a domain
 
         :param domain: Either the ID of a domain or a
@@ -1675,8 +1700,13 @@ class Proxy(proxy.Proxy):
         domain.assign_role_to_user(self, user, role, inherited)
 
     def unassign_domain_role_from_user(
-        self, domain, user, role, *, inherited=False
-    ):
+        self,
+        domain: str | _domain.Domain,
+        user: str | _user.User,
+        role: str | _role.Role,
+        *,
+        inherited: bool = False,
+    ) -> None:
         """Unassign role from user on a domain
 
         :param domain: Either the ID of a domain or a
@@ -1694,8 +1724,13 @@ class Proxy(proxy.Proxy):
         domain.unassign_role_from_user(self, user, role, inherited)
 
     def validate_user_has_domain_role(
-        self, domain, user, role, *, inherited=False
-    ):
+        self,
+        domain: str | _domain.Domain,
+        user: str | _user.User,
+        role: str | _role.Role,
+        *,
+        inherited: bool = False,
+    ) -> bool:
         """Validates that a user has a role on a domain
 
         :param domain: Either the ID of a domain or a
@@ -1712,8 +1747,13 @@ class Proxy(proxy.Proxy):
         return domain.validate_user_has_role(self, user, role, inherited)
 
     def assign_domain_role_to_group(
-        self, domain, group, role, *, inherited=False
-    ):
+        self,
+        domain: str | _domain.Domain,
+        group: str | _group.Group,
+        role: str | _role.Role,
+        *,
+        inherited: bool = False,
+    ) -> None:
         """Assign role to group on a domain
 
         :param domain: Either the ID of a domain or a
@@ -1731,8 +1771,13 @@ class Proxy(proxy.Proxy):
         domain.assign_role_to_group(self, group, role, inherited)
 
     def unassign_domain_role_from_group(
-        self, domain, group, role, *, inherited=False
-    ):
+        self,
+        domain: str | _domain.Domain,
+        group: str | _group.Group,
+        role: str | _role.Role,
+        *,
+        inherited: bool = False,
+    ) -> None:
         """Unassign role from group on a domain
 
         :param domain: Either the ID of a domain or a
@@ -1750,8 +1795,13 @@ class Proxy(proxy.Proxy):
         domain.unassign_role_from_group(self, group, role, inherited)
 
     def validate_group_has_domain_role(
-        self, domain, group, role, *, inherited=False
-    ):
+        self,
+        domain: str | _domain.Domain,
+        group: str | _group.Group,
+        role: str | _role.Role,
+        *,
+        inherited: bool = False,
+    ) -> bool:
         """Validates that a group has a role on a domain
 
         :param domain: Either the ID of a domain or a
@@ -1768,8 +1818,13 @@ class Proxy(proxy.Proxy):
         return domain.validate_group_has_role(self, group, role, inherited)
 
     def assign_project_role_to_user(
-        self, project, user, role, *, inherited=False
-    ):
+        self,
+        project: str | _project.Project,
+        user: str | _user.User,
+        role: str | _role.Role,
+        *,
+        inherited: bool = False,
+    ) -> None:
         """Assign role to user on a project
 
         :param project: Either the ID of a project or a
@@ -1788,8 +1843,13 @@ class Proxy(proxy.Proxy):
         project.assign_role_to_user(self, user, role, inherited)
 
     def unassign_project_role_from_user(
-        self, project, user, role, *, inherited=False
-    ):
+        self,
+        project: str | _project.Project,
+        user: str | _user.User,
+        role: str | _role.Role,
+        *,
+        inherited: bool = False,
+    ) -> None:
         """Unassign role from user on a project
 
         :param project: Either the ID of a project or a
@@ -1808,8 +1868,13 @@ class Proxy(proxy.Proxy):
         project.unassign_role_from_user(self, user, role, inherited)
 
     def validate_user_has_project_role(
-        self, project, user, role, *, inherited=False
-    ):
+        self,
+        project: str | _project.Project,
+        user: str | _user.User,
+        role: str | _role.Role,
+        *,
+        inherited: bool = False,
+    ) -> bool:
         """Validates that a user has a role on a project
 
         :param project: Either the ID of a project or a
@@ -1827,8 +1892,13 @@ class Proxy(proxy.Proxy):
         return project.validate_user_has_role(self, user, role, inherited)
 
     def assign_project_role_to_group(
-        self, project, group, role, *, inherited=False
-    ):
+        self,
+        project: str | _project.Project,
+        group: str | _group.Group,
+        role: str | _role.Role,
+        *,
+        inherited: bool = False,
+    ) -> None:
         """Assign role to group on a project
 
         :param project: Either the ID of a project or a
@@ -1847,8 +1917,13 @@ class Proxy(proxy.Proxy):
         project.assign_role_to_group(self, group, role, inherited)
 
     def unassign_project_role_from_group(
-        self, project, group, role, *, inherited=False
-    ):
+        self,
+        project: str | _project.Project,
+        group: str | _group.Group,
+        role: str | _role.Role,
+        *,
+        inherited: bool = False,
+    ) -> None:
         """Unassign role from group on a project
 
         :param project: Either the ID of a project or a
@@ -1867,8 +1942,13 @@ class Proxy(proxy.Proxy):
         project.unassign_role_from_group(self, group, role, inherited)
 
     def validate_group_has_project_role(
-        self, project, group, role, *, inherited=False
-    ):
+        self,
+        project: str | _project.Project,
+        group: str | _group.Group,
+        role: str | _role.Role,
+        *,
+        inherited: bool = False,
+    ) -> bool:
         """Validates that a group has a role on a project
 
         :param project: Either the ID of a project or a
@@ -1885,7 +1965,12 @@ class Proxy(proxy.Proxy):
         role = self._get_resource(_role.Role, role)
         return project.validate_group_has_role(self, group, role, inherited)
 
-    def assign_system_role_to_user(self, user, role, system):
+    def assign_system_role_to_user(
+        self,
+        user: str | _user.User,
+        role: str | _role.Role,
+        system: str | _system.System,
+    ) -> None:
         """Assign a role to user on a system
 
         :param user: Either the ID of a user or a
@@ -1900,7 +1985,12 @@ class Proxy(proxy.Proxy):
         system = self._get_resource(_system.System, system)
         system.assign_role_to_user(self, user, role)
 
-    def unassign_system_role_from_user(self, user, role, system):
+    def unassign_system_role_from_user(
+        self,
+        user: str | _user.User,
+        role: str | _role.Role,
+        system: str | _system.System,
+    ) -> None:
         """Unassign a role from user on a system
 
         :param user: Either the ID of a user or a
@@ -1915,7 +2005,12 @@ class Proxy(proxy.Proxy):
         system = self._get_resource(_system.System, system)
         system.unassign_role_from_user(self, user, role)
 
-    def validate_user_has_system_role(self, user, role, system):
+    def validate_user_has_system_role(
+        self,
+        user: str | _user.User,
+        role: str | _role.Role,
+        system: str | _system.System,
+    ) -> bool:
         """Validates that a user has a role on a system
 
         :param user: Either the ID of a user or a
@@ -1930,7 +2025,12 @@ class Proxy(proxy.Proxy):
         system = self._get_resource(_system.System, system)
         return system.validate_user_has_role(self, user, role)
 
-    def assign_system_role_to_group(self, group, role, system):
+    def assign_system_role_to_group(
+        self,
+        group: str | _group.Group,
+        role: str | _role.Role,
+        system: str | _system.System,
+    ) -> None:
         """Assign a role to group on a system
 
         :param group: Either the ID of a group or a
@@ -1945,7 +2045,12 @@ class Proxy(proxy.Proxy):
         system = self._get_resource(_system.System, system)
         system.assign_role_to_group(self, group, role)
 
-    def unassign_system_role_from_group(self, group, role, system):
+    def unassign_system_role_from_group(
+        self,
+        group: str | _group.Group,
+        role: str | _role.Role,
+        system: str | _system.System,
+    ) -> None:
         """Unassign a role from group on a system
 
         :param group: Either the ID of a group or a
@@ -1960,7 +2065,12 @@ class Proxy(proxy.Proxy):
         system = self._get_resource(_system.System, system)
         system.unassign_role_from_group(self, group, role)
 
-    def validate_group_has_system_role(self, group, role, system):
+    def validate_group_has_system_role(
+        self,
+        group: str | _group.Group,
+        role: str | _role.Role,
+        system: str | _system.System,
+    ) -> bool:
         """Validates that a group has a role on a system
 
         :param group: Either the ID of a group or a
