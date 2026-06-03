@@ -101,6 +101,7 @@ module = [
     "openstack.orchestration.*",
     "openstack.placement.*",
     "openstack.shared_file_system.*",
+    "openstack.workflow.*",
 ]
 disallow_untyped_calls = true
 disallow_untyped_defs = true
