@@ -27,3 +27,14 @@ def delete_secret(conn, name_or_id):
         conn.key_manager.delete_secret(secret)
     else:
         print("Secret not found")
+
+
+def delete_secret_consumer(conn, secret):
+    print("Delete a secret consumer:")
+
+    conn.key_manager.delete_secret_consumer(
+        secret=secret,
+        service="service",
+        resource_type="resource_type",
+        resource_id="resource-id",
+    )

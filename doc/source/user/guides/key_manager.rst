@@ -78,3 +78,36 @@ it by name first.
 
 .. literalinclude:: ../examples/key_manager/delete.py
    :pyobject: delete_secret
+
+Create a Secret Consumer
+------------------------
+
+The Key Manager service allows you to create a secret consumer by passing the
+attributes of the
+:class:`~openstack.key_manager.v1.secret_consumer.SecretConsumer` to the
+:meth:`~openstack.key_manager.v1._proxy.Proxy.create_secret_consumer` method.
+
+.. literalinclude:: ../examples/key_manager/create.py
+   :pyobject: create_secret_consumer
+
+List Secret Consumers
+---------------------
+
+The Key Manager service allows you to list secret consumers by passing the
+attributes of the
+:class:`~openstack.key_manager.v1.secret_consumer.SecretConsumer` to the
+:meth:`~openstack.key_manager.v1._proxy.Proxy.secret_consumers` method.
+
+.. literalinclude:: ../examples/key_manager/list.py
+   :pyobject: list_secret_consumers
+
+Delete Secret Consumer
+----------------------
+
+The Key Manager service allows you to delete a secret consumer by passing the
+attributes of the
+:class:`~openstack.key_manager.v1.secret_consumer.SecretConsumer` to the
+:meth:`~openstack.key_manager.v1._proxy.Proxy.delete_secret_consumer` method.
+
+.. literalinclude:: ../examples/key_manager/delete.py
+   :pyobject: delete_secret_consumer
