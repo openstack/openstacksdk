@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Self
+
+from keystoneauth1 import adapter
+
 from openstack.network.v2 import _base
 from openstack import resource
 
@@ -93,7 +97,7 @@ class FloatingIP(_base.NetworkResource, _base.TagMixinNetwork):
     subnet_id = resource.Body('subnet_id')
 
     @classmethod
-    def find_available(cls, session):
+    def find_available(cls, session: adapter.Adapter) -> Self | None:
         # server-side filtering on empty values is not always supported.
         # TODO(mordred) Make this check for support for the server-side filter
         for ip in cls.list(session):

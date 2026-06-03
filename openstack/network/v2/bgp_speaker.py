@@ -10,6 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+# needed to prevent circular imports with openstack.network.v2.agent
+from __future__ import annotations
+
+from typing import Any
+
+from keystoneauth1 import adapter
+
 from openstack import exceptions
 from openstack.network.v2 import agent as _agent
 from openstack import resource
@@ -54,12 +61,16 @@ class BgpSpeaker(resource.Resource):
     #: A list of network IDs to which the BGP Speaker is associated.
     networks = resource.Body('networks', type=list)
 
-    def _put(self, session, url, body):
+    def _put(
+        self, session: adapter.Adapter, url: str, body: dict[str, Any]
+    ) -> Any:
         resp = session.put(url, json=body)
         exceptions.raise_from_response(resp)
         return resp
 
-    def add_bgp_peer(self, session, peer_id):
+    def add_bgp_peer(
+        self, session: adapter.Adapter, peer_id: str
+    ) -> dict[str, Any]:
         """Add BGP Peer to a BGP Speaker
 
         :param session: The session to communicate through.
@@ -73,9 +84,9 @@ class BgpSpeaker(resource.Resource):
         url = utils.urljoin(self.base_path, self.id, 'add_bgp_peer')
         body = {'bgp_peer_id': peer_id}
         resp = self._put(session, url, body)
-        return resp.json()
+        return resp.json()  # type: ignore[no-any-return]
 
-    def remove_bgp_peer(self, session, peer_id):
+    def remove_bgp_peer(self, session: adapter.Adapter, peer_id: str) -> None:
         """Remove BGP Peer from a BGP Speaker
 
         :param session: The session to communicate through.
@@ -88,7 +99,9 @@ class BgpSpeaker(resource.Resource):
         body = {'bgp_peer_id': peer_id}
         self._put(session, url, body)
 
-    def add_gateway_network(self, session, network_id):
+    def add_gateway_network(
+        self, session: adapter.Adapter, network_id: str
+    ) -> dict[str, Any]:
         """Add Network to a BGP Speaker
 
         :param: session: The session to communicate through.
@@ -100,9 +113,11 @@ class BgpSpeaker(resource.Resource):
         body = {'network_id': network_id}
         url = utils.urljoin(self.base_path, self.id, 'add_gateway_network')
         resp = session.put(url, json=body)
-        return resp.json()
+        return resp.json()  # type: ignore[no-any-return]
 
-    def remove_gateway_network(self, session, network_id):
+    def remove_gateway_network(
+        self, session: adapter.Adapter, network_id: str
+    ) -> None:
         """Delete Network from a BGP Speaker
 
         :param session: The session to communicate through.
@@ -114,7 +129,9 @@ class BgpSpeaker(resource.Resource):
         url = utils.urljoin(self.base_path, self.id, 'remove_gateway_network')
         session.put(url, json=body)
 
-    def get_advertised_routes(self, session):
+    def get_advertised_routes(
+        self, session: adapter.Adapter
+    ) -> dict[str, Any]:
         """List routes advertised by a BGP Speaker
 
         :param session: The session to communicate through.
@@ -128,9 +145,9 @@ class BgpSpeaker(resource.Resource):
         resp = session.get(url)
         exceptions.raise_from_response(resp)
         self._body.attributes.update(resp.json())
-        return resp.json()
+        return resp.json()  # type: ignore[no-any-return]
 
-    def get_bgp_dragents(self, session):
+    def get_bgp_dragents(self, session: adapter.Adapter) -> list[_agent.Agent]:
         """List Dynamic Routing Agents hosting a specific BGP Speaker
 
         :param session: The session to communicate through.
@@ -148,7 +165,9 @@ class BgpSpeaker(resource.Resource):
         agents = _agent.Agent.list(session=session)
         return [ag for ag in agents if ag.id in agent_ids]
 
-    def add_bgp_speaker_to_dragent(self, session, bgp_agent_id):
+    def add_bgp_speaker_to_dragent(
+        self, session: adapter.Adapter, bgp_agent_id: str
+    ) -> None:
         """Add BGP Speaker to a Dynamic Routing Agent
 
         :param session: The session to communicate through.
@@ -160,7 +179,9 @@ class BgpSpeaker(resource.Resource):
         url = utils.urljoin('agents', bgp_agent_id, 'bgp-drinstances')
         session.post(url, json=body)
 
-    def remove_bgp_speaker_from_dragent(self, session, bgp_agent_id):
+    def remove_bgp_speaker_from_dragent(
+        self, session: adapter.Adapter, bgp_agent_id: str
+    ) -> None:
         """Delete BGP Speaker from a Dynamic Routing Agent
 
         :param session: The session to communicate through.

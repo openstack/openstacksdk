@@ -73,16 +73,19 @@ class TestNDPProxy(base.BaseFunctionalTest):
         self.assertEqual(self.ROT_NAME, sot.name)
         self.ROT_ID = sot.id
         self.ROT = sot
+
         # Add Router's Interface to Internal Network
-        sot = self.ROT.add_interface(
+        interface = self.ROT.add_interface(
             self.user_cloud.network, subnet_id=self.INT_SUB_ID
         )
-        self.assertEqual(sot["subnet_id"], self.INT_SUB_ID)
+        self.assertEqual(interface["subnet_id"], self.INT_SUB_ID)
+
         # Create Port in Internal Network
         prt = self.user_cloud.network.create_port(network_id=self.INT_NET_ID)
         assert isinstance(prt, port.Port)
         self.INTERNAL_PORT_ID = prt.id
         self.INTERNAL_IP_ADDRESS = prt.fixed_ips[0]["ip_address"]
+
         # Create ndp proxy
         np = self.user_cloud.network.create_ndp_proxy(
             router_id=self.ROT_ID, port_id=self.INTERNAL_PORT_ID

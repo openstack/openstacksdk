@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any, Self
+
+from keystoneauth1 import adapter
+
 from openstack.common import tag
 from openstack import exceptions
 from openstack import resource
@@ -28,13 +32,13 @@ class NetworkResource(resource.Resource):
 
     def _prepare_request(
         self,
-        requires_id=None,
-        prepend_key=False,
-        patch=False,
-        base_path=None,
-        params=None,
-        **kwargs,
-    ):
+        requires_id: bool | None = None,
+        prepend_key: bool = False,
+        patch: bool = False,
+        base_path: str | None = None,
+        params: dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> resource._Request:
         req = super()._prepare_request(
             requires_id=requires_id,
             prepend_key=prepend_key,
@@ -47,7 +51,7 @@ class NetworkResource(resource.Resource):
 
 
 class TagMixinNetwork(tag.TagMixin):
-    def add_tags(self, session, tags):
+    def add_tags(self, session: adapter.Adapter, tags: list[str]) -> Self:
         """Create the tags on the resource
 
         :param session: The session to use for making this request.

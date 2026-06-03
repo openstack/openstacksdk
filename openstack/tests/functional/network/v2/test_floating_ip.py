@@ -76,10 +76,10 @@ class TestFloatingIP(common.TestTagNeutron):
         self.ROT_ID = sot.id
         self.ROT = sot
         # Add Router's Interface to Internal Network
-        sot = self.ROT.add_interface(
+        interface = self.ROT.add_interface(
             self.user_cloud.network, subnet_id=self.INT_SUB_ID
         )
-        self.assertEqual(sot["subnet_id"], self.INT_SUB_ID)
+        self.assertEqual(interface["subnet_id"], self.INT_SUB_ID)
         # Create Port in Internal Network
         prt = self.user_cloud.network.create_port(network_id=self.INT_NET_ID)
         assert isinstance(prt, port.Port)
@@ -165,6 +165,7 @@ class TestFloatingIP(common.TestTagNeutron):
 
     def test_find_available_ip(self):
         sot = self.user_cloud.network.find_available_ip()
+        assert sot is not None
         self.assertIsNotNone(sot.id)
         self.assertIsNone(sot.port_id)
         self.assertIsNone(sot.port_details)

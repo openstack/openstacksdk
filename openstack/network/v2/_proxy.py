@@ -10,7 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from collections.abc import Callable, Generator, Iterable
+from collections.abc import Callable, Generator, Iterable, Sequence
+import queue
 from typing import Any, ClassVar, Literal, overload
 
 from openstack._utils import renamed_param
@@ -110,6 +111,7 @@ from openstack.network.v2 import (
 )
 from openstack.network.v2 import vpn_service as _vpn_service
 from openstack import proxy
+from openstack.proxy import CleanupDependency
 from openstack import resource
 
 
@@ -378,7 +380,11 @@ class Proxy(proxy.Proxy):
             _address_group.AddressGroup, address_group, **attrs
         )
 
-    def add_addresses_to_address_group(self, address_group, addresses):
+    def add_addresses_to_address_group(
+        self,
+        address_group: str | _address_group.AddressGroup,
+        addresses: list[str],
+    ) -> _address_group.AddressGroup:
         """Add addresses to a address group
 
         :param address_group: Either the ID of an address group or a
@@ -389,7 +395,11 @@ class Proxy(proxy.Proxy):
         ag = self._get_resource(_address_group.AddressGroup, address_group)
         return ag.add_addresses(self, addresses)
 
-    def remove_addresses_from_address_group(self, address_group, addresses):
+    def remove_addresses_from_address_group(
+        self,
+        address_group: str | _address_group.AddressGroup,
+        addresses: list[str],
+    ) -> _address_group.AddressGroup:
         """Remove addresses from a address group
 
         :param address_group: Either the ID of an address group or a
@@ -613,7 +623,11 @@ class Proxy(proxy.Proxy):
             _network.DHCPAgentHostingNetwork, agent_id=agent_obj.id, **query
         )
 
-    def add_dhcp_agent_to_network(self, agent, network):
+    def add_dhcp_agent_to_network(
+        self,
+        agent: str | _agent.Agent,
+        network: str | _network.Network,
+    ) -> dict[str, Any]:
         """Add a DHCP Agent to a network
 
         :param agent: Either the agent id of an instance of
@@ -621,11 +635,15 @@ class Proxy(proxy.Proxy):
         :param network: Network instance
         :returns:
         """
-        network = self._get_resource(_network.Network, network)
-        agent = self._get_resource(_agent.Agent, agent)
-        return agent.add_agent_to_network(self, network.id)
+        network_obj = self._get_resource(_network.Network, network)
+        agent_obj = self._get_resource(_agent.Agent, agent)
+        return agent_obj.add_agent_to_network(self, network_obj.id)
 
-    def remove_dhcp_agent_from_network(self, agent, network):
+    def remove_dhcp_agent_from_network(
+        self,
+        agent: str | _agent.Agent,
+        network: str | _network.Network,
+    ) -> None:
         """Remove a DHCP Agent from a network
 
         :param agent: Either the agent id of an instance of
@@ -633,9 +651,9 @@ class Proxy(proxy.Proxy):
         :param network: Network instance
         :returns:
         """
-        network = self._get_resource(_network.Network, network)
-        agent = self._get_resource(_agent.Agent, agent)
-        return agent.remove_agent_from_network(self, network.id)
+        network_obj = self._get_resource(_network.Network, network)
+        agent_obj = self._get_resource(_agent.Agent, agent)
+        agent_obj.remove_agent_from_network(self, network_obj.id)
 
     def network_hosting_dhcp_agents(
         self,
@@ -698,7 +716,9 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
-    def validate_auto_allocated_topology(self, project=None):
+    def validate_auto_allocated_topology(
+        self, project: str | None = None
+    ) -> _auto_allocated_topology.ValidateTopology:
         """Validate the resources for auto allocation
 
         :param project:
@@ -858,30 +878,46 @@ class Proxy(proxy.Proxy):
         return self._list(_bgp_speaker.BgpSpeaker, **query)
 
     @renamed_param('peer_id', 'peer')
-    def add_bgp_peer_to_speaker(self, speaker, peer):
+    def add_bgp_peer_to_speaker(
+        self,
+        speaker: str | _bgp_speaker.BgpSpeaker,
+        peer: str | _bgp_peer.BgpPeer,
+    ) -> dict[str, Any]:
         """Bind the BGP peer to the specified BGP Speaker."""
-        speaker = self._get_resource(_bgp_speaker.BgpSpeaker, speaker)
-        return speaker.add_bgp_peer(self, resource.Resource._get_id(peer))
+        speaker_obj = self._get_resource(_bgp_speaker.BgpSpeaker, speaker)
+        return speaker_obj.add_bgp_peer(self, resource.Resource._get_id(peer))
 
     @renamed_param('peer_id', 'peer')
-    def remove_bgp_peer_from_speaker(self, speaker, peer):
+    def remove_bgp_peer_from_speaker(
+        self,
+        speaker: str | _bgp_speaker.BgpSpeaker,
+        peer: str | _bgp_peer.BgpPeer,
+    ) -> None:
         """Unbind the BGP peer from a BGP Speaker."""
-        speaker = self._get_resource(_bgp_speaker.BgpSpeaker, speaker)
-        return speaker.remove_bgp_peer(self, resource.Resource._get_id(peer))
+        speaker_obj = self._get_resource(_bgp_speaker.BgpSpeaker, speaker)
+        speaker_obj.remove_bgp_peer(self, resource.Resource._get_id(peer))
 
     @renamed_param('network_id', 'network')
-    def add_gateway_network_to_speaker(self, speaker, network):
+    def add_gateway_network_to_speaker(
+        self,
+        speaker: str | _bgp_speaker.BgpSpeaker,
+        network: str | _network.Network,
+    ) -> dict[str, Any]:
         """Add a network to the specified BGP speaker."""
-        speaker = self._get_resource(_bgp_speaker.BgpSpeaker, speaker)
-        return speaker.add_gateway_network(
+        speaker_obj = self._get_resource(_bgp_speaker.BgpSpeaker, speaker)
+        return speaker_obj.add_gateway_network(
             self, resource.Resource._get_id(network)
         )
 
     @renamed_param('network_id', 'network')
-    def remove_gateway_network_from_speaker(self, speaker, network):
+    def remove_gateway_network_from_speaker(
+        self,
+        speaker: str | _bgp_speaker.BgpSpeaker,
+        network: str | _network.Network,
+    ) -> None:
         """Remove a network from the specified BGP speaker."""
-        speaker = self._get_resource(_bgp_speaker.BgpSpeaker, speaker)
-        return speaker.remove_gateway_network(
+        speaker_obj = self._get_resource(_bgp_speaker.BgpSpeaker, speaker)
+        speaker_obj.remove_gateway_network(
             self, resource.Resource._get_id(network)
         )
 
@@ -901,10 +937,16 @@ class Proxy(proxy.Proxy):
         return speaker.get_bgp_dragents(self)
 
     @renamed_param('bgp_speaker_id', 'bgp_speaker')
-    def add_bgp_speaker_to_dragent(self, bgp_agent, bgp_speaker):
+    def add_bgp_speaker_to_dragent(
+        self,
+        bgp_agent: str | _agent.Agent,
+        bgp_speaker: str | _bgp_speaker.BgpSpeaker,
+    ) -> None:
         """Add a BGP Speaker to the specified dynamic routing agent."""
         speaker = self._get_resource(_bgp_speaker.BgpSpeaker, bgp_speaker)
-        speaker.add_bgp_speaker_to_dragent(self, bgp_agent)
+        speaker.add_bgp_speaker_to_dragent(
+            self, resource.Resource._get_id(bgp_agent)
+        )
 
     def get_bgp_speakers_hosted_by_dragent(
         self, bgp_agent: str | _agent.Agent
@@ -915,11 +957,17 @@ class Proxy(proxy.Proxy):
         return agent.get_bgp_speakers_hosted_by_dragent(self)
 
     @renamed_param('bgp_speaker_id', 'bgp_speaker')
-    def remove_bgp_speaker_from_dragent(self, bgp_agent, bgp_speaker):
+    def remove_bgp_speaker_from_dragent(
+        self,
+        bgp_agent: str | _agent.Agent,
+        bgp_speaker: str | _bgp_speaker.BgpSpeaker,
+    ) -> None:
         """Delete the BGP Speaker hosted by the specified dynamic
         routing agent."""
         speaker = self._get_resource(_bgp_speaker.BgpSpeaker, bgp_speaker)
-        speaker.remove_bgp_speaker_from_dragent(self, bgp_agent)
+        speaker.remove_bgp_speaker_from_dragent(
+            self, resource.Resource._get_id(bgp_agent)
+        )
 
     def create_bgpvpn(self, **attrs: Any) -> _bgpvpn.BgpVpn:
         """Create a new BGPVPN
@@ -1593,7 +1641,11 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_flavor.Flavor, **query)
 
-    def associate_flavor_with_service_profile(self, flavor, service_profile):
+    def associate_flavor_with_service_profile(
+        self,
+        flavor: str | _flavor.Flavor,
+        service_profile: str | _service_profile.ServiceProfile,
+    ) -> dict[str, Any]:
         """Associate network flavor with service profile.
 
         :param flavor:
@@ -1614,8 +1666,10 @@ class Proxy(proxy.Proxy):
         )
 
     def disassociate_flavor_from_service_profile(
-        self, flavor, service_profile
-    ):
+        self,
+        flavor: str | _flavor.Flavor,
+        service_profile: str | _service_profile.ServiceProfile,
+    ) -> None:
         """Disassociate network flavor from service profile.
 
         :param flavor:
@@ -1976,7 +2030,7 @@ class Proxy(proxy.Proxy):
             if_revision=if_revision,
         )
 
-    def find_available_ip(self):
+    def find_available_ip(self) -> _floating_ip.FloatingIP | None:
         """Find an available IP
 
         :returns: One :class:`~openstack.network.v2.floating_ip.FloatingIP`
@@ -3774,11 +3828,17 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_port.Port, port, if_revision=if_revision, **attrs)
 
-    def add_ip_to_port(self, port, ip):
+    def add_ip_to_port(
+        self,
+        port: _port.Port,
+        ip: _floating_ip.FloatingIP,
+    ) -> _floating_ip.FloatingIP:
         ip.port_id = port.id
         return ip.commit(self)
 
-    def remove_ip_from_port(self, ip):
+    def remove_ip_from_port(
+        self, ip: _floating_ip.FloatingIP
+    ) -> _floating_ip.FloatingIP:
         ip.port_id = None
         return ip.commit(self)
 
@@ -3817,9 +3877,9 @@ class Proxy(proxy.Proxy):
 
     def activate_port_binding(
         self,
-        port,
-        host,
-    ):
+        port: str | _port.Port,
+        host: str,
+    ) -> _port_binding.PortBinding | None:
         """Activate a port binding
 
         :param port: The value can be the ID of a port or a
@@ -3833,6 +3893,7 @@ class Proxy(proxy.Proxy):
         # There can be only 1 binding on a host at a time
         for binding in bindings_on_host:
             return binding.activate_port_binding(self, host)
+        return None
 
     def port_bindings(
         self,
@@ -5342,7 +5403,12 @@ class Proxy(proxy.Proxy):
 
     @renamed_param('subnet_id', 'subnet')
     @renamed_param('port_id', 'port')
-    def add_interface_to_router(self, router, subnet=None, port=None):
+    def add_interface_to_router(
+        self,
+        router: str | _router.Router,
+        subnet: str | None = None,
+        port: str | None = None,
+    ) -> dict[str, Any]:
         """Add Interface to a router
 
         :param router: Either the router ID or an instance of
@@ -5359,13 +5425,18 @@ class Proxy(proxy.Proxy):
         if port:
             body = {'port_id': resource.Resource._get_id(port)}
         else:
-            body = {'subnet_id': resource.Resource._get_id(subnet)}
+            body = {'subnet_id': resource.Resource._get_id(subnet)}  # type: ignore[arg-type]
         router = self._get_resource(_router.Router, router)
         return router.add_interface(self, **body)
 
     @renamed_param('subnet_id', 'subnet')
     @renamed_param('port_id', 'port')
-    def remove_interface_from_router(self, router, subnet=None, port=None):
+    def remove_interface_from_router(
+        self,
+        router: str | _router.Router,
+        subnet: str | None = None,
+        port: str | None = None,
+    ) -> dict[str, Any]:
         """Remove Interface from a router
 
         :param router: Either the router ID or an instance of
@@ -5382,11 +5453,13 @@ class Proxy(proxy.Proxy):
         if port:
             body = {'port_id': resource.Resource._get_id(port)}
         else:
-            body = {'subnet_id': resource.Resource._get_id(subnet)}
+            body = {'subnet_id': resource.Resource._get_id(subnet)}  # type: ignore[arg-type]
         router = self._get_resource(_router.Router, router)
         return router.remove_interface(self, **body)
 
-    def add_extra_routes_to_router(self, router, body):
+    def add_extra_routes_to_router(
+        self, router: str | _router.Router, body: dict[str, Any]
+    ) -> _router.Router:
         """Add extra routes to a router
 
         :param router: Either the router ID or an instance of
@@ -5397,7 +5470,9 @@ class Proxy(proxy.Proxy):
         router = self._get_resource(_router.Router, router)
         return router.add_extra_routes(self, body=body)
 
-    def remove_extra_routes_from_router(self, router, body):
+    def remove_extra_routes_from_router(
+        self, router: str | _router.Router, body: dict[str, Any]
+    ) -> _router.Router:
         """Remove extra routes from a router
 
         :param router: Either the router ID or an instance of
@@ -5408,7 +5483,9 @@ class Proxy(proxy.Proxy):
         router = self._get_resource(_router.Router, router)
         return router.remove_extra_routes(self, body=body)
 
-    def add_gateway_to_router(self, router, **body):
+    def add_gateway_to_router(
+        self, router: str | _router.Router, **body: Any
+    ) -> dict[str, Any]:
         """Add Gateway to a router
 
         :param router: Either the router ID or an instance of
@@ -5419,7 +5496,9 @@ class Proxy(proxy.Proxy):
         router = self._get_resource(_router.Router, router)
         return router.add_gateway(self, **body)
 
-    def remove_gateway_from_router(self, router, **body):
+    def remove_gateway_from_router(
+        self, router: str | _router.Router, **body: Any
+    ) -> dict[str, Any]:
         """Remove Gateway from a router
 
         :param router: Either the router ID or an instance of
@@ -5430,7 +5509,9 @@ class Proxy(proxy.Proxy):
         router = self._get_resource(_router.Router, router)
         return router.remove_gateway(self, **body)
 
-    def add_external_gateways(self, router, body):
+    def add_external_gateways(
+        self, router: str | _router.Router, body: dict[str, Any]
+    ) -> _router.Router:
         """Add router external gateways
 
         :param router: Either the router ID or an instance of
@@ -5456,7 +5537,9 @@ class Proxy(proxy.Proxy):
         router = self._get_resource(_router.Router, router)
         return router.update_external_gateways(self, body)
 
-    def remove_external_gateways(self, router, body):
+    def remove_external_gateways(
+        self, router: str | _router.Router, body: dict[str, Any]
+    ) -> _router.Router:
         """Remove router external gateways
 
         :param router: Either the router ID or an instance of
@@ -5501,7 +5584,13 @@ class Proxy(proxy.Proxy):
         agent = self._get_resource(_agent.Agent, agent)
         return self._list(_router.L3AgentRouter, agent_id=agent.id, **query)
 
-    def add_router_to_agent(self, agent, router, *, ha_chassis_priority=None):
+    def add_router_to_agent(
+        self,
+        agent: str | _agent.Agent,
+        router: str | _router.Router,
+        *,
+        ha_chassis_priority: int | None = None,
+    ) -> dict[str, Any]:
         """Add router to L3 agent
 
         :param agent: Either the id of an agent
@@ -5539,7 +5628,9 @@ class Proxy(proxy.Proxy):
             self, router.id, ha_chassis_priority=ha_chassis_priority
         )
 
-    def remove_router_from_agent(self, agent, router):
+    def remove_router_from_agent(
+        self, agent: str | _agent.Agent, router: str | _router.Router
+    ) -> None:
         """Remove router from L3 agent
 
         :param agent: Either the id of an agent or an
@@ -5955,11 +6046,11 @@ class Proxy(proxy.Proxy):
     @renamed_param('firewall_rule_id', 'firewall_rule')
     def insert_rule_into_policy(
         self,
-        firewall_policy,
-        firewall_rule,
-        insert_after=None,
-        insert_before=None,
-    ):
+        firewall_policy: str | _firewall_policy.FirewallPolicy,
+        firewall_rule: str | _firewall_rule.FirewallRule,
+        insert_after: str | None = None,
+        insert_before: str | None = None,
+    ) -> _firewall_policy.FirewallPolicy:
         """Insert a firewall_rule into a firewall_policy in order
 
         :param firewall_policy: The ID or a
@@ -5988,7 +6079,11 @@ class Proxy(proxy.Proxy):
 
     @renamed_param('firewall_policy_id', 'firewall_policy')
     @renamed_param('firewall_rule_id', 'firewall_rule')
-    def remove_rule_from_policy(self, firewall_policy, firewall_rule):
+    def remove_rule_from_policy(
+        self,
+        firewall_policy: str | _firewall_policy.FirewallPolicy,
+        firewall_rule: str | _firewall_rule.FirewallRule,
+    ) -> _firewall_policy.FirewallPolicy:
         """Remove a firewall_rule from a firewall_policy.
 
         :param firewall_policy: The ID or a
@@ -7263,7 +7358,7 @@ class Proxy(proxy.Proxy):
         return self._update(_subnet_pool.SubnetPool, subnet_pool, **attrs)
 
     @staticmethod
-    def _check_tag_support(resource):
+    def _check_tag_support(resource: resource.Resource) -> None:
         try:
             # Check 'tags' attribute exists
             resource.tags
@@ -7281,9 +7376,11 @@ class Proxy(proxy.Proxy):
         :returns: The resource tags list
         """
         self._check_tag_support(resource)
-        return resource.fetch_tags(self).tags
+        return resource.fetch_tags(self).tags  # type: ignore[no-any-return]
 
-    def set_tags(self, resource, tags):
+    def set_tags(
+        self, resource: resource.Resource, tags: list[str]
+    ) -> resource.Resource:
         """Replace tags of a specified resource with specified tags
 
         :param resource:
@@ -7294,9 +7391,11 @@ class Proxy(proxy.Proxy):
         :returns: The updated resource
         """
         self._check_tag_support(resource)
-        return resource.set_tags(self, tags)
+        return resource.set_tags(self, tags)  # type: ignore[no-any-return]
 
-    def add_tags(self, resource, tags):
+    def add_tags(
+        self, resource: resource.Resource, tags: list[str]
+    ) -> resource.Resource:
         """Add tags to a specified resource
 
         :param resource: :class:`~openstack.resource.Resource` instance.
@@ -7306,9 +7405,11 @@ class Proxy(proxy.Proxy):
         :returns: The updated resource
         """
         self._check_tag_support(resource)
-        return resource.add_tags(self, tags)
+        return resource.add_tags(self, tags)  # type: ignore[no-any-return]
 
-    def add_tag(self, resource, tag):
+    def add_tag(
+        self, resource: resource.Resource, tag: str
+    ) -> resource.Resource:
         """Add one single tag to a specified resource
 
         :param resource: :class:`~openstack.resource.Resource` instance.
@@ -7318,9 +7419,11 @@ class Proxy(proxy.Proxy):
         :returns: The updated resource
         """
         self._check_tag_support(resource)
-        return resource.add_tag(self, tag)
+        return resource.add_tag(self, tag)  # type: ignore[no-any-return]
 
-    def remove_tag(self, resource, tag):
+    def remove_tag(
+        self, resource: resource.Resource, tag: str
+    ) -> resource.Resource:
         """Remove one single tag of a specified resource
 
         :param resource: :class:`~openstack.resource.Resource` instance.
@@ -7330,9 +7433,11 @@ class Proxy(proxy.Proxy):
         :returns: The updated resource
         """
         self._check_tag_support(resource)
-        return resource.remove_tag(self, tag)
+        return resource.remove_tag(self, tag)  # type: ignore[no-any-return]
 
-    def remove_all_tags(self, resource):
+    def remove_all_tags(
+        self, resource: resource.Resource
+    ) -> resource.Resource:
         """Remove all tags of a specified resource
 
         :param resource: :class:`~openstack.resource.Resource` instance.
@@ -7340,9 +7445,9 @@ class Proxy(proxy.Proxy):
         :returns: The updated resource
         """
         self._check_tag_support(resource)
-        return resource.remove_all_tags(self)
+        return resource.remove_all_tags(self)  # type: ignore[no-any-return]
 
-    def check_tag(self, resource, tag):
+    def check_tag(self, resource: resource.Resource, tag: str) -> bool:
         """Checks if tag exists on the specified resource
 
         :param resource: :class:`~openstack.resource.Resource` instance.
@@ -7352,7 +7457,7 @@ class Proxy(proxy.Proxy):
         :returns: If the tag exists in the specified resource
         """
         self._check_tag_support(resource)
-        return resource.check_tag(self, tag)
+        return resource.check_tag(self, tag)  # type: ignore[no-any-return]
 
     def create_trunk(self, **attrs: Any) -> _trunk.Trunk:
         """Create a new trunk from attributes
@@ -7459,7 +7564,11 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_trunk.Trunk, trunk, **attrs)
 
-    def add_trunk_subports(self, trunk, subports):
+    def add_trunk_subports(
+        self,
+        trunk: str | _trunk.Trunk,
+        subports: list[dict[str, Any]],
+    ) -> _trunk.Trunk:
         """Set sub_ports on trunk
 
         :param trunk: The value can be the ID of a trunk or a
@@ -7485,7 +7594,7 @@ class Proxy(proxy.Proxy):
         :returns: The updated trunk
         """
         trunk = self._get_resource(_trunk.Trunk, trunk)
-        return trunk.delete_subports(self, subports)
+        return trunk.delete_subports(self, list(subports))
 
     def get_trunk_subports(self, trunk: str | _trunk.Trunk) -> dict[str, Any]:
         """Get sub_ports configured on trunk
@@ -9387,18 +9496,18 @@ class Proxy(proxy.Proxy):
         """
         return resource.wait_for_delete(self, res, interval, wait, callback)
 
-    def _get_cleanup_dependencies(self):
-        return {'network': {'before': ['identity']}}
+    def _get_cleanup_dependencies(self) -> dict[str, CleanupDependency]:
+        return {'network': {'before': ['identity'], 'after': []}}
 
     def _service_cleanup(
         self,
-        dry_run=True,
-        client_status_queue=None,
-        identified_resources=None,
-        filters=None,
-        resource_evaluation_fn=None,
-        skip_resources=None,
-    ):
+        dry_run: bool = True,
+        client_status_queue: queue.Queue[resource.Resource] | None = None,
+        identified_resources: dict[str, resource.Resource] | None = None,
+        filters: dict[str, Any] | None = None,
+        resource_evaluation_fn: Callable[..., bool] | None = None,
+        skip_resources: Sequence[str] | None = None,
+    ) -> None:
         project_id = self.get_project_id()
 
         # check if the VPN service plugin is configured
@@ -9487,7 +9596,7 @@ class Proxy(proxy.Proxy):
                     client_status_queue=client_status_queue,
                     identified_resources=identified_resources,
                     filters=filters,
-                    resource_evaluation_fn=fip_cleanup_evaluation,
+                    resource_evaluation_fn=fip_cleanup_evaluation,  # type: ignore[arg-type]
                 )
 
         if not self.should_skip_resource_cleanup(
@@ -9660,7 +9769,11 @@ class Proxy(proxy.Proxy):
                     )
 
 
-def fip_cleanup_evaluation(obj, identified_resources=None, filters=None):
+def fip_cleanup_evaluation(
+    obj: _floating_ip.FloatingIP,
+    identified_resources: dict[str, resource.Resource] | None = None,
+    filters: dict[str, Any] | None = None,
+) -> bool:
     """Determine whether Floating IP should be deleted
 
     :param obj: Floating IP object

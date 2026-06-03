@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any, Self
+
+from keystoneauth1 import adapter
+
 from openstack import exceptions
 from openstack.network.v2 import _base
 from openstack import resource
@@ -87,12 +91,16 @@ class Router(_base.NetworkResource, _base.TagMixinNetwork):
     #: Timestamp when the router was created.
     updated_at = resource.Body('updated_at')
 
-    def _put(self, session, url, body):
+    def _put(
+        self, session: adapter.Adapter, url: str, body: dict[str, Any]
+    ) -> Any:
         resp = session.put(url, json=body)
         exceptions.raise_from_response(resp)
         return resp
 
-    def add_interface(self, session, **body):
+    def add_interface(
+        self, session: adapter.Adapter, **body: Any
+    ) -> dict[str, Any]:
         """Add an internal interface to a logical router.
 
         :param session: The session to communicate through.
@@ -105,9 +113,11 @@ class Router(_base.NetworkResource, _base.TagMixinNetwork):
         """
         url = utils.urljoin(self.base_path, self.id, 'add_router_interface')
         resp = self._put(session, url, body)
-        return resp.json()
+        return resp.json()  # type: ignore[no-any-return]
 
-    def remove_interface(self, session, **body):
+    def remove_interface(
+        self, session: adapter.Adapter, **body: Any
+    ) -> dict[str, Any]:
         """Remove an internal interface from a logical router.
 
         :param session: The session to communicate through.
@@ -120,9 +130,11 @@ class Router(_base.NetworkResource, _base.TagMixinNetwork):
         """
         url = utils.urljoin(self.base_path, self.id, 'remove_router_interface')
         resp = self._put(session, url, body)
-        return resp.json()
+        return resp.json()  # type: ignore[no-any-return]
 
-    def add_extra_routes(self, session, body):
+    def add_extra_routes(
+        self, session: adapter.Adapter, body: dict[str, Any]
+    ) -> Self:
         """Add extra routes to a logical router.
 
         :param session: The session to communicate through.
@@ -138,7 +150,9 @@ class Router(_base.NetworkResource, _base.TagMixinNetwork):
         self._translate_response(resp)
         return self
 
-    def remove_extra_routes(self, session, body):
+    def remove_extra_routes(
+        self, session: adapter.Adapter, body: dict[str, Any]
+    ) -> Self:
         """Remove extra routes from a logical router.
 
         :param session: The session to communicate through.
@@ -154,7 +168,9 @@ class Router(_base.NetworkResource, _base.TagMixinNetwork):
         self._translate_response(resp)
         return self
 
-    def add_gateway(self, session, **body):
+    def add_gateway(
+        self, session: adapter.Adapter, **body: Any
+    ) -> dict[str, Any]:
         """Add an external gateway to a logical router.
 
         :param session: The session to communicate through.
@@ -165,9 +181,11 @@ class Router(_base.NetworkResource, _base.TagMixinNetwork):
         """
         url = utils.urljoin(self.base_path, self.id, 'add_gateway_router')
         resp = session.put(url, json=body)
-        return resp.json()
+        return resp.json()  # type: ignore[no-any-return]
 
-    def remove_gateway(self, session, **body):
+    def remove_gateway(
+        self, session: adapter.Adapter, **body: Any
+    ) -> dict[str, Any]:
         """Remove an external gateway from a logical router.
 
         :param session: The session to communicate through.
@@ -178,9 +196,11 @@ class Router(_base.NetworkResource, _base.TagMixinNetwork):
         """
         url = utils.urljoin(self.base_path, self.id, 'remove_gateway_router')
         resp = session.put(url, json=body)
-        return resp.json()
+        return resp.json()  # type: ignore[no-any-return]
 
-    def add_external_gateways(self, session, body):
+    def add_external_gateways(
+        self, session: adapter.Adapter, body: dict[str, Any]
+    ) -> Self:
         """Add external gateways to a router.
 
         :param session: The session to communicate through.
@@ -194,7 +214,9 @@ class Router(_base.NetworkResource, _base.TagMixinNetwork):
         self._translate_response(resp)
         return self
 
-    def update_external_gateways(self, session, body):
+    def update_external_gateways(
+        self, session: adapter.Adapter, body: dict[str, Any]
+    ) -> Self:
         """Update external gateways of a router.
 
         :param session: The session to communicate through.
@@ -210,7 +232,9 @@ class Router(_base.NetworkResource, _base.TagMixinNetwork):
         self._translate_response(resp)
         return self
 
-    def remove_external_gateways(self, session, body):
+    def remove_external_gateways(
+        self, session: adapter.Adapter, body: dict[str, Any]
+    ) -> Self:
         """Remove external gateways from a router.
 
         :param session: The session to communicate through.

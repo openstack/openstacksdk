@@ -9,6 +9,10 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from typing import Any, Self
+
+from keystoneauth1 import adapter
+
 from openstack.common import tag
 from openstack import exceptions
 from openstack import resource
@@ -61,23 +65,27 @@ class Trunk(resource.Resource, tag.TagMixin):
     #: A list of ports associated with the trunk.
     sub_ports = resource.Body('sub_ports', type=list)
 
-    def add_subports(self, session, subports):
+    def add_subports(
+        self, session: adapter.Adapter, subports: list[dict[str, Any]]
+    ) -> Self:
         url = utils.urljoin('/trunks', self.id, 'add_subports')
         resp = session.put(url, json={'sub_ports': subports})
         exceptions.raise_from_response(resp)
         self._body.attributes.update(resp.json())
         return self
 
-    def delete_subports(self, session, subports):
+    def delete_subports(
+        self, session: adapter.Adapter, subports: list[dict[str, Any]]
+    ) -> Self:
         url = utils.urljoin('/trunks', self.id, 'remove_subports')
         resp = session.put(url, json={'sub_ports': subports})
         exceptions.raise_from_response(resp)
         self._body.attributes.update(resp.json())
         return self
 
-    def get_subports(self, session):
+    def get_subports(self, session: adapter.Adapter) -> dict[str, Any]:
         url = utils.urljoin('/trunks', self.id, 'get_subports')
         resp = session.get(url)
         exceptions.raise_from_response(resp)
         self._body.attributes.update(resp.json())
-        return resp.json()
+        return resp.json()  # type: ignore[no-any-return]

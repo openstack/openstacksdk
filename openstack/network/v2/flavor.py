@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
+from keystoneauth1 import adapter
+
 from openstack import resource
 from openstack import utils
 
@@ -50,17 +54,21 @@ class Flavor(resource.Resource):
     service_profile_ids = resource.Body('service_profiles', type=list)
 
     def associate_flavor_with_service_profile(
-        self, session, service_profile_id=None
-    ):
+        self,
+        session: adapter.Adapter,
+        service_profile_id: str | None = None,
+    ) -> dict[str, Any]:
         flavor_id = self.id
         url = utils.urljoin(self.base_path, flavor_id, 'service_profiles')
         body = {"service_profile": {"id": service_profile_id}}
         resp = session.post(url, json=body)
-        return resp.json()
+        return resp.json()  # type: ignore[no-any-return]
 
     def disassociate_flavor_from_service_profile(
-        self, session, service_profile_id=None
-    ):
+        self,
+        session: adapter.Adapter,
+        service_profile_id: str | None = None,
+    ) -> None:
         flavor_id = self.id
         url = utils.urljoin(
             self.base_path, flavor_id, 'service_profiles', service_profile_id
@@ -68,4 +76,3 @@ class Flavor(resource.Resource):
         session.delete(
             url,
         )
-        return None

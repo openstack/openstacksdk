@@ -96,6 +96,7 @@ module = [
     "openstack.key_manager.*",
     "openstack.load_balancer.*",
     "openstack.message.*",
+    "openstack.network.*",
 ]
 disallow_untyped_calls = true
 disallow_untyped_defs = true
