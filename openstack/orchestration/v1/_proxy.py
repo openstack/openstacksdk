@@ -10,8 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from collections.abc import Callable, Generator, Sequence
+import queue
 from typing import Any, ClassVar, Literal, overload
-from collections.abc import Callable, Generator
 
 from openstack import exceptions
 from openstack.orchestration.util import template_utils
@@ -25,6 +26,7 @@ from openstack.orchestration.v1 import stack_files as _stack_files
 from openstack.orchestration.v1 import stack_template as _stack_template
 from openstack.orchestration.v1 import template as _template
 from openstack import proxy
+from openstack.proxy import CleanupDependency
 from openstack import resource
 
 
@@ -43,7 +45,9 @@ class Proxy(proxy.Proxy):
         "stack_template": _stack_template.StackTemplate,
     }
 
-    def _extract_name_consume_url_parts(self, url_parts):
+    def _extract_name_consume_url_parts(
+        self, url_parts: list[str]
+    ) -> list[str]:
         if (
             len(url_parts) == 3
             and url_parts[0] == 'software_deployments'
@@ -66,12 +70,12 @@ class Proxy(proxy.Proxy):
 
     def read_env_and_templates(
         self,
-        template_file=None,
-        template_url=None,
-        template_object=None,
-        files=None,
-        environment_files=None,
-    ):
+        template_file: str | None = None,
+        template_url: str | None = None,
+        template_object: str | None = None,
+        files: dict[str, Any] | None = None,
+        environment_files: list[str] | None = None,
+    ) -> dict[str, Any]:
         """Read templates and environment content and prepares
         corresponding stack attributes
 
@@ -84,9 +88,9 @@ class Proxy(proxy.Proxy):
         :returns: Attributes dict to be set on the
             :class:`~openstack.orchestration.v1.stack.Stack`
         """
-        stack_attrs = dict()
-        envfiles = dict()
-        tpl_files = None
+        stack_attrs: dict[str, Any] = {}
+        envfiles: dict[str, Any] = {}
+        tpl_files: dict[str, Any] | None = None
         if environment_files:
             (
                 envfiles,
@@ -228,7 +232,7 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_stack.Stack, stack, ignore_missing=ignore_missing)
 
-    def check_stack(self, stack):
+    def check_stack(self, stack: str | _stack.Stack) -> None:
         """Check a stack's status
 
         Since this is an asynchronous action, the only way to check the result
@@ -245,7 +249,7 @@ class Proxy(proxy.Proxy):
 
         stk_obj.check(self)
 
-    def abandon_stack(self, stack):
+    def abandon_stack(self, stack: str | _stack.Stack) -> dict[str, Any]:
         """Abandon a stack's without deleting it's resources
 
         :param stack: The value can be either the ID of a stack or an instance
@@ -255,7 +259,7 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_stack.Stack, stack)
         return res.abandon(self)
 
-    def export_stack(self, stack):
+    def export_stack(self, stack: str | _stack.Stack) -> dict[str, Any]:
         """Get the stack data in JSON format
 
         :param stack: The value can be the ID or a name or
@@ -270,7 +274,7 @@ class Proxy(proxy.Proxy):
             obj = self._find(_stack.Stack, stack, ignore_missing=False)
         return obj.export(self)
 
-    def suspend_stack(self, stack):
+    def suspend_stack(self, stack: str | _stack.Stack) -> None:
         """Suspend a stack status
 
         :param stack: The value can be either the ID of a stack or an instance
@@ -280,7 +284,7 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_stack.Stack, stack)
         res.suspend(self)
 
-    def resume_stack(self, stack):
+    def resume_stack(self, stack: str | _stack.Stack) -> None:
         """Resume a stack status
 
         :param stack: The value can be either the ID of a stack or an instance
@@ -528,8 +532,12 @@ class Proxy(proxy.Proxy):
         )
 
     def validate_template(
-        self, template, environment=None, template_url=None, ignore_errors=None
-    ):
+        self,
+        template: dict[str, Any] | None,
+        environment: dict[str, Any] | None = None,
+        template_url: str | None = None,
+        ignore_errors: str | None = None,
+    ) -> _template.Template:
         """Validates a template.
 
         :param template: The stack template on which the validation is
@@ -569,7 +577,7 @@ class Proxy(proxy.Proxy):
         template_url: str | None = None,
         template_object: str | None = None,
         files: dict[str, Any] | None = None,
-    ) -> tuple[dict[str, Any], dict[str, Any]]:
+    ) -> tuple[dict[str, Any], dict[str, Any] | None]:
         try:
             return template_utils.get_template_contents(
                 template_file=template_file,
@@ -688,20 +696,31 @@ class Proxy(proxy.Proxy):
         """
         return resource.wait_for_delete(self, res, interval, wait, callback)
 
-    def _get_cleanup_dependencies(self):
+    def _get_cleanup_dependencies(self) -> dict[str, CleanupDependency]:
         return {
-            'orchestration': {'before': ['compute', 'network', 'identity']}
+            'orchestration': {
+                'before': ['compute', 'network', 'identity'],
+                'after': [],
+            }
         }
 
     def _service_cleanup(
         self,
-        dry_run=True,
-        client_status_queue=None,
-        identified_resources=None,
-        filters=None,
-        resource_evaluation_fn=None,
-        skip_resources=None,
-    ):
+        dry_run: bool = True,
+        client_status_queue: queue.Queue[resource.Resource] | None = None,
+        identified_resources: dict[str, resource.Resource] | None = None,
+        filters: dict[str, Any] | None = None,
+        resource_evaluation_fn: Callable[
+            [
+                resource.Resource,
+                dict[str, Any] | None,
+                dict[str, resource.Resource] | None,
+            ],
+            bool,
+        ]
+        | None = None,
+        skip_resources: Sequence[str] | None = None,
+    ) -> None:
         if self.should_skip_resource_cleanup("stack", skip_resources):
             return
 

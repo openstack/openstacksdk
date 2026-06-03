@@ -13,16 +13,24 @@
 # under the License.
 
 import collections
+from collections.abc import Callable
 import time
+from typing import Any
 
 from openstack.cloud import meta
 from openstack import exceptions
 
 
 # TODO(stephenfin): Convert to use real resources
-def get_events(cloud, stack_id, event_args, marker=None, limit=None):
+def get_events(
+    cloud: Any,
+    stack_id: str,
+    event_args: dict[str, Any],
+    marker: str | None = None,
+    limit: int | None = None,
+) -> list[Any]:
     # TODO(mordred) FIX THIS ONCE assert_calls CAN HANDLE QUERY STRINGS
-    params = collections.OrderedDict()
+    params: collections.OrderedDict[str, Any] = collections.OrderedDict()
     for k in sorted(event_args.keys()):
         params[k] = event_args[k]
 
@@ -38,24 +46,29 @@ def get_events(cloud, stack_id, event_args, marker=None, limit=None):
     exceptions.raise_from_response(response)
 
     # Show which stack the event comes from (for nested events)
-    events = meta.get_and_munchify('events', response.json())
+    events = meta.get_and_munchify('events', response.json())  # type: ignore[no-untyped-call]
     for e in events:
         e['stack_name'] = stack_id.split("/")[0]
-    return events
+    return events  # type: ignore[no-any-return]
 
 
 def poll_for_events(
-    cloud, stack_name, action=None, poll_period=5, marker=None
-):
+    cloud: Any,
+    stack_name: str,
+    action: str | None = None,
+    poll_period: int | float = 5,
+    marker: str | None = None,
+) -> tuple[str, str]:
     """Continuously poll events and logs for performed action on stack."""
 
-    def stop_check_action(a):
+    def stop_check_action(a: str) -> bool:
         stop_status = (f'{action}_FAILED', f'{action}_COMPLETE')
         return a in stop_status
 
-    def stop_check_no_action(a):
+    def stop_check_no_action(a: str) -> bool:
         return a.endswith('_COMPLETE') or a.endswith('_FAILED')
 
+    stop_check: Callable[[str], bool]
     if action:
         stop_check = stop_check_action
     else:
@@ -64,7 +77,7 @@ def poll_for_events(
     no_event_polls = 0
     msg_template = "\n Stack %(name)s %(status)s \n"
 
-    def is_stack_event(event):
+    def is_stack_event(event: Any) -> bool:
         if (
             event.get('resource_name', '') != stack_name
             and event.get('physical_resource_id', '') != stack_name
@@ -77,7 +90,7 @@ def poll_for_events(
             for link in event.get('links', [])
         }
         stack_id = links.get('stack', phys_id).rsplit('/', 1)[-1]
-        return stack_id == phys_id
+        return bool(stack_id == phys_id)
 
     while True:
         events = get_events(

@@ -76,7 +76,13 @@ class SoftwareDeployment(resource.Resource):
             **params,
         )
 
-    def commit(self, session, prepend_key=False, *args, **kwargs):
+    def commit(
+        self,
+        session: adapter.Adapter,
+        prepend_key: bool = False,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Self:
         # This overrides the default behavior of resource creation because
         # heat doesn't accept resource_key in its request.
         return super().commit(session, prepend_key, *args, **kwargs)

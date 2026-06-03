@@ -15,6 +15,7 @@
 
 import base64
 import os
+from typing import Any
 from urllib import error
 from urllib import parse
 from urllib import request
@@ -22,20 +23,20 @@ from urllib import request
 from openstack import exceptions
 
 
-def base_url_for_url(url):
+def base_url_for_url(url: str) -> str:
     parsed = parse.urlparse(url)
     parsed_dir = os.path.dirname(parsed.path)
     return parse.urljoin(url, parsed_dir)
 
 
-def normalise_file_path_to_url(path):
+def normalise_file_path_to_url(path: str) -> str:
     if parse.urlparse(path).scheme:
         return path
     path = os.path.abspath(path)
     return parse.urljoin('file:', request.pathname2url(path))
 
 
-def read_url_content(url):
+def read_url_content(url: str) -> str | bytes:
     try:
         # TODO(mordred) Use requests
         content = request.urlopen(url).read()  # noqa: S310
@@ -47,10 +48,10 @@ def read_url_content(url):
             content = content.decode('utf-8')
         except ValueError:
             content = base64.encodebytes(content)
-    return content
+    return content  # type: ignore[no-any-return]
 
 
-def resource_nested_identifier(rsrc):
+def resource_nested_identifier(rsrc: Any) -> str | None:
     nested_link = [
         link for link in rsrc.links or [] if link.get('rel') == 'nested'
     ]
@@ -58,3 +59,4 @@ def resource_nested_identifier(rsrc):
         nested_href = nested_link[0].get('href')
         nested_identifier = nested_href.split("/")[-2:]
         return "/".join(nested_identifier)
+    return None

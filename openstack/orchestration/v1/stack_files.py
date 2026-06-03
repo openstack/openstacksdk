@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
+from keystoneauth1 import adapter
+
 from openstack import resource
 
 
@@ -33,11 +37,16 @@ class StackFiles(resource.Resource):
     # Backwards compat
     stack_id = id
 
-    def fetch(
-        self, session, requires_id=False, base_path=None, *args, **kwargs
-    ):
+    def fetch(  # type: ignore[override]
+        self,
+        session: adapter.Adapter,
+        requires_id: bool = False,
+        base_path: str | None = None,
+        *args: Any,
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         # The stack files response contains a map of filenames and file
         # contents.
         request = self._prepare_request(requires_id=False, base_path=base_path)
         resp = session.get(request.url)
-        return resp.json()
+        return resp.json()  # type: ignore[no-any-return]
