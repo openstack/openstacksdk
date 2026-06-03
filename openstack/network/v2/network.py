@@ -104,6 +104,8 @@ class Network(_base.NetworkResource, _base.TagMixinNetwork):
     #: network type defines the segmentation model.
     #: Available for multiple provider extensions.
     provider_segmentation_id = resource.Body('provider:segmentation_id')
+    #: Indicates if PVLAN is enabled for the network.
+    pvlan = resource.Body('pvlan', type=bool)
     #: The ID of the QoS policy attached to the port.
     qos_policy_id = resource.Body('qos_policy_id')
     #: A list of provider segment objects.

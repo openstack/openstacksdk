@@ -42,6 +42,8 @@ EXAMPLE = {
     'network_id': '18',
     'numa_affinity_policy': False,
     'port_security_enabled': True,
+    'pvlan_type': 'community',
+    'pvlan_community': 'community_1',
     'qos_network_policy_id': '32',
     'qos_policy_id': '21',
     'propagate_uplink_status': False,
@@ -161,6 +163,8 @@ class TestPort(base.TestCase):
         self.assertEqual(
             EXAMPLE['propagate_uplink_status'], sot.propagate_uplink_status
         )
+        self.assertEqual(EXAMPLE['pvlan_type'], sot.pvlan_type)
+        self.assertEqual(EXAMPLE['pvlan_community'], sot.pvlan_community)
         self.assertEqual(EXAMPLE['resource_request'], sot.resource_request)
         self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
         self.assertEqual(EXAMPLE['security_groups'], sot.security_group_ids)
