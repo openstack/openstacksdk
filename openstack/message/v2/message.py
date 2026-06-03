@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, Self
+from typing import Any, Self, cast
 import uuid
 
 from keystoneauth1 import adapter
@@ -50,7 +50,7 @@ class Message(_base.MessageResource):
     # deletions and resource.delete doesn't respect these currently
     claim_id: str | None = None
 
-    def post(self, session, messages):
+    def post(self, session: adapter.Adapter, messages: list[Any]) -> list[Any]:
         request = self._prepare_request(requires_id=False, prepend_key=True)
         headers: dict[str, str] = {
             "Client-ID": self.client_id or str(uuid.uuid4()),
@@ -62,7 +62,7 @@ class Message(_base.MessageResource):
             request.url, json=request.body, headers=request.headers
         )
 
-        return response.json()['resources']
+        return cast(list[Any], response.json()['resources'])
 
     def create(
         self,
@@ -96,8 +96,13 @@ class Message(_base.MessageResource):
         return self
 
     def delete(
-        self, session, error_message=None, *, microversion=None, **kwargs
-    ):
+        self,
+        session: adapter.Adapter,
+        error_message: str | None = None,
+        *,
+        microversion: str | None = None,
+        **kwargs: Any,
+    ) -> Self:
         request = self._prepare_request()
         headers: dict[str, str] = {
             "Client-ID": self.client_id or str(uuid.uuid4()),

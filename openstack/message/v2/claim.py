@@ -50,12 +50,12 @@ class Claim(_base.MessageResource):
 
     def _translate_response(
         self,
-        response,
-        has_body=None,
-        error_message=None,
+        response: Any,
+        has_body: bool | None = None,
+        error_message: str | None = None,
         *,
-        resource_response_key=None,
-    ):
+        resource_response_key: str | None = None,
+    ) -> None:
         # For case no message was claimed successfully, 204 No Content
         # message will be returned. In other cases, we translate response
         # body which has `messages` field(list) included.
@@ -105,13 +105,13 @@ class Claim(_base.MessageResource):
 
     def commit(
         self,
-        session,
-        prepend_key=True,
-        has_body=True,
-        retry_on_conflict=None,
-        base_path=None,
-        **kwargs,
-    ):
+        session: adapter.Adapter,
+        prepend_key: bool = True,
+        has_body: bool = True,
+        retry_on_conflict: bool | None = None,
+        base_path: str | None = None,
+        **kwargs: Any,
+    ) -> Self:
         request = self._prepare_request(
             prepend_key=prepend_key, base_path=base_path
         )
