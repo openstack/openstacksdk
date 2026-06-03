@@ -26,9 +26,11 @@ class TestObject(base.BaseFunctionalTest):
         self.addCleanup(
             self.operator_cloud.object_store.delete_container, self.FOLDER
         )
-        self.sot = self.operator_cloud.object_store.upload_object(
+        sot = self.operator_cloud.object_store.upload_object(
             container=self.FOLDER, name=self.FILE, data=self.DATA
         )
+        assert sot is not None
+        self.sot = sot
         self.addEmptyCleanup(
             self.operator_cloud.object_store.delete_object,
             self.sot,

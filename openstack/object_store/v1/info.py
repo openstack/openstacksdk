@@ -12,7 +12,10 @@
 # under the License.
 
 import re
+from typing import Any, Self
 import urllib.parse
+
+from keystoneauth1 import adapter
 
 from openstack import exceptions
 from openstack import resource
@@ -39,7 +42,7 @@ class Info(resource.Resource):
     # To get capabilities, we have to disassemble and reassemble the URL
     # to append 'info'
     # This logic is taken from swiftclient
-    def _get_info_url(self, url):
+    def _get_info_url(self, url: str) -> str:
         URI_PATTERN_VERSION = re.compile(r'\/v\d+\.?\d*(\/.*)?')
         scheme, netloc, path, params, query, fragment = urllib.parse.urlparse(
             url
@@ -55,13 +58,13 @@ class Info(resource.Resource):
 
     def fetch(
         self,
-        session,
-        requires_id=False,
-        base_path=None,
-        error_message=None,
-        skip_cache=False,
-        **kwargs,
-    ):
+        session: adapter.Adapter,
+        requires_id: bool = False,
+        base_path: str | None = None,
+        error_message: str | None = None,
+        skip_cache: bool = False,
+        **kwargs: Any,
+    ) -> Self:
         """Get a remote resource based on this instance.
 
         :param session: The session to use for making this request.
@@ -83,7 +86,7 @@ class Info(resource.Resource):
             raise exceptions.MethodNotSupported(self, "fetch")
 
         session = self._get_session(session)
-        info_url = self._get_info_url(session.get_endpoint())
+        info_url = self._get_info_url(session.get_endpoint() or '')
 
         microversion = self._get_microversion(session)
         response = session.get(info_url, microversion=microversion)
