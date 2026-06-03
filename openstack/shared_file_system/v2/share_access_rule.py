@@ -67,7 +67,13 @@ class ShareAccessRule(resource.Resource):
     #: Reason for placing the loc
     lock_reason = resource.Body("lock_reason", type=bool)
 
-    def _action(self, session, body, url, microversion=None):
+    def _action(
+        self,
+        session: adapter.Adapter,
+        body: dict[str, Any],
+        url: str,
+        microversion: str | None = None,
+    ) -> Any:
         headers = {'Accept': ''}
 
         if microversion is None:
@@ -100,13 +106,13 @@ class ShareAccessRule(resource.Resource):
 
     def delete(
         self,
-        session,
-        error_message=None,
+        session: adapter.Adapter,
+        error_message: str | None = None,
         *,
-        microversion=None,
-        unrestrict=False,
-        **kwargs,
-    ):
+        microversion: str | None = None,
+        unrestrict: bool = False,
+        **kwargs: Any,
+    ) -> Any:
         body: dict[str, Any] = {'deny_access': {'access_id': self.id}}
         if unrestrict:
             body['deny_access']['unrestrict'] = True

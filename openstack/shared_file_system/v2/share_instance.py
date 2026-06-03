@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
+from keystoneauth1 import adapter
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -57,11 +61,16 @@ class ShareInstance(resource.Resource):
     #: The share or share instance status.
     status = resource.Body("status", type=str)
 
-    def _action(self, session, body, microversion=None):
+    def _action(
+        self,
+        session: adapter.Adapter,
+        body: dict[str, Any],
+        microversion: str | None = None,
+    ) -> Any:
         """Perform share instance actions given the message body"""
         url = utils.urljoin(self.base_path, self.id, 'action')
         headers = {'Accept': ''}
-        extra_attrs = {}
+        extra_attrs: dict[str, Any] = {}
         if microversion:
             # Set microversion override
             extra_attrs['microversion'] = microversion
@@ -71,12 +80,14 @@ class ShareInstance(resource.Resource):
         exceptions.raise_from_response(response)
         return response
 
-    def reset_status(self, session, reset_status):
+    def reset_status(
+        self, session: adapter.Adapter, reset_status: str
+    ) -> None:
         """Reset share instance to given status"""
         body = {"reset_status": {"status": reset_status}}
         self._action(session, body)
 
-    def force_delete(self, session):
+    def force_delete(self, session: adapter.Adapter) -> None:
         """Force delete share instance"""
         body = {"force_delete": None}
         self._action(session, body)

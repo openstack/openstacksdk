@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any, Self
+
+from keystoneauth1 import adapter
+
 from openstack.common import metadata
 from openstack import exceptions
 from openstack import resource
@@ -128,7 +132,12 @@ class Share(resource.Resource, metadata.MetadataMixin):
     #: Display description for updating description
     display_description = resource.Body("display_description", type=str)
 
-    def _action(self, session, body, microversion=None):
+    def _action(
+        self,
+        session: adapter.Adapter,
+        body: dict[str, Any],
+        microversion: str | None = None,
+    ) -> Any:
         """Perform share instance actions given the message body"""
         url = utils.urljoin(self.base_path, self.id, 'action')
         headers = {'Accept': ''}
@@ -143,7 +152,9 @@ class Share(resource.Resource, metadata.MetadataMixin):
         exceptions.raise_from_response(response)
         return response
 
-    def extend_share(self, session, new_size, force=False):
+    def extend_share(
+        self, session: adapter.Adapter, new_size: float, force: bool = False
+    ) -> None:
         """Extend the share size.
 
         :param float new_size: The new size of the share
@@ -162,7 +173,7 @@ class Share(resource.Resource, metadata.MetadataMixin):
         body = {"extend": extend_body}
         self._action(session, body)
 
-    def shrink_share(self, session, new_size):
+    def shrink_share(self, session: adapter.Adapter, new_size: float) -> None:
         """Shrink the share size.
 
         :param float new_size: The new size of the share
@@ -173,7 +184,9 @@ class Share(resource.Resource, metadata.MetadataMixin):
         body = {"shrink": {'new_size': new_size}}
         self._action(session, body)
 
-    def revert_to_snapshot(self, session, snapshot_id):
+    def revert_to_snapshot(
+        self, session: adapter.Adapter, snapshot_id: str
+    ) -> None:
         """Revert the share to the given snapshot.
 
         :param str snapshot_id: The id of the snapshot to revert to.
@@ -182,7 +195,14 @@ class Share(resource.Resource, metadata.MetadataMixin):
         body = {"revert": {"snapshot_id": snapshot_id}}
         self._action(session, body)
 
-    def manage(self, session, protocol, export_path, service_host, **params):
+    def manage(
+        self,
+        session: adapter.Adapter,
+        protocol: str,
+        export_path: str,
+        service_host: str,
+        **params: Any,
+    ) -> Self:
         """Manage a share.
 
         :param session: A session object used for sending request.
@@ -222,7 +242,7 @@ class Share(resource.Resource, metadata.MetadataMixin):
         self._translate_response(resp)
         return self
 
-    def unmanage(self, session):
+    def unmanage(self, session: adapter.Adapter) -> None:
         """Unmanage a share.
 
         :param session: A session object used for sending request.

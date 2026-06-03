@@ -234,7 +234,11 @@ class Proxy(proxy.Proxy):
 
     @renamed_param('snapshot_id', 'snapshot')
     @renamed_param('share_id', 'share')
-    def revert_share_to_snapshot(self, share, snapshot):
+    def revert_share_to_snapshot(
+        self,
+        share: str | _share.Share,
+        snapshot: str | _share_snapshot.ShareSnapshot,
+    ) -> None:
         """Reverts a share to the specified snapshot, which must be
             the most recent one known to manila.
 
@@ -246,7 +250,13 @@ class Proxy(proxy.Proxy):
         snapshot_id = resource.Resource._get_id(snapshot)
         res.revert_to_snapshot(self, snapshot_id)
 
-    def manage_share(self, protocol, export_path, service_host, **params):
+    def manage_share(
+        self,
+        protocol: str,
+        export_path: str,
+        service_host: str,
+        **params: Any,
+    ) -> _share.Share:
         """Manage a share.
 
         :param protocol: The shared file systems protocol of this share.
@@ -274,7 +284,7 @@ class Proxy(proxy.Proxy):
         )
 
     @renamed_param('share_id', 'share')
-    def unmanage_share(self, share):
+    def unmanage_share(self, share: str | _share.Share) -> None:
         """Unmanage the share with the given share ID.
 
         :param share: The ID of the share to unmanage.
@@ -285,8 +295,13 @@ class Proxy(proxy.Proxy):
 
     @renamed_param('share_id', 'share')
     def resize_share(
-        self, share, new_size, no_shrink=False, no_extend=False, force=False
-    ):
+        self,
+        share: str | _share.Share,
+        new_size: int,
+        no_shrink: bool = False,
+        no_extend: bool = False,
+        force: bool = False,
+    ) -> None:
         """Resizes a share, extending/shrinking the share as needed.
 
         :param share: The ID of the share to resize
@@ -894,7 +909,11 @@ class Proxy(proxy.Proxy):
         return self._get(_share_instance.ShareInstance, share_instance)
 
     @renamed_param('share_instance_id', 'share_instance')
-    def reset_share_instance_status(self, share_instance, status):
+    def reset_share_instance_status(
+        self,
+        share_instance: str | _share_instance.ShareInstance,
+        status: str,
+    ) -> None:
         """Explicitly updates the state of a share instance.
 
         :param share_instance: The UUID of the share instance to reset.
@@ -1050,7 +1069,7 @@ class Proxy(proxy.Proxy):
             share_id=share_id,
         )
         try:
-            return res.delete(
+            return res.delete(  # type: ignore[no-any-return]
                 self,
                 unrestrict=unrestrict,
             )
@@ -1094,7 +1113,9 @@ class Proxy(proxy.Proxy):
         )
 
     @renamed_param('group_snapshot_id', 'group_snapshot')
-    def share_group_snapshot_members(self, group_snapshot):
+    def share_group_snapshot_members(
+        self, group_snapshot: str | _share_group_snapshot.ShareGroupSnapshot
+    ) -> Any:
         """Lists all share group snapshots members.
 
         :param group_snapshot: The ID of the group snapshot to get
@@ -1146,7 +1167,11 @@ class Proxy(proxy.Proxy):
         )
 
     @renamed_param('group_snapshot_id', 'group_snapshot')
-    def reset_share_group_snapshot_status(self, group_snapshot, status):
+    def reset_share_group_snapshot_status(
+        self,
+        group_snapshot: str | _share_group_snapshot.ShareGroupSnapshot,
+        status: str,
+    ) -> None:
         """Reset share group snapshot state.
 
         :param group_snapshot: The ID of the share group snapshot to reset
@@ -1301,7 +1326,12 @@ class Proxy(proxy.Proxy):
         return self.set_share_metadata(share, **metadata)
 
     @renamed_param('share_id', 'share')
-    def update_share_metadata(self, share, metadata, replace=False):
+    def update_share_metadata(
+        self,
+        share: str | _share.Share,
+        metadata: dict[str, Any],
+        replace: bool = False,
+    ) -> _share.Share:
         """Updates metadata of given share.
 
         .. deprecated:: 4.14.0
