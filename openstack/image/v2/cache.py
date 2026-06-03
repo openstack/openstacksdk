@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import requests
+
+from keystoneauth1 import adapter
+
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -39,7 +43,13 @@ class Cache(resource.Resource):
     )
     queued_images = resource.Body('queued_images', type=list)
 
-    def queue(self, session, image, *, microversion=None):
+    def queue(
+        self,
+        session: adapter.Adapter,
+        image: str | resource.Resource,
+        *,
+        microversion: str | None = None,
+    ) -> requests.Response:
         """Queue an image into cache.
         :param session: The session to use for making this request
         :param image: The image to be queued into cache.
@@ -56,7 +66,11 @@ class Cache(resource.Resource):
 
     # FIXME(stephenfin): This needs to be renamed as it conflicts with
     # dict.clear
-    def clear(self, session, target='both'):  # type: ignore[override]
+    def clear(  # type: ignore[override]
+        self,
+        session: adapter.Adapter,
+        target: str = 'both',
+    ) -> requests.Response:
         """Clears the cache.
         :param session: The session to use for making this request
         :param target: Specify which target you want to clear

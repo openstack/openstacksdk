@@ -11,6 +11,9 @@
 #   under the License.
 #
 
+from collections.abc import Iterator
+from typing import IO
+
 
 class IterableChunkedFile:
     """File object chunk iterator using yield.
@@ -19,12 +22,17 @@ class IterableChunkedFile:
     into chunks. Avoids the file from being completely loaded into memory.
     """
 
-    def __init__(self, file_object, chunk_size=1024 * 1024 * 128, close=False):
+    def __init__(
+        self,
+        file_object: IO[bytes],
+        chunk_size: int = 1024 * 1024 * 128,
+        close: bool = False,
+    ) -> None:
         self.close_after_read = close
         self.file_object = file_object
         self.chunk_size = chunk_size
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[bytes]:
         try:
             while True:
                 data = self.file_object.read(self.chunk_size)
@@ -35,5 +43,5 @@ class IterableChunkedFile:
             if self.close_after_read:
                 self.file_object.close()
 
-    def __len__(self):
-        return len(self.file_object)
+    def __len__(self) -> int:
+        return len(self.file_object)  # type: ignore[arg-type]

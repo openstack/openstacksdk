@@ -10,6 +10,8 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+from typing import Any, IO, cast
+
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric import utils
@@ -33,7 +35,9 @@ class ImageSigner:
     Generates signatures for files using a specified private key file.
     """
 
-    def __init__(self, hash_method='SHA-256', padding_method='RSA-PSS'):
+    def __init__(
+        self, hash_method: str = 'SHA-256', padding_method: str = 'RSA-PSS'
+    ) -> None:
         padding_types = {
             'RSA-PSS': padding.PSS(
                 mgf=padding.MGF1(HASH_METHODS[hash_method]),
@@ -44,18 +48,20 @@ class ImageSigner:
         self.hash_method = hash_method
         self.padding_method = padding_method
         # runtime objects
-        self.private_key = None
+        self.private_key: Any = None
         self.hash = HASH_METHODS[hash_method]
         self.hasher = hashes.Hash(self.hash, default_backend())
         self.padding = padding_types[padding_method]
 
-    def load_private_key(self, file_path, password=None):
+    def load_private_key(
+        self, file_path: str, password: bytes | None = None
+    ) -> None:
         with open(file_path, 'rb') as key_file:
             self.private_key = serialization.load_pem_private_key(
                 key_file.read(), password=password, backend=default_backend()
             )
 
-    def generate_signature(self, file_obj):
+    def generate_signature(self, file_obj: IO[bytes]) -> bytes:
         if not self.private_key:
             raise exceptions.SDKException("private_key not set")
 
@@ -68,4 +74,4 @@ class ImageSigner:
         signature = self.private_key.sign(
             digest, self.padding, utils.Prehashed(self.hash)
         )
-        return signature
+        return cast(bytes, signature)
