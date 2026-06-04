@@ -3,7 +3,6 @@ Object Store Resources
 
 .. toctree::
    :maxdepth: 1
+   :glob:
 
-   v1/account
-   v1/container
-   v1/obj
+   v1/*
