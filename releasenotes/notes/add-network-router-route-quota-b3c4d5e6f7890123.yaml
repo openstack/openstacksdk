@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Added ``router_routes`` field to the network ``Quota``,
+    ``QuotaDefault`` and ``QuotaDetails`` resources. This exposes the
+    new Neutron ``router_route`` per-project quota that controls the
+    total number of extra routes across all routers in a project.
