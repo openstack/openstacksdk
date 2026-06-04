@@ -1490,6 +1490,30 @@ class TestNetworkRouter(TestNetworkProxy):
         mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
 
     @mock.patch.object(proxy_base.Proxy, '_get_resource')
+    @mock.patch.object(router.Router, 'add_interface')
+    def test_add_interface_to_router_with_advertise_host(
+        self, mock_add_interface, mock_get
+    ):
+        x_router = router.Router.new(id="ROUTER_ID")
+        mock_get.return_value = x_router
+
+        self._verify(
+            "openstack.network.v2.router.Router.add_interface",
+            self.proxy.add_interface_to_router,
+            method_args=["FAKE_ROUTER"],
+            method_kwargs={
+                "subnet_id": "SUBNET",
+                "advertise_host": True,
+            },
+            expected_args=[self.proxy],
+            expected_kwargs={
+                "subnet_id": "SUBNET",
+                "advertise_host": True,
+            },
+        )
+        mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
+
+    @mock.patch.object(proxy_base.Proxy, '_get_resource')
     @mock.patch.object(router.Router, 'remove_interface')
     def test_remove_interface_from_router_with_port(
         self, mock_remove, mock_get
