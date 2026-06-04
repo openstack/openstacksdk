@@ -25,6 +25,7 @@ EXAMPLE = {
     'description': '3',
     'distributed': False,
     'enable_ndp_proxy': True,
+    'evpn_vni': 10000,
     'external_gateway_info': {'4': 4},
     'flavor_id': '5',
     'ha': False,
@@ -79,6 +80,7 @@ class TestRouter(base.TestCase):
         self.assertEqual(EXAMPLE['created_at'], sot.created_at)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertTrue(sot.enable_ndp_proxy)
+        self.assertEqual(EXAMPLE['evpn_vni'], sot.evpn_vni)
         self.assertFalse(sot.is_distributed)
         self.assertEqual(
             EXAMPLE['external_gateway_info'], sot.external_gateway_info
