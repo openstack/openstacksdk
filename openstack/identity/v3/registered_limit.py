@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, Self, cast
+from typing import Any, Self
 
 import requests
 
@@ -51,11 +51,19 @@ class RegisteredLimit(resource.Resource):
     #: The default limit value. *Type: int*
     default_limit = resource.Body('default_limit')
 
-    def _transform_create_request(self, request: resource._Request) -> None:
+    @classmethod
+    def _transform_create_request(
+        cls,
+        session: adapter.Adapter,
+        request: resource._Request,
+        *,
+        microversion: str | None,
+    ) -> resource._Request:
+        assert isinstance(request.body, dict)  # narrow type
         # Keystone supports batch create for unified limit. So the
         # request body for creating limit is a list instead of dict.
-        body = cast(dict[str, Any], request.body)
-        request.body = {self.resources_key: [body[self.resource_key]]}
+        request.body = {cls.resources_key: [request.body[cls.resource_key]]}
+        return request
 
     def create(
         self,
