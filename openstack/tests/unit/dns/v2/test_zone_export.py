@@ -83,4 +83,5 @@ class TestZoneExport(base.TestCase):
             json=None,
             headers={},
             microversion=self.session.default_microversion,
+            params={},
         )

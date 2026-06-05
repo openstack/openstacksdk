@@ -127,34 +127,16 @@ class Container(_base.BaseResource):
             kwargs.setdefault('name', name)
         return cls(_synchronized=False, **kwargs)
 
-    def create(
-        self,
+    @classmethod
+    def _transform_create_request(
+        cls,
         session: adapter.Adapter,
-        prepend_key: bool = True,
-        base_path: str | None = None,
+        request: resource._Request,
         *,
-        resource_request_key: str | None = None,
-        resource_response_key: str | None = None,
-        microversion: str | None = None,
-        **params: Any,
-    ) -> Self:
-        """Create a remote resource based on this instance.
-
-        :param session: The session to use for making this request.
-        :param prepend_key: Whether the resource_key should be prepended in a
-            resource creation request. Default to True.
-
-        :return: This :class:`Resource` instance.
-        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
-            :data:`Resource.allow_create` is not set to ``True``.
-        """
-        request = self._prepare_request(
-            requires_id=True, prepend_key=prepend_key, base_path=base_path
-        )
-        response = session.put(request.url, headers=request.headers)
-
-        self._translate_response(response, has_body=False)
-        return self
+        microversion: str | None,
+    ) -> resource._Request:
+        request.body = None
+        return request
 
     def set_temp_url_key(
         self,

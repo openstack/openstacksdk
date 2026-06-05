@@ -10,11 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, Self
-import uuid
-
-from keystoneauth1 import adapter
-
 from openstack.message.v2 import _base
 from openstack import resource
 
@@ -22,6 +17,8 @@ from openstack import resource
 class Subscription(_base.MessageResource):
     resources_key = 'subscriptions'
     base_path = '/queues/%(queue_name)s/subscriptions'
+
+    create_opts = resource.CreateOpts(request_key=None)
 
     # capabilities
     allow_create = True
@@ -50,29 +47,3 @@ class Subscription(_base.MessageResource):
     ttl = resource.Body("ttl")
     #: The queue name which the subscription is registered on.
     queue_name = resource.URI("queue_name")
-
-    def create(
-        self,
-        session: adapter.Adapter,
-        prepend_key: bool = False,
-        base_path: str | None = None,
-        *,
-        resource_request_key: str | None = None,
-        resource_response_key: str | None = None,
-        microversion: str | None = None,
-        **params: Any,
-    ) -> Self:
-        request = self._prepare_request(
-            requires_id=False, prepend_key=prepend_key, base_path=base_path
-        )
-        headers: dict[str, str] = {
-            "Client-ID": self.client_id or str(uuid.uuid4()),
-            "X-PROJECT-ID": self.project_id or session.get_project_id() or "",
-        }
-        request.headers.update(headers)
-        response = session.post(
-            request.url, json=request.body, headers=request.headers
-        )
-
-        self._translate_response(response)
-        return self

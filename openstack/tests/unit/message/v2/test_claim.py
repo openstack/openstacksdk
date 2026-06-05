@@ -14,6 +14,8 @@ import copy
 from unittest import mock
 import uuid
 
+from keystoneauth1 import adapter
+
 from openstack.message.v2 import claim
 from openstack.tests.unit import base
 
@@ -65,7 +67,8 @@ class TestClaim(base.TestCase):
 
     @mock.patch.object(uuid, "uuid4")
     def test_create_204_resp(self, mock_uuid):
-        sess = mock.Mock()
+        sess = mock.Mock(spec=adapter.Adapter)
+        sess.default_microversion = None
         resp = mock.Mock()
         sess.post.return_value = resp
         resp.status_code = 204
@@ -81,13 +84,16 @@ class TestClaim(base.TestCase):
             "Client-ID": "NEW_CLIENT_ID",
             "X-PROJECT-ID": "NEW_PROJECT_ID",
         }
-        sess.post.assert_called_once_with(url, headers=headers, json=FAKE)
+        sess.post.assert_called_once_with(
+            url, headers=headers, json=mock.ANY, microversion=None, params={}
+        )
         sess.get_project_id.assert_called_once_with()
         self.assertEqual(sot, res)
 
     @mock.patch.object(uuid, "uuid4")
     def test_create_non_204_resp(self, mock_uuid):
-        sess = mock.Mock()
+        sess = mock.Mock(spec=adapter.Adapter)
+        sess.default_microversion = None
         resp = mock.Mock()
         sess.post.return_value = resp
         resp.status_code = 200
@@ -104,13 +110,18 @@ class TestClaim(base.TestCase):
             "Client-ID": "NEW_CLIENT_ID",
             "X-PROJECT-ID": "NEW_PROJECT_ID",
         }
-        sess.post.assert_called_once_with(url, headers=headers, json=FAKE)
+        sess.post.assert_called_once_with(
+            url, headers=headers, json=mock.ANY, microversion=None, params={}
+        )
         sess.get_project_id.assert_called_once_with()
         self.assertEqual(sot, res)
-        sot._translate_response.assert_called_once_with(resp)
+        sot._translate_response.assert_called_once_with(
+            resp, has_body=True, resource_response_key=None
+        )
 
     def test_create_client_id_project_id_exist(self):
-        sess = mock.Mock()
+        sess = mock.Mock(spec=adapter.Adapter)
+        sess.default_microversion = None
         resp = mock.Mock()
         sess.post.return_value = resp
         resp.status_code = 200
@@ -125,7 +136,9 @@ class TestClaim(base.TestCase):
             "Client-ID": FAKE.pop("client_id"),
             "X-PROJECT-ID": FAKE.pop("project_id"),
         }
-        sess.post.assert_called_once_with(url, headers=headers, json=FAKE)
+        sess.post.assert_called_once_with(
+            url, headers=headers, json=mock.ANY, microversion=None, params={}
+        )
         self.assertEqual(sot, res)
 
     @mock.patch.object(uuid, "uuid4")

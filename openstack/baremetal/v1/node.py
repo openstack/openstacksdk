@@ -296,14 +296,17 @@ class Node(_common.Resource):
             attrs['provision_state'] = 'available'
         return super()._consume_body_attrs(attrs)
 
+    # TODO(stephenfin): Migrate to _transform_create_request + a new
+    # _post_create hook. The pre-translate logic (microversion determination,
+    # _clean_body) could move to _transform_create_request, but the
+    # post-translate set_provision_state call needs a _post_create hook that
+    # doesn't exist yet.
     def create(
         self,
         session: adapter.Adapter,
         prepend_key: bool = True,
         base_path: str | None = None,
         *,
-        resource_request_key: str | None = None,
-        resource_response_key: str | None = None,
         microversion: str | None = None,
         **params: Any,
     ) -> Self:
@@ -376,8 +379,6 @@ class Node(_common.Resource):
             session,
             prepend_key=prepend_key,
             base_path=base_path,
-            resource_request_key=resource_request_key,
-            resource_response_key=resource_response_key,
             microversion=microversion,
             **params,
         )

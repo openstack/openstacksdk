@@ -48,39 +48,19 @@ class Transfer(resource.Resource):
 
     _max_microversion = "3.55"
 
+    # TODO(stephenfin): Migrate to _transform_create_request. The body cleanup
+    # (no_snapshots removal) is doable in the hook, but the base_path switch
+    # from /volume-transfers to /os-volume-transfer requires URL manipulation
+    # that is fragile and best handled by a dedicated hook or CreateOpts field.
     def create(
         self,
         session: adapter.Adapter,
         prepend_key: bool = True,
         base_path: str | None = None,
         *,
-        resource_request_key: str | None = None,
-        resource_response_key: str | None = None,
         microversion: str | None = None,
         **params: Any,
     ) -> Self:
-        """Create a volume transfer.
-
-        :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
-        :param prepend_key: A boolean indicating whether the resource_key
-            should be prepended in a resource creation request. Default to
-            True.
-        :param str base_path: Base part of the URI for creating resources, if
-            different from :data:`~openstack.resource.Resource.base_path`.
-        :param str resource_request_key: Overrides the usage of
-            self.resource_key when prepending a key to the request body.
-            Ignored if `prepend_key` is false.
-        :param str resource_response_key: Overrides the usage of
-            self.resource_key when processing response bodies.
-            Ignored if `prepend_key` is false.
-        :param str microversion: API version to override the negotiated one.
-        :param dict params: Additional params to pass.
-        :return: This :class:`Resource` instance.
-        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
-            :data:`Resource.allow_create` is not set to ``True``.
-        """
-
         # With MV 3.55 we introduced new API for volume transfer
         # (/volume-transfers). Prior to that (MV < 3.55), we use
         # the old API (/os-volume-transfer)
@@ -96,8 +76,6 @@ class Transfer(resource.Resource):
             session,
             prepend_key=prepend_key,
             base_path=base_path,
-            resource_request_key=resource_request_key,
-            resource_response_key=resource_response_key,
             microversion=microversion,
             **params,
         )

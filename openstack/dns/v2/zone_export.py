@@ -10,12 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, Self
-
 from keystoneauth1 import adapter
 
 from openstack.dns.v2 import _base
-from openstack import exceptions
 from openstack import resource
 
 
@@ -25,6 +22,8 @@ class ZoneExport(_base.Resource):
     resource_key = ''
     resources_key = 'exports'
     base_path = '/zones/tasks/export'
+
+    create_opts = resource.CreateOpts(request_key=None)
 
     # capabilities
     allow_create = True
@@ -55,46 +54,13 @@ class ZoneExport(_base.Resource):
     #: ID for the zone that was created by this export
     zone_id = resource.Body('zone_id')
 
-    def create(
-        self,
+    @classmethod
+    def _transform_create_request(
+        cls,
         session: adapter.Adapter,
-        prepend_key: bool = True,
-        base_path: str | None = None,
+        request: resource._Request,
         *,
-        resource_request_key: str | None = None,
-        resource_response_key: str | None = None,
-        microversion: str | None = None,
-        **params: Any,
-    ) -> Self:
-        """Create a remote resource based on this instance.
-
-        :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
-        :param prepend_key: A boolean indicating whether the resource_key
-                            should be prepended in a resource creation
-                            request. Default to True.
-        :param str base_path: Base part of the URI for creating resources, if
-                              different from
-                              :data:`~openstack.resource.Resource.base_path`.
-        :return: This :class:`Resource` instance.
-        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
-                 :data:`Resource.allow_create` is not set to ``True``.
-        """
-        if not self.allow_create:
-            raise exceptions.MethodNotSupported(self, "create")
-
-        session = self._get_session(session)
-        microversion = self._get_microversion(session)
-        # Create ZoneExport requires empty body
-        # skip _prepare_request completely, since we need just empty body
-        request = resource._Request(self.base_path, None, {})
-        response = session.post(
-            request.url,
-            json=request.body,
-            headers=request.headers,
-            microversion=microversion,
-        )
-
-        self.microversion = microversion
-        self._translate_response(response)
-        return self
+        microversion: str | None,
+    ) -> resource._Request:
+        request.body = None
+        return request

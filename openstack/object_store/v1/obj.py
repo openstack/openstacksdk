@@ -351,15 +351,16 @@ class Object(_base.BaseResource):
         )
         return response.iter_content(chunk_size, decode_unicode=False)
 
+    # TODO(stephenfin): Migrate to _transform_create_request +
+    # create_returns_body = False once _Request gains a 'data' field for
+    # binary/streaming PUT bodies. Currently session.put(data=self.data) can't
+    # be expressed via the request object, so the override is the only way to
+    # pass raw object data.
     def create(
         self,
         session: adapter.Adapter,
         prepend_key: bool = True,
         base_path: str | None = None,
-        *,
-        resource_request_key: str | None = None,
-        resource_response_key: str | None = None,
-        microversion: str | None = None,
         **params: Any,
     ) -> Self:
         request = self._prepare_request(base_path=base_path)
