@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Added SDK resource ``ServerExternalEvents`` and proxy method
+    ``create_server_external_events`` to send server external events
+    to the Nova API (``POST /os-server-external-events``).

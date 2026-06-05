@@ -33,6 +33,7 @@ from openstack.compute.v2 import quota_set as _quota_set
 from openstack.compute.v2 import server as _server
 from openstack.compute.v2 import server_action as _server_action
 from openstack.compute.v2 import server_diagnostics as _server_diagnostics
+from openstack.compute.v2 import server_external_event as _server_event
 from openstack.compute.v2 import server_group as _server_group
 from openstack.compute.v2 import server_interface as _server_interface
 from openstack.compute.v2 import server_ip
@@ -76,6 +77,7 @@ class Proxy(proxy.Proxy):
         "server": _server.Server,
         "server_action": _server_action.ServerAction,
         "server_diagnostics": _server_diagnostics.ServerDiagnostics,
+        "server_event": _server_event.ServerExternalEvent,
         "server_group": _server_group.ServerGroup,
         "server_interface": _server_interface.ServerInterface,
         "server_ip": server_ip.ServerIP,
@@ -415,6 +417,24 @@ class Proxy(proxy.Proxy):
         except exceptions.NotFoundException:
             if not ignore_missing:
                 raise
+
+    # ========== os-server-external-events ==========
+
+    def create_server_external_events(
+        self, events: list[dict[str, Any]]
+    ) -> Generator[_server_event.ServerExternalEvent, None, None]:
+        """Create one or more server external events.
+
+        .. warning::
+            This API is intended for inter-service communication only
+            (e.g. Neutron, Cyborg notifying Nova about events).
+
+        :param events: List of dicts, each containing event attributes
+            (name, server_uuid, status, tag).
+        :returns: A generator of :class:`~openstack.compute.v2.
+                  server_external_event.ServerExternalEvent`
+        """
+        return self._bulk_create(_server_event.ServerExternalEvent, events)
 
     # ========== Aggregates ==========
 
