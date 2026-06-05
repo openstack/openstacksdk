@@ -25,3 +25,16 @@ def create_secret(conn):
         payload="ssh rsa...",
         payload_content_type="text/plain",
     )
+
+
+def create_secret_consumer(conn):
+    print("Create a secret consumer:")
+
+    secret = conn.key_manager.find_secret("My public key")
+
+    conn.key_manager.create_secret_consumer(
+        secret=secret,
+        service="service",
+        resource_type="resource_type",
+        resource_id="resource-id",
+    )

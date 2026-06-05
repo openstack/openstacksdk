@@ -17,6 +17,7 @@ from openstack.key_manager.v1 import project_quota
 from openstack.key_manager.v1 import quota
 from openstack.key_manager.v1 import secret
 from openstack.key_manager.v1 import secret_acl
+from openstack.key_manager.v1 import secret_consumer
 from openstack.key_manager.v1 import secret_store
 from openstack.tests.unit import test_proxy_base
 
@@ -197,4 +198,47 @@ class TestKeyManagerSecretACL(test_proxy_base.TestProxyBase):
                 "requires_id": False,
                 "path_args": {"secret_id": "resource_id"},
             },
+        )
+
+
+class TestKeyManagerSecretConsumer(TestKeyManagerProxy):
+    def test_secret_consumer_create(self):
+        self.verify_create(
+            self.proxy.create_secret_consumer,
+            secret_consumer.SecretConsumer,
+            method_args=["secret-id"],
+            method_kwargs={
+                "service": "svc",
+                "resource_type": "type",
+                "resource_id": "rid",
+            },
+            expected_args=[],
+            expected_kwargs={
+                "secret_id": "secret-id",
+                "service": "svc",
+                "__conflicting_attrs": {"resource_type": "type"},
+                "resource_id": "rid",
+            },
+        )
+
+    def test_secret_consumers(self):
+        self.verify_list(
+            self.proxy.secret_consumers,
+            secret_consumer.SecretConsumer,
+            method_args=["secret-id"],
+            expected_args=[],
+            expected_kwargs={"secret_id": "secret-id"},
+        )
+
+    def test_secret_consumer_delete(self):
+        self._verify(
+            "openstack.key_manager.v1.secret_consumer.SecretConsumer.delete",
+            self.proxy.delete_secret_consumer,
+            method_args=["secret-id"],
+            method_kwargs={
+                "service": "svc",
+                "resource_type": "type",
+                "resource_id": "rid",
+            },
+            expected_args=[self.proxy],
         )

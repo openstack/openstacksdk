@@ -14,6 +14,7 @@ from typing import Any, ClassVar, Literal, overload
 from collections.abc import Callable, Generator
 
 from openstack._utils import renamed_param
+from openstack import exceptions
 from openstack.identity.v3 import project as _project
 from openstack.key_manager.v1 import container as _container
 from openstack.key_manager.v1 import order as _order
@@ -21,6 +22,7 @@ from openstack.key_manager.v1 import project_quota as _project_quota
 from openstack.key_manager.v1 import quota as _quota
 from openstack.key_manager.v1 import secret as _secret
 from openstack.key_manager.v1 import secret_acl as _secret_acl
+from openstack.key_manager.v1 import secret_consumer as _secret_consumer
 from openstack.key_manager.v1 import secret_store as _secret_store
 from openstack import proxy
 from openstack import resource
@@ -35,6 +37,7 @@ class Proxy(proxy.Proxy):
         "project_quota": _project_quota.ProjectQuota,
         "secret": _secret.Secret,
         "secret_acl": _secret_acl.SecretACL,
+        "secret_consumer": _secret_consumer.SecretConsumer,
         "secret_store": _secret_store.SecretStore,
     }
 
@@ -530,6 +533,75 @@ class Proxy(proxy.Proxy):
             requires_id=False,
             path_args={"secret_id": sid},
             ignore_missing=ignore_missing,
+        )
+
+    def create_secret_consumer(
+        self, secret: str | _secret.Secret, **attrs: Any
+    ) -> _secret_consumer.SecretConsumer:
+        """Create a consumer for a secret
+
+        :param secret: Either the id of a secret or a
+            :class:`~openstack.key_manager.v1.secret.Secret` instance.
+        :param attrs: Must include ``service``, ``resource_type``,
+            ``resource_id``.
+        :returns: The created consumer association
+        """
+        sid = resource.Resource._get_id(secret)
+        if 'resource_type' in attrs:
+            # 'resource_type' conflicts with proxy._create's parameter of the
+            # same name, which refers to the resource class being created.
+            attrs['__conflicting_attrs'] = {
+                'resource_type': attrs.pop('resource_type')
+            }
+        return self._create(
+            _secret_consumer.SecretConsumer, secret_id=sid, **attrs
+        )
+
+    def delete_secret_consumer(
+        self,
+        secret: str | _secret.Secret,
+        ignore_missing: bool = True,
+        **attrs: Any,
+    ) -> None:
+        """Delete a consumer association from a secret
+
+        :param secret: Either the id of a secret or a
+            :class:`~openstack.key_manager.v1.secret.Secret`
+            instance.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be
+            raised when the secret does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent secret.
+        :param attrs: Must include ``service``, ``resource_type``,
+            ``resource_id``.
+        :returns: ``None``
+        """
+        sid = resource.Resource._get_id(secret)
+        # proxy._delete does not support __conflicting_attrs, so we cannot
+        # use it here as 'resource_type' in attrs conflicts with its first
+        # parameter of the same name.
+        consumer = _secret_consumer.SecretConsumer.new(secret_id=sid, **attrs)
+        try:
+            consumer.delete(self)
+        except exceptions.NotFoundException:
+            if ignore_missing:
+                return None
+            raise
+
+    def secret_consumers(
+        self, secret: str | _secret.Secret, **query: Any
+    ) -> Generator[_secret_consumer.SecretConsumer, None, None]:
+        """List consumers for a secret
+
+        :param secret: Either the id of a secret or a
+            :class:`~openstack.key_manager.v1.secret.Secret` instance.
+        :returns: A generator of SecretConsumer objects
+        """
+        sid = resource.Resource._get_id(secret)
+
+        return self._list(
+            _secret_consumer.SecretConsumer, secret_id=sid, **query
         )
 
     # ========== Utilities ==========

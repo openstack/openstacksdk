@@ -29,3 +29,10 @@ def list_secrets_query(conn):
         secret_type="symmetric", expiration="gte:2020-01-01T00:00:00"
     ):
         print(secret)
+
+
+def list_secret_consumers(conn, secret):
+    print("List Secret Consumers:")
+
+    for consumer in conn.key_manager.secret_consumers(secret=secret):
+        print(consumer)
