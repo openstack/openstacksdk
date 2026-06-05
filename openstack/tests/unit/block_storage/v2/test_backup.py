@@ -49,6 +49,7 @@ class TestBackup(base.TestCase):
         self.resp.status_code = 202
 
         self.sess = mock.Mock(spec=adapter.Adapter)
+        self.sess.default_microversion = None
         self.sess.get = mock.Mock()
         self.sess.post = mock.Mock(return_value=self.resp)
 
@@ -115,6 +116,7 @@ class TestBackup(base.TestCase):
                     'incremental': True,
                 }
             },
+            microversion=None,
             params={},
         )
 
@@ -127,6 +129,7 @@ class TestBackup(base.TestCase):
                     'incremental': False,
                 }
             },
+            microversion=None,
             params={},
         )
 

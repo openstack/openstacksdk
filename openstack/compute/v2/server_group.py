@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, Self
-
 from keystoneauth1 import adapter
 
 from openstack import exceptions
@@ -58,94 +56,32 @@ class ServerGroup(resource.Resource):
     #: The user ID who owns the server group
     user_id = resource.Body('user_id')
 
-    # TODO(stephenfin): It would be nice to have a hookpoint to do this
-    # microversion-based request manipulation, but we don't have anything like
-    # that right now
-    def create(
-        self,
+    @classmethod
+    def _transform_create_request(
+        cls,
         session: adapter.Adapter,
-        prepend_key: bool = True,
-        base_path: str | None = None,
+        request: resource._Request,
         *,
-        resource_request_key: str | None = None,
-        resource_response_key: str | None = None,
-        microversion: str | None = None,
-        **params: Any,
-    ) -> Self:
-        """Create a remote resource based on this instance.
-
-        :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
-        :param prepend_key: A boolean indicating whether the resource_key
-            should be prepended in a resource creation request. Default to
-            True.
-        :param str base_path: Base part of the URI for creating resources, if
-            different from :data:`~openstack.resource.Resource.base_path`.
-        :param dict params: Additional params to pass.
-        :return: This :class:`Resource` instance.
-        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
-            :data:`Resource.allow_create` is not set to ``True``.
-        """
-        if not self.allow_create:
-            raise exceptions.MethodNotSupported(self, 'create')
-
-        session = self._get_session(session)
-        if microversion is None:
-            microversion = self._get_microversion(session)
-        requires_id = (
-            self.create_requires_id
-            if self.create_requires_id is not None
-            else self.create_method == 'PUT'
-        )
-
-        # `policy` and `rules` are added with mv=2.64. In it also
-        # `policies` are removed.
+        microversion: str | None,
+    ) -> resource._Request:
+        assert isinstance(request.body, dict)  # narrow type
+        # `policy` and `rules` were added with mv=2.64; `policies` was removed.
+        body = request.body.get('server_group', {})
         if utils.supports_microversion(session, '2.64'):
-            if self.policies:
-                if not self.policy and isinstance(self.policies, list):
-                    self.policy = self.policies[0]
-                self._body.clean(only={'policies'})
-            microversion = self._max_microversion
+            if body.get('policies'):
+                if not body.get('policy') and isinstance(
+                    body['policies'], list
+                ):
+                    body['policy'] = body['policies'][0]
+                body.pop('policies', None)
         else:  # microversion < 2.64
-            if self.rules:
-                msg = (
+            if body.get('rules'):
+                raise exceptions.NotSupported(
                     "API version 2.64 is required to set rules, but "
                     "it is not available."
                 )
-                raise exceptions.NotSupported(msg)
-
-            if self.policy:
-                if not self.policies:
-                    self.policies = [self.policy]
-                self._body.clean(only={'policy'})
-
-        if self.create_method == 'POST':
-            request = self._prepare_request(
-                requires_id=requires_id,
-                prepend_key=prepend_key,
-                base_path=base_path,
-            )
-            response = session.post(
-                request.url,
-                json=request.body,
-                headers=request.headers,
-                microversion=microversion,
-                params=params,
-            )
-        else:
-            raise exceptions.ResourceFailure(
-                f"Invalid create method: {self.create_method}"
-            )
-
-        has_body = (
-            self.has_body
-            if self.create_returns_body is None
-            else self.create_returns_body
-        )
-        self.microversion = microversion
-        self._translate_response(response, has_body=has_body)
-        # direct comparision to False since we need to rule out None
-        if self.has_body and self.create_returns_body is False:
-            # fetch the body if it's required but not returned by create
-            return self.fetch(session)
-        return self
+            if body.get('policy'):
+                if not body.get('policies'):
+                    body['policies'] = [body['policy']]
+                body.pop('policy', None)
+        return request

@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, Self
-
 from keystoneauth1 import adapter
 
 from openstack import resource
@@ -50,42 +48,30 @@ class ServerRemoteConsole(resource.Resource):
     #: The ID for the server.
     server_id = resource.URI('server_id')
 
-    def create(
-        self,
+    @classmethod
+    def _transform_create_request(
+        cls,
         session: adapter.Adapter,
-        prepend_key: bool = True,
-        base_path: str | None = None,
+        request: resource._Request,
         *,
-        resource_request_key: str | None = None,
-        resource_response_key: str | None = None,
-        microversion: str | None = None,
-        **params: Any,
-    ) -> Self:
-        if not self.protocol:
-            self.protocol = CONSOLE_TYPE_PROTOCOL_MAPPING.get(self.type)
-
-        if (
-            not utils.supports_microversion(session, '2.8')
-            and self.type == 'webmks'
+        microversion: str | None,
+    ) -> resource._Request:
+        assert isinstance(request.body, dict)  # narrow type
+        body = request.body.get('remote_console', {})
+        if not body.get('protocol') and body.get('type'):
+            body['protocol'] = CONSOLE_TYPE_PROTOCOL_MAPPING.get(body['type'])
+        if body.get('type') == 'webmks' and not utils.supports_microversion(
+            session, '2.8'
         ):
             raise ValueError(
                 'Console type webmks is not supported on server side'
             )
-
-        if (
-            not utils.supports_microversion(session, '2.99')
-            and self.type == 'spice-direct'
+        if body.get(
+            'type'
+        ) == 'spice-direct' and not utils.supports_microversion(
+            session, '2.99'
         ):
             raise ValueError(
                 'Console type spice-direct is not supported on server side'
             )
-
-        return super().create(
-            session,
-            prepend_key=prepend_key,
-            base_path=base_path,
-            resource_request_key=resource_request_key,
-            resource_response_key=resource_response_key,
-            microversion=microversion,
-            **params,
-        )
+        return request

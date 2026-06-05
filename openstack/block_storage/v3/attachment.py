@@ -11,7 +11,7 @@
 # under the License.
 
 import os
-from typing import Any, Self
+from typing import Any
 
 from keystoneauth1 import adapter
 
@@ -64,29 +64,20 @@ class Attachment(resource.Resource):
     #: The connector object.
     connector = resource.Body("connector")
 
-    def create(
-        self,
+    @classmethod
+    def _transform_create_request(
+        cls,
         session: adapter.Adapter,
-        prepend_key: bool = True,
-        base_path: str | None = None,
+        request: resource._Request,
         *,
-        resource_request_key: str | None = None,
-        resource_response_key: str | None = None,
-        microversion: str | None = None,
-        **params: Any,
-    ) -> Self:
+        microversion: str | None,
+    ) -> resource._Request:
+        assert isinstance(request.body, dict)  # narrow type
         if utils.supports_microversion(session, '3.54'):
-            if not self.attach_mode:
-                self._body.clean(only={'mode'})
-        return super().create(
-            session,
-            prepend_key=prepend_key,
-            base_path=base_path,
-            resource_request_key=resource_request_key,
-            resource_response_key=resource_response_key,
-            microversion=microversion,
-            **params,
-        )
+            body = request.body.get('attachment', {})
+            if not body.get('mode'):
+                body.pop('mode', None)
+        return request
 
     def complete(
         self, session: adapter.Adapter, *, microversion: str | None = None
