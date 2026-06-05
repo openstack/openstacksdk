@@ -3,7 +3,6 @@ Workflow Resources
 
 .. toctree::
    :maxdepth: 1
+   :glob:
 
-   v2/execution
-   v2/workflow
-   v2/crontrigger
+   v2/*

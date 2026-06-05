@@ -3,11 +3,6 @@ KeyManager Resources
 
 .. toctree::
    :maxdepth: 1
+   :glob:
 
-   v1/container
-   v1/order
-   v1/project_quota
-   v1/quota
-   v1/secret
-   v1/secret_acl
-   v1/secret_store
+   v1/*
