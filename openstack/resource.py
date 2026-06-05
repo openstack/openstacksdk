@@ -44,12 +44,14 @@ from collections.abc import (
     Mapping,
     MutableMapping,
 )
+import dataclasses
 import inspect
 import itertools
 import operator
 from typing import (
     TYPE_CHECKING,
     Any,
+    ClassVar,
     Literal,
     NoReturn,
     NotRequired,
@@ -59,6 +61,7 @@ from typing import (
     TypedDict,
     Union,
     cast,
+    final,
     overload,
 )
 import urllib.parse
@@ -72,6 +75,7 @@ import requests
 from openstack import _log
 from openstack import exceptions
 from openstack import fields
+from openstack import types
 from openstack import utils
 from openstack import warnings as os_warnings
 
@@ -402,6 +406,30 @@ class ResourceMixinProtocol(Protocol):
     def _get_microversion(cls, session: adapter.Adapter) -> str | None: ...
 
 
+@final
+@dataclasses.dataclass(frozen=True)
+class CreateOpts:
+    #: Key to use when enveloping requests. If unset, defaults to the
+    #: ``resource_key`` attribute of the resource. Set to None to disable
+    #: enveloping.
+    request_key: str | None | types.Unset = types.UNSET
+    #: Key to use when de-enveloping responses. If unset, defaults to the
+    #: ``resource_key`` attribute of the resource. Set to None to disable
+    #: de-enveloping.
+    response_key: str | None | types.Unset = types.UNSET
+    # TODO(stephenfin): Change default to PORT once Resource.create_method is
+    # gone.
+    #: Method to use for create requests.
+    method: Literal['POST', 'PUT'] | types.Unset = types.UNSET
+    # TODO(stephenfin): Could we drop this in favour of a SingletonResource or
+    # similar?
+    #: Whether an ID is required or not. If unset, derived from the method.
+    requires_id: bool | types.Unset = types.UNSET
+    #: Whether the response includes a body. If unset, defaults to the
+    #: ``has_body`` attribute of the resource.
+    has_body: bool | types.Unset = types.UNSET
+
+
 class Resource(dict[str, Any]):
     # TODO(mordred) While this behaves mostly like a munch for the purposes
     # we need, sub-resources, such as Server.security_groups, which is a list
@@ -449,26 +477,35 @@ class Resource(dict[str, Any]):
     #: Allow patch operation for this resource.
     allow_patch = False
 
-    #: Commits happen without header or body being dirty.
-    allow_empty_commit = False
-
-    #: Method for committing a resource. This must be PATCH if
-    #: allow_patch is True.
-    commit_method: Literal['POST', 'PATCH', 'PUT'] = 'PUT'
-    #: Method for creating a resource
-    create_method: Literal['POST', 'PUT'] = 'POST'
-
-    #: Do calls for this resource require an id
+    #: Do calls for this resource require an ID.
     requires_id = True
+
+    #: Do responses for this resource have bodies.
+    has_body = True
+
+    #: Class-level configuration for the create operation. Subclasses can
+    #: override this to set per-resource defaults without overriding create().
+    create_opts: ClassVar[CreateOpts] = CreateOpts()
+
+    #: **DEPRECATED:** Use ``create_opts.method`` instead.
+    #: Method for creating a resource.
+    create_method: Literal['POST', 'PUT'] = 'POST'
+    #: **DEPRECATED:** Use ``create_opts.requires_id`` instead.
     #: Whether create requires an ID (determined from method if None).
     create_requires_id: bool | None = None
-    #: Do responses for this resource have bodies
-    has_body = True
+    #: **DEPRECATED:** Use ``create_opts.has_body`` instead.
     #: Does create returns a body (if False requires ID), defaults to has_body
     create_returns_body: bool | None = None
 
+    #: Commits happen without header or body being dirty.
+    allow_empty_commit = False
+    #: Method for committing a resource. This must be PATCH if
+    #: allow_patch is True.
+    commit_method: Literal['POST', 'PATCH', 'PUT'] = 'PUT'
+
     #: Maximum microversion to use for getting/creating/updating the Resource
     _max_microversion: str | None = None
+
     #: API microversion (string or None) this Resource was loaded with
     microversion = None
 
@@ -1498,15 +1535,17 @@ class Resource(dict[str, Any]):
         """Create a remote resource based on this instance.
 
         :param session: The session to use for making this request.
-        :param prepend_key: Whether the
-            :data:`~openstack.resource.Resource.resource_key` should be
-            prepended in a resource creation request. Default to True.
+        :param prepend_key: *DEPRECATED* Configure ``create_opts`` instead.
+            Whether the resource_key should be prepended in a resource creation
+            request. Default to ``True``.
         :param base_path: Base part of the URI for creating resources, if
             different from :data:`~openstack.resource.Resource.base_path`.
-        :param resource_request_key: Overrides the usage of
+        :param resource_request_key: *DEPRECATED* Configure ``create_opts``
+            instead. Overrides the usage of
             :data:`~openstack.resource.Resource.resource_key` when prepending a
             key to the request body. Ignored if `prepend_key` is false.
-        :param resource_response_key: Overrides the usage of
+        :param resource_response_key: *DEPRECATED* Configure ``create_opts``
+            instead. Overrides the usage of
             :data:`~openstack.resource.Resource.resource_key` when processing
             response bodies. Ignored if `prepend_key` is false.
         :param microversion: API version to override the negotiated one.
@@ -1518,18 +1557,40 @@ class Resource(dict[str, Any]):
         if not self.allow_create:
             raise exceptions.MethodNotSupported(self, 'create')
 
-        if self.create_method not in {'PUT', 'POST'}:
+        method = (
+            self.create_opts.method
+            if self.create_opts.method is not types.UNSET
+            else self.create_method
+        )
+
+        if method not in {'PUT', 'POST'}:
             raise exceptions.ResourceFailure(
-                f"Invalid create method: {self.create_method}"
+                f"Invalid create method: {method}"
             )
 
         session = self._get_session(session)
         if microversion is None:
             microversion = self._get_microversion(session)
-        requires_id = (
-            self.create_requires_id
-            if self.create_requires_id is not None
-            else self.create_method == 'PUT'
+
+        if not isinstance(self.create_opts.requires_id, types.Unset):
+            requires_id = self.create_opts.requires_id
+        else:
+            requires_id = (
+                self.create_requires_id
+                if self.create_requires_id is not None
+                else method == 'PUT'
+            )
+
+        if not isinstance(self.create_opts.request_key, types.Unset):
+            prepend_key = self.create_opts.request_key is not None
+            request_key = self.create_opts.request_key
+        else:
+            request_key = resource_request_key
+
+        response_key = (
+            self.create_opts.response_key
+            if not isinstance(self.create_opts.response_key, types.Unset)
+            else resource_response_key
         )
 
         # Construct request arguments.
@@ -1538,12 +1599,12 @@ class Resource(dict[str, Any]):
             requires_id=requires_id,
             prepend_key=prepend_key,
             base_path=base_path,
-            resource_request_key=resource_request_key,
+            resource_request_key=request_key,
         )
         request = self._transform_create_request(
             session, request, microversion=microversion
         )
-        if self.create_method == 'PUT':
+        if method == 'PUT':
             response = session.put(
                 request.url,
                 json=request.body,
@@ -1551,7 +1612,7 @@ class Resource(dict[str, Any]):
                 microversion=microversion,
                 params=params,
             )
-        else:  # self.create_method == 'POST'
+        else:  # method == 'POST'
             response = session.post(
                 request.url,
                 json=request.body,
@@ -1570,7 +1631,7 @@ class Resource(dict[str, Any]):
         self._translate_response(
             response,
             has_body=has_body,
-            resource_response_key=resource_response_key,
+            resource_response_key=response_key,
         )
         # direct comparision to False since we need to rule out None
         if self.has_body and self.create_returns_body is False:
@@ -1611,9 +1672,15 @@ class Resource(dict[str, Any]):
         if not cls.allow_create:
             raise exceptions.MethodNotSupported(cls, 'create')
 
-        if cls.create_method not in {'PUT', 'POST'}:
+        method = (
+            cls.create_opts.method
+            if cls.create_opts.method is not types.UNSET
+            else cls.create_method
+        )
+
+        if method not in {'PUT', 'POST'}:
             raise exceptions.ResourceFailure(
-                f"Invalid create method: {cls.create_method}"
+                f"Invalid create method: {method}"
             )
 
         if not (
@@ -1626,11 +1693,15 @@ class Resource(dict[str, Any]):
         session = cls._get_session(session)
         if microversion is None:
             microversion = cls._get_microversion(session)
-        requires_id = (
-            cls.create_requires_id
-            if cls.create_requires_id is not None
-            else cls.create_method == 'PUT'
-        )
+
+        if not isinstance(cls.create_opts.requires_id, types.Unset):
+            requires_id = cls.create_opts.requires_id
+        else:
+            requires_id = (
+                cls.create_requires_id
+                if cls.create_requires_id is not None
+                else method == 'PUT'
+            )
 
         _body: list[Any] = []
         resources = []
@@ -1660,7 +1731,7 @@ class Resource(dict[str, Any]):
 
             body = {cls.resources_key: body}
 
-        if cls.create_method == 'PUT':
+        if method == 'PUT':
             response = session.put(
                 request.url,
                 json=body,
@@ -1668,7 +1739,7 @@ class Resource(dict[str, Any]):
                 microversion=microversion,
                 params=params,
             )
-        else:  # cls.create_method == 'POST'
+        else:  # method == 'POST'
             response = session.post(
                 request.url,
                 json=body,
