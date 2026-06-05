@@ -13,6 +13,7 @@
 from typing import Any, Self
 
 from keystoneauth1 import adapter
+import requests
 
 from openstack.common import metadata
 from openstack import exceptions
@@ -137,7 +138,7 @@ class Share(resource.Resource, metadata.MetadataMixin):
         session: adapter.Adapter,
         body: dict[str, Any],
         microversion: str | None = None,
-    ) -> Any:
+    ) -> requests.Response:
         """Perform share instance actions given the message body"""
         url = utils.urljoin(self.base_path, self.id, 'action')
         headers = {'Accept': ''}

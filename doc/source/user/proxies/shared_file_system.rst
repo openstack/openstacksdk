@@ -192,3 +192,17 @@ the user that created the lock.
   :noindex:
   :members: resource_locks, get_resource_lock, update_resource_lock,
             delete_resource_lock, create_resource_lock
+
+
+Shared File System Share Replicas
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Interact with share replicas supported by the Shared File Systems
+service.
+
+.. autoclass:: openstack.shared_file_system.v2._proxy.Proxy
+  :noindex:
+  :members: create_share_replica, share_replicas, get_share_replica,
+            delete_share_replica, reset_share_replica_status,
+            reset_share_replica_state, promote_share_replica,
+            resync_share_replica

@@ -22,6 +22,7 @@ from openstack.shared_file_system.v2 import share_group_snapshot
 from openstack.shared_file_system.v2 import share_instance
 from openstack.shared_file_system.v2 import share_network
 from openstack.shared_file_system.v2 import share_network_subnet
+from openstack.shared_file_system.v2 import share_replica
 from openstack.shared_file_system.v2 import share_snapshot
 from openstack.shared_file_system.v2 import share_snapshot_instance
 from openstack.shared_file_system.v2 import storage_pool
@@ -592,4 +593,68 @@ class TestShareGroupResource(test_proxy_base.TestProxyBase):
             self.proxy.delete_share_group_snapshot,
             share_group_snapshot.ShareGroupSnapshot,
             True,
+        )
+
+
+class TestShareReplicaResource(test_proxy_base.TestProxyBase):
+    def setUp(self):
+        super().setUp()
+        self.proxy = _proxy.Proxy(self.session)
+
+    def test_share_replicas(self):
+        self.verify_list(self.proxy.share_replicas, share_replica.ShareReplica)
+
+    def test_share_replica_get(self):
+        self.verify_get(
+            self.proxy.get_share_replica, share_replica.ShareReplica
+        )
+
+    def test_share_replica_delete(self):
+        self.verify_delete(
+            self.proxy.delete_share_replica, share_replica.ShareReplica, False
+        )
+
+    def test_share_replica_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_share_replica, share_replica.ShareReplica, True
+        )
+
+    def test_share_replica_force_delete(self):
+        self._verify(
+            "openstack.shared_file_system.v2.share_replica.ShareReplica.force_delete",
+            self.proxy.delete_share_replica,
+            method_args=['id', 'ignore_missing', 'force'],
+            expected_args=[self.proxy],
+        )
+
+    def test_share_replica_reset_status(self):
+        self._verify(
+            "openstack.shared_file_system.v2.share_replica.ShareReplica.reset_status",
+            self.proxy.reset_share_replica_status,
+            method_args=['id', 'available'],
+            expected_args=[self.proxy, 'available'],
+        )
+
+    def test_share_replica_reset_state(self):
+        self._verify(
+            "openstack.shared_file_system.v2.share_replica.ShareReplica.reset_replica_state",
+            self.proxy.reset_share_replica_state,
+            method_args=['id', 'active'],
+            expected_args=[self.proxy, 'active'],
+        )
+
+    def test_share_replica_promote(self):
+        self._verify(
+            "openstack.shared_file_system.v2.share_replica.ShareReplica.promote",
+            self.proxy.promote_share_replica,
+            method_args=['id'],
+            expected_args=[self.proxy],
+        )
+
+    def test_share_replica_resync(self):
+        self._verify(
+            "openstack.shared_file_system.v2.share_replica.ShareReplica.resync",
+            self.proxy.resync_share_replica,
+            method_args=['id'],
+            expected_args=[self.proxy],
         )

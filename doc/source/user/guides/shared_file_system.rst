@@ -198,3 +198,87 @@ Unmanage a share from Manila.
 
 .. literalinclude:: ../examples/shared_file_system/shares.py
    :pyobject: unmanage_share
+
+
+List Share replicas
+-------------------
+
+Share replicas are the replicated copies of the existing share. You can use
+Share Replicas to sync data so that each share replica has an identical copy
+of the same share. Share replication can be used as a disaster recovery
+solution or as a load sharing mirroring solution.
+
+.. literalinclude:: ../examples/shared_file_system/share_replicas.py
+  :pyobject: list_share_replicas
+
+
+Create Share Replica
+--------------------
+
+Creates a share replica from attributes
+
+.. literalinclude:: ../examples/shared_file_system/share_replicas.py
+  :pyobject: create_share_replica
+
+
+Get Share Replica
+-----------------
+
+List deatils of a single share replica
+
+.. literalinclude:: ../examples/shared_file_system/share_replicas.py
+  :pyobject: get_share_replica
+
+
+Delete Share Replica
+--------------------
+
+Delete a share replica
+
+.. literalinclude:: ../examples/shared_file_system/share_replicas.py
+  :pyobject: delete_share_replica
+
+
+Reset Status of Share Replica
+-----------------------------
+
+Reset status of the share replica
+
+.. literalinclude:: ../examples/shared_file_system/share_replicas.py
+  :pyobject: reset_status_share_replica
+
+
+Reset Replica State of Share Replica
+------------------------------------
+
+Reset replica_state of the share replica
+
+.. literalinclude:: ../examples/shared_file_system/share_replicas.py
+  :pyobject: reset_replica_state_share_replica
+
+
+Force Delete Share Replica
+--------------------------
+
+Force-delete share replica
+
+.. literalinclude:: ../examples/shared_file_system/share_replicas.py
+  :pyobject: force_delete_share_replica
+
+
+Promote Share Replica
+---------------------
+
+Promote share replica
+
+.. literalinclude:: ../examples/shared_file_system/share_replicas.py
+  :pyobject: promote_share_replica
+
+
+Resync Share Replica
+--------------------
+
+Resync share replica
+
+.. literalinclude:: ../examples/shared_file_system/share_replicas.py
+  :pyobject: resync_share_replica
