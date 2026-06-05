@@ -462,8 +462,6 @@ class Resource(dict[str, Any]):
     requires_id = True
     #: Whether create requires an ID (determined from method if None).
     create_requires_id: bool | None = None
-    #: Whether create should exclude ID in the body of the request.
-    create_exclude_id_from_body = False
     #: Do responses for this resource have bodies
     has_body = True
     #: Does create returns a body (if False requires ID), defaults to has_body
@@ -1535,9 +1533,6 @@ class Resource(dict[str, Any]):
         )
 
         # Construct request arguments.
-
-        if self.create_exclude_id_from_body:
-            self._body._dirty.discard("id")
 
         request = self._prepare_request(
             requires_id=requires_id,

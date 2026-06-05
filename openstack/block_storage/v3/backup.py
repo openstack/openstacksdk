@@ -149,9 +149,6 @@ class Backup(resource.Resource, metadata.MetadataMixin):
             else self.create_method == 'PUT'
         )
 
-        if self.create_exclude_id_from_body:
-            self._body._dirty.discard("id")
-
         if self.create_method == 'POST':
             request = self._prepare_request(
                 requires_id=requires_id,

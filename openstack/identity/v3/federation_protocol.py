@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystoneauth1 import adapter
+
 from openstack import resource
 
 
@@ -24,7 +26,7 @@ class FederationProtocol(resource.Resource):
     allow_commit = True
     allow_delete = True
     allow_list = True
-    create_exclude_id_from_body = True
+
     create_method = 'PUT'
     commit_method = 'PATCH'
 
@@ -41,3 +43,17 @@ class FederationProtocol(resource.Resource):
     #: The definition of the protocol
     #  *Type: dict*
     mapping_id = resource.Body('mapping_id')
+
+    @classmethod
+    def _transform_create_request(
+        cls,
+        session: adapter.Adapter,
+        request: resource._Request,
+        *,
+        microversion: str | None,
+    ) -> resource._Request:
+        assert isinstance(request.body, dict)  # narrow type
+        # Keystone supports batch create for unified limit. So the
+        # request body for creating limit is a list instead of dict.
+        request.body[cls.resource_key].pop('id')
+        return request

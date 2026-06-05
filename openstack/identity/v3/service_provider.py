@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystoneauth1 import adapter
+
 from openstack import resource
 
 
@@ -24,8 +26,8 @@ class ServiceProvider(resource.Resource):
     allow_commit = True
     allow_delete = True
     allow_list = True
+
     create_method = 'PUT'
-    create_exclude_id_from_body = True
     commit_method = 'PATCH'
 
     _query_mapping = resource.QueryParameters(
@@ -46,3 +48,17 @@ class ServiceProvider(resource.Resource):
     relay_state_prefix = resource.Body('relay_state_prefix')
     #: The service provider's URL.
     sp_url = resource.Body('sp_url')
+
+    @classmethod
+    def _transform_create_request(
+        cls,
+        session: adapter.Adapter,
+        request: resource._Request,
+        *,
+        microversion: str | None,
+    ) -> resource._Request:
+        assert isinstance(request.body, dict)  # narrow type
+        # Keystone supports batch create for unified limit. So the
+        # request body for creating limit is a list instead of dict.
+        request.body[cls.resource_key].pop('id')
+        return request
