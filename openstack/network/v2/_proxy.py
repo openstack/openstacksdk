@@ -5408,6 +5408,8 @@ class Proxy(proxy.Proxy):
         router: str | _router.Router,
         subnet: str | None = None,
         port: str | None = None,
+        *,
+        advertise_host: bool = False,
     ) -> dict[str, Any]:
         """Add Interface to a router
 
@@ -5419,13 +5421,17 @@ class Proxy(proxy.Proxy):
         :param port: The ID or a
             :class:`~openstack.network.v2.port.Port` instance of the port
             to add.
+        :param advertise_host: Whether to advertise the subnet's prefixes
+            as host routes within the router's EVPN VNI.
         :returns: Router with updated interface
         """
-        body = {}
+        body: dict[str, object] = {}
         if port:
             body = {'port_id': resource.Resource._get_id(port)}
         else:
             body = {'subnet_id': resource.Resource._get_id(subnet)}  # type: ignore[arg-type]
+        if advertise_host:
+            body['advertise_host'] = advertise_host
         router = self._get_resource(_router.Router, router)
         return router.add_interface(self, **body)
 
