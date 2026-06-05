@@ -35,9 +35,7 @@ class Introspection(resource.Resource):
     allow_delete = True
     allow_list = True
 
-    # created via POST with ID
-    create_method = 'POST'
-    create_requires_id = True
+    create_opts = resource.CreateOpts(requires_id=True)
     create_returns_body = False
 
     #: Timestamp at which the introspection was finished.

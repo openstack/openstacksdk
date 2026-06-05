@@ -10,10 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, Self, cast
-
-from keystoneauth1 import adapter
-
 from openstack import resource
 
 
@@ -27,6 +23,8 @@ class Execution(resource.Resource):
     allow_list = True
     allow_fetch = True
     allow_delete = True
+
+    create_opts = resource.CreateOpts(request_key=None)
 
     _query_mapping = resource.QueryParameters(
         'marker',
@@ -61,26 +59,3 @@ class Execution(resource.Resource):
     created_at = resource.Body("created_at")
     #: The time at which the Execution was updated
     updated_at = resource.Body("updated_at")
-
-    def create(
-        self,
-        session: adapter.Adapter,
-        prepend_key: bool = True,
-        base_path: str | None = None,
-        *,
-        resource_request_key: str | None = None,
-        resource_response_key: str | None = None,
-        microversion: str | None = None,
-        **params: Any,
-    ) -> Self:
-        request = self._prepare_request(
-            requires_id=False, prepend_key=prepend_key, base_path=base_path
-        )
-
-        request_body = cast(dict[str, Any], request.body)["execution"]
-        response = session.post(
-            request.url, json=request_body, headers=request.headers
-        )
-
-        self._translate_response(response, has_body=True)
-        return self

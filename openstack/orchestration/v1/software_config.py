@@ -10,10 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, Self
-
-from keystoneauth1 import adapter
-
 from openstack import resource
 
 
@@ -28,6 +24,8 @@ class SoftwareConfig(resource.Resource):
     allow_fetch = True
     allow_delete = True
     allow_commit = False
+
+    create_opts = resource.CreateOpts(request_key=None)
 
     # Properties
     #: Configuration script or manifest that defines which configuration is
@@ -48,26 +46,3 @@ class SoftwareConfig(resource.Resource):
     #: A list of schemas each representing an output this software config
     #: produces.
     outputs = resource.Body('outputs')
-
-    def create(
-        self,
-        session: adapter.Adapter,
-        prepend_key: bool = False,
-        base_path: str | None = None,
-        *,
-        resource_request_key: str | None = None,
-        resource_response_key: str | None = None,
-        microversion: str | None = None,
-        **params: Any,
-    ) -> Self:
-        # This overrides the default behavior of resource creation because
-        # heat doesn't accept resource_key in its request.
-        return super().create(
-            session,
-            prepend_key=prepend_key,
-            base_path=base_path,
-            resource_request_key=resource_request_key,
-            resource_response_key=resource_response_key,
-            microversion=microversion,
-            **params,
-        )

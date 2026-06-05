@@ -24,6 +24,8 @@ class AcceleratorRequest(resource.Resource):
     resources_key = 'arqs'
     base_path = '/accelerator_requests'
 
+    create_opts = resource.CreateOpts(request_key=None)
+
     # capabilities
     allow_create = True
     allow_fetch = True
@@ -114,26 +116,3 @@ class AcceleratorRequest(resource.Resource):
             if self.resources_key in attrs:
                 attrs = attrs[self.resources_key][0]
         return super()._consume_attrs(mapping, attrs)
-
-    def create(
-        self,
-        session: adapter.Adapter,
-        prepend_key: bool = False,
-        base_path: str | None = None,
-        *,
-        resource_request_key: str | None = None,
-        resource_response_key: str | None = None,
-        microversion: str | None = None,
-        **params: Any,
-    ) -> Self:
-        # This overrides the default behavior of resource creation because
-        # cyborg doesn't accept resource_key in its request.
-        return super().create(
-            session,
-            prepend_key=prepend_key,
-            base_path=base_path,
-            resource_request_key=resource_request_key,
-            resource_response_key=resource_response_key,
-            microversion=microversion,
-            **params,
-        )

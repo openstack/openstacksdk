@@ -10,10 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, Self
-
-from keystoneauth1 import adapter
-
 from openstack import resource
 
 
@@ -27,6 +23,8 @@ class CronTrigger(resource.Resource):
     allow_list = True
     allow_fetch = True
     allow_delete = True
+
+    create_opts = resource.CreateOpts(request_key=None)
 
     _query_mapping = resource.QueryParameters(
         'marker',
@@ -74,24 +72,3 @@ class CronTrigger(resource.Resource):
     created_at = resource.Body("created_at")
     #: The time at which the cron trigger was created
     updated_at = resource.Body("updated_at")
-
-    def create(
-        self,
-        session: adapter.Adapter,
-        prepend_key: bool = False,
-        base_path: str | None = None,
-        *,
-        resource_request_key: str | None = None,
-        resource_response_key: str | None = None,
-        microversion: str | None = None,
-        **params: Any,
-    ) -> Self:
-        return super().create(
-            session,
-            prepend_key=prepend_key,
-            base_path=base_path,
-            resource_request_key=resource_request_key,
-            resource_response_key=resource_response_key,
-            microversion=microversion,
-            **params,
-        )

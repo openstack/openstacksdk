@@ -26,9 +26,7 @@ class DefaultType(resource.Resource):
     allow_delete = True
     allow_list = True
 
-    # Create and update use the same PUT API
-    create_requires_id = True
-    create_method = 'PUT'
+    create_opts = resource.CreateOpts(method='PUT', requires_id=True)
 
     _max_microversion = "3.67"
 

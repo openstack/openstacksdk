@@ -29,9 +29,8 @@ class DomainConfig(resource.Resource):
     resource_key = 'config'
     base_path = '/domains/%(domain_id)s/config'
     requires_id = False
-    create_requires_id = False
     commit_method = 'PATCH'
-    create_method = 'PUT'
+    create_opts = resource.CreateOpts(method='PUT', requires_id=False)
 
     # capabilities
     allow_create = True
