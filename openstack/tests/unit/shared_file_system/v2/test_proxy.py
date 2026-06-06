@@ -14,6 +14,7 @@ from unittest import mock
 
 from openstack.shared_file_system.v2 import _proxy
 from openstack.shared_file_system.v2 import limit
+from openstack.shared_file_system.v2 import quota_class_set
 from openstack.shared_file_system.v2 import resource_locks
 from openstack.shared_file_system.v2 import service
 from openstack.shared_file_system.v2 import share
@@ -36,6 +37,47 @@ class TestSharedFileSystemProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
         super().setUp()
         self.proxy = _proxy.Proxy(self.session)
+
+
+class TestQuotaClassSet(TestSharedFileSystemProxy):
+    def test_get_quota_class_set(self):
+        self.verify_get(
+            self.proxy.get_quota_class_set,
+            quota_class_set.QuotaClassSet,
+        )
+
+    def test_update_quota_class_set(self):
+        self.verify_update(
+            self.proxy.update_quota_class_set,
+            quota_class_set.QuotaClassSet,
+        )
+
+
+class TestQuotaSet(TestSharedFileSystemProxy):
+    def test_get_quota_set(self):
+        self._verify(
+            'openstack.common.quota_set.QuotaSet.fetch',
+            self.proxy.get_quota_set,
+            method_args=['prj'],
+            expected_args=[self.proxy],
+        )
+
+    def test_update_quota_set(self):
+        self._verify(
+            'openstack.resource.Resource.commit',
+            self.proxy.update_quota_set,
+            method_args=['prj'],
+            method_kwargs={'gigabytes': 100},
+            expected_args=[self.proxy],
+        )
+
+    def test_revert_quota_set(self):
+        self._verify(
+            'openstack.resource.Resource.delete',
+            self.proxy.revert_quota_set,
+            method_args=['prj'],
+            expected_args=[self.proxy],
+        )
 
 
 class TestSharedFileSystemShare(TestSharedFileSystemProxy):
