@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any
+from typing import Any, Self
 
 from keystoneauth1 import adapter
 import requests
@@ -96,4 +96,54 @@ class ShareSnapshot(resource.Resource, metadata.MetadataMixin):
         :returns: ``None``
         """
         body = {'force_delete': None}
+        self._action(session, body)
+
+    def manage(
+        self,
+        session: adapter.Adapter,
+        share_id: str,
+        provider_location: str,
+        **params: Any,
+    ) -> Self:
+        """Manage a share snapshot.
+
+        :param session: A session object used for sending request.
+        :param share_id: The UUID of the share that has snapshot which
+            should be managed.
+        :param provider_location: Provider location of the snapshot on the
+            backend.
+        :param params: Optional parameters to be sent. Available
+            parameters include:
+
+            * name: The user defined name of the resource.
+            * display_name: The user defined name of the resource. This field
+              sets the name parameter.
+            * description: The user defined description of the resource.
+            * display_description: The user defined description of the
+              resource. This field sets the description parameter.
+            * driver_options: A set of one or more key and value pairs, as a
+              dictionary of strings, that describe driver options.
+
+        :returns: The share snapshot that was managed.
+        """
+        attrs = {
+            'snapshot': {
+                'share_id': share_id,
+                'provider_location': provider_location,
+            }
+        }
+        attrs['snapshot'].update(params)
+
+        url = utils.urljoin(self.base_path, 'manage')
+        resp = session.post(url, json=attrs)
+        self._translate_response(resp)
+        return self
+
+    def unmanage(self, session: adapter.Adapter) -> None:
+        """Unmanage a share snapshot.
+
+        :param session: A session object used for sending request.
+        :returns: ``None``
+        """
+        body = {'unmanage': None}
         self._action(session, body)

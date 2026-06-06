@@ -194,7 +194,8 @@ service.
             update_share_snapshot, create_share_snapshot,
             fetch_share_snapshot_metadata, fetch_share_snapshot_metadata_item,
             set_share_snapshot_metadata, delete_share_snapshot_metadata,
-            reset_share_snapshot_status
+            reset_share_snapshot_status, manage_share_snapshot,
+            unmanage_share_snapshot
 
 
 Share Snapshot Instance Operations
