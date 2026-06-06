@@ -1633,6 +1633,76 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing,
         )
 
+    def fetch_share_snapshot_metadata(
+        self,
+        snapshot: str | _share_snapshot.ShareSnapshot,
+    ) -> _share_snapshot.ShareSnapshot:
+        """Lists all metadata for a given snapshot.
+
+        :param snapshot: The value can be the ID of a share snapshot or a
+            :class:`~openstack.shared_file_system.v2.share_snapshot.ShareSnapshot`
+            instance.
+        :returns: One or more metadata key and value pairs as a dictionary
+            of strings.
+        """
+        snapshot = self._get_resource(_share_snapshot.ShareSnapshot, snapshot)
+        return snapshot.fetch_metadata(self)
+
+    def fetch_share_snapshot_metadata_item(
+        self,
+        snapshot: str | _share_snapshot.ShareSnapshot,
+        key: str,
+    ) -> _share_snapshot.ShareSnapshot:
+        """Retrieves a specific metadata item from a snapshot's metadata
+            by its key.
+
+        :param snapshot: The value can be the ID of a share snapshot or a
+            :class:`~openstack.shared_file_system.v2.share_snapshot.ShareSnapshot`
+            instance.
+        :param key: The key of the snapshot metadata.
+        :returns: A single metadata key and value pair.
+        """
+        snapshot = self._get_resource(_share_snapshot.ShareSnapshot, snapshot)
+        return snapshot.get_metadata_item(self, key)
+
+    def set_share_snapshot_metadata(
+        self,
+        snapshot: str | _share_snapshot.ShareSnapshot,
+        *,
+        replace: bool = False,
+        **metadata: Any,
+    ) -> _share_snapshot.ShareSnapshot:
+        """Updates metadata of given share snapshot.
+
+        :param snapshot: The value can be the ID of a share snapshot or a
+            :class:`~openstack.shared_file_system.v2.share_snapshot.ShareSnapshot`
+            instance.
+        :param replace: Boolean for whether the preexisting metadata
+            should be replaced
+        :param metadata: The metadata to be created.
+        :returns: One or more metadata key and value pairs as a dictionary
+            of strings.
+        """
+        snapshot = self._get_resource(_share_snapshot.ShareSnapshot, snapshot)
+        return snapshot.set_metadata(self, metadata=metadata, replace=replace)
+
+    def delete_share_snapshot_metadata(
+        self,
+        snapshot: str | _share_snapshot.ShareSnapshot,
+        keys: Iterable[str],
+    ) -> None:
+        """Deletes metadata for a snapshot,
+
+        :param snapshot: The value can be the ID of a share snapshot or a
+            :class:`~openstack.shared_file_system.v2.share_snapshot.ShareSnapshot`
+            instance.
+        :param keys: The keys of the metadata items to be deleted.
+        :returns: ``None``
+        """
+        snapshot = self._get_resource(_share_snapshot.ShareSnapshot, snapshot)
+        for key in keys:
+            snapshot.delete_metadata_item(self, key)
+
     # ========= Share Snapshot Instances ==========
 
     def share_snapshot_instances(

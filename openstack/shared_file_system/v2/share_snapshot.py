@@ -10,10 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.common import metadata
 from openstack import resource
 
 
-class ShareSnapshot(resource.Resource):
+class ShareSnapshot(resource.Resource, metadata.MetadataMixin):
     resource_key = "snapshot"
     resources_key = "snapshots"
     base_path = "/snapshots"

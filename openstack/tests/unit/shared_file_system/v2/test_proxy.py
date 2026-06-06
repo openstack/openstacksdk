@@ -335,6 +335,67 @@ class TestShareSnapshotResource(test_proxy_base.TestProxyBase):
         )
 
 
+class TestShareSnapshotMetadata(TestSharedFileSystemProxy):
+    def test_get_share_snapshot_metadata(self):
+        self._verify(
+            "openstack.shared_file_system.v2.share_snapshot.ShareSnapshot.fetch_metadata",
+            self.proxy.fetch_share_snapshot_metadata,
+            method_args=["snapshot_id"],
+            expected_args=[self.proxy],
+            expected_result=share_snapshot.ShareSnapshot(
+                id="snapshot_id", metadata={"key": "value"}
+            ),
+        )
+
+    def test_get_share_snapshot_metadata_item(self):
+        self._verify(
+            "openstack.shared_file_system.v2.share_snapshot.ShareSnapshot.get_metadata_item",
+            self.proxy.fetch_share_snapshot_metadata_item,
+            method_args=["snapshot_id", "key"],
+            expected_args=[self.proxy, "key"],
+            expected_result=share_snapshot.ShareSnapshot(
+                id="snapshot_id", metadata={"key": "value"}
+            ),
+        )
+
+    def test_set_share_snapshot_metadata(self):
+        metadata = {"foo": "bar", "newFoo": "newBar"}
+        self._verify(
+            "openstack.shared_file_system.v2.share_snapshot.ShareSnapshot.set_metadata",
+            self.proxy.set_share_snapshot_metadata,
+            method_args=["snapshot_id"],
+            method_kwargs=metadata,
+            expected_args=[self.proxy],
+            expected_kwargs={"metadata": metadata, "replace": False},
+            expected_result=share_snapshot.ShareSnapshot(
+                id="snapshot_id", metadata=metadata
+            ),
+        )
+
+    def test_set_share_snapshot_metadata_replace(self):
+        metadata = {"foo": "bar", "newFoo": "newBar"}
+        self._verify(
+            "openstack.shared_file_system.v2.share_snapshot.ShareSnapshot.set_metadata",
+            self.proxy.set_share_snapshot_metadata,
+            method_args=["snapshot_id"],
+            method_kwargs={"replace": True, **metadata},
+            expected_args=[self.proxy],
+            expected_kwargs={"metadata": metadata, "replace": True},
+            expected_result=share_snapshot.ShareSnapshot(
+                id="snapshot_id", metadata=metadata
+            ),
+        )
+
+    def test_delete_share_snapshot_metadata(self):
+        self._verify(
+            "openstack.shared_file_system.v2.share_snapshot.ShareSnapshot.delete_metadata_item",
+            self.proxy.delete_share_snapshot_metadata,
+            expected_result=None,
+            method_args=["snapshot_id", ["key"]],
+            expected_args=[self.proxy, "key"],
+        )
+
+
 class TestShareSnapshotInstanceResource(test_proxy_base.TestProxyBase):
     def setUp(self):
         super().setUp()
