@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import openstack
 from openstack.tests.functional.shared_file_system.v2 import base
 
 
@@ -51,16 +52,21 @@ class ShareSnapshotTest(base.BaseSharedFileSystemTest):
         self.SNAPSHOT_ID = msp.id
 
     def tearDown(self):
-        snpt = self.operator_cloud.shared_file_system.get_share_snapshot(
-            self.SNAPSHOT_ID
-        )
-        sot = self.operator_cloud.shared_file_system.delete_share_snapshot(
-            snpt, ignore_missing=False
-        )
-        self.operator_cloud.shared_file_system.wait_for_delete(
-            snpt, interval=2, wait=self._wait_for_timeout
-        )
-        self.assertIsNone(sot)
+        try:
+            snpt = self.operator_cloud.shared_file_system.get_share_snapshot(
+                self.SNAPSHOT_ID
+            )
+        except openstack.exceptions.ResourceNotFound:
+            pass
+        else:
+            sot = self.operator_cloud.shared_file_system.delete_share_snapshot(
+                snpt, ignore_missing=False
+            )
+            self.operator_cloud.shared_file_system.wait_for_delete(
+                snpt, interval=2, wait=self._wait_for_timeout
+            )
+            self.assertIsNone(sot)
+
         sot = self.operator_cloud.shared_file_system.delete_share(
             self.SHARE_ID, ignore_missing=False
         )

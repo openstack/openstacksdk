@@ -252,6 +252,14 @@ class Share(resource.Resource, metadata.MetadataMixin):
         body = {'unmanage': None}
         self._action(session, body)
 
+    def force_delete(self, session: adapter.Adapter) -> None:
+        """Force delete the share.
+
+        :returns: ``None``
+        """
+        body = {"force_delete": None}
+        self._action(session, body)
+
     def soft_delete(self, session: adapter.Adapter) -> None:
         """Soft delete a share.
 
@@ -268,4 +276,13 @@ class Share(resource.Resource, metadata.MetadataMixin):
         :returns: ``None``
         """
         body = {'restore': None}
+        self._action(session, body)
+
+    def reset_status(self, session: adapter.Adapter, status: str) -> None:
+        """Reset the share to the given status.
+
+        :param status: The status of the share to reset to.
+        :returns: ``None``
+        """
+        body = {"reset_status": {"status": status}}
         self._action(session, body)
