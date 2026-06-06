@@ -190,6 +190,19 @@ Shared File Systems service.
   :members: share_snapshot_instances, get_share_snapshot_instance
 
 
+Share Type Operations
+^^^^^^^^^^^^^^^^^^^^^
+
+Interact with Share Types supported by the Shared File Systems service.
+
+.. autoclass:: openstack.shared_file_system.v2._proxy.Proxy
+  :noindex:
+  :members: share_types, get_share_type, delete_share_type,
+            update_share_type, create_share_type,
+            update_share_type_extra_specs,
+            delete_share_type_extra_spec_property
+
+
 Storage Pool Operations
 ^^^^^^^^^^^^^^^^^^^^^^^
 
