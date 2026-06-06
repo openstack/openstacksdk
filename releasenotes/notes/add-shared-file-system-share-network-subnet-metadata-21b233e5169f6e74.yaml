@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added support to list, get, create, update, and delete share network subnet
+    metadata from shared file system service.
