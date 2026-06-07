@@ -63,7 +63,6 @@ exclude = "(?x)(doc | examples | releasenotes)"
 module = [
     "openstack._hacking.*",
     "openstack.cloud.*",
-    "openstack.tests.fakes",
     "openstack.tests.functional.*",
 ]
 disable_error_code = ["import-untyped", "func-returns-value"]
