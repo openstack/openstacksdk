@@ -150,3 +150,38 @@ class Type(resource.Resource):
         resp = session.post(url, json=body)
 
         exceptions.raise_from_response(resp)
+
+
+class TypeEncryption(resource.Resource):
+    resource_key = "encryption"
+    resources_key = "encryption"
+    base_path = "/types/%(volume_type_id)s/encryption"
+
+    # capabilities
+    allow_fetch = True
+    allow_create = True
+    allow_delete = True
+    allow_list = False
+    allow_commit = True
+
+    # Properties
+    #: The encryption algorithm or mode.
+    cipher = resource.Body("cipher")
+    #: Notional service where encryption is performed.
+    control_location = resource.Body("control_location")
+    #: The date and time when the resource was created.
+    created_at = resource.Body("created_at")
+    #: The resource is deleted or not.
+    deleted = resource.Body("deleted")
+    #: The date and time when the resource was deleted.
+    deleted_at = resource.Body("deleted_at")
+    #: A ID representing this type.
+    encryption_id = resource.Body("encryption_id", alternate_id=True)
+    #: The Size of encryption key.
+    key_size = resource.Body("key_size")
+    #: The class that provides encryption support.
+    provider = resource.Body("provider")
+    #: The date and time when the resource was updated.
+    updated_at = resource.Body("updated_at")
+    #: The ID of the Volume Type.
+    volume_type_id = resource.URI("volume_type_id")
