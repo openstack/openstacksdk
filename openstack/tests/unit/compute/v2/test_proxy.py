@@ -501,7 +501,7 @@ class TestService(TestComputeProxy):
         autospec=True,
         return_value=False,
     )
-    def test_enable_service_252(self, mv_mock):
+    def test_enable_service_v252(self, mv_mock):
         self._verify(
             'openstack.compute.v2.service.Service.enable',
             self.proxy.enable_service,
@@ -510,11 +510,15 @@ class TestService(TestComputeProxy):
         )
 
     @mock.patch(
+        'openstack.compute.v2._proxy.Proxy._get_service',
+        return_value="value",
+    )
+    @mock.patch(
         'openstack.utils.supports_microversion',
         autospec=True,
         return_value=True,
     )
-    def test_enable_service_253(self, mv_mock):
+    def test_enable_service_v253(self, mv_mock, get_service_mock):
         self._verify(
             'openstack.proxy.Proxy._update',
             self.proxy.enable_service,
@@ -529,7 +533,7 @@ class TestService(TestComputeProxy):
         autospec=True,
         return_value=False,
     )
-    def test_disable_service_252(self, mv_mock):
+    def test_disable_service_v252(self, mv_mock):
         self._verify(
             'openstack.compute.v2.service.Service.disable',
             self.proxy.disable_service,
@@ -538,11 +542,15 @@ class TestService(TestComputeProxy):
         )
 
     @mock.patch(
+        'openstack.compute.v2._proxy.Proxy._get_service',
+        return_value="value",
+    )
+    @mock.patch(
         'openstack.utils.supports_microversion',
         autospec=True,
         return_value=True,
     )
-    def test_disable_service_253(self, mv_mock):
+    def test_disable_service_v253(self, mv_mock, get_service_mock):
         self._verify(
             'openstack.proxy.Proxy._update',
             self.proxy.disable_service,
@@ -560,7 +568,7 @@ class TestService(TestComputeProxy):
         autospec=True,
         return_value=False,
     )
-    def test_force_service_down_252(self, mv_mock):
+    def test_update_service_forced_down_v252(self, mv_mock):
         self._verify(
             'openstack.compute.v2.service.Service.set_forced_down',
             self.proxy.update_service_forced_down,
@@ -573,7 +581,7 @@ class TestService(TestComputeProxy):
         autospec=True,
         return_value=False,
     )
-    def test_force_service_down_252_empty_vals(self, mv_mock):
+    def test_update_service_forced_down_v252_empty_vals(self, mv_mock):
         self.assertRaises(
             ValueError,
             self.proxy.update_service_forced_down,
@@ -587,11 +595,11 @@ class TestService(TestComputeProxy):
         autospec=True,
         return_value=False,
     )
-    def test_force_service_down_252_empty_vals_svc(self, mv_mock):
+    def test_update_service_forced_down_v252_empty_vals_svc(self, mv_mock):
         self._verify(
             'openstack.compute.v2.service.Service.set_forced_down',
             self.proxy.update_service_forced_down,
-            method_args=[{'host': 'a', 'binary': 'b'}, None, None],
+            method_args=[service.Service(host='a', binary='b'), None, None],
             expected_args=[self.proxy, None, None, True],
         )
 
@@ -786,7 +794,7 @@ class TestHypervisor(TestComputeProxy):
         autospec=True,
         return_value=False,
     )
-    def test_hypervisors_search_before_253_no_qp(self, sm):
+    def test_hypervisors_search_before_v253_no_qp(self, sm):
         self.verify_list(
             self.proxy.hypervisors,
             hypervisor.Hypervisor,
@@ -800,7 +808,7 @@ class TestHypervisor(TestComputeProxy):
         autospec=True,
         return_value=False,
     )
-    def test_hypervisors_search_before_253(self, sm):
+    def test_hypervisors_search_before_v253(self, sm):
         self.verify_list(
             self.proxy.hypervisors,
             hypervisor.Hypervisor,
@@ -814,7 +822,7 @@ class TestHypervisor(TestComputeProxy):
         autospec=True,
         return_value=True,
     )
-    def test_hypervisors_search_after_253(self, sm):
+    def test_hypervisors_search_after_v253(self, sm):
         self.verify_list(
             self.proxy.hypervisors,
             hypervisor.Hypervisor,

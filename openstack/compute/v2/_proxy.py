@@ -2171,9 +2171,50 @@ class Proxy(proxy.Proxy):
 
     # ========== Services ==========
 
+    def _get_service(
+        self,
+        service: str | _service.Service | None,
+        *,
+        binary: str | None = None,
+        host: str | None = None,
+    ) -> _service.Service:
+        if service is not None:
+            # if we're on 2.53+, we can rely on service IDs, otherwise we
+            # require a binary and host
+            if utils.supports_microversion(self, '2.53'):
+                if isinstance(service, str):
+                    return self._get_resource(_service.Service, service)
+                if service.id is not None:
+                    return service
+            else:
+                if (
+                    isinstance(service, _service.Service)
+                    and service.host
+                    and service.binary
+                ):
+                    return service
+
+        if binary is None or host is None:
+            raise ValueError(
+                'Either service instance should have host and binary '
+                'or they should be passed'
+            )
+
+        if utils.supports_microversion(self, '2.53'):
+            services = list(self.services(host=host, binary=binary))
+            if not services:
+                raise exceptions.SDKException('Found no matches for service')
+            if len(services) > 1:
+                raise exceptions.SDKException(
+                    'Found multiple matches for services: {services}'
+                )
+            return services[0]
+        else:
+            return self._get_resource(_service.Service, service)
+
     def update_service_forced_down(
         self,
-        service: str | _service.Service,
+        service: str | _service.Service | None,
         host: str | None = None,
         binary: str | None = None,
         forced: bool = True,
@@ -2189,17 +2230,10 @@ class Proxy(proxy.Proxy):
 
         :returns: Updated service instance
         """
+        service = self._get_service(service, host=host, binary=binary)
         if utils.supports_microversion(self, '2.53'):
             return self.update_service(service, forced_down=forced)
 
-        service = self._get_resource(_service.Service, service)
-        if (not host or not binary) and (
-            not service.host or not service.binary
-        ):
-            raise ValueError(
-                'Either service instance should have host and binary '
-                'or they should be passed'
-            )
         service.set_forced_down(self, host, binary, forced)
         return None
 
@@ -2207,7 +2241,7 @@ class Proxy(proxy.Proxy):
 
     def disable_service(
         self,
-        service: str | _service.Service,
+        service: str | _service.Service | None,
         host: str | None = None,
         binary: str | None = None,
         disabled_reason: str | None = None,
@@ -2222,34 +2256,34 @@ class Proxy(proxy.Proxy):
 
         :returns: Updated service instance
         """
+        service = self._get_service(service, host=host, binary=binary)
         if utils.supports_microversion(self, '2.53'):
             attrs = {'status': 'disabled'}
             if disabled_reason:
                 attrs['disabled_reason'] = disabled_reason
             return self.update_service(service, **attrs)
 
-        service = self._get_resource(_service.Service, service)
         return service.disable(self, host, binary, disabled_reason)
 
     def enable_service(
         self,
-        service: str | _service.Service,
+        service: str | _service.Service | None,
         host: str | None = None,
         binary: str | None = None,
     ) -> _service.Service | None:
         """Enable a service
 
-        :param service: Either the ID of a service or a
-            :class:`~openstack.compute.v2.service.Service` instance.
+        :param service: Either the ID of a service, a
+            :class:`~openstack.compute.v2.service.Service` instance, or None.
         :param host: The host where service runs.
         :param binary: The name of service.
 
         :returns: Updated service instance
         """
+        service = self._get_service(service, host=host, binary=binary)
         if utils.supports_microversion(self, '2.53'):
             return self.update_service(service, status='enabled')
 
-        service = self._get_resource(_service.Service, service)
         return service.enable(self, host, binary)
 
     def services(
@@ -2312,8 +2346,7 @@ class Proxy(proxy.Proxy):
     ) -> None:
         """Delete a service
 
-        :param service:
-            The value can be either the ID of a service or a
+        :param service: The value can be either the ID of a service or a
             :class:`~openstack.compute.v2.service.Service` instance.
         :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.NotFoundException` will be raised
@@ -2339,12 +2372,12 @@ class Proxy(proxy.Proxy):
 
         :returns: The updated service
         """
-        if utils.supports_microversion(self, '2.53'):
-            return self._update(_service.Service, service, **attrs)
+        if not utils.supports_microversion(self, '2.53'):
+            raise exceptions.SDKException(
+                'Method require at least microversion 2.53'
+            )
 
-        raise exceptions.SDKException(
-            'Method require at least microversion 2.53'
-        )
+        return self._update(_service.Service, service, **attrs)
 
     # ========== Volume Attachments ==========
 

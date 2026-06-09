@@ -199,7 +199,10 @@ class Service(resource.Resource):
     force_down = set_forced_down
 
     def enable(
-        self, session: adapter.Adapter, host: str | None, binary: str | None
+        self,
+        session: adapter.Adapter,
+        host: str | None,
+        binary: str | None,
     ) -> Self:
         """Enable service."""
         body = {
