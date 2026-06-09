@@ -51,7 +51,7 @@ class SecurityGroup(_base.NetworkResource, _base.TagMixinNetwork):
     #: Whether the security group is stateful or not.
     stateful = resource.Body('stateful')
     #: The ID of the project this security group is associated with.
-    project_id = resource.Body('project_id')
+    project_id = resource.Body('project_id', alias='tenant_id')
     #: A list of
     #: :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`
     #: objects. *Type: list*

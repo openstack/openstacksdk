@@ -28,7 +28,7 @@ class QoSMinimumPacketRateRule(resource.Resource):
     allow_list = True
 
     # Properties
-    #: Traffic direction from the tenant point of view. Valid values: ('any',
+    #: Traffic direction from the project point of view. Valid values: ('any',
     #: 'egress', 'ingress')
     direction = resource.Body('direction')
     #: Minimum packet rate in kpps.

@@ -45,6 +45,6 @@ class MeteringLabel(resource.Resource):
     project_id = resource.Body('project_id', alias='tenant_id')
     #: Tenant_id (deprecated attribute).
     tenant_id = resource.Body('tenant_id', deprecated=True)
-    #: Indicates whether this label is shared across all tenants.
+    #: Indicates whether this label is shared across all projects.
     #: *Type: bool*
     is_shared = resource.Body('shared', type=bool)

@@ -34,6 +34,6 @@ class QoSPacketRateLimitRule(resource.Resource):
     max_kpps = resource.Body('max_kpps')
     #: Maximum burst packet rate in kpps.
     max_burst_kpps = resource.Body('max_burst_kpps')
-    #: Traffic direction from the tenant point of view ('egress', 'ingress',
+    #: Traffic direction from the project point of view ('egress', 'ingress',
     # 'any').
     direction = resource.Body('direction')

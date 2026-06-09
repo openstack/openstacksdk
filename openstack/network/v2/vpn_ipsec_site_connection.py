@@ -105,7 +105,7 @@ class VpnIPSecSiteConnection(resource.Resource):
     # CIDRs in the form < net_address > / < prefix > .
     peer_cidrs = resource.Body('peer_cidrs', type=list)
     #: The ID of the project.
-    project_id = resource.Body('tenant_id')
+    project_id = resource.Body('project_id', alias='tenant_id')
     #: The pre-shared key. A valid value is any string.
     psk = resource.Body('psk')
     #: The ID for the endpoint group that contains

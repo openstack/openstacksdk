@@ -83,7 +83,7 @@ class Network(_base.NetworkResource, _base.TagMixinNetwork):
     is_router_external = resource.Body(
         'router:external', type=bool, default=False
     )
-    #: Indicates whether this network is shared across all tenants.
+    #: Indicates whether this network is shared across all projects.
     #: By default, only administrative users can change this value.
     #: *Type: bool*
     is_shared = resource.Body('shared', type=bool)

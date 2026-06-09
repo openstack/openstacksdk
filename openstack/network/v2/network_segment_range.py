@@ -74,7 +74,7 @@ class NetworkSegmentRange(resource.Resource):
     #: network types.
     #: *Type: int*
     maximum = resource.Body('maximum', type=int)
-    #: Mapping of which segmentation ID in the range is used by which tenant.
+    #: Mapping of which segmentation ID in the range is used by which project.
     #: *Type: dict*
     used = resource.Body('used', type=dict)
     #: List of available segmentation IDs in this network segment range.

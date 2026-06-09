@@ -290,7 +290,7 @@ class TestFloatingIP(base.BaseFunctionalTest):
                 filtered_fip_id_list = [
                     fip.id
                     for fip in self.operator_cloud.list_floating_ips(
-                        {'tenant_id': self.user_cloud.current_project_id}
+                        {'project_id': self.user_cloud.current_project_id}
                     )
                 ]
                 self.assertNotIn(fip_admin.id, filtered_fip_id_list)
