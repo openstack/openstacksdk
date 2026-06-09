@@ -956,21 +956,21 @@ class Proxy(proxy.Proxy):
     def restore_backup(
         self,
         backup: str | _backup.Backup,
-        volume: str | _volume.Volume,
-        name: str,
+        volume: str | _volume.Volume | None = None,
+        name: str | None = None,
     ) -> _backup.Backup:
         """Restore a Backup to volume
 
         :param backup: The value can be the ID of a backup or a
             :class:`~openstack.block_storage.v2.backup.Backup` instance
         :param volume: An ID or
-            :class:`~openstack.volume.v3.volume.Volume` instance of the
+            :class:`~openstack.volume.v2.volume.Volume` instance of the
             volume to restore the backup to.
         :param name: The name for new volume creation to restore.
 
         :returns: Updated backup instance
         """
-        volume_id = resource.Resource._get_id(volume)
+        volume_id = resource.Resource._get_id(volume) if volume else None
         return self._get_resource(_backup.Backup, backup).restore(
             self, volume_id=volume_id, name=name
         )
