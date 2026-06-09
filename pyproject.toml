@@ -34,7 +34,7 @@ Repository = "https://opendev.org/openstack/openstacksdk/"
 openstack-inventory = "openstack.cloud.cmd.inventory:main"
 
 [tool.setuptools.packages.find]
-include = ["openstack"]
+include = ["openstack*"]
 
 [tool.mypy]
 python_version = "3.11"
