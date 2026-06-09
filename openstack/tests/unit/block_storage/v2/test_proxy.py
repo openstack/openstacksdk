@@ -91,6 +91,9 @@ class TestVolume(TestVolumeProxy):
             expected_args=[self.proxy],
         )
 
+    def test_volume_update(self):
+        self.verify_update(self.proxy.update_volume, volume.Volume)
+
     def test_fetch_volume_metadata(self):
         self._verify(
             "openstack.block_storage.v2.volume.Volume.fetch_metadata",

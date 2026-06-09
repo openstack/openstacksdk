@@ -542,6 +542,21 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_volume.Volume, **attrs)
 
+    def update_volume(
+        self,
+        volume: str | _volume.Volume,
+        **attrs: Any,
+    ) -> _volume.Volume:
+        """Update a volume
+
+        :param volume: Either the ID of a volume or a
+            :class:`~openstack.block_storage.v2.volume.Volume` instance.
+        :param attrs: The attributes to update on the volume.
+
+        :returns: The updated volume
+        """
+        return self._update(_volume.Volume, volume, **attrs)
+
     def delete_volume(
         self,
         volume: str | _volume.Volume,
