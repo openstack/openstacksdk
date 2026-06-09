@@ -381,6 +381,21 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_type.Type, type, ignore_missing=ignore_missing)
 
+    def update_type(
+        self,
+        type: str | _type.Type,
+        **attrs: Any,
+    ) -> _type.Type:
+        """Update a type
+
+        :param type: The value can be either the ID of a type or a
+            :class:`~openstack.block_storage.v2.type.Type` instance.
+        :param attrs: The attributes to update on the type
+
+        :returns: The updated type
+        """
+        return self._update(_type.Type, type, **attrs)
+
     def get_type_access(self, type: str | _type.Type) -> list[dict[str, Any]]:
         """Lists project IDs that have access to private volume type.
 

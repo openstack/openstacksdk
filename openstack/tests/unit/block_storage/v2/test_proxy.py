@@ -501,6 +501,9 @@ class TestType(TestVolumeProxy):
     def test_type_delete_ignore(self):
         self.verify_delete(self.proxy.delete_type, type.Type, True)
 
+    def test_type_update(self):
+        self.verify_update(self.proxy.update_type, type.Type)
+
     def test_type_get_private_access(self):
         self._verify(
             "openstack.block_storage.v2.type.Type.get_private_access",
