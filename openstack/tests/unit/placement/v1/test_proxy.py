@@ -107,6 +107,14 @@ class TestPlacementResourceProvider(TestPlacementProxy):
             expected_args=[self.proxy],
         )
 
+    def test_resource_provider_fetch_usages(self):
+        self._verify(
+            'openstack.placement.v1.resource_provider.ResourceProvider.fetch_usages',
+            self.proxy.fetch_resource_provider_usages,
+            method_args=['value'],
+            expected_args=[self.proxy],
+        )
+
 
 class TestPlacementResourceProviderInventory(TestPlacementProxy):
     def test_resource_provider_inventory_create(self):

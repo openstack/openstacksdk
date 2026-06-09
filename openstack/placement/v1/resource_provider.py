@@ -67,6 +67,25 @@ class ResourceProvider(resource.Resource):
     parent_provider_id = resource.Body('parent_provider_uuid')
     #: Read-only UUID of the top-most provider in this provider tree.
     root_provider_id = resource.Body('root_provider_uuid')
+    #: Resource class usage counts for this resource provider.
+    usages = resource.Body('usages', type=dict)
+
+    def fetch_usages(self, session: adapter.Adapter) -> Self:
+        """Fetch resource usage counts for the resource provider
+
+        :param session: The session to use for making this request
+        :return: The resource provider with usages populated
+        """
+        url = utils.urljoin(self.base_path, self.id, 'usages')
+        microversion = self._get_microversion(session)
+
+        response = session.get(url, microversion=microversion)
+        exceptions.raise_from_response(response)
+        data = response.json()
+
+        self._body.attributes.update({'usages': data['usages']})
+
+        return self
 
     def fetch_aggregates(self, session: adapter.Adapter) -> Self:
         """List aggregates set on the resource provider

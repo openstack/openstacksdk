@@ -28,7 +28,8 @@ Resource Providers
              delete_resource_provider, get_resource_provider,
              find_resource_provider, resource_providers,
              get_resource_provider_aggregates,
-             set_resource_provider_aggregates
+             set_resource_provider_aggregates,
+             fetch_resource_provider_usages
 
 Resource Provider Inventories
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
