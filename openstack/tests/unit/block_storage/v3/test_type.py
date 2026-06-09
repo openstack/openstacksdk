@@ -18,7 +18,6 @@ from openstack.block_storage.v3 import type
 from openstack import exceptions
 from openstack.tests.unit import base
 
-
 FAKE_ID = "6685584b-1eac-4da6-b5c3-555430cf68ff"
 TYPE = {
     "extra_specs": {"capabilities": "gpu"},

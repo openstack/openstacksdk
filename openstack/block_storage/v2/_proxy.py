@@ -396,6 +396,42 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_type.Type, type, **attrs)
 
+    def update_type_extra_specs(
+        self,
+        type: str | _type.Type,
+        **attrs: Any,
+    ) -> _type.Type:
+        """Update the extra_specs for a type
+
+        :param type: The value can be either the ID of a type or a
+            :class:`~openstack.block_storage.v2.type.Type` instance.
+        :param attrs: The extra spec attributes to update on the type
+
+        :returns: A dict containing updated extra_specs
+        """
+        res = self._get_resource(_type.Type, type)
+        extra_specs = res.set_extra_specs(self, **attrs)
+        result = _type.Type.existing(id=res.id, extra_specs=extra_specs)
+        return result
+
+    def delete_type_extra_specs(
+        self,
+        type: str | _type.Type,
+        keys: Iterable[str],
+    ) -> None:
+        """Delete the extra_specs for a type
+
+        Note: This method will do a HTTP DELETE request for every key in keys.
+
+        :param type: The value can be either the ID of a type or a
+            :class:`~openstack.block_storage.v2.type.Type` instance.
+        :param keys: The keys to delete.
+
+        :returns: ``None``
+        """
+        res = self._get_resource(_type.Type, type)
+        return res.delete_extra_specs(self, keys)
+
     def get_type_access(self, type: str | _type.Type) -> list[dict[str, Any]]:
         """Lists project IDs that have access to private volume type.
 

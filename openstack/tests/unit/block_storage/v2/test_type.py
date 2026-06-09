@@ -9,14 +9,14 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 from unittest import mock
 
 from keystoneauth1 import adapter
 
-
 from openstack.block_storage.v2 import type
+from openstack import exceptions
 from openstack.tests.unit import base
-
 
 FAKE_ID = "6685584b-1eac-4da6-b5c3-555430cf68ff"
 TYPE = {"extra_specs": {"capabilities": "gpu"}, "id": FAKE_ID, "name": "SSD"}
@@ -54,6 +54,76 @@ class TestType(base.TestCase):
         self.assertEqual(TYPE["id"], sot.id)
         self.assertEqual(TYPE["extra_specs"], sot.extra_specs)
         self.assertEqual(TYPE["name"], sot.name)
+
+    def test_set_extra_specs(self):
+        response = mock.Mock()
+        response.status_code = 200
+        response.json.return_value = self.extra_specs_result
+        sess = mock.Mock()
+        sess.post.return_value = response
+
+        sot = type.Type(id=FAKE_ID)
+
+        set_specs = {"lol": "rofl"}
+
+        result = sot.set_extra_specs(sess, **set_specs)
+
+        self.assertEqual(result, self.extra_specs_result["extra_specs"])
+        sess.post.assert_called_once_with(
+            "types/" + FAKE_ID + "/extra_specs",
+            headers={},
+            json={"extra_specs": set_specs},
+        )
+
+    def test_set_extra_specs_error(self):
+        sess = mock.Mock()
+        response = mock.Mock()
+        response.status_code = 400
+        response.content = None
+        sess.post.return_value = response
+
+        sot = type.Type(id=FAKE_ID)
+
+        set_specs = {"lol": "rofl"}
+
+        self.assertRaises(
+            exceptions.BadRequestException,
+            sot.set_extra_specs,
+            sess,
+            **set_specs,
+        )
+
+    def test_delete_extra_specs(self):
+        sess = mock.Mock()
+        response = mock.Mock()
+        response.status_code = 200
+        sess.delete.return_value = response
+
+        sot = type.Type(id=FAKE_ID)
+
+        key = "hey"
+
+        sot.delete_extra_specs(sess, [key])
+
+        sess.delete.assert_called_once_with(
+            "types/" + FAKE_ID + "/extra_specs/" + key,
+            headers={},
+        )
+
+    def test_delete_extra_specs_error(self):
+        sess = mock.Mock()
+        response = mock.Mock()
+        response.status_code = 400
+        response.content = None
+        sess.delete.return_value = response
+
+        sot = type.Type(id=FAKE_ID)
+
+        key = "hey"
+
+        self.assertRaises(
+            exceptions.BadRequestException, sot.delete_extra_specs, sess, [key]
+        )
 
     def test_get_private_access(self):
         sot = type.Type(**TYPE)

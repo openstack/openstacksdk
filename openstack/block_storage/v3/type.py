@@ -13,9 +13,8 @@
 from collections.abc import Callable, Iterable
 from typing import Any, cast
 
-import requests
-
 from keystoneauth1 import adapter
+import requests
 
 from openstack import exceptions
 from openstack import resource
@@ -78,9 +77,7 @@ class Type(resource.Resource):
 
         response = method(url, headers={}, **kwargs)
 
-        # ensure Cinder API has not returned us an error
         exceptions.raise_from_response(response)
-        # DELETE doesn't return a JSON body while everything else does.
         return response.json() if not delete else None
 
     def set_extra_specs(
@@ -92,7 +89,7 @@ class Type(resource.Resource):
         given here.  Other keys will not be modified.
 
         :param session: The session to use for making this request.
-        :param kwargs extra_specs: Key/value extra_specs pairs to be update on
+        :param extra_specs: Key/value extra_specs pairs to be update on
             this volume type. All keys and values.
         :returns: The updated extra specs.
         """
@@ -113,7 +110,7 @@ class Type(resource.Resource):
             This method will do a HTTP DELETE request for every key in keys.
 
         :param session: The session to use for this request.
-        :param list keys: The keys to delete.
+        :param keys: The keys to delete.
         :returns: ``None``
         """
         for key in keys:
