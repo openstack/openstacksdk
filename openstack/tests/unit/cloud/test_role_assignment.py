@@ -49,8 +49,8 @@ class TestRoleAssignment(base.TestCase):
             }
         ]
 
-    def setUp(self, cloud_config_fixture='clouds.yaml'):
-        super().setUp(cloud_config_fixture)
+    def setUp(self):
+        super().setUp()
         self.role_data = self._get_role_data()
         self.domain_data = self._get_domain_data()
         self.user_data = self._get_user_data(

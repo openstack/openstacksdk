@@ -15,8 +15,8 @@ from openstack.tests.unit import base
 
 
 class TestGroups(base.TestCase):
-    def setUp(self, cloud_config_fixture='clouds.yaml'):
-        super().setUp(cloud_config_fixture=cloud_config_fixture)
+    def setUp(self):
+        super().setUp()
         self.addCleanup(self.assert_calls)
 
     def get_mock_url(

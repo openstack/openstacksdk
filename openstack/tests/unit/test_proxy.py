@@ -580,6 +580,8 @@ class TestExtractName(base.TestCase):
 
 
 class TestProxyCache(base.TestCase):
+    CLOUD_CONFIG_FIXTURE = 'clouds_cache.yaml'
+
     class Res(resource.Resource):
         base_path = 'fake'
 
@@ -589,7 +591,7 @@ class TestProxyCache(base.TestCase):
         foo = resource.Body('foo')
 
     def setUp(self):
-        super().setUp(cloud_config_fixture='clouds_cache.yaml')
+        super().setUp()
 
         self.session = mock.Mock(spec=session.Session)
         self.session._sdk_connection = self.cloud
@@ -852,8 +854,8 @@ class TestProxyCleanup(base.TestCase):
 class TestConnectRetriesIgnored(base.TestCase):
     """Verify that connect_retries set on the Proxy is honored."""
 
-    def setUp(self, cloud_config_fixture='clouds.yaml'):
-        super().setUp(cloud_config_fixture)
+    def setUp(self):
+        super().setUp()
 
         self.session = mock.Mock(spec=session.Session)
         self.session._sdk_connection = self.cloud
