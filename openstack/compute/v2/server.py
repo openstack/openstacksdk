@@ -932,7 +932,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         :param session: The session to use for making this request.
         :param length: The max length of the console output to return.
             (Optional)
-        :returns: None
+        :returns: The console output.
         """
         body: dict[str, Any] = {"os-getConsoleOutput": {}}
         if length is not None:
@@ -942,7 +942,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
 
     def get_console_url(
         self, session: adapter.Adapter, console_type: str
-    ) -> dict[str, object] | None:
+    ) -> dict[str, object]:
         """Get the console URL for the server.
 
         :param session: The session to use for making this request.
@@ -950,14 +950,14 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             cloud-specific. One of: ``novnc``, ``xvpvnc``, ``spice-html5``,
             ``spice-direct`` (after Nova microversion 2.99), ``rdp-html5``,
             or ``serial``.
-        :returns: None
+        :returns: The console URL.
         """
         action = CONSOLE_TYPE_ACTION_MAPPING.get(console_type)
         if not action:
             raise ValueError(f"Unsupported console type {console_type}")
         body = {action: {'type': console_type}}
         resp = self._action(session, body)
-        return cast(dict[str, object] | None, resp.json().get('console'))
+        return cast(dict[str, object], resp.json()['console'])
 
     def live_migrate(
         self,
