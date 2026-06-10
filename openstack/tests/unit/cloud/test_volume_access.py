@@ -95,13 +95,17 @@ class TestVolumeAccess(base.TestCase):
                         'volumev3',
                         'public',
                         append=['types', volume_type['name']],
+                        qs_elements=['is_public=none'],
                     ),
                     status_code=404,
                 ),
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'volumev3', 'public', append=['types']
+                        'volumev3',
+                        'public',
+                        append=['types'],
+                        qs_elements=['is_public=none'],
                     ),
                     json={'volume_types': [volume_type]},
                 ),
@@ -149,13 +153,17 @@ class TestVolumeAccess(base.TestCase):
                         'volumev3',
                         'public',
                         append=['types', volume_type['name']],
+                        qs_elements=['is_public=none'],
                     ),
                     status_code=404,
                 ),
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'volumev3', 'public', append=['types']
+                        'volumev3',
+                        'public',
+                        append=['types'],
+                        qs_elements=['is_public=none'],
                     ),
                     json={'volume_types': [volume_type]},
                 ),
@@ -178,13 +186,17 @@ class TestVolumeAccess(base.TestCase):
                         'volumev3',
                         'public',
                         append=['types', volume_type['name']],
+                        qs_elements=['is_public=none'],
                     ),
                     status_code=404,
                 ),
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'volumev3', 'public', append=['types']
+                        'volumev3',
+                        'public',
+                        append=['types'],
+                        qs_elements=['is_public=none'],
                     ),
                     json={'volume_types': [volume_type]},
                 ),
@@ -214,13 +226,17 @@ class TestVolumeAccess(base.TestCase):
                         'volumev3',
                         'public',
                         append=['types', volume_type['name']],
+                        qs_elements=['is_public=none'],
                     ),
                     status_code=404,
                 ),
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'volumev3', 'public', append=['types']
+                        'volumev3',
+                        'public',
+                        append=['types'],
+                        qs_elements=['is_public=none'],
                     ),
                     json={'volume_types': [volume_type]},
                 ),
@@ -274,13 +290,17 @@ class TestVolumeAccess(base.TestCase):
                         'volumev3',
                         'public',
                         append=['types', volume_type['name']],
+                        qs_elements=['is_public=none'],
                     ),
                     status_code=404,
                 ),
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'volumev3', 'public', append=['types']
+                        'volumev3',
+                        'public',
+                        append=['types'],
+                        qs_elements=['is_public=none'],
                     ),
                     json={'volume_types': [volume_type]},
                 ),
@@ -310,13 +330,17 @@ class TestVolumeAccess(base.TestCase):
                         'volumev3',
                         'public',
                         append=['types', volume_type['name']],
+                        qs_elements=['is_public=none'],
                     ),
                     status_code=404,
                 ),
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'volumev3', 'public', append=['types']
+                        'volumev3',
+                        'public',
+                        append=['types'],
+                        qs_elements=['is_public=none'],
                     ),
                     json={'volume_types': [volume_type]},
                 ),
@@ -360,14 +384,20 @@ class TestVolumeAccess(base.TestCase):
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'volumev3', 'public', append=['types', 'MISSING']
+                        'volumev3',
+                        'public',
+                        append=['types', 'MISSING'],
+                        qs_elements=['is_public=none'],
                     ),
                     status_code=404,
                 ),
                 dict(
                     method='GET',
                     uri=self.get_mock_url(
-                        'volumev3', 'public', append=['types']
+                        'volumev3',
+                        'public',
+                        append=['types'],
+                        qs_elements=['is_public=none'],
                     ),
                     json={'volume_types': [volume_type]},
                 ),

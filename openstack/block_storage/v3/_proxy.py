@@ -446,6 +446,7 @@ class Proxy(proxy.Proxy):
             _type.Type,
             name_or_id,
             ignore_missing=ignore_missing,
+            is_public='none',  # cinder expects the string 'none'
         )
 
     def types(self, **query: Any) -> Generator[_type.Type, None, None]:
@@ -2300,6 +2301,7 @@ class Proxy(proxy.Proxy):
             _group_type.GroupType,
             name_or_id,
             ignore_missing=ignore_missing,
+            is_public='none',  # cinder expects the string 'none'
         )
 
     def group_types(
