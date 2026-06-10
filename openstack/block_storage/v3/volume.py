@@ -196,14 +196,14 @@ class Volume(resource.Resource, metadata.MetadataMixin):
     def delete_image_metadata(self, session: adapter.Adapter) -> None:
         """Remove all image metadata from the volume"""
         for key in self.metadata:
-            body = {'os-unset_image_metadata': key}
+            body = {'os-unset_image_metadata': {'key': key}}
             self._action(session, body)
 
     def delete_image_metadata_item(
         self, session: adapter.Adapter, key: str
     ) -> None:
         """Remove a single image metadata from the volume"""
-        body = {'os-unset_image_metadata': key}
+        body = {'os-unset_image_metadata': {'key': key}}
         self._action(session, body)
 
     def reset_status(

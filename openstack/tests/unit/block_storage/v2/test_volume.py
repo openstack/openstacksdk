@@ -212,8 +212,8 @@ class TestVolumeActions(TestVolume):
         self.assertIsNone(sot.delete_image_metadata(self.sess))
 
         url = f'volumes/{FAKE_ID}/action'
-        body_a = {'os-unset_image_metadata': 'foo'}
-        body_b = {'os-unset_image_metadata': 'baz'}
+        body_a = {'os-unset_image_metadata': {'key': 'foo'}}
+        body_b = {'os-unset_image_metadata': {'key': 'baz'}}
         self.sess.post.assert_has_calls(
             [
                 mock.call(url, json=body_a),
@@ -227,7 +227,7 @@ class TestVolumeActions(TestVolume):
         self.assertIsNone(sot.delete_image_metadata_item(self.sess, 'foo'))
 
         url = f'volumes/{FAKE_ID}/action'
-        body = {'os-unset_image_metadata': 'foo'}
+        body = {'os-unset_image_metadata': {'key': 'foo'}}
         self.sess.post.assert_called_with(url, json=body)
 
     def test_reset_status(self):
