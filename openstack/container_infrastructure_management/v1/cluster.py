@@ -128,6 +128,8 @@ class Cluster(resource.Resource):
     updated_at = resource.Body('updated_at')
     #: The UUID of the cluster.
     uuid = resource.Body('uuid', alternate_id=True)
+    #: The project the cluster belongs to
+    project_id = resource.Body('project_id')
 
     def resize(
         self,
