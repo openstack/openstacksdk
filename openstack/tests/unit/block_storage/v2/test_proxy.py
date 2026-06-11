@@ -289,6 +289,19 @@ class TestVolumeActions(TestVolumeProxy):
             expected_args=[self.proxy, "1", True],
         )
 
+    def test_upload_to_image(self):
+        self._verify(
+            "openstack.block_storage.v2.volume.Volume.upload_to_image",
+            self.proxy.upload_volume_to_image,
+            method_args=["value", "1"],
+            expected_args=[self.proxy, "1"],
+            expected_kwargs={
+                "force": False,
+                "disk_format": None,
+                "container_format": None,
+            },
+        )
+
 
 class TestBackup(TestVolumeProxy):
     def test_backups_detailed(self):

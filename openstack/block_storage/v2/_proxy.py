@@ -973,6 +973,35 @@ class Proxy(proxy.Proxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.complete_migration(self, new_volume, error)
 
+    def upload_volume_to_image(
+        self,
+        volume: str | _volume.Volume,
+        image_name: str,
+        force: bool = False,
+        disk_format: str | None = None,
+        container_format: str | None = None,
+    ) -> dict[str, Any]:
+        """Uploads the specified volume to image service.
+
+        :param volume: The value can be either the ID of a volume or a
+            :class:`~openstack.block_storage.v3.volume.Volume` instance.
+        :param image_name: The name for the new image.
+        :param force: Enables or disables upload of a volume that is
+            attached to an instance.
+        :param disk_format: Disk format for the new image.
+        :param container_format: Container format for the new image.
+
+        :returns: dictionary describing the image.
+        """
+        volume = self._get_resource(_volume.Volume, volume)
+        return volume.upload_to_image(
+            self,
+            image_name,
+            force=force,
+            disk_format=disk_format,
+            container_format=container_format,
+        )
+
     # ========== Backend pools ==========
 
     def backend_pools(
