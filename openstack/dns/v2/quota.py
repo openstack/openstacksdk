@@ -55,16 +55,18 @@ class Quota(_base.Resource):
         resource_request_key: str | None = None,
         **kwargs: Any,
     ) -> resource._Request:
-        _request = super()._prepare_request(
-            requires_id, prepend_key, base_path=base_path
+        request = super()._prepare_request(
+            requires_id=requires_id,
+            prepend_key=prepend_key,
+            base_path=base_path,
         )
-        _body = cast(dict[str, Any], _request.body)
-        if self.resource_key in _body:
-            _body = _body[self.resource_key]
-        if "id" in _body:
-            del _body["id"]
-        _request.headers = {'x-auth-sudo-project-id': self.id}
-        return _request
+        body = cast(dict[str, Any], request.body)
+        if self.resource_key in body:
+            body = body[self.resource_key]
+        if "id" in body:
+            del body["id"]
+        request.headers = {'x-auth-sudo-project-id': self.id}
+        return request
 
     def fetch(
         self,

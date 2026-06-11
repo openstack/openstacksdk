@@ -186,13 +186,13 @@ class TestProxyDelete(base.TestCase):
 
     def test_delete(self):
         self.sot._delete(DeleteableResource, self.res)
-        self.res.delete.assert_called_with(self.sot)
+        self.res.delete.assert_called_with(self.sot, params=None)
 
         self.sot._delete(DeleteableResource, self.fake_id)
         DeleteableResource.new.assert_called_with(
             connection=self.cloud, id=self.fake_id
         )
-        self.res.delete.assert_called_with(self.sot)
+        self.res.delete.assert_called_with(self.sot, params=None)
 
         # Delete generally doesn't return anything, so we will normally
         # swallow any return from within a service's proxy, but make sure

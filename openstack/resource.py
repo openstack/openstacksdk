@@ -1277,14 +1277,13 @@ class Resource(dict[str, Any]):
 
     def _prepare_request(
         self,
+        *,
         requires_id: bool | None = None,
-        prepend_key: bool = False,
+        prepend_key: bool = True,
         patch: bool = False,
         base_path: str | None = None,
-        params: Any = None,
-        *,
+        params: dict[str, Any] | None = None,
         resource_request_key: str | None = None,
-        **attrs: Any,
     ) -> _Request:
         """Prepare a request to be sent to the server
 
@@ -1335,8 +1334,7 @@ class Resource(dict[str, Any]):
             uri = utils.urljoin(uri, self.id)
 
         if params:
-            query_params = urllib.parse.urlencode(params)
-            uri += '?' + query_params
+            uri += '?' + urllib.parse.urlencode(params)
 
         return _Request(uri, body, headers)
 
@@ -2102,14 +2100,16 @@ class Resource(dict[str, Any]):
         error_message: str | None = None,
         *,
         microversion: str | None = None,
-        **attrs: Any,
+        base_path: str | None = None,
+        params: dict[str, Any] | None = None,
     ) -> Self:
         """Delete the remote resource based on this instance.
 
         :param session: The session to use for making this request.
         :param microversion: API version to override the negotiated one.
-        :param attrs: Attributes to be used to form the request URL such as the
-            ID of a parent resource.
+        :param base_path: Base part of the URI for modifying resources, if
+            different from :data:`~openstack.resource.Resource.base_path`.
+        :param params: Query string parameters to include in the request URL.
 
         :returns: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
@@ -2117,9 +2117,11 @@ class Resource(dict[str, Any]):
         :raises: :exc:`~openstack.exceptions.NotFoundException` if
             the resource was not found.
         """
-
         response = self._raw_delete(
-            session, microversion=microversion, **attrs
+            session,
+            microversion=microversion,
+            params=params,
+            base_path=base_path,
         )
         kwargs = {}
         if error_message:
@@ -2134,12 +2136,14 @@ class Resource(dict[str, Any]):
         self,
         session: adapter.Adapter,
         microversion: str | None = None,
-        **attrs: Any,
+        *,
+        params: dict[str, Any] | None = None,
+        base_path: str | None = None,
     ) -> requests.Response:
         if not self.allow_delete:
             raise exceptions.MethodNotSupported(self, 'delete')
 
-        request = self._prepare_request(**attrs)
+        request = self._prepare_request(params=params, base_path=base_path)
         session = self._get_session(session)
         if microversion is None:
             microversion = self._get_microversion(session)

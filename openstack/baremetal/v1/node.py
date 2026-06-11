@@ -1675,7 +1675,7 @@ class Node(_common.Resource):
             microversion = self._assert_microversion_for(
                 session, _common.RESET_INTERFACES_VERSION
             )
-            params = [('reset_interfaces', reset_interfaces)]
+            params = {'reset_interfaces': reset_interfaces}
 
             request = self._prepare_request(
                 requires_id=True,

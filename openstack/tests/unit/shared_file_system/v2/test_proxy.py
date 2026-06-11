@@ -77,6 +77,7 @@ class TestQuotaSet(TestSharedFileSystemProxy):
             self.proxy.revert_quota_set,
             method_args=['prj'],
             expected_args=[self.proxy],
+            expected_kwargs={'params': None},
         )
 
 

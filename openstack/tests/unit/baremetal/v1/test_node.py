@@ -1297,9 +1297,7 @@ class TestNodePatch(base.TestCase):
         )
         mock_prepreq.assert_called_once()
         prepreq_kwargs = mock_prepreq.call_args[1]
-        self.assertEqual(
-            prepreq_kwargs['params'], [('reset_interfaces', True)]
-        )
+        self.assertEqual(prepreq_kwargs['params'], {'reset_interfaces': True})
         mock__commit.assert_called_once()
         commit_args = mock__commit.call_args[0]
         commit_kwargs = mock__commit.call_args[1]

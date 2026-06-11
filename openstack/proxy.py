@@ -669,6 +669,8 @@ class Proxy(adapter.Adapter):
         resource_type: type[resource.ResourceT],
         value: str | resource.ResourceT | None,
         ignore_missing: bool = True,
+        *,
+        params: dict[str, Any] | None = None,
         **attrs: Any,
     ) -> resource.ResourceT | None:
         """Delete a resource
@@ -685,6 +687,8 @@ class Proxy(adapter.Adapter):
             when the resource does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
             resource.
+        :param params: Query string parameters to include in the DELETE
+            request URL.
         :param attrs: Attributes to be used to form the request URL such as the
             ID of a parent resource.
 
@@ -699,7 +703,7 @@ class Proxy(adapter.Adapter):
         res = self._get_resource(resource_type, value, **attrs)
 
         try:
-            rv = res.delete(self)
+            rv = res.delete(self, params=params)
         except exceptions.NotFoundException:
             if ignore_missing:
                 return None

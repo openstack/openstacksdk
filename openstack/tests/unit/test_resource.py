@@ -1981,7 +1981,9 @@ class TestResourceActions(base.TestCase):
     def test_delete(self):
         result = self.sot.delete(self.session)
 
-        self.sot._prepare_request.assert_called_once_with()
+        self.sot._prepare_request.assert_called_once_with(
+            params=None, base_path=None
+        )
         self.session.delete.assert_called_once_with(
             self.request.url, headers='headers', microversion=None
         )
@@ -2006,7 +2008,9 @@ class TestResourceActions(base.TestCase):
 
         result = sot.delete(self.session)
 
-        sot._prepare_request.assert_called_once_with()
+        sot._prepare_request.assert_called_once_with(
+            params=None, base_path=None
+        )
         self.session.delete.assert_called_once_with(
             self.request.url, headers='headers', microversion='1.42'
         )
@@ -2031,7 +2035,9 @@ class TestResourceActions(base.TestCase):
 
         result = sot.delete(self.session, microversion='1.42')
 
-        sot._prepare_request.assert_called_once_with()
+        sot._prepare_request.assert_called_once_with(
+            params=None, base_path=None
+        )
         self.session.delete.assert_called_once_with(
             self.request.url, headers='headers', microversion='1.42'
         )

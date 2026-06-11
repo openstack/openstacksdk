@@ -73,13 +73,15 @@ class Quota(resource.Resource):
         params: Any = None,
         **kwargs: Any,
     ) -> resource._Request:
-        _request = super()._prepare_request(requires_id, prepend_key)
-        _body = cast(dict[str, Any], _request.body)
-        if self.resource_key in _body:
-            _body = _body[self.resource_key]
-        if 'id' in _body:
-            del _body['id']
-        return _request
+        request = super()._prepare_request(
+            requires_id=requires_id, prepend_key=prepend_key
+        )
+        body = cast(dict[str, Any], request.body)
+        if self.resource_key in body:
+            body = body[self.resource_key]
+        if 'id' in body:
+            del body['id']
+        return request
 
 
 class QuotaDefault(Quota):
