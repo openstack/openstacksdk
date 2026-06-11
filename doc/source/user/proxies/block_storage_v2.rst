@@ -34,6 +34,13 @@ Limits Operations
   :noindex:
   :members: get_limits
 
+QoSSpec Operations
+^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v2._proxy.Proxy
+  :noindex:
+  :members: create_qos_spec, delete_qos_spec, update_qos_spec, get_qos_spec
+
 QuotaClassSet Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^
 

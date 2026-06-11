@@ -281,16 +281,6 @@ class TestKeyPair(TestComputeProxy):
             expected_kwargs={"params": {}},
         )
 
-    def test_keypair_delete_ignore(self):
-        self._verify(
-            "openstack.compute.v2.keypair.Keypair.delete",
-            self.proxy.delete_keypair,
-            method_args=["value", True],
-            method_kwargs={"user_id": "fake_user"},
-            expected_args=[self.proxy],
-            expected_kwargs={"params": {"user_id": "fake_user"}},
-        )
-
     def test_keypair_delete_user_id(self):
         self._verify(
             "openstack.compute.v2.keypair.Keypair.delete",

@@ -2470,55 +2470,64 @@ class Proxy(proxy.Proxy):
         """Create a new QoS Spec from attributes
 
         :param attrs: Keyword arguments which will be used to create a
-            :class:`~openstack.block_storage.v3.qos_spec.QoSSpec`, comprised
-            of the properties on the QoS class.
+            :class:`~openstack.block_storage.v2.qos_spec.QoSSpec`, comprised
+            of the properties on the QoSSpec class.
 
-        :returns: The results of a qos spec creation
-        :rtype: :class:`~openstack.block_storage.v3.qos_spec.QoSSpec`
+        :returns: The results of a QoS spec creation
+        :rtype: :class:`~openstack.block_storage.v2.qos_spec.QoSSpec`
         """
         return self._create(_qos_spec.QoSSpec, **attrs)
 
     def delete_qos_spec(
-        self, qos_spec: str | _qos_spec.QoSSpec, ignore_missing: bool = True
+        self,
+        qos_spec: str | _qos_spec.QoSSpec,
+        ignore_missing: bool = True,
+        *,
+        force: bool = False,
     ) -> None:
         """Delete a QoS Spec
 
-        :param qos_spec: The value can be either the ID of a qos spec or a
-            :class:`~openstack.block_storage.v3.qos_spec.QoSSpec` instance.
+        :param qos_spec: The value can be either the ID of a QoS spec or a
+            :class:`~openstack.block_storage.v2.qos_spec.QoSSpec` instance.
         :param ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
             the type does not exist. When set to ``True``, no exception will be
             set when attempting to delete a nonexistent type.
+        :param force: Whether to delete the QoS spec even if it's in use.
 
         :returns: ``None``
         """
-        self._delete(
-            _qos_spec.QoSSpec, qos_spec, ignore_missing=ignore_missing
-        )
+        res = self._get_resource(_qos_spec.QoSSpec, qos_spec)
+        try:
+            res.delete(self, params={'force': force})
+        except exceptions.NotFoundException:
+            if ignore_missing:
+                return None
+            raise
 
     def update_qos_spec(
         self,
         qos_spec: str | _qos_spec.QoSSpec,
         **attrs: Any,
     ) -> _qos_spec.QoSSpec:
-        """Update a qos spec
+        """Update a QoS spec
 
-        :param qos_spec: The value can be either the ID of a qos spec or a
-            :class:`~openstack.block_storage.v3.qos_spec.QoSSpec` instance.
-        :param dict attrs: The attributes to update on the qos spec
+        :param qos_spec: The value can be either the ID of a QoS spec or a
+            :class:`~openstack.block_storage.v2.qos_spec.QoSSpec` instance.
+        :param dict attrs: The attributes to update on the QoS spec
 
-        :returns: The updated qos spec
-        :rtype: :class:`~openstack.block_storage.v3.qos_spec.QoSSpec`
+        :returns: The updated QoS spec
+        :rtype: :class:`~openstack.block_storage.v2.qos_spec.QoSSpec`
         """
         return self._update(_qos_spec.QoSSpec, qos_spec, **attrs)
 
     def get_qos_spec(self, qos_spec: _qos_spec.QoSSpec) -> _qos_spec.QoSSpec:
-        """Get a single QoS Spec
+        """Get a single QoS spec
 
-        :param qos_spec: The value can be either the ID of a qos spec or a
-            :class:`~openstack.block_storage.v3.qos_spec.QoSSpec` instance.
+        :param qos_spec: The value can be either the ID of a QoS spec or a
+            :class:`~openstack.block_storage.v2.qos_spec.QoSSpec` instance.
 
-        :returns: One :class:`~openstack.block_storage.v3.qos_spec.QoSSpec`
+        :returns: One :class:`~openstack.block_storage.v2.qos_spec.QoSSpec`
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             resource can be found.
         """

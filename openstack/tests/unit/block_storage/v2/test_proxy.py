@@ -17,6 +17,7 @@ from openstack.block_storage.v2 import _proxy
 from openstack.block_storage.v2 import backup
 from openstack.block_storage.v2 import capabilities
 from openstack.block_storage.v2 import limits
+from openstack.block_storage.v2 import qos_spec
 from openstack.block_storage.v2 import quota_class_set
 from openstack.block_storage.v2 import quota_set
 from openstack.block_storage.v2 import service
@@ -598,6 +599,36 @@ class TestType(TestVolumeProxy):
         self.verify_delete(
             self.proxy.delete_type_encryption, type.TypeEncryption, True
         )
+
+
+class TestQosSpec(TestVolumeProxy):
+    def test_qos_spec_create(self):
+        self.verify_create(self.proxy.create_qos_spec, qos_spec.QoSSpec)
+
+    def test_qos_spec_delete(self):
+        self._verify(
+            "openstack.block_storage.v2.qos_spec.QoSSpec.delete",
+            self.proxy.delete_qos_spec,
+            method_args=["value"],
+            expected_args=[self.proxy],
+            expected_kwargs={"params": {"force": False}},
+        )
+
+    def test_qos_spec_delete_force(self):
+        self._verify(
+            "openstack.block_storage.v2.qos_spec.QoSSpec.delete",
+            self.proxy.delete_qos_spec,
+            method_args=["value"],
+            method_kwargs={"force": True},
+            expected_args=[self.proxy],
+            expected_kwargs={"params": {"force": True}},
+        )
+
+    def test_qos_spec_update(self):
+        self.verify_update(self.proxy.update_qos_spec, qos_spec.QoSSpec)
+
+    def test_qos_spec_get(self):
+        self.verify_get(self.proxy.get_qos_spec, qos_spec.QoSSpec)
 
 
 class TestQuotaClassSet(TestVolumeProxy):

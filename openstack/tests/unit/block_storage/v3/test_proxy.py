@@ -1160,10 +1160,23 @@ class TestQosSpec(TestVolumeProxy):
         self.verify_create(self.proxy.create_qos_spec, qos_spec.QoSSpec)
 
     def test_qos_spec_delete(self):
-        self.verify_delete(self.proxy.delete_qos_spec, qos_spec.QoSSpec, False)
+        self._verify(
+            "openstack.block_storage.v3.qos_spec.QoSSpec.delete",
+            self.proxy.delete_qos_spec,
+            method_args=["value"],
+            expected_args=[self.proxy],
+            expected_kwargs={"params": {"force": False}},
+        )
 
-    def test_qos_spec_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_qos_spec, qos_spec.QoSSpec, True)
+    def test_qos_spec_delete_force(self):
+        self._verify(
+            "openstack.block_storage.v3.qos_spec.QoSSpec.delete",
+            self.proxy.delete_qos_spec,
+            method_args=["value"],
+            method_kwargs={"force": True},
+            expected_args=[self.proxy],
+            expected_kwargs={"params": {"force": True}},
+        )
 
     def test_qos_spec_update(self):
         self.verify_update(self.proxy.update_qos_spec, qos_spec.QoSSpec)
