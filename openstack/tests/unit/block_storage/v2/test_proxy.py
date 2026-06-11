@@ -636,6 +636,47 @@ class TestQosSpec(TestVolumeProxy):
     def test_qos_specs(self):
         self.verify_list(self.proxy.qos_specs, qos_spec.QoSSpec)
 
+    def test_qos_spec_associate(self):
+        self._verify(
+            "openstack.block_storage.v2.qos_spec.QoSSpec.associate",
+            self.proxy.associate_qos_spec,
+            method_args=["value", "vol_type_id"],
+            expected_args=[self.proxy, "vol_type_id"],
+        )
+
+    def test_qos_spec_disassociate(self):
+        self._verify(
+            "openstack.block_storage.v2.qos_spec.QoSSpec.disassociate",
+            self.proxy.disassociate_qos_spec,
+            method_args=["value", "vol_type_id"],
+            expected_args=[self.proxy, "vol_type_id"],
+        )
+
+    def test_qos_spec_disassociate_all(self):
+        self._verify(
+            "openstack.block_storage.v2.qos_spec.QoSSpec.disassociate_all",
+            self.proxy.disassociate_all_qos_spec,
+            method_args=["value"],
+            expected_args=[self.proxy],
+        )
+
+    def test_qos_spec_delete_metadata(self):
+        self._verify(
+            "openstack.block_storage.v2.qos_spec.QoSSpec.delete_keys",
+            self.proxy.delete_qos_spec_metadata,
+            method_args=["value", ["key1", "key2"]],
+            expected_args=[self.proxy, ["key1", "key2"]],
+        )
+
+    def test_qos_spec_associations(self):
+        self.verify_list(
+            self.proxy.qos_spec_associations,
+            qos_spec.QoSSpecAssociation,
+            method_args=["value"],
+            expected_args=[],
+            expected_kwargs={"qos_spec_id": "value"},
+        )
+
 
 class TestQuotaClassSet(TestVolumeProxy):
     def test_quota_class_set_get(self):

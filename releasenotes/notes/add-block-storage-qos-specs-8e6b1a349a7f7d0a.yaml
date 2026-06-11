@@ -1,0 +1,12 @@
+---
+features:
+  - |
+    Add support for QoS spec actions and associations to the block storage
+    service. The following proxy methods are now available for both v2 and
+    v3:
+
+    - ``associate_qos_spec``
+    - ``disassociate_qos_spec``
+    - ``disassociate_all_qos_spec``
+    - ``delete_qos_spec_metadata``
+    - ``qos_spec_associations``

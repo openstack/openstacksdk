@@ -40,7 +40,9 @@ QoSSpec Operations
 .. autoclass:: openstack.block_storage.v2._proxy.Proxy
   :noindex:
   :members: create_qos_spec, delete_qos_spec, find_qos_spec, get_qos_spec,
-            qos_specs, update_qos_spec
+            qos_specs, update_qos_spec, associate_qos_spec,
+            disassociate_qos_spec, disassociate_all_qos_spec,
+            delete_qos_spec_metadata, qos_spec_associations
 
 QuotaClassSet Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^

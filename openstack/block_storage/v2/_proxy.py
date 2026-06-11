@@ -1330,6 +1330,86 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_qos_spec.QoSSpec, **query)
 
+    def associate_qos_spec(
+        self,
+        qos_spec: str | _qos_spec.QoSSpec,
+        vol_type_id: str,
+    ) -> None:
+        """Associate a QoS spec with a volume type
+
+        :param qos_spec: The value can be either the ID of a QoS spec or a
+            :class:`~openstack.block_storage.v2.qos_spec.QoSSpec` instance.
+        :param vol_type_id: The ID of the volume type to associate with.
+
+        :returns: ``None``
+        """
+        qos_spec_obj = self._get_resource(_qos_spec.QoSSpec, qos_spec)
+        qos_spec_obj.associate(self, vol_type_id)
+
+    def disassociate_qos_spec(
+        self,
+        qos_spec: str | _qos_spec.QoSSpec,
+        vol_type_id: str,
+    ) -> None:
+        """Disassociate a QoS spec from a volume type
+
+        :param qos_spec: The value can be either the ID of a QoS spec or a
+            :class:`~openstack.block_storage.v2.qos_spec.QoSSpec` instance.
+        :param vol_type_id: The ID of the volume type to disassociate from.
+
+        :returns: ``None``
+        """
+        qos_spec_obj = self._get_resource(_qos_spec.QoSSpec, qos_spec)
+        qos_spec_obj.disassociate(self, vol_type_id)
+
+    def disassociate_all_qos_spec(
+        self,
+        qos_spec: str | _qos_spec.QoSSpec,
+    ) -> None:
+        """Disassociate a QoS spec from all volume types
+
+        :param qos_spec: The value can be either the ID of a QoS spec or a
+            :class:`~openstack.block_storage.v2.qos_spec.QoSSpec` instance.
+
+        :returns: ``None``
+        """
+        qos_spec_obj = self._get_resource(_qos_spec.QoSSpec, qos_spec)
+        qos_spec_obj.disassociate_all(self)
+
+    def delete_qos_spec_metadata(
+        self,
+        qos_spec: str | _qos_spec.QoSSpec,
+        keys: Iterable[Any],
+    ) -> None:
+        """Delete metadata from a QoS spec
+
+        :param qos_spec: The value can be either the ID of a QoS spec or a
+            :class:`~openstack.block_storage.v2.qos_spec.QoSSpec` instance.
+        :param keys: The keys to delete from the QoS spec.
+
+        :returns: ``None``
+        """
+        qos_spec_obj = self._get_resource(_qos_spec.QoSSpec, qos_spec)
+        qos_spec_obj.delete_keys(self, keys)
+
+    def qos_spec_associations(
+        self,
+        qos_spec: str | _qos_spec.QoSSpec,
+    ) -> Generator[_qos_spec.QoSSpecAssociation, None, None]:
+        """Return a generator of associations for a QoS spec
+
+        :param qos_spec: The value can be either the ID of a QoS spec or a
+            :class:`~openstack.block_storage.v2.qos_spec.QoSSpec` instance.
+
+        :returns: A generator of
+            :class:`~openstack.block_storage.v2.qos_spec.QoSSpecAssociation`
+            objects
+        """
+        qos_spec_id = resource.Resource._get_id(qos_spec)
+        return self._list(
+            _qos_spec.QoSSpecAssociation, qos_spec_id=qos_spec_id
+        )
+
     # ========== Quota class sets ==========
 
     def get_quota_class_set(
