@@ -120,7 +120,34 @@ class Backup(resource.Resource):
         exceptions.raise_from_response(resp)
         return resp
 
-    def export(self, session: adapter.Adapter) -> dict[str, Any]:
+    @classmethod
+    def import_record(
+        cls, session: adapter.Adapter, *, service: str, url: str
+    ) -> Self:
+        """Import information about a backup
+
+        :param session: The session to use for making this request.
+        :param service: The service used to perform the backup.
+        :param url: An identifier string to locate the backup.
+        :returns: The imported backup
+        """
+        session = cls._get_session(session)
+        microversion = cls._get_microversion(session)
+        url = utils.urljoin(cls.base_path, 'export_record')
+        body = {
+            'backup-record': {
+                'backup_service': service,
+                'backup_url': url,
+            }
+        }
+        response = session.post(url, json=body, microversion=microversion)
+        exceptions.raise_from_response(response)
+
+        backup = cls()
+        backup._translate_response(response)
+        return backup
+
+    def export_record(self, session: adapter.Adapter) -> dict[str, Any]:
         """Export the current backup
 
         :param session: openstack session
@@ -130,6 +157,14 @@ class Backup(resource.Resource):
         resp = session.get(url)
         exceptions.raise_from_response(resp)
         return cast(dict[str, Any], resp.json())
+
+    def export(self, session: adapter.Adapter) -> dict[str, Any]:
+        warnings.warn(
+            "export is a deprecated alias for export_record and will be "
+            "removed in a future release.",
+            os_warnings.RemovedInSDK50Warning,
+        )
+        return self.export_record(session)
 
     def restore(
         self,
@@ -159,12 +194,20 @@ class Backup(resource.Resource):
         return self
 
     def force_delete(self, session: adapter.Adapter) -> None:
-        """Force backup deletion"""
+        """Force backup deletion
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
         body = {'os-force_delete': None}
         self._action(session, body)
 
     def reset_status(self, session: adapter.Adapter, status: str) -> None:
-        """Reset the status of the backup"""
+        """Reset the status of the backup
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
         body = {'os-reset_status': {'status': status}}
         self._action(session, body)
 

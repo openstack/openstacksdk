@@ -15,6 +15,8 @@ import queue
 from typing import Any, ClassVar, Literal, cast, overload
 import warnings
 
+import requests
+
 from openstack._utils import renamed_param
 from openstack.block_storage.v3 import attachment as _attachment
 from openstack.block_storage.v3 import availability_zone
@@ -1712,15 +1714,34 @@ class Proxy(proxy.Proxy):
         )
         return self.fetch_backup_metadata(backup)
 
-    def export_record(self, backup: str | _backup.Backup) -> Any:
-        """Get a backup meatadata to export
+    def import_backup(self, service: str, url: str) -> _backup.Backup:
+        """Create a new backup from an external service.
+
+        :param service: The service used to perform the backup.
+        :param url: An identifier string to locate the backup.
+
+        :returns: The imported backup
+        """
+        return _backup.Backup.import_record(self, service=service, url=url)
+
+    def export_backup(self, backup: str | _backup.Backup) -> dict[str, Any]:
+        """Export information about a backup
 
         :param backup: The value can be the ID of a backup
-            or a :class:`~openstack.block_storage.v2.backup.Backup`
+            or a :class:`~openstack.block_storage.v3.backup.Backup`
             instance.
 
         :returns: The backup export record fields
         """
+        backup = self._get_resource(_backup.Backup, backup)
+        return backup.export_record(self)
+
+    def export_record(self, backup: str | _backup.Backup) -> requests.Response:
+        warnings.warn(
+            "export_record is deprecated in favour of export_backup and will "
+            "be removed in a future release.",
+            os_warnings.RemovedInSDK50Warning,
+        )
         backup = self._get_resource(_backup.Backup, backup)
         return backup.export(self)
 

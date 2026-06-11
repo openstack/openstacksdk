@@ -335,6 +335,29 @@ class TestBackup(TestVolumeProxy):
     def test_backup_create_attrs(self):
         self.verify_create(self.proxy.create_backup, backup.Backup)
 
+    def test_backup_import(self):
+        self._verify(
+            "openstack.block_storage.v2.backup.Backup.import_record",
+            self.proxy.import_backup,
+            method_kwargs={
+                "service": "cinder.backup.drivers.swift",
+                "url": "eyJzdGF0",
+            },
+            expected_args=[self.proxy],
+            expected_kwargs={
+                "service": "cinder.backup.drivers.swift",
+                "url": "eyJzdGF0",
+            },
+        )
+
+    def test_backup_export(self):
+        self._verify(
+            "openstack.block_storage.v2.backup.Backup.export_record",
+            self.proxy.export_backup,
+            method_args=["value"],
+            expected_args=[self.proxy],
+        )
+
     def test_backup_restore(self):
         self._verify(
             'openstack.block_storage.v2.backup.Backup.restore',

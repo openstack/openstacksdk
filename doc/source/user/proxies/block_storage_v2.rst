@@ -17,8 +17,8 @@ Backup Operations
 
 .. autoclass:: openstack.block_storage.v2._proxy.Proxy
   :noindex:
-  :members: create_backup, delete_backup, get_backup, backups, restore_backup,
-            reset_backup_status
+  :members: create_backup, delete_backup, get_backup, find_backup, backups,
+            import_backup, export_backup, restore_backup, reset_backup_status
 
 Capabilities Operations
 ^^^^^^^^^^^^^^^^^^^^^^^

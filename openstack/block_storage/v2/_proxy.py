@@ -1025,18 +1025,6 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_backup.Backup, backup)
 
-    def export_record(self, backup: str | _backup.Backup) -> dict[str, Any]:
-        """Get a backup
-
-        :param backup: The value can be the ID of a backup
-            or a :class:`~openstack.block_storage.v2.backup.Backup`
-            instance.
-
-        :returns: The backup export record fields
-        """
-        backup = self._get_resource(_backup.Backup, backup)
-        return backup.export(self)
-
     @overload
     def find_backup(
         self,
@@ -1122,6 +1110,37 @@ class Proxy(proxy.Proxy):
             backup.force_delete(self)
 
     # ========== Backup actions ==========
+
+    def import_backup(self, service: str, url: str) -> _backup.Backup:
+        """Create a new backup from an external service.
+
+        :param service: The service used to perform the backup.
+        :param url: An identifier string to locate the backup.
+
+        :returns: The imported backup
+        """
+        return _backup.Backup.import_record(self, service=service, url=url)
+
+    def export_backup(self, backup: str | _backup.Backup) -> dict[str, Any]:
+        """Export information about a backup
+
+        :param backup: The value can be the ID of a backup
+            or a :class:`~openstack.block_storage.v2.backup.Backup`
+            instance.
+
+        :returns: The backup export record fields
+        """
+        backup = self._get_resource(_backup.Backup, backup)
+        return backup.export_record(self)
+
+    # TODO(stephenfin): Remove in 5.0
+    def export_record(self, backup: str | _backup.Backup) -> dict[str, Any]:
+        warnings.warn(
+            "export_record is a deprecated alias for export_backup and will "
+            "be removed in a future release.",
+            os_warnings.RemovedInSDK50Warning,
+        )
+        return self.export_backup(backup)
 
     @renamed_param('volume_id', 'volume')
     def restore_backup(

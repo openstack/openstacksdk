@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import Any, Self
+from typing import cast, Any, Self
 import warnings
 
 import requests
@@ -143,12 +143,55 @@ class Backup(resource.Resource, metadata.MetadataMixin):
         exceptions.raise_from_response(resp)
         return resp
 
-    def export(self, session: adapter.Adapter) -> requests.Response:
-        """Export the current backup
+    @classmethod
+    def import_record(
+        cls, session: adapter.Adapter, *, service: str, url: str
+    ) -> Self:
+        """Import information about a backup
 
-        :param session: openstack session
+        :param session: The session to use for making this request.
+        :param service: The service used to perform the backup.
+        :param url: An identifier string to locate the backup.
+        :returns: The imported backup
+        """
+        session = cls._get_session(session)
+        microversion = cls._get_microversion(session)
+        url = utils.urljoin(cls.base_path, 'export_record')
+        body = {
+            'backup-record': {
+                'backup_service': service,
+                'backup_url': url,
+            }
+        }
+        response = session.post(url, json=body, microversion=microversion)
+        exceptions.raise_from_response(response)
+
+        backup = cls()
+        backup._translate_response(response)
+        return backup
+
+    def export_record(self, session: adapter.Adapter) -> dict[str, object]:
+        """Export information about the backup
+
+        :param session: The session to use for making this request.
         :return: The backup export record fields
         """
+        url = utils.urljoin(self.base_path, self.id, "export_record")
+        resp = session.get(url)
+        exceptions.raise_from_response(resp)
+        return cast(dict[str, object], resp.json())
+
+    def export(self, session: adapter.Adapter) -> requests.Response:
+        """Export information about the backup
+
+        :param session: The session to use for making this request.
+        :return: The backup export record fields
+        """
+        warnings.warn(
+            "export is deprecated in favour of export_record and will be "
+            "removed in a future release.",
+            os_warnings.RemovedInSDK50Warning,
+        )
         url = utils.urljoin(self.base_path, self.id, "export_record")
         resp = session.get(url)
         exceptions.raise_from_response(resp)
@@ -162,7 +205,7 @@ class Backup(resource.Resource, metadata.MetadataMixin):
     ) -> Self:
         """Restore current backup to volume
 
-        :param session: openstack session
+        :param session: The session to use for making this request.
         :param volume_id: The ID of the volume to restore the backup to.
         :param name: The name for new volume creation to restore.
         :return: Updated backup instance
@@ -182,12 +225,20 @@ class Backup(resource.Resource, metadata.MetadataMixin):
         return self
 
     def force_delete(self, session: adapter.Adapter) -> None:
-        """Force backup deletion"""
+        """Force backup deletion
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
         body = {'os-force_delete': None}
         self._action(session, body)
 
     def reset_status(self, session: adapter.Adapter, status: str) -> None:
-        """Reset the status of the backup"""
+        """Reset the status of the backup
+
+        :param session: The session to use for making this request.
+        :returns: None
+        """
         body = {'os-reset_status': {'status': status}}
         self._action(session, body)
 
