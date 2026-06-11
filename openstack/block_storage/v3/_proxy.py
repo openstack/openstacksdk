@@ -907,21 +907,26 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        volume = self._get_resource(_volume.Volume, volume)
+        supports_microversion = utils.supports_microversion(self, '3.23')
 
-        params = {'cascade': cascade}
-        if utils.supports_microversion(self, '3.23'):
-            params['force'] = force
-
-        try:
-            if force and not utils.supports_microversion(self, '3.23'):
+        if force and not supports_microversion:
+            volume = self._get_resource(_volume.Volume, volume)
+            try:
                 volume.force_delete(self)
-            else:
-                volume.delete(self, params=params)
-        except exceptions.NotFoundException:
-            if ignore_missing:
-                return None
-            raise
+            except exceptions.NotFoundException:
+                if ignore_missing:
+                    return None
+                raise
+        else:
+            params = {'cascade': cascade}
+            if supports_microversion:
+                params['force'] = force
+            self._delete(
+                _volume.Volume,
+                volume,
+                ignore_missing=ignore_missing,
+                params=params,
+            )
 
     def update_volume(
         self,
@@ -2794,11 +2799,13 @@ class Proxy(proxy.Proxy):
         :returns: ``None``
         """
         project_id = resource.Resource._get_id(project)
-        res = self._get_resource(
-            _quota_set.QuotaSet, None, project_id=project_id
+        self._delete(
+            _quota_set.QuotaSet,
+            None,
+            ignore_missing=False,
+            project_id=project_id,
+            params=query or None,
         )
-
-        res.delete(self, **query)
 
     # TODO(stephenfin): Drop the QuotaSet fallback in 5.0
     def update_quota_set(

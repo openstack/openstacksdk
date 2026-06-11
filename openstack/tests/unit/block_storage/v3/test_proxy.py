@@ -1338,7 +1338,7 @@ class TestQuotaSet(TestVolumeProxy):
             method_args=['prj'],
             method_kwargs={'user_id': 'uid'},
             expected_args=[self.proxy],
-            expected_kwargs={'user_id': 'uid'},
+            expected_kwargs={'params': {'user_id': 'uid'}},
         )
 
     @mock.patch.object(proxy_base.Proxy, '_get_resource')

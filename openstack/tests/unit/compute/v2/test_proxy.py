@@ -278,7 +278,7 @@ class TestKeyPair(TestComputeProxy):
             self.proxy.delete_keypair,
             method_args=["value"],
             expected_args=[self.proxy],
-            expected_kwargs={"params": {}},
+            expected_kwargs={"params": None},
         )
 
     def test_keypair_delete_user_id(self):
@@ -1829,7 +1829,7 @@ class TestQuotaSet(TestComputeProxy):
             method_args=['prj'],
             method_kwargs={'user_id': 'uid'},
             expected_args=[self.proxy],
-            expected_kwargs={'user_id': 'uid'},
+            expected_kwargs={'params': {'user_id': 'uid'}},
         )
 
     @mock.patch.object(proxy_base.Proxy, "_get_resource")

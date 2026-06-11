@@ -74,7 +74,9 @@ class Quota(resource.Resource):
         **kwargs: Any,
     ) -> resource._Request:
         request = super()._prepare_request(
-            requires_id=requires_id, prepend_key=prepend_key
+            requires_id=requires_id,
+            prepend_key=prepend_key,
+            base_path=base_path,
         )
         body = cast(dict[str, Any], request.body)
         if self.resource_key in body:

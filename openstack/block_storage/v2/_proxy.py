@@ -736,16 +736,21 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        volume = self._get_resource(_volume.Volume, volume)
-        try:
-            if not force:
-                volume.delete(self, params={'cascade': cascade})
-            else:
+        if force:
+            volume = self._get_resource(_volume.Volume, volume)
+            try:
                 volume.force_delete(self)
-        except exceptions.NotFoundException:
-            if ignore_missing:
-                return None
-            raise
+            except exceptions.NotFoundException:
+                if ignore_missing:
+                    return None
+                raise
+        else:
+            self._delete(
+                _volume.Volume,
+                volume,
+                ignore_missing=ignore_missing,
+                params={'cascade': cascade},
+            )
 
     # ========== Volume actions ==========
 
@@ -1532,13 +1537,13 @@ class Proxy(proxy.Proxy):
         :returns: ``None``
         """
         project = self._get_resource(_project.Project, project)
-        res = self._get_resource(
-            _quota_set.QuotaSet, None, project_id=project.id
+        self._delete(
+            _quota_set.QuotaSet,
+            None,
+            ignore_missing=False,
+            project_id=project.id,
+            params=query or None,
         )
-
-        if not query:
-            query = {}
-        res.delete(self, **query)
 
     # TODO(stephenfin): Drop the QuotaSet fallback in 5.0
     def update_quota_set(

@@ -858,17 +858,12 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        # NOTE(gtema): it is necessary to overload normal logic since query
-        # parameters are not properly respected in typical DELETE case
-        res = self._get_resource(_keypair.Keypair, keypair)
-
-        try:
-            delete_params = {'user_id': user_id} if user_id else {}
-            res.delete(self, params=delete_params)
-        except exceptions.NotFoundException:
-            if ignore_missing:
-                return None
-            raise
+        self._delete(
+            _keypair.Keypair,
+            keypair,
+            ignore_missing=ignore_missing,
+            params={'user_id': user_id} if user_id else None,
+        )
 
     def get_keypair(
         self,
@@ -3100,13 +3095,13 @@ class Proxy(proxy.Proxy):
         :returns: ``None``
         """
         project = self._get_resource(_project.Project, project)
-        res = self._get_resource(
-            _quota_set.QuotaSet, None, project_id=project.id
+        self._delete(
+            _quota_set.QuotaSet,
+            None,
+            ignore_missing=False,
+            project_id=project.id,
+            params=query or None,
         )
-
-        if not query:
-            query = {}
-        res.delete(self, **query)
 
     def update_quota_set(
         self,
