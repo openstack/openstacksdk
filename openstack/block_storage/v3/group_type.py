@@ -33,6 +33,17 @@ class GroupType(resource.Resource):
 
     _max_microversion = "3.11"
 
+    _query_mapping = resource.QueryParameters(
+        "is_public",
+        "limit",
+        "marker",
+        "offset",
+        "sort_dir",
+        "sort_key",
+        "sort",
+        all_projects="all_tenants",
+    )
+
     #: Properties
     #: The group type description.
     description = resource.Body("description")

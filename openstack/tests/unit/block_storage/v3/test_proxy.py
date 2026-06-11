@@ -333,7 +333,11 @@ class TestGroupType(TestVolumeProxy):
         self.verify_get(self.proxy.get_group_type, group_type.GroupType)
 
     def test_group_type_find(self):
-        self.verify_find(self.proxy.find_group_type, group_type.GroupType)
+        self.verify_find(
+            self.proxy.find_group_type,
+            group_type.GroupType,
+            expected_kwargs={'ignore_missing': True, 'is_public': 'none'},
+        )
 
     def test_group_types(self):
         self.verify_list(self.proxy.group_types, group_type.GroupType)
@@ -1001,7 +1005,11 @@ class TestType(TestVolumeProxy):
         self.verify_get(self.proxy.get_type, type.Type)
 
     def test_type_find(self):
-        self.verify_find(self.proxy.find_type, type.Type)
+        self.verify_find(
+            self.proxy.find_type,
+            type.Type,
+            expected_kwargs={'ignore_missing': True, 'is_public': 'none'},
+        )
 
     def test_types(self):
         self.verify_list(self.proxy.types, type.Type)
