@@ -1184,6 +1184,12 @@ class TestQosSpec(TestVolumeProxy):
     def test_qos_spec_get(self):
         self.verify_get(self.proxy.get_qos_spec, qos_spec.QoSSpec)
 
+    def test_qos_spec_find(self):
+        self.verify_find(self.proxy.find_qos_spec, qos_spec.QoSSpec)
+
+    def test_qos_specs(self):
+        self.verify_list(self.proxy.qos_specs, qos_spec.QoSSpec)
+
 
 class TestQuotaClassSet(TestVolumeProxy):
     def test_quota_class_set_get(self):

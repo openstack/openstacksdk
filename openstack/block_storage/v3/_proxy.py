@@ -2533,6 +2533,63 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_qos_spec.QoSSpec, qos_spec)
 
+    @overload
+    def find_qos_spec(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        **query: Any,
+    ) -> _qos_spec.QoSSpec: ...
+
+    @overload
+    def find_qos_spec(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _qos_spec.QoSSpec | None: ...
+
+    def find_qos_spec(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        **query: Any,
+    ) -> _qos_spec.QoSSpec | None:
+        """Find a single QoS spec
+
+        :param name_or_id: The name or ID of a QoS spec
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource does not exist. When set to ``True``, None will
+            be returned when attempting to find a nonexistent resource.
+        :param query: Additional attributes like 'host'
+
+        :returns: One: class:`~openstack.block_storage.v2.qos_spec.QoSSpec` or
+            None
+        :raises: :class:`~openstack.exceptions.NotFoundException`
+            when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
+        """
+        return self._find(
+            _qos_spec.QoSSpec,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
+
+    def qos_specs(
+        self,
+        **query: Any,
+    ) -> Generator[_qos_spec.QoSSpec, None, None]:
+        """Return a generator of QoS specs
+
+        :param query: Optional query parameters to be sent to limit
+            the resources being returned.
+        :returns: A generator of QoSSpec objects
+        """
+        return self._list(_qos_spec.QoSSpec, **query)
+
     # ====== QUOTA CLASS SETS ======
 
     def get_quota_class_set(
