@@ -72,7 +72,7 @@ class SecurityGroupRule(_base.NetworkResource, _base.TagMixinNetwork):
     #: attribute. If the protocol is ICMP, this value must be an ICMP type.
     port_range_min = resource.Body('port_range_min', type=int)
     #: The ID of the project this security group rule is associated with.
-    project_id = resource.Body('project_id')
+    project_id = resource.Body('project_id', alias='tenant_id')
     #: The protocol that is matched by the security group rule.
     #: Valid values are ``null``, ``tcp``, ``udp``, and ``icmp``.
     protocol = resource.Body('protocol')

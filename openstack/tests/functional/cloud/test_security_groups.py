@@ -53,16 +53,14 @@ class TestSecurityGroups(base.BaseFunctionalTest):
             sg_list = self.operator_cloud.list_security_groups()
             self.assertIn(sg1['id'], [sg['id'] for sg in sg_list])
 
-            # Filter by tenant_id (filtering by project_id won't work with
-            # Keystone V2)
             sg_list = self.operator_cloud.list_security_groups(
-                filters={'tenant_id': self.user_cloud.current_project_id}
+                filters={'project_id': self.user_cloud.current_project_id}
             )
             self.assertIn(sg1['id'], [sg['id'] for sg in sg_list])
             self.assertNotIn(sg2['id'], [sg['id'] for sg in sg_list])
 
         else:
-            # Nova does not list all tenants by default
+            # Nova does not list all projects by default
             sg_list = self.operator_cloud.list_security_groups()
             self.assertIn(sg2['id'], [sg['id'] for sg in sg_list])
             self.assertNotIn(sg1['id'], [sg['id'] for sg in sg_list])

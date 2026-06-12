@@ -515,7 +515,7 @@ class Proxy(proxy.Proxy):
 
             * ``name``: Address scope name
             * ``ip_version``: Address scope IP address version
-            * ``tenant_id``: Owner tenant ID
+            * ``project_id``: Owner project ID
             * ``shared``: Address scope is shared (boolean)
 
         :returns: A generator of address scope objects
@@ -676,7 +676,7 @@ class Proxy(proxy.Proxy):
     def get_auto_allocated_topology(
         self, project: str | None = None
     ) -> _auto_allocated_topology.AutoAllocatedTopology:
-        """Get the auto-allocated topology of a given tenant
+        """Get the auto-allocated topology of a given project
 
         :param project:
             The value is the ID or name of a project
@@ -3113,7 +3113,7 @@ class Proxy(proxy.Proxy):
             * ``is_shared``: Whether the network is shared across projects.
             * ``name``: The name of the network.
             * ``status``: Network status
-            * ``project_id``: Owner tenant ID
+            * ``project_id``: Owner project ID
             * ``provider_network_type``: Network physical mechanism
             * ``provider_physical_network``: Physical network
             * ``provider_segmentation_id``: VLAN ID for VLAN networks or Tunnel
@@ -3219,7 +3219,7 @@ class Proxy(proxy.Proxy):
               availability.
             * ``network_name``: The name of the network for the particular
               network IP availability.
-            * ``project_id``: Owner tenant ID
+            * ``project_id``: Owner project ID
 
         :returns: A generator of network ip availability objects
             :class:`~openstack.network.v2.network_ip_availability.NetworkIPAvailability`
@@ -3358,7 +3358,7 @@ class Proxy(proxy.Proxy):
             * ``maximum``: Maximum Segmentation ID for the network segment
               ranges
             * ``used``: Mapping of which segmentation ID in the range is
-              used by which tenant
+              used by which project
             * ``available``: List of available segmentation IDs in this
               network segment range
 
@@ -5248,9 +5248,9 @@ class Proxy(proxy.Proxy):
 
             * ``action``: RBAC policy action
             * ``object_type``: Type of the object that the RBAC policy affects
-            * ``target_project_id``: ID of the tenant that the RBAC policy
+            * ``target_project_id``: ID of the project that the RBAC policy
               affects
-            * ``project_id``: Owner tenant ID
+            * ``project_id``: Owner project ID
 
         :returns: A generator of rbac objects
         """
@@ -7209,7 +7209,7 @@ class Proxy(proxy.Proxy):
             * ``is_dhcp_enabled``: Subnet has DHCP enabled (boolean)
             * ``name``: Subnet name
             * ``network_id``: ID of network that owns the subnets
-            * ``project_id``: Owner tenant ID
+            * ``project_id``: Owner project ID
             * ``subnet_pool_id``: The subnet pool ID from which to obtain a
               CIDR.
 
@@ -7341,7 +7341,7 @@ class Proxy(proxy.Proxy):
             * ``is_default``: Subnet pool is the default (boolean)
             * ``is_shared``: Subnet pool is shared (boolean)
             * ``name``: Subnet pool name
-            * ``project_id``: Owner tenant ID
+            * ``project_id``: Owner project ID
 
         :returns: A generator of subnet pool objects
         """

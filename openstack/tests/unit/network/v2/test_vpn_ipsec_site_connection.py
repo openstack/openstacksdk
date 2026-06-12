@@ -30,7 +30,7 @@ EXAMPLE = {
     "initiator": "11",
     "peer_cidrs": ['1', '2'],
     "name": "12",
-    "tenant_id": "13",
+    "project_id": "13",
     "interval": 5,
     "mtu": 5,
     "peer_ep_group_id": "14",
@@ -69,7 +69,7 @@ class TestVpnIPSecSiteConnection(base.TestCase):
         self.assertEqual(EXAMPLE['initiator'], sot.initiator)
         self.assertEqual(EXAMPLE['peer_cidrs'], sot.peer_cidrs)
         self.assertEqual(EXAMPLE['name'], sot.name)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['interval'], sot.interval)
         self.assertEqual(EXAMPLE['mtu'], sot.mtu)
         self.assertEqual(EXAMPLE['peer_ep_group_id'], sot.peer_ep_group_id)

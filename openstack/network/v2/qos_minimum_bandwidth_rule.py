@@ -32,5 +32,5 @@ class QoSMinimumBandwidthRule(resource.Resource):
     qos_policy_id = resource.URI('qos_policy_id')
     #: Minimum bandwidth in kbps.
     min_kbps = resource.Body('min_kbps')
-    #: Traffic direction from the tenant point of view. Valid values: 'egress'
+    #: Traffic direction from the project point of view. Valid values: 'egress'
     direction = resource.Body('direction')
