@@ -23,6 +23,7 @@ from openstack.block_storage.v3 import availability_zone
 from openstack.block_storage.v3 import backup as _backup
 from openstack.block_storage.v3 import block_storage_summary as _summary
 from openstack.block_storage.v3 import capabilities as _capabilities
+from openstack.block_storage.v3 import cluster as _cluster
 from openstack.block_storage.v3 import consistency_group as _consistency_group
 from openstack.block_storage.v3 import (
     consistency_group_snapshot as _consistency_group_snapshot,
@@ -61,6 +62,7 @@ class Proxy(proxy.Proxy):
         "attachment": _attachment.Attachment,
         "backup": _backup.Backup,
         "capabilities": _capabilities.Capabilities,
+        "cluster": _cluster.Cluster,
         "extension": _extension.Extension,
         "group": _group.Group,
         "group_snapshot": _group_snapshot.GroupSnapshot,
@@ -1876,6 +1878,116 @@ class Proxy(proxy.Proxy):
             resource can be found.
         """
         return self._get(_capabilities.Capabilities, host)
+
+    # ====== CLUSTERS ======
+
+    def get_cluster(self, cluster: str | _cluster.Cluster) -> _cluster.Cluster:
+        """Get a cluster
+
+        :param cluster: The value can be the name of a cluster or a
+            :class:`~openstack.block_storage.v3.cluster.Cluster` instance.
+
+        :returns: A Cluster instance.
+        :raises: :class:`~openstack.exceptions.NotFoundException` when no
+            resource can be found.
+        """
+        return self._get(_cluster.Cluster, cluster)
+
+    @overload
+    def find_cluster(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _cluster.Cluster: ...
+
+    @overload
+    def find_cluster(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _cluster.Cluster | None: ...
+
+    def find_cluster(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _cluster.Cluster | None:
+        """Find a single cluster
+
+        :param name_or_id: The name or ID of a cluster.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the resource does not exist. When set to ``True``, None will
+            be returned when attempting to find a nonexistent resource.
+
+        :returns: One
+            :class:`~openstack.block_storage.v3.cluster.Cluster` or None.
+        :raises: :class:`~openstack.exceptions.NotFoundException`
+            when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when
+            multiple resources are found.
+        """
+        return self._find(
+            _cluster.Cluster,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            list_base_path='/clusters/detail',
+        )
+
+    def clusters(
+        self, *, details: bool = True, **query: Any
+    ) -> Generator[_cluster.Cluster, None, None]:
+        """Retrieve a generator of clusters
+
+        :param details: When set to ``False``, no additional details will
+            be returned. The default, ``True``, will cause additional details
+            to be returned.
+        :param query: Optional query parameters to be sent to limit the
+            resources being returned:
+
+            * name: Filter by cluster name.
+            * binary: Filter by binary name.
+            * is_up: Filter by up/down state.
+            * disabled: Filter by disabled status.
+            * num_hosts: Filter by number of hosts in the cluster.
+            * num_down_hosts: Filter by number of down hosts.
+            * replication_status: Filter by replication status.
+
+        :returns: A generator of cluster objects.
+        """
+        base_path = '/clusters/detail' if details else None
+        return self._list(_cluster.Cluster, base_path=base_path, **query)
+
+    def enable_cluster(
+        self,
+        cluster: str | _cluster.Cluster,
+    ) -> _cluster.Cluster:
+        """Enable a cluster
+
+        :param cluster: Either the name of a cluster or a
+            :class:`~openstack.block_storage.v3.cluster.Cluster` instance.
+
+        :returns: Updated cluster instance.
+        """
+        cluster_obj = self._get_resource(_cluster.Cluster, cluster)
+        return cluster_obj.enable(self)
+
+    def disable_cluster(
+        self,
+        cluster: str | _cluster.Cluster,
+        *,
+        reason: str | None = None,
+    ) -> _cluster.Cluster:
+        """Disable a cluster
+
+        :param cluster: Either the name of a cluster or a
+            :class:`~openstack.block_storage.v3.cluster.Cluster` instance.
+        :param reason: The reason for disabling the cluster.
+
+        :returns: Updated cluster instance.
+        """
+        cluster_obj = self._get_resource(_cluster.Cluster, cluster)
+        return cluster_obj.disable(self, reason=reason)
 
     # ====== GROUPS ======
 

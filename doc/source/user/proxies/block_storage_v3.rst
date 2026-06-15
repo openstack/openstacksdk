@@ -60,6 +60,14 @@ Capabilities Operations
   :noindex:
   :members: get_capabilities
 
+Cluster Operations
+^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v3._proxy.Proxy
+  :noindex:
+  :members: get_cluster, find_cluster, clusters, enable_cluster,
+            disable_cluster
+
 Consistency Group Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
