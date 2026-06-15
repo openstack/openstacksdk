@@ -18,7 +18,8 @@ Backup Operations
 .. autoclass:: openstack.block_storage.v2._proxy.Proxy
   :noindex:
   :members: create_backup, delete_backup, get_backup, find_backup, backups,
-            import_backup, export_backup, restore_backup, reset_backup_status
+            import_backup, export_backup, export_record,
+            restore_backup, reset_backup_status, reset_backup
 
 Capabilities Operations
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -45,6 +46,13 @@ Consistency Group Snapshot Operations
             delete_consistency_group_snapshot,
             get_consistency_group_snapshot,
             find_consistency_group_snapshot, consistency_group_snapshots
+
+Extension Operations
+^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v2._proxy.Proxy
+  :noindex:
+  :members: extensions
 
 Limits Operations
 ^^^^^^^^^^^^^^^^^
@@ -91,8 +99,12 @@ Snapshot Operations
 
 .. autoclass:: openstack.block_storage.v2._proxy.Proxy
   :noindex:
-  :members: create_snapshot, delete_snapshot, get_snapshot, snapshots,
-            reset_snapshot_status
+  :members: create_snapshot, delete_snapshot, update_snapshot,
+            get_snapshot, find_snapshot, snapshots,
+            get_snapshot_metadata, fetch_snapshot_metadata,
+            set_snapshot_metadata, delete_snapshot_metadata,
+            reset_snapshot_status, reset_snapshot,
+            manage_snapshot, unmanage_snapshot
 
 Stats Operations
 ^^^^^^^^^^^^^^^^
@@ -114,7 +126,11 @@ Type Operations
 
 .. autoclass:: openstack.block_storage.v2._proxy.Proxy
   :noindex:
-  :members: create_type, delete_type, get_type, types
+  :members: create_type, delete_type, update_type, get_type, find_type, types,
+            update_type_extra_specs, delete_type_extra_specs, get_type_access,
+            add_type_access, remove_type_access, get_type_encryption,
+            create_type_encryption, delete_type_encryption,
+            update_type_encryption
 
 Volume Operations
 ^^^^^^^^^^^^^^^^^
@@ -122,10 +138,12 @@ Volume Operations
 .. autoclass:: openstack.block_storage.v2._proxy.Proxy
   :noindex:
   :members: create_volume, delete_volume, update_volume, get_volume,
-            find_volume, volumes, get_volume_metadata, set_volume_metadata,
+            find_volume, volumes, get_volume_metadata, fetch_volume_metadata,
+            set_volume_metadata,
             delete_volume_metadata, extend_volume, set_volume_readonly,
             retype_volume, set_volume_bootable_status, reset_volume_status,
             set_volume_image_metadata, delete_volume_image_metadata,
+            create_image,
             attach_volume, detach_volume,
             unmanage_volume, migrate_volume, complete_volume_migration,
             upload_volume_to_image

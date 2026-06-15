@@ -39,8 +39,12 @@ Backup Operations
 
 .. autoclass:: openstack.block_storage.v3._proxy.Proxy
   :noindex:
-  :members: create_backup, delete_backup, get_backup, find_backup, backups,
-            import_backup, export_backup, restore_backup, reset_backup_status
+  :members: create_backup, delete_backup, update_backup,
+            get_backup, find_backup, backups,
+            import_backup, export_backup, export_record,
+            restore_backup, reset_backup_status, reset_backup,
+            fetch_backup_metadata, get_backup_metadata,
+            set_backup_metadata, delete_backup_metadata
 
 BlockStorageSummary Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -83,6 +87,13 @@ Default Volume Types
   :members: default_types, show_default_type, set_default_type,
             unset_default_type
 
+Extension Operations
+^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v3._proxy.Proxy
+  :noindex:
+  :members: extensions
+
 Limits Operations
 ^^^^^^^^^^^^^^^^^
 
@@ -96,7 +107,10 @@ Group Operations
 .. autoclass:: openstack.block_storage.v3._proxy.Proxy
   :noindex:
   :members: create_group, create_group_from_source, delete_group, update_group,
-            get_group, find_group, groups, reset_group_status
+            get_group, find_group, groups, reset_group_status,
+            reset_group_state,
+            enable_group_replication, disable_group_replication,
+            failover_group_replication
 
 Group Snapshot Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -104,7 +118,8 @@ Group Snapshot Operations
 .. autoclass:: openstack.block_storage.v3._proxy.Proxy
   :noindex:
   :members: create_group_snapshot, delete_group_snapshot, get_group_snapshot,
-            find_group_snapshot, group_snapshots, reset_group_snapshot_status
+            find_group_snapshot, group_snapshots, reset_group_snapshot_status,
+            reset_group_snapshot_state
 
 Group Type Operations
 ^^^^^^^^^^^^^^^^^^^^^
@@ -117,6 +132,13 @@ Group Type Operations
             get_group_type_group_specs_property,
             update_group_type_group_specs_property,
             delete_group_type_group_specs_property
+
+Message Operations
+^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v3._proxy.Proxy
+  :noindex:
+  :members: get_message, delete_message, messages
 
 QuotaClassSet Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -143,6 +165,13 @@ QoSSpec Operations
             disassociate_qos_spec, disassociate_all_qos_spec,
             delete_qos_spec_metadata, qos_spec_associations
 
+Resource Filter Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v3._proxy.Proxy
+  :noindex:
+  :members: resource_filters
+
 Service Operations
 ^^^^^^^^^^^^^^^^^^
 
@@ -150,7 +179,8 @@ Service Operations
    :noindex:
    :members: find_service, services, enable_service, disable_service,
              thaw_service, freeze_service, failover_service,
-             get_service_log_levels, set_service_log_levels
+             get_service_log_levels, set_service_log_levels,
+             cleanup_service_workers
 
 Snapshot Operations
 ^^^^^^^^^^^^^^^^^^^
@@ -159,8 +189,10 @@ Snapshot Operations
   :noindex:
   :members: create_snapshot, delete_snapshot, update_snapshot, get_snapshot,
             find_snapshot, snapshots, get_snapshot_metadata,
+            fetch_snapshot_metadata,
             set_snapshot_metadata, delete_snapshot_metadata,
-            reset_snapshot_status, set_snapshot_status, manage_snapshot,
+            reset_snapshot_status, reset_snapshot,
+            set_snapshot_status, manage_snapshot,
             unmanage_snapshot
 
 Stats Operations
@@ -195,13 +227,16 @@ Volume Operations
 .. autoclass:: openstack.block_storage.v3._proxy.Proxy
   :noindex:
   :members: create_volume, delete_volume, update_volume, get_volume,
-            find_volume, volumes, get_volume_metadata, set_volume_metadata,
-            delete_volume_metadata, extend_volume, set_volume_readonly,
+            find_volume, volumes, get_volume_metadata, fetch_volume_metadata,
+            set_volume_metadata,
+            delete_volume_metadata, extend_volume, complete_volume_extend,
+            set_volume_readonly,
             retype_volume, set_volume_bootable_status, reset_volume_status,
             set_volume_image_metadata, delete_volume_image_metadata,
             revert_volume_to_snapshot, attach_volume, detach_volume,
             unmanage_volume, migrate_volume, complete_volume_migration,
-            upload_volume_to_image, reserve_volume, unreserve_volume,
+            upload_volume_to_image, create_image,
+            reserve_volume, unreserve_volume,
             begin_volume_detaching, abort_volume_detaching,
             init_volume_attachment, terminate_volume_attachment,
             manage_volume,
