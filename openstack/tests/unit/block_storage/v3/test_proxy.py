@@ -16,6 +16,7 @@ import warnings
 from openstack.block_storage.v3 import _proxy
 from openstack.block_storage.v3 import backup
 from openstack.block_storage.v3 import capabilities
+from openstack.block_storage.v3 import cluster
 from openstack.block_storage.v3 import consistency_group
 from openstack.block_storage.v3 import consistency_group_snapshot
 from openstack.block_storage.v3 import extension
@@ -195,6 +196,53 @@ class TestLimit(TestVolumeProxy):
 class TestCapabilities(TestVolumeProxy):
     def test_capabilites_get(self):
         self.verify_get(self.proxy.get_capabilities, capabilities.Capabilities)
+
+
+class TestCluster(TestVolumeProxy):
+    def test_cluster_get(self):
+        self.verify_get(self.proxy.get_cluster, cluster.Cluster)
+
+    def test_cluster_find(self):
+        self.verify_find(
+            self.proxy.find_cluster,
+            cluster.Cluster,
+            expected_kwargs={
+                'list_base_path': '/clusters/detail',
+            },
+        )
+
+    def test_clusters_detailed(self):
+        self.verify_list(
+            self.proxy.clusters,
+            cluster.Cluster,
+            method_kwargs={"details": True},
+            expected_kwargs={"base_path": "/clusters/detail"},
+        )
+
+    def test_clusters_not_detailed(self):
+        self.verify_list(
+            self.proxy.clusters,
+            cluster.Cluster,
+            method_kwargs={"details": False},
+            expected_kwargs={"base_path": None},
+        )
+
+    def test_enable_cluster(self):
+        self._verify(
+            'openstack.block_storage.v3.cluster.Cluster.enable',
+            self.proxy.enable_cluster,
+            method_args=["value"],
+            expected_args=[self.proxy],
+        )
+
+    def test_disable_cluster(self):
+        self._verify(
+            'openstack.block_storage.v3.cluster.Cluster.disable',
+            self.proxy.disable_cluster,
+            method_args=["value"],
+            expected_kwargs={"reason": None},
+            expected_args=[self.proxy],
+        )
 
 
 class TestResourceFilter(TestVolumeProxy):
