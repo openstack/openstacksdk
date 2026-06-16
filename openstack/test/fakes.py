@@ -293,7 +293,9 @@ def generate_fake_proxy(
         )
 
     proxy_class = supported_versions[api_version]
-    fake_proxy = cast(proxy.ProxyT, mock.create_autospec(proxy_class))
+    fake_proxy = cast(
+        proxy.ProxyT, mock.create_autospec(proxy_class, spec_set=True)
+    )
 
     for name, _ in inspect.getmembers(
         proxy_class, predicate=inspect.isfunction
