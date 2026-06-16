@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.compute import compute_service
+from openstack.compute.v2 import server
 from openstack import format as _format
 from openstack import resource
 from openstack.test import fakes
@@ -93,3 +95,37 @@ class TestGetFake(base.TestCase):
 
         res = fakes.generate_fake_resource(Fake)
         self.assertIsInstance(res.properties, dict)
+
+
+class TestGenerateFakeProxy(base.TestCase):
+    def test_invalid_service_raises(self):
+        from openstack import proxy as _proxy
+
+        self.assertRaises(ValueError, fakes.generate_fake_proxy, _proxy.Proxy)
+
+    def test_get_returns_resource(self):
+        fake_proxy = fakes.generate_fake_proxy(compute_service.ComputeService)
+        result = fake_proxy.get_server('some-uuid')
+        self.assertIsInstance(result, server.Server)
+
+    def test_list_returns_generator_of_resources(self):
+        fake_proxy = fakes.generate_fake_proxy(compute_service.ComputeService)
+        results = list(fake_proxy.servers())
+        self.assertEqual(1, len(results))
+        self.assertIsInstance(results[0], server.Server)
+
+    def test_find_returns_resource(self):
+        fake_proxy = fakes.generate_fake_proxy(compute_service.ComputeService)
+        result = fake_proxy.find_server('some-name')
+        self.assertIsInstance(result, server.Server)
+
+    def test_typo_raises_attribute_error(self):
+        fake_proxy = fakes.generate_fake_proxy(compute_service.ComputeService)
+        self.assertRaises(AttributeError, getattr, fake_proxy, 'serverssss')
+
+    def test_side_effect_can_be_overridden(self):
+        fake_proxy = fakes.generate_fake_proxy(compute_service.ComputeService)
+        custom = server.Server(id='fixed-id')
+        fake_proxy.get_server.side_effect = lambda *a, **kw: custom
+        result = fake_proxy.get_server('some-uuid')
+        self.assertEqual('fixed-id', result.id)

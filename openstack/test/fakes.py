@@ -23,6 +23,8 @@ valid attributes and methods for both :class:`~openstack.resource.Resource` and
 from collections.abc import Generator
 import inspect
 import random
+import types
+import typing
 from typing import Any, cast
 from unittest import mock
 import uuid
@@ -162,39 +164,92 @@ def generate_fake_resources(
         yield generate_fake_resource(resource_type, **attrs)
 
 
-# TODO(stephenfin): It would be helpful to generate fake resources for the
-# various proxy methods also, but doing so requires deep code introspection or
-# (better) type annotations
+def _resource_type_from_hint(
+    return_hint: Any,
+) -> tuple[type[resource.Resource], bool] | None:
+    """Extract a resource type and generator flag from a return type hint.
+
+    Returns ``(resource_type, is_generator)`` or ``None`` if the hint does not
+    describe a Resource (or Generator thereof).
+    """
+    # Direct Resource subclass: -> Server
+    if isinstance(return_hint, type) and issubclass(
+        return_hint, resource.Resource
+    ):
+        return (return_hint, False)
+
+    origin = typing.get_origin(return_hint)
+    args = typing.get_args(return_hint)
+
+    # Generator[ResourceType, None, None]
+    if origin is Generator and args:
+        first = args[0]
+        if isinstance(first, type) and issubclass(first, resource.Resource):
+            return (first, True)
+
+    # ResourceType | None  (types.UnionType from PEP 604)
+    # typing.Union[ResourceType, None]  (legacy Optional)
+    if isinstance(return_hint, types.UnionType) or origin is typing.Union:
+        resource_types = [
+            a
+            for a in args
+            if isinstance(a, type) and issubclass(a, resource.Resource)
+        ]
+        if len(resource_types) == 1:
+            return (resource_types[0], False)
+
+    return None
+
+
+def _make_resource_side_effect(
+    resource_type: type[resource.Resource],
+    is_generator: bool,
+) -> Any:
+    """Return a callable suitable for use as a mock side_effect."""
+    if is_generator:
+
+        def _side_effect(*args: Any, **kwargs: Any) -> Any:
+            return generate_fake_resources(resource_type)
+
+    else:
+
+        def _side_effect(*args: Any, **kwargs: Any) -> Any:
+            return generate_fake_resource(resource_type)
+
+    return _side_effect
+
+
 def generate_fake_proxy(
     service: type[service_description.ServiceDescription[proxy.ProxyT]],
     api_version: str | None = None,
 ) -> proxy.ProxyT:
     """Generate a fake proxy for the given service type
 
+    Proxy methods whose return type annotation is a
+    :class:`~openstack.resource.Resource` subclass (or a
+    ``Generator`` / optional thereof) are automatically configured to return
+    fake resource instances via :func:`generate_fake_resource` or
+    :func:`generate_fake_resources`.  Return values can still be overridden
+    on the returned mock after the fact.
+
     Example usage:
 
     .. code-block:: python
 
-        >>> import functools
         >>> from openstack.compute import compute_service
         >>> from openstack.compute.v2 import server
         >>> from openstack.test import fakes
-        >>> # create the fake proxy
         >>> fake_compute_proxy = fakes.generate_fake_proxy(
         ...    compute_service.ComputeService,
         ... )
-        >>> # configure return values for various proxy APIs
-        >>> # note that this will generate new fake resources on each invocation
-        >>> fake_compute_proxy.get_server.side_effect = functools.partial(
-        ...     fakes.generate_fake_resource,
-        ...     server.Server,
-        ... )
-        >>> fake_compute_proxy.servers.side_effect = functools.partial(
-        ...     fakes.generate_fake_resources,
-        ...     server.Server,
-        ... )
-        >>> fake_compute_proxy.servers()
-        <generator object generate_fake_resources at 0x7f92768dc040>
+        >>> # get_server is pre-configured; returns a fake Server
+        >>> fake_server = fake_compute_proxy.get_server('some-uuid')
+        >>> isinstance(fake_server, server.Server)
+        True
+        >>> # servers() is pre-configured; yields fake Server instances
+        >>> fake_servers = list(fake_compute_proxy.servers())
+        >>> isinstance(fake_servers[0], server.Server)
+        True
         >>> fake_compute_proxy.serverssss()
         Traceback (most recent call last):
           File "<stdin>", line 1, in <module>
@@ -237,6 +292,28 @@ def generate_fake_proxy(
             f"Supported API versions are: {', '.join(supported_versions)}"
         )
 
-    return cast(
-        proxy.ProxyT, mock.create_autospec(supported_versions[api_version])
-    )
+    proxy_class = supported_versions[api_version]
+    fake_proxy = cast(proxy.ProxyT, mock.create_autospec(proxy_class))
+
+    for name, _ in inspect.getmembers(
+        proxy_class, predicate=inspect.isfunction
+    ):
+        if name.startswith('_'):
+            continue
+        method = getattr(proxy_class, name)
+        try:
+            hints = typing.get_type_hints(method)
+        except Exception:  # noqa: S112
+            continue
+        return_hint = hints.get('return')
+        if return_hint is None:
+            continue
+        result = _resource_type_from_hint(return_hint)
+        if result is None:
+            continue
+        resource_type, is_generator = result
+        getattr(fake_proxy, name).side_effect = _make_resource_side_effect(
+            resource_type, is_generator
+        )
+
+    return fake_proxy
