@@ -13,8 +13,6 @@
 import tempfile
 import uuid
 
-import testtools
-
 from openstack import exceptions
 from openstack.orchestration.util import template_format
 from openstack.orchestration.v1 import stack
@@ -170,7 +168,7 @@ class TestStack(base.TestCase):
                 )
             ]
         )
-        with testtools.ExpectedException(exceptions.NotFoundException):
+        with self.assertRaises(exceptions.NotFoundException):
             self.cloud.list_stacks()
         self.assert_calls()
 
@@ -227,7 +225,7 @@ class TestStack(base.TestCase):
                 )
             ]
         )
-        with testtools.ExpectedException(exceptions.NotFoundException):
+        with self.assertRaises(exceptions.NotFoundException):
             self.cloud.search_stacks()
 
     def test_delete_stack(self):
@@ -295,7 +293,7 @@ class TestStack(base.TestCase):
                 ),
             ]
         )
-        with testtools.ExpectedException(exceptions.BadRequestException):
+        with self.assertRaises(exceptions.BadRequestException):
             self.cloud.delete_stack(self.stack_id)
         self.assert_calls()
 
@@ -499,7 +497,7 @@ class TestStack(base.TestCase):
             ]
         )
 
-        with testtools.ExpectedException(exceptions.SDKException):
+        with self.assertRaises(exceptions.SDKException):
             self.cloud.delete_stack(self.stack_id, wait=True)
 
         self.assert_calls()

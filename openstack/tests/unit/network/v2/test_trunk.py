@@ -12,8 +12,6 @@
 
 from unittest import mock
 
-import testtools
-
 from openstack import exceptions
 from openstack.network.v2 import trunk
 from openstack.tests.unit import base
@@ -78,7 +76,7 @@ class TestTrunk(base.TestCase):
                 'segmentation_type': 'vlan',
             }
         ]
-        with testtools.ExpectedException(exceptions.NotFoundException, msg):
+        with self.assertRaises(exceptions.NotFoundException, msg=msg):
             sot.add_subports(sess, subports)
 
     def test_delete_subports_4xx(self):
@@ -100,5 +98,5 @@ class TestTrunk(base.TestCase):
                 'segmentation_type': 'vlan',
             }
         ]
-        with testtools.ExpectedException(exceptions.NotFoundException, msg):
+        with self.assertRaises(exceptions.NotFoundException, msg=msg):
             sot.delete_subports(sess, subports)

@@ -17,7 +17,6 @@ from unittest import mock
 
 import fixtures
 import os_service_types
-import testtools
 
 import openstack
 from openstack import exceptions
@@ -284,7 +283,7 @@ class TestTinyDAG(base.TestCase):
     def test_walk_raise(self):
         sot = self._create_tinydag(self.test_graph)
         bad_node = 'f'
-        with testtools.ExpectedException(exceptions.SDKException):
+        with self.assertRaises(exceptions.SDKException):
             for node in sot.walk(timeout=1):
                 if node != bad_node:
                     sot.node_done(node)

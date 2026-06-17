@@ -15,7 +15,6 @@
 
 import uuid
 
-import testtools
 from testtools import matchers
 
 from openstack import exceptions
@@ -145,7 +144,7 @@ class TestDomains(base.TestCase):
         domain_data = self._get_domain_data(
             domain_name='domain_name', enabled=True
         )
-        with testtools.ExpectedException(exceptions.BadRequestException):
+        with self.assertRaises(exceptions.BadRequestException):
             self.register_uris(
                 [
                     dict(
@@ -235,7 +234,7 @@ class TestDomains(base.TestCase):
                 ),
             ]
         )
-        with testtools.ExpectedException(exceptions.NotFoundException):
+        with self.assertRaises(exceptions.NotFoundException):
             self.cloud.delete_domain(domain_data.domain_id)
         self.assert_calls()
 
@@ -316,6 +315,6 @@ class TestDomains(base.TestCase):
                 )
             ]
         )
-        with testtools.ExpectedException(exceptions.ConflictException):
+        with self.assertRaises(exceptions.ConflictException):
             self.cloud.delete_domain(domain_data.domain_id)
         self.assert_calls()

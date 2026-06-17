@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
-
 from openstack import exceptions
 from openstack.tests.unit import base
 
@@ -403,9 +401,9 @@ class TestVolumeAccess(base.TestCase):
                 ),
             ]
         )
-        with testtools.ExpectedException(
+        with self.assertRaises(
             exceptions.SDKException,
-            "VolumeType not found: MISSING",
+            msg="VolumeType not found: MISSING",
         ):
             self.cloud.add_volume_type_access(
                 "MISSING", project_001['project_id']

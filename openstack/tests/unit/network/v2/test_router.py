@@ -12,8 +12,6 @@
 
 from unittest import mock
 
-import testtools
-
 from openstack import exceptions
 from openstack.network.v2 import router
 from openstack.tests.unit import base
@@ -192,7 +190,7 @@ class TestRouter(base.TestCase):
         sess = mock.Mock()
         sess.put = mock.Mock(return_value=response)
         body = {'subnet_id': '3'}
-        with testtools.ExpectedException(exceptions.ConflictException, msg):
+        with self.assertRaises(exceptions.ConflictException, msg=msg):
             sot.add_interface(sess, **body)
 
     def test_remove_interface_4xx(self):
@@ -209,7 +207,7 @@ class TestRouter(base.TestCase):
         sess = mock.Mock()
         sess.put = mock.Mock(return_value=response)
         body = {'subnet_id': '3'}
-        with testtools.ExpectedException(exceptions.ConflictException, msg):
+        with self.assertRaises(exceptions.ConflictException, msg=msg):
             sot.remove_interface(sess, **body)
 
     def test_add_extra_routes(self):

@@ -15,8 +15,6 @@
 
 import copy
 
-import testtools
-
 from openstack import exceptions
 from openstack.network.v2 import subnet as _subnet
 from openstack.tests.unit import base
@@ -252,8 +250,8 @@ class TestSubnet(base.TestCase):
                 ),
             ]
         )
-        with testtools.ExpectedException(
-            exceptions.SDKException, "ip_version must be an integer"
+        with self.assertRaises(
+            exceptions.SDKException, msg="ip_version must be an integer"
         ):
             self.cloud.create_subnet(
                 self.network_name, self.subnet_cidr, ip_version='4x'

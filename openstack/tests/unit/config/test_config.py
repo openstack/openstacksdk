@@ -18,7 +18,6 @@ import os
 from unittest import mock
 
 import fixtures
-import testtools
 import yaml
 
 from openstack import config
@@ -1270,7 +1269,7 @@ class TestConfigArgparse(base.TestCase):
         c.register_argparse_arguments(parser, args)
         opts, _remain = parser.parse_known_args(args)
         self.assertEqual(opts.os_password, 'some-secret')
-        with testtools.ExpectedException(AttributeError):
+        with self.assertRaises(AttributeError):
             opts.os_token
 
     def test_register_argparse_service_type(self):
@@ -1291,7 +1290,7 @@ class TestConfigArgparse(base.TestCase):
         self.assertEqual(opts.os_service_type, 'network')
         self.assertEqual(opts.os_endpoint_type, 'admin')
         self.assertEqual(opts.http_timeout, '20')
-        with testtools.ExpectedException(AttributeError):
+        with self.assertRaises(AttributeError):
             opts.os_network_service_type
         cloud = c.get_one(argparse=opts, validate=False)
         self.assertEqual(cloud.config['service_type'], 'network')

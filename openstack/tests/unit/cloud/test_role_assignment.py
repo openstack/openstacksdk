@@ -11,7 +11,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import testtools
 from testtools import matchers
 
 from openstack import exceptions
@@ -1852,7 +1851,7 @@ class TestRoleAssignment(base.TestCase):
         )
         self.register_uris(uris)
 
-        with testtools.ExpectedException(exceptions.NotFoundException):
+        with self.assertRaises(exceptions.NotFoundException):
             self.cloud.grant_role(
                 self.role_data.role_name,
                 group=self.group_data.group_name,
@@ -1890,7 +1889,7 @@ class TestRoleAssignment(base.TestCase):
         )
         self.register_uris(uris)
 
-        with testtools.ExpectedException(exceptions.NotFoundException):
+        with self.assertRaises(exceptions.NotFoundException):
             self.cloud.revoke_role(
                 self.role_data.role_name,
                 group=self.group_data.group_name,
@@ -1904,9 +1903,9 @@ class TestRoleAssignment(base.TestCase):
             'role', self.role_data, 'role_name', [], use_name=True
         )
         self.register_uris(uris)
-        with testtools.ExpectedException(
+        with self.assertRaises(
             exceptions.SDKException,
-            'Must specify either a user or a group',
+            msg='Must specify either a user or a group',
         ):
             self.cloud.grant_role(
                 self.role_data.role_name,
@@ -1919,9 +1918,9 @@ class TestRoleAssignment(base.TestCase):
             'role', self.role_data, 'role_name', [], use_name=True
         )
         self.register_uris(uris)
-        with testtools.ExpectedException(
+        with self.assertRaises(
             exceptions.SDKException,
-            'Must specify either a user or a group',
+            msg='Must specify either a user or a group',
         ):
             self.cloud.revoke_role(
                 self.role_data.role_name,
@@ -1935,9 +1934,9 @@ class TestRoleAssignment(base.TestCase):
         )
         self.register_uris(uris)
 
-        with testtools.ExpectedException(
+        with self.assertRaises(
             exceptions.SDKException,
-            'Specify either a group or a user, not both',
+            msg='Specify either a group or a user, not both',
         ):
             self.cloud.grant_role(
                 self.role_data.role_name,
@@ -1959,9 +1958,9 @@ class TestRoleAssignment(base.TestCase):
         )
         self.register_uris(uris)
 
-        with testtools.ExpectedException(
+        with self.assertRaises(
             exceptions.SDKException,
-            'Specify either a group or a user, not both',
+            msg='Specify either a group or a user, not both',
         ):
             self.cloud.revoke_role(
                 self.role_data.role_name,
@@ -2096,9 +2095,9 @@ class TestRoleAssignment(base.TestCase):
 
         self.register_uris(uris)
 
-        with testtools.ExpectedException(
+        with self.assertRaises(
             exceptions.SDKException,
-            'Must specify either a domain, project or system',
+            msg='Must specify either a domain, project or system',
         ):
             self.cloud.grant_role(
                 self.role_data.role_name,
@@ -2115,9 +2114,9 @@ class TestRoleAssignment(base.TestCase):
 
         self.register_uris(uris)
 
-        with testtools.ExpectedException(
+        with self.assertRaises(
             exceptions.SDKException,
-            'Must specify either a domain, project or system',
+            msg='Must specify either a domain, project or system',
         ):
             self.cloud.revoke_role(
                 self.role_data.role_name,
@@ -2145,7 +2144,7 @@ class TestRoleAssignment(base.TestCase):
                 ),
             ]
         )
-        with testtools.ExpectedException(exceptions.NotFoundException):
+        with self.assertRaises(exceptions.NotFoundException):
             self.cloud.grant_role(
                 self.role_data.role_name,
                 user=self.user_data.name,
@@ -2173,7 +2172,7 @@ class TestRoleAssignment(base.TestCase):
                 ),
             ]
         )
-        with testtools.ExpectedException(exceptions.NotFoundException):
+        with self.assertRaises(exceptions.NotFoundException):
             self.cloud.revoke_role(
                 self.role_data.role_name,
                 user=self.user_data.name,

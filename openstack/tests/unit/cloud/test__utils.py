@@ -13,8 +13,6 @@
 from unittest import mock
 from uuid import uuid4
 
-import testtools
-
 from openstack.cloud import _utils
 from openstack import exceptions
 from openstack.tests.unit import base
@@ -197,9 +195,9 @@ class TestUtils(base.TestCase):
     def test_safe_dict_min_not_int(self):
         """Test non-integer key value raises OSCE"""
         data = [{'f1': 3}, {'f1': "aaa"}, {'f1': 1}]
-        with testtools.ExpectedException(
+        with self.assertRaises(
             exceptions.SDKException,
-            "Search for minimum value failed. "
+            msg="Search for minimum value failed. "
             "Value for f1 is not an integer: aaa",
         ):
             _utils.safe_dict_min('f1', data)
@@ -237,9 +235,9 @@ class TestUtils(base.TestCase):
     def test_safe_dict_max_not_int(self):
         """Test non-integer key value raises OSCE"""
         data = [{'f1': 3}, {'f1': "aaa"}, {'f1': 1}]
-        with testtools.ExpectedException(
+        with self.assertRaises(
             exceptions.SDKException,
-            "Search for maximum value failed. "
+            msg="Search for maximum value failed. "
             "Value for f1 is not an integer: aaa",
         ):
             _utils.safe_dict_max('f1', data)
@@ -305,14 +303,14 @@ class TestUtils(base.TestCase):
         self.assertEqual(RANGE_DATA[2:4], retval)
 
     def test_range_filter_invalid_int(self):
-        with testtools.ExpectedException(
-            exceptions.SDKException, "Invalid range value: <1A0"
+        with self.assertRaises(
+            exceptions.SDKException, msg="Invalid range value: <1A0"
         ):
             _utils.range_filter(RANGE_DATA, "key1", "<1A0")
 
     def test_range_filter_invalid_op(self):
-        with testtools.ExpectedException(
-            exceptions.SDKException, "Invalid range value: <>100"
+        with self.assertRaises(
+            exceptions.SDKException, msg="Invalid range value: <>100"
         ):
             _utils.range_filter(RANGE_DATA, "key1", "<>100")
 

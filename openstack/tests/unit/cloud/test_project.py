@@ -12,7 +12,6 @@
 
 import uuid
 
-import testtools
 from testtools import matchers
 
 from openstack import exceptions
@@ -122,7 +121,7 @@ class TestProject(base.TestCase):
                 ),
             ]
         )
-        with testtools.ExpectedException(exceptions.NotFoundException):
+        with self.assertRaises(exceptions.NotFoundException):
             self.cloud.update_project(project_data.project_id)
         self.assert_calls()
 
