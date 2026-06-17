@@ -42,6 +42,11 @@ class QoSSpec(resource.Resource):
     allow_delete = True
     allow_list = True
 
+    # The Cinder API sends QoS spec properties as flat top-level keys in the
+    # request body alongside 'name' and 'consumer', so we need to allow
+    # unknown body attributes to be passed through.
+    _allow_unknown_attrs_in_body = True
+
     # Properties
     consumer = resource.Body("consumer")
     id = resource.Body("id", type=str)
