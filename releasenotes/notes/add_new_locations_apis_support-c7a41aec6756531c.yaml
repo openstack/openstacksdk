@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    - Add ability to add the location to an existing image.
+    - Add ability to get the locations associated to an image.
