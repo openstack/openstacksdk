@@ -586,22 +586,38 @@ class TestImage(TestImageProxy):
 
     def test_image_download(self):
         original_image = _image.Image(**EXAMPLE)
-        self._verify(
-            'openstack.image.v2.image.Image.download',
-            self.proxy.download_image,
-            method_args=[original_image],
-            method_kwargs={
-                'output': 'some_output',
-                'chunk_size': 1,
-                'stream': True,
+
+        test_data = [
+            {
+                'name': 'Without store preferences',
+                'store_preferences': None,
             },
-            expected_args=[self.proxy],
-            expected_kwargs={
-                'output': 'some_output',
-                'chunk_size': 1,
-                'stream': True,
+            {
+                'name': 'With store preferences',
+                'store_preferences': ['ceph', 's3'],
             },
-        )
+        ]
+
+        for data in test_data:
+            with self.subTest(msg=data['name']):
+                self._verify(
+                    'openstack.image.v2.image.Image.download',
+                    self.proxy.download_image,
+                    method_args=[original_image],
+                    method_kwargs={
+                        'output': 'some_output',
+                        'chunk_size': 1,
+                        'stream': True,
+                        'store_preferences': data['store_preferences'],
+                    },
+                    expected_args=[self.proxy],
+                    expected_kwargs={
+                        'output': 'some_output',
+                        'chunk_size': 1,
+                        'stream': True,
+                        'store_preferences': data['store_preferences'],
+                    },
+                )
 
     @mock.patch("openstack.image.v2.image.Image.fetch")
     def test_image_stage(self, mock_fetch):

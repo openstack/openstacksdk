@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable, Iterator, Sequence
 import hashlib
 import io
 from typing import Any, Self
@@ -95,6 +95,8 @@ class DownloadMixin:
         stream: bool = False,
         output: str | io.IOBase | None = None,
         chunk_size: int = 1024 * 1024,
+        *,
+        store_preferences: Sequence[str] | None = None,
     ) -> req_lib.Response:
         """Download the data contained in an image.
 
@@ -113,6 +115,8 @@ class DownloadMixin:
         meta_hash_algo = getattr(details, 'hash_algo', None)
 
         url = utils.urljoin(self.base_path, self.id, 'file')
+        if store_preferences:
+            url = f'{url}?prefer={",".join(store_preferences)}'
         resp = session.get(url, stream=stream)
 
         hasher = None

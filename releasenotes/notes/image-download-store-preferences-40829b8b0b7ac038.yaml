@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    The SDK now implements a new feature from the Glance API and allows users
+    to pass a list of preferred stored when downloading an image.
