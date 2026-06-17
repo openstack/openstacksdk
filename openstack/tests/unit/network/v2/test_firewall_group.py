@@ -13,9 +13,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
-
 from openstack.network.v2 import firewall_group
+from openstack.tests.unit import base
 
 IDENTIFIER = 'IDENTIFIER'
 
@@ -31,7 +30,7 @@ EXAMPLE = {
 }
 
 
-class TestFirewallGroup(testtools.TestCase):
+class TestFirewallGroup(base.TestCase):
     def test_basic(self):
         sot = firewall_group.FirewallGroup()
         self.assertEqual('firewall_group', sot.resource_key)

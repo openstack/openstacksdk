@@ -12,9 +12,9 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-import testtools
 
 from openstack.image.v2 import image_tasks
+from openstack.tests.unit import base
 
 EXAMPLE = {
     'id': '56ab5f98-2bb7-44c7-bc05-52bde37eb53b',
@@ -35,7 +35,7 @@ EXAMPLE = {
 }
 
 
-class TestImageTasks(testtools.TestCase):
+class TestImageTasks(base.TestCase):
     def test_basic(self):
         sot = image_tasks.ImageTasks()
         self.assertEqual('/images/%(image_id)s/tasks', sot.base_path)
