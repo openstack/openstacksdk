@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
-
 from openstack.container_infrastructure_management.v1 import cluster_template
 from openstack import exceptions
 from openstack.tests.unit import base
@@ -213,7 +211,7 @@ class TestClusterTemplates(base.TestCase):
         # SDKException - but for some reason testtools will not
         # match the more specific HTTPError, even though it's a subclass
         # of SDKException.
-        with testtools.ExpectedException(exceptions.ForbiddenException):
+        with self.assertRaises(exceptions.ForbiddenException):
             self.cloud.create_cluster_template('fake-cluster-template')
         self.assert_calls()
 

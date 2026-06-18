@@ -15,8 +15,6 @@
 import tempfile
 from unittest import mock
 
-import testtools
-
 from openstack.cloud import _object_store
 from openstack import exceptions
 from openstack.object_store.v1 import _proxy
@@ -314,9 +312,9 @@ class TestObject(BaseTestObject):
             ]
         )
 
-        with testtools.ExpectedException(
+        with self.assertRaises(
             exceptions.SDKException,
-            "Could not determine container access for ACL: invalid",
+            msg="Could not determine container access for ACL: invalid",
         ):
             self.cloud.get_container_access(self.container)
 
@@ -324,9 +322,9 @@ class TestObject(BaseTestObject):
         self.register_uris(
             [dict(method='HEAD', uri=self.container_endpoint, status_code=404)]
         )
-        with testtools.ExpectedException(
+        with self.assertRaises(
             exceptions.SDKException,
-            f"Container not found: {self.container}",
+            msg=f"Container not found: {self.container}",
         ):
             self.cloud.get_container_access(self.container)
 

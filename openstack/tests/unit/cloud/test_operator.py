@@ -13,8 +13,6 @@
 from unittest import mock
 import uuid
 
-import testtools
-
 from openstack.config import cloud_region
 from openstack import exceptions
 from openstack.tests.unit import base
@@ -89,9 +87,12 @@ class TestOperatorCloud(base.TestCase):
         get_session_mock.return_value = session_mock
         self.cloud.name = 'testcloud'
         self.cloud.config.config['region_name'] = 'testregion'
-        with testtools.ExpectedException(
+        with self.assertRaises(
             exceptions.SDKException,
-            "Error getting image endpoint on testcloud:testregion: No service",
+            msg=(
+                "Error getting image endpoint on testcloud:testregion: "
+                "No service"
+            ),
         ):
             self.cloud.get_session_endpoint("image")
 

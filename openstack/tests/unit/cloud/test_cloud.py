@@ -13,8 +13,6 @@
 from unittest import mock
 import uuid
 
-import testtools
-
 from openstack import connection
 from openstack import exceptions
 from openstack.tests.unit import base
@@ -144,9 +142,9 @@ class TestCloud(base.TestCase):
         self.assert_calls()
 
     def test_iterate_timeout_bad_wait(self):
-        with testtools.ExpectedException(
+        with self.assertRaises(
             exceptions.SDKException,
-            "Wait value must be an int or float value.",
+            msg="Wait value must be an int or float value.",
         ):
             for count in utils.iterate_timeout(
                 1, "test_iterate_timeout_bad_wait", wait="timeishard"
@@ -174,7 +172,7 @@ class TestCloud(base.TestCase):
     @mock.patch('time.sleep')
     def test_iterate_timeout_timeout(self, mock_sleep):
         message = "timeout test"
-        with testtools.ExpectedException(exceptions.ResourceTimeout, message):
+        with self.assertRaises(exceptions.ResourceTimeout, msg=message):
             for count in utils.iterate_timeout(0.1, message, wait=1):
                 pass
         mock_sleep.assert_called_with(1.0)

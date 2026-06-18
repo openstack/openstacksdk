@@ -11,7 +11,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import testtools
 from testtools import matchers
 
 from openstack import exceptions
@@ -335,6 +334,6 @@ class TestIdentityRoles(base.TestCase):
                 )
             ]
         )
-        with testtools.ExpectedException(exceptions.ForbiddenException):
+        with self.assertRaises(exceptions.ForbiddenException):
             self.cloud.list_role_assignments()
         self.assert_calls()

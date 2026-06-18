@@ -11,8 +11,6 @@
 # under the License.
 
 
-import testtools
-
 from openstack.block_storage.v3 import volume
 from openstack.cloud import meta
 from openstack.compute.v2 import volume_attachment
@@ -104,9 +102,7 @@ class TestVolume(base.TestCase):
                 ),
             ]
         )
-        with testtools.ExpectedException(
-            exceptions.NotFoundException,
-        ):
+        with self.assertRaises(exceptions.NotFoundException):
             self.cloud.attach_volume(server, volume, wait=False)
         self.assert_calls()
 
@@ -225,7 +221,7 @@ class TestVolume(base.TestCase):
             ]
         )
 
-        with testtools.ExpectedException(exceptions.ResourceFailure):
+        with self.assertRaises(exceptions.ResourceFailure):
             self.cloud.attach_volume(server, volume)
         self.assert_calls()
 
@@ -233,9 +229,9 @@ class TestVolume(base.TestCase):
         server = dict(id='server001')
         volume = dict(id='volume001', status='error', attachments=[])
 
-        with testtools.ExpectedException(
+        with self.assertRaises(
             exceptions.SDKException,
-            "Volume {} is not available. Status is '{}'".format(
+            msg="Volume {} is not available. Status is '{}'".format(
                 volume['id'], volume['status']
             ),
         ):
@@ -250,9 +246,9 @@ class TestVolume(base.TestCase):
             attachments=[{'server_id': 'server001', 'device': device_id}],
         )
 
-        with testtools.ExpectedException(
+        with self.assertRaises(
             exceptions.SDKException,
-            "Volume {} already attached to server {} on device {}".format(
+            msg="Volume {} already attached to server {} on device {}".format(
                 volume['id'], server['id'], device_id
             ),
         ):
@@ -325,9 +321,7 @@ class TestVolume(base.TestCase):
                 ),
             ]
         )
-        with testtools.ExpectedException(
-            exceptions.NotFoundException,
-        ):
+        with self.assertRaises(exceptions.NotFoundException):
             self.cloud.detach_volume(server, volume, wait=False)
         self.assert_calls()
 
@@ -435,7 +429,7 @@ class TestVolume(base.TestCase):
                 ),
             ]
         )
-        with testtools.ExpectedException(exceptions.ResourceFailure):
+        with self.assertRaises(exceptions.ResourceFailure):
             self.cloud.detach_volume(server, volume)
         self.assert_calls()
 
