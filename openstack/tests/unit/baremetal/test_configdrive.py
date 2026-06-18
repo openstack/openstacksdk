@@ -17,12 +17,11 @@ import json
 import os
 from unittest import mock
 
-import testtools
-
 from openstack.baremetal import configdrive
+from openstack.tests.unit import base
 
 
-class TestPopulateDirectory(testtools.TestCase):
+class TestPopulateDirectory(base.TestCase):
     def _check(
         self, metadata, user_data=None, network_data=None, vendor_data=None
     ):
@@ -89,7 +88,7 @@ class TestPopulateDirectory(testtools.TestCase):
 
 
 @mock.patch('subprocess.Popen', autospec=True)
-class TestPack(testtools.TestCase):
+class TestPack(base.TestCase):
     def test_no_genisoimage(self, mock_popen):
         mock_popen.side_effect = OSError
         self.assertRaisesRegex(

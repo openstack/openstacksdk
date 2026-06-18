@@ -13,9 +13,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
-
 from openstack.network.v2 import firewall_rule
+from openstack.tests.unit import base
 
 EXAMPLE = {
     'action': 'allow',
@@ -33,7 +32,7 @@ EXAMPLE = {
 }
 
 
-class TestFirewallRule(testtools.TestCase):
+class TestFirewallRule(base.TestCase):
     def test_basic(self):
         sot = firewall_rule.FirewallRule()
         self.assertEqual('firewall_rule', sot.resource_key)
