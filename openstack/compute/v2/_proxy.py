@@ -1256,7 +1256,7 @@ class Proxy(proxy.Proxy):
         metadata: dict[str, str] | None = None,
         wait: bool = False,
         timeout: int = 120,
-    ) -> _image_v2.Image | None:
+    ) -> _image_v2.Image:
         """Create an image from a server
 
         :param server: Either the ID of a server or a
@@ -1271,7 +1271,7 @@ class Proxy(proxy.Proxy):
 
         # we need to type the cloud layer
         image = cast(
-            _image_v2.Image | None,
+            _image_v2.Image,
             self._connection.get_image(image_id),  # type: ignore[no-untyped-call]
         )
         if not wait:
@@ -1279,7 +1279,7 @@ class Proxy(proxy.Proxy):
 
         # we need to type the cloud layer
         return cast(
-            _image_v2.Image | None,
+            _image_v2.Image,
             self._connection.wait_for_image(image, timeout=timeout),  # type: ignore[no-untyped-call]
         )
 
