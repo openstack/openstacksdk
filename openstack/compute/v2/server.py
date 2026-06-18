@@ -532,35 +532,23 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         :param session: The session to use for making this request.
         :param name: The name to use for the created image.
         :param metadata: Metadata to set on the created image. (Optional)
-        :returns: None
+        :returns: image uuid
         """
         action: dict[str, object] = {'name': name}
         if metadata is not None:
             action['metadata'] = metadata
         body = {'createImage': action}
 
-        # You won't believe it - wait, who am I kidding - of course you will!
-        # Nova returns the URL of the image created in the Location
-        # header of the response. (what?) But, even better, the URL it responds
-        # with has a very good chance of being wrong (it is built from
-        # nova.conf values that point to internal API servers in any cloud
-        # large enough to have both public and internal endpoints.
-        # However, nobody has ever noticed this because novaclient doesn't
-        # actually use that URL - it extracts the id from the end of
-        # the url, then returns the id. This leads us to question:
-        #   a) why Nova is going to return a value in a header
-        #   b) why it's going to return data that probably broken
-        #   c) indeed the very nature of the fabric of reality
-        # Although it fills us with existential dread, we have no choice but
-        # to follow suit like a lemming being forced over a cliff by evil
-        # producers from Disney.
+        # Microversion 2.45 changed the createImage response to return the
+        # image ID in a JSON body instead of a Location header.
         microversion = None
         if utils.supports_microversion(session, '2.45'):
             microversion = '2.45'
         response = self._action(session, body, microversion)
 
         try:
-            # There might be a body, there might not be
+            # With microversion 2.45+ the image ID is in the response body;
+            # for older microversions it is in the Location header.
             response_body = response.json()
         except Exception:
             response_body = None
@@ -670,7 +658,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         name: str,
         backup_type: str,
         rotation: int,
-    ) -> None:
+    ) -> str:
         """Create a backup of the server.
 
         :param session: The session to use for making this request.
@@ -681,7 +669,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             between ``daily`` and ``weekly`` backups.
         :param rotation: The number of backups to retain. All images older than
             the rotation'th image will be deleted.
-        :returns: None
+        :returns: image uuid
         """
         body = {
             "createBackup": {
@@ -690,7 +678,25 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
                 "rotation": rotation,
             }
         }
-        self._action(session, body)
+        # Microversion 2.45 changed the createBackup response to return the
+        # image ID in a JSON body instead of a Location header.
+        microversion = None
+        if utils.supports_microversion(session, '2.45'):
+            microversion = '2.45'
+        response = self._action(session, body, microversion)
+
+        try:
+            # With microversion 2.45+ the image ID is in the response body;
+            # for older microversions it is in the Location header.
+            response_body = response.json()
+        except Exception:
+            response_body = None
+        if response_body and 'image_id' in response_body:
+            image_id: str = response_body['image_id']
+        else:
+            image_id = response.headers['Location'].rsplit('/', 1)[1]
+
+        return image_id
 
     def pause(self, session: adapter.Adapter) -> None:
         """Pause the server.

@@ -1289,7 +1289,10 @@ class Proxy(proxy.Proxy):
         name: str,
         backup_type: str,
         rotation: int,
-    ) -> None:
+        *,
+        wait: bool = False,
+        timeout: int = 120,
+    ) -> _image_v2.Image:
         """Backup a server
 
         :param server: Either the ID of a server or a
@@ -1299,11 +1302,29 @@ class Proxy(proxy.Proxy):
         :param rotation: The rotation of the back up image, the oldest
             image will be removed when image count exceed
             the rotation count.
+        :param bool wait: If ``True``, waits for image to reach
+            ``active`` status before returning.
+        :param int timeout: The maximum number of seconds to wait for
+            the image to become active when ``wait`` is ``True``.
 
-        :returns: None
+        :returns: :class:`~openstack.image.v2.image.Image` object.
         """
         server = self._get_resource(_server.Server, server)
-        server.backup(self, name, backup_type, rotation)
+        image_id = server.backup(self, name, backup_type, rotation)
+
+        # we need to type the cloud layer
+        image = cast(
+            _image_v2.Image,
+            self._connection.get_image(image_id),  # type: ignore[no-untyped-call]
+        )
+        if not wait:
+            return image
+
+        # we need to type the cloud layer
+        return cast(
+            _image_v2.Image,
+            self._connection.wait_for_image(image, timeout=timeout),  # type: ignore[no-untyped-call]
+        )
 
     def pause_server(self, server: str | _server.Server) -> None:
         """Pauses a server and changes its status to ``PAUSED``.

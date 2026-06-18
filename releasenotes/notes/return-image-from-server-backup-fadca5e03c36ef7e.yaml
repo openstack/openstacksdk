@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    The compute proxy API always returns the image that was created as a result
+    of the server backup instance action, bringing the backup API bindings
+    inline with the snapshot API bindings.
+    For details see:
+    https://bugs.launchpad.net/python-openstackclient/+bug/2110035
