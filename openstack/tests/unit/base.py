@@ -157,8 +157,9 @@ def make_fake_server(
 
 class TestCase(base.TestCase):
     strict_cloud = False
+    CLOUD_CONFIG_FIXTURE = 'clouds.yaml'
 
-    def setUp(self, cloud_config_fixture='clouds.yaml'):
+    def setUp(self):
         """Run before each test method to initialize test environment."""
 
         super().setUp()
@@ -185,7 +186,7 @@ class TestCase(base.TestCase):
         cloud_path = os.path.join(
             self.fixtures_directory,
             'clouds',
-            cloud_config_fixture,
+            self.CLOUD_CONFIG_FIXTURE,
         )
         with open(cloud_path, 'rb') as f:
             content = f.read()

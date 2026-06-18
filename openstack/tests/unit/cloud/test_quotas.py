@@ -33,9 +33,6 @@ fake_quota_set = {
 
 
 class TestQuotas(base.TestCase):
-    def setUp(self, cloud_config_fixture='clouds.yaml'):
-        super().setUp(cloud_config_fixture=cloud_config_fixture)
-
     def test_update_quotas(self):
         project = self._get_project_data()
 

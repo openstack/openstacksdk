@@ -51,7 +51,7 @@ class TestFirewallRule(FirewallTestCase):
     }
     mock_firewall_rule = None
 
-    def setUp(self, cloud_config_fixture='clouds.yaml'):
+    def setUp(self):
         super().setUp()
         self.mock_firewall_rule = FirewallRule(
             connection=self.cloud, **self._mock_firewall_rule_attrs
@@ -367,7 +367,7 @@ class TestFirewallPolicy(FirewallTestCase):
     }
     mock_firewall_policy = None
 
-    def setUp(self, cloud_config_fixture='clouds.yaml'):
+    def setUp(self):
         super().setUp()
         self.mock_firewall_policy = FirewallPolicy(
             connection=self.cloud, **self._mock_firewall_policy_attrs
@@ -1210,7 +1210,7 @@ class TestFirewallGroup(FirewallTestCase):
     mock_firewall_rule = None
     mock_returned_firewall_rule = None
 
-    def setUp(self, cloud_config_fixture='clouds.yaml'):
+    def setUp(self):
         super().setUp()
         self.mock_egress_policy = FirewallPolicy(
             connection=self.cloud, **self._mock_egress_policy_attrs
