@@ -2047,6 +2047,24 @@ class Proxy(proxy.Proxy):
             _consistency_group.ConsistencyGroup, consistency_group
         )
 
+    @overload
+    def find_consistency_group(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        *,
+        details: bool = True,
+    ) -> _consistency_group.ConsistencyGroup: ...
+
+    @overload
+    def find_consistency_group(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+    ) -> _consistency_group.ConsistencyGroup | None: ...
+
     def find_consistency_group(
         self,
         name_or_id: str,
@@ -2229,6 +2247,24 @@ class Proxy(proxy.Proxy):
             _consistency_group_snapshot.ConsistencyGroupSnapshot,
             consistency_group_snapshot,
         )
+
+    @overload
+    def find_consistency_group_snapshot(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+        *,
+        details: bool = True,
+    ) -> _consistency_group_snapshot.ConsistencyGroupSnapshot: ...
+
+    @overload
+    def find_consistency_group_snapshot(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+        *,
+        details: bool = True,
+    ) -> _consistency_group_snapshot.ConsistencyGroupSnapshot | None: ...
 
     def find_consistency_group_snapshot(
         self,
