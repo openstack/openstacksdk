@@ -28,7 +28,7 @@ EXAMPLE = {
 class TestServerExternalEvent(base.TestCase):
     def test_basic(self):
         sot = server_external_event.ServerExternalEvent()
-        self.assertEqual('event', sot.resource_key)
+        self.assertIsNone(sot.resource_key)
         self.assertEqual('events', sot.resources_key)
         self.assertEqual('/os-server-external-events', sot.base_path)
         self.assertTrue(sot.allow_create)
