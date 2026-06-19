@@ -18,7 +18,7 @@ from openstack import resource
 
 
 class ServerExternalEvent(resource.Resource):
-    resource_key = 'event'
+    resource_key = None
     resources_key = 'events'
     base_path = '/os-server-external-events'
     requires_id = False
