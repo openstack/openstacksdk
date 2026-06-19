@@ -23,6 +23,8 @@ from openstack.block_storage.v3 import extension
 from openstack.block_storage.v3 import group
 from openstack.block_storage.v3 import group_snapshot
 from openstack.block_storage.v3 import group_type
+from openstack.block_storage.v3 import manageable_snapshot
+from openstack.block_storage.v3 import manageable_volume
 from openstack.block_storage.v3 import message
 from openstack.block_storage.v3 import qos_spec
 from openstack.block_storage.v3 import quota_class_set
@@ -1078,6 +1080,48 @@ class TestSnapshot(TestVolumeProxy):
             expected_result=None,
             method_args=["value", ["key"]],
             expected_args=[self.proxy, "key"],
+        )
+
+
+class TestManageableVolume(TestVolumeProxy):
+    def test_manageable_volumes_detailed(self):
+        self.verify_list(
+            self.proxy.manageable_volumes,
+            manageable_volume.ManageableVolume,
+            method_kwargs={"details": True, "host": "fake-host"},
+            expected_kwargs={
+                "host": "fake-host",
+                "base_path": "/manageable_volumes/detail",
+            },
+        )
+
+    def test_manageable_volumes_not_detailed(self):
+        self.verify_list(
+            self.proxy.manageable_volumes,
+            manageable_volume.ManageableVolume,
+            method_kwargs={"details": False, "host": "fake-host"},
+            expected_kwargs={"host": "fake-host"},
+        )
+
+
+class TestManageableSnapshot(TestVolumeProxy):
+    def test_manageable_snapshots_detailed(self):
+        self.verify_list(
+            self.proxy.manageable_snapshots,
+            manageable_snapshot.ManageableSnapshot,
+            method_kwargs={"details": True, "host": "fake-host"},
+            expected_kwargs={
+                "host": "fake-host",
+                "base_path": "/manageable_snapshots/detail",
+            },
+        )
+
+    def test_manageable_snapshots_not_detailed(self):
+        self.verify_list(
+            self.proxy.manageable_snapshots,
+            manageable_snapshot.ManageableSnapshot,
+            method_kwargs={"details": False, "host": "fake-host"},
+            expected_kwargs={"host": "fake-host"},
         )
 
 

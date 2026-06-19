@@ -201,7 +201,7 @@ Snapshot Operations
             set_snapshot_metadata, delete_snapshot_metadata,
             reset_snapshot_status, reset_snapshot,
             set_snapshot_status, manage_snapshot,
-            unmanage_snapshot
+            unmanage_snapshot, manageable_snapshots
 
 Stats Operations
 ^^^^^^^^^^^^^^^^
@@ -242,12 +242,12 @@ Volume Operations
             retype_volume, set_volume_bootable_status, reset_volume_status,
             set_volume_image_metadata, delete_volume_image_metadata,
             revert_volume_to_snapshot, attach_volume, detach_volume,
-            unmanage_volume, migrate_volume, complete_volume_migration,
+            migrate_volume, complete_volume_migration,
             upload_volume_to_image, create_image,
             reserve_volume, unreserve_volume,
             begin_volume_detaching, abort_volume_detaching,
             init_volume_attachment, terminate_volume_attachment,
-            manage_volume,
+            manage_volume, unmanage_volume, manageable_volumes
 
 Helpers
 ^^^^^^^
