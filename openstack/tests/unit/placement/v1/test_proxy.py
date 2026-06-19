@@ -14,6 +14,7 @@ from openstack.placement.v1 import _proxy
 from openstack.placement.v1 import resource_class
 from openstack.placement.v1 import resource_provider
 from openstack.placement.v1 import resource_provider_inventory
+from openstack.placement.v1 import resource_provider_trait
 from openstack.tests.unit import test_proxy_base as test_proxy_base
 
 
@@ -162,4 +163,30 @@ class TestPlacementResourceProviderInventory(TestPlacementProxy):
             resource_provider_inventory.ResourceProviderInventory,
             method_kwargs={'resource_provider': 'test_id'},
             expected_kwargs={'resource_provider_id': 'test_id'},
+        )
+
+
+class TestPlacementResourceProviderTrait(TestPlacementProxy):
+    def test_get_resource_provider_trait(self):
+        self._verify(
+            'openstack.proxy.Proxy._get',
+            self.proxy.get_resource_provider_trait,
+            method_args=['test_id'],
+            expected_args=[resource_provider_trait.ResourceProviderTrait],
+            expected_kwargs={
+                'resource_provider_id': 'test_id',
+                'requires_id': False,
+            },
+        )
+
+    def test_update_resource_provider_trait(self):
+        self.verify_update(
+            self.proxy.set_resource_provider_trait,
+            resource_provider_trait.ResourceProviderTrait,
+            method_kwargs={
+                'traits': ['TEST_TRIAT', 'TEST_TRAIT2'],
+            },
+            expected_kwargs={
+                'traits': ['TEST_TRIAT', 'TEST_TRAIT2'],
+            },
         )

@@ -47,3 +47,11 @@ Traits
 .. autoclass:: openstack.placement.v1._proxy.Proxy
    :noindex:
    :members: create_trait, delete_trait, get_trait, traits
+
+Resource Provider Trait
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.placement.v1._proxy.Proxy
+   :noindex:
+   :members: get_resource_provider_trait,
+             set_resource_provider_trait,
