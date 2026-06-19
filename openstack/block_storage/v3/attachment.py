@@ -60,7 +60,7 @@ class Attachment(resource.Resource):
     # ('rw'), default is 'rw'.
     attach_mode = resource.Body("mode")
     #: The connection info used for server to connect the volume.
-    connection_info = resource.Body("connection_info")
+    connection_info = resource.Body("connection_info", type=dict)
     #: The connector object.
     connector = resource.Body("connector")
 
