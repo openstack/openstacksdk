@@ -38,6 +38,10 @@ from openstack.block_storage.v3 import message as _message
 from openstack.block_storage.v3 import qos_spec as _qos_spec
 from openstack.block_storage.v3 import quota_class_set as _quota_class_set
 from openstack.block_storage.v3 import quota_set as _quota_set
+from openstack.block_storage.v3 import (
+    manageable_snapshot as _manageable_snapshot,
+)
+from openstack.block_storage.v3 import manageable_volume as _manageable_volume
 from openstack.block_storage.v3 import resource_filter as _resource_filter
 from openstack.block_storage.v3 import service as _service
 from openstack.block_storage.v3 import snapshot as _snapshot
@@ -405,6 +409,37 @@ class Proxy(proxy.Proxy):
         """
         snapshot_obj = self._get_resource(_snapshot.Snapshot, snapshot)
         snapshot_obj.unmanage(self)
+
+    def manageable_snapshots(
+        self,
+        *,
+        details: bool = False,
+        **query: Any,
+    ) -> Generator[_manageable_snapshot.ManageableSnapshot, None, None]:
+        """List snapshots available for management on a host or cluster.
+
+        :param details: When set to ``True``, additional fields will be
+            returned. The default, ``False``, returns basic information.
+        :param query: Optional query parameters to limit the resources
+            returned:
+
+            * host: The Cinder host on which to list manageable snapshots.
+            * cluster: The Cinder cluster on which to list manageable
+              snapshots. (requires microversion 3.17 or later)
+            * marker: Begin returning snapshots appearing later in the list
+              than the snapshot represented by this reference.
+            * limit: Maximum number of snapshots to return.
+            * offset: Number of snapshots to skip after the marker.
+            * sort: Comma-separated list of sort keys and directions.
+
+        :returns: A generator of manageable snapshot objects.
+        """
+        base_path = '/manageable_snapshots/detail' if details else None
+        return self._list(
+            _manageable_snapshot.ManageableSnapshot,
+            base_path=base_path,
+            **query,
+        )
 
     # ====== TYPES ======
     def get_type(self, type: str | _type.Type) -> _type.Type:
@@ -1261,6 +1296,37 @@ class Proxy(proxy.Proxy):
         """
         volume = self._get_resource(_volume.Volume, volume)
         volume.unmanage(self)
+
+    def manageable_volumes(
+        self,
+        *,
+        details: bool = False,
+        **query: Any,
+    ) -> Generator[_manageable_volume.ManageableVolume, None, None]:
+        """List volumes available for management on a host or cluster.
+
+        :param details: When set to ``True``, additional fields will be
+            returned. The default, ``False``, returns basic information.
+        :param query: Optional query parameters to limit the resources
+            returned:
+
+            * host: The Cinder host on which to list manageable volumes.
+            * cluster: The Cinder cluster on which to list manageable
+              volumes. (requires microversion 3.17 or later)
+            * marker: Begin returning volumes appearing later in the list
+              than the volume represented by this reference.
+            * limit: Maximum number of volumes to return.
+            * offset: Number of volumes to skip after the marker.
+            * sort: Comma-separated list of sort keys and directions.
+
+        :returns: A generator of manageable volume objects.
+        """
+        base_path = '/manageable_volumes/detail' if details else None
+        return self._list(
+            _manageable_volume.ManageableVolume,
+            base_path=base_path,
+            **query,
+        )
 
     def migrate_volume(
         self,
