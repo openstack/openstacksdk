@@ -19,6 +19,7 @@ from openstack.placement.v1 import resource_provider as _resource_provider
 from openstack.placement.v1 import (
     resource_provider_inventory as _resource_provider_inventory,
 )
+from openstack.placement.v1 import resource_provider_trait as _rp_trait
 from openstack.placement.v1 import trait as _trait
 from openstack import proxy
 from openstack import resource
@@ -576,6 +577,45 @@ class Proxy(proxy.Proxy):
         :returns: A generator of trait objects
         """
         return self._list(_trait.Trait, **query)
+
+    def get_resource_provider_trait(
+        self, resource_provider: str | _resource_provider.ResourceProvider
+    ) -> _rp_trait.ResourceProviderTrait:
+        """Get a resource provier's trait
+
+        :param resource_provider: The value can be either the ID of a resource
+            provider or an instance of
+            :class:`~openstack.placement.v1.resource_provider_trait.ResourceProviderTrait`.
+        :returns: An instance of
+            :class:`~openstack.placement.v1.resource_provider_trait.ResourceProviderTrait`.
+        """
+
+        res = resource.Resource._get_id(resource_provider)
+        return self._get(
+            _rp_trait.ResourceProviderTrait,
+            resource_provider_id=res,
+            requires_id=False,
+        )
+
+    def set_resource_provider_trait(
+        self,
+        resource_provider_trait: _rp_trait.ResourceProviderTrait,
+        **attrs: Any,
+    ) -> _rp_trait.ResourceProviderTrait:
+        """Update a resource provider's trait
+
+        :param resource_provider_trait: An instance of
+            :class:`~openstack.placement.v1.resource_provider_trait.ResourceProviderTrait`.
+        :attrs kwargs: The attributes to update on the resource provider trait
+            represented by ``resource_provider_trait``.
+
+        :returns: The updated resource provider trait
+        """
+        return self._update(
+            _rp_trait.ResourceProviderTrait,
+            resource_provider_trait,
+            **attrs,
+        )
 
     # ========== Utilities ==========
 
