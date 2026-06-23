@@ -2,10 +2,12 @@
 # Central project entity. It pulls general templates and basic jobs.
 # functional-jobs, metal-jobs and acceptance-jobs are being
 # merged with this entity into singe one.
+
 - project:
     templates:
       - check-requirements
       - openstack-python3-jobs
+      - openstack-python3-next-jobs
       - openstacksdk-functional-tips
       - openstacksdk-tox-tips
       - os-client-config-tox-tips
