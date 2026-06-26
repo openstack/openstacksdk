@@ -57,6 +57,10 @@ class Service(resource.Resource):
     #: The date and time stamp when the resource was
     #: last updated within the service's database.
     updated_at = resource.Body('updated_at', type=str)
+    #: The reason for disabling the service.
+    disabled_reason = resource.Body('disabled_reason', type=str)
+    #: Whether the service is currently ensuring shares.
+    ensuring = resource.Body('ensuring', type=dict)
 
     def _action(
         self,
@@ -81,11 +85,23 @@ class Service(resource.Resource):
 
         return self._action(session, 'enable', body)
 
-    def disable(self, session: adapter.Adapter) -> Self:
+    def disable(
+        self,
+        session: adapter.Adapter,
+        disable_reason: str | None = None,
+    ) -> Self:
         """Disable service."""
-        body = {
+        body: dict[str, Any] = {
             'host': self.host,
             'binary': self.binary,
         }
+        if disable_reason:
+            body['disabled_reason'] = disable_reason
 
         return self._action(session, 'disable', body)
+
+    def ensure_shares(self, session: adapter.Adapter) -> None:
+        """Ensure shares on a back end."""
+        url = utils.urljoin(Service.base_path, 'ensure-shares')
+        microversion = session.default_microversion
+        session.post(url, json={'host': self.host}, microversion=microversion)
