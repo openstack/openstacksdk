@@ -1,0 +1,20 @@
+---
+features:
+  - |
+    Add support for passing image size to Glance API during upload and
+    stage operations.
+
+    - Add ``size`` parameter to ``Image.upload()`` and ``Image.stage()``
+      methods
+    - Add ``size`` parameter to ``Proxy.stage_image()`` method
+    - Add ``get_file_size()`` utility function to calculate file size from
+      file-like objects
+    - Automatically calculate and pass size header when size is not
+      provided but data is available
+    - Pass size as ``X-OpenStack-Image-Size`` header to Glance API
+    - Add comprehensive unit tests for size parameter functionality
+
+    This change allows users to explicitly specify the size of image data
+    being uploaded, which can improve performance and reliability of image
+    uploads. When size is not provided, the SDK will automatically
+    calculate it from file-like objects that support seek/tell operations.

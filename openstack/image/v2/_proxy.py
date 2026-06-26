@@ -175,6 +175,7 @@ class Proxy(proxy.Proxy):
         stores: list[str] | None = None,
         all_stores: bool | None = None,
         all_stores_must_succeed: bool | None = None,
+        size: int | None = None,
         **kwargs: Any,
     ) -> _image.Image:
         """Create an image and optionally upload data
@@ -270,6 +271,10 @@ class Proxy(proxy.Proxy):
             the data has been correctly uploaded.
             Default is True.
             Implies ``use_import`` equals ``True``.
+        :param size: Size of the image data in bytes. Providing this allows
+            Glance to pre-allocate storage and can improve upload performance.
+            If not provided and data is a file-like object, the size will be
+            calculated automatically.
 
         Additional kwargs will be passed to the image creation as additional
         metadata for the image and will have all values converted to string
@@ -394,6 +399,7 @@ class Proxy(proxy.Proxy):
                 stores=stores,
                 all_stores=all_stores,
                 all_stores_must_succeed=all_stores_must_succeed,
+                size=size,
                 **image_kwargs,
             )
         else:
@@ -508,6 +514,7 @@ class Proxy(proxy.Proxy):
         *,
         filename: str | None = None,
         data: Any = None,
+        size: int | None = None,
     ) -> _image.Image:
         """Stage binary image data
 
@@ -515,6 +522,10 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.image.v2.image.Image` instance.
         :param filename: Optional name of the file to read data from.
         :param data: Optional data to be uploaded as an image.
+        :param size: Optional size of the data in bytes. Providing this allows
+            Glance to pre-allocate storage and can improve staging performance.
+            If not provided and data is a file-like object, the size will be
+            calculated automatically.
 
         :returns: The results of image creation
         """
@@ -535,7 +546,7 @@ class Proxy(proxy.Proxy):
             image.data = open(filename, 'rb')
         elif data:
             image.data = data
-        image.stage(self)
+        image.stage(self, size=size)
 
         # Stage does not return content, but updates the object
         image.fetch(self)
@@ -547,6 +558,7 @@ class Proxy(proxy.Proxy):
         container_format: str | None = None,
         disk_format: str | None = None,
         data: Any = None,
+        size: int | None = None,
         **attrs: Any,
     ) -> _image.Image:
         """Create and upload a new image from attributes
@@ -595,7 +607,8 @@ class Proxy(proxy.Proxy):
         # return anything anyway. Otherwise this blocks while uploading
         # significant amounts of image data.
         img.data = data
-        img.upload(self)
+
+        img.upload(self, size=size)
 
         return img
 
@@ -618,6 +631,7 @@ class Proxy(proxy.Proxy):
         stores: list[Any] | None = None,
         all_stores: bool | None = None,
         all_stores_must_succeed: bool | None = None,
+        size: int | None = None,
         **kwargs: Any,
     ) -> _image.Image:
         # We can never have nice things. Glance v1 took "is_public" as a
@@ -653,6 +667,7 @@ class Proxy(proxy.Proxy):
                     meta=meta,
                     wait=wait,
                     timeout=timeout,
+                    size=size,
                     **kwargs,
                 )
             else:
@@ -671,6 +686,7 @@ class Proxy(proxy.Proxy):
                     stores=stores,
                     all_stores=all_stores,
                     all_stores_must_succeed=all_stores_must_succeed,
+                    size=size,
                     **kwargs,
                 )
         except exceptions.SDKException:
@@ -697,6 +713,7 @@ class Proxy(proxy.Proxy):
         stores: list[Any] | None = None,
         all_stores: bool | None = None,
         all_stores_must_succeed: bool | None = None,
+        size: int | None = None,
         **image_kwargs: Any,
     ) -> _image.Image:
         if all_stores and stores:
@@ -736,7 +753,7 @@ class Proxy(proxy.Proxy):
 
         try:
             if not use_import:
-                response = image.upload(self)
+                response = image.upload(self, size=size)
                 exceptions.raise_from_response(response)
             if use_import:
                 kwargs: dict[str, Any] = {}
@@ -746,7 +763,7 @@ class Proxy(proxy.Proxy):
                     kwargs['all_stores'] = all_stores
                     kwargs['all_stores_must_succeed'] = all_stores_must_succeed
                 if import_method == 'glance-direct':
-                    image.stage(self)
+                    image.stage(self, size=size)
                 elif import_method == 'web-download':
                     kwargs['uri'] = uri
                 elif import_method == 'glance-download':
@@ -785,6 +802,7 @@ class Proxy(proxy.Proxy):
         wait: bool,
         timeout: int | None,
         meta: dict[str, Any] | None,
+        size: int | None = None,
         **image_kwargs: Any,
     ) -> _image.Image | _task.Task:
         if not self._connection.has_service('object-store'):

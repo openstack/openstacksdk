@@ -154,6 +154,7 @@ class TestImage(TestImageProxy):
                     'remote_service_interface': None,
                     'all_stores': None,
                     'all_stores_must_succeed': None,
+                    'size': None,
                     'disk_format': 'qcow2',
                     'container_format': 'bare',
                     'properties': {
@@ -270,6 +271,7 @@ class TestImage(TestImageProxy):
             stores=None,
             all_stores=None,
             all_stores_must_succeed=None,
+            size=None,
             wait=False,
         )
 
@@ -323,6 +325,7 @@ class TestImage(TestImageProxy):
             stores=None,
             all_stores=None,
             all_stores_must_succeed=None,
+            size=None,
             wait=False,
         )
 
@@ -391,6 +394,7 @@ class TestImage(TestImageProxy):
             all_stores=None,
             all_stores_must_succeed=None,
             wait=False,
+            size=None,
         )
 
     def test_image_create_with_all_stores(self):
@@ -432,6 +436,7 @@ class TestImage(TestImageProxy):
             stores=None,
             all_stores=True,
             all_stores_must_succeed=True,
+            size=None,
             wait=False,
         )
 
@@ -458,7 +463,7 @@ class TestImage(TestImageProxy):
             disk_format="y",
             name="z",
         )
-        created_image.upload.assert_called_with(self.proxy)
+        created_image.upload.assert_called_with(self.proxy, size=None)
         self.assertEqual(rv, created_image)
 
     def test_image_upload_positional_args(self):
@@ -476,7 +481,7 @@ class TestImage(TestImageProxy):
             container_format="bare",
             disk_format="qcow2",
         )
-        created_image.upload.assert_called_with(self.proxy)
+        created_image.upload.assert_called_with(self.proxy, size=None)
         self.assertEqual(rv, created_image)
         self.assertEqual(created_image.data, "imagedata")
 
@@ -502,7 +507,7 @@ class TestImage(TestImageProxy):
             name="test-image",
             visibility="public",
         )
-        created_image.upload.assert_called_with(self.proxy)
+        created_image.upload.assert_called_with(self.proxy, size=None)
         self.assertEqual(rv, created_image)
         self.assertEqual(created_image.data, "imagedata")
 
@@ -530,7 +535,7 @@ class TestImage(TestImageProxy):
             name="test-image",
             tags=["tag1", "tag2"],
         )
-        created_image.upload.assert_called_with(self.proxy)
+        created_image.upload.assert_called_with(self.proxy, size=None)
         self.assertEqual(rv, created_image)
         self.assertEqual(created_image.data, "imagedata")
 
@@ -626,7 +631,7 @@ class TestImage(TestImageProxy):
 
         self.proxy.stage_image(image)
         mock_fetch.assert_called()
-        image.stage.assert_called_with(self.proxy)
+        image.stage.assert_called_with(self.proxy, size=None)
 
     @mock.patch("openstack.image.v2.image.Image.fetch")
     def test_image_stage_with_data(self, mock_fetch):
@@ -636,7 +641,7 @@ class TestImage(TestImageProxy):
 
         rv = self.proxy.stage_image(image, data="data")
 
-        image.stage.assert_called_with(self.proxy)
+        image.stage.assert_called_with(self.proxy, size=None)
         mock_fetch.assert_called()
         self.assertEqual(rv.data, "data")
 
