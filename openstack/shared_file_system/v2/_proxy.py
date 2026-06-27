@@ -352,6 +352,8 @@ class Proxy(proxy.Proxy):
         service: str | _service.Service,
         host: str,
         binary: str,
+        *,
+        disable_reason: str | None = None,
     ) -> _service.Service:
         """Disable a service
 
@@ -359,12 +361,13 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.shared_file_system.v2.service.Service` instance.
         :param host: The host where service runs.
         :param binary: The name of service.
+        :param disable_reason: The reason for disabling the service.
         :returns: Updated service instance
         """
         service = self._get_resource(_service.Service, service)
         service.host = host
         service.binary = binary
-        return service.disable(self)
+        return service.disable(self, disable_reason=disable_reason)
 
     def enable_service(
         self,
@@ -384,6 +387,18 @@ class Proxy(proxy.Proxy):
         service.host = host
         service.binary = binary
         return service.enable(self)
+
+    def ensure_shares_service(
+        self,
+        host: str,
+    ) -> None:
+        """Run ensure shares on a back end.
+
+        :param host: The host to run ensure shares on.
+        """
+        service = self._get_resource(_service.Service, '')
+        service.host = host
+        service.ensure_shares(self)
 
     # ========= Shares ==========
 

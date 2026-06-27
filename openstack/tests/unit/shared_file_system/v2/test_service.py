@@ -102,3 +102,32 @@ class TestServices(base.TestCase):
         self.sess.put.assert_called_with(
             url, json=body, microversion=self.sess.default_microversion
         )
+
+    def test_disable_with_reason(self):
+        sot = service.Service(**EXAMPLE)
+
+        res = sot.disable(self.sess, disable_reason='maintenance')
+        self.assertIsNotNone(res)
+
+        url = 'services/disable'
+        body = {
+            'binary': EXAMPLE['binary'],
+            'host': EXAMPLE['host'],
+            'disabled_reason': 'maintenance',
+        }
+        self.sess.put.assert_called_with(
+            url, json=body, microversion=self.sess.default_microversion
+        )
+
+    def test_ensure_shares(self):
+        self.resp.status_code = 202
+        self.sess.post = mock.Mock(return_value=self.resp)
+
+        sot = service.Service(**EXAMPLE)
+        sot.ensure_shares(self.sess)
+
+        url = 'services/ensure-shares'
+        body = {'host': EXAMPLE['host']}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=self.sess.default_microversion
+        )

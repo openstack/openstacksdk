@@ -881,6 +881,25 @@ class TestServicesResource(test_proxy_base.TestProxyBase):
             self.proxy.disable_service,
             method_args=["value", "host1", "manila-share"],
             expected_args=[self.proxy],
+            expected_kwargs={"disable_reason": None},
+        )
+
+    def test_service_disable_with_reason(self):
+        self._verify(
+            'openstack.shared_file_system.v2.service.Service.disable',
+            self.proxy.disable_service,
+            method_args=["value", "host1", "manila-share"],
+            method_kwargs={"disable_reason": "maintenance"},
+            expected_args=[self.proxy],
+            expected_kwargs={"disable_reason": "maintenance"},
+        )
+
+    def test_ensure_shares_service(self):
+        self._verify(
+            'openstack.shared_file_system.v2.service.Service.ensure_shares',
+            self.proxy.ensure_shares_service,
+            method_args=["host1"],
+            expected_args=[self.proxy],
         )
 
 

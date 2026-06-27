@@ -58,7 +58,7 @@ Interact with services supported by the Shared File Systems service.
 
 .. autoclass:: openstack.shared_file_system.v2._proxy.Proxy
   :noindex:
-  :members: services, enable_service, disable_service
+  :members: services, enable_service, disable_service, ensure_shares_service
 
 
 Share Operations
