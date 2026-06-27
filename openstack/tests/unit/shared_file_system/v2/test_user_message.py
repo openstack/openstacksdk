@@ -47,7 +47,23 @@ class TestUserMessage(base.TestCase):
         self.assertFalse(message.allow_head)
 
         self.assertDictEqual(
-            {"limit": "limit", "marker": "marker", "message_id": "message_id"},
+            {
+                "action_id": "action_id",
+                "created_before": "created_before",
+                "created_since": "created_since",
+                "detail_id": "detail_id",
+                "limit": "limit",
+                "marker": "marker",
+                "message_id": "message_id",
+                "message_level": "message_level",
+                "offset": "offset",
+                "project_id": "project_id",
+                "request_id": "request_id",
+                "resource_id": "resource_id",
+                "resource_type": "resource_type",
+                "sort_dir": "sort_dir",
+                "sort_key": "sort_key",
+            },
             message._query_mapping._mapping,
         )
 
