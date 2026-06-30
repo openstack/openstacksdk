@@ -29,6 +29,7 @@ class RBACPolicy(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'action',
+        'fields',
         'object_id',
         'object_type',
         'project_id',

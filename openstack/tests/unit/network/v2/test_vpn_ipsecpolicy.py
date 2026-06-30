@@ -66,6 +66,7 @@ class TestVpnIpsecPolicy(base.TestCase):
                 'encapsulation_mode': 'encapsulation_mode',
                 'encryption_algorithm': 'encryption_algorithm',
                 'name': 'name',
+                'fields': 'fields',
                 'pfs': 'pfs',
                 'project_id': 'project_id',
                 'phase1_negotiation_mode': 'phase1_negotiation_mode',

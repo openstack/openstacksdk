@@ -61,6 +61,7 @@ class TestVpnService(base.TestCase):
                 'description': 'description',
                 'external_v4_ip': 'external_v4_ip',
                 'external_v6_ip': 'external_v6_ip',
+                'fields': 'fields',
                 'name': 'name',
                 'router_id': 'router_id',
                 'project_id': 'project_id',

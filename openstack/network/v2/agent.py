@@ -42,6 +42,7 @@ class Agent(resource.Resource):
         'availability_zone',
         'binary',
         'description',
+        'fields',
         'host',
         'topic',
         is_admin_state_up='admin_state_up',

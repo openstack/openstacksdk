@@ -39,6 +39,7 @@ class FloatingIP(_base.NetworkResource, _base.TagMixinNetwork):
         'floating_ip_address',
         'floating_network_id',
         'id',
+        'fields',
         'port_id',
         'router_id',
         'status',

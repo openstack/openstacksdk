@@ -50,6 +50,7 @@ class TestTapService(base.TestCase):
                 'project_id': 'project_id',
                 'sort_key': 'sort_key',
                 'sort_dir': 'sort_dir',
+                'fields': 'fields',
             },
             sot._query_mapping._mapping,
         )

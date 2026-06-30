@@ -48,6 +48,7 @@ class TestLocalIP(base.TestCase):
             {
                 "name": "name",
                 "description": "description",
+                'fields': 'fields',
                 "project_id": "project_id",
                 "network_id": "network_id",
                 "local_port_id": "local_port_id",

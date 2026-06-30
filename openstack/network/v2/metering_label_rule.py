@@ -29,6 +29,7 @@ class MeteringLabelRule(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'direction',
+        'fields',
         'metering_label_id',
         'remote_ip_prefix',
         'source_ip_prefix',

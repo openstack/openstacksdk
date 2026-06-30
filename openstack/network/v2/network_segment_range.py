@@ -33,6 +33,7 @@ class NetworkSegmentRange(resource.Resource):
     _query_mapping = resource.QueryParameters(
         'name',
         'default',
+        'fields',
         'shared',
         'project_id',
         'network_type',

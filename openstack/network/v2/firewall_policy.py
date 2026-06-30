@@ -38,6 +38,7 @@ class FirewallPolicy(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'description',
+        'fields',
         'firewall_rules',
         'name',
         'project_id',

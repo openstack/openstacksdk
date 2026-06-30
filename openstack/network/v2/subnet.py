@@ -30,6 +30,7 @@ class Subnet(_base.NetworkResource, _base.TagMixinNetwork):
     _query_mapping = resource.QueryParameters(
         'cidr',
         'description',
+        'fields',
         'gateway_ip',
         'id',
         'ip_version',

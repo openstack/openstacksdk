@@ -29,6 +29,7 @@ class PoolMember(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'address',
+        'fields',
         'name',
         'protocol_port',
         'subnet_id',

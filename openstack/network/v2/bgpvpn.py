@@ -29,6 +29,7 @@ class BgpVpn(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'name',
+        'fields',
         'project_id',
         'local_pref',
         'vni',

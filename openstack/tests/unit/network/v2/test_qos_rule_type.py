@@ -56,6 +56,7 @@ class TestQoSRuleType(base.TestCase):
             {
                 'type': 'type',
                 'drivers': 'drivers',
+                'fields': 'fields',
                 'all_rules': 'all_rules',
                 'all_supported': 'all_supported',
                 'limit': 'limit',

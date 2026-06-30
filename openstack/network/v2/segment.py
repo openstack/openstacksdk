@@ -29,6 +29,7 @@ class Segment(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'description',
+        'fields',
         'name',
         'network_id',
         'network_type',

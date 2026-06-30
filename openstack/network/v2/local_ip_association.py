@@ -33,6 +33,7 @@ class LocalIPAssociation(resource.Resource):
     _allow_unknown_attrs_in_body = True
 
     _query_mapping = resource.QueryParameters(
+        'fields',
         'fixed_port_id',
         'fixed_ip',
         'host',

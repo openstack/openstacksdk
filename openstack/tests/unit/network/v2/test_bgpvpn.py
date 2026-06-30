@@ -60,6 +60,7 @@ class TestBgpVpn(base.TestCase):
 
         self.assertDictEqual(
             {
+                'fields': 'fields',
                 'limit': 'limit',
                 'marker': 'marker',
                 'local_pref': 'local_pref',

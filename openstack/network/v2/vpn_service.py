@@ -29,6 +29,7 @@ class VpnService(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'description',
+        'fields',
         'external_v4_ip',
         'external_v6_ip',
         'name',

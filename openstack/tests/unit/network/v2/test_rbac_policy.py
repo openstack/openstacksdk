@@ -39,6 +39,7 @@ class TestRBACPolicy(base.TestCase):
         self.assertDictEqual(
             {
                 'action': 'action',
+                'fields': 'fields',
                 'object_id': 'object_id',
                 'object_type': 'object_type',
                 'project_id': 'project_id',

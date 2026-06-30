@@ -51,6 +51,7 @@ class TestSecurityGroupRule(base.TestCase):
                 'any_tags': 'tags-any',
                 'description': 'description',
                 'direction': 'direction',
+                'fields': 'fields',
                 'id': 'id',
                 'ether_type': 'ethertype',
                 'limit': 'limit',

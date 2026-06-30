@@ -28,6 +28,7 @@ class VpnIPSecSiteConnection(resource.Resource):
     _query_mapping = resource.QueryParameters(
         'auth_mode',
         'description',
+        'fields',
         'ikepolicy_id',
         'ipsecpolicy_id',
         'initiator',

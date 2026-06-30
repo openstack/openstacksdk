@@ -29,6 +29,7 @@ class MeteringLabel(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'description',
+        'fields',
         'name',
         'project_id',
         'sort_key',

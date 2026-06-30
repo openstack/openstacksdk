@@ -31,6 +31,7 @@ class SubnetPool(resource.Resource, _base.TagMixinNetwork):
     _query_mapping = resource.QueryParameters(
         'address_scope_id',
         'description',
+        'fields',
         'ip_version',
         'is_default',
         'name',

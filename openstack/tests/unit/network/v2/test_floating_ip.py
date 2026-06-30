@@ -78,6 +78,7 @@ class TestFloatingIP(base.TestCase):
                 'limit': 'limit',
                 'marker': 'marker',
                 'description': 'description',
+                'fields': 'fields',
                 'project_id': 'project_id',
                 'tenant_id': 'project_id',
                 'status': 'status',

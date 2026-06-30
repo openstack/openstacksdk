@@ -31,6 +31,7 @@ class SecurityGroupRule(_base.NetworkResource, _base.TagMixinNetwork):
     _query_mapping = resource.QueryParameters(
         'description',
         'direction',
+        'fields',
         'id',
         'protocol',
         'remote_group_id',

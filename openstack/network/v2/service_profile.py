@@ -29,6 +29,7 @@ class ServiceProfile(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'description',
+        'fields',
         'driver',
         'project_id',
         is_enabled='enabled',

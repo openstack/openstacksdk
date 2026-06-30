@@ -29,6 +29,7 @@ class Network(_base.NetworkResource, _base.TagMixinNetwork):
     # NOTE: We don't support query on list or datetime fields yet
     _query_mapping = resource.QueryParameters(
         'description',
+        'fields',
         'name',
         'status',
         'project_id',

@@ -36,6 +36,7 @@ class Trunk(resource.Resource, tag.TagMixin):
     _query_mapping = resource.QueryParameters(
         'name',
         'description',
+        'fields',
         'port_id',
         'status',
         'sub_ports',
