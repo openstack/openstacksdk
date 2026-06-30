@@ -812,6 +812,103 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             self.log.exception("Failed to delete endpoint %s", id)
             return False
 
+    def create_endpoint_group(self, name, filters, description=None):
+        """Create a Keystone endpoint group.
+
+        :param name: The name of the endpoint group.
+        :param description: The description of the endpoint group.
+        :param filters: Describes the filtering performed by the
+            endpoint group.
+
+        :returns: An identity ``EndpointGroup`` object.
+        :raises: :class:`~openstack.exceptions.SDKException` if the
+            endpoint group cannot be created.
+        """
+        identity = utils.ensure_service_version(self.identity, '3')
+
+        endpoint_group_args = {'name': name, 'filters': filters}
+        if description:
+            endpoint_group_args['description'] = description
+
+        endpoint_group = identity.create_endpoint_group(**endpoint_group_args)
+
+        return endpoint_group
+
+    @_utils.valid_kwargs('name', 'filters', 'description')
+    def update_endpoint_group(self, endpoint_group_id, **kwargs):
+        identity = utils.ensure_service_version(self.identity, '3')
+
+        return identity.update_endpoint_group(endpoint_group_id, **kwargs)
+
+    @_utils.valid_kwargs('name')
+    def list_endpoint_groups(self, **kwargs):
+        """List Keystone endpoint groups.
+
+        :returns: A list of identity ``EndpointGroup`` objects
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
+        """
+        identity = utils.ensure_service_version(self.identity, '3')
+
+        return list(identity.endpoint_groups(**kwargs))
+
+    def search_endpoint_groups(self, name_or_id=None, filters=None):
+        """Search Keystone endpoint groups.
+
+        :param name_or_id: Name or ID of the endpoint group(s).
+        :param filters: dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
+
+                {'last_name': 'Smith', 'other': {'gender': 'Female'}}
+
+            OR
+
+            A string containing a jmespath expression for further filtering.
+            Example::
+
+                "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+
+        :returns: A list of identity ``EndpointGroup`` objects
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
+        """
+        endpoint_groups = self.list_endpoint_groups()
+        return _utils._filter_list(endpoint_groups, name_or_id, filters)
+
+    def get_endpoint_group(self, id):
+        """Get exactly one Keystone endpoint group.
+
+        :param id: ID of endpoint group.
+        :returns: An identity ``EndpointGroup`` object
+        """
+        identity = utils.ensure_service_version(self.identity, '3')
+
+        return identity.find_endpoint_group(name_or_id=id)
+
+    def delete_endpoint_group(self, id):
+        """Delete a Keystone endpoint group.
+
+        :param id: ID of the endpoint group to delete.
+
+        :returns: True if delete succeeded, False otherwise.
+        :raises: :class:`~openstack.exceptions.SDKException` if something goes
+            wrong during the OpenStack API call.
+        """
+        identity = utils.ensure_service_version(self.identity, '3')
+
+        endpoint = self.get_endpoint_group(id=id)
+        if endpoint is None:
+            self.log.debug("Endpoint group %s not found for deleting", id)
+            return False
+
+        try:
+            identity.delete_endpoint_group(id)
+            return True
+        except exceptions.SDKException:
+            self.log.exception("Failed to delete endpoint group %s", id)
+            return False
+
     def create_domain(self, name, description=None, enabled=True):
         """Create a domain.
 

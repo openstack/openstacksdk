@@ -45,6 +45,15 @@ Endpoint Operations
             find_endpoint, endpoints, project_endpoints,
             associate_endpoint_with_project, disassociate_endpoint_from_project
 
+Endpoint Group Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.identity.v3._proxy.Proxy
+  :noindex:
+  :members: create_endpoint_group, update_endpoint_group,
+            delete_endpoint_group, get_endpoint_group, find_endpoint_group,
+            endpoint_groups
+
 Group Operations
 ^^^^^^^^^^^^^^^^
 

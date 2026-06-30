@@ -18,6 +18,7 @@ from openstack.identity.v3 import credential
 from openstack.identity.v3 import domain
 from openstack.identity.v3 import domain_config
 from openstack.identity.v3 import endpoint
+from openstack.identity.v3 import endpoint_group
 from openstack.identity.v3 import group
 from openstack.identity.v3 import policy
 from openstack.identity.v3 import project
@@ -196,6 +197,47 @@ class TestIdentityProxyEndpoint(TestIdentityProxyBase):
 
     def test_endpoint_update(self):
         self.verify_update(self.proxy.update_endpoint, endpoint.Endpoint)
+
+
+class TestIdentityProxyEndpointGroup(TestIdentityProxyBase):
+    def test_endpoint_group_create_attrs(self):
+        self.verify_create(
+            self.proxy.create_endpoint_group, endpoint_group.EndpointGroup
+        )
+
+    def test_endpoint_group_delete(self):
+        self.verify_delete(
+            self.proxy.delete_endpoint_group,
+            endpoint_group.EndpointGroup,
+            False,
+        )
+
+    def test_endpoint_group_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_endpoint_group,
+            endpoint_group.EndpointGroup,
+            True,
+        )
+
+    def test_endpoint_group_find(self):
+        self.verify_find(
+            self.proxy.find_endpoint_group, endpoint_group.EndpointGroup
+        )
+
+    def test_endpoint_group_get(self):
+        self.verify_get(
+            self.proxy.get_endpoint_group, endpoint_group.EndpointGroup
+        )
+
+    def test_endpoint_groups(self):
+        self.verify_list(
+            self.proxy.endpoint_groups, endpoint_group.EndpointGroup
+        )
+
+    def test_endpoint_group_update(self):
+        self.verify_update(
+            self.proxy.update_endpoint_group, endpoint_group.EndpointGroup
+        )
 
 
 class TestIdentityProxyGroup(TestIdentityProxyBase):
