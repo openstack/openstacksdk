@@ -16,6 +16,7 @@ from typing import Any, ClassVar, Literal, overload
 
 from openstack._utils import renamed_param
 from openstack import exceptions
+from openstack import fields as _fields
 from openstack.network.v2 import _base
 from openstack.network.v2 import address_group as _address_group
 from openstack.network.v2 import address_scope as _address_scope
@@ -251,6 +252,40 @@ class Proxy(proxy.Proxy):
 
         return rv
 
+    def _get_with_fields(
+        self,
+        resource_type: type[resource.ResourceT],
+        value: resource.ResourceT | str,
+        fields: list[str] | None = None,
+        **kwargs: Any,
+    ) -> resource.ResourceT:
+        """Fetch a network resource.
+
+        :param resource_type: The type of resource to get.
+        :param value: The value to get. Can be either the ID of a
+            resource or a :class:`~openstack.resource.Resource`
+            subclass.
+        :param fields: Limit the resource fields to fetch.
+        :param kwargs: Additional parameters passed to _get_resource
+            (e.g. parent IDs like pool_id, floatingip_id).
+
+        :returns: The result of the ``fetch``
+        """
+        res = self._get_resource(resource_type, value, **kwargs)
+        err_msg = f"No {resource_type.__name__} found for {value}"
+        if fields:
+            resource_mapping = {}
+            for cls in resource_type.__mro__:
+                for key, val in cls.__dict__.items():
+                    if (
+                        isinstance(val, _fields.Body)
+                        and key not in resource_mapping
+                    ):
+                        resource_mapping[key] = val.name
+            fields_list = [resource_mapping.get(f, f) for f in fields]
+            return res.fetch(self, error_message=err_msg, fields=fields_list)
+        return res.fetch(self, error_message=err_msg)
+
     def create_address_group(
         self, **attrs: Any
     ) -> _address_group.AddressGroup:
@@ -332,18 +367,24 @@ class Proxy(proxy.Proxy):
         )
 
     def get_address_group(
-        self, address_group: str | _address_group.AddressGroup
+        self,
+        address_group: str | _address_group.AddressGroup,
+        *,
+        fields: list[str] | None = None,
     ) -> _address_group.AddressGroup:
         """Get a single address group
 
         :param address_group: The value can be the ID of an address group or a
             :class:`~openstack.network.v2.address_group.AddressGroup` instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.network.v2.address_group.AddressGroup`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_address_group.AddressGroup, address_group)
+        return self._get_with_fields(
+            _address_group.AddressGroup, address_group, fields=fields
+        )
 
     def address_groups(
         self,
@@ -491,18 +532,24 @@ class Proxy(proxy.Proxy):
         )
 
     def get_address_scope(
-        self, address_scope: str | _address_scope.AddressScope
+        self,
+        address_scope: str | _address_scope.AddressScope,
+        *,
+        fields: list[str] | None = None,
     ) -> _address_scope.AddressScope:
         """Get a single address scope
 
         :param address_scope: The value can be the ID of an address scope or a
             :class:`~openstack.network.v2.address_scope.AddressScope` instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.network.v2.address_scope.AddressScope`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_address_scope.AddressScope, address_scope)
+        return self._get_with_fields(
+            _address_scope.AddressScope, address_scope, fields=fields
+        )
 
     def address_scopes(
         self,
@@ -577,17 +624,23 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_agent.Agent, agent, ignore_missing=ignore_missing)
 
-    def get_agent(self, agent: str | _agent.Agent) -> _agent.Agent:
+    def get_agent(
+        self,
+        agent: str | _agent.Agent,
+        *,
+        fields: list[str] | None = None,
+    ) -> _agent.Agent:
         """Get a single network agent
 
         :param agent: The value can be the ID of a agent or a
             :class:`~openstack.network.v2.agent.Agent` instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.network.v2.agent.Agent`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_agent.Agent, agent)
+        return self._get_with_fields(_agent.Agent, agent, fields=fields)
 
     def update_agent(
         self,
@@ -1037,17 +1090,23 @@ class Proxy(proxy.Proxy):
             _bgpvpn.BgpVpn, name_or_id, ignore_missing=ignore_missing, **query
         )
 
-    def get_bgpvpn(self, bgpvpn: str | _bgpvpn.BgpVpn) -> _bgpvpn.BgpVpn:
+    def get_bgpvpn(
+        self,
+        bgpvpn: str | _bgpvpn.BgpVpn,
+        *,
+        fields: list[str] | None = None,
+    ) -> _bgpvpn.BgpVpn:
         """Get a signle BGPVPN
 
         :param bgpvpn: The value can be the ID of a BGPVPN or a
             :class:`~openstack.network.v2.bgpvpn.BgpVpn` instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.network.v2.bgpvpn.BgpVpn`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_bgpvpn.BgpVpn, bgpvpn)
+        return self._get_with_fields(_bgpvpn.BgpVpn, bgpvpn, fields=fields)
 
     def update_bgpvpn(
         self,
@@ -1132,6 +1191,8 @@ class Proxy(proxy.Proxy):
         bgpvpn: str | _bgpvpn.BgpVpn,
         net_association: str
         | _bgpvpn_network_association.BgpVpnNetworkAssociation,
+        *,
+        fields: list[str] | None = None,
     ) -> _bgpvpn_network_association.BgpVpnNetworkAssociation:
         """Get a signle BGPVPN Network Association
 
@@ -1141,6 +1202,7 @@ class Proxy(proxy.Proxy):
             BgpVpnNetworkAssociation or a
             :class:`~openstack.network.v2.bgpvpn_network_association.
             BgpVpnNetworkAssociation` instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.network.v2.
            bgpvpn_network_associaition.BgpVpnNetworkAssociation`
@@ -1148,9 +1210,10 @@ class Proxy(proxy.Proxy):
             when no resource can be found.
         """
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
-        return self._get(
+        return self._get_with_fields(
             _bgpvpn_network_association.BgpVpnNetworkAssociation,
             net_association,
+            fields=fields,
             bgpvpn_id=bgpvpn_res.id,
         )
 
@@ -1279,6 +1342,8 @@ class Proxy(proxy.Proxy):
         self,
         bgpvpn: str | _bgpvpn.BgpVpn,
         port_association: str | _bgpvpn_port_association.BgpVpnPortAssociation,
+        *,
+        fields: list[str] | None = None,
     ) -> _bgpvpn_port_association.BgpVpnPortAssociation:
         """Get a signle BGPVPN Port Association
 
@@ -1288,6 +1353,7 @@ class Proxy(proxy.Proxy):
             BgpVpnPortAssociation or a
             :class:`~openstack.network.v2.bgpvpn_port_association.
             BgpVpnPortAssociation` instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.network.v2.
            bgpvpn_port_associaition.BgpVpnPortAssociation`
@@ -1295,9 +1361,10 @@ class Proxy(proxy.Proxy):
             when no resource can be found.
         """
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
-        return self._get(
+        return self._get_with_fields(
             _bgpvpn_port_association.BgpVpnPortAssociation,
             port_association,
+            fields=fields,
             bgpvpn_id=bgpvpn_res.id,
         )
 
@@ -1406,6 +1473,8 @@ class Proxy(proxy.Proxy):
         bgpvpn: str | _bgpvpn.BgpVpn,
         router_association: str
         | _bgpvpn_router_association.BgpVpnRouterAssociation,
+        *,
+        fields: list[str] | None = None,
     ) -> _bgpvpn_router_association.BgpVpnRouterAssociation:
         """Get a signle BGPVPN Router Association
 
@@ -1415,6 +1484,7 @@ class Proxy(proxy.Proxy):
             BgpVpnRouterAssociation or a
             :class:`~openstack.network.v2.bgpvpn_router_association.
             BgpVpnRouterAssociation` instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.network.v2.
            bgpvpn_router_associaition.BgpVpnRouterAssociation`
@@ -1422,9 +1492,10 @@ class Proxy(proxy.Proxy):
             when no resource can be found.
         """
         bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
-        return self._get(
+        return self._get_with_fields(
             _bgpvpn_router_association.BgpVpnRouterAssociation,
             router_association,
+            fields=fields,
             bgpvpn_id=bgpvpn_res.id,
         )
 
@@ -1596,18 +1667,24 @@ class Proxy(proxy.Proxy):
             _flavor.Flavor, name_or_id, ignore_missing=ignore_missing, **query
         )
 
-    def get_flavor(self, flavor: str | _flavor.Flavor) -> _flavor.Flavor:
+    def get_flavor(
+        self,
+        flavor: str | _flavor.Flavor,
+        *,
+        fields: list[str] | None = None,
+    ) -> _flavor.Flavor:
         """Get a single network service flavor
 
         :param flavor:
             The value can be the ID of a flavor or a
             :class:`~openstack.network.v2.flavor.Flavor` instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.network.v2.flavor.Flavor`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_flavor.Flavor, flavor)
+        return self._get_with_fields(_flavor.Flavor, flavor, fields=fields)
 
     def update_flavor(
         self,
@@ -1771,19 +1848,25 @@ class Proxy(proxy.Proxy):
         )
 
     def get_local_ip(
-        self, local_ip: str | _local_ip.LocalIP
+        self,
+        local_ip: str | _local_ip.LocalIP,
+        *,
+        fields: list[str] | None = None,
     ) -> _local_ip.LocalIP:
         """Get a single local ip
 
         :param local_ip: The value can be the ID of a local ip or a
             :class:`~openstack.network.v2.local_ip.LocalIP`
             instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.network.v2.local_ip.LocalIP`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_local_ip.LocalIP, local_ip)
+        return self._get_with_fields(
+            _local_ip.LocalIP, local_ip, fields=fields
+        )
 
     def local_ips(
         self,
@@ -1940,6 +2023,8 @@ class Proxy(proxy.Proxy):
         self,
         local_ip_association: str | _local_ip_association.LocalIPAssociation,
         local_ip: str | _local_ip.LocalIP,
+        *,
+        fields: list[str] | None = None,
     ) -> _local_ip_association.LocalIPAssociation:
         """Get a single local ip association
 
@@ -1950,6 +2035,7 @@ class Proxy(proxy.Proxy):
             of a local ip association or a
             :class:`~openstack.network.v2.local_ip_association.LocalIPAssociation`
             instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One
             :class:`~openstack.network.v2.local_ip_association.LocalIPAssociation`
@@ -1957,9 +2043,10 @@ class Proxy(proxy.Proxy):
             when no resource can be found.
         """
         local_ip = self._get_resource(_local_ip.LocalIP, local_ip)
-        return self._get(
+        return self._get_with_fields(
             _local_ip_association.LocalIPAssociation,
             local_ip_association,
+            fields=fields,
             local_ip_id=local_ip.id,
         )
 
@@ -2081,19 +2168,25 @@ class Proxy(proxy.Proxy):
         )
 
     def get_ip(
-        self, floating_ip: str | _floating_ip.FloatingIP
+        self,
+        floating_ip: str | _floating_ip.FloatingIP,
+        *,
+        fields: list[str] | None = None,
     ) -> _floating_ip.FloatingIP:
         """Get a single floating ip
 
         :param floating_ip: The value can be the ID of a floating ip or a
             :class:`~openstack.network.v2.floating_ip.FloatingIP`
             instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.network.v2.floating_ip.FloatingIP`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_floating_ip.FloatingIP, floating_ip)
+        return self._get_with_fields(
+            _floating_ip.FloatingIP, floating_ip, fields=fields
+        )
 
     def ips(
         self,
@@ -2164,6 +2257,8 @@ class Proxy(proxy.Proxy):
         self,
         port_forwarding: str | _port_forwarding.PortForwarding,
         floating_ip: str | _floating_ip.FloatingIP,
+        *,
+        fields: list[str] | None = None,
     ) -> _port_forwarding.PortForwarding:
         """Get a single port forwarding
 
@@ -2173,6 +2268,7 @@ class Proxy(proxy.Proxy):
         :param floating_ip: The value can be the ID of a Floating IP or a
             :class:`~openstack.network.v2.floating_ip.FloatingIP`
             instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One
             :class:`~openstack.network.v2.port_forwarding.PortForwarding`
@@ -2180,9 +2276,10 @@ class Proxy(proxy.Proxy):
             when no resource can be found.
         """
         floating_ip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
-        return self._get(
+        return self._get_with_fields(
             _port_forwarding.PortForwarding,
             port_forwarding,
+            fields=fields,
             floatingip_id=floating_ip.id,
         )
 
@@ -2800,20 +2897,26 @@ class Proxy(proxy.Proxy):
         )
 
     def get_metering_label(
-        self, metering_label: str | _metering_label.MeteringLabel
+        self,
+        metering_label: str | _metering_label.MeteringLabel,
+        *,
+        fields: list[str] | None = None,
     ) -> _metering_label.MeteringLabel:
         """Get a single metering label
 
         :param metering_label: The value can be the ID of a metering label or a
             :class:`~openstack.network.v2.metering_label.MeteringLabel`
             instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One
             :class:`~openstack.network.v2.metering_label.MeteringLabel`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_metering_label.MeteringLabel, metering_label)
+        return self._get_with_fields(
+            _metering_label.MeteringLabel, metering_label, fields=fields
+        )
 
     def metering_labels(
         self,
@@ -2937,7 +3040,10 @@ class Proxy(proxy.Proxy):
         )
 
     def get_metering_label_rule(
-        self, metering_label_rule: str | _metering_label_rule.MeteringLabelRule
+        self,
+        metering_label_rule: str | _metering_label_rule.MeteringLabelRule,
+        *,
+        fields: list[str] | None = None,
     ) -> _metering_label_rule.MeteringLabelRule:
         """Get a single metering label rule
 
@@ -2945,14 +3051,17 @@ class Proxy(proxy.Proxy):
             The value can be the ID of a metering label rule or a
             :class:`~openstack.network.v2.metering_label_rule.MeteringLabelRule`
             instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One
             :class:`~openstack.network.v2.metering_label_rule.MeteringLabelRule`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(
-            _metering_label_rule.MeteringLabelRule, metering_label_rule
+        return self._get_with_fields(
+            _metering_label_rule.MeteringLabelRule,
+            metering_label_rule,
+            fields=fields,
         )
 
     def metering_label_rules(
@@ -3080,18 +3189,24 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_network(self, network: str | _network.Network) -> _network.Network:
+    def get_network(
+        self,
+        network: str | _network.Network,
+        *,
+        fields: list[str] | None = None,
+    ) -> _network.Network:
         """Get a single network
 
         :param network:
             The value can be the ID of a network or a
             :class:`~openstack.network.v2.network.Network` instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.network.v2.network.Network`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_network.Network, network)
+        return self._get_with_fields(_network.Network, network, fields=fields)
 
     def networks(
         self,
@@ -3188,21 +3303,27 @@ class Proxy(proxy.Proxy):
         )
 
     def get_network_ip_availability(
-        self, network: str | network_ip_availability.NetworkIPAvailability
+        self,
+        network: str | network_ip_availability.NetworkIPAvailability,
+        *,
+        fields: list[str] | None = None,
     ) -> network_ip_availability.NetworkIPAvailability:
         """Get IP availability of a network
 
         :param network:
             The value can be the ID of a network or a
             :class:`~openstack.network.v2.network.Network` instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One
             :class:`~openstack.network.v2.network_ip_availability.NetworkIPAvailability`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(
-            network_ip_availability.NetworkIPAvailability, network
+        return self._get_with_fields(
+            network_ip_availability.NetworkIPAvailability,
+            network,
+            fields=fields,
         )
 
     def network_ip_availabilities(
@@ -3317,6 +3438,8 @@ class Proxy(proxy.Proxy):
         self,
         network_segment_range: str
         | _network_segment_range.NetworkSegmentRange,
+        *,
+        fields: list[str] | None = None,
     ) -> _network_segment_range.NetworkSegmentRange:
         """Get a single network segment range
 
@@ -3324,14 +3447,17 @@ class Proxy(proxy.Proxy):
             segment range or a
             :class:`~openstack.network.v2.network_segment_range.NetworkSegmentRange`
             instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One
             :class:`~openstack.network.v2._network_segment_range.NetworkSegmentRange`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(
-            _network_segment_range.NetworkSegmentRange, network_segment_range
+        return self._get_with_fields(
+            _network_segment_range.NetworkSegmentRange,
+            network_segment_range,
+            fields=fields,
         )
 
     def network_segment_ranges(
@@ -3456,17 +3582,23 @@ class Proxy(proxy.Proxy):
             _pool.Pool, name_or_id, ignore_missing=ignore_missing, **query
         )
 
-    def get_pool(self, pool: str | _pool.Pool) -> _pool.Pool:
+    def get_pool(
+        self,
+        pool: str | _pool.Pool,
+        *,
+        fields: list[str] | None = None,
+    ) -> _pool.Pool:
         """Get a single pool
 
         :param pool: The value can be the ID of a pool or a
             :class:`~openstack.network.v2.pool.Pool` instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.network.v2.pool.Pool`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_pool.Pool, pool)
+        return self._get_with_fields(_pool.Pool, pool, fields=fields)
 
     def pools(self, **query: Any) -> Generator[_pool.Pool, None, None]:
         """Return a generator of pools
@@ -3612,6 +3744,8 @@ class Proxy(proxy.Proxy):
         self,
         pool_member: str | _pool_member.PoolMember,
         pool: str | _pool.Pool,
+        *,
+        fields: list[str] | None = None,
     ) -> _pool_member.PoolMember:
         """Get a single pool member
 
@@ -3621,14 +3755,18 @@ class Proxy(proxy.Proxy):
         :param pool: The pool can be either the ID of a pool or a
             :class:`~openstack.network.v2.pool.Pool` instance that
             the member belongs to.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.network.v2.pool_member.PoolMember`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         poolobj = self._get_resource(_pool.Pool, pool)
-        return self._get(
-            _pool_member.PoolMember, pool_member, pool_id=poolobj.id
+        return self._get_with_fields(
+            _pool_member.PoolMember,
+            pool_member,
+            fields=fields,
+            pool_id=poolobj.id,
         )
 
     def pool_members(
@@ -3774,17 +3912,23 @@ class Proxy(proxy.Proxy):
             _port.Port, name_or_id, ignore_missing=ignore_missing, **query
         )
 
-    def get_port(self, port: str | _port.Port) -> _port.Port:
+    def get_port(
+        self,
+        port: str | _port.Port,
+        *,
+        fields: list[str] | None = None,
+    ) -> _port.Port:
         """Get a single port
 
         :param port: The value can be the ID of a port or a
             :class:`~openstack.network.v2.port.Port` instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.network.v2.port.Port`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_port.Port, port)
+        return self._get_with_fields(_port.Port, port, fields=fields)
 
     def ports(self, **query: Any) -> Generator[_port.Port, None, None]:
         """Return a generator of ports
@@ -4939,19 +5083,25 @@ class Proxy(proxy.Proxy):
         )
 
     def get_qos_policy(
-        self, qos_policy: str | _qos_policy.QoSPolicy
+        self,
+        qos_policy: str | _qos_policy.QoSPolicy,
+        *,
+        fields: list[str] | None = None,
     ) -> _qos_policy.QoSPolicy:
         """Get a single QoS policy
 
         :param qos_policy: The value can be the ID of a QoS policy or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy`
             instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.network.v2.qos_policy.QoSPolicy`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_qos_policy.QoSPolicy, qos_policy)
+        return self._get_with_fields(
+            _qos_policy.QoSPolicy, qos_policy, fields=fields
+        )
 
     def qos_policies(
         self,
@@ -5024,7 +5174,10 @@ class Proxy(proxy.Proxy):
         )
 
     def get_qos_rule_type(
-        self, qos_rule_type: str | _qos_rule_type.QoSRuleType
+        self,
+        qos_rule_type: str | _qos_rule_type.QoSRuleType,
+        *,
+        fields: list[str] | None = None,
     ) -> _qos_rule_type.QoSRuleType:
         """Get details about single QoS rule type
 
@@ -5032,12 +5185,15 @@ class Proxy(proxy.Proxy):
             rule type or a
             :class:`~openstack.network.v2.qos_rule_type.QoSRuleType`
             instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.network.v2.qos_rule_type.QoSRuleType`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_qos_rule_type.QoSRuleType, qos_rule_type)
+        return self._get_with_fields(
+            _qos_rule_type.QoSRuleType, qos_rule_type, fields=fields
+        )
 
     def qos_rule_types(
         self,
@@ -5223,18 +5379,24 @@ class Proxy(proxy.Proxy):
         )
 
     def get_rbac_policy(
-        self, rbac_policy: str | _rbac_policy.RBACPolicy
+        self,
+        rbac_policy: str | _rbac_policy.RBACPolicy,
+        *,
+        fields: list[str] | None = None,
     ) -> _rbac_policy.RBACPolicy:
         """Get a single RBAC policy
 
         :param rbac_policy: The value can be the ID of a RBAC policy or a
             :class:`~openstack.network.v2.rbac_policy.RBACPolicy` instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.network.v2.rbac_policy.RBACPolicy`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_rbac_policy.RBACPolicy, rbac_policy)
+        return self._get_with_fields(
+            _rbac_policy.RBACPolicy, rbac_policy, fields=fields
+        )
 
     def rbac_policies(
         self,
@@ -5348,17 +5510,23 @@ class Proxy(proxy.Proxy):
             _router.Router, name_or_id, ignore_missing=ignore_missing, **query
         )
 
-    def get_router(self, router: str | _router.Router) -> _router.Router:
+    def get_router(
+        self,
+        router: str | _router.Router,
+        *,
+        fields: list[str] | None = None,
+    ) -> _router.Router:
         """Get a single router
 
         :param router: The value can be the ID of a router or a
             :class:`~openstack.network.v2.router.Router` instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.network.v2.router.Router`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_router.Router, router)
+        return self._get_with_fields(_router.Router, router, fields=fields)
 
     def routers(self, **query: Any) -> Generator[_router.Router, None, None]:
         """Return a generator of routers
@@ -5660,20 +5828,26 @@ class Proxy(proxy.Proxy):
         return self._create(_ndp_proxy.NDPProxy, **attrs)
 
     def get_ndp_proxy(
-        self, ndp_proxy: str | _ndp_proxy.NDPProxy
+        self,
+        ndp_proxy: str | _ndp_proxy.NDPProxy,
+        *,
+        fields: list[str] | None = None,
     ) -> _ndp_proxy.NDPProxy:
         """Get a single ndp proxy
 
         :param ndp_proxy: The value can be the ID of a ndp proxy
             or a :class:`~openstack.network.v2.ndp_proxy.NDPProxy`
             instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One
             :class:`~openstack.network.v2.ndp_proxy.NDPProxy`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_ndp_proxy.NDPProxy, ndp_proxy)
+        return self._get_with_fields(
+            _ndp_proxy.NDPProxy, ndp_proxy, fields=fields
+        )
 
     @overload
     def find_ndp_proxy(
@@ -5849,20 +6023,26 @@ class Proxy(proxy.Proxy):
         )
 
     def get_firewall_group(
-        self, firewall_group: str | _firewall_group.FirewallGroup
+        self,
+        firewall_group: str | _firewall_group.FirewallGroup,
+        *,
+        fields: list[str] | None = None,
     ) -> _firewall_group.FirewallGroup:
         """Get a single firewall group
 
         :param firewall_group: The value can be the ID of a firewall group or a
             :class:`~openstack.network.v2.firewall_group.FirewallGroup`
             instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One
             :class:`~openstack.network.v2.firewall_group.FirewallGroup`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_firewall_group.FirewallGroup, firewall_group)
+        return self._get_with_fields(
+            _firewall_group.FirewallGroup, firewall_group, fields=fields
+        )
 
     def firewall_groups(
         self,
@@ -5992,7 +6172,10 @@ class Proxy(proxy.Proxy):
         )
 
     def get_firewall_policy(
-        self, firewall_policy: str | _firewall_policy.FirewallPolicy
+        self,
+        firewall_policy: str | _firewall_policy.FirewallPolicy,
+        *,
+        fields: list[str] | None = None,
     ) -> _firewall_policy.FirewallPolicy:
         """Get a single firewall policy
 
@@ -6000,13 +6183,16 @@ class Proxy(proxy.Proxy):
             or a
             :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`
             instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One
             :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_firewall_policy.FirewallPolicy, firewall_policy)
+        return self._get_with_fields(
+            _firewall_policy.FirewallPolicy, firewall_policy, fields=fields
+        )
 
     def firewall_policies(
         self,
@@ -6189,20 +6375,26 @@ class Proxy(proxy.Proxy):
         )
 
     def get_firewall_rule(
-        self, firewall_rule: str | _firewall_rule.FirewallRule
+        self,
+        firewall_rule: str | _firewall_rule.FirewallRule,
+        *,
+        fields: list[str] | None = None,
     ) -> _firewall_rule.FirewallRule:
         """Get a single firewall rule
 
         :param firewall_rule: The value can be the ID of a firewall rule or a
             :class:`~openstack.network.v2.firewall_rule.FirewallRule`
             instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One
             :class:`~openstack.network.v2.firewall_rule.FirewallRule`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_firewall_rule.FirewallRule, firewall_rule)
+        return self._get_with_fields(
+            _firewall_rule.FirewallRule, firewall_rule, fields=fields
+        )
 
     def firewall_rules(
         self,
@@ -6342,20 +6534,26 @@ class Proxy(proxy.Proxy):
         )
 
     def get_security_group(
-        self, security_group: str | _security_group.SecurityGroup
+        self,
+        security_group: str | _security_group.SecurityGroup,
+        *,
+        fields: list[str] | None = None,
     ) -> _security_group.SecurityGroup:
         """Get a single security group
 
         :param security_group: The value can be the ID of a security group or a
             :class:`~openstack.network.v2.security_group.SecurityGroup`
             instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One
             :class:`~openstack.network.v2.security_group.SecurityGroup`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_security_group.SecurityGroup, security_group)
+        return self._get_with_fields(
+            _security_group.SecurityGroup, security_group, fields=fields
+        )
 
     def security_groups(
         self,
@@ -6506,6 +6704,8 @@ class Proxy(proxy.Proxy):
     def get_security_group_rule(
         self,
         security_group_rule: str | _security_group_rule.SecurityGroupRule,
+        *,
+        fields: list[str] | None = None,
     ) -> _security_group_rule.SecurityGroupRule:
         """Get a single security group rule
 
@@ -6513,14 +6713,17 @@ class Proxy(proxy.Proxy):
             The value can be the ID of a security group rule or a
             :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`
             instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns:
             :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(
-            _security_group_rule.SecurityGroupRule, security_group_rule
+        return self._get_with_fields(
+            _security_group_rule.SecurityGroupRule,
+            security_group_rule,
+            fields=fields,
         )
 
     def security_group_rules(
@@ -6637,6 +6840,8 @@ class Proxy(proxy.Proxy):
         self,
         default_security_group_rule: str
         | _default_security_group_rule.DefaultSecurityGroupRule,
+        *,
+        fields: list[str] | None = None,
     ) -> _default_security_group_rule.DefaultSecurityGroupRule:
         """Get a single default security group rule
 
@@ -6644,6 +6849,7 @@ class Proxy(proxy.Proxy):
             The value can be the ID of a default security group rule or a
             :class:`~openstack.network.v2.default_security_group_rule.
             DefaultSecurityGroupRule` instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns:
             :class:`~openstack.network.v2.default_security_group_rule.
@@ -6651,9 +6857,10 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(
+        return self._get_with_fields(
             _default_security_group_rule.DefaultSecurityGroupRule,
             default_security_group_rule,
+            fields=fields,
         )
 
     def default_security_group_rules(
@@ -6776,6 +6983,8 @@ class Proxy(proxy.Proxy):
         self,
         security_groups_default_statefulness: str
         | _sg_default_statefulness.SecurityGroupsDefaultStatefulness,
+        *,
+        fields: list[str] | None = None,
     ) -> _sg_default_statefulness.SecurityGroupsDefaultStatefulness:
         """Get a single default statefulness setting
 
@@ -6783,6 +6992,7 @@ class Proxy(proxy.Proxy):
             The value can be the ID of a default statefulness setting or a
             :class:`~openstack.network.v2.security_groups_default_statefulness.
             SecurityGroupsDefaultStatefulness` instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns:
             :class:`~openstack.network.v2.security_groups_default_statefulness.
@@ -6790,9 +7000,10 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(
+        return self._get_with_fields(
             _sg_default_statefulness.SecurityGroupsDefaultStatefulness,
             security_groups_default_statefulness,
+            fields=fields,
         )
 
     def security_groups_default_statefulness(
@@ -6908,18 +7119,24 @@ class Proxy(proxy.Proxy):
             **query,
         )
 
-    def get_segment(self, segment: str | _segment.Segment) -> _segment.Segment:
+    def get_segment(
+        self,
+        segment: str | _segment.Segment,
+        *,
+        fields: list[str] | None = None,
+    ) -> _segment.Segment:
         """Get a single segment
 
         :param segment: The value can be the ID of a segment or a
             :class:`~openstack.network.v2.segment.Segment`
             instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.network.v2.segment.Segment`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_segment.Segment, segment)
+        return self._get_with_fields(_segment.Segment, segment, fields=fields)
 
     def segments(
         self,
@@ -7054,20 +7271,26 @@ class Proxy(proxy.Proxy):
         )
 
     def get_service_profile(
-        self, service_profile: str | _service_profile.ServiceProfile
+        self,
+        service_profile: str | _service_profile.ServiceProfile,
+        *,
+        fields: list[str] | None = None,
     ) -> _service_profile.ServiceProfile:
         """Get a single network service flavor profile
 
         :param service_profile: The value can be the ID of a service_profile or
             a :class:`~openstack.network.v2.service_profile.ServiceProfile`
             instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One
             :class:`~openstack.network.v2.service_profile.ServiceProfile`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_service_profile.ServiceProfile, service_profile)
+        return self._get_with_fields(
+            _service_profile.ServiceProfile, service_profile, fields=fields
+        )
 
     def service_profiles(
         self,
@@ -7182,17 +7405,23 @@ class Proxy(proxy.Proxy):
             _subnet.Subnet, name_or_id, ignore_missing=ignore_missing, **query
         )
 
-    def get_subnet(self, subnet: str | _subnet.Subnet) -> _subnet.Subnet:
+    def get_subnet(
+        self,
+        subnet: str | _subnet.Subnet,
+        *,
+        fields: list[str] | None = None,
+    ) -> _subnet.Subnet:
         """Get a single subnet
 
         :param subnet: The value can be the ID of a subnet or a
             :class:`~openstack.network.v2.subnet.Subnet` instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.network.v2.subnet.Subnet`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_subnet.Subnet, subnet)
+        return self._get_with_fields(_subnet.Subnet, subnet, fields=fields)
 
     def subnets(self, **query: Any) -> Generator[_subnet.Subnet, None, None]:
         """Return a generator of subnets
@@ -7313,18 +7542,24 @@ class Proxy(proxy.Proxy):
         )
 
     def get_subnet_pool(
-        self, subnet_pool: str | _subnet_pool.SubnetPool
+        self,
+        subnet_pool: str | _subnet_pool.SubnetPool,
+        *,
+        fields: list[str] | None = None,
     ) -> _subnet_pool.SubnetPool:
         """Get a single subnet pool
 
         :param subnet_pool: The value can be the ID of a subnet pool or a
             :class:`~openstack.network.v2.subnet_pool.SubnetPool` instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.network.v2.subnet_pool.SubnetPool`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_subnet_pool.SubnetPool, subnet_pool)
+        return self._get_with_fields(
+            _subnet_pool.SubnetPool, subnet_pool, fields=fields
+        )
 
     def subnet_pools(
         self,
@@ -7531,18 +7766,24 @@ class Proxy(proxy.Proxy):
             _trunk.Trunk, name_or_id, ignore_missing=ignore_missing, **query
         )
 
-    def get_trunk(self, trunk: str | _trunk.Trunk) -> _trunk.Trunk:
+    def get_trunk(
+        self,
+        trunk: str | _trunk.Trunk,
+        *,
+        fields: list[str] | None = None,
+    ) -> _trunk.Trunk:
         """Get a single trunk
 
         :param trunk: The value can be the ID of a trunk or a
             :class:`~openstack.network.v2.trunk.Trunk` instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One
             :class:`~openstack.network.v2.trunk.Trunk`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_trunk.Trunk, trunk)
+        return self._get_with_fields(_trunk.Trunk, trunk, fields=fields)
 
     def trunks(self, **query: Any) -> Generator[_trunk.Trunk, None, None]:
         """Return a generator of trunks
@@ -7698,7 +7939,10 @@ class Proxy(proxy.Proxy):
         )
 
     def get_vpn_endpoint_group(
-        self, vpn_endpoint_group: str | _vpn_endpoint_group.VpnEndpointGroup
+        self,
+        vpn_endpoint_group: str | _vpn_endpoint_group.VpnEndpointGroup,
+        *,
+        fields: list[str] | None = None,
     ) -> _vpn_endpoint_group.VpnEndpointGroup:
         """Get a single vpn service
 
@@ -7706,14 +7950,17 @@ class Proxy(proxy.Proxy):
             or a
             :class:`~openstack.network.v2.vpn_endpoint_group.VpnEndpointGroup`
             instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One
             :class:`~openstack.network.v2.vpn_endpoint_group.VpnEndpointGroup`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(
-            _vpn_endpoint_group.VpnEndpointGroup, vpn_endpoint_group
+        return self._get_with_fields(
+            _vpn_endpoint_group.VpnEndpointGroup,
+            vpn_endpoint_group,
+            fields=fields,
         )
 
     def vpn_endpoint_groups(
@@ -7812,6 +8059,8 @@ class Proxy(proxy.Proxy):
         self,
         ipsec_site_connection: str
         | _ipsec_site_connection.VpnIPSecSiteConnection,
+        *,
+        fields: list[str] | None = None,
     ) -> _ipsec_site_connection.VpnIPSecSiteConnection:
         """Get a single IPsec site connection
 
@@ -7819,15 +8068,17 @@ class Proxy(proxy.Proxy):
             connection or a
             :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
             instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One
             :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(
+        return self._get_with_fields(
             _ipsec_site_connection.VpnIPSecSiteConnection,
             ipsec_site_connection,
+            fields=fields,
         )
 
     def vpn_ipsec_site_connections(
@@ -7951,20 +8202,26 @@ class Proxy(proxy.Proxy):
         )
 
     def get_vpn_ike_policy(
-        self, ike_policy: str | _ike_policy.VpnIkePolicy
+        self,
+        ike_policy: str | _ike_policy.VpnIkePolicy,
+        *,
+        fields: list[str] | None = None,
     ) -> _ike_policy.VpnIkePolicy:
         """Get a single ike policy
 
         :param ike_policy: The value can be the ID of an IKE policy or a
             :class:`~openstack.network.v2.vpn_ike_policy.VpnIkePolicy`
             instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One
             :class:`~openstack.network.v2.vpn_ike_policy.VpnIkePolicy`
         :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         """
-        return self._get(_ike_policy.VpnIkePolicy, ike_policy)
+        return self._get_with_fields(
+            _ike_policy.VpnIkePolicy, ike_policy, fields=fields
+        )
 
     def vpn_ike_policies(
         self,
@@ -8077,20 +8334,26 @@ class Proxy(proxy.Proxy):
         )
 
     def get_vpn_ipsec_policy(
-        self, ipsec_policy: str | _ipsec_policy.VpnIpsecPolicy
+        self,
+        ipsec_policy: str | _ipsec_policy.VpnIpsecPolicy,
+        *,
+        fields: list[str] | None = None,
     ) -> _ipsec_policy.VpnIpsecPolicy:
         """Get a single IPsec policy
 
         :param ipsec_policy: The value can be the ID of an IPcec policy or a
             :class:`~openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy`
             instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One
             :class:`~openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy`
         :raises: :class:`~openstack.exceptions.NotFoundException` when no
             resource can be found.
         """
-        return self._get(_ipsec_policy.VpnIpsecPolicy, ipsec_policy)
+        return self._get_with_fields(
+            _ipsec_policy.VpnIpsecPolicy, ipsec_policy, fields=fields
+        )
 
     def vpn_ipsec_policies(
         self,
@@ -8227,20 +8490,26 @@ class Proxy(proxy.Proxy):
         )
 
     def get_vpn_service(
-        self, vpn_service: str | _vpn_service.VpnService
+        self,
+        vpn_service: str | _vpn_service.VpnService,
+        *,
+        fields: list[str] | None = None,
     ) -> _vpn_service.VpnService:
         """Get a single vpn service
 
         :param vpn_service: The value can be the ID of a vpn service or a
             :class:`~openstack.network.v2.vpn_service.VpnService`
             instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One
             :class:`~openstack.network.v2.vpn_service.VpnService`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
-        return self._get(_vpn_service.VpnService, vpn_service)
+        return self._get_with_fields(
+            _vpn_service.VpnService, vpn_service, fields=fields
+        )
 
     def vpn_services(
         self,
@@ -8378,6 +8647,8 @@ class Proxy(proxy.Proxy):
         self,
         floating_ip: str | _floating_ip.FloatingIP,
         port_forwarding: str | _port_forwarding.PortForwarding,
+        *,
+        fields: list[str] | None = None,
     ) -> _port_forwarding.PortForwarding:
         """Get a floating ip port forwarding
 
@@ -8388,15 +8659,17 @@ class Proxy(proxy.Proxy):
             or a
             :class:`~openstack.network.v2.port_forwarding.PortForwarding`
             instance.
+        :param fields: Limit the resource fields to fetch.
         :returns: One
             :class:`~openstack.network.v2.port_forwarding.PortForwarding`
         :raises: :class:`~openstack.exceptions.NotFoundException`
             when no resource can be found.
         """
         floatingip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
-        return self._get(
+        return self._get_with_fields(
             _port_forwarding.PortForwarding,
             port_forwarding,
+            fields=fields,
             floatingip_id=floatingip.id,
         )
 
@@ -8622,10 +8895,24 @@ class Proxy(proxy.Proxy):
         )
 
     def get_tap_flow(
-        self, tap_flow: str | _tap_flow.TapFlow
+        self,
+        tap_flow: str | _tap_flow.TapFlow,
+        *,
+        fields: list[str] | None = None,
     ) -> _tap_flow.TapFlow:
-        """Get a signle Tap Flow"""
-        return self._get(_tap_flow.TapFlow, tap_flow)
+        """Get a signle Tap Flow
+
+        :param tap_flow: The value can be the ID of a tap flow or a
+            :class:`~openstack.network.v2.tap_flow.TapFlow` instance.
+        :param fields: Limit the resource fields to fetch.
+
+        :returns: One :class:`~openstack.network.v2.tap_flow.TapFlow`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
+            when no resource can be found.
+        """
+        return self._get_with_fields(
+            _tap_flow.TapFlow, tap_flow, fields=fields
+        )
 
     def update_tap_flow(
         self,
@@ -8687,10 +8974,24 @@ class Proxy(proxy.Proxy):
         )
 
     def get_tap_mirror(
-        self, tap_mirror: str | _tap_mirror.TapMirror
+        self,
+        tap_mirror: str | _tap_mirror.TapMirror,
+        *,
+        fields: list[str] | None = None,
     ) -> _tap_mirror.TapMirror:
-        """Get a signle Tap Mirror"""
-        return self._get(_tap_mirror.TapMirror, tap_mirror)
+        """Get a signle Tap Mirror
+
+        :param tap_mirror: The value can be the ID of a tap mirror or a
+            :class:`~openstack.network.v2.tap_mirror.TapMirror` instance.
+        :param fields: Limit the resource fields to fetch.
+
+        :returns: One :class:`~openstack.network.v2.tap_mirror.TapMirror`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
+            when no resource can be found.
+        """
+        return self._get_with_fields(
+            _tap_mirror.TapMirror, tap_mirror, fields=fields
+        )
 
     def update_tap_mirror(
         self,
@@ -8752,10 +9053,24 @@ class Proxy(proxy.Proxy):
         )
 
     def get_tap_service(
-        self, tap_service: str | _tap_service.TapService
+        self,
+        tap_service: str | _tap_service.TapService,
+        *,
+        fields: list[str] | None = None,
     ) -> _tap_service.TapService:
-        """Get a signle Tap Service"""
-        return self._get(_tap_service.TapService, tap_service)
+        """Get a signle Tap Service
+
+        :param tap_service: The value can be the ID of a tap service or a
+            :class:`~openstack.network.v2.tap_service.TapService` instance.
+        :param fields: Limit the resource fields to fetch.
+
+        :returns: One :class:`~openstack.network.v2.tap_service.TapService`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
+            when no resource can be found.
+        """
+        return self._get_with_fields(
+            _tap_service.TapService, tap_service, fields=fields
+        )
 
     def update_tap_service(
         self,
