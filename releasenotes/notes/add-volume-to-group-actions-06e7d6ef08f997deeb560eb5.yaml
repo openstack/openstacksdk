@@ -1,0 +1,13 @@
+---
+fixes:
+  - |
+    Fixed the ``Group`` resource in the block storage service to support the
+    ``add_volumes`` and ``remove_volumes`` body attributes. Previously these
+    attributes were not declared on the resource, so values passed to
+    ``update_group`` were silently discarded and an empty update request was
+    sent to the block storage service. Volumes can now be added to or removed
+    from an existing group by passing a comma-separated list of volume IDs,
+    for example::
+
+        conn.block_storage.update_group(group, add_volumes='vol-1,vol-2')
+        conn.block_storage.update_group(group, remove_volumes='vol-3')

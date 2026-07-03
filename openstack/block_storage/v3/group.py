@@ -57,6 +57,10 @@ class Group(resource.Resource):
     status = resource.Body("status")
     volumes = resource.Body("volumes", type=list)
     volume_types = resource.Body("volume_types", type=list)
+    #: A comma-separated list of volume IDs to add to the group.
+    add_volumes = resource.Body("add_volumes")
+    #: A comma-separated list of volume IDs to remove from the group.
+    remove_volumes = resource.Body("remove_volumes")
 
     _max_microversion = "3.38"
 
