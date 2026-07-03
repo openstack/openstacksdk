@@ -7363,6 +7363,22 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_subnet_pool.SubnetPool, subnet_pool, **attrs)
 
+    def onboard_network_subnets(
+        self,
+        subnet_pool: str | _subnet_pool.SubnetPool,
+        network: str | _network.Network,
+    ) -> dict[str, Any]:
+        """Onboard network subnets into a subnet pool.
+
+        :param subnet_pool: Either the ID of a subnet pool or a
+            :class:`~openstack.network.v2.subnet_pool.SubnetPool` instance.
+        :param network: Either the ID of a network or a
+            :class:`~openstack.network.v2.network.Network` instance.
+        """
+        body = {'network_id': resource.Resource._get_id(network)}
+        subnet_pool = self._get_resource(_subnet_pool.SubnetPool, subnet_pool)
+        return subnet_pool.subnet_onboard(self, **body)
+
     @staticmethod
     def _check_tag_support(resource: resource.Resource) -> None:
         try:

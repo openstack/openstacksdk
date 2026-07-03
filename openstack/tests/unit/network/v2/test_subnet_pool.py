@@ -9,7 +9,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from unittest import mock
 
+from openstack import exceptions
 from openstack.network.v2 import subnet_pool
 from openstack.tests.unit import base
 
@@ -67,3 +69,32 @@ class TestSubnetpool(base.TestCase):
         self.assertTrue(sot.is_shared)
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
+
+    def test_subnet_onboard(self):
+        sot = subnet_pool.SubnetPool(**EXAMPLE)
+        response = mock.Mock()
+        response.body = {"subnetpool_id": "3", "cid": "1.2.3.4"}
+        response.json = mock.Mock(return_value=response.body)
+        response.status_code = 200
+        sess = mock.Mock()
+        sess.put = mock.Mock(return_value=response)
+        body = {"network_id": "3"}
+        self.assertEqual(response.body, sot.subnet_onboard(sess, **body))
+
+        url = 'subnetpools/IDENTIFIER/onboard_network_subnets'
+        sess.put.assert_called_with(url, json=body)
+
+    def test_subnet_onboard_4xx(self):
+        sot = subnet_pool.SubnetPool(**EXAMPLE)
+        response = mock.Mock()
+        msg = '.*borked'
+        response.body = {'NeutronError': {'message': msg}}
+        response.json = mock.Mock(return_value=response.body)
+        response.ok = False
+        response.status_code = 409
+        response.headers = {'content-type': 'application/json'}
+        sess = mock.Mock()
+        sess.put = mock.Mock(return_value=response)
+        body = {"network_id": "3"}
+        with self.assertRaises(exceptions.ConflictException, msg=msg):
+            sot.subnet_onboard(sess, **body)
