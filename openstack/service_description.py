@@ -14,6 +14,7 @@
 from typing import Any, Generic, Self, TYPE_CHECKING, cast, overload
 import warnings
 
+from keystoneauth1 import exceptions as ks_exceptions
 import os_service_types
 
 from openstack import _log
@@ -113,38 +114,60 @@ class ServiceDescription(Generic[proxy_mod.ProxyT]):
         if self.service_type in instance._proxies:
             return cast(proxy_mod.ProxyT, instance._proxies[self.service_type])
 
-        proxy = self._make_proxy(instance)
-
-        if isinstance(proxy, _ServiceDisabledProxyShim):
-            instance._proxies[self.service_type] = proxy
-            return cast(
-                proxy_mod.ProxyT,
-                instance._proxies[self.service_type],
-            )
-
-        # The keystone proxy has a method called get_endpoint
-        # that is about managing keystone endpoints. This is
-        # unfortunate.
         try:
-            endpoint = proxy_mod.Proxy.get_endpoint(proxy)
-        except IndexError:
-            # It's best not to look to closely here. This is
-            # to support old placement.
-            # There was a time when it had no status entry
-            # in its version discovery doc (OY) In this case,
-            # no endpoints get through version discovery
-            # filtering. In order to deal with that, catch
-            # the IndexError thrown by keystoneauth and
-            # set an endpoint_override for the user to the
-            # url in the catalog and try again.
-            self._set_override_from_catalog(instance.config)
             proxy = self._make_proxy(instance)
-            endpoint = proxy_mod.Proxy.get_endpoint(proxy)
 
-        if instance._strict_proxies:
-            self._validate_proxy(proxy, endpoint)
+            if not isinstance(proxy, _ServiceDisabledProxyShim):
+                # The keystone proxy has a method called get_endpoint
+                # that is about managing keystone endpoints. This is
+                # unfortunate.
+                try:
+                    endpoint = proxy_mod.Proxy.get_endpoint(proxy)
+                except IndexError:
+                    # It's best not to look to closely here. This is
+                    # to support old placement.
+                    # There was a time when it had no status entry
+                    # in its version discovery doc (OY) In this case,
+                    # no endpoints get through version discovery
+                    # filtering. In order to deal with that, catch
+                    # the IndexError thrown by keystoneauth and
+                    # set an endpoint_override for the user to the
+                    # url in the catalog and try again.
+                    self._set_override_from_catalog(instance.config)
+                    proxy = self._make_proxy(instance)
+                    endpoint = proxy_mod.Proxy.get_endpoint(proxy)
 
-        proxy._connection = instance
+                if instance._strict_proxies:
+                    self._validate_proxy(proxy, endpoint)
+
+                proxy._connection = instance
+        except ks_exceptions.catalog.EndpointNotFound as exc:
+            # The service is enabled (or defaulted) in configuration but
+            # not present in the cloud's service catalog. Raising here, at
+            # attribute-access time, punishes callers that fetch a proxy
+            # for a service they never end up using -- for example, every
+            # "openstack server create" fails on a cloud without cinder
+            # purely because openstackclient touches
+            # connection.block_storage while preparing. Return the
+            # disabled-service shim instead so the error surfaces if and
+            # when the service is actually used. strict_proxies retains
+            # the old fail-fast semantics.
+            if instance._strict_proxies:
+                raise
+            _logger.debug(
+                "Service '%s' is not present in the service catalog; "
+                "deferring the error until the service is used: %s",
+                self.service_type,
+                exc,
+            )
+            proxy = cast(
+                'proxy_mod.ProxyT',
+                _ServiceDisabledProxyShim(
+                    self.service_type,
+                    f'The service is not present in the service '
+                    f'catalog: {exc}',
+                ),
+            )
 
         instance._proxies[self.service_type] = proxy
         return cast(proxy_mod.ProxyT, instance._proxies[self.service_type])

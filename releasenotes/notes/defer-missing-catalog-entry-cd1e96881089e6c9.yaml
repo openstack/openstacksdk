@@ -1,0 +1,14 @@
+---
+fixes:
+  - |
+    Accessing a service proxy attribute on a ``Connection`` (for example
+    ``conn.block_storage``) no longer raises ``EndpointNotFound`` at
+    attribute-access time when the service is enabled in configuration
+    but not present in the cloud's service catalog. Instead a
+    disabled-service shim is returned and ``ServiceDisabledException``
+    is raised if and when the proxy is actually used. This prevents
+    callers that fetch proxies for services they may never use -- such
+    as python-openstackclient's ``server create``, which touches the
+    block-storage proxy unconditionally -- from failing on clouds that
+    do not deploy that service. Connections created with
+    ``strict_proxies=True`` retain the previous fail-fast behaviour.
