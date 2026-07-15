@@ -1314,3 +1314,11 @@ class TestCache(TestImageProxy):
             expected_args=[self.proxy, 'both'],
         )
         mock_get_resource.assert_called_once_with(_cache.Cache, None)
+
+    def test_cached_image_nodes(self):
+        self._verify(
+            "openstack.image.v2.cache.Cache.image_nodes",
+            self.proxy.cached_image_nodes,
+            method_args=['image-id'],
+            expected_args=[self.proxy, 'image-id'],
+        )
