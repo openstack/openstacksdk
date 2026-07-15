@@ -1,0 +1,14 @@
+{
+  "name": "switchcloud",
+  "profile": {
+    "auth": {
+      "auth_url": "https://identity.compute.cloud.switch.ch/v3"
+    },
+    "regions": [
+      "zhw",
+      "zhc"
+    ],
+    "identity_api_version": "3",
+    "image_format": "raw"
+  }
+}

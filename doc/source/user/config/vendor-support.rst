@@ -287,6 +287,25 @@ SYD            Sydney, NSW
       api_key: myapikey
     auth_type: rackspace_apikey
 
+Switch Cloud
+------------
+
+https://identity.compute.cloud.switch.ch/v3
+
+============== ==================
+Region Name    Location
+============== ==================
+zhw            Zurich West, CH
+zhc            Zurich Central, CH
+============== ==================
+
+* Identity API Version is 3
+* Compute API Version is 2
+* Volume API Version is 3
+* Images must be in `raw` format
+* Public IPv4 is provided via NAT with Neutron Floating IP
+* IPv6 is provided to every server
+
 SWITCHengines
 -------------
 
