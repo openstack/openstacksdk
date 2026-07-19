@@ -70,7 +70,7 @@ with the following rules in mind:
 
 * If a microversion removes fields from an object that are part of the
   existing data model contract, care should be taken to not use the new
-  microversion for that call unless forced to by lack of availablity of the
+  microversion for that call unless forced to by lack of availability of the
   old microversion on the cloud in question. In the case where an old
   microversion is no longer available, care must be taken to either find the
   data from another source and fill it in, or to put a value of None into the
