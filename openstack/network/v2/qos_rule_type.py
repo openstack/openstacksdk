@@ -30,6 +30,7 @@ class QoSRuleType(resource.Resource):
     _query_mapping = resource.QueryParameters(
         'type',
         'drivers',
+        'fields',
         'all_rules',
         'all_supported',
     )

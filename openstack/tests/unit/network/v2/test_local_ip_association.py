@@ -41,6 +41,7 @@ class TestLocalIP(base.TestCase):
 
         self.assertDictEqual(
             {
+                'fields': 'fields',
                 'fixed_port_id': 'fixed_port_id',
                 'fixed_ip': 'fixed_ip',
                 'host': 'host',

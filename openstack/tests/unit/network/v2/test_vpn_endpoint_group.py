@@ -53,6 +53,7 @@ class TestVpnEndpointGroup(base.TestCase):
                 "marker": "marker",
                 'description': 'description',
                 'name': 'name',
+                'fields': 'fields',
                 'project_id': 'project_id',
                 'tenant_id': 'tenant_id',
                 'type': 'endpoint_type',

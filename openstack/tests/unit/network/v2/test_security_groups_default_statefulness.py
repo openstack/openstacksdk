@@ -42,6 +42,7 @@ class TestSecurityGroupsDefaultStatefulness(base.TestCase):
 
         self.assertDictEqual(
             {
+                'fields': 'fields',
                 'id': 'id',
                 'limit': 'limit',
                 'marker': 'marker',

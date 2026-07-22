@@ -33,6 +33,7 @@ class FirewallGroup(resource.Resource):
     _query_mapping = resource.QueryParameters(
         'description',
         'egress_firewall_policy_id',
+        'fields',
         'ingress_firewall_policy_id',
         'name',
         'shared',

@@ -26,6 +26,7 @@ class SecurityGroupsDefaultStatefulness(_base.NetworkResource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
+        'fields',
         'id',
         'project_id',
         'stateful',

@@ -38,6 +38,7 @@ class LocalIP(resource.Resource):
         'sort_dir',
         'name',
         'description',
+        'fields',
         'project_id',
         'network_id',
         'local_port_id',

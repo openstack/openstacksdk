@@ -32,6 +32,7 @@ class TapFlow(resource.Resource):
     _query_mapping = resource.QueryParameters(
         "sort_key",
         "sort_dir",
+        'fields',
         'name',
         'project_id',
     )

@@ -28,6 +28,7 @@ class VpnIpsecPolicy(resource.Resource):
     _query_mapping = resource.QueryParameters(
         'auth_algorithm',
         'description',
+        'fields',
         'encapsulation_mode',
         'encryption_algorithm',
         'name',

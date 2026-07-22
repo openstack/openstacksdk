@@ -40,6 +40,7 @@ class TestAddressGroup(base.TestCase):
             {
                 "name": "name",
                 "description": "description",
+                'fields': 'fields',
                 "project_id": "project_id",
                 "sort_key": "sort_key",
                 "sort_dir": "sort_dir",

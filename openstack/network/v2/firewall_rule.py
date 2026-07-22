@@ -37,6 +37,7 @@ class FirewallRule(resource.Resource):
         'name',
         'destination_port',
         'enabled',
+        'fields',
         'ip_version',
         'project_id',
         'protocol',

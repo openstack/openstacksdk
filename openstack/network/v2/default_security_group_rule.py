@@ -28,6 +28,7 @@ class DefaultSecurityGroupRule(_base.NetworkResource):
     _query_mapping = resource.QueryParameters(
         'id',
         'description',
+        'fields',
         'remote_group_id',
         'remote_address_group_id',
         'direction',

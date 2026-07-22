@@ -47,6 +47,7 @@ class TestDefaultSecurityGroupRule(base.TestCase):
             {
                 'description': 'description',
                 'direction': 'direction',
+                'fields': 'fields',
                 'id': 'id',
                 'ether_type': 'ethertype',
                 'limit': 'limit',

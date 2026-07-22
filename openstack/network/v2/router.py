@@ -35,6 +35,7 @@ class Router(_base.NetworkResource, _base.TagMixinNetwork):
     # NOTE: We don't support query on datetime, list or dict fields
     _query_mapping = resource.QueryParameters(
         'description',
+        'fields',
         'flavor_id',
         'id',
         'name',

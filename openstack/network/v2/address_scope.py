@@ -30,6 +30,7 @@ class AddressScope(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
+        'fields',
         'name',
         'ip_version',
         'project_id',

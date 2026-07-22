@@ -30,6 +30,7 @@ class VpnIkePolicy(resource.Resource):
     _query_mapping = resource.QueryParameters(
         'auth_algorithm',
         'description',
+        'fields',
         'encryption_algorithm',
         'ike_version',
         'name',

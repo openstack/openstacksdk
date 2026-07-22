@@ -34,6 +34,7 @@ class Flavor(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'description',
+        'fields',
         'name',
         'service_type',
         'sort_key',

@@ -29,6 +29,7 @@ class Pool(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'description',
+        'fields',
         'lb_algorithm',
         'name',
         'protocol',

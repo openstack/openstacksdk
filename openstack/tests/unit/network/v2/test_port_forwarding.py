@@ -44,6 +44,7 @@ class TestFloatingIP(base.TestCase):
             {
                 'internal_port_id': 'internal_port_id',
                 'external_port': 'external_port',
+                'fields': 'fields',
                 'limit': 'limit',
                 'marker': 'marker',
                 'protocol': 'protocol',

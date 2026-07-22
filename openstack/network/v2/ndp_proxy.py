@@ -33,6 +33,7 @@ class NDPProxy(resource.Resource):
         "sort_dir",
         'name',
         'description',
+        'fields',
         'project_id',
         'router_id',
         'port_id',
