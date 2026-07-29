@@ -71,3 +71,17 @@ class ProjectEndpoint(Endpoint):
     allow_commit = False
     allow_delete = False
     allow_list = True
+
+
+class EndpointGroupEndpoint(Endpoint):
+    base_path = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s/endpoints'
+
+    #: The ID for the endpoint_group from the URI of the resource
+    endpoint_group_id = resource.URI('endpoint_group_id')
+
+    # capabilities
+    allow_create = False
+    allow_fetch = False
+    allow_commit = False
+    allow_delete = False
+    allow_list = True

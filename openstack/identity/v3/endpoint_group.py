@@ -10,7 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystoneauth1 import adapter
+
+from openstack import exceptions
 from openstack import resource
+from openstack import utils
 
 
 class EndpointGroup(resource.Resource):
@@ -41,3 +45,53 @@ class EndpointGroup(resource.Resource):
     links = resource.Body('links')
     #: The name of the endpoint group. *Type: string*
     name = resource.Body('name')
+
+    def associate_project(
+        self, session: adapter.Adapter, project_id: str
+    ) -> None:
+        """Associate project with endpoint group.
+
+        :param session: The session to use for making this request.
+        :param project_id: The ID of a project.
+        :returns: None
+        """
+        url = utils.urljoin(
+            '/OS-EP-FILTER/endpoint_groups',
+            self.id,
+            'projects',
+            project_id,
+        )
+        response = session.put(url)
+        exceptions.raise_from_response(response)
+
+    def disassociate_project(
+        self, session: adapter.Adapter, project_id: str
+    ) -> None:
+        """Disassociate project from endpoint group.
+
+        :param session: The session to use for making this request.
+        :param endpoint_id: The ID of a project.
+        :returns: None
+        """
+        url = utils.urljoin(
+            '/OS-EP-FILTER/endpoint_groups',
+            self.id,
+            'projects',
+            project_id,
+        )
+        response = session.delete(url)
+        exceptions.raise_from_response(response)
+
+
+class ProjectEndpointGroup(EndpointGroup):
+    base_path = '/OS-EP-FILTER/projects/%(project_id)s/endpoint_groups'
+
+    #: The ID for the project from the URI of the resource
+    project_id = resource.URI('project_id')
+
+    # capabilities
+    allow_create = False
+    allow_fetch = False
+    allow_commit = False
+    allow_delete = False
+    allow_list = True

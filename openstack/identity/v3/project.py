@@ -261,3 +261,18 @@ class EndpointProject(Project):
     allow_commit = False
     allow_delete = False
     allow_list = True
+
+
+class EndpointGroupProject(Project):
+    base_path = '/OS-EP-FILTER/endpoint_groups/%(endpoint_id)s/projects'
+
+    #: The ID for the endpoint group from the URI of the resource
+    endpoint_group_id = resource.URI('endpoint_group_id')
+
+    # capabilities
+    allow_create = True
+    allow_fetch = True
+    allow_commit = False
+    allow_delete = True
+    allow_list = True
+    create_method = 'PUT'

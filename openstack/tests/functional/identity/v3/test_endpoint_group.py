@@ -124,8 +124,13 @@ class TestEndpointGroup(base.BaseIdentityTest):
         )
         self.assertEqual(endpoint_group.id, found_endpoint_group.id)
 
-        # TODO(0weng): List endpoints associated with endpoint group to ensure
-        # filters work as expected
+        # Check filtered endpoints in endpoint group
+        filtered_endpoints = list(
+            self.admin_identity_client.endpoint_group_endpoints(endpoint_group)
+        )
+        endpoint_ids = {e.id for e in filtered_endpoints}
+        self.assertIn(self.public_endpoint.id, endpoint_ids)
+        self.assertNotIn(self.internal_endpoint.id, endpoint_ids)
 
         # List endpoint groups
         endpoint_groups = list(self.admin_identity_client.endpoint_groups())
