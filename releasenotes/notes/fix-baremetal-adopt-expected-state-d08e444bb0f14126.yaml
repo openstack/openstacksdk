@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    Fixed the expected provision state for the bare metal ``adopt`` verb.
+    Adoption moves a node from ``manageable`` to ``active``, but the SDK
+    expected ``available``, so ``set_node_provision_state`` and
+    ``Node.set_provision_state`` called with ``wait=True`` waited for a state
+    that is never reached and eventually failed with a ``ResourceTimeout``.

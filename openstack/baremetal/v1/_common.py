@@ -46,7 +46,7 @@ PROVISIONING_VERSIONS = {
 # Based on https://docs.openstack.org/ironic/latest/contributor/states.html
 EXPECTED_STATES = {
     'active': 'active',
-    'adopt': 'available',
+    'adopt': 'active',
     'clean': 'manageable',
     'deleted': 'available',
     'inspect': 'manageable',
