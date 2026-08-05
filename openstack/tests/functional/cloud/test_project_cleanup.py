@@ -134,12 +134,19 @@ class TestProjectCleanup(base.BaseFunctionalTest):
             name='vol1', size='1'
         )
         self.user_cloud_alt.block_storage.wait_for_status(vol)
+        # Create the full backup *before* the snapshot. An incremental backup
+        # of a snapshot requires a parent backup whose data predates the
+        # snapshot's creation time, so taking the full backup first gives the
+        # incremental backups below a valid ancestor. If the snapshot is taken
+        # first, the incrementals have no suitable parent -- older Cinder
+        # masked this by silently falling back to an unsuitable backup, but it
+        # now (correctly) fails with "No backups available". See bug 2148715.
+        b1 = self.user_cloud_alt.block_storage.create_backup(volume_id=vol.id)
+        self.user_cloud_alt.block_storage.wait_for_status(b1)
         s1 = self.user_cloud_alt.block_storage.create_snapshot(
             volume_id=vol.id
         )
         self.user_cloud_alt.block_storage.wait_for_status(s1)
-        b1 = self.user_cloud_alt.block_storage.create_backup(volume_id=vol.id)
-        self.user_cloud_alt.block_storage.wait_for_status(b1)
         b2 = self.user_cloud_alt.block_storage.create_backup(
             volume_id=vol.id, is_incremental=True, snapshot_id=s1.id
         )
