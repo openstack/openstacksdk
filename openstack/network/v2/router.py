@@ -64,6 +64,9 @@ class Router(_base.NetworkResource, _base.TagMixinNetwork):
     description = resource.Body('description')
     #: The ndp proxy state of the router
     enable_ndp_proxy = resource.Body('enable_ndp_proxy', type=bool)
+    #: The EVPN VNI associated with the router, or None if EVPN is not
+    #: configured. *Type: int*
+    evpn_vni = resource.Body('evpn_vni', type=int)
     #: The ``network_id``, for the external gateway. *Type: dict*
     external_gateway_info = resource.Body('external_gateway_info', type=dict)
     #: The ID of the flavor.
