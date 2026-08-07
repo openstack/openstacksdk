@@ -1562,14 +1562,98 @@ class Proxy(proxy.Proxy):
 
     # ========== Role assignments ==========
 
+    @overload
+    def role_assignments_filter(
+        self,
+        domain: str | _domain.Domain,
+        project: None = None,
+        system: None = None,
+        group: str | _group.Group = ...,
+        user: None = None,
+    ) -> Generator[
+        _role_domain_group_assignment.RoleDomainGroupAssignment, None, None
+    ]: ...
+
+    @overload
+    def role_assignments_filter(
+        self,
+        domain: str | _domain.Domain,
+        project: None = None,
+        system: None = None,
+        group: None = None,
+        *,
+        user: str | _user.User,
+    ) -> Generator[
+        _role_domain_user_assignment.RoleDomainUserAssignment, None, None
+    ]: ...
+
+    @overload
+    def role_assignments_filter(
+        self,
+        domain: None = None,
+        project: str | _project.Project = ...,
+        system: None = None,
+        group: str | _group.Group = ...,
+        user: None = None,
+    ) -> Generator[
+        _role_project_group_assignment.RoleProjectGroupAssignment, None, None
+    ]: ...
+
+    @overload
+    def role_assignments_filter(
+        self,
+        domain: None = None,
+        project: str | _project.Project = ...,
+        system: None = None,
+        group: None = None,
+        *,
+        user: str | _user.User,
+    ) -> Generator[
+        _role_project_user_assignment.RoleProjectUserAssignment, None, None
+    ]: ...
+
+    @overload
+    def role_assignments_filter(
+        self,
+        domain: None = None,
+        project: None = None,
+        system: str | _system.System = ...,
+        group: str | _group.Group = ...,
+        user: None = None,
+    ) -> Generator[
+        _role_system_group_assignment.RoleSystemGroupAssignment, None, None
+    ]: ...
+
+    @overload
+    def role_assignments_filter(
+        self,
+        domain: None = None,
+        project: None = None,
+        system: str | _system.System = ...,
+        group: None = None,
+        *,
+        user: str | _user.User,
+    ) -> Generator[
+        _role_system_user_assignment.RoleSystemUserAssignment, None, None
+    ]: ...
+
     def role_assignments_filter(
         self,
         domain: str | _domain.Domain | None = None,
         project: str | _project.Project | None = None,
-        system: str | None = None,
+        system: str | _system.System | None = None,
         group: str | _group.Group | None = None,
         user: str | _user.User | None = None,
-    ) -> Generator[resource.Resource, None, None]:
+    ) -> Generator[
+        _role_domain_group_assignment.RoleDomainGroupAssignment
+        | _role_domain_user_assignment.RoleDomainUserAssignment
+        | _role_project_group_assignment.RoleProjectGroupAssignment
+        | _role_project_user_assignment.RoleProjectUserAssignment
+        | _role_system_group_assignment.RoleSystemGroupAssignment
+        | _role_system_user_assignment.RoleSystemUserAssignment,
+        None,
+        None,
+    ]:
         """Retrieve a generator of roles assigned to user/group
 
         :param domain: Either the ID of a domain or a
