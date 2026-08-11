@@ -10,8 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any, cast
+
+from keystoneauth1 import adapter
+
+from openstack import exceptions
 from openstack.network.v2 import _base
 from openstack import resource
+from openstack import utils
 
 
 class SubnetPool(resource.Resource, _base.TagMixinNetwork):
@@ -87,3 +93,21 @@ class SubnetPool(resource.Resource, _base.TagMixinNetwork):
     revision_number = resource.Body('revision_number', type=int)
     #: Timestamp when the subnet pool was last updated.
     updated_at = resource.Body('updated_at')
+
+    def subnet_onboard(
+        self, session: adapter.Adapter, **body: Any
+    ) -> dict[str, Any]:
+        """Onboard network subnets into a subnet pool.
+
+        :param session: The session to communicate through.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param body: The request body (network_id).
+
+        :returns: The response body as a dictionary.
+
+        :raises: :class:`~openstack.exceptions.SDKException` on error.
+        """
+        url = utils.urljoin(self.base_path, self.id, 'onboard_network_subnets')
+        resp = session.put(url, json=body)
+        exceptions.raise_from_response(resp)
+        return cast(dict[str, Any], resp.json())
