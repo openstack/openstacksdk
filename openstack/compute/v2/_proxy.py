@@ -1527,7 +1527,7 @@ class Proxy(proxy.Proxy):
         server: str | _server.Server,
         *,
         host: str | None = None,
-        availability_zone: str | None | types.Unset = types.UNSET,
+        availability_zone: str | types.Unset | None = types.UNSET,
     ) -> None:
         """Unshelves or restores a shelved server.
 

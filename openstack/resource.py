@@ -412,11 +412,11 @@ class CreateOpts:
     #: Key to use when enveloping requests. If unset, defaults to the
     #: ``resource_key`` attribute of the resource. Set to None to disable
     #: enveloping.
-    request_key: str | None | types.Unset = types.UNSET
+    request_key: str | types.Unset | None = types.UNSET
     #: Key to use when de-enveloping responses. If unset, defaults to the
     #: ``resource_key`` attribute of the resource. Set to None to disable
     #: de-enveloping.
-    response_key: str | None | types.Unset = types.UNSET
+    response_key: str | types.Unset | None = types.UNSET
     # TODO(stephenfin): Change default to PORT once Resource.create_method is
     # gone.
     #: Method to use for create requests.

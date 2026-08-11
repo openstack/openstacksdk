@@ -561,7 +561,7 @@ class Proxy(adapter.Adapter):
     def _get_resource(
         self,
         resource_type: type[resource.ResourceT],
-        value: None | str | resource.ResourceT | utils.Munch,
+        value: str | resource.ResourceT | utils.Munch | None,
         **attrs: Any,
     ) -> resource.ResourceT:
         """Get a resource object to work on
