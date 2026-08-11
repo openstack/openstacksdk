@@ -13,6 +13,7 @@
 import base64
 import operator
 import time
+from typing import Any
 import warnings
 
 import iso8601
@@ -361,11 +362,11 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
     def list_servers(
         self,
-        detailed=False,
-        all_projects=False,
-        bare=False,
-        filters=None,
-    ):
+        detailed: bool = False,
+        all_projects: bool = False,
+        bare: bool = False,
+        filters: dict[str, Any] | None = None,
+    ) -> list[_server.Server]:
         """List all available servers.
 
         :param detailed: Whether or not to add detailed additional information.

@@ -61,6 +61,7 @@ class TestInventory(base.BaseFunctionalTest):
     def test_get_host(self):
         host = self.inventory.get_host(self.server_id)
         self.assertIsNotNone(host)
+        assert host is not None
         self.assertEqual(host['name'], self.server_name)
         self._test_host_content(host)
         self._test_expanded_host_content(host)
@@ -74,6 +75,7 @@ class TestInventory(base.BaseFunctionalTest):
     def test_get_host_no_detail(self):
         host = self.inventory.get_host(self.server_id, expand=False)
         self.assertIsNotNone(host)
+        assert host is not None
         self.assertEqual(host['name'], self.server_name)
 
         self.assertEqual(host['image']['id'], self.image.id)
