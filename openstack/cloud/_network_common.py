@@ -62,10 +62,10 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     # networks
 
-    def use_external_network(self):
+    def use_external_network(self) -> bool:
         return self._use_external_network
 
-    def use_internal_network(self):
+    def use_internal_network(self) -> bool:
         return self._use_internal_network
 
     def _reset_network_caches(self):
