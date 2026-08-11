@@ -330,6 +330,29 @@ class TestNodeSetProvisionState(base.TestCase):
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
         )
 
+    def test_adopt(self):
+        result = self.node.set_provision_state(self.session, 'adopt')
+        self.assertIs(result, self.node)
+        self.session.put.assert_called_once_with(
+            f'nodes/{self.node.id}/states/provision',
+            json={'target': 'adopt'},
+            headers=mock.ANY,
+            microversion='1.17',
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
+
+    @mock.patch.object(node.Node, 'wait_for_provision_state', autospec=True)
+    def test_adopt_wait(self, mock_wait):
+        # Adoption moves a node from manageable to active, so waiting for
+        # available would never succeed.
+        result = self.node.set_provision_state(
+            self.session, 'adopt', wait=True, timeout=1
+        )
+        mock_wait.assert_called_once_with(
+            self.node, self.session, 'active', timeout=1
+        )
+        self.assertIs(result, mock_wait.return_value)
+
     def test_deploy_with_configdrive(self):
         result = self.node.set_provision_state(
             self.session, 'active', config_drive='abcd'
