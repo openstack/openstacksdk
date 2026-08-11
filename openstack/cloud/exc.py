@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
+
 from openstack import exceptions
 
 OpenStackCloudException = exceptions.SDKException
@@ -27,7 +29,13 @@ class OpenStackCloudUnavailableFeature(OpenStackCloudException):
 
 # Backwards compat. These are deprecated and should not be used in new code.
 class OpenStackCloudCreateException(OpenStackCloudException):
-    def __init__(self, resource, resource_id, extra_data=None, **kwargs):
+    def __init__(
+        self,
+        resource: Any,
+        resource_id: str,
+        extra_data: Any | None = None,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(
             message=f"Error creating {resource}: {resource_id}",
             extra_data=extra_data,

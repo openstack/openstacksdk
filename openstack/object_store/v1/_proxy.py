@@ -840,7 +840,7 @@ class Proxy(proxy.Proxy):
         int_segment_size = int(segment_size)
         for index, offset in enumerate(range(0, file_size, int_segment_size)):
             remaining = file_size - (index * int_segment_size)
-            segment = _utils.FileSegment(  # type: ignore[no-untyped-call]
+            segment = _utils.FileSegment(
                 filename,
                 offset,
                 int_segment_size

@@ -12,16 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections.abc import Callable, Generator, Iterable, Mapping
 import contextlib
 import fnmatch
 import inspect
 import ipaddress
 import re
 import socket
+from typing import Any, Literal, ParamSpec, Protocol, TypeVar, cast
 import uuid
 import warnings
 
-from decorator import decorator
+from decorator import decorate
 import jmespath
 import psutil
 
@@ -29,14 +31,26 @@ from openstack import _log
 from openstack import exceptions
 from openstack import warnings as os_warnings
 
+_P = ParamSpec('_P')
+_R = TypeVar('_R')
+_T = TypeVar('_T', bound=Mapping[str, Any])
 
-def _filter_list(data, name_or_id, filters):
+
+class _CloudMixin(Protocol):
+    use_direct_get: bool
+
+
+def _filter_list(
+    data: list[_T],
+    name_or_id: str | None,
+    filters: Mapping[str, Any] | str | None,
+) -> list[_T]:
     """Filter a list by name/ID and arbitrary meta data.
 
-    :param list data: The list of dictionary data to filter. It is expected
+    :param data: The list of dictionary data to filter. It is expected
         that each dictionary contains an 'id' and 'name' key if a value for
         name_or_id is given.
-    :param string name_or_id: The name or ID of the entity being filtered. Can
+    :param name_or_id: The name or ID of the entity being filtered. Can
         be a glob pattern, such as 'nb01*'.
     :param filters: A dictionary of meta data to use for further filtering.
         Elements of this dictionary may, themselves, be dictionaries. Example::
@@ -48,7 +62,7 @@ def _filter_list(data, name_or_id, filters):
         A string containing a jmespath expression for further filtering.
         Invalid filters will be ignored.
     """
-    # The logger is openstack.cloud.fmmatch to allow a user/operator to
+    # The logger is openstack.fmmatch to allow a user/operator to
     # configure logging not to communicate about fnmatch misses
     # (they shouldn't be too spammy, but one never knows)
     log = _log.setup_logging('openstack.fnmatch')
@@ -98,9 +112,11 @@ def _filter_list(data, name_or_id, filters):
             'filters instead.',
             os_warnings.RemovedInSDK60Warning,
         )
-        return jmespath.search(filters, data)
+        return cast(list[_T], jmespath.search(filters, data))
 
-    def _dict_filter(f, d):
+    def _dict_filter(
+        f: Mapping[str, Any], d: Mapping[str, Any] | None
+    ) -> bool:
         if not d:
             return False
         for key in f.keys():
@@ -129,15 +145,21 @@ def _filter_list(data, name_or_id, filters):
     return filtered
 
 
-def _get_entity(cloud, resource, name_or_id, filters, **kwargs):
+def _get_entity(
+    cloud: _CloudMixin,
+    resource: str | Callable[..., Any],
+    name_or_id: Any,
+    filters: Mapping[str, Any] | str | None,
+    **kwargs: Any,
+) -> Any:
     """Return a single entity from the list returned by a given method.
 
-    :param object cloud: The controller class (Example: the main OpenStackCloud
+    :param cloud: The controller class (Example: the main OpenStackCloud
         object).
-    :param string or callable resource: The string that identifies the resource
-        to use to lookup the get_<>_by_id or search_<resource>s methods
+    :param resource: The string that identifies the resource to use to lookup
+        the get_<>_by_id or search_<resource>s methods
         (Example: network) or a callable to invoke.
-    :param string name_or_id: The name or ID of the entity being filtered or an
+    :param name_or_id: The name or ID of the entity being filtered or an
         object or dict. If this is an object/dict with an 'id' attr/key, we
         return it and bypass resource lookup.
     :param filters: A dictionary of meta data to use for further filtering.
@@ -179,7 +201,7 @@ def _get_entity(cloud, resource, name_or_id, filters, **kwargs):
     return None
 
 
-def localhost_supports_ipv6():
+def localhost_supports_ipv6() -> bool:
     """Determine whether the local host supports IPv6
 
     We look for the all ip addresses configured to this node, and assume that
@@ -197,7 +219,9 @@ def localhost_supports_ipv6():
     return False
 
 
-def valid_kwargs(*valid_args):
+def valid_kwargs(
+    *valid_args: str,
+) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
     # This decorator checks if argument passed as **kwargs to a function are
     # present in valid_args.
     #
@@ -211,8 +235,9 @@ def valid_kwargs(*valid_args):
     # def my_func(self, mandatory_arg1, mandatory_arg2, **kwargs):
     #   ...
     #
-    @decorator
-    def func_wrapper(func, *args, **kwargs):
+    def func_wrapper(
+        func: Callable[..., Any], *args: Any, **kwargs: Any
+    ) -> Any:
         argspec = inspect.getfullargspec(func)
         for k in kwargs:
             if k not in argspec.args[1:] and k not in valid_args:
@@ -222,15 +247,20 @@ def valid_kwargs(*valid_args):
                 )
         return func(*args, **kwargs)
 
-    return func_wrapper
+    def wrap(func: Callable[_P, _R]) -> Callable[_P, _R]:
+        return decorate(func, func_wrapper)
+
+    return wrap
 
 
 @contextlib.contextmanager
-def openstacksdk_exceptions(error_message=None):
+def openstacksdk_exceptions(
+    error_message: str | None = None,
+) -> Generator[None, None, None]:
     """Context manager for dealing with openstack exceptions.
 
-    :param string error_message: String to use for the exception message
-        content on non-SDKException exception.
+    :param error_message: String to use for the exception message content on
+        non-SDKException exception.
 
         Useful for avoiding wrapping SDKException exceptions
         within themselves. Code called from within the context may throw such
@@ -250,7 +280,7 @@ def openstacksdk_exceptions(error_message=None):
         raise exceptions.SDKException(error_message)
 
 
-def safe_dict_min(key, data):
+def safe_dict_min(key: str, data: Iterable[Mapping[str, Any]]) -> int | None:
     """Safely find the minimum for a given key in a list of dict objects.
 
     This will find the minimum integer value for specific dictionary key
@@ -260,8 +290,8 @@ def safe_dict_min(key, data):
     The dictionary key does not have to be present in all (or any)
     of the elements/dicts within the data set.
 
-    :param string key: The dictionary key to search for the minimum value.
-    :param list data: List of dicts to use for the data set.
+    :param key: The dictionary key to search for the minimum value.
+    :param data: List of dicts to use for the data set.
 
     :returns: None if the field was not found in any elements, or
         the minimum value for the field otherwise.
@@ -281,7 +311,7 @@ def safe_dict_min(key, data):
     return min_value
 
 
-def safe_dict_max(key, data):
+def safe_dict_max(key: str, data: Iterable[Mapping[str, Any]]) -> int | None:
     """Safely find the maximum for a given key in a list of dict objects.
 
     This will find the maximum integer value for specific dictionary key
@@ -291,8 +321,8 @@ def safe_dict_max(key, data):
     The dictionary key does not have to be present in all (or any)
     of the elements/dicts within the data set.
 
-    :param string key: The dictionary key to search for the maximum value.
-    :param list data: List of dicts to use for the data set.
+    :param key: The dictionary key to search for the maximum value.
+    :param data: List of dicts to use for the data set.
 
     :returns: None if the field was not found in any elements, or
         the maximum value for the field otherwise.
@@ -312,7 +342,7 @@ def safe_dict_max(key, data):
     return max_value
 
 
-def parse_range(value):
+def parse_range(value: str | None) -> tuple[str, int] | None:
     """Parse a numerical range string.
 
     Breakdown a range expression into its operater and numerical parts.
@@ -330,7 +360,7 @@ def parse_range(value):
         - "<5"    : returns ("<", 5)
         - ">=100" : returns (">=", 100)
 
-    :param string value: The range expression to be parsed.
+    :param value: The range expression to be parsed.
 
     :returns: A tuple with the operator string (or None if no operator
         was given) and the integer value. None is returned if parsing failed.
@@ -347,12 +377,14 @@ def parse_range(value):
     return (op, num)
 
 
-def range_filter(data, key, range_exp):
+def range_filter(
+    data: Iterable[_T], key: str, range_exp: str | None
+) -> list[_T]:
     """Filter a list by a single range expression.
 
-    :param list data: List of dictionaries to be searched.
-    :param string key: Key name to search within the data set.
-    :param string range_exp: The expression describing the range of values.
+    :param data: List of dictionaries to be searched.
+    :param key: Key name to search within the data set.
+    :param range_exp: The expression describing the range of values.
 
     :returns: A list subset of the original data set.
     :raises: :class:`~openstack.exceptions.SDKException` on invalid range
@@ -412,10 +444,11 @@ def range_filter(data, key, range_exp):
         return filtered
 
 
+# TODO(stephenfin): Move this to openstack/object_store/v1/_proxy.py
 class FileSegment:
     """File-like object to pass to requests."""
 
-    def __init__(self, filename, offset, length):
+    def __init__(self, filename: str, offset: int, length: int):
         self.filename = filename
         self.offset = offset
         self.length = length
@@ -423,10 +456,10 @@ class FileSegment:
         self._file = open(filename, 'rb')
         self.seek(0)
 
-    def tell(self):
+    def tell(self) -> int:
         return self._file.tell() - self.offset
 
-    def seek(self, offset, whence=0):
+    def seek(self, offset: int, whence: Literal[0, 1, 2] = 0) -> None:
         if whence == 0:
             self._file.seek(self.offset + offset, whence)
         elif whence == 1:
@@ -434,7 +467,7 @@ class FileSegment:
         elif whence == 2:
             self._file.seek(self.offset + self.length - offset, 0)
 
-    def read(self, size=-1):
+    def read(self, size: int = -1) -> bytes:
         remaining = self.length - self.pos
         if remaining <= 0:
             return b''
@@ -445,11 +478,11 @@ class FileSegment:
 
         return chunk
 
-    def reset(self):
+    def reset(self) -> None:
         self._file.seek(self.offset, 0)
 
 
-def _format_uuid_string(string):
+def _format_uuid_string(string: str) -> str:
     return (
         string.replace('urn:', '')
         .replace('uuid:', '')
@@ -459,11 +492,10 @@ def _format_uuid_string(string):
     )
 
 
-def _is_uuid_like(val):
+def _is_uuid_like(val: str) -> bool:
     """Returns validation of a value as a UUID.
 
     :param val: Value to verify
-    :type val: string
     :returns: bool
 
     .. versionchanged:: 1.1.1
