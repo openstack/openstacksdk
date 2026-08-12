@@ -35,11 +35,23 @@ EXAMPLE_WITH_OPTIONAL = {
             "ip_version": 6,
             "cidr": "fd91:c3ba:e818::/64",
             "total_ips": 18446744073709551614,
+            "ip_availability_details": {
+                "total_ips_in_subnet": 18446744073709551616,
+                "total_ips_in_allocation_pool": 18446744073709551614,
+                "used_ips_in_subnet": 3,
+                "used_ips_in_allocation_pool": 1,
+            },
         }
     ],
     'project_id': '2',
     'total_ips': 1844,
     'used_ips': 6,
+    'ip_availability_details': {
+        "total_ips_in_subnet": 1846,
+        "total_ips_in_allocation_pool": 1844,
+        "used_ips_in_subnet": 6,
+        "used_ips_in_allocation_pool": 4,
+    },
 }
 
 
@@ -82,3 +94,7 @@ class TestNetworkIPAvailability(base.TestCase):
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['total_ips'], sot.total_ips)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['used_ips'], sot.used_ips)
+        self.assertEqual(
+            EXAMPLE_WITH_OPTIONAL['ip_availability_details'],
+            sot.ip_availability_details,
+        )
