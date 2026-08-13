@@ -250,7 +250,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             identity.delete_project(project)
             return True
         except exceptions.SDKException:
-            self.log.exception(f"Error in deleting project {name_or_id}")
+            self.log.exception("Error in deleting project %s", name_or_id)
             return False
 
     @_utils.valid_kwargs('domain_id', 'name')
@@ -422,14 +422,14 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         try:
             user = self.get_user(name_or_id, **kwargs)
             if not user:
-                self.log.debug(f"User {name_or_id} not found for deleting")
+                self.log.debug("User %s not found for deleting", name_or_id)
                 return False
 
             identity.delete_user(user)
             return True
 
         except exceptions.SDKException:
-            self.log.exception(f"Error in deleting user {name_or_id}")
+            self.log.exception("Error in deleting user %s", name_or_id)
             return False
 
     def _get_user_and_group(self, user_name_or_id, group_name_or_id):
@@ -622,9 +622,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             identity.delete_service(service)
             return True
         except exceptions.SDKException:
-            self.log.exception(
-                'Failed to delete service {id}'.format(id=service['id'])
-            )
+            self.log.exception('Failed to delete service %s', service['id'])
             return False
 
     @_utils.valid_kwargs('public_url', 'internal_url', 'admin_url')
@@ -811,7 +809,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             identity.delete_endpoint(id)
             return True
         except exceptions.SDKException:
-            self.log.exception(f"Failed to delete endpoint {id}")
+            self.log.exception("Failed to delete endpoint %s", id)
             return False
 
     def create_domain(self, name, description=None, enabled=True):
@@ -906,7 +904,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
             return True
         except exceptions.SDKException:
-            self.log.exception(f"Failed to delete domain {domain_id}")
+            self.log.exception("Failed to delete domain %s", domain_id)
             raise
 
     def list_domains(self, **filters):
@@ -1143,7 +1141,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             return True
 
         except exceptions.SDKException:
-            self.log.exception(f"Unable to delete group {name_or_id}")
+            self.log.exception("Unable to delete group %s", name_or_id)
             return False
 
     def list_roles(self, **kwargs):
@@ -1385,7 +1383,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             identity.delete_role(role)
             return True
         except exceptions.SDKException:
-            self.log.exception(f"Unable to delete role {name_or_id}")
+            self.log.exception("Unable to delete role %s", name_or_id)
             raise
 
     def _get_grant_revoke_params(

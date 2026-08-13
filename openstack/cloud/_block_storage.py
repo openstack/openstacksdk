@@ -262,7 +262,6 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
             self.log.debug(
                 "Volume %(name_or_id)s does not exist",
                 {'name_or_id': name_or_id},
-                exc_info=True,
             )
             return False
         try:

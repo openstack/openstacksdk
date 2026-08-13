@@ -647,7 +647,7 @@ class Proxy(proxy.Proxy):
             metadata = self.get_object_metadata(name, container).metadata
         except exceptions.NotFoundException:
             self._connection.log.debug(
-                f"swift stale check, no object: {container}/{name}"
+                "swift stale check, no object: %s/%s", container, name
             )
             return True
 

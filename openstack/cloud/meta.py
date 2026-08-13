@@ -276,10 +276,12 @@ def find_best_address(addresses, public=False, cloud_public=True):
     if do_check:
         log = _log.setup_logging('openstack')
         log.debug(
-            f"The cloud returned multiple addresses ({addresses}) and we "
-            f"could not connect to port 22 on either. That might be what you "
-            f"wanted, but we have no clue what's going on, so we picked the "
-            f"first one {addresses[0]}"
+            "The cloud returned multiple addresses (%s) and we "
+            "could not connect to port 22 on either. That might be what you "
+            "wanted, but we have no clue what's going on, so we picked the "
+            "first one %s",
+            addresses,
+            addresses[0],
         )
     return addresses[0]
 

@@ -103,7 +103,6 @@ class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
             self.log.debug(
                 "COE Cluster %(name_or_id)s does not exist",
                 {'name_or_id': name_or_id},
-                exc_info=True,
             )
             return False
 
@@ -262,7 +261,6 @@ class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
             self.log.debug(
                 "Cluster template %(name_or_id)s does not exist",
                 {'name_or_id': name_or_id},
-                exc_info=True,
             )
             return False
 

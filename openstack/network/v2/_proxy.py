@@ -9652,7 +9652,7 @@ class Proxy(proxy.Proxy):
                 for port in self.ports(
                     project_id=project_id, network_id=net.id
                 ):
-                    self.log.debug(f'Looking at port {port}')
+                    self.log.debug('Looking at port %s', port)
                     if port.device_owner in [
                         'network:router_interface',
                         'network:router_interface_distributed',
@@ -9676,7 +9676,7 @@ class Proxy(proxy.Proxy):
                 if network_has_ports_allocated:
                     # If some ports are on net - we cannot delete it
                     continue
-                self.log.debug(f'Network {net} should be deleted')
+                self.log.debug('Network %s should be deleted', net)
                 # __Check__ if we need to drop network according to filters
                 network_must_be_deleted = self._service_cleanup_del_res(
                     self.delete_network,
@@ -9708,8 +9708,9 @@ class Proxy(proxy.Proxy):
                                 )
                             except exceptions.SDKException:
                                 self.log.error(
-                                    f"Cannot delete routes {router.routes} "
-                                    f"from router {router}"
+                                    "Cannot delete routes %s from router %s",
+                                    router.routes,
+                                    router,
                                 )
 
                         try:
@@ -9717,7 +9718,7 @@ class Proxy(proxy.Proxy):
                                 router=port.device_id, port=port.id
                             )
                         except exceptions.SDKException:
-                            self.log.error(f'Cannot delete object {obj}')
+                            self.log.error('Cannot delete object %s', obj)
                     # router disconnected, drop it
                     self._service_cleanup_del_res(
                         self.delete_router,

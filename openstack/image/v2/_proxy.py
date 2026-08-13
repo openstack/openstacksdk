@@ -2214,7 +2214,7 @@ class Proxy(proxy.Proxy):
                 if task.message == _IMAGE_ERROR_396:
                     task_args = {'input': task.input, 'type': task.type}
                     task = self.create_task(**task_args)
-                    self.log.debug(f'Got error 396. Recreating task {task}')
+                    self.log.debug('Got error 396. Recreating task %s', task)
                 else:
                     raise exceptions.ResourceFailure(
                         f"{name} transitioned to failure state {new_status}"

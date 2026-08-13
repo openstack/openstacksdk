@@ -256,7 +256,7 @@ def from_conf(
                 f"for project '{project_name}' (service type "
                 f"'{st}'): {e}"
             )
-            _logger.warning(f"Disabling service '{st}': {reason}")
+            _logger.warning("Disabling service '%s': %s", st, reason)
             _disable_service(config_dict, st, reason=reason)
             continue
         # Load them into config_dict under keys prefixed by ${service_type}_
@@ -888,8 +888,8 @@ class CloudRegion:
         # cert verification
         if not verify:
             self.log.debug(
-                f"Turning off SSL warnings for {self.full_name} "
-                f"since verify=False"
+                'Turning off SSL warnings for %s since verify=False',
+                self.full_name,
             )
             warnings.filterwarnings(
                 'ignore',

@@ -1597,10 +1597,10 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             )
         except exceptions.NotFoundException:
             self.log.debug(
-                "QoS bandwidth limit rule {rule_id} not found in policy "
-                "{policy_id}. Ignoring.".format(
-                    rule_id=rule_id, policy_id=policy['id']
-                )
+                "QoS bandwidth limit rule %s not found in policy "
+                "%s. Ignoring.",
+                rule_id,
+                policy['id'],
             )
             return False
 
@@ -1785,10 +1785,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             )
         except exceptions.NotFoundException:
             self.log.debug(
-                "QoS DSCP marking rule {rule_id} not found in policy "
-                "{policy_id}. Ignoring.".format(
-                    rule_id=rule_id, policy_id=policy['id']
-                )
+                "QoS DSCP marking rule %s not found in policy %s. Ignoring.",
+                rule_id,
+                policy['id'],
             )
             return False
 
@@ -1972,10 +1971,10 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             )
         except exceptions.NotFoundException:
             self.log.debug(
-                "QoS minimum bandwidth rule {rule_id} not found in policy "
-                "{policy_id}. Ignoring.".format(
-                    rule_id=rule_id, policy_id=policy['id']
-                )
+                'QoS minimum bandwidth rule %s not found in policy %s. '
+                'Ignoring.',
+                rule_id,
+                policy['id'],
             )
             return False
 

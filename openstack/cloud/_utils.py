@@ -95,7 +95,7 @@ def _filter_list(data, name_or_id, filters):
                 ):
                     identifier_matches.append(e)
         if not identifier_matches and bad_pattern:
-            log.debug("Bad pattern passed to fnmatch", exc_info=True)
+            log.debug("Bad pattern passed to fnmatch")
         data = identifier_matches
 
     if not filters:
