@@ -495,6 +495,31 @@
               file_backed_memory: 4096
               mem_stats_period_s: 0
 
+- job:
+    name: openstacksdk-functional-devstack-cyborg
+    parent: openstacksdk-functional-devstack-minimum
+    description: |
+      Run openstacksdk functional tests against a master devstack with cyborg
+    required-projects:
+      - openstack/cyborg
+      - openstack/python-cyborgclient
+    vars:
+      devstack_plugins:
+        cyborg: https://opendev.org/openstack/cyborg
+      devstack_services:
+        cyborg-api: true
+        cyborg-cond: true
+        cyborg-agent: true
+        s-account: false
+        s-container: false
+        s-object: false
+        s-proxy: false
+      tox_environment:
+        OPENSTACKSDK_HAS_CYBORG: 1
+        OPENSTACKSDK_TESTS_SUBDIR: accelerator
+      zuul_copy_output:
+        '{{ devstack_base_dir }}/cyborg-logs': logs
+
 - project-template:
     name: openstacksdk-functional-tips
     check:

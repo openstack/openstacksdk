@@ -28,6 +28,7 @@ from openstack.tests.functional import base
 
 class TestDevstack(base.BaseFunctionalTest):
     scenarios = [
+        ('cyborg', dict(env='CYBORG', service='accelerator')),
         ('designate', dict(env='DESIGNATE', service='dns')),
         ('heat', dict(env='HEAT', service='orchestration')),
         (
