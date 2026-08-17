@@ -9,14 +9,14 @@ Configuring OpenStack SDK Applications
 Environment Variables
 ---------------------
 
-`openstacksdk` honors all of the normal `OS_*` variables. It does not
+*openstacksdk* honors all of the normal ``OS_*`` variables. It does not
 provide backwards compatibility to service-specific variables such as
-`NOVA_USERNAME`.
+``NOVA_USERNAME``.
 
-If you have OpenStack environment variables set, `openstacksdk` will
-produce a cloud config object named `envvars` containing your values from the
-environment. If you don't like the name `envvars`, that's ok, you can override
-it by setting `OS_CLOUD_NAME`.
+If you have OpenStack environment variables set, *openstacksdk* will
+produce a cloud config object named ``envvars`` containing your values from the
+environment. If you don't like the name ``envvars``, that's okay, you can
+override it by setting ``OS_CLOUD_NAME``.
 
 Service specific settings, like the nova service type, are set with the
 default service type as a prefix. For instance, to set a special service_type
@@ -31,7 +31,7 @@ for trove set
 Config Files
 ------------
 
-`openstacksdk` will look for a file called `clouds.yaml` in the following
+*openstacksdk* will look for a file called ``clouds.yaml`` in the following
 locations:
 
 * ``.`` (the current directory)
@@ -40,12 +40,12 @@ locations:
 
 The first file found wins.
 
-You can also set the environment variable `OS_CLIENT_CONFIG_FILE` to an
+You can also set the environment variable ``OS_CLIENT_CONFIG_FILE`` to an
 absolute path of a file to look for and that location will be inserted at the
 front of the file search list.
 
-The keys are all of the keys you'd expect from `OS_*` - except lower case
-and without the OS prefix. So, region name is set with `region_name`.
+The keys are all of the keys you'd expect from ``OS_*`` - except lower case
+and without the OS prefix. So, region name is set with ``region_name``.
 
 Service specific settings, like the nova service type, are set with the
 default service type as a prefix. For instance, to set a special service_type
@@ -59,24 +59,24 @@ for trove (because you're using Rackspace) set:
 Site Specific File Locations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In addition to `~/.config/openstack` and `/etc/openstack` - some platforms
-have other locations they like to put things. `openstacksdk` will also
+In addition to ``~/.config/openstack`` and ``/etc/openstack`` - some platforms
+have other locations they like to put things. *openstacksdk* will also
 look in an OS specific config dir
 
-* `USER_CONFIG_DIR`
-* `SITE_CONFIG_DIR`
+* ``USER_CONFIG_DIR``
+* ``SITE_CONFIG_DIR``
 
-`USER_CONFIG_DIR` is different on Linux, OSX and Windows.
+``USER_CONFIG_DIR`` is different on Linux, OSX and Windows.
 
-* Linux: `~/.config/openstack`
-* OSX: `~/Library/Application Support/openstack`
-* Windows: `C:\\Users\\USERNAME\\AppData\\Local\\OpenStack\\openstack`
+* Linux: ``~/.config/openstack``
+* OSX: ``~/Library/Application Support/openstack``
+* Windows: ``C:\\Users\\USERNAME\\AppData\\Local\\OpenStack\\openstack``
 
-`SITE_CONFIG_DIR` is different on Linux, OSX and Windows.
+``SITE_CONFIG_DIR`` is different on Linux, OSX and Windows.
 
-* Linux: `/etc/openstack`
-* OSX: `/Library/Application Support/openstack`
-* Windows: `C:\\ProgramData\\OpenStack\\openstack`
+* Linux: ``/etc/openstack``
+* OSX: ``/Library/Application Support/openstack``
+* Windows: ``C:\\ProgramData\\OpenStack\\openstack``
 
 An example config file is probably helpful:
 
@@ -109,34 +109,34 @@ An example config file is probably helpful:
       - ORD
       - IAD
 
-You may note a few things. First, since `auth_url` settings are silly
-and embarrassingly ugly, known cloud vendor profile information is included and
-may be referenced by name or by base URL to the cloud in question if the
-cloud serves a vendor profile. One of the benefits of that is that `auth_url`
-isn't the only thing the vendor defaults contain. For instance, since
-Rackspace lists `rax:database` as the service type for trove, `openstacksdk`
-knows that so that you don't have to. In case the cloud vendor profile is not
-available, you can provide one called `clouds-public.yaml`, following the same
-location rules previously mentioned for the config files.
+You may note a few things. First, since ``auth_url`` settings are silly and
+embarrassingly ugly, known cloud vendor profile information is included and may
+be referenced by name or by base URL to the cloud in question if the cloud
+serves a vendor profile. One of the benefits of that is that ``auth_url`` isn't
+the only thing the vendor defaults contain. For instance, since Rackspace lists
+``rax:database`` as the service type for trove, `*openstacksdk*` knows that so
+that you don't have to. In case the cloud vendor profile is not available, you
+can provide one called ``clouds-public.yaml``, following the same location
+rules previously mentioned for the config files.
 
-`regions` can be a list of regions. When you call `get_all_clouds`,
-you'll get a cloud config object for each cloud/region combo.
+``regions`` can be a list of regions. When you call ``get_all_clouds``, you'll
+get a cloud config object for each cloud/region combo.
 
-As seen with `dns_service_type`, any setting that makes sense to be
-per-service, like `service_type` or `endpoint` or `api_version` can be set
-by prefixing the setting with the default service type. That might strike you
-funny when setting `service_type` and it does me too - but that's just the
-world we live in.
+As seen with ``dns_service_type``, any setting that makes sense to be
+per-service, like ``service_type`` or ``endpoint`` or ``api_version`` can be
+set by prefixing the setting with the default service type. That might strike
+you funny when setting ``service_type`` and it does me too - but that's just
+the world we live in.
 
 Auth Settings
 -------------
 
 Keystone has auth plugins - which means it's not possible to know ahead of time
-which auth settings are needed. `openstacksdk` sets the default plugin type
-to `password`, which is what things all were before plugins came about. In
-order to facilitate validation of values, all of the parameters that exist
-as a result of a chosen plugin need to go into the auth dict. For password
-auth, this includes `auth_url`, `username` and `password` as well as anything
+which auth settings are needed. *openstacksdk* sets the default plugin type
+to ``password``, which is what things all were before plugins came about. In
+order to facilitate validation of values, all of the parameters that exist as a
+result of a chosen plugin need to go into the auth dict. For password auth,
+this includes ``auth_url``, ``username`` and ``password`` as well as anything
 related to domains, projects and trusts.
 
 API Settings
@@ -158,13 +158,13 @@ Splitting Secrets
 -----------------
 
 In some scenarios, such as configuration management controlled environments,
-it might be easier to have secrets in one file and non-secrets in another.
-This is fully supported via an optional file `secure.yaml` which follows all
-the same location rules as `clouds.yaml`. It can contain anything you put
-in `clouds.yaml` and will take precedence over anything in the `clouds.yaml`
+it might be easier to have secrets in one file and non-secrets in another. This
+is fully supported via an optional file ``secure.yaml`` which follows all the
+same location rules as ``clouds.yaml``. It can contain anything you put in
+``clouds.yaml`` and will take precedence over anything in the ``clouds.yaml``
 file.
 
-You can also set the environment variable `OS_CLIENT_SECURE_FILE` to an
+You can also set the environment variable ``OS_CLIENT_SECURE_FILE`` to an
 absolute path of a file to look for and that location will be inserted at the
 front of the file search list.
 
@@ -189,16 +189,19 @@ front of the file search list.
 SSL Settings
 ------------
 
-When the access to a cloud is done via a secure connection, `openstacksdk`
+When the access to a cloud is done via a secure connection, *openstacksdk*
 will always verify the SSL cert by default. This can be disabled by setting
-`verify` to `False`. In case the cert is signed by an unknown CA, a specific
-cacert can be provided via `cacert`. **WARNING:** `verify` will always have
-precedence over `cacert`, so when setting a CA cert but disabling `verify`, the
-cloud cert will never be validated.
+``verify`` to ``False``. In case the cert is signed by an unknown CA, a
+specific cacert can be provided via ``cacert``.
 
-Client certs are also configurable. `cert` will be the client cert file
+.. warning::
+
+    ``verify`` will always have precedence over ``cacert``, so when setting a
+    CA cert but disabling ``verify``, the cloud cert will never be validated.
+
+Client certs are also configurable. ``cert`` will be the client cert file
 location. In case the cert key is not included within the client cert file,
-its file location needs to be set via `key`.
+its file location needs to be set via ``key``.
 
 .. code-block:: yaml
 
@@ -221,10 +224,10 @@ its file location needs to be set via `key`.
         ...
       verify: False
 
-Note for parity with ``openstack`` command-line options the `insecure`
-boolean is also recognised (with the opposite semantics to `verify`;
-i.e. `True` ignores certificate failures).  This should be considered
-deprecated for `verify`.
+Note for parity with ``openstack`` command-line options the ``insecure``
+boolean is also recognised (with the opposite semantics to ``verify``;
+i.e. ``True`` ignores certificate failures).  This should be considered
+deprecated for ``verify``.
 
 
 Cache Settings
@@ -252,14 +255,14 @@ keyring and *dogpile.cache*, respectively.
    correctly configured according to the needs of your application.
 
 Caching in enabled or disabled globally, rather than on a cloud-by-cloud basis.
-This is done by setting configuring the``cache`` top-level key. Caching of
+This is done by setting configuring the ``cache`` top-level key. Caching of
 authentication tokens can be configured using the following settings:
 
 ``cache.auth``
   A boolean indicating whether tokens should be cached in the keyring.
   When enabled, this allows the consequent connections to the same cloud to
   skip fetching new token. When the token expires or is invalidated,
-  `openstacksdk` will automatically establish a new connection.
+  *openstacksdk* will automatically establish a new connection.
   Defaults to ``false``.
 
 For example, to configure caching of authentication tokens.
@@ -424,7 +427,7 @@ boolean environment variable.  For example:
       region_name: RegionFoo
 
 The above snippet will tell client programs to prefer the IPv4 address
-and leave the ``public_v6`` field of the `Server` object blank for the
+and leave the ``public_v6`` field of the ``Server`` object blank for the
 ``fooprovider`` cloud .  You can also set this with a client flag for
 all clouds:
 
@@ -476,10 +479,11 @@ Setting Precedence
 
 Some settings are redundant, e.g. ``project-name`` and ``project-id`` both
 specify the project. In a conflict between redundant settings, the
-``_name`` ``clouds.yaml`` option (or equivalent ``-name`` CLI option and ``_NAME`` environment variable) will be used.
+``_name`` option in ``clouds.yaml`` (or equivalent ``-name`` CLI option and
+``_NAME`` environment variable) will be used.
 
-Some environment variables or commandline flags can override the settings from
-clouds.yaml. These are:
+Some environment variables or command line flags can override the settings from
+``clouds.yaml``. These are:
 
 - ``--domain-id`` (``OS_DOMAIN_ID``)
 - ``--domain-name`` (``OS_DOMAIN_NAME``)
@@ -515,7 +519,7 @@ specified multiple times:
 In the above example, the ``project_id`` configuration values will be ignored
 in favor of the ``project_name`` configuration values, and the higher-level
 project will be chosen over the auth-specified project. So the actual project
-used will be ```myfavoriteproject```.
+used will be ``myfavoriteproject``.
 
 
 Examples
