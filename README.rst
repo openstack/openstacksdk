@@ -43,8 +43,18 @@ openstacksdk will look for ``clouds.yaml`` files in the following locations:
 * If set, the path indicated by the ``OS_CLIENT_CONFIG_FILE`` environment
   variable
 * ``.`` (the current directory)
-* ``$HOME/.config/openstack``
-* ``/etc/openstack``
+* ``$HOME/.config/openstack`` (Linux) / ``~/Library/Application
+  Support/openstack`` (macOS) /
+  ``C:\\Users\\USERNAME\\AppData\\Local\\OpenStack\\openstack`` (Windows)
+* ``/etc/openstack`` (Linux) / ``/Library/Application Support/openstack``
+  (macOS) / ``C:\\ProgramData\\OpenStack\\openstack`` (Windows)
+
+.. note::
+
+    openstacksdk also supports splitting credentials into a separate
+    ``secure.yaml`` file. This is discussed in detail in the `docs`__.
+
+    .. __: https://docs.openstack.org/openstacksdk/latest/user/config/configuration.html.
 
 You can create a connection using the ``openstack.connect`` function. The cloud
 name can be either passed directly to this function or specified using the

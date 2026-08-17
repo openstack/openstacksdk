@@ -3,10 +3,9 @@ Vendor Support
 ==============
 
 OpenStack presents deployers with many options, some of which can expose
-differences to end users. `os-client-config` tries its best to collect
-information about various things a user would need to know. The following
-is a text representation of the vendor related defaults `os-client-config`
-knows about.
+differences to end users. *openstacksdk* tries its best to collect information
+about various things a user would need to know. The following is a text
+representation of the vendor related defaults *openstacksdk* knows about.
 
 Default Values
 --------------

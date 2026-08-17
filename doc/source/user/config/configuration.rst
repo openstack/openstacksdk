@@ -18,14 +18,6 @@ produce a cloud config object named ``envvars`` containing your values from the
 environment. If you don't like the name ``envvars``, that's okay, you can
 override it by setting ``OS_CLOUD_NAME``.
 
-Service specific settings, like the nova service type, are set with the
-default service type as a prefix. For instance, to set a special service_type
-for trove set
-
-.. code-block:: bash
-
-  export OS_DATABASE_SERVICE_TYPE=rax:database
-
 .. _config-clouds-yaml:
 
 Config Files
@@ -35,8 +27,11 @@ Config Files
 locations:
 
 * ``.`` (the current directory)
-* ``$HOME/.config/openstack``
-* ``/etc/openstack``
+* ``$HOME/.config/openstack`` (Linux) / ``~/Library/Application
+  Support/openstack`` (macOS) /
+  ``C:\\Users\\USERNAME\\AppData\\Local\\OpenStack\\openstack`` (Windows)
+* ``/etc/openstack`` (Linux) / ``/Library/Application Support/openstack``
+  (macOS) / ``C:\\ProgramData\\OpenStack\\openstack`` (Windows)
 
 The first file found wins.
 
@@ -44,89 +39,171 @@ You can also set the environment variable ``OS_CLIENT_CONFIG_FILE`` to an
 absolute path of a file to look for and that location will be inserted at the
 front of the file search list.
 
-The keys are all of the keys you'd expect from ``OS_*`` - except lower case
+The keys are all of the keys you'd expect from ``OS_*`` except lower case
 and without the OS prefix. So, region name is set with ``region_name``.
 
-Service specific settings, like the nova service type, are set with the
-default service type as a prefix. For instance, to set a special service_type
-for trove (because you're using Rackspace) set:
+Splitting Secrets
+~~~~~~~~~~~~~~~~~
+
+In some scenarios, such as configuration management controlled environments,
+it might be easier to have secrets in one file and non-secrets in another. This
+is fully supported via an optional file ``secure.yaml`` which follows all the
+same location rules as ``clouds.yaml``. It can contain anything you put in
+``clouds.yaml`` and will take precedence over anything in the ``clouds.yaml``
+file.
+
+You can also set the environment variable ``OS_CLIENT_SECURE_FILE`` to an
+absolute path of a file to look for and that location will be inserted at the
+front of the file search list.
+
+Example
+~~~~~~~
+
+.. code-block:: yaml
+   :caption: clouds.yaml
+
+    clouds:
+      mordred:
+        region_name: Dallas
+        auth:
+          username: 'mordred'
+          password: XXXXXXX
+          project_name: 'demo'
+          auth_url: 'https://identity.example.com'
+      mtvexx:
+        profile: https://vexxhost.com
+        region_name: ca-ymq-1
+        dns_api_version: 1
+      infra:
+        profile: rackspace
+        auth:
+          username: openstackci
+          password: XXXXXXXX
+          project_id: 610275
+        regions:
+        - DFW
+        - ORD
+        - IAD
+
+.. code-block:: yaml
+   :caption: secure.yaml
+
+    clouds:
+      mtvexx:
+        auth:
+          username: mordred@inaugust.com
+          password: XXXXXXXXX
+          project_name: mordred@inaugust.com
+
+You may note a few things.
+
+* Some of the clouds use a ``profile`` key and omit things like ``auth_url``.
+  This relies on a feature known as Vendor Profiles, which is described
+  :ref:`below <config-vendor-profiles>`.
+
+* ``regions`` can be a list of regions. When you call ``get_all_clouds``,
+  you'll get a cloud config object for each cloud/region combo.
+
+* As seen with ``dns_api_version``, any setting that makes sense to be
+  per-service, like ``service_type`` or ``endpoint`` or ``api_version`` can be
+  set by prefixing the setting with the default service type.
+
+
+.. _config-vendor-profiles:
+
+Vendor Profiles
+---------------
+
+Vendor profiles are bundled, named sets of default configuration for specific
+public OpenStack clouds. They exist because different cloud providers make
+different deployment choices that leak out to end users: different API
+versions, image formats, whether floating IPs are required, non-standard
+service types, region lists, and ``auth_url`` values. Vendor profiles capture
+all of this so that you don't have to.
+
+Vendor profiles can be configured using the ``profile`` key for a cloud entry,
+as seen below.
+
+.. note::
+
+    ``cloud`` is a deprecated alias for ``profile``. While still supported, its
+    use should be avoided where possible.
+
+Vendor profiles can be provided three ways:
+
+.. rubric:: Built-in vendor profiles
+
+*openstacksdk* bundles vendor profiles for a number of a public cloud
+providers. These are documented in :doc:`/user/config/vendor-support` and can
+be retrieved using the ``openstack.config.vendors`` module:
+
+.. code-block:: python
+
+    >>> vendors.profiles()          # list all supported profiles
+    >>> vendors.get_profile('ovh')  # show defaults for a specific profile
+
+To use one of these built-in vendor profiles, request it by name:
 
 .. code-block:: yaml
 
-  database_service_type: 'rax:database'
+    clouds:
+      infra:
+        profile: ovh
+        auth:
+          ...
 
+.. rubric:: URL-based vendor profiles
 
-Site Specific File Locations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-In addition to ``~/.config/openstack`` and ``/etc/openstack`` - some platforms
-have other locations they like to put things. *openstacksdk* will also
-look in an OS specific config dir
-
-* ``USER_CONFIG_DIR``
-* ``SITE_CONFIG_DIR``
-
-``USER_CONFIG_DIR`` is different on Linux, OSX and Windows.
-
-* Linux: ``~/.config/openstack``
-* OSX: ``~/Library/Application Support/openstack``
-* Windows: ``C:\\Users\\USERNAME\\AppData\\Local\\OpenStack\\openstack``
-
-``SITE_CONFIG_DIR`` is different on Linux, OSX and Windows.
-
-* Linux: ``/etc/openstack``
-* OSX: ``/Library/Application Support/openstack``
-* Windows: ``C:\\ProgramData\\OpenStack\\openstack``
-
-An example config file is probably helpful:
+You can also request a vendor profile by URL:
 
 .. code-block:: yaml
 
-  clouds:
-    mtvexx:
-      profile: https://vexxhost.com
-      auth:
-        username: mordred@inaugust.com
-        password: XXXXXXXXX
-        project_name: mordred@inaugust.com
-      region_name: ca-ymq-1
-      dns_api_version: 1
-    mordred:
-      region_name: RegionOne
-      auth:
-        username: 'mordred'
-        password: XXXXXXX
-        project_name: 'shade'
-        auth_url: 'https://montytaylor-sjc.openstack.blueboxgrid.com:5001/v2.0'
-    infra:
-      profile: rackspace
-      auth:
-        username: openstackci
-        password: XXXXXXXX
-        project_id: 610275
-      regions:
-      - DFW
-      - ORD
-      - IAD
+    clouds:
+      infra:
+        profile: https://vexxhost.com/
+        auth:
+          ...
 
-You may note a few things. First, since ``auth_url`` settings are silly and
-embarrassingly ugly, known cloud vendor profile information is included and may
-be referenced by name or by base URL to the cloud in question if the cloud
-serves a vendor profile. One of the benefits of that is that ``auth_url`` isn't
-the only thing the vendor defaults contain. For instance, since Rackspace lists
-``rax:database`` as the service type for trove, `*openstacksdk*` knows that so
-that you don't have to. In case the cloud vendor profile is not available, you
-can provide one called ``clouds-public.yaml``, following the same location
-rules previously mentioned for the config files.
+When a URL is provided, *openstacksdk* will attempt to retrieve a
+``.well-known/openstack/api`` file. This file will have the same format and be
+validated against the same schema as an in-tree vendor profile.
 
-``regions`` can be a list of regions. When you call ``get_all_clouds``, you'll
-get a cloud config object for each cloud/region combo.
+.. rubric:: Custom vendor profiles (``clouds-public.yaml``)
 
-As seen with ``dns_service_type``, any setting that makes sense to be
-per-service, like ``service_type`` or ``endpoint`` or ``api_version`` can be
-set by prefixing the setting with the default service type. That might strike
-you funny when setting ``service_type`` and it does me too - but that's just
-the world we live in.
+Finally, it is possible to provide custom vendor profiles using a
+``clouds-public.yaml`` file. A ``clouds-public.yaml`` file looks very similar
+to a ``clouds.yaml`` / ``secure.yaml`` file but is expected to only contain
+public information (so e.g. no username/password) information. This means they
+are well suited for things like internal corporate clouds. *openstacksdk* will
+search multiple locations for this file, as described for ``clouds.yaml`` /
+``secure.yaml`` :ref:`above <config-clouds-yaml>`. However, unlike those files,
+it is not possible to point to a specific file via an environment variable.
+
+.. code-block:: yaml
+
+    public-clouds:
+      # The key is the profile name you reference from clouds.yaml via `profile:`
+      my-corp-cloud:
+        auth:
+          auth_url: https://keystone.example.com:5000/v3
+        identity_api_version: '3'
+        volume_api_version: '3'
+        interface: public
+        regions:
+          - RegionOne
+          - RegionTwo
+
+      # A profile can use the {region_name} template, expanded per region
+      acme-public:
+        auth:
+          auth_url: https://{region_name}.acme-cloud.com:5000/v3/
+        identity_api_version: '3'
+        image_format: raw
+        requires_floating_ip: true
+        regions:
+          - us-east-1
+          - eu-west-1
+
 
 Auth Settings
 -------------
@@ -138,6 +215,7 @@ order to facilitate validation of values, all of the parameters that exist as a
 result of a chosen plugin need to go into the auth dict. For password auth,
 this includes ``auth_url``, ``username`` and ``password`` as well as anything
 related to domains, projects and trusts.
+
 
 API Settings
 ------------
@@ -154,37 +232,6 @@ all services.
     Whether or not to collect per-method timing information for each
     API call. (optional, defaults to False)
 
-Splitting Secrets
------------------
-
-In some scenarios, such as configuration management controlled environments,
-it might be easier to have secrets in one file and non-secrets in another. This
-is fully supported via an optional file ``secure.yaml`` which follows all the
-same location rules as ``clouds.yaml``. It can contain anything you put in
-``clouds.yaml`` and will take precedence over anything in the ``clouds.yaml``
-file.
-
-You can also set the environment variable ``OS_CLIENT_SECURE_FILE`` to an
-absolute path of a file to look for and that location will be inserted at the
-front of the file search list.
-
-.. code-block:: yaml
-
-  # clouds.yaml
-  clouds:
-    internap:
-      profile: internap
-      auth:
-        username: api-55f9a00fb2619
-        project_name: inap-17037
-      regions:
-      - ams01
-      - nyj01
-  # secure.yaml
-  clouds:
-    internap:
-      auth:
-        password: XXXXXXXXXXXXXXXXX
 
 SSL Settings
 ------------
@@ -364,6 +411,7 @@ caching is effectively disabled.
    the time. Forcing complete cache invalidation can be achieved calling
    ``conn._cache.invalidate``
 
+
 MFA Support
 -----------
 
@@ -435,6 +483,17 @@ all clouds:
 
   client:
     force_ipv4: true
+
+Service-specific Overrides
+--------------------------
+
+Service-specific settings, like the Nova service type, are set with the
+default service type as a prefix. For instance, to set a special
+``service_type`` for trove (because you're using Rackspace):
+
+.. code-block:: yaml
+
+  database_service_type: 'rax:database'
 
 
 Per-region settings
