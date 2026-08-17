@@ -46,7 +46,20 @@ def _get_vendor_defaults() -> dict[str, dict[str, Any]]:
     return _VENDOR_DEFAULTS
 
 
+def profiles() -> list[str]:
+    """List all supported vendor profiles.
+
+    :returns: The supported vendor profiles.
+    """
+    return list(_get_vendor_defaults())
+
+
 def get_profile(profile_name: str) -> dict[str, Any] | None:
+    """Get the defaults for a given vendor profile.
+
+    :param profile_name: The vendor profile name.
+    :returns: The vendor profile defaults.
+    """
     vendor_defaults = _get_vendor_defaults()
     if profile_name in vendor_defaults:
         return vendor_defaults[profile_name].copy()
