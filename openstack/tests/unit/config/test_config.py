@@ -19,6 +19,7 @@ from typing import Any
 from unittest import mock
 
 import fixtures
+import keyring
 import yaml
 
 from openstack import config
@@ -752,6 +753,88 @@ class TestConfig(base.TestCase):
 
         for call in kr_mock.set_password.call_args_list:
             self.assertNotIn('unscoped-abc123', call.args)
+
+    @mock.patch('openstack.config.cloud_region.keyring')
+    def test_clear_auth_cache(self, kr_mock):
+        region, auth = self._region_with_unscoped_auth(kr_mock)
+        kr_mock.delete_password = mock.Mock()
+
+        region.clear_auth_cache()
+
+        kr_mock.delete_password.assert_any_call(
+            'openstacksdk', auth.get_cache_id()
+        )
+        kr_mock.delete_password.assert_any_call(
+            'openstacksdk', 'unscoped-abc123'
+        )
+
+    @mock.patch('openstack.config.cloud_region.keyring')
+    def test_clear_auth_cache_with_nothing_stored(self, kr_mock):
+        # Asking for it to be gone when it already is, is not an error.
+        region, _auth = self._region_with_unscoped_auth(kr_mock)
+        kr_mock.errors.PasswordDeleteError = keyring.errors.PasswordDeleteError
+        kr_mock.delete_password = mock.Mock(
+            side_effect=keyring.errors.PasswordDeleteError
+        )
+
+        region.clear_auth_cache()
+
+    @mock.patch('openstack.config.cloud_region.keyring')
+    def test_clear_auth_cache_prevents_repersist(self, kr_mock):
+        # Clearing has to drop the in-memory credential too, or a connection
+        # already built from this region would write it straight back when it
+        # closed and called set_auth_cache.
+        region, auth = self._region_with_unscoped_auth(kr_mock)
+        kr_mock.delete_password = mock.Mock()
+        # Make the stand-in behave like a real plugin: once its unscoped
+        # state is unset, it no longer offers one to store.
+        auth.set_unscoped_auth_state.side_effect = lambda data: setattr(
+            auth.get_unscoped_auth_state, 'return_value', data
+        )
+
+        region.clear_auth_cache()
+        region.set_auth_cache()
+
+        auth.invalidate.assert_called_once_with()
+        auth.set_unscoped_auth_state.assert_called_once_with(None)
+        for call in kr_mock.set_password.call_args_list:
+            self.assertNotIn('unscoped-abc123', call.args)
+
+    @mock.patch('openstack.config.cloud_region.keyring')
+    def test_clear_auth_cache_ignores_disabled_caching(self, kr_mock):
+        # Removing a credential is a recovery path, so it must work even after
+        # cache.auth has been turned off; otherwise a stale entry would
+        # survive to be reused the next time caching is enabled.
+        c = config.OpenStackConfig(
+            config_files=[self.cloud_yaml], secure_files=[]
+        )
+        kr_mock.get_password = mock.Mock(return_value=None)
+        kr_mock.delete_password = mock.Mock()
+
+        region = c.get_one('_test-cloud_')
+        self.assertTrue(region.skip_auth_cache())  # caching is off
+        region.clear_auth_cache()
+
+        assert region._auth is not None
+        kr_mock.delete_password.assert_called_once_with(
+            'openstacksdk', region._auth.get_cache_id()
+        )
+
+    @mock.patch('openstack.config.cloud_region.keyring', None)
+    def test_clear_auth_cache_without_a_keyring(self):
+        # Not every client keeps a keyring, but the in-memory credential
+        # still has to be dropped so the connection stops using it.
+        c = config.OpenStackConfig(
+            config_files=[self.cloud_yaml], secure_files=[]
+        )
+        region = c.get_one('_test-cloud_')
+        auth = mock.Mock(wraps=region.get_auth())
+        auth.get_unscoped_cache_id.return_value = None
+        self.useFixture(fixtures.MockPatchObject(region, '_auth', auth))
+
+        region.clear_auth_cache()
+
+        auth.invalidate.assert_called_once_with()
 
     @mock.patch('openstack.config.cloud_region.keyring')
     def test_unscoped_auth_cache_skipped_without_an_unscoped_credential(

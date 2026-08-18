@@ -833,6 +833,55 @@ class CloudRegion:
         except RuntimeError:  # the fail backend raises this
             self.log.debug('Failed to set auth into keyring')
 
+    def clear_auth_cache(self) -> None:
+        """Discard any authentication cached for this cloud.
+
+        Both the copy kept in the keyring and the state the plugin holds in
+        memory are dropped, so that a connection already built from this
+        region cannot keep using the credential and write it back when it
+        closes. The next authentication starts from scratch, which for an
+        interactive plugin means asking the user again. Use this when the
+        cached credential is known to be unusable, such as after it has been
+        revoked or when a different account is wanted.
+
+        Unlike loading and storing, this does not require ``cache.auth`` to
+        be enabled, nor a keyring to be available: the in-memory state is
+        dropped regardless, and a credential cached while caching was on has
+        to be removable once it has been turned off, or the stale entry would
+        be reused the next time caching is enabled.
+        """
+        if not self._auth:
+            return
+
+        # Drop the in-memory credential first, so that closing a connection
+        # already built from this region does not repersist it through
+        # set_auth_cache. invalidate() clears the scoped token; the unscoped
+        # one is only held by the federated plugins that report a cache id.
+        # This happens whether or not anything was ever written to a keyring,
+        # since not every client keeps one.
+        self._auth.invalidate()
+        if self._unscoped_auth_cache_id():
+            self._auth.set_unscoped_auth_state(None)
+
+        if not keyring:
+            return
+
+        for cache_id in (
+            self._auth.get_cache_id(),
+            self._unscoped_auth_cache_id(),
+        ):
+            if not cache_id:
+                continue
+
+            try:
+                keyring.delete_password('openstacksdk', cache_id)
+            except keyring.errors.PasswordDeleteError:
+                # Nothing was stored under that key, which is the state the
+                # caller asked for.
+                pass
+            except RuntimeError:  # the fail backend raises this
+                self.log.debug('Failed to delete auth from keyring')
+
     def load_auth_from_cache(self) -> None:
         if self.skip_auth_cache():
             return

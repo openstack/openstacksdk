@@ -1,0 +1,14 @@
+---
+features:
+  - |
+    Added ``CloudRegion.clear_auth_cache``, which discards any authentication
+    cached for a cloud. Both the copy kept in the keyring and the state held
+    in memory by the plugin are dropped, so that a connection already built
+    from the region cannot keep using the credential or write it back when it
+    closes. The next authentication starts from scratch, which for an
+    interactive plugin means asking the user again. Use it when the cached
+    credential is known to be unusable, such as after it has been revoked or
+    when a different account is wanted. It works whether or not ``cache.auth``
+    is currently enabled and whether or not a keyring is available: the
+    in-memory state is dropped regardless, and a credential cached while
+    caching was on can still be removed once it has been turned off.
