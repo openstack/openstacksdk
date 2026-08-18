@@ -121,7 +121,41 @@ disallow_untyped_defs = false
 warn_return_any = false
 
 [[tool.mypy.overrides]]
-module = ["openstack.tests.unit.*"]
+module = [
+    "openstack.tests.unit.*",
+]
+disable_error_code = ["import-untyped", "func-returns-value", "var-annotated"]
+disallow_untyped_calls = false
+disallow_untyped_defs = false
+warn_return_any = false
+
+[[tool.mypy.overrides]]
+module = [
+    # services
+    "openstack.tests.unit.accelerator.*",
+    "openstack.tests.unit.baremetal.*",
+    "openstack.tests.unit.baremetal_introspection.*",
+    "openstack.tests.unit.block_storage.*",
+    "openstack.tests.unit.clustering.*",
+    "openstack.tests.unit.compute.*",
+    "openstack.tests.unit.container_infrastructure_management.*",
+    "openstack.tests.unit.database.*",
+    "openstack.tests.unit.dns.*",
+    "openstack.tests.unit.identity.*",
+    "openstack.tests.unit.image.*",
+    "openstack.tests.unit.instance_ha.*",
+    "openstack.tests.unit.key_manager.*",
+    "openstack.tests.unit.load_balancer.*",
+    "openstack.tests.unit.message.*",
+    "openstack.tests.unit.network.*",
+    "openstack.tests.unit.object_store.*",
+    "openstack.tests.unit.orchestration.*",
+    "openstack.tests.unit.placement.*",
+    "openstack.tests.unit.shared_file_system.*",
+    "openstack.tests.unit.workflow.*",
+    # cloud layer
+    "openstack.tests.unit.cloud.*",
+]
 ignore_errors = true
 
 [tool.ruff]
