@@ -33,44 +33,42 @@ import openstack.connection
 from openstack.fixture import connection as os_fixture
 from openstack.tests import base
 
-_ProjectData = collections.namedtuple(
+ProjectData = collections.namedtuple(
     'ProjectData',
     'project_id, project_name, enabled, domain_id, description, '
     'parent_id, json_response, json_request',
 )
 
-_UserData = collections.namedtuple(
+UserData = collections.namedtuple(
     'UserData',
     'user_id, password, name, email, description, domain_id, enabled, '
     'json_response, json_request',
 )
 
-_GroupData = collections.namedtuple(
+GroupData = collections.namedtuple(
     'GroupData',
     'group_id, group_name, domain_id, description, json_response, '
     'json_request',
 )
 
-_DomainData = collections.namedtuple(
+DomainData = collections.namedtuple(
     'DomainData',
     'domain_id, domain_name, description, json_response, json_request',
 )
 
-_ServiceData = collections.namedtuple(
-    'Servicedata',
+ServiceData = collections.namedtuple(
+    'ServiceData',
     'service_id, service_name, service_type, description, enabled, '
     'json_response_v3, json_response_v2, json_request',
 )
 
-_EndpointDataV3 = collections.namedtuple(
+EndpointData = collections.namedtuple(
     'EndpointData',
     'endpoint_id, service_id, interface, region_id, url, enabled, '
     'json_response, json_request',
 )
 
-# NOTE(notmorgan): Shade does not support domain-specific roles
-# This should eventually be fixed if it becomes a main-stream feature.
-_RoleData = collections.namedtuple(
+RoleData = collections.namedtuple(
     'RoleData', 'role_id, role_name, json_response, json_request'
 )
 
@@ -203,7 +201,7 @@ class TestCase(base.TestCase):
             secure_files=['non-existant'],
         )
 
-        self.oslo_config_dict = {
+        self.oslo_config_dict: dict[str, dict[str, str] | None] = {
             # All defaults for nova
             'nova': {},
             # monasca-api not in the service catalog
@@ -265,6 +263,7 @@ class TestCase(base.TestCase):
         endpoint_url = self.cloud.endpoint_for(
             service_type=service_type, interface=interface
         )
+        assert endpoint_url is not None
         # Strip trailing slashes, so as not to produce double-slashes below
         if endpoint_url.endswith('/'):
             endpoint_url = endpoint_url[:-1]
@@ -380,7 +379,7 @@ class TestCase(base.TestCase):
             response['description'] = description
             request['description'] = description
         request.setdefault('description', None)
-        return _ProjectData(
+        return ProjectData(
             project_id,
             project_name,
             enabled,
@@ -401,7 +400,7 @@ class TestCase(base.TestCase):
             response['description'] = description
             request['description'] = description
 
-        return _GroupData(
+        return GroupData(
             group_id,
             name,
             domain_id,
@@ -439,7 +438,7 @@ class TestCase(base.TestCase):
             message='extra key-word args received on _get_user_data',
         )
 
-        return _UserData(
+        return UserData(
             user_id,
             password,
             name,
@@ -465,7 +464,7 @@ class TestCase(base.TestCase):
             response['description'] = description
             request['description'] = description
         response.setdefault('enabled', True)
-        return _DomainData(
+        return DomainData(
             domain_id,
             domain_name,
             description,
@@ -490,7 +489,7 @@ class TestCase(base.TestCase):
             response['description'] = description
         request = response.copy()
         request.pop('id')
-        return _ServiceData(
+        return ServiceData(
             service_id,
             name,
             type,
@@ -525,7 +524,7 @@ class TestCase(base.TestCase):
         }
         request = response.copy()
         request.pop('id')
-        return _EndpointDataV3(
+        return EndpointData(
             endpoint_id,
             service_id,
             interface,
@@ -542,7 +541,7 @@ class TestCase(base.TestCase):
         request = {'name': role_name}
         response = request.copy()
         response['id'] = role_id
-        return _RoleData(
+        return RoleData(
             role_id, role_name, {'role': response}, {'role': request}
         )
 

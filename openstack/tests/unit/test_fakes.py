@@ -10,6 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import cast
+from unittest import mock
+
 from openstack.compute import compute_service
 from openstack.compute.v2 import server
 from openstack import format as _format
@@ -126,6 +129,8 @@ class TestGenerateFakeProxy(base.TestCase):
     def test_side_effect_can_be_overridden(self):
         fake_proxy = fakes.generate_fake_proxy(compute_service.ComputeService)
         custom = server.Server(id='fixed-id')
-        fake_proxy.get_server.side_effect = lambda *a, **kw: custom
+        # the fake proxy's methods are mocks under the hood
+        mock_get = cast(mock.Mock, fake_proxy.get_server)
+        mock_get.side_effect = lambda *a, **kw: custom
         result = fake_proxy.get_server('some-uuid')
         self.assertEqual('fixed-id', result.id)

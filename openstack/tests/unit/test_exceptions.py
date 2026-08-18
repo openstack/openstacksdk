@@ -16,16 +16,20 @@ import uuid
 import warnings
 
 from openstack import exceptions
+from openstack import resource
 from openstack.tests.unit import base
 from openstack.tests.unit import fakes
 
 
 class Test_Exception(base.TestCase):
     def test_method_not_supported(self):
-        exc = exceptions.MethodNotSupported(self.__class__, 'list')
+        class FakeResource(resource.Resource):
+            pass
+
+        exc = exceptions.MethodNotSupported(FakeResource, 'list')
         expected = (
             'The list method is not supported for '
-            'openstack.tests.unit.test_exceptions.Test_Exception'
+            'openstack.tests.unit.test_exceptions.FakeResource'
         )
         self.assertEqual(expected, str(exc))
 

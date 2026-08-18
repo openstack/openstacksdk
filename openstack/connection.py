@@ -522,7 +522,7 @@ class Connection(
             )
 
     def add_service(
-        self, service: service_description.ServiceDescription['proxy.Proxy']
+        self, service: service_description.ServiceDescription[Any]
     ) -> None:
         """Add a service to the Connection.
 

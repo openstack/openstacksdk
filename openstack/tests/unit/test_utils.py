@@ -13,9 +13,11 @@
 import concurrent.futures
 import logging
 import sys
+from typing import cast
 from unittest import mock
 
 import fixtures
+from keystoneauth1 import adapter as ks_adapter
 import os_service_types
 
 import openstack
@@ -131,92 +133,102 @@ class Test_urljoin(base.TestCase):
 
 
 class TestSupportsMicroversion(base.TestCase):
+    fake_adapter: ks_adapter.Adapter
+
     def setUp(self):
         super().setUp()
-        self.adapter = mock.Mock(spec=['get_endpoint_data'])
+        adapter = mock.Mock(spec=['get_endpoint_data'])
         self.endpoint_data = mock.Mock(
             spec=['min_microversion', 'max_microversion'],
             min_microversion='1.1',
             max_microversion='1.99',
         )
-        self.adapter.get_endpoint_data.return_value = self.endpoint_data
+        adapter.get_endpoint_data.return_value = self.endpoint_data
+        self.fake_adapter = cast(ks_adapter.Adapter, adapter)
 
     def test_requested_supported_no_default(self):
-        self.adapter.default_microversion = None
-        self.assertTrue(utils.supports_microversion(self.adapter, '1.2'))
+        self.fake_adapter.default_microversion = None
+        self.assertTrue(utils.supports_microversion(self.fake_adapter, '1.2'))
 
     def test_requested_not_supported_no_default(self):
-        self.adapter.default_microversion = None
-        self.assertFalse(utils.supports_microversion(self.adapter, '2.2'))
+        self.fake_adapter.default_microversion = None
+        self.assertFalse(utils.supports_microversion(self.fake_adapter, '2.2'))
 
     def test_requested_not_supported_no_default_exception(self):
-        self.adapter.default_microversion = None
+        self.fake_adapter.default_microversion = None
         self.assertRaises(
             exceptions.SDKException,
             utils.supports_microversion,
-            self.adapter,
+            self.fake_adapter,
             '2.2',
             True,
         )
 
     def test_requested_supported_higher_default(self):
-        self.adapter.default_microversion = '1.8'
-        self.assertTrue(utils.supports_microversion(self.adapter, '1.6'))
+        self.fake_adapter.default_microversion = '1.8'
+        self.assertTrue(utils.supports_microversion(self.fake_adapter, '1.6'))
 
     def test_requested_supported_equal_default(self):
-        self.adapter.default_microversion = '1.8'
-        self.assertTrue(utils.supports_microversion(self.adapter, '1.8'))
+        self.fake_adapter.default_microversion = '1.8'
+        self.assertTrue(utils.supports_microversion(self.fake_adapter, '1.8'))
 
     def test_requested_supported_lower_default(self):
-        self.adapter.default_microversion = '1.2'
-        self.assertFalse(utils.supports_microversion(self.adapter, '1.8'))
+        self.fake_adapter.default_microversion = '1.2'
+        self.assertFalse(utils.supports_microversion(self.fake_adapter, '1.8'))
 
     def test_requested_supported_lower_default_exception(self):
-        self.adapter.default_microversion = '1.2'
+        self.fake_adapter.default_microversion = '1.2'
         self.assertRaises(
             exceptions.SDKException,
             utils.supports_microversion,
-            self.adapter,
+            self.fake_adapter,
             '1.8',
             True,
         )
 
     @mock.patch('openstack.utils.supports_microversion')
     def test_require_microversion(self, sm_mock):
-        utils.require_microversion(self.adapter, '1.2')
-        sm_mock.assert_called_with(self.adapter, '1.2', raise_exception=True)
+        utils.require_microversion(self.fake_adapter, '1.2')
+        sm_mock.assert_called_with(
+            self.fake_adapter, '1.2', raise_exception=True
+        )
 
 
 class TestMaximumSupportedMicroversion(base.TestCase):
+    fake_adapter: ks_adapter.Adapter
+
     def setUp(self):
         super().setUp()
-        self.adapter = mock.Mock(spec=['get_endpoint_data'])
+        adapter = mock.Mock(spec=['get_endpoint_data'])
         self.endpoint_data = mock.Mock(
             spec=['min_microversion', 'max_microversion'],
             min_microversion=None,
             max_microversion='1.99',
         )
-        self.adapter.get_endpoint_data.return_value = self.endpoint_data
+        adapter.get_endpoint_data.return_value = self.endpoint_data
+        self.fake_adapter = cast(ks_adapter.Adapter, adapter)
 
     def test_with_none(self):
         self.assertIsNone(
-            utils.maximum_supported_microversion(self.adapter, None)
+            utils.maximum_supported_microversion(self.fake_adapter, None)
         )
 
     def test_with_value(self):
         self.assertEqual(
-            '1.42', utils.maximum_supported_microversion(self.adapter, '1.42')
+            '1.42',
+            utils.maximum_supported_microversion(self.fake_adapter, '1.42'),
         )
 
     def test_value_more_than_max(self):
         self.assertEqual(
-            '1.99', utils.maximum_supported_microversion(self.adapter, '1.104')
+            '1.99',
+            utils.maximum_supported_microversion(self.fake_adapter, '1.104'),
         )
 
     def test_value_less_than_min(self):
         self.endpoint_data.min_microversion = '1.42'
         self.assertIsNone(
-            utils.maximum_supported_microversion(self.adapter, '1.2')
+            utils.maximum_supported_microversion(self.fake_adapter, '1.2')
         )
 
 

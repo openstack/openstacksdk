@@ -16,6 +16,7 @@
 import copy
 import os
 import tempfile
+from typing import Any
 
 import fixtures
 import yaml
@@ -34,7 +35,7 @@ VENDOR_CONF = {
         },
     }
 }
-USER_CONF = {
+USER_CONF: dict[str, Any] = {
     'cache': {
         'max_age': '1',
         'expiration': {

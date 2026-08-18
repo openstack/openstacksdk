@@ -15,6 +15,7 @@
 import argparse
 import copy
 import os
+from typing import Any
 from unittest import mock
 
 import fixtures
@@ -151,6 +152,7 @@ class TestConfig(base.TestCase):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml])
         cc = c.get_one(cloud='_test-cloud_', auth={'username': 'user'})
         self.assertEqual('user', cc.auth['username'])
+        assert defaults._defaults is not None
         self.assertEqual(
             defaults._defaults['auth_type'],
             cc.auth_type,
@@ -268,16 +270,15 @@ class TestConfig(base.TestCase):
         c = config.OpenStackConfig(
             config_files=[self.cloud_yaml], vendor_files=[self.vendor_yaml]
         )
-        args = {
-            'auth': {
+        cc = c.get_one(
+            auth={
                 'username': 'testuser',
                 'password': 'testpass',
                 'project-id': '12345',
                 'auth-url': 'http://example.com/v2',
             },
-            'region_name': 'test-region',
-        }
-        cc = c.get_one(**args)
+            region_name='test-region',
+        )
         self.assertEqual('http://example.com/v2', cc.auth['auth_url'])
 
     def test_no_environ(self):
@@ -584,6 +585,7 @@ class TestConfig(base.TestCase):
         kr_mock.get_password = mock.Mock(side_effect=[RuntimeError])
 
         region = c.get_one('_test-cloud_')
+        assert region._auth is not None
         kr_mock.get_password.assert_called_with(
             'openstacksdk', region._auth.get_cache_id()
         )
@@ -603,6 +605,7 @@ class TestConfig(base.TestCase):
         kr_mock.get_password = mock.Mock(return_value=fake_auth)
 
         region = c.get_one('_test-cloud_')
+        assert region._auth is not None
         kr_mock.get_password.assert_called_with(
             'openstacksdk', region._auth.get_cache_id()
         )
@@ -634,6 +637,7 @@ class TestConfig(base.TestCase):
         kr_mock.set_password = mock.Mock()
 
         region = c.get_one('_test-cloud_')
+        assert region._auth is not None
         region._auth.set_auth_state(
             '{"auth_token":"foo", "body":{"token":"bar"}}'
         )
@@ -721,7 +725,7 @@ class TestExcludedFormattedConfigValue(base.TestCase):
     def setUp(self):
         super().setUp()
 
-        self.args = dict(
+        self.args: dict[str, Any] = dict(
             auth_url='http://example.com/v2',
             username='user',
             project_name='project',
@@ -774,7 +778,7 @@ class TestConfigArgparse(base.TestCase):
     def setUp(self):
         super().setUp()
 
-        self.args = dict(
+        self.args: dict[str, Any] = dict(
             auth_url='http://example.com/v2',
             username='user',
             password='password',
@@ -814,7 +818,7 @@ class TestConfigArgparse(base.TestCase):
             config_files=[self.cloud_yaml], vendor_files=[self.vendor_yaml]
         )
 
-        kwargs = {
+        kwargs: dict[str, Any] = {
             'auth': {
                 'username': 'testuser',
                 'password': 'authpass',
@@ -847,7 +851,7 @@ class TestConfigArgparse(base.TestCase):
             vendor_files=[self.vendor_yaml],
         )
 
-        kwargs = {
+        kwargs: dict[str, Any] = {
             'auth': {
                 'username': 'testuser',
                 'password': 'authpass',
@@ -879,7 +883,7 @@ class TestConfigArgparse(base.TestCase):
             config_files=[self.cloud_yaml], vendor_files=[self.vendor_yaml]
         )
 
-        kwargs = {
+        kwargs: dict[str, Any] = {
             'auth': {
                 'username': 'testuser',
                 'password': 'authpass',
@@ -921,7 +925,7 @@ class TestConfigArgparse(base.TestCase):
             config_files=[self.cloud_yaml], vendor_files=[self.vendor_yaml]
         )
 
-        args = {
+        args: dict[str, Any] = {
             'auth-url': 'http://example.com/v2',
             'username': 'user',
             'password': 'password',
@@ -1095,6 +1099,7 @@ class TestConfigArgparse(base.TestCase):
             'force_ipv4': False,
         }
         ansible_options = cc.get_client_config('ansible', defaults)
+        assert ansible_options is not None
 
         # This should show that the default for use_hostnames and force_ipv4
         # above is overridden by the value in the config file defined in
@@ -1676,9 +1681,9 @@ class TestMagicFixes(base.TestCase):
         self._test_magic_fixes(cloud, expected)
 
     def test_bool_keys(self):
-        cloud = {"auth": {}}
+        cloud: dict[str, Any] = {"auth": {}}
         cloud.update({k: "True" for k in loader.BOOL_KEYS})
-        expected = {
+        expected: dict[str, Any] = {
             "auth_type": None,
             "auth": {},
             "networks": [],
@@ -1687,7 +1692,7 @@ class TestMagicFixes(base.TestCase):
         self._test_magic_fixes(cloud, expected)
 
     def test_csv_keys(self):
-        cloud = {"auth": {}}
+        cloud: dict[str, Any] = {"auth": {}}
         cloud.update({k: "spam,ham" for k in loader.CSV_KEYS})
         expected = {
             "auth_type": None,

@@ -2594,7 +2594,7 @@ def _normalize_status(status: str | None) -> str | None:
 def wait_for_status(
     session: adapter.Adapter,
     resource: ResourceT,
-    status: str,
+    status: str | None,
     failures: list[str] | None = None,
     interval: int | float | None = 2,
     wait: int | None = None,

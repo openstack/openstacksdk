@@ -15,7 +15,9 @@ from openstack.tests.unit.fake.v1 import _proxy as _proxy_1
 from openstack.tests.unit.fake.v2 import _proxy as _proxy_2
 
 
-class FakeService(service_description.ServiceDescription):
+class FakeService(
+    service_description.ServiceDescription[_proxy_1.Proxy | _proxy_2.Proxy]
+):
     """The fake service."""
 
     supported_versions = {

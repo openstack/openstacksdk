@@ -49,8 +49,5 @@ class FakeResponse(requests.Response):
         headers = headers or {}
 
         self.status_code = status_code
-
         self.headers.update(headers)
-        self._content = json.dumps(data)
-        if not isinstance(self._content, bytes):
-            self._content = self._content.encode()
+        self._content = json.dumps(data).encode()

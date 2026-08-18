@@ -13,6 +13,8 @@
 import itertools
 import json
 import logging
+from typing import Any
+from typing import cast
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -26,15 +28,26 @@ from openstack.tests.unit import base
 from openstack import utils
 
 
-class FakeResponse:
+class FakeResponse(requests.Response):
     def __init__(self, response, status_code=200, headers=None):
+        super().__init__()
         self.body = response
         self.status_code = status_code
         headers = headers if headers else {'content-type': 'application/json'}
         self.headers = requests.structures.CaseInsensitiveDict(headers)
 
-    def json(self):
+    def json(self, **kwargs):
         return self.body
+
+    # NOTE: requests.Response.content is a read-only property; some tests
+    # set it directly, so override it with a settable property.
+    @property
+    def content(self):
+        return self._content
+
+    @content.setter
+    def content(self, value):
+        self._content = value
 
 
 class TestComponentManager(base.TestCase):
@@ -138,7 +151,9 @@ class Test_Request(base.TestCase):
         body = 2
         headers = 3
 
-        sot = resource._Request(uri, body, headers)
+        # this test deliberately passes non-string values to verify they are
+        # stored verbatim
+        sot = resource._Request(uri, body, headers)  # type: ignore[arg-type]
 
         self.assertEqual(uri, sot.url)
         self.assertEqual(body, sot.body)
@@ -148,7 +163,7 @@ class Test_Request(base.TestCase):
 class TestQueryParameters(base.TestCase):
     def test_create(self):
         location = "location"
-        mapping = {
+        mapping: dict[str, Any] = {
             "first_name": "first-name",
             "second_name": {"name": "second-name"},
             "third_name": {"name": "third", "type": int},
@@ -174,7 +189,7 @@ class TestQueryParameters(base.TestCase):
             return value * 10
 
         location = "location"
-        mapping = {
+        mapping: dict[str, Any] = {
             "first_name": "first-name",
             "pet_name": {"name": "pet"},
             "answer": {"name": "answer", "type": int},
@@ -208,7 +223,7 @@ class TestQueryParameters(base.TestCase):
 
     def test_transpose_not_in_query(self):
         location = "location"
-        mapping = {
+        mapping: dict[str, Any] = {
             "first_name": "first-name",
             "pet_name": {"name": "pet"},
             "answer": {"name": "answer", "type": int},
@@ -229,7 +244,7 @@ class TestResource(base.TestCase):
         header = {"header": 2, "Location": "somewhere"}
         uri = {"uri": 3}
         computed = {"computed": 4}
-        everything = dict(
+        everything: dict[str, Any] = dict(
             itertools.chain(
                 body.items(),
                 header.items(),
@@ -448,7 +463,9 @@ class TestResource(base.TestCase):
 
     def test__getattribute__id_without_alternate(self):
         class Test(resource.Resource):
-            id = None
+            # deliberately override the id Body descriptor with None to
+            # exercise the no-id code path
+            id = None  # type: ignore[assignment]
 
         sot = Test()
         self.assertIsNone(sot.id)
@@ -627,7 +644,7 @@ class TestResource(base.TestCase):
             ],
         }
         self.assertEqual(expected, res.to_dict())
-        a_munch = res.to_dict(_to_munch=True)
+        a_munch = cast(utils.Munch, res.to_dict(_to_munch=True))
         self.assertEqual(a_munch.bar.id, 'ANOTHER_ID')
         self.assertEqual(a_munch.bar.sub, 'bar')
         self.assertEqual(a_munch.a_list[0].id, 'ANOTHER_ID')
@@ -739,7 +756,11 @@ class TestResource(base.TestCase):
             bar = resource.Body('bar')
             foot = resource.Body('foot')
 
-        data = {'foo': 'bar', 'bar': 'foo\n', 'foot': 'a:b:c:d'}
+        data: dict[str, Any] = {
+            'foo': 'bar',
+            'bar': 'foo\n',
+            'foot': 'a:b:c:d',
+        }
 
         res = Test(**data)
         for k, v in res.items():
@@ -1006,7 +1027,7 @@ class TestResource(base.TestCase):
         sot = Test.existing(id=the_id, x=1, y=2)
         sot.x = 3
 
-        params = [('foo', 'bar'), ('life', 42)]
+        params: dict[str, Any] = {'foo': 'bar', 'life': 42}
 
         result = sot._prepare_request(
             requires_id=True, patch=True, params=params
@@ -1038,7 +1059,6 @@ class TestResource(base.TestCase):
         response = FakeResponse(body)
 
         sot = Test()
-        sot._filter_component = mock.Mock(side_effect=[body, dict()])
 
         sot._translate_response(response, has_body=True)
 
@@ -1057,7 +1077,6 @@ class TestResource(base.TestCase):
         response = FakeResponse({key: body})
 
         sot = Test()
-        sot._filter_component = mock.Mock(side_effect=[body, dict()])
 
         sot._translate_response(response, has_body=True)
 
@@ -1085,7 +1104,7 @@ class TestResource(base.TestCase):
 
         # list is a generator so you need to begin consuming
         # it in order to exercise the failure.
-        the_list = sot.list("")
+        the_list = sot.list("")  # type: ignore[arg-type]
         self.assertRaises(exceptions.MethodNotSupported, next, the_list)
 
         # Update checks the dirty list first before even trying to see
@@ -1169,6 +1188,7 @@ class TestResource(base.TestCase):
         sot = Test.new(**{'dummy': 'value', 'properties': 'a,b,c'})
 
         request_body = sot._prepare_request(requires_id=False).body
+        assert isinstance(request_body, dict)
         self.assertEqual('value', request_body['dummy'])
         self.assertEqual('a,b,c', request_body['properties'])
 
@@ -1178,6 +1198,7 @@ class TestResource(base.TestCase):
         )
 
         request_body = sot._prepare_request(requires_id=False).body
+        assert isinstance(request_body, dict)
         self.assertEqual('value', request_body['dummy'])
         self.assertEqual('a,b,c', request_body['properties'])
 
@@ -1191,6 +1212,7 @@ class TestResource(base.TestCase):
         )
 
         request_body = sot._prepare_request(requires_id=False).body
+        assert isinstance(request_body, dict)
         self.assertDictEqual(
             {'dummy': 'value', 'properties': 'a,b,c'},
             request_body['properties'],
@@ -1202,11 +1224,13 @@ class TestResource(base.TestCase):
             _store_unknown_attrs_as_properties = True
             allow_patch = True
 
-        sot = Test.existing(**{'dummy': 'value', 'properties': 'a,b,c'})
+        attrs: dict[str, Any] = {'dummy': 'value', 'properties': 'a,b,c'}
+        sot = Test.existing(**attrs)
 
         sot._update(**{'properties': {'dummy': 'new_value'}})
 
         request_body = sot._prepare_request(requires_id=False, patch=True).body
+        assert isinstance(request_body, list)
         self.assertDictEqual(
             {'path': '/dummy', 'value': 'new_value', 'op': 'replace'},
             request_body[0],
@@ -1314,7 +1338,7 @@ class TestResource(base.TestCase):
 class _TestResource(resource.Resource):
     service = "service"
     base_path = "base_path"
-    resources_key = 'resources'
+    resources_key: str | None = 'resources'
     allow_create = True
     allow_fetch = True
     allow_head = True
@@ -1992,7 +2016,7 @@ class TestResourceActions(base.TestCase):
 
         sot = Test.existing(id=1, attr=42, nested={'dog': 'bark'})
         sot.attr = 'new'
-        sot.patch(self.session, {'path': '/renamed/dog', 'op': 'remove'})
+        sot.patch(self.session, [{'path': '/renamed/dog', 'op': 'remove'}])
 
         expected = [
             {'path': '/attr', 'op': 'replace', 'value': 'new'},
@@ -2745,12 +2769,13 @@ class TestResourceActions(base.TestCase):
             base_path = "/%(something)s/blah"
             something = resource.URI("something")
 
+        query: dict[str, Any] = {qp_name: qp}
         results = list(
             Test.list(
                 self.session,
                 paginated=True,
                 something=uri_param,
-                **{qp_name: qp},
+                **query,
             )
         )
 
@@ -2791,13 +2816,14 @@ class TestResourceActions(base.TestCase):
             base_path = "/%(something)s/blah"
             something = resource.URI("something")
 
+        query: dict[str, Any] = {qp_name: qp}
         results = list(
             Test.list(
                 self.session,
                 paginated=True,
                 query_param=qp2,
                 something=uri_param,
-                **{qp_name: qp},
+                **query,
             )
         )
 
@@ -3260,13 +3286,15 @@ class TestResourceFind(base.TestCase):
 
     class Base(resource.Resource):
         @classmethod
-        def existing(cls, **kwargs):
+        def existing(cls, connection=None, **kwargs):
             response = mock.Mock()
             response.status_code = 404
             raise exceptions.NotFoundException('Not Found', response=response)
 
+        # NOTE: this test double intentionally simplifies the list()
+        # signature, which is otherwise a paginating generator.
         @classmethod
-        def list(cls, session, **params):
+        def list(cls, session, **params):  # type: ignore[override]
             return []
 
     class OneResult(Base):
@@ -3293,7 +3321,7 @@ class TestResourceFind(base.TestCase):
 
         class Test(resource.Resource):
             @classmethod
-            def existing(cls, **kwargs):
+            def existing(cls, connection=None, **kwargs):
                 mock_match = mock.Mock()
                 mock_match.fetch.return_value = value
                 return mock_match

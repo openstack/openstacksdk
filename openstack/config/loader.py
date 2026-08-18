@@ -598,7 +598,7 @@ class OpenStackConfig:
         return []
 
     def _get_region(
-        self, cloud: str | None = None, region_name: str = ''
+        self, cloud: str | None = None, region_name: str | None = ''
     ) -> dict[str, Any]:
         if region_name is None:
             region_name = ''

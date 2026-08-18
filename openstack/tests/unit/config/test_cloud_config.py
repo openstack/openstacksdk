@@ -12,6 +12,7 @@
 
 import copy
 import importlib.metadata as importlib_metadata
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import exceptions as ksa_exceptions
@@ -24,7 +25,7 @@ from openstack.tests.unit.config import base
 
 OPENSTACKSDK_VERSION = importlib_metadata.version('openstacksdk')
 
-fake_config_dict = {'a': 1, 'os_b': 2, 'c': 3, 'os_c': 4}
+fake_config_dict: dict[str, Any] = {'a': 1, 'os_b': 2, 'c': 3, 'os_c': 4}
 fake_services_dict = {
     'compute_api_version': '2',
     'compute_endpoint_override': 'http://compute.example.com',
