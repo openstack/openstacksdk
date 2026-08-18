@@ -320,22 +320,25 @@ class TestResource(base.TestCase):
         uri = "uri"
         computed = "computed"
 
-        sot._collect_attrs = mock.Mock(
-            return_value=(body, header, uri, computed)
-        )
-        sot._body.update = mock.Mock()
-        sot._header.update = mock.Mock()
-        sot._uri.update = mock.Mock()
-        sot._computed.update = mock.Mock()
+        mock_collect_attrs = mock.patch.object(
+            sot, '_collect_attrs', return_value=(body, header, uri, computed)
+        ).start()
+        mock_body_update = mock.patch.object(sot._body, 'update').start()
+        mock_header_update = mock.patch.object(sot._header, 'update').start()
+        mock_uri_update = mock.patch.object(sot._uri, 'update').start()
+        mock_computed_update = mock.patch.object(
+            sot._computed, 'update'
+        ).start()
+        self.addCleanup(mock.patch.stopall)
 
         args = {"arg": 1}
         sot._update(**args)
 
-        sot._collect_attrs.assert_called_once_with(args)
-        sot._body.update.assert_called_once_with(body)
-        sot._header.update.assert_called_once_with(header)
-        sot._uri.update.assert_called_once_with(uri)
-        sot._computed.update.assert_called_with(computed)
+        mock_collect_attrs.assert_called_once_with(args)
+        mock_body_update.assert_called_once_with(body)
+        mock_header_update.assert_called_once_with(header)
+        mock_uri_update.assert_called_once_with(uri)
+        mock_computed_update.assert_called_with(computed)
 
     def test__consume_attrs(self):
         serverside_key1 = "someKey1"
@@ -1336,8 +1339,13 @@ class TestResourceActions(base.TestCase):
         self.response = FakeResponse({})
 
         self.sot = Test(id="id")
-        self.sot._prepare_request = mock.Mock(return_value=self.request)
-        self.sot._translate_response = mock.Mock()
+        self.mock_prepare_request = mock.patch.object(
+            self.sot, '_prepare_request', return_value=self.request
+        ).start()
+        self.mock_translate_response = mock.patch.object(
+            self.sot, '_translate_response'
+        ).start()
+        self.addCleanup(mock.patch.stopall)
 
         self.session = mock.Mock(spec=adapter.Adapter)
         self.session.create = mock.Mock(return_value=self.response)
@@ -1550,7 +1558,7 @@ class TestResourceActions(base.TestCase):
     def test_fetch(self):
         result = self.sot.fetch(self.session)
 
-        self.sot._prepare_request.assert_called_once_with(
+        self.mock_prepare_request.assert_called_once_with(
             requires_id=True, base_path=None
         )
         self.session.get.assert_called_once_with(
@@ -1558,7 +1566,7 @@ class TestResourceActions(base.TestCase):
         )
 
         self.assertIsNone(self.sot.microversion)
-        self.sot._translate_response.assert_called_once_with(
+        self.mock_translate_response.assert_called_once_with(
             self.response, error_message=None, resource_response_key=None
         )
         self.assertEqual(result, self.sot)
@@ -1566,7 +1574,7 @@ class TestResourceActions(base.TestCase):
     def test_fetch_with_override_key(self):
         result = self.sot.fetch(self.session, resource_response_key="SomeKey")
 
-        self.sot._prepare_request.assert_called_once_with(
+        self.mock_prepare_request.assert_called_once_with(
             requires_id=True, base_path=None
         )
         self.session.get.assert_called_once_with(
@@ -1574,7 +1582,7 @@ class TestResourceActions(base.TestCase):
         )
 
         self.assertIsNone(self.sot.microversion)
-        self.sot._translate_response.assert_called_once_with(
+        self.mock_translate_response.assert_called_once_with(
             self.response, error_message=None, resource_response_key="SomeKey"
         )
         self.assertEqual(result, self.sot)
@@ -1582,7 +1590,7 @@ class TestResourceActions(base.TestCase):
     def test_fetch_with_params(self):
         result = self.sot.fetch(self.session, fields='a,b')
 
-        self.sot._prepare_request.assert_called_once_with(
+        self.mock_prepare_request.assert_called_once_with(
             requires_id=True, base_path=None
         )
         self.session.get.assert_called_once_with(
@@ -1593,7 +1601,7 @@ class TestResourceActions(base.TestCase):
         )
 
         self.assertIsNone(self.sot.microversion)
-        self.sot._translate_response.assert_called_once_with(
+        self.mock_translate_response.assert_called_once_with(
             self.response, error_message=None, resource_response_key=None
         )
         self.assertEqual(result, self.sot)
@@ -1606,12 +1614,17 @@ class TestResourceActions(base.TestCase):
             _max_microversion = '1.42'
 
         sot = Test(id='id')
-        sot._prepare_request = mock.Mock(return_value=self.request)
-        sot._translate_response = mock.Mock()
+        mock_prepare_request = mock.patch.object(
+            sot, '_prepare_request', return_value=self.request
+        ).start()
+        mock_translate_response = mock.patch.object(
+            sot, '_translate_response'
+        ).start()
+        self.addCleanup(mock.patch.stopall)
 
         result = sot.fetch(self.session)
 
-        sot._prepare_request.assert_called_once_with(
+        mock_prepare_request.assert_called_once_with(
             requires_id=True, base_path=None
         )
         self.session.get.assert_called_once_with(
@@ -1619,7 +1632,7 @@ class TestResourceActions(base.TestCase):
         )
 
         self.assertEqual(sot.microversion, '1.42')
-        sot._translate_response.assert_called_once_with(
+        mock_translate_response.assert_called_once_with(
             self.response, error_message=None, resource_response_key=None
         )
         self.assertEqual(result, sot)
@@ -1632,12 +1645,17 @@ class TestResourceActions(base.TestCase):
             _max_microversion = '1.99'
 
         sot = Test(id='id')
-        sot._prepare_request = mock.Mock(return_value=self.request)
-        sot._translate_response = mock.Mock()
+        mock_prepare_request = mock.patch.object(
+            sot, '_prepare_request', return_value=self.request
+        ).start()
+        mock_translate_response = mock.patch.object(
+            sot, '_translate_response'
+        ).start()
+        self.addCleanup(mock.patch.stopall)
 
         result = sot.fetch(self.session, microversion='1.42')
 
-        sot._prepare_request.assert_called_once_with(
+        mock_prepare_request.assert_called_once_with(
             requires_id=True, base_path=None
         )
         self.session.get.assert_called_once_with(
@@ -1645,7 +1663,7 @@ class TestResourceActions(base.TestCase):
         )
 
         self.assertEqual(sot.microversion, '1.42')
-        sot._translate_response.assert_called_once_with(
+        mock_translate_response.assert_called_once_with(
             self.response, error_message=None, resource_response_key=None
         )
         self.assertEqual(result, sot)
@@ -1653,14 +1671,14 @@ class TestResourceActions(base.TestCase):
     def test_fetch_not_requires_id(self):
         result = self.sot.fetch(self.session, False)
 
-        self.sot._prepare_request.assert_called_once_with(
+        self.mock_prepare_request.assert_called_once_with(
             requires_id=False, base_path=None
         )
         self.session.get.assert_called_once_with(
             self.request.url, microversion=None, params={}, skip_cache=False
         )
 
-        self.sot._translate_response.assert_called_once_with(
+        self.mock_translate_response.assert_called_once_with(
             self.response, error_message=None, resource_response_key=None
         )
         self.assertEqual(result, self.sot)
@@ -1668,14 +1686,14 @@ class TestResourceActions(base.TestCase):
     def test_fetch_base_path(self):
         result = self.sot.fetch(self.session, False, base_path='dummy')
 
-        self.sot._prepare_request.assert_called_once_with(
+        self.mock_prepare_request.assert_called_once_with(
             requires_id=False, base_path='dummy'
         )
         self.session.get.assert_called_once_with(
             self.request.url, microversion=None, params={}, skip_cache=False
         )
 
-        self.sot._translate_response.assert_called_once_with(
+        self.mock_translate_response.assert_called_once_with(
             self.response, error_message=None, resource_response_key=None
         )
         self.assertEqual(result, self.sot)
@@ -1683,13 +1701,13 @@ class TestResourceActions(base.TestCase):
     def test_head(self):
         result = self.sot.head(self.session)
 
-        self.sot._prepare_request.assert_called_once_with(base_path=None)
+        self.mock_prepare_request.assert_called_once_with(base_path=None)
         self.session.head.assert_called_once_with(
             self.request.url, microversion=None
         )
 
         self.assertIsNone(self.sot.microversion)
-        self.sot._translate_response.assert_called_once_with(
+        self.mock_translate_response.assert_called_once_with(
             self.response,
             has_body=False,
         )
@@ -1698,13 +1716,13 @@ class TestResourceActions(base.TestCase):
     def test_head_base_path(self):
         result = self.sot.head(self.session, base_path='dummy')
 
-        self.sot._prepare_request.assert_called_once_with(base_path='dummy')
+        self.mock_prepare_request.assert_called_once_with(base_path='dummy')
         self.session.head.assert_called_once_with(
             self.request.url, microversion=None
         )
 
         self.assertIsNone(self.sot.microversion)
-        self.sot._translate_response.assert_called_once_with(
+        self.mock_translate_response.assert_called_once_with(
             self.response,
             has_body=False,
         )
@@ -1718,18 +1736,23 @@ class TestResourceActions(base.TestCase):
             _max_microversion = '1.42'
 
         sot = Test(id='id')
-        sot._prepare_request = mock.Mock(return_value=self.request)
-        sot._translate_response = mock.Mock()
+        mock_prepare_request = mock.patch.object(
+            sot, '_prepare_request', return_value=self.request
+        ).start()
+        mock_translate_response = mock.patch.object(
+            sot, '_translate_response'
+        ).start()
+        self.addCleanup(mock.patch.stopall)
 
         result = sot.head(self.session)
 
-        sot._prepare_request.assert_called_once_with(base_path=None)
+        mock_prepare_request.assert_called_once_with(base_path=None)
         self.session.head.assert_called_once_with(
             self.request.url, microversion='1.42'
         )
 
         self.assertEqual(sot.microversion, '1.42')
-        sot._translate_response.assert_called_once_with(
+        mock_translate_response.assert_called_once_with(
             self.response,
             has_body=False,
         )
@@ -1764,7 +1787,7 @@ class TestResourceActions(base.TestCase):
             **commit_args,
         )
 
-        self.sot._prepare_request.assert_called_once_with(
+        self.mock_prepare_request.assert_called_once_with(
             prepend_key=prepend_key, base_path=base_path, patch=False
         )
 
@@ -1794,7 +1817,7 @@ class TestResourceActions(base.TestCase):
             )
 
         self.assertEqual(self.sot.microversion, microversion)
-        self.sot._translate_response.assert_called_once_with(
+        self.mock_translate_response.assert_called_once_with(
             self.response,
             has_body=has_body,
         )
@@ -1981,14 +2004,14 @@ class TestResourceActions(base.TestCase):
     def test_delete(self):
         result = self.sot.delete(self.session)
 
-        self.sot._prepare_request.assert_called_once_with(
+        self.mock_prepare_request.assert_called_once_with(
             params=None, base_path=None
         )
         self.session.delete.assert_called_once_with(
             self.request.url, headers='headers', microversion=None
         )
 
-        self.sot._translate_response.assert_called_once_with(
+        self.mock_translate_response.assert_called_once_with(
             self.response,
             has_body=False,
             error_message=None,
@@ -2003,19 +2026,24 @@ class TestResourceActions(base.TestCase):
             _max_microversion = '1.42'
 
         sot = Test(id='id')
-        sot._prepare_request = mock.Mock(return_value=self.request)
-        sot._translate_response = mock.Mock()
+        mock_prepare_request = mock.patch.object(
+            sot, '_prepare_request', return_value=self.request
+        ).start()
+        mock_translate_response = mock.patch.object(
+            sot, '_translate_response'
+        ).start()
+        self.addCleanup(mock.patch.stopall)
 
         result = sot.delete(self.session)
 
-        sot._prepare_request.assert_called_once_with(
+        mock_prepare_request.assert_called_once_with(
             params=None, base_path=None
         )
         self.session.delete.assert_called_once_with(
             self.request.url, headers='headers', microversion='1.42'
         )
 
-        sot._translate_response.assert_called_once_with(
+        mock_translate_response.assert_called_once_with(
             self.response,
             has_body=False,
             error_message=None,
@@ -2030,19 +2058,24 @@ class TestResourceActions(base.TestCase):
             _max_microversion = '1.99'
 
         sot = Test(id='id')
-        sot._prepare_request = mock.Mock(return_value=self.request)
-        sot._translate_response = mock.Mock()
+        mock_prepare_request = mock.patch.object(
+            sot, '_prepare_request', return_value=self.request
+        ).start()
+        mock_translate_response = mock.patch.object(
+            sot, '_translate_response'
+        ).start()
+        self.addCleanup(mock.patch.stopall)
 
         result = sot.delete(self.session, microversion='1.42')
 
-        sot._prepare_request.assert_called_once_with(
+        mock_prepare_request.assert_called_once_with(
             params=None, base_path=None
         )
         self.session.delete.assert_called_once_with(
             self.request.url, headers='headers', microversion='1.42'
         )
 
-        sot._translate_response.assert_called_once_with(
+        mock_translate_response.assert_called_once_with(
             self.response, has_body=False, error_message=None
         )
         self.assertEqual(result, sot)
@@ -3075,7 +3108,8 @@ class TestResourceActions(base.TestCase):
             create_method = 'POST'
             allow_create = True
 
-        Test._prepare_request = mock.Mock()
+        mock.patch.object(Test, '_prepare_request').start()
+        self.addCleanup(mock.patch.stopall)
         self.assertRaises(ValueError, Test.bulk_create, self.session, [])
         self.assertRaises(ValueError, Test.bulk_create, self.session, None)
         self.assertRaises(ValueError, Test.bulk_create, self.session, object)

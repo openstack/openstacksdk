@@ -53,8 +53,11 @@ class TestMetadata(base.TestCase):
         self.response = FakeResponse({})
 
         self.sot = Test.new(id="id")
-        self.sot._prepare_request = mock.Mock(return_value=self.request)
-        self.sot._translate_response = mock.Mock()
+        mock.patch.object(
+            self.sot, '_prepare_request', return_value=self.request
+        ).start()
+        mock.patch.object(self.sot, '_translate_response').start()
+        self.addCleanup(mock.patch.stopall)
 
         self.session = mock.Mock(spec=adapter.Adapter)
         self.session.get = mock.Mock(return_value=self.response)
