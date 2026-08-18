@@ -153,7 +153,7 @@ class Proxy(proxy.Proxy):
         name: str,
         *,
         filename: str | None = None,
-        data: bytes | None = None,
+        data: bytes | str | io.IOBase | None = None,
         container: str | None = None,
         md5: str | None = None,
         sha256: str | None = None,
@@ -2163,7 +2163,7 @@ class Proxy(proxy.Proxy):
         status: str = 'success',
         failures: list[str] | None = None,
         interval: int | float = 2,
-        wait: int | None = 120,
+        wait: int | float | None = 120,
     ) -> _task.Task:
         """Wait for a task to be in a particular status.
 

@@ -430,12 +430,12 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         access_ipv4: str | types.Unset | None = types.UNSET,
         access_ipv6: str | types.Unset | None = types.UNSET,
         metadata: dict[str, object] | types.Unset | None = types.UNSET,
-        user_data: dict[str, object] | types.Unset | None = types.UNSET,
+        user_data: str | types.Unset | None = types.UNSET,
         key_name: str | types.Unset | None = types.UNSET,
         description: str | types.Unset | None = types.UNSET,
-        trusted_image_certificates: list[str]
-        | types.Unset
-        | None = types.UNSET,
+        trusted_image_certificates: (
+            list[str] | types.Unset | None
+        ) = types.UNSET,
         hostname: str | types.Unset | None = types.UNSET,
     ) -> Self:
         """Rebuild the server with the given arguments.

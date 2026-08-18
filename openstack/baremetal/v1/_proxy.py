@@ -653,6 +653,26 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         res.inject_nmi(self)
 
+    @overload
+    def wait_for_nodes_provision_state(
+        self,
+        nodes: list[str | _node.Node],
+        expected_state: str,
+        timeout: float | None = None,
+        abort_on_failed_state: bool = True,
+        fail: Literal[False] = False,
+    ) -> _node.WaitResult: ...
+
+    @overload
+    def wait_for_nodes_provision_state(
+        self,
+        nodes: list[str | _node.Node],
+        expected_state: str,
+        timeout: float | None = None,
+        abort_on_failed_state: bool = True,
+        fail: bool = True,
+    ) -> list[_node.Node]: ...
+
     def wait_for_nodes_provision_state(
         self,
         nodes: list[str | _node.Node],
