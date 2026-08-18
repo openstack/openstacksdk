@@ -37,6 +37,7 @@ class TestSharedFileSystemProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
         super().setUp()
         self.proxy = _proxy.Proxy(self.session)
+        self.addCleanup(mock.patch.stopall)
 
 
 class TestQuotaClassSet(TestSharedFileSystemProxy):
@@ -121,7 +122,7 @@ class TestShare(TestSharedFileSystemProxy):
 
     def test_share_resize_extend(self):
         mock_share = share.Share(size=10, id='fakeId')
-        self.proxy._get = mock.Mock(return_value=mock_share)
+        mock.patch.object(self.proxy, '_get', return_value=mock_share).start()
 
         self._verify(
             "openstack.shared_file_system.v2.share.Share.extend_share",
@@ -132,7 +133,7 @@ class TestShare(TestSharedFileSystemProxy):
 
     def test_share_resize_shrink(self):
         mock_share = share.Share(size=30, id='fakeId')
-        self.proxy._get = mock.Mock(return_value=mock_share)
+        mock.patch.object(self.proxy, '_get', return_value=mock_share).start()
 
         self._verify(
             "openstack.shared_file_system.v2.share.Share.shrink_share",
@@ -143,7 +144,7 @@ class TestShare(TestSharedFileSystemProxy):
 
     def test_share_soft_delete(self):
         mock_share = share.Share(size=10, id='fakeId')
-        self.proxy._get = mock.Mock(return_value=mock_share)
+        mock.patch.object(self.proxy, '_get', return_value=mock_share).start()
 
         self._verify(
             "openstack.shared_file_system.v2.share.Share.soft_delete",
@@ -163,7 +164,7 @@ class TestShare(TestSharedFileSystemProxy):
 
     def test_share_restore(self):
         mock_share = share.Share(size=10, id='fakeId')
-        self.proxy._get = mock.Mock(return_value=mock_share)
+        mock.patch.object(self.proxy, '_get', return_value=mock_share).start()
 
         self._verify(
             "openstack.shared_file_system.v2.share.Share.restore",

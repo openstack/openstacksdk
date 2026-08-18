@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.shared_file_system.v2 import availability_zone as az
 from openstack.tests.unit import base
 
 IDENTIFIER = '08a87d37-5ca2-4308-86c5-cba06d8d796c'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "id": IDENTIFIER,
     "name": "nova",
     "created_at": "2021-01-21T20:13:55.000000",

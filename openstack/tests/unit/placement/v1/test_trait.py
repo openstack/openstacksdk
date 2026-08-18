@@ -10,10 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.placement.v1 import trait as _trait
 from openstack.tests.unit import base
 
-FAKE = {
+FAKE: dict[str, Any] = {
     'name': 'CUSTOM_FOO',
 }
 

@@ -44,7 +44,9 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
         super().setUp()
         self.proxy = self.cloud.object_store
         self.container = self.getUniqueString()
-        self.endpoint = self.cloud.object_store.get_endpoint() + '/'
+        endpoint = self.cloud.object_store.get_endpoint()
+        assert endpoint is not None
+        self.endpoint = endpoint + '/'
         self.container_endpoint = f'{self.endpoint}{self.container}'
 
     def test_account_metadata_get(self):
@@ -326,6 +328,8 @@ class TestDownloadObject(base_test_object.BaseTestObject):
 
 
 class TestExtractName(TestObjectStoreProxy):
+    url: str
+    parts: list[str]
     scenarios = [
         ('discovery', dict(url='/', parts=['account'])),
         ('endpoints', dict(url='/endpoints', parts=['endpoints'])),
@@ -354,18 +358,19 @@ class TestTempURL(TestObjectStoreProxy):
         'time must either be a whole number or in specific ISO 8601 format.'
     )
     path_errmsg = 'path must be full path to an object e.g. /v1/a/c/o'
-    url = '/v1/AUTH_account/c/o'
+    url: str | bytes = '/v1/AUTH_account/c/o'
     seconds = 3600
-    key = 'correcthorsebatterystaple'
+    key: str | bytes = 'correcthorsebatterystaple'
     method = 'GET'
-    expected_url = url + (
+    expected_url: str | bytes = (
+        '/v1/AUTH_account/c/o'
         '?temp_url_sig=temp_url_signature&temp_url_expires=1400003600'
     )
     expected_body = '\n'.join(
         [
             method,
             '1400003600',
-            url,
+            '/v1/AUTH_account/c/o',
         ]
     ).encode('utf-8')
 
@@ -394,7 +399,7 @@ class TestTempURL(TestObjectStoreProxy):
     @mock.patch('time.time', return_value=1400000000)
     def test_generate_temp_url_ip_range(self, time_mock, hmac_mock):
         hmac_mock().hexdigest.return_value = 'temp_url_signature'
-        ip_ranges = [
+        ip_ranges: list[str | bytes] = [
             '1.2.3.4',
             '1.2.3.4/24',
             '2001:db8::',
@@ -477,6 +482,7 @@ class TestTempURL(TestObjectStoreProxy):
         lt = time.localtime()
         expires = time.strftime(self.expires_iso8601_format[:-1], lt)
 
+        expected_url: str | bytes
         if not isinstance(self.expected_url, str):
             expected_url = self.expected_url.replace(
                 b'1400003600',
@@ -526,7 +532,7 @@ class TestTempURL(TestObjectStoreProxy):
         expires = time.strftime(
             self.expires_iso8601_format, time.gmtime(1400003600)
         )
-        if not isinstance(self.url, str):
+        if isinstance(url, bytes):
             self.assertTrue(url.endswith(bytes(expires, 'utf-8')))
         else:
             self.assertTrue(url.endswith(expires))
@@ -594,6 +600,7 @@ class TestTempURL(TestObjectStoreProxy):
 
     @mock.patch('hmac.HMAC.hexdigest', return_value="temp_url_signature")
     def test_generate_absolute_expiry_temp_url(self, hmac_mock):
+        expected_url: str | bytes
         if isinstance(self.expected_url, bytes):
             expected_url = self.expected_url.replace(
                 b'1400003600', b'2146636800'

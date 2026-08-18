@@ -10,10 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.shared_file_system.v2 import share_snapshot_instance
 from openstack.tests.unit import base
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "status": "available",
     "share_id": "618599ab-09a1-432d-973a-c102564c7fec",
     "share_instance_id": "8edff0cb-e5ce-4bab-aa99-afe02ed6a76a",

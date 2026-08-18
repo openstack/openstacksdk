@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.shared_file_system.v2 import share_network_subnet as SNS
 from openstack.tests.unit import base
 
 IDENTIFIER = '9cd5a59f-4d22-496f-8b1a-ea4860c24d39'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "id": IDENTIFIER,
     "availability_zone": None,
     "share_network_id": "652ef887-b805-4328-b65a-b88c64cb69ec",

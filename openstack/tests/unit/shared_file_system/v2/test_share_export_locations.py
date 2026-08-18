@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.shared_file_system.v2 import share_export_locations as el
 from openstack.tests.unit import base
 
 
 IDENTIFIER = '08a87d37-5ca2-4308-86c5-cba06d8d796c'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "id": "f87589cb-f4bc-4a9b-b481-ab701206eb85",
     "path": (
         "199.19.213.225:/opt/stack/data/manila/mnt/"

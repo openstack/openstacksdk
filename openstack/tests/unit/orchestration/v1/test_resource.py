@@ -10,13 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.orchestration.v1 import resource
 from openstack.tests.unit import base
 
 
 FAKE_ID = '32e39358-2422-4ad0-a1b5-dd60696bf564'
 FAKE_NAME = 'test_stack'
-FAKE = {
+FAKE: dict[str, Any] = {
     'links': [
         {'href': 'http://res_link', 'rel': 'self'},
         {'href': 'http://stack_link', 'rel': 'stack'},

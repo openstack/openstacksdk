@@ -10,13 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.object_store.v1 import account
 from openstack.tests.unit import base
 
 
 CONTAINER_NAME = "mycontainer"
 
-ACCOUNT_EXAMPLE = {
+ACCOUNT_EXAMPLE: dict[str, Any] = {
     'content-length': '0',
     'accept-ranges': 'bytes',
     'date': 'Sat, 05 Jul 2014 19:17:40 GMT',
@@ -31,7 +33,9 @@ ACCOUNT_EXAMPLE = {
 class TestAccount(base.TestCase):
     def setUp(self):
         super().setUp()
-        self.endpoint = self.cloud.object_store.get_endpoint() + '/'
+        endpoint = self.cloud.object_store.get_endpoint()
+        assert endpoint is not None
+        self.endpoint = endpoint + '/'
 
     def test_basic(self):
         sot = account.Account(**ACCOUNT_EXAMPLE)

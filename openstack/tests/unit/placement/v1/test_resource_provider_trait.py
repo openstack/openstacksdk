@@ -11,10 +11,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.placement.v1 import resource_provider_trait
 from openstack.tests.unit import base
 
-FAKE = {
+FAKE: dict[str, Any] = {
     'resource_provider_generation': 8,
     'traits': ['COMPUTE_IMAGE_TYPE_ISO', 'CUSTOM_TRAIT'],
 }
