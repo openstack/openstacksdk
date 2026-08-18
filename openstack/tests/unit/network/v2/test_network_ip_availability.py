@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.network.v2 import network_ip_availability
 from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'network_id': IDENTIFIER,
     'network_name': 'private',
     'subnet_ip_availability': [],
@@ -24,7 +26,7 @@ EXAMPLE = {
     'used_ips': 10,
 }
 
-EXAMPLE_WITH_OPTIONAL = {
+EXAMPLE_WITH_OPTIONAL: dict[str, Any] = {
     'network_id': IDENTIFIER,
     'network_name': 'private',
     'subnet_ip_availability': [

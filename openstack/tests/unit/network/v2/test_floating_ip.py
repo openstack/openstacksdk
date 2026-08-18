@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from openstack.network.v2 import floating_ip
@@ -17,7 +18,7 @@ from openstack import proxy
 from openstack.tests.unit import base
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'created_at': '0',
     'fixed_ip_address': '1',
     'floating_ip_address': '127.0.0.1',
@@ -113,6 +114,7 @@ class TestFloatingIP(base.TestCase):
 
         result = floating_ip.FloatingIP.find_available(mock_session)
 
+        assert result is not None
         self.assertEqual('one', result.id)
         mock_session.get.assert_called_with(
             floating_ip.FloatingIP.base_path,

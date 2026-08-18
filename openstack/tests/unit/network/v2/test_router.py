@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from openstack import exceptions
@@ -17,7 +18,7 @@ from openstack.network.v2 import router
 from openstack.tests.unit import base
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'admin_state_up': True,
     'availability_zone_hints': ['1'],
     'availability_zones': ['2'],
@@ -38,7 +39,7 @@ EXAMPLE = {
     'updated_at': 'timestamp2',
 }
 
-EXAMPLE_WITH_OPTIONAL = {
+EXAMPLE_WITH_OPTIONAL: dict[str, Any] = {
     'admin_state_up': False,
     'availability_zone_hints': ['zone-1', 'zone-2'],
     'availability_zones': ['zone-2'],

@@ -10,13 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.network.v2 import tap_mirror
 from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
 PORT_ID = 'PORT_ID'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'name': 'my_tap_mirror',
     'port_id': PORT_ID,
     'directions': {'IN': 99},

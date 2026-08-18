@@ -10,13 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.network.v2 import quota
 from openstack import resource
 from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'floatingip': 1,
     'network': 2,
     'port': 3,
@@ -72,14 +74,14 @@ class TestQuota(base.TestCase):
         self.assertEqual(EXAMPLE['check_limit'], sot.check_limit)
 
     def test_prepare_request(self):
-        body = {'id': 'ABCDEFGH', 'network': '12345'}
+        body: dict[str, Any] = {'id': 'ABCDEFGH', 'network': '12345'}
         quota_obj = quota.Quota(**body)
         response = quota_obj._prepare_request()
         self.assertNotIn('id', response)
 
     def test_alternate_id(self):
         my_project_id = 'my-tenant-id'
-        body = {'project_id': my_project_id, 'network': 12345}
+        body: dict[str, Any] = {'project_id': my_project_id, 'network': 12345}
         quota_obj = quota.Quota(**body)
         self.assertEqual(my_project_id, resource.Resource._get_id(quota_obj))
 

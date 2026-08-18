@@ -10,13 +10,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
 import uuid
 
 from openstack.network.v2 import qos_minimum_packet_rate_rule
 from openstack.tests.unit import base
 
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'id': 'IDENTIFIER',
     'qos_policy_id': 'qos-policy-' + uuid.uuid4().hex,
     'min_kpps': 1500,

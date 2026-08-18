@@ -10,13 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from openstack.network.v2 import flavor
 from openstack.tests.unit import base
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE_WITH_OPTIONAL = {
+EXAMPLE_WITH_OPTIONAL: dict[str, Any] = {
     'id': IDENTIFIER,
     'name': 'test-flavor',
     'service_type': 'VPN',
@@ -25,7 +26,7 @@ EXAMPLE_WITH_OPTIONAL = {
     'service_profiles': ['1', '2'],
 }
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'id': IDENTIFIER,
     'name': 'test-flavor',
     'service_type': 'VPN',
@@ -65,7 +66,7 @@ class TestFlavor(base.TestCase):
         )
 
     def test_associate_flavor_with_service_profile(self):
-        flav = flavor.Flavor(EXAMPLE)
+        flav = flavor.Flavor(**EXAMPLE)
         response = mock.Mock()
         response.body = {
             'service_profile': {'id': '1'},
@@ -83,7 +84,7 @@ class TestFlavor(base.TestCase):
         sess.post.assert_called_with(url, json=response.body)
 
     def test_disassociate_flavor_from_service_profile(self):
-        flav = flavor.Flavor(EXAMPLE)
+        flav = flavor.Flavor(**EXAMPLE)
         response = mock.Mock()
         response.json = mock.Mock(return_value=response.body)
         sess = mock.Mock()

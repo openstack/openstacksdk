@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.network.v2 import security_group
 from openstack.tests.unit import base
 
@@ -48,7 +50,7 @@ RULES = [
     },
 ]
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'created_at': '2016-10-04T12:14:57.233772',
     'description': '1',
     'id': IDENTIFIER,
