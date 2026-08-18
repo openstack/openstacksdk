@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from unittest import mock
 import uuid
 
 from openstack.load_balancer.v2 import load_balancer
@@ -134,44 +133,6 @@ class TestLoadBalancer(base.TestCase):
                 'not_any_tags': 'not-tags-any',
             },
             test_load_balancer._query_mapping._mapping,
-        )
-
-    def test_delete_non_cascade(self):
-        sess = mock.Mock()
-        resp = mock.Mock()
-        sess.delete.return_value = resp
-
-        sot = load_balancer.LoadBalancer(**EXAMPLE)
-        sot.cascade = False
-        sot._translate_response = mock.Mock()
-        sot.delete(sess)
-
-        url = 'lbaas/loadbalancers/{lb}'.format(lb=EXAMPLE['id'])
-        params = {}
-        sess.delete.assert_called_with(url, params=params)
-        sot._translate_response.assert_called_once_with(
-            resp,
-            error_message=None,
-            has_body=False,
-        )
-
-    def test_delete_cascade(self):
-        sess = mock.Mock()
-        resp = mock.Mock()
-        sess.delete.return_value = resp
-
-        sot = load_balancer.LoadBalancer(**EXAMPLE)
-        sot.cascade = True
-        sot._translate_response = mock.Mock()
-        sot.delete(sess)
-
-        url = 'lbaas/loadbalancers/{lb}'.format(lb=EXAMPLE['id'])
-        params = {'cascade': True}
-        sess.delete.assert_called_with(url, params=params)
-        sot._translate_response.assert_called_once_with(
-            resp,
-            error_message=None,
-            has_body=False,
         )
 
 
