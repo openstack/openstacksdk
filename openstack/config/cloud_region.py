@@ -805,11 +805,52 @@ class CloudRegion:
     def skip_auth_cache(self) -> bool:
         return not keyring or not self._auth or not self._cache_auth
 
+    def _unscoped_auth_cache_id(self) -> str | None:
+        """Return the cache key for the plugin's unscoped credential.
+
+        Only the federated plugins have one. The rest return None, as the
+        base plugin does.
+        """
+        assert self._auth is not None  # narrow type
+
+        cache_id = self._auth.get_unscoped_cache_id()
+        if not cache_id:
+            return None
+
+        # Distinct from the scoped entry, which is keyed on get_cache_id(),
+        # and recognisable to anyone looking through their keyring.
+        return f'unscoped-{cache_id}'
+
+    def _fetch_auth_state(self, cache_id: str) -> str | None:
+        try:
+            return keyring.get_password('openstacksdk', cache_id)
+        except RuntimeError:  # the fail backend raises this
+            return None
+
+    def _store_auth_state(self, cache_id: str, state: str) -> None:
+        try:
+            keyring.set_password('openstacksdk', cache_id, state)
+        except RuntimeError:  # the fail backend raises this
+            self.log.debug('Failed to set auth into keyring')
+
     def load_auth_from_cache(self) -> None:
         if self.skip_auth_cache():
             return
 
         assert self._auth is not None  # narrow type
+
+        # The unscoped credential is loaded whether or not a scoped token was
+        # cached alongside it. It is what an interactive plugin would
+        # otherwise have to ask the user for again, and it can be rescoped to
+        # any project, domain or system, so it is worth having even when the
+        # scoped token it was previously used for has expired or is for
+        # somewhere else entirely.
+        unscoped_cache_id = self._unscoped_auth_cache_id()
+        if unscoped_cache_id:
+            unscoped_state = self._fetch_auth_state(unscoped_cache_id)
+            if unscoped_state:
+                self.log.debug('Reusing unscoped authentication from keyring')
+                self._auth.set_unscoped_auth_state(unscoped_state)
 
         cache_id = self._auth.get_cache_id()
 
@@ -817,10 +858,7 @@ class CloudRegion:
         if not cache_id:
             return
 
-        try:
-            state = keyring.get_password('openstacksdk', cache_id)
-        except RuntimeError:  # the fail backend raises this
-            state = None
+        state = self._fetch_auth_state(cache_id)
 
         if not state:
             self.log.debug('Failed to fetch auth from keyring')
@@ -835,19 +873,26 @@ class CloudRegion:
 
         assert self._auth is not None  # narrow type
 
+        # Only store the unscoped credential for the plugins that say
+        # authenticating needs the user. Where it can be done again silently,
+        # keeping the credential buys a round trip and costs having a token
+        # in the keyring that need not be there at all.
+        unscoped_cache_id = self._unscoped_auth_cache_id()
+        if unscoped_cache_id and self._auth.interactive_unscoped_auth:
+            unscoped_state = self._auth.get_unscoped_auth_state()
+            if unscoped_state:
+                self._store_auth_state(unscoped_cache_id, unscoped_state)
+
         cache_id = self._auth.get_cache_id()
         # NOTE(stephenfin): The actual return type of this is a serialized JSON
         # object
         state = cast(str, self._auth.get_auth_state())
 
-        try:
-            if cache_id and state:
-                # NOTE: under some conditions the method may be invoked when
-                # auth is empty. This may lead to exception in the keyring lib,
-                # thus do nothing.
-                keyring.set_password('openstacksdk', cache_id, state)
-        except RuntimeError:  # the fail backend raises this
-            self.log.debug('Failed to set auth into keyring')
+        # NOTE: under some conditions the method may be invoked when auth is
+        # empty. This may lead to exception in the keyring lib, thus do
+        # nothing.
+        if cache_id and state:
+            self._store_auth_state(cache_id, state)
 
     def insert_user_agent(self) -> None:
         """Set sdk information into the user agent of the Session.

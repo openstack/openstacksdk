@@ -1,0 +1,16 @@
+---
+features:
+  - |
+    When ``cache.auth`` is enabled, the unscoped credential of a federated
+    authentication plugin is now kept in the keyring alongside the scoped
+    token. A federated plugin obtains an unscoped token and then rescopes
+    it, and that unscoped token can be rescoped again to any project,
+    domain or system. Keeping it means one authentication serves every
+    scope, so a single cloud entry can be used against several projects
+    without authenticating again for each.
+
+    This only applies to plugins that report the authentication as needing
+    the user, such as the OpenID Connect authorization code and device
+    authorization flows. Where a plugin can authenticate again on its own,
+    the credential is not stored, since doing so would put a token in the
+    keyring to no purpose.

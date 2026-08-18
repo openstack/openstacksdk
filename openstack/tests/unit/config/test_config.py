@@ -668,6 +668,111 @@ class TestConfig(base.TestCase):
             region._auth.get_auth_state(),
         )
 
+    def _region_with_unscoped_auth(self, kr_mock, interactive=True):
+        """Return a region and the stand-in plugin installed on it.
+
+        The password plugin the test config produces has no unscoped
+        credential of its own, so a federated one is stood in for it.
+        """
+        c = config.OpenStackConfig(
+            config_files=[self.cloud_yaml], secure_files=[]
+        )
+        c._cache_auth = True
+        kr_mock.get_password = mock.Mock(return_value=None)
+        kr_mock.set_password = mock.Mock()
+
+        region = c.get_one('_test-cloud_')
+        auth = mock.Mock(wraps=region.get_auth())
+        auth.get_unscoped_cache_id.return_value = 'abc123'
+        auth.get_unscoped_auth_state.return_value = (
+            '{"auth_token": "unscoped"}'
+        )
+        # Would otherwise reach the base plugin, which does not implement it.
+        auth.set_unscoped_auth_state.return_value = None
+        auth.interactive_unscoped_auth = interactive
+        self.useFixture(fixtures.MockPatchObject(region, '_auth', auth))
+        return region, auth
+
+    @staticmethod
+    def _keyring_holding_unscoped(state):
+        """Only the unscoped entry is present, as it would be on first use."""
+
+        def get_password(service, cache_id):
+            return state if cache_id == 'unscoped-abc123' else None
+
+        return mock.Mock(side_effect=get_password)
+
+    @mock.patch('openstack.config.cloud_region.keyring')
+    def test_load_unscoped_auth_cache(self, kr_mock):
+        region, auth = self._region_with_unscoped_auth(kr_mock)
+        kr_mock.get_password = self._keyring_holding_unscoped(
+            '{"auth_token": "x"}'
+        )
+
+        region.load_auth_from_cache()
+
+        kr_mock.get_password.assert_any_call('openstacksdk', 'unscoped-abc123')
+        auth.set_unscoped_auth_state.assert_called_with('{"auth_token": "x"}')
+
+    @mock.patch('openstack.config.cloud_region.keyring')
+    def test_load_unscoped_auth_cache_without_a_scoped_token(self, kr_mock):
+        # The federated plugins return None from get_cache_id, so the unscoped
+        # credential has to be loaded without depending on a scoped entry.
+        region, auth = self._region_with_unscoped_auth(kr_mock)
+        auth.get_cache_id.return_value = None
+        kr_mock.get_password = self._keyring_holding_unscoped(
+            '{"auth_token": "x"}'
+        )
+
+        region.load_auth_from_cache()
+
+        auth.set_unscoped_auth_state.assert_called_with('{"auth_token": "x"}')
+
+    @mock.patch('openstack.config.cloud_region.keyring')
+    def test_set_unscoped_auth_cache(self, kr_mock):
+        region, _auth = self._region_with_unscoped_auth(kr_mock)
+
+        region.set_auth_cache()
+
+        kr_mock.set_password.assert_any_call(
+            'openstacksdk', 'unscoped-abc123', '{"auth_token": "unscoped"}'
+        )
+
+    @mock.patch('openstack.config.cloud_region.keyring')
+    def test_set_unscoped_auth_cache_skipped_when_not_interactive(
+        self, kr_mock
+    ):
+        # Storing it would expose a credential to no purpose when the plugin
+        # can authenticate again without the user.
+        region, _auth = self._region_with_unscoped_auth(
+            kr_mock, interactive=False
+        )
+
+        region.set_auth_cache()
+
+        for call in kr_mock.set_password.call_args_list:
+            self.assertNotIn('unscoped-abc123', call.args)
+
+    @mock.patch('openstack.config.cloud_region.keyring')
+    def test_unscoped_auth_cache_skipped_without_an_unscoped_credential(
+        self, kr_mock
+    ):
+        # Most plugins have no unscoped credential and answer None, so there
+        # is nothing to store and nothing to look for.
+        c = config.OpenStackConfig(
+            config_files=[self.cloud_yaml], secure_files=[]
+        )
+        c._cache_auth = True
+        kr_mock.get_password = mock.Mock(return_value=None)
+        kr_mock.set_password = mock.Mock()
+
+        region = c.get_one('_test-cloud_')
+
+        region.load_auth_from_cache()
+        region.set_auth_cache()
+
+        self.assertIsNone(region._unscoped_auth_cache_id())
+
     def test_metrics_global(self):
         c = config.OpenStackConfig(
             config_files=[self.cloud_yaml],
