@@ -1311,6 +1311,18 @@ class TestResource(base.TestCase):
         self.assertNotIn('unknown_param', sot)
 
 
+class _TestResource(resource.Resource):
+    service = "service"
+    base_path = "base_path"
+    resources_key = 'resources'
+    allow_create = True
+    allow_fetch = True
+    allow_head = True
+    allow_commit = True
+    allow_delete = True
+    allow_list = True
+
+
 class TestResourceActions(base.TestCase):
     def setUp(self):
         super().setUp()
@@ -1318,18 +1330,7 @@ class TestResourceActions(base.TestCase):
         self.service_name = "service"
         self.base_path = "base_path"
 
-        class Test(resource.Resource):
-            service = self.service_name
-            base_path = self.base_path
-            resources_key = 'resources'
-            allow_create = True
-            allow_fetch = True
-            allow_head = True
-            allow_commit = True
-            allow_delete = True
-            allow_list = True
-
-        self.test_class = Test
+        self.test_class = _TestResource
 
         self.request = mock.Mock(spec=resource._Request)
         self.request.url = "uri"
@@ -1338,7 +1339,7 @@ class TestResourceActions(base.TestCase):
 
         self.response = FakeResponse({})
 
-        self.sot = Test(id="id")
+        self.sot = _TestResource(id="id")
         self.mock_prepare_request = mock.patch.object(
             self.sot, '_prepare_request', return_value=self.request
         ).start()
@@ -2144,7 +2145,7 @@ class TestResourceActions(base.TestCase):
     def test_list_one_page_response_resources_key(self):
         key = "resources"
 
-        class Test(self.test_class):
+        class Test(_TestResource):
             resources_key = key
 
         id_value = 1
@@ -2293,7 +2294,7 @@ class TestResourceActions(base.TestCase):
 
         self.session.get.return_value = mock_response
 
-        class Test(self.test_class):
+        class Test(_TestResource):
             _query_mapping = resource.QueryParameters("limit")
 
         results = list(Test.list(self.session, paginated=True, limit=q_limit))
@@ -2558,7 +2559,7 @@ class TestResourceActions(base.TestCase):
 
         self.session.get.return_value = mock_response
 
-        class Test(self.test_class):
+        class Test(_TestResource):
             _query_mapping = resource.QueryParameters("limit")
 
         res = Test.list(self.session, paginated=True, limit=q_limit)
@@ -2583,7 +2584,7 @@ class TestResourceActions(base.TestCase):
 
         self.session.get.side_effect = [mock_response, mock_empty]
 
-        class Test(self.test_class):
+        class Test(_TestResource):
             _query_mapping = resource.QueryParameters(query_param=qp_name)
             base_path = "/%(something)s/blah"
             something = resource.URI("something")
@@ -2656,7 +2657,7 @@ class TestResourceActions(base.TestCase):
 
         self.session.get.side_effect = [mock_empty]
 
-        class Test(self.test_class):
+        class Test(_TestResource):
             _query_mapping = resource.QueryParameters(query_param=qp_name)
             base_path = "/%(something)s/blah"
             something = resource.URI("something")
@@ -2694,7 +2695,7 @@ class TestResourceActions(base.TestCase):
 
         self.session.get.side_effect = [mock_empty]
 
-        class Test(self.test_class):
+        class Test(_TestResource):
             _query_mapping = resource.QueryParameters('a')
             base_path = "/%(something)s/blah"
             something = resource.URI("something")
@@ -2739,7 +2740,7 @@ class TestResourceActions(base.TestCase):
 
         self.session.get.side_effect = [mock_response, mock_empty]
 
-        class Test(self.test_class):
+        class Test(_TestResource):
             _query_mapping = resource.QueryParameters(query_param=qp_name)
             base_path = "/%(something)s/blah"
             something = resource.URI("something")
@@ -2785,7 +2786,7 @@ class TestResourceActions(base.TestCase):
 
         self.session.get.side_effect = [mock_response, mock_empty]
 
-        class Test(self.test_class):
+        class Test(_TestResource):
             _query_mapping = resource.QueryParameters(query_param=qp_name)
             base_path = "/%(something)s/blah"
             something = resource.URI("something")
@@ -2998,7 +2999,7 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(3, len(self.session.get.call_args_list))
 
     def test_list_multi_page_header_count(self):
-        class Test(self.test_class):
+        class Test(_TestResource):
             resources_key = None
             pagination_key = 'X-Container-Object-Count'
 
