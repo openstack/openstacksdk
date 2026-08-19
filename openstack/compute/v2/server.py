@@ -424,19 +424,19 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         self,
         session: adapter.Adapter,
         image: str | _image.Image,
-        name: str | None | types.Unset = types.UNSET,
-        admin_password: str | None | types.Unset = types.UNSET,
+        name: str | types.Unset | None = types.UNSET,
+        admin_password: str | types.Unset | None = types.UNSET,
         preserve_ephemeral: bool | types.Unset = types.UNSET,
-        access_ipv4: str | None | types.Unset = types.UNSET,
-        access_ipv6: str | None | types.Unset = types.UNSET,
-        metadata: dict[str, object] | None | types.Unset = types.UNSET,
-        user_data: dict[str, object] | None | types.Unset = types.UNSET,
-        key_name: str | None | types.Unset = types.UNSET,
-        description: str | None | types.Unset = types.UNSET,
+        access_ipv4: str | types.Unset | None = types.UNSET,
+        access_ipv6: str | types.Unset | None = types.UNSET,
+        metadata: dict[str, object] | types.Unset | None = types.UNSET,
+        user_data: dict[str, object] | types.Unset | None = types.UNSET,
+        key_name: str | types.Unset | None = types.UNSET,
+        description: str | types.Unset | None = types.UNSET,
         trusted_image_certificates: list[str]
-        | None
-        | types.Unset = types.UNSET,
-        hostname: str | None | types.Unset = types.UNSET,
+        | types.Unset
+        | None = types.UNSET,
+        hostname: str | types.Unset | None = types.UNSET,
     ) -> Self:
         """Rebuild the server with the given arguments.
 
@@ -877,7 +877,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     def unshelve(
         self,
         session: adapter.Adapter,
-        availability_zone: str | None | types.Unset = types.UNSET,
+        availability_zone: str | types.Unset | None = types.UNSET,
         host: str | None = None,
     ) -> None:
         """Unshelve the server.
