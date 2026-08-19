@@ -258,6 +258,21 @@ class TestGroup(TestVolumeProxy):
     def test_group_get(self):
         self.verify_get(self.proxy.get_group, group.Group)
 
+    @mock.patch.object(group.Group, 'fetch', autospec=True)
+    def test_group_get_list_volume(self, mock_fetch):
+        self.proxy.get_group('group-id', list_volume=True)
+        # list_volume must be forwarded to fetch so it lands in the request
+        # query string; otherwise the server omits the 'volumes' field.
+        _, kwargs = mock_fetch.call_args
+        self.assertEqual(True, kwargs.get('list_volume'))
+
+    @mock.patch.object(group.Group, 'fetch', autospec=True)
+    def test_group_get_without_list_volume(self, mock_fetch):
+        self.proxy.get_group('group-id')
+        # No list_volume query param should be sent when not requested.
+        _, kwargs = mock_fetch.call_args
+        self.assertNotIn('list_volume', kwargs)
+
     def test_group_find(self):
         self.verify_find(
             self.proxy.find_group,

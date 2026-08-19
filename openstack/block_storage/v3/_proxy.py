@@ -2060,12 +2060,19 @@ class Proxy(proxy.Proxy):
     # TODO(stephenfin): Remove **attrs in 5.0
     @renamed_param('group_id', 'group')
     def get_group(
-        self, group: str | _group.Group, **attrs: Any
+        self,
+        group: str | _group.Group,
+        *,
+        list_volume: bool | None = None,
+        **attrs: Any,
     ) -> _group.Group:
         """Get a group
 
         :param group: The value can be the ID of a group or a
             :class:`~openstack.block_storage.v3.group.Group` instance.
+        :param list_volume: Whether to include the IDs of the volumes that are
+            members of the group in the response. Requires microversion 3.25 or
+            later.
         :param attrs: **DEPRECATED** Optional query parameters to be sent to
             limit the resources being returned.
 
@@ -2077,7 +2084,17 @@ class Proxy(proxy.Proxy):
                 'removed in a future release',
                 os_warnings.RemovedInSDK50Warning,
             )
-        return self._get(_group.Group, group, **attrs)
+        if list_volume is None:
+            return self._get(_group.Group, group, **attrs)
+        # list_volume must be forwarded to the request as a query parameter so
+        # the server includes the group's volume IDs. It is not a body field,
+        # so pass it through fetch() rather than setting it on the resource.
+        res = self._get_resource(_group.Group, group, **attrs)
+        return res.fetch(
+            self,
+            error_message=f"No {_group.Group.__name__} found for {group}",
+            list_volume=list_volume,
+        )
 
     @overload
     def find_group(

@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    Fixed ``block_storage.get_group`` to forward the ``list_volume`` argument
+    as a request query parameter. Previously it was dropped, so the server
+    never returned the group's volume IDs and callers (including the
+    ``openstack volume group show --volumes`` command) always saw an empty
+    result. Requires block storage microversion 3.25 or later.
