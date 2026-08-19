@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.image.v2 import metadef_resource_type
 from openstack.tests.unit import base
 
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "name": "OS::Cinder::Volume",
     "prefix": "CIM_PASD_",
     "properties_target": "image",

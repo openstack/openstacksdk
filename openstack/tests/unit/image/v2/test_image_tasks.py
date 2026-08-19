@@ -13,10 +13,12 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+from typing import Any
+
 from openstack.image.v2 import image_tasks
 from openstack.tests.unit import base
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'id': '56ab5f98-2bb7-44c7-bc05-52bde37eb53b',
     'type': 'import',
     'status': 'failure',

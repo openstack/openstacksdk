@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.dns.v2 import tsigkey
 from openstack.tests.unit import base
 
 IDENTIFIER = '4c72c7d3-6cfa-4fe1-9984-7705119f0228'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "id": IDENTIFIER,
     "name": 'test-key',
     "algorithm": 'hmac-sha512',

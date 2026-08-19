@@ -9,6 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -17,7 +18,7 @@ from openstack.dns.v2 import zone_import
 from openstack.tests.unit import base
 
 IDENTIFIER = '074e805e-fe87-4cbb-b10b-21a06e215d41'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'status': 'COMPLETE',
     'zone_id': '6625198b-d67d-47dc-8d29-f90bd60f3ac4',
     'links': {

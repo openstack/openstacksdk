@@ -13,10 +13,12 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+from typing import Any
+
 from openstack.image.v2 import image_location
 from openstack.tests.unit import base
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'image_id': '2',
     'url': 'http://spam.com/',
     'validation_data': {'os_hash_algo': 'sha512'},

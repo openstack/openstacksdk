@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.dns.v2 import blacklist
 from openstack.tests.unit import base
 
 IDENTIFIER = '373cb85e-0f4a-487a-846e-dce7a65cca4d'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'id': IDENTIFIER,
     'description': 'blacklist test description',
     'pattern': '.*example.com.',

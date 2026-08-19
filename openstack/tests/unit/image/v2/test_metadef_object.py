@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.image.v2 import metadef_object
 from openstack.tests.unit import base
 
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'created_at': '2014-09-19T18:20:56Z',
     'description': 'The CPU limits with control parameters.',
     'name': 'CPU Limits',

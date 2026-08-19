@@ -15,6 +15,7 @@ import io
 import operator
 import os
 import tempfile
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -26,7 +27,7 @@ from openstack.image.v2 import image
 from openstack.tests.unit import base
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'id': IDENTIFIER,
     'checksum': '1',
     'container_format': '2',
@@ -605,7 +606,7 @@ class TestImage(base.TestCase):
             headers={"Content-Type": "application/octet-stream"},
         )
 
-        test_data = [
+        test_data: list[dict[str, Any]] = [
             {
                 'name': 'Without store preferences',
                 'store_preferences': None,
@@ -811,7 +812,8 @@ class TestImage(base.TestCase):
         del values['instance_uuid']
         sot = image.Image.existing(**values)
         # Let the translate pass through, that portion is tested elsewhere
-        sot._translate_response = mock.Mock()
+        mock.patch.object(sot, '_translate_response').start()
+        self.addCleanup(mock.patch.stopall)
 
         resp = mock.Mock()
         resp.content = b"abc"
@@ -880,4 +882,5 @@ class TestImage(base.TestCase):
         )
 
         self.assertIsInstance(result, image.Image)
+        assert result is not None
         self.assertEqual(IDENTIFIER, result.id)

@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.identity.v3 import region
 from openstack.tests.unit import base
 
 
 IDENTIFIER = 'RegionOne'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'description': '1',
     'id': IDENTIFIER,
     'links': {'self': 'http://example.com/region1'},

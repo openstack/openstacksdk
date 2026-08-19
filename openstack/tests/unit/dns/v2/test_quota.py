@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.dns.v2 import quota
 from openstack.tests.unit import base
 
 IDENTIFIER = "IDENTIFIER"
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "zones": 10,
     "zone_recordsets": 500,
     "zone_records": 500,
@@ -45,7 +47,7 @@ class TestQuota(base.TestCase):
         self.assertEqual('FAKE_PROJECT', sot.project)
 
     def test_prepare_request(self):
-        body = {'id': 'ABCDEFGH', 'zones': 20}
+        body: dict[str, Any] = {'id': 'ABCDEFGH', 'zones': 20}
         quota_obj = quota.Quota(**body)
         response = quota_obj._prepare_request()
         self.assertNotIn('id', response)

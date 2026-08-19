@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.dns.v2 import recordset
 from openstack.tests.unit import base
 
 
 IDENTIFIER = 'NAME'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'description': 'This is an example record set.',
     'updated_at': None,
     'records': ['10.1.0.2'],

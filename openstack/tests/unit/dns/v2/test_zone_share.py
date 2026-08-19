@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -54,7 +55,7 @@ class TestZoneShare(base.TestCase):
         zone_id = 'bogus_zone_id'
         project_id = 'bogus_project_id'
         target_id = 'bogus_target_id'
-        expected = {
+        expected: dict[str, Any] = {
             'id': share_id,
             'zone_id': zone_id,
             'project_id': project_id,

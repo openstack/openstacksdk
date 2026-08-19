@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.dns.v2 import floating_ip as fip
 from openstack.tests.unit import base
 
 
 IDENTIFIER = 'RegionOne:id'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'status': 'PENDING',
     'ptrdname': 'smtp.example.com.',
     'description': 'This is a floating ip for 127.0.0.1',
