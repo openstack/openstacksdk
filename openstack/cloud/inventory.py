@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import functools
-
 from openstack.cloud import _utils
 from openstack.config import loader
 from openstack import connection
@@ -86,8 +84,11 @@ class OpenStackInventory:
         return _utils._filter_list(hosts, name_or_id, filters)
 
     def get_host(self, name_or_id, filters=None, expand=True):
-        if expand:
-            func = self.search_hosts
-        else:
-            func = functools.partial(self.search_hosts, expand=False)
-        return _utils._get_entity(self, func, name_or_id, filters)
+        hosts = self.search_hosts(name_or_id, filters, expand=expand)
+        if not hosts:
+            return None
+        if len(hosts) > 1:
+            raise exceptions.SDKException(
+                f"Multiple matches found for {name_or_id}"
+            )
+        return hosts[0]
