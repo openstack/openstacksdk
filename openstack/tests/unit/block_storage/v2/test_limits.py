@@ -10,10 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.block_storage.v2 import limits
 from openstack.tests.unit import base
 
-ABSOLUTE_LIMIT = {
+ABSOLUTE_LIMIT: dict[str, Any] = {
     "totalSnapshotsUsed": 1,
     "maxTotalBackups": 10,
     "maxTotalVolumeGigabytes": 1000,
@@ -26,7 +28,7 @@ ABSOLUTE_LIMIT = {
     "totalGigabytesUsed": 2,
 }
 
-RATE_LIMIT = {
+RATE_LIMIT: dict[str, Any] = {
     "verb": "POST",
     "value": 80,
     "remaining": 80,
@@ -34,9 +36,13 @@ RATE_LIMIT = {
     "next-available": "2021-02-23T22:08:00Z",
 }
 
-RATE_LIMITS = {"regex": ".*", "uri": "*", "limit": [RATE_LIMIT]}
+RATE_LIMITS: dict[str, Any] = {
+    "regex": ".*",
+    "uri": "*",
+    "limit": [RATE_LIMIT],
+}
 
-LIMIT = {"rate": [RATE_LIMITS], "absolute": ABSOLUTE_LIMIT}
+LIMIT: dict[str, Any] = {"rate": [RATE_LIMITS], "absolute": ABSOLUTE_LIMIT}
 
 
 class TestAbsoluteLimit(base.TestCase):

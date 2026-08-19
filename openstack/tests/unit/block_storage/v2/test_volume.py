@@ -11,6 +11,7 @@
 # under the License.
 
 import copy
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -19,7 +20,7 @@ from openstack.block_storage.v2 import volume
 from openstack.tests.unit import base
 
 FAKE_ID = "6685584b-1eac-4da6-b5c3-555430cf68ff"
-IMAGE_METADATA = {
+IMAGE_METADATA: dict[str, Any] = {
     'container_format': 'bare',
     'min_ram': '64',
     'disk_format': 'qcow2',
@@ -30,7 +31,7 @@ IMAGE_METADATA = {
     'size': '13167616',
 }
 
-VOLUME = {
+VOLUME: dict[str, Any] = {
     "status": "creating",
     "name": "my_volume",
     "attachments": [],
@@ -67,7 +68,7 @@ VOLUME = {
 
 class TestVolume(base.TestCase):
     def test_basic(self):
-        sot = volume.Volume(VOLUME)
+        sot = volume.Volume(**VOLUME)
         self.assertEqual("volume", sot.resource_key)
         self.assertEqual("volumes", sot.resources_key)
         self.assertEqual("/volumes", sot.base_path)
@@ -150,10 +151,10 @@ class TestVolumeActions(TestVolume):
     def test_extend(self):
         sot = volume.Volume(**VOLUME)
 
-        self.assertIsNone(sot.extend(self.sess, '20'))
+        self.assertIsNone(sot.extend(self.sess, 20))
 
         url = f'volumes/{FAKE_ID}/action'
-        body = {"os-extend": {"new_size": "20"}}
+        body = {"os-extend": {"new_size": 20}}
         self.sess.post.assert_called_with(url, json=body)
 
     def test_set_volume_readonly(self):

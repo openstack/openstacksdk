@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -55,7 +56,7 @@ CONNECTOR = {
     "uuid": "87c73a20-e7f9-4370-ad85-5829b54675d7",
 }
 
-ATTACHMENT = {
+ATTACHMENT: dict[str, Any] = {
     "id": FAKE_ID,
     "status": "attached",
     "instance": FAKE_INSTANCE_UUID,
@@ -83,7 +84,7 @@ class TestAttachment(base.TestCase):
         self.sess.default_microversion = "3.54"
 
     def test_basic(self):
-        sot = attachment.Attachment(ATTACHMENT)
+        sot = attachment.Attachment(**ATTACHMENT)
         self.assertEqual("attachment", sot.resource_key)
         self.assertEqual("attachments", sot.resources_key)
         self.assertEqual("/attachments", sot.base_path)

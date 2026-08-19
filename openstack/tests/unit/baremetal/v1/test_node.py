@@ -11,6 +11,7 @@
 # under the License.
 
 import base64
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -23,7 +24,7 @@ from openstack.tests.unit import base
 from openstack import utils
 
 # NOTE: Sample data from api-ref doc
-FAKE = {
+FAKE: dict[str, Any] = {
     "automated_clean": False,
     "boot_mode": "uefi",
     "chassis_uuid": "1",  # NOTE: missed in api-ref sample
@@ -409,7 +410,9 @@ class TestNodeSetProvisionState(base.TestCase):
             )
 
     def test_deploy_with_deploy_steps(self):
-        deploy_steps = [{'interface': 'deploy', 'step': 'upgrade_fw'}]
+        deploy_steps: list[dict[str, Any]] = [
+            {'interface': 'deploy', 'step': 'upgrade_fw'}
+        ]
         result = self.node.set_provision_state(
             self.session, 'active', deploy_steps=deploy_steps
         )
@@ -424,7 +427,9 @@ class TestNodeSetProvisionState(base.TestCase):
         )
 
     def test_rebuild_with_deploy_steps(self):
-        deploy_steps = [{'interface': 'deploy', 'step': 'upgrade_fw'}]
+        deploy_steps: list[dict[str, Any]] = [
+            {'interface': 'deploy', 'step': 'upgrade_fw'}
+        ]
         result = self.node.set_provision_state(
             self.session, 'rebuild', deploy_steps=deploy_steps
         )
@@ -451,7 +456,9 @@ class TestNodeSetProvisionState(base.TestCase):
         )
 
     def test_set_provision_state_service(self):
-        service_steps = [{'interface': 'deploy', 'step': 'hold'}]
+        service_steps: list[dict[str, Any]] = [
+            {'interface': 'deploy', 'step': 'hold'}
+        ]
         result = self.node.set_provision_state(
             self.session, 'service', service_steps=service_steps
         )
@@ -895,7 +902,7 @@ class TestNodeValidate(base.TestCase):
             'inspect': {'result': None, 'reason': 'Not supported'},
             'power': {'result': True},
         }
-        result = self.node.validate(self.session, required=None)
+        result = self.node.validate(self.session, required=[])
         self.assertTrue(result['power'].result)
         self.assertFalse(result['power'].reason)
         for iface in ('deploy', 'console', 'inspect'):
@@ -918,7 +925,7 @@ class TestNodeWaitForReservation(base.TestCase):
 
     def test_no_reservation(self, mock_fetch):
         self.node.reservation = None
-        node = self.node.wait_for_reservation(None)
+        node = self.node.wait_for_reservation(self.session)
         self.assertIs(node, self.node)
         self.assertFalse(mock_fetch.called)
 
@@ -1300,18 +1307,18 @@ class TestNodePatch(base.TestCase):
         self.session.log = mock.Mock()
 
     def test_node_patch(self, mock_patch):
-        patch = {'path': 'test'}
+        patch = [{'path': 'test'}]
         self.node.patch(self.session, patch=patch)
         mock_patch.assert_called_once()
         kwargs = mock_patch.call_args[1]
-        self.assertEqual(kwargs['patch'], {'path': 'test'})
+        self.assertEqual(kwargs['patch'], [{'path': 'test'}])
 
     @mock.patch.object(resource.Resource, '_prepare_request', autospec=True)
     @mock.patch.object(resource.Resource, '_commit', autospec=True)
     def test_node_patch_reset_interfaces(
         self, mock__commit, mock_prepreq, mock_patch
     ):
-        patch = {'path': 'test'}
+        patch = [{'path': 'test'}]
         self.node.patch(
             self.session,
             patch=patch,
@@ -1363,11 +1370,11 @@ class TestNodeWaitForPowerState(base.TestCase):
 @mock.patch.object(utils, 'pick_microversion', lambda session, v: v)
 @mock.patch.object(node.Node, 'fetch', lambda self, session: self)
 @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
-class TestNodePassthru:
+class TestNodePassthru(base.TestCase):
     def setUp(self):
         super().setUp()
         self.node = node.Node(**FAKE)
-        self.session = node.Mock(
+        self.session = mock.Mock(
             spec=adapter.Adapter, default_microversion='1.37'
         )
         self.session.log = mock.Mock()
@@ -1376,6 +1383,7 @@ class TestNodePassthru:
         self.node.call_vendor_passthru(self.session, "GET", "test_method")
         self.session.get.assert_called_once_with(
             f'nodes/{self.node.id}/vendor_passthru?method=test_method',
+            json=None,
             headers=mock.ANY,
             microversion='1.37',
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
@@ -1385,6 +1393,7 @@ class TestNodePassthru:
         self.node.call_vendor_passthru(self.session, "POST", "test_method")
         self.session.post.assert_called_once_with(
             f'nodes/{self.node.id}/vendor_passthru?method=test_method',
+            json=None,
             headers=mock.ANY,
             microversion='1.37',
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
@@ -1394,6 +1403,7 @@ class TestNodePassthru:
         self.node.call_vendor_passthru(self.session, "PUT", "test_method")
         self.session.put.assert_called_once_with(
             f'nodes/{self.node.id}/vendor_passthru?method=test_method',
+            json=None,
             headers=mock.ANY,
             microversion='1.37',
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
@@ -1403,6 +1413,7 @@ class TestNodePassthru:
         self.node.call_vendor_passthru(self.session, "DELETE", "test_method")
         self.session.delete.assert_called_once_with(
             f'nodes/{self.node.id}/vendor_passthru?method=test_method',
+            json=None,
             headers=mock.ANY,
             microversion='1.37',
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES,

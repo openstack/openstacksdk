@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.baremetal.v1 import conductor
 from openstack.tests.unit import base
 
 
-FAKE = {
+FAKE: dict[str, Any] = {
     "links": [
         {
             "href": "http://127.0.0.1:6385/v1/conductors/compute2.localdomain",

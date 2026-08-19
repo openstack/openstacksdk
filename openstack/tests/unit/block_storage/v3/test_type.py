@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -19,7 +20,7 @@ from openstack import exceptions
 from openstack.tests.unit import base
 
 FAKE_ID = "6685584b-1eac-4da6-b5c3-555430cf68ff"
-TYPE = {
+TYPE: dict[str, Any] = {
     "extra_specs": {"capabilities": "gpu"},
     "id": FAKE_ID,
     "name": "SSD",
@@ -27,7 +28,7 @@ TYPE = {
 }
 
 FAKE_ENC_ID = "479394ab-2f25-416e-8f58-721d8e5e29de"
-TYPE_ENC = {
+TYPE_ENC: dict[str, Any] = {
     "key_size": 256,
     "volume_type_id": FAKE_ID,
     "encryption_id": FAKE_ENC_ID,

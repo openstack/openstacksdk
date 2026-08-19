@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -21,7 +22,7 @@ from openstack.tests.unit import base
 PROJECT_ID = 'd5e678b5-f88b-411c-876b-f6ec2ba999bf'
 VOLUME_TYPE_ID = 'adef1cf8-736e-4b62-a2db-f8b6b6c1d953'
 
-DEFAULT_TYPE = {
+DEFAULT_TYPE: dict[str, Any] = {
     'project_id': PROJECT_ID,
     'volume_type_id': VOLUME_TYPE_ID,
 }

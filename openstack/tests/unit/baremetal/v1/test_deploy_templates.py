@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.baremetal.v1 import deploy_templates
 from openstack.tests.unit import base
 
 
-FAKE = {
+FAKE: dict[str, Any] = {
     "created_at": "2016-08-18T22:28:48.643434+11:11",
     "extra": {},
     "links": [

@@ -10,10 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.block_storage.v2 import consistency_group
 from openstack.tests.unit import base
 
-CONSISTENCY_GROUP = {
+CONSISTENCY_GROUP: dict[str, Any] = {
     "id": "6f2aa28a-a3e7-4eb3-acdc-38b9b9f08be5",
     "name": "my-cg",
     "description": "My consistency group",

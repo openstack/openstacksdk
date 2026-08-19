@@ -10,10 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.block_storage.v3 import capabilities
 from openstack.tests.unit import base
 
-CAPABILITIES = {
+CAPABILITIES: dict[str, Any] = {
     "namespace": "OS::Storage::Capabilities::fake",
     "vendor_name": "OpenStack",
     "volume_backend_name": "lvmdriver-1",

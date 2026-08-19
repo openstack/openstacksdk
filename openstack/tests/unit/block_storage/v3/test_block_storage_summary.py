@@ -11,12 +11,13 @@
 # under the License.
 
 import copy
+from typing import Any
 
 from openstack.block_storage.v3 import block_storage_summary as summary
 from openstack.tests.unit import base
 
 
-BLOCK_STORAGE_SUMMARY_312 = {
+BLOCK_STORAGE_SUMMARY_312: dict[str, Any] = {
     "total_size": "4",
     "total_count": "2",
     "metadata": {"key1": "value1"},

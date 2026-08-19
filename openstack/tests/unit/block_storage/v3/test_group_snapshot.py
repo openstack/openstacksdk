@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -17,7 +18,7 @@ from keystoneauth1 import adapter
 from openstack.block_storage.v3 import group_snapshot
 from openstack.tests.unit import base
 
-GROUP_SNAPSHOT = {
+GROUP_SNAPSHOT: dict[str, Any] = {
     "id": "6f519a48-3183-46cf-a32f-41815f813986",
     "group_id": "6f519a48-3183-46cf-a32f-41815f814444",
     "status": "available",

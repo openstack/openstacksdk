@@ -10,10 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.block_storage.v3 import manageable_volume
 from openstack.tests.unit import base
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'reference': {'source-name': 'volume-00000001'},
     'size': 1,
     'safe_to_manage': True,

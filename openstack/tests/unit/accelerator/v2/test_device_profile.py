@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.accelerator.v2 import device_profile
 from openstack.tests.unit import base
 
 
-FAKE = {
+FAKE: dict[str, Any] = {
     "id": 1,
     "uuid": "a95e10ae-b3e3-4eab-a513-1afae6f17c51",
     "name": 'afaas_example_1',

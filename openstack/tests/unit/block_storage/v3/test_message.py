@@ -10,10 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.block_storage.v3 import message
 from openstack.tests.unit import base
 
-MESSAGE = {
+MESSAGE: dict[str, Any] = {
     "request_id": "req-c1216709-afba-4703-a1a3-22eda88f2f5a",
     "links": [
         {"href": "http://localhost:8776/link1", "rel": "self"},

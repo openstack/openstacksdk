@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from openstack.baremetal.v1 import _proxy
@@ -109,7 +110,7 @@ class TestNode(TestBaremetalProxy):
 
     @mock.patch.object(node.Node, 'list')
     def test_nodes_sharded(self, mock_list):
-        kwargs = {"shard": 'meow', "query": 1}
+        kwargs: dict[str, Any] = {"shard": 'meow', "query": 1}
         result = self.proxy.nodes(fields=("uuid", "instance_uuid"), **kwargs)
         self.assertIs(result, mock_list.return_value)
         mock_list.assert_called_once_with(

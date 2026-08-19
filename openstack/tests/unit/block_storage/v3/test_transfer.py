@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -25,7 +26,7 @@ FAKE_VOL_NAME = "test-volume"
 FAKE_TRANSFER = "7d048960-7c3f-4bf0-952f-4312fdea1dec"
 FAKE_AUTH_KEY = "95bc670c0068821d"
 
-TRANSFER = {
+TRANSFER: dict[str, Any] = {
     "auth_key": FAKE_AUTH_KEY,
     "created_at": "2023-06-27T08:47:23.035010",
     "id": FAKE_ID,

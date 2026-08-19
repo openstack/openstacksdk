@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -20,7 +21,7 @@ from openstack import exceptions
 from openstack.tests.unit import base
 
 
-FAKE = {
+FAKE: dict[str, Any] = {
     "hosts": ["897ab1dad809"],
     "links": [
         {

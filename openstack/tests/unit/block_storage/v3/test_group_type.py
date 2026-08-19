@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -17,7 +18,7 @@ from keystoneauth1 import adapter
 from openstack.block_storage.v3 import group_type
 from openstack.tests.unit import base
 
-GROUP_TYPE = {
+GROUP_TYPE: dict[str, Any] = {
     "id": "6685584b-1eac-4da6-b5c3-555430cf68ff",
     "name": "grp-type-001",
     "description": "group type 001",

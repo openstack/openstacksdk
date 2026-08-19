@@ -11,6 +11,7 @@
 # under the License.
 
 import copy
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -22,7 +23,7 @@ from openstack.tests.unit import base
 FAKE_ID = "ffa9bc5e-1172-4021-acaf-cdcd78a9584d"
 FAKE_VOLUME_ID = "5aa119a8-d25b-45a7-8d1b-88e127885635"
 
-SNAPSHOT = {
+SNAPSHOT: dict[str, Any] = {
     "status": "creating",
     "description": "Daily backup",
     "created_at": "2015-03-09T12:14:57.233772",
@@ -35,7 +36,7 @@ SNAPSHOT = {
     "force": "true",
 }
 
-DETAILS = {
+DETAILS: dict[str, Any] = {
     "os-extended-snapshot-attributes:progress": "100%",
     "os-extended-snapshot-attributes:project_id": "0c2eba2c5af04d3f9e9d0d410b371fde",  # noqa: E501
 }
@@ -46,7 +47,7 @@ DETAILED_SNAPSHOT.update(**DETAILS)
 
 class TestSnapshot(base.TestCase):
     def test_basic(self):
-        sot = snapshot.Snapshot(SNAPSHOT)
+        sot = snapshot.Snapshot(**SNAPSHOT)
         self.assertEqual("snapshot", sot.resource_key)
         self.assertEqual("snapshots", sot.resources_key)
         self.assertEqual("/snapshots", sot.base_path)
@@ -122,7 +123,7 @@ class TestSnapshotActions(base.TestCase):
         self.sess.post = mock.Mock(return_value=resp)
 
         sot = snapshot.Snapshot.manage(
-            self.sess, volume_id=FAKE_VOLUME_ID, ref=FAKE_ID
+            self.sess, volume_id=FAKE_VOLUME_ID, ref={'source-name': FAKE_ID}
         )
 
         self.assertIsNotNone(sot)
@@ -131,7 +132,7 @@ class TestSnapshotActions(base.TestCase):
         body = {
             'snapshot': {
                 'volume_id': FAKE_VOLUME_ID,
-                'ref': FAKE_ID,
+                'ref': {'source-name': FAKE_ID},
                 'name': None,
                 'description': None,
                 'metadata': None,

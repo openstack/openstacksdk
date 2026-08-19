@@ -9,10 +9,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.block_storage.v3 import resource_filter
 from openstack.tests.unit import base
 
-RESOURCE_FILTER = {
+RESOURCE_FILTER: dict[str, Any] = {
     'filters': [
         'name',
         'status',

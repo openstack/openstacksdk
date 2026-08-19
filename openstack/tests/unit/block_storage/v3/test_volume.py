@@ -11,6 +11,7 @@
 # under the License.
 
 import copy
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -20,7 +21,7 @@ from openstack import exceptions
 from openstack.tests.unit import base
 
 FAKE_ID = "6685584b-1eac-4da6-b5c3-555430cf68ff"
-IMAGE_METADATA = {
+IMAGE_METADATA: dict[str, Any] = {
     'container_format': 'bare',
     'min_ram': '64',
     'disk_format': 'qcow2',
@@ -32,7 +33,7 @@ IMAGE_METADATA = {
 }
 
 FAKE_HOST = "fake_host@fake_backend#fake_pool"
-VOLUME = {
+VOLUME: dict[str, Any] = {
     "status": "creating",
     "name": "my_volume",
     "attachments": [],
@@ -81,7 +82,7 @@ class TestVolume(base.TestCase):
         self.sess._get_connection = mock.Mock(return_value=self.cloud)
 
     def test_basic(self):
-        sot = volume.Volume(VOLUME)
+        sot = volume.Volume(**VOLUME)
         self.assertEqual("volume", sot.resource_key)
         self.assertEqual("volumes", sot.resources_key)
         self.assertEqual("/volumes", sot.base_path)
@@ -157,10 +158,10 @@ class TestVolume(base.TestCase):
     def test_extend(self):
         sot = volume.Volume(**VOLUME)
 
-        self.assertIsNone(sot.extend(self.sess, '20'))
+        self.assertIsNone(sot.extend(self.sess, 20))
 
         url = f'volumes/{FAKE_ID}/action'
-        body = {"os-extend": {"new_size": "20"}}
+        body = {"os-extend": {"new_size": 20}}
         self.sess.post.assert_called_with(
             url, json=body, microversion=sot._max_microversion
         )
@@ -561,7 +562,7 @@ class TestVolume(base.TestCase):
                 disk_format='2',
                 container_format='3',
                 visibility='4',
-                protected='5',
+                protected=True,
             ),
         )
 
@@ -573,7 +574,7 @@ class TestVolume(base.TestCase):
                 'disk_format': '2',
                 'container_format': '3',
                 'visibility': '4',
-                'protected': '5',
+                'protected': True,
             }
         }
         self.sess.post.assert_called_with(
@@ -671,7 +672,8 @@ class TestVolume(base.TestCase):
 
     def test_create_scheduler_hints(self):
         sot = volume.Volume(**VOLUME)
-        sot._translate_response = mock.Mock()
+        mock.patch.object(sot, '_translate_response').start()
+        self.addCleanup(mock.patch.stopall)
         sot.create(self.sess)
 
         url = '/volumes'
@@ -701,13 +703,15 @@ class TestVolume(base.TestCase):
         resp.headers = {}
         resp.status_code = 202
         self.sess.post = mock.Mock(return_value=resp)
-        sot = volume.Volume.manage(self.sess, host=FAKE_HOST, ref=FAKE_ID)
+        sot = volume.Volume.manage(
+            self.sess, host=FAKE_HOST, ref={'source-name': FAKE_ID}
+        )
         self.assertIsNotNone(sot)
         url = '/manageable_volumes'
         body = {
             'volume': {
                 'host': FAKE_HOST,
-                'ref': FAKE_ID,
+                'ref': {'source-name': FAKE_ID},
                 'name': None,
                 'description': None,
                 'volume_type': None,
@@ -732,13 +736,15 @@ class TestVolume(base.TestCase):
         resp.headers = {}
         resp.status_code = 202
         self.sess.post = mock.Mock(return_value=resp)
-        sot = volume.Volume.manage(self.sess, host=FAKE_HOST, ref=FAKE_ID)
+        sot = volume.Volume.manage(
+            self.sess, host=FAKE_HOST, ref={'source-name': FAKE_ID}
+        )
         self.assertIsNotNone(sot)
         url = '/os-volume-manage'
         body = {
             'volume': {
                 'host': FAKE_HOST,
-                'ref': FAKE_ID,
+                'ref': {'source-name': FAKE_ID},
                 'name': None,
                 'description': None,
                 'volume_type': None,
@@ -754,8 +760,8 @@ class TestVolume(base.TestCase):
     def test_set_microversion(self):
         sot = volume.Volume(**VOLUME)
         self.sess.default_microversion = '3.50'
-        self.assertIsNone(sot.extend(self.sess, '20'))
+        self.assertIsNone(sot.extend(self.sess, 20))
 
         url = f'volumes/{FAKE_ID}/action'
-        body = {"os-extend": {"new_size": "20"}}
+        body = {"os-extend": {"new_size": 20}}
         self.sess.post.assert_called_with(url, json=body, microversion="3.50")

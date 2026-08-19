@@ -10,13 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 import uuid
 
 from openstack.accelerator.v2 import device
 from openstack.tests.unit import base
 
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'id': '1',
     'uuid': uuid.uuid4(),
     'created_at': '2019-08-09T12:14:57.233772',

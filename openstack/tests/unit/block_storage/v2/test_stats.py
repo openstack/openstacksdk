@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.block_storage.v2 import stats
 from openstack.tests.unit import base
 
 
-POOLS = {
+POOLS: dict[str, Any] = {
     "name": "pool1",
     "capabilities": {
         "updated": "2014-10-28T00=00=00-00=00",
@@ -34,7 +36,7 @@ class TestBackendPools(base.TestCase):
         super().setUp()
 
     def test_basic(self):
-        sot = stats.Pools(POOLS)
+        sot = stats.Pools(**POOLS)
         self.assertEqual("", sot.resource_key)
         self.assertEqual("pools", sot.resources_key)
         self.assertEqual(

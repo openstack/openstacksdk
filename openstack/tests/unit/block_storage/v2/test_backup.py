@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -21,7 +22,7 @@ from openstack.tests.unit import base
 
 FAKE_ID = "6685584b-1eac-4da6-b5c3-555430cf68ff"
 
-BACKUP = {
+BACKUP: dict[str, Any] = {
     "availability_zone": "az1",
     "container": "volumebackups",
     "created_at": "2018-04-02T10:35:27.000000",
@@ -54,7 +55,7 @@ class TestBackup(base.TestCase):
         self.sess.post = mock.Mock(return_value=self.resp)
 
     def test_basic(self):
-        sot = backup.Backup(BACKUP)
+        sot = backup.Backup(**BACKUP)
         self.assertEqual("backup", sot.resource_key)
         self.assertEqual("backups", sot.resources_key)
         self.assertEqual("/backups", sot.base_path)

@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.accelerator.v2 import accelerator_request as arq
 from openstack.tests.unit import base
 
@@ -21,7 +23,7 @@ FAKE_ATTACH_INFO_STR = (
     '{"bus": "5e", "device": "00", "domain": "0000", "function": "1"}'
 )
 
-FAKE = {
+FAKE: dict[str, Any] = {
     'uuid': FAKE_ID,
     'device_profile_name': 'fake-devprof',
     'device_profile_group_id': 0,

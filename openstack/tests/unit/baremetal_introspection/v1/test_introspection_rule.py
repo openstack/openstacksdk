@@ -10,10 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.baremetal_introspection.v1 import introspection_rule
 from openstack.tests.unit import base
 
-FAKE = {
+FAKE: dict[str, Any] = {
     "actions": [
         {
             "action": "set-attribute",

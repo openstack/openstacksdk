@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -69,7 +70,11 @@ class TestWaitForIntrospection(base.TestCase):
         super().setUp()
         self.session = mock.Mock(spec=adapter.Adapter)
         self.proxy = _proxy.Proxy(self.session)
-        self.fake = {'state': 'waiting', 'error': None, 'finished': False}
+        self.fake: dict[str, Any] = {
+            'state': 'waiting',
+            'error': None,
+            'finished': False,
+        }
         self.introspection = introspection.Introspection(**self.fake)
 
     def test_already_finished(self, mock_fetch):
@@ -139,7 +144,7 @@ class TestAbortIntrospection(base.TestCase):
         super().setUp()
         self.session = mock.Mock(spec=adapter.Adapter)
         self.proxy = _proxy.Proxy(self.session)
-        self.fake = {'id': '1234', 'finished': False}
+        self.fake: dict[str, Any] = {'id': '1234', 'finished': False}
         self.introspection = introspection.Introspection(**self.fake)
 
     def test_abort(self, mock_request):
@@ -161,7 +166,7 @@ class TestGetData(base.TestCase):
         super().setUp()
         self.session = mock.Mock(spec=adapter.Adapter)
         self.proxy = _proxy.Proxy(self.session)
-        self.fake = {'id': '1234', 'finished': False}
+        self.fake: dict[str, Any] = {'id': '1234', 'finished': False}
         self.introspection = introspection.Introspection(**self.fake)
 
     def test_get_data(self, mock_request):

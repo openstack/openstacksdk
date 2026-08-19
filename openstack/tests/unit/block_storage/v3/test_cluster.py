@@ -10,12 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from openstack.block_storage.v3 import cluster
 from openstack.tests.unit import base
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "binary": "cinder-volume",
     "name": "cluster_name",
     "state": "up",
