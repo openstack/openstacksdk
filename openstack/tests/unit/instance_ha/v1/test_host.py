@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
+
 from openstack.instance_ha.v1 import host
 from openstack.tests.unit import base
 
@@ -19,7 +21,7 @@ FAKE_ID = "1c2f1795-ce78-4d4c-afd0-ce141fdb3952"
 FAKE_UUID = "11f7597f-87d2-4057-b754-ba611f989807"
 FAKE_HOST_ID = "c27dec16-ed4d-4ebe-8e77-f1e28ec32417"
 FAKE_CONTROL_ATTRIBUTES = {"mcastaddr": "239.255.1.1", "mcastport": "5405"}
-HOST = {
+HOST: dict[str, Any] = {
     "id": FAKE_ID,
     "uuid": FAKE_UUID,
     "segment_id": FAKE_HOST_ID,
@@ -36,7 +38,7 @@ HOST = {
 
 class TestHost(base.TestCase):
     def test_basic(self):
-        sot = host.Host(HOST)
+        sot = host.Host(**HOST)
         self.assertEqual("host", sot.resource_key)
         self.assertEqual("hosts", sot.resources_key)
         self.assertEqual("/segments/%(segment_id)s/hosts", sot.base_path)

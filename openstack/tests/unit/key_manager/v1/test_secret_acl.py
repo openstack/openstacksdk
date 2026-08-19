@@ -10,12 +10,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.key_manager.v1 import secret_acl
 from openstack.tests.unit import base
 
 
-PUT_PATCH_EXAMPLE = {"acl_ref": "https://barbican/v1/secrets/UUID/acl"}
-GET_EXAMPLE = {
+PUT_PATCH_EXAMPLE: dict[str, Any] = {
+    "acl_ref": "https://barbican/v1/secrets/UUID/acl"
+}
+GET_EXAMPLE: dict[str, Any] = {
     "read": {
         "updated": "2015-05-12T20:08:47.644264",
         "created": "2015-05-12T19:23:44.019168",

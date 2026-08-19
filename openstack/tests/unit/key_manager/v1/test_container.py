@@ -10,13 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.key_manager.v1 import container
 from openstack.tests.unit import base
 
 
 ID_VAL = "123"
 IDENTIFIER = f'http://localhost/containers/{ID_VAL}'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'container_ref': IDENTIFIER,
     'created': '2015-03-09T12:14:57.233772',
     'name': '3',

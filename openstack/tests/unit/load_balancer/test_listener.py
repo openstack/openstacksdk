@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 import uuid
 
 from openstack.load_balancer.v2 import listener
@@ -17,7 +18,7 @@ from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'admin_state_up': True,
     'allowed_cidrs': ['192.168.1.0/24'],
     'connection_limit': '2',
@@ -52,7 +53,7 @@ EXAMPLE = {
     'alpn_protocols': ['h2', 'http/1.1', 'http/1.0'],
 }
 
-EXAMPLE_STATS = {
+EXAMPLE_STATS: dict[str, Any] = {
     'active_connections': 1,
     'bytes_in': 2,
     'bytes_out': 3,

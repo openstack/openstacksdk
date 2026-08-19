@@ -10,13 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 import uuid
 
 from openstack.load_balancer.v2 import load_balancer
 from openstack.tests.unit import base
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'admin_state_up': True,
     'availability_zone': 'my_fake_az',
     'created_at': '2017-07-17T12:14:57.233772',
@@ -43,7 +44,7 @@ EXAMPLE = {
     ],
 }
 
-EXAMPLE_STATS = {
+EXAMPLE_STATS: dict[str, Any] = {
     'active_connections': 1,
     'bytes_in': 2,
     'bytes_out': 3,

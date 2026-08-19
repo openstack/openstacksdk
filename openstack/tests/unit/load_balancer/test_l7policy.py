@@ -10,13 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 import uuid
 
 from openstack.load_balancer.v2 import l7_policy
 from openstack.tests.unit import base
 
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'action': 'REJECT',
     'admin_state_up': True,
     'created_at': '2017-07-17T12:14:57.233772',

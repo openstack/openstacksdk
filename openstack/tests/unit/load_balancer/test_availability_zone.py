@@ -11,6 +11,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 import uuid
 
 from openstack.load_balancer.v2 import availability_zone
@@ -18,7 +19,7 @@ from openstack.tests.unit import base
 
 
 AVAILABILITY_ZONE_PROFILE_ID = uuid.uuid4()
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'name': 'strawberry',
     'description': 'tasty',
     'is_enabled': False,
