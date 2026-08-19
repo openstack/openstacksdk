@@ -82,7 +82,7 @@ quote-style = "preserve"
 docstring-code-format = true
 
 [tool.ruff.lint]
-select = ["E", "F", "RUF", "S", "UP", "W"]
+select = ["E", "F", "G", "LOG", "RUF", "S", "UP", "W"]
 ignore = [
     # there are a lot of these to fix
     "RUF012",

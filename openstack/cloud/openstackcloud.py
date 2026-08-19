@@ -815,6 +815,6 @@ def cleanup_task(graph, service, fn):
         fn()
     except Exception:
         log = _log.setup_logging('openstack.project_cleanup')
-        log.exception(f'Error in the {service} cleanup function')
+        log.exception('Error in the %s cleanup function', service)
     finally:
         graph.node_done(service)

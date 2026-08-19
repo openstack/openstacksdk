@@ -1313,8 +1313,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                 )
 
             self.log.debug(
-                f'Server {server["id"]} reached ACTIVE state without '
-                f'being allocated an IP address. Deleting server.',
+                'Server %s reached ACTIVE state without being allocated an IP '
+                'address. Deleting server.',
+                server["id"],
             )
             try:
                 self._delete_server(server=server, wait=wait, timeout=timeout)

@@ -1051,8 +1051,9 @@ class Proxy(adapter.Adapter):
                         # There are filters set, but we can't get required
                         # attribute, so skip the resource
                         self.log.debug(
-                            f'Requested cleanup attribute {k} is not '
-                            'available on the resource'
+                            'Requested cleanup attribute %s is not '
+                            'available on the resource',
+                            k,
                         )
                         part_cond.append(False)
                 except Exception:
@@ -1076,7 +1077,7 @@ class Proxy(adapter.Adapter):
 
         if resource_name in skip_resources:
             self.log.debug(
-                f"Skipping resource {resource_name} in project cleanup"
+                "Skipping resource %s in project cleanup", resource_name
             )
             return True
 
