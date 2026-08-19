@@ -406,16 +406,14 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
         # import late since this is a utility function
         import pprint
 
-        new_resource = _utils._dictify_resource(resource)
-        pprint.pprint(new_resource)
+        pprint.pprint(resource)
 
     def pformat(self, resource: object) -> str:
         """Wrapper around pformat that groks munch objects"""
         # import late since this is a utility function
         import pprint
 
-        new_resource = _utils._dictify_resource(resource)
-        return pprint.pformat(new_resource)
+        return pprint.pformat(resource)
 
     @property
     def _keystone_catalog(self) -> 'ks_service_catalog.ServiceCatalog':
