@@ -14,8 +14,10 @@ import os
 from unittest import mock
 
 import fixtures
+from keystoneauth1 import exceptions as ks_exc
 from keystoneauth1 import identity
 from keystoneauth1 import session
+import os_service_types
 
 import openstack.config
 from openstack import connection
@@ -352,6 +354,74 @@ class TestNetworkConnectionSuffix(base.TestCase):
             "https://network.example.com/v2.0",
             self.cloud.network.get_endpoint(),
         )
+
+
+class TestServiceNotInCatalog(base.TestCase):
+    # A cloud may simply not deploy a service: for example, many clouds
+    # run nova with local storage only and have no cinder. Merely touching
+    # the corresponding Connection attribute must not raise, because
+    # callers (such as python-openstackclient commands) commonly fetch
+    # proxies for services they may never use. The error should instead
+    # surface if and when the proxy is actually used.
+
+    def setUp(self):
+        super().setUp()
+        # Remove block-storage (and all of its historical aliases) from
+        # the token fixture's service catalog, simulating a cloud without
+        # cinder deployed.
+        for service_type in os_service_types.ServiceTypes().get_all_types(
+            'block-storage'
+        ):
+            self.os_fixture.v3_token.remove_service(service_type)
+
+    def test_attribute_access_returns_shim(self):
+        proxy_obj = self.cloud.block_storage
+        self.assertIsInstance(
+            proxy_obj, service_description._ServiceDisabledProxyShim
+        )
+
+    def test_shim_raises_on_use(self):
+        proxy_obj = self.cloud.block_storage
+        ex = self.assertRaises(
+            openstack.exceptions.ServiceDisabledException,
+            getattr,
+            proxy_obj,
+            'get',
+        )
+        self.assertIn('block-storage', ex.message)
+        self.assertIn('service catalog', ex.message)
+
+    def test_shim_is_cached(self):
+        self.assertIs(self.cloud.block_storage, self.cloud.block_storage)
+
+    def test_strict_proxies_still_raises(self):
+        conn = connection.Connection(
+            config=self.cloud_config, strict_proxies=True
+        )
+        self.assertRaises(
+            ks_exc.catalog.EndpointNotFound,
+            getattr,
+            conn,
+            'block_storage',
+        )
+
+    def test_passthrough_service_returns_shim(self):
+        # Services with no versioned SDK proxy (here monasca) take the
+        # passthrough-adapter path through ServiceDescription and hit
+        # the catalog at a different point; they should degrade to the
+        # same shim.
+        self.os_fixture.v3_token.remove_service('monitoring')
+        proxy_obj = self.cloud.monitoring
+        self.assertIsInstance(
+            proxy_obj, service_description._ServiceDisabledProxyShim
+        )
+        ex = self.assertRaises(
+            openstack.exceptions.ServiceDisabledException,
+            getattr,
+            proxy_obj,
+            'get',
+        )
+        self.assertIn('not present in the service catalog', ex.message)
 
 
 class TestAuthorize(base.TestCase):
