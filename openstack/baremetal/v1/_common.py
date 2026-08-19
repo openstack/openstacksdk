@@ -107,6 +107,9 @@ RUNBOOKS_VERSION = '1.92'
 """API version in which a runbook can be used in place of arbitrary steps
 for provisioning"""
 
+RUNBOOK_TRAITS_VERSION = '1.112'
+"""API version in which runbooks gained traits and a description."""
+
 
 class Resource(resource.Resource):
     """A subclass for resources that use the path to request a detailed view.

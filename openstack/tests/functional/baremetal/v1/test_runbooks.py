@@ -208,3 +208,89 @@ class TestBareMetalRunbook(base.BaseBaremetalTest):
         # is accessible to system-scoped users
         loaded = self.system_admin_cloud.baremetal.get_runbook(runbook.id)
         self.assertEqual(loaded.id, runbook.id)
+
+
+class TestBareMetalRunbookTraits(base.BaseBaremetalTest):
+    min_microversion = '1.112'
+
+    def setUp(self):
+        super().setUp()
+        self.steps = [
+            {
+                "interface": "bios",
+                "step": "apply_configuration",
+                "args": {
+                    "settings": [{"name": "LogicalProc", "value": "Enabled"}]
+                },
+                "order": 150,
+            }
+        ]
+
+    def test_runbook_description(self):
+        runbook = self.create_runbook(
+            name='CUSTOM_RUNBOOK_DESC',
+            steps=self.steps,
+            description='Enable logical processors',
+        )
+        self.assertEqual('Enable logical processors', runbook.description)
+
+        runbook = self.operator_cloud.baremetal.patch_runbook(
+            runbook,
+            [{'path': '/description', 'op': 'replace', 'value': 'Updated'}],
+        )
+        self.assertEqual('Updated', runbook.description)
+
+        runbook = self.operator_cloud.baremetal.get_runbook(runbook.id)
+        self.assertEqual('Updated', runbook.description)
+
+    def test_runbook_add_remove_trait(self):
+        runbook = self.create_runbook(
+            name='CUSTOM_RUNBOOK_TRAIT', steps=self.steps
+        )
+        self.assertEqual([], runbook.traits)
+
+        self.operator_cloud.baremetal.add_runbook_trait(
+            runbook, 'CUSTOM_TRAIT1'
+        )
+        runbook = self.operator_cloud.baremetal.get_runbook(runbook.id)
+        self.assertEqual(['CUSTOM_TRAIT1'], runbook.traits)
+
+        self.operator_cloud.baremetal.remove_runbook_trait(
+            runbook, 'CUSTOM_TRAIT1'
+        )
+        runbook = self.operator_cloud.baremetal.get_runbook(runbook.id)
+        self.assertEqual([], runbook.traits)
+
+        # removing a trait that is not present is a no-op
+        self.operator_cloud.baremetal.remove_runbook_trait(
+            runbook, 'CUSTOM_TRAIT1'
+        )
+
+    def test_runbook_set_traits(self):
+        runbook = self.create_runbook(
+            name='CUSTOM_RUNBOOK_TRAITS', steps=self.steps
+        )
+
+        self.operator_cloud.baremetal.set_runbook_traits(
+            runbook, ['CUSTOM_TRAIT1', 'CUSTOM_TRAIT2']
+        )
+        runbook = self.operator_cloud.baremetal.get_runbook(runbook.id)
+        self.assertEqual(
+            {'CUSTOM_TRAIT1', 'CUSTOM_TRAIT2'}, set(runbook.traits)
+        )
+
+        self.operator_cloud.baremetal.set_runbook_traits(runbook, [])
+        runbook = self.operator_cloud.baremetal.get_runbook(runbook.id)
+        self.assertEqual([], runbook.traits)
+
+    def test_runbook_logical_name(self):
+        # since 1.112 the name is no longer required to look like a trait
+        runbook = self.create_runbook(
+            name='enable-hyperthreading', steps=self.steps
+        )
+        self.assertEqual('enable-hyperthreading', runbook.name)
+
+        loaded = self.operator_cloud.baremetal.get_runbook(
+            'enable-hyperthreading'
+        )
+        self.assertEqual(runbook.id, loaded.id)

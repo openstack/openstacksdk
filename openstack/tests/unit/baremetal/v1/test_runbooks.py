@@ -10,12 +10,20 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from unittest import mock
+
+from keystoneauth1 import adapter
+
+from openstack.baremetal.v1 import _common
 from openstack.baremetal.v1 import runbooks
+from openstack import exceptions
 from openstack.tests.unit import base
+from openstack import utils
 
 
 FAKE = {
     "created_at": "2024-08-18T22:28:48.643434+11:11",
+    "description": "Enable logical processors",
     "extra": {},
     "links": [
         {
@@ -42,6 +50,7 @@ FAKE = {
             "step": "apply_configuration",
         }
     ],
+    "traits": ["CUSTOM_AWESOME"],
     "updated_at": None,
     "uuid": "32f95ce1-4307-d4bc-8d1d-e920bbb45f41",
 }
@@ -64,10 +73,70 @@ class Runbooks(base.TestCase):
         sot = runbooks.Runbook(**FAKE)
         self.assertEqual(FAKE['steps'], sot.steps)
         self.assertEqual(FAKE['created_at'], sot.created_at)
+        self.assertEqual(FAKE['description'], sot.description)
         self.assertEqual(FAKE['extra'], sot.extra)
         self.assertEqual(FAKE['links'], sot.links)
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['public'], sot.public)
         self.assertEqual(FAKE['owner'], sot.owner)
+        self.assertEqual(FAKE['traits'], sot.traits)
         self.assertEqual(FAKE['updated_at'], sot.updated_at)
         self.assertEqual(FAKE['uuid'], sot.id)
+
+
+@mock.patch.object(utils, 'pick_microversion', lambda session, v: v)
+@mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
+class TestRunbookTraits(base.TestCase):
+    def setUp(self):
+        super().setUp()
+        self.runbook = runbooks.Runbook(**FAKE)
+        self.session = mock.Mock(
+            spec=adapter.Adapter, default_microversion='1.112'
+        )
+        self.session.log = mock.Mock()
+
+    def test_add_trait(self):
+        self.runbook.add_trait(self.session, 'CUSTOM_FAKE')
+        self.session.put.assert_called_once_with(
+            'runbooks/{}/traits/{}'.format(self.runbook.id, 'CUSTOM_FAKE'),
+            json=None,
+            headers=mock.ANY,
+            microversion='1.112',
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
+        self.assertEqual(
+            {'CUSTOM_AWESOME', 'CUSTOM_FAKE'}, set(self.runbook.traits)
+        )
+
+    def test_remove_trait(self):
+        self.runbook.remove_trait(self.session, 'CUSTOM_AWESOME')
+        self.session.delete.assert_called_once_with(
+            'runbooks/{}/traits/{}'.format(self.runbook.id, 'CUSTOM_AWESOME'),
+            headers=mock.ANY,
+            microversion='1.112',
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
+        self.assertEqual([], self.runbook.traits)
+
+    def test_set_traits(self):
+        traits = ['CUSTOM_FAKE', 'CUSTOM_REAL']
+        self.runbook.set_traits(self.session, traits)
+        self.session.put.assert_called_once_with(
+            f'runbooks/{self.runbook.id}/traits',
+            json={'traits': traits},
+            headers=mock.ANY,
+            microversion='1.112',
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
+        self.assertEqual(traits, self.runbook.traits)
+
+    def test_set_traits_empty(self):
+        self.runbook.set_traits(self.session, [])
+        self.session.put.assert_called_once_with(
+            f'runbooks/{self.runbook.id}/traits',
+            json={'traits': []},
+            headers=mock.ANY,
+            microversion='1.112',
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
+        self.assertEqual([], self.runbook.traits)

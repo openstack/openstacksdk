@@ -110,6 +110,12 @@ Runbook Operations
             create_runbook, update_runbook,
             patch_runbook, delete_runbook
 
+Runbook Trait Operations
+^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: openstack.baremetal.v1._proxy.Proxy
+  :noindex:
+  :members: add_runbook_trait, remove_runbook_trait, set_runbook_traits
+
 Inspection Rule Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: openstack.baremetal.v1._proxy.Proxy
