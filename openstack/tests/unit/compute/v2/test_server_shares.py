@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.compute.v2 import server_share
 from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "uuid": "715335c1-7a00-4dfe-82df-9dc2a67bd8bf",
     "share_id": "e8debdc0-447a-4376-a10a-4cd9122d7986",
     "share_proto": "NFS",

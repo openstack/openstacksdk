@@ -11,6 +11,7 @@
 # under the License.
 
 import copy
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -18,7 +19,7 @@ from keystoneauth1 import adapter
 from openstack.compute.v2 import limits
 from openstack.tests.unit import base
 
-ABSOLUTE_LIMITS = {
+ABSOLUTE_LIMITS: dict[str, Any] = {
     "maxImageMeta": 128,
     "maxSecurityGroupRules": 20,
     "maxSecurityGroups": 10,
@@ -38,7 +39,7 @@ ABSOLUTE_LIMITS = {
     "totalCoresUsed": 7,
 }
 
-RATE_LIMIT = {
+RATE_LIMIT: dict[str, Any] = {
     "limit": [
         {
             "next-available": "2012-11-27T17:22:18Z",

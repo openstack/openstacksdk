@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -19,7 +20,7 @@ from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
-BASIC_EXAMPLE = {
+BASIC_EXAMPLE: dict[str, Any] = {
     'id': IDENTIFIER,
     'links': '2',
     'name': '3',
@@ -33,7 +34,7 @@ BASIC_EXAMPLE = {
     'OS-FLV-DISABLED:disabled': False,
     'rxtx_factor': 11.0,
 }
-DEFAULTS_EXAMPLE = {
+DEFAULTS_EXAMPLE: dict[str, Any] = {
     'links': '2',
     'original_name': IDENTIFIER,
     'description': 'Testing flavor',

@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.clustering.v1 import receiver
 from openstack.tests.unit import base
 
@@ -17,7 +19,7 @@ from openstack.tests.unit import base
 FAKE_ID = 'ae63a10b-4a90-452c-aef1-113a0b255ee3'
 FAKE_NAME = 'test_receiver'
 
-FAKE = {
+FAKE: dict[str, Any] = {
     'id': FAKE_ID,
     'name': FAKE_NAME,
     'type': 'webhook',

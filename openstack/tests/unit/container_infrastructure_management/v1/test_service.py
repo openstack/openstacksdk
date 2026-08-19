@@ -10,10 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.container_infrastructure_management.v1 import service
 from openstack.tests.unit import base
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "binary": "magnum-conductor",
     "created_at": "2016-08-23T10:52:13+00:00",
     "state": "up",

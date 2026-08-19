@@ -11,6 +11,7 @@
 # under the License.
 
 import copy
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -20,7 +21,7 @@ from openstack import exceptions
 from openstack.tests.unit import base
 
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "cpu_info": {
         "arch": "x86_64",
         "model": "Nehalem",

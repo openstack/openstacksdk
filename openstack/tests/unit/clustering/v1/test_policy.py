@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.clustering.v1 import policy
 from openstack.tests.unit import base
 
@@ -17,7 +19,7 @@ from openstack.tests.unit import base
 FAKE_ID = 'ac5415bd-f522-4160-8be0-f8853e4bc332'
 FAKE_NAME = 'test_policy'
 
-FAKE = {
+FAKE: dict[str, Any] = {
     'id': FAKE_ID,
     'name': FAKE_NAME,
     'spec': {

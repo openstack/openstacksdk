@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.clustering.v1 import build_info
 from openstack.tests.unit import base
 
 
-FAKE = {
+FAKE: dict[str, Any] = {
     'api': {
         'revision': '1.0.0',
     },

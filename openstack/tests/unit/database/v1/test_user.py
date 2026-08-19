@@ -10,13 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.database.v1 import user
 from openstack.tests.unit import base
 
 
 INSTANCE_ID = 'INSTANCE_ID'
 
-CREATING = {
+EXAMPLE: dict[str, Any] = {
     'databases': '1',
     'name': '2',
     'password': '3',
@@ -36,14 +38,14 @@ class TestUser(base.TestCase):
         self.assertTrue(sot.allow_list)
 
     def test_make(self):
-        sot = user.User(**CREATING)
-        self.assertEqual(CREATING['name'], sot.id)
-        self.assertEqual(CREATING['databases'], sot.databases)
-        self.assertEqual(CREATING['name'], sot.name)
-        self.assertEqual(CREATING['name'], sot.id)
-        self.assertEqual(CREATING['password'], sot.password)
+        sot = user.User(**EXAMPLE)
+        self.assertEqual(EXAMPLE['name'], sot.id)
+        self.assertEqual(EXAMPLE['databases'], sot.databases)
+        self.assertEqual(EXAMPLE['name'], sot.name)
+        self.assertEqual(EXAMPLE['name'], sot.id)
+        self.assertEqual(EXAMPLE['password'], sot.password)
 
     def test_create(self):
-        sot = user.User(instance_id=INSTANCE_ID, **CREATING)
+        sot = user.User(instance_id=INSTANCE_ID, **EXAMPLE)
         result = sot._prepare_request()
-        self.assertEqual(result.body, {sot.resources_key: CREATING})
+        self.assertEqual(result.body, {sot.resources_key: EXAMPLE})

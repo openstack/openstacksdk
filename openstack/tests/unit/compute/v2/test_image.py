@@ -10,13 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.compute.v2 import image
 from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'id': IDENTIFIER,
     'links': '2',
     'name': '3',

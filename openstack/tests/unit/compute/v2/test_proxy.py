@@ -13,6 +13,7 @@
 import contextlib
 import datetime
 import fixtures
+from typing import Any
 from unittest import mock
 import uuid
 import warnings
@@ -923,7 +924,10 @@ class TestCompute(TestComputeProxy):
         )
 
     def test_server_interface_delete(self):
-        self.proxy._get_uri_attribute = lambda *args: args[1]
+        mock.patch.object(
+            self.proxy, '_get_uri_attribute', side_effect=lambda *args: args[1]
+        ).start()
+        self.addCleanup(mock.patch.stopall)
 
         interface_id = "test_interface_id"
         server_id = "test_server_id"
@@ -951,7 +955,10 @@ class TestCompute(TestComputeProxy):
         )
 
     def test_server_interface_delete_ignore(self):
-        self.proxy._get_uri_attribute = lambda *args: args[1]
+        mock.patch.object(
+            self.proxy, '_get_uri_attribute', side_effect=lambda *args: args[1]
+        ).start()
+        self.addCleanup(mock.patch.stopall)
         self.verify_delete(
             self.proxy.delete_server_interface,
             server_interface.ServerInterface,
@@ -961,7 +968,10 @@ class TestCompute(TestComputeProxy):
         )
 
     def test_server_interface_get(self):
-        self.proxy._get_uri_attribute = lambda *args: args[1]
+        mock.patch.object(
+            self.proxy, '_get_uri_attribute', side_effect=lambda *args: args[1]
+        ).start()
+        self.addCleanup(mock.patch.stopall)
 
         interface_id = "test_interface_id"
         server_id = "test_server_id"
@@ -1734,6 +1744,7 @@ class TestCompute(TestComputeProxy):
         smv.assert_called_once_with(self.proxy, '2.6')
         rcc.assert_not_called()
         sgc.assert_called_with(mock.ANY, self.proxy, 'fake_type')
+        assert ret is not None
         self.assertDictEqual(console_fake, ret)
 
     @mock.patch('openstack.utils.supports_microversion', autospec=True)
@@ -1742,7 +1753,11 @@ class TestCompute(TestComputeProxy):
         'openstack.compute.v2.server.Server.get_console_url', autospec=True
     )
     def test_create_console_mv_2_6(self, sgc, rcc, smv):
-        console_fake = {'url': 'a', 'type': 'b', 'protocol': 'c'}
+        console_fake: dict[str, Any] = {
+            'url': 'a',
+            'type': 'b',
+            'protocol': 'c',
+        }
 
         # Test server_remote_console is triggered when mv>=2.6
         smv.return_value = True
@@ -1759,6 +1774,7 @@ class TestCompute(TestComputeProxy):
             type='fake_type',
             protocol=None,
         )
+        assert ret is not None
         self.assertEqual(console_fake['url'], ret['url'])
 
 

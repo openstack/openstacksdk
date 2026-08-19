@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.clustering.v1 import cluster_attr as ca
 from openstack.tests.unit import base
 
 
-FAKE = {
+FAKE: dict[str, Any] = {
     'cluster_id': '633bd3c6-520b-420f-8e6a-dc2a47022b53',
     'path': 'path.to.attr',
     'id': 'c378e474-d091-43a3-b083-e19719291358',

@@ -10,12 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from openstack.compute.v2 import server_migration
 from openstack.tests.unit import base
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'id': 4,
     'server_id': '4cfba335-03d8-49b2-8c52-e69043d1e8fe',
     'server_uuid': '4cfba335-03d8-49b2-8c52-e69043d1e8fe',

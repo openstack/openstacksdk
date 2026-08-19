@@ -10,10 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.compute.v2 import migration
 from openstack.tests.unit import base
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'uuid': '42341d4b-346a-40d0-83c6-5f4f6892b650',
     'instance_uuid': '9128d044-7b61-403e-b766-7547076ff6c1',
     'user_id': '78348f0e-97ee-4d70-ad34-189692673ea2',

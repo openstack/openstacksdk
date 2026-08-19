@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.clustering.v1 import policy_type
 from openstack.tests.unit import base
 
 
-FAKE = {
+FAKE: dict[str, Any] = {
     'name': 'FAKE_POLICY_TYPE',
     'schema': {'foo': 'bar'},
     'support_status': {'1.0': [{'status': 'supported', 'since': '2016.10'}]},

@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.compute.v2 import availability_zone as az
 from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
-BASIC_EXAMPLE = {
+BASIC_EXAMPLE: dict[str, Any] = {
     'id': IDENTIFIER,
     'zoneState': 'available',
     'hosts': 'host1',

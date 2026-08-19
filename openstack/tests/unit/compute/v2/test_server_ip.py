@@ -10,13 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from openstack.compute.v2 import server_ip
 from openstack.tests.unit import base
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'addr': '1',
     'network_label': '2',
     'version': '4',

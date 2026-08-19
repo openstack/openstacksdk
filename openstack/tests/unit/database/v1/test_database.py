@@ -10,13 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.database.v1 import database
 from openstack.tests.unit import base
 
 
 IDENTIFIER = 'NAME'
 INSTANCE_ID = 'INSTANCE_ID'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'character_set': '1',
     'collate': '2',
     'instance_id': INSTANCE_ID,

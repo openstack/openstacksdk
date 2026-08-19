@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.compute.v2 import usage
 from openstack.tests.unit import base
 
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "tenant_id": "781c9299e68d4b7c80ef52712889647f",
     "server_usages": [
         {

@@ -10,10 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.container_infrastructure_management.v1 import cluster
 from openstack.tests.unit import base
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "cluster_template_id": "0562d357-8641-4759-8fed-8173f02c9633",
     "create_timeout": 60,
     "discovery_url": None,

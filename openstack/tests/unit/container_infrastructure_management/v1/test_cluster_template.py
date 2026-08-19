@@ -10,10 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.container_infrastructure_management.v1 import cluster_template
 from openstack.tests.unit import base
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "insecure_registry": None,
     "http_proxy": "http://10.164.177.169:8080",
     "updated_at": None,

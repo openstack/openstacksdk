@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from openstack.clustering.v1 import cluster
@@ -18,7 +19,7 @@ from openstack.tests.unit import base
 FAKE_ID = '092d0955-2645-461a-b8fa-6a44655cdb2c'
 FAKE_NAME = 'test_cluster'
 
-FAKE = {
+FAKE: dict[str, Any] = {
     'id': 'IDENTIFIER',
     'config': {'key1': 'value1', 'key2': 'value2'},
     'desired_capacity': 1,

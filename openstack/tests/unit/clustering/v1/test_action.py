@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.clustering.v1 import action
 from openstack.tests.unit import base
 
@@ -18,7 +20,7 @@ FAKE_CLUSTER_ID = 'ffaed25e-46f5-4089-8e20-b3b4722fd597'
 FAKE_ID = '633bd3c6-520b-420f-8e6a-dc2a47022b53'
 FAKE_NAME = 'node_create_c3783474'
 
-FAKE = {
+FAKE: dict[str, Any] = {
     'id': FAKE_ID,
     'name': FAKE_NAME,
     'target': 'c378e474-d091-43a3-b083-e19719291358',

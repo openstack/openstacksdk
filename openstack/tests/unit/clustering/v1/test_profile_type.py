@@ -10,12 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from openstack.clustering.v1 import profile_type
 from openstack.tests.unit import base
 
-FAKE = {
+FAKE: dict[str, Any] = {
     'name': 'FAKE_PROFILE_TYPE',
     'schema': {'foo': 'bar'},
     'support_status': {

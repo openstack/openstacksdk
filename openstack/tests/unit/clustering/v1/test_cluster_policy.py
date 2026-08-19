@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.clustering.v1 import cluster_policy
 from openstack.tests.unit import base
 
 
-FAKE = {
+FAKE: dict[str, Any] = {
     'cluster_id': '99e39f4b-1990-4237-a556-1518f0f0c9e7',
     'cluster_name': 'test_cluster',
     'data': {'purpose': 'unknown'},

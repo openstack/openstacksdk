@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.container_infrastructure_management.v1 import (
     cluster_certificate,
 )
 from openstack.tests.unit import base
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "cluster_uuid": "0b4b766f-1500-44b3-9804-5a6e12fe6df4",
     "pem": "-----BEGIN CERTIFICATE-----\nMIICzDCCAbSgAwIBAgIQOOkVcEN7TNa9E80G",
     "bay_uuid": "0b4b766f-1500-44b3-9804-5a6e12fe6df4",

@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.compute.v2 import volume_attachment
 from openstack.tests.unit import base
 
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'attachment_id': '979ce4f8-033a-409d-85e6-6b5c0f6a6302',
     'delete_on_termination': False,
     'device': '/dev/sdc',

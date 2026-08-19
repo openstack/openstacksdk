@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from openstack.compute.v2 import service
@@ -17,7 +18,7 @@ from openstack import exceptions
 from openstack.tests.unit import base
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'id': IDENTIFIER,
     'binary': 'nova-compute',
     'host': 'host1',
@@ -97,9 +98,9 @@ class TestService(base.TestCase):
 
             self.assertEqual(data[1], sot)
 
-            # Verify find when ID is int
+            # Verify find matches a service whose stored ID is an int
             sot = service.Service.find(
-                self.sess, 1, ignore_missing=True, binary='bin1', host='host'
+                self.sess, '1', ignore_missing=True, binary='bin1', host='host'
             )
 
             self.assertEqual(data[0], sot)

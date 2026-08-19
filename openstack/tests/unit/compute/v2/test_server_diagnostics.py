@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.compute.v2 import server_diagnostics
 from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "config_drive": True,
     "cpu_details": [{"id": 0, "time": 17300000000, "utilisation": 15}],
     "disk_details": [

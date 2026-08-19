@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -19,7 +20,7 @@ from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {'protocol': 'rdp', 'type': 'rdp', 'url': 'fake'}
+EXAMPLE: dict[str, Any] = {'protocol': 'rdp', 'type': 'rdp', 'url': 'fake'}
 
 
 class TestServerRemoteConsole(base.TestCase):

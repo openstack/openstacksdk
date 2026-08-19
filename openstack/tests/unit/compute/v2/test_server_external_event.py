@@ -13,11 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
+
 from openstack.compute.v2 import server_external_event
 from openstack.tests.unit import base
 
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'name': 'testevent',
     'server_uuid': 'SERVER_UUID',
     'status': 'completed',

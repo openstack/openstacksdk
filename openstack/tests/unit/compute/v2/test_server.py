@@ -11,6 +11,7 @@
 # under the License.
 
 import http
+from typing import Any
 from unittest import mock
 
 from openstack.compute.v2 import flavor
@@ -20,7 +21,7 @@ from openstack.tests.unit import base
 from openstack.tests.unit import fakes
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'OS-DCF:diskConfig': 'AUTO',
     'OS-EXT-AZ:availability_zone': 'us-west',
     'OS-EXT-SRV-ATTR:host': 'compute',
@@ -288,6 +289,7 @@ class TestServer(base.TestCase):
             hypervisor_hostname=hypervisor_hostname,
         )
         request = sot._prepare_request()
+        assert isinstance(request.body, dict)
 
         self.assertNotIn(
             "OS-EXT-AZ:availability_zone", request.body[sot.resource_key]
@@ -397,7 +399,8 @@ class TestServer(base.TestCase):
     def test_rebuild(self):
         sot = server.Server(**EXAMPLE)
         # Let the translate pass through, that portion is tested elsewhere
-        sot._translate_response = lambda arg: arg
+        mock.patch.object(sot, '_translate_response').start()
+        self.addCleanup(mock.patch.stopall)
 
         result = sot.rebuild(
             self.sess,
@@ -445,7 +448,8 @@ class TestServer(base.TestCase):
     def test_rebuild_minimal(self):
         sot = server.Server(**EXAMPLE)
         # Let the translate pass through, that portion is tested elsewhere
-        sot._translate_response = lambda arg: arg
+        mock.patch.object(sot, '_translate_response').start()
+        self.addCleanup(mock.patch.stopall)
 
         result = sot.rebuild(
             self.sess,
@@ -475,7 +479,8 @@ class TestServer(base.TestCase):
     def test_rebuild_none_values(self):
         sot = server.Server(**EXAMPLE)
         # Let the translate pass through, that portion is tested elsewhere
-        sot._translate_response = lambda arg: arg
+        mock.patch.object(sot, '_translate_response').start()
+        self.addCleanup(mock.patch.stopall)
 
         result = sot.rebuild(
             self.sess,
@@ -994,7 +999,11 @@ class TestServer(base.TestCase):
     def test_rescue_with_options(self):
         sot = server.Server(**EXAMPLE)
 
-        res = sot.rescue(self.sess, admin_pass='SECRET', image_ref='IMG-ID')
+        # 'image_ref' is a deprecated alias for 'image', renamed at runtime by
+        # the @renamed_param decorator which mypy cannot see through
+        res = sot.rescue(  # type: ignore[call-arg]
+            self.sess, admin_pass='SECRET', image_ref='IMG-ID'
+        )
 
         self.assertIsNone(res)
         url = 'servers/IDENTIFIER/action'
