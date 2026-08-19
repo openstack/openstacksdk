@@ -17,7 +17,7 @@ from openstack.tests.functional import base
 
 
 # NOTE: method to make mypy happy.
-def _get_command(*args):
+def _get_command(*args, **kwargs):
     return mock.Mock()
 
 
