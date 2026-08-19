@@ -238,19 +238,17 @@ class OrchestrationCloudMixin(openstackcloud._OpenStackCloudMixin):
             found.
         """
 
-        def _search_one_stack(name_or_id=None, filters=None):
-            # stack names are mandatory and enforced unique in the project
-            # so a StackGet can always be used for name or ID.
-            try:
-                stack = self.orchestration.find_stack(
-                    name_or_id,
-                    ignore_missing=False,
-                    resolve_outputs=resolve_outputs,
-                )
-                if stack.status == 'DELETE_COMPLETE':
-                    return []
-            except exceptions.NotFoundException:
-                return []
-            return _utils._filter_list([stack], name_or_id, filters)
-
-        return _utils._get_entity(self, _search_one_stack, name_or_id, filters)
+        # stack names are mandatory and enforced unique in the project
+        # so a StackGet can always be used for name or ID.
+        try:
+            stack = self.orchestration.find_stack(
+                name_or_id,
+                ignore_missing=False,
+                resolve_outputs=resolve_outputs,
+            )
+        except exceptions.NotFoundException:
+            return None
+        if stack.status == 'DELETE_COMPLETE':
+            return None
+        results = _utils._filter_list([stack], name_or_id, filters)
+        return results[0] if results else None
