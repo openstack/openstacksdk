@@ -10,12 +10,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import TYPE_CHECKING
+
 from keystoneauth1 import adapter
 
 from openstack.common import tag
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
+
+if TYPE_CHECKING:
+    from openstack.identity.v3 import group as _group
+    from openstack.identity.v3 import role as _role
+    from openstack.identity.v3 import user as _user
 
 
 class Project(resource.Resource, tag.TagMixin):
@@ -71,8 +78,8 @@ class Project(resource.Resource, tag.TagMixin):
     def assign_role_to_user(
         self,
         session: adapter.Adapter,
-        user: resource.Resource,
-        role: resource.Resource,
+        user: '_user.User',
+        role: '_role.Role',
         inherited: bool,
     ) -> bool:
         """Assign role to user on project"""
@@ -96,8 +103,8 @@ class Project(resource.Resource, tag.TagMixin):
     def validate_user_has_role(
         self,
         session: adapter.Adapter,
-        user: resource.Resource,
-        role: resource.Resource,
+        user: '_user.User',
+        role: '_role.Role',
         inherited: bool,
     ) -> bool:
         """Validates that a user has a role on a project"""
@@ -116,8 +123,8 @@ class Project(resource.Resource, tag.TagMixin):
     def unassign_role_from_user(
         self,
         session: adapter.Adapter,
-        user: resource.Resource,
-        role: resource.Resource,
+        user: '_user.User',
+        role: '_role.Role',
         inherited: bool,
     ) -> bool:
         """Unassigns a role from a user on a project"""
@@ -136,8 +143,8 @@ class Project(resource.Resource, tag.TagMixin):
     def assign_role_to_group(
         self,
         session: adapter.Adapter,
-        group: resource.Resource,
-        role: resource.Resource,
+        group: '_group.Group',
+        role: '_role.Role',
         inherited: bool,
     ) -> bool:
         """Assign role to group on project"""
@@ -161,8 +168,8 @@ class Project(resource.Resource, tag.TagMixin):
     def validate_group_has_role(
         self,
         session: adapter.Adapter,
-        group: resource.Resource,
-        role: resource.Resource,
+        group: '_group.Group',
+        role: '_role.Role',
         inherited: bool,
     ) -> bool:
         """Validates that a group has a role on a project"""
@@ -181,8 +188,8 @@ class Project(resource.Resource, tag.TagMixin):
     def unassign_role_from_group(
         self,
         session: adapter.Adapter,
-        group: resource.Resource,
-        role: resource.Resource,
+        group: '_group.Group',
+        role: '_role.Role',
         inherited: bool,
     ) -> bool:
         """Unassigns a role from a group on a project"""
