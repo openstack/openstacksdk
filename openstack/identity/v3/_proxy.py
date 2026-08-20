@@ -508,6 +508,30 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_endpoint.Endpoint, endpoint, **attrs)
 
+    def endpoint_group_endpoints(
+        self,
+        endpoint_group: str | _endpoint_group.EndpointGroup,
+        **query: Any,
+    ) -> Generator[_endpoint.EndpointGroupEndpoint, None, None]:
+        """Retrieve a generator of endpoints which are associated with the
+        endpoint_group.
+
+        :param endpoint_group: Either the endpoint_group ID or an instance of
+            :class:`~openstack.identity.v3.endpoint_group.EndpointGroup`
+        :param query: Optional query parameters to be sent to limit
+            the resources being returned.
+
+        :returns: A generator of endpoint instances.
+        """
+        endpoint_group_id = self._get_resource(
+            _endpoint_group.EndpointGroup, endpoint_group
+        ).id
+        return self._list(
+            _endpoint.EndpointGroupEndpoint,
+            endpoint_group_id=endpoint_group_id,
+            **query,
+        )
+
     # ========== Project endpoints ==========
 
     def project_endpoints(
@@ -685,6 +709,28 @@ class Proxy(proxy.Proxy):
         """
         return self._update(
             _endpoint_group.EndpointGroup, endpoint_group, **attrs
+        )
+
+    def project_endpoint_groups(
+        self,
+        project: str | _project.Project,
+        **query: Any,
+    ) -> Generator[_endpoint_group.ProjectEndpointGroup, None, None]:
+        """Retrieve a generator of endpoint groups which are associated with
+        the project.
+
+        :param project: Either the project ID or an instance of
+            :class:`~openstack.identity.v3.project.Project`
+        :param query: Optional query parameters to be sent to limit
+            the resources being returned.
+
+        :returns: A generator of endpoint group instances.
+        """
+        project_id = self._get_resource(_project.Project, project).id
+        return self._list(
+            _endpoint_group.ProjectEndpointGroup,
+            project_id=project_id,
+            **query,
         )
 
     # ========== Groups ==========
@@ -1114,6 +1160,72 @@ class Proxy(proxy.Proxy):
         :returns: The updated project
         """
         return self._update(_project.Project, project, **attrs)
+
+    # ========== Endpoint group projects ==========
+
+    def endpoint_group_projects(
+        self,
+        endpoint_group: str | _endpoint_group.EndpointGroup,
+        **query: Any,
+    ) -> Generator[_project.EndpointGroupProject, None, None]:
+        """Retrieve a generator of projects which are associated with the
+        endpoint group.
+
+        :param endpoint group: Either the endpoint group ID or an instance of
+            :class:`~openstack.identity.v3.endpoint_group.EndpointGroup`
+        :param query: Optional query parameters to be sent to limit
+            the resources being returned.
+
+        :returns: A generator of project instances.
+        """
+        endpoint_group_id = self._get_resource(
+            _endpoint_group.EndpointGroup, endpoint_group
+        ).id
+        return self._list(
+            _project.EndpointGroupProject,
+            endpoint_group_id=endpoint_group_id,
+            **query,
+        )
+
+    def associate_project_with_endpoint_group(
+        self,
+        endpoint_group: str | _endpoint_group.EndpointGroup,
+        project: str | _project.Project,
+    ) -> None:
+        """Create a direct association between the endpoint group and project
+
+        :param endpoint_group: Either the ID of an endpoint group or a
+            :class:`~openstack.identity.v3.endpoint_group.EndpointGroup`
+            instance.
+        :param project: Either the ID of a project or a
+            :class:`~openstack.identity.v3.project.Project` instance.
+        :returns: None
+        """
+        endpoint_group = self._get_resource(
+            _endpoint_group.EndpointGroup, endpoint_group
+        )
+        project = self._get_resource(_project.Project, project)
+        endpoint_group.associate_project(self, project.id)
+
+    def disassociate_project_from_endpoint_group(
+        self,
+        endpoint_group: str | _endpoint_group.EndpointGroup,
+        project: str | _project.Project,
+    ) -> None:
+        """Removes a direct association between endpoint group and project
+
+        :param endpoint_group: Either the ID of an endpoint group or a
+            :class:`~openstack.identity.v3.endpoint_group.EndpointGroup`
+            instance.
+        :param project: Either the ID of a project or a
+            :class:`~openstack.identity.v3.project.Project` instance.
+        :returns: None
+        """
+        endpoint_group = self._get_resource(
+            _endpoint_group.EndpointGroup, endpoint_group
+        )
+        project = self._get_resource(_project.Project, project)
+        endpoint_group.disassociate_project(self, project.id)
 
     # ========== Services ==========
 

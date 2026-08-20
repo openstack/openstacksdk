@@ -42,7 +42,7 @@ Endpoint Operations
 .. autoclass:: openstack.identity.v3._proxy.Proxy
   :noindex:
   :members: create_endpoint, update_endpoint, delete_endpoint, get_endpoint,
-            find_endpoint, endpoints, project_endpoints,
+            find_endpoint, endpoints, project_endpoints, endpoint_group_endpoints,
             associate_endpoint_with_project, disassociate_endpoint_from_project
 
 Endpoint Group Operations
@@ -52,7 +52,7 @@ Endpoint Group Operations
   :noindex:
   :members: create_endpoint_group, update_endpoint_group,
             delete_endpoint_group, get_endpoint_group, find_endpoint_group,
-            endpoint_groups
+            endpoint_groups, project_endpoint_groups
 
 Group Operations
 ^^^^^^^^^^^^^^^^
@@ -77,7 +77,9 @@ Project Operations
 .. autoclass:: openstack.identity.v3._proxy.Proxy
   :noindex:
   :members: create_project, update_project, delete_project, get_project,
-            find_project, projects, user_projects, endpoint_projects
+            find_project, projects, user_projects, endpoint_projects,
+            endpoint_group_projects, associate_project_with_endpoint_group,
+            disassociate_project_from_endpoint_group
 
 Service Operations
 ^^^^^^^^^^^^^^^^^^
