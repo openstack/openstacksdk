@@ -173,10 +173,29 @@ class TestConfig(base.TestCase):
         self._assert_cloud_details(cc)
 
     def test_get_one_with_int_project_id(self):
-        c = config.OpenStackConfig(
-            config_files=[self.cloud_yaml], vendor_files=[self.vendor_yaml]
+        # Real project IDs are strings (which often look like UUIDs), but a
+        # numeric value in the config should still be coerced to a string
+        # rather than left as an int. This guards the normalization done by
+        # _fix_backwards_auth.
+        single_conf = base._write_yaml(
+            {
+                'clouds': {
+                    'int-project': {
+                        'auth': {
+                            'auth_url': 'http://example.com/v2',
+                            'username': 'testuser',
+                            'password': 'testpass',
+                            'project_id': 12345,
+                        },
+                        'region_name': 'test-region',
+                    }
+                }
+            }
         )
-        cc = c.get_one('_test-cloud-int-project_')
+        c = config.OpenStackConfig(
+            config_files=[single_conf], secure_files=[], vendor_files=[]
+        )
+        cc = c.get_one('int-project')
         self.assertEqual('12345', cc.auth['project_id'])
 
     def test_get_one_with_domain_id(self):

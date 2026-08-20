@@ -19,6 +19,12 @@
           "default": "password",
           "type": "string"
         },
+        "auth_plugin": {
+          "name": "Auth Plugin (deprecated)",
+          "description": "Deprecated alias for 'auth_type'.",
+          "deprecated": true,
+          "type": "string"
+        },
         "auth_methods": {
           "name": "Auth Methods",
           "description": "List of authentication methods to attempt, in order",
@@ -35,6 +41,12 @@
           "description": "Which API Interface should connections hit",
           "default": "public",
           "enum": [ "public", "internal", "admin" ]
+        },
+        "endpoint_type": {
+          "name": "Endpoint Type (deprecated)",
+          "description": "Deprecated alias for 'interface'.",
+          "deprecated": true,
+          "type": "string"
         },
         "cacert": {
           "name": "CA Certificate",
@@ -85,6 +97,18 @@
           "description": "Description of the networks available to this cloud",
           "type": "array",
           "items": { "$ref": "#/$defs/network" }
+        },
+        "external_network": {
+          "name": "External Network (deprecated)",
+          "description": "Deprecated. Use a 'networks' entry with 'routes_externally: true' instead.",
+          "deprecated": true,
+          "type": "string"
+        },
+        "internal_network": {
+          "name": "Internal Network (deprecated)",
+          "description": "Deprecated. Use a 'networks' entry with 'routes_externally: false' instead.",
+          "deprecated": true,
+          "type": "string"
         },
         "metrics": {
           "$ref": "#/$defs/metrics"
@@ -222,6 +246,11 @@
           "description": "Per-service API interface override",
           "enum": [ "public", "internal", "admin" ]
         },
+        "_endpoint_type$": {
+          "description": "Deprecated per-service alias for '<service>_interface'.",
+          "deprecated": true,
+          "type": "string"
+        },
         "_endpoint_override$": {
           "description": "Per-service endpoint override",
           "type": "string"
@@ -269,7 +298,22 @@
         "default_domain_name": { "type": "string" },
         "application_credential_id": { "type": "string" },
         "application_credential_name": { "type": "string" },
-        "application_credential_secret": { "type": "string" }
+        "application_credential_secret": { "type": "string" },
+        "tenant_id": {
+          "description": "Deprecated alias for 'project_id'.",
+          "deprecated": true,
+          "type": "string"
+        },
+        "tenant_name": {
+          "description": "Deprecated alias for 'project_name'.",
+          "deprecated": true,
+          "type": "string"
+        },
+        "auth_token": {
+          "description": "Deprecated alias for 'token'.",
+          "deprecated": true,
+          "type": "string"
+        }
       },
       "additionalProperties": true
     },
