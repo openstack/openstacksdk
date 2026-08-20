@@ -24,6 +24,7 @@ from openstack.identity.v3 import credential as _credential
 from openstack.identity.v3 import domain as _domain
 from openstack.identity.v3 import domain_config as _domain_config
 from openstack.identity.v3 import endpoint as _endpoint
+from openstack.identity.v3 import endpoint_group as _endpoint_group
 from openstack.identity.v3 import federation_protocol as _federation_protocol
 from openstack.identity.v3 import group as _group
 from openstack.identity.v3 import identity_provider as _identity_provider
@@ -74,6 +75,7 @@ class Proxy(proxy.Proxy):
         "credential": _credential.Credential,
         "domain": _domain.Domain,
         "endpoint": _endpoint.Endpoint,
+        "endpoint_group": _endpoint_group.EndpointGroup,
         "federation_protocol": _federation_protocol.FederationProtocol,
         "group": _group.Group,
         "identity_provider": _identity_provider.IdentityProvider,
@@ -561,6 +563,129 @@ class Proxy(proxy.Proxy):
         project = self._get_resource(_project.Project, project)
         endpoint = self._get_resource(_endpoint.Endpoint, endpoint)
         project.disassociate_endpoint(self, endpoint.id)
+
+    # ========== Endpoint Groups ==========
+
+    def create_endpoint_group(
+        self, **attrs: Any
+    ) -> _endpoint_group.EndpointGroup:
+        """Create a new endpoint group from attributes
+
+        :param attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.identity.v3.endpoint_group.EndpointGroup`,
+            comprised of the properties on the EndpointGroup class.
+
+        :returns: The results of endpoint group creation
+        """
+        return self._create(_endpoint_group.EndpointGroup, **attrs)
+
+    def delete_endpoint_group(
+        self,
+        endpoint_group: str | _endpoint_group.EndpointGroup,
+        ignore_missing: bool = True,
+    ) -> None:
+        """Delete an endpoint group
+
+        :param endpoint_group: The value can be either the ID of an endpoint
+            group or a
+            :class:`~openstack.identity.v3.endpoint_group.EndpointGroup`
+            instance.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be
+            raised when the endpoint group does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent endpoint group.
+
+        :returns: ``None``
+        """
+        self._delete(
+            _endpoint_group.EndpointGroup,
+            endpoint_group,
+            ignore_missing=ignore_missing,
+        )
+
+    @overload
+    def find_endpoint_group(
+        self,
+        name_or_id: str,
+        ignore_missing: Literal[False],
+    ) -> _endpoint_group.EndpointGroup: ...
+
+    @overload
+    def find_endpoint_group(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _endpoint_group.EndpointGroup | None: ...
+
+    def find_endpoint_group(
+        self,
+        name_or_id: str,
+        ignore_missing: bool = True,
+    ) -> _endpoint_group.EndpointGroup | None:
+        """Find a single endpoint group
+
+        :param name_or_id: The name or ID of a endpoint group.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :returns: One
+            :class:`~openstack.identity.v3.endpoint_group.EndpointGroup` or
+            None
+        """
+        return self._find(
+            _endpoint_group.EndpointGroup,
+            name_or_id,
+            ignore_missing=ignore_missing,
+        )
+
+    def get_endpoint_group(
+        self, endpoint_group: str | _endpoint_group.EndpointGroup
+    ) -> _endpoint_group.EndpointGroup:
+        """Get a single endpoint group
+
+        :param endpoint_group: The value can be the ID of an endpoint group or
+            a :class:`~openstack.identity.v3.endpoint_group.EndpointGroup`
+            instance.
+
+        :returns: One
+            :class:`~openstack.identity.v3.endpoint_group.EndpointGroup`
+        :raises: :class:`~openstack.exceptions.NotFoundException`
+            when no resource can be found.
+        """
+        return self._get(_endpoint_group.EndpointGroup, endpoint_group)
+
+    def endpoint_groups(
+        self,
+        **query: Any,
+    ) -> Generator[_endpoint_group.EndpointGroup, None, None]:
+        """Retrieve a generator of endpoint groups
+
+        :param query: Optional query parameters to be sent to limit
+            the resources being returned.
+
+        :returns: A generator of endpoint group instances.
+        """
+        return self._list(_endpoint_group.EndpointGroup, **query)
+
+    def update_endpoint_group(
+        self, endpoint_group: str | _endpoint_group.EndpointGroup, **attrs: Any
+    ) -> _endpoint_group.EndpointGroup:
+        """Update an endpoint group
+
+        :param endpoint_group: Either the ID of an endpoint group or a
+            :class:`~openstack.identity.v3.endpoint_group.EndpointGroup`
+            instance.
+        :param attrs: The attributes to update on the endpoint group
+            represented by ``endpoint_group``.
+
+        :returns: The updated endpoint group
+        """
+        return self._update(
+            _endpoint_group.EndpointGroup, endpoint_group, **attrs
+        )
 
     # ========== Groups ==========
 
