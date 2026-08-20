@@ -299,43 +299,13 @@ class OpenStackConfig:
             self.cloud_config = dict(clouds=dict(defaults=dict(self.defaults)))
             self.default_cloud = 'defaults'
 
-        self._cache_auth = False
-        self._cache_expiration_time = 0
-        self._cache_path = CACHE_PATH
-        self._cache_class = 'dogpile.cache.null'
-        self._cache_arguments: dict[str, Any] = {}
-        self._cache_expirations: dict[str, int] = {}
-        if 'cache' in self.cloud_config:
-            cache_settings = _util.normalize_keys(self.cloud_config['cache'])
-
-            self._cache_auth = get_boolean(
-                cache_settings.get('auth', self._cache_auth)
-            )
-
-            # expiration_time used to be 'max_age' but the dogpile setting
-            # is expiration_time. Support max_age for backwards compat.
-            self._cache_expiration_time = cache_settings.get(
-                'expiration_time',
-                cache_settings.get('max_age', self._cache_expiration_time),
-            )
-
-            # If cache class is given, use that. If not, but if cache time
-            # is given, default to memory. Otherwise, default to nothing.
-            if self._cache_expiration_time:
-                self._cache_class = 'dogpile.cache.memory'
-            self._cache_class = self.cloud_config['cache'].get(
-                'class', self._cache_class
-            )
-
-            self._cache_path = os.path.expanduser(
-                cache_settings.get('path', self._cache_path)
-            )
-            self._cache_arguments = cache_settings.get(
-                'arguments', self._cache_arguments
-            )
-            self._cache_expirations = cache_settings.get(
-                'expiration', self._cache_expirations
-            )
+        cache = self._parse_section__cache(load_yaml_config, load_envvars)
+        self._cache_auth = cache['auth']
+        self._cache_expiration_time = cache['expiration_time']
+        self._cache_class = cache['cache_class']
+        self._cache_path = cache['path']
+        self._cache_arguments = cache['arguments']
+        self._cache_expirations = cache['expirations']
 
         if statsd_host or statsd_port or statsd_prefix:
             if statsd_config:
@@ -372,6 +342,61 @@ class OpenStackConfig:
         # Save the password callback
         # password = self._pw_callback(prompt="Password: ")
         self._pw_callback = pw_func
+
+    def _parse_section__cache(
+        self,
+        load_config: bool,
+        load_envvars: bool,
+    ) -> types.CacheConfig:
+        """Parse the '.cache' section of the config file.
+
+        :param load_config: Whether to load configuration from the config file.
+        :param load_envvars: Whether to load configuration from environment
+            variables.
+        :returns: The parsed cache configuration.
+        """
+        cache: types.CacheConfig = {
+            'auth': False,
+            'expiration_time': 0,
+            'cache_class': 'dogpile.cache.null',
+            'path': CACHE_PATH,
+            'arguments': {},
+            'expirations': {},
+        }
+
+        if load_config and 'cache' in self.cloud_config:
+            cache_settings = _util.normalize_keys(self.cloud_config['cache'])
+
+            cache['auth'] = get_boolean(
+                cache_settings.get('auth', cache['auth'])
+            )
+
+            # expiration_time used to be 'max_age' but the dogpile setting
+            # is expiration_time. Support max_age for backwards compat.
+            cache['expiration_time'] = cache_settings.get(
+                'expiration_time',
+                cache_settings.get('max_age', cache['expiration_time']),
+            )
+
+            # If cache class is given, use that. If not, but if cache time
+            # is given, default to memory. Otherwise, default to nothing.
+            if cache['expiration_time']:
+                cache['cache_class'] = 'dogpile.cache.memory'
+            cache['cache_class'] = self.cloud_config['cache'].get(
+                'class', cache['cache_class']
+            )
+
+            cache['path'] = os.path.expanduser(
+                cache_settings.get('path', cache['path'])
+            )
+            cache['arguments'] = cache_settings.get(
+                'arguments', cache['arguments']
+            )
+            cache['expirations'] = cache_settings.get(
+                'expiration', cache['expirations']
+            )
+
+        return cache
 
     # FIXME(stephenfin): Respect the load_envvars, load_config options
     def _parse_section__client(

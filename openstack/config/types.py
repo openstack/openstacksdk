@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from typing import TypedDict, TYPE_CHECKING
+from typing import Any, TypedDict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     import prometheus_client
@@ -43,3 +43,13 @@ class InfluxDBConfig(TypedDict, total=False):
 
 class PrometheusConfig(TypedDict, total=False):
     collector_registry: 'prometheus_client.CollectorRegistry | None'
+
+
+class CacheConfig(TypedDict):
+    auth: bool
+    expiration_time: int
+    # the dogpile.cache backend to use, e.g. 'dogpile.cache.memory'
+    cache_class: str
+    path: str
+    arguments: dict[str, Any]
+    expirations: dict[str, int]
