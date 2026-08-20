@@ -10,10 +10,24 @@
       "description": "Configuration for a single cloud. Additional properties are permitted because per-service overrides (e.g. '${service}_api_version') and plugin-specific auth options are open-ended.",
       "type": "object",
       "properties": {
+        "auth": {
+          "$ref": "#/$defs/auth"
+        },
         "auth_type": {
           "name": "Auth Type",
           "description": "Name of authentication plugin to be used",
           "default": "password",
+          "type": "string"
+        },
+        "auth_methods": {
+          "name": "Auth Methods",
+          "description": "List of authentication methods to attempt, in order",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "region_name": {
+          "name": "Region Name",
+          "description": "Default region name for all services in this cloud",
           "type": "string"
         },
         "interface": {
@@ -21,6 +35,59 @@
           "description": "Which API Interface should connections hit",
           "default": "public",
           "enum": [ "public", "internal", "admin" ]
+        },
+        "cacert": {
+          "name": "CA Certificate",
+          "description": "Path to a CA certificate bundle used to verify TLS connections",
+          "type": [ "string", "null" ]
+        },
+        "cert": {
+          "name": "Client Certificate",
+          "description": "Path to a client certificate for mutual TLS",
+          "type": [ "string", "null" ]
+        },
+        "key": {
+          "name": "Client Key",
+          "description": "Path to the private key for the client certificate",
+          "type": [ "string", "null" ]
+        },
+        "verify": {
+          "name": "Verify TLS",
+          "description": "Whether to verify TLS certificates",
+          "default": true,
+          "type": "boolean"
+        },
+        "insecure": {
+          "name": "Insecure",
+          "description": "Disable TLS certificate verification (inverse of verify)",
+          "default": false,
+          "type": "boolean"
+        },
+        "api_timeout": {
+          "name": "API Timeout",
+          "description": "Timeout, in seconds, for HTTP requests to the cloud",
+          "type": [ "integer", "number", "null" ]
+        },
+        "force_ipv4": {
+          "name": "Force IPv4",
+          "description": "Disable IPv6 support and only use IPv4 addresses",
+          "default": false,
+          "type": "boolean"
+        },
+        "prefer_ipv6": {
+          "name": "Prefer IPv6",
+          "description": "Prefer IPv6 addresses over IPv4 where available",
+          "default": true,
+          "type": "boolean"
+        },
+        "networks": {
+          "name": "Networks",
+          "description": "Description of the networks available to this cloud",
+          "type": "array",
+          "items": { "$ref": "#/$defs/network" }
+        },
+        "metrics": {
+          "$ref": "#/$defs/metrics"
         },
         "disable_vendor_agent": {
           "name": "Disable Vendor Agent Properties",
@@ -51,6 +118,34 @@
           "description": "Format for uploaded Images",
           "default": "qcow2",
           "type": "string"
+        },
+        "message": {
+          "name": "Status Message",
+          "description": "Vendor-supplied message associated with the status field",
+          "type": "string"
+        },
+        "status": {
+          "name": "Status",
+          "description": "Lifecycle status of the cloud, as supplied by the vendor profile",
+          "type": "string"
+        },
+        "baremetal_status_code_retries": {
+          "name": "Baremetal Status Code Retries",
+          "description": "Number of times to retry on retriable baremetal API status codes",
+          "default": 5,
+          "type": [ "integer", "string" ]
+        },
+        "baremetal_introspection_status_code_retries": {
+          "name": "Baremetal Introspection Status Code Retries",
+          "description": "Number of times to retry on retriable baremetal introspection API status codes",
+          "default": 5,
+          "type": [ "integer", "string" ]
+        },
+        "image_status_code_retries": {
+          "name": "Image Status Code Retries",
+          "description": "Number of times to retry on retriable image API status codes",
+          "default": 5,
+          "type": [ "integer", "string" ]
         },
         "baremetal_api_version": {
           "name": "Baremetal API Service Type",
@@ -118,7 +213,181 @@
           "type": "string"
         }
       },
+      "patternProperties": {
+        "_api_version$": {
+          "description": "Per-service API version override",
+          "type": "string"
+        },
+        "_interface$": {
+          "description": "Per-service API interface override",
+          "enum": [ "public", "internal", "admin" ]
+        },
+        "_endpoint_override$": {
+          "description": "Per-service endpoint override",
+          "type": "string"
+        },
+        "_service_type$": {
+          "description": "Per-service service type override",
+          "type": "string"
+        },
+        "_service_name$": {
+          "description": "Per-service service name override",
+          "type": "string"
+        },
+        "_region_name$": {
+          "description": "Per-service region name override",
+          "type": "string"
+        }
+      },
       "additionalProperties": true
+    },
+    "auth": {
+      "name": "Authentication",
+      "description": "Authentication parameters passed to the keystoneauth plugin identified by auth_type. The recognised keys vary by plugin, so additional properties are permitted.",
+      "type": "object",
+      "properties": {
+        "auth_url": {
+          "description": "URL of the identity service to authenticate against",
+          "type": "string"
+        },
+        "username": { "type": "string" },
+        "user_id": { "type": "string" },
+        "password": { "type": "string" },
+        "token": { "type": "string" },
+        "passcode": { "type": "string" },
+        "system_scope": { "type": "string" },
+        "trust_id": { "type": "string" },
+        "project_id": { "type": "string" },
+        "project_name": { "type": "string" },
+        "project_domain_id": { "type": "string" },
+        "project_domain_name": { "type": "string" },
+        "user_domain_id": { "type": "string" },
+        "user_domain_name": { "type": "string" },
+        "domain_id": { "type": "string" },
+        "domain_name": { "type": "string" },
+        "default_domain_id": { "type": "string" },
+        "default_domain_name": { "type": "string" },
+        "application_credential_id": { "type": "string" },
+        "application_credential_name": { "type": "string" },
+        "application_credential_secret": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "network": {
+      "name": "Network",
+      "description": "A single normalized network entry",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Name or ID of the network",
+          "type": "string"
+        },
+        "routes_externally": {
+          "description": "Whether the network routes traffic externally",
+          "type": "boolean",
+          "default": false
+        },
+        "routes_ipv4_externally": {
+          "description": "Whether the network routes IPv4 traffic externally; defaults to the value of routes_externally",
+          "type": "boolean"
+        },
+        "routes_ipv6_externally": {
+          "description": "Whether the network routes IPv6 traffic externally; defaults to the value of routes_externally",
+          "type": "boolean"
+        },
+        "nat_source": {
+          "description": "Whether this network should be the source for NAT",
+          "type": "boolean",
+          "default": false
+        },
+        "nat_destination": {
+          "description": "Whether this network should be the destination for NAT (i.e. where fixed IPs live)",
+          "type": "boolean",
+          "default": false
+        },
+        "default_interface": {
+          "description": "Whether this network is the default interface for the cloud",
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [ "name" ],
+      "additionalProperties": false
+    },
+    "metrics": {
+      "name": "Metrics",
+      "description": "Configuration for metrics and monitoring integrations",
+      "type": "object",
+      "properties": {
+        "statsd": { "$ref": "#/$defs/statsd" },
+        "influxdb": { "$ref": "#/$defs/influxdb" }
+      },
+      "additionalProperties": false
+    },
+    "statsd": {
+      "name": "statsd",
+      "description": "Configuration for reporting metrics to statsd",
+      "type": "object",
+      "properties": {
+        "host": {
+          "description": "Hostname of the statsd server",
+          "type": "string"
+        },
+        "port": {
+          "description": "Port of the statsd server",
+          "type": [ "integer", "string" ]
+        },
+        "prefix": {
+          "description": "Prefix to prepend to reported measurements",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "influxdb": {
+      "name": "InfluxDB",
+      "description": "Configuration for reporting metrics to InfluxDB",
+      "type": "object",
+      "properties": {
+        "host": {
+          "description": "Hostname of the InfluxDB server",
+          "type": "string"
+        },
+        "port": {
+          "description": "Port of the InfluxDB server",
+          "type": [ "integer", "string" ]
+        },
+        "username": {
+          "description": "Username to authenticate with",
+          "type": "string"
+        },
+        "password": {
+          "description": "Password to authenticate with",
+          "type": "string"
+        },
+        "database": {
+          "description": "Database to write measurements to",
+          "type": "string"
+        },
+        "measurement": {
+          "description": "Name of the measurement to record",
+          "type": "string"
+        },
+        "timeout": {
+          "description": "Timeout, in seconds, for requests to InfluxDB",
+          "type": [ "integer", "number", "string" ]
+        },
+        "use_udp": {
+          "description": "Whether to report measurements over UDP",
+          "type": [ "boolean", "string" ]
+        },
+        "additional_metric_tags": {
+          "description": "Additional tags to attach to every measurement",
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
     }
   }
 }
