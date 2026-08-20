@@ -26,7 +26,9 @@ from openstack.tests.unit.config import base
 class TestConfig(base.TestCase):
     def json_diagnostics(self, exc_info):
         self.addDetail('filename', content.text_content(self.filename))
-        for error in sorted(self.validator.iter_errors(self.json_data)):
+        for error in sorted(
+            self.validator.iter_errors(self.json_data), key=str
+        ):
             self.addDetail('jsonschema', content.text_content(str(error)))
 
     def test_defaults_valid_json(self):
