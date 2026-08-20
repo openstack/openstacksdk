@@ -34,6 +34,9 @@ class User(resource.Resource):
         'domain_id',
         'name',
         'password_expires_at',
+        'unique_id',
+        'idp_id',
+        'protocol_id',
         is_enabled='enabled',
     )
 
@@ -75,6 +78,11 @@ class User(resource.Resource):
     #: This is a response object attribute, not valid for requests.
     #: *New in version 3.7*
     password_expires_at = resource.Body('password_expires_at')
+    #: List of federated identity mappings associated with the user.
+    #: Each item contains ``idp_id`` and ``protocols`` (a list of objects
+    #: with ``protocol_id`` and ``unique_id``).
+    #: *New in version 3.14*
+    federated = resource.Body('federated', type=list)
     #: A dictionary of users extra options.
     options = resource.Body('options', type=dict, default={})
 

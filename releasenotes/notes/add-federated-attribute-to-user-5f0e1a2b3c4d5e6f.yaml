@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The identity v3 ``User`` resource now supports the ``federated``
+    attribute and the ``unique_id``, ``idp_id`` and ``protocol_id``
+    query filters (Keystone API microversion 3.14).

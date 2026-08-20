@@ -25,6 +25,14 @@ EXAMPLE = {
     'domain_id': '3',
     'email': '4',
     'enabled': True,
+    'federated': [
+        {
+            'idp_id': 'efbab5a6acad4d108fec6c63d9609d83',
+            'protocols': [
+                {'protocol_id': 'mapped', 'unique_id': 'test@example.com'}
+            ],
+        },
+    ],
     'id': IDENTIFIER,
     'links': {'self': 'http://example.com/user1'},
     'name': '6',
@@ -61,6 +69,9 @@ class TestUser(base.TestCase):
                 'domain_id': 'domain_id',
                 'name': 'name',
                 'password_expires_at': 'password_expires_at',
+                'unique_id': 'unique_id',
+                'idp_id': 'idp_id',
+                'protocol_id': 'protocol_id',
                 'is_enabled': 'enabled',
                 'limit': 'limit',
                 'marker': 'marker',
@@ -74,6 +85,7 @@ class TestUser(base.TestCase):
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['domain_id'], sot.domain_id)
         self.assertEqual(EXAMPLE['email'], sot.email)
+        self.assertEqual(EXAMPLE['federated'], sot.federated)
         self.assertTrue(sot.is_enabled)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['links'], sot.links)
