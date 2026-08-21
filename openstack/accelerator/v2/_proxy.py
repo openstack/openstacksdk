@@ -286,7 +286,6 @@ class Proxy(proxy.Proxy):
 
         return self._get(_arq.AcceleratorRequest, accelerator_request)
 
-    # TODO(stephenfin): Rename to patch_accelerator_request
     def patch_accelerator_request(
         self,
         accelerator_request: str | _arq.AcceleratorRequest,
