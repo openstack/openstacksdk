@@ -275,6 +275,7 @@ class TestServer(base.TestCase):
         data = 2
         hints = {"hint": 3}
         hostname = 'foo'
+        hypervisor_hostname = 'bar'
 
         sot = server.Server(
             id=1,
@@ -284,6 +285,7 @@ class TestServer(base.TestCase):
             min_count=2,
             max_count=3,
             hostname=hostname,
+            hypervisor_hostname=hypervisor_hostname,
         )
         request = sot._prepare_request()
 
@@ -303,11 +305,19 @@ class TestServer(base.TestCase):
             "OS-SCH-HNT:scheduler_hints", request.body[sot.resource_key]
         )
         self.assertEqual(request.body["OS-SCH-HNT:scheduler_hints"], hints)
-
         self.assertNotIn(
             "OS-EXT-SRV-ATTR:hostname", request.body[sot.resource_key]
         )
         self.assertEqual(request.body[sot.resource_key]["hostname"], hostname)
+
+        self.assertNotIn(
+            "OS-EXT-SRV-ATTR:hypervisor_hostname",
+            request.body[sot.resource_key],
+        )
+        self.assertEqual(
+            request.body[sot.resource_key]["hypervisor_hostname"],
+            hypervisor_hostname,
+        )
 
         self.assertEqual(2, request.body[sot.resource_key]['min_count'])
         self.assertEqual(3, request.body[sot.resource_key]['max_count'])

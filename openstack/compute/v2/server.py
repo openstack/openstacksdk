@@ -320,6 +320,11 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         if hostname_key in server_body:
             server_body["hostname"] = server_body.pop(hostname_key)
 
+        # hypervisor_hostname exists with a prefix on response, but not request
+        hostname_key = "OS-EXT-SRV-ATTR:hypervisor_hostname"
+        if hostname_key in server_body:
+            server_body["hypervisor_hostname"] = server_body.pop(hostname_key)
+
         return request
 
     def _action(
