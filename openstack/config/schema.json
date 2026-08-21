@@ -2,21 +2,8 @@
   "$id": "https://opendev.org/openstack/openstacksdk/raw/branch/master/openstack/config/schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "OpenStack Cloud Configuration",
-  "description": "Schema for a single cloud entry.",
-  "allOf": [
-    { "$ref": "#/$defs/cloud" },
-    {
-      "required": [
-        "auth_type",
-        "disable_vendor_agent",
-        "floating_ip_source",
-        "image_api_use_tasks",
-        "image_format",
-        "interface",
-        "secgroup_source"
-      ]
-    }
-  ],
+  "description": "Schema for a single, fully-normalized cloud configuration as produced by openstack.config after merging all sources and applying the 'magic_fixes' transformations. The reusable '#/$defs/cloud' subschema also tolerates the deprecated, pre-transformation aliases (tenant_name, auth_plugin, endpoint_type, external_network, ...) so that it can be reused to validate raw 'clouds' entries in a clouds.yaml file.",
+  "$ref": "#/$defs/cloud",
   "$defs": {
     "cloud": {
       "name": "Cloud",
