@@ -286,7 +286,7 @@ class Proxy(proxy.Proxy):
         image_kwargs['name'] = name
 
         # TODO(mordred) Convert this to use image Resource
-        image = self._connection._get_and_munchify(  # type: ignore[no-untyped-call]
+        image = self._connection._get_and_munchify(
             'image', self.post('/images', json=image_kwargs)
         )
         checksum = image_kwargs['properties'].get(self._IMAGE_MD5_KEY, '')
@@ -300,7 +300,7 @@ class Proxy(proxy.Proxy):
             if checksum:
                 headers['x-image-meta-checksum'] = checksum
 
-            image = self._connection._get_and_munchify(  # type: ignore[no-untyped-call]
+            image = self._connection._get_and_munchify(
                 'image',
                 self.put(
                     f'/images/{image.id}',
