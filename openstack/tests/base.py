@@ -80,7 +80,6 @@ class TestCase(base.BaseTestCase):
         logger.addHandler(handler)
 
         # Enable HTTP level tracing
-        # TODO(mordred) This is blowing out our memory we think
         logger = logging.getLogger('keystoneauth')
         logger.setLevel(logging.INFO)
         logger.addHandler(handler)
