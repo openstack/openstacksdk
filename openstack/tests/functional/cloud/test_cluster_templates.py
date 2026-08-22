@@ -89,16 +89,18 @@ class TestClusterTemplate(base.BaseFunctionalTest):
         cluster_template_get = self.user_cloud.get_cluster_template(
             self.ct['uuid']
         )
+        assert cluster_template_get is not None
         self.assertEqual(cluster_template_get['uuid'], self.ct['uuid'])
 
         # Test the get method also works by name
         cluster_template_get = self.user_cloud.get_cluster_template(name)
+        assert cluster_template_get is not None
         self.assertEqual(cluster_template_get['name'], self.ct['name'])
 
         # Test we can update a field on the cluster_template and only that
         # field is updated
         cluster_template_update = self.user_cloud.update_cluster_template(
-            self.ct, tls_disabled=True
+            self.ct['uuid'], tls_disabled=True
         )
         self.assertEqual(cluster_template_update['uuid'], self.ct['uuid'])
         self.assertTrue(cluster_template_update['tls_disabled'])

@@ -10,13 +10,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any, cast
+import warnings
+
 from openstack.cloud import _utils
 from openstack.cloud import openstackcloud
+from openstack.container_infrastructure_management.v1 import (
+    cluster as _cluster,
+)
+from openstack.container_infrastructure_management.v1 import (
+    cluster_certificate as _cluster_cert,
+)
+from openstack.container_infrastructure_management.v1 import (
+    cluster_template as _cluster_template,
+)
+from openstack.container_infrastructure_management.v1 import (
+    service as _service,
+)
 from openstack import exceptions
+from openstack import warnings as os_warnings
 
 
 class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
-    def list_coe_clusters(self):
+    def list_coe_clusters(self) -> list[_cluster.Cluster]:
         """List COE (Container Orchestration Engine) cluster.
 
         :returns: A list of container infrastructure management ``Cluster``
@@ -26,7 +42,11 @@ class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         return list(self.container_infrastructure_management.clusters())
 
-    def search_coe_clusters(self, name_or_id=None, filters=None):
+    def search_coe_clusters(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | None = None,
+    ) -> list[_cluster.Cluster]:
         """Search COE cluster.
 
         :param name_or_id: cluster name or ID.
@@ -42,7 +62,11 @@ class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
         coe_clusters = self.list_coe_clusters()
         return _utils._filter_list(coe_clusters, name_or_id, filters)
 
-    def get_coe_cluster(self, name_or_id, filters=None):
+    def get_coe_cluster(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | None = None,
+    ) -> _cluster.Cluster | None:
         """Get a COE cluster by name or ID.
 
         :param name_or_id: Name or ID of the cluster.
@@ -59,14 +83,17 @@ class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
         :returns: A container infrastructure management ``Cluster`` object if
             found, else None.
         """
-        return _utils._get_entity(self, 'coe_cluster', name_or_id, filters)
+        return cast(
+            '_cluster.Cluster | None',
+            _utils._get_entity(self, 'coe_cluster', name_or_id, filters),
+        )
 
     def create_coe_cluster(
         self,
-        name,
-        cluster_template_id,
-        **kwargs,
-    ):
+        name: str,
+        cluster_template_id: str,
+        **kwargs: Any,
+    ) -> _cluster.Cluster:
         """Create a COE cluster based on given cluster template.
 
         :param string name: Name of the cluster.
@@ -86,7 +113,7 @@ class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return cluster
 
-    def delete_coe_cluster(self, name_or_id):
+    def delete_coe_cluster(self, name_or_id: str) -> bool:
         """Delete a COE cluster.
 
         :param name_or_id: Name or unique ID of the cluster.
@@ -109,7 +136,9 @@ class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
         self.container_infrastructure_management.delete_cluster(cluster)
         return True
 
-    def update_coe_cluster(self, name_or_id, **kwargs):
+    def update_coe_cluster(
+        self, name_or_id: str, **kwargs: Any
+    ) -> _cluster.Cluster:
         """Update a COE cluster.
 
         :param name_or_id: Name or ID of the COE cluster being updated.
@@ -132,7 +161,9 @@ class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return cluster
 
-    def get_coe_cluster_certificate(self, cluster_id):
+    def get_coe_cluster_certificate(
+        self, cluster_id: str
+    ) -> _cluster_cert.ClusterCertificate:
         """Get details about the CA certificate for a cluster by name or ID.
 
         :param cluster_id: ID of the cluster.
@@ -145,7 +176,9 @@ class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
             )
         )
 
-    def sign_coe_cluster_certificate(self, cluster_id, csr):
+    def sign_coe_cluster_certificate(
+        self, cluster_id: str, csr: str
+    ) -> _cluster_cert.ClusterCertificate:
         """Sign client key and generate the CA certificate for a cluster
 
         :param cluster_id: UUID of the cluster.
@@ -161,7 +194,9 @@ class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
             cluster_uuid=cluster_id, csr=csr
         )
 
-    def list_cluster_templates(self, detail=False):
+    def list_cluster_templates(
+        self, detail: bool = False
+    ) -> list[_cluster_template.ClusterTemplate]:
         """List cluster templates.
 
         :param bool detail. Ignored. Included for backwards compat.
@@ -176,8 +211,11 @@ class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
         )
 
     def search_cluster_templates(
-        self, name_or_id=None, filters=None, detail=False
-    ):
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | None = None,
+        detail: bool = False,
+    ) -> list[_cluster_template.ClusterTemplate]:
         """Search cluster templates.
 
         :param name_or_id: cluster template name or ID.
@@ -192,7 +230,12 @@ class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
         cluster_templates = self.list_cluster_templates(detail=detail)
         return _utils._filter_list(cluster_templates, name_or_id, filters)
 
-    def get_cluster_template(self, name_or_id, filters=None, detail=False):
+    def get_cluster_template(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | None = None,
+        detail: bool = False,
+    ) -> _cluster_template.ClusterTemplate | None:
         """Get a cluster template by name or ID.
 
         :param name_or_id: Name or ID of the cluster template.
@@ -209,17 +252,35 @@ class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
         :returns: A cluster template dict or None if no matching
             cluster template is found.
         """
-        return _utils._get_entity(
-            self,
-            'cluster_template',
-            name_or_id,
-            filters=filters,
-            detail=detail,
+        if filters is not None:
+            warnings.warn(
+                "The 'filters' argument is deprecated; use "
+                "'search_cluster_templates' instead",
+                os_warnings.RemovedInSDK60Warning,
+            )
+            entities = self.search_cluster_templates(name_or_id, filters)
+            if not entities:
+                return None
+
+            if len(entities) > 1:
+                raise exceptions.SDKException(
+                    f"Multiple matches found for {name_or_id}",
+                )
+
+            return entities[0]
+
+        return self.container_infrastructure_management.find_cluster_template(
+            name_or_id
         )
 
     def create_cluster_template(
-        self, name, image_id=None, keypair_id=None, coe=None, **kwargs
-    ):
+        self,
+        name: str,
+        image_id: str | None = None,
+        keypair_id: str | None = None,
+        coe: str | None = None,
+        **kwargs: Any,
+    ) -> _cluster_template.ClusterTemplate:
         """Create a cluster template.
 
         :param string name: Name of the cluster template.
@@ -244,7 +305,7 @@ class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return cluster_template
 
-    def delete_cluster_template(self, name_or_id):
+    def delete_cluster_template(self, name_or_id: str) -> bool:
         """Delete a cluster template.
 
         :param name_or_id: Name or unique ID of the cluster template.
@@ -269,7 +330,9 @@ class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
         )
         return True
 
-    def update_cluster_template(self, name_or_id, **kwargs):
+    def update_cluster_template(
+        self, name_or_id: str, **kwargs: Any
+    ) -> _cluster_template.ClusterTemplate:
         """Update a cluster template.
 
         :param name_or_id: Name or ID of the cluster template being updated.
@@ -292,7 +355,7 @@ class CoeCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return cluster_template
 
-    def list_magnum_services(self):
+    def list_magnum_services(self) -> list[_service.Service]:
         """List all Magnum services.
 
         :returns: a list of dicts containing the service details.
