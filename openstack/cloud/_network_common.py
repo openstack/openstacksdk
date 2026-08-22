@@ -13,22 +13,42 @@
 import ipaddress
 import threading
 import time
+from typing import Any, TYPE_CHECKING, cast
 import warnings
 
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack.cloud import meta
 from openstack.cloud import openstackcloud
+from openstack.compute.v2 import server as _server
 from openstack import exceptions
+from openstack.network.v2 import floating_ip as _floating_ip
+from openstack.network.v2 import network as _network
+from openstack.network.v2 import port as _port
+from openstack.network.v2 import security_group as _security_group
+from openstack.network.v2 import security_group_rule as _security_group_rule
 from openstack import proxy
 from openstack import utils
 from openstack import warnings as os_warnings
+
+if TYPE_CHECKING:
+    import requests
 
 
 class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
     """Shared networking functions used by Network and Compute classes."""
 
-    def __init__(self, *args, **kwargs):
+    _external_ipv4_networks: list[_network.Network]
+    _external_ipv4_floating_networks: list[_network.Network]
+    _internal_ipv4_networks: list[_network.Network]
+    _external_ipv6_networks: list[_network.Network]
+    _internal_ipv6_networks: list[_network.Network]
+    _nat_destination_network: _network.Network | None
+    _nat_source_network: _network.Network | None
+    _default_network_network: _network.Network | None
+    _network_list_stamp: bool
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
         self._external_ipv4_names = self.config.get_external_ipv4_networks()
@@ -39,26 +59,30 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         self._nat_source = self.config.get_nat_source()
         self._default_network = self.config.get_default_network()
 
-        self._use_external_network = self.config.config.get(
+        self._use_external_network: bool = self.config.config.get(
             'use_external_network', True
         )
-        self._use_internal_network = self.config.config.get(
+        self._use_internal_network: bool = self.config.config.get(
             'use_internal_network', True
         )
 
         self._networks_lock = threading.Lock()
         self._reset_network_caches()
 
-        self.private = self.config.config.get('private', False)
+        self.private: bool = self.config.config.get('private', False)
 
-        self._floating_ip_source = self.config.config.get('floating_ip_source')
+        self._floating_ip_source: str | None = self.config.config.get(
+            'floating_ip_source'
+        )
         if self._floating_ip_source:
             if self._floating_ip_source.lower() == 'none':
                 self._floating_ip_source = None
             else:
                 self._floating_ip_source = self._floating_ip_source.lower()
 
-        self.secgroup_source = self.config.config['secgroup_source']
+        self.secgroup_source: str | None = self.config.config[
+            'secgroup_source'
+        ]
 
     # networks
 
@@ -68,7 +92,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
     def use_internal_network(self) -> bool:
         return self._use_internal_network
 
-    def _reset_network_caches(self):
+    def _reset_network_caches(self) -> None:
         # Variables to prevent us from going through the network finding
         # logic again if we've done it once. This is different from just
         # the cached value, since "None" is a valid value to find.
@@ -83,17 +107,17 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             self._default_network_network = None
             self._network_list_stamp = False
 
-    def _set_interesting_networks(self):
-        external_ipv4_networks = []
-        external_ipv4_floating_networks = []
-        internal_ipv4_networks = []
-        external_ipv6_networks = []
-        internal_ipv6_networks = []
-        nat_destination = None
-        nat_source = None
-        default_network = None
+    def _set_interesting_networks(self) -> None:
+        external_ipv4_networks: list[_network.Network] = []
+        external_ipv4_floating_networks: list[_network.Network] = []
+        internal_ipv4_networks: list[_network.Network] = []
+        external_ipv6_networks: list[_network.Network] = []
+        internal_ipv6_networks: list[_network.Network] = []
+        nat_destination: _network.Network | None = None
+        nat_source: _network.Network | None = None
+        default_network: _network.Network | None = None
 
-        all_subnets = None
+        all_subnets: list[Any] | None = None
 
         # Filter locally because we have an or condition
         try:
@@ -298,7 +322,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         self._nat_source_network = nat_source
         self._default_network_network = default_network
 
-    def _find_interesting_networks(self):
+    def _find_interesting_networks(self) -> None:
         if self._networks_lock.acquire():
             try:
                 if self._network_list_stamp:
@@ -316,7 +340,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             finally:
                 self._networks_lock.release()
 
-    def get_nat_destination(self):
+    def get_nat_destination(self) -> _network.Network | None:
         """Return the network that is configured to be the NAT destination.
 
         :returns: A network ``Network`` object if one is found
@@ -324,7 +348,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         self._find_interesting_networks()
         return self._nat_destination_network
 
-    def get_nat_source(self):
+    def get_nat_source(self) -> _network.Network | None:
         """Return the network that is configured to be the NAT destination.
 
         :returns: A network ``Network`` object if one is found
@@ -332,7 +356,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         self._find_interesting_networks()
         return self._nat_source_network
 
-    def get_default_network(self):
+    def get_default_network(self) -> _network.Network | None:
         """Return the network that is configured to be the default interface.
 
         :returns: A network ``Network`` object if one is found
@@ -340,7 +364,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         self._find_interesting_networks()
         return self._default_network_network
 
-    def get_external_networks(self):
+    def get_external_networks(self) -> list[_network.Network]:
         """Return the networks that are configured to route northbound.
 
         This should be avoided in favor of the specific ipv4/ipv6 method,
@@ -353,7 +377,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             self._external_ipv6_networks
         )
 
-    def get_internal_networks(self):
+    def get_internal_networks(self) -> list[_network.Network]:
         """Return the networks that are configured to not route northbound.
 
         This should be avoided in favor of the specific ipv4/ipv6 method,
@@ -366,7 +390,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             self._internal_ipv6_networks
         )
 
-    def get_external_ipv4_networks(self):
+    def get_external_ipv4_networks(self) -> list[_network.Network]:
         """Return the networks that are configured to route northbound.
 
         :returns: A list of network ``Network`` objects if any are found
@@ -374,7 +398,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         self._find_interesting_networks()
         return self._external_ipv4_networks
 
-    def get_external_ipv4_floating_networks(self):
+    def get_external_ipv4_floating_networks(self) -> list[_network.Network]:
         """Return the networks that are configured to route northbound.
 
         :returns: A list of network ``Network`` objects if any are found
@@ -382,7 +406,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         self._find_interesting_networks()
         return self._external_ipv4_floating_networks
 
-    def get_internal_ipv4_networks(self):
+    def get_internal_ipv4_networks(self) -> list[_network.Network]:
         """Return the networks that are configured to not route northbound.
 
         :returns: A list of network ``Network`` objects if any are found
@@ -390,7 +414,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         self._find_interesting_networks()
         return self._internal_ipv4_networks
 
-    def get_external_ipv6_networks(self):
+    def get_external_ipv6_networks(self) -> list[_network.Network]:
         """Return the networks that are configured to route northbound.
 
         :returns: A list of network ``Network`` objects if any are found
@@ -398,7 +422,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         self._find_interesting_networks()
         return self._external_ipv6_networks
 
-    def get_internal_ipv6_networks(self):
+    def get_internal_ipv6_networks(self) -> list[_network.Network]:
         """Return the networks that are configured to not route northbound.
 
         :returns: A list of network ``Network`` objects if any are found
@@ -408,7 +432,11 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     # floating IPs
 
-    def search_floating_ip_pools(self, name=None, filters=None):
+    def search_floating_ip_pools(
+        self,
+        name: str | None = None,
+        filters: dict[str, Any] | str | None = None,
+    ) -> list[dict[str, Any]]:
         pools = self.list_floating_ip_pools()
         return _utils._filter_list(pools, name, filters)
 
@@ -416,7 +444,11 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
     # not possible (e.g. nested attributes or list of objects) so we also need
     # to use the client-side filtering
     # The same goes for all neutron-related search/get methods!
-    def search_floating_ips(self, id=None, filters=None):
+    def search_floating_ips(
+        self,
+        id: str | None = None,
+        filters: dict[str, Any] | str | None = None,
+    ) -> list[_floating_ip.FloatingIP | utils.Munch]:
         # `filters` could be a jmespath expression which Neutron server doesn't
         # understand, obviously.
         warnings.warn(
@@ -429,20 +461,31 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             floating_ips = self.list_floating_ips()
             return _utils._filter_list(floating_ips, id, filters)
 
-    def _neutron_list_floating_ips(self, filters=None):
+    def _neutron_list_floating_ips(
+        self, filters: dict[str, Any] | None = None
+    ) -> list[_floating_ip.FloatingIP | utils.Munch]:
         if not filters:
             filters = {}
-        data = list(self.network.ips(**filters))
+        data: list[_floating_ip.FloatingIP | utils.Munch] = list(
+            self.network.ips(**filters)
+        )
         return data
 
-    def _nova_list_floating_ips(self):
+    def _nova_list_floating_ips(self) -> list[utils.Munch]:
         try:
             data = proxy._json_response(self.compute.get('/os-floating-ips'))
         except exceptions.NotFoundException:
             return []
-        return self._get_and_munchify('floating_ips', data)
+        return cast(
+            'list[utils.Munch]',
+            self._get_and_munchify('floating_ips', data),
+        )
 
-    def get_floating_ip(self, id, filters=None):
+    def get_floating_ip(
+        self,
+        id: str | None,
+        filters: dict[str, Any] | str | None = None,
+    ) -> _floating_ip.FloatingIP | utils.Munch | None:
         """Get a floating IP by ID
 
         :param id: ID of the floating IP.
@@ -460,9 +503,14 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             or None if no matching floating IP is found.
 
         """
-        return _utils._get_entity(self, 'floating_ip', id, filters)
+        return cast(
+            '_floating_ip.FloatingIP | utils.Munch | None',
+            _utils._get_entity(self, 'floating_ip', id, filters),
+        )
 
-    def list_floating_ips(self, filters=None):
+    def list_floating_ips(
+        self, filters: dict[str, Any] | None = None
+    ) -> list[_floating_ip.FloatingIP | utils.Munch]:
         """List all available floating IPs.
 
         :param filters: (optional) dict of filter conditions to push down
@@ -517,7 +565,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         floating_ips = self._nova_list_floating_ips()
         return self._normalize_floating_ips(floating_ips)
 
-    def list_floating_ip_pools(self):
+    def list_floating_ip_pools(self) -> list[dict[str, Any]]:
         """List all available floating IP pools.
 
         NOTE: This function supports the nova-net view of the world. nova-net
@@ -534,7 +582,9 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         pools = self._get_and_munchify('floating_ip_pools', data)
         return [{'name': p['name']} for p in pools]
 
-    def get_floating_ip_by_id(self, id):
+    def get_floating_ip_by_id(
+        self, id: str
+    ) -> _floating_ip.FloatingIP | utils.Munch:
         """Get a floating ip by ID
 
         :param id: ID of the floating ip.
@@ -556,8 +606,11 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             )
 
     def _neutron_available_floating_ips(
-        self, network=None, project_id=None, server=None
-    ):
+        self,
+        network: str | list[str] | None = None,
+        project_id: str | None = None,
+        server: _server.Server | None = None,
+    ) -> list[_floating_ip.FloatingIP | utils.Munch]:
         """Get a floating IP from a network.
 
         Return a list of available floating IPs or allocate a new one and
@@ -617,7 +670,9 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return [f_ip]
 
-    def _nova_available_floating_ips(self, pool=None):
+    def _nova_available_floating_ips(
+        self, pool: str | None = None
+    ) -> list[utils.Munch]:
         """Get available floating IPs from a floating IP pool.
 
         Return a list of available floating IPs or allocate a new one and
@@ -656,7 +711,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
 
             return [f_ip]
 
-    def _find_floating_network_by_router(self):
+    def _find_floating_network_by_router(self) -> str | None:
         """Find the network providing floating ips by looking at routers."""
         for router in self.network.routers():
             if router['admin_state_up']:
@@ -664,9 +719,14 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                     'network_id'
                 )
                 if network_id:
-                    return network_id
+                    return cast('str', network_id)
+        return None
 
-    def available_floating_ip(self, network=None, server=None):
+    def available_floating_ip(
+        self,
+        network: str | None = None,
+        server: _server.Server | None = None,
+    ) -> _floating_ip.FloatingIP | utils.Munch:
         """Get a floating IP from a network or a pool.
 
         Return the first available floating IP or allocate a new one.
@@ -696,9 +756,10 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         )
         return f_ips[0]
 
-    def _get_floating_network_id(self):
+    def _get_floating_network_id(self) -> str:
         # Get first existing external IPv4 network
         networks = self.get_external_ipv4_floating_networks()
+        floating_network_id: str
         if networks:
             floating_network_id = networks[0]['id']
         else:
@@ -713,14 +774,14 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def create_floating_ip(
         self,
-        network=None,
-        server=None,
-        fixed_address=None,
-        nat_destination=None,
-        port=None,
-        wait=False,
-        timeout=60,
-    ):
+        network: str | None = None,
+        server: _server.Server | None = None,
+        fixed_address: str | None = None,
+        nat_destination: str | None = None,
+        port: str | None = None,
+        wait: bool = False,
+        timeout: int | float = 60,
+    ) -> _floating_ip.FloatingIP | utils.Munch:
         """Allocate a new floating IP from a network or a pool.
 
         :param network: Name or ID of the network
@@ -780,21 +841,23 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         )
         return f_ips[0]
 
-    def _submit_create_fip(self, kwargs):
+    def _submit_create_fip(
+        self, kwargs: dict[str, Any]
+    ) -> _floating_ip.FloatingIP:
         # Split into a method to aid in test mocking
         return self.network.create_ip(**kwargs)
 
     def _neutron_create_floating_ip(
         self,
-        network_name_or_id=None,
-        server=None,
-        fixed_address=None,
-        nat_destination=None,
-        port=None,
-        wait=False,
-        timeout=60,
-        network_id=None,
-    ):
+        network_name_or_id: str | None = None,
+        server: _server.Server | None = None,
+        fixed_address: str | None = None,
+        nat_destination: str | None = None,
+        port: str | None = None,
+        wait: bool = False,
+        timeout: int | float = 60,
+        network_id: str | None = None,
+    ) -> _floating_ip.FloatingIP | utils.Munch:
         if not network_id:
             if network_name_or_id:
                 try:
@@ -826,7 +889,9 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         if port:
             kwargs['port_id'] = port
 
-        fip = self._submit_create_fip(kwargs)
+        fip: _floating_ip.FloatingIP | utils.Munch = self._submit_create_fip(
+            kwargs
+        )
         fip_id = fip['id']
 
         if port:
@@ -834,14 +899,17 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             # when we've attached it to something, which only occurs
             # if we've provided a port as a parameter
             if wait:
+                current_fip: _floating_ip.FloatingIP | utils.Munch | None = (
+                    None
+                )
                 try:
                     for count in utils.iterate_timeout(
                         timeout,
                         "Timeout waiting for the floating IP to be ACTIVE",
                         wait=min(5, timeout),
                     ):
-                        fip = self.get_floating_ip(fip_id)
-                        if fip and fip['status'] == 'ACTIVE':
+                        current_fip = self.get_floating_ip(fip_id)
+                        if current_fip and current_fip['status'] == 'ACTIVE':
                             break
                 except exceptions.ResourceTimeout:
                     self.log.error(
@@ -859,6 +927,10 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                             {'fip': fip_id, 'exc': e.__class__, 'err': str(e)},
                         )
                     raise
+                # if we get here without a timeout, the wait loop broke
+                # early because get_floating_ip returned a non-None result
+                assert current_fip is not None
+                fip = current_fip
             if fip['port_id'] != port:
                 if server:
                     raise exceptions.SDKException(
@@ -876,7 +948,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                     )
         return fip
 
-    def _nova_create_floating_ip(self, pool=None):
+    def _nova_create_floating_ip(self, pool: str | None = None) -> utils.Munch:
         with _utils.openstacksdk_exceptions(
             f"Unable to create floating IP in pool {pool}"
         ):
@@ -898,9 +970,11 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                     '/os-floating-ips/{id}'.format(id=pool_ip['id'])
                 )
             )
-            return self._get_and_munchify('floating_ip', data)
+            return cast(
+                'utils.Munch', self._get_and_munchify('floating_ip', data)
+            )
 
-    def delete_floating_ip(self, floating_ip_id, retry=1):
+    def delete_floating_ip(self, floating_ip_id: str, retry: int = 1) -> bool:
         """Deallocate a floating IP from a project.
 
         :param floating_ip_id: a floating IP address ID.
@@ -928,6 +1002,9 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             if not f_ip or f_ip['status'] == 'DOWN':
                 return True
 
+        # we only reach here if the loop ran at least once and the final
+        # f_ip was truthy (non-None)
+        assert f_ip is not None
         raise exceptions.SDKException(
             "Attempted to delete Floating IP {ip} with ID {id} a total of "
             "{retry} times. Although the cloud did not indicate any errors "
@@ -939,7 +1016,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             )
         )
 
-    def _delete_floating_ip(self, floating_ip_id):
+    def _delete_floating_ip(self, floating_ip_id: str) -> bool:
         if self._use_neutron_floating():
             try:
                 return self._neutron_delete_floating_ip(floating_ip_id)
@@ -951,14 +1028,14 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                 )
         return self._nova_delete_floating_ip(floating_ip_id)
 
-    def _neutron_delete_floating_ip(self, floating_ip_id):
+    def _neutron_delete_floating_ip(self, floating_ip_id: str) -> bool:
         try:
             self.network.delete_ip(floating_ip_id, ignore_missing=False)
         except exceptions.NotFoundException:
             return False
         return True
 
-    def _nova_delete_floating_ip(self, floating_ip_id):
+    def _nova_delete_floating_ip(self, floating_ip_id: str) -> bool:
         try:
             proxy._json_response(
                 self.compute.delete(f'/os-floating-ips/{floating_ip_id}'),
@@ -968,7 +1045,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             return False
         return True
 
-    def delete_unattached_floating_ips(self, retry=1):
+    def delete_unattached_floating_ips(self, retry: int = 1) -> int | bool:
         """Safely delete unattached floating ips.
 
         If the cloud can safely purge any unattached floating ips without
@@ -989,7 +1066,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         """
-        processed = []
+        processed: list[bool] = []
         if self._use_neutron_floating():
             for ip in self.list_floating_ips():
                 if not bool(ip.port_id):
@@ -1002,14 +1079,14 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def _attach_ip_to_server(
         self,
-        server,
-        floating_ip,
-        fixed_address=None,
-        wait=False,
-        timeout=60,
-        skip_attach=False,
-        nat_destination=None,
-    ):
+        server: _server.Server,
+        floating_ip: _floating_ip.FloatingIP | utils.Munch,
+        fixed_address: str | None = None,
+        wait: bool = False,
+        timeout: int | float = 60,
+        skip_attach: bool = False,
+        nat_destination: str | None = None,
+    ) -> _server.Server:
         """Attach a floating IP to a server.
 
         :param server: Server dict
@@ -1086,8 +1163,12 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         return server
 
     def _neutron_attach_ip_to_server(
-        self, server, floating_ip, fixed_address=None, nat_destination=None
-    ):
+        self,
+        server: _server.Server,
+        floating_ip: _floating_ip.FloatingIP | utils.Munch,
+        fixed_address: str | None = None,
+        nat_destination: str | None = None,
+    ) -> _floating_ip.FloatingIP:
         # Find an available port
         (port, fixed_address) = self._nat_destination_port(
             server,
@@ -1106,8 +1187,11 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         return self.network.update_ip(floating_ip, **floating_ip_args)
 
     def _nova_attach_ip_to_server(
-        self, server_id, floating_ip_id, fixed_address=None
-    ):
+        self,
+        server_id: str,
+        floating_ip_id: str,
+        fixed_address: str | None = None,
+    ) -> 'requests.Response':
         f_ip = self.get_floating_ip(id=floating_ip_id)
         if f_ip is None:
             raise exceptions.SDKException(
@@ -1127,7 +1211,9 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             error_message=error_message,
         )
 
-    def detach_ip_from_server(self, server_id, floating_ip_id):
+    def detach_ip_from_server(
+        self, server_id: str, floating_ip_id: str
+    ) -> bool | None:
         """Detach a floating IP from a server.
 
         :param server_id: ID of a server.
@@ -1155,8 +1241,11 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         self._nova_detach_ip_from_server(
             server_id=server_id, floating_ip_id=floating_ip_id
         )
+        return None
 
-    def _neutron_detach_ip_from_server(self, server_id, floating_ip_id):
+    def _neutron_detach_ip_from_server(
+        self, server_id: str, floating_ip_id: str
+    ) -> bool:
         f_ip = self.get_floating_ip(id=floating_ip_id)
         if f_ip is None or not bool(f_ip.port_id):
             return False
@@ -1169,7 +1258,9 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return True
 
-    def _nova_detach_ip_from_server(self, server_id, floating_ip_id):
+    def _nova_detach_ip_from_server(
+        self, server_id: str, floating_ip_id: str
+    ) -> 'requests.Response':
         f_ip = self.get_floating_ip(id=floating_ip_id)
         if f_ip is None:
             raise exceptions.SDKException(
@@ -1192,14 +1283,14 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def _add_ip_from_pool(
         self,
-        server,
-        network,
-        fixed_address=None,
-        reuse=True,
-        wait=False,
-        timeout=60,
-        nat_destination=None,
-    ):
+        server: _server.Server,
+        network: str | None,
+        fixed_address: str | None = None,
+        reuse: bool = True,
+        wait: bool = False,
+        timeout: int | float = 60,
+        nat_destination: str | None = None,
+    ) -> _server.Server:
         """Add a floating IP to a server from a given pool
 
         This method reuses available IPs, when possible, or allocate new IPs
@@ -1251,13 +1342,13 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def add_ip_list(
         self,
-        server,
-        ips,
-        wait=False,
-        timeout=60,
-        fixed_address=None,
-        nat_destination=None,
-    ):
+        server: _server.Server,
+        ips: str | list[str],
+        wait: bool = False,
+        timeout: int | float = 60,
+        fixed_address: str | None = None,
+        nat_destination: str | None = None,
+    ) -> _server.Server:
         """Attach a list of IPs to a server.
 
         :param server: a server object
@@ -1276,13 +1367,20 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             error.
         """
 
+        ip_addresses: list[str]
         if type(ips) is not list:
-            ips = [ips]
+            ip_addresses = [cast('str', ips)]
+        else:
+            ip_addresses = ips
 
-        for ip in ips:
+        for ip in ip_addresses:
             f_ip = self.get_floating_ip(
                 id=None, filters={'floating_ip_address': ip}
             )
+            if f_ip is None:
+                raise exceptions.SDKException(
+                    f"unable to find floating IP {ip}"
+                )
             server = self._attach_ip_to_server(
                 server=server,
                 floating_ip=f_ip,
@@ -1293,7 +1391,13 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             )
         return server
 
-    def add_auto_ip(self, server, wait=False, timeout=60, reuse=True):
+    def add_auto_ip(
+        self,
+        server: _server.Server,
+        wait: bool = False,
+        timeout: int | float = 60,
+        reuse: bool = True,
+    ) -> str | None:
         """Add a floating IP to a server.
 
         This method is intended for basic usage. For advanced network
@@ -1317,9 +1421,15 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         server = self._add_auto_ip(
             server, wait=wait, timeout=timeout, reuse=reuse
         )
-        return server['interface_ip'] or None
+        return cast('str | None', server['interface_ip'] or None)
 
-    def _add_auto_ip(self, server, wait=False, timeout=60, reuse=True):
+    def _add_auto_ip(
+        self,
+        server: _server.Server,
+        wait: bool = False,
+        timeout: int | float = 60,
+        reuse: bool = True,
+    ) -> _server.Server:
         skip_attach = False
         created = False
         if reuse:
@@ -1378,16 +1488,16 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def add_ips_to_server(
         self,
-        server,
-        auto_ip=True,
-        ips=None,
-        ip_pool=None,
-        wait=False,
-        timeout=60,
-        reuse=True,
-        fixed_address=None,
-        nat_destination=None,
-    ):
+        server: _server.Server,
+        auto_ip: bool = True,
+        ips: str | list[str] | None = None,
+        ip_pool: str | None = None,
+        wait: bool = False,
+        timeout: int | float = 60,
+        reuse: bool = True,
+        fixed_address: str | None = None,
+        nat_destination: str | None = None,
+    ) -> _server.Server:
         if ip_pool:
             server = self._add_ip_from_pool(
                 server,
@@ -1414,7 +1524,9 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                 )
         return server
 
-    def _needs_floating_ip(self, server, nat_destination):
+    def _needs_floating_ip(
+        self, server: _server.Server, nat_destination: str | None
+    ) -> bool:
         """Figure out if auto_ip should add a floating ip to this server.
 
         If the server has a floating ip it does not need another one.
@@ -1494,8 +1606,11 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         return True
 
     def _nat_destination_port(
-        self, server, fixed_address=None, nat_destination=None
-    ):
+        self,
+        server: _server.Server,
+        fixed_address: str | None = None,
+        nat_destination: str | None = None,
+    ) -> tuple[_port.Port | None, str | None]:
         """Returns server port that is on a nat_destination network
 
         Find a port attached to the server which is on a network which
@@ -1542,7 +1657,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                         f'is complicated.'
                     )
 
-                maybe_ports = []
+                maybe_ports: list[_port.Port] = []
                 for maybe_port in ports:
                     if maybe_port['network_id'] == nat_network['id']:
                         maybe_ports.append(maybe_port)
@@ -1594,13 +1709,13 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                     return (p, fixed_address)
         return (None, None)
 
-    def _has_floating_ips(self):
+    def _has_floating_ips(self) -> bool:
         if not self._floating_ip_source:
             return False
         else:
             return self._floating_ip_source in ('nova', 'neutron')
 
-    def _use_neutron_floating(self):
+    def _use_neutron_floating(self) -> bool:
         ret = (
             self.has_service('network')
             and self._floating_ip_source == 'neutron'
@@ -1614,7 +1729,9 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             )
         return ret
 
-    def _normalize_floating_ips(self, ips):
+    def _normalize_floating_ips(
+        self, ips: list[utils.Munch]
+    ) -> list[_floating_ip.FloatingIP | utils.Munch]:
         """Normalize the structure of floating IPs
 
         Unfortunately, not all the Neutron floating_ip attributes are available
@@ -1646,7 +1763,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         return [self._normalize_floating_ip(ip) for ip in ips]
 
-    def _normalize_floating_ip(self, ip):
+    def _normalize_floating_ip(self, ip: utils.Munch) -> utils.Munch:
         # Copy incoming floating ip because of shared dicts in unittests
         # Only import munch when we really need it
 
@@ -1714,14 +1831,20 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     # security groups
 
-    def search_security_groups(self, name_or_id=None, filters=None):
+    def search_security_groups(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | str | None = None,
+    ) -> list[_security_group.SecurityGroup | utils.Munch]:
         # `filters` could be a dict or a jmespath (str)
         groups = self.list_security_groups(
             filters=filters if isinstance(filters, dict) else None
         )
         return _utils._filter_list(groups, name_or_id, filters)
 
-    def list_security_groups(self, filters=None):
+    def list_security_groups(
+        self, filters: dict[str, Any] | None = None
+    ) -> list[_security_group.SecurityGroup | utils.Munch]:
         """List all available security groups.
 
         :param filters: (optional) dict of filter conditions to push down
@@ -1752,7 +1875,11 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                 self._get_and_munchify('security_groups', data)
             )
 
-    def get_security_group(self, name_or_id, filters=None):
+    def get_security_group(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | str | None = None,
+    ) -> _security_group.SecurityGroup | utils.Munch | None:
         """Get a security group by name or ID.
 
         :param name_or_id: Name or ID of the security group.
@@ -1771,9 +1898,14 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             or None if no matching security group is found.
 
         """
-        return _utils._get_entity(self, 'security_group', name_or_id, filters)
+        return cast(
+            '_security_group.SecurityGroup | utils.Munch | None',
+            _utils._get_entity(self, 'security_group', name_or_id, filters),
+        )
 
-    def get_security_group_by_id(self, id):
+    def get_security_group_by_id(
+        self, id: str
+    ) -> _security_group.SecurityGroup | utils.Munch:
         """Get a security group by ID
 
         :param id: ID of the security group.
@@ -1797,8 +1929,12 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             )
 
     def create_security_group(
-        self, name, description, project_id=None, stateful=None
-    ):
+        self,
+        name: str,
+        description: str,
+        project_id: str | None = None,
+        stateful: bool | None = None,
+    ) -> _security_group.SecurityGroup | utils.Munch:
         """Create a new security group
 
         :param string name: A name for the security group.
@@ -1823,7 +1959,10 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                 "Unavailable feature: security groups"
             )
 
-        security_group_json = {'name': name, 'description': description}
+        security_group_json: dict[str, Any] = {
+            'name': name,
+            'description': description,
+        }
         if stateful is not None:
             security_group_json['stateful'] = stateful
         if project_id is not None:
@@ -1841,7 +1980,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                 self._get_and_munchify('security_group', data)
             )
 
-    def delete_security_group(self, name_or_id):
+    def delete_security_group(self, name_or_id: str) -> bool:
         """Delete a security group
 
         :param string name_or_id: The name or unique ID of the security group.
@@ -1883,7 +2022,9 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
             return True
 
     @_utils.valid_kwargs('name', 'description', 'stateful')
-    def update_security_group(self, name_or_id, **kwargs):
+    def update_security_group(
+        self, name_or_id: str, **kwargs: Any
+    ) -> _security_group.SecurityGroup | utils.Munch:
         """Update a security group
 
         :param string name_or_id: Name or ID of the security group to update.
@@ -1925,18 +2066,18 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def create_security_group_rule(
         self,
-        secgroup_name_or_id,
-        port_range_min=None,
-        port_range_max=None,
-        protocol=None,
-        remote_ip_prefix=None,
-        remote_group_id=None,
-        remote_address_group_id=None,
-        direction='ingress',
-        ethertype='IPv4',
-        project_id=None,
-        description=None,
-    ):
+        secgroup_name_or_id: str,
+        port_range_min: int | None = None,
+        port_range_max: int | None = None,
+        protocol: str | None = None,
+        remote_ip_prefix: str | None = None,
+        remote_group_id: str | None = None,
+        remote_address_group_id: str | None = None,
+        direction: str = 'ingress',
+        ethertype: str = 'IPv4',
+        project_id: str | None = None,
+        description: str | None = None,
+    ) -> _security_group_rule.SecurityGroupRule | utils.Munch:
         """Create a new security group rule
 
         :param string secgroup_name_or_id:
@@ -2003,7 +2144,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
         if self._use_neutron_secgroups():
             # NOTE: Nova accepts -1 port numbers, but Neutron accepts None
             # as the equivalent value.
-            rule_def = {
+            rule_def: dict[str, Any] = {
                 'security_group_id': secgroup['id'],
                 'port_range_min': (
                     None if port_range_min == -1 else port_range_min
@@ -2052,7 +2193,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                     port_range_min = 1
                     port_range_max = 65535
 
-            security_group_rule_dict = dict(
+            security_group_rule_dict: dict[str, dict[str, Any]] = dict(
                 security_group_rule=dict(
                     parent_group_id=secgroup['id'],
                     ip_protocol=protocol,
@@ -2075,7 +2216,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                 self._get_and_munchify('security_group_rule', data)
             )
 
-    def delete_security_group_rule(self, rule_id):
+    def delete_security_group_rule(self, rule_id: str) -> bool:
         """Delete a security group rule
 
         :param string rule_id: The unique ID of the security group rule.
@@ -2109,18 +2250,20 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
 
             return True
 
-    def _has_secgroups(self):
+    def _has_secgroups(self) -> bool:
         if not self.secgroup_source:
             return False
         else:
             return self.secgroup_source.lower() in ('nova', 'neutron')
 
-    def _use_neutron_secgroups(self):
+    def _use_neutron_secgroups(self) -> bool:
         return (
             self.has_service('network') and self.secgroup_source == 'neutron'
         )
 
-    def _normalize_secgroups(self, groups):
+    def _normalize_secgroups(
+        self, groups: list[utils.Munch]
+    ) -> list[_security_group.SecurityGroup | utils.Munch]:
         """Normalize the structure of security groups
 
         This makes security group dicts, as returned from nova, look like the
@@ -2131,14 +2274,14 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         :returns: A list of normalized dicts.
         """
-        ret = []
+        ret: list[_security_group.SecurityGroup | utils.Munch] = []
         for group in groups:
             ret.append(self._normalize_secgroup(group))
         return ret
 
     # TODO(stephenfin): Remove this once we get rid of support for nova
     # secgroups
-    def _normalize_secgroup(self, group):
+    def _normalize_secgroup(self, group: utils.Munch) -> utils.Munch:
         ret = utils.Munch()
         # Copy incoming group because of shared dicts in unittests
         group = group.copy()
@@ -2173,7 +2316,9 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     # TODO(stephenfin): Remove this once we get rid of support for nova
     # secgroups
-    def _normalize_secgroup_rules(self, rules):
+    def _normalize_secgroup_rules(
+        self, rules: list[utils.Munch]
+    ) -> list[utils.Munch]:
         """Normalize the structure of nova security group rules
 
         Note that nova uses -1 for non-specific port values, but neutron
@@ -2183,14 +2328,14 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         :returns: A list of normalized dicts.
         """
-        ret = []
+        ret: list[utils.Munch] = []
         for rule in rules:
             ret.append(self._normalize_secgroup_rule(rule))
         return ret
 
     # TODO(stephenfin): Remove this once we get rid of support for nova
     # secgroups
-    def _normalize_secgroup_rule(self, rule):
+    def _normalize_secgroup_rule(self, rule: utils.Munch) -> utils.Munch:
         ret = utils.Munch()
         # Copy incoming rule because of shared dicts in unittests
         rule = rule.copy()
@@ -2233,7 +2378,7 @@ class NetworkCommonCloudMixin(openstackcloud._OpenStackCloudMixin):
                 ret.setdefault(key, val)
         return ret
 
-    def _remove_novaclient_artifacts(self, item):
+    def _remove_novaclient_artifacts(self, item: utils.Munch) -> None:
         # Remove novaclient artifacts
         item.pop('links', None)
         item.pop('NAME_ATTR', None)

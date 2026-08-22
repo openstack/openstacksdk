@@ -714,7 +714,7 @@ class Proxy(adapter.Adapter):
     def _update(
         self,
         resource_type: type[resource.ResourceT],
-        value: str | resource.ResourceT | None,
+        value: str | resource.ResourceT | utils.Munch | None,
         base_path: str | None = None,
         **attrs: Any,
     ) -> resource.ResourceT:
