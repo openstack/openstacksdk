@@ -29,6 +29,7 @@ from requests import exceptions as rexceptions
 import testtools.content
 
 from openstack.tests.unit import base
+from openstack import utils
 
 
 class StatsdFixture(fixtures.Fixture):
@@ -218,7 +219,8 @@ class TestStats(base.TestCase):
             ]
         )
 
-        list(self.cloud.identity.projects())
+        identity = utils.ensure_service_version(self.cloud.identity, '3')
+        list(identity.projects())
         self.assert_calls()
 
         self.assert_reported_stat(
@@ -381,7 +383,8 @@ class TestNoStats(base.TestCase):
             ]
         )
 
-        self.cloud.identity._statsd_client = None
-        list(self.cloud.identity.projects())
+        identity = utils.ensure_service_version(self.cloud.identity, '3')
+        identity._statsd_client = None
+        list(identity.projects())
         self.assert_calls()
         self.assertEqual([], self.statsd.stats)

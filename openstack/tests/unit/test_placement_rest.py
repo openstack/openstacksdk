@@ -69,9 +69,9 @@ class TestPlacementRest(base.TestCase):
         self._validate_resp(ex.response, 500)
 
     def test_microversion_discovery(self):
-        self.assertEqual(
-            (1, 17), self.cloud.placement.get_endpoint_data().max_microversion
-        )
+        endpoint_data = self.cloud.placement.get_endpoint_data()
+        assert endpoint_data is not None  # narrow type for mypy
+        self.assertEqual((1, 17), endpoint_data.max_microversion)
         self.assert_calls()
 
 

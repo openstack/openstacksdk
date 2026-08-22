@@ -69,6 +69,8 @@ class TestLoader(base.TestCase):
             # NOTE(hberaud): Prefer to test path rather than file because
             # our FILES var is a dict so results are appened
             # without keeping the initial order (python 3.5)
+            self.assertIsNotNone(path)
+            assert path is not None  # narrow type for mypy
             self.assertEqual(tmpdir, os.path.dirname(path))
 
     def test__load_yaml_json_file_without_json(self):
@@ -88,6 +90,8 @@ class TestLoader(base.TestCase):
             # NOTE(hberaud): Prefer to test path rather than file because
             # our FILES var is a dict so results are appened
             # without keeping the initial order (python 3.5)
+            self.assertIsNotNone(path)
+            assert path is not None  # narrow type for mypy
             self.assertEqual(tmpdir, os.path.dirname(path))
 
     def test__load_yaml_json_file_without_json_yaml(self):

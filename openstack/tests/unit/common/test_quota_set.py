@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 import copy
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -18,7 +19,7 @@ from openstack.common import quota_set as _qs
 from openstack.tests.unit import base
 
 
-BASIC_EXAMPLE = {
+BASIC_EXAMPLE: dict[str, Any] = {
     "backup_gigabytes": 1000,
     "backups": 10,
     "gigabytes___DEFAULT__": -1,

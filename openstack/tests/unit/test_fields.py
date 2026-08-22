@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack import fields
 from openstack import format
 from openstack import resource
@@ -21,7 +23,7 @@ class TestConvertValue(base.TestCase):
         class FakeResource(resource.Resource):
             abc = fields.Body('abc', type=int)
 
-        test_data = [
+        test_data: list[dict[str, Any]] = [
             {
                 'name': 'no data_type',
                 'value': '123',
@@ -219,7 +221,7 @@ class TestComponent(base.TestCase):
         class Parent:
             _example = {name: value}
 
-        class FakeFormatter(format.Formatter):
+        class FakeFormatter(format.Formatter[str]):
             @classmethod
             def deserialize(cls, value):
                 return expected_result
@@ -281,8 +283,8 @@ class TestComponent(base.TestCase):
 
         # As with test_set_name_typed, create a pseudo-Mock to track what
         # gets called on the type.
-        class FakeFormatter(format.Formatter):
-            calls = []
+        class FakeFormatter(format.Formatter[None]):
+            calls: list[Any] = []
 
             @classmethod
             def deserialize(cls, arg):
