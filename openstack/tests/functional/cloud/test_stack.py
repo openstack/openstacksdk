@@ -102,6 +102,7 @@ class TestStack(base.BaseFunctionalTest):
         stack = self.user_cloud.create_stack(
             name=self.stack_name, template_file=test_template.name, wait=True
         )
+        assert stack is not None
 
         # assert expected values in stack
         self.assertEqual('CREATE_COMPLETE', stack['stack_status'])
@@ -110,6 +111,7 @@ class TestStack(base.BaseFunctionalTest):
 
         # assert get_stack matches returned create_stack
         stack = self.user_cloud.get_stack(self.stack_name)
+        assert stack is not None
         self.assertEqual('CREATE_COMPLETE', stack['stack_status'])
         self.assertEqual(rand, stack['outputs'][0]['output_value'])
 
@@ -122,6 +124,7 @@ class TestStack(base.BaseFunctionalTest):
         stack = self.user_cloud.update_stack(
             self.stack_name, template_file=test_template.name, wait=True
         )
+        assert stack is not None
 
         # assert no change in updated stack
         self.assertEqual('UPDATE_COMPLETE', stack['stack_status'])
@@ -138,6 +141,7 @@ class TestStack(base.BaseFunctionalTest):
 
         # assert changed output in updated stack
         stack = self.user_cloud.get_stack(self.stack_name)
+        assert stack is not None
         self.assertEqual('UPDATE_COMPLETE', stack['stack_status'])
         new_rand = stack['outputs'][0]['output_value']
         self.assertNotEqual(rand, new_rand)
@@ -167,6 +171,7 @@ class TestStack(base.BaseFunctionalTest):
             environment_files=[env.name],
             wait=True,
         )
+        assert stack is not None
 
         # assert expected values in stack
         self.assertEqual('CREATE_COMPLETE', stack['stack_status'])

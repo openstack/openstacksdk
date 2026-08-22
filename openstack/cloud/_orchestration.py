@@ -10,20 +10,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
+
 from openstack.cloud import _utils
 from openstack.cloud import openstackcloud
 from openstack import exceptions
 from openstack.orchestration.util import event_utils
+from openstack.orchestration.v1 import stack as _stack
 
 
 class OrchestrationCloudMixin(openstackcloud._OpenStackCloudMixin):
     def get_template_contents(
         self,
-        template_file=None,
-        template_url=None,
-        template_object=None,
-        files=None,
-    ):
+        template_file: str | None = None,
+        template_url: str | None = None,
+        template_object: str | None = None,
+        files: dict[str, Any] | None = None,
+    ) -> tuple[dict[str, Any], dict[str, Any] | None]:
         return self.orchestration.get_template_contents(
             template_file=template_file,
             template_url=template_url,
@@ -33,29 +36,29 @@ class OrchestrationCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def create_stack(
         self,
-        name,
-        tags=None,
-        template_file=None,
-        template_url=None,
-        template_object=None,
-        files=None,
-        rollback=True,
-        wait=False,
-        timeout=3600,
-        environment_files=None,
-        **parameters,
-    ):
+        name: str,
+        tags: list[str] | None = None,
+        template_file: str | None = None,
+        template_url: str | None = None,
+        template_object: str | None = None,
+        files: dict[str, Any] | None = None,
+        rollback: bool = True,
+        wait: bool = False,
+        timeout: int | float = 3600,
+        environment_files: list[str] | None = None,
+        **parameters: Any,
+    ) -> _stack.Stack | None:
         """Create a stack.
 
-        :param string name: Name of the stack.
+        :param name: Name of the stack.
         :param tags: List of tag(s) of the stack. (optional)
-        :param string template_file: Path to the template.
-        :param string template_url: URL of template.
-        :param string template_object: URL to retrieve template object.
-        :param dict files: dict of additional file content to include.
-        :param boolean rollback: Enable rollback on create failure.
-        :param boolean wait: Whether to wait for the delete to finish.
-        :param int timeout: Stack create timeout in seconds.
+        :param template_file: Path to the template.
+        :param template_url: URL of template.
+        :param template_object: URL to retrieve template object.
+        :param files: dict of additional file content to include.
+        :param rollback: Enable rollback on create failure.
+        :param wait: Whether to wait for the delete to finish.
+        :param timeout: Stack create timeout in seconds.
         :param environment_files: Paths to environment files to apply.
 
         Other arguments will be passed as stack parameters which will take
@@ -68,12 +71,12 @@ class OrchestrationCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call
         """
-        params = dict(
-            tags=tags,
-            is_rollback_disabled=not rollback,
-            timeout_mins=timeout // 60,
-            parameters=parameters,
-        )
+        params: dict[str, Any] = {
+            'tags': tags,
+            'is_rollback_disabled': not rollback,
+            'timeout_mins': timeout // 60,
+            'parameters': parameters,
+        }
         params.update(
             self.orchestration.read_env_and_templates(
                 template_file=template_file,
@@ -90,28 +93,28 @@ class OrchestrationCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def update_stack(
         self,
-        name_or_id,
-        template_file=None,
-        template_url=None,
-        template_object=None,
-        files=None,
-        rollback=True,
-        tags=None,
-        wait=False,
-        timeout=3600,
-        environment_files=None,
-        **parameters,
-    ):
+        name_or_id: str,
+        template_file: str | None = None,
+        template_url: str | None = None,
+        template_object: str | None = None,
+        files: dict[str, Any] | None = None,
+        rollback: bool = True,
+        tags: list[str] | None = None,
+        wait: bool = False,
+        timeout: int | float = 3600,
+        environment_files: list[str] | None = None,
+        **parameters: Any,
+    ) -> _stack.Stack | None:
         """Update a stack.
 
-        :param string name_or_id: Name or ID of the stack to update.
-        :param string template_file: Path to the template.
-        :param string template_url: URL of template.
-        :param string template_object: URL to retrieve template object.
-        :param dict files: dict of additional file content to include.
-        :param boolean rollback: Enable rollback on update failure.
-        :param boolean wait: Whether to wait for the delete to finish.
-        :param int timeout: Stack update timeout in seconds.
+        :param name_or_id: Name or ID of the stack to update.
+        :param template_file: Path to the template.
+        :param template_url: URL of template.
+        :param template_object: URL to retrieve template object.
+        :param files: dict of additional file content to include.
+        :param rollback: Enable rollback on update failure.
+        :param wait: Whether to wait for the delete to finish.
+        :param timeout: Stack update timeout in seconds.
         :param environment_files: Paths to environment files to apply.
 
         Other arguments will be passed as stack parameters which will take
@@ -124,12 +127,12 @@ class OrchestrationCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API calls
         """
-        params = dict(
-            tags=tags,
-            is_rollback_disabled=not rollback,
-            timeout_mins=timeout // 60,
-            parameters=parameters,
-        )
+        params: dict[str, Any] = {
+            'tags': tags,
+            'is_rollback_disabled': not rollback,
+            'timeout_mins': timeout // 60,
+            'parameters': parameters,
+        }
         params.update(
             self.orchestration.read_env_and_templates(
                 template_file=template_file,
@@ -154,11 +157,11 @@ class OrchestrationCloudMixin(openstackcloud._OpenStackCloudMixin):
             )
         return self.get_stack(name_or_id)
 
-    def delete_stack(self, name_or_id, wait=False):
+    def delete_stack(self, name_or_id: str, wait: bool = False) -> bool:
         """Delete a stack
 
-        :param string name_or_id: Stack name or ID.
-        :param boolean wait: Whether to wait for the delete to finish
+        :param name_or_id: Stack name or ID.
+        :param wait: Whether to wait for the delete to finish
 
         :returns: True if delete succeeded, False if the stack was not found.
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
@@ -195,7 +198,11 @@ class OrchestrationCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return True
 
-    def search_stacks(self, name_or_id=None, filters=None):
+    def search_stacks(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | str | None = None,
+    ) -> list[_stack.Stack]:
         """Search stacks.
 
         :param name_or_id: Name or ID of the desired stack.
@@ -210,10 +217,10 @@ class OrchestrationCloudMixin(openstackcloud._OpenStackCloudMixin):
         stacks = self.list_stacks()
         return _utils._filter_list(stacks, name_or_id, filters)
 
-    def list_stacks(self, **query):
+    def list_stacks(self, **query: Any) -> list[_stack.Stack]:
         """List all stacks.
 
-        :param dict query: Query parameters to limit stacks.
+        :param query: Query parameters to limit stacks.
 
         :returns: a list of :class:`openstack.orchestration.v1.stack.Stack`
             objects containing the stack description.
@@ -222,7 +229,12 @@ class OrchestrationCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         return list(self.orchestration.stacks(**query))
 
-    def get_stack(self, name_or_id, filters=None, resolve_outputs=True):
+    def get_stack(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | str | None = None,
+        resolve_outputs: bool = True,
+    ) -> _stack.Stack | None:
         """Get exactly one stack.
 
         :param name_or_id: Name or ID of the desired stack.
