@@ -58,6 +58,7 @@ class TestQosMinimumBandwidthRule(base.BaseFunctionalTest):
         updated_rule = self.operator_cloud.update_qos_minimum_bandwidth_rule(
             self.policy['id'], rule['id'], min_kbps=updated_min_kbps
         )
+        assert updated_rule is not None  # narrow type
         self.assertIn('id', updated_rule)
         self.assertEqual(updated_min_kbps, updated_rule['min_kbps'])
 

@@ -60,6 +60,7 @@ class TestQosBandwidthLimitRule(base.BaseFunctionalTest):
         updated_rule = self.operator_cloud.update_qos_bandwidth_limit_rule(
             self.policy['id'], rule['id'], max_kbps=updated_max_kbps
         )
+        assert updated_rule is not None  # narrow type
         self.assertIn('id', updated_rule)
         self.assertEqual(updated_max_kbps, updated_rule['max_kbps'])
         self.assertEqual(max_burst_kbps, updated_rule['max_burst_kbps'])
@@ -105,6 +106,7 @@ class TestQosBandwidthLimitRule(base.BaseFunctionalTest):
         updated_rule = self.operator_cloud.update_qos_bandwidth_limit_rule(
             self.policy['id'], rule['id'], direction=updated_direction
         )
+        assert updated_rule is not None  # narrow type
         self.assertIn('id', updated_rule)
         self.assertEqual(max_kbps, updated_rule['max_kbps'])
         self.assertEqual(updated_direction, updated_rule['direction'])

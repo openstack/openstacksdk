@@ -288,6 +288,7 @@ class TestRouter(base.BaseFunctionalTest):
             router['id'], name=new_name
         )
         self.assertIsNotNone(updated)
+        assert updated is not None  # narrow type
 
         for field in EXPECTED_TOPLEVEL_FIELDS:
             self.assertIn(field, updated)
@@ -313,6 +314,7 @@ class TestRouter(base.BaseFunctionalTest):
             router['id'], routes=routes
         )
         self.assertIsNotNone(updated)
+        assert updated is not None  # narrow type
 
         for field in EXPECTED_TOPLEVEL_FIELDS:
             self.assertIn(field, updated)
@@ -336,6 +338,7 @@ class TestRouter(base.BaseFunctionalTest):
             router['id'], admin_state_up=True
         )
         self.assertIsNotNone(updated)
+        assert updated is not None  # narrow type
 
         for field in EXPECTED_TOPLEVEL_FIELDS:
             self.assertIn(field, updated)
@@ -376,6 +379,7 @@ class TestRouter(base.BaseFunctionalTest):
             ],
         )
         self.assertIsNotNone(updated)
+        assert updated is not None  # narrow type
 
         for field in EXPECTED_TOPLEVEL_FIELDS:
             self.assertIn(field, updated)

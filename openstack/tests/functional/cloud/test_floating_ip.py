@@ -54,7 +54,7 @@ class TestFloatingIP(base.BaseFunctionalTest):
                 try:
                     if r['name'].startswith(self.new_item_name):
                         self.user_cloud.update_router(
-                            r, ext_gateway_net_id=None
+                            r['id'], ext_gateway_net_id=None
                         )
                         for s in self.user_cloud.list_subnets():
                             if s['name'].startswith(self.new_item_name):

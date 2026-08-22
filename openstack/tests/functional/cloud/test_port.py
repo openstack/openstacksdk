@@ -82,6 +82,7 @@ class TestPort(base.BaseFunctionalTest):
         self.assertEqual(port.get('name'), port_name)
 
         updated_port = self.user_cloud.get_port(name_or_id=port['id'])
+        assert updated_port is not None  # narrow type
         # extra_dhcp_opts is added later by Neutron...
         if 'extra_dhcp_opts' in updated_port and 'extra_dhcp_opts' not in port:
             del updated_port['extra_dhcp_opts']
@@ -116,6 +117,7 @@ class TestPort(base.BaseFunctionalTest):
         self.assertEqual(port.get('name'), new_port_name)
 
         updated_port = self.user_cloud.get_port(name_or_id=port['id'])
+        assert updated_port is not None  # narrow type
         self.assertEqual(port.get('name'), new_port_name)
         port.pop('revision_number', None)
         port.pop('revision_number', None)

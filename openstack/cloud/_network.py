@@ -10,25 +10,51 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
+
 from openstack.cloud import _network_common
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack import exceptions
+from openstack.network.v2 import firewall_group as _firewall_group
+from openstack.network.v2 import firewall_policy as _firewall_policy
+from openstack.network.v2 import firewall_rule as _firewall_rule
+from openstack.network.v2 import network as _network
+from openstack.network.v2 import port as _port
+from openstack.network.v2 import (
+    qos_bandwidth_limit_rule as _qos_bandwidth_limit_rule,
+)
+from openstack.network.v2 import (
+    qos_dscp_marking_rule as _qos_dscp_marking_rule,
+)
+from openstack.network.v2 import (
+    qos_minimum_bandwidth_rule as _qos_minimum_bandwidth_rule,
+)
+from openstack.network.v2 import qos_policy as _qos_policy
+from openstack.network.v2 import qos_rule_type as _qos_rule_type
+from openstack.network.v2 import quota as _quota
+from openstack.network.v2 import router as _router
+from openstack.network.v2 import subnet as _subnet
+from openstack.network.v2 import subnet_pool as _subnet_pool
 from openstack import utils
 
 
 class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
-    def _neutron_extensions(self):
+    def _neutron_extensions(self) -> set[str]:
         extensions = set()
         for extension in self.network.extensions():
             extensions.add(extension['alias'])
         return extensions
 
-    def _has_neutron_extension(self, extension_alias):
+    def _has_neutron_extension(self, extension_alias: str) -> bool:
         return extension_alias in self._neutron_extensions()
 
     # TODO(stephenfin): Deprecate this in favour of the 'list' function
-    def search_networks(self, name_or_id=None, filters=None):
+    def search_networks(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | None = None,
+    ) -> list[_network.Network]:
         """Search networks
 
         :param name_or_id: Name or ID of the desired network.
@@ -48,7 +74,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         return list(self.network.networks(**query))
 
     # TODO(stephenfin): Deprecate this in favour of the 'list' function
-    def search_routers(self, name_or_id=None, filters=None):
+    def search_routers(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | None = None,
+    ) -> list[_router.Router]:
         """Search routers
 
         :param name_or_id: Name or ID of the desired router.
@@ -68,7 +98,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         return list(self.network.routers(**query))
 
     # TODO(stephenfin): Deprecate this in favour of the 'list' function
-    def search_subnets(self, name_or_id=None, filters=None):
+    def search_subnets(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | None = None,
+    ) -> list[_subnet.Subnet]:
         """Search subnets
 
         :param name_or_id: Name or ID of the desired subnet.
@@ -88,7 +122,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         return list(self.network.subnets(**query))
 
     # TODO(stephenfin): Deprecate this in favour of the 'list' function
-    def search_ports(self, name_or_id=None, filters=None):
+    def search_ports(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | str | None = None,
+    ) -> list[_port.Port]:
         """Search ports
 
         :param name_or_id: Name or ID of the desired port.
@@ -110,7 +148,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         ports = self.list_ports(pushdown_filters)
         return _utils._filter_list(ports, name_or_id, filters)
 
-    def list_networks(self, filters=None):
+    def list_networks(
+        self, filters: dict[str, Any] | None = None
+    ) -> list[_network.Network]:
         """List all available networks.
 
         :param filters: (optional) A dict of filter conditions to push down.
@@ -125,7 +165,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             filters = {}
         return list(self.network.networks(**filters))
 
-    def list_routers(self, filters=None):
+    def list_routers(
+        self, filters: dict[str, Any] | None = None
+    ) -> list[_router.Router]:
         """List all available routers.
 
         :param filters: (optional) A dict of filter conditions to push down
@@ -140,7 +182,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             filters = {}
         return list(self.network.routers(**filters))
 
-    def list_subnets(self, filters=None):
+    def list_subnets(
+        self, filters: dict[str, Any] | None = None
+    ) -> list[_subnet.Subnet]:
         """List all available subnets.
 
         :param filters: (optional) A dict of filter conditions to push down
@@ -155,7 +199,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             filters = {}
         return list(self.network.subnets(**filters))
 
-    def list_ports(self, filters=None):
+    def list_ports(
+        self, filters: dict[str, Any] | None = None
+    ) -> list[_port.Port]:
         """List all available ports.
 
         :param filters: (optional) A dict of filter conditions to push down
@@ -172,7 +218,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         return list(self.network.ports(**filters))
 
     # TODO(stephenfin): Deprecate 'filters'; users should use 'list' for this
-    def get_qos_policy(self, name_or_id, filters=None):
+    def get_qos_policy(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | None = None,
+    ) -> _qos_policy.QoSPolicy | None:
         """Get a QoS policy by name or ID.
 
         :param name_or_id: Name or ID of the policy.
@@ -200,7 +250,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
 
     # TODO(stephenfin): Deprecate this in favour of the 'list' function
-    def search_qos_policies(self, name_or_id=None, filters=None):
+    def search_qos_policies(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | None = None,
+    ) -> list[_qos_policy.QoSPolicy]:
         """Search QoS policies
 
         :param name_or_id: Name or ID of the desired policy.
@@ -224,7 +278,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             query.update(filters)
         return list(self.network.qos_policies(**query))
 
-    def list_qos_rule_types(self, filters=None):
+    def list_qos_rule_types(
+        self, filters: dict[str, Any] | None = None
+    ) -> list[_qos_rule_type.QoSRuleType]:
         """List all available QoS rule types.
 
         :param filters: (optional) A dict of filter conditions to push down
@@ -241,7 +297,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         return list(self.network.qos_rule_types(**filters))
 
     # TODO(stephenfin): Deprecate 'filters'; users should use 'list' for this
-    def get_qos_rule_type_details(self, rule_type, filters=None):
+    def get_qos_rule_type_details(
+        self,
+        rule_type: str,
+        filters: dict[str, Any] | None = None,
+    ) -> _qos_rule_type.QoSRuleType:
         """Get a QoS rule type details by rule type name.
 
         :param rule_type: Name of the QoS rule type.
@@ -270,7 +330,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return self.network.get_qos_rule_type(rule_type)
 
-    def list_qos_policies(self, filters=None):
+    def list_qos_policies(
+        self, filters: dict[str, Any] | None = None
+    ) -> list[_qos_policy.QoSPolicy]:
         """List all available QoS policies.
 
         :param filters: (optional) A dict of filter conditions to push down
@@ -286,7 +348,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         return list(self.network.qos_policies(**filters))
 
     # TODO(stephenfin): Deprecate 'filters'; users should use 'list' for this
-    def get_network(self, name_or_id, filters=None):
+    def get_network(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | None = None,
+    ) -> _network.Network | None:
         """Get a network by name or ID.
 
         :param name_or_id: Name or ID of the network.
@@ -308,7 +374,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             name_or_id=name_or_id, ignore_missing=True, **filters
         )
 
-    def get_network_by_id(self, id):
+    def get_network_by_id(self, id: str) -> _network.Network:
         """Get a network by ID
 
         :param id: ID of the network.
@@ -317,7 +383,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         return self.network.get_network(id)
 
     # TODO(stephenfin): Deprecate 'filters'; users should use 'list' for this
-    def get_router(self, name_or_id, filters=None):
+    def get_router(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | None = None,
+    ) -> _router.Router | None:
         """Get a router by name or ID.
 
         :param name_or_id: Name or ID of the router.
@@ -340,7 +410,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
 
     # TODO(stephenfin): Deprecate 'filters'; users should use 'list' for this
-    def get_subnet(self, name_or_id, filters=None):
+    def get_subnet(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | None = None,
+    ) -> _subnet.Subnet | None:
         """Get a subnet by name or ID.
 
         :param name_or_id: Name or ID of the subnet.
@@ -358,7 +432,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             name_or_id=name_or_id, ignore_missing=True, **filters
         )
 
-    def get_subnet_by_id(self, id):
+    def get_subnet_by_id(self, id: str) -> _subnet.Subnet:
         """Get a subnet by ID
 
         :param id: ID of the subnet.
@@ -367,7 +441,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         return self.network.get_subnet(id)
 
     # TODO(stephenfin): Deprecate 'filters'; users should use 'list' for this
-    def get_port(self, name_or_id, filters=None):
+    def get_port(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | None = None,
+    ) -> _port.Port | None:
         """Get a port by name or ID.
 
         :param name_or_id: Name or ID of the port.
@@ -389,7 +467,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             name_or_id=name_or_id, ignore_missing=True, **filters
         )
 
-    def get_port_by_id(self, id):
+    def get_port_by_id(self, id: str) -> _port.Port:
         """Get a port by ID
 
         :param id: ID of the port.
@@ -397,7 +475,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         """
         return self.network.get_port(id)
 
-    def get_subnetpool(self, name_or_id):
+    def get_subnetpool(
+        self, name_or_id: str
+    ) -> _subnet_pool.SubnetPool | None:
         """Get a subnetpool by name or ID.
 
         :param name_or_id: Name or ID of the subnetpool.
@@ -410,17 +490,17 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
     def create_network(
         self,
-        name,
-        shared=False,
-        admin_state_up=True,
-        external=False,
-        provider=None,
-        project_id=None,
-        availability_zone_hints=None,
-        port_security_enabled=None,
-        mtu_size=None,
-        dns_domain=None,
-    ):
+        name: str,
+        shared: bool = False,
+        admin_state_up: bool = True,
+        external: bool = False,
+        provider: dict[str, Any] | None = None,
+        project_id: str | None = None,
+        availability_zone_hints: list[str] | None = None,
+        port_security_enabled: bool | None = None,
+        mtu_size: int | None = None,
+        dns_domain: str | None = None,
+    ) -> _network.Network:
         """Create a network.
 
         :param string name: Name of the network being created.
@@ -444,7 +524,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         """
-        network = {
+        network: dict[str, Any] = {
             'name': name,
             'admin_state_up': admin_state_up,
         }
@@ -510,11 +590,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         if dns_domain:
             network['dns_domain'] = dns_domain
 
-        network = self.network.create_network(**network)
+        result = self.network.create_network(**network)
 
         # Reset cache so the new network is picked up
         self._reset_network_caches()
-        return network
+        return result
 
     @_utils.valid_kwargs(
         "name",
@@ -526,7 +606,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         "port_security_enabled",
         "dns_domain",
     )
-    def update_network(self, name_or_id, **kwargs):
+    def update_network(
+        self, name_or_id: str, **kwargs: Any
+    ) -> _network.Network:
         """Update a network.
 
         :param string name_or_id: Name or ID of the network being updated.
@@ -588,7 +670,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return network
 
-    def delete_network(self, name_or_id):
+    def delete_network(self, name_or_id: str) -> bool:
         """Delete a network.
 
         :param name_or_id: Name or ID of the network being deleted.
@@ -609,7 +691,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return True
 
-    def set_network_quotas(self, name_or_id, **kwargs):
+    def set_network_quotas(self, name_or_id: str, **kwargs: Any) -> None:
         """Set a network quota in a project
 
         :param name_or_id: project name or id
@@ -627,7 +709,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             )
         self.network.update_quota(proj.id, **kwargs)
 
-    def get_network_quotas(self, name_or_id, details=False):
+    def get_network_quotas(
+        self, name_or_id: str, details: bool = False
+    ) -> _quota.Quota | _quota.QuotaDetails:
         """Get network quotas for a project
 
         :param name_or_id: project name or id
@@ -647,14 +731,14 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             )
         return self.network.get_quota(proj.id, details)
 
-    def get_network_extensions(self):
+    def get_network_extensions(self) -> set[str]:
         """Get Cloud provided network extensions
 
         :returns: A set of Neutron extension aliases.
         """
         return self._neutron_extensions()
 
-    def delete_network_quotas(self, name_or_id):
+    def delete_network_quotas(self, name_or_id: str) -> None:
         """Delete network quotas for a project
 
         :param name_or_id: project name or id
@@ -688,7 +772,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         'source_ip_address',
         'source_port',
     )
-    def create_firewall_rule(self, **kwargs):
+    def create_firewall_rule(
+        self, **kwargs: Any
+    ) -> _firewall_rule.FirewallRule:
         """
         Creates firewall rule.
 
@@ -715,7 +801,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         """
         return self.network.create_firewall_rule(**kwargs)
 
-    def delete_firewall_rule(self, name_or_id, filters=None):
+    def delete_firewall_rule(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | None = None,
+    ) -> bool:
         """
         Deletes firewall rule.
 
@@ -753,7 +843,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         return True
 
     # TODO(stephenfin): Deprecate 'filters'; users should use 'list' for this
-    def get_firewall_rule(self, name_or_id, filters=None):
+    def get_firewall_rule(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | None = None,
+    ) -> _firewall_rule.FirewallRule | None:
         """
         Retrieves a single firewall rule.
 
@@ -777,7 +871,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             name_or_id, ignore_missing=True, **filters
         )
 
-    def list_firewall_rules(self, filters=None):
+    def list_firewall_rules(
+        self, filters: dict[str, Any] | None = None
+    ) -> list[_firewall_rule.FirewallRule]:
         """
         Lists firewall rules.
 
@@ -814,7 +910,12 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         'source_ip_address',
         'source_port',
     )
-    def update_firewall_rule(self, name_or_id, filters=None, **kwargs):
+    def update_firewall_rule(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> _firewall_rule.FirewallRule:
         """
         Updates firewall rule.
 
@@ -843,7 +944,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return self.network.update_firewall_rule(firewall_rule, **kwargs)
 
-    def _get_firewall_rule_ids(self, name_or_id_list, filters=None):
+    def _get_firewall_rule_ids(
+        self,
+        name_or_id_list: list[str],
+        filters: dict[str, Any] | None = None,
+    ) -> list[str]:
         """
         Takes a list of firewall rule name or ids, looks them up and returns
         a list of firewall rule ids.
@@ -859,7 +964,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         """
         if not filters:
             filters = {}
-        ids_list = []
+        ids_list: list[str] = []
         for name_or_id in name_or_id_list:
             ids_list.append(
                 self.network.find_firewall_rule(
@@ -876,7 +981,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         'project_id',
         'shared',
     )
-    def create_firewall_policy(self, **kwargs):
+    def create_firewall_policy(
+        self, **kwargs: Any
+    ) -> _firewall_policy.FirewallPolicy:
         """
         Create firewall policy.
 
@@ -900,7 +1007,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return self.network.create_firewall_policy(**kwargs)
 
-    def delete_firewall_policy(self, name_or_id, filters=None):
+    def delete_firewall_policy(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | None = None,
+    ) -> bool:
         """
         Deletes firewall policy.
         Prints debug message in case to-be-deleted resource was not found.
@@ -937,7 +1048,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         return True
 
     # TODO(stephenfin): Deprecate 'filters'; users should use 'list' for this
-    def get_firewall_policy(self, name_or_id, filters=None):
+    def get_firewall_policy(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | None = None,
+    ) -> _firewall_policy.FirewallPolicy | None:
         """
         Retrieves a single firewall policy.
 
@@ -961,7 +1076,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             name_or_id, ignore_missing=True, **filters
         )
 
-    def list_firewall_policies(self, filters=None):
+    def list_firewall_policies(
+        self, filters: dict[str, Any] | None = None
+    ) -> list[_firewall_policy.FirewallPolicy]:
         """
         Lists firewall policies.
 
@@ -990,7 +1107,12 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         'project_id',
         'shared',
     )
-    def update_firewall_policy(self, name_or_id, filters=None, **kwargs):
+    def update_firewall_policy(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> _firewall_policy.FirewallPolicy:
         """
         Updates firewall policy.
 
@@ -1027,12 +1149,12 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
     def insert_rule_into_policy(
         self,
-        name_or_id,
-        rule_name_or_id,
-        insert_after=None,
-        insert_before=None,
-        filters=None,
-    ):
+        name_or_id: str,
+        rule_name_or_id: str,
+        insert_after: str | None = None,
+        insert_before: str | None = None,
+        filters: dict[str, Any] | None = None,
+    ) -> _firewall_policy.FirewallPolicy:
         """Add firewall rule to a policy.
 
         Adds firewall rule to the firewall_rules list of a firewall policy.
@@ -1087,8 +1209,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
 
     def remove_rule_from_policy(
-        self, name_or_id, rule_name_or_id, filters=None
-    ):
+        self,
+        name_or_id: str,
+        rule_name_or_id: str,
+        filters: dict[str, Any] | None = None,
+    ) -> _firewall_policy.FirewallPolicy:
         """
         Remove firewall rule from firewall policy's firewall_rules list.
         Short-circuits and returns firewall policy early if firewall rule
@@ -1141,7 +1266,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         'project_id',
         'shared',
     )
-    def create_firewall_group(self, **kwargs):
+    def create_firewall_group(
+        self, **kwargs: Any
+    ) -> _firewall_group.FirewallGroup:
         """
         Creates firewall group. The keys egress_firewall_policy and
         ingress_firewall_policy are looked up and mapped as
@@ -1169,7 +1296,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             kwargs['ports'] = self._get_port_ids(kwargs['ports'])
         return self.network.create_firewall_group(**kwargs)
 
-    def delete_firewall_group(self, name_or_id, filters=None):
+    def delete_firewall_group(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | None = None,
+    ) -> bool:
         """
         Deletes firewall group.
         Prints debug message in case to-be-deleted resource was not found.
@@ -1197,7 +1328,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         return True
 
     # TODO(stephenfin): Deprecate 'filters'; users should use 'list' for this
-    def get_firewall_group(self, name_or_id, filters=None):
+    def get_firewall_group(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | None = None,
+    ) -> _firewall_group.FirewallGroup | None:
         """
         Retrieves firewall group.
 
@@ -1212,7 +1347,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             name_or_id, ignore_missing=True, **filters
         )
 
-    def list_firewall_groups(self, filters=None):
+    def list_firewall_groups(
+        self, filters: dict[str, Any] | None = None
+    ) -> list[_firewall_group.FirewallGroup]:
         """
         Lists firewall groups.
 
@@ -1232,7 +1369,12 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         'project_id',
         'shared',
     )
-    def update_firewall_group(self, name_or_id, filters=None, **kwargs):
+    def update_firewall_group(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> _firewall_group.FirewallGroup:
         """
         Updates firewall group.
         To unset egress- or ingress firewall policy, set egress_firewall_policy
@@ -1261,7 +1403,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             kwargs['ports'] = self._get_port_ids(kwargs['ports'])
         return self.network.update_firewall_group(firewall_group, **kwargs)
 
-    def _lookup_ingress_egress_firewall_policy_ids(self, firewall_group):
+    def _lookup_ingress_egress_firewall_policy_ids(
+        self, firewall_group: dict[str, Any]
+    ) -> None:
         """
         Transforms firewall_group dict IN-PLACE. Takes the value of the keys
         egress_firewall_policy and ingress_firewall_policy, looks up the
@@ -1288,7 +1432,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     @_utils.valid_kwargs(
         "name", "description", "shared", "default", "project_id"
     )
-    def create_qos_policy(self, **kwargs):
+    def create_qos_policy(self, **kwargs: Any) -> _qos_policy.QoSPolicy:
         """Create a QoS policy.
 
         :param string name: Name of the QoS policy being created.
@@ -1321,7 +1465,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     @_utils.valid_kwargs(
         "name", "description", "shared", "default", "project_id"
     )
-    def update_qos_policy(self, name_or_id, **kwargs):
+    def update_qos_policy(
+        self, name_or_id: str, **kwargs: Any
+    ) -> _qos_policy.QoSPolicy | None:
         """Update an existing QoS policy.
 
         :param string name_or_id: Name or ID of the QoS policy to update.
@@ -1351,7 +1497,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         if not kwargs:
             self.log.debug("No QoS policy data to update")
-            return
+            return None
 
         curr_policy = self.network.find_qos_policy(
             name_or_id, ignore_missing=True
@@ -1363,7 +1509,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return self.network.update_qos_policy(curr_policy, **kwargs)
 
-    def delete_qos_policy(self, name_or_id):
+    def delete_qos_policy(self, name_or_id: str) -> bool:
         """Delete a QoS policy.
 
         :param name_or_id: Name or ID of the policy being deleted.
@@ -1388,10 +1534,10 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     # TODO(stephenfin): Deprecate this in favour of the 'list' function
     def search_qos_bandwidth_limit_rules(
         self,
-        policy_name_or_id,
-        rule_id=None,
-        filters=None,
-    ):
+        policy_name_or_id: str,
+        rule_id: str | None = None,
+        filters: dict[str, Any] | None = None,
+    ) -> list[_qos_bandwidth_limit_rule.QoSBandwidthLimitRule]:
         """Search QoS bandwidth limit rules
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -1408,7 +1554,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         rules = self.list_qos_bandwidth_limit_rules(policy_name_or_id, filters)
         return _utils._filter_list(rules, rule_id, filters)
 
-    def list_qos_bandwidth_limit_rules(self, policy_name_or_id, filters=None):
+    def list_qos_bandwidth_limit_rules(
+        self,
+        policy_name_or_id: str,
+        filters: dict[str, Any] | None = None,
+    ) -> list[_qos_bandwidth_limit_rule.QoSBandwidthLimitRule]:
         """List all available QoS bandwidth limit rules.
 
         :param string policy_name_or_id: Name or ID of the QoS policy from
@@ -1441,7 +1591,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             )
         )
 
-    def get_qos_bandwidth_limit_rule(self, policy_name_or_id, rule_id):
+    def get_qos_bandwidth_limit_rule(
+        self, policy_name_or_id: str, rule_id: str
+    ) -> _qos_bandwidth_limit_rule.QoSBandwidthLimitRule:
         """Get a QoS bandwidth limit rule by name or ID.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -1468,10 +1620,10 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     @_utils.valid_kwargs("max_burst_kbps", "direction")
     def create_qos_bandwidth_limit_rule(
         self,
-        policy_name_or_id,
-        max_kbps,
-        **kwargs,
-    ):
+        policy_name_or_id: str,
+        max_kbps: int,
+        **kwargs: Any,
+    ) -> _qos_bandwidth_limit_rule.QoSBandwidthLimitRule:
         """Create a QoS bandwidth limit rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -1513,8 +1665,8 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
     @_utils.valid_kwargs("max_kbps", "max_burst_kbps", "direction")
     def update_qos_bandwidth_limit_rule(
-        self, policy_name_or_id, rule_id, **kwargs
-    ):
+        self, policy_name_or_id: str, rule_id: str, **kwargs: Any
+    ) -> _qos_bandwidth_limit_rule.QoSBandwidthLimitRule | None:
         """Update a QoS bandwidth limit rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -1553,7 +1705,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         if not kwargs:
             self.log.debug("No QoS bandwidth limit rule data to update")
-            return
+            return None
 
         curr_rule = self.network.get_qos_bandwidth_limit_rule(
             qos_rule=rule_id, qos_policy=policy
@@ -1568,7 +1720,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             qos_rule=curr_rule, qos_policy=policy, **kwargs
         )
 
-    def delete_qos_bandwidth_limit_rule(self, policy_name_or_id, rule_id):
+    def delete_qos_bandwidth_limit_rule(
+        self, policy_name_or_id: str, rule_id: str
+    ) -> bool:
         """Delete a QoS bandwidth limit rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -1609,10 +1763,10 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     # TODO(stephenfin): Deprecate this in favour of the 'list' function
     def search_qos_dscp_marking_rules(
         self,
-        policy_name_or_id,
-        rule_id=None,
-        filters=None,
-    ):
+        policy_name_or_id: str,
+        rule_id: str | None = None,
+        filters: dict[str, Any] | None = None,
+    ) -> list[_qos_dscp_marking_rule.QoSDSCPMarkingRule]:
         """Search QoS DSCP marking rules
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -1629,7 +1783,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         rules = self.list_qos_dscp_marking_rules(policy_name_or_id, filters)
         return _utils._filter_list(rules, rule_id, filters)
 
-    def list_qos_dscp_marking_rules(self, policy_name_or_id, filters=None):
+    def list_qos_dscp_marking_rules(
+        self,
+        policy_name_or_id: str,
+        filters: dict[str, Any] | None = None,
+    ) -> list[_qos_dscp_marking_rule.QoSDSCPMarkingRule]:
         """List all available QoS DSCP marking rules.
 
         :param string policy_name_or_id: Name or ID of the QoS policy from
@@ -1658,7 +1816,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return list(self.network.qos_dscp_marking_rules(policy, **filters))
 
-    def get_qos_dscp_marking_rule(self, policy_name_or_id, rule_id):
+    def get_qos_dscp_marking_rule(
+        self, policy_name_or_id: str, rule_id: str
+    ) -> _qos_dscp_marking_rule.QoSDSCPMarkingRule:
         """Get a QoS DSCP marking rule by name or ID.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -1683,9 +1843,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
     def create_qos_dscp_marking_rule(
         self,
-        policy_name_or_id,
-        dscp_mark,
-    ):
+        policy_name_or_id: str,
+        dscp_mark: int,
+    ) -> _qos_dscp_marking_rule.QoSDSCPMarkingRule:
         """Create a QoS DSCP marking rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -1715,8 +1875,8 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
     @_utils.valid_kwargs("dscp_mark")
     def update_qos_dscp_marking_rule(
-        self, policy_name_or_id, rule_id, **kwargs
-    ):
+        self, policy_name_or_id: str, rule_id: str, **kwargs: Any
+    ) -> _qos_dscp_marking_rule.QoSDSCPMarkingRule | None:
         """Update a QoS DSCP marking rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -1743,7 +1903,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         if not kwargs:
             self.log.debug("No QoS DSCP marking rule data to update")
-            return
+            return None
 
         curr_rule = self.network.get_qos_dscp_marking_rule(rule_id, policy)
         if not curr_rule:
@@ -1756,7 +1916,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             curr_rule, policy, **kwargs
         )
 
-    def delete_qos_dscp_marking_rule(self, policy_name_or_id, rule_id):
+    def delete_qos_dscp_marking_rule(
+        self, policy_name_or_id: str, rule_id: str
+    ) -> bool:
         """Delete a QoS DSCP marking rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -1796,10 +1958,10 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     # TODO(stephenfin): Deprecate this in favour of the 'list' function
     def search_qos_minimum_bandwidth_rules(
         self,
-        policy_name_or_id,
-        rule_id=None,
-        filters=None,
-    ):
+        policy_name_or_id: str,
+        rule_id: str | None = None,
+        filters: dict[str, Any] | None = None,
+    ) -> list[_qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule]:
         """Search QoS minimum bandwidth rules
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -1819,8 +1981,10 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         return _utils._filter_list(rules, rule_id, filters)
 
     def list_qos_minimum_bandwidth_rules(
-        self, policy_name_or_id, filters=None
-    ):
+        self,
+        policy_name_or_id: str,
+        filters: dict[str, Any] | None = None,
+    ) -> list[_qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule]:
         """List all available QoS minimum bandwidth rules.
 
         :param string policy_name_or_id: Name or ID of the QoS policy from
@@ -1851,7 +2015,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             self.network.qos_minimum_bandwidth_rules(policy, **filters)
         )
 
-    def get_qos_minimum_bandwidth_rule(self, policy_name_or_id, rule_id):
+    def get_qos_minimum_bandwidth_rule(
+        self, policy_name_or_id: str, rule_id: str
+    ) -> _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule:
         """Get a QoS minimum bandwidth rule by name or ID.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -1874,10 +2040,10 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
     @_utils.valid_kwargs("direction")
     def create_qos_minimum_bandwidth_rule(
         self,
-        policy_name_or_id,
-        min_kbps,
-        **kwargs,
-    ):
+        policy_name_or_id: str,
+        min_kbps: int,
+        **kwargs: Any,
+    ) -> _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule:
         """Create a QoS minimum bandwidth limit rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -1905,8 +2071,8 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
     @_utils.valid_kwargs("min_kbps", "direction")
     def update_qos_minimum_bandwidth_rule(
-        self, policy_name_or_id, rule_id, **kwargs
-    ):
+        self, policy_name_or_id: str, rule_id: str, **kwargs: Any
+    ) -> _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule | None:
         """Update a QoS minimum bandwidth rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -1931,7 +2097,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         if not kwargs:
             self.log.debug("No QoS minimum bandwidth rule data to update")
-            return
+            return None
 
         curr_rule = self.network.get_qos_minimum_bandwidth_rule(
             rule_id, policy
@@ -1946,7 +2112,9 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             curr_rule, policy, **kwargs
         )
 
-    def delete_qos_minimum_bandwidth_rule(self, policy_name_or_id, rule_id):
+    def delete_qos_minimum_bandwidth_rule(
+        self, policy_name_or_id: str, rule_id: str
+    ) -> bool:
         """Delete a QoS minimum bandwidth rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -1980,7 +2148,12 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return True
 
-    def add_router_interface(self, router, subnet_id=None, port_id=None):
+    def add_router_interface(
+        self,
+        router: str | _router.Router,
+        subnet_id: str | None = None,
+        port_id: str | None = None,
+    ) -> dict[str, Any]:
         """Attach a subnet to an internal router interface.
 
         Either a subnet ID or port ID must be specified for the internal
@@ -1998,7 +2171,12 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             router=router, subnet=subnet_id, port=port_id
         )
 
-    def remove_router_interface(self, router, subnet_id=None, port_id=None):
+    def remove_router_interface(
+        self,
+        router: str | _router.Router,
+        subnet_id: str | None = None,
+        port_id: str | None = None,
+    ) -> None:
         """Detach a subnet from an internal router interface.
 
         At least one of subnet_id or port_id must be supplied.
@@ -2024,7 +2202,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
             router=router, subnet=subnet_id, port=port_id
         )
 
-    def list_router_interfaces(self, router, interface_type=None):
+    def list_router_interfaces(
+        self,
+        router: _router.Router,
+        interface_type: str | None = None,
+    ) -> list[_port.Port]:
         """List all interfaces for a router.
 
         :param dict router: A router dict object.
@@ -2067,14 +2249,14 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
     def create_router(
         self,
-        name=None,
-        admin_state_up=True,
-        ext_gateway_net_id=None,
-        enable_snat=None,
-        ext_fixed_ips=None,
-        project_id=None,
-        availability_zone_hints=None,
-    ):
+        name: str | None = None,
+        admin_state_up: bool = True,
+        ext_gateway_net_id: str | None = None,
+        enable_snat: bool | None = None,
+        ext_fixed_ips: list[dict[str, Any]] | None = None,
+        project_id: str | None = None,
+        availability_zone_hints: list[str] | None = None,
+    ) -> _router.Router:
         """Create a logical router.
 
         :param string name: The router name.
@@ -2100,7 +2282,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         """
-        router = {'admin_state_up': admin_state_up}
+        router: dict[str, Any] = {'admin_state_up': admin_state_up}
         if project_id is not None:
             router['project_id'] = project_id
         if name:
@@ -2126,14 +2308,14 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
     def update_router(
         self,
-        name_or_id,
-        name=None,
-        admin_state_up=None,
-        ext_gateway_net_id=None,
-        enable_snat=None,
-        ext_fixed_ips=None,
-        routes=None,
-    ):
+        name_or_id: str,
+        name: str | None = None,
+        admin_state_up: bool | None = None,
+        ext_gateway_net_id: str | None = None,
+        enable_snat: bool | None = None,
+        ext_fixed_ips: list[dict[str, Any]] | None = None,
+        routes: list[dict[str, Any]] | None = None,
+    ) -> _router.Router | None:
         """Update an existing logical router.
 
         :param string name_or_id: The name or UUID of the router to update.
@@ -2165,7 +2347,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         """
-        router = {}
+        router: dict[str, Any] = {}
         if name:
             router['name'] = name
         if admin_state_up is not None:
@@ -2186,7 +2368,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         if not router:
             self.log.debug("No router data to update")
-            return
+            return None
 
         curr_router = self.get_router(name_or_id)
         if not curr_router:
@@ -2194,7 +2376,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return self.network.update_router(curr_router, **router)
 
-    def delete_router(self, name_or_id):
+    def delete_router(self, name_or_id: str) -> bool:
         """Delete a logical router.
 
         If a name, instead of a unique UUID, is supplied, it is possible
@@ -2218,24 +2400,24 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
     def create_subnet(
         self,
-        network_name_or_id,
-        cidr=None,
-        ip_version=4,
-        enable_dhcp=False,
-        subnet_name=None,
-        tenant_id=None,
-        allocation_pools=None,
-        gateway_ip=None,
-        disable_gateway_ip=False,
-        dns_nameservers=None,
-        host_routes=None,
-        ipv6_ra_mode=None,
-        ipv6_address_mode=None,
-        prefixlen=None,
-        use_default_subnetpool=False,
-        subnetpool_name_or_id=None,
-        **kwargs,
-    ):
+        network_name_or_id: str,
+        cidr: str | None = None,
+        ip_version: int | str = 4,
+        enable_dhcp: bool = False,
+        subnet_name: str | None = None,
+        tenant_id: str | None = None,
+        allocation_pools: list[dict[str, Any]] | None = None,
+        gateway_ip: str | None = None,
+        disable_gateway_ip: bool = False,
+        dns_nameservers: list[str] | None = None,
+        host_routes: list[dict[str, Any]] | None = None,
+        ipv6_ra_mode: str | None = None,
+        ipv6_address_mode: str | None = None,
+        prefixlen: str | None = None,
+        use_default_subnetpool: bool = False,
+        subnetpool_name_or_id: str | None = None,
+        **kwargs: Any,
+    ) -> _subnet.Subnet:
         """Create a subnet on a specified network.
 
         :param string network_name_or_id: The unique name or ID of the attached
@@ -2384,7 +2566,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return self.network.create_subnet(**subnet)
 
-    def delete_subnet(self, name_or_id):
+    def delete_subnet(self, name_or_id: str) -> bool:
         """Delete a subnet.
 
         If a name, instead of a unique UUID, is supplied, it is possible
@@ -2408,15 +2590,15 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
     def update_subnet(
         self,
-        name_or_id,
-        subnet_name=None,
-        enable_dhcp=None,
-        gateway_ip=None,
-        disable_gateway_ip=None,
-        allocation_pools=None,
-        dns_nameservers=None,
-        host_routes=None,
-    ):
+        name_or_id: str,
+        subnet_name: str | None = None,
+        enable_dhcp: bool | None = None,
+        gateway_ip: str | None = None,
+        disable_gateway_ip: bool | None = None,
+        allocation_pools: list[dict[str, Any]] | None = None,
+        dns_nameservers: list[str] | None = None,
+        host_routes: list[dict[str, Any]] | None = None,
+    ) -> _subnet.Subnet | None:
         """Update an existing subnet.
 
         :param string name_or_id: Name or ID of the subnet to update.
@@ -2451,7 +2633,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         """
-        subnet = {}
+        subnet: dict[str, Any] = {}
         if subnet_name:
             subnet['name'] = subnet_name
         if enable_dhcp is not None:
@@ -2469,7 +2651,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         if not subnet:
             self.log.debug("No subnet data to update")
-            return
+            return None
 
         if disable_gateway_ip and gateway_ip:
             raise exceptions.SDKException(
@@ -2505,7 +2687,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         'propagate_uplink_status',
         'mac_learning_enabled',
     )
-    def create_port(self, network_id, **kwargs):
+    def create_port(self, network_id: str, **kwargs: Any) -> _port.Port:
         """Create a port
 
         :param network_id: The ID of the network. (Required)
@@ -2591,7 +2773,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         'qos_policy_id',
         'binding:host_id',
     )
-    def update_port(self, name_or_id, **kwargs):
+    def update_port(self, name_or_id: str, **kwargs: Any) -> _port.Port:
         """Update a port
 
         Note: to unset an attribute use None value. To leave an attribute
@@ -2653,7 +2835,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return self.network.update_port(port, **kwargs)
 
-    def delete_port(self, name_or_id):
+    def delete_port(self, name_or_id: str) -> bool:
         """Delete a port
 
         :param name_or_id: ID or name of the port to delete.
@@ -2671,7 +2853,11 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return True
 
-    def _get_port_ids(self, name_or_id_list, filters=None):
+    def _get_port_ids(
+        self,
+        name_or_id_list: list[str],
+        filters: dict[str, Any] | None = None,
+    ) -> list[str]:
         """
         Takes a list of port names or ids, retrieves ports and returns a list
         with port ids only.
@@ -2683,7 +2869,7 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         :return: list of port ids
         :rtype: list[str]
         """
-        ids_list = []
+        ids_list: list[str] = []
         for name_or_id in name_or_id_list:
             port = self.get_port(name_or_id, filters)
             if not port:
@@ -2694,9 +2880,12 @@ class NetworkCloudMixin(_network_common.NetworkCommonCloudMixin):
         return ids_list
 
     def _build_external_gateway_info(
-        self, ext_gateway_net_id, enable_snat, ext_fixed_ips
-    ):
-        info = {}
+        self,
+        ext_gateway_net_id: str | None,
+        enable_snat: bool | None,
+        ext_fixed_ips: list[dict[str, Any]] | None,
+    ) -> dict[str, Any] | None:
+        info: dict[str, Any] = {}
         if ext_gateway_net_id:
             info['network_id'] = ext_gateway_net_id
         # Only send enable_snat if it is explicitly set.

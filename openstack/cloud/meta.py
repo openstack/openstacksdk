@@ -494,7 +494,7 @@ def _get_supplemental_addresses(
             and cloud._has_floating_ips()
             and server['status'] == 'ACTIVE'
         ):
-            for port in cloud.search_ports(  # type: ignore[no-untyped-call]
+            for port in cloud.search_ports(
                 filters=dict(device_id=server['id'])
             ):
                 # This SHOULD return one and only one FIP - but doing it as a
