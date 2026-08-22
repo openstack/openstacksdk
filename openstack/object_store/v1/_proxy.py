@@ -400,7 +400,7 @@ class Proxy(proxy.Proxy):
         use_slo: bool = True,
         metadata: dict[str, Any] | None = None,
         generate_checksums: bool | None = None,
-        data: bytes | None = None,
+        data: str | bytes | None = None,
         **headers: Any,
     ) -> _obj.Object | None:
         """Create a file object.
