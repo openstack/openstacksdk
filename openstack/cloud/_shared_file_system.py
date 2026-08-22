@@ -11,10 +11,15 @@
 # limitations under the License.
 
 from openstack.cloud import openstackcloud
+from openstack.shared_file_system.v2 import (
+    availability_zone as _availability_zone,
+)
 
 
 class SharedFileSystemCloudMixin(openstackcloud._OpenStackCloudMixin):
-    def list_share_availability_zones(self):
+    def list_share_availability_zones(
+        self,
+    ) -> list[_availability_zone.AvailabilityZone]:
         """List all availability zones for the Shared File Systems service.
 
         :returns: A list of Shared File Systems Availability Zones.
