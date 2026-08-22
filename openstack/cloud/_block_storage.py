@@ -10,18 +10,46 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any, TYPE_CHECKING, cast
 import warnings
 
+from openstack.block_storage.v2 import backup as _backup_v2
+from openstack.block_storage.v2 import limits as _limits_v2
+from openstack.block_storage.v2 import quota_set as _quota_set_v2
+from openstack.block_storage.v2 import snapshot as _snapshot_v2
+from openstack.block_storage.v2 import type as _type_v2
+from openstack.block_storage.v2 import volume as _volume_v2
+from openstack.block_storage.v3 import backup as _backup_v3
+from openstack.block_storage.v3 import limits as _limits_v3
+from openstack.block_storage.v3 import quota_set as _quota_set_v3
+from openstack.block_storage.v3 import snapshot as _snapshot_v3
+from openstack.block_storage.v3 import type as _type_v3
+from openstack.block_storage.v3 import volume as _volume_v3
 from openstack.cloud import _utils
 from openstack.cloud import openstackcloud
+from openstack.compute.v2 import server as _server
+from openstack.compute.v2 import volume_attachment as _volume_attachment
 from openstack import exceptions
+from openstack.image.v2 import image as _image
 from openstack import resource
 from openstack import utils
 from openstack import warnings as os_warnings
 
+if TYPE_CHECKING:
+    import requests
+
+# The cloud layer supports both v2 and v3 of the block storage service, so the
+# resources returned by these methods may be from either version.
+BackupT = _backup_v2.Backup | _backup_v3.Backup
+LimitsT = _limits_v2.Limits | _limits_v3.Limits
+QuotaSetT = _quota_set_v2.QuotaSet | _quota_set_v3.QuotaSet
+SnapshotT = _snapshot_v2.Snapshot | _snapshot_v3.Snapshot
+TypeT = _type_v2.Type | _type_v3.Type
+VolumeT = _volume_v2.Volume | _volume_v3.Volume
+
 
 class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
-    def list_volumes(self, cache=None):
+    def list_volumes(self, cache: bool | None = None) -> list[VolumeT]:
         """List all available volumes.
 
         :param cache: **DEPRECATED** This parameter no longer does anything.
@@ -35,7 +63,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
             )
         return list(self.block_storage.volumes())
 
-    def list_volume_types(self, get_extra=None):
+    def list_volume_types(self, get_extra: bool | None = None) -> list[TypeT]:
         """List all available volume types.
 
         :param get_extra: **DEPRECATED** This parameter no longer does
@@ -51,7 +79,11 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         return list(self.block_storage.types())
 
     # TODO(stephenfin): Remove 'filters' in a future major version
-    def get_volume(self, name_or_id, filters=None):
+    def get_volume(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | str | None = None,
+    ) -> VolumeT | None:
         """Get a volume by name or ID.
 
         :param name_or_id: Name or unique ID of the volume.
@@ -89,7 +121,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return self.block_storage.find_volume(name_or_id)
 
-    def get_volume_by_id(self, id):
+    def get_volume_by_id(self, id: str) -> VolumeT:
         """Get a volume by ID
 
         :param id: ID of the volume.
@@ -98,7 +130,11 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         return self.block_storage.get_volume(id)
 
     # TODO(stephenfin): Remove 'filters' in a future major version
-    def get_volume_type(self, name_or_id, filters=None):
+    def get_volume_type(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | str | None = None,
+    ) -> TypeT | None:
         """Get a volume type by name or ID.
 
         :param name_or_id: Name or unique ID of the volume type.
@@ -138,13 +174,13 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def create_volume(
         self,
-        size,
-        wait=True,
-        timeout=None,
-        image=None,
-        bootable=None,
-        **kwargs,
-    ):
+        size: int,
+        wait: bool = True,
+        timeout: int | None = None,
+        image: str | dict[str, Any] | _image.Image | None = None,
+        bootable: bool | None = None,
+        **kwargs: Any,
+    ) -> VolumeT:
         """Create a volume.
 
         :param size: Size, in GB of the volume to create.
@@ -189,11 +225,15 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         if wait:
             self.block_storage.wait_for_status(volume, wait=timeout)
             if bootable:
+                # mypy can't correlate the (v2 or v3) proxy with the matching
+                # (v2 or v3) volume returned by create_volume above
                 self.block_storage.set_volume_bootable_status(volume, True)  # type: ignore[arg-type]
 
         return volume
 
-    def update_volume(self, name_or_id, **kwargs):
+    def update_volume(
+        self, name_or_id: str, **kwargs: Any
+    ) -> _volume_v3.Volume:
         """Update a volume.
 
         :param name_or_id: Name or unique ID of the volume.
@@ -207,11 +247,13 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
             raise exceptions.SDKException(f"Volume {name_or_id} not found.")
 
         block_storage = utils.ensure_service_version(self.block_storage, '3')
-        volume = block_storage.update_volume(volume, **kwargs)
+        # get_volume returns a (v2 or v3) volume, which mypy can't correlate
+        # with the v3 proxy narrowed above
+        return block_storage.update_volume(volume, **kwargs)  # type: ignore[arg-type]
 
-        return volume
-
-    def set_volume_bootable(self, name_or_id, bootable=True):
+    def set_volume_bootable(
+        self, name_or_id: str, bootable: bool = True
+    ) -> None:
         """Set a volume's bootable flag.
 
         :param name_or_id: Name or unique ID of the volume.
@@ -224,7 +266,6 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         """
-
         volume = self.get_volume(name_or_id)
 
         if not volume:
@@ -232,7 +273,9 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
                 f"Volume {name_or_id} does not exist"
             )
 
-        self.block_storage.set_volume_bootable_status(volume, bootable)
+        # get_volume returns a (v2 or v3) volume, which mypy can't correlate
+        # with the (v2 or v3) proxy
+        self.block_storage.set_volume_bootable_status(volume, bootable)  # type: ignore[arg-type]
 
     def delete_volume(
         self,
@@ -265,10 +308,9 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
             )
             return False
         try:
-            # mypy is not clever enough to realise that if we were using a v2
-            # proxy above (and got a v2 Volume object) then we are still using
-            # a v2 proxy here
-            self.block_storage.delete_volume(volume, force=force)  # type: ignore
+            # find_volume returns a (v2 or v3) volume, which mypy can't
+            # correlate with the (v2 or v3) proxy
+            self.block_storage.delete_volume(volume, force=force)  # type: ignore[arg-type]
         except exceptions.SDKException:
             self.log.exception("error in deleting volume")
             raise
@@ -278,7 +320,9 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return True
 
-    def get_volumes(self, server, cache=None):
+    def get_volumes(
+        self, server: _server.Server, cache: bool | None = None
+    ) -> list[VolumeT]:
         """Get volumes for a server.
 
         :param server: The server to fetch volumes for.
@@ -294,28 +338,28 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
             # avoid spamming warnings
             cache = None
 
-        volumes = []
+        volumes: list[VolumeT] = []
         for volume in self.list_volumes(cache=cache):
             for attach in volume['attachments']:
                 if attach['server_id'] == server['id']:
                     volumes.append(volume)
         return volumes
 
-    def get_volume_limits(self, name_or_id=None):
+    def get_volume_limits(self, name_or_id: str | None = None) -> LimitsT:
         """Get volume limits for the current project
 
         :param name_or_id: (optional) Project name or ID to get limits for
             if different from the current project
         :returns: The volume ``Limits`` object if found, else None.
         """
-        params = {}
+        params: dict[str, Any] = {}
         if name_or_id:
             identity = utils.ensure_service_version(self.identity, '3')
             project = identity.find_project(name_or_id, ignore_missing=False)
             params['project'] = project
         return self.block_storage.get_limits(**params)
 
-    def get_volume_id(self, name_or_id):
+    def get_volume_id(self, name_or_id: str) -> str | None:
         """Get ID of a volume.
 
         :param name_or_id: Name or unique ID of the volume.
@@ -323,10 +367,10 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         volume = self.get_volume(name_or_id)
         if volume:
-            return volume['id']
+            return volume.id
         return None
 
-    def volume_exists(self, name_or_id):
+    def volume_exists(self, name_or_id: str) -> bool:
         """Check if a volume exists.
 
         :param name_or_id: Name or unique ID of the volume.
@@ -334,7 +378,9 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         return self.get_volume(name_or_id) is not None
 
-    def get_volume_attach_device(self, volume, server_id):
+    def get_volume_attach_device(
+        self, volume: VolumeT, server_id: str
+    ) -> str | None:
         """Return the device name a volume is attached to for a server.
 
         This can also be used to verify if a volume is attached to
@@ -346,10 +392,16 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         for attach in volume['attachments']:
             if server_id == attach['server_id']:
-                return attach['device']
+                return cast('str', attach['device'])
         return None
 
-    def detach_volume(self, server, volume, wait=True, timeout=None):
+    def detach_volume(
+        self,
+        server: _server.Server,
+        volume: VolumeT,
+        wait: bool = True,
+        timeout: int | None = None,
+    ) -> None:
         """Detach a volume from a server.
 
         :param server: The server dict to detach from.
@@ -370,16 +422,20 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         )
         if wait:
             vol = self.get_volume(volume['id'])
+            if not vol:
+                raise exceptions.SDKException(
+                    f"Volume {volume['id']} does not exist"
+                )
             self.block_storage.wait_for_status(vol)
 
     def attach_volume(
         self,
-        server,
-        volume,
-        device=None,
-        wait=True,
-        timeout=None,
-    ):
+        server: _server.Server,
+        volume: VolumeT,
+        device: str | None = None,
+        wait: bool = True,
+        timeout: int | None = None,
+    ) -> _volume_attachment.VolumeAttachment:
         """Attach a volume to a server.
 
         This will attach a volume, described by the passed in volume
@@ -418,7 +474,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
                 )
             )
 
-        payload = {}
+        payload: dict[str, Any] = {}
         if device:
             payload['device'] = device
         attachment = self.compute.create_volume_attachment(
@@ -435,7 +491,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
             self.block_storage.wait_for_status(volume, 'in-use', wait=timeout)
         return attachment
 
-    def _get_volume_kwargs(self, kwargs):
+    def _get_volume_kwargs(self, kwargs: dict[str, Any]) -> dict[str, Any]:
         name = kwargs.pop('name', kwargs.pop('display_name', None))
         description = kwargs.pop(
             'description', kwargs.pop('display_description', None)
@@ -451,12 +507,12 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
     )
     def create_volume_snapshot(
         self,
-        volume_id,
-        force=False,
-        wait=True,
-        timeout=None,
-        **kwargs,
-    ):
+        volume_id: str,
+        force: bool = False,
+        wait: bool = True,
+        timeout: int | None = None,
+        **kwargs: Any,
+    ) -> SnapshotT:
         """Create a snapshot.
 
         :param volume_id: the ID of the volume to snapshot.
@@ -477,7 +533,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
             error.
         """
         kwargs = self._get_volume_kwargs(kwargs)
-        payload = {'volume_id': volume_id, 'force': force}
+        payload: dict[str, Any] = {'volume_id': volume_id, 'force': force}
         payload.update(kwargs)
         snapshot = self.block_storage.create_snapshot(**payload)
         if wait:
@@ -487,7 +543,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return snapshot
 
-    def get_volume_snapshot_by_id(self, snapshot_id):
+    def get_volume_snapshot_by_id(self, snapshot_id: str) -> SnapshotT:
         """Takes a snapshot_id and gets a dict of the snapshot
         that maches that ID.
 
@@ -499,7 +555,11 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         return self.block_storage.get_snapshot(snapshot_id)
 
     # TODO(stephenfin): Remove 'filters' in a future major version
-    def get_volume_snapshot(self, name_or_id, filters=None):
+    def get_volume_snapshot(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | str | None = None,
+    ) -> SnapshotT | None:
         """Get a volume by name or ID.
 
         :param name_or_id: Name or unique ID of the volume snapshot.
@@ -539,15 +599,15 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def create_volume_backup(
         self,
-        volume_id,
-        name=None,
-        description=None,
-        force=False,
-        wait=True,
-        timeout=None,
-        incremental=False,
-        snapshot_id=None,
-    ):
+        volume_id: str,
+        name: str | None = None,
+        description: str | None = None,
+        force: bool = False,
+        wait: bool = True,
+        timeout: int | None = None,
+        incremental: bool = False,
+        snapshot_id: str | None = None,
+    ) -> BackupT:
         """Create a volume backup.
 
         :param volume_id: the ID of the volume to backup.
@@ -569,7 +629,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         """
-        payload = {
+        payload: dict[str, Any] = {
             'name': name,
             'volume_id': volume_id,
             'description': description,
@@ -585,12 +645,16 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return backup
 
-    def export_volume_backup(self, backup_id):
+    def export_volume_backup(
+        self, backup_id: str
+    ) -> 'dict[str, Any] | requests.Response':
         """Export a volume backup.
 
         :param backup_id: the ID of the backup.
 
-        :returns: The backup export record fields
+        :returns: The backup export record fields. This is a dict when using
+            the (deprecated) v2 API and a :class:`requests.Response` when using
+            the v3 API.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if wait time
             exceeded.
         :raises: :class:`~openstack.exceptions.SDKException` on operation
@@ -601,7 +665,11 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         return self.block_storage.export_record(**payload)
 
     # TODO(stephenfin): Remove 'filters' in a future major version
-    def get_volume_backup(self, name_or_id, filters=None):
+    def get_volume_backup(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | str | None = None,
+    ) -> BackupT | None:
         """Get a volume backup by name or ID.
 
         :param name_or_id: Name or unique ID of the volume backup.
@@ -639,7 +707,11 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return self.block_storage.find_backup(name_or_id)
 
-    def list_volume_snapshots(self, detailed=True, filters=None):
+    def list_volume_snapshots(
+        self,
+        detailed: bool = True,
+        filters: dict[str, Any] | None = None,
+    ) -> list[SnapshotT]:
         """List all volume snapshots.
 
         :param detailed: Whether or not to add detailed additional information.
@@ -658,7 +730,11 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
             filters = {}
         return list(self.block_storage.snapshots(details=detailed, **filters))
 
-    def list_volume_backups(self, detailed=True, filters=None):
+    def list_volume_backups(
+        self,
+        detailed: bool = True,
+        filters: dict[str, Any] | None = None,
+    ) -> list[BackupT]:
         """List all volume backups.
 
         :param detailed: Whether or not to add detailed additional information.
@@ -680,8 +756,12 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         return list(self.block_storage.backups(details=detailed, **filters))
 
     def delete_volume_backup(
-        self, name_or_id=None, force=False, wait=False, timeout=None
-    ):
+        self,
+        name_or_id: str | None = None,
+        force: bool = False,
+        wait: bool = False,
+        timeout: int | None = None,
+    ) -> bool:
         """Delete a volume backup.
 
         :param name_or_id: Name or unique ID of the volume backup.
@@ -696,13 +776,20 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         """
+        if not name_or_id:
+            return False
+
         volume_backup = self.get_volume_backup(name_or_id)
 
         if not volume_backup:
             return False
 
         self.block_storage.delete_backup(
-            volume_backup, ignore_missing=False, force=force
+            # get_volume_backup returns a (v2 or v3) backup, which mypy can't
+            # correlate with the (v2 or v3) proxy
+            volume_backup,  # type: ignore[arg-type]
+            ignore_missing=False,
+            force=force,
         )
         if wait:
             self.block_storage.wait_for_delete(volume_backup, wait=timeout)
@@ -711,10 +798,10 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def delete_volume_snapshot(
         self,
-        name_or_id=None,
-        wait=False,
-        timeout=None,
-    ):
+        name_or_id: str | None = None,
+        wait: bool = False,
+        timeout: int | None = None,
+    ) -> bool:
         """Delete a volume snapshot.
 
         :param name_or_id: Name or unique ID of the volume snapshot.
@@ -728,13 +815,19 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         """
+        if not name_or_id:
+            return False
+
         volumesnapshot = self.get_volume_snapshot(name_or_id)
 
         if not volumesnapshot:
             return False
 
         self.block_storage.delete_snapshot(
-            volumesnapshot, ignore_missing=False
+            # get_volume_snapshot returns a (v2 or v3) snapshot, which mypy
+            # can't correlate with the (v2 or v3) proxy
+            volumesnapshot,  # type: ignore[arg-type]
+            ignore_missing=False,
         )
 
         if wait:
@@ -742,7 +835,11 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return True
 
-    def search_volumes(self, name_or_id=None, filters=None):
+    def search_volumes(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | str | None = None,
+    ) -> list[VolumeT]:
         """Search for one or more volumes.
 
         :param name_or_id: Name or unique ID of volume(s).
@@ -764,7 +861,11 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         volumes = self.list_volumes()
         return _utils._filter_list(volumes, name_or_id, filters)
 
-    def search_volume_snapshots(self, name_or_id=None, filters=None):
+    def search_volume_snapshots(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | str | None = None,
+    ) -> list[SnapshotT]:
         """Search for one or more volume snapshots.
 
         :param name_or_id: Name or unique ID of volume snapshot(s).
@@ -786,7 +887,11 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         volumesnapshots = self.list_volume_snapshots()
         return _utils._filter_list(volumesnapshots, name_or_id, filters)
 
-    def search_volume_backups(self, name_or_id=None, filters=None):
+    def search_volume_backups(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | str | None = None,
+    ) -> list[BackupT]:
         """Search for one or more volume backups.
 
         :param name_or_id: Name or unique ID of volume backup(s).
@@ -810,10 +915,10 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def search_volume_types(
         self,
-        name_or_id=None,
-        filters=None,
-        get_extra=None,
-    ):
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | str | None = None,
+        get_extra: bool | None = None,
+    ) -> list[TypeT]:
         """Search for one or more volume types.
 
         :param name_or_id: Name or unique ID of volume type(s).
@@ -841,7 +946,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         volume_types = self.list_volume_types()
         return _utils._filter_list(volume_types, name_or_id, filters)
 
-    def get_volume_type_access(self, name_or_id):
+    def get_volume_type_access(self, name_or_id: str) -> list[dict[str, Any]]:
         """Return a list of volume_type_access.
 
         :param name_or_id: Name or unique ID of the volume type.
@@ -855,9 +960,11 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
                 f"VolumeType not found: {name_or_id}"
             )
 
-        return self.block_storage.get_type_access(volume_type)
+        # get_volume_type returns a (v2 or v3) type, which mypy can't correlate
+        # with the (v2 or v3) proxy
+        return self.block_storage.get_type_access(volume_type)  # type: ignore[arg-type]
 
-    def add_volume_type_access(self, name_or_id, project_id):
+    def add_volume_type_access(self, name_or_id: str, project_id: str) -> None:
         """Grant access on a volume_type to a project.
 
         NOTE: the call works even if the project does not exist.
@@ -875,9 +982,13 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
                 f"VolumeType not found: {name_or_id}"
             )
 
-        self.block_storage.add_type_access(volume_type, project_id)
+        # get_volume_type returns a (v2 or v3) type, which mypy can't correlate
+        # with the (v2 or v3) proxy
+        self.block_storage.add_type_access(volume_type, project_id)  # type: ignore[arg-type]
 
-    def remove_volume_type_access(self, name_or_id, project_id):
+    def remove_volume_type_access(
+        self, name_or_id: str, project_id: str
+    ) -> None:
         """Revoke access on a volume_type to a project.
 
         :param name_or_id: ID or name of a volume_type
@@ -892,9 +1003,11 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
             raise exceptions.SDKException(
                 f"VolumeType not found: {name_or_id}"
             )
-        self.block_storage.remove_type_access(volume_type, project_id)
+        # get_volume_type returns a (v2 or v3) type, which mypy can't correlate
+        # with the (v2 or v3) proxy
+        self.block_storage.remove_type_access(volume_type, project_id)  # type: ignore[arg-type]
 
-    def set_volume_quotas(self, name_or_id, **kwargs):
+    def set_volume_quotas(self, name_or_id: str, **kwargs: Any) -> None:
         """Set a volume quota in a project
 
         :param name_or_id: project name or id
@@ -909,7 +1022,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         self.block_storage.update_quota_set(project=project, **kwargs)
 
-    def get_volume_quotas(self, name_or_id):
+    def get_volume_quotas(self, name_or_id: str) -> QuotaSetT:
         """Get volume quotas for a project
 
         :param name_or_id: project name or id
@@ -923,7 +1036,7 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return self.block_storage.get_quota_set(proj)
 
-    def delete_volume_quotas(self, name_or_id):
+    def delete_volume_quotas(self, name_or_id: str) -> None:
         """Delete volume quotas for a project
 
         :param name_or_id: project name or id
@@ -935,4 +1048,4 @@ class BlockStorageCloudMixin(openstackcloud._OpenStackCloudMixin):
         identity = utils.ensure_service_version(self.identity, '3')
         proj = identity.find_project(name_or_id, ignore_missing=False)
 
-        return self.block_storage.revert_quota_set(proj)
+        self.block_storage.revert_quota_set(proj)

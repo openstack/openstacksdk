@@ -28,6 +28,8 @@ if TYPE_CHECKING:
     from oslo_config import cfg
     import requests
 
+    from openstack.block_storage.v2 import volume as _volume_v2
+    from openstack.block_storage.v3 import volume as _volume_v3
     from openstack.config import cloud_region
     from openstack import service_description
 
@@ -325,7 +327,7 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
         tags: list[str] | None = None,
         allow_duplicates: bool = False,
         meta: dict[str, Any] | None = None,
-        volume: str | None = None,
+        volume: 'str | _volume_v2.Volume | _volume_v3.Volume | None' = None,
         **kwargs: Any,
     ) -> ImageT | None:
         """Upload an image.
@@ -398,7 +400,9 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
         else:
             image = self.block_storage.create_image(
                 name=name,
-                volume=volume,
+                # a (v2 or v3) volume can't be correlated by mypy with the
+                # (v2 or v3) block storage proxy
+                volume=volume,  # type: ignore[arg-type]
                 allow_duplicates=allow_duplicates,
                 container_format=container_format,
                 disk_format=disk_format,

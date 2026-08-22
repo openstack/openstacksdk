@@ -88,7 +88,7 @@ class Proxy(proxy.Proxy):
     def create_image(
         self,
         name: str,
-        volume: str,
+        volume: str | _volume.Volume,
         allow_duplicates: bool,
         container_format: str | None,
         disk_format: str | None,

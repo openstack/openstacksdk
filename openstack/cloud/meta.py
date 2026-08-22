@@ -623,7 +623,7 @@ def get_hostvars_from_server(
     volumes = []
     if cloud.has_service('volume'):
         try:
-            for volume in cloud.get_volumes(server):  # type: ignore[no-untyped-call]
+            for volume in cloud.get_volumes(server):
                 # Make things easier to consume elsewhere
                 volume['device'] = volume['attachments'][0]['device']
                 volumes.append(volume)

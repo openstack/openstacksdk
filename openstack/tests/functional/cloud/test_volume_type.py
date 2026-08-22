@@ -44,7 +44,7 @@ class TestVolumeType(base.BaseFunctionalTest):
 
     def tearDown(self):
         ret = self.operator_cloud.get_volume_type('test-volume-type')
-        if ret.get('id'):
+        if ret is not None and ret.get('id'):
             self.operator_cloud.block_storage.delete(f'/types/{ret.id}')
         super().tearDown()
 
@@ -57,23 +57,27 @@ class TestVolumeType(base.BaseFunctionalTest):
 
     def test_add_remove_volume_type_access(self):
         volume_type = self.operator_cloud.get_volume_type('test-volume-type')
+        assert volume_type is not None
         self.assertEqual('test-volume-type', volume_type.name)
 
+        project_id = self.operator_cloud.current_project_id
+        assert project_id is not None
+
         self.operator_cloud.add_volume_type_access(
-            'test-volume-type', self.operator_cloud.current_project_id
+            'test-volume-type', project_id
         )
         self._assert_project(
             'test-volume-type',
-            self.operator_cloud.current_project_id,
+            project_id,
             allowed=True,
         )
 
         self.operator_cloud.remove_volume_type_access(
-            'test-volume-type', self.operator_cloud.current_project_id
+            'test-volume-type', project_id
         )
         self._assert_project(
             'test-volume-type',
-            self.operator_cloud.current_project_id,
+            project_id,
             allowed=False,
         )
 
@@ -88,19 +92,23 @@ class TestVolumeType(base.BaseFunctionalTest):
         )
 
     def test_add_volume_type_access_missing_volume(self):
+        project_id = self.operator_cloud.current_project_id
+        assert project_id is not None
         with self.assertRaises(
             exceptions.SDKException, msg="VolumeType not found.*"
         ):
             self.operator_cloud.add_volume_type_access(
-                'MISSING_VOLUME_TYPE', self.operator_cloud.current_project_id
+                'MISSING_VOLUME_TYPE', project_id
             )
 
     def test_remove_volume_type_access_missing_volume(self):
+        project_id = self.operator_cloud.current_project_id
+        assert project_id is not None
         with self.assertRaises(
             exceptions.SDKException, msg="VolumeType not found.*"
         ):
             self.operator_cloud.remove_volume_type_access(
-                'MISSING_VOLUME_TYPE', self.operator_cloud.current_project_id
+                'MISSING_VOLUME_TYPE', project_id
             )
 
     def test_add_volume_type_access_bad_project(self):

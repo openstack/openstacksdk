@@ -50,7 +50,9 @@ class TestVolumeQuotas(base.BaseFunctionalTest):
 
     def test_get_quotas(self):
         '''Test get quotas functionality'''
-        self.user_cloud.get_volume_quotas(self.user_cloud.current_project_id)
+        project_id = self.user_cloud.current_project_id
+        assert project_id is not None
+        self.user_cloud.get_volume_quotas(project_id)
 
     def test_set_quotas(self):
         '''Test set quotas functionality'''
