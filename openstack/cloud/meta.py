@@ -568,7 +568,7 @@ def expand_server_security_groups(
     server: _server.Server,
 ) -> None:
     try:
-        groups = cloud.list_server_security_groups(server)  # type: ignore[no-untyped-call]
+        groups = cloud.list_server_security_groups(server)
     except exceptions.SDKException:
         groups = []
     server['security_groups'] = groups or []
@@ -594,7 +594,7 @@ def get_hostvars_from_server(
     if flavor_id:
         # In newer nova, the flavor record can be kept around for flavors
         # that no longer exist. The id and name are not there.
-        flavor_name = cloud.get_flavor_name(flavor_id)  # type: ignore[no-untyped-call]
+        flavor_name = cloud.get_flavor_name(flavor_id)
         if flavor_name:
             server_vars['flavor']['name'] = flavor_name
     elif 'original_name' in server['flavor']:

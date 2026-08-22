@@ -11,9 +11,11 @@
 # limitations under the License.
 
 import base64
+from collections.abc import Generator
+import datetime
 import operator
 import time
-from typing import Any
+from typing import Any, TYPE_CHECKING, cast
 import warnings
 
 import iso8601
@@ -22,11 +24,24 @@ from openstack.cloud import _network_common
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack.cloud import meta
+from openstack.compute.v2 import aggregate as _aggregate
+from openstack.compute.v2 import flavor as _flavor
+from openstack.compute.v2 import hypervisor as _hypervisor
+from openstack.compute.v2 import keypair as _keypair
+from openstack.compute.v2 import limits as _limits
+from openstack.compute.v2 import quota_set as _quota_set
 from openstack.compute.v2 import server as _server
+from openstack.compute.v2 import server_group as _server_group
+from openstack.compute.v2 import usage as _usage
 from openstack import exceptions
+from openstack.image.v2 import image as _image
 from openstack import resource
 from openstack import utils
 from openstack import warnings as os_warnings
+
+if TYPE_CHECKING:
+    from openstack.block_storage.v3 import _proxy as _block_storage_proxy
+    from openstack.image.v2 import _proxy as _image_proxy
 
 
 _SERVER_FIELDS = (
@@ -51,7 +66,7 @@ _SERVER_FIELDS = (
 )
 
 
-def _to_bool(value):
+def _to_bool(value: object) -> bool:
     if isinstance(value, str):
         if not value:
             return False
@@ -60,11 +75,16 @@ def _to_bool(value):
     return bool(value)
 
 
-def _pop_int(resource, key):
+def _pop_int(resource: dict[str, Any], key: str) -> int:
     return int(resource.pop(key, 0) or 0)
 
 
-def _pop_or_get(resource, key, default, strict):
+def _pop_or_get(
+    resource: dict[str, Any],
+    key: str,
+    default: Any,
+    strict: bool,
+) -> Any:
     if strict:
         return resource.pop(key, default)
     else:
@@ -72,7 +92,7 @@ def _pop_or_get(resource, key, default, strict):
 
 
 class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
-    def get_flavor_name(self, flavor_id):
+    def get_flavor_name(self, flavor_id: str) -> str | None:
         """Get the name of a flavor.
 
         :param flavor_id: ID of the flavor.
@@ -81,10 +101,15 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         """
         flavor = self.get_flavor(flavor_id, get_extra=False)
         if flavor:
-            return flavor['name']
+            return cast('str', flavor['name'])
         return None
 
-    def get_flavor_by_ram(self, ram, include=None, get_extra=True):
+    def get_flavor_by_ram(
+        self,
+        ram: int,
+        include: str | None = None,
+        get_extra: bool = True,
+    ) -> _flavor.Flavor:
         """Get a flavor based on amount of RAM available.
 
         Finds the flavor with the least amount of RAM that is at least
@@ -110,7 +135,11 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             f"Could not find a flavor with {ram} and '{include}'"
         )
 
-    def search_keypairs(self, name_or_id=None, filters=None):
+    def search_keypairs(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | str | None = None,
+    ) -> list[_keypair.Keypair]:
         """Search keypairs.
 
         :param name_or_id: Name or unique ID of the keypair(s).
@@ -133,7 +162,12 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
         return _utils._filter_list(keypairs, name_or_id, filters)
 
-    def search_flavors(self, name_or_id=None, filters=None, get_extra=True):
+    def search_flavors(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | str | None = None,
+        get_extra: bool = True,
+    ) -> list[_flavor.Flavor]:
         """Search flavors.
 
         :param name_or_id: Name or unique ID of the flavor(s).
@@ -148,12 +182,12 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
     def search_servers(
         self,
-        name_or_id=None,
-        filters=None,
-        detailed=False,
-        all_projects=False,
-        bare=False,
-    ):
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | str | None = None,
+        detailed: bool = False,
+        all_projects: bool = False,
+        bare: bool = False,
+    ) -> list[_server.Server]:
         """Search servers.
 
         :param name_or_id: Name or unique ID of the server(s).
@@ -179,7 +213,11 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
         return _utils._filter_list(servers, name_or_id, filters)
 
-    def search_server_groups(self, name_or_id=None, filters=None):
+    def search_server_groups(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | str | None = None,
+    ) -> list[_server_group.ServerGroup]:
         """Search server groups.
 
         :param name_or_id: Name or unique ID of the server group(s).
@@ -202,7 +240,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         server_groups = self.list_server_groups()
         return _utils._filter_list(server_groups, name_or_id, filters)
 
-    def list_keypairs(self, filters=None):
+    def list_keypairs(
+        self, filters: dict[str, Any] | None = None
+    ) -> list[_keypair.Keypair]:
         """List all available keypairs.
 
         :param filters:
@@ -212,7 +252,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             filters = {}
         return list(self.compute.keypairs(**filters))
 
-    def list_availability_zone_names(self, unavailable=False):
+    def list_availability_zone_names(
+        self, unavailable: bool = False
+    ) -> list[str]:
         """List names of availability zones.
 
         :param bool unavailable: Whether or not to include unavailable zones
@@ -233,7 +275,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             )
             return []
 
-    def list_flavors(self, get_extra=False):
+    def list_flavors(self, get_extra: bool = False) -> list[_flavor.Flavor]:
         """List all available flavors.
 
         :param get_extra: Whether or not to fetch extra specs for each flavor.
@@ -245,7 +287,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             self.compute.flavors(details=True, get_extra_specs=get_extra)
         )
 
-    def list_server_security_groups(self, server):
+    def list_server_security_groups(
+        self, server: str | _server.Server
+    ) -> list[dict[str, Any]]:
         """List all security groups associated with the given server.
 
         :returns: A list of security group dictionary objects.
@@ -259,20 +303,26 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         server.fetch_security_groups(self.compute)
 
-        return server.security_groups
+        return cast('list[dict[str, Any]]', server.security_groups)
 
-    def _get_server_security_groups(self, server, security_groups):
+    def _get_server_security_groups(
+        self,
+        server: str | _server.Server | dict[str, Any],
+        security_groups: list[Any] | tuple[Any, ...] | str | dict[str, Any],
+    ) -> tuple[Any, list[Any] | None]:
         if not self._has_secgroups():
             raise exc.OpenStackCloudUnavailableFeature(
                 "Unavailable feature: security groups"
             )
 
         if not isinstance(server, dict):
-            server = self.get_server(server, bare=True)
+            server_obj = self.get_server(server, bare=True)
 
-            if server is None:
+            if server_obj is None:
                 self.log.debug('Server %s not found', server)
                 return None, None
+
+            server = server_obj
 
         if not isinstance(security_groups, list | tuple):
             security_groups = [security_groups]
@@ -294,7 +344,11 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return server, sec_group_objs
 
-    def add_server_security_groups(self, server, security_groups):
+    def add_server_security_groups(
+        self,
+        server: str | _server.Server | dict[str, Any],
+        security_groups: list[Any] | tuple[Any, ...] | str | dict[str, Any],
+    ) -> bool:
         """Add security groups to a server.
 
         Add existing security groups to an existing server. If the security
@@ -307,19 +361,23 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         """
-        server, security_groups = self._get_server_security_groups(
+        server_obj, security_group_objs = self._get_server_security_groups(
             server, security_groups
         )
 
-        if not (server and security_groups):
+        if not (server_obj and security_group_objs):
             return False
 
-        for sg in security_groups:
-            self.compute.add_security_group_to_server(server, sg)
+        for sg in security_group_objs:
+            self.compute.add_security_group_to_server(server_obj, sg)
 
         return True
 
-    def remove_server_security_groups(self, server, security_groups):
+    def remove_server_security_groups(
+        self,
+        server: str | _server.Server | dict[str, Any],
+        security_groups: list[Any] | tuple[Any, ...] | str | dict[str, Any],
+    ) -> bool:
         """Remove security groups from a server
 
         Remove existing security groups from an existing server. If the
@@ -333,18 +391,18 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         """
-        server, security_groups = self._get_server_security_groups(
+        server_obj, security_group_objs = self._get_server_security_groups(
             server, security_groups
         )
 
-        if not (server and security_groups):
+        if not (server_obj and security_group_objs):
             return False
 
         ret = True
 
-        for sg in security_groups:
+        for sg in security_group_objs:
             try:
-                self.compute.remove_security_group_from_server(server, sg)
+                self.compute.remove_security_group_from_server(server_obj, sg)
 
             except exceptions.NotFoundException:
                 # NOTE(jamielennox): Is this ok? If we remove something that
@@ -354,7 +412,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                     "The security group %s was not present on server %s so "
                     "no action was performed",
                     sg.name,
-                    server.name,
+                    server_obj.name,
                 )
                 ret = False
 
@@ -383,22 +441,29 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         if not filters:
             filters = {}
 
-        return [
-            self._expand_server(server, detailed, bare)
-            for server in self.compute.servers(
-                all_projects=all_projects,
-                **filters,
-            )
-        ]
+        # servers() always yields non-None servers, so _expand_server never
+        # returns None here
+        return cast(
+            'list[_server.Server]',
+            [
+                self._expand_server(server, detailed, bare)
+                for server in self.compute.servers(
+                    all_projects=all_projects,
+                    **filters,
+                )
+            ],
+        )
 
-    def list_server_groups(self):
+    def list_server_groups(self) -> list[_server_group.ServerGroup]:
         """List all available server groups.
 
         :returns: A list of compute ``ServerGroup`` objects.
         """
         return list(self.compute.server_groups())
 
-    def get_compute_limits(self, name_or_id=None):
+    def get_compute_limits(
+        self, name_or_id: str | None = None
+    ) -> _limits.AbsoluteLimits:
         """Get absolute compute limits for a project
 
         :param name_or_id: (optional) project name or ID to get limits for
@@ -409,14 +474,23 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if it's not a
             valid project
         """
-        params = {}
+        params: dict[str, Any] = {}
         if name_or_id:
             identity = utils.ensure_service_version(self.identity, '3')
             project = identity.find_project(name_or_id, ignore_missing=False)
             params['tenant_id'] = project.id
-        return self.compute.get_limits(**params).absolute
+        return cast(
+            '_limits.AbsoluteLimits',
+            self.compute.get_limits(**params).absolute,
+        )
 
-    def get_keypair(self, name_or_id, filters=None, *, user_id=None):
+    def get_keypair(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | str | None = None,
+        *,
+        user_id: str | None = None,
+    ) -> _keypair.Keypair | None:
         """Get a keypair by name or ID.
 
         :param name_or_id: Name or ID of the keypair.
@@ -452,7 +526,12 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return self.compute.find_keypair(name_or_id, user_id=user_id)
 
-    def get_flavor(self, name_or_id, filters=None, get_extra=True):
+    def get_flavor(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | str | None = None,
+        get_extra: bool = True,
+    ) -> _flavor.Flavor | None:
         """Get a flavor by name or ID.
 
         :param name_or_id: Name or ID of the flavor.
@@ -483,10 +562,12 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             name_or_id,
             get_extra_specs=get_extra,
             ignore_missing=True,
-            **filters,
+            **cast('dict[str, Any]', filters),
         )
 
-    def get_flavor_by_id(self, id, get_extra=False):
+    def get_flavor_by_id(
+        self, id: str, get_extra: bool = False
+    ) -> _flavor.Flavor:
         """Get a flavor by ID
 
         :param id: ID of the flavor.
@@ -496,7 +577,11 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         """
         return self.compute.get_flavor(id, get_extra_specs=get_extra)
 
-    def get_server_console(self, server, length=None):
+    def get_server_console(
+        self,
+        server: str | _server.Server | dict[str, Any],
+        length: int | None = None,
+    ) -> str | None:
         """Get the console log for a server.
 
         :param server: The server to fetch the console log for. Can be either
@@ -510,34 +595,40 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             server argument is given or if something else unforseen happens
         """
 
-        if not isinstance(server, dict):
-            server = self.get_server(server, bare=True)
+        server_obj: _server.Server | dict[str, Any] | None
+        if isinstance(server, dict):
+            server_obj = server
+        else:
+            server_obj = self.get_server(server, bare=True)
 
-        if not server:
+        if not server_obj:
             raise exceptions.SDKException(
                 "Console log requested for invalid server"
             )
 
         try:
-            return self._get_server_console_output(server['id'], length)
+            return self._get_server_console_output(server_obj['id'], length)
         except exceptions.BadRequestException:
             return ""
 
-    def _get_server_console_output(self, server_id, length=None):
+    def _get_server_console_output(
+        self, server_id: str, length: int | None = None
+    ) -> str | None:
         output = self.compute.get_server_console_output(
             server=server_id, length=length
         )
         if 'output' in output:
-            return output['output']
+            return cast('str', output['output'])
+        return None
 
     def get_server(
         self,
-        name_or_id=None,
-        filters=None,
-        detailed=False,
-        bare=False,
-        all_projects=False,
-    ):
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | str | None = None,
+        detailed: bool = False,
+        bare: bool = False,
+        all_projects: bool = False,
+    ) -> _server.Server | None:
         """Get a server by name or ID.
 
         :param name_or_id: Name or ID of the server.
@@ -581,11 +672,11 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                     f"Multiple matches found for {name_or_id}",
                 )
 
-            server = entities[0]
-            return self._expand_server(server, detailed, bare)
+            entity: _server.Server | None = entities[0]
+            return self._expand_server(entity, detailed, bare)
 
         server = self.compute.find_server(
-            name_or_id,
+            cast('str', name_or_id),
             # detailed controls whether we fetch more information about images,
             # volumes etc., not the initial list operation
             details=True,
@@ -593,15 +684,23 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
         return self._expand_server(server, detailed, bare)
 
-    def _expand_server(self, server, detailed, bare):
+    def _expand_server(
+        self,
+        server: _server.Server | None,
+        detailed: bool,
+        bare: bool,
+    ) -> _server.Server | None:
         if bare or not server:
             return server
         elif detailed:
-            return meta.get_hostvars_from_server(self, server)  # type: ignore[arg-type]
+            return cast(
+                '_server.Server',
+                meta.get_hostvars_from_server(self, server),  # type: ignore[arg-type]
+            )
         else:
             return meta.add_server_interfaces(self, server)  # type: ignore[arg-type]
 
-    def get_server_by_id(self, id):
+    def get_server_by_id(self, id: str) -> _server.Server | None:
         """Get a server by ID.
 
         :param id: ID of the server.
@@ -614,7 +713,11 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         except exceptions.NotFoundException:
             return None
 
-    def get_server_group(self, name_or_id=None, filters=None):
+    def get_server_group(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | str | None = None,
+    ) -> _server_group.ServerGroup | None:
         """Get a server group by name or ID.
 
         :param name_or_id: Name or ID of the server group.
@@ -649,9 +752,11 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
             return entities[0]
 
-        return self.compute.find_server_group(name_or_id)
+        return self.compute.find_server_group(cast('str', name_or_id))
 
-    def create_keypair(self, name, public_key=None):
+    def create_keypair(
+        self, name: str, public_key: str | None = None
+    ) -> _keypair.Keypair:
         """Create a new keypair.
 
         :param name: Name of the keypair being created.
@@ -661,14 +766,14 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         """
-        keypair = {
+        keypair: dict[str, str] = {
             'name': name,
         }
         if public_key:
             keypair['public_key'] = public_key
         return self.compute.create_keypair(**keypair)
 
-    def delete_keypair(self, name):
+    def delete_keypair(self, name: str) -> bool:
         """Delete a keypair.
 
         :param name: Name of the keypair to delete.
@@ -686,12 +791,12 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
     def create_image_snapshot(
         self,
-        name,
-        server,
-        wait=False,
-        timeout=3600,
-        **metadata,
-    ):
+        name: str,
+        server: str | _server.Server | dict[str, Any],
+        wait: bool = False,
+        timeout: int | float = 3600,
+        **metadata: Any,
+    ) -> _image.Image:
         """Create an image by snapshotting an existing server.
 
         ..note::
@@ -720,11 +825,15 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                 )
             server = server_obj
         image = self.compute.create_server_image(
-            server, name=name, metadata=metadata, wait=wait, timeout=timeout
+            cast('str | _server.Server', server),
+            name=name,
+            metadata=metadata,
+            wait=wait,
+            timeout=timeout,
         )
         return image
 
-    def get_server_id(self, name_or_id):
+    def get_server_id(self, name_or_id: str) -> str | None:
         """Get the ID of a server.
 
         :param name_or_id:
@@ -732,10 +841,10 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         """
         server = self.get_server(name_or_id, bare=True)
         if server:
-            return server['id']
+            return cast('str', server['id'])
         return None
 
-    def get_server_private_ip(self, server):
+    def get_server_private_ip(self, server: _server.Server) -> str | None:
         """Get the private IP of a server.
 
         :param server:
@@ -743,7 +852,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         """
         return meta.get_server_private_ip(server, self)  # type: ignore[arg-type]
 
-    def get_server_public_ip(self, server):
+    def get_server_public_ip(self, server: _server.Server) -> str | None:
         """Get the public IP of a server.
 
         :param server:
@@ -751,7 +860,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         """
         return meta.get_server_external_ipv4(self, server)  # type: ignore[arg-type]
 
-    def get_server_meta(self, server):
+    def get_server_meta(self, server: _server.Server) -> dict[str, Any]:
         """Get the metadata for a server.
 
         .. deprecated:: Use
@@ -793,26 +902,28 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
     )
     def create_server(
         self,
-        name,
-        image=None,
-        flavor=None,
-        auto_ip=True,
-        ips=None,
-        ip_pool=None,
-        root_volume=None,
-        terminate_volume=False,
-        wait=False,
-        timeout=180,
-        reuse_ips=True,
-        network=None,
-        boot_from_volume=False,
-        volume_size='50',
-        boot_volume=None,
-        volumes=None,
-        nat_destination=None,
-        group=None,
-        **kwargs,
-    ):
+        name: str,
+        image: str | _image.Image | dict[str, Any] | None = None,
+        flavor: str | _flavor.Flavor | dict[str, Any] | None = None,
+        auto_ip: bool = True,
+        ips: list[str] | None = None,
+        ip_pool: str | None = None,
+        root_volume: str | dict[str, Any] | None = None,
+        terminate_volume: bool = False,
+        wait: bool = False,
+        timeout: int | float = 180,
+        reuse_ips: bool = True,
+        network: (
+            str | dict[str, Any] | list[str | dict[str, Any]] | None
+        ) = None,
+        boot_from_volume: bool = False,
+        volume_size: str | int = '50',
+        boot_volume: str | dict[str, Any] | None = None,
+        volumes: list[str | dict[str, Any]] | None = None,
+        nat_destination: str | None = None,
+        group: str | _server_group.ServerGroup | dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> _server.Server:
         """Create a virtual server instance.
 
         :param name: Something to name the server.
@@ -1054,7 +1165,12 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                 )
             kwargs['flavorRef'] = flavor['id']
         else:
-            kwargs['flavorRef'] = self.get_flavor(flavor, get_extra=False).id
+            flavor_obj = self.get_flavor(flavor, get_extra=False)
+            if flavor_obj is None:
+                raise exceptions.SDKException(
+                    f"Could not find flavor {flavor}"
+                )
+            kwargs['flavorRef'] = flavor_obj.id
 
         if volumes is None:
             volumes = []
@@ -1119,14 +1235,14 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
     def _get_boot_from_volume_kwargs(
         self,
-        image,
-        boot_from_volume,
-        boot_volume,
-        volume_size,
-        terminate_volume,
-        volumes,
-        kwargs,
-    ):
+        image: str | _image.Image | dict[str, Any] | None,
+        boot_from_volume: bool,
+        boot_volume: str | dict[str, Any] | None,
+        volume_size: str,
+        terminate_volume: bool,
+        volumes: list[str | dict[str, Any]],
+        kwargs: dict[str, Any],
+    ) -> dict[str, Any]:
         """Return block device mappings
 
         :param image: Image dict, name or id to boot with.
@@ -1152,10 +1268,10 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                     )
                 volume_id = boot_volume['id']
             else:
-                volume = self.block_storage.find_volume(
-                    boot_volume, ignore_missing=False
-                )
-                volume_id = volume['id']
+                boot_volume_obj = cast(
+                    '_block_storage_proxy.Proxy', self.block_storage
+                ).find_volume(boot_volume, ignore_missing=False)
+                volume_id = boot_volume_obj['id']
             block_mapping = {
                 'boot_index': '0',
                 'delete_on_termination': terminate_volume,
@@ -1176,7 +1292,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                     )
                 image_obj = image
             else:
-                image_obj = self.image.find_image(image, ignore_missing=False)
+                image_obj = cast('_image_proxy.Proxy', self.image).find_image(
+                    cast('str', image), ignore_missing=False
+                )
 
             block_mapping = {
                 'boot_index': '0',
@@ -1212,9 +1330,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                     )
                 volume_id = volume['id']
             else:
-                volume_obj = self.block_storage.find_volume(
-                    volume, ignore_missing=False
-                )
+                volume_obj = cast(
+                    '_block_storage_proxy.Proxy', self.block_storage
+                ).find_volume(volume, ignore_missing=False)
                 volume_id = volume_obj['id']
             block_mapping = {
                 'boot_index': '-1',
@@ -1228,14 +1346,14 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
     def wait_for_server(
         self,
-        server,
-        auto_ip=True,
-        ips=None,
-        ip_pool=None,
-        reuse=True,
-        timeout=180,
-        nat_destination=None,
-    ):
+        server: _server.Server,
+        auto_ip: bool = True,
+        ips: list[str] | None = None,
+        ip_pool: str | None = None,
+        reuse: bool = True,
+        timeout: int | float = 180,
+        nat_destination: str | None = None,
+    ) -> _server.Server:
         """
         Wait for a server to reach ACTIVE status.
         """
@@ -1249,11 +1367,11 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             wait=min(5, timeout),
         ):
             try:
-                server = self.get_server(server_id)
+                current_server = self.get_server(server_id)
             except Exception:  # noqa: S112
                 # if it hasn't appeared yet, that's okay
                 continue
-            if not server:
+            if not current_server:
                 continue
 
             # We have more work to do, but the details of that are
@@ -1263,8 +1381,8 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             if remaining_timeout <= 0:
                 raise exceptions.ResourceTimeout(timeout_message)
 
-            server = self.get_active_server(
-                server=server,
+            active_server = self.get_active_server(
+                server=current_server,
                 reuse=reuse,
                 auto_ip=auto_ip,
                 ips=ips,
@@ -1274,20 +1392,27 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                 nat_destination=nat_destination,
             )
 
-            if server is not None and server['status'] == 'ACTIVE':
-                return server
+            if (
+                active_server is not None
+                and active_server['status'] == 'ACTIVE'
+            ):
+                return active_server
+
+        # iterate_timeout raises ResourceTimeout on exhaustion, so this is
+        # unreachable; it exists to satisfy the non-optional return type
+        raise exceptions.ResourceTimeout(timeout_message)
 
     def get_active_server(
         self,
-        server,
-        auto_ip=True,
-        ips=None,
-        ip_pool=None,
-        reuse=True,
-        wait=False,
-        timeout=180,
-        nat_destination=None,
-    ):
+        server: _server.Server,
+        auto_ip: bool = True,
+        ips: list[str] | None = None,
+        ip_pool: str | None = None,
+        reuse: bool = True,
+        wait: bool = False,
+        timeout: int | float = 180,
+        nat_destination: str | None = None,
+    ) -> _server.Server | None:
         if server['status'] == 'ERROR':
             if (
                 'fault' in server
@@ -1344,14 +1469,14 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
     def rebuild_server(
         self,
-        server_id,
-        image_id,
-        admin_pass=None,
-        detailed=False,
-        bare=False,
-        wait=False,
-        timeout=180,
-    ):
+        server_id: str,
+        image_id: str,
+        admin_pass: str | None = None,
+        detailed: bool = False,
+        bare: bool = False,
+        wait: bool = False,
+        timeout: int | float = 180,
+    ) -> _server.Server | None:
         """Rebuild a server.
 
         :param server_id:
@@ -1363,7 +1488,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         :param timeout:
         :returns: A compute ``Server`` object.
         """
-        kwargs = {}
+        kwargs: dict[str, Any] = {}
         if image_id:
             kwargs['image'] = image_id
         if admin_pass:
@@ -1380,7 +1505,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return self._expand_server(server, detailed=detailed, bare=bare)
 
-    def set_server_metadata(self, name_or_id, metadata):
+    def set_server_metadata(
+        self, name_or_id: str, metadata: dict[str, Any]
+    ) -> None:
         """Set metadata in a server instance.
 
         :param str name_or_id: The name or ID of the server instance to update.
@@ -1398,7 +1525,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         self.compute.set_server_metadata(server=server.id, **metadata)
 
-    def delete_server_metadata(self, name_or_id, metadata_keys):
+    def delete_server_metadata(
+        self, name_or_id: str, metadata_keys: list[str]
+    ) -> None:
         """Delete metadata from a server instance.
 
         :param str name_or_id: The name or ID of the server instance
@@ -1420,12 +1549,12 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
     def delete_server(
         self,
-        name_or_id,
-        wait=False,
-        timeout=180,
-        delete_ips=False,
-        delete_ip_retry=1,
-    ):
+        name_or_id: str,
+        wait: bool = False,
+        timeout: int | float = 180,
+        delete_ips: bool = False,
+        delete_ip_retry: int = 1,
+    ) -> bool:
         """Delete a server instance.
 
         :param name_or_id: name or ID of the server to delete
@@ -1457,7 +1586,11 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             delete_ip_retry=delete_ip_retry,
         )
 
-    def _delete_server_floating_ips(self, server, delete_ip_retry):
+    def _delete_server_floating_ips(
+        self,
+        server: _server.Server | dict[str, Any],
+        delete_ip_retry: int,
+    ) -> None:
         # Does the server have floating ips in its
         # addresses dict? If not, skip this.
         server_floats = meta.find_nova_interfaces(
@@ -1488,12 +1621,12 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
     def _delete_server(
         self,
-        server,
-        wait=False,
-        timeout=180,
-        delete_ips=False,
-        delete_ip_retry=1,
-    ):
+        server: _server.Server | dict[str, Any] | None,
+        wait: bool = False,
+        timeout: int | float = 180,
+        delete_ips: bool = False,
+        delete_ip_retry: int = 1,
+    ) -> bool:
         if not server:
             return False
 
@@ -1501,7 +1634,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             self._delete_server_floating_ips(server, delete_ip_retry)
 
         try:
-            self.compute.delete_server(server)
+            self.compute.delete_server(cast('str | _server.Server', server))
         except exceptions.NotFoundException:
             return False
         except Exception:
@@ -1520,7 +1653,13 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         return True
 
     @_utils.valid_kwargs('name', 'description')
-    def update_server(self, name_or_id, detailed=False, bare=False, **kwargs):
+    def update_server(
+        self,
+        name_or_id: str,
+        detailed: bool = False,
+        bare: bool = False,
+        **kwargs: Any,
+    ) -> _server.Server | None:
         """Update a server.
 
         :param name_or_id: Name of the server to be updated.
@@ -1542,7 +1681,12 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return self._expand_server(server, bare=bare, detailed=detailed)
 
-    def create_server_group(self, name, policies=None, policy=None):
+    def create_server_group(
+        self,
+        name: str,
+        policies: list[str] | None = None,
+        policy: str | None = None,
+    ) -> _server_group.ServerGroup:
         """Create a new server group.
 
         :param name: Name of the server group being created
@@ -1552,14 +1696,14 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         """
-        sg_attrs = {'name': name}
+        sg_attrs: dict[str, Any] = {'name': name}
         if policies:
             sg_attrs['policies'] = policies
         if policy:
             sg_attrs['policy'] = policy
         return self.compute.create_server_group(**sg_attrs)
 
-    def delete_server_group(self, name_or_id):
+    def delete_server_group(self, name_or_id: str) -> bool:
         """Delete a server group.
 
         :param name_or_id: Name or ID of the server group to delete
@@ -1580,17 +1724,17 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
     def create_flavor(
         self,
-        name,
-        ram,
-        vcpus,
-        disk,
-        description=None,
-        flavorid="auto",
-        ephemeral=0,
-        swap=0,
-        rxtx_factor=1.0,
-        is_public=True,
-    ):
+        name: str,
+        ram: int,
+        vcpus: int,
+        disk: int,
+        description: str | None = None,
+        flavorid: str = "auto",
+        ephemeral: int = 0,
+        swap: int = 0,
+        rxtx_factor: float = 1.0,
+        is_public: bool = True,
+    ) -> _flavor.Flavor:
         """Create a new flavor.
 
         :param name: Descriptive name of the flavor
@@ -1608,7 +1752,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         """
-        attrs = {
+        attrs: dict[str, Any] = {
             'disk': disk,
             'ephemeral': ephemeral,
             'id': flavorid,
@@ -1625,7 +1769,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return self.compute.create_flavor(**attrs)
 
-    def delete_flavor(self, name_or_id):
+    def delete_flavor(self, name_or_id: str) -> bool:
         """Delete a flavor
 
         :param name_or_id: ID or name of the flavor to delete.
@@ -1646,7 +1790,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                 f"Unable to delete flavor {name_or_id}"
             )
 
-    def set_flavor_specs(self, flavor_id, extra_specs):
+    def set_flavor_specs(
+        self, flavor_id: str, extra_specs: dict[str, Any]
+    ) -> None:
         """Add extra specs to a flavor
 
         :param string flavor_id: ID of the flavor to update.
@@ -1660,7 +1806,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         """
         self.compute.create_flavor_extra_specs(flavor_id, extra_specs)
 
-    def unset_flavor_specs(self, flavor_id, keys):
+    def unset_flavor_specs(self, flavor_id: str, keys: list[str]) -> None:
         """Delete extra specs from a flavor
 
         :param string flavor_id: ID of the flavor to update.
@@ -1675,7 +1821,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         for key in keys:
             self.compute.delete_flavor_extra_specs_property(flavor_id, key)
 
-    def add_flavor_access(self, flavor_id, project_id):
+    def add_flavor_access(self, flavor_id: str, project_id: str) -> None:
         """Grant access to a private flavor for a project/tenant.
 
         :param string flavor_id: ID of the private flavor.
@@ -1687,7 +1833,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         """
         self.compute.flavor_add_tenant_access(flavor_id, project_id)
 
-    def remove_flavor_access(self, flavor_id, project_id):
+    def remove_flavor_access(self, flavor_id: str, project_id: str) -> None:
         """Revoke access from a private flavor for a project/tenant.
 
         :param string flavor_id: ID of the private flavor.
@@ -1699,7 +1845,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         """
         self.compute.flavor_remove_tenant_access(flavor_id, project_id)
 
-    def list_flavor_access(self, flavor_id):
+    def list_flavor_access(self, flavor_id: str) -> list[dict[str, Any]]:
         """List access from a private flavor for a project/tenant.
 
         :param string flavor_id: ID of the private flavor.
@@ -1710,7 +1856,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         """
         return self.compute.get_flavor_access(flavor_id)
 
-    def list_hypervisors(self, filters=None):
+    def list_hypervisors(
+        self, filters: dict[str, Any] | None = None
+    ) -> list[_hypervisor.Hypervisor]:
         """List all hypervisors
 
         :param filters: Additional query parameters passed to the API server.
@@ -1722,7 +1870,11 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return list(self.compute.hypervisors(details=True, **filters))
 
-    def search_aggregates(self, name_or_id=None, filters=None):
+    def search_aggregates(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | str | None = None,
+    ) -> list[_aggregate.Aggregate]:
         """Seach host aggregates.
 
         :param name: Aggregate name or id.
@@ -1740,10 +1892,12 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` if something goes
             wrong during the OpenStack API call.
         """
-        aggregates = self.list_aggregates()
+        aggregates = list(self.list_aggregates())
         return _utils._filter_list(aggregates, name_or_id, filters)
 
-    def list_aggregates(self, filters=None):
+    def list_aggregates(
+        self, filters: dict[str, Any] | None = None
+    ) -> Generator[_aggregate.Aggregate, None, None]:
         """List all available host aggregates.
 
         :returns: A list of compute ``Aggregate`` objects.
@@ -1753,7 +1907,11 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return self.compute.aggregates(**filters)
 
-    def get_aggregate(self, name_or_id, filters=None):
+    def get_aggregate(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | None = None,
+    ) -> _aggregate.Aggregate | None:
         """Get an aggregate by name or ID.
 
         :param name_or_id: Name or ID of the aggregate.
@@ -1778,7 +1936,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return self.compute.find_aggregate(name_or_id, ignore_missing=True)
 
-    def create_aggregate(self, name, availability_zone=None):
+    def create_aggregate(
+        self, name: str, availability_zone: str | None = None
+    ) -> _aggregate.Aggregate:
         """Create a new host aggregate.
 
         :param name: Name of the host aggregate being created
@@ -1793,7 +1953,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         )
 
     @_utils.valid_kwargs('name', 'availability_zone')
-    def update_aggregate(self, name_or_id, **kwargs):
+    def update_aggregate(
+        self, name_or_id: str, **kwargs: Any
+    ) -> _aggregate.Aggregate:
         """Update a host aggregate.
 
         :param name_or_id: Name or ID of the aggregate being updated.
@@ -1805,9 +1967,13 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             error.
         """
         aggregate = self.get_aggregate(name_or_id)
+        if not aggregate:
+            raise exceptions.SDKException(
+                f"Host aggregate {name_or_id} not found."
+            )
         return self.compute.update_aggregate(aggregate, **kwargs)
 
-    def delete_aggregate(self, name_or_id):
+    def delete_aggregate(self, name_or_id: str | int) -> bool:
         """Delete a host aggregate.
 
         :param name_or_id: Name or ID of the host aggregate to delete.
@@ -1825,13 +1991,17 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                 return False
             name_or_id = aggregate.id
         try:
-            self.compute.delete_aggregate(name_or_id, ignore_missing=False)
+            self.compute.delete_aggregate(
+                cast('str', name_or_id), ignore_missing=False
+            )
             return True
         except exceptions.NotFoundException:
             self.log.debug("Aggregate %s not found for deleting", name_or_id)
             return False
 
-    def set_aggregate_metadata(self, name_or_id, metadata):
+    def set_aggregate_metadata(
+        self, name_or_id: str, metadata: dict[str, Any]
+    ) -> _aggregate.Aggregate:
         """Set aggregate metadata, replacing the existing metadata.
 
         :param name_or_id: Name of the host aggregate to update
@@ -1850,7 +2020,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return self.compute.set_aggregate_metadata(aggregate, metadata)
 
-    def add_host_to_aggregate(self, name_or_id, host_name):
+    def add_host_to_aggregate(
+        self, name_or_id: str, host_name: str
+    ) -> _aggregate.Aggregate:
         """Add a host to an aggregate.
 
         :param name_or_id: Name or ID of the host aggregate.
@@ -1867,7 +2039,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return self.compute.add_host_to_aggregate(aggregate, host_name)
 
-    def remove_host_from_aggregate(self, name_or_id, host_name):
+    def remove_host_from_aggregate(
+        self, name_or_id: str, host_name: str
+    ) -> _aggregate.Aggregate:
         """Remove a host from an aggregate.
 
         :param name_or_id: Name or ID of the host aggregate.
@@ -1884,7 +2058,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return self.compute.remove_host_from_aggregate(aggregate, host_name)
 
-    def set_compute_quotas(self, name_or_id, **kwargs):
+    def set_compute_quotas(self, name_or_id: str, **kwargs: Any) -> None:
         """Set a quota in a project
 
         :param name_or_id: project name or id
@@ -1898,7 +2072,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         kwargs['force'] = True
         self.compute.update_quota_set(project=project, **kwargs)
 
-    def get_compute_quotas(self, name_or_id):
+    def get_compute_quotas(self, name_or_id: str) -> _quota_set.QuotaSet:
         """Get quota for a project
 
         :param name_or_id: project name or id
@@ -1911,7 +2085,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         proj = identity.find_project(name_or_id, ignore_missing=False)
         return self.compute.get_quota_set(proj)
 
-    def delete_compute_quotas(self, name_or_id):
+    def delete_compute_quotas(self, name_or_id: str) -> None:
         """Delete quota for a project
 
         :param name_or_id: project name or id
@@ -1923,7 +2097,12 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         proj = identity.find_project(name_or_id, ignore_missing=False)
         self.compute.revert_quota_set(proj)
 
-    def get_compute_usage(self, name_or_id, start=None, end=None):
+    def get_compute_usage(
+        self,
+        name_or_id: str,
+        start: datetime.datetime | str | None = None,
+        end: datetime.datetime | str | None = None,
+    ) -> _usage.Usage:
         """Get usage for a specific project
 
         :param name_or_id: project name or id
@@ -1938,7 +2117,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             valid project
         """
 
-        def parse_date(date):
+        def parse_date(date: str) -> datetime.datetime:
             try:
                 return iso8601.parse_date(date)
             except iso8601.iso8601.ParseError:
@@ -1960,7 +2139,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
 
         return self.compute.get_usage(project, start, end)
 
-    def _encode_server_userdata(self, userdata):
+    def _encode_server_userdata(self, userdata: Any) -> str:
         if hasattr(userdata, 'read'):
             userdata = userdata.read()
 
@@ -1974,16 +2153,16 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         # Once we have base64 bytes, make them into a utf-8 string for REST
         return base64.b64encode(userdata).decode('utf-8')
 
-    def get_openstack_vars(self, server):
+    def get_openstack_vars(self, server: _server.Server) -> utils.Munch:
         return meta.get_hostvars_from_server(self, server)  # type: ignore[arg-type]
 
-    def _expand_server_vars(self, server):
+    def _expand_server_vars(self, server: _server.Server) -> _server.Server:
         # Used by nodepool
         # TODO(mordred) remove after these make it into what we
         # actually want the API to be.
         return meta.expand_server_vars(self, server)  # type: ignore[arg-type]
 
-    def _remove_novaclient_artifacts(self, item):
+    def _remove_novaclient_artifacts(self, item: dict[str, Any]) -> None:
         # Remove novaclient artifacts
         item.pop('links', None)
         item.pop('NAME_ATTR', None)
@@ -1992,7 +2171,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         item.pop('request_ids', None)
         item.pop('x_openstack_request_ids', None)
 
-    def _normalize_server(self, server):
+    def _normalize_server(self, server: dict[str, Any]) -> utils.Munch:
         ret = utils.Munch()
         # Copy incoming server because of shared dicts in unittests
         # Wrap the copy in munch so that sub-dicts are properly munched

@@ -94,6 +94,7 @@ class TestMicroversions(base.TestCase):
 
         r = self.cloud.get_server('mickey', bare=True)
         self.assertIsNotNone(r)
+        assert r is not None
         self.assertEqual(server['name'], r['name'])
 
         self.assert_calls()
@@ -129,6 +130,7 @@ class TestMicroversions(base.TestCase):
 
         r = self.cloud.get_server('mickey', bare=True)
         self.assertIsNotNone(r)
+        assert r is not None
         self.assertEqual(server['name'], r['name'])
 
         self.assert_calls()

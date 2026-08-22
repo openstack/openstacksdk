@@ -176,6 +176,7 @@ class TestFlavor(base.BaseFunctionalTest):
         mod_flavor = self.operator_cloud.get_flavor(
             new_flavor['id'], get_extra=True
         )
+        assert mod_flavor is not None
 
         # Verify extra_specs were set
         self.assertIn('extra_specs', mod_flavor)

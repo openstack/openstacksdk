@@ -226,7 +226,9 @@ class TestFloatingIP(base.BaseFunctionalTest):
             ip = meta.get_server_external_ipv4(self.user_cloud, new_server)
             if ip is not None:
                 break
-            new_server = self.user_cloud.get_server(new_server.id)
+            fetched_server = self.user_cloud.get_server(new_server.id)
+            assert fetched_server is not None
+            new_server = fetched_server
 
         self.addCleanup(self._cleanup_ips, new_server)
 
@@ -250,7 +252,9 @@ class TestFloatingIP(base.BaseFunctionalTest):
             ip = meta.get_server_external_ipv4(self.user_cloud, new_server)
             if ip is not None:
                 break
-            new_server = self.user_cloud.get_server(new_server.id)
+            fetched_server = self.user_cloud.get_server(new_server.id)
+            assert fetched_server is not None
+            new_server = fetched_server
 
         self.addCleanup(self._cleanup_ips, new_server)
 
