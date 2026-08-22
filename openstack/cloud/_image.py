@@ -10,12 +10,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Optional, TYPE_CHECKING
+import io
+from typing import Any, Optional, TYPE_CHECKING, cast
 import warnings
 
 from openstack.cloud import _utils
 from openstack.cloud import openstackcloud
 from openstack import exceptions
+from openstack.image.v1 import image as _image_v1
+from openstack.image.v2 import image as _image_v2
 from openstack import utils
 from openstack import warnings as os_warnings
 
@@ -23,9 +26,14 @@ if TYPE_CHECKING:
     import concurrent.futures
     from keystoneauth1 import session as ks_session
     from oslo_config import cfg
+    import requests
 
     from openstack.config import cloud_region
     from openstack import service_description
+
+# The cloud layer supports both v1 and v2 of the image service, so the image
+# objects returned by these methods may be from either version.
+ImageT = _image_v1.Image | _image_v2.Image
 
 
 class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
@@ -71,11 +79,17 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         self.image_api_use_tasks = self.config.config['image_api_use_tasks']
 
-    def search_images(self, name_or_id=None, filters=None):
+    def search_images(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | None = None,
+    ) -> list[ImageT]:
         images = self.list_images()
         return _utils._filter_list(images, name_or_id, filters)
 
-    def list_images(self, filter_deleted=True, show_all=False):
+    def list_images(
+        self, filter_deleted: bool = True, show_all: bool = False
+    ) -> list[ImageT]:
         """Get available images.
 
         :param filter_deleted: Control whether deleted images are returned.
@@ -88,15 +102,13 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
         if show_all:
             filter_deleted = False
         # First, try to actually get images from glance, it's more efficient
-        images = []
-        params = {}
-        image_list = []
+        images: list[ImageT] = []
+        params: dict[str, str] = {}
         if utils.supports_version(self.image, '2'):
             if show_all:
                 params['member_status'] = 'all'
-        image_list = list(self.image.images(**params))
 
-        for image in image_list:
+        for image in self.image.images(**params):
             # The cloud might return DELETED for invalid images.
             # While that's cute and all, that's an implementation detail.
             if not filter_deleted:
@@ -105,7 +117,11 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
                 images.append(image)
         return images
 
-    def get_image(self, name_or_id, filters=None):
+    def get_image(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | None = None,
+    ) -> ImageT | None:
         """Get an image by name or ID.
 
         :param name_or_id: Name or ID of the image.
@@ -139,7 +155,7 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return self.image.find_image(name_or_id)
 
-    def get_image_by_id(self, id):
+    def get_image_by_id(self, id: str) -> ImageT:
         """Get a image by ID
 
         :param id: ID of the image.
@@ -149,12 +165,12 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def download_image(
         self,
-        name_or_id,
-        output_path=None,
-        output_file=None,
-        chunk_size=1024 * 1024,
-        stream=False,
-    ):
+        name_or_id: str,
+        output_path: str | None = None,
+        output_file: io.IOBase | None = None,
+        chunk_size: int = 1024 * 1024,
+        stream: bool = False,
+    ) -> 'requests.Response':
         """Download an image by name or ID
 
         :param str name_or_id: Name or ID of the image.
@@ -192,13 +208,17 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
         image = self.image.find_image(name_or_id, ignore_missing=False)
 
         return self.image.download_image(
+            # mypy can't correlate the (v1 or v2) proxy with the matching
+            # (v1 or v2) image returned by find_image above
             image,  # type: ignore[arg-type]
             output=output_file or output_path,
             chunk_size=chunk_size,
             stream=stream,
         )
 
-    def get_image_exclude(self, name_or_id, exclude):
+    def get_image_exclude(
+        self, name_or_id: str, exclude: str | None
+    ) -> ImageT | None:
         for image in self.search_images(name_or_id):
             if exclude:
                 if exclude not in image.name:
@@ -207,40 +227,47 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
                 return image
         return None
 
-    def get_image_name(self, image_id, exclude=None):
+    def get_image_name(
+        self, image_id: str, exclude: str | None = None
+    ) -> str | None:
         image = self.get_image_exclude(image_id, exclude)
         if image:
-            return image.name
+            return cast('str | None', image.name)
         return None
 
-    def get_image_id(self, image_name, exclude=None):
+    def get_image_id(
+        self, image_name: str, exclude: str | None = None
+    ) -> str | None:
         image = self.get_image_exclude(image_name, exclude)
         if image:
-            return image.id
+            return cast('str | None', image.id)
         return None
 
-    def wait_for_image(self, image, timeout=3600):
+    def wait_for_image(
+        self, image: ImageT, timeout: int | float = 3600
+    ) -> ImageT | None:
         image_id = image['id']
         for count in utils.iterate_timeout(
             timeout, "Timeout waiting for image to snapshot"
         ):
-            image = self.get_image(image_id)
-            if not image:
+            image_obj = self.get_image(image_id)
+            if not image_obj:
                 continue
-            if image['status'] == 'active':
-                return image
-            elif image['status'] == 'error':
+            if image_obj['status'] == 'active':
+                return image_obj
+            elif image_obj['status'] == 'error':
                 raise exceptions.SDKException(
                     f'Image {image_id} hit error state'
                 )
+        return None
 
     def delete_image(
         self,
-        name_or_id,
-        wait=False,
-        timeout=3600,
-        delete_objects=True,
-    ):
+        name_or_id: str,
+        wait: bool = False,
+        timeout: int | float = 3600,
+        delete_objects: bool = True,
+    ) -> bool:
         """Delete an existing image.
 
         :param name_or_id: Name of the image to be deleted.
@@ -255,7 +282,10 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
         image = self.get_image(name_or_id)
         if not image:
             return False
-        self.image.delete_image(image)
+
+        # mypy can't correlate the (v1 or v2) proxy with the matching (v1 or
+        # v2) image returned by get_image above
+        self.image.delete_image(image)  # type: ignore[arg-type]
 
         # Task API means an image was uploaded to swift
         # TODO(gtema) does it make sense to move this into proxy?
@@ -282,22 +312,22 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def create_image(
         self,
-        name,
-        filename=None,
-        container=None,
-        md5=None,
-        sha256=None,
-        disk_format=None,
-        container_format=None,
-        disable_vendor_agent=True,
-        wait=False,
-        timeout=3600,
-        tags=None,
-        allow_duplicates=False,
-        meta=None,
-        volume=None,
-        **kwargs,
-    ):
+        name: str,
+        filename: str | None = None,
+        container: str | None = None,
+        md5: str | None = None,
+        sha256: str | None = None,
+        disk_format: str | None = None,
+        container_format: str | None = None,
+        disable_vendor_agent: bool = True,
+        wait: bool = False,
+        timeout: int | float = 3600,
+        tags: list[str] | None = None,
+        allow_duplicates: bool = False,
+        meta: dict[str, Any] | None = None,
+        volume: str | None = None,
+        **kwargs: Any,
+    ) -> ImageT | None:
         """Upload an image.
 
         :param str name: Name of the image to create. If it is a pathname
@@ -393,10 +423,19 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
             self.delete_image(image.id, wait=True)
             raise
 
+        return None
+
     def update_image_properties(
-        self, image=None, name_or_id=None, meta=None, **properties
-    ):
+        self,
+        image: str | ImageT | None = None,
+        name_or_id: str | None = None,
+        meta: dict[str, Any] | None = None,
+        **properties: Any,
+    ) -> bool:
         image = image or name_or_id
         return self.image.update_image_properties(
-            image=image, meta=meta, **properties
+            # mypy can't correlate the (v1 or v2) proxy with a (v1 or v2) image
+            image=image,  # type: ignore[arg-type]
+            meta=meta,
+            **properties,
         )

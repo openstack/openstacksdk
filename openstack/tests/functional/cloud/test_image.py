@@ -94,6 +94,8 @@ class TestImage(base.BaseFunctionalTest):
                 validate_checksum=True,
                 wait=True,
             )
+            assert first_image is not None
+            assert second_image is not None
             self.assertEqual(first_image.id, second_image.id)
         finally:
             self.user_cloud.delete_image(image_name, wait=True)
@@ -125,6 +127,8 @@ class TestImage(base.BaseFunctionalTest):
                 allow_duplicates=True,
                 wait=True,
             )
+            assert first_image is not None
+            assert second_image is not None
             self.assertNotEqual(first_image.id, second_image.id)
         finally:
             if first_image:
@@ -151,6 +155,7 @@ class TestImage(base.BaseFunctionalTest):
                 image=image, name=image_name, foo='bar'
             )
             image = self.user_cloud.get_image(image_name)
+            assert image is not None
             self.assertIn('foo', image.properties)
             self.assertEqual(image.properties['foo'], 'bar')
         finally:
@@ -167,6 +172,7 @@ class TestImage(base.BaseFunctionalTest):
             allow_duplicates=True,
             wait=False,
         )
+        assert image is not None
         self.assertEqual(image_name, image.name)
         self.user_cloud.delete_image(image.id, wait=True)
 
@@ -185,6 +191,7 @@ class TestImage(base.BaseFunctionalTest):
                 min_ram=1024,
                 wait=True,
             )
+            assert image is not None
             image = self.user_cloud.get_image_by_id(image.id)
             self.assertEqual(image_name, image.name)
             self.assertEqual('raw', image.disk_format)
