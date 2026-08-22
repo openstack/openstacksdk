@@ -1,5 +1,3 @@
-.. TODO(shade) Update this guide.
-
 Creating a New Resource
 =======================
 
@@ -76,11 +74,11 @@ the resource one level deeper, such as
 thing with single resources, putting them inside a dictionary keyed on
 ``"resource"``.
 
-By setting ``Fake.resource_key`` on *line 8*, we tell the ``Resource.create``,
-``Resource.get``, and ``Resource.update`` methods that we're either sending
+By setting ``Fake.resource_key`` on *line 7*, we tell the ``Resource.create``,
+``Resource.fetch``, and ``Resource.commit`` methods that we're either sending
 or receiving a resource that is in a dictionary with that key.
 
-By setting ``Fake.resources_key`` on *line 9*, we tell the ``Resource.list``
+By setting ``Fake.resources_key`` on *line 8*, we tell the ``Resource.list``
 method that we're expecting to receive multiple resources inside a dictionary
 with that key.
 
@@ -88,7 +86,7 @@ with that key.
 *************
 
 The ``base_path`` is the URL we're going to use to make requests for this
-resource. In this case, *line 10* sets ``base_path = "/fake"``, which also
+resource. In this case, *line 9* sets ``base_path = "/fake"``, which also
 corresponds to the name of our class, ``Fake``.
 
 Most resources follow this basic formula. Some cases are more complex, where
@@ -98,24 +96,27 @@ so they use ``base_path = "/volumes/%s(detailed)"``. Before a request is made,
 if ``detailed = True``, they convert it to a string so the URL becomes
 ``/volumes/detailed``. If it's ``False``, they only send ``/volumes/``.
 
-``service``
+The Service
 ***********
 
-*Line 11* is an instance of the service we're implementing. Each resource
-ties itself to the service through this setting, so that the proper URL
-can be constructed.
+Unlike ``resource_key``, ``resources_key`` and ``base_path``, the service a
+resource belongs to is not declared on the resource itself. Instead, each
+service provides a
+:class:`~openstack.service_description.ServiceDescription` subclass -
+``FakeService`` in ``fake_service.py`` - which maps each supported API version
+to the proxy that exposes the service's resources.
 
-In ``fake_service.py``, we specify the valid versions as well as what this
-service is called in the service catalog. When a request is made for this
-resource, the Session now knows how to construct the appropriate URL using
-this ``FakeService`` instance.
+In ``fake_service.py`` we set ``supported_versions`` so that version ``2`` of
+the service is served by ``openstack.fake.v2._proxy.Proxy``. The proxy ties the
+resources together and knows how to reach the service in the catalog, so that
+when a request is made the appropriate URL can be constructed.
 
 Supported Operations
 --------------------
 
 The base :class:`~openstack.resource.Resource` disallows all types of requests
 by default, requiring each resource to specify which requests they support.
-On *lines 14-19*, our ``Fake`` resource specifies that it'll work with all
+On *lines 11-16*, our ``Fake`` resource specifies that it'll work with all
 of the operations.
 
 In order to have the following methods work, you must allow the corresponding
@@ -142,34 +143,37 @@ remote resource.
 Properties
 ----------
 
-.. TODO(shade) Especially this section
+The way resource classes communicate values between the user and the server is
+through a set of component objects. Each is declared as a class attribute and
+maps an attribute on your :class:`~openstack.resource.Resource` to a value that
+lives in a particular part of the request or response:
 
-The way resource classes communicate values between the user and the server
-are :class:`~openstack.resource.prop` objects. These act similarly to Python's
-built-in property objects, but they share only the name - they're not the same.
+* ``resource.Body`` - a value carried in the JSON request or response body.
+* ``resource.Header`` - a value carried in an HTTP header.
+* ``resource.URI`` - a value that is interpolated into the ``base_path``.
+* ``resource.Computed`` - a value that is computed locally rather than sent to
+  or received from the server.
 
-Properties are set based on the contents of a response body or headers.
-Based on what your resource returns, you should set ``prop``\s to map
-those values to ones on your :class:`~openstack.resource.Resource` object.
+The first argument to each component is the name the value has on the server;
+the attribute name is how you refer to it in Python.
 
-*Line 22* sets a prop for ``timestamp`` , which will cause the
-``Fake.timestamp`` attribute to contain the value returned in an
-``X-Timestamp`` header, such as from a ``Fake.head`` request.
+*Line 19* declares a ``Header`` for ``timestamp``, which will cause the
+``Fake.timestamp`` attribute to contain the value returned in the
+``x-timestamp`` header, such as from a ``Fake.head`` request.
 
-*Line 24* sets a prop for ``name``, which is a value returned in a body, such
-as from a ``Fake.get`` request. Note from *line 12* that ``name`` is
-specified its ``id`` attribute, so when this resource
-is populated from a response, ``Fake.name`` and ``Fake.id`` are the same
-value.
+*Line 21* declares a ``Body`` for ``name``, which is a value returned in a
+body, such as from a ``Fake.fetch`` request. Passing ``alternate_id=True``
+marks this attribute as the resource's identifier, so when this resource is
+populated from a response, ``Fake.name`` and ``Fake.id`` are the same value.
 
-*Line 26* sets a prop which contains an alias. ``Fake.value`` will be set
+*Line 23* declares a ``Body`` with an ``alias``. ``Fake.value`` will be set
 when a response body contains a ``value``, or when a header contains
-``X-Resource-Value``.
+``x-resource-value``.
 
-*Line 28* specifies a type to be checked before sending the value in a request.
-In this case, we can only set ``Fake.cool`` to either ``True`` or ``False``,
-otherwise a TypeError will be raised if the value can't be converted to the
-expected type.
+*Line 26* passes ``type=bool``, which is checked before sending the value in a
+request. In this case, we can only set ``Fake.cool`` to either ``True`` or
+``False``, otherwise a ``TypeError`` will be raised if the value can't be
+converted to the expected type.
 
 Documentation
 -------------
@@ -177,10 +181,10 @@ Documentation
 We use Sphinx's ``autodoc`` feature in order to build API documentation for
 each resource we expose. The attributes we override from
 :class:`~openstack.resource.Resource` don't need to be documented, but any
-:class:`~openstack.resource.prop` attributes must be. All you need to do is
-add a comment *above* the line to document, with a colon following the
+component attributes (``Body``, ``Header``, and so on) must be. All you need to
+do is add a comment *above* the line to document, with a colon following the
 pound-sign.
 
-*Lines 21, 23, 25, and 27-28* are comments which will then appear in the API
-documentation. As shown in *lines 27 & 28*, these comments can span multiple
+*Lines 18, 20, 22, and 24-25* are comments which will then appear in the API
+documentation. As shown in *lines 24 & 25*, these comments can span multiple
 lines.

@@ -22,11 +22,10 @@ Full example at `connect.py <https://opendev.org/openstack/openstacksdk/src/bran
 
 .. note:: To enable logging, see the :doc:`logging` user guide.
 
+For a full description of the available configuration options and the different
+ways a cloud can be configured, see the :doc:`/user/config/index` guide.
+
 Next
 ----
 Now that you can create a connection, continue with the :ref:`user_guides`
 to work with an OpenStack service.
-
-.. TODO(shade) Update the text here and consolidate with the old
-   os-client-config docs so that we have a single and consistent explanation
-   of the envvars cloud, etc.

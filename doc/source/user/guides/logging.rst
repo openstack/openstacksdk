@@ -2,10 +2,6 @@
 Logging
 =======
 
-.. note:: TODO(shade) This document is written from a shade POV. It needs to
-          be combined with the existing logging guide, but also the logging
-          systems need to be rationalized.
-
 `openstacksdk` uses `Python Logging`_. As `openstacksdk` is a library, it does
 not configure logging handlers automatically, expecting instead for that to be
 the purview of the consuming application.
@@ -97,10 +93,7 @@ Python Logging
 --------------
 
 Python logging is a standard feature of Python and is documented fully in the
-Python Documentation, which varies by version of Python.
+Python Documentation.
 
-For more information on Python Logging for Python v2, see
-https://docs.python.org/2/library/logging.html.
-
-For more information on Python Logging for Python v3, see
+For more information on Python Logging, see
 https://docs.python.org/3/library/logging.html.
