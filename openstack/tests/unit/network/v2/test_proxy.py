@@ -186,27 +186,23 @@ class TestNetworkAddressGroup(TestNetworkProxy):
         'openstack.network.v2._proxy.Proxy.add_addresses_to_address_group'
     )
     def test_add_addresses_to_address_group(self, add_addresses):
-        data = mock.sentinel
+        data = ['10.0.0.1/32']
 
-        self.proxy.add_addresses_to_address_group(
-            address_group.AddressGroup, data
-        )
+        self.proxy.add_addresses_to_address_group('address-group-id', data)
 
-        add_addresses.assert_called_once_with(address_group.AddressGroup, data)
+        add_addresses.assert_called_once_with('address-group-id', data)
 
     @mock.patch(
         'openstack.network.v2._proxy.Proxy.remove_addresses_from_address_group'
     )
     def test_remove_addresses_from_address_group(self, remove_addresses):
-        data = mock.sentinel
+        data = ['10.0.0.1/32']
 
         self.proxy.remove_addresses_from_address_group(
-            address_group.AddressGroup, data
+            'address-group-id', data
         )
 
-        remove_addresses.assert_called_once_with(
-            address_group.AddressGroup, data
-        )
+        remove_addresses.assert_called_once_with('address-group-id', data)
 
 
 class TestNetworkAddressScope(TestNetworkProxy):
@@ -974,13 +970,14 @@ class TestNetworkPool(TestNetworkProxy):
             expected_kwargs={'x': 1, 'y': 2, 'z': 3, 'if_revision': 42},
         )
 
-    @mock.patch('openstack.network.v2._proxy.Proxy._bulk_create')
-    def test_ports_create(self, bc):
+    def test_ports_create(self):
         data = mock.sentinel
-
-        self.proxy.create_ports(data)
-
-        bc.assert_called_once_with(port.Port, data)
+        self._verify(
+            'openstack.proxy.Proxy._bulk_create',
+            self.proxy.create_ports,
+            method_args=[data],
+            expected_args=[port.Port, data],
+        )
 
 
 class TestNetworkQosBandwidth(TestNetworkProxy):
@@ -2029,13 +2026,14 @@ class TestNetworkSecurityGroup(TestNetworkProxy):
             security_group_rule.SecurityGroupRule,
         )
 
-    @mock.patch('openstack.network.v2._proxy.Proxy._bulk_create')
-    def test_security_group_rules_create(self, bc):
+    def test_security_group_rules_create(self):
         data = mock.sentinel
-
-        self.proxy.create_security_group_rules(data)
-
-        bc.assert_called_once_with(security_group_rule.SecurityGroupRule, data)
+        self._verify(
+            'openstack.proxy.Proxy._bulk_create',
+            self.proxy.create_security_group_rules,
+            method_args=[data],
+            expected_args=[security_group_rule.SecurityGroupRule, data],
+        )
 
 
 class TestNetworkSecurityGroupsDefaultStatefulness(TestNetworkProxy):
@@ -2962,13 +2960,37 @@ class TestNetworkPortBinding(TestNetworkProxy):
             expected_kwargs={'port_id': PORT_ID},
         )
 
-    @mock.patch('openstack.network.v2._proxy.Proxy.activate_port_binding')
-    def test_activate_port_binding(self, activate_binding):
-        data = mock.sentinel
-        self.proxy.activate_port_binding(port_binding.PortBinding, data)
-        activate_binding.assert_called_once_with(
-            port_binding.PortBinding, data
+    @mock.patch.object(_proxy.Proxy, 'port_bindings')
+    @mock.patch.object(proxy_base.Proxy, '_get')
+    def test_activate_port_binding(self, mock_get, mock_port_bindings):
+        res_port = port.Port.new(id=PORT_ID)
+        mock_get.return_value = res_port
+        binding = mock.Mock(spec=port_binding.PortBinding)
+        mock_port_bindings.return_value = iter([binding])
+
+        result = self.proxy.activate_port_binding('port-id', 'host-id')
+
+        mock_get.assert_called_once_with(port.Port, 'port-id')
+        mock_port_bindings.assert_called_once_with(
+            port=PORT_ID, host='host-id'
         )
+        binding.activate_port_binding.assert_called_once_with(
+            self.proxy, 'host-id'
+        )
+        self.assertEqual(binding.activate_port_binding.return_value, result)
+
+    @mock.patch.object(_proxy.Proxy, 'port_bindings')
+    @mock.patch.object(proxy_base.Proxy, '_get')
+    def test_activate_port_binding_no_binding(
+        self, mock_get, mock_port_bindings
+    ):
+        res_port = port.Port.new(id=PORT_ID)
+        mock_get.return_value = res_port
+        mock_port_bindings.return_value = iter([])
+
+        result = self.proxy.activate_port_binding('port-id', 'host-id')
+
+        self.assertIsNone(result)
 
     @mock.patch.object(proxy_base.Proxy, '_get')
     def test_port_bindings(self, mock_get):
@@ -2982,14 +3004,61 @@ class TestNetworkPortBinding(TestNetworkProxy):
             expected_kwargs={'port_id': PORT_ID},
         )
 
-    @mock.patch('openstack.network.v2._proxy.Proxy.delete_port_binding')
+    @mock.patch.object(_proxy.Proxy, 'port_bindings')
     @mock.patch.object(proxy_base.Proxy, '_get')
-    def test_delete_port_binding(self, mock_get, delete_port_binding):
+    def test_delete_port_binding(self, mock_get, mock_port_bindings):
         res_port = port.Port.new(id=PORT_ID)
         mock_get.return_value = res_port
-        data = mock.sentinel
+        binding = mock.Mock(spec=port_binding.PortBinding)
+        mock_port_bindings.return_value = iter([binding])
 
-        self.proxy.delete_port_binding(port_binding.PortBinding, data)
-        delete_port_binding.assert_called_once_with(
-            port_binding.PortBinding, data
+        self.proxy.delete_port_binding('port-id', 'host-id')
+
+        mock_get.assert_called_once_with(port.Port, 'port-id')
+        mock_port_bindings.assert_called_once_with(
+            port=PORT_ID, host='host-id'
+        )
+        binding.delete_port_binding.assert_called_once_with(
+            self.proxy, 'host-id'
+        )
+
+    @mock.patch.object(_proxy.Proxy, 'port_bindings')
+    @mock.patch.object(proxy_base.Proxy, '_get')
+    def test_delete_port_binding_no_binding(
+        self, mock_get, mock_port_bindings
+    ):
+        res_port = port.Port.new(id=PORT_ID)
+        mock_get.return_value = res_port
+        mock_port_bindings.return_value = iter([])
+
+        # nothing to delete, but ignore_missing defaults to True
+        self.proxy.delete_port_binding('port-id', 'host-id')
+
+    @mock.patch.object(_proxy.Proxy, 'port_bindings')
+    @mock.patch.object(proxy_base.Proxy, '_get')
+    def test_delete_port_binding_no_binding_no_ignore(
+        self, mock_get, mock_port_bindings
+    ):
+        res_port = port.Port.new(id=PORT_ID)
+        mock_get.return_value = res_port
+        mock_port_bindings.return_value = iter([])
+
+        self.assertRaises(
+            exceptions.NotFoundException,
+            self.proxy.delete_port_binding,
+            'port-id',
+            'host-id',
+            ignore_missing=False,
+        )
+
+    @mock.patch.object(proxy_base.Proxy, '_get')
+    def test_delete_port_binding_no_port_no_ignore(self, mock_get):
+        mock_get.side_effect = exceptions.NotFoundException()
+
+        self.assertRaises(
+            exceptions.NotFoundException,
+            self.proxy.delete_port_binding,
+            'port-id',
+            'host-id',
+            ignore_missing=False,
         )
