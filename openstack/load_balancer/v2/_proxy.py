@@ -126,10 +126,12 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        load_balancer = self._get_resource(_lb.LoadBalancer, load_balancer)
-        load_balancer.cascade = cascade  # type: ignore[attr-defined]
+        params = {'cascade': True} if cascade else None
         self._delete(
-            _lb.LoadBalancer, load_balancer, ignore_missing=ignore_missing
+            _lb.LoadBalancer,
+            load_balancer,
+            ignore_missing=ignore_missing,
+            params=params,
         )
 
     @overload

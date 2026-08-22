@@ -92,27 +92,6 @@ class LoadBalancer(resource.Resource, tag.TagMixin):
     #: Additional VIPs
     additional_vips = resource.Body('additional_vips', type=list)
 
-    def delete(
-        self,
-        session: adapter.Adapter,
-        error_message: str | None = None,
-        **kwargs: Any,
-    ) -> Self:
-        request = self._prepare_request()
-        params = {}
-        if (
-            hasattr(self, 'cascade')
-            and isinstance(self.cascade, bool)
-            and self.cascade
-        ):
-            params['cascade'] = True
-        response = session.delete(request.url, params=params)
-
-        self._translate_response(
-            response, has_body=False, error_message=error_message
-        )
-        return self
-
     def failover(self, session: resource.AdapterT) -> None:
         """Failover load balancer.
 
