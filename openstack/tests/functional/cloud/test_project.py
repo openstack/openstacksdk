@@ -50,10 +50,12 @@ class TestProject(base.KeystoneBaseFunctionalTest):
     def test_create_project(self):
         project_name = self.new_project_name + '_create'
 
+        default_domain = self.operator_cloud.get_domain('default')
+        assert default_domain is not None
         params = {
             'name': project_name,
             'description': 'test_create_project',
-            'domain_id': self.operator_cloud.get_domain('default')['id'],
+            'domain_id': default_domain['id'],
         }
 
         project = self.operator_cloud.create_project(**params)
@@ -88,11 +90,13 @@ class TestProject(base.KeystoneBaseFunctionalTest):
     def test_update_project(self):
         project_name = self.new_project_name + '_update'
 
+        default_domain = self.operator_cloud.get_domain('default')
+        assert default_domain is not None
         params = {
             'name': project_name,
             'description': 'test_update_project',
             'enabled': True,
-            'domain_id': self.operator_cloud.get_domain('default')['id'],
+            'domain_id': default_domain['id'],
         }
 
         project = self.operator_cloud.create_project(**params)
@@ -121,9 +125,11 @@ class TestProject(base.KeystoneBaseFunctionalTest):
 
     def test_delete_project(self):
         project_name = self.new_project_name + '_delete'
+        default_domain = self.operator_cloud.get_domain('default')
+        assert default_domain is not None
         params = {
             'name': project_name,
-            'domain_id': self.operator_cloud.get_domain('default')['id'],
+            'domain_id': default_domain['id'],
         }
         project = self.operator_cloud.create_project(**params)
         self.assertIsNotNone(project)

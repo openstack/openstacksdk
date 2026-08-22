@@ -16,12 +16,23 @@ import warnings
 from openstack.cloud import _utils
 from openstack.cloud import openstackcloud
 from openstack import exceptions
+from openstack.identity.v3 import domain as _domain
+from openstack.identity.v3 import endpoint as _endpoint
+from openstack.identity.v3 import endpoint_group as _endpoint_group
+from openstack.identity.v3 import group as _group
+from openstack.identity.v3 import project as _project
+from openstack.identity.v3 import role as _role
+from openstack.identity.v3 import role_assignment as _role_assignment
+from openstack.identity.v3 import service as _service
+from openstack.identity.v3 import user as _user
 from openstack import utils
 from openstack import warnings as os_warnings
 
 
 class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
-    def _get_project_id_param_dict(self, name_or_id):
+    def _get_project_id_param_dict(
+        self, name_or_id: str | None
+    ) -> dict[str, str]:
         if name_or_id:
             project = self.get_project(name_or_id)
             if not project:
@@ -33,7 +44,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         else:
             return {}
 
-    def _get_domain_id_param_dict(self, domain_id):
+    def _get_domain_id_param_dict(
+        self, domain_id: str | None
+    ) -> dict[str, str]:
         """Get a useable domain."""
 
         # Keystone v3 requires domains for user and project creation. v2 does
@@ -51,18 +64,27 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         else:
             return {}
 
-    def _get_identity_params(self, domain_id=None, project=None):
+    def _get_identity_params(
+        self,
+        domain_id: str | None = None,
+        project: str | None = None,
+    ) -> dict[str, str]:
         """Get the domain and project/tenant parameters if needed.
 
         keystone v2 and v3 are divergent enough that we need to pass or not
         pass project or tenant_id or domain or nothing in a sane manner.
         """
-        ret = {}
+        ret: dict[str, str] = {}
         ret.update(self._get_domain_id_param_dict(domain_id))
         ret.update(self._get_project_id_param_dict(project))
         return ret
 
-    def list_projects(self, domain_id=None, name_or_id=None, filters=None):
+    def list_projects(
+        self,
+        domain_id: str | None = None,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | None = None,
+    ) -> list[_project.Project]:
         """List projects.
 
         With no parameters, returns a full listing of all visible projects.
@@ -98,7 +120,12 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return list(identity.projects(**query))
 
-    def search_projects(self, name_or_id=None, filters=None, domain_id=None):
+    def search_projects(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | None = None,
+        domain_id: str | None = None,
+    ) -> list[_project.Project]:
         """Backwards compatibility method for search_projects
 
         search_projects originally had a parameter list that was name_or_id,
@@ -125,7 +152,12 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         projects = self.list_projects(domain_id=domain_id, filters=filters)
         return _utils._filter_list(projects, name_or_id, filters)
 
-    def get_project(self, name_or_id, filters=None, domain_id=None):
+    def get_project(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | None = None,
+        domain_id: str | None = None,
+    ) -> _project.Project | None:
         """Get exactly one project.
 
         :param name_or_id: Name or unique ID of the project.
@@ -174,11 +206,11 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def update_project(
         self,
-        name_or_id,
-        enabled=None,
-        domain_id=None,
-        **kwargs,
-    ):
+        name_or_id: str,
+        enabled: bool | None = None,
+        domain_id: str | None = None,
+        **kwargs: Any,
+    ) -> _project.Project:
         """Update a project
 
         :param name_or_id: Name or unique ID of the project.
@@ -202,12 +234,12 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def create_project(
         self,
-        name,
-        domain_id,
-        description=None,
-        enabled=True,
-        **kwargs,
-    ):
+        name: str,
+        domain_id: str,
+        description: str | None = None,
+        enabled: bool = True,
+        **kwargs: Any,
+    ) -> _project.Project:
         """Create a project.
 
         :param name:
@@ -228,7 +260,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             attrs.update(kwargs)
         return identity.create_project(**attrs)
 
-    def delete_project(self, name_or_id, domain_id=None):
+    def delete_project(
+        self, name_or_id: str, domain_id: str | None = None
+    ) -> bool:
         """Delete a project.
 
         :param name_or_id: Name or unique ID of the project.
@@ -254,7 +288,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             return False
 
     @_utils.valid_kwargs('domain_id', 'name')
-    def list_users(self, **kwargs):
+    def list_users(self, **kwargs: Any) -> list[_user.User]:
         """List users.
 
         :param name:
@@ -268,7 +302,12 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return list(identity.users(**kwargs))
 
-    def search_users(self, name_or_id=None, filters=None, domain_id=None):
+    def search_users(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | str | None = None,
+        domain_id: str | None = None,
+    ) -> list[_user.User]:
         """Search users.
 
         :param name_or_id: Name or ID of the user(s).
@@ -302,7 +341,12 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         return _utils._filter_list(users, name_or_id, filters)
 
     # TODO(stephenfin): Remove 'filters' in a future major version
-    def get_user(self, name_or_id, filters=None, domain_id=None):
+    def get_user(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | str | None = None,
+        domain_id: str | None = None,
+    ) -> _user.User | None:
         """Get exactly one user.
 
         :param name_or_id: Name or unique ID of the user.
@@ -346,7 +390,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         return identity.find_user(name_or_id, domain_id=domain_id)
 
     # TODO(stephenfin): Remove normalize since it doesn't do anything
-    def get_user_by_id(self, user_id, normalize=None):
+    def get_user_by_id(
+        self, user_id: str, normalize: bool | None = None
+    ) -> _user.User:
         """Get a user by ID.
 
         :param string user_id: user ID
@@ -372,13 +418,15 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         'description',
         'default_project',
     )
-    def update_user(self, name_or_id, **kwargs):
+    def update_user(self, name_or_id: str, **kwargs: Any) -> _user.User:
         identity = utils.ensure_service_version(self.identity, '3')
 
-        user_kwargs = {}
+        user_kwargs: dict[str, Any] = {}
         if kwargs.get('domain_id'):
             user_kwargs['domain_id'] = kwargs['domain_id']
         user = self.get_user(name_or_id, **user_kwargs)
+        if user is None:
+            raise exceptions.SDKException(f"User {name_or_id} not found.")
 
         # TODO(mordred) When this changes to REST, force interface=admin
         # in the adapter call if it's an admin force call (and figure out how
@@ -393,18 +441,20 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def create_user(
         self,
-        name,
-        password=None,
-        email=None,
-        default_project=None,
-        enabled=True,
-        domain_id=None,
-        description=None,
-    ):
+        name: str,
+        password: str | None = None,
+        email: str | None = None,
+        default_project: str | None = None,
+        enabled: bool = True,
+        domain_id: str | None = None,
+        description: str | None = None,
+    ) -> _user.User:
         """Create a user."""
         identity = utils.ensure_service_version(self.identity, '3')
 
-        params = self._get_identity_params(domain_id, default_project)
+        params: dict[str, Any] = self._get_identity_params(
+            domain_id, default_project
+        )
         params.update({'name': name, 'email': email, 'enabled': enabled})
         if password is not None:
             params['password'] = password
@@ -416,7 +466,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         return user
 
     @_utils.valid_kwargs('domain_id')
-    def delete_user(self, name_or_id, **kwargs):
+    def delete_user(self, name_or_id: str, **kwargs: Any) -> bool:
         identity = utils.ensure_service_version(self.identity, '3')
 
         try:
@@ -432,7 +482,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             self.log.exception("Error in deleting user %s", name_or_id)
             return False
 
-    def _get_user_and_group(self, user_name_or_id, group_name_or_id):
+    def _get_user_and_group(
+        self, user_name_or_id: str, group_name_or_id: str
+    ) -> tuple[_user.User, _group.Group]:
         user = self.get_user(user_name_or_id)
         if not user:
             raise exceptions.SDKException(f'User {user_name_or_id} not found')
@@ -445,7 +497,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return (user, group)
 
-    def add_user_to_group(self, name_or_id, group_name_or_id):
+    def add_user_to_group(
+        self, name_or_id: str, group_name_or_id: str
+    ) -> None:
         """Add a user to a group.
 
         :param name_or_id: Name or unique ID of the user.
@@ -460,7 +514,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         identity.add_user_to_group(user, group)
 
-    def is_user_in_group(self, name_or_id, group_name_or_id):
+    def is_user_in_group(self, name_or_id: str, group_name_or_id: str) -> bool:
         """Check to see if a user is in a group.
 
         :param name_or_id: Name or unique ID of the user.
@@ -476,7 +530,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return identity.check_user_in_group(user, group)
 
-    def remove_user_from_group(self, name_or_id, group_name_or_id):
+    def remove_user_from_group(
+        self, name_or_id: str, group_name_or_id: str
+    ) -> None:
         """Remove a user from a group.
 
         :param name_or_id: Name or unique ID of the user.
@@ -492,7 +548,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         identity.remove_user_from_group(user, group)
 
     @_utils.valid_kwargs('type', 'service_type', 'description')
-    def create_service(self, name, enabled=True, **kwargs):
+    def create_service(
+        self, name: str, enabled: bool = True, **kwargs: Any
+    ) -> _service.Service:
         """Create a service.
 
         :param name: Service name.
@@ -521,7 +579,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
     @_utils.valid_kwargs(
         'name', 'enabled', 'type', 'service_type', 'description'
     )
-    def update_service(self, name_or_id, **kwargs):
+    def update_service(
+        self, name_or_id: str, **kwargs: Any
+    ) -> _service.Service:
         identity = utils.ensure_service_version(self.identity, '3')
 
         # NOTE(SamYaple): Keystone v3 only accepts 'type' but shade accepts
@@ -533,9 +593,11 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             kwargs['type'] = type_ or service_type
 
         service = self.get_service(name_or_id)
+        if service is None:
+            raise exceptions.SDKException(f"Service {name_or_id} not found.")
         return identity.update_service(service, **kwargs)
 
-    def list_services(self):
+    def list_services(self) -> list[_service.Service]:
         """List all Keystone services.
 
         :returns: A list of identity ``Service`` object
@@ -546,7 +608,11 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return list(identity.services())
 
-    def search_services(self, name_or_id=None, filters=None):
+    def search_services(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | str | None = None,
+    ) -> list[_service.Service]:
         """Search Keystone services.
 
         :param name_or_id: Name or ID of the service(s).
@@ -571,7 +637,11 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         return _utils._filter_list(services, name_or_id, filters)
 
     # TODO(stephenfin): Remove 'filters' in a future major version
-    def get_service(self, name_or_id, filters=None):
+    def get_service(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | str | None = None,
+    ) -> _service.Service | None:
         """Get exactly one Keystone service.
 
         :param name_or_id: Name or unique ID of the service.
@@ -602,7 +672,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return identity.find_service(name_or_id=name_or_id)
 
-    def delete_service(self, name_or_id):
+    def delete_service(self, name_or_id: str) -> bool:
         """Delete a Keystone service.
 
         :param name_or_id: Name or unique ID of the service.
@@ -628,13 +698,13 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
     @_utils.valid_kwargs('public_url', 'internal_url', 'admin_url')
     def create_endpoint(
         self,
-        service_name_or_id,
-        url=None,
-        interface=None,
-        region=None,
-        enabled=True,
-        **kwargs,
-    ):
+        service_name_or_id: str,
+        url: str | None = None,
+        interface: str | None = None,
+        region: str | None = None,
+        enabled: bool = True,
+        **kwargs: Any,
+    ) -> list[_endpoint.Endpoint]:
         """Create a Keystone endpoint.
 
         :param service_name_or_id: Service name or id for this endpoint.
@@ -669,7 +739,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
                 f"service {service_name_or_id} not found"
             )
 
-        endpoints_args = []
+        endpoints_args: list[dict[str, Any]] = []
         if url:
             # v3 in use, v3-like arguments, one endpoint created
             endpoints_args.append(
@@ -684,7 +754,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         else:
             # v3 in use, v2.0-like arguments, one endpoint created for each
             # interface url provided
-            endpoint_args = {
+            endpoint_args: dict[str, Any] = {
                 'region_id': region,
                 'enabled': enabled,
                 'service_id': service['id'],
@@ -711,7 +781,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
     @_utils.valid_kwargs(
         'enabled', 'service_name_or_id', 'url', 'interface', 'region'
     )
-    def update_endpoint(self, endpoint_id, **kwargs):
+    def update_endpoint(
+        self, endpoint_id: str, **kwargs: Any
+    ) -> _endpoint.Endpoint:
         identity = utils.ensure_service_version(self.identity, '3')
 
         service_name_or_id = kwargs.pop('service_name_or_id', None)
@@ -722,7 +794,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return identity.update_endpoint(endpoint_id, **kwargs)
 
-    def list_endpoints(self):
+    def list_endpoints(self) -> list[_endpoint.Endpoint]:
         """List Keystone endpoints.
 
         :returns: A list of identity ``Endpoint`` objects
@@ -733,7 +805,11 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return list(identity.endpoints())
 
-    def search_endpoints(self, id=None, filters=None):
+    def search_endpoints(
+        self,
+        id: str | None = None,
+        filters: dict[str, Any] | str | None = None,
+    ) -> list[_endpoint.Endpoint]:
         """List Keystone endpoints.
 
         :param id: ID of endpoint(s).
@@ -762,7 +838,11 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         return _utils._filter_list(endpoints, id, filters)
 
     # TODO(stephenfin): Remove 'filters' since it's a noop
-    def get_endpoint(self, id, filters=None):
+    def get_endpoint(
+        self,
+        id: str,
+        filters: dict[str, Any] | str | None = None,
+    ) -> _endpoint.Endpoint | None:
         """Get exactly one Keystone endpoint.
 
         :param id: ID of endpoint.
@@ -789,7 +869,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return identity.find_endpoint(name_or_id=id)
 
-    def delete_endpoint(self, id):
+    def delete_endpoint(self, id: str) -> bool:
         """Delete a Keystone endpoint.
 
         :param id: ID of the endpoint to delete.
@@ -812,7 +892,12 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             self.log.exception("Failed to delete endpoint %s", id)
             return False
 
-    def create_endpoint_group(self, name, filters, description=None):
+    def create_endpoint_group(
+        self,
+        name: str,
+        filters: dict[str, str],
+        description: str | None = None,
+    ) -> _endpoint_group.EndpointGroup:
         """Create a Keystone endpoint group.
 
         :param name: The name of the endpoint group.
@@ -835,13 +920,17 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         return endpoint_group
 
     @_utils.valid_kwargs('name', 'filters', 'description')
-    def update_endpoint_group(self, endpoint_group_id, **kwargs):
+    def update_endpoint_group(
+        self, endpoint_group_id: str, **kwargs: Any
+    ) -> _endpoint_group.EndpointGroup:
         identity = utils.ensure_service_version(self.identity, '3')
 
         return identity.update_endpoint_group(endpoint_group_id, **kwargs)
 
     @_utils.valid_kwargs('name')
-    def list_endpoint_groups(self, **kwargs):
+    def list_endpoint_groups(
+        self, **kwargs: Any
+    ) -> list[_endpoint_group.EndpointGroup]:
         """List Keystone endpoint groups.
 
         :returns: A list of identity ``EndpointGroup`` objects
@@ -852,7 +941,11 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return list(identity.endpoint_groups(**kwargs))
 
-    def search_endpoint_groups(self, name_or_id=None, filters=None):
+    def search_endpoint_groups(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | str | None = None,
+    ) -> list[_endpoint_group.EndpointGroup]:
         """Search Keystone endpoint groups.
 
         :param name_or_id: Name or ID of the endpoint group(s).
@@ -876,7 +969,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         endpoint_groups = self.list_endpoint_groups()
         return _utils._filter_list(endpoint_groups, name_or_id, filters)
 
-    def get_endpoint_group(self, id):
+    def get_endpoint_group(
+        self, id: str
+    ) -> _endpoint_group.EndpointGroup | None:
         """Get exactly one Keystone endpoint group.
 
         :param id: ID of endpoint group.
@@ -886,7 +981,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return identity.find_endpoint_group(name_or_id=id)
 
-    def delete_endpoint_group(self, id):
+    def delete_endpoint_group(self, id: str) -> bool:
         """Delete a Keystone endpoint group.
 
         :param id: ID of the endpoint group to delete.
@@ -909,7 +1004,12 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             self.log.exception("Failed to delete endpoint group %s", id)
             return False
 
-    def create_domain(self, name, description=None, enabled=True):
+    def create_domain(
+        self,
+        name: str,
+        description: str | None = None,
+        enabled: bool = True,
+    ) -> _domain.Domain:
         """Create a domain.
 
         :param name: The name of the domain.
@@ -921,7 +1021,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         identity = utils.ensure_service_version(self.identity, '3')
 
-        domain_ref = {'name': name, 'enabled': enabled}
+        domain_ref: dict[str, Any] = {'name': name, 'enabled': enabled}
         if description is not None:
             domain_ref['description'] = description
         return identity.create_domain(**domain_ref)
@@ -930,12 +1030,12 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
     # deprecate one of them
     def update_domain(
         self,
-        domain_id=None,
-        name=None,
-        description=None,
-        enabled=None,
-        name_or_id=None,
-    ):
+        domain_id: str | None = None,
+        name: str | None = None,
+        description: str | None = None,
+        enabled: bool | None = None,
+        name_or_id: str | None = None,
+    ) -> _domain.Domain:
         """Update a Keystone domain
 
         :param domain_id:
@@ -961,15 +1061,20 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
                 )
             domain_id = dom['id']
 
-        domain_ref = {}
+        domain_ref: dict[str, Any] = {}
         domain_ref.update({'name': name} if name else {})
         domain_ref.update({'description': description} if description else {})
         domain_ref.update({'enabled': enabled} if enabled is not None else {})
+        assert domain_id is not None
         return identity.update_domain(domain_id, **domain_ref)
 
     # TODO(stephenfin): domain_id and name_or_id are the same thing now;
     # deprecate one of them
-    def delete_domain(self, domain_id=None, name_or_id=None):
+    def delete_domain(
+        self,
+        domain_id: str | None = None,
+        name_or_id: str | None = None,
+    ) -> bool:
         """Delete a Keystone domain.
 
         :param domain_id: ID of the domain to delete.
@@ -996,6 +1101,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
                 domain_id = dom['id']
 
             # A domain must be disabled before deleting
+            assert domain_id is not None
             identity.update_domain(domain_id, is_enabled=False)
             identity.delete_domain(domain_id, ignore_missing=False)
 
@@ -1004,7 +1110,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             self.log.exception("Failed to delete domain %s", domain_id)
             raise
 
-    def list_domains(self, **filters):
+    def list_domains(self, **filters: Any) -> list[_domain.Domain]:
         """List Keystone domains.
 
         :returns: A list of identity ``Domain`` objects.
@@ -1016,7 +1122,11 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         return list(identity.domains(**filters))
 
     # TODO(stephenfin): These arguments are backwards from everything else.
-    def search_domains(self, filters=None, name_or_id=None):
+    def search_domains(
+        self,
+        filters: dict[str, Any] | None = None,
+        name_or_id: str | None = None,
+    ) -> list[_domain.Domain]:
         """Search Keystone domains.
 
         :param name_or_id: Name or ID of the domain(s).
@@ -1048,7 +1158,12 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
     # TODO(stephenfin): domain_id and name_or_id are the same thing now;
     # deprecate one of them
     # TODO(stephenfin): Remove 'filters' in a future major version
-    def get_domain(self, domain_id=None, name_or_id=None, filters=None):
+    def get_domain(
+        self,
+        domain_id: str | None = None,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | None = None,
+    ) -> _domain.Domain | None:
         """Get exactly one Keystone domain.
 
         :param domain_id: ID of the domain.
@@ -1080,12 +1195,18 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             )
 
         if domain_id is None:
-            return identity.find_domain(name_or_id, ignore_missing=True)
+            # NOTE: name_or_id may be None here if the caller provided neither
+            # 'domain_id' nor 'name_or_id'. This is a degenerate case that is
+            # handled (and returns None) at runtime, so preserve the behavior.
+            return identity.find_domain(
+                name_or_id,  # type: ignore[arg-type]
+                ignore_missing=True,
+            )
         else:
             return identity.get_domain(domain_id)
 
     @_utils.valid_kwargs('domain_id')
-    def list_groups(self, **kwargs):
+    def list_groups(self, **kwargs: Any) -> list[_group.Group]:
         """List Keystone groups.
 
         :param domain_id: Domain ID.
@@ -1098,7 +1219,12 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return list(identity.groups(**kwargs))
 
-    def search_groups(self, name_or_id=None, filters=None, domain_id=None):
+    def search_groups(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | str | None = None,
+        domain_id: str | None = None,
+    ) -> list[_group.Group]:
         """Search Keystone groups.
 
         :param name_or_id: Name or ID of the group(s).
@@ -1124,7 +1250,12 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         return _utils._filter_list(groups, name_or_id, filters)
 
     # TODO(stephenfin): Remove 'filters' in a future major version
-    def get_group(self, name_or_id, filters=None, domain_id=None):
+    def get_group(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | str | None = None,
+        domain_id: str | None = None,
+    ) -> _group.Group | None:
         """Get exactly one Keystone group.
 
         :param name_or_id: Name or unique ID of the group(s).
@@ -1157,7 +1288,12 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return identity.find_group(name_or_id=name_or_id, domain_id=domain_id)
 
-    def create_group(self, name, description, domain=None):
+    def create_group(
+        self,
+        name: str,
+        description: str | None,
+        domain: str | None = None,
+    ) -> _group.Group:
         """Create a group.
 
         :param string name: Group name.
@@ -1170,7 +1306,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         identity = utils.ensure_service_version(self.identity, '3')
 
-        group_ref = {'name': name}
+        group_ref: dict[str, Any] = {'name': name}
         if description:
             group_ref['description'] = description
         if domain:
@@ -1187,11 +1323,11 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def update_group(
         self,
-        name_or_id,
-        name=None,
-        description=None,
-        **kwargs,
-    ):
+        name_or_id: str,
+        name: str | None = None,
+        description: str | None = None,
+        **kwargs: Any,
+    ) -> _group.Group:
         """Update an existing group
 
         :param name_or_id: Name or unique ID of the group.
@@ -1206,7 +1342,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         group = identity.find_group(name_or_id, ignore_missing=False, **kwargs)
 
-        group_ref = {}
+        group_ref: dict[str, Any] = {}
         if name:
             group_ref['name'] = name
         if description:
@@ -1216,7 +1352,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return group
 
-    def delete_group(self, name_or_id):
+    def delete_group(self, name_or_id: str) -> bool:
         """Delete a group
 
         :param name_or_id: Name or unique ID of the group.
@@ -1241,7 +1377,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             self.log.exception("Unable to delete group %s", name_or_id)
             return False
 
-    def list_roles(self, **kwargs):
+    def list_roles(self, **kwargs: Any) -> list[_role.Role]:
         """List Keystone roles.
 
         :returns: A list of identity ``Role`` objects
@@ -1252,7 +1388,12 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return list(identity.roles(**kwargs))
 
-    def search_roles(self, name_or_id=None, filters=None, domain_id=None):
+    def search_roles(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | str | None = None,
+        domain_id: str | None = None,
+    ) -> list[_role.Role]:
         """Seach Keystone roles.
 
         :param name: Name or ID of the role(s).
@@ -1278,7 +1419,12 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         return _utils._filter_list(roles, name_or_id, filters)
 
     # TODO(stephenfin): Remove 'filters' in a future major version
-    def get_role(self, name_or_id, filters=None, domain_id=None):
+    def get_role(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | str | None = None,
+        domain_id: str | None = None,
+    ) -> _role.Role | None:
         """Get a Keystone role.
 
         :param name_or_id: Name or unique ID of the role.
@@ -1311,7 +1457,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return identity.find_role(name_or_id=name_or_id, domain_id=domain_id)
 
-    def _keystone_v3_role_assignments(self, **filters):
+    def _keystone_v3_role_assignments(
+        self, **filters: Any
+    ) -> list[_role_assignment.RoleAssignment]:
         identity = utils.ensure_service_version(self.identity, '3')
 
         # NOTE(samueldmq): different parameters have different representation
@@ -1352,7 +1500,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return list(identity.role_assignments(**filters))
 
-    def list_role_assignments(self, filters=None):
+    def list_role_assignments(
+        self, filters: dict[str, Any] | None = None
+    ) -> list[_role_assignment.RoleAssignment]:
         """List Keystone role assignments
 
         :param dict filters: Dict of filter conditions. Acceptable keys are:
@@ -1424,7 +1574,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         return list(identity.role_assignments(**filters))
 
     @_utils.valid_kwargs('domain_id')
-    def create_role(self, name, **kwargs):
+    def create_role(self, name: str, **kwargs: Any) -> _role.Role:
         """Create a Keystone role.
 
         :param string name: The name of the role.
@@ -1439,7 +1589,9 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         return identity.create_role(**kwargs)
 
     @_utils.valid_kwargs('domain_id')
-    def update_role(self, name_or_id, name, **kwargs):
+    def update_role(
+        self, name_or_id: str, name: str, **kwargs: Any
+    ) -> _role.Role | bool:
         """Update a Keystone role.
 
         :param name_or_id: Name or unique ID of the role.
@@ -1459,7 +1611,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         return identity.update_role(role, name=name, **kwargs)
 
     @_utils.valid_kwargs('domain_id')
-    def delete_role(self, name_or_id, **kwargs):
+    def delete_role(self, name_or_id: str, **kwargs: Any) -> bool:
         """Delete a Keystone role.
 
         :param name_or_id: Name or unique ID of the role.
@@ -1485,13 +1637,13 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def _get_grant_revoke_params(
         self,
-        role,
-        user=None,
-        group=None,
-        project=None,
-        domain=None,
-        system=None,
-    ):
+        role: str,
+        user: str | None = None,
+        group: str | None = None,
+        project: str | None = None,
+        domain: str | None = None,
+        system: str | None = None,
+    ) -> dict[str, Any]:
         identity = utils.ensure_service_version(self.identity, '3')
 
         data: dict[str, Any] = {}
@@ -1534,16 +1686,16 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def grant_role(
         self,
-        name_or_id,
-        user=None,
-        group=None,
-        project=None,
-        domain=None,
-        system=None,
-        inherited=False,
-        wait=False,
-        timeout=60,
-    ):
+        name_or_id: str,
+        user: str | None = None,
+        group: str | None = None,
+        project: str | None = None,
+        domain: str | None = None,
+        system: str | None = None,
+        inherited: bool = False,
+        wait: bool = False,
+        timeout: int | float = 60,
+    ) -> bool:
         """Grant a role to a user.
 
         :param string name_or_id: Name or unique ID of the role.
@@ -1585,7 +1737,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         group = data.get('group')
         project = data.get('project')
         domain = data.get('domain')
-        role = data.get('role')
+        role = data['role']
 
         if project:
             # Proceed with project - precedence over domain and system
@@ -1600,6 +1752,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
                     project, user, role, inherited=inherited
                 )
             else:
+                assert group is not None
                 has_role = identity.validate_group_has_project_role(
                     project, group, role, inherited=inherited
                 )
@@ -1622,6 +1775,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
                     domain, user, role, inherited=inherited
                 )
             else:
+                assert group is not None
                 has_role = identity.validate_group_has_domain_role(
                     domain, group, role, inherited=inherited
                 )
@@ -1635,6 +1789,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             # Proceed with system
             # System name must be 'all' due to checks performed in
             # _get_grant_revoke_params
+            assert system is not None
             if user:
                 has_role = identity.validate_user_has_system_role(
                     user, role, system
@@ -1644,6 +1799,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
                     return False
                 identity.assign_system_role_to_user(user, role, system)
             else:
+                assert group is not None
                 has_role = identity.validate_group_has_system_role(
                     group, role, system
                 )
@@ -1655,16 +1811,16 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def revoke_role(
         self,
-        name_or_id,
-        user=None,
-        group=None,
-        project=None,
-        domain=None,
-        system=None,
-        inherited=False,
-        wait=False,
-        timeout=60,
-    ):
+        name_or_id: str,
+        user: str | None = None,
+        group: str | None = None,
+        project: str | None = None,
+        domain: str | None = None,
+        system: str | None = None,
+        inherited: bool = False,
+        wait: bool = False,
+        timeout: int | float = 60,
+    ) -> bool:
         """Revoke a role from a user.
 
         :param string name_or_id: Name or unique ID of the role.
@@ -1703,7 +1859,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
         group = data.get('group')
         project = data.get('project')
         domain = data.get('domain')
-        role = data.get('role')
+        role = data['role']
 
         if project:
             # Proceed with project - precedence over domain and system
@@ -1718,6 +1874,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
                     project, user, role, inherited=inherited
                 )
             else:
+                assert group is not None
                 has_role = identity.validate_group_has_project_role(
                     project, group, role, inherited=inherited
                 )
@@ -1740,6 +1897,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
                     domain, user, role, inherited=inherited
                 )
             else:
+                assert group is not None
                 has_role = identity.validate_group_has_domain_role(
                     domain, group, role, inherited=inherited
                 )
@@ -1753,6 +1911,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
             # Proceed with system
             # System name must be 'all' due to checks performed in
             # _get_grant_revoke_params
+            assert system is not None
             if user:
                 has_role = identity.validate_user_has_system_role(
                     user, role, system
@@ -1762,6 +1921,7 @@ class IdentityCloudMixin(openstackcloud._OpenStackCloudMixin):
                     return False
                 identity.unassign_system_role_from_user(user, role, system)
             else:
+                assert group is not None
                 has_role = identity.validate_group_has_system_role(
                     group, role, system
                 )

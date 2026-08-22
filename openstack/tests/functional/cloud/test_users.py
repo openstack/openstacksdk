@@ -45,6 +45,7 @@ class TestUsers(base.KeystoneBaseFunctionalTest):
 
     def _create_user(self, **kwargs):
         domain = self.operator_cloud.get_domain('default')
+        assert domain is not None
         return self.operator_cloud.create_user(
             domain_id=domain['id'], **kwargs
         )
@@ -57,6 +58,7 @@ class TestUsers(base.KeystoneBaseFunctionalTest):
     def test_get_user(self):
         user = self.operator_cloud.get_user('admin')
         self.assertIsNotNone(user)
+        assert user is not None
         self.assertIn('id', user)
         self.assertIn('name', user)
         self.assertEqual('admin', user['name'])

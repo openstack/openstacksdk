@@ -120,6 +120,7 @@ class TestRouter(base.BaseFunctionalTest):
     def test_create_router_project(self):
         project = self.operator_cloud.get_project('demo')
         self.assertIsNotNone(project)
+        assert project is not None
         proj_id = project['id']
         net1_name = self.network_prefix + '_net1'
         net1 = self.operator_cloud.create_network(

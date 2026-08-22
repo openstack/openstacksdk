@@ -277,11 +277,13 @@ class BaseFunctionalTest(base.TestCase):
         project_name = self.getUniqueString('project-')
         project = self.operator_cloud.get_project(project_name)
         if not project:
+            default_domain = self.operator_cloud.get_domain('default')
+            assert default_domain is not None
             params = {
                 'name': project_name,
                 'description': f'Temporary project created for {self.id()}',
                 # assume identity API v3 for now
-                'domain_id': self.operator_cloud.get_domain('default')['id'],
+                'domain_id': default_domain['id'],
             }
             project = self.operator_cloud.create_project(**params)
 

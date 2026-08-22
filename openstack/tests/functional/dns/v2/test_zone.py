@@ -85,7 +85,9 @@ class TestZone(base.BaseFunctionalTest):
         )
         self.addCleanup(self.operator_cloud.dns.delete_zone, zone)
 
-        demo_project_id = self.operator_cloud.get_project('demo')['id']
+        demo_project = self.operator_cloud.get_project('demo')
+        assert demo_project is not None
+        demo_project_id = demo_project['id']
         zone_share = self.operator_cloud.dns.create_zone_share(
             zone, target_project_id=demo_project_id
         )
