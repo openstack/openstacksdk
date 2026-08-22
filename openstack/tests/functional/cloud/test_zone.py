@@ -62,10 +62,12 @@ class TestZone(base.BaseFunctionalTest):
 
         # Test we get the same zone with the get_zone method
         zone_get = self.user_cloud.get_zone(zone['id'])
+        assert zone_get is not None
         self.assertEqual(zone_get['id'], zone['id'])
 
         # Test the get method also works by name
         zone_get = self.user_cloud.get_zone(name)
+        assert zone_get is not None
         self.assertEqual(zone_get['name'], zone['name'])
 
         # Test we can update a field on the zone and only that field
