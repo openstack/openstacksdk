@@ -488,7 +488,7 @@ class Proxy(proxy.Proxy):
 
     def patch_node(
         self,
-        node: _node.Node,
+        node: str | _node.Node,
         patch: list[dict[str, Any]],
         reset_interfaces: bool | None = None,
         retry_on_conflict: bool = True,

@@ -720,7 +720,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
     def project_cleanup(
         self,
         dry_run: bool = True,
-        wait_timeout: int = 120,
+        wait_timeout: int | float = 120,
         status_queue: queue.Queue[resource.Resource] | None = None,
         filters: dict[str, Any] | None = None,
         resource_evaluation_fn: Callable[
@@ -738,12 +738,12 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
 
         Cleanup all resources in all services, which provide cleanup methods.
 
-        :param bool dry_run: Cleanup or only list identified resources.
-        :param int wait_timeout: Maximum amount of time given to each service
+        :param dry_run: Cleanup or only list identified resources.
+        :param wait_timeout: Maximum amount of time given to each service
             to comlete the cleanup.
-        :param queue status_queue: a threading queue object used to get current
+        :param status_queue: a threading queue object used to get current
             process status. The queue contain processed resources.
-        :param dict filters: Additional filters for the cleanup (only resources
+        :param filters: Additional filters for the cleanup (only resources
             matching all filters will be deleted, if there are no other
             dependencies).
         :param resource_evaluation_fn: A callback function, which will be

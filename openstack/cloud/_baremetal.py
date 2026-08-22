@@ -10,18 +10,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections.abc import Iterator
 import contextlib
 import sys
+from typing import Any
 import warnings
 
 import jsonpatch
 
+from openstack.baremetal.v1 import node as _node
+from openstack.baremetal.v1 import port as _port
 from openstack.cloud import openstackcloud
 from openstack import exceptions
+from openstack.network.v2 import port as _network_port
 from openstack import warnings as os_warnings
 
 
-def _normalize_port_list(nics):
+def _normalize_port_list(
+    nics: list[str | dict[str, Any]],
+) -> list[dict[str, Any]]:
     ports = []
     for row in nics:
         if isinstance(row, str):
@@ -42,11 +49,11 @@ def _normalize_port_list(nics):
 
 
 class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
-    def list_nics(self):
+    def list_nics(self) -> list[_port.Port]:
         """Return a list of all bare metal ports."""
         return list(self.baremetal.ports(details=True))
 
-    def list_nics_for_machine(self, uuid):
+    def list_nics_for_machine(self, uuid: str) -> list[_port.Port]:
         """Returns a list of ports present on the machine node.
 
         :param uuid: String representing machine UUID value in order to
@@ -56,7 +63,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         # TODO(dtantsur): support node names here.
         return list(self.baremetal.ports(details=True, node_id=uuid))
 
-    def get_nic_by_mac(self, mac):
+    def get_nic_by_mac(self, mac: str) -> _port.Port | None:
         """Get bare metal NIC by its hardware address (usually MAC)."""
         results = list(self.baremetal.ports(address=mac, details=True))
         try:
@@ -64,14 +71,14 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         except IndexError:
             return None
 
-    def list_machines(self):
+    def list_machines(self) -> list[_node.Node]:
         """List Machines.
 
         :returns: list of :class:`~openstack.baremetal.v1.node.Node`.
         """
         return list(self.baremetal.nodes())
 
-    def get_machine(self, name_or_id):
+    def get_machine(self, name_or_id: str) -> _node.Node | None:
         """Get Machine by name or uuid
 
         Search the baremetal host out by utilizing the supplied id value
@@ -84,7 +91,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         return self.baremetal.find_node(name_or_id, ignore_missing=True)
 
-    def get_machine_by_mac(self, mac):
+    def get_machine_by_mac(self, mac: str) -> _node.Node | None:
         """Get machine by port MAC address
 
         :param mac: Port MAC address to query in order to return a node.
@@ -98,7 +105,9 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         else:
             return self.get_machine(nic['node_uuid'])
 
-    def inspect_machine(self, name_or_id, wait=False, timeout=3600):
+    def inspect_machine(
+        self, name_or_id: str, wait: bool = False, timeout: int | float = 3600
+    ) -> _node.Node:
         """Inspect a Barmetal machine
 
         Engages the Ironic node inspection behavior in order to collect
@@ -158,7 +167,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         return node
 
     @contextlib.contextmanager
-    def _delete_node_on_error(self, node):
+    def _delete_node_on_error(self, node: _node.Node) -> Iterator[None]:
         try:
             yield
         except Exception as exc:
@@ -176,13 +185,13 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
 
     def register_machine(
         self,
-        nics,
-        wait=False,
-        timeout=3600,
-        lock_timeout=600,
-        provision_state='available',
-        **kwargs,
-    ):
+        nics: list[str | dict[str, Any]],
+        wait: bool = False,
+        timeout: int | float = 3600,
+        lock_timeout: int | float = 600,
+        provision_state: str = 'available',
+        **kwargs: Any,
+    ) -> _node.Node:
         """Register Baremetal with Ironic
 
         Allows for the registration of Baremetal nodes with Ironic
@@ -282,7 +291,13 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
 
             return machine
 
-    def unregister_machine(self, nics, uuid, wait=None, timeout=600):
+    def unregister_machine(
+        self,
+        nics: list[str | dict[str, Any]],
+        uuid: str,
+        wait: bool | None = None,
+        timeout: int | float = 600,
+    ) -> None:
         """Unregister Baremetal from Ironic
 
         Removes entries for Network Interfaces and baremetal nodes
@@ -306,6 +321,11 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
             )
 
         machine = self.get_machine(uuid)
+        if not machine:
+            raise exceptions.SDKException(
+                f"Machine unregister failed to find Machine: {uuid}."
+            )
+
         invalid_states = ['active', 'cleaning', 'clean wait', 'clean failed']
         if machine['provision_state'] in invalid_states:
             raise exceptions.SDKException(
@@ -334,7 +354,9 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         self.baremetal.delete_node(uuid)
 
-    def patch_machine(self, name_or_id, patch):
+    def patch_machine(
+        self, name_or_id: str, patch: list[dict[str, Any]]
+    ) -> _node.Node:
         """Patch Machine Information
 
         This method allows for an interface to manipulate node entries
@@ -368,7 +390,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         return self.baremetal.patch_node(name_or_id, patch)
 
-    def update_machine(self, name_or_id, **attrs):
+    def update_machine(self, name_or_id: str, **attrs: Any) -> dict[str, Any]:
         """Update a machine with new configuration information
 
         A user-friendly method to perform updates of a machine, in whole or
@@ -409,7 +431,9 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         node = self.baremetal.update_node(machine, **attrs)
         return dict(node=node, changes=change_list)
 
-    def attach_port_to_machine(self, name_or_id, port_name_or_id):
+    def attach_port_to_machine(
+        self, name_or_id: str, port_name_or_id: str
+    ) -> None:
         """Attach a virtual port to the bare metal machine.
 
         :param string name_or_id: A machine name or UUID.
@@ -418,10 +442,15 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         :return: Nothing.
         """
         machine = self.get_machine(name_or_id)
+        if not machine:
+            raise exceptions.SDKException(f"Machine not found: {name_or_id}.")
+
         port = self.network.find_port(port_name_or_id, ignore_missing=False)
         self.baremetal.attach_vif_to_node(machine, port['id'])
 
-    def detach_port_from_machine(self, name_or_id, port_name_or_id):
+    def detach_port_from_machine(
+        self, name_or_id: str, port_name_or_id: str
+    ) -> None:
         """Detach a virtual port from the bare metal machine.
 
         :param string name_or_id: A machine name or UUID.
@@ -430,10 +459,15 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         :return: Nothing.
         """
         machine = self.get_machine(name_or_id)
+        if not machine:
+            raise exceptions.SDKException(f"Machine not found: {name_or_id}.")
+
         port = self.network.find_port(port_name_or_id, ignore_missing=False)
         self.baremetal.detach_vif_from_node(machine, port['id'])
 
-    def list_ports_attached_to_machine(self, name_or_id):
+    def list_ports_attached_to_machine(
+        self, name_or_id: str
+    ) -> list[_network_port.Port]:
         """List virtual ports attached to the bare metal machine.
 
         :param string name_or_id: A machine name or UUID.
@@ -441,13 +475,18 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
             the ports.
         """
         machine = self.get_machine(name_or_id)
+        if not machine:
+            raise exceptions.SDKException(f"Machine not found: {name_or_id}.")
+
         vif_ids = self.baremetal.list_node_vifs(machine)
         return [
             self.network.find_port(vif, ignore_missing=False)
             for vif in vif_ids
         ]
 
-    def validate_machine(self, name_or_id, for_deploy=True):
+    def validate_machine(
+        self, name_or_id: str, for_deploy: bool = True
+    ) -> None:
         """Validate parameters of the machine.
 
         :param string name_or_id: The Name or UUID value representing the
@@ -462,7 +501,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
             ifaces = ['power']
         self.baremetal.validate_node(name_or_id, required=ifaces)
 
-    def validate_node(self, uuid):
+    def validate_node(self, uuid: str) -> None:
         warnings.warn(
             'validate_node is deprecated, please use validate_machine instead',
             os_warnings.RemovedInSDK50Warning,
@@ -470,8 +509,13 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         self.baremetal.validate_node(uuid)
 
     def node_set_provision_state(
-        self, name_or_id, state, configdrive=None, wait=False, timeout=3600
-    ):
+        self,
+        name_or_id: str,
+        state: str,
+        configdrive: str | None = None,
+        wait: bool = False,
+        timeout: int | float = 3600,
+    ) -> _node.Node:
         """Set Node Provision State
 
         Enables a user to provision a Machine and optionally define a
@@ -507,8 +551,8 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         return node
 
     def set_machine_maintenance_state(
-        self, name_or_id, state=True, reason=None
-    ):
+        self, name_or_id: str, state: bool = True, reason: str | None = None
+    ) -> None:
         """Set Baremetal Machine Maintenance State
 
         Sets Baremetal maintenance state and maintenance reason.
@@ -531,7 +575,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         else:
             self.baremetal.unset_node_maintenance(name_or_id)
 
-    def remove_machine_from_maintenance(self, name_or_id):
+    def remove_machine_from_maintenance(self, name_or_id: str) -> None:
         """Remove Baremetal Machine from Maintenance State
 
         Similarly to set_machine_maintenance_state, this method removes a
@@ -548,7 +592,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         self.baremetal.unset_node_maintenance(name_or_id)
 
-    def set_machine_power_on(self, name_or_id):
+    def set_machine_power_on(self, name_or_id: str) -> None:
         """Activate baremetal machine power
 
         This is a method that sets the node power state to "on".
@@ -562,7 +606,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         self.baremetal.set_node_power_state(name_or_id, 'power on')
 
-    def set_machine_power_off(self, name_or_id):
+    def set_machine_power_off(self, name_or_id: str) -> None:
         """De-activate baremetal machine power
 
         This is a method that sets the node power state to "off".
@@ -576,7 +620,7 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         self.baremetal.set_node_power_state(name_or_id, 'power off')
 
-    def set_machine_power_reboot(self, name_or_id):
+    def set_machine_power_reboot(self, name_or_id: str) -> None:
         """De-activate baremetal machine power
 
         This is a method that sets the node power state to "reboot", which
@@ -592,17 +636,27 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         """
         self.baremetal.set_node_power_state(name_or_id, 'rebooting')
 
-    def activate_node(self, uuid, configdrive=None, wait=False, timeout=1200):
+    def activate_node(
+        self,
+        uuid: str,
+        configdrive: str | None = None,
+        wait: bool = False,
+        timeout: int | float = 1200,
+    ) -> None:
         self.node_set_provision_state(
             uuid, 'active', configdrive, wait=wait, timeout=timeout
         )
 
-    def deactivate_node(self, uuid, wait=False, timeout=1200):
+    def deactivate_node(
+        self, uuid: str, wait: bool = False, timeout: int | float = 1200
+    ) -> None:
         self.node_set_provision_state(
             uuid, 'deleted', wait=wait, timeout=timeout
         )
 
-    def set_node_instance_info(self, uuid, patch):
+    def set_node_instance_info(
+        self, uuid: str, patch: list[dict[str, Any]]
+    ) -> _node.Node:
         warnings.warn(
             "The set_node_instance_info call is deprecated, "
             "use patch_machine or update_machine instead",
@@ -610,17 +664,19 @@ class BaremetalCloudMixin(openstackcloud._OpenStackCloudMixin):
         )
         return self.patch_machine(uuid, patch)
 
-    def purge_node_instance_info(self, uuid):
+    def purge_node_instance_info(self, uuid: str) -> _node.Node:
         warnings.warn(
             "The purge_node_instance_info call is deprecated, "
             "use patch_machine or update_machine instead",
             os_warnings.RemovedInSDK50Warning,
         )
         return self.patch_machine(
-            uuid, dict(path='/instance_info', op='remove')
+            uuid, [dict(path='/instance_info', op='remove')]
         )
 
-    def wait_for_baremetal_node_lock(self, node, timeout=30):
+    def wait_for_baremetal_node_lock(
+        self, node: str | _node.Node, timeout: int | float = 30
+    ) -> None:
         """Wait for a baremetal node to have no lock.
 
         DEPRECATED, use ``wait_for_node_reservation`` on the `baremetal` proxy.
