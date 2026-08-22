@@ -20,16 +20,18 @@ operations supported by REST APIs, and handles the construction of URLs
 and calling the appropriate HTTP verb on the given ``Adapter``.
 
 Values sent to or returned from the service are implemented as attributes
-on the ``Resource`` subclass with type :class:`openstack.resource.prop`.
-The ``prop`` is created with the exact name of what the API expects,
-and can optionally include a ``type`` to be validated against on requests.
-You should choose an attribute name that follows PEP-8, regardless of what
-the server-side expects, as this ``prop`` becomes a mapping between the two.::
+on the ``Resource`` subclass using component objects such as ``resource.Body``,
+``resource.Header`` and ``resource.URI``, depending on where in the request or
+response the value lives. Each component is created with the exact name of what
+the API expects, and can optionally include a ``type`` to be validated against
+on requests. You should choose an attribute name that follows PEP-8, regardless
+of what the server-side expects, as the component becomes a mapping between the
+two.::
 
-   is_public = resource.prop('os-flavor-access:is_public', type=bool)
+   is_public = resource.Body('os-flavor-access:is_public', type=bool)
 
 There are six additional attributes which the ``Resource`` class checks
-before making requests to the REST API. ``allow_create``, ``allow_retreive``,
+before making requests to the REST API. ``allow_create``, ``allow_fetch``,
 ``allow_commit``, ``allow_delete``, ``allow_head``, and ``allow_list`` are set
 to ``True`` or ``False``, and are checked before making the corresponding
 method call.
@@ -83,9 +85,25 @@ does.
 Cloud
 -----
 
-.. todo
+The ``openstack.cloud`` package provides the high-level *cloud abstraction*
+layer, historically known as ``shade``. Where the `Proxy`_ interface maps
+closely onto a single service's REST API, the cloud layer offers
+business-logic-oriented methods that often span multiple requests, or even
+multiple services, and that normalize the differences between clouds.
 
-TODO.
+The layer is implemented as a collection of mixin classes, one per service
+area, under ``openstack/cloud/`` (for example, ``_compute.py`` provides
+``ComputeCloudMixin`` and ``_network.py`` provides ``NetworkCloudMixin``).
+These mixins are combined into the :class:`~openstack.connection.Connection`
+class, so their methods are available directly on a ``Connection`` instance
+alongside the service `Proxy`_ objects. For example,
+``Connection.create_server`` may create a server, wait for it to become active,
+attach a floating IP and return a normalized result, orchestrating several
+lower-level `Proxy`_ and `Resource`_ calls on the caller's behalf.
+
+Application authors are generally encouraged to use these high-level methods
+where they exist, falling back to the `Proxy`_ interface for operations the
+cloud layer does not cover.
 
 Connection
 ----------

@@ -3,11 +3,11 @@ Connect From Config
 
 In order to work with an OpenStack cloud you first need to create a
 :class:`~openstack.connection.Connection` to it using your credentials. A
-:class:`~openstack.connection.Connection` can be
-created in 3 ways, using the class itself (see :doc:`connect`), a file, or
-environment variables as illustrated below. The SDK uses
-`os-client-config <https://opendev.org/openstack/os-client-config>`_
-to handle the configuration.
+:class:`~openstack.connection.Connection` can be created in a number of ways:
+using the class itself (see :doc:`connect`), a configuration file, or
+environment variables, as illustrated below. Configuration handling is built in
+to openstacksdk; see the :doc:`/user/config/index` guide for the full set of
+options.
 
 Create Connection From A File
 -----------------------------
@@ -60,11 +60,23 @@ absolute path of a file.::
 and call :py:func:`~openstack.connection.from_config` with the **cloud_name**
 of the cloud configuration to use, .
 
-.. Create Connection From Environment Variables
-   --------------------------------------------
+Create Connection From Environment Variables
+--------------------------------------------
 
-   TODO(etoews): Document when https://storyboard.openstack.org/#!/story/1489617
-   is fixed.
+openstacksdk can also build a connection from ``OS_``-prefixed environment
+variables. If you have the standard OpenStack environment variables set - for
+example, by sourcing an ``openrc`` file - you can create a connection without
+any additional configuration:
+
+.. code-block:: python
+
+    import openstack
+
+    conn = openstack.connect()
+
+When no cloud name is given, :func:`~openstack.connect` loads its configuration
+from the environment. See :ref:`config-environment-variables` for the full list
+of supported environment variables.
 
 Next
 ----

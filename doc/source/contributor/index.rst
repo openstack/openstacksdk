@@ -107,6 +107,5 @@ OpenStack SDK.
    :maxdepth: 2
 
    create/resource
-
-.. TODO(briancurtin): document how to create a proxy
-.. TODO(briancurtin): document how to create auth plugins
+   create/proxy
+   create/auth_plugin

@@ -205,6 +205,8 @@ it is not possible to point to a specific file via an environment variable.
           - eu-west-1
 
 
+.. _config-auth-settings:
+
 Auth Settings
 -------------
 

@@ -72,15 +72,8 @@ you can find downloads or the source at http://git-scm.com.
 Getting the Source Code
 -----------------------
 
-.. TODO(briancurtin): We should try and distill the following document
-   into the minimally necessary parts to include directly in this section.
-   I've talked to several people who are discouraged by that large of a
-   document to go through before even getting into the project they want
-   to work on. I don't want that to happen to us because we have the potential
-   to be more public facing than a lot of other projects.
-
-.. note:: Before checking out the code, please read the OpenStack
-          `Developer's Guide <http://docs.openstack.org/infra/manual/developers.html>`_
+.. note:: Before checking out the code, please read the OpenDev
+          `Developer's Guide <https://docs.opendev.org/opendev/infra-manual/latest/developers.html>`_
           for details on how to use the continuous integration and code
           review systems that we use.
 
