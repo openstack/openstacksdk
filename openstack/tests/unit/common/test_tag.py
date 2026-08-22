@@ -48,9 +48,14 @@ class TestTagMixin(base.TestCase):
         self.response = FakeResponse({})
 
         self.sot = Test.new(id="id", tags=[])
-        self.sot._prepare_request = mock.Mock(return_value=self.request)
-        self.sot._translate_response = mock.Mock()
-        self.sot._get_microversion = mock.Mock(return_value=None)
+        mock.patch.object(
+            self.sot, '_prepare_request', return_value=self.request
+        ).start()
+        mock.patch.object(self.sot, '_translate_response').start()
+        self.mock_get_microversion = mock.patch.object(
+            self.sot, '_get_microversion', return_value=None
+        ).start()
+        self.addCleanup(mock.patch.stopall)
 
         self.session = mock.Mock(spec=adapter.Adapter)
         self.session.get = mock.Mock(return_value=self.response)
@@ -177,7 +182,7 @@ class TestTagMixin(base.TestCase):
 
     def test_add_tag_with_microversion(self):
         res = self.sot
-        res._get_microversion = mock.Mock(return_value='2.26')
+        self.mock_get_microversion.return_value = '2.26'
         sess = self.session
 
         res.tags = ['blue', 'green']
@@ -190,7 +195,7 @@ class TestTagMixin(base.TestCase):
 
     def test_remove_single_tag_with_microversion(self):
         res = self.sot
-        res._get_microversion = mock.Mock(return_value='2.26')
+        self.mock_get_microversion.return_value = '2.26'
         sess = self.session
 
         res.tags = ['blue', 'dummy']
@@ -203,7 +208,7 @@ class TestTagMixin(base.TestCase):
 
     def test_fetch_tags_with_microversion(self):
         res = self.sot
-        res._get_microversion = mock.Mock(return_value='2.26')
+        self.mock_get_microversion.return_value = '2.26'
         sess = self.session
 
         mock_response = mock.Mock()
@@ -221,7 +226,7 @@ class TestTagMixin(base.TestCase):
 
     def test_set_tags_with_microversion(self):
         res = self.sot
-        res._get_microversion = mock.Mock(return_value='2.26')
+        self.mock_get_microversion.return_value = '2.26'
         sess = self.session
 
         res.tags = ['blue_old', 'green_old']
@@ -236,7 +241,7 @@ class TestTagMixin(base.TestCase):
 
     def test_remove_all_tags_with_microversion(self):
         res = self.sot
-        res._get_microversion = mock.Mock(return_value='2.26')
+        self.mock_get_microversion.return_value = '2.26'
         sess = self.session
 
         res.tags = ['blue_old', 'green_old']
@@ -249,7 +254,7 @@ class TestTagMixin(base.TestCase):
 
     def test_check_tag_with_microversion(self):
         res = self.sot
-        res._get_microversion = mock.Mock(return_value='2.26')
+        self.mock_get_microversion.return_value = '2.26'
         sess = self.session
 
         sess.get.side_effect = [FakeResponse(None, 202)]
