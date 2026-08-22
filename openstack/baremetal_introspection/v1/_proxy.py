@@ -75,7 +75,7 @@ class Proxy(proxy.Proxy):
         return self._list(_introspect.Introspection, **query)
 
     def start_introspection(
-        self, node: _node.Node, manage_boot: bool | None = None
+        self, node: str | _node.Node, manage_boot: bool | None = None
     ) -> _introspect.Introspection:
         """Create a new introspection from attributes.
 
