@@ -20,6 +20,3 @@ def list_nodes(conn):
 
     for node in conn.baremetal.nodes():
         print(node)
-
-
-# TODO(dtantsur): other resources
