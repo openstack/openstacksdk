@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack import exceptions
 from openstack.network.v2 import quota as _quota
 from openstack.tests.unit import base
@@ -272,7 +274,7 @@ class TestQuotas(base.TestCase):
         self.assert_calls()
 
     def test_neutron_get_quotas(self):
-        quota = {
+        quota: dict[str, Any] = {
             'subnet': 100,
             'network': 100,
             'floatingip': 50,
@@ -313,7 +315,7 @@ class TestQuotas(base.TestCase):
         self.assert_calls()
 
     def test_neutron_get_quotas_details(self):
-        quota_details = {
+        quota_details: dict[str, Any] = {
             'subnet': {'limit': 100, 'used': 7, 'reserved': 0},
             'network': {'limit': 100, 'used': 6, 'reserved': 0},
             'floatingip': {'limit': 50, 'used': 0, 'reserved': 0},

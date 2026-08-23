@@ -174,9 +174,11 @@ class TestRebuildServer(base.TestCase):
                 ),
             ]
         )
+        rebuilt = self.cloud.rebuild_server(self.fake_server['id'], "a")
+        assert rebuilt is not None
         self.assertEqual(
             self.rebuild_server['status'],
-            self.cloud.rebuild_server(self.fake_server['id'], "a")['status'],
+            rebuilt['status'],
         )
 
         self.assert_calls()
@@ -215,11 +217,13 @@ class TestRebuildServer(base.TestCase):
                 ),
             ]
         )
+        rebuilt = self.cloud.rebuild_server(
+            self.fake_server['id'], 'a', admin_pass=password
+        )
+        assert rebuilt is not None
         self.assertEqual(
             password,
-            self.cloud.rebuild_server(
-                self.fake_server['id'], 'a', admin_pass=password
-            )['adminPass'],
+            rebuilt['adminPass'],
         )
 
         self.assert_calls()
@@ -273,11 +277,13 @@ class TestRebuildServer(base.TestCase):
             ]
         )
 
+        rebuilt = self.cloud.rebuild_server(
+            self.fake_server['id'], 'a', admin_pass=password, wait=True
+        )
+        assert rebuilt is not None
         self.assertEqual(
             password,
-            self.cloud.rebuild_server(
-                self.fake_server['id'], 'a', admin_pass=password, wait=True
-            )['adminPass'],
+            rebuilt['adminPass'],
         )
 
         self.assert_calls()
@@ -323,11 +329,13 @@ class TestRebuildServer(base.TestCase):
                 ),
             ]
         )
+        rebuilt = self.cloud.rebuild_server(
+            self.fake_server['id'], 'a', wait=True
+        )
+        assert rebuilt is not None
         self.assertEqual(
             'ACTIVE',
-            self.cloud.rebuild_server(self.fake_server['id'], 'a', wait=True)[
-                'status'
-            ],
+            rebuilt['status'],
         )
 
         self.assert_calls()

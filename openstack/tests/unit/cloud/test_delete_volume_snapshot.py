@@ -37,6 +37,7 @@ class TestDeleteVolumeSnapshot(base.TestCase):
             '1234', 'available', 'foo', 'derpysnapshot'
         )
         fake_snapshot_dict = meta.obj_to_munch(fake_snapshot)
+        assert fake_snapshot_dict is not None
 
         self.register_uris(
             [
@@ -74,6 +75,7 @@ class TestDeleteVolumeSnapshot(base.TestCase):
             '1234', 'available', 'foo', 'derpysnapshot'
         )
         fake_snapshot_dict = meta.obj_to_munch(fake_snapshot)
+        assert fake_snapshot_dict is not None
         self.register_uris(
             [
                 dict(
@@ -113,6 +115,7 @@ class TestDeleteVolumeSnapshot(base.TestCase):
             '1234', 'available', 'foo', 'derpysnapshot'
         )
         fake_snapshot_dict = meta.obj_to_munch(fake_snapshot)
+        assert fake_snapshot_dict is not None
 
         self.register_uris(
             [

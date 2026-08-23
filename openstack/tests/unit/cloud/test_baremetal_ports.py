@@ -45,11 +45,23 @@ class TestBaremetalPort(base.TestCase):
             '0a:0b:0c:0d:0e:0f', node_id=self.uuid
         )
 
-    def get_mock_url(self, **kwargs):
-        kwargs.setdefault('service_type', 'baremetal')
-        kwargs.setdefault('interface', 'public')
-        kwargs.setdefault('base_url_append', 'v1')
-        return super().get_mock_url(**kwargs)
+    def get_mock_url(
+        self,
+        service_type='baremetal',
+        interface='public',
+        resource=None,
+        append=None,
+        base_url_append='v1',
+        qs_elements=None,
+    ):
+        return super().get_mock_url(
+            service_type=service_type,
+            interface=interface,
+            resource=resource,
+            append=append,
+            base_url_append=base_url_append,
+            qs_elements=qs_elements,
+        )
 
     def test_list_nics(self):
         self.register_uris(
@@ -160,6 +172,7 @@ class TestBaremetalPort(base.TestCase):
 
         return_value = self.cloud.get_nic_by_mac(mac)
 
+        assert return_value is not None
         self.assertSubdict(self.fake_baremetal_port, return_value)
         self.assert_calls()
 

@@ -11,6 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from openstack.identity.v3 import _proxy as identity_v3_proxy
 from openstack.tests.unit import base
 
 
@@ -26,6 +27,7 @@ class TestGroups(base.TestCase):
         resource='groups',
         append=None,
         base_url_append='v3',
+        qs_elements=None,
     ):
         return super().get_mock_url(
             service_type='identity',
@@ -33,6 +35,7 @@ class TestGroups(base.TestCase):
             resource=resource,
             append=append,
             base_url_append=base_url_append,
+            qs_elements=qs_elements,
         )
 
     def test_list_groups(self):
@@ -158,6 +161,8 @@ class TestGroups(base.TestCase):
                 )
             ]
         )
-        groups = list(self.cloud.identity.user_groups(user_data.user_id))
+        identity = self.cloud.identity
+        assert isinstance(identity, identity_v3_proxy.Proxy)
+        groups = list(identity.user_groups(user_data.user_id))
         self.assertEqual(1, len(groups))
         self.assertEqual(group_data.group_id, groups[0].id)

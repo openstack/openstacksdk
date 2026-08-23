@@ -25,6 +25,7 @@ class TestDomains(base.TestCase):
     def get_mock_url(
         self,
         service_type='identity',
+        interface='public',
         resource='domains',
         append=None,
         base_url_append='v3',
@@ -32,6 +33,7 @@ class TestDomains(base.TestCase):
     ):
         return super().get_mock_url(
             service_type=service_type,
+            interface=interface,
             resource=resource,
             append=append,
             base_url_append=base_url_append,
@@ -71,6 +73,7 @@ class TestDomains(base.TestCase):
             ]
         )
         domain = self.cloud.get_domain(domain_id=domain_data.domain_id)
+        assert domain is not None
         self.assertThat(domain.id, matchers.Equals(domain_data.domain_id))
         self.assertThat(domain.name, matchers.Equals(domain_data.domain_name))
         self.assert_calls()
@@ -105,6 +108,8 @@ class TestDomains(base.TestCase):
         domain_by_name = self.cloud.get_domain(
             name_or_id=domain_data.domain_name
         )
+        assert domain is not None
+        assert domain_by_name is not None
         self.assertThat(domain.id, matchers.Equals(domain_data.domain_id))
         self.assertThat(domain.name, matchers.Equals(domain_data.domain_name))
         self.assertThat(

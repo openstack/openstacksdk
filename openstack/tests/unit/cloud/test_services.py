@@ -197,11 +197,13 @@ class CloudServices(base.TestCase):
 
         # Search by id
         service = self.cloud.get_service(name_or_id=service_data.service_id)
+        assert service is not None
         self.assertThat(service.id, matchers.Equals(service_data.service_id))
 
         # Search by name
         service = self.cloud.get_service(name_or_id=service_data.service_name)
         # test we are getting exactly 1 element
+        assert service is not None
         self.assertThat(service.id, matchers.Equals(service_data.service_id))
 
         # Not found

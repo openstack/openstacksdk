@@ -11,11 +11,13 @@
 # under the License.
 
 
+from typing import Any
+
 from openstack.container_infrastructure_management.v1 import cluster
 from openstack.tests.unit import base
 
 
-coe_cluster_obj = dict(
+coe_cluster_obj: dict[str, Any] = dict(
     status="CREATE_IN_PROGRESS",
     cluster_template_id="0562d357-8641-4759-8fed-8173f02c9633",
     uuid="731387cf-a92b-4c36-981e-3271d63e5597",
@@ -47,15 +49,19 @@ class TestCOEClusters(base.TestCase):
     def get_mock_url(
         self,
         service_type="container-infrastructure-management",
-        base_url_append=None,
-        append=None,
+        interface='public',
         resource=None,
+        append=None,
+        base_url_append=None,
+        qs_elements=None,
     ):
         return super().get_mock_url(
             service_type=service_type,
+            interface=interface,
             resource=resource,
             append=append,
             base_url_append=base_url_append,
+            qs_elements=qs_elements,
         )
 
     def test_list_coe_clusters(self):

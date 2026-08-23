@@ -11,12 +11,13 @@
 # under the License.
 
 import copy
+from typing import Any
 
 from openstack import exceptions
 from openstack.tests.unit import base
 
 
-zone_dict = {
+zone_dict: dict[str, Any] = {
     'name': 'example.net.',
     'type': 'PRIMARY',
     'email': 'test@example.net',

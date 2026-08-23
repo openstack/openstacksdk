@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import copy
+from typing import Any
 
 from openstack import exceptions
 from openstack.network.v2 import qos_policy as _policy
@@ -25,7 +26,7 @@ class TestQosPolicy(base.TestCase):
     policy_id = '881d1bb7-a663-44c0-8f9f-ee2765b74486'
     project_id = 'c88fc89f-5121-4a4c-87fd-496b5af864e9'
 
-    mock_policy = {
+    mock_policy: dict[str, Any] = {
         'id': policy_id,
         'name': policy_name,
         'description': '',

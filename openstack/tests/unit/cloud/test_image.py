@@ -15,6 +15,7 @@
 import io
 import operator
 import tempfile
+from typing import Any
 from unittest import mock
 import uuid
 
@@ -165,6 +166,7 @@ class TestImage(BaseTestImage):
         mock_find.return_value = image1
         r = self.cloud.get_image('mickey')
         self.assertIsNotNone(r)
+        assert r is not None
         self.assertDictEqual(image1, r)
 
     @mock.patch('openstack.image.v2._proxy.Proxy.find_image')
@@ -535,7 +537,8 @@ class TestImage(BaseTestImage):
 
         self.assert_calls()
         self.assertEqual(
-            self.adapter.request_history[7].text.read(), self.output
+            self.adapter.request_history[7].text.read(),  # type: ignore[attr-defined]
+            self.output,
         )
 
     def test_create_image_put_v2_import_supported(self):
@@ -644,7 +647,8 @@ class TestImage(BaseTestImage):
 
         self.assert_calls()
         self.assertEqual(
-            self.adapter.request_history[7].text.read(), self.output
+            self.adapter.request_history[7].text.read(),  # type: ignore[attr-defined]
+            self.output,
         )
 
     def test_create_image_use_import(self):
@@ -764,7 +768,8 @@ class TestImage(BaseTestImage):
 
         self.assert_calls()
         self.assertEqual(
-            self.adapter.request_history[7].text.read(), self.output
+            self.adapter.request_history[7].text.read(),  # type: ignore[attr-defined]
+            self.output,
         )
 
     def test_create_image_task(self):
@@ -1169,7 +1174,9 @@ class TestImage(BaseTestImage):
         self.assert_calls()
 
     def _image_dict(self, fake_image):
-        return self.cloud._normalize_image(meta.obj_to_munch(fake_image))
+        return self.cloud._normalize_image(  # type: ignore[attr-defined]
+            meta.obj_to_munch(fake_image)
+        )
 
     def _call_create_image(self, name, **kwargs):
         imagefile = tempfile.NamedTemporaryFile(delete=False)
@@ -1338,15 +1345,16 @@ class TestImage(BaseTestImage):
             'visibility': 'private',
         }
 
-        ret = args.copy()
+        ret: dict[str, Any] = args.copy()
         ret['id'] = self.image_id
         ret['status'] = 'success'
 
+        properties: dict[str, Any] = {
+            'owner_specified.openstack.object': f'images/{self.image_name}'
+        }
         self.cloud.update_image_properties(
             image=image.Image.existing(**ret),
-            **{
-                'owner_specified.openstack.object': f'images/{self.image_name}'
-            },
+            **properties,
         )
 
         self.assert_calls()
@@ -1915,7 +1923,7 @@ class TestImageVolume(BaseTestImage):
             self.imagefile.name,
             wait=True,
             timeout=1,
-            volume={'id': self.volume_id},
+            volume={'id': self.volume_id},  # type: ignore[arg-type]
         )
 
         self.assert_calls()
@@ -1966,7 +1974,7 @@ class TestImageVolume(BaseTestImage):
             self.imagefile.name,
             wait=True,
             timeout=1,
-            volume={'id': self.volume_id},
+            volume={'id': self.volume_id},  # type: ignore[arg-type]
             allow_duplicates=True,
         )
 

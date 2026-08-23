@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.container_infrastructure_management.v1 import cluster_template
 from openstack import exceptions
 from openstack.tests.unit import base
 
 
-cluster_template_obj = dict(
+cluster_template_obj: dict[str, Any] = dict(
     apiserver_port=12345,
     cluster_distro='fake-distro',
     coe='fake-coe',
@@ -56,15 +58,19 @@ class TestClusterTemplates(base.TestCase):
     def get_mock_url(
         self,
         service_type='container-infrastructure-management',
-        base_url_append=None,
-        append=None,
+        interface='public',
         resource=None,
+        append=None,
+        base_url_append=None,
+        qs_elements=None,
     ):
         return super().get_mock_url(
             service_type=service_type,
+            interface=interface,
             resource=resource,
             append=append,
             base_url_append=base_url_append,
+            qs_elements=qs_elements,
         )
 
     def test_list_cluster_templates_without_detail(self):

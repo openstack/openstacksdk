@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any, cast
 from unittest import mock
 
 from openstack.cloud import meta
@@ -19,6 +20,7 @@ from openstack.compute.v2 import server as _server
 from openstack import connection
 from openstack.tests.unit import base
 from openstack.tests.unit.cloud import fakes
+from openstack import utils
 
 
 PRIVATE_V4 = '198.51.100.3'
@@ -40,6 +42,7 @@ class FakeCloud:
     service_val = True
     _unused = "useless"
     _local_ipv6 = True
+    subcloud: 'FakeCloud'
 
     def get_flavor_name(self, id):
         return 'test-flavor-name'
@@ -328,7 +331,7 @@ class TestMeta(base.TestCase):
         )
 
     def test_get_server_ip(self):
-        srv = meta.obj_to_munch(standard_fake_server)
+        srv = cast(_server.Server, meta.obj_to_munch(standard_fake_server))
         self.assertEqual(PRIVATE_V4, meta.get_server_ip(srv, ext_tag='fixed'))
         self.assertEqual(
             PUBLIC_V4, meta.get_server_ip(srv, ext_tag='floating')
@@ -1206,9 +1209,9 @@ class TestMeta(base.TestCase):
                 'test-name_test-region_test-az',
             ],
             meta.get_groups_from_server(
-                FakeCloud(),
-                meta.obj_to_munch(standard_fake_server),
-                server_vars,
+                cast(connection.Connection, FakeCloud()),
+                cast(_server.Server, meta.obj_to_munch(standard_fake_server)),
+                cast(utils.Munch, server_vars),
             ),
         )
 
@@ -1221,8 +1224,10 @@ class TestMeta(base.TestCase):
         class obj1:
             value = 1
 
-        list = [obj0, obj1]
-        new_list = meta.obj_list_to_munch(list)
+        obj_list: list[object] = [obj0, obj1]
+        new_list = meta.obj_list_to_munch(obj_list)
+        assert new_list[0] is not None
+        assert new_list[1] is not None
         self.assertEqual(new_list[0]['value'], 0)
         self.assertEqual(new_list[1]['value'], 1)
 
@@ -1236,8 +1241,10 @@ class TestMeta(base.TestCase):
             {'name': 'testgroup', 'id': '1'}
         ]
 
-        server = meta.obj_to_munch(standard_fake_server)
-        hostvars = meta.get_hostvars_from_server(FakeCloud(), server)
+        server = cast(_server.Server, meta.obj_to_munch(standard_fake_server))
+        hostvars = meta.get_hostvars_from_server(
+            cast(connection.Connection, FakeCloud()), server
+        )
 
         mock_list_server_security_groups.assert_called_once_with(server)
         self.assertEqual('testgroup', hostvars['security_groups'][0]['name'])
@@ -1250,11 +1257,11 @@ class TestMeta(base.TestCase):
         mock_get_server_external_ipv4.return_value = PUBLIC_V4
         mock_get_server_external_ipv6.return_value = PUBLIC_V6
 
+        srv = meta.obj_to_munch(standard_fake_server)
+        assert srv is not None
         hostvars = meta.get_hostvars_from_server(
-            FakeCloud(),
-            self.cloud._normalize_server(
-                meta.obj_to_munch(standard_fake_server)
-            ),
+            cast(connection.Connection, FakeCloud()),
+            cast(_server.Server, self.cloud._normalize_server(srv)),
         )
         self.assertNotIn('links', hostvars)
         self.assertEqual(PRIVATE_V4, hostvars['private_v4'])
@@ -1294,7 +1301,8 @@ class TestMeta(base.TestCase):
         fake_cloud = FakeCloud()
         fake_cloud.force_ipv4 = True
         hostvars = meta.get_hostvars_from_server(
-            fake_cloud, meta.obj_to_munch(standard_fake_server)
+            cast(connection.Connection, fake_cloud),
+            cast(_server.Server, meta.obj_to_munch(standard_fake_server)),
         )
         self.assertEqual(PUBLIC_V4, hostvars['interface_ip'])
         self.assertEqual('', hostvars['public_v6'])
@@ -1306,7 +1314,8 @@ class TestMeta(base.TestCase):
         cloud = FakeCloud()
         cloud.private = True
         hostvars = meta.get_hostvars_from_server(
-            cloud, meta.obj_to_munch(standard_fake_server)
+            cast(connection.Connection, cloud),
+            cast(_server.Server, meta.obj_to_munch(standard_fake_server)),
         )
         self.assertEqual(PRIVATE_V4, hostvars['interface_ip'])
 
@@ -1317,7 +1326,8 @@ class TestMeta(base.TestCase):
         server = standard_fake_server
         server['image'] = 'fake-image-id'
         hostvars = meta.get_hostvars_from_server(
-            FakeCloud(), meta.obj_to_munch(server)
+            cast(connection.Connection, FakeCloud()),
+            cast(_server.Server, meta.obj_to_munch(server)),
         )
         self.assertEqual('fake-image-id', hostvars['image']['id'])
 
@@ -1325,7 +1335,9 @@ class TestMeta(base.TestCase):
         server = standard_fake_server
         server['OS-EXT-AZ:availability_zone'] = 'az1'
 
-        hostvars = self.cloud._normalize_server(meta.obj_to_munch(server))
+        srv = meta.obj_to_munch(server)
+        assert srv is not None
+        hostvars = self.cloud._normalize_server(srv)
         self.assertEqual('az1', hostvars['az'])
 
     def test_current_location(self):
@@ -1367,7 +1379,8 @@ class TestMeta(base.TestCase):
         fake_volume_dict = meta.obj_to_munch(fake_volume)
         mock_cloud.get_volumes.return_value = [fake_volume_dict]
         hostvars = meta.get_hostvars_from_server(
-            mock_cloud, meta.obj_to_munch(standard_fake_server)
+            mock_cloud,
+            cast(_server.Server, meta.obj_to_munch(standard_fake_server)),
         )
         self.assertEqual('volume1', hostvars['volumes'][0]['id'])
         self.assertEqual('/dev/sda0', hostvars['volumes'][0]['device'])
@@ -1376,7 +1389,8 @@ class TestMeta(base.TestCase):
         fake_cloud = FakeCloud()
         fake_cloud.service_val = False
         hostvars = meta.get_hostvars_from_server(
-            fake_cloud, meta.obj_to_munch(standard_fake_server)
+            cast(connection.Connection, fake_cloud),
+            cast(_server.Server, meta.obj_to_munch(standard_fake_server)),
         )
         self.assertEqual([], hostvars['volumes'])
 
@@ -1401,6 +1415,7 @@ class TestMeta(base.TestCase):
         cloud = FakeCloud()
         cloud.subcloud = FakeCloud()
         cloud_dict = meta.obj_to_munch(cloud)
+        assert cloud_dict is not None
         self.assertEqual(FakeCloud.name, cloud_dict['name'])
         self.assertNotIn('_unused', cloud_dict)
         self.assertNotIn('get_flavor_name', cloud_dict)
@@ -1409,11 +1424,12 @@ class TestMeta(base.TestCase):
         self.assertEqual(cloud_dict.name, cloud_dict['name'])
 
     def test_obj_to_munch_subclass(self):
-        class FakeObjDict(dict):
+        class FakeObjDict(dict[str, Any]):
             additional = 1
 
         obj = FakeObjDict(foo='bar')
         obj_dict = meta.obj_to_munch(obj)
+        assert obj_dict is not None
         self.assertIn('additional', obj_dict)
         self.assertIn('foo', obj_dict)
         self.assertEqual(obj_dict['additional'], 1)

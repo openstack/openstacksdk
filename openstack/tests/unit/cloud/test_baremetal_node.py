@@ -17,6 +17,7 @@ test_baremetal_node
 Tests for baremetal node related operations
 """
 
+from typing import Any
 import uuid
 
 from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
@@ -94,11 +95,23 @@ class TestBaremetalNode(base.TestCase):
             '00:01:02:03:04:05', node_id=self.uuid
         )
 
-    def get_mock_url(self, **kwargs):
-        kwargs.setdefault('service_type', 'baremetal')
-        kwargs.setdefault('interface', 'public')
-        kwargs.setdefault('base_url_append', 'v1')
-        return super().get_mock_url(**kwargs)
+    def get_mock_url(
+        self,
+        service_type='baremetal',
+        interface='public',
+        resource=None,
+        append=None,
+        base_url_append='v1',
+        qs_elements=None,
+    ):
+        return super().get_mock_url(
+            service_type=service_type,
+            interface=interface,
+            resource=resource,
+            append=append,
+            base_url_append=base_url_append,
+            qs_elements=qs_elements,
+        )
 
     def test_list_machines(self):
         fake_baremetal_two = make_fake_machine('two', str(uuid.uuid4()))
@@ -135,6 +148,7 @@ class TestBaremetalNode(base.TestCase):
         )
 
         machine = self.cloud.get_machine(self.fake_baremetal_node['uuid'])
+        assert machine is not None
         self.assertEqual(machine['uuid'], self.fake_baremetal_node['uuid'])
         self.assert_calls()
 
@@ -168,6 +182,7 @@ class TestBaremetalNode(base.TestCase):
         )
 
         machine = self.cloud.get_machine_by_mac(mac_address)
+        assert machine is not None
         self.assertEqual(machine['uuid'], self.fake_baremetal_node['uuid'])
         self.assert_calls()
 
@@ -1520,7 +1535,7 @@ class TestBaremetalNode(base.TestCase):
 
     def test_register_machine(self):
         mac_address = '00:01:02:03:04:05'
-        nics = [{'address': mac_address}]
+        nics: list[str | dict[str, Any]] = [{'address': mac_address}]
         node_uuid = self.fake_baremetal_node['uuid']
         # TODO(TheJulia): There is a lot of duplication
         # in testing creation. Surely this hsould be a helper
@@ -1565,7 +1580,9 @@ class TestBaremetalNode(base.TestCase):
     # accounted for newer microversions.
     def test_register_machine_enroll(self):
         mac_address = '00:01:02:03:04:05'
-        nics = [{'address': mac_address, 'pxe_enabled': False}]
+        nics: list[str | dict[str, Any]] = [
+            {'address': mac_address, 'pxe_enabled': False}
+        ]
         node_uuid = self.fake_baremetal_node['uuid']
         node_to_post = {
             'chassis_uuid': None,
@@ -1649,7 +1666,7 @@ class TestBaremetalNode(base.TestCase):
 
     def test_register_machine_enroll_wait(self):
         mac_address = self.fake_baremetal_port
-        nics = [{'address': mac_address}]
+        nics: list[str | dict[str, Any]] = [{'address': mac_address}]
         node_uuid = self.fake_baremetal_node['uuid']
         node_to_post = {
             'chassis_uuid': None,
@@ -2082,7 +2099,7 @@ class TestBaremetalNode(base.TestCase):
 
     def test_unregister_machine(self):
         mac_address = self.fake_baremetal_port['address']
-        nics = [{'mac': mac_address}]
+        nics: list[str | dict[str, Any]] = [{'mac': mac_address}]
         port_uuid = self.fake_baremetal_port['uuid']
         # NOTE(TheJulia): The two values below should be the same.
         port_node_uuid = self.fake_baremetal_port['node_uuid']
@@ -2170,7 +2187,7 @@ class TestBaremetalNode(base.TestCase):
 
     def test_unregister_machine_retries(self):
         mac_address = self.fake_baremetal_port['address']
-        nics = [{'mac': mac_address}]
+        nics: list[str | dict[str, Any]] = [{'mac': mac_address}]
         port_uuid = self.fake_baremetal_port['uuid']
         # NOTE(TheJulia): The two values below should be the same.
         port_node_uuid = self.fake_baremetal_port['node_uuid']
@@ -2378,7 +2395,7 @@ class TestBaremetalNode(base.TestCase):
 
     def test_list_ports_attached_to_machine(self):
         vif_id = '953ccbee-e854-450f-95fe-fe5e40d611ec'
-        fake_port = {'id': vif_id, 'name': 'test'}
+        fake_port: dict[str, Any] = {'id': vif_id, 'name': 'test'}
         self.register_uris(
             [
                 dict(
@@ -2426,6 +2443,60 @@ class TestUpdateMachinePatch(base.TestCase):
     # the scenario name appended. Useful for lots of
     # variables that need to be tested.
 
+    scenarios = [
+        ('chassis_uuid', dict(field_name='chassis_uuid', changed=False)),
+        (
+            'chassis_uuid_changed',
+            dict(field_name='chassis_uuid', changed=True, new_value='meow'),
+        ),
+        ('driver', dict(field_name='driver', changed=False)),
+        (
+            'driver_changed',
+            dict(field_name='driver', changed=True, new_value='meow'),
+        ),
+        ('driver_info', dict(field_name='driver_info', changed=False)),
+        (
+            'driver_info_changed',
+            dict(
+                field_name='driver_info',
+                changed=True,
+                new_value={'cat': 'meow'},
+            ),
+        ),
+        ('instance_info', dict(field_name='instance_info', changed=False)),
+        (
+            'instance_info_changed',
+            dict(
+                field_name='instance_info',
+                changed=True,
+                new_value={'cat': 'meow'},
+            ),
+        ),
+        ('instance_uuid', dict(field_name='instance_uuid', changed=False)),
+        (
+            'instance_uuid_changed',
+            dict(field_name='instance_uuid', changed=True, new_value='meow'),
+        ),
+        ('name', dict(field_name='name', changed=False)),
+        (
+            'name_changed',
+            dict(field_name='name', changed=True, new_value='meow'),
+        ),
+        ('properties', dict(field_name='properties', changed=False)),
+        (
+            'properties_changed',
+            dict(
+                field_name='properties',
+                changed=True,
+                new_value={'cat': 'meow'},
+            ),
+        ),
+    ]
+
+    field_name: str
+    changed: bool
+    new_value: str
+
     def setUp(self):
         super().setUp()
         self.use_ironic()
@@ -2433,11 +2504,23 @@ class TestUpdateMachinePatch(base.TestCase):
         self.name = self.getUniqueString('name')
         self.fake_baremetal_node = make_fake_machine(self.name, self.uuid)
 
-    def get_mock_url(self, **kwargs):
-        kwargs.setdefault('service_type', 'baremetal')
-        kwargs.setdefault('interface', 'public')
-        kwargs.setdefault('base_url_append', 'v1')
-        return super().get_mock_url(**kwargs)
+    def get_mock_url(
+        self,
+        service_type='baremetal',
+        interface='public',
+        resource=None,
+        append=None,
+        base_url_append='v1',
+        qs_elements=None,
+    ):
+        return super().get_mock_url(
+            service_type=service_type,
+            interface=interface,
+            resource=resource,
+            append=append,
+            base_url_append=base_url_append,
+            qs_elements=qs_elements,
+        )
 
     def test_update_machine_patch(self):
         # The model has evolved over time, create the field if
@@ -2490,53 +2573,3 @@ class TestUpdateMachinePatch(base.TestCase):
         self.assertSubdict(self.fake_baremetal_node, update_dict['node'])
 
         self.assert_calls()
-
-    scenarios = [
-        ('chassis_uuid', dict(field_name='chassis_uuid', changed=False)),
-        (
-            'chassis_uuid_changed',
-            dict(field_name='chassis_uuid', changed=True, new_value='meow'),
-        ),
-        ('driver', dict(field_name='driver', changed=False)),
-        (
-            'driver_changed',
-            dict(field_name='driver', changed=True, new_value='meow'),
-        ),
-        ('driver_info', dict(field_name='driver_info', changed=False)),
-        (
-            'driver_info_changed',
-            dict(
-                field_name='driver_info',
-                changed=True,
-                new_value={'cat': 'meow'},
-            ),
-        ),
-        ('instance_info', dict(field_name='instance_info', changed=False)),
-        (
-            'instance_info_changed',
-            dict(
-                field_name='instance_info',
-                changed=True,
-                new_value={'cat': 'meow'},
-            ),
-        ),
-        ('instance_uuid', dict(field_name='instance_uuid', changed=False)),
-        (
-            'instance_uuid_changed',
-            dict(field_name='instance_uuid', changed=True, new_value='meow'),
-        ),
-        ('name', dict(field_name='name', changed=False)),
-        (
-            'name_changed',
-            dict(field_name='name', changed=True, new_value='meow'),
-        ),
-        ('properties', dict(field_name='properties', changed=False)),
-        (
-            'properties_changed',
-            dict(
-                field_name='properties',
-                changed=True,
-                new_value={'cat': 'meow'},
-            ),
-        ),
-    ]

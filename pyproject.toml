@@ -130,13 +130,6 @@ disallow_untyped_calls = false
 disallow_untyped_defs = false
 warn_return_any = false
 
-[[tool.mypy.overrides]]
-module = [
-    # cloud layer
-    "openstack.tests.unit.cloud.*",
-]
-ignore_errors = true
-
 [tool.ruff]
 line-length = 79
 

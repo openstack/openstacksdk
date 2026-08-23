@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.container_infrastructure_management.v1 import service
 from openstack.tests.unit import base
 
 
-magnum_service_obj = dict(
+magnum_service_obj: dict[str, Any] = dict(
     binary='fake-service',
     created_at='2015-08-27T09:49:58-05:00',
     disabled_reason=None,

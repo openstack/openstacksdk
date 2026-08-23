@@ -17,6 +17,7 @@ test_delete_server
 Tests for the `delete_server` command.
 """
 
+from unittest import mock
 import uuid
 
 from openstack import exceptions
@@ -224,7 +225,10 @@ class TestDeleteServer(base.TestCase):
                 return False
             return orig_has_service(service_type)
 
-        self.cloud.has_service = fake_has_service
+        mock.patch.object(
+            self.cloud, 'has_service', side_effect=fake_has_service
+        ).start()
+        self.addCleanup(mock.patch.stopall)
 
         server = fakes.make_fake_server('1234', 'porky', 'ACTIVE')
         self.register_uris(

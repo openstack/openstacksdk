@@ -28,10 +28,11 @@ class TestSearch(base.TestCase):
     def setUp(self):
         super().setUp()
 
-        self.session = proxy.Proxy(self.cloud)
-        self.session._sdk_connection = self.cloud
-        self.session._get = mock.Mock()
-        self.session._list = mock.Mock()
+        self.session = proxy.Proxy(self.cloud)  # type: ignore[arg-type]
+        self.session._sdk_connection = self.cloud  # type: ignore[attr-defined]
+        self.mock_get = mock.patch.object(self.session, '_get').start()
+        self.mock_list = mock.patch.object(self.session, '_list').start()
+        self.addCleanup(mock.patch.stopall)
         self.session._resource_registry = dict(fake=self.FakeResource)
         # Set the mock into the cloud connection
         setattr(self.cloud, "mock_session", self.session)
@@ -53,10 +54,10 @@ class TestSearch(base.TestCase):
         )
 
     def test_search_resources_get_finds(self):
-        self.session._get.return_value = self.FakeResource(foo="bar")
+        self.mock_get.return_value = self.FakeResource(foo="bar")
 
         ret = self.cloud.search_resources("mock_session.fake", "fake_name")
-        self.session._get.assert_called_with(self.FakeResource, "fake_name")
+        self.mock_get.assert_called_with(self.FakeResource, "fake_name")
 
         self.assertEqual(1, len(ret))
         self.assertEqual(
@@ -64,14 +65,12 @@ class TestSearch(base.TestCase):
         )
 
     def test_search_resources_list(self):
-        self.session._get.side_effect = exceptions.NotFoundException
-        self.session._list.return_value = [self.FakeResource(foo="bar")]
+        self.mock_get.side_effect = exceptions.NotFoundException
+        self.mock_list.return_value = [self.FakeResource(foo="bar")]
 
         ret = self.cloud.search_resources("mock_session.fake", "fake_name")
-        self.session._get.assert_called_with(self.FakeResource, "fake_name")
-        self.session._list.assert_called_with(
-            self.FakeResource, name="fake_name"
-        )
+        self.mock_get.assert_called_with(self.FakeResource, "fake_name")
+        self.mock_list.assert_called_with(self.FakeResource, name="fake_name")
 
         self.assertEqual(1, len(ret))
         self.assertEqual(
@@ -79,8 +78,8 @@ class TestSearch(base.TestCase):
         )
 
     def test_search_resources_args(self):
-        self.session._get.side_effect = exceptions.NotFoundException
-        self.session._list.return_value = []
+        self.mock_get.side_effect = exceptions.NotFoundException
+        self.mock_list.return_value = []
 
         self.cloud.search_resources(
             "mock_session.fake",
@@ -91,10 +90,10 @@ class TestSearch(base.TestCase):
             list_kwargs={"listkwarg1": "1"},
             filter1="foo",
         )
-        self.session._get.assert_called_with(
+        self.mock_get.assert_called_with(
             self.FakeResource, "fake_name", "getarg1", getkwarg1="1"
         )
-        self.session._list.assert_called_with(
+        self.mock_list.assert_called_with(
             self.FakeResource,
             "listarg1",
             listkwarg1="1",
@@ -103,11 +102,15 @@ class TestSearch(base.TestCase):
         )
 
     def test_search_resources_name_empty(self):
-        self.session._list.return_value = [self.FakeResource(foo="bar")]
+        self.mock_list.return_value = [self.FakeResource(foo="bar")]
 
-        ret = self.cloud.search_resources("mock_session.fake", None, foo="bar")
-        self.session._get.assert_not_called()
-        self.session._list.assert_called_with(self.FakeResource, foo="bar")
+        ret = self.cloud.search_resources(
+            "mock_session.fake",
+            None,  # type: ignore[arg-type]
+            foo="bar",
+        )
+        self.mock_get.assert_not_called()
+        self.mock_list.assert_called_with(self.FakeResource, foo="bar")
 
         self.assertEqual(1, len(ret))
         self.assertEqual(

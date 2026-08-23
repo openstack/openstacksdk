@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import copy
+from typing import Any
 
 from openstack import exceptions
 from openstack.network.v2 import subnet as _subnet
@@ -57,7 +58,7 @@ class TestSubnet(base.TestCase):
         'tags': [],
     }
 
-    mock_subnetpool_rep = {
+    mock_subnetpool_rep: dict[str, Any] = {
         'id': 'f49a1319-423a-4ee6-ba54-1d95a4f6cc68',
         'prefixes': ['172.16.0.0/16'],
     }
@@ -543,7 +544,7 @@ class TestSubnet(base.TestCase):
             allocation_pools=pool,
             dns_nameservers=dns,
             use_default_subnetpool=True,
-            prefixlen=self.prefix_length,
+            prefixlen=self.prefix_length,  # type: ignore[arg-type]
             host_routes=routes,
         )
         mock_subnet_rep.update(
@@ -630,7 +631,7 @@ class TestSubnet(base.TestCase):
             allocation_pools=pool,
             dns_nameservers=dns,
             subnetpool_name_or_id=self.mock_subnetpool_rep['id'],
-            prefixlen=self.prefix_length,
+            prefixlen=self.prefix_length,  # type: ignore[arg-type]
             host_routes=routes,
         )
         mock_subnet_rep.update(
