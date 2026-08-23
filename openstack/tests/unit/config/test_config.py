@@ -1534,7 +1534,7 @@ class TestMagicFixes(base.TestCase):
             'external_network': 'public',
             'internal_network': 'private',
         }
-        expected = {
+        expected: dict[str, Any] = {
             'auth': {},
             'auth_type': None,
             'external_network': 'public',
@@ -1558,7 +1558,7 @@ class TestMagicFixes(base.TestCase):
 
     def test_normalize_network(self):
         cloud = {'auth': {}, 'networks': [{'name': 'private'}]}
-        expected = {
+        expected: dict[str, Any] = {
             'auth': {},
             'auth_type': None,
             'networks': [
@@ -1656,7 +1656,7 @@ class TestMagicFixes(base.TestCase):
             "auth": {},
             "passcode": "totp",
         }
-        expected = {
+        expected: dict[str, Any] = {
             "auth": {
                 "passcode": "totp",
             },
@@ -1671,7 +1671,7 @@ class TestMagicFixes(base.TestCase):
             "endpoint_type": "public",
             "foo_endpoint_type": "internal",
         }
-        expected = {
+        expected: dict[str, Any] = {
             "auth": {},
             'auth_type': None,
             'networks': [],
@@ -1694,7 +1694,7 @@ class TestMagicFixes(base.TestCase):
     def test_csv_keys(self):
         cloud: dict[str, Any] = {"auth": {}}
         cloud.update({k: "spam,ham" for k in loader.CSV_KEYS})
-        expected = {
+        expected: dict[str, Any] = {
             "auth_type": None,
             "auth": {},
             "networks": [],
@@ -1709,7 +1709,7 @@ class TestMagicFixes(base.TestCase):
             },
             "region_id": "RegionOne",
         }
-        expected = {
+        expected: dict[str, Any] = {
             "auth_type": None,
             "auth": {
                 "auth_url": "https://my.cloud/RegionOne",

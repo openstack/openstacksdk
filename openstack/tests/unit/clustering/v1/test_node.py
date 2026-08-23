@@ -77,7 +77,7 @@ class TestNode(base.TestCase):
         sess.post = mock.Mock(return_value=resp)
         self.assertEqual('', sot.check(sess))
         url = f'nodes/{sot.id}/actions'
-        body = {'check': {}}
+        body: dict[str, dict[str, Any]] = {'check': {}}
         sess.post.assert_called_once_with(url, json=body)
 
     def test_recover(self):
@@ -89,7 +89,7 @@ class TestNode(base.TestCase):
         sess.post = mock.Mock(return_value=resp)
         self.assertEqual('', sot.recover(sess))
         url = f'nodes/{sot.id}/actions'
-        body = {'recover': {}}
+        body: dict[str, dict[str, Any]] = {'recover': {}}
         sess.post.assert_called_once_with(url, json=body)
 
     def test_operation(self):

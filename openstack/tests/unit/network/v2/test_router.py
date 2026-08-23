@@ -217,7 +217,7 @@ class TestRouter(base.TestCase):
         r = router.Router(**EXAMPLE)
         response = mock.Mock()
         response.headers = {}
-        json_body = {'router': {}}
+        json_body: dict[str, dict[str, Any]] = {'router': {}}
         response.body = json_body
         response.json = mock.Mock(return_value=response.body)
         response.status_code = 200
@@ -233,7 +233,7 @@ class TestRouter(base.TestCase):
         r = router.Router(**EXAMPLE)
         response = mock.Mock()
         response.headers = {}
-        json_body = {'router': {}}
+        json_body: dict[str, dict[str, Any]] = {'router': {}}
         response.body = json_body
         response.json = mock.Mock(return_value=response.body)
         response.status_code = 200

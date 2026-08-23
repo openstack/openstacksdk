@@ -211,7 +211,7 @@ class TestContainer(base.TestCase):
         )
 
     def _test_no_headers(self, sot, sot_call, sess_method):
-        headers = {}
+        headers: dict[str, str] = {}
         self.register_uris(
             [
                 dict(

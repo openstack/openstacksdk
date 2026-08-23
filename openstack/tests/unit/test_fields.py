@@ -262,7 +262,7 @@ class TestComponent(base.TestCase):
         # ensure that we're sending the value through the type.
         # Instead, we use this tiny version of a similar thing.
         class FakeType:
-            calls = []
+            calls: list[Any] = []
 
             def __init__(self, arg):
                 FakeType.calls.append(arg)

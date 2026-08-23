@@ -22,7 +22,7 @@ FAKE_INPUT = {
     'flavor_id': '1',
 }
 
-FAKE_PARAMS = {}
+FAKE_PARAMS: dict[str, Any] = {}
 
 FAKE: dict[str, Any] = {
     'id': 'ffaed25e-46f5-4089-8e20-b3b4722fd597',
