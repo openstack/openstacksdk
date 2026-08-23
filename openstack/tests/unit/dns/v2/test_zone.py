@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -18,7 +19,7 @@ from openstack.dns.v2 import zone
 from openstack.tests.unit import base
 
 IDENTIFIER = 'NAME'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'attributes': {'tier': 'gold', 'ha': 'true'},
     'id': IDENTIFIER,
     'name': 'test.org',

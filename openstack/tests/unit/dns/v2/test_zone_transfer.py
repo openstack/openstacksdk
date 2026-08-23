@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.dns.v2 import zone_transfer
 from openstack.tests.unit import base
 
 
 IDENTIFIER = '074e805e-fe87-4cbb-b10b-21a06e215d41'
-EXAMPLE_REQUEST = {
+EXAMPLE_REQUEST: dict[str, Any] = {
     'created_at': '2014-07-17T20:34:40.882579',
     'description': 'some description',
     'id': IDENTIFIER,
@@ -27,7 +29,7 @@ EXAMPLE_REQUEST = {
     'zone_id': '6b78734a-aef1-45cd-9708-8eb3c2d26ff8',
     'zone_name': 'qa.dev.example.com.',
 }
-EXAMPLE_ACCEPT = {
+EXAMPLE_ACCEPT: dict[str, Any] = {
     'status': 'COMPLETE',
     'zone_id': 'b4542f5a-f1ea-4ec1-b850-52db9dc3f465',
     'created_at': '2016-06-22 06:13:55',

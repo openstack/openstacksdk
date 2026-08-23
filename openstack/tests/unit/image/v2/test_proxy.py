@@ -13,6 +13,7 @@
 import io
 import os.path
 import tempfile
+from typing import Any
 from unittest import mock
 
 import requests
@@ -54,6 +55,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         super().setUp()
         self.proxy = _proxy.Proxy(self.session)
         self.proxy._connection = self.cloud
+        self.addCleanup(mock.patch.stopall)
 
 
 class TestImage(TestImageProxy):
@@ -192,15 +194,17 @@ class TestImage(TestImageProxy):
                 self.proxy._IMAGE_SHA256_KEY: 'fake_sha256',
             },
         )
-        self.proxy.find_image = mock.Mock(return_value=fake_image)
+        mock.patch.object(
+            self.proxy, 'find_image', return_value=fake_image
+        ).start()
 
-        self.proxy._upload_image = mock.Mock()
+        mock_upload = mock.patch.object(self.proxy, '_upload_image').start()
 
         res = self.proxy.create_image(
             name='fake', md5='fake_md5', sha256='fake_sha256'
         )
         self.assertEqual(fake_image, res)
-        self.proxy._upload_image.assert_not_called()
+        mock_upload.assert_not_called()
 
     def test_image_create_checksum_mismatch(self):
         fake_image = _image.Image(
@@ -210,19 +214,21 @@ class TestImage(TestImageProxy):
                 self.proxy._IMAGE_SHA256_KEY: 'fake_sha256',
             },
         )
-        self.proxy.find_image = mock.Mock(return_value=fake_image)
+        mock.patch.object(
+            self.proxy, 'find_image', return_value=fake_image
+        ).start()
 
-        self.proxy._upload_image = mock.Mock()
+        mock_upload = mock.patch.object(self.proxy, '_upload_image').start()
 
         self.proxy.create_image(
             name='fake', data=b'fake', md5='fake2_md5', sha256='fake2_sha256'
         )
-        self.proxy._upload_image.assert_called()
+        mock_upload.assert_called()
 
     def test_image_create_allow_duplicates_find_not_called(self):
-        self.proxy.find_image = mock.Mock()
+        mock_find = mock.patch.object(self.proxy, 'find_image').start()
 
-        self.proxy._upload_image = mock.Mock()
+        mock.patch.object(self.proxy, '_upload_image').start()
 
         self.proxy.create_image(
             name='fake',
@@ -230,13 +236,13 @@ class TestImage(TestImageProxy):
             allow_duplicates=True,
         )
 
-        self.proxy.find_image.assert_not_called()
+        mock_find.assert_not_called()
 
     def test_image_create_validate_checksum_data_binary(self):
         """Pass real data as binary"""
-        self.proxy.find_image = mock.Mock()
+        mock_find = mock.patch.object(self.proxy, 'find_image').start()
 
-        self.proxy._upload_image = mock.Mock()
+        mock_upload = mock.patch.object(self.proxy, '_upload_image').start()
 
         self.proxy.create_image(
             name='fake',
@@ -246,9 +252,9 @@ class TestImage(TestImageProxy):
             disk_format='raw',
         )
 
-        self.proxy.find_image.assert_called_with('fake')
+        mock_find.assert_called_with('fake')
 
-        self.proxy._upload_image.assert_called_with(
+        mock_upload.assert_called_with(
             'fake',
             container_format='bare',
             disk_format='raw',
@@ -288,9 +294,9 @@ class TestImage(TestImageProxy):
 
     def test_image_create_data_binary(self):
         """Pass binary file-like object"""
-        self.proxy.find_image = mock.Mock()
+        mock.patch.object(self.proxy, 'find_image').start()
 
-        self.proxy._upload_image = mock.Mock()
+        mock_upload = mock.patch.object(self.proxy, '_upload_image').start()
 
         data = io.BytesIO(b'\0\0')
 
@@ -302,7 +308,7 @@ class TestImage(TestImageProxy):
             disk_format='raw',
         )
 
-        self.proxy._upload_image.assert_called_with(
+        mock_upload.assert_called_with(
             'fake',
             container_format='bare',
             disk_format='raw',
@@ -330,19 +336,19 @@ class TestImage(TestImageProxy):
         )
 
     def test_image_create_protected(self):
-        self.proxy.find_image = mock.Mock()
+        mock.patch.object(self.proxy, 'find_image').start()
 
         created_image = mock.Mock(spec=_image.Image(id="id"))
-        self.proxy._create = mock.Mock()
-        self.proxy._create.return_value = created_image
-        self.proxy._create.return_value.image_import_methods = []
+        mock_create = mock.patch.object(self.proxy, '_create').start()
+        mock_create.return_value = created_image
+        mock_create.return_value.image_import_methods = []
 
         created_image.upload = mock.Mock()
         created_image.upload.return_value = FakeResponse(
             response="", status_code=200
         )
 
-        properties = {"is_protected": True}
+        properties: dict[str, Any] = {"is_protected": True}
 
         self.proxy.create_image(
             name="fake",
@@ -352,12 +358,12 @@ class TestImage(TestImageProxy):
             **properties,
         )
 
-        _, kwargs = self.proxy._create.call_args
+        _, kwargs = mock_create.call_args
         self.assertEqual(kwargs["is_protected"], True)
 
     def test_image_create_with_stores(self):
-        self.proxy.find_image = mock.Mock()
-        self.proxy._upload_image = mock.Mock()
+        mock_find = mock.patch.object(self.proxy, 'find_image').start()
+        mock_upload = mock.patch.object(self.proxy, '_upload_image').start()
 
         self.proxy.create_image(
             name='fake',
@@ -368,9 +374,9 @@ class TestImage(TestImageProxy):
             stores=['cinder', 'swift'],
         )
 
-        self.proxy.find_image.assert_called_with('fake')
+        mock_find.assert_called_with('fake')
 
-        self.proxy._upload_image.assert_called_with(
+        mock_upload.assert_called_with(
             'fake',
             container_format='bare',
             disk_format='raw',
@@ -398,8 +404,8 @@ class TestImage(TestImageProxy):
         )
 
     def test_image_create_with_all_stores(self):
-        self.proxy.find_image = mock.Mock()
-        self.proxy._upload_image = mock.Mock()
+        mock_find = mock.patch.object(self.proxy, 'find_image').start()
+        mock_upload = mock.patch.object(self.proxy, '_upload_image').start()
 
         self.proxy.create_image(
             name='fake',
@@ -411,9 +417,9 @@ class TestImage(TestImageProxy):
             all_stores_must_succeed=True,
         )
 
-        self.proxy.find_image.assert_called_with('fake')
+        mock_find.assert_called_with('fake')
 
-        self.proxy._upload_image.assert_called_with(
+        mock_upload.assert_called_with(
             'fake',
             container_format='bare',
             disk_format='raw',
@@ -450,14 +456,14 @@ class TestImage(TestImageProxy):
         # operation.
         created_image = mock.Mock(spec=_image.Image(id="id"))
 
-        self.proxy._create = mock.Mock()
-        self.proxy._create.return_value = created_image
+        mock_create = mock.patch.object(self.proxy, '_create').start()
+        mock_create.return_value = created_image
 
         rv = self.proxy.upload_image(
             data="data", container_format="x", disk_format="y", name="z"
         )
 
-        self.proxy._create.assert_called_with(
+        mock_create.assert_called_with(
             _image.Image,
             container_format="x",
             disk_format="y",
@@ -470,13 +476,13 @@ class TestImage(TestImageProxy):
         """Test upload_image with positional arguments only"""
         created_image = mock.Mock(spec=_image.Image(id="id"))
 
-        self.proxy._create = mock.Mock()
-        self.proxy._create.return_value = created_image
+        mock_create = mock.patch.object(self.proxy, '_create').start()
+        mock_create.return_value = created_image
 
         # Call with positional args for container_format, disk_format, data
         rv = self.proxy.upload_image("bare", "qcow2", "imagedata")
 
-        self.proxy._create.assert_called_with(
+        mock_create.assert_called_with(
             _image.Image,
             container_format="bare",
             disk_format="qcow2",
@@ -489,8 +495,8 @@ class TestImage(TestImageProxy):
         """Test upload_image with keyword arguments only"""
         created_image = mock.Mock(spec=_image.Image(id="id"))
 
-        self.proxy._create = mock.Mock()
-        self.proxy._create.return_value = created_image
+        mock_create = mock.patch.object(self.proxy, '_create').start()
+        mock_create.return_value = created_image
 
         rv = self.proxy.upload_image(
             container_format="bare",
@@ -500,7 +506,7 @@ class TestImage(TestImageProxy):
             visibility="public",
         )
 
-        self.proxy._create.assert_called_with(
+        mock_create.assert_called_with(
             _image.Image,
             container_format="bare",
             disk_format="qcow2",
@@ -515,8 +521,8 @@ class TestImage(TestImageProxy):
         """Test upload_image with both positional and keyword arguments"""
         created_image = mock.Mock(spec=_image.Image(id="id"))
 
-        self.proxy._create = mock.Mock()
-        self.proxy._create.return_value = created_image
+        mock_create = mock.patch.object(self.proxy, '_create').start()
+        mock_create.return_value = created_image
 
         # Positional: container_format, disk_format
         # Keyword: data, name, tags
@@ -528,7 +534,7 @@ class TestImage(TestImageProxy):
             tags=["tag1", "tag2"],
         )
 
-        self.proxy._create.assert_called_with(
+        mock_create.assert_called_with(
             _image.Image,
             container_format="bare",
             disk_format="qcow2",
@@ -541,7 +547,6 @@ class TestImage(TestImageProxy):
 
     def test_image_add_location_no_url(self):
         image = _image.Image(id="id", status="queued")
-        image.add_location = mock.Mock()
 
         self.assertRaises(
             exceptions.InvalidRequest, self.proxy.add_image_location, image, ''
@@ -592,7 +597,7 @@ class TestImage(TestImageProxy):
     def test_image_download(self):
         original_image = _image.Image(**EXAMPLE)
 
-        test_data = [
+        test_data: list[dict[str, Any]] = [
             {
                 'name': 'Without store preferences',
                 'store_preferences': None,
@@ -627,27 +632,27 @@ class TestImage(TestImageProxy):
     @mock.patch("openstack.image.v2.image.Image.fetch")
     def test_image_stage(self, mock_fetch):
         image = _image.Image(id="id", status="queued")
-        image.stage = mock.Mock()
+        mock_stage = mock.patch.object(image, 'stage').start()
 
         self.proxy.stage_image(image)
         mock_fetch.assert_called()
-        image.stage.assert_called_with(self.proxy, size=None)
+        mock_stage.assert_called_with(self.proxy, size=None)
 
     @mock.patch("openstack.image.v2.image.Image.fetch")
     def test_image_stage_with_data(self, mock_fetch):
         image = _image.Image(id="id", status="queued")
-        image.stage = mock.Mock()
+        mock_stage = mock.patch.object(image, 'stage').start()
         mock_fetch.return_value = image
 
         rv = self.proxy.stage_image(image, data="data")
 
-        image.stage.assert_called_with(self.proxy, size=None)
+        mock_stage.assert_called_with(self.proxy, size=None)
         mock_fetch.assert_called()
         self.assertEqual(rv.data, "data")
 
     def test_image_stage_conflicting_options(self):
         image = _image.Image(id="id", status="queued")
-        image.stage = mock.Mock()
+        mock_stage = mock.patch.object(image, 'stage').start()
 
         exc = self.assertRaises(
             exceptions.SDKException,
@@ -660,11 +665,11 @@ class TestImage(TestImageProxy):
             'filename and data are mutually exclusive',
             str(exc),
         )
-        image.stage.assert_not_called()
+        mock_stage.assert_not_called()
 
     def test_image_stage_wrong_status(self):
         image = _image.Image(id="id", status="active")
-        image.stage = mock.Mock()
+        mock_stage = mock.patch.object(image, 'stage').start()
 
         exc = self.assertRaises(
             exceptions.SDKException,
@@ -676,7 +681,7 @@ class TestImage(TestImageProxy):
             'Image stage is only possible for images in the queued state.',
             str(exc),
         )
-        image.stage.assert_not_called()
+        mock_stage.assert_not_called()
 
     def test_image_delete(self):
         self.verify_delete(self.proxy.delete_image, _image.Image, False)
@@ -686,12 +691,12 @@ class TestImage(TestImageProxy):
 
     def test_delete_image__from_store(self):
         store = _service_info.Store(id='fast', is_default=True)
-        store.delete_image = mock.Mock()
+        mock_delete = mock.patch.object(store, 'delete_image').start()
         image = _image.Image(id="id", status="queued")
 
         self.proxy.delete_image(image, store=store)
 
-        store.delete_image.assert_called_with(
+        mock_delete.assert_called_with(
             self.proxy,
             image,
             ignore_missing=True,
@@ -1052,7 +1057,7 @@ class TestTask(TestImageProxy):
         status = 'success'
         res = _task.Task(id='1234', status=status)
 
-        result = self.proxy.wait_for_task(res, status, "failure", 0.01, 0.1)
+        result = self.proxy.wait_for_task(res, status, ["failure"], 0.01, 0.1)
 
         self.assertEqual(res, result)
 
@@ -1060,7 +1065,7 @@ class TestTask(TestImageProxy):
         status = "SUCcess"
         res = _task.Task(id='1234', status=status)
 
-        result = self.proxy.wait_for_task(res, status, "failure", 0.01, 0.1)
+        result = self.proxy.wait_for_task(res, status, ["failure"], 0.01, 0.1)
 
         self.assertEqual(res, result)
 
@@ -1088,17 +1093,15 @@ class TestTask(TestImageProxy):
             _task.Task(id='fake', status='success'),
         ]
 
-        self.proxy._create = mock.Mock()
-        self.proxy._create.side_effect = [
-            _task.Task(id='fake', status='success')
-        ]
+        mock_create = mock.patch.object(self.proxy, '_create').start()
+        mock_create.side_effect = [_task.Task(id='fake', status='success')]
 
         with mock.patch.object(_task.Task, 'fetch', mock_fetch):
             result = self.proxy.wait_for_task(res, interval=0.01, wait=0.5)
 
             self.assertEqual('success', result.status)
 
-            self.proxy._create.assert_called_with(
+            mock_create.assert_called_with(
                 mock.ANY, input=res.input, type=res.type
             )
 

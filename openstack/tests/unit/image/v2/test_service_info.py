@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from openstack import exceptions
@@ -18,14 +19,14 @@ from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE_IMPORT = {
+EXAMPLE_IMPORT: dict[str, Any] = {
     'import-methods': {
         'description': 'Import methods available.',
         'type': 'array',
         'value': ['glance-direct', 'web-download'],
     }
 }
-EXAMPLE_STORE = {
+EXAMPLE_STORE: dict[str, Any] = {
     'id': IDENTIFIER,
     'description': 'Fast access to rbd store',
     'default': True,

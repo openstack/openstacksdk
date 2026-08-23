@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.identity.v3 import role_system_user_assignment
 from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {'id': IDENTIFIER, 'name': '2', 'user_id': '4'}
+EXAMPLE: dict[str, Any] = {'id': IDENTIFIER, 'name': '2', 'user_id': '4'}
 
 
 class TestRoleSystemUserAssignment(base.TestCase):

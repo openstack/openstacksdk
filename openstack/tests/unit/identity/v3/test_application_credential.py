@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.identity.v3 import application_credential
 from openstack.tests.unit import base
 
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "user": {"id": "8ac43bb0926245cead88676a96c750d3"},
     "name": 'monitoring',
     "secret": 'rEaqvJka48mpv',

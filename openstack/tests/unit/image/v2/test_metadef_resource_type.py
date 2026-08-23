@@ -10,11 +10,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.image.v2 import metadef_resource_type
 from openstack.tests.unit import base
 
 
-EXAMPLE = {"name": "OS::Nova::Aggregate", "created_at": "2022-07-09T04:10:37Z"}
+EXAMPLE: dict[str, Any] = {
+    "name": "OS::Nova::Aggregate",
+    "created_at": "2022-07-09T04:10:37Z",
+}
 
 
 class TestMetadefResourceType(base.TestCase):

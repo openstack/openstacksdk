@@ -10,10 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.image.v2 import metadef_property
 from openstack.tests.unit import base
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'namespace_name': 'CIM::StorageAllocationSettingData',
     'name': 'Access',
     'type': 'string',

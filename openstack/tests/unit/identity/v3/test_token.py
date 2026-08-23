@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -19,7 +20,7 @@ from openstack.identity.v3 import token
 from openstack.tests.unit import base
 
 IDENTIFIER = 'IDENTIFIER'
-TOKEN_DATA = {
+TOKEN_DATA: dict[str, Any] = {
     'audit_ids': ['VcxU2JEMTjufVx7sVk7bPw'],
     'catalog': [
         {
@@ -57,7 +58,7 @@ TOKEN_DATA = {
     'is_domain': False,
 }
 
-EXAMPLE = {'token': TOKEN_DATA}
+EXAMPLE: dict[str, Any] = {'token': TOKEN_DATA}
 
 
 class TestToken(base.TestCase):

@@ -10,10 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.identity.v3 import access_rule
 from openstack.tests.unit import base
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "links": {
         "self": "https://example.com/identity/v3/access_rules"
         "/07d719df00f349ef8de77d542edf010c"

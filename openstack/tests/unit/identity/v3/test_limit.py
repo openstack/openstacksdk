@@ -11,6 +11,7 @@
 # under the License.
 
 import copy
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -20,7 +21,7 @@ from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "service_id": "8ac43bb0926245cead88676a96c750d3",
     "region_id": 'RegionOne',
     "resource_name": 'cores',
@@ -78,7 +79,8 @@ class TestLimit(base.TestCase):
 
     def test_create(self):
         sot = limit.Limit(**EXAMPLE)
-        sot._translate_response = mock.Mock()
+        mock.patch.object(sot, '_translate_response').start()
+        self.addCleanup(mock.patch.stopall)
         self.sess.post = mock.Mock(return_value=self.resp)
 
         sot.create(self.sess)

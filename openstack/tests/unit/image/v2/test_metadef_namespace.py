@@ -11,6 +11,7 @@
 # under the License.
 
 
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -21,7 +22,7 @@ from openstack.tests.unit import base
 from openstack.tests.unit.test_resource import FakeResponse
 
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'display_name': 'Cinder Volume Type',
     'created_at': '2022-08-24T17:46:24Z',
     'protected': True,
@@ -83,7 +84,8 @@ class TestMetadefNamespace(base.TestCase):
     def test_delete_all_properties(self):
         sot = metadef_namespace.MetadefNamespace(**EXAMPLE)
         session = mock.Mock(spec=adapter.Adapter)
-        sot._translate_response = mock.Mock()
+        mock.patch.object(sot, '_translate_response').start()
+        self.addCleanup(mock.patch.stopall)
         sot.delete_all_properties(session)
         session.delete.assert_called_with(
             'metadefs/namespaces/OS::Cinder::Volumetype/properties'
@@ -93,7 +95,8 @@ class TestMetadefNamespace(base.TestCase):
     def test_delete_all_objects(self):
         sot = metadef_namespace.MetadefNamespace(**EXAMPLE)
         session = mock.Mock(spec=adapter.Adapter)
-        sot._translate_response = mock.Mock()
+        mock.patch.object(sot, '_translate_response').start()
+        self.addCleanup(mock.patch.stopall)
         sot.delete_all_objects(session)
         session.delete.assert_called_with(
             'metadefs/namespaces/OS::Cinder::Volumetype/objects'
