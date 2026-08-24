@@ -932,7 +932,7 @@ class Resource(dict[str, Any]):
         same source dict several times.
         """
         relevant_attrs = {}
-        consumed_keys = []
+        consumed_keys = set()
         for key, value in attrs.items():
             # We want the key lookup in mapping to be case insensitive if the
             # mapping is, thus the use of get. We want value to be exact.
@@ -944,7 +944,7 @@ class Resource(dict[str, Any]):
                 for map_key, map_value in mapping.items():
                     if key.lower() in (map_key.lower(), map_value.lower()):
                         relevant_attrs[map_key] = value
-                        consumed_keys.append(key)
+                        consumed_keys.add(key)
                 continue
 
         for key in consumed_keys:

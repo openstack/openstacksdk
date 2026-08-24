@@ -390,6 +390,26 @@ class TestResource(base.TestCase):
             {serverside_key1: value1, serverside_key2: value2}, result
         )
 
+    def test__consume_attrs_duplicate_matching_keys(self):
+        mapping = {
+            "_stack_name": "stack_name",
+            "stack_name": "name",
+        }
+        attrs = {"stack_name": "castle_siege"}
+
+        sot = resource.Resource()
+
+        result = sot._consume_attrs(mapping, attrs)
+
+        self.assertDictEqual({}, attrs)
+        self.assertDictEqual(
+            {
+                "_stack_name": "castle_siege",
+                "stack_name": "castle_siege",
+            },
+            result,
+        )
+
     def test__mapping_defaults(self):
         # Check that even on an empty class, we get the expected
         # built-in attributes.
