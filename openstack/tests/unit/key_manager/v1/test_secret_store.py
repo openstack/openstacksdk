@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.key_manager.v1 import secret_store
 from openstack.tests.unit import base
 
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "status": "ACTIVE",
     "updated": "2016-08-22T23:46:45.114283",
     "name": "PKCS11 HSM",

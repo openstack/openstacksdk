@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
+
 from openstack.instance_ha.v1 import vmove
 from openstack.tests.unit import base
 
@@ -20,7 +22,7 @@ FAKE_UUID = "16a7c91f-8342-49a7-c731-3a632293f845"
 FAKE_NOTIFICATION_ID = "a0e70d3a-b3a2-4616-b65d-a7c03a2c85fc"
 FAKE_SERVER_ID = "1c2f1795-ce78-4d4c-afd0-ce141fdb3952"
 
-VMOVE = {
+VMOVE: dict[str, Any] = {
     'id': FAKE_ID,
     'uuid': FAKE_UUID,
     'notification_id': FAKE_NOTIFICATION_ID,
@@ -40,7 +42,7 @@ VMOVE = {
 
 class TestVMove(base.TestCase):
     def test_basic(self):
-        sot = vmove.VMove(VMOVE)
+        sot = vmove.VMove(**VMOVE)
         self.assertEqual("vmove", sot.resource_key)
         self.assertEqual("vmoves", sot.resources_key)
         self.assertEqual(

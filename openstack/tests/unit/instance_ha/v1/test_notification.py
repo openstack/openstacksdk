@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
+
 from openstack.instance_ha.v1 import notification
 from openstack.tests.unit import base
 
@@ -42,7 +44,7 @@ RECOVERY_WORKFLOW_DETAILS = [
     }
 ]
 
-NOTIFICATION = {
+NOTIFICATION: dict[str, Any] = {
     "id": FAKE_ID,
     "notification_uuid": FAKE_UUID,
     "created_at": "2018-03-22T00:00:00.000000",
@@ -59,7 +61,7 @@ NOTIFICATION = {
 
 class TestNotification(base.TestCase):
     def test_basic(self):
-        sot = notification.Notification(NOTIFICATION)
+        sot = notification.Notification(**NOTIFICATION)
         self.assertEqual("notification", sot.resource_key)
         self.assertEqual("notifications", sot.resources_key)
         self.assertEqual("/notifications", sot.base_path)

@@ -10,13 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 import uuid
 
 from openstack.message.v2 import message
 from openstack.tests.unit import base
 
-FAKE1 = {
+FAKE1: dict[str, Any] = {
     'age': 456,
     'body': {
         'current_bytes': '0',
@@ -30,7 +31,7 @@ FAKE1 = {
 }
 
 
-FAKE2 = {
+FAKE2: dict[str, Any] = {
     'age': 456,
     'body': {
         'current_bytes': '0',
@@ -136,7 +137,8 @@ class TestMessage(base.TestCase):
         mock_uuid.return_value = 'NEW_CLIENT_ID'
 
         sot = message.Message(**FAKE1)
-        sot._translate_response = mock.Mock()
+        mock_translate = mock.patch.object(sot, '_translate_response').start()
+        self.addCleanup(mock.patch.stopall)
         res = sot.fetch(sess)
 
         url = 'queues/{queue}/messages/{message}'.format(
@@ -149,7 +151,7 @@ class TestMessage(base.TestCase):
         }
         sess.get.assert_called_with(url, headers=headers, skip_cache=False)
         sess.get_project_id.assert_called_once_with()
-        sot._translate_response.assert_called_once_with(resp)
+        mock_translate.assert_called_once_with(resp)
         self.assertEqual(sot, res)
 
     def test_get_client_id_project_id_exist(self):
@@ -158,7 +160,8 @@ class TestMessage(base.TestCase):
         sess.get.return_value = resp
 
         sot = message.Message(**FAKE1)
-        sot._translate_response = mock.Mock()
+        mock.patch.object(sot, '_translate_response').start()
+        self.addCleanup(mock.patch.stopall)
         res = sot.fetch(sess)
 
         url = 'queues/{queue}/messages/{message}'.format(
@@ -166,14 +169,14 @@ class TestMessage(base.TestCase):
             message=FAKE2['id'],
         )
         sot = message.Message(**FAKE2)
-        sot._translate_response = mock.Mock()
+        mock_translate = mock.patch.object(sot, '_translate_response').start()
         res = sot.fetch(sess)
         headers = {
             'Client-ID': 'OLD_CLIENT_ID',
             'X-PROJECT-ID': 'OLD_PROJECT_ID',
         }
         sess.get.assert_called_with(url, headers=headers, skip_cache=False)
-        sot._translate_response.assert_called_once_with(resp)
+        mock_translate.assert_called_once_with(resp)
         self.assertEqual(sot, res)
 
     @mock.patch.object(uuid, 'uuid4')
@@ -186,7 +189,8 @@ class TestMessage(base.TestCase):
 
         sot = message.Message(**FAKE1)
         sot.claim_id = None
-        sot._translate_response = mock.Mock()
+        mock_translate = mock.patch.object(sot, '_translate_response').start()
+        self.addCleanup(mock.patch.stopall)
         sot.delete(sess)
 
         url = 'queues/{queue}/messages/{message}'.format(
@@ -199,7 +203,7 @@ class TestMessage(base.TestCase):
         }
         sess.delete.assert_called_with(url, headers=headers)
         sess.get_project_id.assert_called_once_with()
-        sot._translate_response.assert_called_once_with(resp, has_body=False)
+        mock_translate.assert_called_once_with(resp, has_body=False)
 
     @mock.patch.object(uuid, 'uuid4')
     def test_delete_claimed(self, mock_uuid):
@@ -211,7 +215,8 @@ class TestMessage(base.TestCase):
 
         sot = message.Message(**FAKE1)
         sot.claim_id = 'CLAIM_ID'
-        sot._translate_response = mock.Mock()
+        mock_translate = mock.patch.object(sot, '_translate_response').start()
+        self.addCleanup(mock.patch.stopall)
         sot.delete(sess)
 
         url = 'queues/{queue}/messages/{message}?claim_id={cid}'.format(
@@ -225,7 +230,7 @@ class TestMessage(base.TestCase):
         }
         sess.delete.assert_called_with(url, headers=headers)
         sess.get_project_id.assert_called_once_with()
-        sot._translate_response.assert_called_once_with(resp, has_body=False)
+        mock_translate.assert_called_once_with(resp, has_body=False)
 
     def test_delete_client_id_project_id_exist(self):
         sess = mock.Mock()
@@ -234,7 +239,8 @@ class TestMessage(base.TestCase):
 
         sot = message.Message(**FAKE2)
         sot.claim_id = None
-        sot._translate_response = mock.Mock()
+        mock_translate = mock.patch.object(sot, '_translate_response').start()
+        self.addCleanup(mock.patch.stopall)
         sot.delete(sess)
 
         url = 'queues/{queue}/messages/{message}'.format(
@@ -246,4 +252,4 @@ class TestMessage(base.TestCase):
             'X-PROJECT-ID': 'OLD_PROJECT_ID',
         }
         sess.delete.assert_called_with(url, headers=headers)
-        sot._translate_response.assert_called_once_with(resp, has_body=False)
+        mock_translate.assert_called_once_with(resp, has_body=False)

@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from openstack.key_manager.v1 import secret
@@ -17,7 +18,7 @@ from openstack.tests.unit import base
 
 ID_VAL = "123"
 IDENTIFIER = f'http://localhost:9311/v1/secrets/{ID_VAL}'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'algorithm': '1',
     'bit_length': '2',
     'content_types': {'default': '3'},
@@ -127,6 +128,7 @@ class TestSecret(base.TestCase):
             ]
         )
 
+        expected_payload: str | bytes
         if content_type == "text/plain":
             expected_payload = payload.decode("utf-8")
         else:

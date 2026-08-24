@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.key_manager.v1 import order
 from openstack.tests.unit import base
 
@@ -17,7 +19,7 @@ from openstack.tests.unit import base
 ID_VAL = "123"
 SECRET_ID = "5"
 IDENTIFIER = f'http://localhost/orders/{ID_VAL}'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'created': '1',
     'creator_id': '2',
     'meta': {'key': '3'},

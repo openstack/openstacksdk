@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 import uuid
 
 from openstack.load_balancer.v2 import amphora
@@ -28,7 +29,7 @@ IMAGE_ID = uuid.uuid4()
 COMPUTE_FLAVOR = uuid.uuid4()
 AMPHORA_ID = uuid.uuid4()
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'id': IDENTIFIER,
     'loadbalancer_id': LB_ID,
     'compute_id': COMPUTE_ID,

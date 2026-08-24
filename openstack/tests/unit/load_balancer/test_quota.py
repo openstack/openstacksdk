@@ -13,12 +13,14 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from typing import Any
+
 from openstack.load_balancer.v2 import quota
 from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'load_balancer': 1,
     'listener': 2,
     'pool': 3,
@@ -50,7 +52,7 @@ class TestQuota(base.TestCase):
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
 
     def test_prepare_request(self):
-        body = {'id': 'ABCDEFGH', 'load_balancer': '12345'}
+        body: dict[str, Any] = {'id': 'ABCDEFGH', 'load_balancer': '12345'}
         quota_obj = quota.Quota(**body)
         response = quota_obj._prepare_request()
         self.assertNotIn('id', response)

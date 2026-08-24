@@ -12,11 +12,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.load_balancer.v2 import provider
 from openstack.tests.unit import base
 
 
-EXAMPLE = {'name': 'best', 'description': 'The best provider'}
+EXAMPLE: dict[str, Any] = {'name': 'best', 'description': 'The best provider'}
 
 
 class TestProvider(base.TestCase):
