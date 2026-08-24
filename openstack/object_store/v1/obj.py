@@ -375,12 +375,13 @@ class Object(_base.BaseResource):
         self,
         session: adapter.Adapter,
         microversion: str | None = None,
-        **kwargs: Any,
+        *,
+        params: dict[str, Any] | None = None,
+        base_path: str | None = None,
     ) -> req_lib.Response:
         if not self.allow_delete:
             raise exceptions.MethodNotSupported(self, 'delete')
 
-        request = self._prepare_request(**kwargs)
         session = self._get_session(session)
         if microversion is None:
             microversion = self._get_microversion(session)
@@ -389,13 +390,18 @@ class Object(_base.BaseResource):
             # Fetch metadata to determine SLO flag
             self.head(session)
 
-        headers = {}
-
+        params = dict(params or {})
         if self.is_static_large_object:
-            headers['multipart-manifest'] = 'delete'
+            # Deleting a static large object manifest with this query
+            # parameter instructs swift to delete the manifest object *and*
+            # all of its segments in a single request. Note that it must be
+            # passed as a query string parameter and not as a header.
+            params['multipart-manifest'] = 'delete'
+
+        request = self._prepare_request(params=params, base_path=base_path)
 
         return session.delete(
             request.url,
-            headers=headers,
+            headers=request.headers,
             microversion=microversion,
         )

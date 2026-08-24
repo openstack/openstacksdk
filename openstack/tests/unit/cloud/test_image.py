@@ -1080,7 +1080,6 @@ class TestImage(BaseTestImage):
     def test_delete_autocreated_image_objects(self):
         self.use_keystone_v3()
         self.cloud.image_api_use_tasks = True
-        endpoint = self.cloud.object_store.get_endpoint()
         other_image = self.getUniqueString('no-delete')
 
         self.register_uris(
@@ -1156,7 +1155,12 @@ class TestImage(BaseTestImage):
                 ),
                 dict(
                     method='DELETE',
-                    uri=f'{endpoint}/{self.container_name}/{self.image_name}',
+                    uri=self.get_mock_url(
+                        service_type='object-store',
+                        resource=self.container_name,
+                        append=[self.image_name],
+                        qs_elements=['multipart-manifest=delete'],
+                    ),
                 ),
             ]
         )
