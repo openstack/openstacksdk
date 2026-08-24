@@ -10,10 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.placement.v1 import resource_provider_inventory
 from openstack.tests.unit import base
 
-FAKE = {
+FAKE: dict[str, Any] = {
     'allocation_ratio': 1.0,
     'max_unit': 35,
     'min_unit': 1,

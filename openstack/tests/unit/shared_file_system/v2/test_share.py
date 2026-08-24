@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -19,7 +20,7 @@ from openstack.tests.unit import base
 
 
 IDENTIFIER = '08a87d37-5ca2-4308-86c5-cba06d8d796c'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "id": IDENTIFIER,
     "size": 2,
     "availability_zone": "manila-zone-1",

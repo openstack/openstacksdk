@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -19,7 +20,7 @@ from openstack.tests.unit import base
 
 IDENTIFIER = "75559a8b-c90c-42a7-bda2-edbe86acfb7b"
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "status": "available",
     "progress": "100%",
     "share_id": "d94a8548-2079-4be0-b21c-0a887acd31ca",

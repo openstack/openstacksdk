@@ -10,13 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.orchestration.v1 import stack_event
 from openstack.tests.unit import base
 
 
 FAKE_ID = 'ce8ae86c-9810-4cb1-8888-7fb53bc523bf'
 FAKE_NAME = 'test_stack'
-FAKE = {
+FAKE: dict[str, Any] = {
     'event_time': '2015-03-09T12:15:57.233772',
     'id': FAKE_ID,
     'links': [{'href': f'stacks/{FAKE_NAME}/{FAKE_ID}', 'rel': 'self'}],

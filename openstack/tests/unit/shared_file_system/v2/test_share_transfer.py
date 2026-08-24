@@ -10,10 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.shared_file_system.v2 import share_transfer
 from openstack.tests.unit import base
 
-EXAMPLE = [
+EXAMPLE: list[dict[str, Any]] = [
     {
         "id": "02a948b4-671b-4c62-b13a-18d613cb4576",
         "resource_type": "share",

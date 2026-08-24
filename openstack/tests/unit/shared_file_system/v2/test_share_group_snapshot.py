@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -18,7 +19,7 @@ from openstack.shared_file_system.v2 import share_group_snapshot
 from openstack.tests.unit import base
 
 IDENTIFIER = '38152b6d-e1b5-465f-91bc-20bca4676a2a'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "id": IDENTIFIER,
     "name": "snapshot_1",
     "created_at": "2021-10-24T19:36:49.555325",

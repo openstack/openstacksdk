@@ -10,13 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.orchestration.v1 import software_config
 from openstack.tests.unit import base
 
 
 FAKE_ID = 'ce8ae86c-9810-4cb1-8888-7fb53bc523bf'
 FAKE_NAME = 'test_software_config'
-FAKE = {
+FAKE: dict[str, Any] = {
     'id': FAKE_ID,
     'name': FAKE_NAME,
     'config': 'fake config',

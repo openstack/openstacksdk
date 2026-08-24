@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.tests.unit import base
 from openstack.workflow.v2 import workflow
 
 
-FAKE = {
+FAKE: dict[str, Any] = {
     'scope': 'private',
     'id': 'ffaed25e-46f5-4089-8e20-b3b4722fd597',
     'definition': 'workflow_def',

@@ -10,13 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from openstack.orchestration.v1 import template
 from openstack import resource
 from openstack.tests.unit import base
 
-FAKE = {
+FAKE: dict[str, Any] = {
     'Description': 'Blah blah',
     'Parameters': {'key_name': {'type': 'string'}},
     'ParameterGroups': [{'label': 'Group 1', 'parameters': ['key_name']}],

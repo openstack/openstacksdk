@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.orchestration.v1 import stack_environment as se
 from openstack.tests.unit import base
 
 
-FAKE = {
+FAKE: dict[str, Any] = {
     'encrypted_param_names': ['n1', 'n2'],
     'event_sinks': {'s1': 'v1'},
     'parameters': {'key_name': {'type': 'string'}},

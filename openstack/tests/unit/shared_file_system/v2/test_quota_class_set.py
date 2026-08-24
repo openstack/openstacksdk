@@ -11,10 +11,12 @@
 # under the License.
 
 
+from typing import Any
+
 from openstack.shared_file_system.v2 import quota_class_set
 from openstack.tests.unit import base
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "share_groups": 50,
     "gigabytes": 1000,
     "share_group_snapshots": 50,

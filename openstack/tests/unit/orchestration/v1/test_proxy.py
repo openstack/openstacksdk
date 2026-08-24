@@ -450,6 +450,9 @@ class TestOrchestrationTemplate(TestOrchestrationProxy):
 
 
 class TestExtractName(TestOrchestrationProxy):
+    url: str
+    parts: list[str]
+
     scenarios = [
         ('stacks', dict(url='/stacks', parts=['stacks'])),
         ('name_id', dict(url='/stacks/name/id', parts=['stack'])),

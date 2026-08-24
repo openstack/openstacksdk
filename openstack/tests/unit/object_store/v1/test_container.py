@@ -11,6 +11,7 @@
 # under the License.
 
 import json
+from typing import Any
 
 from openstack.object_store.v1 import container
 from openstack.tests.unit import base
@@ -20,7 +21,9 @@ class TestContainer(base.TestCase):
     def setUp(self):
         super().setUp()
         self.container = self.getUniqueString()
-        self.endpoint = self.cloud.object_store.get_endpoint() + '/'
+        endpoint = self.cloud.object_store.get_endpoint()
+        assert endpoint is not None
+        self.endpoint = endpoint + '/'
         self.container_endpoint = f'{self.endpoint}{self.container}'
 
         self.body = {
@@ -42,7 +45,9 @@ class TestContainer(base.TestCase):
             'x-timestamp': '1453414055.48672',
             'x-storage-policy': 'Gold',
         }
-        self.body_plus_headers = dict(self.body, **self.headers)
+        self.body_plus_headers: dict[str, Any] = dict(
+            self.body, **self.headers
+        )
 
     def test_basic(self):
         sot = container.Container.new(**self.body)

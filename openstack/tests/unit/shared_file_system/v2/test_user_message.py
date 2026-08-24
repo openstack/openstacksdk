@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.shared_file_system.v2 import user_message
 from openstack.tests.unit import base
 
 
 IDENTIFIER = "2784bc88-b729-4220-a6bb-a8b7a8f53aad"
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "id": IDENTIFIER,
     "project_id": "dcc9de3c5fc8471ba3662dbb2b6166d5",
     "action_id": "001",

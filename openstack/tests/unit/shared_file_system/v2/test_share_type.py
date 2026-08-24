@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from openstack.shared_file_system.v2 import share_type
@@ -17,7 +18,7 @@ from openstack.tests.unit import base
 
 
 IDENTIFIER = '52a6d881-ba4e-4c50-aa0c-041e4e3756aa'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "required_extra_specs": {"driver_handles_share_servers": "True"},
     "share_type_access:is_public": True,
     "extra_specs": {"driver_handles_share_servers": "True"},

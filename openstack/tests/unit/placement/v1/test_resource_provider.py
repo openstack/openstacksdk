@@ -10,10 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.placement.v1 import resource_provider as rp
 from openstack.tests.unit import base
 
-FAKE = {
+FAKE: dict[str, Any] = {
     'uuid': '751cd30a-df22-4ef8-b028-67c1c5aeddc3',
     'name': 'fake-name',
     'parent_provider_uuid': '9900cc2d-88e8-429d-927a-182adf1577b0',

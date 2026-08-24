@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from openstack import exceptions
@@ -19,7 +20,7 @@ from openstack.tests.unit import test_resource
 
 FAKE_ID = 'ce8ae86c-9810-4cb1-8888-7fb53bc523bf'
 FAKE_NAME = 'test_stack'
-FAKE = {
+FAKE: dict[str, Any] = {
     'capabilities': '1',
     'creation_time': '2015-03-09T12:15:57.233772',
     'deletion_time': '2015-03-09T12:15:57.233772',
@@ -178,8 +179,9 @@ class TestStack(base.TestCase):
     def test_check(self):
         sess = mock.Mock()
         sot = stack.Stack(**FAKE)
-        sot._action = mock.Mock()
-        sot._action.side_effect = [
+        mock_action = mock.patch.object(sot, '_action').start()
+        self.addCleanup(mock.patch.stopall)
+        mock_action.side_effect = [
             test_resource.FakeResponse(None, 200, None),
             exceptions.BadRequestException(message='oops'),
             exceptions.NotFoundException(message='oops'),
@@ -187,7 +189,7 @@ class TestStack(base.TestCase):
         body = {'check': ''}
 
         sot.check(sess)
-        sot._action.assert_called_with(sess, body)
+        mock_action.assert_called_with(sess, body)
 
         self.assertRaises(exceptions.BadRequestException, sot.check, sess)
         self.assertRaises(exceptions.NotFoundException, sot.check, sess)

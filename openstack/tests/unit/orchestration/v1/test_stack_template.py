@@ -11,12 +11,13 @@
 # under the License.
 
 import copy
+from typing import Any
 
 from openstack.orchestration.v1 import stack_template
 from openstack.tests.unit import base
 
 
-FAKE = {
+FAKE: dict[str, Any] = {
     'description': 'template description',
     'heat_template_version': '2014-10-16',
     'parameters': {'key_name': {'type': 'string'}},

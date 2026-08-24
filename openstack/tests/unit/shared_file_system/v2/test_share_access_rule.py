@@ -10,10 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.shared_file_system.v2 import share_access_rule
 from openstack.tests.unit import base
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "access_level": "rw",
     "state": "error",
     "id": "507bf114-36f2-4f56-8cf4-857985ca87c1",
