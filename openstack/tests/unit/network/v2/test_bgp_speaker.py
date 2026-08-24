@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from openstack.network.v2 import agent
@@ -18,7 +19,7 @@ from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'id': IDENTIFIER,
     'name': 'bgp-speaker',
     'peers': [],
@@ -148,7 +149,7 @@ class TestBgpSpeaker(base.TestCase):
     def test_get_bgp_dragents(self, mock_list):
         sot = bgp_speaker.BgpSpeaker(**EXAMPLE)
         response = mock.Mock()
-        agent_body = {
+        agent_body: dict[str, Any] = {
             'agents': [
                 {
                     'binary': 'neutron-bgp-dragent',

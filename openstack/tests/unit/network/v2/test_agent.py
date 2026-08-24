@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from openstack.network.v2 import agent
@@ -17,7 +18,7 @@ from openstack.network.v2 import bgp_speaker
 from openstack.tests.unit import base
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'admin_state_up': True,
     'agent_type': 'Test Agent',
     'alive': True,
@@ -88,9 +89,9 @@ class TestAgent(base.TestCase):
         # Remove agent from agent
         net = agent.Agent(**EXAMPLE)
         sess = mock.Mock()
-        network_id = {}
+        network_id = ''
         self.assertIsNone(net.remove_agent_from_network(sess, network_id))
-        body = {'network_id': {}}
+        body = {'network_id': ''}
 
         sess.delete.assert_called_with(
             'agents/IDENTIFIER/dhcp-networks/', json=body
@@ -170,9 +171,9 @@ class TestAgent(base.TestCase):
     def test_remove_router_from_agent(self):
         sot = agent.Agent(**EXAMPLE)
         sess = mock.Mock()
-        router_id = {}
+        router_id = ''
         self.assertIsNone(sot.remove_router_from_agent(sess, router_id))
-        body = {'router_id': {}}
+        body = {'router_id': ''}
 
         sess.delete.assert_called_with(
             'agents/IDENTIFIER/l3-routers/', json=body
@@ -183,7 +184,7 @@ class TestAgent(base.TestCase):
         sot = agent.Agent(**EXAMPLE)
         sess = mock.Mock()
         response = mock.Mock()
-        speaker_body = {
+        speaker_body: dict[str, Any] = {
             'bgp_speakers': [
                 {'name': 'bgp_speaker_1', 'ip_version': 4, 'id': IDENTIFIER}
             ]

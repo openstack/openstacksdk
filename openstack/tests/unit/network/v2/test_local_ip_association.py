@@ -13,10 +13,12 @@
 #   under the License.
 #
 
+from typing import Any
+
 from openstack.network.v2 import local_ip_association
 from openstack.tests.unit import base
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'local_ip_id': '0',
     'local_ip_address': '127.0.0.1',
     'fixed_port_id': '1',

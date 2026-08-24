@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.network.v2 import tap_flow
 from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'name': 'my_tap_flow',
     'source_port': '1234',
     'tap_service_id': '4321',

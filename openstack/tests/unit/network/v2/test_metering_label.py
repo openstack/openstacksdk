@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.network.v2 import metering_label
 from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'description': '1',
     'id': IDENTIFIER,
     'name': '3',

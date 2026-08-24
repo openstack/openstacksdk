@@ -13,10 +13,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.network.v2 import firewall_rule
 from openstack.tests.unit import base
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'action': 'allow',
     'description': '1',
     'destination_ip_address': '10.0.0.2/24',

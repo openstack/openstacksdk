@@ -132,7 +132,6 @@ warn_return_any = false
 [[tool.mypy.overrides]]
 module = [
     # services
-    "openstack.tests.unit.network.*",
     "openstack.tests.unit.object_store.*",
     "openstack.tests.unit.orchestration.*",
     "openstack.tests.unit.placement.*",

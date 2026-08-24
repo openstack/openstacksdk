@@ -13,11 +13,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.network.v2 import firewall_policy
 from openstack.tests.unit import base
 
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'description': '1',
     'name': '2',
     'firewall_rules': [

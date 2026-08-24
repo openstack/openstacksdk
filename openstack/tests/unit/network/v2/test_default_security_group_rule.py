@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.network.v2 import default_security_group_rule
 from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'description': '1',
     'direction': '2',
     'ethertype': '3',

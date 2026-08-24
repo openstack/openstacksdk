@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.network import version
 from openstack.tests.unit import base
 
 
 IDENTIFIER = 'v2.0'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'id': IDENTIFIER,
     'links': '2',
     'status': '3',

@@ -10,13 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 import uuid
 
 from openstack.network.v2 import qos_policy
 from openstack.tests.unit import base
 
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'id': 'IDENTIFIER',
     'description': 'QoS policy description',
     'name': 'qos-policy-name',

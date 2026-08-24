@@ -10,10 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.network.v2 import ndp_proxy
 from openstack.tests.unit import base
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'id': 'np_id',
     'name': 'np_name',
     'router_id': 'router-uuid',

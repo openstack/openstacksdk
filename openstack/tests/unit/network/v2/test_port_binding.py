@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from openstack.network.v2 import port_binding
@@ -17,7 +18,7 @@ from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'host': 'host1',
     'profile': {},
     'vif_details': {'bridge_name': 'br-int'},

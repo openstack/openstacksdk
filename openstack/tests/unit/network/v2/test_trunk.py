@@ -10,13 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 
 from openstack import exceptions
 from openstack.network.v2 import trunk
 from openstack.tests.unit import base
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'id': 'IDENTIFIER',
     'description': 'Trunk description',
     'name': 'trunk-name',

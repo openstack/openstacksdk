@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.network.v2 import service_profile
 from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE_WITH_OPTIONAL = {
+EXAMPLE_WITH_OPTIONAL: dict[str, Any] = {
     'description': 'test flavor profile',
     'driver': 'neutron_lbaas.drivers.octavia.driver.OctaviaDriver',
     'enabled': True,
@@ -23,7 +25,7 @@ EXAMPLE_WITH_OPTIONAL = {
     'project_id': '5',
 }
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'driver': 'neutron_lbaas.drivers.octavia.driver.OctaviaDriver',
 }
 

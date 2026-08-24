@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.network.v2 import sfc_port_pair_group
 from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "description": "",
     "project_id": "4ad57e7ce0b24fca8f12b9834d91079d",
     "tenant_id": "4ad57e7ce0b24fca8f12b9834d91079d",

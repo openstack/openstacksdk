@@ -9,6 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from typing import Any
 from unittest import mock
 
 from openstack import exceptions
@@ -17,7 +18,7 @@ from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'address_scope_id': '1',
     'created_at': '2',
     'default_prefixlen': 3,

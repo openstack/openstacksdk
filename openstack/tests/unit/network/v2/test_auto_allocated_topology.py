@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.network.v2 import auto_allocated_topology
 from openstack.tests.unit import base
 
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'project_id': '1',
     'dry_run': False,
 }

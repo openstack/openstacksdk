@@ -13,11 +13,13 @@
 #   under the License.
 #
 
+from typing import Any
+
 from openstack.network.v2 import local_ip
 from openstack.tests.unit import base
 
 IDENTIFIER = 'IDENTIFIER'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'created_at': '0',
     'id': IDENTIFIER,
     'name': '1',

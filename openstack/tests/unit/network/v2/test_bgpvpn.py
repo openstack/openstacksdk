@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.network.v2 import bgpvpn
 from openstack.network.v2 import bgpvpn_network_association
 from openstack.network.v2 import bgpvpn_port_association
@@ -23,7 +25,7 @@ IDENTIFIER = 'IDENTIFIER'
 NET_ID = 'NET_ID'
 PORT_ID = 'PORT_ID'
 ROUTER_ID = 'ROUTER_ID'
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     'id': IDENTIFIER,
     'name': 'bgpvpn',
     'project_id': '42',
@@ -77,7 +79,7 @@ class TestBgpVpn(base.TestCase):
 
     def test_create_bgpvpn_network_association(self):
         test_bpgvpn = bgpvpn.BgpVpn(**EXAMPLE)
-        test_net = network.Network(**{'name': 'foo_net', 'id': NET_ID})
+        test_net = network.Network(name='foo_net', id=NET_ID)
         sot = bgpvpn_network_association.BgpVpnNetworkAssociation(
             bgpvn_id=test_bpgvpn.id, network_id=test_net.id
         )
@@ -86,9 +88,7 @@ class TestBgpVpn(base.TestCase):
 
     def test_create_bgpvpn_port_association(self):
         test_bpgvpn = bgpvpn.BgpVpn(**EXAMPLE)
-        test_port = port.Port(
-            **{'name': 'foo_port', 'id': PORT_ID, 'network_id': NET_ID}
-        )
+        test_port = port.Port(name='foo_port', id=PORT_ID, network_id=NET_ID)
         sot = bgpvpn_port_association.BgpVpnPortAssociation(
             bgpvn_id=test_bpgvpn.id, port_id=test_port.id
         )
@@ -97,7 +97,7 @@ class TestBgpVpn(base.TestCase):
 
     def test_create_bgpvpn_router_association(self):
         test_bpgvpn = bgpvpn.BgpVpn(**EXAMPLE)
-        test_router = router.Router(**{'name': 'foo_port'})
+        test_router = router.Router(name='foo_port')
         sot = bgpvpn_router_association.BgpVpnRouterAssociation(
             bgpvn_id=test_bpgvpn.id, router_id=test_router.id
         )

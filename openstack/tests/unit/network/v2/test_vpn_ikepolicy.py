@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack.network.v2 import vpn_ike_policy
 from openstack.tests.unit import base
 
 
-EXAMPLE = {
+EXAMPLE: dict[str, Any] = {
     "auth_algorithm": "1",
     "description": "2",
     "encryption_algorithm": "3",
