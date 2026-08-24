@@ -151,7 +151,7 @@ ignore = [
     # we only use asserts for type narrowing
     "S101",
 ]
-external = ["H"]
+external = ["H", "O"]
 
 [tool.ruff.lint.per-file-ignores]
 "openstack/tests/*" = ["S"]
