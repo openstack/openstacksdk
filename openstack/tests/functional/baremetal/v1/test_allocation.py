@@ -33,7 +33,12 @@ class Base(base.BaseBaremetalTest):
             node, 'provide', wait=True
         )
         # Make sure the node has non-empty power state by forcing power off.
-        self.operator_cloud.baremetal.set_node_power_state(node, 'power off')
+        # This must wait: allocations only consider nodes with a known power
+        # state, and the power API returns as soon as ironic acknowledges the
+        # request, before the conductor has committed the new state.
+        self.operator_cloud.baremetal.set_node_power_state(
+            node, 'power off', wait=True
+        )
         self.addCleanup(
             lambda: self.operator_cloud.baremetal.update_node(
                 node.id, instance_id=None

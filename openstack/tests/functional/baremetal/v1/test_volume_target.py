@@ -27,7 +27,7 @@ class TestBareMetalVolumetarget(base.BaseBaremetalTest):
             self.node, 'manage', wait=True
         )
         self.operator_cloud.baremetal.set_node_power_state(
-            self.node, 'power off'
+            self.node, 'power off', wait=True
         )
         volume_target = self.create_volume_target(
             boot_index=0,
@@ -61,12 +61,14 @@ class TestBareMetalVolumetarget(base.BaseBaremetalTest):
         self.operator_cloud.baremetal.set_node_provision_state(
             node2, 'manage', wait=True
         )
-        self.operator_cloud.baremetal.set_node_power_state(node2, 'power off')
+        self.operator_cloud.baremetal.set_node_power_state(
+            node2, 'power off', wait=True
+        )
         self.operator_cloud.baremetal.set_node_provision_state(
             self.node, 'manage', wait=True
         )
         self.operator_cloud.baremetal.set_node_power_state(
-            self.node, 'power off'
+            self.node, 'power off', wait=True
         )
         vt1 = self.create_volume_target(
             boot_index=0,
@@ -110,7 +112,7 @@ class TestBareMetalVolumetarget(base.BaseBaremetalTest):
             self.node, 'manage', wait=True
         )
         self.operator_cloud.baremetal.set_node_power_state(
-            self.node, 'power off'
+            self.node, 'power off', wait=True
         )
         self.create_volume_target(
             boot_index=0,
@@ -139,7 +141,7 @@ class TestBareMetalVolumetarget(base.BaseBaremetalTest):
             self.node, 'manage', wait=True
         )
         self.operator_cloud.baremetal.set_node_power_state(
-            self.node, 'power off'
+            self.node, 'power off', wait=True
         )
         volume_target = self.create_volume_target(
             boot_index=0,
@@ -165,7 +167,7 @@ class TestBareMetalVolumetarget(base.BaseBaremetalTest):
             self.node, 'manage', wait=True
         )
         self.operator_cloud.baremetal.set_node_power_state(
-            self.node, 'power off'
+            self.node, 'power off', wait=True
         )
         volume_target = self.create_volume_target(
             boot_index=0,
@@ -218,7 +220,7 @@ class TestBareMetalVolumetarget(base.BaseBaremetalTest):
             self.node, 'manage', wait=True
         )
         self.operator_cloud.baremetal.set_node_power_state(
-            self.node, 'power off'
+            self.node, 'power off', wait=True
         )
         self.create_volume_target(
             boot_index=0,
