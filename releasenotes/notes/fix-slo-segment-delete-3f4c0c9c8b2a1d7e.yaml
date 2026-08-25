@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    Deleting a static large object (SLO) now correctly removes the underlying
+    segment objects in addition to the manifest object. Previously the
+    ``multipart-manifest=delete`` instruction was sent to swift as an HTTP
+    header rather than a query string parameter, so it was ignored and the
+    segments were left behind, which could in turn prevent the containing
+    container from being deleted.

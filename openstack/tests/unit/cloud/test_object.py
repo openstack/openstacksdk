@@ -679,6 +679,30 @@ class TestObject(BaseTestObject):
 
         self.assert_calls()
 
+    def test_delete_object_slo(self):
+        # Deleting a static large object manifest must pass
+        # multipart-manifest=delete as a query parameter so that swift also
+        # removes the underlying segments.
+        self.register_uris(
+            [
+                dict(
+                    method='HEAD',
+                    uri=self.object_endpoint,
+                    headers={'X-Static-Large-Object': 'True'},
+                ),
+                dict(
+                    method='DELETE',
+                    uri=f'{self.object_endpoint}?multipart-manifest=delete',
+                    complete_qs=True,
+                    status_code=200,
+                ),
+            ]
+        )
+
+        self.assertTrue(self.cloud.delete_object(self.container, self.object))
+
+        self.assert_calls()
+
     def test_get_object(self):
         headers = {
             'Content-Length': '20304400896',
