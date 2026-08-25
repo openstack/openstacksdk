@@ -263,7 +263,7 @@ class TestCluster(base.TestCase):
         sess.post = mock.Mock(return_value=resp)
         self.assertEqual('', sot.check(sess))
         url = f'clusters/{sot.id}/actions'
-        body = {'check': {}}
+        body: dict[str, Any] = {'check': {}}
         sess.post.assert_called_once_with(url, json=body)
 
     def test_recover(self):
@@ -275,7 +275,7 @@ class TestCluster(base.TestCase):
         sess.post = mock.Mock(return_value=resp)
         self.assertEqual('', sot.recover(sess))
         url = f'clusters/{sot.id}/actions'
-        body = {'recover': {}}
+        body: dict[str, Any] = {'recover': {}}
         sess.post.assert_called_once_with(url, json=body)
 
     def test_operation(self):
@@ -287,7 +287,7 @@ class TestCluster(base.TestCase):
         sess.post = mock.Mock(return_value=resp)
         self.assertEqual('', sot.op(sess, 'dance', style='tango'))
         url = f'clusters/{sot.id}/ops'
-        body = {'dance': {'style': 'tango'}}
+        body: dict[str, Any] = {'dance': {'style': 'tango'}}
         sess.post.assert_called_once_with(url, json=body)
 
     def test_force_delete(self):

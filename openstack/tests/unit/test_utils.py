@@ -13,7 +13,7 @@
 import concurrent.futures
 import logging
 import sys
-from typing import cast
+from typing import Any, cast
 from unittest import mock
 
 import fixtures
@@ -285,7 +285,7 @@ class TestTinyDAG(base.TestCase):
 
     def test_walk_parallel(self):
         sot = self._create_tinydag(self.test_graph)
-        sorted_list = []
+        sorted_list: list[Any] = []
         with concurrent.futures.ThreadPoolExecutor(max_workers=15) as executor:
             for node in sot.walk(timeout=1):
                 executor.submit(test_walker_fn, sot, node, sorted_list)

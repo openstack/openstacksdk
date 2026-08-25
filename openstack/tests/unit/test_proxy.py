@@ -111,7 +111,9 @@ class TestProxyPrivate(base.TestCase):
         fake_type.new = mock.Mock(return_value=value)
         attrs = {"first": "Brian", "last": "Curtin"}
 
-        result = self.fake_proxy._get_resource(fake_type, None, **attrs)
+        result: resource.Resource = self.fake_proxy._get_resource(
+            fake_type, None, **attrs
+        )
 
         fake_type.new.assert_called_with(connection=self.cloud, **attrs)
         self.assertEqual(value, result)
@@ -164,7 +166,9 @@ class TestProxyPrivate(base.TestCase):
         m = utils.Munch(answer=42)
         attrs = {"first": "Brian", "last": "Curtin"}
 
-        result = self.fake_proxy._get_resource(cls, m, **attrs)
+        result: resource.Resource = self.fake_proxy._get_resource(
+            cls, m, **attrs
+        )
 
         cls._from_munch.assert_called_once_with(m, connection=self.cloud)
         res._update.assert_called_once_with(**attrs)
@@ -802,7 +806,7 @@ class TestProxyCleanup(base.TestCase):
         self.delete_mock.assert_called_with(self.res)
 
     def test_service_cleanup_real_run_identified_resources(self):
-        rd = dict()
+        rd: dict[str, resource.Resource] = dict()
         self.assertTrue(
             self.sot._service_cleanup_del_res(
                 self.delete_mock,
@@ -859,7 +863,7 @@ class TestProxyCleanup(base.TestCase):
         self.delete_mock.assert_called()
 
     def test_service_cleanup_queue(self):
-        q = queue.Queue()
+        q: queue.Queue[resource.Resource] = queue.Queue()
         self.assertTrue(
             self.sot._service_cleanup_del_res(
                 self.delete_mock,

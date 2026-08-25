@@ -987,7 +987,7 @@ class TestServer(base.TestCase):
 
         self.assertIsNone(res)
         url = 'servers/IDENTIFIER/action'
-        body = {"rescue": {}}
+        body: dict[str, dict[str, Any]] = {"rescue": {}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
             url,
@@ -1041,7 +1041,7 @@ class TestServer(base.TestCase):
 
         self.assertIsNone(res)
         url = 'servers/IDENTIFIER/action'
-        body = {"evacuate": {}}
+        body: dict[str, dict[str, Any]] = {"evacuate": {}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
             url,
@@ -1272,7 +1272,7 @@ class TestServer(base.TestCase):
 
         self.assertIsNone(res)
         url = 'servers/IDENTIFIER/action'
-        body = {'os-getConsoleOutput': {}}
+        body: dict[str, dict[str, Any]] = {'os-getConsoleOutput': {}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
             url,
