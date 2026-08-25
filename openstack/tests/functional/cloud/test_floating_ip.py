@@ -182,7 +182,7 @@ class TestFloatingIP(base.BaseFunctionalTest):
             data = proxy._json_response(
                 self.user_cloud.compute.get('/os-tenant-networks')
             )
-            nets = meta.get_and_munchify('networks', data)
+            nets = meta.get_and_munchify('networks', data)  # type: ignore[arg-type]
             self.addDetail(
                 'networks-nova', content.text_content(pprint.pformat(nets))
             )

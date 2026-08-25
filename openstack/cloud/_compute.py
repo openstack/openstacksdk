@@ -597,9 +597,9 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         if bare or not server:
             return server
         elif detailed:
-            return meta.get_hostvars_from_server(self, server)
+            return meta.get_hostvars_from_server(self, server)  # type: ignore[arg-type]
         else:
-            return meta.add_server_interfaces(self, server)
+            return meta.add_server_interfaces(self, server)  # type: ignore[arg-type]
 
     def get_server_by_id(self, id):
         """Get a server by ID.
@@ -610,7 +610,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         """
         try:
             server = self.compute.get_server(id)
-            return meta.add_server_interfaces(self, server)
+            return meta.add_server_interfaces(self, server)  # type: ignore[arg-type]
         except exceptions.NotFoundException:
             return None
 
@@ -741,7 +741,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         :param server:
         :returns: The private IP of the server if set, else None.
         """
-        return meta.get_server_private_ip(server, self)
+        return meta.get_server_private_ip(server, self)  # type: ignore[arg-type]
 
     def get_server_public_ip(self, server):
         """Get the public IP of a server.
@@ -749,7 +749,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         :param server:
         :returns: The public IP of the server if set, else None.
         """
-        return meta.get_server_external_ipv4(self, server)
+        return meta.get_server_external_ipv4(self, server)  # type: ignore[arg-type]
 
     def get_server_meta(self, server):
         """Get the metadata for a server.
@@ -766,8 +766,8 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
             os_warnings.RemovedInSDK60Warning,
         )
         # TODO(mordred) remove once ansible has moved to Inventory interface
-        server_vars = meta.get_hostvars_from_server(self, server)
-        groups = meta.get_groups_from_server(self, server, server_vars)
+        server_vars = meta.get_hostvars_from_server(self, server)  # type: ignore[arg-type]
+        groups = meta.get_groups_from_server(self, server, server_vars)  # type: ignore[arg-type]
         return dict(server_vars=server_vars, groups=groups)
 
     @_utils.valid_kwargs(
@@ -1101,7 +1101,7 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
                     extra_data=dict(server=server),
                 )
 
-            server = meta.add_server_interfaces(self, server)
+            server = meta.add_server_interfaces(self, server)  # type: ignore[arg-type]
 
         else:
             server = self.wait_for_server(
@@ -1975,13 +1975,13 @@ class ComputeCloudMixin(_network_common.NetworkCommonCloudMixin):
         return base64.b64encode(userdata).decode('utf-8')
 
     def get_openstack_vars(self, server):
-        return meta.get_hostvars_from_server(self, server)
+        return meta.get_hostvars_from_server(self, server)  # type: ignore[arg-type]
 
     def _expand_server_vars(self, server):
         # Used by nodepool
         # TODO(mordred) remove after these make it into what we
         # actually want the API to be.
-        return meta.expand_server_vars(self, server)
+        return meta.expand_server_vars(self, server)  # type: ignore[arg-type]
 
     def _remove_novaclient_artifacts(self, item):
         # Remove novaclient artifacts

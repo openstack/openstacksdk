@@ -46,10 +46,10 @@ def get_events(
     exceptions.raise_from_response(response)
 
     # Show which stack the event comes from (for nested events)
-    events = meta.get_and_munchify('events', response.json())  # type: ignore[no-untyped-call]
+    events: list[Any] = meta.get_and_munchify('events', response.json())
     for e in events:
         e['stack_name'] = stack_id.split("/")[0]
-    return events  # type: ignore[no-any-return]
+    return events
 
 
 def poll_for_events(
