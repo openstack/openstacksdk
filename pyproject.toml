@@ -114,7 +114,23 @@ exclude = "(?x)(doc | examples | releasenotes)"
 [[tool.mypy.overrides]]
 module = [
     "openstack._hacking.*",
-    "openstack.cloud.*",
+    "openstack.cloud._accelerator",
+    "openstack.cloud._baremetal",
+    "openstack.cloud._block_storage",
+    "openstack.cloud._coe",
+    "openstack.cloud._compute",
+    "openstack.cloud._dns",
+    "openstack.cloud._identity",
+    "openstack.cloud._image",
+    "openstack.cloud._network",
+    "openstack.cloud._network_common",
+    "openstack.cloud._object_store",
+    "openstack.cloud._orchestration",
+    "openstack.cloud._shared_file_system",
+    "openstack.cloud.cmd.*",
+    "openstack.cloud.inventory",
+    "openstack.cloud.meta",
+    "openstack.cloud.openstackcloud",
     "openstack.tests.functional.*",
 ]
 disable_error_code = ["func-returns-value"]

@@ -17,7 +17,7 @@ import functools
 import queue
 import types
 from typing import Any, Optional, Self, TYPE_CHECKING
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 import warnings
 import weakref
 
@@ -550,7 +550,7 @@ class _OpenStackCloudMixin(_services_mixin.ServicesMixin):
         :raises: :class:`~openstack.exceptions.SDKException` on invalid range
             expressions.
         """
-        filtered: list[object] = []
+        filtered: list[Mapping[str, Any]] = []
 
         for key, range_value in filters.items():
             # We always want to operate on the full data set so that
