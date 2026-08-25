@@ -12,7 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
+
 from openstack.cloud import _utils
+from openstack.compute.v2 import server as _server
 from openstack.config import loader
 from openstack import connection
 from openstack import exceptions
@@ -26,14 +29,14 @@ class OpenStackInventory:
 
     def __init__(
         self,
-        config_files=None,
-        refresh=False,
-        private=False,
-        config_key=None,
-        config_defaults=None,
-        cloud=None,
-        use_direct_get=False,
-    ):
+        config_files: list[str] | None = None,
+        refresh: bool = False,
+        private: bool = False,
+        config_key: str | None = None,
+        config_defaults: dict[str, Any] | None = None,
+        cloud: str | None = None,
+        use_direct_get: bool = False,
+    ) -> None:
         if config_files is None:
             config_files = []
         config = loader.OpenStackConfig(
@@ -52,17 +55,20 @@ class OpenStackInventory:
             self.clouds = [connection.Connection(config=config.get_one(cloud))]
 
         if private:
-            for cloud in self.clouds:
-                cloud.private = True
+            for _cloud in self.clouds:
+                _cloud.private = True
 
         # Handle manual invalidation of entire persistent cache
         if refresh:
-            for cloud in self.clouds:
-                cloud._cache.invalidate()
+            for _cloud in self.clouds:
+                _cloud._cache.invalidate()  # type: ignore[no-untyped-call]
 
     def list_hosts(
-        self, expand=True, fail_on_cloud_config=True, all_projects=False
-    ):
+        self,
+        expand: bool = True,
+        fail_on_cloud_config: bool = True,
+        all_projects: bool = False,
+    ) -> list[_server.Server]:
         hostvars = []
 
         for cloud in self.clouds:
@@ -79,11 +85,21 @@ class OpenStackInventory:
 
         return hostvars
 
-    def search_hosts(self, name_or_id=None, filters=None, expand=True):
+    def search_hosts(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | None = None,
+        expand: bool = True,
+    ) -> list[_server.Server] | None:
         hosts = self.list_hosts(expand=expand)
         return _utils._filter_list(hosts, name_or_id, filters)
 
-    def get_host(self, name_or_id, filters=None, expand=True):
+    def get_host(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | None = None,
+        expand: bool = True,
+    ) -> _server.Server | None:
         hosts = self.search_hosts(name_or_id, filters, expand=expand)
         if not hosts:
             return None

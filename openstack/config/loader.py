@@ -465,7 +465,7 @@ class OpenStackConfig:
         return os.environ.get(key, default)
 
     def get_extra_config(
-        self, key: str, defaults: dict[str, Any] | None = None
+        self, key: str | None, defaults: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """Fetch an arbitrary extra chunk of config, laying in defaults.
 

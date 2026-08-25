@@ -16,6 +16,7 @@
 import argparse
 import json
 import sys
+from typing import Any
 
 import yaml
 
@@ -24,14 +25,14 @@ import openstack.cloud.inventory
 from openstack import exceptions
 
 
-def output_format_dict(data, use_yaml):
+def _dump(data: Any, use_yaml: bool) -> str:
     if use_yaml:
         return yaml.safe_dump(data, default_flow_style=False)
     else:
         return json.dumps(data, sort_keys=True, indent=2)
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='OpenStack Inventory Module')
     parser.add_argument(
         '--refresh', action='store_true', help='Refresh cached information'
@@ -65,7 +66,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def main():
+def main() -> None:
     args = parse_args()
     try:
         openstack.enable_logging(debug=args.debug)
@@ -73,10 +74,10 @@ def main():
             refresh=args.refresh, private=args.private, cloud=args.cloud
         )
         if args.list:
-            output = inventory.list_hosts()
+            output: Any = inventory.list_hosts()
         elif args.host:
             output = inventory.get_host(args.host)
-        print(output_format_dict(output, args.yaml))
+        print(_dump(output, args.yaml))
     except exceptions.SDKException as e:
         sys.stderr.write(e.message + '\n')
         sys.exit(1)
