@@ -56,3 +56,11 @@ class NetworkIPAvailability(resource.Resource):
     #: The used or consumed ip of a network
     #: *Type: int*
     used_ips = resource.Body('used_ips', type=int)
+    #: The detailed IP availability of a network, holding the
+    #: ``total_ips_in_subnet``, ``total_ips_in_allocation_pool``,
+    #: ``used_ips_in_subnet`` and ``used_ips_in_allocation_pool`` keys.
+    #: Requires the ``network-ip-availability-details`` extension.
+    #: *Type: dict*
+    ip_availability_details = resource.Body(
+        'ip_availability_details', type=dict
+    )

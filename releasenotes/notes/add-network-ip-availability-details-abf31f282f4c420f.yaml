@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Added the ``ip_availability_details`` field to the network
+    ``NetworkIPAvailability`` resource. This exposes the attribute added by
+    the Neutron ``network-ip-availability-details`` extension, which reports
+    the total and used IP counts of a network separately for the subnet CIDRs
+    and for the subnet allocation pools.
