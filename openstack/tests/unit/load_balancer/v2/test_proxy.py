@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from unittest import mock
 import uuid
 
 from openstack.load_balancer.v2 import _proxy
@@ -482,3 +483,66 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
             self.proxy.update_availability_zone,
             availability_zone.AvailabilityZone,
         )
+
+
+class TestProjectCleanup(test_proxy_base.TestProxyBase):
+    def setUp(self):
+        super().setUp()
+        self.proxy = _proxy.Proxy(self.session, service_type='load-balancer')
+
+    def test_get_cleanup_dependencies(self):
+        deps = self.proxy._get_cleanup_dependencies()
+        self.assertIn('load_balancer', deps)
+        self.assertIn('compute', deps['load_balancer']['before'])
+        self.assertIn('network', deps['load_balancer']['before'])
+
+    @mock.patch.object(_proxy.Proxy, 'load_balancers', autospec=True)
+    @mock.patch.object(_proxy.Proxy, 'delete_load_balancer', autospec=True)
+    @mock.patch.object(_proxy.Proxy, 'wait_for_delete', autospec=True)
+    def test_service_cleanup(self, mock_wait, mock_delete, mock_list):
+        obj = lb.LoadBalancer(id='lb-1', name='test-lb')
+        mock_list.return_value = [obj]
+
+        self.proxy._service_cleanup(
+            dry_run=False,
+            client_status_queue=None,
+            identified_resources=None,
+            filters=None,
+            resource_evaluation_fn=None,
+            skip_resources=None,
+        )
+
+        mock_delete.assert_called_once_with(self.proxy, obj, cascade=True)
+        mock_wait.assert_called_once_with(self.proxy, obj)
+
+    @mock.patch.object(_proxy.Proxy, 'load_balancers', autospec=True)
+    @mock.patch.object(_proxy.Proxy, 'delete_load_balancer', autospec=True)
+    def test_service_cleanup_dry_run(self, mock_delete, mock_list):
+        obj = lb.LoadBalancer(id='lb-1', name='test-lb')
+        mock_list.return_value = [obj]
+
+        self.proxy._service_cleanup(
+            dry_run=True,
+            client_status_queue=None,
+            identified_resources=None,
+            filters=None,
+            resource_evaluation_fn=None,
+            skip_resources=None,
+        )
+
+        mock_delete.assert_not_called()
+
+    @mock.patch.object(_proxy.Proxy, 'load_balancers', autospec=True)
+    @mock.patch.object(_proxy.Proxy, 'delete_load_balancer', autospec=True)
+    def test_service_cleanup_skip_lb(self, mock_delete, mock_list):
+        self.proxy._service_cleanup(
+            dry_run=False,
+            client_status_queue=None,
+            identified_resources=None,
+            filters=None,
+            resource_evaluation_fn=None,
+            skip_resources=['load_balancer.load_balancer'],
+        )
+
+        mock_list.assert_not_called()
+        mock_delete.assert_not_called()

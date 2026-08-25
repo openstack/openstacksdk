@@ -452,3 +452,113 @@ class TestProjectCleanup(base.BaseFunctionalTest):
                 list(self.user_cloud_alt.network.vpn_ipsec_site_connections())
             ),
         )
+
+    def test_cleanup_load_balancer(self):
+        if not self.user_cloud_alt.has_service('load-balancer'):
+            self.skipTest('load-balancer service not available')
+
+        status_queue: queue.Queue[resource.Resource] = queue.Queue()
+        lb_name = self.getUniqueString('lb')
+
+        # Create a load balancer on a network
+        net = self.user_cloud_alt.network.create_network(
+            name=self.getUniqueString('net'),
+        )
+        subnet = self.user_cloud_alt.network.create_subnet(
+            name=self.getUniqueString('subnet'),
+            network_id=net.id,
+            cidr='192.170.1.0/24',
+            ip_version=4,
+        )
+        lb = self.user_cloud_alt.load_balancer.create_load_balancer(
+            name=lb_name,
+            vip_subnet_id=subnet.id,
+        )
+        self.user_cloud_alt.load_balancer.wait_for_load_balancer(
+            lb.id, wait=300
+        )
+
+        # First round - check no resources are old enough
+        self.user_cloud_alt.project_cleanup(
+            dry_run=True,
+            wait_timeout=120,
+            status_queue=status_queue,
+            filters={'created_at': '2000-01-01'},
+        )
+        self.assertTrue(status_queue.empty())
+
+        # Second round - dry run with no filters
+        self.user_cloud_alt.project_cleanup(
+            dry_run=True,
+            wait_timeout=120,
+            status_queue=status_queue,
+        )
+        objects = []
+        while not status_queue.empty():
+            objects.append(status_queue.get())
+
+        resource_ids = list(obj.id for obj in objects)
+        self.assertIn(lb.id, resource_ids)
+
+        # Ensure LB still exists
+        lb_check = self.user_cloud_alt.load_balancer.get_load_balancer(lb.id)
+        self.assertEqual(lb_check.name, lb_name)
+
+        # Last round - do a real cleanup
+        self.user_cloud_alt.project_cleanup(
+            dry_run=False, wait_timeout=600, status_queue=status_queue
+        )
+
+        # Ensure no load balancers remain
+        lbs = list(self.user_cloud_alt.load_balancer.load_balancers())
+        lb_names = list(obj.name for obj in lbs)
+        self.assertNotIn(lb_name, lb_names)
+
+    def test_cleanup_key_manager(self):
+        if not self.user_cloud_alt.has_service('key-manager'):
+            self.skipTest('key-manager service not available')
+
+        status_queue: queue.Queue[resource.Resource] = queue.Queue()
+        secret_name = self.getUniqueString('secret')
+
+        s = self.user_cloud_alt.key_manager.create_secret(
+            name=secret_name,
+            payload='super-secret-data',
+            payload_content_type='text/plain',
+        )
+
+        # First round - check no resources are old enough
+        self.user_cloud_alt.project_cleanup(
+            dry_run=True,
+            wait_timeout=120,
+            status_queue=status_queue,
+            filters={'created_at': '2000-01-01'},
+        )
+        self.assertTrue(status_queue.empty())
+
+        # Second round - dry run with no filters
+        self.user_cloud_alt.project_cleanup(
+            dry_run=True,
+            wait_timeout=120,
+            status_queue=status_queue,
+        )
+        objects = []
+        while not status_queue.empty():
+            objects.append(status_queue.get())
+
+        resource_ids = list(obj.id for obj in objects)
+        self.assertIn(s.id, resource_ids)
+
+        # Ensure secret still exists
+        s_check = self.user_cloud_alt.key_manager.get_secret(s.id)
+        self.assertEqual(s_check.name, secret_name)
+
+        # Last round - do a real cleanup
+        self.user_cloud_alt.project_cleanup(
+            dry_run=False, wait_timeout=600, status_queue=status_queue
+        )
+
+        # Ensure no secrets remain
+        secrets = list(self.user_cloud_alt.key_manager.secrets())
+        secret_names = list(obj.name for obj in secrets)
+        self.assertNotIn(secret_name, secret_names)

@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Added ``project_cleanup`` support for the load_balancer (Octavia) and
+    key_manager (Barbican) services. Load balancers are cleaned up with
+    ``cascade=True`` before compute and network resources. Barbican secrets
+    and containers are cleaned up independently.

@@ -10,8 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import functools
+from collections.abc import Callable, Generator, Sequence
+import queue
 from typing import Any, ClassVar, Literal, overload
-from collections.abc import Callable, Generator
 
 from openstack._utils import renamed_param
 from openstack.load_balancer.v2 import amphora as _amphora
@@ -1723,3 +1725,51 @@ class Proxy(proxy.Proxy):
             to delete failed to occur in the specified seconds.
         """
         return resource.wait_for_delete(self, res, interval, wait, callback)
+
+    def _get_cleanup_dependencies(self) -> dict[str, Any]:
+        return {
+            'load_balancer': {'before': ['compute', 'network']},
+        }
+
+    def _service_cleanup(
+        self,
+        dry_run: bool = True,
+        client_status_queue: queue.Queue[resource.Resource] | None = None,
+        identified_resources: dict[str, resource.Resource] | None = None,
+        filters: dict[str, Any] | None = None,
+        resource_evaluation_fn: Callable[
+            [
+                resource.Resource,
+                dict[str, Any] | None,
+                dict[str, resource.Resource] | None,
+            ],
+            bool,
+        ]
+        | None = None,
+        skip_resources: Sequence[str] | None = None,
+    ) -> None:
+        if self.should_skip_resource_cleanup("load_balancer", skip_resources):
+            return
+
+        load_balancers = []
+        for lb in self.load_balancers():
+            need_delete = self._service_cleanup_del_res(
+                functools.partial(self.delete_load_balancer, cascade=True),
+                lb,
+                dry_run=dry_run,
+                client_status_queue=client_status_queue,
+                identified_resources=identified_resources,
+                filters=filters,
+                resource_evaluation_fn=resource_evaluation_fn,
+            )
+            if not dry_run and need_delete:
+                load_balancers.append(lb)
+
+        for lb in load_balancers:
+            try:
+                self.wait_for_delete(lb)
+            except Exception:
+                self.log.exception(
+                    "Failed to wait for load balancer %s deletion",
+                    lb.id,
+                )
