@@ -1,0 +1,149 @@
+{
+  "$id": "https://opendev.org/openstack/openstacksdk/raw/branch/master/openstack/config/clouds-schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenStack clouds.yaml Configuration File",
+  "description": "Schema for a clouds.yaml configuration file. Each entry under the top-level 'clouds' key is validated using the reusable '#/$defs/cloud' subschema from schema.json, which describes an individual cloud (including deprecated, pre-transformation aliases). The remaining top-level keys ('cache', 'client', 'metrics') configure global behaviour.",
+  "type": "object",
+  "properties": {
+    "clouds": {
+      "name": "Clouds",
+      "description": "Mapping of cloud name to that cloud's configuration.",
+      "type": "object",
+      "additionalProperties": {
+        "allOf": [
+          { "$ref": "schema.json#/$defs/cloud" },
+          { "$ref": "#/$defs/cloudExtras" }
+        ]
+      }
+    },
+    "cache": {
+      "$ref": "#/$defs/cache"
+    },
+    "client": {
+      "$ref": "#/$defs/client"
+    },
+    "metrics": {
+      "name": "Metrics",
+      "description": "Global configuration for metrics and monitoring integrations. May be overridden on a per-cloud basis.",
+      "$ref": "schema.json#/$defs/metrics"
+    },
+    "ansible": {
+      "$ref": "#/$defs/ansible"
+    }
+  },
+  "required": [ "clouds" ],
+  "additionalProperties": false,
+  "$defs": {
+    "cloudExtras": {
+      "name": "Cloud (clouds.yaml extras)",
+      "description": "Additional keys that are valid on a raw clouds.yaml cloud entry but are consumed and removed by openstack.config during loading, so they do not appear in the transformed configuration.",
+      "type": "object",
+      "properties": {
+        "profile": {
+          "name": "Profile",
+          "description": "Name of a vendor profile to inherit default configuration from.",
+          "type": "string"
+        },
+        "regions": {
+          "name": "Regions",
+          "description": "List of regions belonging to this cloud. Each entry may be a bare region name or a mapping with a 'name' and per-region 'values' overrides.",
+          "type": "array",
+          "items": {
+            "oneOf": [
+              { "type": "string" },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "description": "Name of the region",
+                    "type": "string"
+                  },
+                  "values": {
+                    "description": "Per-region configuration overrides",
+                    "$ref": "schema.json#/$defs/cloud"
+                  }
+                },
+                "required": [ "name" ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        }
+      }
+    },
+    "cache": {
+      "name": "Cache",
+      "description": "Global caching configuration. Caching is enabled or disabled globally rather than on a per-cloud basis.",
+      "type": "object",
+      "properties": {
+        "auth": {
+          "description": "Whether authentication tokens should be cached in the system keyring.",
+          "type": "boolean",
+          "default": false
+        },
+        "expiration_time": {
+          "description": "Expiration time, in seconds, for a cache entry.",
+          "type": [ "integer", "string" ],
+          "default": 0
+        },
+        "max_age": {
+          "description": "Deprecated alias for 'expiration_time'.",
+          "deprecated": true,
+          "type": [ "integer", "string" ]
+        },
+        "class": {
+          "description": "The dogpile.cache backend to use, e.g. 'dogpile.cache.memory'.",
+          "type": "string"
+        },
+        "path": {
+          "description": "Filesystem path for file-based cache backends.",
+          "type": "string"
+        },
+        "arguments": {
+          "description": "Backend-specific arguments passed through to the cache backend.",
+          "type": "object"
+        },
+        "expiration": {
+          "description": "Mapping of resource type to per-resource expiration time, in seconds.",
+          "type": "object",
+          "additionalProperties": { "type": [ "integer", "string" ] }
+        }
+      },
+      "additionalProperties": false
+    },
+    "client": {
+      "name": "Client",
+      "description": "Global client behaviour shared across all clouds.",
+      "type": "object",
+      "properties": {
+        "force_ipv4": {
+          "description": "Disable IPv6 support and only use IPv4 addresses.",
+          "type": "boolean",
+          "default": false
+        },
+        "prefer_ipv6": {
+          "description": "Prefer IPv6 addresses over IPv4 where available.",
+          "type": "boolean",
+          "default": true
+        },
+        "prefer-ipv6": {
+          "description": "Deprecated dash-form alias for 'prefer_ipv6'.",
+          "deprecated": true,
+          "type": "boolean"
+        },
+        "broken-ipv6": {
+          "description": "Deprecated alias; when true, forces the use of IPv4.",
+          "deprecated": true,
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ansible": {
+      "name": "Ansible",
+      "description": "Settings consumed by the openstacksdk Ansible inventory integration. The recognised keys are open-ended, so additional properties are permitted.",
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

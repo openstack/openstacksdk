@@ -83,7 +83,7 @@ USER_CONF: dict[str, Any] = {
                 'username': 'testuser',
                 'password': 'testpass',
                 'domain_id': 'awesome-domain',
-                'project_id': 12345,
+                'project_id': '8b7c1f4a2e9d4c6a9f0b1d2e3f4a5b6c',
                 'auth_url': 'http://example.com/v2',
             },
             'region_name': 'test-region',
@@ -92,7 +92,7 @@ USER_CONF: dict[str, Any] = {
             'auth': {
                 'username': 'testuser',
                 'password': 'testpass',
-                'project_id': 12345,
+                'project_id': '8b7c1f4a2e9d4c6a9f0b1d2e3f4a5b6c',
                 'auth_url': 'http://example.com/v2',
                 'domain_id': '6789',
                 'project_domain_id': '123456789',
@@ -103,7 +103,7 @@ USER_CONF: dict[str, Any] = {
             'auth': {
                 'username': 'testuser',
                 'password': 'testpass',
-                'project_id': 12345,
+                'project_id': '8b7c1f4a2e9d4c6a9f0b1d2e3f4a5b6c',
                 'auth_url': 'http://example.com/v2',
                 'domain_id': '6789',
                 'project_domain_id': '123456789',
