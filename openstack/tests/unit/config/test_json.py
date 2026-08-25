@@ -86,7 +86,7 @@ class TestConfig(base.TestCase):
         )
         with open(_schema_path) as f:
             schema = json.load(f)
-            self.validator = jsonschema.Draft4Validator(schema)
+            self.validator = jsonschema.Draft202012Validator(schema)
 
         self.addOnException(self.json_diagnostics)
 
