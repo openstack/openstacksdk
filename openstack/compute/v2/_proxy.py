@@ -1255,7 +1255,7 @@ class Proxy(proxy.Proxy):
         name: str,
         metadata: dict[str, str] | None = None,
         wait: bool = False,
-        timeout: int = 120,
+        timeout: int | float = 120,
     ) -> _image_v2.Image:
         """Create an image from a server
 

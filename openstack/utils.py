@@ -504,7 +504,7 @@ class TinyDAG:
 
     def _reset(self) -> None:
         self._graph: dict[str, set[str]] = {}
-        self._wait_timeout = 120
+        self._wait_timeout: int | float = 120
 
     @property
     def graph(self) -> dict[str, set[str]]:
@@ -517,7 +517,7 @@ class TinyDAG:
     def add_edge(self, u: str, v: str) -> None:
         self._graph[u].add(v)
 
-    def walk(self, timeout: int | None = None) -> 'TinyDAG':
+    def walk(self, timeout: int | float | None = None) -> 'TinyDAG':
         """Start the walking from the beginning."""
         if timeout:
             self._wait_timeout = timeout
