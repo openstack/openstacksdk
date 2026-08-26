@@ -58,6 +58,7 @@ class TestQosDscpMarkingRule(base.BaseFunctionalTest):
         updated_rule = self.operator_cloud.update_qos_dscp_marking_rule(
             self.policy['id'], rule['id'], dscp_mark=updated_dscp_mark
         )
+        assert updated_rule is not None  # narrow type
         self.assertIn('id', updated_rule)
         self.assertEqual(updated_dscp_mark, updated_rule['dscp_mark'])
 

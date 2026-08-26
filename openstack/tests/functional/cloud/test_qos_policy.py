@@ -85,6 +85,7 @@ class TestQosPolicy(base.BaseFunctionalTest):
         updated_policy = self.operator_cloud.update_qos_policy(
             policy['id'], shared=True, default=True
         )
+        assert updated_policy is not None  # narrow type
         self.assertEqual(self.policy_name, updated_policy['name'])
         self.assertTrue(updated_policy['is_shared'])
         self.assertTrue(updated_policy['is_default'])
