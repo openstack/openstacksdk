@@ -342,6 +342,7 @@ class TestCompute(base.BaseFunctionalTest):
             f'Timeout waiting for volume {volume_id} to detach',
         ):
             volume = self.user_cloud.get_volume(volume_id)
+            assert volume is not None
             if volume.status in (
                 'available',
                 'error',

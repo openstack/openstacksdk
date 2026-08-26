@@ -41,7 +41,9 @@ class TestVolume(base.BaseFunctionalTest):
         )
         self.assertEqual(backup_name_1, backup['name'])
 
-        backup = self.user_cloud.get_volume_backup(backup['id'])
+        fetched_backup = self.user_cloud.get_volume_backup(backup['id'])
+        assert fetched_backup is not None
+        backup = fetched_backup
         self.assertEqual("available", backup['status'])
         self.assertEqual(backup_desc_1, backup['description'])
 
@@ -60,7 +62,9 @@ class TestVolume(base.BaseFunctionalTest):
             volume_id=volume['id'], snapshot_id=snapshot['id'], wait=True
         )
 
-        backup = self.user_cloud.get_volume_backup(backup['id'])
+        fetched_backup = self.user_cloud.get_volume_backup(backup['id'])
+        assert fetched_backup is not None
+        backup = fetched_backup
         self.assertEqual(backup['snapshot_id'], snapshot['id'])
 
         self.user_cloud.delete_volume_backup(backup['id'], wait=True)
@@ -77,8 +81,16 @@ class TestVolume(base.BaseFunctionalTest):
             volume_id=volume['id'], incremental=True, wait=True
         )
 
-        full_backup = self.user_cloud.get_volume_backup(full_backup['id'])
-        incr_backup = self.user_cloud.get_volume_backup(incr_backup['id'])
+        fetched_full_backup = self.user_cloud.get_volume_backup(
+            full_backup['id']
+        )
+        fetched_incr_backup = self.user_cloud.get_volume_backup(
+            incr_backup['id']
+        )
+        assert fetched_full_backup is not None
+        assert fetched_incr_backup is not None
+        full_backup = fetched_full_backup
+        incr_backup = fetched_incr_backup
         self.assertEqual(full_backup['has_dependent_backups'], True)
         self.assertEqual(incr_backup['is_incremental'], True)
 
