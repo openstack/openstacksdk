@@ -157,7 +157,7 @@ def get_server_private_ip(
     # Short circuit the ports/networks search below with a heavily cached
     # and possibly pre-configured network name
     if cloud:
-        int_nets = cloud.get_internal_ipv4_networks()  # type: ignore[no-untyped-call]
+        int_nets = cloud.get_internal_ipv4_networks()
         for int_net in int_nets:
             int_ip = get_server_ip(
                 server,
@@ -221,7 +221,7 @@ def get_server_external_ipv4(
 
     # Short circuit the ports/networks search below with a heavily cached
     # and possibly pre-configured network name
-    ext_nets = cloud.get_external_ipv4_networks()  # type: ignore[no-untyped-call]
+    ext_nets = cloud.get_external_ipv4_networks()
     for ext_net in ext_nets:
         ext_ip = get_server_ip(
             server,
@@ -360,7 +360,7 @@ def get_server_default_ip(
                    IPv4 address
     :return: a string containing the IPv4 address or None
     """
-    ext_net = cloud.get_default_network()  # type: ignore[no-untyped-call]
+    ext_net = cloud.get_default_network()
     if ext_net:
         if cloud._local_ipv6 and not cloud.force_ipv4:
             # try 6 first, fall back to four
@@ -491,7 +491,7 @@ def _get_supplemental_addresses(
         # of an API call while polling for a server to come up
         if (
             cloud.has_service('network')
-            and cloud._has_floating_ips()  # type: ignore[no-untyped-call]
+            and cloud._has_floating_ips()
             and server['status'] == 'ACTIVE'
         ):
             for port in cloud.search_ports(  # type: ignore[no-untyped-call]
@@ -499,7 +499,7 @@ def _get_supplemental_addresses(
             ):
                 # This SHOULD return one and only one FIP - but doing it as a
                 # search/list lets the logic work regardless
-                for fip in cloud.search_floating_ips(  # type: ignore[no-untyped-call]
+                for fip in cloud.search_floating_ips(
                     filters=dict(port_id=port['id'])
                 ):
                     fixed_net = fixed_ip_mapping.get(fip['fixed_ip_address'])

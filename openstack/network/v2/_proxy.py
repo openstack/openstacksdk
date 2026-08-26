@@ -114,6 +114,7 @@ from openstack.network.v2 import vpn_service as _vpn_service
 from openstack import proxy
 from openstack.proxy import CleanupDependency
 from openstack import resource
+from openstack import utils
 
 
 class Proxy(proxy.Proxy):
@@ -212,7 +213,7 @@ class Proxy(proxy.Proxy):
     def _update(
         self,
         resource_type: type[resource.ResourceT],
-        value: str | resource.ResourceT | None,
+        value: str | resource.ResourceT | utils.Munch | None,
         base_path: str | None = None,
         if_revision: int | None = None,
         **attrs: Any,
@@ -2217,7 +2218,7 @@ class Proxy(proxy.Proxy):
 
     def update_ip(
         self,
-        floating_ip: str | _floating_ip.FloatingIP,
+        floating_ip: str | _floating_ip.FloatingIP | utils.Munch,
         if_revision: int | None = None,
         **attrs: Any,
     ) -> _floating_ip.FloatingIP:

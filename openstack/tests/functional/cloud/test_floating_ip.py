@@ -257,6 +257,7 @@ class TestFloatingIP(base.BaseFunctionalTest):
         f_ip = self.user_cloud.get_floating_ip(
             id=None, filters={'floating_ip_address': ip}
         )
+        assert f_ip is not None
         self.user_cloud.detach_ip_from_server(
             server_id=new_server.id, floating_ip_id=f_ip['id']
         )
