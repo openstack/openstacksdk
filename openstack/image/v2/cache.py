@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import cast
+
 import requests
 
 from keystoneauth1 import adapter
@@ -87,3 +89,26 @@ class Cache(resource.Resource):
         response = session.delete(self.base_path, headers=headers)
         exceptions.raise_from_response(response)
         return response
+
+    @classmethod
+    def image_nodes(
+        cls,
+        session: adapter.Adapter,
+        image: str | resource.Resource,
+        *,
+        microversion: str | None = None,
+    ) -> list[str]:
+        """List node reference URLs where an image is cached.
+
+        :param session: The session to use for making this request
+        :param image: The image to list cached nodes for.
+        :returns: List of node reference URLs where the image is cached
+        """
+        if microversion is None:
+            microversion = cls._get_microversion(session)
+        image_id = resource.Resource._get_id(image)
+        url = utils.urljoin(cls.base_path, 'nodes', image_id)
+
+        response = session.get(url, microversion=microversion)
+        exceptions.raise_from_response(response)
+        return cast(list[str], response.json())

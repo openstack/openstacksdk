@@ -89,3 +89,38 @@ class TestCache(base.TestCase):
         self.assertRaises(
             exceptions.InvalidRequest, sot.clear, session, 'invalid'
         )
+
+    @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
+    def test_image_nodes(self):
+        sess = mock.Mock()
+        image_id = '3a4560a1-e585-443e-9b39-553b46ec92d1'
+        expected_nodes = ['http://node1.example', 'http://node2.example']
+        fake_response = mock.Mock()
+        fake_response.json.return_value = expected_nodes
+        sess.get = mock.Mock(return_value=fake_response)
+        sess.default_microversion = '2.14'
+
+        nodes = cache.Cache.image_nodes(sess, image=image_id)
+
+        self.assertEqual(expected_nodes, nodes)
+        sess.get.assert_called_with(
+            f'cache/nodes/{image_id}',
+            microversion=sess.default_microversion,
+        )
+
+    @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
+    def test_image_nodes_empty(self):
+        sess = mock.Mock()
+        image_id = 'df601a47-7251-4d20-84ae-07de335af424'
+        fake_response = mock.Mock()
+        fake_response.json.return_value = []
+        sess.get = mock.Mock(return_value=fake_response)
+        sess.default_microversion = '2.14'
+
+        nodes = cache.Cache.image_nodes(sess, image=image_id)
+
+        self.assertEqual([], nodes)
+        sess.get.assert_called_with(
+            f'cache/nodes/{image_id}',
+            microversion=sess.default_microversion,
+        )

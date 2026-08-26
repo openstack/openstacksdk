@@ -127,6 +127,21 @@ class Proxy(proxy.Proxy):
         cache = self._get_resource(_cache.Cache, None)
         cache.clear(self, target)
 
+    def cached_image_nodes(
+        self,
+        image: str | _image.Image,
+    ) -> list[str]:
+        """List node reference URLs where an image is cached.
+
+        When centralized caching is enabled, returns the list of Glance
+        node reference URLs where the specified image is cached.
+
+        :param image: The value can be either the ID of an image or a
+            :class:`~openstack.image.v2.image.Image` instance.
+        :returns: List of node reference URLs as strings.
+        """
+        return _cache.Cache.image_nodes(self, image)
+
     # ====== IMAGES ======
 
     def _make_v2_image_params(

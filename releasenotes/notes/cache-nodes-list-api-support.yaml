@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Add support for the Glance image-cache API
+    ``GET /v2/cache/nodes/{image_id}`` (list node reference URLs where an
+    image is cached when centralized caching is enabled). This adds the
+    ``cached_image_nodes`` method on the image v2 proxy and ``image_nodes``
+    on the cache resource.
