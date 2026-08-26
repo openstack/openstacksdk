@@ -26,8 +26,9 @@ class TestProject(base.TestCase):
         resource=None,
         append=None,
         base_url_append=None,
-        v3=True,
         qs_elements=None,
+        *,
+        v3=True,
     ):
         if v3 and resource is None:
             resource = 'projects'

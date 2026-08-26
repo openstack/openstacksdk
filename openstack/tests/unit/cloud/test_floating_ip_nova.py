@@ -19,6 +19,9 @@ test_floating_ip_nova
 Tests Floating IP resource methods for nova-network
 """
 
+from typing import Any
+from unittest import mock
+
 from openstack.tests.unit import base
 from openstack.tests.unit.cloud import fakes
 
@@ -33,7 +36,7 @@ def get_fake_has_service(has_service):
 
 
 class TestFloatingIP(base.TestCase):
-    mock_floating_ip_list_rep = [
+    mock_floating_ip_list_rep: list[dict[str, Any]] = [
         {
             'fixed_ip': None,
             'id': 1,
@@ -85,7 +88,12 @@ class TestFloatingIP(base.TestCase):
             },
         )
 
-        self.cloud.has_service = get_fake_has_service(self.cloud.has_service)
+        mock.patch.object(
+            self.cloud,
+            'has_service',
+            get_fake_has_service(self.cloud.has_service),
+        ).start()
+        self.addCleanup(mock.patch.stopall)
 
     def test_list_floating_ips(self):
         self.register_uris(
@@ -155,6 +163,7 @@ class TestFloatingIP(base.TestCase):
         floating_ip = self.cloud.get_floating_ip(id='29')
 
         self.assertIsInstance(floating_ip, dict)
+        assert floating_ip is not None
         self.assertEqual('198.51.100.29', floating_ip['floating_ip_address'])
 
         self.assert_calls()
@@ -352,7 +361,7 @@ class TestFloatingIP(base.TestCase):
         self.cloud._attach_ip_to_server(
             server=self.fake_server,
             floating_ip=self.cloud._normalize_floating_ip(
-                self.mock_floating_ip_list_rep[0]
+                self.mock_floating_ip_list_rep[0],  # type: ignore[arg-type]
             ),
             fixed_address='192.0.2.129',
         )
@@ -387,7 +396,8 @@ class TestFloatingIP(base.TestCase):
         )
 
         self.cloud.detach_ip_from_server(
-            server_id='server-id', floating_ip_id=1
+            server_id='server-id',
+            floating_ip_id=1,  # type: ignore[arg-type]
         )
         self.assert_calls()
 

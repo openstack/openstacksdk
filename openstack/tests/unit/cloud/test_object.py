@@ -13,6 +13,7 @@
 # under the License.
 
 import tempfile
+from typing import Any
 from unittest import mock
 
 from openstack.cloud import _object_store
@@ -30,7 +31,9 @@ class BaseTestObject(base.TestCase):
 
         self.container = self.getUniqueString()
         self.object = self.getUniqueString()
-        self.endpoint = self.cloud.object_store.get_endpoint()
+        endpoint = self.cloud.object_store.get_endpoint()
+        assert endpoint is not None
+        self.endpoint = endpoint
         self.container_endpoint = f'{self.endpoint}/{self.container}'
         self.object_endpoint = f'{self.container_endpoint}/{self.object}'
 
@@ -900,7 +903,9 @@ class TestObjectUploads(BaseTestObject):
         self.object_file.write(self.content)
         self.object_file.close()
         self.md5, self.sha256 = utils._get_file_hashes(self.object_file.name)
-        self.endpoint = self.cloud.object_store.get_endpoint()
+        endpoint = self.cloud.object_store.get_endpoint()
+        assert endpoint is not None
+        self.endpoint = endpoint
 
     def test_create_object(self):
         self.register_uris(
@@ -961,7 +966,7 @@ class TestObjectUploads(BaseTestObject):
             ]
         )
 
-        headers = {
+        headers: dict[str, Any] = {
             'access-control-allow-origin': '*',
             'content-type': 'text/html',
         }

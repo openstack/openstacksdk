@@ -541,7 +541,7 @@ class TestStack(base.TestCase):
 
         self.cloud.create_stack(
             self.stack_name,
-            tags=self.stack_tag,
+            tags=self.stack_tag,  # type: ignore[arg-type]
             template_file=test_template.name,
         )
 
@@ -600,7 +600,7 @@ class TestStack(base.TestCase):
         )
         self.cloud.create_stack(
             self.stack_name,
-            tags=self.stack_tag,
+            tags=self.stack_tag,  # type: ignore[arg-type]
             template_file=test_template.name,
             wait=True,
         )
@@ -645,7 +645,7 @@ class TestStack(base.TestCase):
         )
         self.cloud.update_stack(
             self.stack_name,
-            tags=self.stack_tag,
+            tags=self.stack_tag,  # type: ignore[arg-type]
             template_file=test_template.name,
         )
 
@@ -721,7 +721,7 @@ class TestStack(base.TestCase):
         )
         self.cloud.update_stack(
             self.stack_name,
-            tags=self.stack_tag,
+            tags=self.stack_tag,  # type: ignore[arg-type]
             template_file=test_template.name,
             wait=True,
         )
@@ -749,6 +749,7 @@ class TestStack(base.TestCase):
 
         res = self.cloud.get_stack(self.stack_name)
         self.assertIsNotNone(res)
+        assert res is not None
         self.assertEqual(self.stack['stack_name'], res['name'])
         self.assertEqual(self.stack['stack_status'], res['stack_status'])
         self.assertEqual('CREATE_COMPLETE', res['status'])
@@ -778,6 +779,7 @@ class TestStack(base.TestCase):
 
         res = self.cloud.get_stack(self.stack_name)
         self.assertIsNotNone(res)
+        assert res is not None
         self.assertEqual(in_progress['stack_name'], res.name)
         self.assertEqual(in_progress['stack_status'], res['stack_status'])
         self.assertEqual('CREATE_IN_PROGRESS', res['status'])

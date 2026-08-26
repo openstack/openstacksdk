@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack import exceptions
 from openstack.tests.unit import base
 from openstack.tests.unit.cloud import fakes
@@ -262,7 +264,7 @@ class TestFlavors(base.TestCase):
             f'{fakes.COMPUTE_ENDPOINT}/flavors/1/os-extra_specs'
         )
         flavor = fakes.make_fake_flavor('1', 'vanilla')
-        flavor_json = {'extra_specs': {}}
+        flavor_json: dict[str, dict[str, Any]] = {'extra_specs': {}}
 
         self.register_uris(
             [
@@ -276,8 +278,10 @@ class TestFlavors(base.TestCase):
         )
 
         flavor1 = self.cloud.get_flavor('1')
+        assert flavor1 is not None
         self.assertEqual('1', flavor1['id'])
-        flavor2 = self.cloud.get_flavor(1)
+        flavor2 = self.cloud.get_flavor(1)  # type: ignore[arg-type]
+        assert flavor2 is not None
         self.assertEqual('1', flavor2['id'])
 
     def test_set_flavor_specs(self):
@@ -293,7 +297,7 @@ class TestFlavors(base.TestCase):
             ]
         )
 
-        self.cloud.set_flavor_specs(1, extra_specs)
+        self.cloud.set_flavor_specs(1, extra_specs)  # type: ignore[arg-type]
         self.assert_calls()
 
     def test_unset_flavor_specs(self):
@@ -309,7 +313,7 @@ class TestFlavors(base.TestCase):
             ]
         )
 
-        self.cloud.unset_flavor_specs(1, keys)
+        self.cloud.unset_flavor_specs(1, keys)  # type: ignore[arg-type]
         self.assert_calls()
 
     def test_add_flavor_access(self):

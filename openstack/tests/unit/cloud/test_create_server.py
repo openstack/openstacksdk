@@ -18,6 +18,7 @@ Tests for the `create_server` command.
 """
 
 import base64
+from typing import Any
 from unittest import mock
 import uuid
 
@@ -628,7 +629,9 @@ class TestCreateServer(base.TestCase):
             [building_server, active_server]
         )
 
-        server = self.cloud.wait_for_server(building_server)
+        server = self.cloud.wait_for_server(
+            building_server  # type: ignore[arg-type]
+        )
 
         self.assertEqual(2, mock_get_server.call_count)
         mock_get_server.assert_has_calls(
@@ -1539,7 +1542,7 @@ class TestCreateServer(base.TestCase):
         )
 
         # The scheduler hints we pass in
-        scheduler_hints = {
+        scheduler_hints: dict[str, Any] = {
             'different_host': [],
         }
 

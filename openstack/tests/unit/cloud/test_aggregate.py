@@ -188,7 +188,10 @@ class TestAggregate(base.TestCase):
             ]
         )
 
-        self.cloud.update_aggregate(1, availability_zone='az')
+        self.cloud.update_aggregate(
+            1,  # type: ignore[arg-type]
+            availability_zone='az',
+        )
 
         self.assert_calls()
 
@@ -219,7 +222,10 @@ class TestAggregate(base.TestCase):
             ]
         )
 
-        self.cloud.update_aggregate(1, availability_zone=None)
+        self.cloud.update_aggregate(
+            1,  # type: ignore[arg-type]
+            availability_zone=None,
+        )
 
         self.assert_calls()
 

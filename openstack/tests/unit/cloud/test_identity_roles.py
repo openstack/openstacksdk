@@ -110,6 +110,7 @@ class TestIdentityRoles(base.TestCase):
         role = self.cloud.get_role(role_data.role_name)
 
         self.assertIsNotNone(role)
+        assert role is not None
         self.assertThat(role.id, matchers.Equals(role_data.role_id))
         self.assertThat(role.name, matchers.Equals(role_data.role_name))
         self.assert_calls()
@@ -129,6 +130,7 @@ class TestIdentityRoles(base.TestCase):
         role = self.cloud.get_role(role_data.role_id)
 
         self.assertIsNotNone(role)
+        assert role is not None
         self.assertThat(role.id, matchers.Equals(role_data.role_id))
         self.assertThat(role.name, matchers.Equals(role_data.role_name))
         self.assert_calls()
@@ -178,6 +180,7 @@ class TestIdentityRoles(base.TestCase):
         role = self.cloud.update_role(role_data.role_id, 'new_name')
 
         self.assertIsNotNone(role)
+        assert not isinstance(role, bool)
         self.assertThat(role.name, matchers.Equals(role_data.role_name))
         self.assertThat(role.id, matchers.Equals(role_data.role_id))
         self.assert_calls()

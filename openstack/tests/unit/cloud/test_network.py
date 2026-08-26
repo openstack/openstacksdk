@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import copy
+from typing import Any
 from unittest import mock
 
 from openstack import exceptions
@@ -133,7 +134,7 @@ class TestNeutronExtensions(base.TestCase):
 
 
 class TestNetworks(base.TestCase):
-    mock_new_network_rep = {
+    mock_new_network_rep: dict[str, Any] = {
         'provider:physical_network': None,
         'ipv6_address_scope': None,
         'revision_number': 3,
@@ -181,8 +182,8 @@ class TestNetworks(base.TestCase):
         )
 
     def test_list_networks(self):
-        net1 = {'id': '1', 'name': 'net1'}
-        net2 = {'id': '2', 'name': 'net2'}
+        net1: dict[str, Any] = {'id': '1', 'name': 'net1'}
+        net2: dict[str, Any] = {'id': '2', 'name': 'net2'}
         self.register_uris(
             [
                 dict(
@@ -224,7 +225,10 @@ class TestNetworks(base.TestCase):
 
     def test_list_networks_neutron_not_found(self):
         self.use_nothing()
-        self.cloud.has_service = mock.Mock(return_value=False)
+        mock.patch.object(
+            self.cloud, 'has_service', return_value=False
+        ).start()
+        self.addCleanup(mock.patch.stopall)
         self.assertEqual([], self.cloud.list_networks())
         self.assert_calls()
 
@@ -469,7 +473,8 @@ class TestNetworks(base.TestCase):
             msg="Parameter 'availability_zone_hints' must be a list",
         ):
             self.cloud.create_network(
-                "netname", availability_zone_hints=azh_opts
+                "netname",
+                availability_zone_hints=azh_opts,  # type: ignore[arg-type]
             )
 
     def test_create_network_provider_wrong_type(self):
@@ -478,7 +483,10 @@ class TestNetworks(base.TestCase):
             exceptions.SDKException,
             msg="Parameter 'provider' must be a dict",
         ):
-            self.cloud.create_network("netname", provider=provider_opts)
+            self.cloud.create_network(
+                "netname",
+                provider=provider_opts,  # type: ignore[arg-type]
+            )
 
     def test_create_network_port_security_disabled(self):
         port_security_state = False
@@ -550,7 +558,10 @@ class TestNetworks(base.TestCase):
             exceptions.SDKException,
             msg="Parameter 'mtu_size' must be an integer.",
         ):
-            self.cloud.create_network("netname", mtu_size="fourty_two")
+            self.cloud.create_network(
+                "netname",
+                mtu_size="fourty_two",  # type: ignore[arg-type]
+            )
 
     def test_delete_network(self):
         network_id = "test-net-id"

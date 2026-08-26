@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import copy
+from typing import Any
 
 from openstack import exceptions
 from openstack.network.v2 import port as _port
@@ -317,7 +318,7 @@ class TestRouter(base.TestCase):
             self.cloud.create_router(
                 name=self.router_name,
                 admin_state_up=True,
-                availability_zone_hints=azh_opts,
+                availability_zone_hints=azh_opts,  # type: ignore[arg-type]
             )
 
     def test_add_router_interface(self):
@@ -341,7 +342,8 @@ class TestRouter(base.TestCase):
             ]
         )
         self.cloud.add_router_interface(
-            {'id': self.router_id}, subnet_id=self.subnet_id
+            {'id': self.router_id},  # type: ignore[arg-type]
+            subnet_id=self.subnet_id,
         )
         self.assert_calls()
 
@@ -366,7 +368,8 @@ class TestRouter(base.TestCase):
             ]
         )
         self.cloud.remove_router_interface(
-            {'id': self.router_id}, subnet_id=self.subnet_id
+            {'id': self.router_id},  # type: ignore[arg-type]
+            subnet_id=self.subnet_id,
         )
         self.assert_calls()
 
@@ -377,7 +380,7 @@ class TestRouter(base.TestCase):
 
     def test_update_router(self):
         new_router_name = "mickey"
-        new_routes = []
+        new_routes: list[Any] = []
         expected_router_rep = copy.copy(self.mock_router_rep)
         expected_router_rep['name'] = new_router_name
         expected_router_rep['routes'] = new_routes

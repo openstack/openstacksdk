@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
 from openstack import exceptions
 from openstack.tests.unit import base
 
@@ -20,7 +22,7 @@ class TestVolumeAccess(base.TestCase):
         self.use_cinder()
 
     def test_list_volume_types(self):
-        volume_type = dict(
+        volume_type: dict[str, Any] = dict(
             id='voltype01',
             description='volume type description',
             name='name',
@@ -41,7 +43,7 @@ class TestVolumeAccess(base.TestCase):
         self.assert_calls()
 
     def test_get_volume_type(self):
-        volume_type = dict(
+        volume_type: dict[str, Any] = dict(
             id='voltype01',
             description='volume type description',
             name='name',
@@ -70,10 +72,11 @@ class TestVolumeAccess(base.TestCase):
             ]
         )
         volume_type_got = self.cloud.get_volume_type(volume_type['name'])
+        assert volume_type_got is not None
         self.assertEqual(volume_type_got.id, volume_type['id'])
 
     def test_get_volume_type_access(self):
-        volume_type = dict(
+        volume_type: dict[str, Any] = dict(
             id='voltype01',
             description='volume type description',
             name='name',
@@ -128,7 +131,7 @@ class TestVolumeAccess(base.TestCase):
         self.assert_calls()
 
     def test_remove_volume_type_access(self):
-        volume_type = dict(
+        volume_type: dict[str, Any] = dict(
             id='voltype01',
             description='volume type description',
             name='name',
@@ -265,7 +268,7 @@ class TestVolumeAccess(base.TestCase):
         self.assert_calls()
 
     def test_add_volume_type_access(self):
-        volume_type = dict(
+        volume_type: dict[str, Any] = dict(
             id='voltype01',
             description='volume type description',
             name='name',
@@ -366,7 +369,7 @@ class TestVolumeAccess(base.TestCase):
         self.assert_calls()
 
     def test_add_volume_type_access_missing(self):
-        volume_type = dict(
+        volume_type: dict[str, Any] = dict(
             id='voltype01',
             description='volume type description',
             name='name',

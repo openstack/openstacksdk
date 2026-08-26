@@ -11,6 +11,7 @@
 # under the License.
 
 import copy
+from typing import Any
 import uuid
 
 from openstack.tests.unit import base
@@ -51,7 +52,7 @@ DEV_PROF_GROUPS = [
         "trait:CUSTOM_TRAIT_ALWAYS": "required",
     },
 ]
-DEV_PROF_DICT = {
+DEV_PROF_DICT: dict[str, Any] = {
     "id": 1,
     "uuid": DEV_PROF_UUID,
     "name": 'afaas_example_1',
@@ -66,7 +67,7 @@ ARQ_INSTANCE_UUID = uuid.uuid4().hex
 ARQ_ATTACH_INFO_STR = (
     '{"bus": "5e", "device": "00", "domain": "0000", "function": "1"}'
 )
-ARQ_DICT = {
+ARQ_DICT: dict[str, Any] = {
     'uuid': ARQ_UUID,
     'hostname': 'test_hostname',
     'device_profile_name': 'fake-devprof',

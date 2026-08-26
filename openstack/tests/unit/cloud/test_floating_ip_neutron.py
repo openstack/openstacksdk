@@ -21,6 +21,7 @@ Tests Floating IP resource methods for Neutron
 
 import copy
 import datetime
+from typing import Any
 
 from openstack import exceptions
 from openstack.tests.unit import base
@@ -29,7 +30,7 @@ from openstack import utils
 
 
 class TestFloatingIP(base.TestCase):
-    mock_floating_ip_list_rep = {
+    mock_floating_ip_list_rep: dict[str, Any] = {
         'floatingips': [
             {
                 'router_id': 'd23abc8d-2991-4a55-ba98-2aaea84cc72f',
@@ -54,7 +55,7 @@ class TestFloatingIP(base.TestCase):
         ]
     }
 
-    mock_floating_ip_new_rep = {
+    mock_floating_ip_new_rep: dict[str, Any] = {
         'floatingip': {
             'fixed_ip_address': '10.0.0.4',
             'floating_ip_address': '172.24.4.229',
@@ -80,7 +81,7 @@ class TestFloatingIP(base.TestCase):
         }
     }
 
-    mock_get_network_rep = {
+    mock_get_network_rep: dict[str, Any] = {
         'status': 'ACTIVE',
         'subnets': ['54d6f61d-db07-451c-9ab3-b9609b6b6f0b'],
         'name': 'my-network',
@@ -94,7 +95,7 @@ class TestFloatingIP(base.TestCase):
         'provider:segmentation_id': None,
     }
 
-    mock_search_ports_rep = [
+    mock_search_ports_rep: list[dict[str, Any]] = [
         {
             'status': 'ACTIVE',
             'binding:host_id': 'devstack',
@@ -223,6 +224,7 @@ class TestFloatingIP(base.TestCase):
         )
 
         self.assertIsInstance(floating_ip, dict)
+        assert floating_ip is not None
         self.assertEqual('172.24.4.229', floating_ip['floating_ip_address'])
         self.assertEqual(
             self.mock_floating_ip_list_rep['floatingips'][0]['tenant_id'],
@@ -658,7 +660,7 @@ class TestFloatingIP(base.TestCase):
         )
 
         self.cloud.add_ips_to_server(
-            utils.Munch(
+            utils.Munch(  # type: ignore[arg-type]
                 id=server_id,
                 addresses={
                     "private": [
@@ -1094,7 +1096,7 @@ class TestFloatingIP(base.TestCase):
         self.assert_calls()
 
     def test_cleanup_floating_ips(self):
-        floating_ips = [
+        floating_ips: list[dict[str, Any]] = [
             {
                 "id": "this-is-a-floating-ip-id",
                 "fixed_ip_address": None,
@@ -1343,7 +1345,9 @@ class TestFloatingIP(base.TestCase):
             ]
         )
 
-        self.assertEqual('ext-net', self.cloud.get_nat_source()['name'])
+        nat_source = self.cloud.get_nat_source()
+        assert nat_source is not None
+        self.assertEqual('ext-net', nat_source['name'])
 
         self.assert_calls()
 
@@ -1461,6 +1465,8 @@ class TestFloatingIP(base.TestCase):
             ]
         )
 
-        self.assertEqual('my-network', self.cloud.get_nat_source()['name'])
+        nat_source = self.cloud.get_nat_source()
+        assert nat_source is not None
+        self.assertEqual('my-network', nat_source['name'])
 
         self.assert_calls()

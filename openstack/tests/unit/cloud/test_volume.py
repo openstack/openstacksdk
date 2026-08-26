@@ -11,8 +11,11 @@
 # under the License.
 
 
-from openstack.block_storage.v3 import volume
+from typing import Any, cast
+
+from openstack.block_storage.v3 import volume as _volume
 from openstack.cloud import meta
+from openstack.compute.v2 import server as _server
 from openstack.compute.v2 import volume_attachment
 from openstack import exceptions
 from openstack.tests.unit import base
@@ -22,7 +25,7 @@ from openstack.tests.unit.cloud import fakes
 class TestVolume(base.TestCase):
     def _compare_volumes(self, exp, real):
         self.assertDictEqual(
-            volume.Volume(**exp).to_dict(computed=False),
+            _volume.Volume(**exp).to_dict(computed=False),
             real.to_dict(computed=False),
         )
 
@@ -41,6 +44,7 @@ class TestVolume(base.TestCase):
             'attachments': [],
         }
         volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
+        assert volume is not None
         rattach = {
             'server_id': server['id'],
             'device': 'device001',
@@ -68,7 +72,11 @@ class TestVolume(base.TestCase):
                 ),
             ]
         )
-        ret = self.cloud.attach_volume(server, volume, wait=False)
+        ret = self.cloud.attach_volume(
+            cast(_server.Server, server),
+            cast(_volume.Volume, volume),
+            wait=False,
+        )
         self._compare_volume_attachments(rattach, ret)
         self.assert_calls()
 
@@ -81,6 +89,7 @@ class TestVolume(base.TestCase):
             'attachments': [],
         }
         volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
+        assert volume is not None
         self.register_uris(
             [
                 self.get_nova_discovery_mock_dict(),
@@ -103,18 +112,23 @@ class TestVolume(base.TestCase):
             ]
         )
         with self.assertRaises(exceptions.NotFoundException):
-            self.cloud.attach_volume(server, volume, wait=False)
+            self.cloud.attach_volume(
+                cast(_server.Server, server),
+                cast(_volume.Volume, volume),
+                wait=False,
+            )
         self.assert_calls()
 
     def test_attach_volume_wait(self):
         server = dict(id='server001')
-        vol = {
+        vol: dict[str, Any] = {
             'id': 'volume001',
             'status': 'available',
             'name': '',
             'attachments': [],
         }
         volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
+        assert volume is not None
         vol['attachments'] = [
             {'server_id': server['id'], 'device': 'device001'}
         ]
@@ -163,7 +177,9 @@ class TestVolume(base.TestCase):
             ]
         )
         # defaults to wait=True
-        ret = self.cloud.attach_volume(server, volume)
+        ret = self.cloud.attach_volume(
+            cast(_server.Server, server), cast(_volume.Volume, volume)
+        )
         self._compare_volume_attachments(rattach, ret)
         self.assert_calls()
 
@@ -176,6 +192,7 @@ class TestVolume(base.TestCase):
             'attachments': [],
         }
         volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
+        assert volume is not None
         vol['status'] = 'error'
         errored_volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         rattach = {
@@ -222,7 +239,9 @@ class TestVolume(base.TestCase):
         )
 
         with self.assertRaises(exceptions.ResourceFailure):
-            self.cloud.attach_volume(server, volume)
+            self.cloud.attach_volume(
+                cast(_server.Server, server), cast(_volume.Volume, volume)
+            )
         self.assert_calls()
 
     def test_attach_volume_not_available(self):
@@ -235,7 +254,9 @@ class TestVolume(base.TestCase):
                 volume['id'], volume['status']
             ),
         ):
-            self.cloud.attach_volume(server, volume)
+            self.cloud.attach_volume(
+                cast(_server.Server, server), cast(_volume.Volume, volume)
+            )
         self.assertEqual(0, len(self.adapter.request_history))
 
     def test_attach_volume_already_attached(self):
@@ -252,7 +273,9 @@ class TestVolume(base.TestCase):
                 volume['id'], server['id'], device_id
             ),
         ):
-            self.cloud.attach_volume(server, volume)
+            self.cloud.attach_volume(
+                cast(_server.Server, server), cast(_volume.Volume, volume)
+            )
         self.assertEqual(0, len(self.adapter.request_history))
 
     def test_detach_volume(self):
@@ -286,7 +309,11 @@ class TestVolume(base.TestCase):
                 ),
             ]
         )
-        self.cloud.detach_volume(server, volume, wait=False)
+        self.cloud.detach_volume(
+            cast(_server.Server, server),
+            cast(_volume.Volume, volume),
+            wait=False,
+        )
         self.assert_calls()
 
     def test_detach_volume_exception(self):
@@ -322,7 +349,11 @@ class TestVolume(base.TestCase):
             ]
         )
         with self.assertRaises(exceptions.NotFoundException):
-            self.cloud.detach_volume(server, volume, wait=False)
+            self.cloud.detach_volume(
+                cast(_server.Server, server),
+                cast(_volume.Volume, volume),
+                wait=False,
+            )
         self.assert_calls()
 
     def test_detach_volume_wait(self):
@@ -335,6 +366,7 @@ class TestVolume(base.TestCase):
             'attachments': attachments,
         }
         volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
+        assert volume is not None
         vol['status'] = 'available'
         vol['attachments'] = []
         avail_volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
@@ -371,7 +403,9 @@ class TestVolume(base.TestCase):
                 ),
             ]
         )
-        self.cloud.detach_volume(server, volume)
+        self.cloud.detach_volume(
+            cast(_server.Server, server), cast(_volume.Volume, volume)
+        )
         self.assert_calls()
 
     def test_detach_volume_wait_error(self):
@@ -384,9 +418,11 @@ class TestVolume(base.TestCase):
             'attachments': attachments,
         }
         volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
+        assert volume is not None
         vol['status'] = 'error'
         vol['attachments'] = []
         errored_volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
+        assert errored_volume is not None
         self.register_uris(
             [
                 self.get_nova_discovery_mock_dict(),
@@ -430,7 +466,9 @@ class TestVolume(base.TestCase):
             ]
         )
         with self.assertRaises(exceptions.ResourceFailure):
-            self.cloud.detach_volume(server, volume)
+            self.cloud.detach_volume(
+                cast(_server.Server, server), cast(_volume.Volume, volume)
+            )
         self.assert_calls()
 
     def test_delete_volume_deletes(self):
@@ -441,6 +479,7 @@ class TestVolume(base.TestCase):
             'attachments': [],
         }
         volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
+        assert volume is not None
         self.register_uris(
             [
                 self.get_cinder_discovery_mock_dict(),
@@ -480,6 +519,7 @@ class TestVolume(base.TestCase):
             'attachments': [],
         }
         volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
+        assert volume is not None
         self.register_uris(
             [
                 self.get_cinder_discovery_mock_dict(),
@@ -520,6 +560,7 @@ class TestVolume(base.TestCase):
             'attachments': [],
         }
         volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
+        assert volume is not None
         self.register_uris(
             [
                 self.get_cinder_discovery_mock_dict(),
@@ -559,6 +600,7 @@ class TestVolume(base.TestCase):
             'attachments': [],
         }
         volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
+        assert volume is not None
         self.register_uris(
             [
                 self.get_cinder_discovery_mock_dict(),
@@ -591,6 +633,7 @@ class TestVolume(base.TestCase):
             'attachments': [],
         }
         volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
+        assert volume is not None
         self.register_uris(
             [
                 self.get_cinder_discovery_mock_dict(),

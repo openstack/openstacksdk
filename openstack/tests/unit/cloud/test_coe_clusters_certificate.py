@@ -11,19 +11,21 @@
 # under the License.
 
 
+from typing import Any
+
 from openstack.container_infrastructure_management.v1 import (
     cluster_certificate,
 )
 from openstack.tests.unit import base
 
-coe_cluster_ca_obj = dict(
+coe_cluster_ca_obj: dict[str, Any] = dict(
     cluster_uuid="43e305ce-3a5f-412a-8a14-087834c34c8c",
     pem="-----BEGIN CERTIFICATE-----\nMIIDAO\n-----END CERTIFICATE-----\n",
     bay_uuid="43e305ce-3a5f-412a-8a14-087834c34c8c",
     links=[],
 )
 
-coe_cluster_signed_cert_obj = dict(
+coe_cluster_signed_cert_obj: dict[str, Any] = dict(
     cluster_uuid='43e305ce-3a5f-412a-8a14-087834c34c8c',
     pem='-----BEGIN CERTIFICATE-----\nMIIDAO\n-----END CERTIFICATE-----',
     bay_uuid='43e305ce-3a5f-412a-8a14-087834c34c8c',
@@ -47,15 +49,19 @@ class TestCOEClusters(base.TestCase):
     def get_mock_url(
         self,
         service_type='container-infrastructure-management',
-        base_url_append=None,
-        append=None,
+        interface='public',
         resource=None,
+        append=None,
+        base_url_append=None,
+        qs_elements=None,
     ):
         return super().get_mock_url(
             service_type=service_type,
+            interface=interface,
             resource=resource,
             append=append,
             base_url_append=base_url_append,
+            qs_elements=qs_elements,
         )
 
     def test_get_coe_cluster_certificate(self):

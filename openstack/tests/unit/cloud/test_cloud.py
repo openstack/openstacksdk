@@ -147,14 +147,18 @@ class TestCloud(base.TestCase):
             msg="Wait value must be an int or float value.",
         ):
             for count in utils.iterate_timeout(
-                1, "test_iterate_timeout_bad_wait", wait="timeishard"
+                1,
+                "test_iterate_timeout_bad_wait",
+                wait="timeishard",  # type: ignore[arg-type]
             ):
                 pass
 
     @mock.patch('time.sleep')
     def test_iterate_timeout_str_wait(self, mock_sleep):
         iter = utils.iterate_timeout(
-            10, "test_iterate_timeout_str_wait", wait="1.6"
+            10,
+            "test_iterate_timeout_str_wait",
+            wait="1.6",  # type: ignore[arg-type]
         )
         next(iter)
         next(iter)

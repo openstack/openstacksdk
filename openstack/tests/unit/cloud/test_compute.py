@@ -54,6 +54,7 @@ class TestServers(base.TestCase):
 
         r = self.cloud.get_server('mickey')
         self.assertIsNotNone(r)
+        assert r is not None
         self.assertEqual(server1['name'], r['name'])
 
         self.assert_calls()
@@ -321,6 +322,7 @@ class TestServers(base.TestCase):
 
         r = self.cloud.get_server(server_id)
 
+        assert r is not None
         self.assertEqual('10.4.0.13', r['private_v4'])
 
         self.assert_calls()

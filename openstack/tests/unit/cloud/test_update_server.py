@@ -131,11 +131,13 @@ class TestUpdateServer(base.TestCase):
                 ),
             ]
         )
+        updated = self.cloud.update_server(
+            self.server_name, name=self.updated_server_name
+        )
+        assert updated is not None
         self.assertEqual(
             self.updated_server_name,
-            self.cloud.update_server(
-                self.server_name, name=self.updated_server_name
-            )['name'],
+            updated['name'],
         )
 
         self.assert_calls()

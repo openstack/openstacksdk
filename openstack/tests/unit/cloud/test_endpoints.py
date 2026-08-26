@@ -34,9 +34,15 @@ class TestCloudEndpoints(base.TestCase):
         resource='endpoints',
         append=None,
         base_url_append='v3',
+        qs_elements=None,
     ):
         return super().get_mock_url(
-            service_type, interface, resource, append, base_url_append
+            service_type,
+            interface,
+            resource,
+            append,
+            base_url_append,
+            qs_elements,
         )
 
     def _dummy_url(self):

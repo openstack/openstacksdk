@@ -12,6 +12,8 @@
 
 import copy
 import json
+from typing import Any
+from unittest import mock
 
 import openstack.cloud
 from openstack import exceptions
@@ -116,7 +118,8 @@ class TestSecurityGroups(base.TestCase):
         def fake_has_service(*args, **kwargs):
             return self.has_neutron
 
-        self.cloud.has_service = fake_has_service
+        mock.patch.object(self.cloud, 'has_service', fake_has_service).start()
+        self.addCleanup(mock.patch.stopall)
 
     def test_list_security_groups_neutron(self):
         project_id = 42
@@ -490,7 +493,7 @@ class TestSecurityGroups(base.TestCase):
 
     def test_create_security_group_rule_neutron(self):
         self.cloud.secgroup_source = 'neutron'
-        args = dict(
+        args: dict[str, Any] = dict(
             port_range_min=-1,
             port_range_max=40000,
             protocol='tcp',
@@ -549,7 +552,7 @@ class TestSecurityGroups(base.TestCase):
 
     def test_create_security_group_rule_neutron_specific_tenant(self):
         self.cloud.secgroup_source = 'neutron'
-        args = dict(
+        args: dict[str, Any] = dict(
             port_range_min=-1,
             port_range_max=40000,
             protocol='tcp',
@@ -860,7 +863,9 @@ class TestSecurityGroups(base.TestCase):
         self.has_neutron = False
         self.cloud.secgroup_source = 'invalid'
         server = dict(id='server_id')
-        ret = self.cloud.list_server_security_groups(server)
+        ret = self.cloud.list_server_security_groups(
+            server,  # type: ignore[arg-type]
+        )
         self.assertEqual([], ret)
 
     def test_add_security_group_to_server_nova(self):
@@ -1287,7 +1292,9 @@ class TestSecurityGroups(base.TestCase):
         # Set secgroup source to nova for this test as stateful parameter
         # is only valid for neutron security groups.
         self.cloud.secgroup_source = 'nova'
-        retval = self.cloud._normalize_secgroup(nova_secgroup)
+        retval = self.cloud._normalize_secgroup(
+            nova_secgroup,  # type: ignore[arg-type]
+        )
         self.cloud.secgroup_source = 'neutron'
         self.assertEqual(expected, retval)
 
@@ -1307,7 +1314,9 @@ class TestSecurityGroups(base.TestCase):
                 )
             ],
         )
-        retval = self.cloud._normalize_secgroup(nova_secgroup)
+        retval = self.cloud._normalize_secgroup(
+            nova_secgroup,  # type: ignore[arg-type]
+        )
         self.assertIsNone(retval['security_group_rules'][0]['port_range_min'])
         self.assertIsNone(retval['security_group_rules'][0]['port_range_max'])
 
@@ -1349,5 +1358,7 @@ class TestSecurityGroups(base.TestCase):
                 ),
             )
         ]
-        retval = self.cloud._normalize_secgroup_rules(nova_rules)
+        retval = self.cloud._normalize_secgroup_rules(
+            nova_rules,  # type: ignore[arg-type]
+        )
         self.assertEqual(expected, retval)

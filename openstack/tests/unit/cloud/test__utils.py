@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
 from unittest import mock
 from uuid import uuid4
 
@@ -176,7 +177,7 @@ class TestUtils(base.TestCase):
 
     def test_safe_dict_min_None(self):
         """Test None values"""
-        data = [{'f1': 3}, {'f1': None}, {'f1': 1}]
+        data: list[dict[str, Any]] = [{'f1': 3}, {'f1': None}, {'f1': 1}]
         retval = _utils.safe_dict_min('f1', data)
         self.assertEqual(1, retval)
 
@@ -194,7 +195,7 @@ class TestUtils(base.TestCase):
 
     def test_safe_dict_min_not_int(self):
         """Test non-integer key value raises OSCE"""
-        data = [{'f1': 3}, {'f1': "aaa"}, {'f1': 1}]
+        data: list[dict[str, Any]] = [{'f1': 3}, {'f1': "aaa"}, {'f1': 1}]
         with self.assertRaises(
             exceptions.SDKException,
             msg="Search for minimum value failed. "
@@ -216,7 +217,7 @@ class TestUtils(base.TestCase):
 
     def test_safe_dict_max_None(self):
         """Test None values"""
-        data = [{'f1': 3}, {'f1': None}, {'f1': 1}]
+        data: list[dict[str, Any]] = [{'f1': 3}, {'f1': None}, {'f1': 1}]
         retval = _utils.safe_dict_max('f1', data)
         self.assertEqual(3, retval)
 
@@ -234,7 +235,7 @@ class TestUtils(base.TestCase):
 
     def test_safe_dict_max_not_int(self):
         """Test non-integer key value raises OSCE"""
-        data = [{'f1': 3}, {'f1': "aaa"}, {'f1': 1}]
+        data: list[dict[str, Any]] = [{'f1': 3}, {'f1': "aaa"}, {'f1': 1}]
         with self.assertRaises(
             exceptions.SDKException,
             msg="Search for maximum value failed. "
@@ -251,30 +252,35 @@ class TestUtils(base.TestCase):
     def test_parse_range_int_only(self):
         retval = _utils.parse_range("1024")
         self.assertIsInstance(retval, tuple)
+        assert retval is not None
         self.assertIsNone(retval[0])
         self.assertEqual(1024, retval[1])
 
     def test_parse_range_lt(self):
         retval = _utils.parse_range("<1024")
         self.assertIsInstance(retval, tuple)
+        assert retval is not None
         self.assertEqual("<", retval[0])
         self.assertEqual(1024, retval[1])
 
     def test_parse_range_gt(self):
         retval = _utils.parse_range(">1024")
         self.assertIsInstance(retval, tuple)
+        assert retval is not None
         self.assertEqual(">", retval[0])
         self.assertEqual(1024, retval[1])
 
     def test_parse_range_le(self):
         retval = _utils.parse_range("<=1024")
         self.assertIsInstance(retval, tuple)
+        assert retval is not None
         self.assertEqual("<=", retval[0])
         self.assertEqual(1024, retval[1])
 
     def test_parse_range_ge(self):
         retval = _utils.parse_range(">=1024")
         self.assertIsInstance(retval, tuple)
+        assert retval is not None
         self.assertEqual(">=", retval[0])
         self.assertEqual(1024, retval[1])
 
@@ -330,7 +336,7 @@ class TestUtils(base.TestCase):
         uuid = uuid4().hex
         resource = 'network'
         func = f'search_{resource}s'
-        filters = {}
+        filters: dict[str, Any] = {}
         with mock.patch.object(self.cloud, func) as search:
             _utils._get_entity(self.cloud, resource, uuid, filters)
             search.assert_called_once_with(uuid, filters)
@@ -342,7 +348,7 @@ class TestUtils(base.TestCase):
         name = 'name_no_uuid'
         resource = 'network'
         func = f'search_{resource}s'
-        filters = {}
+        filters: dict[str, Any] = {}
         with mock.patch.object(self.cloud, func) as search:
             _utils._get_entity(self.cloud, resource, name, filters)
             search.assert_called_once_with(name, filters)
@@ -378,7 +384,7 @@ class TestUtils(base.TestCase):
             'floating_ip',
             'security_group',
         ]
-        filters = {}
+        filters: dict[str, Any] = {}
         name = 'name_no_uuid'
         for r in resources:
             f = f'search_{r}s'

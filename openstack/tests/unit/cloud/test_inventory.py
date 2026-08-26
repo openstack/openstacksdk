@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import cast
 from unittest import mock
 
 from openstack.cloud import inventory
@@ -61,15 +62,16 @@ class TestInventory(base.TestCase):
         server = dict(id='server_id', name='server_name')
         self.assertIsInstance(inv.clouds, list)
         self.assertEqual(1, len(inv.clouds))
-        inv.clouds[0].list_servers.return_value = [server]
-        inv.clouds[0].get_openstack_vars.return_value = server
+        cloud = cast(mock.Mock, inv.clouds[0])
+        cloud.list_servers.return_value = [server]
+        cloud.get_openstack_vars.return_value = server
 
         ret = inv.list_hosts()
 
-        inv.clouds[0].list_servers.assert_called_once_with(
+        cloud.list_servers.assert_called_once_with(
             detailed=True, all_projects=False
         )
-        self.assertFalse(inv.clouds[0].get_openstack_vars.called)
+        self.assertFalse(cloud.get_openstack_vars.called)
         self.assertEqual([server], ret)
 
     @mock.patch("openstack.config.loader.OpenStackConfig")
@@ -84,14 +86,15 @@ class TestInventory(base.TestCase):
         )
         self.assertIsInstance(inv.clouds, list)
         self.assertEqual(1, len(inv.clouds))
-        inv.clouds[0].list_servers.return_value = [server]
+        cloud = cast(mock.Mock, inv.clouds[0])
+        cloud.list_servers.return_value = [server]
 
         inv.list_hosts(expand=False)
 
-        inv.clouds[0].list_servers.assert_called_once_with(
+        cloud.list_servers.assert_called_once_with(
             detailed=False, all_projects=False
         )
-        self.assertFalse(inv.clouds[0].get_openstack_vars.called)
+        self.assertFalse(cloud.get_openstack_vars.called)
 
     @mock.patch("openstack.config.loader.OpenStackConfig")
     @mock.patch("openstack.connection.Connection")
@@ -103,15 +106,16 @@ class TestInventory(base.TestCase):
         server = dict(id='server_id', name='server_name')
         self.assertIsInstance(inv.clouds, list)
         self.assertEqual(1, len(inv.clouds))
-        inv.clouds[0].list_servers.return_value = [server]
-        inv.clouds[0].get_openstack_vars.return_value = server
+        cloud = cast(mock.Mock, inv.clouds[0])
+        cloud.list_servers.return_value = [server]
+        cloud.get_openstack_vars.return_value = server
 
         ret = inv.list_hosts(all_projects=True)
 
-        inv.clouds[0].list_servers.assert_called_once_with(
+        cloud.list_servers.assert_called_once_with(
             detailed=True, all_projects=True
         )
-        self.assertFalse(inv.clouds[0].get_openstack_vars.called)
+        self.assertFalse(cloud.get_openstack_vars.called)
         self.assertEqual([server], ret)
 
     @mock.patch("openstack.config.loader.OpenStackConfig")
@@ -124,8 +128,9 @@ class TestInventory(base.TestCase):
         server = dict(id='server_id', name='server_name')
         self.assertIsInstance(inv.clouds, list)
         self.assertEqual(1, len(inv.clouds))
-        inv.clouds[0].list_servers.return_value = [server]
-        inv.clouds[0].get_openstack_vars.return_value = server
+        cloud = cast(mock.Mock, inv.clouds[0])
+        cloud.list_servers.return_value = [server]
+        cloud.get_openstack_vars.return_value = server
 
         ret = inv.search_hosts('server_id')
         self.assertEqual([server], ret)
@@ -140,8 +145,9 @@ class TestInventory(base.TestCase):
         server = dict(id='server_id', name='server_name')
         self.assertIsInstance(inv.clouds, list)
         self.assertEqual(1, len(inv.clouds))
-        inv.clouds[0].list_servers.return_value = [server]
-        inv.clouds[0].get_openstack_vars.return_value = server
+        cloud = cast(mock.Mock, inv.clouds[0])
+        cloud.list_servers.return_value = [server]
+        cloud.get_openstack_vars.return_value = server
 
         ret = inv.get_host('server_id')
         self.assertEqual(server, ret)
