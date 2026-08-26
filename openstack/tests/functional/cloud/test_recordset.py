@@ -72,6 +72,7 @@ class TestRecordset(base.BaseFunctionalTest):
         get_recordset = self.user_cloud.get_recordset(
             zone_obj['id'], created_recordset['id']
         )
+        assert get_recordset is not None
         self.assertEqual(get_recordset['id'], created_recordset['id'])
 
         # Test we can update a field on the recordset and only that field
@@ -131,6 +132,7 @@ class TestRecordset(base.BaseFunctionalTest):
         get_recordset = self.user_cloud.get_recordset(
             zone, created_recordset['id']
         )
+        assert get_recordset is not None
         self.assertEqual(get_recordset['id'], created_recordset['id'])
 
         # Test we can update a field on the recordset and only that field

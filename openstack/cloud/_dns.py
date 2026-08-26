@@ -10,14 +10,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
+
 from openstack.cloud import _utils
 from openstack.cloud import openstackcloud
+from openstack.dns.v2 import recordset as _recordset
 from openstack.dns.v2 import zone as _zone
 from openstack import exceptions
 
 
 class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
-    def list_zones(self, filters=None):
+    def list_zones(
+        self, filters: dict[str, Any] | None = None
+    ) -> list[_zone.Zone]:
         """List all available zones.
 
         :returns: A list of zones dicts.
@@ -27,7 +32,11 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
             filters = {}
         return list(self.dns.zones(allow_unknown_params=True, **filters))
 
-    def get_zone(self, name_or_id, filters=None):
+    def get_zone(
+        self,
+        name_or_id: str,
+        filters: dict[str, Any] | None = None,
+    ) -> _zone.Zone | None:
         """Get a zone by name or ID.
 
         :param name_or_id: Name or ID of the zone
@@ -43,19 +52,23 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
             name_or_id=name_or_id, ignore_missing=True, **filters
         )
 
-    def search_zones(self, name_or_id=None, filters=None):
+    def search_zones(
+        self,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | None = None,
+    ) -> list[_zone.Zone]:
         zones = self.list_zones(filters)
         return _utils._filter_list(zones, name_or_id, filters)
 
     def create_zone(
         self,
-        name,
-        zone_type=None,
-        email=None,
-        description=None,
-        ttl=None,
-        masters=None,
-    ):
+        name: str,
+        zone_type: str | None = None,
+        email: str | None = None,
+        description: str | None = None,
+        ttl: int | None = None,
+        masters: list[str] | None = None,
+    ) -> _zone.Zone:
         """Create a new zone.
 
         :param name: Name of the zone being created.
@@ -82,7 +95,7 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
                     f"SECONDARY"
                 )
 
-        zone = {
+        zone: dict[str, Any] = {
             "name": name,
             "email": email,
             "description": description,
@@ -102,7 +115,7 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
             raise exceptions.SDKException(f"Unable to create zone {name}")
 
     @_utils.valid_kwargs('email', 'description', 'ttl', 'masters')
-    def update_zone(self, name_or_id, **kwargs):
+    def update_zone(self, name_or_id: str, **kwargs: Any) -> _zone.Zone:
         """Update a zone.
 
         :param name_or_id: Name or ID of the zone being updated.
@@ -123,7 +136,7 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return self.dns.update_zone(zone['id'], **kwargs)
 
-    def delete_zone(self, name_or_id):
+    def delete_zone(self, name_or_id: str) -> bool:
         """Delete a zone.
 
         :param name_or_id: Name or ID of the zone being deleted.
@@ -142,7 +155,9 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return True
 
-    def list_recordsets(self, zone):
+    def list_recordsets(
+        self, zone: str | _zone.Zone
+    ) -> list[_recordset.Recordset]:
         """List all available recordsets.
 
         :param zone: Name, ID or :class:`openstack.dns.v2.zone.Zone` instance
@@ -151,6 +166,7 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
         :returns: A list of recordsets.
 
         """
+        zone_obj: _zone.Zone | None
         if isinstance(zone, _zone.Zone):
             zone_obj = zone
         else:
@@ -159,7 +175,9 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
             raise exceptions.SDKException(f"Zone {zone} not found.")
         return list(self.dns.recordsets(zone_obj))
 
-    def get_recordset(self, zone, name_or_id):
+    def get_recordset(
+        self, zone: str | _zone.Zone, name_or_id: str
+    ) -> _recordset.Recordset | None:
         """Get a recordset by name or ID.
 
         :param zone: Name, ID or :class:`openstack.dns.v2.zone.Zone` instance
@@ -170,6 +188,7 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
             found.
 
         """
+        zone_obj: _zone.Zone | None
         if isinstance(zone, _zone.Zone):
             zone_obj = zone
         else:
@@ -180,13 +199,24 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
             zone=zone_obj, name_or_id=name_or_id, ignore_missing=True
         )
 
-    def search_recordsets(self, zone, name_or_id=None, filters=None):
+    def search_recordsets(
+        self,
+        zone: str | _zone.Zone,
+        name_or_id: str | None = None,
+        filters: dict[str, Any] | None = None,
+    ) -> list[_recordset.Recordset]:
         recordsets = self.list_recordsets(zone=zone)
         return _utils._filter_list(recordsets, name_or_id, filters)
 
     def create_recordset(
-        self, zone, name, recordset_type, records, description=None, ttl=None
-    ):
+        self,
+        zone: str | _zone.Zone,
+        name: str,
+        recordset_type: str,
+        records: list[str],
+        description: str | None = None,
+        ttl: int | None = None,
+    ) -> _recordset.Recordset:
         """Create a recordset.
 
         :param zone: Name, ID or :class:`openstack.dns.v2.zone.Zone` instance
@@ -201,6 +231,7 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
         :raises: :class:`~openstack.exceptions.SDKException` on operation
             error.
         """
+        zone_obj: _zone.Zone | None
         if isinstance(zone, _zone.Zone):
             zone_obj = zone
         else:
@@ -211,7 +242,11 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
         # We capitalize the type in case the user sends in lowercase
         recordset_type = recordset_type.upper()
 
-        body = {'name': name, 'type': recordset_type, 'records': records}
+        body: dict[str, Any] = {
+            'name': name,
+            'type': recordset_type,
+            'records': records,
+        }
 
         if description:
             body['description'] = description
@@ -222,7 +257,9 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
         return self.dns.create_recordset(zone=zone_obj, **body)
 
     @_utils.valid_kwargs('description', 'ttl', 'records')
-    def update_recordset(self, zone, name_or_id, **kwargs):
+    def update_recordset(
+        self, zone: str | _zone.Zone, name_or_id: str, **kwargs: Any
+    ) -> _recordset.Recordset:
         """Update a recordset.
 
         :param zone: Name, ID or :class:`openstack.dns.v2.zone.Zone` instance
@@ -245,7 +282,9 @@ class DnsCloudMixin(openstackcloud._OpenStackCloudMixin):
 
         return rs
 
-    def delete_recordset(self, zone, name_or_id):
+    def delete_recordset(
+        self, zone: str | _zone.Zone, name_or_id: str
+    ) -> bool:
         """Delete a recordset.
 
         :param zone: Name, ID or :class:`openstack.dns.v2.zone.Zone` instance
