@@ -493,7 +493,9 @@ class Proxy(proxy.Proxy):
         """
 
         if isinstance(image, str):
-            image = self._connection.get_image(image)  # type: ignore[no-untyped-call]
+            # the cloud layer always returns a v2 Image, which we deliberately
+            # accept here (see the arg-type ignore below)
+            image = self._connection.get_image(image)  # type: ignore[assignment]
 
         if not meta:
             meta = {}
@@ -501,7 +503,7 @@ class Proxy(proxy.Proxy):
         img_props = {}
         for k, v in iter(kwargs.items()):
             if v and k in ['ramdisk', 'kernel']:
-                v = self._connection.get_image_id(v)  # type: ignore[no-untyped-call]
+                v = self._connection.get_image_id(v)
                 k = f'{k}_id'
             img_props[k] = v
 

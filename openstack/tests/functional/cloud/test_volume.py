@@ -78,6 +78,7 @@ class TestVolume(base.BaseFunctionalTest):
         image = self.user_cloud.create_image(
             image_name, volume=volume, wait=True
         )
+        assert image is not None
 
         volume_ids = [v['id'] for v in self.user_cloud.list_volumes()]
         self.assertIn(volume['id'], volume_ids)

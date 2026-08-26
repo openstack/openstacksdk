@@ -1132,7 +1132,7 @@ class Proxy(proxy.Proxy):
         properties = {}
         for k, v in iter(kwargs.items()):
             if v and k in ['ramdisk', 'kernel']:
-                v = self._connection.get_image_id(v)  # type: ignore[no-untyped-call]
+                v = self._connection.get_image_id(v)
                 k = f'{k}_id'
             properties[k] = v
 

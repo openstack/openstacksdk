@@ -1269,18 +1269,16 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         image_id = server.create_image(self, name, metadata)
 
-        # we need to type the cloud layer
         image = cast(
             _image_v2.Image,
-            self._connection.get_image(image_id),  # type: ignore[no-untyped-call]
+            self._connection.get_image(image_id),
         )
         if not wait:
             return image
 
-        # we need to type the cloud layer
         return cast(
             _image_v2.Image,
-            self._connection.wait_for_image(image, timeout=timeout),  # type: ignore[no-untyped-call]
+            self._connection.wait_for_image(image, timeout=timeout),
         )
 
     def backup_server(
@@ -1312,18 +1310,16 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         image_id = server.backup(self, name, backup_type, rotation)
 
-        # we need to type the cloud layer
         image = cast(
             _image_v2.Image,
-            self._connection.get_image(image_id),  # type: ignore[no-untyped-call]
+            self._connection.get_image(image_id),
         )
         if not wait:
             return image
 
-        # we need to type the cloud layer
         return cast(
             _image_v2.Image,
-            self._connection.wait_for_image(image, timeout=timeout),  # type: ignore[no-untyped-call]
+            self._connection.wait_for_image(image, timeout=timeout),
         )
 
     def pause_server(self, server: str | _server.Server) -> None:

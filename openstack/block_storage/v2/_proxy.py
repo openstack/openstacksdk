@@ -64,7 +64,7 @@ class Proxy(proxy.Proxy):
         container_format: str | None,
         disk_format: str | None,
         wait: bool,
-        timeout: int,
+        timeout: int | float,
     ) -> _image.Image:
         if not disk_format:
             disk_format = self._connection.config.config['image_format']
